@@ -25,7 +25,6 @@ import store from './store';
 export default class App extends Vue {
 
 	public logout():void {
-		console.log("OKOFDKOKFD");
 		store.dispatch('logout');
 		this.$router.push({name:'login'});
 	}

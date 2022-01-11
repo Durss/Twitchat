@@ -8,6 +8,7 @@ export default createStore({
 		initComplete: false,
 		authenticated: false,
 		authToken: "",
+		tmiToken: "",
 		alert: "",
 		user: {
 			client_id: "",
@@ -28,18 +29,22 @@ export default createStore({
 	mutations: {
 		authenticate(state, token) {
 			state.authToken = token;
-			state.authenticated = true;
 			Store.set("authToken", token);
 		},
 
-		setUser(state, user) {
-			state.user = user;
+		setUser(state, user) { state.user = user; },
+
+		setTmiToken(state, tmiToken) {
+			state.tmiToken = tmiToken;
+			state.authenticated = true;
+			Store.set("tmiToken", tmiToken);
 		},
 
 		logout(state) {
 			state.authToken = "";
 			state.authenticated = false;
 			Store.remove("authToken");
+			Store.remove("tmiToken");
 		},
 
 		confirm(state, payload) { state.confirm = payload; },
@@ -47,6 +52,7 @@ export default createStore({
 	actions: {
 		async startApp({state, commit}) {
 			const token = Store.get("authToken");
+			const tmiToken = Store.get("tmiToken");
 			// const token = "8qrlcjskxlnj6szsy99v1l5uewh7qt";
 			if(token) {
 				state.authToken = token;
@@ -54,10 +60,12 @@ export default createStore({
 					state.user = await TwitchUtils.validateToken(state.authToken);
 					// console.log(Utils.formatDuration(state.user.expires_in))
 					commit("authenticate", token);
-					state.authenticated = true;
+					state.tmiToken = tmiToken;
+					state.authenticated = tmiToken != "" && tmiToken != null;
 				}catch(error) {
 					state.authenticated = false;
 					Store.remove("authToken");
+					document.location.href = TwitchUtils.oAuthURL;
 					// router.push({name: 'login'});
 					return;
 				}
@@ -75,11 +83,11 @@ export default createStore({
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
 
-		alert({commit}, payload) { commit("alert", payload); },
-
 		authenticate({ commit }, token) { commit("authenticate", token); },
 
 		setUser({ commit }, user) { commit("setUser", user); },
+
+		setTmiToken({ commit }, tmiToken) { commit("setTmiToken", tmiToken); },
 
 		logout({ commit }) { commit("logout"); },
 	},

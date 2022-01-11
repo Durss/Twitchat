@@ -10,6 +10,7 @@ import MessageList from '@/components/MessageList.vue';
 import { Event } from '@/utils/EventDispatcher';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -26,6 +27,7 @@ export default class Chat extends Vue {
 	public mounted():void {
 		this.messageHandler = (e:Event) => this.onMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.messageHandler);
+		TwitchUtils.getBadges();
 	}
 
 	public unmounted():void {

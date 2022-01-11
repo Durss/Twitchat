@@ -1,7 +1,26 @@
+import router from "@/router";
+import store from "@/store";
+import Config from "./Config";
+
 /**
 * Created : 19/01/2021 
 */
 export default class TwitchUtils {
+
+	public static get oAuthURL():string {
+		const path = router.resolve({name:"oauth"}).href;
+		const redirect = encodeURIComponent( document.location.origin+path );
+		const scopes = encodeURIComponent( Config.TWITCH_SCOPES.join(" ") );
+		const clientID = Config.TWITCH_CLIENT_ID;
+
+		let url = "https://id.twitch.tv/oauth2/authorize?";
+		url += "client_id="+clientID
+		url += "&redirect_uri="+redirect;
+		url += "&response_type=token";
+		url += "&scope="+scopes;
+		url += "&state=";
+		return url;
+	}
 	
 	public static validateToken(oAuthToken:string):Promise<TwitchTypes.Token> {
 		return new Promise((resolve, reject) => {
@@ -22,6 +41,28 @@ export default class TwitchUtils {
 					reject();
 				}
 			});
+		});
+	}
+
+	public static async getBadges():Promise<void> {
+		const headers = {
+			"Authorization":"Bearer "+store.state.authToken,
+			"Client-Id": Config.TWITCH_CLIENT_ID
+		};
+		const options = {
+			method: "GET",
+			headers: headers,
+		};
+		fetch(" https://api.twitch.tv/helix/chat/badges?broadcaster_id="+store.state.user.user_id, options)
+		.then((result) => {
+			if(result.status == 200) {
+				result.json().then((json)=> {
+					console.log(json);
+					return json
+				});
+			}else{
+				throw({error:result});
+			}
 		});
 	}
 }

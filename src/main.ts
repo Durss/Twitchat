@@ -17,7 +17,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	}
 
 	const needAuth = Utils.getRouteMetaValue(to, "needAuth");
-	if (!store.state.authenticated) {
+	if (!store.state.authenticated || !store.state.tmiToken) {
 		//Not authenticated, reroute to login
 		if(needAuth === true) {
 			next({name: 'login'});

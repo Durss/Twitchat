@@ -1,25 +1,19 @@
 <template>
 	<div class="login">
-		<!-- <Button class="loginBt"
-			type="button"
-			:icon="require('@/assets/icons/twitch.svg')"
-			title="Twitch connect"
-			white
-			/> -->
-		<!-- <a :href="oAuthURL" class="button loginBt white" v-if="showButton">
+		<a :href="oAuthURL" class="button loginBt white" v-if="!authorized">
 			<img class="icon" src="@/assets/icons/twitch.svg" alt="twitch">
-			<span>Connect</span>
-		</a> -->
+			<span>Authorize</span>
+		</a>
 
-		<form class="form" @submit.prevent="onLogin()">
+		<form class="form" @submit.prevent="onLogin()" v-if="authorized">
 			<img class="icon" src="@/assets/icons/twitch.svg" alt="twitch">
-			<h1>Connexion</h1>
+			<h1>Chat connexion</h1>
 			<Button title="Get a token" :icon="require('@/assets/icons/newtab.svg')"
 				class="tokenBt"
 				type="link"
 				target="_blank"
 				href="https://twitchapps.com/tmi/" />
-			<label for="token">Paste your token</label>
+			<label for="token">Paste your token here</label>
 			<input type="text" id="token" v-model="token" placeholder="oauth: ...">
 			<Button title="Connect"
 				type="submit"
@@ -27,8 +21,6 @@
 				:loading="loading"
 				/>
 		</form>
-
-		<img class="loader" src="@/assets/loader/loader.svg" alt="loader" v-if="!showButton">
 	</div>
 </template>
 
@@ -37,6 +29,7 @@ import Button from '@/components/Button.vue';
 import store from '@/store';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 
@@ -50,29 +43,28 @@ export default class Login extends Vue {
 
 	public token:string = "";
 	public loading:boolean = false;
-	public showButton:boolean = false;
+	public authorized:boolean = false;
 
 	public get oAuthURL():string {
-		let path = this.$router.resolve({name:"oauth"}).href;
-		let redirect = encodeURIComponent( document.location.origin+path );
-		let scopes = encodeURIComponent( Config.TWITCH_SCOPES.join(" ") );
-		let clientID = Config.TWITCH_CLIENT_ID;
-
-		let url = "https://id.twitch.tv/oauth2/authorize?";
-		url += "client_id="+clientID
-		url += "&redirect_uri="+redirect;
-		url += "&response_type=token";
-		url += "&scope="+scopes;
-		url += "&state=";
-		return url;
+		return TwitchUtils.oAuthURL;
 	}
 
 	public mounted():void {
-		if(this.$route.name == "login") {
-			this.showButton = true;
-			gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
-			gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
+		if(this.$route.name == "oauth") {
+			const token = Utils.getQueryParameterByName("access_token");
+			// let state = Utils.getQueryParameterByName("state");
+			// let error = Utils.getQueryParameterByName("error");
+			if(token) {
+				store.dispatch("authenticate", token);
+			}else{
+				store.state.alert = "Vous avez refusé l'accès à l'application Twitch.";
+			}
 		}
+
+		this.authorized = store.state.authToken != "";
+
+		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
+		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 	}
 
 	public async onLogin():Promise<void> {
@@ -80,8 +72,8 @@ export default class Login extends Vue {
 		try {
 			let t = this.token.replace("oauth:","");
 			const user = await TwitchUtils.validateToken(t);
-			store.commit("authenticate", t);
 			store.commit("setUser", user);
+			store.commit("setTmiToken", t);
 			
 			gsap.to(this.$el, {scaleX:0, ease:"back.in", duration:.5});
 			gsap.to(this.$el, {scaleY:0, ease:"back.in", duration:.5, delay:.1});
