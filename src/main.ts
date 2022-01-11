@@ -1,10 +1,10 @@
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 import { NavigationGuardNext, RouteLocation } from 'vue-router';
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import Utils from './utils/Utils';
+import App from './App.vue';
 import './less/index.less';
+import router from './router';
+import store from './store';
+import Utils from './utils/Utils';
 
 
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
@@ -29,7 +29,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	
 	if(!needAuth) {
 		//Already authenticated, reroute to home
-		next({name: 'home'});
+		next({name: 'chat'});
 		return;
 	}
 	next();

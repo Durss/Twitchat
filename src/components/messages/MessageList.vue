@@ -4,6 +4,8 @@
 			class="message"
 			:key="m.id"
 			:messageData="m" />
+
+		<div v-if="messages.length == 0" class="noMessage">- no message -</div>
 	</div>
 </template>
 
@@ -63,6 +65,7 @@ export default class MessageList extends Vue {
 			channel:e.channel,
 			self:e.self,
 			id:(Date.now() + Math.random()).toString(10),
+			highlight:this.messages.length%2 == 0,
 		});
 		if(this.messages.length > this.max) {
 			this.messages.splice(0, this.messages.length - this.max);
@@ -81,8 +84,13 @@ export default class MessageList extends Vue {
 	position: absolute;
 	bottom: 0;
 	padding: 10px;
-	.message {
-		margin-bottom: 10px;
+
+	.noMessage {
+		.center();
+		position:fixed;
+		color: rgba(255, 255, 255, .3);
+		font-family: "Inter";
+		font-style: italic;
 	}
 }
 </style>

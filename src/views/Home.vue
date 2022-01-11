@@ -1,6 +1,12 @@
 <template>
 	<div class="home">
-		<Button title="Chat" :to="{name:'chat'}" />
+		<div class="head">
+			<h1>Welcome to Twitchat</h1>
+		</div>
+		<div class="content">
+			<p>This app adds adds some features to the Twitch chat to make it easier to follow your viewers and avoid missing some important messages</p>
+			<Button title="Chat" :to="{name:'chat'}" />
+		</div>
 	</div>
 </template>
 
@@ -11,16 +17,19 @@ import { Options, Vue } from 'vue-class-component';
 @Options({
 	props:{},
 	components:{
-		Button
+		Button,
 	}
 })
 export default class Home extends Vue {
-
 }
 </script>
 
 <style scoped lang="less">
 .home{
+	.block();
+	.center();
 	color: @mainColor_normal;
+	position: absolute;
+	
 }
 </style>

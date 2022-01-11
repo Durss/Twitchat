@@ -40,9 +40,14 @@ export default class ChatMessage extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
+		if(this.messageData.highlight) res.push("highlight");
 		if(this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
-			res.push("highlight");
+			res.push("mention");
 		}
+		if(this.messageData.tags.mod) res.push("size_"+store.state.params.modsSize);
+		else if(this.messageData.tags.vip) res.push("size_"+store.state.params.vipsSize);
+		else if(this.messageData.tags.subscriber) res.push("size_"+store.state.params.subsSize);
+		else res.push("size_"+store.state.params.defaultSize);
 		return res;
 	}
 
@@ -125,17 +130,27 @@ export interface ChatMessageData {
 	channel:string;
 	self:boolean;
 	id:string;
+	highlight:boolean;
 }
 </script>
 
 <style scoped lang="less">
 .chatmessage{
 	font-family: "Inter";
-	font-size: 16px;
 	color: v-bind(color);
+	padding: 5px;
+
+	&.size_1 { font-size: 12px; }
+	&.size_2 { font-size: 16px; }
+	&.size_3 { font-size: 20px; }
+	&.size_4 { font-size: 25px; }
+
+	&.mention{
+		background-color: rgba(255, 0, 0, .35);
+	}
 
 	&.highlight{
-		background-color: rgba(255, 0, 0, .5);
+		background-color: rgba(255, 255, 255, .025);
 	}
 
 	&>.badge {
@@ -147,9 +162,13 @@ export interface ChatMessageData {
 	}
 
 	.time {
-		color: rgba(255,255,255,0.5);
-		font-size: 14px;
+		color: fade(#d1d1d1, 50%);
+		font-size: 13px;
 		margin-right: 5px;
+	}
+
+	.login {
+		font-weight: bold;
 	}
 
 	.miniBadges {
@@ -166,8 +185,8 @@ export interface ChatMessageData {
 	}
 
 	.message {
-		color: #fff;
-		font-size: 14px;
+		color: #d1d1d1;
+		font-size: .8em;
 		:deep( img ) {
 			width: 28px;
 			max-height: 28px;

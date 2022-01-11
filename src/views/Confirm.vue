@@ -37,6 +37,7 @@ export default class Confirm extends Vue {
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		watch(() => store.state.confirm, () => {
+			console.log("CHA?GE");
 			this.onConfirmChanged();
 		});
 	}
@@ -75,13 +76,12 @@ export default class Confirm extends Vue {
 
 	private onKeyUp(e:KeyboardEvent):void {
 		if(this.hidden) return;
-		console.log(e.key);
-		if(e.key == "Enter" || e.key == "Escape") {//Enter / space
+		if(e.key == "Enter" || e.key == " ") {//Enter / space
 			this.answer(true);
 			e.preventDefault();
 			e.stopPropagation();
 		}
-		if(e.keyCode == 27) {//escape
+		if(e.key == "Escape") {//escape
 			this.answer(false);
 			e.preventDefault();
 			e.stopPropagation();
@@ -100,9 +100,15 @@ export default class Confirm extends Vue {
 				store.state.confirm.cancelCallback();
 			}
 		}
-		store.state.confirm.title = "";
-		store.state.confirm.confirmCallback = ()=>{};
-		store.state.confirm.cancelCallback = ()=>{};
+		const confirmData = {
+			title:"",
+			description:"",
+			yesLabel:"",
+			noLabel:"",
+			confirmCallback : () => {},
+			cancelCallback : () => {}
+		}
+		store.dispatch("confirm", confirmData);
 	}
 }
 </script>
@@ -166,7 +172,7 @@ export default class Confirm extends Vue {
 
 @media only screen and (max-width: 500px) {
 	.confirmView {
-		.holder {
+		&>.holder {
 			padding: 15px;
 			width: 90vw;
 
@@ -192,10 +198,9 @@ export default class Confirm extends Vue {
 
 @media only screen and (max-width: 360px) {
 	.confirmView {
-		.holder {
+		&>.holder {
 			padding: 15px;
 			width: 90vw;
-
 
 			.buttons {
 				margin-top: 15px;

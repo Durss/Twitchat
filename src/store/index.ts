@@ -22,6 +22,10 @@ export default createStore({
 			highlightMentions:true,
 			ignoreSelf:true,
 			displayTime:true,
+			defaultSize:2,
+			modsSize:2,
+			vipsSize:2,
+			subsSize:2,
 		},
 		user: {
 			client_id: "",
@@ -42,6 +46,9 @@ export default createStore({
 	mutations: {
 		authenticate(state, token) {
 			state.authToken = token;
+			if(!Config.REQUIRE_APP_AUTHORIZATION) {
+				IRCClient.instance.connect(state.user.login, state.authToken);
+			}
 			Store.set("authToken", token);
 		},
 
@@ -51,6 +58,7 @@ export default createStore({
 			state.tmiToken = tmiToken;
 			state.authenticated = true;
 			Store.set("tmiToken", tmiToken);
+			IRCClient.instance.connect(state.user.login, tmiToken);
 		},
 
 		logout(state) {
@@ -58,6 +66,7 @@ export default createStore({
 			state.authenticated = false;
 			Store.remove("authToken");
 			Store.remove("tmiToken");
+			IRCClient.instance.disconnect();
 		},
 
 		confirm(state, payload) { state.confirm = payload; },
@@ -74,12 +83,16 @@ export default createStore({
 	},
 	actions: {
 		async startApp({state, commit}) {
-			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : Store.get("tmiToken");
 			const tmiToken = Store.get("tmiToken");
+			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : tmiToken;
 			state.params.firstMessage = Store.get("p:firstMessage") == "true";
 			state.params.hideBots = Store.get("p:hideBots") == "true";
 			state.params.highlightMentions = Store.get("p:highlightMentions") == "true";
 			state.params.historySize = parseInt(Store.get("p:historySize")) || 100;
+			state.params.defaultSize = parseInt(Store.get("p:defaultSize")) || 2;
+			state.params.modsSize = parseInt(Store.get("p:modsSize")) || 2;
+			state.params.vipsSize = parseInt(Store.get("p:vipsSize")) || 2;
+			state.params.subsSize = parseInt(Store.get("p:subsSize")) || 2;
 
 			if(token) {
 				state.authToken = token;
@@ -98,12 +111,6 @@ export default createStore({
 				}
 			}
 			
-			if(state.authenticated && !IRCClient.instance.connected) {
-				try {
-					IRCClient.instance.initialize(state.user.login, state.authToken);
-				}catch(error){error}
-			}
-
 			state.initComplete = true;
 		},
 		

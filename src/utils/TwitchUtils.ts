@@ -1,4 +1,5 @@
 import router from "@/router";
+import store from "@/store";
 import { Badges } from "tmi.js";
 import Config from "./Config";
 
@@ -113,15 +114,16 @@ export default class TwitchUtils {
 		const result:TwitchTypes.Badge[] = [];
 		for (const userBadgeCategory in userBadges) {
 			const userBadgeID = userBadges[ userBadgeCategory ] as string;
-			for (const key in this.badgesCache) {
-				if(key == channelId || key == "global") {
-					const cache = this.badgesCache[key];
-					const badgeSet = cache[userBadgeCategory];
-					if(badgeSet) {
-						const badge = badgeSet.versions[userBadgeID];
-						if(badge) {
-							result.push(badge);
-						}
+			const caches = [this.badgesCache[channelId], this.badgesCache["global"]];
+			for (let i = 0; i < caches.length; i++) {
+				const cache = caches[i];
+				if(!cache) continue;
+				console.log(channelId, userBadgeID, userBadgeCategory, cache);
+				const badgeSet = cache[userBadgeCategory];
+				if(badgeSet) {
+					const badge = badgeSet.versions[userBadgeID];
+					if(badge) {
+						result.push(badge);
 					}
 				}
 			}
@@ -170,6 +172,33 @@ export default class TwitchUtils {
 			cursor = e.end + 1;
 		}
 		
+		return result;
+	}
+
+	/**
+	 * Gets channels infos by their ID.
+	 * Only works with a bearer token, not a TMI token !
+	 * 
+	 * @param logins 
+	 * @returns 
+	 */
+	public static async loadChannelsInfo(logins:string[]):Promise<unknown> {
+
+		if(logins) {
+			logins = logins.filter(v => v != null && v != undefined);
+			logins = logins.map(v => encodeURIComponent(v));
+		}
+		
+		const params = "login="+logins.join("&login=");
+		const url = "https://api.twitch.tv/helix/users?"+params;
+		const result = await fetch(url, {
+			headers:{
+				"Client-ID": Config.TWITCH_CLIENT_ID,
+				"Authorization": "Bearer "+store.state.authToken,
+				"Content-Type": "application/json",
+			}
+		});
+		console.log(result.status);
 		return result;
 	}
 	

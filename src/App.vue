@@ -1,6 +1,7 @@
 <template>
 	<div class="app">
 		<router-view />
+		<Parameters v-if="$store.state.authenticated" />
 		<Confirm />
 		<Alert />
 		<Tooltip />
@@ -8,6 +9,7 @@
 </template>
 
 <script lang="ts">
+import Parameters from '@/components/params/Parameters.vue';
 import { Options, Vue } from 'vue-class-component';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
@@ -19,9 +21,15 @@ import Tooltip from "./views/Tooltip.vue";
 		Alert,
 		Confirm,
 		Tooltip,
+		Parameters,
 	}
 })
 export default class App extends Vue {
+
+
+	public mounted():void {
+	}
+
 }
 </script>
 
@@ -30,5 +38,12 @@ export default class App extends Vue {
 	font-family: Futura, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	.loader {
+		.center();
+		position: absolute;
+		width: 80px;
+		height: 80px;
+	}
 }
 </style>

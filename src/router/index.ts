@@ -9,7 +9,7 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'home',
 		component: Home,
 		meta: {
-			needAuth:true,
+			needAuth:false,
 		}
 	},
 	{

@@ -4,23 +4,26 @@ import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import IRCEvent from "./IRCEvent";
 import TwitchUtils from "./TwitchUtils";
+import Utils from "./Utils";
 
 /**
 * Created : 19/01/2021 
 */
 export default class IRCClient extends EventDispatcher {
 
+	
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private isConnected:boolean = false;
-	private debugMode:boolean = true;
+	private debugMode:boolean = false;
 	
 	public token!:string;
 	public channel!:string;
+	public connected:boolean = false;
 	
 	constructor() {
 		super();
+		reactive(this);
 	}
 	
 	/********************
@@ -29,13 +32,8 @@ export default class IRCClient extends EventDispatcher {
 	static get instance():IRCClient {
 		if(!IRCClient._instance) {
 			IRCClient._instance = new IRCClient();
-			reactive(IRCClient.instance);
 		}
 		return IRCClient._instance;
-	}
-
-	public get connected():boolean {
-		return this.isConnected;
 	}
 
 	public get authenticatedUserLogin():string {
@@ -47,20 +45,29 @@ export default class IRCClient extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public initialize(login:string, token:string):Promise<void> {
+	public connect(login:string, token:string):Promise<void> {
+		if(this.connected) return Promise.resolve();
 		return new Promise((resolve, reject) => {
 			this.login = login;
 			this.token = token;
 			let channels = [ login]
 			let uids = [ store.state.user.user_id];
+			const customLogin = Utils.getQueryParameterByName("login");
+			if(customLogin) {
+				channels.push(customLogin);
+			}
 			if(this.debugMode) {
-				channels = channels.concat(["casimito", "lefrenchrestream", "Tonton", "avamind" ]);
-				uids = uids.concat([ "254489093", "137422507", "72480716", "241808969" ]);
+				channels = channels.concat(["casimito", "samueletienne", "Tonton", "avamind" ]);
+				uids = uids.concat([ "254489093", "505902512", "72480716", "241808969" ]);
 			}
-			TwitchUtils.loadGlobalBadges();
-			for (let i = 0; i < uids.length; i++) {
-				TwitchUtils.loadUserBadges(uids[i]);
-			}
+			(async ()=> {
+				await Utils.promisedTimeout(5000);
+				await TwitchUtils.loadGlobalBadges();
+				for (let i = 0; i < uids.length; i++) {
+					await TwitchUtils.loadUserBadges(uids[i]);
+				}
+				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED, "", {}, "", false));
+			})()
 	
 			this.client = new tmi.Client({
 				options: { debug: false },
@@ -75,18 +82,20 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on("join", (channel:string, user:string)=> {
 				this.channel = channel;
 				if(user == this.login) {
-					this.isConnected = true;
+					this.connected = true;
 					console.log("IRCClient :: Connection succeed");
 					resolve();
+					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED, "", {}, channel, false));
 				}
 			});
 
 			this.client.on("disconnected", ()=> {
-				console.log("IRCClient :: Disconnected");
-				if(!this.isConnected) {
+				console.log("IRCClient :: Diconnected");
+				if(!this.connected) {
 					reject();
 				}
-				this.isConnected = false;
+				this.connected = false;
+				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED, "", {}, "", false));
 			});
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
@@ -97,6 +106,11 @@ export default class IRCClient extends EventDispatcher {
 	
 			this.client.connect();
 		})
+	}
+
+	public disconnect():void {
+		this.client.disconnect();
+		this.connected = false;
 	}
 
 	public deleteMessage(id:string):void {

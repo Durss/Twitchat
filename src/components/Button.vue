@@ -50,6 +50,7 @@ import { Options, Vue } from 'vue-class-component';
 		selected:{type:Boolean, default: false},
 		disabled:{type:Boolean, default: false},
 		modelValue:{type:Boolean, default: false},
+		bounce:{type:Boolean, default: false},
 		accept:{type:String, default: "image/*"},
 	},
 	emits: ['click', 'change', 'update:modelValue'],
@@ -72,6 +73,7 @@ export default class Button extends Vue {
 	public selected!:boolean;
 	public disabled!:boolean;
 	public modelValue!:boolean;
+	public bounce!:boolean;
 	public accept!:string;
 
 	public pInterpolated:number = -1;
@@ -160,6 +162,10 @@ export default class Button extends Vue {
 			event.stopPropagation();
 			return;
 		}
+		if(this.bounce) {
+			gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, ease:"elastic.out(2)"});
+			gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, ease:"elastic.out(2)", delay:.05});
+		}
 		this.$emit("click", event);
 	}
 
@@ -179,7 +185,49 @@ export default class Button extends Vue {
 	overflow: hidden;
 	// touch-action: none;
 	user-select: none;
+	cursor: pointer;
+	border: none;
+	padding: 5px 10px;
+	font-family: "Futura";
+	font-size: 20px;
 	color: @mainColor_light;
+	background-color: @mainColor_normal;
+	transition: color .25s, background-color .25s;
+	box-sizing: border-box;
+	text-align: center;
+	border-radius: @border_radius;
+	will-change: transform;
+
+	&:hover {
+		background-color: @mainColor_normal_light;
+	}
+
+	&.dark {
+		color: #fff;
+		background-color: @mainColor_dark;
+
+		&:hover {
+			background-color: @mainColor_dark_light;
+		}
+	}
+
+	&.white {
+		color: @mainColor_normal;
+		background-color: @mainColor_light;
+
+		&:hover {
+			background-color: @mainColor_normal_extralight;
+		}
+	}
+
+	&.disabled {
+		cursor: not-allowed;
+		color: fade(@mainColor_dark, 25%);
+		&.dark {
+			color: fade(#000, 25%);
+			background-color: fade(@mainColor_dark_extralight, 50%);
+		}
+	}
 
 	&>*:not(.browse) {
 		pointer-events: none;
@@ -191,6 +239,7 @@ export default class Button extends Vue {
 		.icon {
 			height: 100%;
 			max-height: 26px;
+			min-width: 26px;
 			margin: 0;
 			padding: 0;
 		}
