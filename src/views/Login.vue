@@ -27,6 +27,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import store from '@/store';
+import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
@@ -60,7 +61,7 @@ export default class Login extends Vue {
 			}
 		}
 
-		this.authorized = store.state.authToken != "";
+		this.authorized = store.state.authToken != "" || !Config.REQUIRE_APP_AUTHORIZATION;
 
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});

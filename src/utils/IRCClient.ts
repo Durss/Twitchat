@@ -57,9 +57,9 @@ export default class IRCClient extends EventDispatcher {
 				channels = channels.concat(["casimito", "lefrenchrestream", "Tonton" ]);
 				uids = uids.concat([ "254489093", "137422507", "72480716" ]);
 			}
-			TwitchUtils.getGlobalBadges();
+			TwitchUtils.loadGlobalBadges();
 			for (let i = 0; i < uids.length; i++) {
-				TwitchUtils.getBadges(uids[i]);
+				TwitchUtils.loadUserBadges(uids[i]);
 			}
 	
 			this.client = new tmi.Client({

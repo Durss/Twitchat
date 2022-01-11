@@ -1,5 +1,4 @@
 import router from "@/router";
-import store from "@/store";
 import { Badges } from "tmi.js";
 import Config from "./Config";
 
@@ -8,7 +7,7 @@ import Config from "./Config";
 */
 export default class TwitchUtils {
 
-	public static badgesCache:{[key:string]:TwitchTypes.BadgesSet[]} = {};
+	public static badgesCache:{[key:string]:{[key:string]:TwitchTypes.BadgesSet}} = {};
 
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
@@ -51,12 +50,12 @@ export default class TwitchUtils {
 	 * Gets the badges of a channel
 	 * @returns
 	 */
-	public static async getBadges(uid:string):Promise<TwitchTypes.BadgesSet[]> {
+	public static async loadUserBadges(uid:string):Promise<{[key:string]:TwitchTypes.BadgesSet}> {
 		if(this.badgesCache[uid]) return this.badgesCache[uid];
 
 		const headers = {
-			"Authorization":"Bearer "+store.state.authToken,
-			"Client-Id": Config.TWITCH_CLIENT_ID
+			// "Authorization":"Bearer "+store.state.authToken,
+			// "Client-Id": Config.TWITCH_CLIENT_ID
 		};
 		const options = {
 			method: "GET",
@@ -64,10 +63,13 @@ export default class TwitchUtils {
 		};
 		//URL could be replaced with this one to avoid needing an auth token :
 		//https://badges.twitch.tv/v1/badges/channels/{UID}/display
-		const result = await fetch("https://api.twitch.tv/helix/chat/badges?broadcaster_id="+uid, options)
+		// const result = await fetch("https://api.twitch.tv/helix/chat/badges?broadcaster_id="+uid, options);
+		const result = await fetch("https://badges.twitch.tv/v1/badges/channels/"+uid+"/display", options);
 		if(result.status == 200) {
-			const json = await result.json()
-			this.badgesCache[uid] = json.data;
+			const json = await result.json();
+			this.badgesCache[uid] = json.badge_sets;
+			// this.badgesCache[uid] = json.data;
+			console.log(json.badge_sets);
 			return this.badgesCache[uid];
 		}else{
 			throw({error:result});
@@ -78,12 +80,12 @@ export default class TwitchUtils {
 	 * Gets the badges of a channel
 	 * @returns
 	 */
-	public static async getGlobalBadges():Promise<TwitchTypes.BadgesSet[]> {
+	public static async loadGlobalBadges():Promise<{[key:string]:TwitchTypes.BadgesSet}> {
 		if(this.badgesCache["global"]) return this.badgesCache["global"];
 
 		const headers = {
-			"Authorization":"Bearer "+store.state.authToken,
-			"Client-Id": Config.TWITCH_CLIENT_ID
+			// "Authorization":"Bearer "+store.state.authToken,
+			// "Client-Id": Config.TWITCH_CLIENT_ID
 		};
 		const options = {
 			method: "GET",
@@ -91,10 +93,12 @@ export default class TwitchUtils {
 		};
 		//URL could be replaced with this one to avoid needing an auth token :
 		//https://badges.twitch.tv/v1/badges/global/display
-		const result = await fetch("https://api.twitch.tv/helix/chat/badges/global", options)
+		// const result = await fetch("https://api.twitch.tv/helix/chat/badges/global", options);
+		const result = await fetch("https://badges.twitch.tv/v1/badges/global/display", options);
 		if(result.status == 200) {
-			const json = await result.json()
-			this.badgesCache["global"] = json.data;
+			const json = await result.json();
+			this.badgesCache["global"] = json.badge_sets;
+			// this.badgesCache["global"] = json.data;
 			return this.badgesCache["global"];
 		}else{
 			throw({error:result});
@@ -113,11 +117,11 @@ export default class TwitchUtils {
 			for (const key in this.badgesCache) {
 				if(key == channelId || key == "global") {
 					const cache = this.badgesCache[key];
-					const badgeSet = cache.find(v => v.set_id == userBadgeCategory);
+					const badgeSet = cache[userBadgeCategory];
 					if(badgeSet) {
-						const badge = badgeSet.versions.find(v => v.id == userBadgeID);
+						const badge = badgeSet.versions[userBadgeID];
 						if(badge) {
-							result.push(badge as TwitchTypes.Badge);
+							result.push(badge);
 						}
 					}
 				}
@@ -132,6 +136,9 @@ export default class TwitchUtils {
 	public static parseEmotes(message:string, emotes:string|undefined):string {
 		message = message.replaceAll("<", "&lt;");
 		message = message.replaceAll(">", "&gt;");
+		if(!emotes || emotes.length == 0) {
+			return message;
+		}
 
 		const emotesList:{id:string, start:number, end:number}[] = [];
 		//Parse raw emotes data
@@ -144,7 +151,7 @@ export default class TwitchUtils {
 				const p = positions[j];
 				const start = parseInt(p.split("-")[0]);
 				const end = parseInt(p.split("-")[1]);
-				emotesList.push({id, start, end})
+				emotesList.push({id, start, end});
 			}
 		}
 		//Sort emotes by start position
@@ -164,45 +171,6 @@ export default class TwitchUtils {
 		
 		return result;
 	}
-
-	// public static test(message:string, emotes:{ [emoteid: string]: string[] } | undefined):string {
-	// 	if (!emotes) {
-	// 		return message;
-	// 	}
-
-	// 	let emotesElements = [];
-	// 	Object.keys(emotes).forEach(emoteKey => {
-	// 		const emoteRanges = emotes[emoteKey];
-	// 		emoteRanges.forEach(emoteRange => {
-	// 			let [start, end] = emoteRange.split('-');
-	// 			start = parseInt(start);
-	// 			end = parseInt(end);
-	// 			emotesElements.push({ type: 'emote', id: emoteKey, begin: start, end: end });
-	// 		});
-	// 	});
-
-	// 	emotesElements.sort((a, b) => {
-	// 		return a.begin - b.begin;
-	// 	});
-
-	// 	let elements = []; // Les elements du message, avec texte
-	// 	let lastPos = 0; // La dernière position trouvée en parcourant la liste
-	// 	emotesElements.forEach(emote => {
-	// 		if (lastPos !== emote.begin) {
-	// 			// On a un bout de texte avant l'emote => on l'ajoute
-	// 			elements.push({ type: 'text', begin: lastPos, end: emote.begin - 1, content: message.substring(lastPos, emote.begin) });
-	// 		}
-	// 		elements.push(emote);
-	// 		lastPos = emote.end + 1;
-	// 	});
-	// 	// Ajout de la fin du message si texte
-	// 	if (lastPos !== message.length) {
-	// 		// On a un bout de texte avant l'emote => on l'ajoute
-	// 		elements.push({ type: 'text', begin: lastPos, end: message.length - 1, content: message.substring(lastPos, message.length) });
-	// 	}
-
-	// 	return elements;
-	// }
 	
 }
 
@@ -259,12 +227,14 @@ export namespace TwitchTypes {
 	}
 
 	export interface BadgesSet {
-		set_id: string;
-		versions: Badge[];
+		versions: {[key:string]:Badge};
 	}
 
 	export interface Badge {
 		id: string;
+		click_action: string;
+		click_url: string;
+		description: string;
 		image_url_1x: string;
 		image_url_2x: string;
 		image_url_4x: string;

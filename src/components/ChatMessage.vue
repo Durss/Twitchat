@@ -1,7 +1,7 @@
 <template>
 	<div class="chatmessage">
-		<img :src="b.image_url_1x" v-for="(b,index) in badges" :key="index" class="badge">
-		<span class="login" :style="styles">{{messageData.tags["display-name"]}}:</span>
+		<img :src="b.image_url_1x" v-for="(b,index) in badges" :key="index" class="badge" :data-tooltip="b.title">
+		<a :href="profileURL" target="_blank" class="login" :style="styles">{{messageData.tags["display-name"]}}:</a>
 		<span class="message" v-html="text"></span>
 	</div>
 </template>
@@ -21,6 +21,9 @@ export default class ChatMessage extends Vue {
 	
 	public messageData!:ChatMessageData;
 
+	public get profileURL():string {
+		return "https://twitch.tv/"+this.messageData.tags.username;
+	}
 	public get styles():unknown {
 		let res = {
 			color:this.messageData.tags.color,
@@ -30,11 +33,11 @@ export default class ChatMessage extends Vue {
 
 	public get text():string {
 		let mess:string;
-		console.log(this.messageData);
 		try {
 			mess = TwitchUtils.parseEmotes(this.messageData.message, this.messageData.tags['emotes-raw']);
 		}catch(error) {
-			console.log("Fuck !", this.messageData);
+			console.log(error);
+			// console.log("Fuck !", this.messageData);
 			let safeMessage = this.messageData.message;
 			safeMessage = safeMessage.replaceAll("<", "&lt;");
 			safeMessage = safeMessage.replaceAll(">", "&gt;");
@@ -50,11 +53,10 @@ export default class ChatMessage extends Vue {
 		try {
 			const badges = TwitchUtils.getBadgesImagesFromRawBadges(channelID, this.messageData.tags.badges);
 			//Make sure no empty badge is returned. Vue really dislikes it..
-			this.badges = badges.filter( v => v != null && v.id != null && v.image_url_1x != null);
+			this.badges = badges;
 		}catch(error){
 			this.badges = [];
 		}
-		// console.log(this.badges);
 	}
 }
 

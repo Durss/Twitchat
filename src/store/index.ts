@@ -1,3 +1,4 @@
+import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { createStore } from 'vuex';
@@ -56,7 +57,7 @@ export default createStore({
 	},
 	actions: {
 		async startApp({state, commit}) {
-			const token = Store.get("authToken");
+			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : Store.get("tmiToken");
 			const tmiToken = Store.get("tmiToken");
 			if(token) {
 				state.authToken = token;
