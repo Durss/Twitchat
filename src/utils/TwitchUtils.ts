@@ -1,11 +1,14 @@
 import router from "@/router";
 import store from "@/store";
+import { Badges } from "tmi.js";
 import Config from "./Config";
 
 /**
 * Created : 19/01/2021 
 */
 export default class TwitchUtils {
+
+	public static badgesCache:{[key:string]:TwitchTypes.BadgesSet[]} = {};
 
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
@@ -44,7 +47,13 @@ export default class TwitchUtils {
 		});
 	}
 
-	public static async getBadges():Promise<void> {
+	/**
+	 * Gets the badges of a channel
+	 * @returns
+	 */
+	public static async getBadges(uid:string):Promise<TwitchTypes.BadgesSet[]> {
+		if(this.badgesCache[uid]) return this.badgesCache[uid];
+
 		const headers = {
 			"Authorization":"Bearer "+store.state.authToken,
 			"Client-Id": Config.TWITCH_CLIENT_ID
@@ -53,17 +62,64 @@ export default class TwitchUtils {
 			method: "GET",
 			headers: headers,
 		};
-		fetch(" https://api.twitch.tv/helix/chat/badges?broadcaster_id="+store.state.user.user_id, options)
-		.then((result) => {
-			if(result.status == 200) {
-				result.json().then((json)=> {
-					console.log(json);
-					return json
-				});
-			}else{
-				throw({error:result});
+		const result = await fetch("https://api.twitch.tv/helix/chat/badges?broadcaster_id="+uid, options)
+		if(result.status == 200) {
+			const json = await result.json()
+			this.badgesCache[uid] = json.data;
+			return this.badgesCache[uid];
+		}else{
+			throw({error:result});
+		}
+	}
+
+	/**
+	 * Gets the badges of a channel
+	 * @returns
+	 */
+	public static async getGlobalBadges():Promise<TwitchTypes.BadgesSet[]> {
+		if(this.badgesCache["global"]) return this.badgesCache["global"];
+
+		const headers = {
+			"Authorization":"Bearer "+store.state.authToken,
+			"Client-Id": Config.TWITCH_CLIENT_ID
+		};
+		const options = {
+			method: "GET",
+			headers: headers,
+		};
+		const result = await fetch("https://api.twitch.tv/helix/chat/badges/global", options)
+		if(result.status == 200) {
+			const json = await result.json()
+			this.badgesCache["global"] = json.data;
+			return this.badgesCache["global"];
+		}else{
+			throw({error:result});
+		}
+	}
+	
+	/**
+	 * Converts a chat message badges to actual badges instances with images and IDs.
+	 * @param userBadges
+	 * @returns 
+	 */
+	public static getBadgesImagesFromRawBadges(channelId:string, userBadges:Badges|undefined):TwitchTypes.Badge[] {
+		const result:TwitchTypes.Badge[] = [];
+		for (const userBadgeCategory in userBadges) {
+			const userBadgeID = userBadges[ userBadgeCategory ] as string;
+			for (const key in this.badgesCache) {
+				if(key == channelId || key == "global") {
+					const cache = this.badgesCache[key];
+					const badgeSet = cache.find(v => v.set_id == userBadgeCategory);
+					if(badgeSet) {
+						const badge = badgeSet.versions.find(v => v.id == userBadgeID);
+						if(badge) {
+							result.push(badge as TwitchTypes.Badge);
+						}
+					}
+				}
 			}
-		});
+		}
+		return result;
 	}
 }
 
@@ -118,4 +174,18 @@ export namespace TwitchTypes {
 			name?:string;
 		};
 	}
+
+	export interface BadgesSet {
+		set_id: string;
+		versions: Badge[];
+	}
+
+	export interface Badge {
+		id: string;
+		image_url_1x: string;
+		image_url_2x: string;
+		image_url_4x: string;
+	}
+
+	
 }

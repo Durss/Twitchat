@@ -1,7 +1,9 @@
+import store from "@/store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import IRCEvent from "./IRCEvent";
+import TwitchUtils from "./TwitchUtils";
 
 /**
 * Created : 19/01/2021 
@@ -12,6 +14,7 @@ export default class IRCClient extends EventDispatcher {
 	private client!:tmi.Client;
 	private login!:string;
 	private isConnected:boolean = false;
+	private debugMode:boolean = true;
 	
 	public token!:string;
 	public channel!:string;
@@ -48,11 +51,21 @@ export default class IRCClient extends EventDispatcher {
 		return new Promise((resolve, reject) => {
 			this.login = login;
 			this.token = token;
+			let channels = [ login]
+			let uids = [ store.state.user.user_id];
+			if(this.debugMode) {
+				channels = channels.concat(["thesushidragon", "lara6683" ]);
+				uids = uids.concat([ "96738828", "80352893" ]);
+			}
+			TwitchUtils.getGlobalBadges();
+			for (let i = 0; i < uids.length; i++) {
+				TwitchUtils.getBadges(uids[i]);
+			}
 	
 			this.client = new tmi.Client({
 				options: { debug: false },
 				connection: { reconnect: true },
-				channels: [ login ],
+				channels,
 				identity: {
 					username: login,
 					password: "oauth:"+token

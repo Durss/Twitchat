@@ -27,7 +27,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import store from '@/store';
-import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';

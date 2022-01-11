@@ -1,7 +1,8 @@
 <template>
 	<div class="messagelist">
-		<ChatMessage v-for="(m, index) in messages"
-			:key="index+'_'+m.message"
+		<ChatMessage v-for="m in messages"
+			class="message"
+			:key="m.tags.id"
 			:messageData="m" />
 	</div>
 </template>
@@ -32,6 +33,8 @@ export default class MessageList extends Vue {
 
 <style scoped lang="less">
 .messagelist{
-	
+	.message {
+		margin-bottom: 5px;
+	}
 }
 </style>

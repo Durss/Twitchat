@@ -53,7 +53,6 @@ export default createStore({
 		async startApp({state, commit}) {
 			const token = Store.get("authToken");
 			const tmiToken = Store.get("tmiToken");
-			// const token = "8qrlcjskxlnj6szsy99v1l5uewh7qt";
 			if(token) {
 				state.authToken = token;
 				try {
@@ -73,8 +72,7 @@ export default createStore({
 			
 			if(state.authenticated && !IRCClient.instance.connected) {
 				try {
-					IRCClient.instance.initialize("thesushidragon", state.authToken);
-					// IRCClient.instance.initialize(state.user.login, state.authToken);
+					IRCClient.instance.initialize(state.user.login, state.authToken);
 				}catch(error){error}
 			}
 
