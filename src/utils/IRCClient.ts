@@ -14,7 +14,7 @@ export default class IRCClient extends EventDispatcher {
 	private client!:tmi.Client;
 	private login!:string;
 	private isConnected:boolean = false;
-	private debugMode:boolean = true;
+	private debugMode:boolean = false;
 	
 	public token!:string;
 	public channel!:string;
