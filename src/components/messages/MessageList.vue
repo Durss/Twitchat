@@ -26,8 +26,10 @@ import store from '@/store';
 	}
 })
 export default class MessageList extends Vue {
+
 	public max!: number;
 	public messages:ChatMessageData[] = [];
+	public counter:number = 0;
 
 	private messageHandler!:(e:unknown)=>void;
 
@@ -48,7 +50,7 @@ export default class MessageList extends Vue {
 			channel:e.channel,
 			self:e.self,
 			id:(Date.now() + Math.random()).toString(10),
-			highlight:this.messages.length%2 == 0,
+			highlight:(this.counter++)%2 == 0,
 		});
 		if(this.messages.length > this.max) {
 			this.messages.splice(0, this.messages.length - this.max);

@@ -58,8 +58,8 @@ export default class IRCClient extends EventDispatcher {
 				channels.push(customLogin);
 			}
 			if(this.debugMode) {
-				channels = channels.concat(["casimito", "samueletienne", "Tonton", "avamind" ]);
-				uids = uids.concat([ "254489093", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["mistermv", "samueletienne", "Tonton", "avamind" ]);
+				uids = uids.concat([ "28575692", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
 				try {
