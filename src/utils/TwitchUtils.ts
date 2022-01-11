@@ -62,6 +62,8 @@ export default class TwitchUtils {
 			method: "GET",
 			headers: headers,
 		};
+		//URL could be replaced with this one to avoid needing an auth token :
+		//https://badges.twitch.tv/v1/badges/channels/{UID}/display
 		const result = await fetch("https://api.twitch.tv/helix/chat/badges?broadcaster_id="+uid, options)
 		if(result.status == 200) {
 			const json = await result.json()
@@ -87,6 +89,8 @@ export default class TwitchUtils {
 			method: "GET",
 			headers: headers,
 		};
+		//URL could be replaced with this one to avoid needing an auth token :
+		//https://badges.twitch.tv/v1/badges/global/display
 		const result = await fetch("https://api.twitch.tv/helix/chat/badges/global", options)
 		if(result.status == 200) {
 			const json = await result.json()
@@ -121,6 +125,85 @@ export default class TwitchUtils {
 		}
 		return result;
 	}
+
+	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static parseEmotes(message:string, emotes:string|undefined):string {
+		message = message.replaceAll("<", "&lt;");
+		message = message.replaceAll(">", "&gt;");
+
+		const emotesList:{id:string, start:number, end:number}[] = [];
+		//Parse raw emotes data
+		const chunks = (emotes as string).split("/");
+		for (let i = 0; i < chunks.length; i++) {
+			const c = chunks[i];
+			const id = c.split(":")[0];
+			const positions = c.split(":")[1].split(",");
+			for (let j = 0; j < positions.length; j++) {
+				const p = positions[j];
+				const start = parseInt(p.split("-")[0]);
+				const end = parseInt(p.split("-")[1]);
+				emotesList.push({id, start, end})
+			}
+		}
+		//Sort emotes by start position
+		emotesList.sort((a,b) => a.start - b.start)
+		
+		let cursor = 0;
+		let result = "";
+		//Convert emotes to image tags
+		for (let i = 0; i < emotesList.length; i++) {
+			const e = emotesList[i];
+			if(cursor < e.start) result += message.substring(cursor, e.start);
+			const code = message.substring(e.start, e.end + 1);
+			const image = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0' data-tooltip='"+code+"'>";
+			result += image;
+			cursor = e.end + 1;
+		}
+		
+		return result;
+	}
+
+	// public static test(message:string, emotes:{ [emoteid: string]: string[] } | undefined):string {
+	// 	if (!emotes) {
+	// 		return message;
+	// 	}
+
+	// 	let emotesElements = [];
+	// 	Object.keys(emotes).forEach(emoteKey => {
+	// 		const emoteRanges = emotes[emoteKey];
+	// 		emoteRanges.forEach(emoteRange => {
+	// 			let [start, end] = emoteRange.split('-');
+	// 			start = parseInt(start);
+	// 			end = parseInt(end);
+	// 			emotesElements.push({ type: 'emote', id: emoteKey, begin: start, end: end });
+	// 		});
+	// 	});
+
+	// 	emotesElements.sort((a, b) => {
+	// 		return a.begin - b.begin;
+	// 	});
+
+	// 	let elements = []; // Les elements du message, avec texte
+	// 	let lastPos = 0; // La dernière position trouvée en parcourant la liste
+	// 	emotesElements.forEach(emote => {
+	// 		if (lastPos !== emote.begin) {
+	// 			// On a un bout de texte avant l'emote => on l'ajoute
+	// 			elements.push({ type: 'text', begin: lastPos, end: emote.begin - 1, content: message.substring(lastPos, emote.begin) });
+	// 		}
+	// 		elements.push(emote);
+	// 		lastPos = emote.end + 1;
+	// 	});
+	// 	// Ajout de la fin du message si texte
+	// 	if (lastPos !== message.length) {
+	// 		// On a un bout de texte avant l'emote => on l'ajoute
+	// 		elements.push({ type: 'text', begin: lastPos, end: message.length - 1, content: message.substring(lastPos, message.length) });
+	// 	}
+
+	// 	return elements;
+	// }
+	
 }
 
 export namespace TwitchTypes {

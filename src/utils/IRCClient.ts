@@ -54,8 +54,8 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login]
 			let uids = [ store.state.user.user_id];
 			if(this.debugMode) {
-				channels = channels.concat(["thesushidragon", "lara6683" ]);
-				uids = uids.concat([ "96738828", "80352893" ]);
+				channels = channels.concat(["casimito", "lefrenchrestream", "Tonton" ]);
+				uids = uids.concat([ "254489093", "137422507", "72480716" ]);
 			}
 			TwitchUtils.getGlobalBadges();
 			for (let i = 0; i < uids.length; i++) {

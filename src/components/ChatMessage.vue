@@ -1,10 +1,8 @@
 <template>
 	<div class="chatmessage">
-		<!-- <div class="badges"> -->
-			<img :src="b.image_url_1x" v-for="(b,index) in badges" :key="index" class="badge">
-		<!-- </div> -->
+		<img :src="b.image_url_1x" v-for="(b,index) in badges" :key="index" class="badge">
 		<span class="login" :style="styles">{{messageData.tags["display-name"]}}:</span>
-		<span class="message">{{messageData.message}}</span>
+		<span class="message" v-html="text"></span>
 	</div>
 </template>
 
@@ -24,19 +22,38 @@ export default class ChatMessage extends Vue {
 	public messageData!:ChatMessageData;
 
 	public get styles():unknown {
-		return {
+		let res = {
 			color:this.messageData.tags.color,
+		};
+		return res;
+	}
+
+	public get text():string {
+		let mess:string;
+		console.log(this.messageData);
+		try {
+			mess = TwitchUtils.parseEmotes(this.messageData.message, this.messageData.tags['emotes-raw']);
+		}catch(error) {
+			console.log("Fuck !", this.messageData);
+			let safeMessage = this.messageData.message;
+			safeMessage = safeMessage.replaceAll("<", "&lt;");
+			safeMessage = safeMessage.replaceAll(">", "&gt;");
+			mess = safeMessage;
 		}
+		return mess;
 	}
 
 	public badges:TwitchTypes.Badge[] = [];
-	// public get color():string {
-	// 	return this.messageData.tags.color as string;
-	// }
 
 	public async mounted():Promise<void> {
 		const channelID:string = this.messageData.tags['room-id'] as string;
-		this.badges = TwitchUtils.getBadgesImagesFromRawBadges(channelID, this.messageData.tags.badges);
+		try {
+			const badges = TwitchUtils.getBadgesImagesFromRawBadges(channelID, this.messageData.tags.badges);
+			//Make sure no empty badge is returned. Vue really dislikes it..
+			this.badges = badges.filter( v => v != null && v.id != null && v.image_url_1x != null);
+		}catch(error){
+			this.badges = [];
+		}
 		// console.log(this.badges);
 	}
 }
@@ -46,6 +63,7 @@ export interface ChatMessageData {
 	tags:ChatUserstate;
 	channel:string;
 	self:boolean;
+	id:string;
 }
 </script>
 
@@ -54,10 +72,23 @@ export interface ChatMessageData {
 	font-family: "FuturaLight";
 	font-size: 16px;
 	color: v-bind(color);
+	.badge {
+		width: 18px;
+		height: 18px;
+		&:last-of-type {
+			margin-right: 10px;
+		}
+	}
 	.login {
-		margin-left: 10px;
 		margin-right: 10px;
 		font-family: "Futura";
+	}
+	.message {
+		color: #fff;
+		:deep( img ) {
+			width: 28px;
+			// height: 28px;
+		}
 	}
 }
 </style>

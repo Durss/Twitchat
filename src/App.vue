@@ -4,6 +4,7 @@
 		<Button @click="logout()" title="Logout" class="logoutBt" v-if="$store.state.authenticated" />
 		<Confirm />
 		<Alert />
+		<Tooltip />
 	</div>
 </template>
 
@@ -11,6 +12,7 @@
 import { Options, Vue } from 'vue-class-component';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
+import Tooltip from "./views/Tooltip.vue";
 import Button from "./components/Button.vue";
 import store from './store';
 
@@ -20,6 +22,7 @@ import store from './store';
 		Alert,
 		Confirm,
 		Button,
+		Tooltip,
 	}
 })
 export default class App extends Vue {

@@ -10,6 +10,7 @@ export default createStore({
 		authToken: "",
 		tmiToken: "",
 		alert: "",
+		tooltip: "",
 		user: {
 			client_id: "",
 			login: "",
@@ -48,6 +49,10 @@ export default createStore({
 		},
 
 		confirm(state, payload) { state.confirm = payload; },
+
+		openTooltip(state, payload) { state.tooltip = payload; },
+		
+		closeTooltip(state) { state.tooltip = ""; },
 	},
 	actions: {
 		async startApp({state, commit}) {
@@ -88,6 +93,10 @@ export default createStore({
 		setTmiToken({ commit }, tmiToken) { commit("setTmiToken", tmiToken); },
 
 		logout({ commit }) { commit("logout"); },
+
+		openTooltip({commit}, payload) { commit("openTooltip", payload); },
+		
+		closeTooltip({commit}) { commit("closeTooltip", null); },
 	},
 	modules: {
 	}
