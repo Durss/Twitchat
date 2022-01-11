@@ -8,7 +8,7 @@
 	:href="type=='link'? to : null"
 	@click="onClick($event)"
 	:style="progressStyle"
-	v-model="value">
+	v-model="modelValue">
 		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
 		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
 
@@ -49,10 +49,11 @@ import { Ref, ref, watch } from '@vue/runtime-core';
 		highlight:{type:Boolean, default: false},
 		selected:{type:Boolean, default: false},
 		disabled:{type:Boolean, default: false},
-		value:{type:Boolean, default: false},
+		modelValue:{type:Boolean, default: false},
 		accept:{type:String, default: "image/*"},
 	},
-	emits: ['click', 'change', 'input'],
+	emits: ['click', 'change', 'update:modelValue'],
+	expose: ['value'],
 })
 export default class Button extends Vue {
 
@@ -70,11 +71,11 @@ export default class Button extends Vue {
 	public highlight!:boolean;
 	public selected!:boolean;
 	public disabled!:boolean;
-	public value!:Ref<boolean>;
+	public modelValue!:boolean;
 	public accept!:string;
 
 	public pInterpolated:number = -1;
-	public checked:Ref<boolean> = ref(false);
+	public checked:boolean = false;
 
 	public get isIconSVG():boolean {
 		return this.parsedIcon.indexOf("<") != -1;
@@ -132,13 +133,13 @@ export default class Button extends Vue {
 	}
 
 	public mounted():void {
-		this.checked = ref(this.value);
+		this.checked = this.modelValue;
 
-		watch(() => this.checked, (val:Ref<boolean>) => {
-			this.$emit("input", val);
+		watch(() => this.checked, (val:boolean) => {
+			this.$emit("update:modelValue", val);
 		});
 		
-		watch(() => this.value, (val:Ref<boolean>) => {
+		watch(() => this.modelValue, (val:boolean) => {
 			this.checked = val;
 		});
 		
@@ -256,7 +257,8 @@ export default class Button extends Vue {
 			justify-self: flex-start;
 			text-align: left;
 			width: max-content;
-			color: @mainColor_light;
+			font-size: 18px;
+			color: @mainColor_normal;
 			// overflow: visible;
 		}
 		
