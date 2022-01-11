@@ -191,6 +191,7 @@ export interface ChatMessageData {
 		:deep( img ) {
 			width: 28px;
 			max-height: 28px;
+			vertical-align: middle;
 		}
 	}
 }

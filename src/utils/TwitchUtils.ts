@@ -171,6 +171,7 @@ export default class TwitchUtils {
 			}
 			cursor = e.end + 1;
 		}
+		result += message.substring(cursor);
 		
 		return result;
 	}

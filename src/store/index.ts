@@ -22,6 +22,7 @@ export default createStore({
 			highlightMentions:true,
 			ignoreSelf:false,
 			displayTime:true,
+			ignoreCommands:true,
 			defaultSize:2,
 			modsSize:2,
 			vipsSize:2,
@@ -88,7 +89,9 @@ export default createStore({
 			state.params.firstMessage = Store.get("p:firstMessage") != "false";
 			state.params.hideBots = Store.get("p:hideBots") != "false";
 			state.params.highlightMentions = Store.get("p:highlightMentions") != "false";
+			state.params.ignoreCommands = Store.get("p:ignoreSelf") == "true";
 			state.params.ignoreSelf = Store.get("p:ignoreSelf") == "true";
+			state.params.displayTime = Store.get("p:displayTime") == "true";
 			state.params.historySize = parseInt(Store.get("p:historySize")) || 100;
 			state.params.defaultSize = parseInt(Store.get("p:defaultSize")) || 2;
 			state.params.modsSize = parseInt(Store.get("p:modsSize")) || 2;

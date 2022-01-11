@@ -122,6 +122,10 @@ export default class IRCClient extends EventDispatcher {
 					if(store.state.params.ignoreSelf && tags["user-id"] == store.state.user.user_id) {
 						return;
 					}
+					//Ignore commands
+					if(store.state.params.ignoreCommands && /^ *!.*/gi.test(message)) {
+						return;
+					}
 					this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, message, tags, channel, self));
 				}
 			});
