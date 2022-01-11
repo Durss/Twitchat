@@ -1,0 +1,36 @@
+.center() {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.block() {
+	width: 500px;
+	color: @mainColor_light;
+	font-family: "Futura";
+	font-size: 18px;
+	background-color: @mainColor_dark_light;
+	box-shadow: rgba(0, 0, 0, 0.5) 0px 6px 16px 0px, rgba(0, 0, 0, 0.4) 0px 0px 4px 0px;
+	box-sizing: border-box;
+	border-radius: 10px;
+	overflow: hidden;
+	
+	.head {
+		margin-bottom: 10px;
+		padding: 10px;
+		background-color: @mainColor_dark_extralight;
+		align-items: center;
+		text-align: center;
+		font-family: "Nunito";
+		font-size: 30px;
+		color: @mainColor_normal;
+	}
+
+	.content {
+		padding: 10px;
+	}
+	
+	@media only screen and (max-width: 500px) {
+		width: 90%;
+	}
+}

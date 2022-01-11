@@ -1,0 +1,118 @@
+input, textarea, select {
+	font-family: "Futura";
+	color: @mainColor_light;
+	border-radius: @border_radius;
+	border: 1px solid @mainColor_light;
+	background-color: @mainColor_normal_light;
+	font-size: 16px;
+	padding: 2px 12px 5px 12px;
+	box-sizing: border-box;
+	border-top: 1px solid @mainColor_normal;
+	border-left: 1px solid @mainColor_normal;
+	
+	&::placeholder {
+		font-style: italic;
+		color: rgba(255, 255, 255, .35)
+	}
+	&:-webkit-autofill,
+	&:-webkit-autofill:hover, 
+	&:-webkit-autofill:active, 
+	&:-webkit-autofill:valid, 
+	&:-webkit-autofill:focus {
+		color: @mainColor_dark;
+		background-color: @mainColor_normal_extralight;
+		box-shadow: none !important;
+	}
+
+	&.dark {
+		color: @mainColor_normal;
+		background-color: #000;
+	}
+	
+	&::-webkit-scrollbar-thumb {
+		border-radius:20px;
+		background-color: @mainColor_light;
+		background-color: darken(@mainColor_normal, 10%);
+	//   box-shadow: rgba(255, 255, 255, 0.25) 0px 0px 1px 1px;
+	}
+
+	&:disabled {
+		cursor: auto;
+		opacity: .5;
+	}
+}
+	
+textarea {
+	min-height: 65px;
+	font-size: 20px;
+	font-family: 'Courier New', Courier, monospace;
+}
+
+button {
+	font-size: 18px;
+	color: @mainColor_normal;
+	border: none;
+	background: none;
+	cursor: pointer;
+}
+
+input[type="submit"],
+button,
+.button {
+	cursor: pointer;
+	border: none;
+	padding: 5px 10px;
+	font-family: "Futura";
+	font-size: 20px;
+	color: @mainColor_light;
+	background-color: @mainColor_normal;
+	transition: color .25s, background-color .25s;
+	box-sizing: border-box;
+	text-align: center;
+	border-radius: @border_radius;
+
+	&:hover {
+		background-color: @mainColor_normal_light;
+	}
+
+	&.dark {
+		color: #fff;
+		background-color: @mainColor_dark;
+
+		&:hover {
+			background-color: @mainColor_dark_light;
+		}
+	}
+
+	&.white {
+		color: @mainColor_normal;
+		background-color: @mainColor_light;
+
+		&:hover {
+			background-color: @mainColor_normal_extralight;
+		}
+	}
+
+	&.disabled {
+		cursor: not-allowed;
+		color: fade(@mainColor_dark, 25%);
+		&.dark {
+			color: fade(#000, 25%);
+			background-color: fade(@mainColor_dark_extralight, 50%);
+		}
+	}
+}
+
+input[type="cancel"],
+button[type="cancel"] {
+	background-color: @mainColor_alert;
+
+	&:hover {
+		background-color: @mainColor_alert_light;
+	}
+}
+
+label {
+	font-size: 20px;
+	margin-bottom: 5px;
+}
