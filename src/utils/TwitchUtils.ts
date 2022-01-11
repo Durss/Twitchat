@@ -69,7 +69,6 @@ export default class TwitchUtils {
 			const json = await result.json();
 			this.badgesCache[uid] = json.badge_sets;
 			// this.badgesCache[uid] = json.data;
-			console.log(json.badge_sets);
 			return this.badgesCache[uid];
 		}else{
 			throw({error:result});

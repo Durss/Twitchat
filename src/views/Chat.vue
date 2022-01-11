@@ -1,16 +1,19 @@
 <template>
 	<div class="chat">
-		<MessageList :max="30" />
+		<MessageList :max="$store.state.params.historySize" />
+		<Params />
 	</div>
 </template>
 
 <script lang="ts">
-import MessageList from '@/components/MessageList.vue';
+import MessageList from '@/components/messages/MessageList.vue';
+import Params from '@/components/params/Parameters.vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	components:{
-		MessageList
+		Params,
+		MessageList,
 	}
 })
 export default class Chat extends Vue {

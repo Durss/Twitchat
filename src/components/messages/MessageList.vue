@@ -9,10 +9,11 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import ChatMessage from '@/components/ChatMessage.vue';
-import { ChatMessageData } from '@/components/ChatMessage.vue';
+import ChatMessage from '@/components/messages/ChatMessage.vue';
+import { ChatMessageData } from '@/components/messages/ChatMessage.vue';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
+import store from '@/store';
 
 @Options({
 	components:{
@@ -25,12 +26,23 @@ import IRCEvent from '@/utils/IRCEvent';
 export default class MessageList extends Vue {
 	public max!: number;
 	public messages:ChatMessageData[] = [];
+	public botsLogins:string[] = [];
 
 	private messageHandler!:(e:unknown)=>void;
 
-	public mounted():void {
+	public async mounted():Promise<void> {
 		this.messageHandler = (e:unknown) => this.onMessage(e as IRCEvent);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.messageHandler);
+
+		try {
+			//Load bots list
+			const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
+			const json = await res.json();
+			this.botsLogins = (json.bots as string[][]).map(b => b[0].toLowerCase());
+		}catch(error) {
+			//Fallback in case twitchinsights dies someday
+			this.botsLogins = ["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"];
+		}
 	}
 
 	public unmounted():void {
@@ -38,6 +50,13 @@ export default class MessageList extends Vue {
 	}
 
 	private async onMessage(e:IRCEvent):Promise<void> {
+		let login = e.tags.username as string;
+		//Ignore bot messages if requested
+		if(store.state.params.hideBots && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+			return;
+		}
+
+		//Add message to list
 		this.messages.push({
 			message:e.message,
 			tags:e.tags,
@@ -56,7 +75,10 @@ export default class MessageList extends Vue {
 
 <style scoped lang="less">
 .messagelist{
+	max-height: 100%;
 	overflow-y: auto;
+	position: absolute;
+	bottom: 0;
 	.message {
 		margin-bottom: 5px;
 	}

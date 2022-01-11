@@ -12,6 +12,12 @@ export default createStore({
 		tmiToken: "",
 		alert: "",
 		tooltip: "",
+		params: {
+			hideBots:true,
+			historySize:100,
+			firstMessage:true,
+			highlightMentions:true,
+		},
 		user: {
 			client_id: "",
 			login: "",
@@ -54,11 +60,22 @@ export default createStore({
 		openTooltip(state, payload) { state.tooltip = payload; },
 		
 		closeTooltip(state) { state.tooltip = ""; },
+		
+		setParam(state, payload) {
+			const key = payload.key as "firstMessage";
+			state.params[key] = payload.value;
+			Store.set("p:"+key, payload.value);
+		},
 	},
 	actions: {
 		async startApp({state, commit}) {
 			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : Store.get("tmiToken");
 			const tmiToken = Store.get("tmiToken");
+			state.params.firstMessage = Store.get("p:firstMessage") == "true";
+			state.params.hideBots = Store.get("p:hideBots") == "true";
+			state.params.highlightMentions = Store.get("p:highlightMentions") == "true";
+			state.params.historySize = parseInt(Store.get("p:historySize")) || 100;
+
 			if(token) {
 				state.authToken = token;
 				try {
@@ -98,6 +115,8 @@ export default createStore({
 		openTooltip({commit}, payload) { commit("openTooltip", payload); },
 		
 		closeTooltip({commit}) { commit("closeTooltip", null); },
+		
+		setParam({commit}, payload) { commit("setParam", payload); },
 	},
 	modules: {
 	}

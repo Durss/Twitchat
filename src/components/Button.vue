@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Ref, watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Ref, ref, watch } from '@vue/runtime-core';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	components:{
@@ -357,9 +357,9 @@ export default class Button extends Vue {
 
 	&.highlight {
 		color: #ffffff;
-		background-color: @mainColor_warn;
+		background-color: @mainColor_alert;
 		&.disabled {
-			background-color: fade(@mainColor_warn,50%);
+			background-color: fade(@mainColor_alert,50%);
 		}
 		.label, .icon {
 			&.hide {
@@ -367,13 +367,13 @@ export default class Button extends Vue {
 			}
 		}
 		&:not(.loading):hover {
-			background-color: @mainColor_warn_light;
+			background-color: @mainColor_alert_light;
 		}
 		&.loading {
-			background-color: fade(@mainColor_warn, 50%);
+			background-color: fade(@mainColor_alert, 50%);
 		}
 		&.selected {
-			background-color: @mainColor_warn_extralight;
+			background-color: @mainColor_alert_extralight;
 		}
 	}
 

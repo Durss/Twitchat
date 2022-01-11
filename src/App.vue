@@ -1,7 +1,6 @@
 <template>
 	<div class="app">
 		<router-view />
-		<Button @click="logout()" title="Logout" class="logoutBt" v-if="$store.state.authenticated" />
 		<Confirm />
 		<Alert />
 		<Tooltip />
@@ -13,24 +12,16 @@ import { Options, Vue } from 'vue-class-component';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
-import Button from "./components/Button.vue";
-import store from './store';
 
 @Options({
 	props:{},
 	components:{
 		Alert,
 		Confirm,
-		Button,
 		Tooltip,
 	}
 })
 export default class App extends Vue {
-
-	public logout():void {
-		store.dispatch('logout');
-		this.$router.push({name:'login'});
-	}
 }
 </script>
 
@@ -39,11 +30,5 @@ export default class App extends Vue {
 	font-family: Futura, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-
-	.logoutBt {
-		position: absolute;
-		top: 0;
-		right: 0;
-	}
 }
 </style>
