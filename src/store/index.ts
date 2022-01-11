@@ -14,9 +14,14 @@ export default createStore({
 		tooltip: "",
 		params: {
 			hideBots:true,
-			historySize:100,
+			hideBadges:true,
+			hideEmotes:false,
+			minimalistBadges:true,
+			historySize:150,
 			firstMessage:true,
 			highlightMentions:true,
+			ignoreSelf:true,
+			displayTime:true,
 		},
 		user: {
 			client_id: "",

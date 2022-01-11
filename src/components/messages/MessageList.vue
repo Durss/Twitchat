@@ -65,7 +65,7 @@ export default class MessageList extends Vue {
 			id:(Date.now() + Math.random()).toString(10),
 		});
 		if(this.messages.length > this.max) {
-			this.messages.splice(0, 1);
+			this.messages.splice(0, this.messages.length - this.max);
 		}
 		await this.$nextTick();
 		(this.$el as HTMLDivElement).scrollTop = this.$el.scrollHeight;
@@ -76,11 +76,13 @@ export default class MessageList extends Vue {
 <style scoped lang="less">
 .messagelist{
 	max-height: 100%;
+	width: 100%;
 	overflow-y: auto;
 	position: absolute;
 	bottom: 0;
+	padding: 10px;
 	.message {
-		margin-bottom: 5px;
+		margin-bottom: 10px;
 	}
 }
 </style>

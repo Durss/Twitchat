@@ -132,7 +132,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined):string {
+	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false):string {
 		message = message.replaceAll("<", "&lt;");
 		message = message.replaceAll(">", "&gt;");
 		if(!emotes || emotes.length == 0) {
@@ -162,9 +162,11 @@ export default class TwitchUtils {
 		for (let i = 0; i < emotesList.length; i++) {
 			const e = emotesList[i];
 			if(cursor < e.start) result += message.substring(cursor, e.start);
-			const code = message.substring(e.start, e.end + 1);
-			const image = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0' data-tooltip='"+code+"'>";
-			result += image;
+			if(!removeEmotes) {
+				const code = message.substring(e.start, e.end + 1);
+				const image = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0' data-tooltip='"+code+"'>";
+				result += image;
+			}
 			cursor = e.end + 1;
 		}
 		

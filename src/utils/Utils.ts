@@ -112,7 +112,7 @@ export default class Utils {
 		return res;
 	}
 
-	private static toDigits(num:number, digits:number = 2):string {
+	public static toDigits(num:number, digits:number = 2):string {
 		let res = num.toString();
 		while(res.length < digits) res = "0"+res;
 		return res;

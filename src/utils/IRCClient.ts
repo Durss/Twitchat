@@ -14,7 +14,7 @@ export default class IRCClient extends EventDispatcher {
 	private client!:tmi.Client;
 	private login!:string;
 	private isConnected:boolean = false;
-	private debugMode:boolean = false;
+	private debugMode:boolean = true;
 	
 	public token!:string;
 	public channel!:string;
@@ -54,8 +54,8 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login]
 			let uids = [ store.state.user.user_id];
 			if(this.debugMode) {
-				channels = channels.concat(["casimito", "lefrenchrestream", "Tonton" ]);
-				uids = uids.concat([ "254489093", "137422507", "72480716" ]);
+				channels = channels.concat(["casimito", "lefrenchrestream", "Tonton", "avamind" ]);
+				uids = uids.concat([ "254489093", "137422507", "72480716", "241808969" ]);
 			}
 			TwitchUtils.loadGlobalBadges();
 			for (let i = 0; i < uids.length; i++) {

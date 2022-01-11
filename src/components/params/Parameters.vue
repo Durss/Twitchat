@@ -3,31 +3,15 @@
 		<div class="menu" v-if="showMenu">
 			<div class="dimmer" ref="dimmer" @click="toggle(true)"></div>
 			<div class="holder" ref="holder">
-				<div class="head">Parameters</div>
+				<div class="head">Params</div>
 				<div class="content">
 					<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" title="Logout" highlight class="logoutBt" v-if="$store.state.authenticated" />
 					
-					<div class="spacer"></div>
-
-					<div class="row">
-						<label for="firstMessage">Show first message of every user:</label>
-						<ToggleButton id="firstMessage" v-model="firstMessage" />
+					<div class="row" v-for="(p,key) in toggles" :key="key">
+						<label :for="'toggle'+key">{{p.label}}</label>
+						<ToggleButton :id="'toggle'+key" v-model="p.value" />
 					</div>
-					
-					<div class="spacer"></div>
 
-					<div class="row">
-						<label for="hideBots">Hide bots</label>
-						<ToggleButton id="hideBots" v-model="hideBots" />
-					</div>
-					
-					<div class="spacer"></div>
-
-					<div class="row">
-						<label for="highlightMentions">Highlight mentions</label>
-						<ToggleButton id="highlightMentions" v-model="highlightMentions" />
-					</div>
-					
 					<div class="spacer"></div>
 
 					<label for="historySize">Chat history size ({{historySize}})</label>
@@ -56,27 +40,29 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class Parameters extends Vue {
 
+	public toggles:{[key:string]:{value:boolean, label:string}} = {
+		firstMessage: {value:true, label:"Show first message of every user"},
+		highlightMentions: {value:false, label:"Highlight mentions"},
+		ignoreSelf: {value:true, label:"Hide my messages"},
+		hideBots: {value:false, label:"Hide bots"},
+		hideEmotes: {value:false, label:"Hide emotes"},
+		hideBadges: {value:false, label:"Hide badges"},
+		minimalistBadges: {value:true, label:"Show minimalist badges"},
+		displayTime: {value:true, label:"Display time"},
+	};
+
 	public showMenu:boolean = false;
-	public firstMessage:boolean = false;
-	public hideBots:boolean = false;
-	public highlightMentions:boolean = false;
 	public historySize:number = 10;
 
 	public mounted():void {
-		this.firstMessage = store.state.params.firstMessage;
-		this.hideBots = store.state.params.hideBots;
-		this.historySize = store.state.params.historySize;
-		this.highlightMentions = store.state.params.highlightMentions;
 		// this.toggle();//TODO remove
-		watch(() => this.firstMessage, (newValue:boolean) => {
-			store.commit('setParam', {key:"firstMessage", value:newValue});
-		});
-		watch(() => this.hideBots, (newValue:boolean) => {
-			store.commit('setParam', {key:"hideBots", value:newValue});
-		});
-		watch(() => this.highlightMentions, (newValue:boolean) => {
-			store.commit('setParam', {key:"highlightMentions", value:newValue});
-		});
+
+		for (const key in this.toggles) {
+			this.toggles[key].value = store.state.params[key as "firstMessage"];
+			watch(() => this.toggles[key].value, (newValue:boolean) => {
+				store.commit('setParam', {key, value:newValue});
+			});
+		}
 		watch(() => this.historySize, (newValue:unknown) => {
 			store.commit('setParam', {key:"historySize", value:parseInt(newValue as string)});
 		});
@@ -153,6 +139,7 @@ export default class Parameters extends Vue {
 				.row {
 					display: flex;
 					flex-direction: row;
+					margin: 10px 0;
 					label {
 						flex-grow: 1;
 						text-align: right;
