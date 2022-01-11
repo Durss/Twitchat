@@ -20,6 +20,7 @@ export default class IRCClient extends EventDispatcher {
 	public token!:string;
 	public channel!:string;
 	public connected:boolean = false;
+	public botsLogins:string[] = [];
 	
 	constructor() {
 		super();
@@ -61,13 +62,24 @@ export default class IRCClient extends EventDispatcher {
 				uids = uids.concat([ "254489093", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
+				try {
+					//Load bots list
+					const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
+					const json = await res.json();
+					this.botsLogins = (json.bots as string[][]).map(b => b[0].toLowerCase());
+				}catch(error) {
+					//Fallback in case twitchinsights dies someday
+					this.botsLogins = ["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"];
+				}
+
 				await Utils.promisedTimeout(5000);
 				await TwitchUtils.loadGlobalBadges();
 				for (let i = 0; i < uids.length; i++) {
 					await TwitchUtils.loadUserBadges(uids[i]);
 				}
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED, "", {}, "", false));
-			})()
+			})();
+			
 	
 			this.client = new tmi.Client({
 				options: { debug: false },
@@ -100,6 +112,16 @@ export default class IRCClient extends EventDispatcher {
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
+					const login = tags.username as string;	
+					
+					//Ignore bot messages if requested
+					if(store.state.params.hideBots && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+						return;
+					}
+					//Ignore self if requested
+					if(store.state.params.ignoreSelf && tags["user-id"] == store.state.user.user_id) {
+						return;
+					}
 					this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, message, tags, channel, self));
 				}
 			});

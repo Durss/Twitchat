@@ -20,7 +20,7 @@ export default createStore({
 			historySize:150,
 			firstMessage:true,
 			highlightMentions:true,
-			ignoreSelf:true,
+			ignoreSelf:false,
 			displayTime:true,
 			defaultSize:2,
 			modsSize:2,
@@ -85,9 +85,10 @@ export default createStore({
 		async startApp({state, commit}) {
 			const tmiToken = Store.get("tmiToken");
 			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : tmiToken;
-			state.params.firstMessage = Store.get("p:firstMessage") == "true";
-			state.params.hideBots = Store.get("p:hideBots") == "true";
-			state.params.highlightMentions = Store.get("p:highlightMentions") == "true";
+			state.params.firstMessage = Store.get("p:firstMessage") != "false";
+			state.params.hideBots = Store.get("p:hideBots") != "false";
+			state.params.highlightMentions = Store.get("p:highlightMentions") != "false";
+			state.params.ignoreSelf = Store.get("p:ignoreSelf") == "true";
 			state.params.historySize = parseInt(Store.get("p:historySize")) || 100;
 			state.params.defaultSize = parseInt(Store.get("p:defaultSize")) || 2;
 			state.params.modsSize = parseInt(Store.get("p:modsSize")) || 2;

@@ -41,7 +41,8 @@ export default class ChatMessage extends Vue {
 	public get classes():string[] {
 		let res = ["chatmessage"];
 		if(this.messageData.highlight) res.push("highlight");
-		if(this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
+		if(store.state.params.highlightMentions
+		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 			res.push("mention");
 		}
 		if(this.messageData.tags.mod) res.push("size_"+store.state.params.modsSize);

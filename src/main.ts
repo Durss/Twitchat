@@ -13,6 +13,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 			await store.dispatch("startApp");
 		}catch(error) {
 			//Ignore
+			error;
 		}
 	}
 
