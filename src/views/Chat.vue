@@ -1,10 +1,10 @@
 <template>
 	<div class="chat">
 		<div class="chatHolder">
-			<MessageList class="messages" :max="$store.state.params.historySize" />
+			<MessageList class="messages" :max="$store.state.params.historySize.value" />
 			<ChatForm class="chatForm" />
 		</div>
-		<NewUsers v-if="$store.state.params.firstMessage" />
+		<NewUsers v-if="$store.state.params.firstMessage.value" />
 	</div>
 </template>
 

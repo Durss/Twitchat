@@ -6,8 +6,6 @@ import { Userstate } from 'tmi.js';
 import { createStore } from 'vuex';
 import Store from './Store';
 
-export type ParameterType = "hideBots" | "hideBadges" | "hideEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "ignoreSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
-
 export default createStore({
 	state: {
 		initComplete: false,
@@ -20,20 +18,21 @@ export default createStore({
 		userCard: "",
 		chatMessages: [],
 		params: {
-			hideBots:true,
-			hideBadges:true,
-			hideEmotes:false,
-			minimalistBadges:true,
-			historySize:150,
-			firstMessage:true,
-			highlightMentions:true,
-			ignoreSelf:false,
-			displayTime:true,
-			ignoreCommands:true,
-			defaultSize:2,
-			modsSize:2,
-			vipsSize:2,
-			subsSize:2,
+
+			firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
+			highlightMentions: {type:"toggle", value:false, label:"Highlight messages i'm mentioned in"},
+			ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
+			hideBots: {type:"toggle", value:false, label:"Hide bots"},
+			hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
+			hideBadges: {type:"toggle", value:false, label:"Hide badges"},
+			minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
+			displayTime: {type:"toggle", value:true, label:"Display time"},
+			ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
+			historySize: {type:"slider", value:0, label:"Max chat message count", min:5, max:500, step:10},
+			defaultSize: {type:"slider", value:0, label:"Default text size", min:1, max:4, step:1},
+			modsSize: {type:"slider", value:0, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
+			vipsSize: {type:"slider", value:0, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
+			subsSize: {type:"slider", value:0, label:"Text size of subs", min:1, max:4, step:1, icon:""},
 		},
 		user: {
 			client_id: "",
@@ -83,25 +82,15 @@ export default createStore({
 		
 		closeTooltip(state) { state.tooltip = ""; },
 		
-		setParam(state, payload) {
-			const key = payload.key as ParameterType;
-			state.params[key] = payload.value as never;
-			Store.set("p:"+key, payload.value);
-			if(key == "historySize") {
-				if(state.chatMessages.length > payload.value) {
-					state.chatMessages = state.chatMessages.slice(0, payload.value);
-				}
-			}
-		},
-		
 		showParams(state, payload) { state.showParams = payload; },
 
 		openUserCard(state, payload) { state.userCard = payload; },
 		
 		addChatMessage(state, payload:IRCEventDataList.Message) {
 			(state.chatMessages as IRCEventDataList.Message[]).push(payload);
-			if(state.chatMessages.length > state.params.historySize) {
-				state.chatMessages.shift();
+			const maxMessages = state.params.historySize.value;
+			if(state.chatMessages.length > maxMessages) {
+				state.chatMessages = state.chatMessages.slice(0, maxMessages);
 			}
 		},
 		
@@ -130,17 +119,17 @@ export default createStore({
 		async startApp({state, commit}) {
 			const tmiToken = Store.get("tmiToken");
 			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : tmiToken;
-			state.params.firstMessage = Store.get("p:firstMessage") != "false";
-			state.params.hideBots = Store.get("p:hideBots") != "false";
-			state.params.highlightMentions = Store.get("p:highlightMentions") != "false";
-			state.params.ignoreCommands = Store.get("p:ignoreSelf") == "true";
-			state.params.ignoreSelf = Store.get("p:ignoreSelf") == "true";
-			state.params.displayTime = Store.get("p:displayTime") == "true";
-			state.params.historySize = parseInt(Store.get("p:historySize")) || 100;
-			state.params.defaultSize = parseInt(Store.get("p:defaultSize")) || 2;
-			state.params.modsSize = parseInt(Store.get("p:modsSize")) || 2;
-			state.params.vipsSize = parseInt(Store.get("p:vipsSize")) || 2;
-			state.params.subsSize = parseInt(Store.get("p:subsSize")) || 2;
+			state.params.firstMessage.value = Store.get("p:firstMessage") != "false";
+			state.params.hideBots.value = Store.get("p:hideBots") != "false";
+			state.params.highlightMentions.value = Store.get("p:highlightMentions") != "false";
+			state.params.ignoreCommands.value = Store.get("p:ignoreSelf") == "true";
+			state.params.ignoreSelf.value = Store.get("p:ignoreSelf") == "true";
+			state.params.displayTime.value = Store.get("p:displayTime") == "true";
+			state.params.historySize.value = parseInt(Store.get("p:historySize")) || 100;
+			state.params.defaultSize.value = parseInt(Store.get("p:defaultSize")) || 2;
+			state.params.modsSize.value = parseInt(Store.get("p:modsSize")) || 2;
+			state.params.vipsSize.value = parseInt(Store.get("p:vipsSize")) || 2;
+			state.params.subsSize.value = parseInt(Store.get("p:subsSize")) || 2;
 
 			if(token) {
 				state.authToken = token;
@@ -196,8 +185,6 @@ export default createStore({
 		
 		closeTooltip({commit}) { commit("closeTooltip", null); },
 		
-		setParam({commit}, payload) { commit("setParam", payload); },
-		
 		showParams({commit}, payload) { commit("showParams", payload); },
 		
 		openUserCard({commit}, payload) { commit("openUserCard", payload); },
@@ -211,3 +198,15 @@ export default createStore({
 	modules: {
 	}
 })
+
+export type ParameterType = "hideBots" | "hideBadges" | "hideEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "ignoreSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
+
+export interface ParameterData {
+	type:string;
+	value:boolean|number;
+	label:string;
+	min?:number;
+	max?:number;
+	step?:number;
+	icon?:string;
+}

@@ -144,15 +144,15 @@ export default class IRCClient extends EventDispatcher {
 					const login = tags.username as string;	
 					
 					//Ignore bot messages if requested
-					if(store.state.params.hideBots && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+					if(store.state.params.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 						return;
 					}
 					//Ignore self if requested
-					if(store.state.params.ignoreSelf && tags["user-id"] == store.state.user.user_id) {
+					if(store.state.params.ignoreSelf.value && tags["user-id"] == store.state.user.user_id) {
 						return;
 					}
 					//Ignore commands
-					if(store.state.params.ignoreCommands && /^ *!.*/gi.test(message)) {
+					if(store.state.params.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 						return;
 					}
 

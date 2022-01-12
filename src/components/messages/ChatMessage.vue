@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store.state.params.displayTime">{{time}}</span>
+		<span class="time" v-if="$store.state.params.displayTime.value">{{time}}</span>
 
 		<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" />
 		
@@ -45,15 +45,15 @@ export default class ChatMessage extends Vue {
 		let res = ["chatmessage"];
 		if(this.deleteOverlay) res.push("deleteOverlay");
 
-		if(store.state.params.highlightMentions
+		if(store.state.params.highlightMentions.value
 		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 			res.push("mention");
 		}
 
-		if(this.messageData.tags.mod) res.push("size_"+store.state.params.modsSize);
-		else if(this.messageData.tags.vip) res.push("size_"+store.state.params.vipsSize);
-		else if(this.messageData.tags.subscriber) res.push("size_"+store.state.params.subsSize);
-		else res.push("size_"+store.state.params.defaultSize);
+		if(this.messageData.tags.mod) res.push("size_"+store.state.params.modsSize.value);
+		else if(this.messageData.tags.vip) res.push("size_"+store.state.params.vipsSize.value);
+		else if(this.messageData.tags.subscriber) res.push("size_"+store.state.params.subsSize.value);
+		else res.push("size_"+store.state.params.defaultSize.value);
 
 		return res;
 	}
@@ -86,7 +86,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public get filteredBadges():TwitchTypes.Badge[] {
 		let res:TwitchTypes.Badge[] = [];
-		if(!store.state.params.hideBadges) {
+		if(!store.state.params.hideBadges.value) {
 			try {
 				const channelID:string = this.messageData.tags['room-id'] as string;
 				const badges = TwitchUtils.getBadgesImagesFromRawBadges(channelID, this.messageData.tags.badges);
@@ -105,7 +105,7 @@ export default class ChatMessage extends Vue {
 	public get text():string {
 		let mess:string;
 		try {
-			let removeEmotes = store.state.params.hideEmotes;
+			let removeEmotes = store.state.params.hideEmotes.value;
 			mess = TwitchUtils.parseEmotes(this.messageData.message, this.messageData.tags['emotes-raw'], removeEmotes);
 		}catch(error) {
 			console.log(error);
@@ -123,7 +123,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public get miniBadges():{color:string, label:string}[] {
 		let badges:{color:string, label:string}[] = [];
-		if(store.state.params.minimalistBadges) {
+		if(store.state.params.minimalistBadges.value) {
 			if(this.messageData.tags.badges?.vip) badges.push({color:"#e00bb9", label:"VIP"});
 			if(this.messageData.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
 			if(this.messageData.tags.badges?.prem) badges.push({color:"#00a3ff", label:"Prime"});

@@ -8,7 +8,7 @@
 					<Button :icon="require('@/assets/icons/cross_white.svg')" @click="toggle(true)" class="close" bounce/>
 				</div>
 				<div class="content">
-					<div class="row" v-for="(p,key) in toggles" :key="key">
+					<div class="row" v-for="(p,key) in params" :key="key">
 
 						<div v-if="p.type == 'toggle'" class="toggle">
 							<label :for="'toggle'+key">{{p.label}}</label>
@@ -20,7 +20,7 @@
 								<img :src="p.icon" v-if="p.icon">
 								{{p.label}} <span>({{p.value}})</span>
 							</label>
-							<input type="range" :min="p.min" :max="p.max" :step="p.step" :id="'slider'+key" v-model="p.value">
+							<input type="range" :min="p.min" :max="p.max" :step="p.step" :id="'slider'+key" v-model.number="p.value">
 						</div>
 
 					</div>
@@ -32,10 +32,7 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
-import IRCClient from '@/utils/IRCClient';
-import IRCEvent from '@/utils/IRCEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
+import store, { ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -51,47 +48,14 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class Parameters extends Vue {
 
-	public toggles:{[key:string]:{type:string, value:boolean|number, label:string, min?:number, max?:number, step?:number, icon?:string}} = {
-		firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-		highlightMentions: {type:"toggle", value:false, label:"Highlight messages i'm mentioned in"},
-		ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
-		hideBots: {type:"toggle", value:false, label:"Hide bots"},
-		hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
-		hideBadges: {type:"toggle", value:false, label:"Hide badges"},
-		minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
-		displayTime: {type:"toggle", value:true, label:"Display time"},
-		ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
-		historySize: {type:"slider", value:0, label:"Max chat message count", min:5, max:500, step:10},
-		defaultSize: {type:"slider", value:0, label:"Default text size", min:1, max:4, step:1},
-		modsSize: {type:"slider", value:0, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
-		vipsSize: {type:"slider", value:0, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
-		subsSize: {type:"slider", value:0, label:"Text size of subs", min:1, max:4, step:1, icon:""},
-	};
+	public get params():{[key:string]:ParameterData} {
+		return store.state.params;
+	}
 
-	public showMenu:boolean = true;
+	public showMenu:boolean = false;
 
 	public async mounted():Promise<void> {
-		// this.toggle();//TODO remove
-
-		//populate badges images when available
-		IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, ():void=>{
-			const badges = TwitchUtils.getBadgesImagesFromRawBadges(store.state.user.user_id, {moderator:"1", vip:"1", subscriber:"0"});
-			this.toggles.modsSize.icon = badges[0].image_url_1x;
-			this.toggles.vipsSize.icon = badges[1].image_url_1x;
-			this.toggles.subsSize.icon = badges[2].image_url_1x;
-		})
-
-		for (const key in this.toggles) {
-			let v:number|boolean = store.state.params[key as "firstMessage"];
-			if(typeof(v) == "string") v = parseInt(v);
-			this.toggles[key].value = v;
-			watch(() => this.toggles[key].value, (newValue:boolean|number) => {
-				store.commit('setParam', {key, value:typeof(newValue) == "string"? parseInt(newValue) : newValue});
-			});
-			watch(() => store.state.authenticated, (newValue:boolean) => {
-				if(!newValue) this.toggle(true);
-			});
-		}
+		store.dispatch("showParams", false);
 		watch(() => store.state.showParams, (value:boolean) => {
 			this.toggle(!value);
 		});
