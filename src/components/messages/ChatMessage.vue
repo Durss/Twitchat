@@ -63,11 +63,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get time():string {
-		let d = new Date();
-		//Da heck?? Twitch does not send timestamp for our messages??
-		if(this.messageData.tags['tmi-sent-ts']) {
-			d = new Date(parseInt(this.messageData.tags['tmi-sent-ts'] as string));
-		}
+		const d = new Date(parseInt(this.messageData.tags['tmi-sent-ts'] as string));
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 	

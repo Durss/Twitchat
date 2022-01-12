@@ -15,7 +15,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = true;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false;//Enable to subscribe to other twitch channels to get chat messages
 	private uidsDone:{[key:string]:boolean} = {};
 	
 	public token!:string;
@@ -56,7 +56,9 @@ export default class IRCClient extends EventDispatcher {
 			let uids = [ store.state.user.user_id];
 			const customLogin = Utils.getQueryParameterByName("login");
 			if(customLogin) {
-				channels.push(customLogin);
+				const [login, uid] = customLogin.split(":");
+				channels.push(login);
+				uids.push(uid);
 			}
 			if(this.debugMode) {
 				channels = channels.concat(["angledroit", "antoinedaniel", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
@@ -155,6 +157,11 @@ export default class IRCClient extends EventDispatcher {
 					if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 						return;
 					}
+
+					//For some (stupid) reason, twitch does not send these
+					//data for the broadcaster's messages...
+					if(!tags.id) tags.id = Math.random().toString();
+					if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
 
 					const data = {message, tags, channel, self, firstMessage:false};
 					if(this.uidsDone[tags['user-id'] as string] !== true) {

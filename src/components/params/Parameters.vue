@@ -47,7 +47,7 @@ export default class Parameters extends Vue {
 
 	public content:'appearance' | 'filters' | 'account' = 'appearance';
 
-	public showMenu:boolean = true;
+	public showMenu:boolean = false;
 
 	public async mounted():Promise<void> {
 		store.dispatch("showParams", false);
