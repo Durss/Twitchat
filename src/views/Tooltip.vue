@@ -1,7 +1,11 @@
 <template>
 	<div class="tooltip">
-		<div class="holder" :class="upsideDown? 'upsideDown' : ''" ref="holder" v-show="opened" key="tooltip">
-			<div ref="content"></div>
+		<div class="holder"
+		:style="styles"
+		:class="upsideDown? 'upsideDown' : ''" ref="holder"
+		v-show="opened"
+		key="tooltip">
+			<div ref="content">{{message}}</div>
 			<div class="tip"></div>
 		</div>
 	</div>
@@ -19,15 +23,27 @@ import { Options, Vue } from 'vue-class-component';
 export default class Tooltip extends Vue {
 
     public upsideDown:boolean = false;
-    private opened:boolean = false;
+    public message:string = "";
 	
-    private currentContent!:string;
+    private opened:boolean = false;
+    private position:{x:number, y:number} = {x:0, y:0};
     private mouseMoveHandler!:(e:MouseEvent) => void;
+    private mouseUpHandler!:(e:MouseEvent) => void;
     private currentTarget!:HTMLElement|null;
     private lastMouseEvent!:MouseEvent;
+	
+    public get styles():unknown {
+		return {
+			left: this.position.x + "px",
+			top: this.position.y + "px",
+		}
+	}
 
 	public mounted():void {
-		this.initialize();
+		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
+		this.mouseUpHandler = (e:MouseEvent) => this.onMouseUp(e);
+		document.addEventListener('mousemove', this.mouseMoveHandler);
+		document.addEventListener('mouseup', this.mouseUpHandler);
 		
 		watch(() => store.state.tooltip, (val:string) => {
 			let data = val;
@@ -41,6 +57,7 @@ export default class Tooltip extends Vue {
 
 	public beforeDestroy():void {
 		document.removeEventListener('mousemove', this.mouseMoveHandler);
+		document.removeEventListener('mouseup', this.mouseUpHandler);
 	}
 
 
@@ -49,10 +66,9 @@ export default class Tooltip extends Vue {
 	 * @param content
 	 */
 	public show(content:string):void {
-		if(this.currentContent == content && this.opened) return;
+		if(this.message == content && this.opened) return;
 		this.opened = true;
-		this.currentContent = content;
-		(this.$refs.content as HTMLElement).innerHTML = content;
+		this.message = content;
 		gsap.killTweensOf(this.$el);
 		gsap.to(this.$el, {duration:.2, opacity:1});
 		
@@ -69,20 +85,18 @@ export default class Tooltip extends Vue {
 	public hide():boolean {
 		if(!this.opened) return false;
 		this.opened = false;
+		this.message = "";
 		gsap.killTweensOf(this.$el);
 		gsap.to(this.$el, {duration:.2, opacity:0, onComplete:()=>this.onHideComplete()});
 		return true;
 	}
 
-    /**
-     * Initializes the class
-     */
-    private initialize():void {
-		this.opened = false;
-
-		gsap.set(this.$el, {opacity:0});
-		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
-		document.addEventListener('mousemove', this.mouseMoveHandler);
+	/**
+	 * Close the tooltip on mouse up
+	 * @param e
+	 */
+	private onMouseUp(e:MouseEvent, checkTarget:boolean = true):void {
+		if(this.opened) store.dispatch("closeTooltip");
 	}
 
 	/**
@@ -99,7 +113,10 @@ export default class Tooltip extends Vue {
 			}
 			//Target can be null if pressing mouse inside window and moving outside browser while keeping mouse pressed (at least on chrome)
 			if(target && target != document.body) {
-				store.dispatch("openTooltip", target.dataset.tooltip);
+				let mess = target.dataset.tooltip;
+				if(mess && mess != this.message) {
+					store.dispatch("openTooltip", mess);
+				}
 			}else if(this.opened) {
 				store.dispatch("closeTooltip");
 			}
@@ -118,8 +135,8 @@ export default class Tooltip extends Vue {
 		}else{
 			this.upsideDown = false;
 		}
-		holder.style.left = px+'px';
-		holder.style.top = py+'px';
+		this.position.x = px;
+		this.position.y = py;
 
 		//Deep check if current hover item is still on DOM
 		//Vue can remove/recreate items anytime, in this case
@@ -148,25 +165,25 @@ export default class Tooltip extends Vue {
 
 <style scoped lang="less">
 .tooltip{
-	position: fixed;
-	pointer-events: none;
-	z-index: 100;
+	opacity: 0;
 	&>.holder {
+		pointer-events: none;
+		z-index: 100;
 		position: fixed;
 		display: inline;
 		color: #fff;
-		padding: 8px;
-		border-radius: 10px;
+		padding: 4px;
+		border-radius: 5px;
 		background-color: @mainColor_highlight;
 		max-width: 300px;
 		text-align: justify;
-		font-size: 16px;
+		font-size: 14px;
 
 		.tip {
-			border-left: 10px solid transparent;
-			border-right: 10px solid transparent;
-			border-top: 12px solid @mainColor_highlight;
-			bottom: -12px;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-top: 8px solid @mainColor_highlight;
+			bottom: -8px;
 			position: absolute;
 			width: 0;
 			left:50%;
@@ -175,11 +192,11 @@ export default class Tooltip extends Vue {
 
 		&.upsideDown {
 			.tip {
-				border-left: 10px solid transparent;
-				border-right: 10px solid transparent;
+				border-left: 6px solid transparent;
+				border-right: 6px solid transparent;
 				border-top: none;
-				border-bottom: 12px solid @mainColor_highlight;
-				top: -12px;
+				border-bottom: 8px solid @mainColor_highlight;
+				top: -8px;
 				bottom: auto;
 				position: absolute;
 				width: 0;
@@ -193,7 +210,8 @@ export default class Tooltip extends Vue {
 //Hide on mobile
 @media only screen and (max-width: 500px) {
 	.tooltip{
-		display: none;
+		//Actuallly, on OBS the page is so small it would think it's mobile...
+		// display: none;
 	}
 }
 </style>
