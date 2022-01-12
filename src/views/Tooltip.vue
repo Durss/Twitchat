@@ -5,7 +5,7 @@
 		:class="upsideDown? 'upsideDown' : ''" ref="holder"
 		v-show="opened"
 		key="tooltip">
-			<div ref="content">{{message}}</div>
+			<div ref="content" v-html="message"></div>
 			<div class="tip"></div>
 		</div>
 	</div>
@@ -41,7 +41,7 @@ export default class Tooltip extends Vue {
 
 	public mounted():void {
 		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
-		this.mouseUpHandler = (e:MouseEvent) => this.onMouseUp(e);
+		this.mouseUpHandler = () => this.onMouseUp();
 		document.addEventListener('mousemove', this.mouseMoveHandler);
 		document.addEventListener('mouseup', this.mouseUpHandler);
 		
@@ -95,7 +95,7 @@ export default class Tooltip extends Vue {
 	 * Close the tooltip on mouse up
 	 * @param e
 	 */
-	private onMouseUp(e:MouseEvent, checkTarget:boolean = true):void {
+	private onMouseUp():void {
 		if(this.opened) store.dispatch("closeTooltip");
 	}
 

@@ -1,9 +1,9 @@
 <template>
-	<div class="messagelist">
+	<div :class="classes" @click="counter ++">
 		<div class="holder" ref="messageHolder">
 			<ChatMessage v-for="m in messages"
 				class="message"
-				:key="m.id"
+				:key="m.tags.id"
 				:messageData="m" />
 		</div>
 
@@ -12,9 +12,10 @@
 </template>
 
 <script lang="ts">
-import ChatMessage, { ChatMessageData } from '@/components/messages/ChatMessage.vue';
-import IRCClient from '@/utils/IRCClient';
-import IRCEvent from '@/utils/IRCEvent';
+import ChatMessage from '@/components/messages/ChatMessage.vue';
+import store from '@/store';
+import { IRCEventDataList } from '@/utils/IRCEvent';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -28,37 +29,32 @@ import { Options, Vue } from 'vue-class-component';
 export default class MessageList extends Vue {
 
 	public max!: number;
-	public messages:ChatMessageData[] = [];
 	public counter:number = 0;
 
-	private messageHandler!:(e:unknown)=>void;
+	public get messages():IRCEventDataList.Message[] {
+		return store.state.chatMessages;
+	}
+
+	public get classes():string[] {
+		let res = ["messagelist"];
+		// if(this.counter%2==0) res.push("even");
+		return res;
+	}
 
 	public async mounted():Promise<void> {
-		this.messageHandler = (e:unknown) => this.onMessage(e as IRCEvent);
-		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.messageHandler);
+		watch(() => store.state.chatMessages, async () => {
+			await this.$nextTick();
+			this.counter ++;
+			let el = this.$refs.messageHolder as HTMLDivElement;
+			el.scrollTop = el.scrollHeight;
+		}, {
+			deep:true
+		});
 	}
 
 	public beforeUnmount():void {
-		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.messageHandler);
 	}
 
-	private async onMessage(e:IRCEvent):Promise<void> {
-		//Add message to list
-		this.messages.push({
-			message:e.message,
-			tags:e.tags,
-			channel:e.channel,
-			self:e.self,
-			id:(Date.now() + Math.random()).toString(10),
-			highlight:(this.counter++)%2 == 0,
-		});
-		if(this.messages.length > this.max) {
-			this.messages.splice(0, this.messages.length - this.max);
-		}
-		await this.$nextTick();
-		let el = this.$refs.messageHolder as HTMLDivElement;
-		el.scrollTop = el.scrollHeight;
-	}
 }
 </script>
 
@@ -73,6 +69,23 @@ export default class MessageList extends Vue {
 		position: absolute;
 		bottom: 0;
 		padding: 10px;
+	}
+
+	&.even {
+		.holder {
+			.message:nth-child(even) {
+				background-color: transparent;
+			}
+			.message:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .025);
+			}
+		}
+	}
+
+	.holder {
+		.message:nth-child(even) {
+			background-color: rgba(255, 255, 255, .025);
+		}
 	}
 
 	.noMessage {

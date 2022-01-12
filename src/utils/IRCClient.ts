@@ -16,6 +16,7 @@ export default class IRCClient extends EventDispatcher {
 	private client!:tmi.Client;
 	private login!:string;
 	private debugMode:boolean = false;//Enable to subscribe to other twitch channels to get chat messages
+	private uidsDone:{[key:string]:boolean} = {};
 	
 	public token!:string;
 	public channel!:string;
@@ -58,8 +59,8 @@ export default class IRCClient extends EventDispatcher {
 				channels.push(customLogin);
 			}
 			if(this.debugMode) {
-				channels = channels.concat(["lestream", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
-				uids = uids.concat(["147337432", "100744948", "28575692", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["angledroit", "antoinedaniel", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
+				uids = uids.concat(["177146919", "135468063", "100744948", "28575692", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
 				try {
@@ -77,7 +78,7 @@ export default class IRCClient extends EventDispatcher {
 				for (let i = 0; i < uids.length; i++) {
 					await TwitchUtils.loadUserBadges(uids[i]);
 				}
-				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED, "", {}, "", false));
+				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
 			})();
 			
 	
@@ -97,8 +98,28 @@ export default class IRCClient extends EventDispatcher {
 					this.connected = true;
 					console.log("IRCClient :: Connection succeed");
 					resolve();
-					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED, "", {}, channel, false));
+					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
 				}
+			});
+
+			this.client.on("ban", (channel: string, username: string, reason: string)=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {channel, username, reason}));
+			});
+
+			this.client.on("messagedeleted", (channel: string, username: string, deletedMessage: string, userstate: tmi.DeleteUserstate)=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {channel, username, deletedMessage, userstate}));
+			});
+			
+			this.client.on("automod", (channel: string, msgID: 'msg_rejected' | 'msg_rejected_mandatory', message: string)=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {channel, msgID, message}));
+			});
+
+			this.client.on("clearchat", ()=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.CLEARCHAT));
+			});
+
+			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {channel, username, reason, duration}));
 			});
 
 			this.client.on("disconnected", ()=> {
@@ -107,8 +128,16 @@ export default class IRCClient extends EventDispatcher {
 					reject();
 				}
 				this.connected = false;
-				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED, "", {}, "", false));
+				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
 			});
+
+			// this.client.on('raw_message', (messageCloned, message) => {
+			// 	console.log("################## ON RAW ##################");
+			// 	console.log(messageCloned);
+			// 	// if (message.command != "PRIVMSG") {
+			// 		console.log(message.command);
+			// 		console.log(message);
+			// });
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
@@ -126,7 +155,15 @@ export default class IRCClient extends EventDispatcher {
 					if(store.state.params.ignoreCommands && /^ *!.*/gi.test(message)) {
 						return;
 					}
-					this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, message, tags, channel, self));
+
+					const data = {message, tags, channel, self, firstMessage:false};
+					if(this.uidsDone[tags['user-id'] as string] !== true) {
+						data.firstMessage = true;
+						this.uidsDone[tags['user-id'] as string] = true;
+					}
+			
+
+					this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 				}
 			});
 	

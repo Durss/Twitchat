@@ -61,14 +61,14 @@ export default class Parameters extends Vue {
 		minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
 		displayTime: {type:"toggle", value:true, label:"Display time"},
 		ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
-		historySize: {type:"slider", value:0, label:"Max chat message count", min:50, max:500, step:10},
+		historySize: {type:"slider", value:0, label:"Max chat message count", min:5, max:500, step:10},
 		defaultSize: {type:"slider", value:0, label:"Default text size", min:1, max:4, step:1},
 		modsSize: {type:"slider", value:0, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
 		vipsSize: {type:"slider", value:0, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
 		subsSize: {type:"slider", value:0, label:"Text size of subs", min:1, max:4, step:1, icon:""},
 	};
 
-	public showMenu:boolean = false;
+	public showMenu:boolean = true;
 
 	public async mounted():Promise<void> {
 		// this.toggle();//TODO remove

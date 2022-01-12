@@ -21,9 +21,8 @@ export default class UserCard extends Vue {
 		return "https://www.twitch.tv/popout/"+store.state.user.login+"/viewercard/"+this.username;
 	}
 
-	mounted() {
+	public mounted():void {
 		watch(() => store.state.userCard, () => {
-			// console.log("OOK");
 			this.username = store.state.userCard;
 			let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 			width=350,height=500,left=100,top=100`;
@@ -40,11 +39,5 @@ export default class UserCard extends Vue {
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 200px;
-	height: 300px;
-	iframe {
-		width: 100%;
-		height: 100%;
-	}
 }
 </style>

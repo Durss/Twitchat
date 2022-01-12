@@ -1,8 +1,12 @@
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
+import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
+import { Userstate } from 'tmi.js';
 import { createStore } from 'vuex';
 import Store from './Store';
+
+export type ParameterType = "hideBots" | "hideBadges" | "hideEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "ignoreSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
 
 export default createStore({
 	state: {
@@ -14,6 +18,7 @@ export default createStore({
 		alert: "",
 		tooltip: "",
 		userCard: "",
+		chatMessages: [],
 		params: {
 			hideBots:true,
 			hideBadges:true,
@@ -79,14 +84,47 @@ export default createStore({
 		closeTooltip(state) { state.tooltip = ""; },
 		
 		setParam(state, payload) {
-			const key = payload.key as "firstMessage";
-			state.params[key] = payload.value;
+			const key = payload.key as ParameterType;
+			state.params[key] = payload.value as never;
 			Store.set("p:"+key, payload.value);
+			if(key == "historySize") {
+				if(state.chatMessages.length > payload.value) {
+					state.chatMessages = state.chatMessages.slice(0, payload.value);
+				}
+			}
 		},
 		
 		showParams(state, payload) { state.showParams = payload; },
-		
+
 		openUserCard(state, payload) { state.userCard = payload; },
+		
+		addChatMessage(state, payload:IRCEventDataList.Message) {
+			(state.chatMessages as IRCEventDataList.Message[]).push(payload);
+			if(state.chatMessages.length > state.params.historySize) {
+				state.chatMessages.shift();
+			}
+		},
+		
+		delChatMessage(state, payload:IRCEventDataList.MessageDeleted) { 
+			const list = (state.chatMessages as IRCEventDataList.Message[]);
+			for (let i = 0; i < list.length; i++) {
+				if(payload.deletedMessage == list[i].tags.id) {
+					state.chatMessages.splice(i, 1);
+				}
+			}
+		},
+
+		delUserMessages(state, payload:Userstate) {
+			const list = (state.chatMessages as IRCEventDataList.Message[]);
+			for (let i = 0; i < list.length; i++) {
+				const m = list[i];
+				if(m.tags['user-id'] == payload['user-id']) {
+					state.chatMessages.splice(i, 1);
+					i--;
+				}
+				
+			}
+		},
 	},
 	actions: {
 		async startApp({state, commit}) {
@@ -120,6 +158,26 @@ export default createStore({
 					return;
 				}
 			}
+
+			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
+				this.dispatch("addChatMessage", event.data);
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, (event:IRCEvent) => {
+				this.dispatch("delChatMessage", event.data);
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
+				this.dispatch("delUserMessages", (event.data as IRCEventDataList.Ban).username);
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.TIMEOUT, (event:IRCEvent) => {
+				this.dispatch("delUserMessages", (event.data as IRCEventDataList.Timeout).username);
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.CLEARCHAT, () => {
+				state.chatMessages = [];
+			});
 			
 			state.initComplete = true;
 		},
@@ -143,6 +201,12 @@ export default createStore({
 		showParams({commit}, payload) { commit("showParams", payload); },
 		
 		openUserCard({commit}, payload) { commit("openUserCard", payload); },
+		
+		addChatMessage({commit}, payload) { commit("addChatMessage", payload); },
+		
+		delChatMessage({commit}, payload) { commit("delChatMessage", payload); },
+
+		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 	},
 	modules: {
 	}

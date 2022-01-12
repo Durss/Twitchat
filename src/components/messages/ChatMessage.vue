@@ -2,6 +2,8 @@
 	<div :class="classes">
 		<span class="time" v-if="$store.state.params.displayTime">{{time}}</span>
 
+		<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" />
+		
 		<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 		
 		<span class="miniBadges" v-if="miniBadges.length > 0">
@@ -19,13 +21,16 @@
 
 <script lang="ts">
 import store from '@/store';
+import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { ChatUserstate } from 'tmi.js';
 import { Options, Vue } from 'vue-class-component';
+import ChatModTools from './ChatModTools.vue';
 
 @Options({
-	components:{},
+	components:{
+		ChatModTools,
+	},
 	props:{
 		messageData:Object,
 		deleteOverlay:Boolean,
@@ -34,28 +39,38 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatMessage extends Vue {
 	
 	public deleteOverlay:boolean = false;
-	public messageData!:ChatMessageData;
+	public messageData!:IRCEventDataList.Message;
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
 		if(this.deleteOverlay) res.push("deleteOverlay");
-		if(this.messageData.highlight) res.push("highlight");
+
 		if(store.state.params.highlightMentions
 		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 			res.push("mention");
 		}
+
 		if(this.messageData.tags.mod) res.push("size_"+store.state.params.modsSize);
 		else if(this.messageData.tags.vip) res.push("size_"+store.state.params.vipsSize);
 		else if(this.messageData.tags.subscriber) res.push("size_"+store.state.params.subsSize);
 		else res.push("size_"+store.state.params.defaultSize);
+
 		return res;
 	}
 
-	public get time():string {
-		let d = new Date(parseInt(this.messageData.tags['tmi-sent-ts'] as string));
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	public get showModTools():boolean {
+		return !this.messageData.tags.self && this.messageData.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase();
 	}
 
+	public get time():string {
+		let d = new Date();
+		//Da heck?? Twitch does not send timestamp for our messages??
+		if(this.messageData.tags['tmi-sent-ts']) {
+			d = new Date(parseInt(this.messageData.tags['tmi-sent-ts'] as string));
+		}
+		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	}
+	
 	/**
 	 * Set login color
 	 */
@@ -111,7 +126,7 @@ export default class ChatMessage extends Vue {
 		if(store.state.params.minimalistBadges) {
 			if(this.messageData.tags.badges?.vip) badges.push({color:"#e00bb9", label:"VIP"});
 			if(this.messageData.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
-			if(this.messageData.tags.badges?.premium) badges.push({color:"#00a3ff", label:"Prime"});
+			if(this.messageData.tags.badges?.prem) badges.push({color:"#00a3ff", label:"Prime"});
 			if(this.messageData.tags.badges?.moderator) badges.push({color:"#39db00", label:"Moderator"});
 			if(this.messageData.tags.badges?.staff) badges.push({color:"#ff0000", label:"Twitch staff"});
 		}
@@ -120,18 +135,9 @@ export default class ChatMessage extends Vue {
 
 	public badges:TwitchTypes.Badge[] = [];
 
-	public openUserCard():void {
+	public openUserCard():void {console.log(this.messageData);
 		store.dispatch("openUserCard", this.messageData.tags.username);
 	}
-}
-
-export interface ChatMessageData {
-	message:string;
-	tags:ChatUserstate;
-	channel:string;
-	self:boolean;
-	id:string;
-	highlight:boolean;
 }
 </script>
 
@@ -140,7 +146,7 @@ export interface ChatMessageData {
 	font-family: "Inter";
 	color: v-bind(color);
 	padding: 5px;
-	transition: background-color .2s, opacity .2s;
+	// transition: background-color .2s, opacity .2s;
 
 	&.size_1 { font-size: 12px; }
 	&.size_2 { font-size: 16px; }
@@ -148,11 +154,7 @@ export interface ChatMessageData {
 	&.size_4 { font-size: 25px; }
 
 	&.mention{
-		background-color: rgba(255, 0, 0, .35);
-	}
-
-	&.highlight{
-		background-color: rgba(255, 255, 255, .025);
+		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>
 	}
 
 	&.deleteOverlay{
@@ -191,6 +193,9 @@ export interface ChatMessageData {
 			width: 6px;
 			height: 12px;
 			margin: 0 1px 0px 0;
+			&:last-child {
+				margin-right: 0;
+			}
 		}
 	}
 
@@ -201,6 +206,11 @@ export interface ChatMessageData {
 			max-height: 28px;
 			vertical-align: middle;
 		}
+	}
+
+	.mod {
+		display: inline;
+		margin-right: 5px;
 	}
 }
 </style>
