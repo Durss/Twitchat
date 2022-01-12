@@ -43,12 +43,18 @@ export default class App extends Vue {
 	-moz-osx-font-smoothing: grayscale;
 	width: 100%;
 	height: 100vh;
+	font-size: 20px;
 
 	.loader {
 		.center();
 		position: absolute;
 		width: 80px;
 		height: 80px;
+	}
+}
+@media only screen and (max-width: 500px) {
+	.app{
+		font-size: 18px;
 	}
 }
 </style>

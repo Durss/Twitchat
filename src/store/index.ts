@@ -120,6 +120,7 @@ export default createStore({
 			const tmiToken = Store.get("tmiToken");
 			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : tmiToken;
 
+			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
 			for (const key in props) {
 				if(props[key] == null) continue;

@@ -120,7 +120,6 @@ export default class NewUsers extends Vue {
 		});
 	}
 	public leave(el:HTMLElement, done:()=>void):void {
-		console.log(this.indexOffset);
 		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.07;
 		gsap.to(el, {
 			duration:0.3,
