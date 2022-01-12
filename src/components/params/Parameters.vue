@@ -107,7 +107,9 @@ export default class Parameters extends Vue {
 
 	.holder {
 		.block();
-		.center();
+		left: 50%;
+		top: 0;
+		transform: translate(-50%, 0);
 		position: absolute;
 		margin: auto;
 		width: 90%;

@@ -163,8 +163,8 @@ export default class Button extends Vue {
 			return;
 		}
 		if(this.bounce) {
-			gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, ease:"elastic.out(2)"});
-			gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, ease:"elastic.out(2)", delay:.05});
+			gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
+			gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, clearProps:"all", ease:"elastic.out(2)", delay:.05});
 		}
 		this.$emit("click", event);
 	}
