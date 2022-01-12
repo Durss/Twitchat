@@ -1,4 +1,4 @@
-# twitchcat
+# Twitchat
 
 ## Project setup
 ```
