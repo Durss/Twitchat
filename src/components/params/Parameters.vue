@@ -9,18 +9,7 @@
 			<div class="content">
 				<div class="row" v-for="(p,key) in params" :key="key">
 
-					<div v-if="p.type == 'toggle'" class="toggle">
-						<label :for="'toggle'+key">{{p.label}}</label>
-						<ToggleButton :id="'toggle'+key" v-model="p.value" />
-					</div>
-					
-					<div v-if="p.type == 'slider'" class="slider">
-						<label :for="'slider'+key">
-							<img :src="p.icon" v-if="p.icon">
-							{{p.label}} <span>({{p.value}})</span>
-						</label>
-						<input type="range" :min="p.min" :max="p.max" :step="p.step" :id="'slider'+key" v-model.number="p.value">
-					</div>
+					<ParamItem :paramData="p" />
 
 				</div>
 				<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Logout" highlight class="logoutBt" v-if="$store.state.authenticated" />
@@ -36,11 +25,13 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
+import ParamItem from './ParamItem.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		ParamItem,
 		ToggleButton,
 	}
 })
@@ -138,22 +129,6 @@ export default class Parameters extends Vue {
 			}
 			.row {
 				margin: 10px 0;
-				.toggle {
-					display: flex;
-					flex-direction: row;
-					label {
-						flex-grow: 1;
-						text-align: right;
-						margin-right: 20px;
-					}
-				}
-				.slider {
-					display: flex;
-					flex-direction: column;
-					label {
-						text-align: center;
-					}
-				}
 			}
 			.logoutBt {
 				// width: min-content;
