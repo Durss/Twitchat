@@ -163,6 +163,7 @@ export default class ChatMessage extends Vue {
 	&>.badge {
 		width: 18px;
 		height: 18px;
+		vertical-align: middle;
 		&:last-of-type {
 			margin-right: 5px;
 		}
