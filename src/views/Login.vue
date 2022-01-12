@@ -103,6 +103,7 @@ export default class Login extends Vue {
 	.block();
 	position: absolute;
 	width: min-content;
+	z-index: 1;
 	
 	.head {
 		margin-bottom:0;

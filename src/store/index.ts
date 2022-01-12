@@ -18,21 +18,24 @@ export default createStore({
 		userCard: "",
 		chatMessages: [],
 		params: {
-
-			firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-			highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
-			ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
-			hideBots: {type:"toggle", value:false, label:"Hide bots"},
-			hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
-			hideBadges: {type:"toggle", value:false, label:"Hide badges"},
-			minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
-			displayTime: {type:"toggle", value:true, label:"Display time"},
-			ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
-			historySize: {type:"slider", value:0, label:"Max chat message count", min:5, max:500, step:10},
-			defaultSize: {type:"slider", value:0, label:"Default text size", min:1, max:4, step:1},
-			modsSize: {type:"slider", value:0, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
-			vipsSize: {type:"slider", value:0, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
-			subsSize: {type:"slider", value:0, label:"Text size of subs", min:1, max:4, step:1, icon:""},
+			appearance: {
+				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
+				hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
+				hideBadges: {type:"toggle", value:false, label:"Hide badges"},
+				minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
+				displayTime: {type:"toggle", value:true, label:"Display time"},
+				historySize: {type:"slider", value:100, label:"Max chat message count", min:50, max:1000, step:50},
+				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:4, step:1},
+				modsSize: {type:"slider", value:2, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
+				vipsSize: {type:"slider", value:2, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
+				subsSize: {type:"slider", value:2, label:"Text size of subs", min:1, max:4, step:1, icon:""},
+			},
+			filters: {
+				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
+				ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
+				hideBots: {type:"toggle", value:false, label:"Hide bots"},
+				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
+			},
 		},
 		user: {
 			client_id: "",
@@ -88,7 +91,7 @@ export default createStore({
 		
 		addChatMessage(state, payload:IRCEventDataList.Message) {
 			(state.chatMessages as IRCEventDataList.Message[]).push(payload);
-			const maxMessages = state.params.historySize.value;
+			const maxMessages = state.params.appearance.historySize.value;
 			if(state.chatMessages.length > maxMessages) {
 				state.chatMessages = state.chatMessages.splice(state.chatMessages.length-maxMessages);
 			}
@@ -122,21 +125,25 @@ export default createStore({
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
-			for (const key in props) {
-				if(props[key] == null) continue;
-
-				const k:ParameterType = key.replace(/^p:/gi, "") as ParameterType;
-				if(/^p:/gi.test(key) && k in state.params) {
-					const v:string = props[key] as string;
-					
-					if(typeof state.params[k].value === 'boolean') {
-						state.params[k].value = (v == "true") as never;
-					}
-					if(typeof state.params[k].value === 'string') {
-						state.params[k].value = v as never;
-					}
-					if(typeof state.params[k].value === 'number') {
-						state.params[k].value = parseFloat(v) as never;
+			for (const cat in state.params) {
+				const c = cat as ParameterCategory;
+				for (const key in props) {
+					const k:ParameterType = key.replace(/^p:/gi, "") as ParameterType;
+					if(props[k] == null) continue;
+					if(props[key] == null) continue;
+					if(/^p:/gi.test(key) && k in state.params[c]) {
+						const v:string = props[key] as string;
+						/* eslint-disable-next-line */
+						const pointer = (state.params[c] as any)[k];
+						if(typeof pointer[k].value === 'boolean') {
+							pointer[k].value = (v == "true") as never;
+						}
+						if(typeof pointer[k].value === 'string') {
+							pointer[k].value = v as never;
+						}
+						if(typeof pointer[k].value === 'number') {
+							pointer[k].value = parseFloat(v) as never;
+						}
 					}
 				}
 			}
@@ -209,6 +216,7 @@ export default createStore({
 	}
 })
 
+export type ParameterCategory = "appearance" | "filters";
 export type ParameterType = "hideBots" | "hideBadges" | "hideEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "ignoreSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
 
 export interface ParameterData {

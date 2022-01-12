@@ -42,7 +42,12 @@ export default class Store {
 	}
 	public static clear():void {
 		if(!this.store) this.init();
-		this.store.clear();
+		//Remove only the data with the proper prefix
+		for (let i = 0; i < this.store.length; i++) {
+			const key = this.store.key(i);
+			if(!key || key.indexOf(this.dataPrefix) == -1) continue;
+			this.store.removeItem(key);
+		}
 	}
 	
 	

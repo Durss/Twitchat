@@ -15,7 +15,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = false;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = true;//Enable to subscribe to other twitch channels to get chat messages
 	private uidsDone:{[key:string]:boolean} = {};
 	
 	public token!:string;
@@ -144,15 +144,15 @@ export default class IRCClient extends EventDispatcher {
 					const login = tags.username as string;	
 					
 					//Ignore bot messages if requested
-					if(store.state.params.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+					if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 						return;
 					}
 					//Ignore self if requested
-					if(store.state.params.ignoreSelf.value && tags["user-id"] == store.state.user.user_id) {
+					if(store.state.params.filters.ignoreSelf.value && tags["user-id"] == store.state.user.user_id) {
 						return;
 					}
 					//Ignore commands
-					if(store.state.params.ignoreCommands.value && /^ *!.*/gi.test(message)) {
+					if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 						return;
 					}
 

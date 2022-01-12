@@ -6,25 +6,30 @@
 				<span class="title">Params</span>
 				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="toggle(true)" class="close" bounce/>
 			</div>
+			<div class="menu">
+				<Button white bounce title="Appearance" @click="content='appearance'" :selected="content=='appearance'" />
+				<Button white bounce title="Filters" @click="content='filters'" :selected="content=='filters'" />
+				<Button white bounce title="Account" @click="content='account'" :selected="content=='account'" />
+			</div>
 			<div class="content">
-				<div class="row" v-for="(p,key) in params" :key="key">
-
-					<ParamItem :paramData="p" />
-
-				</div>
-				<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Logout" highlight class="logoutBt" v-if="$store.state.authenticated" />
+				<ParamsAppearence v-if="content=='appearance'" />
+				<ParamsFilters v-if="content=='filters'" />
+				<ParamsAccount v-if="content=='account'" />
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
+import ParamsAccount from './contents/ParamsAccount.vue';
+import ParamsAppearence from './contents/ParamsAppearance.vue';
+import ParamsFilters from './contents/ParamsFilters.vue';
 import ParamItem from './ParamItem.vue';
 
 @Options({
@@ -33,13 +38,14 @@ import ParamItem from './ParamItem.vue';
 		Button,
 		ParamItem,
 		ToggleButton,
+		ParamsFilters,
+		ParamsAccount,
+		ParamsAppearence,
 	}
 })
 export default class Parameters extends Vue {
 
-	public get params():{[key:string]:ParameterData} {
-		return store.state.params;
-	}
+	public content:'appearance' | 'filters' | 'account' = 'filters';
 
 	public showMenu:boolean = true;
 
@@ -48,11 +54,6 @@ export default class Parameters extends Vue {
 		watch(() => store.state.showParams, (value:boolean) => {
 			this.toggle(!value);
 		});
-	}
-
-	public logout():void {
-		store.dispatch('logout');
-		this.$router.push({name:'login'});
 	}
 
 	public async toggle(forceClose:boolean = false):Promise<void> {
@@ -87,6 +88,23 @@ export default class Parameters extends Vue {
 		height: 100%;
 		opacity: 0;
 	}
+
+	.menu {
+		text-align: center;
+		border-top: 1px solid @mainColor_normal;
+		.button {
+			background: transparent;
+			border: 1px solid @mainColor_normal;
+			border-top: none;
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+			transform-origin: top;//So the bouncy effect looks better
+			&.selected {
+				background-color: @mainColor_normal_light;
+			}
+		}
+	}
+
 	.holder {
 		.block();
 		.center();
@@ -124,17 +142,6 @@ export default class Parameters extends Vue {
 		.content {
 			flex-grow: 1;
 			overflow-y: auto;
-			.spacer {
-				margin: 10px 0;
-			}
-			.row {
-				margin: 10px 0;
-			}
-			.logoutBt {
-				// width: min-content;
-				margin: auto;
-				display: block;
-			}
 		}
 	}
 }
