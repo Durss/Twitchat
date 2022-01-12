@@ -1,7 +1,7 @@
 <template>
 	<div class="paramitem">
 		<div v-if="paramData.type == 'toggle'" class="toggle">
-			<label :for="'toggle'+key">{{paramData.label}}</label>
+			<label :for="'toggle'+key" v-html="label"></label>
 			<ToggleButton :id="'toggle'+key" v-model="paramData.value" />
 		</div>
 		
@@ -33,6 +33,10 @@ import ToggleButton from '../ToggleButton.vue';
 export default class ParamItem extends Vue {
 	public paramData!:ParameterData;
 	public key:string = Math.random().toString();
+
+	public get label():string {
+		return this.paramData.label.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+	}
 }
 </script>
 
@@ -43,8 +47,13 @@ export default class ParamItem extends Vue {
 		flex-direction: row;
 		label {
 			flex-grow: 1;
-			text-align: right;
+			// text-align: right;
 			margin-right: 20px;
+			:deep(.small) {
+				display: block;
+				font-size: .9em;
+				font-style: italic;
+			}
 		}
 	}
 	.slider {

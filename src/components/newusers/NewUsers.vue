@@ -73,11 +73,12 @@ export default class NewUsers extends Vue {
 
 	public deleteMessage(m:IRCEventDataList.Message, index:number):void {
 		let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
-		this.indexOffset = parseInt(el.$el.dataset.index as string)
 		
 		if(!this.streakMode) {
 			m.firstMessage = false;
+			this.indexOffset = parseInt(el.$el.dataset.index as string);
 		}else{
+			this.indexOffset = 0;
 			this.overIndex = -1;
 			let messages = this.messages;
 			let index = messages.findIndex(v => v.tags.id == m.tags.id);
@@ -109,7 +110,7 @@ export default class NewUsers extends Vue {
 		gsap.from(el, {
 			duration:0.2,
 			height:0,
-			// scaleY:0,
+			scaleY:0,
 			margin:0,
 			padding:0,
 			ease:'sine.in',
@@ -120,14 +121,14 @@ export default class NewUsers extends Vue {
 		});
 	}
 	public leave(el:HTMLElement, done:()=>void):void {
-		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.07;
+		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.075;
 		gsap.to(el, {
-			duration:0.3,
+			duration:0.15,
 			height:0,
-			// scaleY:0,
+			scaleY:0,
 			margin:0,
 			padding:0,
-			fontSize:0,
+			// fontSize:0,
 			delay,
 			ease:'sine.in',
 			clearProps:'all',
@@ -162,6 +163,7 @@ export default class NewUsers extends Vue {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+		z-index: 1;//Avoids glitch when hovering message items due to stiky position
 		h1 {
 			text-align: center;
 			color: #ffffff;
@@ -184,7 +186,7 @@ export default class NewUsers extends Vue {
 	.message {
 		cursor: pointer;
 		overflow: hidden;
-		transition: all 0.2s;
+		// transition: background-color 0.2s, ;
 
 		&:nth-child(odd) {
 			background-color: fade(#ffffff, 2.5%);

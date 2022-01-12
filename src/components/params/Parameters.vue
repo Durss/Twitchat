@@ -45,7 +45,7 @@ import ParamItem from './ParamItem.vue';
 })
 export default class Parameters extends Vue {
 
-	public content:'appearance' | 'filters' | 'account' = 'filters';
+	public content:'appearance' | 'filters' | 'account' = 'appearance';
 
 	public showMenu:boolean = true;
 
@@ -120,7 +120,7 @@ export default class Parameters extends Vue {
 		.head {
 			text-transform: capitalize;
 			z-index: 1;
-			padding: 20px 0;
+			padding: 20px 20px;
 			display: flex;
 			flex-direction: row;
 			.title {
@@ -155,6 +155,7 @@ export default class Parameters extends Vue {
 			position: absolute;
 			margin: auto;
 			width: 100%;
+			height: 100vh;
 			max-height: 100vh;
 		}
 
