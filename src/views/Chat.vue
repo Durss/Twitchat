@@ -24,7 +24,6 @@ import { Options, Vue } from 'vue-class-component';
 	},
 })
 export default class Chat extends Vue {
-	
 }
 
 </script>

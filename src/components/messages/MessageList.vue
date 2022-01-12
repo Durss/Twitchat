@@ -38,7 +38,7 @@ export default class MessageList extends Vue {
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.messageHandler);
 	}
 
-	public unmounted():void {
+	public beforeUnmount():void {
 		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.messageHandler);
 	}
 

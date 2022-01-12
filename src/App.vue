@@ -2,6 +2,7 @@
 	<div class="app">
 		<router-view />
 		<Parameters v-if="$store.state.authenticated" />
+		<UserCard />
 		<Confirm />
 		<Alert />
 		<Tooltip />
@@ -14,6 +15,7 @@ import { Options, Vue } from 'vue-class-component';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
+import UserCard from '@/components/user/UserCard.vue';
 
 @Options({
 	props:{},
@@ -21,6 +23,7 @@ import Tooltip from "./views/Tooltip.vue";
 		Alert,
 		Confirm,
 		Tooltip,
+		UserCard,
 		Parameters,
 	}
 })

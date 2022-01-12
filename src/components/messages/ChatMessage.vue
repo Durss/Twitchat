@@ -11,7 +11,7 @@
 				:data-tooltip="b.label"></span>
 		</span>
 		
-		<a :href="profileURL" target="_blank" class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</a>
+		<span @click="openUserCard()" class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
 		
 		<span class="message" v-html="text"></span>
 	</div>
@@ -28,18 +28,17 @@ import { Options, Vue } from 'vue-class-component';
 	components:{},
 	props:{
 		messageData:Object,
+		deleteOverlay:Boolean,
 	}
 })
 export default class ChatMessage extends Vue {
 	
+	public deleteOverlay:boolean = false;
 	public messageData!:ChatMessageData;
-
-	public get profileURL():string {
-		return "https://twitch.tv/"+this.messageData.tags.username;
-	}
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
+		if(this.deleteOverlay) res.push("deleteOverlay");
 		if(this.messageData.highlight) res.push("highlight");
 		if(store.state.params.highlightMentions
 		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
@@ -121,7 +120,8 @@ export default class ChatMessage extends Vue {
 
 	public badges:TwitchTypes.Badge[] = [];
 
-	public async mounted():Promise<void> {
+	public openUserCard():void {
+		store.dispatch("openUserCard", this.messageData.tags.username);
 	}
 }
 
@@ -140,6 +140,7 @@ export interface ChatMessageData {
 	font-family: "Inter";
 	color: v-bind(color);
 	padding: 5px;
+	transition: background-color .2s, opacity .2s;
 
 	&.size_1 { font-size: 12px; }
 	&.size_2 { font-size: 16px; }
@@ -152,6 +153,13 @@ export interface ChatMessageData {
 
 	&.highlight{
 		background-color: rgba(255, 255, 255, .025);
+	}
+
+	&.deleteOverlay{
+		color: white;
+		opacity: .5;
+		text-decoration: line-through;
+		background-color: red !important;//oooo..bad me >_>
 	}
 
 	&>.badge {
@@ -170,6 +178,7 @@ export interface ChatMessageData {
 
 	.login {
 		font-weight: bold;
+		cursor: pointer;
 	}
 
 	.miniBadges {

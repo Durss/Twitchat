@@ -15,7 +15,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = true;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false;//Enable to subscribe to other twitch channels to get chat messages
 	
 	public token!:string;
 	public channel!:string;
@@ -58,8 +58,8 @@ export default class IRCClient extends EventDispatcher {
 				channels.push(customLogin);
 			}
 			if(this.debugMode) {
-				channels = channels.concat(["lestream", "mokrivskyi", "mistermv", "samueletienne", "Tonton", "avamind" ]);
-				uids = uids.concat(["147337432", "97828400", "28575692", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["lestream", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
+				uids = uids.concat(["147337432", "100744948", "28575692", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
 				try {

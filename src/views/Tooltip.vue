@@ -55,7 +55,7 @@ export default class Tooltip extends Vue {
 		});
 	}
 
-	public beforeDestroy():void {
+	public beforeUnmount():void {
 		document.removeEventListener('mousemove', this.mouseMoveHandler);
 		document.removeEventListener('mouseup', this.mouseUpHandler);
 	}

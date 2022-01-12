@@ -5,20 +5,25 @@
 			<Button :icon="require('@/assets/icons/delete.svg')" class="clearBt" data-tooltip="Clear all messages" @click="clearAll()" />
 		</div>
 		<ChatMessage v-for="(m,index) in messages"
+			ref="message"
 			class="message"
 			:key="m.id"
 			:messageData="m"
+			:deleteOverlay="index<=overIndex"
+			@mouseover="onMouseOver(index)"
+			@mouseout="onMouseOut(index)"
 			@click="deleteMessage(m, index)" />
 	</div>
 </template>
 
 <script lang="ts">
+import ChatMessage, { ChatMessageData } from '@/components/messages/ChatMessage.vue';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
-import { Options, Vue } from 'vue-class-component';
-import ChatMessage, { ChatMessageData } from '@/components/messages/ChatMessage.vue';
-import Button from '../Button.vue';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap/all';
+import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
 
 @Options({
 	props:{},
@@ -29,6 +34,8 @@ import Utils from '@/utils/Utils';
 })
 export default class NewUsers extends Vue {
 
+	public overIndex:number = -1;
+
 	private messages:IRCEvent[] = [];
 	private uidsDone:{[key:string]:boolean} = {};
 	private messageHandler!:(e:unknown)=>void;
@@ -36,6 +43,10 @@ export default class NewUsers extends Vue {
 	public async mounted():Promise<void> {
 		this.messageHandler = (e:unknown) => this.onMessage(e as IRCEvent);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.messageHandler);
+	}
+
+	public async beforeUnmount():Promise<void> {
+		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.messageHandler);
 	}
 
 	private async onMessage(e:IRCEvent):Promise<void> {
@@ -46,13 +57,34 @@ export default class NewUsers extends Vue {
 	}
 
 	public deleteMessage(m:ChatMessageData, index:number):void {
-		this.messages.splice(index, 1);
+		const instances = this.$refs.message as Vue[];
+		const divs = instances.splice(0, index+1).map(i => i.$el as HTMLDivElement);
+		gsap.to(divs, {
+			duration:0.2,
+			height:0,
+			margin:0,
+			padding:0,
+			opacity:0,
+			ease:'sine.in',
+			stagger:0.05,
+			onComplete:()=>{
+				this.messages.splice(0, index+1);
+				this.overIndex = -1;
+			}
+		});
 	}
 
 	public clearAll():void {
 		Utils.confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
 			this.messages = [];
 		});
+	}
+
+	public onMouseOver(index:number):void {
+		this.overIndex = index;
+	}
+	public onMouseOut(index:number):void {
+		this.overIndex = -1;
 	}
 
 }
@@ -101,6 +133,7 @@ export default class NewUsers extends Vue {
 
 	.message {
 		cursor: pointer;
+		overflow: hidden;
 
 		&:nth-child(odd) {
 			background-color: fade(#ffffff, 2.5%);

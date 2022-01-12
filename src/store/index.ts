@@ -13,6 +13,7 @@ export default createStore({
 		tmiToken: "",
 		alert: "",
 		tooltip: "",
+		userCard: "",
 		params: {
 			hideBots:true,
 			hideBadges:true,
@@ -84,6 +85,8 @@ export default createStore({
 		},
 		
 		showParams(state, payload) { state.showParams = payload; },
+		
+		openUserCard(state, payload) { state.userCard = payload; },
 	},
 	actions: {
 		async startApp({state, commit}) {
@@ -138,6 +141,8 @@ export default createStore({
 		setParam({commit}, payload) { commit("setParam", payload); },
 		
 		showParams({commit}, payload) { commit("showParams", payload); },
+		
+		openUserCard({commit}, payload) { commit("openUserCard", payload); },
 	},
 	modules: {
 	}

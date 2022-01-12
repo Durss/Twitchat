@@ -41,7 +41,7 @@ export default class Confirm extends Vue {
 		});
 	}
 
-	public beforeDestroy():void {
+	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
