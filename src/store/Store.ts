@@ -21,6 +21,17 @@ export default class Store {
 		if(!this.store) this.init();
 		return this.store.getItem(this.dataPrefix + key) as string;
 	}
+	public static getAll():{[key:string]:string|null} {
+		if(!this.store) this.init();
+		const props:{[key:string]:string|null} = {};
+		for (let i = 0; i < this.store.length; i++) {
+			const key = this.store.key(i);
+			if(!key || key.indexOf(this.dataPrefix) == -1) continue;
+			const k = key.replace(this.dataPrefix, "");
+			props[k] = this.store.getItem(key);
+		}
+		return props;
+	}
 	public static set(key:string, value:string):void {
 		if(!this.store) this.init();
 		this.store.setItem(this.dataPrefix + key, value);

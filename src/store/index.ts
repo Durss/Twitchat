@@ -20,7 +20,7 @@ export default createStore({
 		params: {
 
 			firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-			highlightMentions: {type:"toggle", value:false, label:"Highlight messages i'm mentioned in"},
+			highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
 			ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
 			hideBots: {type:"toggle", value:false, label:"Hide bots"},
 			hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
@@ -90,7 +90,7 @@ export default createStore({
 			(state.chatMessages as IRCEventDataList.Message[]).push(payload);
 			const maxMessages = state.params.historySize.value;
 			if(state.chatMessages.length > maxMessages) {
-				state.chatMessages = state.chatMessages.slice(0, maxMessages);
+				state.chatMessages = state.chatMessages.splice(state.chatMessages.length-maxMessages);
 			}
 		},
 		
@@ -119,17 +119,26 @@ export default createStore({
 		async startApp({state, commit}) {
 			const tmiToken = Store.get("tmiToken");
 			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : tmiToken;
-			state.params.firstMessage.value = Store.get("p:firstMessage") != "false";
-			state.params.hideBots.value = Store.get("p:hideBots") != "false";
-			state.params.highlightMentions.value = Store.get("p:highlightMentions") != "false";
-			state.params.ignoreCommands.value = Store.get("p:ignoreSelf") == "true";
-			state.params.ignoreSelf.value = Store.get("p:ignoreSelf") == "true";
-			state.params.displayTime.value = Store.get("p:displayTime") == "true";
-			state.params.historySize.value = parseInt(Store.get("p:historySize")) || 100;
-			state.params.defaultSize.value = parseInt(Store.get("p:defaultSize")) || 2;
-			state.params.modsSize.value = parseInt(Store.get("p:modsSize")) || 2;
-			state.params.vipsSize.value = parseInt(Store.get("p:vipsSize")) || 2;
-			state.params.subsSize.value = parseInt(Store.get("p:subsSize")) || 2;
+
+			const props = Store.getAll();
+			for (const key in props) {
+				if(props[key] == null) continue;
+
+				const k:ParameterType = key.replace(/^p:/gi, "") as ParameterType;
+				if(/^p:/gi.test(key) && k in state.params) {
+					const v:string = props[key] as string;
+					
+					if(typeof state.params[k].value === 'boolean') {
+						state.params[k].value = (v == "true") as never;
+					}
+					if(typeof state.params[k].value === 'string') {
+						state.params[k].value = v as never;
+					}
+					if(typeof state.params[k].value === 'number') {
+						state.params[k].value = parseFloat(v) as never;
+					}
+				}
+			}
 
 			if(token) {
 				state.authToken = token;
