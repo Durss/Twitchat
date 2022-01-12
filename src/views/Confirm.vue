@@ -37,7 +37,6 @@ export default class Confirm extends Vue {
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		watch(() => store.state.confirm, () => {
-			console.log("CHA?GE");
 			this.onConfirmChanged();
 		});
 	}

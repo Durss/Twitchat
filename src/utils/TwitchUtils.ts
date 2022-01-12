@@ -118,7 +118,6 @@ export default class TwitchUtils {
 			for (let i = 0; i < caches.length; i++) {
 				const cache = caches[i];
 				if(!cache) continue;
-				console.log(channelId, userBadgeID, userBadgeCategory, cache);
 				const badgeSet = cache[userBadgeCategory];
 				if(badgeSet) {
 					const badge = badgeSet.versions[userBadgeID];
@@ -199,7 +198,6 @@ export default class TwitchUtils {
 				"Content-Type": "application/json",
 			}
 		});
-		console.log(result.status);
 		return result;
 	}
 	

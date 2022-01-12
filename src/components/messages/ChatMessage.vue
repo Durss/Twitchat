@@ -187,7 +187,6 @@ export interface ChatMessageData {
 
 	.message {
 		color: #d1d1d1;
-		font-size: .8em;
 		:deep( img ) {
 			width: 28px;
 			max-height: 28px;

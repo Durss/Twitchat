@@ -35,9 +35,11 @@ export default class App extends Vue {
 
 <style scoped lang="less">
 .app{
-	font-family: Futura, Helvetica, Arial, sans-serif;
+	font-family: Inter, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	width: 100%;
+	height: 100vh;
 
 	.loader {
 		.center();

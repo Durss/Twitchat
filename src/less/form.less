@@ -3,12 +3,12 @@ input, textarea, select {
 	color: @mainColor_light;
 	border-radius: @border_radius;
 	border: 1px solid @mainColor_light;
+	border-top: 1px solid @mainColor_normal;
+	border-left: 1px solid @mainColor_normal;
 	background-color: @mainColor_normal_light;
 	font-size: 16px;
 	padding: 2px 12px 5px 12px;
 	box-sizing: border-box;
-	border-top: 1px solid @mainColor_normal;
-	border-left: 1px solid @mainColor_normal;
 	
 	&::placeholder {
 		font-style: italic;
@@ -25,8 +25,9 @@ input, textarea, select {
 	}
 
 	&.dark {
-		color: @mainColor_normal;
-		background-color: #000;
+		color: @mainColor_light;
+		background-color: rgba(0, 0, 0, .6);
+		border-color: @mainColor_dark_extralight;
 	}
 	
 	&::-webkit-scrollbar-thumb {

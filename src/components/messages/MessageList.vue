@@ -1,21 +1,21 @@
 <template>
 	<div class="messagelist">
-		<ChatMessage v-for="m in messages"
-			class="message"
-			:key="m.id"
-			:messageData="m" />
+		<div class="holder" ref="messageHolder">
+			<ChatMessage v-for="m in messages"
+				class="message"
+				:key="m.id"
+				:messageData="m" />
+		</div>
 
 		<div v-if="messages.length == 0" class="noMessage">- no message -</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ChatMessage from '@/components/messages/ChatMessage.vue';
-import { ChatMessageData } from '@/components/messages/ChatMessage.vue';
+import ChatMessage, { ChatMessageData } from '@/components/messages/ChatMessage.vue';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
-import store from '@/store';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	components:{
@@ -56,19 +56,24 @@ export default class MessageList extends Vue {
 			this.messages.splice(0, this.messages.length - this.max);
 		}
 		await this.$nextTick();
-		(this.$el as HTMLDivElement).scrollTop = this.$el.scrollHeight;
+		let el = this.$refs.messageHolder as HTMLDivElement;
+		el.scrollTop = el.scrollHeight;
 	}
 }
 </script>
 
 <style scoped lang="less">
 .messagelist{
-	max-height: 100%;
-	width: 100%;
-	overflow-y: auto;
-	position: absolute;
-	bottom: 0;
-	padding: 10px;
+	position: relative;
+
+	.holder {
+		max-height: 100%;
+		width: 100%;
+		overflow-y: auto;
+		position: absolute;
+		bottom: 0;
+		padding: 10px;
+	}
 
 	.noMessage {
 		.center();

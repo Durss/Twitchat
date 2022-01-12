@@ -83,7 +83,6 @@ export default class NewUsers extends Vue {
 		h1 {
 			text-align: center;
 			color: #ffffff;
-			text-transform: uppercase;
 
 			.count {
 				// font-style: italic;

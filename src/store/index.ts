@@ -8,6 +8,7 @@ export default createStore({
 	state: {
 		initComplete: false,
 		authenticated: false,
+		showParams: false,
 		authToken: "",
 		tmiToken: "",
 		alert: "",
@@ -81,6 +82,8 @@ export default createStore({
 			state.params[key] = payload.value;
 			Store.set("p:"+key, payload.value);
 		},
+		
+		showParams(state, payload) { state.showParams = payload; },
 	},
 	actions: {
 		async startApp({state, commit}) {
@@ -133,6 +136,8 @@ export default createStore({
 		closeTooltip({commit}) { commit("closeTooltip", null); },
 		
 		setParam({commit}, payload) { commit("setParam", payload); },
+		
+		showParams({commit}, payload) { commit("showParams", payload); },
 	},
 	modules: {
 	}

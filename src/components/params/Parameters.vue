@@ -28,13 +28,11 @@
 				</div>
 			</div>
 		</div>
-		<Button :icon="require('@/assets/icons/params.svg')" class="toggleBt" @click="toggle()" bounce />
 	</div>
 </template>
 
 <script lang="ts">
 import store from '@/store';
-import { Event } from '@/utils/EventDispatcher';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -76,7 +74,7 @@ export default class Parameters extends Vue {
 		// this.toggle();//TODO remove
 
 		//populate badges images when available
-		IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, (e:Event):void=>{
+		IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, ():void=>{
 			const badges = TwitchUtils.getBadgesImagesFromRawBadges(store.state.user.user_id, {moderator:"1", vip:"1", subscriber:"0"});
 			this.toggles.modsSize.icon = badges[0].image_url_1x;
 			this.toggles.vipsSize.icon = badges[1].image_url_1x;
@@ -94,6 +92,9 @@ export default class Parameters extends Vue {
 				if(!newValue) this.toggle(true);
 			});
 		}
+		watch(() => store.state.showParams, (value:boolean) => {
+			this.toggle(!value);
+		});
 	}
 
 	public logout():void {
@@ -114,6 +115,7 @@ export default class Parameters extends Vue {
 			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
 			gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:100, opacity:0, ease:"back.in", onComplete:()=> {
 				this.showMenu = false;
+				store.dispatch("showParams", false);
 			}});
 		}
 	}
