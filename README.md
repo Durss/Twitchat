@@ -1,4 +1,5 @@
-<div align="center"><img width="400" alt="twitch" src="https://github.com/Durss/twitchat/blob/main/src/assets/logo.svg"></div>
+
+<div align="center"><a href="https://twitchat.durss.ninja" target="_blank"><img width="400" alt="twitch" src="https://github.com/Durss/twitchat/blob/main/src/assets/logo.svg"></a></div>
 <br>
 <br>
 This is a custom twitch chat that aims to fill gaps in the official Twitch chat.
