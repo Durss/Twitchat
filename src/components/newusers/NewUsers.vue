@@ -1,7 +1,7 @@
 <template>
-	<div class="newusers" v-show="messages.length > 0">
+	<div class="newusers" v-show="localMessages.length > 0">
 		<div class="header" @click="showList = !showList">
-			<h1>Greet them <span class="count">({{messages.length}})</span></h1>
+			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
 			<Button :icon="require('@/assets/icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
@@ -14,7 +14,7 @@
 			tag="div"
 		>
 			<ChatMessage
-				v-for="(m,index) in messages"
+				v-for="(m,index) in localMessages"
 				class="message"
 				ref="message"
 				:key="m.tags.id"
@@ -35,6 +35,7 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -52,14 +53,26 @@ export default class NewUsers extends Vue {
 	public streakMode:boolean = true;
 	public showList:boolean = true;
 	public indexOffset:number = 0;
+	public localMessages:IRCEventDataList.Message[] = [];
+
+	private idToDisplayed:{[id:string]:boolean} = {};
 
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
 
-	public get messages():IRCEventDataList.Message[] {
-		return (store.state.chatMessages as IRCEventDataList.Message[]).filter(m => m.firstMessage);
-	}
 
 	public mounted():void {
+		watch(() => store.state.chatMessages, async (value) => {
+			const list = (store.state.chatMessages as IRCEventDataList.Message[]).filter(m => m.firstMessage).concat();
+			for (let i = 0; i < list.length; i++) {
+				const m = list[i];
+				if(this.idToDisplayed[m.tags.id as string]) continue;
+				this.idToDisplayed[m.tags.id as string] = true;
+				this.localMessages.push(m);
+			}
+		}, {
+			deep:true
+		});
+		
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
 			if(e.key != "Control" && e.key != "Shift") return;
 
@@ -87,7 +100,7 @@ export default class NewUsers extends Vue {
 		}else{
 			this.indexOffset = 0;
 			this.overIndex = -1;
-			let messages = this.messages;
+			let messages = this.localMessages;
 			let index = messages.findIndex(v => v.tags.id == m.tags.id);
 			for (let i = 0; i < index+1; i++) {
 				messages[i].firstMessage = false;
@@ -96,7 +109,7 @@ export default class NewUsers extends Vue {
 	}
 
 	public clearAll():void {
-		let messages = this.messages;
+		let messages = this.localMessages;
 		Utils.confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
 			for (let i = 0; i < messages.length; i++) {
 				if(messages[i].firstMessage) {
