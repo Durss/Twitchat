@@ -7,6 +7,9 @@ This is a custom twitch chat that aims to fill gaps in the official Twitch chat.
 The goal is to reduce as much as possible the number of missed messages with features missing from the Twitch chat.
 <br>
 <br>
+<div align="center"><a href="https://twitchat.durss.ninja" target="_blank"><img width="100%" alt="twitch" src="https://github.com/Durss/twitchat/blob/main/preview.png"></a></div>
+<br>
+<br>
 <br>
 
 # Project setup
