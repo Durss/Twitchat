@@ -123,12 +123,17 @@ export default class ChatMessage extends Vue {
 			result = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
 		}catch(error) {
 			console.log(error);
+			console.log(mess);
 			let safeMessage = text;
 			safeMessage = safeMessage.replaceAll("<", "&lt;");
 			safeMessage = safeMessage.replaceAll(">", "&gt;");
 			result = safeMessage;
 		}
-		if(!this.isNotice) result = ": "+result;
+		if(!this.isNotice) {
+			result = ": "+result;
+		}else{
+			result = result.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
+		}
 		return result;
 	}
 

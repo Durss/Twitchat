@@ -1,4 +1,5 @@
 import store from "@/store";
+import IRCClient from "./IRCClient";
 import { TwitchTypes } from "./TwitchUtils";
 
 /**
@@ -33,28 +34,30 @@ export default class PubSub {
 		this.socket = new WebSocket("wss://pubsub-edge.twitch.tv");
 
 		this.socket.onopen = () => {
-			// alert("[open] Connection established");
-			// alert("Sending to server");
-			// this.socket.send("My name is John");
-
 			//It's required to ping the server at least every 5min
 			//to keep the connection alive
 			clearInterval(this.pingInterval);
 			this.pingInterval = setInterval(() => {
 				this.ping();
-				console.log("PING");
 			}, 60000*2.5);
 			
 			this.subscribe([
 				"channel-bits-events-v1."+store.state.user.user_id,
+				"channel-points-channel-v1."+store.state.user.user_id,
+				"channel-subscribe-events-v1."+store.state.user.user_id,
 				"chat_moderator_actions."+store.state.user.user_id+"."+store.state.user.user_id,
+				"automod-queue."+store.state.user.user_id+"."+store.state.user.user_id,
 			]);
 		};
 		
-		this.socket.onmessage = (event) => {
+		this.socket.onmessage = (event:unknown) => {
 			// alert(`[message] Data received from server: ${event.data}`);
-			const data:{type:string} = JSON.parse(event.data);
-			if(data.type != "PONG") {
+			const e = event as {data:string};
+			const message = JSON.parse(e.data) as {type:string, data:{message:string, topic:string}};
+			if(message.type != "PONG" && message.data) {
+				const data = JSON.parse(message.data.message);
+				this.parseEvent(data);
+			}else{
 				console.log(event);
 			}
 		};
@@ -64,14 +67,11 @@ export default class PubSub {
 			if (event.wasClean) {
 				// alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
 			} else {
-				// e.g. server process killed or network down
-				// event.code is usually 1006 in this case
 				// alert('[close] Connection died');
 			}
 		};
 		
 		this.socket.onerror = (error) => {
-			// alert(`[error] ${error.message}`);
 			console.log(error);
 		};
 
@@ -103,7 +103,6 @@ export default class PubSub {
 
 	private subscribe(topics:string[]):void {
 		const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
-		console.log(access_token);
 		const json = {
 			"type": "LISTEN",
 			"nonce": this.nonce(),
@@ -114,4 +113,115 @@ export default class PubSub {
 		}
 		this.send(json);
 	}
+
+	private parseEvent(event:{type:string, data:unknown}):void {
+		if(event.type == "reward-redeemed") {
+			const localObj = event.data as  PubSubTypes.RewardData;
+			localObj.redemption.reward.title
+			let message = localObj.redemption.user.display_name;
+			message += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
+			message += " (x"+localObj.redemption.reward.cost+" points)";
+			IRCClient.instance.sendNotice("usage_clear", message);
+			
+		}else if(event.type == "moderation_action") {
+			const localObj = event.data as PubSubTypes.ModerationData
+			switch(localObj.moderation_action) {
+				case "clear": 
+					IRCClient.instance.sendNotice("usage_clear", "Chat clear by "+localObj.created_by);
+					break;
+				case "ban": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+					break;
+				}
+				case "unban": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unbanned by "+localObj.created_by);
+					break;
+				}
+				default:
+					console.log("Unhandled event type: "+event.type);
+					break;
+			}
+		}
+	}
+}
+
+export namespace PubSubTypes {
+	export interface ModerationData {
+		type: string;
+		moderation_action: string;
+		args?: string[];
+		created_by: string;
+		created_by_user_id: string;
+		created_at: string;
+		msg_id: string;
+		target_user_id: string;
+		target_user_login: string;
+		from_automod: boolean;
+	}
+	export interface RewardData {
+        timestamp: string;
+        redemption: {
+			id: string;
+			user: {
+				id: string;
+				login: string;
+				display_name: string;
+			};
+			channel_id: string;
+			redeemed_at: string;
+			reward: {
+				id: string;
+				channel_id: string;
+				title: string;
+				prompt: string;
+				cost: number;
+				is_user_input_required: boolean;
+				is_sub_only: boolean;
+				image: Image;
+				default_image: DefaultImage;
+				background_color: string;
+				is_enabled: boolean;
+				is_paused: boolean;
+				is_in_stock: boolean;
+				max_per_stream: MaxPerStream;
+				should_redemptions_skip_request_queue: boolean;
+				template_id?: unknown;
+				updated_for_indicator_at: string;
+				max_per_user_per_stream: MaxPerUserPerStream;
+				global_cooldown: GlobalCooldown;
+				redemptions_redeemed_current_stream?: unknown;
+				cooldown_expires_at?: unknown;
+			};
+			status: string;
+		};
+	}
+
+    interface Image {
+        url_1x: string;
+        url_2x: string;
+        url_4x: string;
+    }
+
+    interface DefaultImage {
+        url_1x: string;
+        url_2x: string;
+        url_4x: string;
+    }
+
+    interface MaxPerStream {
+        is_enabled: boolean;
+        max_per_stream: number;
+    }
+
+    interface MaxPerUserPerStream {
+        is_enabled: boolean;
+        max_per_user_per_stream: number;
+    }
+
+    interface GlobalCooldown {
+        is_enabled: boolean;
+        global_cooldown_seconds: number;
+    }
 }

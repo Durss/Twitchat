@@ -8,8 +8,6 @@ export default class Config {
 												"chat:read",
 												"chat:edit",
 												"channel:read:redemptions",
-												"channel:read:subscriptions",
-												"bits:read",
 												"channel:moderate",
 											];
 

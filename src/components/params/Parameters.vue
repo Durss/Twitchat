@@ -63,11 +63,11 @@ export default class Parameters extends Vue {
 		
 			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:100, opacity:0, ease:"back.out"});
+			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		}else{
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-			gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:100, opacity:0, ease:"back.in", onComplete:()=> {
+			gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 				this.showMenu = false;
 				store.dispatch("showParams", false);
 			}});

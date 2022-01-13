@@ -164,12 +164,15 @@ export default class IRCClient extends EventDispatcher {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
 					case "NOTICE": {
-						const [msgid, prefix, command, channel, message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
-						prefix;
-						command;
-						//Fake tags info
-						const tags = this.getFakeTags();
-						this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel, msgid: msgid as tmi.MsgID, message, tags, notice:true}));
+						/* eslint-disable-next-line */
+						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
+						
+						if(!message) {
+							if(msgid.indexOf("bad_delete_message_error")) {
+								message = "You cannot delete this message.";
+							}
+						}
+						this.sendNotice(msgid as tmi.MsgID, message);
 						break;
 					}
 					default: break;
@@ -229,20 +232,25 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public sendMessage(message:string):Promise<unknown> {
-		const params = message.split(" ").splice(1);
-		if(/\/slow.*/.test(message)) {
-			return this.client.slow(this.channel, parseInt(params[0]));
-		}else if(/\/mod.*/.test(message)) {
-			return this.client.mod(this.channel, params[0]);
-		}else if(/\/clear/.test(message)) {
-			return this.client.clear(this.channel);
-		}else if(/\/vip.*/.test(message)) {
-			return this.client.vip(this.channel, params[0]);
-		}else if(/\/unvip.*/.test(message)) {
-			return this.client.vip(this.channel, params[0]);
-		}else{
+		// const params = message.split(" ").splice(1);
+		// if(/\/slow .*/.test(message)) {
+		// 	return this.client.slow(this.channel, parseInt(params[0]));
+		// }else if(/\/mod.*/.test(message)) {
+		// 	return this.client.mod(this.channel, params[0]);
+		// }else if(/\/clear/.test(message)) {
+		// 	return this.client.clear(this.channel);
+		// }else if(/\/vip.*/.test(message)) {
+		// 	return this.client.vip(this.channel, params[0]);
+		// }else if(/\/unvip.*/.test(message)) {
+		// 	return this.client.vip(this.channel, params[0]);
+		// }else{
 			return this.client.say(this.login, message);
-		}
+		// }
+	}
+
+	public sendNotice(msgid:tmi.MsgID, message:string):void {
+		const tags = this.getFakeTags();
+		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel:this.channel, msgid, message, tags, notice:true}));
 	}
 	
 	
