@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/stars.svg" alt="new" class="stars">
-			<p>First message on your channel</p>
+			<p>First time on this channel</p>
 		</div>
 		
 		<div v-if="automod" class="automod">
@@ -53,18 +53,20 @@ import ChatModTools from './ChatModTools.vue';
 	},
 	props:{
 		messageData:Object,
-		deleteOverlay:Boolean,
-		disableAutomod:Boolean,
+		deleteOverlay:{type:Boolean, default:false},
+		disableAutomod:{type:Boolean, default:false},
+		disableFirstTime:{type:Boolean, default:false},
 	}
 })
 export default class ChatMessage extends Vue {
 	
-	public deleteOverlay:boolean = false;
-	public disableAutomod:boolean = false;
+	public deleteOverlay!:boolean;
+	public disableAutomod!:boolean;
+	public disableFirstTime!:boolean;
 	public firstTime:boolean = false;
-	public automodReasons:string = "";
 	public messageData!:IRCEventDataList.Message | IRCEventDataList.Notice;
 	public automod:PubSubTypes.AutomodData | null = null;
+	public automodReasons:string = "";
 
 	public get isNotice():boolean {
 		return (this.messageData as IRCEventDataList.Notice).notice;
@@ -190,7 +192,7 @@ export default class ChatMessage extends Vue {
 	public mounted():void {
 		const mess = this.messageData as IRCEventDataList.Message;
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg']
+		this.firstTime = mess.tags['first-msg'] && !this.disableFirstTime;
 
 		//Manage automod content
 		if(!this.disableAutomod && mess.automod) {
