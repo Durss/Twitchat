@@ -1,5 +1,6 @@
 import { Event } from '@/utils/EventDispatcher';
 import { ChatUserstate, DeleteUserstate, MsgID } from 'tmi.js';
+import { PubSubTypes } from './PubSub';
 
 /**
 * Created : 07/12/2020 
@@ -38,6 +39,7 @@ export namespace IRCEventDataList {
 		self:boolean;
 		//Custom injected props
 		firstMessage:boolean;
+		automod?:PubSubTypes.AutomodData;
 	}
 
 	export interface Timeout {
@@ -71,7 +73,8 @@ export namespace IRCEventDataList {
 		channel: string;
 		message: string;
 		msgid: MsgID;
-		notice: boolean;
 		tags:ChatUserstate;
+		//custom data
+		notice: boolean;
 	}
 }

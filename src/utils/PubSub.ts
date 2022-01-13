@@ -42,9 +42,7 @@ export default class PubSub {
 			}, 60000*2.5);
 			
 			this.subscribe([
-				"channel-bits-events-v1."+store.state.user.user_id,
 				"channel-points-channel-v1."+store.state.user.user_id,
-				"channel-subscribe-events-v1."+store.state.user.user_id,
 				"chat_moderator_actions."+store.state.user.user_id+"."+store.state.user.user_id,
 				"automod-queue."+store.state.user.user_id+"."+store.state.user.user_id,
 			]);
@@ -115,15 +113,63 @@ export default class PubSub {
 	}
 
 	private parseEvent(event:{type:string, data:unknown}):void {
-		if(event.type == "reward-redeemed") {
-			const localObj = event.data as  PubSubTypes.RewardData;
-			localObj.redemption.reward.title
-			let message = localObj.redemption.user.display_name;
-			message += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
-			message += " (x"+localObj.redemption.reward.cost+" points)";
-			IRCClient.instance.sendNotice("usage_clear", message);
+		if(event.type == "automod_caught_message") {
+			const localObj = event.data as  PubSubTypes.AutomodData;
+			if(localObj.status == "PENDING") {
+				const tags = {
+					"username":localObj.message.sender.login,
+					"color": localObj.message.sender.chat_color,
+					"display-name": localObj.message.sender.display_name,
+					"id": localObj.message.id,
+					"user-id": localObj.message.sender.user_id,
+					"tmi-sent-ts": new Date(localObj.message.sent_at).getTime().toString(),
+					"badge-info": undefined,
+					"badge-info-raw": undefined,
+					"badges": undefined,
+					"badges-raw": undefined,
+					"emotes": undefined,
+					"emotes-raw": undefined,
+					"first-msg": false,
+					"message-type": "chat" as "chat" | "action" | "whisper" | undefined,
+					"mod": false,
+					"room-id": "29961813",
+					"subscriber": false,
+					"turbo": false,
+					"user-type": undefined,
+				}
+				let textMessage = "";
+				for (let i = 0; i < localObj.message.content.fragments.length; i++) {
+					const el = localObj.message.content.fragments[i];
+					if(el.automod != undefined) textMessage += "<mark>"
+					//Avoid XSS attack
+					if(el.emoticon) {
+						textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
+					}else{
+						textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+					}
+					if(el.automod != undefined) textMessage += "</mark>"
+				}
+				
+				IRCClient.instance.addMessage(textMessage, tags, false, localObj);
+			}
+
+
+
+		}else if(event.type == "reward-redeemed") {
+			//Manage rewards
+			if(store.state.params.filters.showRewards.value) {
+				const localObj = event.data as  PubSubTypes.RewardData;
+				localObj.redemption.reward.title
+				let message = localObj.redemption.user.display_name;
+				message += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
+				message += " (x"+localObj.redemption.reward.cost+" points)";
+				IRCClient.instance.sendNotice("usage_clear", message);
+			}
+
+
 			
 		}else if(event.type == "moderation_action") {
+			//Manage moderation actions
 			const localObj = event.data as PubSubTypes.ModerationData
 			switch(localObj.moderation_action) {
 				case "clear": 
@@ -140,7 +186,7 @@ export default class PubSub {
 					break;
 				}
 				default:
-					console.log("Unhandled event type: "+event.type);
+					console.log("Unhandled event type: "+localObj.moderation_action);
 					break;
 			}
 		}
@@ -148,6 +194,40 @@ export default class PubSub {
 }
 
 export namespace PubSubTypes {
+	export interface AutomodData {
+        content_classification: {
+			category: string;
+			level: number;
+		};
+        message: {
+			content: {
+				text: string;
+				fragments: {
+					text: string;
+					emoticon: {
+						emoticonID: string,
+						emoticonSetID: string
+					},
+					automod: {
+						topics: {[key:string]: string},
+					};
+				}[];
+			};
+			id: string;
+			sender: {
+				user_id: string;
+				login: string;
+				display_name: string;
+				chat_color: string;
+			};
+			sent_at: string;
+		};
+        reason_code: string;
+        resolver_id: string;
+        resolver_login: string;
+        status: string;
+	}
+	
 	export interface ModerationData {
 		type: string;
 		moderation_action: string;
@@ -160,6 +240,7 @@ export namespace PubSubTypes {
 		target_user_login: string;
 		from_automod: boolean;
 	}
+
 	export interface RewardData {
         timestamp: string;
         redemption: {

@@ -13,7 +13,7 @@ export default class TwitchUtils {
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
 		const redirect = encodeURIComponent( document.location.origin+path );
-		const scopes = encodeURIComponent( Config.TWITCH_SCOPES.join(" ") );
+		const scopes = encodeURIComponent( Config.TWITCH_APP_SCOPES.join(" ") );
 		const clientID = Config.TWITCH_CLIENT_ID;
 
 		let url = "https://id.twitch.tv/oauth2/authorize?";
@@ -134,8 +134,7 @@ export default class TwitchUtils {
 	 * Replaces emotes by image tags on the message
 	 */
 	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false):string {
-		message = message.replaceAll("<", "&lt;");
-		message = message.replaceAll(">", "&gt;");
+		message = message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 		if(!emotes || emotes.length == 0) {
 			return message;
 		}
@@ -202,6 +201,39 @@ export default class TwitchUtils {
 		return result;
 	}
 	
+	public static async modMessage(accept:boolean, messageId:string):Promise<boolean> {
+		const options = {
+			method:"POST",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': Config.TWITCH_CLIENT_ID,
+				'Content-Type': "application/json",
+			},
+			body: JSON.stringify({
+				user_id:store.state.user.user_id,
+				msg_id:messageId,
+				action:accept? "ALLOW" : "DENY",
+			})
+		}
+		const res = await fetch("https://api.twitch.tv/helix/moderation/automod/message", options);
+		return res.status <= 400;
+	}
+
+	public static async getModsList():Promise<{ user_id:string, user_login:string, user_name:string }[]> {
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': Config.TWITCH_CLIENT_ID,
+				'Content-Type': "application/json",
+			},
+		}
+		const res = await fetch("https://api.twitch.tv/helix/moderation/moderators?broadcaster_id="+store.state.user.user_id, options);
+		const json = await res.json();
+		console.log(json);
+		return json.data;
+		
+	}
 }
 
 export namespace TwitchTypes {
@@ -212,9 +244,16 @@ export namespace TwitchTypes {
 		user_id: string;
 		expires_in: number;
 	}
+	
 	export interface Error {
 		status: number;
 		message: string;
+	}
+
+	export interface Moderator {
+		user_id: string;
+		user_login: string;
+		user_naùe: string;
 	}
 
 	export interface StreamInfo {

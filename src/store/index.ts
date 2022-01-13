@@ -17,6 +17,7 @@ export default createStore({
 		tooltip: "",
 		userCard: "",
 		chatMessages: [],
+		mods: [],
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -24,6 +25,7 @@ export default createStore({
 				hideBadges: {type:"toggle", value:false, label:"Hide badges"},
 				minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
 				displayTime: {type:"toggle", value:true, label:"Display time"},
+				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
 				historySize: {type:"slider", value:100, label:"Max chat message count", min:50, max:1000, step:50},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:4, step:1},
 				modsSize: {type:"slider", value:2, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
@@ -35,6 +37,7 @@ export default createStore({
 				ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
 				hideBots: {type:"toggle", value:false, label:"Hide bots"},
 				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
+				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
 			},
 		},
 		user: {
@@ -80,6 +83,15 @@ export default createStore({
 				&& (userRes as TwitchTypes.Error).status != 200) throw("invalid token");
 
 				state.user = userRes as TwitchTypes.Token;
+				//Check if all scopes are allowed
+				for (let i = 0; i < Config.TWITCH_APP_SCOPES.length; i++) {
+					if(Config.TWITCH_APP_SCOPES.indexOf(state.user.scopes[i]) == -1) {
+						state.authenticated = false;
+						state.oAuthToken = {};
+						if(cb) cb(false);
+						return;
+					}
+				}
 				if(!json.expires_at) {
 					json.expires_at = Date.now() + json.expires_in*1000;
 				}
@@ -91,6 +103,8 @@ export default createStore({
 					IRCClient.instance.connect(state.user.login, json.access_token);
 					PubSub.instance.connect();
 				}
+
+				state.mods = await TwitchUtils.getModsList() as never[];
 
 				state.authenticated = true;
 				if(cb) cb(true);
@@ -130,10 +144,13 @@ export default createStore({
 			}
 		},
 		
-		delChatMessage(state, payload:IRCEventDataList.MessageDeleted) { 
+		delChatMessage(state, messageId:string) { 
 			const list = (state.chatMessages as IRCEventDataList.Message[]);
+			console.log("Delete chat message id", messageId);
 			for (let i = 0; i < list.length; i++) {
-				if(payload.deletedMessage == list[i].tags.id) {
+				console.log("test", list[i].tags.id);
+				if(messageId == list[i].tags.id) {
+					console.log("Message FOund !");
 					state.chatMessages.splice(i, 1);
 				}
 			}
@@ -210,7 +227,7 @@ export default createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, (event:IRCEvent) => {
-				this.dispatch("delChatMessage", event.data);
+				this.dispatch("delChatMessage", (event.data as IRCEventDataList.MessageDeleted).userstate['target-msg-id']);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
@@ -246,7 +263,7 @@ export default createStore({
 		
 		addChatMessage({commit}, payload) { commit("addChatMessage", payload); },
 		
-		delChatMessage({commit}, payload) { commit("delChatMessage", payload); },
+		delChatMessage({commit}, messageId) { commit("delChatMessage", messageId); },
 
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 	},

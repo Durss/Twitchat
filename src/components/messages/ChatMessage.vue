@@ -1,5 +1,17 @@
 <template>
 	<div :class="classes">
+		<div v-if="firstTime" class="header">
+			<img src="@/assets/icons/stars.svg" alt="new" class="stars">
+			<p>First message on your firstTimeOnChannel</p>
+		</div>
+		
+		<div v-if="automod" class="automod">
+			<div class="header">The following message has been blocked by automod for the following reason(s) : {{automodReasons}}</div>
+			<div class="actions">
+				<Button title="Accept" @click="modMessage(true)" />
+				<Button title="Reject" @click="modMessage(false)" highlight />
+			</div>
+		</div>
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos" v-if="!isNotice">
@@ -27,24 +39,32 @@
 <script lang="ts">
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import { PubSubTypes } from '@/utils/PubSub';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
 import ChatModTools from './ChatModTools.vue';
 
 @Options({
 	components:{
+		Button,
 		ChatModTools,
 	},
 	props:{
 		messageData:Object,
 		deleteOverlay:Boolean,
+		disableAutomod:Boolean,
 	}
 })
 export default class ChatMessage extends Vue {
 	
 	public deleteOverlay:boolean = false;
+	public disableAutomod:boolean = false;
+	public firstTime:boolean = false;
+	public automodReasons:string = "";
 	public messageData!:IRCEventDataList.Message | IRCEventDataList.Notice;
+	public automod:PubSubTypes.AutomodData | null = null;
 
 	public get isNotice():boolean {
 		return (this.messageData as IRCEventDataList.Notice).notice;
@@ -52,17 +72,19 @@ export default class ChatMessage extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
+		const message = this.messageData as IRCEventDataList.Message;
+
 		if(this.deleteOverlay) res.push("deleteOverlay");
 		
 		if(this.isNotice) res.push("notice");
+		if(this.automod) res.push("automod");
+		if(this.firstTime) res.push("firstTimeOnChannel");
 
 		if(!this.isNotice
 		&& store.state.params.appearance.highlightMentions.value
 		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 			res.push("mention");
 		}
-
-		const message = this.messageData as IRCEventDataList.Message;
 
 		if(message.tags.mod) res.push("size_"+store.state.params.appearance.modsSize.value);
 		else if(message.tags.vip) res.push("size_"+store.state.params.appearance.vipsSize.value);
@@ -74,7 +96,9 @@ export default class ChatMessage extends Vue {
 
 	public get showModTools():boolean {
 		const message = this.messageData as IRCEventDataList.Message;
-		return !message.tags.self && message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase();
+		return !message.tags.self
+		&& (store.state.mods as TwitchTypes.Moderator[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+		&& message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase();//TODO set actual channel id not the user id
 	}
 
 	public get time():string {
@@ -120,13 +144,16 @@ export default class ChatMessage extends Vue {
 		let text = mess.message;
 		try {
 			let removeEmotes = store.state.params.appearance.hideEmotes.value;
-			result = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
+			if(this.automod) {
+				result = text;
+			}else{
+				result = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
+			}
 		}catch(error) {
 			console.log(error);
 			console.log(mess);
 			let safeMessage = text;
-			safeMessage = safeMessage.replaceAll("<", "&lt;");
-			safeMessage = safeMessage.replaceAll(">", "&gt;");
+			safeMessage = safeMessage.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 			result = safeMessage;
 		}
 		if(!this.isNotice) {
@@ -155,9 +182,67 @@ export default class ChatMessage extends Vue {
 
 	public badges:TwitchTypes.Badge[] = [];
 
-	public openUserCard():void {console.log(this.messageData);
+	public openUserCard():void {
 		const message = this.messageData as IRCEventDataList.Message;
 		store.dispatch("openUserCard", message.tags.username);
+	}
+
+	public mounted():void {
+		const mess = this.messageData as IRCEventDataList.Message;
+		/* eslint-disable-next-line */
+		this.firstTime = mess.tags['first-msg'];
+
+		//Manage automod content
+		if(!this.disableAutomod && mess.automod) {
+			this.automod = mess.automod;
+			let reasons:string[] = [];
+			for (let i = 0; i < mess.automod.message.content.fragments.length; i++) {
+				const f = mess.automod.message.content.fragments[i];
+				if(!f.automod) continue;
+				for (const key in f.automod.topics) {
+					if(reasons.indexOf(key) == -1) reasons.push(key);
+				}
+			}
+
+			let textReasons:string[] = [];
+			for (let i = 0; i < reasons.length; i++) {
+				const r = reasons[i];
+				switch(r) {
+					case "race_ethnicity_or_religion":
+						textReasons.push("racism or religion hatred");
+						break;
+					case "sex_based_terms":
+						textReasons.push("sexual content");
+						break;
+					case "sexuality_sex_or_gender":
+						textReasons.push("gender or sex hate");
+						break;
+					case "swearing":
+					case "aggression":
+					case "disability":
+					case "misoginy":
+					case "bullying":
+					default:
+						textReasons.push(r);
+				}
+			}
+			this.automodReasons = textReasons.join(", ");
+		}
+	}
+
+	/**
+	 * Accept or reject an automoded chat message
+	 */
+	public async modMessage(accept:boolean):Promise<void> {
+		const message = this.messageData as IRCEventDataList.Message;
+		let success = await TwitchUtils.modMessage(accept, message.tags.id as string);
+		if(!success) {
+			store.state.alert = "Woops... something went wrong :(...";
+		}else {
+			//Delete the message.
+			//If the message was allowed, twitch will send it back, no need to keep it.
+			store.dispatch("delChatMessage", message.tags.id)
+		}
 	}
 }
 </script>
@@ -200,7 +285,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	.time {
-		color: fade(#d1d1d1, 50%);
+		color: fade(#ffffff, 75%);
 		font-size: 13px;
 		margin-right: 5px;
 		vertical-align: middle;
@@ -225,6 +310,7 @@ export default class ChatMessage extends Vue {
 		.login {
 			font-weight: bold;
 			cursor: pointer;
+			text-shadow: 0 1px 2px rgba(0,0,0,1);
 		}
 	
 		.miniBadges {
@@ -250,6 +336,63 @@ export default class ChatMessage extends Vue {
 			width: 28px;
 			max-height: 28px;
 			vertical-align: middle;
+		}
+	}
+
+	&.firstTimeOnChannel {
+		color: #fff;
+		background-color: rgba(255, 255, 255, .15) !important;
+		border-radius: 5px;
+		margin: 5px 0;
+		.header {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 10px;
+			font-size: 20px;
+			.stars {
+				height: 30px;
+				margin-bottom: 10px;
+			}
+		}
+		}
+
+	&.automod {
+		margin-top: 5px;
+		border-radius: 5px;
+		background-color: fade(@mainColor_alert, 50%) !important;
+
+		.message {
+			:deep(mark) {
+				background-color: #fff;
+				border-radius: 5px;
+				color: #c00;
+				font-weight: bold;
+				padding: 0px 3px;
+			}
+		}
+	}
+
+	.automod {
+		background-color: #fff;
+		padding: 10px;
+		border-radius: 5px;
+		margin-bottom: 10px;
+
+		.header {
+			margin-bottom: 10px;
+			color: black;
+		}
+
+		.actions {
+			text-align: center;
+			.button {
+				padding: 2px 5px;
+				border-radius: 5px;
+				font-size: 18px;
+				margin-right: 10px;
+			}
 		}
 	}
 }

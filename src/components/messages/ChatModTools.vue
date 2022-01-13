@@ -46,7 +46,7 @@ export default class ChatModTools extends Vue {
 <style scoped lang="less">
 .chatmodtools{
 	img {
-		opacity: 0.5;
+		opacity: 0.75;
 		height: 1em;
 		vertical-align: middle;
 		cursor: pointer;

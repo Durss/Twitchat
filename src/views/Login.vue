@@ -7,7 +7,7 @@
 
 		<div class="content">
 			<div>
-				<div class="infos">Twitchat needs read authorizations of your chat. Click <b>Authorize</b> button bellow</div>
+				<div class="infos" v-if="!authenticating">Twitchat needs read authorizations of your chat. Click <b>Authorize</b> button bellow</div>
 				
 				<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authorized && !authenticating" />
 				

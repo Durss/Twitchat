@@ -15,6 +15,7 @@
 				class="message"
 				:messageData="m"
 				:data-index="index"
+				:disableAutomod="true"
 				ref="message"
 				:deleteOverlay="(streakMode && index<=overIndex) || index == overIndex"
 				@mouseover="onMouseOver($event, index)"

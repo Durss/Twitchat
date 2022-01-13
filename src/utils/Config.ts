@@ -4,11 +4,13 @@
 export default class Config {
 	public static REQUIRE_APP_AUTHORIZATION:boolean = true;
 	public static TWITCH_CLIENT_ID:string = "9iiddxil0qvntyaudlb4oeb4ehwkzo";
-	public static TWITCH_SCOPES:string[] = [
+	public static TWITCH_APP_SCOPES:string[] = [
 												"chat:read",
 												"chat:edit",
 												"channel:read:redemptions",
 												"channel:moderate",
+												"moderation:read",
+												"moderator:manage:automod",
 											];
 
 	public static SERVER_PORT:number = 3018;

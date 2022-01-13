@@ -2,7 +2,8 @@ import store from "@/store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
-import IRCEvent from "./IRCEvent";
+import IRCEvent, { IRCEventDataList } from "./IRCEvent";
+import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
 
@@ -121,6 +122,7 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.CLEARCHAT));
 			});
 
+
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
 				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {channel, username, reason, duration}));
 			});
@@ -181,7 +183,7 @@ export default class IRCClient extends EventDispatcher {
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
-					const login = tags.username as string;	
+					const login = tags.username as string;
 					
 					//Ignore bot messages if requested
 					if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
@@ -195,20 +197,10 @@ export default class IRCClient extends EventDispatcher {
 					if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 						return;
 					}
-
-					//For some (stupid) reason, twitch does not send these
-					//data for the broadcaster's messages...
-					if(!tags.id) tags.id = Math.random().toString();
-					if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
-
-					const data = {message, tags, channel, self, firstMessage:false};
-					if(this.uidsDone[tags['user-id'] as string] !== true) {
-						data.firstMessage = true;
-						this.uidsDone[tags['user-id'] as string] = true;
-					}
-			
-
-					this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
+					console.log(tags);
+					console.log(message);
+					
+					this.addMessage(message, tags, self)
 				}
 			});
 	
@@ -251,6 +243,22 @@ export default class IRCClient extends EventDispatcher {
 	public sendNotice(msgid:tmi.MsgID, message:string):void {
 		const tags = this.getFakeTags();
 		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel:this.channel, msgid, message, tags, notice:true}));
+	}
+
+	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData):void {
+		const data:IRCEventDataList.Message = {message, tags, channel:this.channel, self, firstMessage:false, automod};
+
+		//For some (stupid) reason, twitch does not send these
+		//data for the broadcaster's messages...
+		if(!tags.id) tags.id = Math.random().toString();
+		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
+
+		if(this.uidsDone[tags['user-id'] as string] !== true) {
+			data.firstMessage = true;
+			this.uidsDone[tags['user-id'] as string] = true;
+		}
+
+		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 	}
 	
 	

@@ -188,7 +188,6 @@ export default class Button extends Vue {
 	cursor: pointer;
 	border: none;
 	padding: 5px 10px;
-	font-family: "Futura";
 	font-size: 20px;
 	color: @mainColor_light;
 	background-color: @mainColor_normal;
