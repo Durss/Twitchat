@@ -139,11 +139,11 @@ export default createStore({
 			}
 		},
 
-		delUserMessages(state, payload:Userstate) {
+		delUserMessages(state, username:Userstate) {
 			const list = (state.chatMessages as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
-				if(m.tags['user-id'] == payload['user-id']) {
+				if(m.tags.username?.toLowerCase() == username.toLowerCase()) {
 					state.chatMessages.splice(i, 1);
 					i--;
 				}
