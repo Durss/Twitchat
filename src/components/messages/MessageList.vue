@@ -19,6 +19,7 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { watch } from '@vue/runtime-core';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -45,7 +46,9 @@ export default class MessageList extends Vue {
 			this.localMessages = value.concat();
 			await this.$nextTick();
 			let el = this.$refs.messageHolder as HTMLDivElement;
-			el.scrollTop = el.scrollHeight;
+			let h = (this.$el as HTMLDivElement).clientHeight
+			gsap.killTweensOf(el);
+			gsap.to(el, {duration: .25, scrollTo: el.scrollHeight - h});
 		}, {
 			deep:true
 		});

@@ -1,3 +1,5 @@
+import gsap from 'gsap';
+import { ScrollToPlugin } from 'gsap/all';
 import { createApp } from 'vue';
 import { NavigationGuardNext, RouteLocation } from 'vue-router';
 import App from './App.vue';
@@ -6,6 +8,8 @@ import router from './router';
 import store from './store';
 import { TwitchTypes } from './utils/TwitchUtils';
 import Utils from './utils/Utils';
+
+gsap.registerPlugin(ScrollToPlugin);
 
 /**
  * Refreshes the oauth token when necessary
