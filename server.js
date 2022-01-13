@@ -15,7 +15,6 @@ console.log("=============");
 let credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
 http.createServer((request, response) => {
-	console.log("END", request.url);
 
 	request.addListener('end', () => {
 		if(credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {

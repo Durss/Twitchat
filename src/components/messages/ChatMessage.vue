@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/stars.svg" alt="new" class="stars">
-			<p>First message on your firstTimeOnChannel</p>
+			<p>First message on your channel</p>
 		</div>
 		
 		<div v-if="automod" class="automod">
@@ -190,7 +190,7 @@ export default class ChatMessage extends Vue {
 	public mounted():void {
 		const mess = this.messageData as IRCEventDataList.Message;
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'];
+		this.firstTime = mess.tags['first-msg']
 
 		//Manage automod content
 		if(!this.disableAutomod && mess.automod) {

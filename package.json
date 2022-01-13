@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "node-fetch": "^2.6.6",
     "node-static": "^0.7.11",
     "tmi.js": "^1.8.5",
     "vue": "^3.0.0",
