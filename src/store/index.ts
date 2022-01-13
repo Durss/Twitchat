@@ -172,7 +172,6 @@ export default createStore({
 				const c = cat as ParameterCategory;
 				for (const key in state.params[c]) {
 					const v = (state.params[c] as any)[key].value;
-					console.log("save value", c, key, v);
 					Store.set("p:"+key, v);
 				}
 			}

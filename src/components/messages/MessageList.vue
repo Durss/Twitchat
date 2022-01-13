@@ -1,13 +1,16 @@
 <template>
-	<div :class="classes" @click="counter ++">
+	<div class="messagelist" @mouseenter="hover()" @mouseleave="out()">
 		<div class="holder" ref="messageHolder">
-			<ChatMessage v-for="m in messages"
+			<ChatMessage v-for="m in localMessages"
 				class="message"
 				:key="m.tags.id"
 				:messageData="m" />
 		</div>
+		<div class="locked" v-if="lockscroll">
+			<img src="@/assets/icons/lock.svg" alt="lock">
+		</div>
 
-		<div v-if="messages.length == 0" class="noMessage">- no message -</div>
+		<div v-if="localMessages.length == 0" class="noMessage">- no message -</div>
 	</div>
 </template>
 
@@ -29,22 +32,18 @@ import { Options, Vue } from 'vue-class-component';
 export default class MessageList extends Vue {
 
 	public max!: number;
-	public counter:number = 0;
+	public lockscroll:boolean = false;
+	public localMessages:IRCEventDataList.Message[] = [];
 
-	public get messages():IRCEventDataList.Message[] {
-		return store.state.chatMessages;
-	}
-
-	public get classes():string[] {
-		let res = ["messagelist"];
-		// if(this.counter%2==0) res.push("even");
-		return res;
-	}
+	// public get messages():IRCEventDataList.Message[] {
+	// 	return store.state.chatMessages;
+	// }
 
 	public async mounted():Promise<void> {
-		watch(() => store.state.chatMessages, async () => {
+		watch(() => store.state.chatMessages, async (value) => {
+			if(this.lockscroll) return;
+			this.localMessages = value.concat();
 			await this.$nextTick();
-			this.counter ++;
 			let el = this.$refs.messageHolder as HTMLDivElement;
 			el.scrollTop = el.scrollHeight;
 		}, {
@@ -53,6 +52,14 @@ export default class MessageList extends Vue {
 	}
 
 	public beforeUnmount():void {
+	}
+
+	public hover():void {
+		this.lockscroll = true;
+	}
+
+	public out():void {
+		this.lockscroll = false;
 	}
 
 }
@@ -69,6 +76,9 @@ export default class MessageList extends Vue {
 		position: absolute;
 		bottom: 0;
 		padding: 10px;
+		.message {
+			overflow-x: hidden;
+		}
 	}
 
 	&.even {
@@ -85,6 +95,25 @@ export default class MessageList extends Vue {
 	.holder {
 		.message:nth-child(even) {
 			background-color: rgba(255, 255, 255, .025);
+		}
+	}
+
+	.locked {
+		z-index: 1;
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		text-align: center;
+		background: linear-gradient(0deg, rgba(136, 136, 136, 1) 10%, rgba(136, 136, 136, 0) 20%);
+		img {
+			padding: 10px;
+			// background-color: rgb(136, 136, 136);
+			background: #888888;//linear-gradient(0deg, rgba(136, 136, 136, 1) 25%, rgba(136, 136, 136, 0) 100%);
+			height: 40px;
+			border-top-left-radius: 20px;
+			border-top-right-radius: 20px;
 		}
 	}
 
