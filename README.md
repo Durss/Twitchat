@@ -12,6 +12,27 @@ The goal is to reduce as much as possible the number of missed messages with fea
 <br>
 <br>
 
+# Features
+- [x] Show first message of users for the day seperatly
+- [x] Allow to filter some messages *(bots, commands, self, etc...)*
+- [x] Customizable message features *(remove badges, show minimalist badges, remove emotes, etc...)*
+- [x] Customizable message appearance by roles *(viewers, mods, vips, subs)*
+- [x] Handle first message on your channel for a user
+- [x] Allows mod actions
+- [x] Show mod notifications
+- [x] Show channel points notifications
+- [x] Automod allow/deny flow
+- [ ] Mark last message read and allow to go back to it
+- [ ] Add highlight color by roles *(viewers, mods, vips, subs)*
+- [ ] Make it easier to follow a conversation between users
+- [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
+- [ ] Filter all commands but a custom list
+- [ ] Pause chat autoscroll on hover
+- [ ] Expose an API to control some stuff remotely(?)
+<br>
+<br>
+<br>
+
 # Project setup
 First create a `credentials.json` file on the root directory and fill in these values :
 ```json
