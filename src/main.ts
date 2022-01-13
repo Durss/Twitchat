@@ -4,13 +4,35 @@ import App from './App.vue';
 import './less/index.less';
 import router from './router';
 import store from './store';
+import { TwitchTypes } from './utils/TwitchUtils';
 import Utils from './utils/Utils';
 
+/**
+ * Refreshes the oauth token when necessary
+ */
+async function scheduleTokenRefresh():Promise<void> {
+	const expire = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).expires_at;
+	const delay = (expire - 6000 * 5) - Date.now();
+	
+	setTimeout(()=>{
+		store.dispatch("authenticate", {forceRefresh:true, cb:(success:boolean)=>{
+			if(success) {
+				scheduleTokenRefresh();
+			}else{
+				router.push({name: 'login'});
+			}
+		}});
+	}, delay);
+}
 
+/**
+ * Add route guards for login
+ */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
 	if (!store.state.initComplete) {
 		try {
 			await store.dispatch("startApp");
+			scheduleTokenRefresh();
 		}catch(error) {
 			//Ignore
 			error;

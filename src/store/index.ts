@@ -57,21 +57,32 @@ export default createStore({
 		async authenticate(state, payload) {
 			const code = payload.code;
 			const cb = payload.cb;
+			const forceRefresh = payload.forceRefresh;
 			try {
 				let json:TwitchTypes.AuthTokenResult;
 				if(code) {
 					const res = await fetch(Config.API_PATH+"/gettoken?code="+code, {method:"GET"});
 					json = await res.json();
-				}else{
+				}else {
 					json = JSON.parse(Store.get("oAuthToken"));
-					const res = await fetch(Config.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
-					json = await res.json();
+					//Refresh token if going to expire within the next 5 minutes
+					if(json && (forceRefresh || json.expires_at < Date.now() - 60000*5)) {
+						const res = await fetch(Config.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
+						json = await res.json();
+					}
+				}
+				if(!json) {
+					if(cb) cb(false);
+					return;
 				}
 				const userRes:unknown = await TwitchUtils.validateToken(json.access_token);
 				if(!(userRes as TwitchTypes.Token).expires_in
 				&& (userRes as TwitchTypes.Error).status != 200) throw("invalid token");
 
 				state.user = userRes as TwitchTypes.Token;
+				if(!json.expires_at) {
+					json.expires_at = Date.now() + json.expires_in*1000;
+				}
 				state.oAuthToken = json;
 				Store.set("oAuthToken", JSON.stringify(json));
 				
@@ -84,8 +95,10 @@ export default createStore({
 				state.authenticated = true;
 				if(cb) cb(true);
 			}catch(error) {
+				console.log(error);
 				state.authenticated = false;
 				Store.remove("oAuthToken");
+				state.alert = "Authentication failed";
 				if(cb) cb(false);
 			}
 		},
