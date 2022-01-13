@@ -16,7 +16,8 @@
 </template>
 
 <script lang="ts">
-import { ParameterData } from '@/store';
+import store, { ParameterData } from '@/store';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -36,6 +37,12 @@ export default class ParamItem extends Vue {
 
 	public get label():string {
 		return this.paramData.label.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+	}
+
+	public mounted():void {
+		watch(() => this.paramData.value, () => {
+			store.dispatch('updateParams');
+		});
 	}
 }
 </script>

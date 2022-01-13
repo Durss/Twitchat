@@ -197,8 +197,6 @@ export default class IRCClient extends EventDispatcher {
 					if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 						return;
 					}
-					console.log(tags);
-					console.log(message);
 					
 					this.addMessage(message, tags, self)
 				}

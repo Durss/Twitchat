@@ -62,9 +62,6 @@ export default createStore({
 			const cb = payload.cb;
 			const forceRefresh = payload.forceRefresh;
 			try {
-				const res = await fetch(Config.API_PATH+"/client_id");
-				const jsonClientID = await res.json();
-				TwitchUtils.client_id = jsonClientID.client_id;
 
 				let json:TwitchTypes.AuthTokenResult;
 				if(code) {
@@ -150,16 +147,12 @@ export default createStore({
 		
 		delChatMessage(state, messageId:string) { 
 			const list = (state.chatMessages as IRCEventDataList.Message[]);
-			console.log("Delete chat message id", messageId);
 			for (let i = 0; i < list.length; i++) {
-				console.log("test", list[i].tags.id);
 				if(messageId == list[i].tags.id) {
-					console.log("Message FOund !");
 					state.chatMessages.splice(i, 1);
 				}
 			}
 		},
-
 		delUserMessages(state, username:Userstate) {
 			const list = (state.chatMessages as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
@@ -171,9 +164,25 @@ export default createStore({
 				
 			}
 		},
+
+		updateParams(state) {
+			// const key = payload.key as "firstMessage";
+			// state.params[key] = payload.value;
+			for (const cat in state.params) {
+				const c = cat as ParameterCategory;
+				for (const key in state.params[c]) {
+					const v = (state.params[c] as any)[key].value;
+					console.log("save value", c, key, v);
+					Store.set("p:"+key, v);
+				}
+			}
+		}
 	},
 	actions: {
 		async startApp({state, commit}) {
+			const res = await fetch(Config.API_PATH+"/client_id");
+			const jsonClientID = await res.json();
+			TwitchUtils.client_id = jsonClientID.client_id;
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
@@ -181,20 +190,19 @@ export default createStore({
 				const c = cat as ParameterCategory;
 				for (const key in props) {
 					const k:ParameterType = key.replace(/^p:/gi, "") as ParameterType;
-					if(props[k] == null) continue;
 					if(props[key] == null) continue;
 					if(/^p:/gi.test(key) && k in state.params[c]) {
 						const v:string = props[key] as string;
 						/* eslint-disable-next-line */
 						const pointer = (state.params[c] as any)[k];
-						if(typeof pointer[k].value === 'boolean') {
-							pointer[k].value = (v == "true") as never;
+						if(typeof pointer.value === 'boolean') {
+							pointer.value = (v == "true") as never;
 						}
-						if(typeof pointer[k].value === 'string') {
-							pointer[k].value = v as never;
+						if(typeof pointer.value === 'string') {
+							pointer.value = v as never;
 						}
-						if(typeof pointer[k].value === 'number') {
-							pointer[k].value = parseFloat(v) as never;
+						if(typeof pointer.value === 'number') {
+							pointer.value = parseFloat(v) as never;
 						}
 					}
 				}
@@ -270,6 +278,8 @@ export default createStore({
 		delChatMessage({commit}, messageId) { commit("delChatMessage", messageId); },
 
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
+
+		updateParams({commit}) { commit("updateParams"); },
 	},
 	modules: {
 	}

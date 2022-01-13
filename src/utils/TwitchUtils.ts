@@ -230,7 +230,6 @@ export default class TwitchUtils {
 		}
 		const res = await fetch("https://api.twitch.tv/helix/moderation/moderators?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
-		console.log(json);
 		return json.data;
 		
 	}
