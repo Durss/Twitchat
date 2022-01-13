@@ -29,18 +29,27 @@ http.createServer((request, response) => {
 		}
 		if(request.url.indexOf("api") > -1) {
 			
+			//Get client ID
+			if(request.url.indexOf("api/client_id") > -1) {
+				response.writeHead(200, {'Content-Type': 'application/json'});
+				response.end(JSON.stringify({client_id:credentials.client_id}));
+				return;
+			
 			//Generate token from auth code
-			if(request.url.indexOf("api/gettoken") > -1) {
+			}else if(request.url.indexOf("api/gettoken") > -1) {
 				generateToken(request, response);
+				return;
 
 			//Refresh access token
 			}else if(request.url.indexOf("api/refreshtoken") > -1) {
 				refreshToken(request, response);
+				return;
 			
 				//Endpoint not found
 			}else{
 				response.writeHead(404, {'Content-Type': 'application/json'});
 				response.end(JSON.stringify({error: "This endpoint does not exist"}));
+				return;
 			}
 		}else{
 			fileServer.serve(request, response, (err, result) => {

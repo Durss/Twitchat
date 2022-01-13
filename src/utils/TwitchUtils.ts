@@ -8,16 +8,16 @@ import Config from "./Config";
 */
 export default class TwitchUtils {
 
+	public static client_id:string = "";
 	public static badgesCache:{[key:string]:{[key:string]:TwitchTypes.BadgesSet}} = {};
 
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
 		const redirect = encodeURIComponent( document.location.origin+path );
 		const scopes = encodeURIComponent( Config.TWITCH_APP_SCOPES.join(" ") );
-		const clientID = Config.TWITCH_CLIENT_ID;
 
 		let url = "https://id.twitch.tv/oauth2/authorize?";
-		url += "client_id="+clientID
+		url += "client_id="+this.client_id
 		url += "&redirect_uri="+redirect;
 		url += "&response_type=code";
 		url += "&scope="+scopes;
@@ -56,7 +56,7 @@ export default class TwitchUtils {
 
 		const headers = {
 			// "Authorization":"Bearer "+store.state.authToken,
-			// "Client-Id": Config.TWITCH_CLIENT_ID
+			// "Client-Id": this.client_id
 		};
 		const options = {
 			method: "GET",
@@ -85,7 +85,7 @@ export default class TwitchUtils {
 
 		const headers = {
 			// "Authorization":"Bearer "+store.state.authToken,
-			// "Client-Id": Config.TWITCH_CLIENT_ID
+			// "Client-Id": this.client_id
 		};
 		const options = {
 			method: "GET",
@@ -193,7 +193,7 @@ export default class TwitchUtils {
 		const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
 		const result = await fetch(url, {
 			headers:{
-				"Client-ID": Config.TWITCH_CLIENT_ID,
+				"Client-ID": this.client_id,
 				"Authorization": "Bearer "+access_token,
 				"Content-Type": "application/json",
 			}
@@ -206,7 +206,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: {
 				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
-				'Client-Id': Config.TWITCH_CLIENT_ID,
+				'Client-Id': this.client_id,
 				'Content-Type': "application/json",
 			},
 			body: JSON.stringify({
@@ -224,7 +224,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: {
 				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
-				'Client-Id': Config.TWITCH_CLIENT_ID,
+				'Client-Id': this.client_id,
 				'Content-Type': "application/json",
 			},
 		}

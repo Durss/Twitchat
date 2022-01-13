@@ -1,6 +1,29 @@
 # Twitchat
+This is a custom twitch chat that aims to fill gaps in the official Twitch chat.\
+The goal is to reduce as much as possible the number of missed messages with features missing from the Twitch chat.
+<br>
+<br>
+<br>
 
-## Project setup
+# Project setup
+First create a `credentials.json` file on the root directory and fill in these values :
+```json
+{
+	"client_id": "",
+	"client_secret": "",
+	"redirect_uri": "http://localhost:8080/oauth"
+}
+```
+Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
+Configure the redirect URI of the application with your localhost and/or production URI. Set it as the  `redirect_uri` value of the credentials.\
+<br>
+By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
+<br>
+<br>
+<br>
+
+# Compile project
+### Install dependencies
 ```
 npm install
 ```
@@ -15,10 +38,14 @@ npm run serve
 npm run build
 ```
 
-### Lints and fixes files
+### Run server
 ```
-npm run lint
+node server.js
 ```
+<br>
+<br>
+<br>
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# Server
+The server is super basic for now as there isn't much needs.
+For this reason it's a just a single file server coded in vanila JS that doesn't need any compilation. That might change in the futur.

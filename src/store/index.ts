@@ -62,6 +62,10 @@ export default createStore({
 			const cb = payload.cb;
 			const forceRefresh = payload.forceRefresh;
 			try {
+				const res = await fetch(Config.API_PATH+"/client_id");
+				const jsonClientID = await res.json();
+				TwitchUtils.client_id = jsonClientID.client_id;
+
 				let json:TwitchTypes.AuthTokenResult;
 				if(code) {
 					const res = await fetch(Config.API_PATH+"/gettoken?code="+code, {method:"GET"});
