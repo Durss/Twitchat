@@ -96,6 +96,7 @@ export default class NewUsers extends Vue {
 		
 		if(!this.streakMode) {
 			m.firstMessage = false;
+			this.localMessages.splice(index, 1);
 			this.indexOffset = parseInt(el.$el.dataset.index as string);
 		}else{
 			this.indexOffset = 0;
@@ -103,7 +104,9 @@ export default class NewUsers extends Vue {
 			let messages = this.localMessages;
 			let index = messages.findIndex(v => v.tags.id == m.tags.id);
 			for (let i = 0; i < index+1; i++) {
-				messages[i].firstMessage = false;
+				messages[0].firstMessage = false;
+				messages.splice(0, 1);
+				console.log("splice", i);
 			}
 		}
 	}
@@ -114,6 +117,8 @@ export default class NewUsers extends Vue {
 			for (let i = 0; i < messages.length; i++) {
 				if(messages[i].firstMessage) {
 					messages[i].firstMessage = false;
+					messages.splice(i, 1);
+					i--;
 				}
 			}
 		});
