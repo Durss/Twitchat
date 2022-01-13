@@ -23,7 +23,7 @@ export default createStore({
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
 				hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
 				hideBadges: {type:"toggle", value:false, label:"Hide badges"},
-				minimalistBadges: {type:"toggle", value:true, label:"Show minimalist badges"},
+				minimalistBadges: {type:"toggle", value:false, label:"Show minimalist badges"},
 				displayTime: {type:"toggle", value:true, label:"Display time"},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
 				historySize: {type:"slider", value:100, label:"Max chat message count", min:50, max:1000, step:50},
@@ -34,7 +34,7 @@ export default createStore({
 			},
 			filters: {
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-				ignoreSelf: {type:"toggle", value:true, label:"Hide my messages"},
+				ignoreSelf: {type:"toggle", value:false, label:"Hide my messages"},
 				hideBots: {type:"toggle", value:false, label:"Hide bots"},
 				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
