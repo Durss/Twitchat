@@ -8,7 +8,7 @@
 			<div>
 				<div class="infos" v-if="!authenticating">Twitchat needs read authorizations of your chat. Click <b>Authorize</b> button bellow</div>
 				
-				<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authorized && !authenticating" />
+				<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" />
 				
 				<div class="loader" v-if="authenticating">
 					<p>Authenticating...</p>
@@ -16,22 +16,6 @@
 				</div>
 			</div>
 
-			<form class="form" @submit.prevent="onLogin()" v-if="authorized">
-				<Button title="Get a token" :icon="require('@/assets/icons/newtab.svg')"
-					class="tokenBt"
-					type="link"
-					bounce
-					target="_blank"
-					href="https://twitchapps.com/tmi/" />
-				<label for="token">Paste your token here</label>
-				<input type="text" id="token" v-model="token" placeholder="oauth: ...">
-				<Button title="Connect"
-					type="submit"
-					bounce
-					:disabled="!token"
-					:loading="loading"
-					/>
-			</form>
 		</div>
 		
 	</div>
@@ -53,9 +37,6 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Login extends Vue {
 
-	public token:string = "";
-	public loading:boolean = false;
-	public authorized:boolean = false;
 	public authenticating:boolean = false;
 
 	public get oAuthURL():string {
@@ -66,7 +47,6 @@ export default class Login extends Vue {
 
 		if(this.$route.name == "oauth") {
 			this.authenticating = true;
-			// const token = Utils.getQueryParameterByName("access_token");
 			const code = Utils.getQueryParameterByName("code");
 			// let state = Utils.getQueryParameterByName("state");
 			// let error = Utils.getQueryParameterByName("error");
@@ -85,29 +65,8 @@ export default class Login extends Vue {
 			}
 		}
 
-		// this.authorized = store.state.authToken != "";// || !Config.REQUIRE_APP_AUTHORIZATION;
-
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
-	}
-
-	public async onLogin():Promise<void> {
-		this.loading = true;
-		try {
-			let t = this.token.replace("oauth:","");
-			const user = await TwitchUtils.validateToken(t);
-			store.commit("setUser", user);
-			
-			gsap.to(this.$el, {scaleX:0, ease:"back.in", duration:.5});
-			gsap.to(this.$el, {scaleY:0, ease:"back.in", duration:.5, delay:.1});
-
-			setTimeout(() => {
-				this.$router.push({name:"chat"});
-			}, 500);
-		}catch(error) {
-			store.state.alert = "Invalid token";
-		}
-		this.loading = false;
 	}
 
 }
