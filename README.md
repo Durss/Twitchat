@@ -43,7 +43,12 @@ First create a `credentials.json` file on the root directory and fill in these v
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
-Configure the redirect URI of the application with your localhost and/or production URI. Set it as the  `redirect_uri` value of the credentials.\
+Configure the redirect URI of the twitch application with your localhost and/or production URI.\
+Set it as the `redirect_uri` value of the credentials.\
+The `redirect uri` must end with `/oauth`, example :
+```
+http://localhost:8080/oauth
+```
 <br>
 By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
 <br>
