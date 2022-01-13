@@ -1,5 +1,8 @@
-# Twitchat
-This is a custom twitch chat that aims to fill gaps in the official Twitch chat.\
+<div align="center"><img width="400" alt="twitch" src="https://github.com/Durss/twitchat/blob/main/src/assets/logo.svg"></div>
+<br>
+<br>
+This is a custom twitch chat that aims to fill gaps in the official Twitch chat.
+<br>
 The goal is to reduce as much as possible the number of missed messages with features missing from the Twitch chat.
 <br>
 <br>
