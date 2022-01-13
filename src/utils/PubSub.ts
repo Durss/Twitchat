@@ -55,8 +55,8 @@ export default class PubSub {
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
 				this.parseEvent(data);
-			}else{
-				console.log(event);
+			// }else{
+			// 	console.log(event);
 			}
 		};
 		
