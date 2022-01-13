@@ -1,8 +1,7 @@
 <template>
 	<div class="login">
 		<div class="head">
-			<img class="icon" src="@/assets/icons/twitch.svg" alt="twitch">
-			<h1>Twitchat connexion</h1>
+			<img class="icon" src="@/assets/logo.svg" alt="twitch">
 		</div>
 
 		<div class="content">
