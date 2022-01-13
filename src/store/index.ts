@@ -1,7 +1,8 @@
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
+import PubSub from '@/utils/PubSub';
+import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import { Userstate } from 'tmi.js';
 import { createStore } from 'vuex';
 import Store from './Store';
@@ -11,8 +12,7 @@ export default createStore({
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
-		authToken: "",
-		tmiToken: "",
+		oAuthToken: {},
 		alert: "",
 		tooltip: "",
 		userCard: "",
@@ -54,28 +54,48 @@ export default createStore({
 		},
 	},
 	mutations: {
-		authenticate(state, token) {
-			state.authToken = token;
-			if(!Config.REQUIRE_APP_AUTHORIZATION) {
-				IRCClient.instance.connect(state.user.login, state.authToken);
+		async authenticate(state, payload) {
+			const code = payload.code;
+			const cb = payload.cb;
+			try {
+				let json:TwitchTypes.AuthTokenResult;
+				if(code) {
+					const res = await fetch(Config.API_PATH+"/gettoken?code="+code, {method:"GET"});
+					json = await res.json();
+				}else{
+					json = JSON.parse(Store.get("oAuthToken"));
+					const res = await fetch(Config.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
+					json = await res.json();
+				}
+				const userRes:unknown = await TwitchUtils.validateToken(json.access_token);
+				if(!(userRes as TwitchTypes.Token).expires_in
+				&& (userRes as TwitchTypes.Error).status != 200) throw("invalid token");
+
+				state.user = userRes as TwitchTypes.Token;
+				state.oAuthToken = json;
+				Store.set("oAuthToken", JSON.stringify(json));
+				
+				if(!state.authenticated) {
+					//Connect if we were not connected before
+					IRCClient.instance.connect(state.user.login, json.access_token);
+					PubSub.instance.connect();
+				}
+
+				state.authenticated = true;
+				if(cb) cb(true);
+			}catch(error) {
+				state.authenticated = false;
+				Store.remove("oAuthToken");
+				if(cb) cb(false);
 			}
-			Store.set("authToken", token);
 		},
 
 		setUser(state, user) { state.user = user; },
 
-		setTmiToken(state, tmiToken) {
-			state.tmiToken = tmiToken;
-			state.authenticated = true;
-			Store.set("tmiToken", tmiToken);
-			IRCClient.instance.connect(state.user.login, tmiToken);
-		},
-
 		logout(state) {
-			state.authToken = "";
+			state.oAuthToken = {};
 			state.authenticated = false;
-			Store.remove("authToken");
-			Store.remove("tmiToken");
+			Store.remove("oAuthToken");
 			IRCClient.instance.disconnect();
 		},
 
@@ -120,8 +140,6 @@ export default createStore({
 	},
 	actions: {
 		async startApp({state, commit}) {
-			const tmiToken = Store.get("tmiToken");
-			const token = Config.REQUIRE_APP_AUTHORIZATION? Store.get("authToken") : tmiToken;
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
@@ -148,24 +166,33 @@ export default createStore({
 				}
 			}
 
+			const token = Store.get("oAuthToken");
 			if(token) {
-				state.authToken = token;
 				try {
-					state.user = await TwitchUtils.validateToken(state.authToken);
-					// console.log(Utils.formatDuration(state.user.expires_in))
-					commit("authenticate", token);
-					state.tmiToken = tmiToken;
-					state.authenticated = tmiToken != "" && tmiToken != null;
+					await new Promise((resolve,reject)=> {
+						commit("authenticate", {cb:(success:boolean)=>{
+							if(success) {
+								resolve(null);
+							}else{
+								reject();
+							}
+						}});
+					})
 				}catch(error) {
+					console.log(error);
 					state.authenticated = false;
-					Store.remove("authToken");
-					document.location.href = TwitchUtils.oAuthURL;
+					Store.remove("oAuthToken");
+					// document.location.href = TwitchUtils.oAuthURL;
 					// router.push({name: 'login'});
 					return;
 				}
 			}
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
+				this.dispatch("addChatMessage", event.data);
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.NOTICE, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
 			});
 
@@ -190,11 +217,9 @@ export default createStore({
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
 
-		authenticate({ commit }, token) { commit("authenticate", token); },
+		authenticate({ commit }, payload) { commit("authenticate", payload); },
 
 		setUser({ commit }, user) { commit("setUser", user); },
-
-		setTmiToken({ commit }, tmiToken) { commit("setTmiToken", tmiToken); },
 
 		logout({ commit }) { commit("logout"); },
 

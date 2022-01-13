@@ -6,6 +6,7 @@
 		<Confirm />
 		<Alert />
 		<Tooltip />
+		<img src="loader_white.svg" alt="loader" class="loader-init" v-if="!authenticated">
 	</div>
 </template>
 
@@ -16,6 +17,7 @@ import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
 import UserCard from '@/components/user/UserCard.vue';
+import store from './store';
 
 @Options({
 	props:{},
@@ -30,7 +32,8 @@ import UserCard from '@/components/user/UserCard.vue';
 export default class App extends Vue {
 
 
-	public mounted():void {
+	public get authenticated():boolean {
+		return store.state.authenticated;
 	}
 
 }

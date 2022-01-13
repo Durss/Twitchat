@@ -14,7 +14,7 @@
   "windowsHide": true,
   "kill_retry_time": 100,
   "write": true,
-  "ignore_watch" : ["node_modules", "public"],
-  "watch": ["server"],
+  "ignore_watch" : ["node_modules", "public", "src"],
+  "watch": ["."],
   "exec_mode": "fork"
 }

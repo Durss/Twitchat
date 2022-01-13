@@ -1,17 +1,38 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link rel="icon" href="<%= BASE_URL %>favicon.ico">
+	<title>
+		<%= htmlWebpackPlugin.options.title %>
+	</title>
+	<style>
+		body {
+			background-color: #0e0e10;
+		}
+		.loader-init {
+			position: absolute;
+			transform: translate(-50%, -50%);
+			top: 50%;
+			left: 50%;
+			width: 80px;
+			height: 80px;
+		}
+	</style>
+</head>
+
+<body>
+	<noscript>
+		<strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+				Please enable it to continue.</strong>
+	</noscript>
+	<div id="app">
+		<img src="loader_white.svg" alt="loader" class="loader-init">
+	</div>
+	<!-- built files will be auto injected -->
+</body>
+
 </html>

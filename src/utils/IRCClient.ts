@@ -57,6 +57,7 @@ export default class IRCClient extends EventDispatcher {
 			const customLogin = Utils.getQueryParameterByName("login");
 			if(customLogin) {
 				const [login, uid] = customLogin.split(":");
+				this.login = login;
 				channels.push(login);
 				uids.push(uid);
 			}
@@ -133,13 +134,47 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
 			});
 
-			// this.client.on('raw_message', (messageCloned, message) => {
-			// 	console.log("################## ON RAW ##################");
-			// 	console.log(messageCloned);
-			// 	// if (message.command != "PRIVMSG") {
-			// 		console.log(message.command);
-			// 		console.log(message);
+			// this.client.on("slowmode", (channel: string, enabled: boolean, length?: number)=> {
+			// 	const tags = this.getFakeTags();
+			// 	const message = enabled? "This room is now in slow mode for "+length+" seconds" :"Slow mode is now disabled";
+			// 	this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel,
+			// 		msgid:"usage_slow_on",
+			// 		message,
+			// 		tags, notice:true}));
 			// });
+
+			// this.client.on("notice", (channel: string, msgid: tmi.MsgID, message: string)=> {
+			// 	//Fake tags info
+			// 	const tags = {
+			// 		info:"this tags prop is a fake one to make things easier for my code",
+			// 		id:Date.now().toString() + Math.random().toString(),
+			// 		"tmi-sent-ts": Date.now().toString(),
+			// 	};
+			// 	console.log("NOTICE !", channel, msgid, message);
+			// 	this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel, msgid, message, tags, notice:true}));
+			// });
+
+			this.client.on('raw_message', (messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }) => {
+				// console.log("################## ON RAW ##################");
+				// console.log(messageCloned);
+				// if (message.command != "PRIVMSG") {
+					// console.log(data.command);
+					// console.log(data);
+				switch(data.command) {
+					//Using this instead of the "notice" event from TMI as it's not
+					//fired for many notices whereas here we get them all
+					case "NOTICE": {
+						const [msgid, prefix, command, channel, message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
+						prefix;
+						command;
+						//Fake tags info
+						const tags = this.getFakeTags();
+						this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel, msgid: msgid as tmi.MsgID, message, tags, notice:true}));
+						break;
+					}
+					default: break;
+				}
+			});
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
@@ -183,12 +218,31 @@ export default class IRCClient extends EventDispatcher {
 		this.connected = false;
 	}
 
-	public deleteMessage(id:string):void {
-		this.client.deletemessage(this.channel, id);
+	public async deleteMessage(id:string):Promise<void> {
+		try {
+			await this.client.deletemessage(this.channel, id);
+		}catch(error) {
+			if(error === "bad_delete_message_error") {
+				store.state.alert = "Cannot delete broadcaster or moderator's message !";
+			}
+		}
 	}
 
-	public sendMessage(message:string):Promise<[string]> {
-		return this.client.say(this.login, message);
+	public sendMessage(message:string):Promise<unknown> {
+		const params = message.split(" ").splice(1);
+		if(/\/slow.*/.test(message)) {
+			return this.client.slow(this.channel, parseInt(params[0]));
+		}else if(/\/mod.*/.test(message)) {
+			return this.client.mod(this.channel, params[0]);
+		}else if(/\/clear/.test(message)) {
+			return this.client.clear(this.channel);
+		}else if(/\/vip.*/.test(message)) {
+			return this.client.vip(this.channel, params[0]);
+		}else if(/\/unvip.*/.test(message)) {
+			return this.client.vip(this.channel, params[0]);
+		}else{
+			return this.client.say(this.login, message);
+		}
 	}
 	
 	
@@ -196,4 +250,12 @@ export default class IRCClient extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+
+	private getFakeTags():tmi.ChatUserstate {
+		return {
+			info:"this tags prop is a fake one to make things easier for my code",
+			id:Date.now().toString() + Math.random().toString(),
+			"tmi-sent-ts": Date.now().toString(),
+		};
+	}
 }

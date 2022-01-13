@@ -38,6 +38,7 @@ export default class ChatForm extends Vue {
 			await IRCClient.instance.sendMessage(this.message);
 			this.message = "";
 		}catch(error) {
+			console.log(error);
 			this.error = true;
 		}
 	}

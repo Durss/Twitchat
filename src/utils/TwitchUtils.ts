@@ -19,16 +19,16 @@ export default class TwitchUtils {
 		let url = "https://id.twitch.tv/oauth2/authorize?";
 		url += "client_id="+clientID
 		url += "&redirect_uri="+redirect;
-		url += "&response_type=token";
+		url += "&response_type=code";
 		url += "&scope="+scopes;
 		url += "&state=";
 		return url;
 	}
 	
-	public static validateToken(oAuthToken:string):Promise<TwitchTypes.Token> {
+	public static validateToken(oAuthToken:string):Promise<TwitchTypes.Token|TwitchTypes.Error> {
 		return new Promise((resolve, reject) => {
 			const headers = {
-				"Authorization":"OAuth "+oAuthToken
+				"Authorization":"Bearer "+oAuthToken
 			};
 			const options = {
 				method: "GET",
@@ -191,10 +191,11 @@ export default class TwitchUtils {
 		
 		const params = "login="+logins.join("&login=");
 		const url = "https://api.twitch.tv/helix/users?"+params;
+		const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
 		const result = await fetch(url, {
 			headers:{
 				"Client-ID": Config.TWITCH_CLIENT_ID,
-				"Authorization": "Bearer "+store.state.authToken,
+				"Authorization": "Bearer "+access_token,
 				"Content-Type": "application/json",
 			}
 		});
@@ -210,6 +211,10 @@ export namespace TwitchTypes {
 		scopes: string[];
 		user_id: string;
 		expires_in: number;
+	}
+	export interface Error {
+		status: number;
+		message: string;
 	}
 
 	export interface StreamInfo {
@@ -269,5 +274,13 @@ export namespace TwitchTypes {
 		image_url_4x: string;
 	}
 
-	
+	export interface AuthTokenResult {
+        access_token: string;
+        expires_in: number;
+        refresh_token: string;
+        scope: string[];
+        token_type: string;
+		//Custom injected data
+        expires_at: number;
+    }	
 }
