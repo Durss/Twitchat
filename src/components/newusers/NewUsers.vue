@@ -1,22 +1,27 @@
 <template>
 	<div class="newusers" v-show="messages.length > 0">
-		<div class="header">
+		<div class="header" @click="showList = !showList">
 			<h1>Greet them <span class="count">({{messages.length}})</span></h1>
-			<Button :icon="require('@/assets/icons/delete.svg')" class="clearBt" data-tooltip="Clear all messages" @click="clearAll()" />
+			<Button :icon="require('@/assets/icons/delete.svg')"
+				class="clearBt"
+				data-tooltip="Clear all messages"
+				@click.stop="clearAll()" />
 		</div>
 		
-		<transition-group name="fade" appear
+		<transition-group name="fade"
+			v-if="showList"
 			@leave="leave"
 			tag="div"
 		>
 			<ChatMessage
 				v-for="(m,index) in messages"
-				:key="m.tags.id"
 				class="message"
+				ref="message"
+				:key="m.tags.id"
 				:messageData="m"
 				:data-index="index"
 				:disableAutomod="true"
-				ref="message"
+				:disableFirstTime="true"
 				:deleteOverlay="(streakMode && index<=overIndex) || index == overIndex"
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
@@ -45,6 +50,7 @@ export default class NewUsers extends Vue {
 
 	public overIndex:number = -1;
 	public streakMode:boolean = true;
+	public showList:boolean = true;
 	public indexOffset:number = 0;
 
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
@@ -151,7 +157,7 @@ export default class NewUsers extends Vue {
 	width: 100%;
 	background-color: #0a2950;
 	backdrop-filter: blur(5px);
-	padding: 10px;
+	padding-top: 10px;
 	padding-top: 0;
 	overflow-y: auto;
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
@@ -165,6 +171,7 @@ export default class NewUsers extends Vue {
 		flex-direction: row;
 		justify-content: center;
 		z-index: 1;//Avoids glitch when hovering message items due to stiky position
+		cursor: pointer;
 		h1 {
 			text-align: center;
 			color: #ffffff;
