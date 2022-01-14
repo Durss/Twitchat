@@ -1,5 +1,5 @@
 <template>
-	<div class="messagelist" @mouseenter="hover()" @mouseleave="out()" @mousewheel="onMouseWheel($event)">
+	<div :class="classes" @mouseenter="hover()" @mouseleave="out()" @mousewheel="onMouseWheel($event)">
 		<div class="holder" ref="messageHolder">
 			<ChatMessage v-for="m in localMessages"
 				class="message"
@@ -52,6 +52,12 @@ export default class MessageList extends Vue {
 		return this.hovered || this.forceLock;
 	}
 
+	public get classes():string[] {
+		let res = ["messagelist"];
+		if(this.lockscroll) res.push("scrollLocked");
+		return res;
+	}
+
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat();
 		await this.$nextTick();
@@ -86,10 +92,12 @@ export default class MessageList extends Vue {
 	/**
 	 * Called when mouse enters the message list
 	 */
-	public hover():void {
+	public async hover():Promise<void> {
 		this.hovered = true;
 		let el = this.$refs.messageHolder as HTMLDivElement;
 		gsap.killTweensOf(el);
+		await this.$nextTick();
+		this.scrollBottom();
 	}
 
 	/**
@@ -166,6 +174,12 @@ export default class MessageList extends Vue {
 .messagelist{
 	position: relative;
 
+	&.scrollLocked {
+		.holder {
+			padding-bottom: 80px;
+		}
+	}
+
 	.holder {
 		max-height: 100%;
 		width: 100%;
@@ -190,6 +204,8 @@ export default class MessageList extends Vue {
 	}
 
 	.holder {
+		padding-bottom: 0;
+		// transition: padding-bottom .25s;
 		.message:nth-child(even) {
 			background-color: rgba(255, 255, 255, .025);
 		}
