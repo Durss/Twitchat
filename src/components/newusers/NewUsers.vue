@@ -106,8 +106,10 @@ export default class NewUsers extends Vue {
 			for (let i = 0; i < index+1; i++) {
 				messages[0].firstMessage = false;
 				messages.splice(0, 1);
-				console.log("splice", i);
 			}
+			let el = this.$el as HTMLDivElement;
+			gsap.killTweensOf(el);
+			gsap.to(el, {duration: .25, scrollTo: 0});
 		}
 	}
 
@@ -147,20 +149,26 @@ export default class NewUsers extends Vue {
 	}
 	public leave(el:HTMLElement, done:()=>void):void {
 		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.075;
-		gsap.to(el, {
-			duration:0.15,
-			height:0,
-			scaleY:0,
-			margin:0,
-			padding:0,
-			// fontSize:0,
-			delay,
-			ease:'sine.in',
-			clearProps:'all',
-			onComplete:()=>{
+		if(delay > 1) {
+			setTimeout(()=>{
 				done();
-			}
-		});
+			}, 1000);
+		}else{
+			gsap.to(el, {
+				duration:0.15,
+				height:0,
+				scaleY:0,
+				margin:0,
+				padding:0,
+				// fontSize:0,
+				delay,
+				ease:'sine.in',
+				clearProps:'all',
+				onComplete:()=>{
+					done();
+				}
+			});
+		}
 	}
 
 }
