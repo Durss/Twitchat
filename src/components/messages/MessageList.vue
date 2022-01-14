@@ -46,6 +46,7 @@ export default class MessageList extends Vue {
 	public hovered:boolean = false;
 	public disposed:boolean = false;
 	public forceLock:boolean = false;
+	public idDisplayed:{[key:string]:boolean} = {};
 	public localMessages:IRCEventDataList.Message[] = [];
 	public pendingMessages:IRCEventDataList.Message[] = [];
 
@@ -63,20 +64,23 @@ export default class MessageList extends Vue {
 		this.localMessages = store.state.chatMessages.concat();
 		await this.$nextTick();
 		this.scrollBottom(false);
-		watch(() => store.state.chatMessages, async (value) => {
+		watch(() => store.state.chatMessages, async (value:IRCEventDataList.Message[]) => {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockscroll || this.pendingMessages.length > 0) {
 				for (let i = 0; i < store.state.chatMessages.length; i++) {
 					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
-					if(this.localMessages.findIndex(v => v.tags.id == m.tags.id) == -1
-					&& this.pendingMessages.findIndex(v => v.tags.id == m.tags.id) == -1) {
-						this.pendingMessages.push(m)
+					if(this.idDisplayed[value[i].tags.id as string] !== true) {
+						this.idDisplayed[m.tags.id as string] = true;
+						this.pendingMessages.push(m);
 					}
 				}
 				return;
 			}
 			this.localMessages = value.concat();
+			for (let i = 0; i < value.length; i++) {
+				this.idDisplayed[value[i].tags.id as string] = true;
+			}
 			await this.$nextTick();
 			this.scrollBottom();
 		}, {
@@ -127,7 +131,9 @@ export default class MessageList extends Vue {
 		for (let i = 0; i < this.pendingMessages.length; i++) {
 			if(this.hovered || this.forceLock || this.disposed) return false;
 			addCount ++;
-			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
+			const m = this.pendingMessages.shift() as IRCEventDataList.Message;
+			this.idDisplayed[m.tags.id as string] = true;
+			this.localMessages.push( m );
 			//Limit size
 			this.localMessages = this.localMessages.slice(-maxLength);
 			await Utils.promisedTimeout(75);
@@ -187,7 +193,7 @@ export default class MessageList extends Vue {
 		overflow-y: auto;
 		position: absolute;
 		bottom: 0;
-		padding: 10px;
+		padding: 10px 0;
 		.message {
 			overflow-x: hidden;
 		}

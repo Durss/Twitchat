@@ -53,14 +53,14 @@ import ChatModTools from './ChatModTools.vue';
 	},
 	props:{
 		messageData:Object,
-		deleteOverlay:{type:Boolean, default:false},
+		// deleteOverlay:{type:Boolean, default:false},
 		disableAutomod:{type:Boolean, default:false},
 		disableFirstTime:{type:Boolean, default:false},
 	}
 })
 export default class ChatMessage extends Vue {
 	
-	public deleteOverlay!:boolean;
+	// public deleteOverlay!:boolean;
 	public disableAutomod!:boolean;
 	public disableFirstTime!:boolean;
 	public firstTime:boolean = false;
@@ -76,7 +76,10 @@ export default class ChatMessage extends Vue {
 		let res = ["chatmessage"];
 		const message = this.messageData as IRCEventDataList.Message;
 
-		if(this.deleteOverlay) res.push("deleteOverlay");
+
+		//NOT used anymore !
+		//See NewUsers.vue line ~150
+		// if(this.deleteOverlay) res.push("deleteOverlay");
 		
 		if(this.isNotice) res.push("notice");
 		if(this.automod) res.push("automod");
@@ -144,17 +147,18 @@ export default class ChatMessage extends Vue {
 		let result:string;
 		const mess = this.messageData as IRCEventDataList.Message;
 		let text = mess.message;
-		text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 		try {
 			let removeEmotes = store.state.params.appearance.hideEmotes.value;
 			if(this.automod) {
 				result = text;
+				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 			}else{
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
 					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {
 						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.emote+"</center>";
@@ -293,6 +297,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	&.deleteOverlay{
+		//NOT used anymore !
+		//See NewUsers.vue line ~150
 		color: white;
 		opacity: .5;
 		text-decoration: line-through;

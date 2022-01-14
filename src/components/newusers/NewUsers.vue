@@ -24,11 +24,12 @@
 				:data-index="index"
 				:disableAutomod="true"
 				:disableFirstTime="true"
-				:deleteOverlay="(streakMode && index<=overIndex) || index == overIndex"
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
 				@click="deleteMessage(m, index)" />
 		</transition-group>
+				<!-- :deleteOverlay="highlightState[m.tags.id]" -->
+				<!-- :deleteOverlay="(streakMode && index<=overIndex) || index == overIndex" -->
 	</div>
 </template>
 
@@ -52,11 +53,12 @@ import Button from '../Button.vue';
 export default class NewUsers extends Vue {
 
 	public overIndex:number = -1;
-	public streakMode:boolean = true;
 	public showList:boolean = true;
 	public indexOffset:number = 0;
 	public localMessages:IRCEventDataList.Message[] = [];
 
+	private streakMode:boolean = true;
+	private highlightState:{[key:string]:boolean} = {};
 	private idToDisplayed:{[id:string]:boolean} = {};
 
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
@@ -117,13 +119,14 @@ export default class NewUsers extends Vue {
 	}
 
 	public clearAll():void {
-		let messages = this.localMessages;
+		let deleteCount = this.localMessages.length;
 		Utils.confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
-			for (let i = 0; i < messages.length; i++) {
-				if(messages[i].firstMessage) {
-					messages[i].firstMessage = false;
-					messages.splice(i, 1);
+			for (let i = 0; i < deleteCount; i++) {
+				if(this.localMessages[i].firstMessage) {
+					this.localMessages[i].firstMessage = false;
+					this.localMessages.splice(i, 1);
 					i--;
+					deleteCount--;
 				}
 			}
 		});
@@ -131,9 +134,45 @@ export default class NewUsers extends Vue {
 
 	public onMouseOver(e:MouseEvent, index:number):void {
 		this.overIndex = index;
+		let items = this.$refs.message as Vue[];
+		if(this.streakMode) {
+			for (let i = 0; i <= index; i++) {
+				const item = this.localMessages[i];
+				if(!item) continue;
+				if(!this.highlightState[item.tags.id as string]) {
+					this.highlightState[item.tags.id as string] = true;
+					//Why the hell do I use inline styles this way instead of
+					//doing it the Vue style by simply updating a prop set
+					//to the component so it automatically updates when updating
+					//that prop ?
+					//Because it's drastically faster this way. There's a huge
+					//rendering pipeline performance issue i couldn't solve
+					//by any other method.
+					(items[i].$el as HTMLDivElement).style.background = "red";
+					(items[i].$el as HTMLDivElement).style.color = "white";
+					(items[i].$el as HTMLDivElement).style.opacity = ".5";
+					(items[i].$el as HTMLDivElement).style.textDecoration = "line-through";
+				}
+				
+			}
+		}else{
+			this.highlightState[this.localMessages[index].tags.id as string] = true;
+			(items[index].$el as HTMLDivElement).style.background = "red";
+			(items[index].$el as HTMLDivElement).style.color = "white";
+			(items[index].$el as HTMLDivElement).style.opacity = ".5";
+			(items[index].$el as HTMLDivElement).style.textDecoration = "line-through";
+		}
 	}
 	public onMouseOut():void {
 		this.overIndex = -1;
+		let items = this.$refs.message as Vue[];
+		for (let i = 0; i < this.localMessages.length; i++) {
+			const id = this.localMessages[i].tags.id as string;
+			if(this.highlightState[id] === true) {
+				this.highlightState[id] = false;
+				(items[i].$el as HTMLDivElement).removeAttribute("style");
+			}
+		}
 	}
 
 	public enter(el:HTMLElement, done:()=>void):void {

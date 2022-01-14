@@ -64,8 +64,10 @@ export default class IRCClient extends EventDispatcher {
 				uids.push(uid);
 			}
 			if(this.debugMode) {
-				channels = channels.concat(["Alderiate", "NoWay4u_Sir", "tmxk319", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
-				uids = uids.concat(["77452537", "85397463", "148057505", "622498423", "28575692", "217377982", "177146919", "135468063", "100744948", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["otplol_"]);
+				uids = uids.concat(["622498423"]);
+				// channels = channels.concat(["CriticalRole", "NoWay4u_Sir", "tmxk319", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
+				// uids = uids.concat(["229729353", "85397463", "148057505", "622498423", "28575692", "217377982", "177146919", "135468063", "100744948", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
 				try {
