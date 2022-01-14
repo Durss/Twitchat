@@ -124,7 +124,8 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static parseURLs(text:string, target:string = "_blank"):string {
-		return text.replace(/([-a-zA-Z0-9@:%_+.~#?&//=]{2,256})(\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?)/gi, "<a href='$1$2' target='"+target+"'>$1$2</a>");
+		const res = text.replace(/([-a-zA-Z0-9@:%_+.~#?&//=]{2,256})(\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?)/gi, "<a href='$1$2' target='"+target+"'>$1$2</a>");
+		return res.replace(/href='(?!http)(\/\/)?(.*)'/, "href='https://$2'");
 	}
 
 	public static formatDuration(millis: number): string {
