@@ -164,7 +164,8 @@ export default class TwitchUtils {
 			if(cursor < e.start) result += message.substring(cursor, e.start);
 			if(!removeEmotes) {
 				const code = message.substring(e.start, e.end + 1);
-				const image = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0' data-tooltip='"+code+"'>";
+				const tt = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/3.0'><br /><center>"+code+"</center>";
+				const image = "<img src=\"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0\" data-tooltip=\""+(tt)+"\">";
 				result += image;
 			}
 			cursor = e.end + 1;
