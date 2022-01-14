@@ -58,10 +58,12 @@ export default class Login extends Vue {
 						this.$router.push({name:"chat"});
 					}else{
 						store.state.alert = "Invalid credentials";
+						this.authenticating = false;
 					}
 				}});
 			}else{
 				store.state.alert = "You refused access to the Twitch application.";
+				this.authenticating = false;
 			}
 		}
 

@@ -32,9 +32,9 @@ http.createServer((request, response) => {
 		if(request.url.indexOf("api") > -1) {
 			
 			//Get client ID
-			if(request.url.indexOf("api/client_id") > -1) {
+			if(request.url.indexOf("api/configs") > -1) {
 				response.writeHead(200, {'Content-Type': 'application/json'});
-				response.end(JSON.stringify({client_id:credentials.client_id}));
+				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes}));
 				return;
 			
 			//Generate token from auth code
@@ -160,12 +160,10 @@ async function getClientCredentialToken() {
 	url += "&grant_type=client_credentials";
 	url += "&scope="+credentials.scopes.join("+");
 
-	console.log(url);
 	try {
 		const result = await fetch(url, options);
 		if(result.status == 200) {
 			let json = await result.json();
-			console.log(json);
 			credentialToken = json.access_token;
 			credentialToken_invalidation_date = Date.now() + json.expires_in - 1000;
 			return json.access_token;

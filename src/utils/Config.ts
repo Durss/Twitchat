@@ -3,14 +3,7 @@
  */
 export default class Config {
 	public static IS_PROD:boolean = document.location.hostname != "localhost";
-	public static TWITCH_APP_SCOPES:string[] = [
-												"chat:read",
-												"chat:edit",
-												"channel:read:redemptions",
-												"channel:moderate",
-												"moderation:read",
-												"moderator:manage:automod",
-											];
+	public static TWITCH_APP_SCOPES:string[] = [];
 
 	public static SERVER_PORT:number = 3018;
 	public static get API_PATH():string {

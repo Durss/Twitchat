@@ -198,9 +198,10 @@ export default createStore({
 	
 	actions: {
 		async startApp({state, commit}) {
-			const res = await fetch(Config.API_PATH+"/client_id");
-			const jsonClientID = await res.json();
-			TwitchUtils.client_id = jsonClientID.client_id;
+			const res = await fetch(Config.API_PATH+"/configs");
+			const jsonConfigs = await res.json();
+			TwitchUtils.client_id = jsonConfigs.client_id;
+			Config.TWITCH_APP_SCOPES = jsonConfigs.scopes;
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();

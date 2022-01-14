@@ -16,7 +16,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private uidsDone:{[key:string]:boolean} = {};
 	
 	public token!:string|undefined;
@@ -55,7 +55,6 @@ export default class IRCClient extends EventDispatcher {
 			this.login = login;
 			this.token = token;
 			let channels = [ login ];
-			let uids = [ ];
 			if(this.debugMode) {
 				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
 			}
@@ -73,7 +72,7 @@ export default class IRCClient extends EventDispatcher {
 
 				//Get user IDs from logins to then load their badges
 				const userInfos = await fetch(Config.API_PATH+"/user?logins="+channels.join(","));
-				uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
+				let uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
 				
 				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
@@ -127,7 +126,6 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on("clearchat", ()=> {
 				this.dispatchEvent(new IRCEvent(IRCEvent.CLEARCHAT));
 			});
-
 
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
 				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {channel, username, reason, duration}));

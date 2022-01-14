@@ -69,7 +69,8 @@ export default class Utils {
 	}
 
 	public static getQueryParameterByName(name:string, url?:string):string|null {
-		return new URLSearchParams(url).get("name");
+		if(!url) url = document.location.search;
+		return new URLSearchParams(url).get(name);
 		// if (!url) url = window.location.href;
 		// name = name.replace(/[[]]/g, "\\$&");
 		// const regex = new RegExp("[#?&]" + name + "(=([^&#]*)|&|#|$)"),
