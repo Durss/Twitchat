@@ -141,7 +141,7 @@ export default createStore({
 			(state.chatMessages as IRCEventDataList.Message[]).push(payload);
 			const maxMessages = state.params.appearance.historySize.value;
 			if(state.chatMessages.length > maxMessages) {
-				state.chatMessages = state.chatMessages.splice(state.chatMessages.length-maxMessages);
+				state.chatMessages = state.chatMessages.slice(-maxMessages);
 			}
 		},
 		

@@ -120,7 +120,7 @@ export default class MessageList extends Vue {
 			addCount ++;
 			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
 			//Limit size
-			this.localMessages = this.localMessages.splice(this.localMessages.length-maxLength);
+			this.localMessages = this.localMessages.slice(-maxLength);
 			await Utils.promisedTimeout(75);
 			await this.$nextTick();
 			this.scrollBottom();
@@ -134,7 +134,9 @@ export default class MessageList extends Vue {
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
 		if(event.deltaY > 0 && this.pendingMessages.length > 0) {
+			const maxLength = store.state.params.appearance.historySize.value;
 			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
+			this.localMessages = this.localMessages.slice(-maxLength);
 			await this.$nextTick();
 			this.scrollBottom();
 			return;
