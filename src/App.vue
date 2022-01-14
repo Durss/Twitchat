@@ -6,7 +6,7 @@
 		<Confirm />
 		<Alert />
 		<Tooltip />
-		<img src="loader_white.svg" alt="loader" class="loader-init" v-if="!authenticated">
+		<img src="/loader_white.svg" alt="loader" class="loader-init" v-if="!authenticated">
 	</div>
 </template>
 
@@ -18,6 +18,7 @@ import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
 import UserCard from '@/components/user/UserCard.vue';
 import store from './store';
+import Utils from './utils/Utils';
 
 @Options({
 	props:{},
@@ -33,7 +34,7 @@ export default class App extends Vue {
 
 
 	public get authenticated():boolean {
-		return store.state.authenticated;
+		return store.state.authenticated || Utils.getRouteMetaValue(this.$route, "needAuth") !== true;
 	}
 
 }

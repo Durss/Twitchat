@@ -33,20 +33,24 @@ async function scheduleTokenRefresh():Promise<void> {
  * Add route guards for login
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
+	const needAuth = Utils.getRouteMetaValue(to, "needAuth");
+	
 	if (!store.state.initComplete) {
 		try {
 			await store.dispatch("startApp");
-			scheduleTokenRefresh();
+			if(needAuth) {
+				scheduleTokenRefresh();
+			}
 		}catch(error) {
 			//Ignore
 			error;
 		}
 	}
 
-	const needAuth = Utils.getRouteMetaValue(to, "needAuth");
 	if (!store.state.authenticated) {
 		//Not authenticated, reroute to login
 		if(needAuth === true) {
+			console.log("REROUTE", needAuth);
 			next({name: 'login'});
 		}else{
 			next();

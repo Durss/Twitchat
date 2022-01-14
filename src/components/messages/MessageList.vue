@@ -6,7 +6,7 @@
 				:key="m.tags.id"
 				:messageData="m" />
 		</div>
-		<div class="locked" v-if="hovered || forceLock">
+		<div class="locked" v-if="(hovered || forceLock) && !lightMode">
 			<!-- data-tooltip="auto scroll locked"> -->
 			<div class="label">
 				<Button :icon="require('@/assets/icons/unlock.svg')" v-if="!forceLock" @click="forceLock=true" />
@@ -17,7 +17,7 @@
 			<div class="bar"></div>
 		</div>
 
-		<div v-if="localMessages.length == 0" class="noMessage">- no message -</div>
+		<div v-if="localMessages.length == 0 && !lightMode" class="noMessage">- no message -</div>
 	</div>
 </template>
 
@@ -38,6 +38,7 @@ import Button from '../Button.vue';
 	},
 	props: {
 		max:Number,
+		lightMode:Boolean,
 	}
 })
 export default class MessageList extends Vue {
@@ -46,6 +47,7 @@ export default class MessageList extends Vue {
 	public hovered:boolean = false;
 	public disposed:boolean = false;
 	public forceLock:boolean = false;
+	public lightMode:boolean = false;
 	public idDisplayed:{[key:string]:boolean} = {};
 	public localMessages:IRCEventDataList.Message[] = [];
 	public pendingMessages:IRCEventDataList.Message[] = [];
@@ -56,6 +58,7 @@ export default class MessageList extends Vue {
 
 	public get classes():string[] {
 		let res = ["messagelist"];
+		if(this.lightMode) res.push("lightMode");
 		if(this.lockscroll) res.push("scrollLocked");
 		return res;
 	}
@@ -98,6 +101,7 @@ export default class MessageList extends Vue {
 	 * Called when mouse enters the message list
 	 */
 	public async hover():Promise<void> {
+		if(this.lightMode) return;
 		this.hovered = true;
 		let el = this.$refs.messageHolder as HTMLDivElement;
 		gsap.killTweensOf(el);
@@ -215,6 +219,11 @@ export default class MessageList extends Vue {
 		// transition: padding-bottom .25s;
 		.message:nth-child(even) {
 			background-color: rgba(255, 255, 255, .025);
+		}
+	}
+	&.lightMode {
+		.message:nth-child(even) {
+			background-color: transparent;
 		}
 	}
 

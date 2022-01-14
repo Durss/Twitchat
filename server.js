@@ -13,6 +13,8 @@ console.log("=============");
 
 
 let credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
+let credentialToken = null;
+let credentialToken_invalidation_date = 0;
 
 http.createServer((request, response) => {
 
@@ -38,6 +40,11 @@ http.createServer((request, response) => {
 			//Generate token from auth code
 			}else if(request.url.indexOf("api/gettoken") > -1) {
 				generateToken(request, response);
+				return;
+			
+			//Generate token from auth code
+			}else if(request.url.indexOf("api/user") > -1) {
+				getUserInfos(request, response);
 				return;
 
 			//Refresh access token
@@ -98,4 +105,76 @@ async function refreshToken(request, response) {
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify(json));
+}
+
+async function getUserInfos(request, response) {
+	const token = await getClientCredentialToken();
+	let queryParams = UrlParser.parse(request.url, true).query;
+
+	let headers = {
+		"Client-Id":credentials.client_id,
+		"Authorization":"Bearer "+token
+	};
+	var options = {
+		method: "GET",
+		headers: headers,
+	};
+	const params = "login="+queryParams.logins.split(",").join("&login=");
+	let result = await fetch("https://api.twitch.tv/helix/users?"+params, options)
+	if(result.status == 200) {
+		let json = await result.json();
+		response.writeHead(200, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify(json.data));
+	}else{
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+	}
+}
+
+
+
+
+/**
+ * Generates a credential token.
+ * 
+ * @param client_id 
+ * @param client_secret 
+ * @param scope 
+ * @returns 
+ */
+async function getClientCredentialToken() {
+	//Invalidate token if expiration date is passed
+	if(Date.now() > credentialToken_invalidation_date) credentialToken = null;
+	//Avoid generating a new token if one already exists
+	if(credentialToken) return Promise.resolve(credentialToken);
+
+	//Generate a new token
+	let headers = {};
+	var options = {
+		method: "POST",
+		headers: headers,
+	};
+	let url = "https://id.twitch.tv/oauth2/token?";
+	url += "client_id="+credentials.client_id;
+	url += "&client_secret="+credentials.client_secret;
+	url += "&grant_type=client_credentials";
+	url += "&scope="+credentials.scopes.join("+");
+
+	console.log(url);
+	try {
+		const result = await fetch(url, options);
+		if(result.status == 200) {
+			let json = await result.json();
+			console.log(json);
+			credentialToken = json.access_token;
+			credentialToken_invalidation_date = Date.now() + json.expires_in - 1000;
+			return json.access_token;
+		}else{
+			console.error("Token generation failed");
+			console.log(await result.text());
+			return null;
+		}
+	}catch(error) {
+		return null;
+	}
 }

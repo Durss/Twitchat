@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Chat from '../views/Chat.vue'
+import ChatLight from '../views/ChatLight.vue'
 import Login from '../views/Login.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -17,6 +18,14 @@ const routes: Array<RouteRecordRaw> = [
 		component: Chat,
 		meta: {
 			needAuth:true,
+		}
+	},
+	{
+		path: '/chat/:login',
+		name: 'chatLight',
+		component: ChatLight,
+		meta: {
+			needAuth:false,
 		}
 	},
 	{

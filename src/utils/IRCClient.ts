@@ -6,7 +6,6 @@ import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
-import Utils from "./Utils";
 
 /**
 * Created : 19/01/2021 
@@ -17,10 +16,10 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private uidsDone:{[key:string]:boolean} = {};
 	
-	public token!:string;
+	public token!:string|undefined;
 	public channel!:string;
 	public connected:boolean = false;
 	public botsLogins:string[] = [];
@@ -49,26 +48,18 @@ export default class IRCClient extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public connect(login:string, token:string):Promise<void> {
+	public connect(login:string, token?:string):Promise<void> {
 		if(this.connected) return Promise.resolve();
+		
 		return new Promise((resolve, reject) => {
 			this.login = login;
 			this.token = token;
-			let channels = [ login]
-			let uids = [ store.state.user.user_id];
-			const customLogin = Utils.getQueryParameterByName("login");
-			if(customLogin) {
-				const [login, uid] = customLogin.split(":");
-				this.login = login;
-				channels.push(login);
-				uids.push(uid);
-			}
+			let channels = [ login ];
+			let uids = [ ];
 			if(this.debugMode) {
-				channels = channels.concat(["otplol_"]);
-				uids = uids.concat(["622498423"]);
-				// channels = channels.concat(["CriticalRole", "NoWay4u_Sir", "tmxk319", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
-				// uids = uids.concat(["229729353", "85397463", "148057505", "622498423", "28575692", "217377982", "177146919", "135468063", "100744948", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
 			}
+
 			(async ()=> {
 				try {
 					//Load bots list
@@ -80,24 +71,36 @@ export default class IRCClient extends EventDispatcher {
 					this.botsLogins = ["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"];
 				}
 
-				await Utils.promisedTimeout(5000);
+				//Get user IDs from logins to then load their badges
+				const userInfos = await fetch(Config.API_PATH+"/user?logins="+channels.join(","));
+				uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
+				
+				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
 				for (let i = 0; i < uids.length; i++) {
+					//Load user specific badges infos
 					await TwitchUtils.loadUserBadges(uids[i]);
 				}
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
 			})();
 			
-	
-			this.client = new tmi.Client({
-				options: { debug: false },
-				connection: { reconnect: true },
-				channels,
-				identity: {
-					username: login,
-					password: "oauth:"+token
-				},
-			});
+			if(token) {
+				this.client = new tmi.Client({
+					options: { debug: false },
+					connection: { reconnect: true },
+					channels:channels.concat(),
+					identity: {
+						username: login,
+						password: "oauth:"+token
+					},
+				});
+			}else{
+				this.client = new tmi.Client({
+					channels:channels.concat(),
+				});
+				this.connected = true;
+			}
+			
 	
 			this.client.on("join", (channel:string, user:string)=> {
 				this.channel = channel;

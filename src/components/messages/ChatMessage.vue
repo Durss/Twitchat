@@ -87,6 +87,7 @@ export default class ChatMessage extends Vue {
 
 		if(!this.isNotice
 		&& store.state.params.appearance.highlightMentions.value
+		&& store.state.user.login
 		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 			res.push("mention");
 		}
