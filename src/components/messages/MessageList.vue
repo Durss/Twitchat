@@ -45,11 +45,11 @@ export default class MessageList extends Vue {
 	public hovered:boolean = false;
 	public disposed:boolean = false;
 	public forceLock:boolean = false;
-	public catchingUpMessages:boolean = false;
 	public localMessages:IRCEventDataList.Message[] = [];
+	public pendingMessages:IRCEventDataList.Message[] = [];
 
 	public get lockscroll():boolean {
-		return this.hovered || this.forceLock || this.catchingUpMessages;
+		return this.hovered || this.forceLock;
 	}
 
 	public async mounted():Promise<void> {
@@ -57,7 +57,18 @@ export default class MessageList extends Vue {
 		await this.$nextTick();
 		this.scrollBottom(false);
 		watch(() => store.state.chatMessages, async (value) => {
-			if(this.lockscroll) return;
+			//If scrolling is locked or there are still messages pending
+			//add the new messages to the pending list
+			if(this.lockscroll || this.pendingMessages.length > 0) {
+				for (let i = 0; i < store.state.chatMessages.length; i++) {
+					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
+					if(this.localMessages.findIndex(v => v.tags.id == m.tags.id) == -1
+					&& this.pendingMessages.findIndex(v => v.tags.id == m.tags.id) == -1) {
+						this.pendingMessages.push(m)
+					}
+				}
+				return;
+			}
 			this.localMessages = value.concat();
 			await this.$nextTick();
 			this.scrollBottom();
@@ -79,8 +90,6 @@ export default class MessageList extends Vue {
 		this.hovered = true;
 		let el = this.$refs.messageHolder as HTMLDivElement;
 		gsap.killTweensOf(el);
-
-		this.catchingUpMessages = true;
 	}
 
 	/**
@@ -88,35 +97,47 @@ export default class MessageList extends Vue {
 	 */
 	public async out():Promise<void> {
 		this.hovered = false;
-		for (let i = 0; i < store.state.chatMessages.length; i++) {
-			if(this.hovered || this.forceLock || this.disposed) return;
-			const m = store.state.chatMessages[i] as IRCEventDataList.Message;
-			if(this.localMessages.findIndex(v => v.tags.id == m.tags.id) == -1) {
-				this.localMessages.push(m);
-				await Utils.promisedTimeout(75);
-				await this.$nextTick();
-				this.scrollBottom();
-			}
-		}
+		let hasNext = false;
+		do {
+			//Catchup messages by batch to avoid performance issues
+			hasNext = await this.catchupBatch();
+		}while(hasNext);
+
 		this.scrollBottom();
 		await Utils.promisedTimeout(250);
-		this.catchingUpMessages = false;
+	}
+
+	/**
+	 * Catches up for new messages by batch
+	 * 
+	 * @returns if there are more messages to catch up
+	 */
+	public async catchupBatch(maxCount:number = 150):Promise<boolean> {
+		let addCount = 0;
+		const maxLength = store.state.params.appearance.historySize.value;
+		for (let i = 0; i < this.pendingMessages.length; i++) {
+			if(this.hovered || this.forceLock || this.disposed) return false;
+			addCount ++;
+			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
+			//Limit size
+			this.localMessages = this.localMessages.splice(this.localMessages.length-maxLength);
+			await Utils.promisedTimeout(75);
+			await this.$nextTick();
+			this.scrollBottom();
+			if(addCount == maxCount) break;
+		}
+		return this.pendingMessages.length > 0;
 	}
 
 	/**
 	 * If hovering and scrolling down whit wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
-		if(event.deltaY > 0) {
-			for (let i = 0; i < store.state.chatMessages.length; i++) {
-				const m = store.state.chatMessages[i] as IRCEventDataList.Message;
-				if(this.localMessages.findIndex(v => v.tags.id == m.tags.id) == -1) {
-					this.localMessages.push(m);
-					await this.$nextTick();
-					this.scrollBottom();
-					return;
-				}
-			}
+		if(event.deltaY > 0 && this.pendingMessages.length > 0) {
+			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
+			await this.$nextTick();
+			this.scrollBottom();
+			return;
 		}
 	}
 
@@ -183,15 +204,6 @@ export default class MessageList extends Vue {
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
-		img {
-			padding: 10px;
-			// background-color: rgb(136, 136, 136);
-			background: #888888;//linear-gradient(0deg, rgba(136, 136, 136, 1) 25%, rgba(136, 136, 136, 0) 100%);
-			height: 40px;
-			width: 38px;
-			border-top-left-radius: 20px;
-			border-top-right-radius: 20px;
-		}
 		.label {
 			color: #000;
 			width: min-content;
@@ -203,6 +215,8 @@ export default class MessageList extends Vue {
 			border-top-right-radius: 10px;
 			background-color: #888888;
 			.button {
+				height: 40px;
+				width: 38px;
 				background: none;
 			}
 		}

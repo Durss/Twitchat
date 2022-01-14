@@ -177,7 +177,8 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
 			if(message.tags.badges?.prem) badges.push({color:"#00a3ff", label:"Prime"});
 			if(message.tags.badges?.moderator) badges.push({color:"#39db00", label:"Moderator"});
-			if(message.tags.badges?.staff) badges.push({color:"#ff0000", label:"Twitch staff"});
+			if(message.tags.badges?.staff) badges.push({color:"#ff7100", label:"Twitch staff"});
+			if(message.tags.badges?.broadcaster) badges.push({color:"#ff0000", label:"Broadcaster"});
 		}
 		return badges;
 	}
