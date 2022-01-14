@@ -64,7 +64,7 @@ export default class NewUsers extends Vue {
 
 	public mounted():void {
 		watch(() => store.state.chatMessages, async (value) => {
-			const list = (store.state.chatMessages as IRCEventDataList.Message[]).filter(m => m.firstMessage).concat();
+			const list = (value as IRCEventDataList.Message[]).filter(m => m.firstMessage).concat();
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(this.idToDisplayed[m.tags.id as string]) continue;

@@ -171,6 +171,7 @@ export default createStore({
 			for (const cat in state.params) {
 				const c = cat as ParameterCategory;
 				for (const key in state.params[c]) {
+					/* eslint-disable-next-line */
 					const v = (state.params[c] as any)[key].value;
 					Store.set("p:"+key, v);
 				}
