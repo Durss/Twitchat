@@ -133,10 +133,9 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false):string {
-		message = message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false):{type:string, value:string, emote?:string}[] {
 		if(!emotes || emotes.length == 0) {
-			return message;
+			return [{type:"text", value:message}];
 		}
 
 		const emotesList:{id:string, start:number, end:number}[] = [];
@@ -157,20 +156,20 @@ export default class TwitchUtils {
 		emotesList.sort((a,b) => a.start - b.start)
 		
 		let cursor = 0;
-		let result = "";
+		const result:{type:string, emote?:string, value:string}[] = [];
 		//Convert emotes to image tags
 		for (let i = 0; i < emotesList.length; i++) {
 			const e = emotesList[i];
-			if(cursor < e.start) result += message.substring(cursor, e.start);
+			if(cursor < e.start) result.push( {type:"text", value:message.substring(cursor, e.start)} );
 			if(!removeEmotes) {
 				const code = message.substring(e.start, e.end + 1);
-				const tt = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/3.0'><br /><center>"+code+"</center>";
-				const image = "<img src=\"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0\" data-tooltip=\""+(tt)+"\">";
-				result += image;
+				// const tt = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/3.0' width='112' height='112'><br /><center>"+code+"</center>";
+				// const image = "<img src=\"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0\" data-tooltip=\""+(tt)+"\">";
+				result.push( {type:"emote", emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
 			}
 			cursor = e.end + 1;
 		}
-		result += message.substring(cursor);
+		result.push( {type:"text", value:message.substring(cursor)} );
 		
 		return result;
 	}

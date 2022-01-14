@@ -144,12 +144,23 @@ export default class ChatMessage extends Vue {
 		let result:string;
 		const mess = this.messageData as IRCEventDataList.Message;
 		let text = mess.message;
+		text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 		try {
 			let removeEmotes = store.state.params.appearance.hideEmotes.value;
 			if(this.automod) {
 				result = text;
 			}else{
-				result = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
+				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
+				result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.emote+"</center>";
+						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+					}
+				}
 			}
 		}catch(error) {
 			console.log(error);
@@ -163,6 +174,7 @@ export default class ChatMessage extends Vue {
 		}else{
 			result = result.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
 		}
+		
 		return result;
 	}
 

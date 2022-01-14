@@ -2,6 +2,7 @@ import store from "@/store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
+import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
@@ -16,7 +17,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = false;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private uidsDone:{[key:string]:boolean} = {};
 	
 	public token!:string;
@@ -63,8 +64,8 @@ export default class IRCClient extends EventDispatcher {
 				uids.push(uid);
 			}
 			if(this.debugMode) {
-				channels = channels.concat(["sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
-				uids = uids.concat(["217377982", "177146919", "135468063", "100744948", "28575692", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["Alderiate", "NoWay4u_Sir", "tmxk319", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
+				uids = uids.concat(["77452537", "85397463", "148057505", "622498423", "28575692", "217377982", "177146919", "135468063", "100744948", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
 				try {

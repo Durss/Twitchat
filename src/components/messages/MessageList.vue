@@ -12,6 +12,7 @@
 				<Button :icon="require('@/assets/icons/unlock.svg')" v-if="!forceLock" @click="forceLock=true" />
 				<Button :icon="require('@/assets/icons/lock.svg')" v-if="forceLock" @click="forceLock=false" />
 				<p>Chat auto scroll locked</p>
+				<p v-if="pendingMessages.length > 0">({{pendingMessages.length}})</p>
 			</div>
 			<div class="bar"></div>
 		</div>
