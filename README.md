@@ -29,6 +29,8 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [ ] Filter all commands but a custom list
 - [ ] Pause chat autoscroll on hover
 - [ ] Expose an API to control some stuff remotely(?)
+- [ ] Allow to read whispers
+- [ ] Make it possible to connect to any channel without authentication to use it as OBS overlay
 <br>
 <br>
 <br>
@@ -75,7 +77,6 @@ npm run build
 ```
 node server.js
 ```
-<br>
 <br>
 <br>
 

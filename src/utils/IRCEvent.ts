@@ -40,6 +40,7 @@ export namespace IRCEventDataList {
 		//Custom injected props
 		firstMessage:boolean;
 		automod?:PubSubTypes.AutomodData;
+		answerTo?:Message;
 	}
 
 	export interface Timeout {

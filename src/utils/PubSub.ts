@@ -1,5 +1,5 @@
 import store from "@/store";
-import IRCClient from "./IRCClient";
+import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { TwitchTypes } from "./TwitchUtils";
 
 /**
@@ -116,7 +116,7 @@ export default class PubSub {
 		if(event.type == "automod_caught_message") {
 			const localObj = event.data as  PubSubTypes.AutomodData;
 			if(localObj.status == "PENDING") {
-				const tags = {
+				const tags:IRCTagsExtended = {
 					"username":localObj.message.sender.login,
 					"color": localObj.message.sender.chat_color,
 					"display-name": localObj.message.sender.display_name,

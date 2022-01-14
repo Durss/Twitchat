@@ -175,8 +175,26 @@ export default createStore({
 					Store.set("p:"+key, v);
 				}
 			}
+		},
+
+		setAnswerRef(state, payload:{original:string, reply:string}) {
+			//Called when using the "answer feature" on twitch chat
+			let original:IRCEventDataList.Message | null = null;
+			let reply:IRCEventDataList.Message | null = null;
+			for (let i = 0; i < state.chatMessages.length; i++) {
+				const c = state.chatMessages[i] as IRCEventDataList.Message;
+				if(c.tags.id === payload.original) original = c;
+				if(c.tags.id === payload.reply) reply = c;
+				if(original && reply) break;
+			}
+			if(reply && original) {
+				reply.answerTo = original;
+			}
 		}
 	},
+
+
+	
 	actions: {
 		async startApp({state, commit}) {
 			const res = await fetch(Config.API_PATH+"/client_id");
@@ -279,6 +297,8 @@ export default createStore({
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 
 		updateParams({commit}) { commit("updateParams"); },
+
+		setAnswerRef({commit}, payload) { commit("setAnswerRef", payload); },
 	},
 	modules: {
 	}

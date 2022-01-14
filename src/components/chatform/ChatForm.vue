@@ -50,6 +50,7 @@ export default class ChatForm extends Vue {
 	display: flex;
 	flex-direction: row;
 	height: 30px;
+	margin: auto;
 
 	.leftForm {
 		height: 100%;

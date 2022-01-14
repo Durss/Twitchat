@@ -7,7 +7,10 @@
 				:messageData="m" />
 		</div>
 		<div class="locked" v-if="lockscroll">
-			<img src="@/assets/icons/lock.svg" alt="lock">
+			<!-- data-tooltip="auto scroll locked"> -->
+			<div class="label">Chat auto scroll locked</div>
+			<!-- <img src="@/assets/icons/lock.svg" alt="lock"> -->
+			<div class="bar"></div>
 		</div>
 
 		<div v-if="localMessages.length == 0" class="noMessage">- no message -</div>
@@ -105,18 +108,39 @@ export default class MessageList extends Vue {
 		z-index: 1;
 		position: absolute;
 		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
 		width: 100%;
-		margin: 0;
 		padding: 0;
+		margin: 0;
 		text-align: center;
-		background: linear-gradient(0deg, rgba(136, 136, 136, 1) 10%, rgba(136, 136, 136, 0) 20%);
+		border-radius: 5px;
 		img {
 			padding: 10px;
 			// background-color: rgb(136, 136, 136);
 			background: #888888;//linear-gradient(0deg, rgba(136, 136, 136, 1) 25%, rgba(136, 136, 136, 0) 100%);
 			height: 40px;
+			width: 38px;
 			border-top-left-radius: 20px;
 			border-top-right-radius: 20px;
+		}
+		.label {
+			color: #000;
+			width: min-content;
+			white-space: nowrap;
+			margin: auto;
+			padding: 5px;
+			font-size: 14px;
+			border-top-left-radius: 10px;
+			border-top-right-radius: 10px;
+			background-color: #888888;
+		}
+		.bar {
+			height: 10px;
+			margin-top: -10px;
+			border-top-left-radius: 10px;
+			border-top-right-radius: 10px;
+			background: linear-gradient(0deg, rgba(136, 136, 136, 1) 10%, rgba(136, 136, 136, 0) 100%);
 		}
 	}
 

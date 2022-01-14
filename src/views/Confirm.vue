@@ -57,8 +57,8 @@ export default class Confirm extends Vue {
 			this.hidden = hidden;
 			this.title = store.state.confirm.title;
 			this.description = store.state.confirm.description;
-			this.yesLabel = store.state.confirm.yesLabel || "Oui";
-			this.noLabel = store.state.confirm.noLabel || "Non";
+			this.yesLabel = store.state.confirm.yesLabel || "Yes";
+			this.noLabel = store.state.confirm.noLabel || "No";
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});

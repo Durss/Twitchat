@@ -12,6 +12,8 @@
 			v-if="showList"
 			@leave="leave"
 			tag="div"
+			ref="messageList"
+			class="messageList"
 		>
 			<ChatMessage
 				v-for="(m,index) in localMessages"
@@ -107,7 +109,8 @@ export default class NewUsers extends Vue {
 				messages[0].firstMessage = false;
 				messages.splice(0, 1);
 			}
-			let el = this.$el as HTMLDivElement;
+
+			let el = (this.$refs.messageList as Vue).$el;
 			gsap.killTweensOf(el);
 			gsap.to(el, {duration: .25, scrollTo: 0});
 		}
@@ -176,27 +179,24 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .newusers{
-	position: absolute;
+	position: fixed;
 	top: 0;
-	left: 0;
+	left: 50%;
+	transform: translateX(-50%);
 	max-height: 35vh;
 	width: 100%;
+	max-width: 600px;
+	margin: auto;
 	background-color: #0a2950;
-	backdrop-filter: blur(5px);
-	padding-top: 10px;
-	padding-top: 0;
-	overflow-y: auto;
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
+	display: flex;
+	flex-direction: column;
 
 	.header {
 		padding: 10px 0;
-		position: sticky;
-		top: 0;
-		background-color: #0a2950;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
-		z-index: 1;//Avoids glitch when hovering message items due to stiky position
 		cursor: pointer;
 		h1 {
 			text-align: center;
@@ -217,36 +217,41 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	.message {
-		cursor: pointer;
-		overflow: hidden;
-		// transition: background-color 0.2s, ;
+	.messageList {
+		overflow-y: auto;
 
-		&:nth-child(odd) {
-			background-color: fade(#ffffff, 2.5%);
-		}
-
-		&:hover {
-			background-color: fade(#ffffff, 5%);
-		}
-		/* Enter and leave animations can use different */
-		/* durations and timing functions.              */
-		.fade-enter-active {
-			transition: all 0.2s;
-		}
-
-		.fade-leave-active {
-			transition: all 0.2s;
-		}
-
-		.fade-enter-from,
-		.fade-leave-to {
-			height: 0;
-			margin: 0;
-			padding: 0;
-			opacity: 0;
-			transform: scaleY(0);
+		.message {
+			cursor: pointer;
+			overflow: hidden;
+			// transition: background-color 0.2s, ;
+	
+			&:nth-child(odd) {
+				background-color: fade(#ffffff, 2.5%);
+			}
+	
+			&:hover {
+				background-color: fade(#ffffff, 5%);
+			}
+			/* Enter and leave animations can use different */
+			/* durations and timing functions.              */
+			.fade-enter-active {
+				transition: all 0.2s;
+			}
+	
+			.fade-leave-active {
+				transition: all 0.2s;
+			}
+	
+			.fade-enter-from,
+			.fade-leave-to {
+				height: 0;
+				margin: 0;
+				padding: 0;
+				opacity: 0;
+				transform: scaleY(0);
+			}
 		}
 	}
+
 }
 </style>

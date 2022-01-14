@@ -40,6 +40,7 @@ export default class ParamsAccount extends Vue {
 		// width: min-content;
 		margin: auto;
 		display: block;
+		margin-bottom: 5px;
 	}
 }
 </style>

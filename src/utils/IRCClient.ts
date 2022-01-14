@@ -63,8 +63,8 @@ export default class IRCClient extends EventDispatcher {
 				uids.push(uid);
 			}
 			if(this.debugMode) {
-				channels = channels.concat(["angledroit", "antoinedaniel", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
-				uids = uids.concat(["177146919", "135468063", "100744948", "28575692", "505902512", "72480716", "241808969" ]);
+				channels = channels.concat(["sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "mistermv", "samueletienne", "Tonton", "avamind" ]);
+				uids = uids.concat(["217377982", "177146919", "135468063", "100744948", "28575692", "505902512", "72480716", "241808969" ]);
 			}
 			(async ()=> {
 				try {
@@ -136,15 +136,6 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
 			});
 
-			// this.client.on("slowmode", (channel: string, enabled: boolean, length?: number)=> {
-			// 	const tags = this.getFakeTags();
-			// 	const message = enabled? "This room is now in slow mode for "+length+" seconds" :"Slow mode is now disabled";
-			// 	this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel,
-			// 		msgid:"usage_slow_on",
-			// 		message,
-			// 		tags, notice:true}));
-			// });
-
 			// this.client.on("notice", (channel: string, msgid: tmi.MsgID, message: string)=> {
 			// 	//Fake tags info
 			// 	const tags = {
@@ -165,6 +156,12 @@ export default class IRCClient extends EventDispatcher {
 				switch(data.command) {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
+					case "PRIVMSG": {
+						const tags = (data.tags as IRCTagsExtended);
+						store.dispatch("setAnswerRef", {original:tags["reply-parent-msg-id"], reply:tags.id});
+						break;
+					}
+
 					case "NOTICE": {
 						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
@@ -184,6 +181,12 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
 					const login = tags.username as string;
+					
+					// reply-parent-display-name: "Durss"
+					// reply-parent-msg-body: "test"
+					// reply-parent-msg-id: "f4f10aa8-3aee-4699-818e-5237af4f940a"
+					// reply-parent-user-id: "29961813"
+					// reply-parent-user-login: "durss"
 					
 					//Ignore bot messages if requested
 					if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
@@ -272,4 +275,14 @@ export default class IRCClient extends EventDispatcher {
 			"tmi-sent-ts": Date.now().toString(),
 		};
 	}
+}
+
+//adding props missing from typings
+export interface IRCTagsExtended extends tmi.ChatUserstate {
+	"first-msg"?:boolean;
+	"reply-parent-display-name"?:string;
+	"reply-parent-msg-body"?:string;
+	"reply-parent-msg-id"?:string;
+	"reply-parent-user-id"?:string;
+	"reply-parent-user-login"?:string;
 }

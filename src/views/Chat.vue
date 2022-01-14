@@ -35,6 +35,8 @@ export default class Chat extends Vue {
 
 	.chatHolder {
 		height: 100%;
+		max-width: 600px;
+		margin: auto;
 		display: flex;
 		flex-direction: column;
 		.messages {
