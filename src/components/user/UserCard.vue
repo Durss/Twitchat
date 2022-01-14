@@ -1,6 +1,5 @@
 <template>
 	<div class="usercard">
-		<!-- <iframe :src="profileURL" frameborder="0" v-if="username"></iframe> -->
 	</div>
 </template>
 
@@ -17,17 +16,21 @@ export default class UserCard extends Vue {
 
 	public username:string = '';
 
-	public get profileURL():string {
-		return "https://www.twitch.tv/popout/"+store.state.user.login+"/viewercard/"+this.username;
-	}
-
 	public mounted():void {
 		watch(() => store.state.userCard, () => {
+			console.log("ok");
 			this.username = store.state.userCard;
-			let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
-			width=350,height=500,left=100,top=100`;
 
-			window.open(this.profileURL, 'test', params);
+			let url = "https://www.twitch.tv/"+this.username;
+			if(store.state.user?.login) {
+				let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
+				width=350,height=500,left=100,top=100`;
+				url ="https://www.twitch.tv/popout/"+store.state.user.login+"/viewercard/"+this.username;
+				window.open(url, 'profilePage', params);
+			}else{
+				window.open(url, '_bloank');
+			}
+			console.log(url);
 		});
 	}
 
