@@ -163,8 +163,6 @@ export default class TwitchUtils {
 			if(cursor < e.start) result.push( {type:"text", value:message.substring(cursor, e.start)} );
 			if(!removeEmotes) {
 				const code = message.substring(e.start, e.end + 1);
-				// const tt = "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/3.0' width='112' height='112'><br /><center>"+code+"</center>";
-				// const image = "<img src=\"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0\" data-tooltip=\""+(tt)+"\">";
 				result.push( {type:"emote", emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
 			}
 			cursor = e.end + 1;

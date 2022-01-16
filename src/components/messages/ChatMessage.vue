@@ -156,7 +156,7 @@ export default class ChatMessage extends Vue {
 						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {
-						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.emote+"</center>";
+						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112'><br><center>"+v.emote+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
@@ -317,9 +317,10 @@ export default class ChatMessage extends Vue {
 
 	.message {
 		color: #d1d1d1;
-		:deep( img ) {
+		:deep( .emote ) {
 			width: 28px;
 			max-height: 28px;
+			min-height: 21px;
 			vertical-align: middle;
 		}
 	}
