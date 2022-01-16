@@ -1,10 +1,23 @@
 <template>
 	<div :class="classes" @mouseenter="hover()" @mouseleave="out()" @mousewheel="onMouseWheel($event)">
 		<div class="holder" ref="messageHolder">
-			<ChatMessage v-for="m in localMessages"
-				class="message"
-				:key="m.tags.id"
-				:messageData="m" />
+			<div v-for="m in localMessages" :key="m.tags.id">
+				<ChatMessage
+					v-if="m.type == 'message'"
+					class="message"
+					:messageData="m"
+					/>
+				<ChatNotice
+					v-if="m.type == 'notice'"
+					class="message"
+					:messageData="m"
+					/>
+				<ChatPayment
+					v-if="m.type == 'payment'"
+					class="message"
+					:messageData="m"
+					/>
+			</div>
 		</div>
 		<div class="locked" v-if="(hovered || forceLock) && !lightMode">
 			<!-- data-tooltip="auto scroll locked"> -->
@@ -30,11 +43,15 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ChatNotice from './ChatNotice.vue';
+import ChatPayment from './ChatPayment.vue';
 
 @Options({
 	components:{
 		Button,
+		ChatNotice,
 		ChatMessage,
+		ChatPayment,
 	},
 	props: {
 		max:Number,
@@ -106,7 +123,10 @@ export default class MessageList extends Vue {
 		let el = this.$refs.messageHolder as HTMLDivElement;
 		gsap.killTweensOf(el);
 		await this.$nextTick();
-		this.scrollBottom();
+
+		if(!this.lockscroll) {
+			this.scrollBottom();
+		}
 	}
 
 	/**
@@ -120,8 +140,9 @@ export default class MessageList extends Vue {
 			hasNext = await this.catchupBatch();
 		}while(hasNext);
 
-		this.scrollBottom();
-		await Utils.promisedTimeout(250);
+		if(!this.lockscroll) {
+			this.scrollBottom();
+		}
 	}
 
 	/**
@@ -199,7 +220,17 @@ export default class MessageList extends Vue {
 		bottom: 0;
 		padding: 10px 0;
 		.message {
-			overflow-x: hidden;
+			overflow: hidden;
+			font-family: "Inter";
+			color: #fff;
+			padding: 5px;
+
+			:deep(.time) {
+				color: fade(#ffffff, 75%);
+				font-size: 13px;
+				margin-right: 5px;
+				vertical-align: middle;
+			}
 		}
 	}
 
@@ -221,9 +252,14 @@ export default class MessageList extends Vue {
 			background-color: rgba(255, 255, 255, .025);
 		}
 	}
+
 	&.lightMode {
-		.message:nth-child(even) {
-			background-color: transparent;
+		.holder {
+			overflow: hidden;
+
+			.message:nth-child(even) {
+				background-color: transparent;
+			}
 		}
 	}
 

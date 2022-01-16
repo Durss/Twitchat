@@ -7,10 +7,9 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
 import MessageList from '@/components/messages/MessageList.vue';
 import IRCClient from '@/utils/IRCClient';
-import Utils from '@/utils/Utils';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
@@ -22,6 +21,7 @@ import Utils from '@/utils/Utils';
 export default class ChatLight extends Vue {
 
 	public mounted():void {
+		IRCClient.instance.disconnect();
 		IRCClient.instance.connect(this.$route.params.login as string);
 	}
 }

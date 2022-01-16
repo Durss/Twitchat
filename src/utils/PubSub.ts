@@ -173,7 +173,7 @@ export default class PubSub {
 			const localObj = event.data as PubSubTypes.ModerationData
 			switch(localObj.moderation_action) {
 				case "clear": 
-					IRCClient.instance.sendNotice("usage_clear", "Chat clear by "+localObj.created_by);
+					IRCClient.instance.sendNotice("usage_clear", "Chat cleared by "+localObj.created_by);
 					break;
 				case "timeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";

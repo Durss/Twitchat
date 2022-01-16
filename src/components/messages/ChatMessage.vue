@@ -12,9 +12,10 @@
 				<Button title="Reject" @click="modMessage(false)" highlight />
 			</div>
 		</div>
+
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
-		<div class="infos" v-if="!isNotice">
+		<div class="infos">
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" />
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
@@ -29,8 +30,6 @@
 			<span @click="openUserCard()" class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
 		</div>
 		
-		<img src="@/assets/icons/infos.svg" alt="notice" v-if="isNotice" class="notice">
-
 		<span class="message" v-html="text"></span>
 	</div>
 
@@ -59,18 +58,15 @@ import ChatModTools from './ChatModTools.vue';
 	}
 })
 export default class ChatMessage extends Vue {
-	
+
+	public messageData!:IRCEventDataList.Message;
 	// public deleteOverlay!:boolean;
 	public disableAutomod!:boolean;
 	public disableFirstTime!:boolean;
+	
 	public firstTime:boolean = false;
-	public messageData!:IRCEventDataList.Message | IRCEventDataList.Notice;
 	public automod:PubSubTypes.AutomodData | null = null;
 	public automodReasons:string = "";
-
-	public get isNotice():boolean {
-		return (this.messageData as IRCEventDataList.Notice).notice;
-	}
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
@@ -81,12 +77,10 @@ export default class ChatMessage extends Vue {
 		//See NewUsers.vue line ~150
 		// if(this.deleteOverlay) res.push("deleteOverlay");
 		
-		if(this.isNotice) res.push("notice");
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
 
-		if(!this.isNotice
-		&& store.state.params.appearance.highlightMentions.value
+		if(store.state.params.appearance.highlightMentions.value
 		&& store.state.user.login
 		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 			res.push("mention");
@@ -170,17 +164,10 @@ export default class ChatMessage extends Vue {
 		}catch(error) {
 			console.log(error);
 			console.log(mess);
-			let safeMessage = text;
-			safeMessage = safeMessage.replace(/</g, "&lt;").replace(/>/g, "&gt;")
-			result = safeMessage;
-		}
-		if(!this.isNotice) {
-			result = ": "+result;
-		}else{
-			result = result.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
+			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		}
 		
-		return result;
+		return ": "+result;
 	}
 
 	/**
@@ -194,7 +181,7 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
 			if(message.tags.badges?.prem) badges.push({color:"#00a3ff", label:"Prime"});
 			if(message.tags.badges?.moderator) badges.push({color:"#39db00", label:"Moderator"});
-			if(message.tags.badges?.staff) badges.push({color:"#ff7100", label:"Twitch staff"});
+			if(message.tags.badges?.staff) badges.push({color:"#666666", label:"Twitch staff"});
 			if(message.tags.badges?.broadcaster) badges.push({color:"#ff0000", label:"Broadcaster"});
 		}
 		return badges;
@@ -269,9 +256,6 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
-	font-family: "Inter";
-	color: v-bind(color);
-	padding: 5px;
 	// transition: background-color .2s, opacity .2s;
 
 	&.size_1 { font-size: 12px; }
@@ -283,20 +267,6 @@ export default class ChatMessage extends Vue {
 		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>
 	}
 
-	&.notice {
-		.notice {
-			width: 18px;
-			height: 18px;
-			margin-right: 5px;
-			vertical-align: middle;
-		}
-		.message {
-			font-style: italic;
-			opacity: .7;
-			color: @mainColor_warn;
-		}
-	}
-
 	&.deleteOverlay{
 		//NOT used anymore !
 		//See NewUsers.vue line ~150
@@ -304,13 +274,6 @@ export default class ChatMessage extends Vue {
 		opacity: .5;
 		text-decoration: line-through;
 		background-color: red !important;//oooo..bad me >_>
-	}
-
-	.time {
-		color: fade(#ffffff, 75%);
-		font-size: 13px;
-		margin-right: 5px;
-		vertical-align: middle;
 	}
 
 	.infos {
@@ -378,7 +341,7 @@ export default class ChatMessage extends Vue {
 				margin-bottom: 10px;
 			}
 		}
-		}
+	}
 
 	&.automod {
 		margin-top: 5px;

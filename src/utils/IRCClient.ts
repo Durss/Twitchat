@@ -51,12 +51,13 @@ export default class IRCClient extends EventDispatcher {
 	public connect(login:string, token?:string):Promise<void> {
 		if(this.connected) return Promise.resolve();
 		
+		this.connected = true;
 		return new Promise((resolve, reject) => {
 			this.login = login;
 			this.token = token;
 			let channels = [ login ];
 			if(this.debugMode) {
-				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "sweet_anita", "angledroit", "antoinedaniel", "BagheraJones", "samueletienne", "Tonton", "avamind" ]);
+				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "antoinedaniel", "maghla", "mewstelle" ]);
 			}
 
 			(async ()=> {
@@ -72,7 +73,7 @@ export default class IRCClient extends EventDispatcher {
 
 				//Get user IDs from logins to then load their badges
 				const userInfos = await fetch(Config.API_PATH+"/user?logins="+channels.join(","));
-				let uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
+				const uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
 				
 				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
@@ -111,16 +112,44 @@ export default class IRCClient extends EventDispatcher {
 				}
 			});
 
-			this.client.on("ban", (channel: string, username: string, reason: string)=> {
-				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {channel, username, reason}));
+			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, tags, message}));
 			});
 
-			this.client.on("messagedeleted", (channel: string, username: string, deletedMessage: string, userstate: tmi.DeleteUserstate)=> {
-				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {channel, username, deletedMessage, userstate}));
+			this.client.on('resub', async (channel: string, username: string, months: number, message: string, tags: tmi.SubUserstate, methods: tmi.SubMethods) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, tags, message, methods, months, username}));
+			});
+			
+			this.client.on('subscription', async (channel: string, username: string, methods: tmi.SubMethods, message: string, tags: tmi.SubUserstate) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, methods, tags, message}));
+			});
+			
+			this.client.on('subgift', async (channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, methods, months:streakMonths, tags, recipient}));
+			});
+			
+			this.client.on('anonsubgift', async (channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient}));
+			});
+			
+			this.client.on('giftpaidupgrade', async (channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, sender, tags}));
+			});
+			
+			this.client.on('anongiftpaidupgrade', async (channel: string, username: string, tags: tmi.AnonSubGiftUpgradeUserstate) => {
+				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, tags}));
+			});
+
+			this.client.on("ban", (channel: string, username: string, reason: string)=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {type:"notice", channel, username, reason}));
+			});
+
+			this.client.on("messagedeleted", (channel: string, username: string, deletedMessage: string, tags: tmi.DeleteUserstate)=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, username, deletedMessage, tags}));
 			});
 			
 			this.client.on("automod", (channel: string, msgID: 'msg_rejected' | 'msg_rejected_mandatory', message: string)=> {
-				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {channel, msgID, message}));
+				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, msgID, message}));
 			});
 
 			this.client.on("clearchat", ()=> {
@@ -128,7 +157,7 @@ export default class IRCClient extends EventDispatcher {
 			});
 
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
-				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {channel, username, reason, duration}));
+				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", channel, username, reason, duration}));
 			});
 
 			this.client.on("disconnected", ()=> {
@@ -175,6 +204,7 @@ export default class IRCClient extends EventDispatcher {
 								message = "You cannot delete this message.";
 							}
 						}
+						console.log("NOTIVE ", data);
 						this.sendNotice(msgid as tmi.MsgID, message);
 						break;
 					}
@@ -205,7 +235,7 @@ export default class IRCClient extends EventDispatcher {
 						return;
 					}
 					
-					this.addMessage(message, tags, self)
+					this.addMessage(message, tags, self, undefined, channel);
 				}
 			});
 	
@@ -247,11 +277,12 @@ export default class IRCClient extends EventDispatcher {
 
 	public sendNotice(msgid:tmi.MsgID, message:string):void {
 		const tags = this.getFakeTags();
-		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {channel:this.channel, msgid, message, tags, notice:true}));
+		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel:this.channel, msgid, message, tags}));
 	}
 
-	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData):void {
-		const data:IRCEventDataList.Message = {message, tags, channel:this.channel, self, firstMessage:false, automod};
+
+	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData, channel?:string):void {
+		const data:IRCEventDataList.Message = {type:"message", message, tags, channel:channel? channel : this.channel, self, firstMessage:false, automod};
 
 		//For some (stupid) reason, twitch does not send these
 		//data for the broadcaster's messages...

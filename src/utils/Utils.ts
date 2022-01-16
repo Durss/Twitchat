@@ -96,24 +96,6 @@ export default class Utils {
 		})
 	}
 
-	/**
-	 * Parse all matched routes from last to first to check
-	 * for a meta prop and return it.
-	 * 
-	 * @param route 
-	 * @param metaKey 
-	 */
-	public static getRouteMetaValue(route:RouteLocation, metaKey:string):unknown {
-		let res = null;
-		for (let i = route.matched.length-1; i >= 0; i--) {
-			const v = route.matched[i].meta[metaKey];
-			if(v === undefined) continue;
-			res = v;
-			break;
-		}
-		return res;
-	}
-
 	public static toDigits(num:number, digits:number = 2):string {
 		let res = num.toString();
 		while(res.length < digits) res = "0"+res;

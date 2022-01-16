@@ -12,13 +12,12 @@
 
 <script lang="ts">
 import Parameters from '@/components/params/Parameters.vue';
+import UserCard from '@/components/user/UserCard.vue';
 import { Options, Vue } from 'vue-class-component';
+import store from './store';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
-import UserCard from '@/components/user/UserCard.vue';
-import store from './store';
-import Utils from './utils/Utils';
 
 @Options({
 	props:{},
@@ -34,7 +33,7 @@ export default class App extends Vue {
 
 
 	public get authenticated():boolean {
-		return store.state.authenticated || Utils.getRouteMetaValue(this.$route, "needAuth") !== true;
+		return store.state.authenticated || (this.$route.meta.needAuth !== true && store.state.initComplete);
 	}
 
 }

@@ -26,7 +26,7 @@ export default createStore({
 				minimalistBadges: {type:"toggle", value:false, label:"Show minimalist badges"},
 				displayTime: {type:"toggle", value:true, label:"Display time"},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
-				historySize: {type:"slider", value:100, label:"Max chat message count", min:50, max:1000, step:50},
+				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:4, step:1},
 				modsSize: {type:"slider", value:2, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
 				vipsSize: {type:"slider", value:2, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
@@ -257,8 +257,12 @@ export default createStore({
 				this.dispatch("addChatMessage", event.data);
 			});
 
+			IRCClient.instance.addEventListener(IRCEvent.PAYMENT, (event:IRCEvent) => {
+				this.dispatch("addChatMessage", event.data);
+			});
+
 			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, (event:IRCEvent) => {
-				this.dispatch("delChatMessage", (event.data as IRCEventDataList.MessageDeleted).userstate['target-msg-id']);
+				this.dispatch("delChatMessage", (event.data as IRCEventDataList.MessageDeleted).tags['target-msg-id']);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {

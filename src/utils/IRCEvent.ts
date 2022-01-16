@@ -1,5 +1,5 @@
 import { Event } from '@/utils/EventDispatcher';
-import { ChatUserstate, DeleteUserstate, MsgID } from 'tmi.js';
+import { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from 'tmi.js';
 import { PubSubTypes } from './PubSub';
 
 /**
@@ -13,6 +13,7 @@ export default class IRCEvent extends Event {
 	public static BADGES_LOADED:string = "BADGES_LOADED";
 	public static TIMEOUT:string = "TIMEOUT";
 	public static NOTICE:string = "NOTICE";
+	public static PAYMENT:string = "PAYMENT";
 	public static BAN:string = "BAN";
 	public static CLEARCHAT:string = "CLEARCHAT";
 	public static DELETE_MESSAGE:string = "DELETE_MESSAGE";
@@ -25,22 +26,24 @@ export default class IRCEvent extends Event {
 }
 
 export type IRCEventData = IRCEventDataList.Message
-						| IRCEventDataList.Timeout
-						| IRCEventDataList.Ban
-						| IRCEventDataList.MessageDeleted
-						| IRCEventDataList.Automod
-						| IRCEventDataList.Notice;
+						|  IRCEventDataList.Timeout
+						|  IRCEventDataList.Ban
+						|  IRCEventDataList.MessageDeleted
+						|  IRCEventDataList.Automod
+						|  IRCEventDataList.Notice
+						|  IRCEventDataList.Payment;
 
 export namespace IRCEventDataList {
 	export interface Message {
+		channel:string;
 		message:string;
 		tags:ChatUserstate;
-		channel:string;
 		self:boolean;
 		//Custom injected props
 		firstMessage:boolean;
 		automod?:PubSubTypes.AutomodData;
 		answerTo?:Message;
+		type:"message";
 	}
 
 	export interface Timeout {
@@ -48,26 +51,32 @@ export namespace IRCEventDataList {
 		username: string;
 		reason: string;
 		duration: number;
+		//custom data
+		type:"notice";
 	}
 
 	export interface Ban {
 		channel: string;
 		username: string;
 		reason: string;
+		//custom data
+		type:"notice";
 	}
 
 	export interface MessageDeleted {
 		channel: string;
 		username: string;
 		deletedMessage: string;
-		userstate: DeleteUserstate;
+		tags: DeleteUserstate;
+		//custom data
+		type:"message";
 	}
 
 	export interface Automod {
 		channel: string;
 		message: string;
-		msgID: 'msg_rejected'
-| 'msg_rejected_mandatory';
+		msgID: 'msg_rejected' | 'msg_rejected_mandatory';
+		type:"message";
 	}
 
 	export interface Notice {
@@ -76,6 +85,19 @@ export namespace IRCEventDataList {
 		msgid: MsgID;
 		tags:ChatUserstate;
 		//custom data
-		notice: boolean;
+		type:"notice";
+	}
+
+	export interface Payment {
+		channel: string;
+		message?: string;
+		tags:ChatUserstate | SubUserstate | SubGiftUserstate | SubGiftUpgradeUserstate | AnonSubGiftUpgradeUserstate | AnonSubGiftUserstate;
+		months?:number;
+		username?: string;
+		sender?: string;
+		recipient?: string;
+		methods?: SubMethods;
+		//custom data
+		type:"payment";
 	}
 }
