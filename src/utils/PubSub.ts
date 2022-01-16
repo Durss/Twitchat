@@ -175,6 +175,17 @@ export default class PubSub {
 				case "clear": 
 					IRCClient.instance.sendNotice("usage_clear", "Chat clear by "+localObj.created_by);
 					break;
+				case "timeout": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
+					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "unknown";
+					IRCClient.instance.sendNotice("timeout_success", localObj.created_by+" has banned "+user+" for "+duration+" seconds");
+					break;
+				}
+				case "untimeout": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
+					IRCClient.instance.sendNotice("timeout_success", localObj.created_by+" has removed temporary ban from "+user);
+					break;
+				}
 				case "ban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
