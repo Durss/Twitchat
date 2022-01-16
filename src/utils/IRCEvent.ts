@@ -81,9 +81,11 @@ export namespace IRCEventDataList {
 
 	export interface Notice {
 		channel: string;
-		message: string;
-		msgid: MsgID;
+		message?: string;
+		msgid: MsgID | "raid";
 		tags:ChatUserstate;
+		viewers?:number;
+		username?: string;
 		//custom data
 		type:"notice";
 	}

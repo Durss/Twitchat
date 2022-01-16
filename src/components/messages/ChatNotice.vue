@@ -1,5 +1,5 @@
 <template>
-	<div class="chatnotice">
+	<div :class="classes">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img src="@/assets/icons/infos.svg" alt="notice" class="icon">
@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts">
+import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -28,8 +29,14 @@ export default class ChatNotice extends Vue {
 	public get text():string {
 		const mess = this.messageData as IRCEventDataList.Notice;
 		let text = mess.message;
-		text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
-		text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
+		if(this.messageData.msgid == "raid") {
+			text = this.messageData.username+" is raiding with a party of "+this.messageData.viewers+".";
+		}else if(text){
+			text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+			text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
+		}else{
+			text = "";
+		}
 		
 		return text;
 	}

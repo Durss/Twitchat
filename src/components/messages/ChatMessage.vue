@@ -256,12 +256,11 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
-	// transition: background-color .2s, opacity .2s;
 
-	&.size_1 { font-size: 12px; }
-	&.size_2 { font-size: 16px; }
-	&.size_3 { font-size: 20px; }
-	&.size_4 { font-size: 25px; }
+	&.size_1 { font-size: 12px !important; }
+	&.size_2 { font-size: 16px !important; }
+	&.size_3 { font-size: 20px !important; }
+	&.size_4 { font-size: 25px !important; }
 
 	&.mention{
 		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>

@@ -77,6 +77,7 @@ export default class MessageList extends Vue {
 		let res = ["messagelist"];
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockscroll) res.push("scrollLocked");
+
 		return res;
 	}
 
@@ -229,6 +230,7 @@ export default class MessageList extends Vue {
 			font-family: "Inter";
 			color: #fff;
 			padding: 5px;
+			font-size: 18px;
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);

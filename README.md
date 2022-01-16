@@ -31,8 +31,8 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Allow to read whispers
 - [ ] Make it possible to connect to any channel without authentication to use it as OBS overlay
-- [ ] Show sub messages
-- [ ] Show raid messages
+- [x] Show sub messages
+- [x] Show raid messages
 <br>
 <br>
 <br>

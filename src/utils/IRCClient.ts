@@ -57,7 +57,7 @@ export default class IRCClient extends EventDispatcher {
 			this.token = token;
 			let channels = [ login ];
 			if(this.debugMode) {
-				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "antoinedaniel", "maghla", "mewstelle" ]);
+				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "antoinedaniel", "maghla", "gotaga", "mewstelle" ]);
 			}
 
 			(async ()=> {
@@ -152,8 +152,10 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, msgID, message}));
 			});
 
-			this.client.on("clearchat", ()=> {
-				this.dispatchEvent(new IRCEvent(IRCEvent.CLEARCHAT));
+			this.client.on("raided", (channel: string, username: string, viewers: number) => {
+				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
+				const tags = this.getFakeTags();
+				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel:this.channel, tags, msgid:"raid", username, viewers}));
 			});
 
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
@@ -167,6 +169,10 @@ export default class IRCClient extends EventDispatcher {
 				}
 				this.connected = false;
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
+			});
+
+			this.client.on("clearchat", ()=> {
+				this.dispatchEvent(new IRCEvent(IRCEvent.CLEARCHAT));
 			});
 
 			// this.client.on("notice", (channel: string, msgid: tmi.MsgID, message: string)=> {
