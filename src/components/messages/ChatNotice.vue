@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div class="chatnotice">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img src="@/assets/icons/infos.svg" alt="notice" class="icon">

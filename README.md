@@ -22,17 +22,18 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [x] Show mod notifications
 - [x] Show channel points notifications
 - [x] Automod allow/deny flow
+- [x] Pause chat autoscroll on hover
+- [x] Make it possible to connect to any channel without authentication to use it as OBS overlay
+- [x] Show sub messages
+- [x] Show raid messages
 - [ ] Mark last message read and allow to go back to it
 - [ ] Add highlight color by roles *(viewers, mods, vips, subs)*
 - [ ] Make it easier to follow a conversation between users
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
 - [ ] Filter all commands but a custom list
-- [x] Pause chat autoscroll on hover
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Allow to read whispers
-- [ ] Make it possible to connect to any channel without authentication to use it as OBS overlay
-- [x] Show sub messages
-- [x] Show raid messages
+- [ ] Make it possible to define configurations via query params for OBS chats
 <br>
 <br>
 <br>
