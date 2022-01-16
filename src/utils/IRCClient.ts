@@ -204,7 +204,6 @@ export default class IRCClient extends EventDispatcher {
 								message = "You cannot delete this message.";
 							}
 						}
-						console.log("NOTIVE ", data);
 						this.sendNotice(msgid as tmi.MsgID, message);
 						break;
 					}

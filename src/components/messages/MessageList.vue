@@ -173,13 +173,18 @@ export default class MessageList extends Vue {
 	 * If hovering and scrolling down whit wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
-		if(event.deltaY > 0 && this.pendingMessages.length > 0) {
+		let el = this.$refs.messageHolder as HTMLDivElement;
+		let h = (this.$el as HTMLDivElement).clientHeight;
+		
+		//If scrolling down while at the bottom of the list, load next message
+		if(event.deltaY > 0 && this.pendingMessages.length > 0
+		&& el.scrollHeight - h - el.scrollTop < event.deltaY) {
 			const maxLength = store.state.params.appearance.historySize.value;
 			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
 			this.localMessages = this.localMessages.slice(-maxLength);
+			
 			await this.$nextTick();
 			this.scrollBottom();
-			return;
 		}
 	}
 
@@ -190,7 +195,7 @@ export default class MessageList extends Vue {
 		if(this.disposed) return;
 
 		let el = this.$refs.messageHolder as HTMLDivElement;
-		let h = (this.$el as HTMLDivElement).clientHeight
+		let h = (this.$el as HTMLDivElement).clientHeight;
 		gsap.killTweensOf(el);
 		if(animate) {
 			gsap.to(el, {duration: .25, scrollTo: el.scrollHeight - h});
