@@ -17,8 +17,8 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -61,7 +61,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["thesushidragon", "littlebigwhale", "Kamet0", "JLTomy", "Xari", "gotaga", "LCS", "loud_coringa", "NICKMERCS", "Mizkif" ]);
+				channels = channels.concat(["avamind", "maghla", "andythefrenchy" ]);
 			}
 
 			(async ()=> {
@@ -172,8 +172,8 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on("raided", (channel: string, username: string, viewers: number) => {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
-				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"notice", channel, tags, msgid:"raid", username, viewers};
-				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, tags, msgid:"raid", username, viewers}));
+				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"highlight", channel, tags, username, viewers};
+				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"highlight", channel, tags, username, viewers}));
 			});
 			
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
