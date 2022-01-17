@@ -12,8 +12,8 @@
 					class="message"
 					:messageData="m"
 					/>
-				<ChatPayment
-					v-if="m.type == 'payment'"
+				<ChatHighlight
+					v-if="m.type == 'highlight'"
 					class="message"
 					:messageData="m"
 					/>
@@ -44,14 +44,14 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatNotice from './ChatNotice.vue';
-import ChatPayment from './ChatPayment.vue';
+import ChatHighlight from './ChatHighlight.vue';
 
 @Options({
 	components:{
 		Button,
 		ChatNotice,
 		ChatMessage,
-		ChatPayment,
+		ChatHighlight,
 	},
 	props: {
 		max:Number,

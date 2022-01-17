@@ -1,7 +1,7 @@
 <template>
-	<div class="chatpayment">
+	<div class="chathighlight" v-if="!filtered">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
-		<img :src="require('@/assets/icons/'+icon+'.svg')" :alt="icon" v-if="icon" class="icon">
+		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<span class="reason" v-html="reason"></span>
 		<div class="message" v-if="message" v-html="message"></div>
 	</div>
@@ -10,6 +10,7 @@
 <script lang="ts">
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import { PubSubTypes } from '@/utils/PubSub';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -20,10 +21,11 @@ import { Options, Vue } from 'vue-class-component';
 	},
 	components:{}
 })
-export default class ChatPayment extends Vue {
+export default class ChatHighlight extends Vue {
 	
-	public messageData!:IRCEventDataList.Payment;
+	public messageData!:IRCEventDataList.Highlight;
 	public icon:string = "";
+	public filtered:boolean = false;
 
 	/**
 	 * Gets text message with parsed emotes
@@ -59,50 +61,77 @@ export default class ChatPayment extends Vue {
 	}
 
 	public get time():string {
-		const message = this.messageData as IRCEventDataList.Payment;
+		const message = this.messageData as IRCEventDataList.Highlight;
 		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public get reason():string {
 		let value:number|"prime" = 0;
-		let type:"bits"|"sub"|"subgift" = "bits";
+		let type:"bits"|"sub"|"subgift"|"raid"|"reward" = "bits";
 		if(this.messageData.tags.bits) {
 			value = this.messageData.tags.bits;
 			type = "bits";
+			this.filtered = !store.state.params.filters.showCheers.value;
 		}else if(this.messageData.methods?.prime) {
 			value = "prime";
 			type = "sub";
+			this.filtered = !store.state.params.filters.showSubs.value;
 		}else if(this.messageData.methods?.plan) {
 			value = parseInt(this.messageData.methods.plan)/1000;
 			type = "sub";
-		}
-		if(this.messageData.recipient) {
+			this.filtered = !store.state.params.filters.showSubs.value;
+		}else if(this.messageData.recipient) {
 			type = "subgift";
+			this.filtered = !store.state.params.filters.showSubs.value;
+		}else if(this.messageData.viewers) {
+			type = "raid";
+			value = this.messageData.viewers;
+			this.filtered = !store.state.params.filters.showRaids.value;
+		}else if(this.messageData.reward) {
+			type = "reward";
+			this.filtered = !store.state.params.filters.showRewards.value;
 		}
 
 		let res = "";
 		switch(type) {
+			case "raid":
+				this.icon = require('@/assets/icons/raid.svg');
+				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
+				break;
 			case "bits":
-				res = value+" bits";
-				this.icon = "bits";
+				res = "<strong>"+this.messageData.tags.username+"</strong> sent <strong>"+value+"</strong> bits";
+				this.icon = require('@/assets/icons/bits.svg');
 				break;
 			case "sub":
 				if(value == "prime") {
 					res = "<strong>"+this.messageData.username+"</strong> subscribed with Prime";
-					this.icon = "prime";
+					this.icon = require('@/assets/icons/prime.svg');
 				}else{
 					res = "<strong>"+this.messageData.username+"</strong> subscribed at Tier "+value;
-					this.icon = "sub";
+					this.icon = require('@/assets/icons/sub.svg');
 				}
 				if(this.messageData.months) {
 					res += " for "+this.messageData.months+" months";
 				}
+				if(this.messageData.tags['msg-param-cumulative-months']
+				&& this.messageData.tags['msg-param-should-share-streak']) {
+					res += "("+this.messageData.tags['msg-param-cumulative-months']+" months streak)";
+				}
 				break;
 			case "subgift":
-				this.icon = "gift";
+				this.icon = require('@/assets/icons/gift.svg');
 				res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
 				break;
+			case "reward":{
+				console.log("REWAAAARD");
+				const localObj = this.messageData.reward as PubSubTypes.RewardData;
+				res = localObj.redemption.user.display_name;
+				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
+				res += " (x"+localObj.redemption.reward.cost+" points)";
+				this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
+				break;
+			}
 		}
 		return res;
 	}
@@ -110,7 +139,7 @@ export default class ChatPayment extends Vue {
 </script>
 
 <style scoped lang="less">
-.chatpayment{
+.chathighlight{
 	background-color: rgba(255, 255, 255, .15) !important;
 	border-radius: 5px;
 	margin: 5px 0;
@@ -124,8 +153,8 @@ export default class ChatPayment extends Vue {
 	}
 
 	.icon {
-		height: 30px;
-		width: 30px;
+		height: 40px;
+		width: 40px;
 		margin-bottom: 10px;
 		margin-right: 10px;
 		display: block;

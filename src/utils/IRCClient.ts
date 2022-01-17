@@ -6,6 +6,7 @@ import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
+import Utils from "./Utils";
 
 /**
 * Created : 19/01/2021 
@@ -16,8 +17,10 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
+	private idToExample:{[key:string]:unknown} = {};
 	
 	public token!:string|undefined;
 	public channel!:string;
@@ -56,8 +59,9 @@ export default class IRCClient extends EventDispatcher {
 			this.login = login;
 			this.token = token;
 			let channels = [ login ];
+			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["Gom4rt", "otplol_", "mistermv", "antoinedaniel", "maghla", "gotaga", "mewstelle" ]);
+				channels = channels.concat(["thesushidragon", "littlebigwhale", "Kamet0", "JLTomy", "Xari", "gotaga", "LCS", "loud_coringa", "NICKMERCS", "Mizkif" ]);
 			}
 
 			(async ()=> {
@@ -82,6 +86,11 @@ export default class IRCClient extends EventDispatcher {
 					await TwitchUtils.loadUserBadges(uids[i]);
 				}
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
+				
+
+				if(this.fakeEvents) {
+					this.sendFakeEvents();
+				}
 			})();
 			
 			if(token) {
@@ -103,7 +112,6 @@ export default class IRCClient extends EventDispatcher {
 			
 	
 			this.client.on("join", (channel:string, user:string)=> {
-				this.channel = channel;
 				if(user == this.login) {
 					this.connected = true;
 					console.log("IRCClient :: Connection succeed");
@@ -113,52 +121,64 @@ export default class IRCClient extends EventDispatcher {
 			});
 
 			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, tags, message}));
+				if(!this.idToExample["cheer"]) this.idToExample["cheer"] = {type:"highlight", channel, tags, message};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, tags, message}));
 			});
-
+			
 			this.client.on('resub', async (channel: string, username: string, months: number, message: string, tags: tmi.SubUserstate, methods: tmi.SubMethods) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, tags, message, methods, months, username}));
+				if(!this.idToExample["resub"]) this.idToExample["resub"] = {type:"highlight", channel, tags, message, methods, months, username};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, tags, message, methods, months, username}));
 			});
 			
 			this.client.on('subscription', async (channel: string, username: string, methods: tmi.SubMethods, message: string, tags: tmi.SubUserstate) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, methods, tags, message}));
+				if(!this.idToExample["subscription"]) this.idToExample["subscription"] = {type:"highlight", channel, username, methods, tags, message};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, username, methods, tags, message}));
 			});
 			
 			this.client.on('subgift', async (channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, methods, months:streakMonths, tags, recipient}));
+				if(!this.idToExample["subgift"]) this.idToExample["subgift"] = {type:"highlight", channel, username, methods, months:streakMonths, tags, recipient};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, username, methods, months:streakMonths, tags, recipient}));
 			});
 			
 			this.client.on('anonsubgift', async (channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient}));
+				if(!this.idToExample["anonsubgift"]) this.idToExample["anonsubgift"] = {type:"highlight", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient}));
 			});
 			
 			this.client.on('giftpaidupgrade', async (channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, sender, tags}));
+				if(!this.idToExample["giftpaidupgrade"]) this.idToExample["giftpaidupgrade"] = {type:"highlight", channel, username, sender, tags};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, username, sender, tags}));
 			});
 			
 			this.client.on('anongiftpaidupgrade', async (channel: string, username: string, tags: tmi.AnonSubGiftUpgradeUserstate) => {
-				this.dispatchEvent(new IRCEvent(IRCEvent.PAYMENT, {type:"payment", channel, username, tags}));
+				if(!this.idToExample["anongiftpaidupgrade"]) this.idToExample["anongiftpaidupgrade"] = {type:"highlight", channel, username, tags};
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, username, tags}));
 			});
-
+			
 			this.client.on("ban", (channel: string, username: string, reason: string)=> {
+				if(!this.idToExample["ban"]) this.idToExample["ban"] = {type:"notice", channel, username, reason};
 				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {type:"notice", channel, username, reason}));
 			});
-
+			
 			this.client.on("messagedeleted", (channel: string, username: string, deletedMessage: string, tags: tmi.DeleteUserstate)=> {
 				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, username, deletedMessage, tags}));
 			});
 			
 			this.client.on("automod", (channel: string, msgID: 'msg_rejected' | 'msg_rejected_mandatory', message: string)=> {
+				if(!this.idToExample["automod"]) this.idToExample["automod"] = {type:"message", channel, msgID, message};
+				console.log("AUTOMOD");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, msgID, message}));
 			});
-
+			
 			this.client.on("raided", (channel: string, username: string, viewers: number) => {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
-				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel:this.channel, tags, msgid:"raid", username, viewers}));
+				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"notice", channel, tags, msgid:"raid", username, viewers};
+				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, tags, msgid:"raid", username, viewers}));
 			});
-
+			
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
+				if(!this.idToExample["timeout"]) this.idToExample["timeout"] = {type:"notice", channel, username, reason, duration};
 				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", channel, username, reason, duration}));
 			});
 
@@ -220,12 +240,10 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
 					const login = tags.username as string;
-					
-					// reply-parent-display-name: "Durss"
-					// reply-parent-msg-body: "test"
-					// reply-parent-msg-id: "f4f10aa8-3aee-4699-818e-5237af4f940a"
-					// reply-parent-user-id: "29961813"
-					// reply-parent-user-login: "durss"
+
+					if(message == "!logJSON") {
+						console.log(this.idToExample);
+					}
 					
 					//Ignore bot messages if requested
 					if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
@@ -245,7 +263,7 @@ export default class IRCClient extends EventDispatcher {
 			});
 	
 			this.client.connect();
-		})
+		});
 	}
 
 	public disconnect():void {
@@ -282,12 +300,25 @@ export default class IRCClient extends EventDispatcher {
 
 	public sendNotice(msgid:tmi.MsgID, message:string):void {
 		const tags = this.getFakeTags();
+		if(!this.idToExample[msgid]) this.idToExample[msgid] = {type:"notice", channel:this.channel, msgid, message, tags};
 		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel:this.channel, msgid, message, tags}));
 	}
 
 
+	public addHighlight(data:IRCEventDataList.Highlight):void {
+		data.type = "highlight";
+		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
+	}
+
 	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData, channel?:string):void {
-		const data:IRCEventDataList.Message = {type:"message", message, tags, channel:channel? channel : this.channel, self, firstMessage:false, automod};
+		const data:IRCEventDataList.Message = {type:"message",
+												message,
+												tags,
+												channel:channel? channel : this.channel,
+												self,
+												firstMessage:false,
+												automod
+											};
 
 		//For some (stupid) reason, twitch does not send these
 		//data for the broadcaster's messages...
@@ -297,8 +328,10 @@ export default class IRCClient extends EventDispatcher {
 		if(this.uidsDone[tags['user-id'] as string] !== true) {
 			data.firstMessage = true;
 			this.uidsDone[tags['user-id'] as string] = true;
+			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
 
+		console.log(data);
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 	}
 	
@@ -314,6 +347,24 @@ export default class IRCClient extends EventDispatcher {
 			id:Date.now().toString() + Math.random().toString(),
 			"tmi-sent-ts": Date.now().toString(),
 		};
+	}
+
+	private async sendFakeEvents():Promise<void> {
+		const fakeEventsRes = await fetch(Config.API_PATH+"/fakeevents");
+		const fakeEventsJSON = await fakeEventsRes.json();
+		for (const key in fakeEventsJSON) {
+			const json = fakeEventsJSON[key];
+			if(json.type == "notice") {
+				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, json));
+			}
+			if(json.type == "message") {
+				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
+			}
+			if(json.type == "highlight") {
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
+			}
+			await Utils.promisedTimeout(100);
+		}
 	}
 }
 

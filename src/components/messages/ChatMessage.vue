@@ -147,6 +147,7 @@ export default class ChatMessage extends Vue {
 			if(this.automod) {
 				result = text;
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words
 			}else{
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
 				result = "";

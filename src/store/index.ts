@@ -38,6 +38,9 @@ export default createStore({
 				hideBots: {type:"toggle", value:false, label:"Hide bots"},
 				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
+				showSubs: {type:"toggle", value:true, label:"Show subs alerts"},
+				showCheers: {type:"toggle", value:true, label:"Show bits alerts"},
+				showRaids: {type:"toggle", value:true, label:"Show raid alerts"},
 			},
 		},
 		user: {
@@ -257,7 +260,7 @@ export default createStore({
 				this.dispatch("addChatMessage", event.data);
 			});
 
-			IRCClient.instance.addEventListener(IRCEvent.PAYMENT, (event:IRCEvent) => {
+			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
 			});
 

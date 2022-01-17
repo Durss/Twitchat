@@ -26,6 +26,7 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [x] Make it possible to connect to any channel without authentication to use it as OBS overlay
 - [x] Show sub messages
 - [x] Show raid messages
+- [x] Show reward messages
 - [ ] Mark last message read and allow to go back to it
 - [ ] Add highlight color by roles *(viewers, mods, vips, subs)*
 - [ ] Make it easier to follow a conversation between users

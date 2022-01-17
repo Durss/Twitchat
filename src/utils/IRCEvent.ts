@@ -13,7 +13,7 @@ export default class IRCEvent extends Event {
 	public static BADGES_LOADED:string = "BADGES_LOADED";
 	public static TIMEOUT:string = "TIMEOUT";
 	public static NOTICE:string = "NOTICE";
-	public static PAYMENT:string = "PAYMENT";
+	public static HIGHLIGHT:string = "HIGHLIGHT";
 	public static BAN:string = "BAN";
 	public static CLEARCHAT:string = "CLEARCHAT";
 	public static DELETE_MESSAGE:string = "DELETE_MESSAGE";
@@ -31,7 +31,7 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.MessageDeleted
 						|  IRCEventDataList.Automod
 						|  IRCEventDataList.Notice
-						|  IRCEventDataList.Payment;
+						|  IRCEventDataList.Highlight;
 
 export namespace IRCEventDataList {
 	export interface Message {
@@ -42,6 +42,7 @@ export namespace IRCEventDataList {
 		//Custom injected props
 		firstMessage:boolean;
 		automod?:PubSubTypes.AutomodData;
+		reward?:PubSubTypes.RewardData;
 		answerTo?:Message;
 		type:"message";
 	}
@@ -84,13 +85,12 @@ export namespace IRCEventDataList {
 		message?: string;
 		msgid: MsgID | "raid";
 		tags:ChatUserstate;
-		viewers?:number;
 		username?: string;
 		//custom data
 		type:"notice";
 	}
 
-	export interface Payment {
+	export interface Highlight {
 		channel: string;
 		message?: string;
 		tags:ChatUserstate | SubUserstate | SubGiftUserstate | SubGiftUpgradeUserstate | AnonSubGiftUpgradeUserstate | AnonSubGiftUserstate;
@@ -99,7 +99,9 @@ export namespace IRCEventDataList {
 		sender?: string;
 		recipient?: string;
 		methods?: SubMethods;
+		viewers?: number;
+		reward?: PubSubTypes.RewardData;
 		//custom data
-		type:"payment";
+		type:"highlight";
 	}
 }

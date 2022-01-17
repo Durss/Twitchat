@@ -46,6 +46,11 @@ http.createServer((request, response) => {
 			}else if(request.url.indexOf("api/user") > -1) {
 				getUserInfos(request, response);
 				return;
+			
+			//Get fake chat events
+			}else if(request.url.indexOf("api/fakeevents") > -1) {
+				getFakeEvents(request, response);
+				return;
 
 			//Refresh access token
 			}else if(request.url.indexOf("api/refreshtoken") > -1) {
@@ -74,6 +79,12 @@ http.createServer((request, response) => {
 }).listen(3018);
 
 
+/**
+ * Generates an access token from an auth code
+ * 
+ * @param {*} request 
+ * @param {*} response 
+ */
 async function generateToken(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
 	
@@ -91,6 +102,12 @@ async function generateToken(request, response) {
 	response.end(JSON.stringify(json));
 }
 
+/**
+ * Frefresh an access token
+ * 
+ * @param {*} request 
+ * @param {*} response 
+ */
 async function refreshToken(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
 	
@@ -107,6 +124,12 @@ async function refreshToken(request, response) {
 	response.end(JSON.stringify(json));
 }
 
+/**
+ * Get a user's infos
+ * 
+ * @param {*} request 
+ * @param {*} response 
+ */
 async function getUserInfos(request, response) {
 	const token = await getClientCredentialToken();
 	let queryParams = UrlParser.parse(request.url, true).query;
@@ -129,6 +152,19 @@ async function getUserInfos(request, response) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message:'error', success:false}));
 	}
+}
+
+/**
+ * Get fake chat events
+ */
+async function getFakeEvents(request, response) {
+	let json = {};
+	if(fs.existsSync("fakeEvents.json")) {
+		json = fs.readFileSync("fakeEvents.json", "utf8");
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(json);
 }
 
 

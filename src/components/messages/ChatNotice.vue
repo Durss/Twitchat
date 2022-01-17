@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -29,9 +28,7 @@ export default class ChatNotice extends Vue {
 	public get text():string {
 		const mess = this.messageData as IRCEventDataList.Notice;
 		let text = mess.message;
-		if(this.messageData.msgid == "raid") {
-			text = this.messageData.username+" is raiding with a party of "+this.messageData.viewers+".";
-		}else if(text){
+		if(text){
 			text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 			text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
 		}else{

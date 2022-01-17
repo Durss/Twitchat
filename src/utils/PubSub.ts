@@ -1,5 +1,6 @@
 import store from "@/store";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
+import { IRCEventDataList } from "./IRCEvent";
 import { TwitchTypes } from "./TwitchUtils";
 
 /**
@@ -123,20 +124,9 @@ export default class PubSub {
 					"id": localObj.message.id,
 					"user-id": localObj.message.sender.user_id,
 					"tmi-sent-ts": new Date(localObj.message.sent_at).getTime().toString(),
-					"badge-info": undefined,
-					"badge-info-raw": undefined,
-					"badges": undefined,
-					"badges-raw": undefined,
-					"emotes": undefined,
-					"emotes-raw": undefined,
-					"first-msg": false,
-					"message-type": "chat" as "chat" | "action" | "whisper" | undefined,
-					"mod": false,
-					"room-id": "29961813",
-					"subscriber": false,
-					"turbo": false,
-					"user-type": undefined,
-				}
+					"message-type": "chat",
+					"room-id": localObj.message.sender.user_id,
+				};
 				let textMessage = "";
 				for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 					const el = localObj.message.content.fragments[i];
@@ -159,11 +149,24 @@ export default class PubSub {
 			//Manage rewards
 			if(store.state.params.filters.showRewards.value) {
 				const localObj = event.data as  PubSubTypes.RewardData;
-				localObj.redemption.reward.title
-				let message = localObj.redemption.user.display_name;
-				message += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
-				message += " (x"+localObj.redemption.reward.cost+" points)";
-				IRCClient.instance.sendNotice("usage_clear", message);
+				const tags:IRCTagsExtended = {
+					"username":localObj.redemption.user.display_name,
+					"display-name": localObj.redemption.user.display_name,
+					"id": localObj.redemption.id,
+					"user-id": localObj.redemption.user.id,
+					"tmi-sent-ts": localObj.timestamp,
+					"message-type": "chat",
+					"room-id": localObj.redemption.channel_id,
+				};
+
+				const data:IRCEventDataList.Highlight = {
+					reward: localObj,
+					channel: IRCClient.instance.channel,
+					tags,
+					type:"highlight",
+				}
+				console.log(data);
+				IRCClient.instance.addHighlight(data);
 			}
 
 

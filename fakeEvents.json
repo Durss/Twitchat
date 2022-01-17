@@ -1,0 +1,420 @@
+{
+	"reward": {
+		"reward": {
+			"timestamp": "2022-01-17T02:09:22.835128044Z",
+			"redemption": {
+				"id": "ddf60db6-0226-414d-aed2-1c9a995cb6cb",
+				"user": {
+					"id": "29961813",
+					"login": "durss",
+					"display_name": "Durss"
+				},
+				"channel_id": "29961813",
+				"redeemed_at": "2022-01-17T02:09:22.835128044Z",
+				"reward": {
+					"id": "5d8f2843-90b7-42a6-9db3-702791928e9b",
+					"channel_id": "29961813",
+					"title": "I love you",
+					"prompt": "Play a sound saying 'I love you'",
+					"cost": 50,
+					"is_user_input_required": false,
+					"is_sub_only": false,
+					"image": {
+						"url_1x": "https://static-cdn.jtvnw.net/custom-reward-images/29961813/5d8f2843-90b7-42a6-9db3-702791928e9b/30d6688b-f293-4e02-a796-fa54c81dac91/custom-1.png",
+						"url_2x": "https://static-cdn.jtvnw.net/custom-reward-images/29961813/5d8f2843-90b7-42a6-9db3-702791928e9b/30d6688b-f293-4e02-a796-fa54c81dac91/custom-2.png",
+						"url_4x": "https://static-cdn.jtvnw.net/custom-reward-images/29961813/5d8f2843-90b7-42a6-9db3-702791928e9b/30d6688b-f293-4e02-a796-fa54c81dac91/custom-4.png"
+					},
+					"default_image": {
+						"url_1x": "https://static-cdn.jtvnw.net/custom-reward-images/default-1.png",
+						"url_2x": "https://static-cdn.jtvnw.net/custom-reward-images/default-2.png",
+						"url_4x": "https://static-cdn.jtvnw.net/custom-reward-images/default-4.png"
+					},
+					"background_color": "#9441EB",
+					"is_enabled": true,
+					"is_paused": false,
+					"is_in_stock": true,
+					"max_per_stream": {
+						"is_enabled": false,
+						"max_per_stream": 0
+					},
+					"should_redemptions_skip_request_queue": false,
+					"template_id": null,
+					"updated_for_indicator_at": "2021-12-29T03:33:14.504310852Z",
+					"max_per_user_per_stream": {
+						"is_enabled": false,
+						"max_per_user_per_stream": 0
+					},
+					"global_cooldown": {
+						"is_enabled": false,
+						"global_cooldown_seconds": 0
+					},
+					"redemptions_redeemed_current_stream": null,
+					"cooldown_expires_at": null
+				},
+				"status": "UNFULFILLED"
+			}
+		},
+		"channel": "#durss",
+		"tags": {
+			"username": "Durss",
+			"display-name": "Durss",
+			"id": "ddf60db6-0226-414d-aed2-1c9a995cb6cb",
+			"user-id": "29961813",
+			"tmi-sent-ts": "2022-01-17T02:09:22.835128044Z",
+			"message-type": "chat",
+			"room-id": "29961813"
+		},
+		"type": "highlight"
+	},
+    "firstMessage": {
+        "type": "message",
+        "message": "gom4rtClap gom4rtClap gom4rtClap hey this is my first message here !",
+        "tags": {
+            "badge-info": null,
+            "badges": {
+                "premium": "1"
+            },
+            "client-nonce": "004c878edd9adf5b36717d6454db1b7c",
+            "color": "#B22222",
+            "display-name": "tenix025",
+            "emote-only": true,
+            "emotes": {
+                "emotesv2_6bc702eceb514c25926e89d73ff58757": [
+                    "0-9",
+                    "11-20",
+                    "22-31",
+                    "33-42",
+                    "44-53",
+                    "55-64",
+                    "66-75"
+                ]
+            },
+            "first-msg": true,
+            "flags": null,
+            "id": "c5c54086-d0b5-4809-976a-254f4d206248",
+            "mod": false,
+            "room-id": "121652526",
+            "subscriber": false,
+            "tmi-sent-ts": "1642377332605",
+            "turbo": false,
+            "user-id": "92203285",
+            "user-type": null,
+            "emotes-raw": "emotesv2_6bc702eceb514c25926e89d73ff58757:0-9,11-20,22-31",
+            "badge-info-raw": null,
+            "badges-raw": "premium/1",
+            "username": "tenix025",
+            "message-type": "chat"
+        },
+        "channel": "#littlebigwhale",
+        "self": false,
+        "firstMessage": true
+    },
+    "resub": {
+        "type": "highlight",
+        "channel": "#gotaga",
+        "tags": {
+            "badge-info": null,
+            "badges": {
+                "premium": "1"
+            },
+            "color": "#9ACD32",
+            "display-name": "brad_rose",
+            "emotes": null,
+            "flags": null,
+            "id": "e10b4fbe-f633-4fe8-b94d-7e660adcd86a",
+            "login": "brad_rose",
+            "mod": false,
+            "msg-id": "resub",
+            "msg-param-cumulative-months": "2",
+            "msg-param-months": false,
+            "msg-param-multimonth-duration": false,
+            "msg-param-multimonth-tenure": false,
+            "msg-param-should-share-streak": true,
+            "msg-param-streak-months": true,
+            "msg-param-sub-plan-name": "SUBSCRIBER",
+            "msg-param-sub-plan": "Prime",
+            "msg-param-was-gifted": "false",
+            "room-id": "24147592",
+            "subscriber": true,
+            "system-msg": "brad_rose subscribed with Prime. They've subscribed for 2 months, currently on a 1 month streak!",
+            "tmi-sent-ts": "1642377339394",
+            "user-id": "524260662",
+            "user-type": null,
+            "emotes-raw": null,
+            "badge-info-raw": null,
+            "badges-raw": "premium/1",
+            "message-type": "resub"
+        },
+        "message": "Thank you for that awesome content !",
+        "methods": {
+            "prime": true,
+            "plan": "Prime",
+            "planName": "SUBSCRIBER"
+        },
+        "months": 1,
+        "username": "brad_rose"
+    },
+    "subgift": {
+        "type": "highlight",
+        "channel": "#gotaga",
+        "username": "SwizzerJ",
+        "methods": {
+            "prime": false,
+            "plan": "13000",
+            "planName": "SUBSCRIBER"
+        },
+        "months": 0,
+        "tags": {
+            "badge-info": {
+                "subscriber": "12"
+            },
+            "badges": {
+                "subscriber": "3012",
+                "sub-gifter": "5"
+            },
+            "color": "#D1D02A",
+            "display-name": "SwizzerJ",
+            "emotes": null,
+            "flags": null,
+            "id": "51e48d26-836b-409c-ac7f-708e84ccc5b1",
+            "login": "swizzerj",
+            "mod": false,
+            "msg-id": "subgift",
+            "msg-param-gift-months": true,
+            "msg-param-months": true,
+            "msg-param-origin-id": "cf 8a 7f a4 b1 9f ac e4 9f bc ac c8 c2 30 b3 5d 0c 84 c7 b1",
+            "msg-param-recipient-display-name": "aken44800",
+            "msg-param-recipient-id": "452550058",
+            "msg-param-recipient-user-name": "aken44800",
+            "msg-param-sender-count": false,
+            "msg-param-sub-plan-name": "SUBSCRIBER",
+            "msg-param-sub-plan": "1000",
+            "room-id": "24147592",
+            "subscriber": true,
+            "system-msg": "SwizzerJ gifted a Tier 1 sub to aken44800!",
+            "tmi-sent-ts": "1642377361661",
+            "user-id": "156668532",
+            "user-type": null,
+            "emotes-raw": null,
+            "badge-info-raw": "subscriber/12",
+            "badges-raw": "subscriber/3012,sub-gifter/5",
+            "message-type": "subgift"
+        },
+        "recipient": "aken44800"
+    },
+    "timeout_success": {
+        "type": "notice",
+        "channel": "#durss",
+        "msgid": "timeout_success",
+        "message": "durss has banned test1 for 600 seconds",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423808314490.34216069823307405",
+            "tmi-sent-ts": "1642380831449"
+        }
+    },
+    "subscription": {
+        "type": "highlight",
+        "channel": "#littlebigwhale",
+        "username": "Ednoms",
+        "methods": {
+            "prime": true,
+            "plan": "Prime",
+            "planName": "Be a Little Whale !"
+        },
+        "tags": {
+            "badge-info": {
+                "subscriber": "0"
+            },
+            "badges": {
+                "subscriber": "0",
+                "premium": "1"
+            },
+            "color": "#1690F3",
+            "display-name": "Ednoms",
+            "emotes": null,
+            "flags": null,
+            "id": "639779e0-37b0-4e31-9045-2ee8f21f0b34",
+            "login": "ednoms",
+            "mod": false,
+            "msg-id": "sub",
+            "msg-param-cumulative-months": true,
+            "msg-param-months": false,
+            "msg-param-multimonth-duration": false,
+            "msg-param-multimonth-tenure": false,
+            "msg-param-should-share-streak": false,
+            "msg-param-sub-plan-name": "Be a Little Whale !",
+            "msg-param-sub-plan": "Prime",
+            "msg-param-was-gifted": "false",
+            "room-id": "121652526",
+            "subscriber": true,
+            "system-msg": "Ednoms subscribed with Prime.",
+            "tmi-sent-ts": "1642377377050",
+            "user-id": "69044334",
+            "user-type": null,
+            "emotes-raw": null,
+            "badge-info-raw": "subscriber/0",
+            "badges-raw": "subscriber/0,premium/1",
+            "message-type": "sub"
+        },
+        "message": null
+    },
+    "ban_success": {
+        "type": "notice",
+        "channel": "#durss",
+        "msgid": "ban_success",
+        "message": "User test1 has been banned by durss",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423808397690.08492737310133314",
+            "tmi-sent-ts": "1642380839769"
+        }
+    },
+	"automod": {
+		"type": "message",
+		"message": "<mark>batard</mark>",
+		"tags": {
+			"username": "durssbot",
+			"color": "#8A2BE2",
+			"display-name": "DurssBot",
+			"id": "7f4c248b-6c86-49cf-b4d1-41a985b706c1",
+			"user-id": "647389082",
+			"tmi-sent-ts": "1642383103901",
+			"first-msg": false,
+			"message-type": "chat",
+			"mod": false,
+			"room-id": "29961813",
+			"subscriber": false,
+			"turbo": false
+		},
+		"channel": "#durss",
+		"self": false,
+		"firstMessage": true,
+		"automod": {
+			"content_classification": {
+				"category": "namecalling",
+				"level": 2
+			},
+			"message": {
+				"content": {
+					"text": "batard",
+					"fragments": [
+						{
+							"text": "batard",
+							"automod": {
+								"topics": {
+									"bullying": 6,
+									"vulgar": 6
+								}
+							}
+						}
+					]
+				},
+				"id": "7f4c248b-6c86-49cf-b4d1-41a985b706c1",
+				"sender": {
+					"user_id": "647389082",
+					"login": "durssbot",
+					"display_name": "DurssBot",
+					"chat_color": "#8A2BE2"
+				},
+				"sent_at": "2022-01-17T01:31:43.901227983Z"
+			},
+			"reason_code": "",
+			"resolver_id": "",
+			"resolver_login": "",
+			"status": "PENDING"
+		}
+	},
+    "raided": {
+        "type": "highlight",
+        "channel": "#kamet0",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423778121330.0751974390273129",
+            "tmi-sent-ts": "1642377812133"
+        },
+        "msgid": "raid",
+        "username": "Vetheo",
+        "viewers": 727
+    },
+    "subs_off": {
+        "type": "notice",
+        "channel": "#thesushidragon",
+        "msgid": "subs_off",
+        "message": "This room is no longer in subscribers-only mode.",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423782973530.14259284072660394",
+            "tmi-sent-ts": "1642378297353"
+        }
+    },
+    "slow_on": {
+        "type": "notice",
+        "channel": "#thesushidragon",
+        "msgid": "slow_on",
+        "message": "This room is now in slow mode. You may send messages every 20 seconds.",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423785960820.898062365866219",
+            "tmi-sent-ts": "1642378596082"
+        }
+    },
+    "slow_off": {
+        "type": "notice",
+        "channel": "#thesushidragon",
+        "msgid": "slow_off",
+        "message": "This room is no longer in slow mode.",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423787543690.3165883498369553",
+            "tmi-sent-ts": "1642378754369"
+        }
+    },
+    "cheer": {
+        "type": "highlight",
+        "channel": "#thesushidragon",
+        "tags": {
+            "badge-info": {
+                "subscriber": "1"
+            },
+            "badges": {
+                "subscriber": "0"
+            },
+            "bits": "500",
+            "color": "#FFB800",
+            "display-name": "stefan_ifl",
+            "emotes": {
+                "emotesv2_ebe983c6817446df902aef539bb0b82c": [
+                    "96-106"
+                ]
+            },
+            "first-msg": false,
+            "flags": null,
+            "id": "2a1279df-d092-4f87-a2bc-a9123d64f39c",
+            "mod": false,
+            "room-id": "96738828",
+            "subscriber": true,
+            "tmi-sent-ts": "1642379087259",
+            "turbo": false,
+            "user-id": "42950183",
+            "user-type": null,
+            "emotes-raw": "emotesv2_ebe983c6817446df902aef539bb0b82c:0-10",
+            "badge-info-raw": "subscriber/1",
+            "badges-raw": "subscriber/0",
+            "username": "stefan_ifl",
+            "message-type": "chat"
+        },
+        "message": "waterm45Pog amazing content dude !"
+    },
+    "usage_clear": {
+        "type": "notice",
+        "channel": "#durss",
+        "msgid": "usage_clear",
+        "message": "Chat cleared by durss",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16423808111740.48398594515839055",
+            "tmi-sent-ts": "1642380811174"
+        }
+    }
+}
