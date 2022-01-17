@@ -331,7 +331,6 @@ export default class IRCClient extends EventDispatcher {
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
 
-		console.log(data);
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 	}
 	
