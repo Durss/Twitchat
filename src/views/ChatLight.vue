@@ -21,7 +21,6 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatLight extends Vue {
 
 	public mounted():void {
-		IRCClient.instance.disconnect();
 		IRCClient.instance.connect(this.$route.params.login as string);
 	}
 }

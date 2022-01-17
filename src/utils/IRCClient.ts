@@ -110,7 +110,6 @@ export default class IRCClient extends EventDispatcher {
 				this.connected = true;
 			}
 			
-	
 			this.client.on("join", (channel:string, user:string)=> {
 				if(user == this.login) {
 					this.connected = true;
@@ -267,8 +266,11 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public disconnect():void {
-		this.client.disconnect();
-		this.connected = false;
+		console.log("DELETE CLIENT");
+		if(this.client) {
+			this.client.disconnect();
+			this.connected = false;
+		}
 	}
 
 	public async deleteMessage(id:string):Promise<void> {

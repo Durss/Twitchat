@@ -4,6 +4,7 @@ import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import PubSub from '@/utils/PubSub';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import { Userstate } from 'tmi.js';
+import { RouteLocation } from 'vue-router';
 import { createStore } from 'vuex';
 import Store from './Store';
 
@@ -200,7 +201,7 @@ export default createStore({
 
 	
 	actions: {
-		async startApp({state, commit}) {
+		async startApp({state, commit}, payload) {
 			const res = await fetch(Config.API_PATH+"/configs");
 			const jsonConfigs = await res.json();
 			TwitchUtils.client_id = jsonConfigs.client_id;
@@ -231,7 +232,7 @@ export default createStore({
 			}
 
 			const token = Store.get("oAuthToken");
-			if(token) {
+			if(token && (payload.to as RouteLocation).meta.public !== true) {
 				try {
 					await new Promise((resolve,reject)=> {
 						commit("authenticate", {cb:(success:boolean)=>{
