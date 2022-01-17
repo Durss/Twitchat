@@ -48,6 +48,15 @@ export default class ChatHighlight extends Vue {
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
+				if(result.replace(/cheer[0-9]+/gi, "").length > 0) {
+					let emotes = require.context("@/assets/cheermotes");
+					let keys = emotes.keys();
+					for (let i = keys.length-1; i >= 0; i--) {
+						if(!/.*\.gif$/gi.test(keys[i])) continue;
+						let count = keys[i].replace(/\D/gi, "");
+						result = result.replace(new RegExp("[^ ]+"+count+"( |$)","gi"), "<img src='"+emotes(keys[i])+"' class='cheermote'>")
+					}
+				}
 			}catch(error) {
 				console.log(error);
 				console.log(this.messageData);
@@ -124,7 +133,6 @@ export default class ChatHighlight extends Vue {
 				res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
 				break;
 			case "reward":{
-				console.log("REWAAAARD");
 				const localObj = this.messageData.reward as PubSubTypes.RewardData;
 				res = localObj.redemption.user.display_name;
 				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
@@ -175,6 +183,9 @@ export default class ChatHighlight extends Vue {
 		color: rgba(255, 255, 255, .5);
 		color: @mainColor_normal;
 		font-style: italic;
+		:deep(.cheermote) {
+			height: 30px;
+		}
 		&::before {
 			content: "“";
 			font-family: "Nunito";
