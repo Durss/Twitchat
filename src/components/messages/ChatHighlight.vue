@@ -3,7 +3,7 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<span class="reason" v-html="reason"></span>
-		<div class="message" v-if="message" v-html="message"></div>
+		<div class="message" v-if="messageText" v-html="messageText"></div>
 	</div>
 </template>
 
@@ -24,50 +24,9 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatHighlight extends Vue {
 	
 	public messageData!:IRCEventDataList.Highlight;
+	public messageText:string = '';
 	public icon:string = "";
 	public filtered:boolean = false;
-
-	/**
-	 * Gets text message with parsed emotes
-	 */
-	public get message():string|null {
-		let result:string = "";
-		let text = this.messageData.message;
-		if(text) {
-			try {
-				let removeEmotes = store.state.params.appearance.hideEmotes.value;
-				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes);
-				result = "";
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.emote+"</center>";
-						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-					}
-				}
-				if(result.replace(/cheer[0-9]+/gi, "").length > 0) {
-					let emotes = require.context("@/assets/cheermotes");
-					let keys = emotes.keys();
-					for (let i = keys.length-1; i >= 0; i--) {
-						if(!/.*\.gif$/gi.test(keys[i])) continue;
-						let count = keys[i].replace(/\D/gi, "");
-						result = result.replace(new RegExp("[^ ]+"+count+"( |$)","gi"), "<img src='"+emotes(keys[i])+"' class='cheermote'>")
-					}
-				}
-			}catch(error) {
-				console.log(error);
-				console.log(this.messageData);
-				result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-			}
-		}else{
-			return null;
-		}
-		
-		return result;
-	}
 
 	public get time():string {
 		const message = this.messageData as IRCEventDataList.Highlight;
@@ -142,6 +101,34 @@ export default class ChatHighlight extends Vue {
 			}
 		}
 		return res;
+	}
+
+	public async mounted():Promise<void> {
+		let result:string = "";
+		let text = this.messageData.message;
+		if(text) {
+			try {
+				let removeEmotes = store.state.params.appearance.hideEmotes.value;
+				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes);
+				result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.emote+"</center>";
+						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+					}
+				}
+			}catch(error) {
+				console.log(error);
+				console.log(this.messageData);
+				result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			}
+			console.log("ROOM ID", this.messageData.tags['room-id']);
+			this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
+		}
 	}
 }
 </script>

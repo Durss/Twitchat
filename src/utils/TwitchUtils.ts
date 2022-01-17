@@ -10,6 +10,7 @@ export default class TwitchUtils {
 
 	public static client_id:string = "";
 	public static badgesCache:{[key:string]:{[key:string]:TwitchTypes.BadgesSet}} = {};
+	public static cheermoteCache:{[key:string]:TwitchTypes.CheermoteSet[]} = {};
 
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
@@ -173,6 +174,27 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static async parseCheermotes(message:string, channel_id:string):Promise<string> {
+		const emotes = await this.loadCheermoteList(channel_id);
+
+		for (let j = 0; j < emotes.length; j++) {
+			const list = emotes[j];
+			for (let i = list.tiers.length-1; i > -1; i--) {
+				const t = list.tiers[i];
+				const reg = new RegExp(list.prefix+t.min_bits, "gi");
+				let img = t.images.dark.animated["2"];
+				if(!img) {
+					img = t.images.dark.static["2"];
+				}
+				message = message.replace(reg, "<img src='"+img+"' class='cheermote'>")
+			}
+		}
+		return message;
+	}
+
+	/**
 	 * Gets channels infos by their ID.
 	 * Only works with a bearer token, not a TMI token !
 	 * 
@@ -199,6 +221,9 @@ export default class TwitchUtils {
 		return result;
 	}
 	
+	/***
+	 * Allow or reject an automoded message
+	 */
 	public static async modMessage(accept:boolean, messageId:string):Promise<boolean> {
 		const options = {
 			method:"POST",
@@ -217,6 +242,9 @@ export default class TwitchUtils {
 		return res.status <= 400;
 	}
 
+	/**
+	 * Get the moderators list of a channel
+	 */
 	public static async getModsList():Promise<{ user_id:string, user_login:string, user_name:string }[]> {
 		const options = {
 			method:"GET",
@@ -230,6 +258,26 @@ export default class TwitchUtils {
 		const json = await res.json();
 		return json.data;
 		
+	}
+
+	/**
+	 * Get the moderators list of a channel
+	 */
+	public static async loadCheermoteList(uid:string):Promise<TwitchTypes.CheermoteSet[]> {
+		if(this.cheermoteCache[uid]) return this.cheermoteCache[uid];
+		
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		const res = await fetch("https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id="+store.state.user.user_id, options);
+		const json = await res.json();
+		this.cheermoteCache[uid] = json.data;
+		return json.data;
 	}
 }
 
@@ -311,12 +359,45 @@ export namespace TwitchTypes {
 	}
 
 	export interface AuthTokenResult {
-        access_token: string;
-        expires_in: number;
-        refresh_token: string;
-        scope: string[];
-        token_type: string;
+		access_token: string;
+		expires_in: number;
+		refresh_token: string;
+		scope: string[];
+		token_type: string;
 		//Custom injected data
-        expires_at: number;
-    }	
+		expires_at: number;
+	}
+
+	export interface CheermoteSet {
+		prefix: string;
+		tiers: CheermoteTier[];
+		type: string;
+		order: number;
+		last_updated: Date;
+		is_charitable: boolean;
+	}
+	export interface CheermoteTier {
+		min_bits: number;
+		id: string;
+		color: string;
+		images: {
+			dark: CheermoteImageSet;
+			light: CheermoteImageSet;
+		};
+		can_cheer: boolean;
+		show_in_bits_card: boolean;
+	}
+
+	export interface CheermoteImageSet {
+		animated: CheermoteImage;
+		static: CheermoteImage;
+	}
+
+	export interface CheermoteImage {
+        "1": string;
+        "2": string;
+        "3": string;
+        "4": string;
+        "1.5": string;
+    }
 }
