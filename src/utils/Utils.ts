@@ -1,4 +1,3 @@
-import { RouteLocation } from 'vue-router';
 import store from '../store';
 
 /**

@@ -1,7 +1,7 @@
 <template>
-	<div :class="classes" @mouseenter="hover()" @mouseleave="out()" @mousewheel="onMouseWheel($event)">
-		<div class="holder" ref="messageHolder">
-			<div v-for="m in localMessages" :key="m.tags.id">
+	<div :class="classes">
+		<div class="holder" ref="messageHolder" @mousewheel="onMouseWheel($event)">
+			<div v-for="m in localMessages" :key="m.tags.id" ref="message">
 				<ChatMessage
 					v-if="m.type == 'message'"
 					class="message"
@@ -19,13 +19,12 @@
 					/>
 			</div>
 		</div>
-		<div class="locked" v-if="(hovered || forceLock) && !lightMode">
+		<div class="locked" v-if="(lockScroll || pendingMessages.length > 0) && !lightMode">
 			<!-- data-tooltip="auto scroll locked"> -->
 			<div class="label">
-				<Button :icon="require('@/assets/icons/unlock.svg')" v-if="!forceLock" @click="forceLock=true" />
-				<Button :icon="require('@/assets/icons/lock.svg')" v-if="forceLock" @click="forceLock=false" />
-				<p>Chat auto scroll locked</p>
-				<p v-if="pendingMessages.length > 0">({{pendingMessages.length}})</p>
+				<p v-if="lockScroll">Chat paused</p>
+				<Button :icon="require('@/assets/icons/down.svg')" @click="unPause()" />
+				<p v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</p>
 			</div>
 			<div class="bar"></div>
 		</div>
@@ -38,13 +37,11 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatNotice from './ChatNotice.vue';
 import ChatHighlight from './ChatHighlight.vue';
+import ChatNotice from './ChatNotice.vue';
 
 @Options({
 	components:{
@@ -61,34 +58,30 @@ import ChatHighlight from './ChatHighlight.vue';
 export default class MessageList extends Vue {
 
 	public max!: number;
-	public hovered:boolean = false;
-	public disposed:boolean = false;
-	public forceLock:boolean = false;
-	public lightMode:boolean = false;
-	public idDisplayed:{[key:string]:boolean} = {};
 	public localMessages:IRCEventDataList.Message[] = [];
 	public pendingMessages:IRCEventDataList.Message[] = [];
+	public lightMode:boolean = false;
+	public lockScroll:boolean = false;
 
-	public get lockscroll():boolean {
-		return this.hovered || this.forceLock;
-	}
+	private disposed:boolean = false;
+	private frameIndex:number = 0;
+	private virtualScrollY?:number;
+	private idDisplayed:{[key:string]:boolean} = {};
 
 	public get classes():string[] {
 		let res = ["messagelist"];
 		if(this.lightMode) res.push("lightMode");
-		if(this.lockscroll) res.push("scrollLocked");
+		if(this.lockScroll || this.pendingMessages.length > 0) res.push("scrollLocked");
 
 		return res;
 	}
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat();
-		await this.$nextTick();
-		this.scrollBottom(false);
 		watch(() => store.state.chatMessages, async (value:IRCEventDataList.Message[]) => {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
-			if(this.lockscroll || this.pendingMessages.length > 0) {
+			if(this.lockScroll || this.pendingMessages.length > 0) {
 				for (let i = 0; i < store.state.chatMessages.length; i++) {
 					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
 					if(this.idDisplayed[value[i].tags.id as string] !== true) {
@@ -102,106 +95,121 @@ export default class MessageList extends Vue {
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].tags.id as string] = true;
 			}
-			await this.$nextTick();
-			this.scrollBottom();
+			this.scrollToPrevMessage();
 		}, {
 			deep:true
 		});
+		
+		const list = this.$refs.messageHolder as HTMLDivElement;
+		list.addEventListener("scroll", ()=>{
+			const el = this.$refs.messageHolder as HTMLDivElement;
+			const h = (this.$el as HTMLDivElement).clientHeight;
+			const maxScroll = (el.scrollHeight - h);
+			const scrollAtBottom = (maxScroll - el.scrollTop) < 2;
+			if(scrollAtBottom) {
+				this.lockScroll = false;
+			}
+		});
+
+		await this.$nextTick();
+		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
 		this.disposed = true;
-		let el = this.$refs.messageHolder as HTMLDivElement;
-		gsap.killTweensOf(el);
 	}
 
 	/**
-	 * Called when mouse enters the message list
+	 * Catch up all pending messages
 	 */
-	public async hover():Promise<void> {
-		if(this.lightMode) return;
-		this.hovered = true;
-		let el = this.$refs.messageHolder as HTMLDivElement;
-		gsap.killTweensOf(el);
-		await this.$nextTick();
+	public async unPause():Promise<void> {
+		let messages = this.pendingMessages.slice(-this.max);
+		this.localMessages = this.localMessages.concat(messages);
+		this.pendingMessages = [];
+		this.localMessages = this.localMessages.slice(-this.max);
 
-		if(!this.lockscroll) {
-			this.scrollBottom();
-		}
-	}
-
-	/**
-	 * Called when mouse leaves the message list
-	 */
-	public async out():Promise<void> {
-		this.hovered = false;
-		let hasNext = false;
-		do {
-			//Catchup messages by batch to avoid performance issues
-			hasNext = await this.catchupBatch();
-		}while(hasNext);
-
-		if(!this.lockscroll) {
-			this.scrollBottom();
-		}
-	}
-
-	/**
-	 * Catches up for new messages by batch
-	 * 
-	 * @returns if there are more messages to catch up
-	 */
-	public async catchupBatch(maxCount:number = 150):Promise<boolean> {
-		let addCount = 0;
-		const maxLength = store.state.params.appearance.historySize.value;
-		for (let i = 0; i < this.pendingMessages.length; i++) {
-			if(this.hovered || this.forceLock || this.disposed) return false;
-			addCount ++;
-			const m = this.pendingMessages.shift() as IRCEventDataList.Message;
-			this.idDisplayed[m.tags.id as string] = true;
-			this.localMessages.push( m );
-			//Limit size
-			this.localMessages = this.localMessages.slice(-maxLength);
-			await Utils.promisedTimeout(75);
-			await this.$nextTick();
-			this.scrollBottom();
-			if(addCount == maxCount) break;
-		}
-		return this.pendingMessages.length > 0;
+		this.lockScroll = false;
 	}
 
 	/**
 	 * If hovering and scrolling down whit wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
-		let el = this.$refs.messageHolder as HTMLDivElement;
-		let h = (this.$el as HTMLDivElement).clientHeight;
-		
 		//If scrolling down while at the bottom of the list, load next message
-		if(event.deltaY > 0 && this.pendingMessages.length > 0
-		&& el.scrollHeight - h - el.scrollTop < event.deltaY) {
-			const maxLength = store.state.params.appearance.historySize.value;
-			this.localMessages.push( this.pendingMessages.shift() as IRCEventDataList.Message );
-			this.localMessages = this.localMessages.slice(-maxLength);
-			
-			await this.$nextTick();
-			this.scrollBottom();
+		if(event.deltaY < 0) {
+			this.lockScroll = true;
+		}else{
+			const el = this.$refs.messageHolder as HTMLDivElement;
+			const h = (this.$el as HTMLDivElement).clientHeight;
+			const maxScroll = (el.scrollHeight - h);
+			if((maxScroll - el.scrollTop) < 50) {
+				this.showNextPendingMessage();
+			}
+
 		}
 	}
 
 	/**
-	 * Scrolls the message list to bottom
+	 * Called 60 times/sec to scroll the list and load new messages
+	 * if there are pending ones.
 	 */
-	private scrollBottom(animate:boolean = true):void {
+	public async renderFrame():Promise<void> {
 		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
 
-		let el = this.$refs.messageHolder as HTMLDivElement;
-		let h = (this.$el as HTMLDivElement).clientHeight;
-		gsap.killTweensOf(el);
-		if(animate) {
-			gsap.to(el, {duration: .25, scrollTo: el.scrollHeight - h});
-		}else{
-			el.scrollTop = el.scrollHeight - h;
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const h = (this.$el as HTMLDivElement).clientHeight;
+		const maxScroll = (el.scrollHeight - h);
+		if(!this.lockScroll) {
+			if(!this.virtualScrollY) this.virtualScrollY = maxScroll;
+
+			const dist = Math.abs(maxScroll-this.virtualScrollY);
+			if(dist > 100) {
+				this.virtualScrollY += 3;
+			}else{
+				// const ease = Math.max(.1, Math.min(100, dist)/200);
+				const ease = .1;
+				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease;
+			}
+			// if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
+			el.scrollTop = this.virtualScrollY;
+		}
+
+		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%10 == 0) {
+			this.showNextPendingMessage();
+		}
+		
+	}
+
+	/**
+	 * Get the next pending message and display it to the list
+	 */
+	private showNextPendingMessage():void {
+		if(this.pendingMessages.length == 0) return;
+		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
+		this.idDisplayed[m.tags.id as string] = true;
+		this.localMessages.push( m );
+		if(this.localMessages.length > this.max) {
+			this.localMessages = this.localMessages.slice(-this.max);
+		}
+		this.scrollToPrevMessage();
+	}
+
+	/**
+	 * Call this after adding a new message.
+	 * Will scroll so the previous message is on the bottom of the list
+	 * so the new message displays smoothly from the bottom of the screen
+	 */
+	private async scrollToPrevMessage():Promise<void> {
+		await this.$nextTick();
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const h = (this.$el as HTMLDivElement).clientHeight;
+		const messRefs = this.$refs.message as HTMLDivElement[];
+		const lastMessRef = messRefs[messRefs.length-2];
+		
+		if(lastMessRef) {
+			this.virtualScrollY = lastMessRef.offsetTop + lastMessRef.clientHeight - h;
+			el.scrollTop = this.virtualScrollY;
 		}
 	}
 
@@ -214,7 +222,7 @@ export default class MessageList extends Vue {
 
 	&.scrollLocked {
 		.holder {
-			padding-bottom: 80px;
+			// padding-bottom: 20px;
 		}
 	}
 
@@ -225,11 +233,19 @@ export default class MessageList extends Vue {
 		position: absolute;
 		bottom: 0;
 		padding: 10px 0;
+		padding-bottom: 0;
+
+		.message:nth-child(even) {
+			background-color: red !important;//rgba(255, 255, 255, 1);
+		}
+
 		.message {
+			color: red;
 			overflow: hidden;
 			font-family: "Inter";
 			color: #fff;
 			padding: 5px;
+			min-height: 28px;
 			font-size: 18px;
 
 			:deep(.time) {
@@ -253,7 +269,6 @@ export default class MessageList extends Vue {
 	}
 
 	.holder {
-		padding-bottom: 0;
 		// transition: padding-bottom .25s;
 		.message:nth-child(even) {
 			background-color: rgba(255, 255, 255, .025);
@@ -282,7 +297,7 @@ export default class MessageList extends Vue {
 		text-align: center;
 		border-radius: 5px;
 		.label {
-			color: #000;
+			color: #fff;
 			width: min-content;
 			white-space: nowrap;
 			margin: auto;
@@ -290,11 +305,14 @@ export default class MessageList extends Vue {
 			font-size: 14px;
 			border-top-left-radius: 10px;
 			border-top-right-radius: 10px;
-			background-color: #888888;
+			background-color: @mainColor_normal;//#888888;
 			.button {
-				height: 40px;
-				width: 38px;
+				width: 100%;
 				background: none;
+				padding: 0;
+				&:hover {
+					background: rgba(255, 255, 255, .5);
+				}
 			}
 		}
 		.bar {
@@ -302,7 +320,7 @@ export default class MessageList extends Vue {
 			margin-top: -10px;
 			border-top-left-radius: 10px;
 			border-top-right-radius: 10px;
-			background: linear-gradient(0deg, rgba(136, 136, 136, 1) 10%, rgba(136, 136, 136, 0) 100%);
+			background: linear-gradient(0deg, @mainColor_normal 10%, fade(@mainColor_normal, 0) 100%);
 		}
 	}
 

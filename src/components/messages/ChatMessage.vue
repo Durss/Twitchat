@@ -157,7 +157,7 @@ export default class ChatMessage extends Vue {
 						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {
-						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112'><br><center>"+v.emote+"</center>";
+						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' height='112' width='112'><br><center>"+v.emote+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
@@ -358,26 +358,26 @@ export default class ChatMessage extends Vue {
 				padding: 0px 3px;
 			}
 		}
-	}
 
-	.automod {
-		background-color: #fff;
-		padding: 10px;
-		border-radius: 5px;
-		margin-bottom: 10px;
-
-		.header {
+		.automod {
+			background-color: #fff;
+			padding: 10px;
+			border-radius: 5px;
 			margin-bottom: 10px;
-			color: black;
-		}
 
-		.actions {
-			text-align: center;
-			.button {
-				padding: 2px 5px;
-				border-radius: 5px;
-				font-size: 18px;
-				margin-right: 10px;
+			.header {
+				margin-bottom: 10px;
+				color: black;
+			}
+
+			.actions {
+				text-align: center;
+				.button {
+					padding: 2px 5px;
+					border-radius: 5px;
+					font-size: 18px;
+					margin-right: 10px;
+				}
 			}
 		}
 	}

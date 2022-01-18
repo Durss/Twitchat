@@ -7,7 +7,6 @@ import './less/index.less';
 import router from './router';
 import store from './store';
 import { TwitchTypes } from './utils/TwitchUtils';
-import Utils from './utils/Utils';
 
 gsap.registerPlugin(ScrollToPlugin);
 

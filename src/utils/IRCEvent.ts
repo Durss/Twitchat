@@ -83,7 +83,7 @@ export namespace IRCEventDataList {
 	export interface Notice {
 		channel: string;
 		message?: string;
-		msgid: MsgID | "raid";
+		msgid: MsgID;
 		tags:ChatUserstate;
 		username?: string;
 		//custom data
@@ -100,6 +100,7 @@ export namespace IRCEventDataList {
 		recipient?: string;
 		methods?: SubMethods;
 		viewers?: number;
+		"msg-id"?: MsgID;
 		reward?: PubSubTypes.RewardData;
 		//custom data
 		type:"highlight";

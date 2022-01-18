@@ -262,7 +262,17 @@ export default class NewUsers extends Vue {
 		.message {
 			cursor: pointer;
 			overflow: hidden;
-			// transition: background-color 0.2s, ;
+			font-family: "Inter";
+			color: #fff;
+			padding: 5px;
+			font-size: 18px;
+
+			:deep(.time) {
+				color: fade(#ffffff, 75%);
+				font-size: 13px;
+				margin-right: 5px;
+				vertical-align: middle;
+			}
 	
 			&:nth-child(odd) {
 				background-color: fade(#ffffff, 2.5%);

@@ -17,8 +17,8 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -61,10 +61,11 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["avamind", "maghla", "andythefrenchy" ]);
+				channels = channels.concat(["codemiko", "mistermv", "andythefrenchy", "sweet_anita", "gom4rt", "littlebigwhale","bagherajones", "hortyunderscore", "colas_bim", "alisa", "tipstevens" ]);
 			}
 
 			(async ()=> {
+				
 				try {
 					//Load bots list
 					const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
@@ -84,6 +85,7 @@ export default class IRCClient extends EventDispatcher {
 				for (let i = 0; i < uids.length; i++) {
 					//Load user specific badges infos
 					await TwitchUtils.loadUserBadges(uids[i]);
+					await TwitchUtils.loadCheermoteList(uids[i]);
 				}
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
 				
@@ -165,7 +167,6 @@ export default class IRCClient extends EventDispatcher {
 			
 			this.client.on("automod", (channel: string, msgID: 'msg_rejected' | 'msg_rejected_mandatory', message: string)=> {
 				if(!this.idToExample["automod"]) this.idToExample["automod"] = {type:"message", channel, msgID, message};
-				console.log("AUTOMOD");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, msgID, message}));
 			});
 			
@@ -266,7 +267,6 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public disconnect():void {
-		console.log("DELETE CLIENT");
 		if(this.client) {
 			this.client.disconnect();
 			this.connected = false;
