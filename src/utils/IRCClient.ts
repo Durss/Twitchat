@@ -97,7 +97,7 @@ export default class IRCClient extends EventDispatcher {
 			
 			if(token) {
 				this.client = new tmi.Client({
-					options: { debug: false },
+					options: { debug: false, skipUpdatingEmotesets:true, },
 					connection: { reconnect: true },
 					channels:channels.concat(),
 					identity: {
