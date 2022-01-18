@@ -140,7 +140,10 @@ export default class ChatHighlight extends Vue {
 				console.log(this.messageData);
 				result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 			}
-			this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
+
+			if(this.messageData.tags.bits) {
+				this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
+			}
 		}
 	}
 }
