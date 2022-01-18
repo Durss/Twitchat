@@ -1,5 +1,5 @@
 <template>
-	<div class="chathighlight" v-if="!filtered">
+	<div class="chathighlight" v-show="!filtered">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<span class="reason" v-html="reason"></span>
@@ -36,7 +36,7 @@ export default class ChatHighlight extends Vue {
 
 	public get reason():string {
 		let value:number|"prime" = 0;
-		let type:"bits"|"sub"|"subgift"|"raid"|"reward" = "bits";
+		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|null = null;
 		if(this.messageData.tags.bits) {
 			value = this.messageData.tags.bits;
 			type = "bits";
@@ -59,6 +59,16 @@ export default class ChatHighlight extends Vue {
 		}else if(this.messageData.reward) {
 			type = "reward";
 			this.filtered = !store.state.params.filters.showRewards.value;
+		}else if(this.messageData.tags['message-type'] == "giftpaidupgrade") {
+			value = 1;
+			type = "subgiftUpgrade";
+			this.filtered = !store.state.params.filters.showSubs.value;
+		}
+		if(type == null) {
+			console.log("Unhandled highlight");
+			console.log(this.messageData);
+			this.filtered = true;
+			return "";
 		}
 
 		let res = "";
@@ -84,12 +94,16 @@ export default class ChatHighlight extends Vue {
 				}
 				if(this.messageData.tags['msg-param-cumulative-months']
 				&& this.messageData.tags['msg-param-should-share-streak']) {
-					res += "("+this.messageData.tags['msg-param-cumulative-months']+" months streak)";
+					res += " ("+this.messageData.tags['msg-param-cumulative-months']+" months streak)";
 				}
 				break;
 			case "subgift":
 				this.icon = require('@/assets/icons/gift.svg');
 				res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
+				break;
+			case "subgiftUpgrade":
+				this.icon = require('@/assets/icons/gift.svg');
+				res = "<strong>"+this.messageData.username+"</strong> is continuing the Gift Sub they got from <strong>"+this.messageData.sender+"</strong>";
 				break;
 			case "reward":{
 				const localObj = this.messageData.reward as PubSubTypes.RewardData;
@@ -126,7 +140,6 @@ export default class ChatHighlight extends Vue {
 				console.log(this.messageData);
 				result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 			}
-			console.log("ROOM ID", this.messageData.tags['room-id']);
 			this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
 		}
 	}

@@ -416,5 +416,85 @@
             "id": "16423808111740.48398594515839055",
             "tmi-sent-ts": "1642380811174"
         }
+    },
+    "giftpaidupgrade": {
+        "type": "highlight",
+        "channel": "#alisa",
+        "username": "gnarlybuds",
+        "sender": "bob_sled_",
+        "tags": {
+            "badge-info": {
+                "subscriber": "4"
+            },
+            "badges": {
+                "subscriber": "3",
+                "premium": "1"
+            },
+            "color": "#008000",
+            "display-name": "gnarlybuds",
+            "emotes": null,
+            "flags": null,
+            "id": "44d55be7-49f0-4733-9704-560404ddeb67",
+            "login": "gnarlybuds",
+            "mod": false,
+            "msg-id": "giftpaidupgrade",
+            "msg-param-sender-login": "bob_sled_",
+            "msg-param-sender-name": "bob_sled_",
+            "room-id": "44345043",
+            "subscriber": true,
+            "system-msg": "gnarlybuds is continuing the Gift Sub they got from bob_sled_!",
+            "tmi-sent-ts": "1642460464239",
+            "user-id": "176225384",
+            "user-type": null,
+            "emotes-raw": null,
+            "badge-info-raw": "subscriber/4",
+            "badges-raw": "subscriber/3,premium/1",
+            "message-type": "giftpaidupgrade"
+        }
+    },
+    "giftpaidupgrade2":{
+        "type": "highlight",
+        "channel": "#antoinedaniel",
+        "username": "Der_Jordan",
+        "sender": "mapetitemolas",
+        "tags": {
+            "badge-info": {
+                "subscriber": "3"
+            },
+            "badges": {
+                "subscriber": "3"
+            },
+            "color": "#FF4500",
+            "display-name": "Der_Jordan",
+            "emotes": null,
+            "flags": null,
+            "id": "8ab5ec67-d6fb-4464-806f-3ef6e6fae818",
+            "login": "der_jordan",
+            "mod": false,
+            "msg-id": "giftpaidupgrade",
+            "msg-param-sender-login": "mapetitemolas",
+            "msg-param-sender-name": "mapetitemolas",
+            "room-id": "135468063",
+            "subscriber": true,
+            "system-msg": "Der_Jordan is continuing the Gift Sub they got from mapetitemolas!",
+            "tmi-sent-ts": "1642456985473",
+            "user-id": "152894299",
+            "user-type": null,
+            "emotes-raw": null,
+            "badge-info-raw": "subscriber/3",
+            "badges-raw": "subscriber/3",
+            "message-type": "giftpaidupgrade"
+        }
+    },
+    "host_on":{
+        "type": "notice",
+        "channel": "#durss",
+        "msgid": "host_on",
+        "message": "Now hosting cokoooooo.",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16424632276880.693716052337749",
+            "tmi-sent-ts": "1642463227688"
+        }
     }
 }
