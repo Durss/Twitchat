@@ -46,6 +46,7 @@ import { Options, Vue } from 'vue-class-component';
 		percent:{default: -1, type:Number},
 		white:{type:Boolean, default: false},
 		big:{type:Boolean, default: false},
+		small:{type:Boolean, default: false},
 		highlight:{type:Boolean, default: false},
 		selected:{type:Boolean, default: false},
 		disabled:{type:Boolean, default: false},
@@ -69,6 +70,7 @@ export default class Button extends Vue {
 	public percent!:Ref<number>;
 	public white!:boolean;
 	public big!:boolean;
+	public small!:boolean;
 	public highlight!:boolean;
 	public selected!:boolean;
 	public disabled!:boolean;
@@ -126,6 +128,7 @@ export default class Button extends Vue {
 		if(!this.title) list.push("noTitle");
 		if(this.white !== false) list.push("white");
 		if(this.big !== false) list.push("big");
+		if(this.small !== false) list.push("small");
 		if(this.highlight !== false) list.push("highlight");
 		if(this.selected !== false) list.push("selected");
 		if(this.loading !== false) list.push("disabled");
@@ -250,6 +253,7 @@ export default class Button extends Vue {
 				max-height: 40px;
 			}
 		}
+
 	}
 
 	&.checkbox {
@@ -398,6 +402,32 @@ export default class Button extends Vue {
 					border-radius: 13px;
 					width: 40px;
 					height: 40px;
+				}
+			}
+		}
+	}
+
+	&.small {
+		padding: 4px;
+		border-radius: 5px;
+		background: @mainColor_normal_extralight;
+		&:hover {
+			background: @mainColor_normal_light;
+		}
+		.label {
+			font-size: 16px;
+		}
+		.icon {
+			min-width: 15px;
+			min-height: 15px;
+			filter: invert();
+		}
+		&.checkbox {
+			padding: 0;
+			.checkboxContent {
+				.checkmark {
+					width: 18px;
+					height: 18px;
 				}
 			}
 		}

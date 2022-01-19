@@ -1,26 +1,30 @@
 <template>
 	<div class="chatform">
-		<div class="leftForm">
-			<Button :icon="require('@/assets/icons/params.svg')" small bounce @click="openParams()" />
-			<Button :icon="require('@/assets/icons/commands.svg')" small bounce @click="openCommands()" />
-		</div>
+		<div class="holder">
+			<div class="leftForm">
+				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
+				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="openCommands()" />
+			</div>
 
-		<form @submit.prevent="sendMessage()" class="inputForm">
-			<input type="text" class="dark" v-model="message" v-if="!error">
-			<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
-			<Button class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
-		</form>
+			<form @submit.prevent="sendMessage()" class="inputForm">
+				<input type="text" class="dark" v-model="message" v-if="!error">
+				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
+				<Button class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
+			</form>
 
-		<div class="actions" v-if="showCommands">
-			<Button @click="$emit('poll')" :icon="require('@/assets/icons/poll.svg')" title="Create poll" small bounce />
-			<Button @click="$emit('pred')" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" small bounce />
-			<Button @click="$emit('clear')" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" small bounce />
-			<Button @click="$emit('raid')" :icon="require('@/assets/icons/raid.svg')" title="Raid" small bounce />
+			<div class="actions" v-if="showCommands">
+				<Button @click="$emit('poll')" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce />
+				<Button @click="$emit('pred')" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce />
+				<Button @click="$emit('clear')" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
+				<Button @click="$emit('raid')" :icon="require('@/assets/icons/raid.svg')" title="Raid" bounce />
 
-			<div class="row" v-for="(p,key) in params" :key="key">
-				<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
+				<div class="row" v-for="(p,key) in params" :key="key">
+					<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
+				</div>
 			</div>
 		</div>
+
+		<ChannelNotifications class="notifications" />
 	</div>
 </template>
 
@@ -29,6 +33,7 @@ import store, { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ChannelNotifications from '../channelnotifications/ChannelNotifications.vue';
 import ParamItem from '../params/ParamItem.vue';
 
 @Options({
@@ -36,6 +41,7 @@ import ParamItem from '../params/ParamItem.vue';
 	components:{
 		Button,
 		ParamItem,
+		ChannelNotifications,
 	},
 	emits: ["poll","pred","clear","raid"]
 })
@@ -103,64 +109,84 @@ export default class ChatForm extends Vue {
 	margin: auto;
 	position: relative;
 
-	.leftForm {
-		height: 100%;
-		.button {
-			width: 30px;
-			height: 30px;
-			border-radius: 5px;
-			transform-origin: bottom;
-		}
-	}
-
-	.inputForm {
+	.holder {
+		position: absolute;
+		width: 100%;
 		display: flex;
 		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		flex-grow: 1;
-		input {
-			height: 100%;
-			flex-grow: 1;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-		}
-		.submit {
-			height: 100%;
-			padding: 5px;
-			border-radius: 5px;
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
-			transform-origin: left;
-		}
-		.error {
-			cursor: pointer;
-			text-align: center;
-			flex-grow: 1;
-			font-size: 18px;
-			color: #ff0000;
-		}
-	}
-
-	.actions {
-		position: absolute;
-		left: 30px;
-		bottom: 40px;
-		padding: 10px;
-		background-color: @mainColor_dark;
+		height: 30px;
+		margin: auto;
+		position: relative;
+		z-index: 2;
 		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-		border-radius: 5px;
-		width: 250px;
-		display: flex;
-		flex-direction: column;
-		&>*:not(:last-child) {
-			margin-bottom: 5px;
+		background-color: @mainColor_dark;
+
+		.leftForm {
+			height: 100%;
+			.button {
+				width: 30px;
+				height: 30px;
+				border-radius: 5px;
+				transform-origin: bottom;
+			}
 		}
-		.button {
-			:deep(img) {
-				max-width: 20px;
+	
+		.inputForm {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			flex-grow: 1;
+			input {
+				height: 100%;
+				flex-grow: 1;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			.submit {
+				height: 100%;
+				padding: 5px;
+				border-radius: 5px;
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+				transform-origin: left;
+			}
+			.error {
+				cursor: pointer;
+				text-align: center;
+				flex-grow: 1;
+				font-size: 18px;
+				color: #ff0000;
 			}
 		}
 	}
+
+	.actions, .notifications {
+		position: absolute;
+		top: 0;
+		left: 0;
+		transform: translateY(-100%);
+		z-index: 1;
+
+		&.actions  {
+			left: 30px;
+			padding: 10px;
+			background-color: @mainColor_dark;
+			box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
+			border-radius: 10px;
+			width: 250px;
+			display: flex;
+			flex-direction: column;
+			&>*:not(:last-child) {
+				margin-bottom: 5px;
+			}
+			.button {
+				:deep(img) {
+					max-width: 20px;
+				}
+			}
+		}
+	}
+
 }
 </style>

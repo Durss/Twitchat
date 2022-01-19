@@ -325,7 +325,8 @@ export default class TwitchUtils {
 		if(res.status == 200) {
 			setTimeout(()=> {
 				this.getPolls();
-			})
+			}, (duration+1) * 1000);
+			store.dispatch("setPolls", json.data);
 			return json.data;
 		}
 		throw(json);
@@ -346,6 +347,7 @@ export default class TwitchUtils {
 		const res = await fetch("https://api.twitch.tv/helix/polls?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
+			store.dispatch("setPolls", json.data);
 			return json.data;
 		}
 		throw(json);
@@ -371,6 +373,7 @@ export default class TwitchUtils {
 		const res = await fetch("https://api.twitch.tv/helix/polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
+			store.dispatch("setPolls", json.data);
 			return json.data;
 		}
 		throw(json);
@@ -401,8 +404,9 @@ export default class TwitchUtils {
 		const json = await res.json();
 		if(res.status == 200) {
 			setTimeout(()=> {
-				this.getPolls();
-			})
+				this.getPredictions();
+			}, (duration+1) * 1000);
+			store.dispatch("setPredictions", json.data);
 			return json.data;
 		}
 		throw(json);
@@ -423,6 +427,7 @@ export default class TwitchUtils {
 		const res = await fetch("https://api.twitch.tv/helix/predictions?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
+			store.dispatch("setPredictions", json.data);
 			return json.data;
 		}
 		throw(json);
@@ -449,6 +454,7 @@ export default class TwitchUtils {
 		const res = await fetch("https://api.twitch.tv/helix/predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
+			store.dispatch("setPredictions", json.data);
 			return json.data;
 		}
 		throw(json);
@@ -604,20 +610,23 @@ export namespace TwitchTypes {
 		broadcaster_name: string;
 		broadcaster_login: string;
 		title: string;
-		choices: {
-			id: string;
-			title: string;
-			votes: number;
-			channel_points_votes: number;
-			bits_votes: number;
-		}[];
+		choices: PollChoice[];
 		bits_voting_enabled: boolean;
 		bits_per_vote: number;
 		channel_points_voting_enabled: boolean;
 		channel_points_per_vote: number;
-		status: string;
+		status: "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODERATED" | "INVALID";
 		duration: number;
 		started_at: string;
+		ended_at?: string;
+	}
+
+	export interface PollChoice {
+		id: string;
+		title: string;
+		votes: number;
+		channel_points_votes: number;
+		bits_votes: number;
 	}
 
 	export interface HypeTrain {
@@ -647,33 +656,35 @@ export namespace TwitchTypes {
 		};
 	}
 
-    export interface Prediction {
-        id: string;
-        broadcaster_id: string;
-        broadcaster_name: string;
-        broadcaster_login: string;
-        title: string;
-        winning_outcome_id?: string;
-        outcomes: {
-			id: string;
-			title: string;
-			users: number;
-			channel_points: number;
-			top_predictors?: {
-				user:{
-					id:string
-					name:string
-					login:string
-					channel_points_used:number
-					channel_points_won:number
-				}
-			}[];
-			color: string;
+	export interface Prediction {
+		id: string;
+		broadcaster_id: string;
+		broadcaster_name: string;
+		broadcaster_login: string;
+		title: string;
+		winning_outcome_id?: string;
+		outcomes: PredictionOutcome[];
+		prediction_window: number;
+		status: "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED";
+		created_at: string;
+		ended_at: string;
+		locked_at?: string;
+	}
+
+	export interface PredictionOutcome {
+		id: string;
+		title: string;
+		users: number;
+		channel_points: number;
+		top_predictors?: {
+			user:{
+				id:string
+				name:string
+				login:string
+				channel_points_used:number
+				channel_points_won:number
+			}
 		}[];
-        prediction_window: number;
-        status: string;
-        created_at: string;
-        ended_at?: string;
-        locked_at?: string;
-    }
+		color: string;
+	}
 }

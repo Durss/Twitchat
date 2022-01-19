@@ -19,6 +19,8 @@ export default createStore({
 		userCard: "",
 		chatMessages: [],
 		mods: [],
+		currentPoll: {},
+		currentPrediction: {},
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -257,6 +259,20 @@ export default createStore({
 			}
 		},
 
+		setPolls(state, payload:TwitchTypes.Poll[]) {
+			state.currentPoll = payload.find(v => {
+				const tooOld = v.ended_at ? Date.now() > new Date(v.ended_at).getTime() + 2*60*1000 : false;
+				return v.status == "ACTIVE" && !tooOld
+			}) as  TwitchTypes.Poll;
+		},
+		
+		setPredictions(state, payload:TwitchTypes.Prediction[]) {
+			state.currentPrediction = payload.find(v => {
+				const tooOld = v.ended_at ? Date.now() > new Date(v.ended_at).getTime() + 2*60*1000 : false;
+				return v.status == "ACTIVE" && !tooOld
+			}) as  TwitchTypes.Prediction;
+		},
+
 	},
 
 
@@ -304,6 +320,8 @@ export default createStore({
 							}
 						}});
 					})
+					TwitchUtils.getPolls();
+					TwitchUtils.getPredictions();
 				}catch(error) {
 					console.log(error);
 					state.authenticated = false;
@@ -376,6 +394,10 @@ export default createStore({
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 
 		updateParams({commit}) { commit("updateParams"); },
+
+		setPolls({commit}, payload:TwitchTypes.Poll[]) { commit("setPolls", payload); },
+
+		setPredictions({commit}, payload:TwitchTypes.Prediction[]) { commit("setPredictions", payload); },
 	},
 	modules: {
 	}

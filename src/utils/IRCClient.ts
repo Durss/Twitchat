@@ -209,7 +209,7 @@ export default class IRCClient extends EventDispatcher {
 				// console.log(messageCloned);
 				// if (message.command != "PRIVMSG") {
 					// console.log(data.command);
-					console.log(data);
+					// console.log(data);
 				switch(data.command) {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
