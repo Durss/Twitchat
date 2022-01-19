@@ -5,7 +5,7 @@
 	</a>
 	<br>
 	<br>
-	- <a href="https://twitchat.fr" target="_blank">twitchat.durss.ninja</a> -
+	- <a href="https://twitchat.fr" target="_blank">twitchat.fr</a> -
 </div>
 <br>
 <br>
