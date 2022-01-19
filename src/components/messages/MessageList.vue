@@ -341,7 +341,7 @@ export default class MessageList extends Vue {
 
 	.holder {
 		max-height: 100%;
-		width: calc(100% - 20px);
+		width: calc(100% - 10px);
 		overflow-y: auto;
 		position: absolute;
 		bottom: 0;

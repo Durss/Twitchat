@@ -54,7 +54,15 @@ First create a `credentials.json` file on the root directory and fill in these v
 {
 	"client_id": "",
 	"client_secret": "",
-	"redirect_uri": "http://localhost:8080/oauth"
+	"redirect_uri": "http://localhost:8080/oauth",
+	"scopes": [
+		"chat:read",
+		"chat:edit",
+		"channel:read:redemptions",
+		"channel:moderate",
+		"moderation:read",
+		"moderator:manage:automod"
+	]
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
