@@ -30,7 +30,7 @@ export default createStore({
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs"},
-				highlightSubs: {type:"toggle", value:true, label:"Highlight Subs"},
+				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs"},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:4, step:1},
 				modsSize: {type:"slider", value:2, label:"Text size of Mods", min:1, max:4, step:1, icon:""},
 				vipsSize: {type:"slider", value:2, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
