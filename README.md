@@ -35,9 +35,9 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [x] Display bits messages
 - [x] Display raid messages
 - [x] Display reward messages
+- [x] Highlight messages by roles *(mods, vips, subs)*
 
 - [ ] Mark last message read and allow to go back to it
-- [ ] Add highlight color by roles *(viewers, mods, vips, subs)*
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)

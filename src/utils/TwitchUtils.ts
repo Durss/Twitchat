@@ -177,7 +177,13 @@ export default class TwitchUtils {
 	 * Replaces emotes by image tags on the message
 	 */
 	public static async parseCheermotes(message:string, channel_id:string):Promise<string> {
-		const emotes = await this.loadCheermoteList(channel_id);
+		let emotes:TwitchTypes.CheermoteSet[];
+		try {
+			emotes = await this.loadCheermoteList(channel_id);
+		}catch(err) {
+			//Safe crash
+			return message;
+		}
 
 		for (let j = 0; j < emotes.length; j++) {
 			const list = emotes[j];
