@@ -6,8 +6,22 @@
 
 		<div class="content">
 			<div>
-				<div class="infos" v-if="!authenticating"><b>Twitchat</b> needs some authorizations to work.<br>Click <b>Authorize</b> button bellow</div>
+				<div class="infos" v-if="!authenticating"><b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions to work.<br>Click <b>Authorize</b> button bellow</div>
 				
+				<div class="permissions">
+					<a @click="showPermissions = !showPermissions" class="toggleBt">Permissions details<img src="@/assets/icons/infos.svg"></a>
+					<div class="details" v-if="showPermissions">
+						<div>
+							Twitchat needs these permissions to offer you as much features as possible.<br>
+							<br>
+							Your authentication token will never be stored on our server.
+						</div>
+						<ul>
+							<li v-for="p in permissions" :key="p">{{p}}</li>
+						</ul>
+					</div>
+				</div>
+
 				<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" />
 				
 				<div class="loader" v-if="authenticating">
@@ -24,6 +38,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import store from '@/store';
+import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
@@ -38,6 +53,38 @@ import { Options, Vue } from 'vue-class-component';
 export default class Login extends Vue {
 
 	public authenticating:boolean = false;
+	public showPermissions:boolean = false;
+
+	public get permissions():string[] {
+		const scopeToInfos:{[key:string]:string} = {
+			"chat:read": "Read chat",
+			"chat:edit": "Write on chat",
+			"channel:read:redemptions": "Read redemptions",
+			"channel:moderate": "Perform moderation actions",
+			"channel:manage:polls": "Manage polls",
+			"channel:manage:predictions": "Manage predictions",
+			"channel:read:hype_train": "Read hype train state",
+			"moderation:read": "Get moderation data",
+			"moderator:manage:automod": "Manage automoded messages",
+			"bits:read": "Read bits leaderboard",
+			"channel:edit:commercial": "Start an ad",
+			"channel:manage:broadcast": "Manage broadcast infos",
+			"channel:manage:redemptions": "Manage rewards",
+			"channel:read:goals": "Read current goals",
+			"channel:read:subscriptions": "Get list of subs",
+			"moderator:manage:banned_users": "Manage banned users",
+			"moderator:read:blocked_terms": "Read blocked terms",
+			"moderator:manage:blocked_terms": "Manage blocked terms",
+			"user:read:blocked_users": "Read blocked users",
+			"user:manage:blocked_users": "Manage blocked users",
+			"user:read:follows": "Read follows of a user",
+			"user:read:subscriptions": "Read subs of a user",
+		}
+		return Config.TWITCH_APP_SCOPES.map(v => {
+			if(scopeToInfos[v]) return scopeToInfos[v];
+			return v;
+		});
+	}
 
 	public get oAuthURL():string {
 		return TwitchUtils.oAuthURL;
@@ -95,6 +142,38 @@ export default class Login extends Vue {
 		.infos {
 			margin-bottom: 20px;
 			min-width: 250px;
+		}
+
+		.permissions {
+			margin-bottom: 20px;
+			.toggleBt {
+				color: @mainColor_warn;
+				font-weight: bold;
+				cursor: pointer;
+				img {
+					height: 20px;
+					margin-left: 5px;
+					vertical-align: middle;
+				}
+			}
+			.details {
+				text-align: left;
+				color: @mainColor_warn;
+				font-size: .9em;
+				max-height: 150px;
+				overflow-y: auto;
+				ul {
+					width: 190px;
+					margin: auto;
+					margin-top: 10px;
+					list-style: inside;
+					li {
+						text-align: left;
+						padding-left: 0;
+						font-size: .9em;
+					}
+				}
+			}
 		}
 
 		.form {
