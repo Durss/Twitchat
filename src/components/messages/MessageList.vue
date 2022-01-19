@@ -341,7 +341,7 @@ export default class MessageList extends Vue {
 
 	.holder {
 		max-height: 100%;
-		width: 100%;
+		width: calc(100% - 20px);
 		overflow-y: auto;
 		position: absolute;
 		bottom: 0;
@@ -394,13 +394,14 @@ export default class MessageList extends Vue {
 
 	.noMessage {
 		position:absolute;
-		width: 100%;
+		width: calc(100% - 20px);
 		bottom: 0;
 		color: rgba(255, 255, 255, .3);
 		font-family: "Inter";
 		font-style: italic;
 		mask-image: url(../../assets/chatPlaceholder.png);
 		mask-repeat: no-repeat;
+		mask-size: cover;
 		.gradient {
 			width: 100%;
 			height: 400px;
@@ -422,6 +423,7 @@ export default class MessageList extends Vue {
 		position: absolute;
 		background-color: @mainColor_dark;
 		padding: 10px;
+		left: 0;
 		width: 100%;
 		max-width: 100%;
 		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
