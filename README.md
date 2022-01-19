@@ -1,11 +1,11 @@
 
 <div align="center">
-	<a href="https://twitchat.durss.ninja" target="_blank">
+	<a href="https://twitchat.fr" target="_blank">
 		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src/assets/logo.svg">
 	</a>
 	<br>
 	<br>
-	- <a href="https://twitchat.durss.ninja" target="_blank">twitchat.durss.ninja</a> -
+	- <a href="https://twitchat.fr" target="_blank">twitchat.durss.ninja</a> -
 </div>
 <br>
 <br>
