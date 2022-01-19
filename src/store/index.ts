@@ -22,20 +22,23 @@ export default createStore({
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
-				hideEmotes: {type:"toggle", value:false, label:"Hide emotes"},
-				hideBadges: {type:"toggle", value:false, label:"Hide badges"},
+				showEmotes: {type:"toggle", value:true, label:"Show emotes"},
+				showBadges: {type:"toggle", value:true, label:"Show badges"},
 				minimalistBadges: {type:"toggle", value:false, label:"Show minimalist badges"},
 				displayTime: {type:"toggle", value:true, label:"Display time"},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50},
+				highlightMods: {type:"toggle", value:true, label:"Highlight Mods"},
+				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs"},
+				highlightSubs: {type:"toggle", value:true, label:"Highlight Subs"},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:4, step:1},
-				modsSize: {type:"slider", value:2, label:"Text size of moderators", min:1, max:4, step:1, icon:""},
+				modsSize: {type:"slider", value:2, label:"Text size of Mods", min:1, max:4, step:1, icon:""},
 				vipsSize: {type:"slider", value:2, label:"Text size of VIPs", min:1, max:4, step:1, icon:""},
-				subsSize: {type:"slider", value:2, label:"Text size of subs", min:1, max:4, step:1, icon:""},
+				subsSize: {type:"slider", value:2, label:"Text size of Subs", min:1, max:4, step:1, icon:""},
 			},
 			filters: {
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-				ignoreSelf: {type:"toggle", value:false, label:"Hide my messages"},
+				showSelf: {type:"toggle", value:true, label:"Show my messages"},
 				hideBots: {type:"toggle", value:false, label:"Hide bots"},
 				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
@@ -142,10 +145,76 @@ export default createStore({
 		openUserCard(state, payload) { state.userCard = payload; },
 		
 		addChatMessage(state, payload:IRCEventDataList.Message) {
-			(state.chatMessages as IRCEventDataList.Message[]).push(payload);
+			let messages = state.chatMessages as IRCEventDataList.Message[]
+			messages.push(payload);
 			const maxMessages = state.params.appearance.historySize.value;
-			if(state.chatMessages.length > maxMessages) {
-				state.chatMessages = state.chatMessages.slice(-maxMessages);
+			if(messages.length > maxMessages) {
+				messages = messages.slice(-maxMessages);
+				state.chatMessages = messages as never[];
+			}
+			
+			//If message is an answer, set original message's ref to the answer
+			if(payload.tags["reply-parent-msg-id"]) {
+				//Called when using the "answer feature" on twitch chat
+				let original:IRCEventDataList.Message | null = null;
+				let reply:IRCEventDataList.Message | null = null;
+				for (let i = 0; i < messages.length; i++) {
+					const c = messages[i] as IRCEventDataList.Message;
+					if(c.tags.id === payload.tags["reply-parent-msg-id"]) original = c;
+					if(c.tags.id === payload.tags.id) reply = c;
+					if(original && reply) break;
+				}
+				
+				if(reply && original) {
+					if(original.answerTo) {
+						reply.answerTo = original.answerTo;
+						if(original.answerTo.answers) {
+							original.answerTo.answers.push(payload);
+						}
+					}else{
+						reply.answerTo = original;
+						if(!original.answers) original.answers = [];
+						original.answers.push(payload);
+					}
+				}
+			}else{
+				//If there's a mention, search for last messages within
+				//a max timeframe to find if the message may be a reply to
+				//a message that was sent by the mentionned user
+				if(/@\w/gi.test(payload.message)) {
+					// console.log("Mention found");
+					const ts = Date.now();
+					const timeframe = 5*60*1000;//Check if a massges answers another within this timeframe
+					const matches = payload.message.match(/@\w+/gi) as RegExpMatchArray;
+					for (let i = 0; i < matches.length; i++) {
+						const match = matches[i].replace("@", "").toLowerCase();
+						// console.log("Search for message from ", match);
+						const candidates = messages.filter(m => m.tags.username == match);
+						//Search for oldest matching candidate
+						for (let j = 0; j < candidates.length; j++) {
+							const c = candidates[j];
+							// console.log("Found candidate", c);
+							if(ts - parseInt(c.tags['tmi-sent-ts'] as string) < timeframe) {
+								// console.log("Timeframe is OK !");
+								if(c.answers) {
+									//If it's the root message of a conversation
+									c.answers.push(payload);
+									payload.answerTo = c;
+								}else if(c.answerTo && c.answerTo.answers) {
+									//If the messages answers to a message itself answering to another message
+									c.answerTo.answers.push(payload);
+									payload.answerTo = c.answerTo;
+								}else{
+									//If message answers to a message not from a conversation
+									payload.answerTo = c;
+									if(!c.answers) c.answers = [];
+									c.answers.push(payload);
+								}
+								break;
+							}
+						}
+					}
+				}
 			}
 		},
 		
@@ -182,20 +251,6 @@ export default createStore({
 			}
 		},
 
-		setAnswerRef(state, payload:{original:string, reply:string}) {
-			//Called when using the "answer feature" on twitch chat
-			let original:IRCEventDataList.Message | null = null;
-			let reply:IRCEventDataList.Message | null = null;
-			for (let i = 0; i < state.chatMessages.length; i++) {
-				const c = state.chatMessages[i] as IRCEventDataList.Message;
-				if(c.tags.id === payload.original) original = c;
-				if(c.tags.id === payload.reply) reply = c;
-				if(original && reply) break;
-			}
-			if(reply && original) {
-				reply.answerTo = original;
-			}
-		}
 	},
 
 
@@ -307,15 +362,13 @@ export default createStore({
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 
 		updateParams({commit}) { commit("updateParams"); },
-
-		setAnswerRef({commit}, payload) { commit("setAnswerRef", payload); },
 	},
 	modules: {
 	}
 })
 
 export type ParameterCategory = "appearance" | "filters";
-export type ParameterType = "hideBots" | "hideBadges" | "hideEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "ignoreSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
+export type ParameterType = "hideBots" | "showBadges" | "showEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "showSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
 
 export interface ParameterData {
 	type:string;

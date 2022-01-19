@@ -20,28 +20,30 @@ The goal is to reduce as much as possible the number of missed messages with fea
 <br>
 
 # Features
-- [x] Show first message of users for the day seperatly
+- [x] Display the first message of users seperatly
+- [x] Make it easier to follow a conversation between users
 - [x] Allow to filter some messages *(bots, commands, self, etc...)*
 - [x] Customizable message features *(remove badges, show minimalist badges, remove emotes, etc...)*
 - [x] Customizable message appearance by roles *(viewers, mods, vips, subs)*
-- [x] Handle first message on your channel for a user
-- [x] Allows mod actions
-- [x] Show mod notifications
-- [x] Show channel points notifications
-- [x] Automod allow/deny flow
-- [x] Pause chat autoscroll on hover
-- [x] Make it possible to connect to any channel without authentication to use it as OBS overlay
-- [x] Show sub messages
-- [x] Show raid messages
-- [x] Show reward messages
+- [x] Display mod actions *(ban, timeout, delete message)*
+- [x] Handle automod allow/deny flow
+- [x] Pause chat autoscroll if scrolling it up
+- [x] Possibility to connect to any channel without authentication to use it as OBS overlay
+- [x] Display when it's the first message ever of a user on the channel
+- [x] Display mod notifications
+- [x] Display sub messages
+- [x] Display bits messages
+- [x] Display raid messages
+- [x] Display reward messages
+
 - [ ] Mark last message read and allow to go back to it
 - [ ] Add highlight color by roles *(viewers, mods, vips, subs)*
-- [ ] Make it easier to follow a conversation between users
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Allow to read whispers
 - [ ] Make it possible to define configurations via query params for OBS chats
+- [ ] Parse BTTV and FFZ emotes
 <br>
 <br>
 <br>

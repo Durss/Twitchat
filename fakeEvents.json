@@ -496,5 +496,33 @@
             "id": "16424632276880.693716052337749",
             "tmi-sent-ts": "1642463227688"
         }
+    },
+    "message":{
+        "badge-info": {
+            "subscriber": "10"
+        },
+        "badges": {
+            "broadcaster": "1",
+            "subscriber": "9"
+        },
+        "client-nonce": "0818ce8c5f8b8bcf756a8f11ed73fbdc",
+        "color": "#9ACD32",
+        "display-name": "Durss",
+        "emotes": null,
+        "first-msg": false,
+        "flags": null,
+        "id": "8ffa63fb-8dcd-42f0-8ebc-11a27f8fb4ff",
+        "mod": false,
+        "room-id": "29961813",
+        "subscriber": true,
+        "tmi-sent-ts": "1642542564758",
+        "turbo": false,
+        "user-id": "29961813",
+        "user-type": null,
+        "emotes-raw": null,
+        "badge-info-raw": "subscriber/10",
+        "badges-raw": "broadcaster/1,subscriber/9",
+        "username": "durss",
+        "message-type": "chat"
     }
 }

@@ -6,6 +6,8 @@
 					v-if="m.type == 'message'"
 					class="message"
 					:messageData="m"
+					@showConversation="onMouseEnter"
+					@mouseleave="onMouseLeave(m)"
 					/>
 				<ChatNotice
 					v-if="m.type == 'notice'"
@@ -19,6 +21,7 @@
 					/>
 			</div>
 		</div>
+
 		<div class="locked" v-if="(lockScroll || pendingMessages.length > 0) && !lightMode">
 			<!-- data-tooltip="auto scroll locked"> -->
 			<div class="label">
@@ -29,7 +32,29 @@
 			<div class="bar"></div>
 		</div>
 
-		<div v-if="localMessages.length == 0 && !lightMode" class="noMessage">- no message -</div>
+		<div class="conversation"
+		ref="conversationHolder"
+		v-if="conversation.length > 0" :style="conversationStyles"
+		@mouseenter="onMouseEnter()"
+		@mouseleave="onMouseLeave()">
+			<div class="head">
+				<h1>Conversation</h1>
+				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
+			</div>
+			<div class="messages" ref="conversationMessages">
+				<ChatMessage
+					v-for="m in conversation"
+					:key="m.tags.id"
+					class="message"
+					:messageData="m"
+					disableConversation
+					/>
+			</div>
+		</div>
+
+		<div v-if="localMessages.length == 0 && !lightMode" class="noMessage">
+			<div class="gradient"></div>
+		</div>
 	</div>
 </template>
 
@@ -38,6 +63,7 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { watch } from '@vue/runtime-core';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatHighlight from './ChatHighlight.vue';
@@ -60,13 +86,17 @@ export default class MessageList extends Vue {
 	public max!: number;
 	public localMessages:IRCEventDataList.Message[] = [];
 	public pendingMessages:IRCEventDataList.Message[] = [];
+	public conversation:IRCEventDataList.Message[] = [];
 	public lightMode:boolean = false;
 	public lockScroll:boolean = false;
+	public conversationPos:number = 0;
 
 	private disposed:boolean = false;
 	private frameIndex:number = 0;
 	private virtualScrollY?:number;
 	private idDisplayed:{[key:string]:boolean} = {};
+	private lastHoverdMessage!:{event:MouseEvent, message:IRCEventDataList.Message};
+	private closeConvTimeout!:number;
 
 	public get classes():string[] {
 		let res = ["messagelist"];
@@ -74,6 +104,12 @@ export default class MessageList extends Vue {
 		if(this.lockScroll || this.pendingMessages.length > 0) res.push("scrollLocked");
 
 		return res;
+	}
+
+	public get conversationStyles():unknown {
+		return {
+			top: this.conversationPos+"px"
+		}
 	}
 
 	public async mounted():Promise<void> {
@@ -91,6 +127,7 @@ export default class MessageList extends Vue {
 				}
 				return;
 			}
+			
 			this.localMessages = value.concat();
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].tags.id as string] = true;
@@ -102,6 +139,7 @@ export default class MessageList extends Vue {
 		
 		const list = this.$refs.messageHolder as HTMLDivElement;
 		list.addEventListener("scroll", ()=>{
+			if(this.disposed) return;
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const h = (this.$el as HTMLDivElement).clientHeight;
 			const maxScroll = (el.scrollHeight - h);
@@ -165,7 +203,7 @@ export default class MessageList extends Vue {
 
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
 			if(dist > 100) {
-				this.virtualScrollY += 3;
+				this.virtualScrollY += 20;
 			}else{
 				// const ease = Math.max(.1, Math.min(100, dist)/200);
 				const ease = .1;
@@ -213,17 +251,92 @@ export default class MessageList extends Vue {
 		}
 	}
 
+	/**
+	 * Called when hovering a message
+	 * Display the full conversation if any
+	 */
+	public async onMouseEnter(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
+		if(!event) {
+			event = this.lastHoverdMessage.event;
+			m = this.lastHoverdMessage.message;
+		}
+		if(!m || (!m.answerTo && !m.answers)) return;
+
+		this.lastHoverdMessage = { event, message:m };
+		
+		if(m.answers) {
+			this.conversation = m.answers.concat();
+			this.conversation.unshift( m );
+		}else if(m.answerTo) {
+			this.conversation = (m.answerTo.answers as IRCEventDataList.Message[]).concat();
+			this.conversation.unshift( m.answerTo );
+		}
+		await this.$nextTick();
+		
+		let el = event.target as HTMLDivElement;
+		var top = 0;
+		do {
+			top += el.offsetTop  || 0;
+			el = el.offsetParent as HTMLDivElement;
+		} while(el);
+
+		const mainHolder = this.$refs.messageHolder as HTMLDivElement;
+		const holder = this.$refs.conversationHolder as HTMLDivElement;
+		this.conversationPos = Math.max(0, top - holder.clientHeight - mainHolder.scrollTop);
+		
+		const messholder = this.$refs.conversationMessages as HTMLDivElement;
+		messholder.scrollTop = messholder.scrollHeight;
+		gsap.to(mainHolder, {opacity:.25, duration:.25});
+
+		clearTimeout(this.closeConvTimeout);
+	}
+
+	/**
+	 * Called when rolling out of a message
+	 * Close the conversation if any displayed
+	 */
+	public onMouseLeave():void {
+		//Timeout avoids blinking when leaving the message but
+		//hovering another one or the conversation window
+		this.closeConvTimeout = setTimeout(()=>{
+			this.conversation = [];
+			const mainHolder = this.$refs.messageHolder as HTMLDivElement;
+			gsap.to(mainHolder, {opacity:1, clearProps:true, duration:.25});
+		}, 0);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .messagelist{
+	padding: 10px;
 	position: relative;
 
-	&.scrollLocked {
+	&.lightMode {
 		.holder {
-			// padding-bottom: 20px;
+			overflow: hidden;
+
+			.message:nth-child(even) {
+				background-color: transparent;
+			}
 		}
+	}
+
+	:deep(.time) {
+		color: fade(#ffffff, 75%);
+		font-size: 13px;
+		margin-right: 5px;
+		vertical-align: middle;
+	}
+
+	.message {
+		overflow: hidden;
+		font-family: "Inter";
+		color: #fff;
+		padding: 5px;
+		min-height: 28px;
+		font-size: 18px;
 	}
 
 	.holder {
@@ -236,52 +349,7 @@ export default class MessageList extends Vue {
 		padding-bottom: 0;
 
 		.message:nth-child(even) {
-			background-color: red !important;//rgba(255, 255, 255, 1);
-		}
-
-		.message {
-			color: red;
-			overflow: hidden;
-			font-family: "Inter";
-			color: #fff;
-			padding: 5px;
-			min-height: 28px;
-			font-size: 18px;
-
-			:deep(.time) {
-				color: fade(#ffffff, 75%);
-				font-size: 13px;
-				margin-right: 5px;
-				vertical-align: middle;
-			}
-		}
-	}
-
-	&.even {
-		.holder {
-			.message:nth-child(even) {
-				background-color: transparent;
-			}
-			.message:nth-child(odd) {
-				background-color: rgba(255, 255, 255, .025);
-			}
-		}
-	}
-
-	.holder {
-		// transition: padding-bottom .25s;
-		.message:nth-child(even) {
-			background-color: rgba(255, 255, 255, .025);
-		}
-	}
-
-	&.lightMode {
-		.holder {
-			overflow: hidden;
-
-			.message:nth-child(even) {
-				background-color: transparent;
-			}
+			// background-color: red !important;//rgba(255, 255, 255, 1);
 		}
 	}
 
@@ -325,11 +393,60 @@ export default class MessageList extends Vue {
 	}
 
 	.noMessage {
-		.center();
-		position:fixed;
+		position:absolute;
+		width: 100%;
+		bottom: 0;
 		color: rgba(255, 255, 255, .3);
 		font-family: "Inter";
 		font-style: italic;
+		mask-image: url(../../assets/chatPlaceholder.png);
+		mask-repeat: no-repeat;
+		.gradient {
+			width: 100%;
+			height: 400px;
+			background: url(../../assets/chatPlaceholder_gradient.png);
+			animation: scroll 5s linear infinite, fade 1s linear alternate infinite;
+			
+		}
+		@keyframes scroll {
+			from {background-position-y: 800px;}
+			to {background-position-y: -800px;}
+		}
+		@keyframes fade {
+			from {opacity: 1;}
+			to {opacity: .5;}
+		}
+	}
+
+	.conversation {
+		position: absolute;
+		background-color: @mainColor_dark;
+		padding: 10px;
+		width: 100%;
+		max-width: 100%;
+		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
+		.head {
+			display: flex;
+			flex-direction: row;
+			border-bottom: 1px solid @mainColor_dark_light;
+			padding-bottom: 10px;
+			margin-bottom: 10px;
+			h1 {
+				text-align: center;
+				flex-grow: 1;
+			}
+			.button {
+				width: 20px;
+				height: 20px;
+				padding: 3px;
+				border-radius: 5px;
+			}
+		}
+		.messages {
+			max-height: 200px;
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
 	}
 }
 </style>

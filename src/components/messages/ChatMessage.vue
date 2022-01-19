@@ -16,6 +16,12 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos">
+			<img v-if="!disableConversation && isConversation"
+				class="convBt"
+				src="@/assets/icons/conversation.svg"
+				alt="conversation"
+				@mouseover="$emit('showConversation', $event, messageData)">
+			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" />
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
@@ -55,7 +61,9 @@ import ChatModTools from './ChatModTools.vue';
 		// deleteOverlay:{type:Boolean, default:false},
 		disableAutomod:{type:Boolean, default:false},
 		disableFirstTime:{type:Boolean, default:false},
-	}
+		disableConversation:{type:Boolean, default:false},
+	},
+	emits:['showConversation'],
 })
 export default class ChatMessage extends Vue {
 
@@ -63,6 +71,7 @@ export default class ChatMessage extends Vue {
 	// public deleteOverlay!:boolean;
 	public disableAutomod!:boolean;
 	public disableFirstTime!:boolean;
+	public disableConversation!:boolean;
 	
 	public firstTime:boolean = false;
 	public automod:PubSubTypes.AutomodData | null = null;
@@ -71,7 +80,6 @@ export default class ChatMessage extends Vue {
 	public get classes():string[] {
 		let res = ["chatmessage"];
 		const message = this.messageData as IRCEventDataList.Message;
-
 
 		//NOT used anymore !
 		//See NewUsers.vue line ~150
@@ -86,9 +94,19 @@ export default class ChatMessage extends Vue {
 			res.push("mention");
 		}
 
-		if(message.tags.mod) res.push("size_"+store.state.params.appearance.modsSize.value);
-		else if(message.tags.vip) res.push("size_"+store.state.params.appearance.vipsSize.value);
-		else if(message.tags.subscriber) res.push("size_"+store.state.params.appearance.subsSize.value);
+
+		if(message.tags.mod) {
+			res.push("size_"+store.state.params.appearance.modsSize.value);
+			if(store.state.params.appearance.highlightMods.value) res.push("highlightMods");
+		}
+		else if(message.tags.vip){
+			res.push("size_"+store.state.params.appearance.vipsSize.value);
+			if(store.state.params.appearance.highlightVips.value) res.push("highlightVips");
+		}
+		else if(message.tags.subscriber) {
+			res.push("size_"+store.state.params.appearance.subsSize.value);
+			if(store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
+		}
 		else res.push("size_"+store.state.params.appearance.defaultSize.value);
 
 		return res;
@@ -97,14 +115,21 @@ export default class ChatMessage extends Vue {
 	public get showModTools():boolean {
 		const message = this.messageData as IRCEventDataList.Message;
 		return !message.tags.self
-		&& (store.state.mods as TwitchTypes.Moderator[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
-		&& message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase();//TODO set actual channel id not the user id
+		&&
+		(
+			(store.state.mods as TwitchTypes.Moderator[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+			|| message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase()//TODO set actual channel id not the user id
+		);
 	}
 
 	public get time():string {
 		const message = this.messageData as IRCEventDataList.Message;
 		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	}
+
+	public get isConversation():boolean {
+		return this.messageData.answers != undefined || this.messageData.answerTo != undefined;
 	}
 	
 	/**
@@ -123,7 +148,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public get filteredBadges():TwitchTypes.Badge[] {
 		let res:TwitchTypes.Badge[] = [];
-		if(!store.state.params.appearance.hideBadges.value) {
+		if(store.state.params.appearance.showBadges.value) {
 			try {
 				const message = this.messageData as IRCEventDataList.Message;
 				const channelID:string = message.tags['room-id'] as string;
@@ -143,7 +168,7 @@ export default class ChatMessage extends Vue {
 		const mess = this.messageData as IRCEventDataList.Message;
 		let text = mess.message;
 		try {
-			let removeEmotes = store.state.params.appearance.hideEmotes.value;
+			let removeEmotes = !store.state.params.appearance.showEmotes.value;
 			if(this.automod) {
 				result = text;
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
@@ -180,7 +205,7 @@ export default class ChatMessage extends Vue {
 		if(store.state.params.appearance.minimalistBadges.value) {
 			if(message.tags.badges?.vip) badges.push({color:"#e00bb9", label:"VIP"});
 			if(message.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
-			if(message.tags.badges?.prem) badges.push({color:"#00a3ff", label:"Prime"});
+			if(message.tags.badges?.premium) badges.push({color:"#00a3ff", label:"Prime"});
 			if(message.tags.badges?.moderator) badges.push({color:"#39db00", label:"Moderator"});
 			if(message.tags.badges?.staff) badges.push({color:"#666666", label:"Twitch staff"});
 			if(message.tags.badges?.broadcaster) badges.push({color:"#ff0000", label:"Broadcaster"});
@@ -195,8 +220,12 @@ export default class ChatMessage extends Vue {
 		store.dispatch("openUserCard", message.tags.username);
 	}
 
+	/**
+	 * Called when component is mounted
+	 */
 	public mounted():void {
 		const mess = this.messageData as IRCEventDataList.Message;
+		
 		/* eslint-disable-next-line */
 		this.firstTime = mess.tags['first-msg'] && !this.disableFirstTime;
 
@@ -263,6 +292,10 @@ export default class ChatMessage extends Vue {
 	&.size_3 { font-size: 20px !important; }
 	&.size_4 { font-size: 25px !important; }
 
+	&.highlightSubs { background-color: fade(#9147ff, 20%); }
+	&.highlightVips { background-color: fade(#e00bb9, 20%); }
+	&.highlightMods { background-color: fade(#39db00, 20%); }
+
 	&.mention{
 		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>
 	}
@@ -278,6 +311,18 @@ export default class ChatMessage extends Vue {
 
 	.infos {
 		display: inline;
+		.convBt {
+			opacity: 0.75;
+			height: 1em;
+			vertical-align: middle;
+			cursor: pointer;
+			&:hover {
+				opacity: .75;
+			}
+			&:not(:last-child) {
+				margin-right: 5px;
+			}
+		}
 		.mod {
 			display: inline;
 			margin-right: 5px;

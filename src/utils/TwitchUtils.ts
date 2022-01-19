@@ -155,7 +155,7 @@ export default class TwitchUtils {
 		}
 		//Sort emotes by start position
 		emotesList.sort((a,b) => a.start - b.start)
-		
+
 		let cursor = 0;
 		const result:{type:string, emote?:string, value:string}[] = [];
 		//Convert emotes to image tags
@@ -181,14 +181,26 @@ export default class TwitchUtils {
 
 		for (let j = 0; j < emotes.length; j++) {
 			const list = emotes[j];
-			for (let i = list.tiers.length-1; i > -1; i--) {
-				const t = list.tiers[i];
-				const reg = new RegExp(list.prefix+t.min_bits, "gi");
-				let img = t.images.dark.animated["2"];
-				if(!img) {
-					img = t.images.dark.static["2"];
+			
+			const reg = new RegExp(list.prefix+"[0-9]+", "gi");
+			const matches = message.match(reg) as RegExpMatchArray;
+			if(!matches) continue;
+			//Parse all the current cheermote matches
+			for (let k = 0; k < matches.length; k++) {
+				const m = matches[k];
+				const bitsCount = parseInt(m.replace(list.prefix, ""));
+				let tiers = list.tiers[0];
+				//Search for the lower nearest existing tier with the specified value
+				for (let i = 1; i < list.tiers.length; i++) {
+					if(bitsCount < list.tiers[i].min_bits) {
+						tiers = list.tiers[i-1];
+						break;
+					}
 				}
-				message = message.replace(reg, "<img src='"+img+"' class='cheermote'>")
+				
+				let img = tiers.images.dark.animated["2"];
+				if(!img) img = tiers.images.dark.static["2"];
+				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), "<img src='"+img+"' class='cheermote'>")
 			}
 		}
 		return message;

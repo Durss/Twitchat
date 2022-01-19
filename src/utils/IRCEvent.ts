@@ -44,6 +44,7 @@ export namespace IRCEventDataList {
 		automod?:PubSubTypes.AutomodData;
 		reward?:PubSubTypes.RewardData;
 		answerTo?:Message;
+		answers?:Message[];
 		type:"message";
 	}
 

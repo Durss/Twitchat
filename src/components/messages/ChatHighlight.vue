@@ -122,7 +122,7 @@ export default class ChatHighlight extends Vue {
 		let text = this.messageData.message;
 		if(text) {
 			try {
-				let removeEmotes = store.state.params.appearance.hideEmotes.value;
+				let removeEmotes = !store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {

@@ -1,7 +1,7 @@
 <template>
 	<div class="chatlight">
 		<div class="chatHolder">
-			<MessageList class="messages" :max="100" :lightMode="true" />
+			<MessageList class="messages" :max="50" :lightMode="true" />
 		</div>
 	</div>
 </template>

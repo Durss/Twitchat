@@ -51,7 +51,7 @@ export default class ChatModTools extends Vue {
 		vertical-align: middle;
 		cursor: pointer;
 		&:hover {
-			opacity: .75;;
+			opacity: .75;
 		}
 		&:not(:last-child) {
 			margin-right: 5px;

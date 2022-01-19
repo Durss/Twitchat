@@ -17,8 +17,8 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client!:tmi.Client;
 	private login!:string;
-	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -61,21 +61,10 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["codemiko", "mistermv", "andythefrenchy", "sweet_anita", "gom4rt", "littlebigwhale","bagherajones", "hortyunderscore", "colas_bim", "alisa", "tipstevens" ]);
+				channels = channels.concat(["codemiko", "mistermv", "andythefrenchy", "pykamusic", "hanawins", "littlebigwhale","bagherajones", "hortyunderscore", "colas_bim", "alisa", "tipstevens" ]);
 			}
 
 			(async ()=> {
-				
-				try {
-					//Load bots list
-					const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
-					const json = await res.json();
-					this.botsLogins = (json.bots as string[][]).map(b => b[0].toLowerCase());
-				}catch(error) {
-					//Fallback in case twitchinsights dies someday
-					this.botsLogins = ["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"];
-				}
-
 				//Get user IDs from logins to then load their badges
 				const userInfos = await fetch(Config.API_PATH+"/user?logins="+channels.join(","));
 				const uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
@@ -88,7 +77,16 @@ export default class IRCClient extends EventDispatcher {
 					await TwitchUtils.loadCheermoteList(uids[i]);
 				}
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
-				
+
+				try {
+					//Load bots list
+					const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
+					const json = await res.json();
+					this.botsLogins = (json.bots as string[][]).map(b => b[0].toLowerCase());
+				}catch(error) {
+					//Fallback in case twitchinsights dies someday
+					this.botsLogins = ["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"];
+				}
 
 				if(this.fakeEvents) {
 					this.sendFakeEvents();
@@ -215,12 +213,6 @@ export default class IRCClient extends EventDispatcher {
 				switch(data.command) {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
-					case "PRIVMSG": {
-						const tags = (data.tags as IRCTagsExtended);
-						store.dispatch("setAnswerRef", {original:tags["reply-parent-msg-id"], reply:tags.id});
-						break;
-					}
-
 					case "NOTICE": {
 						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
@@ -239,25 +231,6 @@ export default class IRCClient extends EventDispatcher {
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
 				if(tags["message-type"] == "chat") {
-					const login = tags.username as string;
-
-					if(message == "!logJSON") {
-						console.log(this.idToExample);
-					}
-					
-					//Ignore bot messages if requested
-					if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
-						return;
-					}
-					//Ignore self if requested
-					if(store.state.params.filters.ignoreSelf.value && tags["user-id"] == store.state.user.user_id) {
-						return;
-					}
-					//Ignore commands
-					if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
-						return;
-					}
-					
 					this.addMessage(message, tags, self, undefined, channel);
 				}
 			});
@@ -313,6 +286,26 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData, channel?:string):void {
+		const login = tags.username as string;
+
+		if(message == "!logJSON") {
+			console.log(this.idToExample);
+		}
+		
+		//Ignore bot messages if requested
+		if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+			return;
+		}
+		//Ignore self if requested
+		if(!store.state.params.filters.showSelf.value && tags["user-id"] == store.state.user.user_id) {
+			return;
+		}
+		//Ignore commands
+		if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
+			return;
+		}
+
+		//Add message
 		const data:IRCEventDataList.Message = {type:"message",
 												message,
 												tags,
