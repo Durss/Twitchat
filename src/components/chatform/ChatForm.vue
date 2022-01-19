@@ -12,9 +12,9 @@
 				<Button class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
 			</form>
 
-			<div class="actions" v-if="showCommands">
-				<Button @click="$emit('poll')" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce />
-				<Button @click="$emit('pred')" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce />
+			<div class="actions" ref="commandsContent" v-if="showCommands">
+				<Button @click="$emit('poll')" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="$store.state.currentPoll?.id != undefined" />
+				<Button @click="$emit('pred')" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="$store.state.currentPrediction?.id != undefined" />
 				<Button @click="$emit('clear')" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 				<Button @click="$emit('raid')" :icon="require('@/assets/icons/raid.svg')" title="Raid" bounce />
 
@@ -51,8 +51,30 @@ export default class ChatForm extends Vue {
 	public error:boolean = false;
 	public showCommands:boolean = false;
 
+	private clickHandler!:(e:MouseEvent) => void;
+
 	public get params():{[key:string]:ParameterData} {
 		return store.state.params.roomStatus;
+	}
+
+	public mounted():void {
+		this.clickHandler = (e:MouseEvent) => this.onClick(e);
+		document.addEventListener("mousedown", this.clickHandler);
+	}
+
+	public beforeunmout():void {
+		document.removeEventListener("mousedown", this.clickHandler);
+	}
+
+	private onClick(e:MouseEvent):void {
+		let target = e.target as HTMLDivElement;
+		const ref = this.$refs.commandsContent as HTMLDivElement;
+		while(target != document.body && target != ref) {
+			target = target.parentElement as HTMLDivElement;
+		}
+		if(target != ref) {
+			this.showCommands = false;
+		}
 	}
 	
 	public openParams():void {

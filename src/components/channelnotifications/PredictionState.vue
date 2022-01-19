@@ -67,13 +67,13 @@ export default class PredictionState extends Vue {
 		Utils.confirm("Delete Prediction", "Are you sure you want to delete this prediction ?")
 		.then(async ()=> {
 			try {
-				await TwitchUtils.endPoll(this.prediction.id);
+				await TwitchUtils.endPrediction(this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
 				store.state.alert = "An error occurred while deleting the prediction";
 			}
 			this.loading = false;
-		}).catch(error=> {
+		}).catch(()=> {
 			this.loading = false;
 		});
 	}

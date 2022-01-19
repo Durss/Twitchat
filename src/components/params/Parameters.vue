@@ -83,6 +83,7 @@ export default class Parameters extends Vue {
 	.menu {
 		text-align: center;
 		border-top: 1px solid @mainColor_normal;
+		margin-top: 20px;
 		.button {
 			background: transparent;
 			border: 1px solid @mainColor_normal;

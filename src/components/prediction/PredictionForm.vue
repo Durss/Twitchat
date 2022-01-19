@@ -1,9 +1,9 @@
 <template>
-	<div class="pollform">
+	<div class="predictionform">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Create poll</span>
+				<span class="title">Create prediction</span>
 				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
@@ -14,26 +14,20 @@
 					</div>
 					<div class="row">
 						<label for="poll_title">Answers (at least 2)</label>
-						<input type="text" id="poll_title" v-model="answer1">
-						<input type="text" v-model="answer2">
-						<input type="text" v-model="answer3">
-						<input type="text" v-model="answer4">
-						<input type="text" v-model="answer5">
-					</div>
-					<div class="row right">
-						<ParamItem :paramData="extraVotesParam" />
-					</div>
-					<div class="row inline right" v-if="extraVotesParam.value === true">
-						<ParamItem :paramData="bitsVoteParam" />
-					</div>
-					<div class="row inline right" v-if="extraVotesParam.value === true">
-						<ParamItem :paramData="pointsVoteParam" />
+						<div class="line">
+							<div class="dot blue"></div>
+							<input type="text" id="poll_title" v-model="answer1">
+						</div>
+						<div class="line">
+							<div class="dot red"></div>
+							<input type="text" v-model="answer2">
+						</div>
 					</div>
 					<div class="row">
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
-						<Button title="Submit" type="submit" :loading="loading" :disabled="answers.length < 2" />
+						<Button title="Submit" type="submit" :loading="loading" :disabled="answers.length != 2" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
 				</form>
@@ -58,7 +52,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:['close']
 })
-export default class PollForm extends Vue {
+export default class PredictionForm extends Vue {
 
 	public loading:boolean = false;
 
@@ -66,21 +60,12 @@ export default class PollForm extends Vue {
 	public title:string = "";
 	public answer1:string = "";
 	public answer2:string = "";
-	public answer3:string = "";
-	public answer4:string = "";
-	public answer5:string = "";
-	public extraVotesParam:ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
-	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:10};
-	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:10};
-	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
+	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
 
 	public get answers():string[] {
 		let res = [];
 		if(this.answer1) res.push(this.answer1);
 		if(this.answer2) res.push(this.answer2);
-		if(this.answer3) res.push(this.answer3);
-		if(this.answer4) res.push(this.answer4);
-		if(this.answer5) res.push(this.answer5);
 		return res;
 	}
 
@@ -103,11 +88,7 @@ export default class PollForm extends Vue {
 		this.error = "";
 
 		try {
-			await TwitchUtils.createPoll(this.title,
-									this.answers,
-									this.voteDuration.value as number * 60,
-									this.bitsVoteParam.value as number,
-									this.pointsVoteParam.value as number);
+			await TwitchUtils.createPrediction(this.title, this.answers, this.voteDuration.value as number);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
@@ -116,11 +97,12 @@ export default class PollForm extends Vue {
 		this.loading = false;
 		this.close();
 	}
+
 }
 </script>
 
 <style scoped lang="less">
-.pollform{
+.predictionform{
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -150,6 +132,27 @@ export default class PollForm extends Vue {
 					text-align: center;
 					background-color: @mainColor_alert;
 				}
+
+				.line {
+					display: flex;
+					flex-direction: row;
+					input {
+						flex-grow: 1;
+					}
+					.dot {
+						background-color: #f50e9b;
+						width: 20px;
+						height: 20px;
+						display: inline-block;
+						border-radius: 50%;
+						align-self: center;
+						margin-right: 5px;
+					}
+					&:first-of-type>.dot {
+						background-color: #387aff;
+					}
+				}
+
 			}
 		}
 	}

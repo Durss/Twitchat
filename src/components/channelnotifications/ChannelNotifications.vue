@@ -14,7 +14,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PollState from './PollState.vue';
@@ -37,7 +36,6 @@ export default class ChannelNotifications extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		console.log(store.state.currentPrediction);
 	}
 
 	public beforeunmout():void {

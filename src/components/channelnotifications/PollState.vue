@@ -73,7 +73,7 @@ export default class PollState extends Vue {
 				store.state.alert = "An error occurred while deleting the poll";
 			}
 			this.loading = false;
-		}).catch(error=> {
+		}).catch(()=> {
 			this.loading = false;
 		});
 	}

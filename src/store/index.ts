@@ -269,7 +269,7 @@ export default createStore({
 		setPredictions(state, payload:TwitchTypes.Prediction[]) {
 			state.currentPrediction = payload.find(v => {
 				const tooOld = v.ended_at ? Date.now() > new Date(v.ended_at).getTime() + 2*60*1000 : false;
-				return v.status == "ACTIVE" && !tooOld
+				return (v.status == "ACTIVE" || v.status == "LOCKED") && !tooOld
 			}) as  TwitchTypes.Prediction;
 		},
 
