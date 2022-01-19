@@ -14,7 +14,7 @@ This is a custom twitch chat that aims to fill gaps in the official Twitch chat.
 The goal is to reduce as much as possible the number of missed messages with features missing from the Twitch chat.
 <br>
 <br>
-<div align="center"><a href="https://raw.githubusercontent.com/Durss/Twitchat/main/preview.png" target="_blank"><img width="100%" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/preview.png"></a></div>
+<div align="center"><a href="https://raw.githubusercontent.com/Durss/Twitchat/master/preview.png" target="_blank"><img width="100%" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/master/preview.png"></a></div>
 <br>
 <br>
 <br>
