@@ -18,6 +18,7 @@ export default class IRCEvent extends Event {
 	public static CLEARCHAT:string = "CLEARCHAT";
 	public static DELETE_MESSAGE:string = "DELETE_MESSAGE";
 	public static AUTOMOD:string = "AUTOMOD";
+	public static ROOMSTATE:string = "ROOMSTATE";
 	
 	constructor(type:string, public data?:IRCEventData) {
 		super(type);
@@ -31,7 +32,8 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.MessageDeleted
 						|  IRCEventDataList.Automod
 						|  IRCEventDataList.Notice
-						|  IRCEventDataList.Highlight;
+						|  IRCEventDataList.Highlight
+						|  IRCEventDataList.RoomState;
 
 export namespace IRCEventDataList {
 	export interface Message {
@@ -105,5 +107,22 @@ export namespace IRCEventDataList {
 		reward?: PubSubTypes.RewardData;
 		//custom data
 		type:"highlight";
+	}
+
+	export interface RoomState {
+        raw: string;
+        tags: {
+			"emote-only": boolean;
+			"followers-only": string;
+			r9k: boolean;
+			rituals: boolean;
+			"room-id": string;
+			slow: boolean;
+			"subs-only": boolean;
+			channel: string;
+		};
+        prefix: string;
+        command: string;
+        params: string[];
 	}
 }

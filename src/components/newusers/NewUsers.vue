@@ -5,6 +5,7 @@
 			<Button :icon="require('@/assets/icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
+				highlight
 				@click.stop="clearAll()" />
 		</div>
 		
@@ -66,7 +67,7 @@ export default class NewUsers extends Vue {
 
 	public mounted():void {
 		watch(() => store.state.chatMessages, async (value) => {
-			const list = (value as IRCEventDataList.Message[]).filter(m => m.firstMessage).concat();
+			const list = (value as IRCEventDataList.Message[]).filter(m => m.firstMessage === true).concat();
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(this.idToDisplayed[m.tags.id as string]) continue;
@@ -226,7 +227,7 @@ export default class NewUsers extends Vue {
 	width: 100%;
 	max-width: 600px;
 	margin: auto;
-	background-color: #0a2950;
+	background-color: #218bac;
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;

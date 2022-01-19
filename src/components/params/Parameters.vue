@@ -78,16 +78,7 @@ export default class Parameters extends Vue {
 
 <style scoped lang="less">
 .parameters{
-	.dimmer {
-		backdrop-filter: blur(5px);
-		background-color: rgba(0,0,0,.7);
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		opacity: 0;
-	}
+	.modal();
 
 	.menu {
 		text-align: center;
@@ -105,65 +96,5 @@ export default class Parameters extends Vue {
 		}
 	}
 
-	.holder {
-		.block();
-		left: 50%;
-		top: 0;
-		transform: translate(-50%, 0);
-		position: absolute;
-		margin: auto;
-		width: 90%;
-		max-width: 500px;
-		max-height: 80vh;
-		// overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-
-		.head {
-			text-transform: capitalize;
-			z-index: 1;
-			padding: 20px 20px;
-			display: flex;
-			flex-direction: row;
-			.title {
-				flex-grow: 1;
-				font-size: 35px;
-				text-align: center;
-				padding-left: 30px;
-			}
-			.close {
-				width: 30px;
-				height: 30px;
-				max-width: 30px;
-				max-height: 30px;
-				padding: 5px;
-				border-radius: 5px;
-			}
-		}
-
-		.content {
-			flex-grow: 1;
-			overflow-y: auto;
-		}
-	}
-}
-
-@media only screen and (max-width: 500px) {
-	.parameters{
-		
-		.holder {
-			.block();
-			.center();
-			position: absolute;
-			margin: auto;
-			width: 100%;
-			height: 100vh;
-			max-height: 100vh;
-		}
-
-		.dimmer {
-			display: none;
-		}
-	}
 }
 </style>

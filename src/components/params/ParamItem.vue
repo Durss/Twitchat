@@ -1,8 +1,13 @@
 <template>
 	<div class="paramitem">
 		<div v-if="paramData.type == 'toggle'" class="toggle">
+			<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value"></label>
+			<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
+		</div>
+		
+		<div v-if="paramData.type == 'number'" class="toggle">
 			<label :for="'toggle'+key" v-html="label"></label>
-			<ToggleButton :id="'toggle'+key" v-model="paramData.value" />
+			<input :id="'toggle'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
 		</div>
 		
 		<div v-if="paramData.type == 'slider'" class="slider">
@@ -29,7 +34,8 @@ import ToggleButton from '../ToggleButton.vue';
 	components:{
 		Button,
 		ToggleButton,
-	}
+	},
+	emits: ["change"]
 })
 export default class ParamItem extends Vue {
 	public paramData!:ParameterData;
@@ -44,6 +50,10 @@ export default class ParamItem extends Vue {
 			store.dispatch('updateParams');
 		});
 	}
+
+	public onChange():void {
+		this.$emit("change");
+	}
 }
 </script>
 
@@ -56,8 +66,9 @@ export default class ParamItem extends Vue {
 			flex-grow: 1;
 			// text-align: right;
 			margin-right: 20px;
+			cursor: pointer;
 			:deep(.small) {
-				display: block;
+				// display: block;
 				font-size: .9em;
 				font-style: italic;
 			}

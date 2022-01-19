@@ -297,6 +297,185 @@ export default class TwitchUtils {
 		this.cheermoteCache[uid] = json.data;
 		return json.data;
 	}
+
+	/**
+	 * Create a poll
+	 */
+	public static async createPoll(question:string, answers:string[], duration:number, bitsPerVote:number = 0, pointsPerVote:number = 0):Promise<TwitchTypes.Poll[]> {
+		const options = {
+			method:"POST",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+			body: JSON.stringify({
+				broadcaster_id:store.state.user.user_id,
+				title:question,
+				choices:answers.map(v => {return {title:v}}),
+				duration,
+				bits_voting_enabled:bitsPerVote > 0,
+				bits_per_vote:bitsPerVote,
+				channel_points_voting_enabled:pointsPerVote > 0,
+				channel_points_per_vote:pointsPerVote,
+			})
+		}
+		const res = await fetch("https://api.twitch.tv/helix/polls", options);
+		const json = await res.json();
+		if(res.status == 200) {
+			setTimeout(()=> {
+				this.getPolls();
+			})
+			return json.data;
+		}
+		throw(json);
+	}
+
+	/**
+	 * Get a list of the latest polls
+	 */
+	public static async getPolls():Promise<TwitchTypes.Poll[]> {
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		const res = await fetch("https://api.twitch.tv/helix/polls?broadcaster_id="+store.state.user.user_id, options);
+		const json = await res.json();
+		if(res.status == 200) {
+			return json.data;
+		}
+		throw(json);
+	}
+
+	/**
+	 * Ends a poll
+	 */
+	public static async endPoll(pollId:string):Promise<TwitchTypes.Poll[]> {
+		const options = {
+			method:"PATCH",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+			body: JSON.stringify({
+				id:pollId,
+				status:"TERMINATED",
+				broadcaster_id:store.state.user.user_id,
+			})
+		}
+		const res = await fetch("https://api.twitch.tv/helix/polls", options);
+		const json = await res.json();
+		if(res.status == 200) {
+			return json.data;
+		}
+		throw(json);
+	}
+
+
+	
+
+	/**
+	 * Create a prediction
+	 */
+	public static async createPrediction(question:string, answers:string[], duration:number):Promise<TwitchTypes.Prediction[]> {
+		const options = {
+			method:"POST",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+			body: JSON.stringify({
+				broadcaster_id:store.state.user.user_id,
+				title:question,
+				outcomes:answers.map(v => {return {title:v}}),
+				prediction_window:duration,
+			})
+		}
+		const res = await fetch("https://api.twitch.tv/helix/predictions", options);
+		const json = await res.json();
+		if(res.status == 200) {
+			setTimeout(()=> {
+				this.getPolls();
+			})
+			return json.data;
+		}
+		throw(json);
+	}
+
+	/**
+	 * Get a list of the latest predictions
+	 */
+	public static async getPredictions():Promise<TwitchTypes.Prediction[]> {
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		const res = await fetch("https://api.twitch.tv/helix/predictions?broadcaster_id="+store.state.user.user_id, options);
+		const json = await res.json();
+		if(res.status == 200) {
+			return json.data;
+		}
+		throw(json);
+	}
+
+	/**
+	 * Ends a prediction
+	 */
+	public static async endPrediction(pollId:string, winId:string, cancel:boolean = false):Promise<TwitchTypes.Prediction[]> {
+		const options = {
+			method:"PATCH",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+			body: JSON.stringify({
+				id:pollId,
+				status:cancel? "CANCELED" : "RESOLVED",
+				winning_outcome_id:winId,
+				broadcaster_id:store.state.user.user_id,
+			})
+		}
+		const res = await fetch("https://api.twitch.tv/helix/predictions", options);
+		const json = await res.json();
+		if(res.status == 200) {
+			return json.data;
+		}
+		throw(json);
+	}
+
+
+
+
+	/**
+	 * Get the latest hype train info
+	 */
+	public static async getHypeTrains():Promise<TwitchTypes.HypeTrain[]> {
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		const res = await fetch("https://api.twitch.tv/helix/hypetrain/events?broadcaster_id="+store.state.user.user_id, options);
+		const json = await res.json();
+		if(res.status == 200) {
+			return json.data;
+		}
+		throw(json);
+	}
 }
 
 export namespace TwitchTypes {
@@ -412,10 +591,81 @@ export namespace TwitchTypes {
 	}
 
 	export interface CheermoteImage {
-        "1": string;
-        "2": string;
-        "3": string;
-        "4": string;
-        "1.5": string;
+		"1": string;
+		"2": string;
+		"3": string;
+		"4": string;
+		"1.5": string;
+	}
+
+	export interface Poll {
+		id: string;
+		broadcaster_id: string;
+		broadcaster_name: string;
+		broadcaster_login: string;
+		title: string;
+		choices: {
+			id: string;
+			title: string;
+			votes: number;
+			channel_points_votes: number;
+			bits_votes: number;
+		}[];
+		bits_voting_enabled: boolean;
+		bits_per_vote: number;
+		channel_points_voting_enabled: boolean;
+		channel_points_per_vote: number;
+		status: string;
+		duration: number;
+		started_at: string;
+	}
+
+	export interface HypeTrain {
+		id: string;
+		event_type: string;
+		event_timestamp: Date;
+		version: string;
+		event_data: {
+			broadcaster_id: string;
+			cooldown_end_time: string;
+			expires_at: string;
+			goal: number;
+			id: string;
+			last_contribution: {
+				total: number;
+				type: string;
+				user: string;
+			};
+			level: number;
+			started_at: string;
+			top_contributions: {
+				total: number;
+				type: string;
+				user: string;
+			};
+			total: number;
+		};
+	}
+
+    export interface Prediction {
+        id: string;
+        broadcaster_id: string;
+        broadcaster_name: string;
+        broadcaster_login: string;
+        title: string;
+        winning_outcome_id?: any;
+        outcomes: {
+			id: string;
+			title: string;
+			users: number;
+			channel_points: number;
+			top_predictors?: any;
+			color: string;
+		}[];
+        prediction_window: number;
+        status: string;
+        created_at: string;
+        ended_at?: any;
+        locked_at?: any;
     }
 }

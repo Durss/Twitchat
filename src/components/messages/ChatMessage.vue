@@ -114,11 +114,11 @@ export default class ChatMessage extends Vue {
 
 	public get showModTools():boolean {
 		const message = this.messageData as IRCEventDataList.Message;
-		return !message.tags.self
-		&&
+		return (store.state.mods as TwitchTypes.Moderator[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+			||
 		(
-			(store.state.mods as TwitchTypes.Moderator[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
-			|| message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase()//TODO set actual channel id not the user id
+			message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase()//TODO set actual channel id not the user id
+			&& message.tags.username?.toLowerCase() != store.state.user.login.toLowerCase()
 		);
 	}
 
@@ -340,7 +340,7 @@ export default class ChatMessage extends Vue {
 		.login {
 			font-weight: bold;
 			cursor: pointer;
-			text-shadow: 0 1px 2px rgba(0,0,0,1);
+			text-shadow: 0 0px 1px fade(#000, 50%);
 		}
 	
 		.miniBadges {

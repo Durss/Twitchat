@@ -135,7 +135,7 @@ export default class Confirm extends Vue {
 		height: 100%;
 	}
 
-	.holder {
+	&>.holder {
 		.center();
 		position: absolute;
 		background-color: @mainColor_light_extralight;

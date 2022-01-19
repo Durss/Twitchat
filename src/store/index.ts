@@ -46,6 +46,12 @@ export default createStore({
 				showCheers: {type:"toggle", value:true, label:"Show bits alerts"},
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts"},
 			},
+			roomStatus: {
+				emotesOnly:{ type:"toggle", value:false, label:"Emotes only" },
+				followersOnly:{ type:"toggle", value:false, label:"Followers only" },
+				subsOnly:{ type:"toggle", value:false, label:"Subs only" },
+				slowMode:{ type:"toggle", value:false, label:"Slow mode" }
+			}
 		},
 		user: {
 			client_id: "",
@@ -335,6 +341,14 @@ export default createStore({
 			IRCClient.instance.addEventListener(IRCEvent.CLEARCHAT, () => {
 				state.chatMessages = [];
 			});
+
+			IRCClient.instance.addEventListener(IRCEvent.ROOMSTATE, (event:IRCEvent) => {
+				const data = event.data as IRCEventDataList.RoomState
+				if(data.tags['emote-only'] != undefined) state.params.roomStatus.emotesOnly.value = data.tags['emote-only'] != false;
+				if(data.tags['subs-only'] != undefined) state.params.roomStatus.subsOnly.value = data.tags['subs-only'] != false;
+				if(data.tags['followers-only'] != undefined) state.params.roomStatus.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
+				if(data.tags.slow != undefined) state.params.roomStatus.slowMode.value = data.tags.slow != false;
+			});
 			
 			state.initComplete = true;
 		},
@@ -371,7 +385,7 @@ export type ParameterCategory = "appearance" | "filters";
 export type ParameterType = "hideBots" | "showBadges" | "showEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "showSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
 
 export interface ParameterData {
-	type:string;
+	type:"toggle"|"slider"|"number"|string;
 	value:boolean|number;
 	label:string;
 	min?:number;

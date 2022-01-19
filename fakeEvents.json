@@ -289,7 +289,7 @@
 		},
 		"channel": "#durss",
 		"self": false,
-		"firstMessage": true,
+		"firstMessage": false,
 		"automod": {
 			"content_classification": {
 				"category": "namecalling",

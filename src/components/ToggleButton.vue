@@ -37,7 +37,7 @@ export default class ToggleButton extends Vue {
 	min-width: 40px;
 	height: @size;
 	border-radius: 30px;
-	border: 1px solid @mainColor_normal;
+	border: 1px solid fade(@mainColor_normal, 50%);
 	position: relative;
 	cursor: pointer;
 	transition: all .2s;
@@ -60,7 +60,7 @@ export default class ToggleButton extends Vue {
 		position: absolute;
 		top: 1px;
 		left: 1px;
-		background-color: @mainColor_normal_light;
+		background-color: fade(@mainColor_normal, 50%);
 		width: @size - 4px;
 		height: @size - 4px;
 		border-radius: 50%;

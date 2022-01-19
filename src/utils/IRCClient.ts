@@ -15,13 +15,13 @@ export default class IRCClient extends EventDispatcher {
 
 	
 	private static _instance:IRCClient;
-	private client!:tmi.Client;
 	private login!:string;
 	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
+	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;
 	public connected:boolean = false;
@@ -209,10 +209,14 @@ export default class IRCClient extends EventDispatcher {
 				// console.log(messageCloned);
 				// if (message.command != "PRIVMSG") {
 					// console.log(data.command);
-					// console.log(data);
+					console.log(data);
 				switch(data.command) {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
+					case "ROOMSTATE": {
+						this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
+						break;
+					}
 					case "NOTICE": {
 						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
@@ -321,7 +325,7 @@ export default class IRCClient extends EventDispatcher {
 		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
 
 		if(this.uidsDone[tags['user-id'] as string] !== true) {
-			data.firstMessage = true;
+			if(!automod) data.firstMessage = true;
 			this.uidsDone[tags['user-id'] as string] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
