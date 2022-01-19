@@ -56,6 +56,7 @@ export default class Login extends Vue {
 		const scopeToInfos:{[key:string]:string} = {
 			"chat:read": "Read chat",
 			"chat:edit": "Write on chat",
+			"channel_editor": "Start raid/host",
 			"channel:read:redemptions": "Read redemptions",
 			"channel:moderate": "Perform moderation actions",
 			"channel:manage:polls": "Manage polls",

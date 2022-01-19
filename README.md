@@ -36,6 +36,8 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [x] Display raid messages
 - [x] Display reward messages
 - [x] Highlight messages by roles *(mods, vips, subs)*
+- [x] Create/Delete polls
+- [x] Create/Delete predictions
 
 - [ ] Mark last message read and allow to go back to it
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
@@ -44,6 +46,7 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [ ] Allow to read whispers
 - [ ] Make it possible to define configurations via query params for OBS chats
 - [ ] Parse BTTV and FFZ emotes
+- [ ] Request scopes when trying to use associated features
 <br>
 <br>
 <br>

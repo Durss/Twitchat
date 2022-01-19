@@ -20,7 +20,7 @@
 				<Button type="link" href="https://www.twitch.tv/settings/connections" target=_blank title="Open settings" />
 				<br>
 				<br>
-				Scroll down to the <b>Other Connections</b> section, find <b>DTwitchat</b> entry and click <b>Disconnect</b> button.
+				Scroll down to the <b>Other Connections</b> section, find <b>TwichatApp</b> entry and click <b>Disconnect</b> button.
 				<br>
 				<br>
 				<img src="@/assets/img/logout.png" alt="logout">
@@ -50,7 +50,7 @@ export default class Logout extends Vue {
 	.center();
 	.block();
 	position: absolute;
-	width: 430px;
+	width: 400px;
 	z-index: 1;
 	
 	.head {
@@ -64,6 +64,9 @@ export default class Logout extends Vue {
 		text-align: center;
 		.link, .details, .login {
 			margin-top: 20px;
+		}
+		img {
+			max-width: 100%;
 		}
 	}
 

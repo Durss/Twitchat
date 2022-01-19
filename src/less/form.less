@@ -11,7 +11,7 @@ input, textarea, select {
 	
 	&::placeholder {
 		font-style: italic;
-		color: rgba(255, 255, 255, .35)
+		color: fade(@mainColor_normal, 50%);
 	}
 	&:-webkit-autofill,
 	&:-webkit-autofill:hover, 
@@ -27,6 +27,11 @@ input, textarea, select {
 		color: @mainColor_light;
 		background-color: rgba(0, 0, 0, .6);
 		border-color: @mainColor_dark_extralight;
+	
+		&::placeholder {
+			font-style: italic;
+			color: fade(@mainColor_light, 50%);
+		}
 	}
 	
 	&::-webkit-scrollbar-thumb {

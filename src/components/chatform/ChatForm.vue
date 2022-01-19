@@ -16,10 +16,16 @@
 				<Button @click="$emit('poll')" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="$store.state.currentPoll?.id != undefined" />
 				<Button @click="$emit('pred')" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="$store.state.currentPrediction?.id != undefined" />
 				<Button @click="$emit('clear')" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
-				<Button @click="$emit('raid')" :icon="require('@/assets/icons/raid.svg')" title="Raid" bounce />
 
-				<div class="row" v-for="(p,key) in params" :key="key">
+				<div v-for="(p,key) in params" :key="key">
 					<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
+				</div>
+				<div class="raid">
+					<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
+					<form @submit.prevent="raid()">
+						<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser">
+						<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
+					</form>
 				</div>
 			</div>
 		</div>
@@ -31,6 +37,7 @@
 <script lang="ts">
 import store, { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
+import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChannelNotifications from '../channelnotifications/ChannelNotifications.vue';
@@ -43,11 +50,12 @@ import ParamItem from '../params/ParamItem.vue';
 		ParamItem,
 		ChannelNotifications,
 	},
-	emits: ["poll","pred","clear","raid"]
+	emits: ["poll","pred","clear"]
 })
 export default class ChatForm extends Vue {
 
 	public message:string = "";
+	public raidUser:string = "";
 	public error:boolean = false;
 	public showCommands:boolean = false;
 
@@ -119,6 +127,17 @@ export default class ChatForm extends Vue {
 				break;
 			}
 		}
+	}
+
+	public async raid():Promise<void> {
+		//This timeout avoids auto confirmation if submitting the form
+		//with enter key
+		await Utils.promisedTimeout(100);
+		
+		Utils.confirm("Raid ?", "Are you sure you want to raid " + this.raidUser + " ?").then(async () => {
+			IRCClient.instance.sendMessage("/raid "+this.raidUser);
+			this.raidUser = "";
+		}).catch(()=> { });
 	}
 }
 </script>
@@ -205,6 +224,35 @@ export default class ChatForm extends Vue {
 			.button {
 				:deep(img) {
 					max-width: 20px;
+				}
+			}
+			.raid {
+				display: flex;
+				flex-direction: column;
+				background-color: @mainColor_dark_light;
+				padding: 10px;
+				border-radius: 10px;
+				label {
+					color: @mainColor_light;
+					img {
+						height: 20px;
+						margin-right: 10px;
+					}
+				}
+				form {
+					display: flex;
+					flex-direction: row;
+					input {
+						width: 100%;
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
+					}
+					.button {
+						flex-grow: 1;
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+						transform-origin: left;
+					}
 				}
 			}
 		}
