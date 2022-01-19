@@ -5,31 +5,28 @@
 		</div>
 
 		<div class="content">
-			<div>
-				<div class="infos" v-if="!authenticating"><b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions to work.<br>Click <b>Authorize</b> button bellow</div>
-				
-				<div class="permissions">
-					<a @click="showPermissions = !showPermissions" class="toggleBt">Permissions details<img src="@/assets/icons/infos.svg"></a>
-					<div class="details" v-if="showPermissions">
-						<div>
-							Twitchat needs these permissions to offer you as much features as possible.<br>
-							<br>
-							Your authentication token will never be stored on our server.
-						</div>
-						<ul>
-							<li v-for="p in permissions" :key="p">{{p}}</li>
-						</ul>
+			<div class="infos" v-if="!authenticating"><b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions to work.<br>Click <b>Authorize</b> button bellow</div>
+			
+			<div class="permissions" v-if="!authenticating">
+				<a @click="showPermissions = !showPermissions" class="toggleBt">Permissions details<img src="@/assets/icons/infos.svg"></a>
+				<div class="details" v-if="showPermissions">
+					<div>
+						Twitchat needs these permissions to offer you as much features as possible.<br>
+						<br>
+						Your authentication token will never be stored on our server.
 					</div>
-				</div>
-
-				<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" />
-				
-				<div class="loader" v-if="authenticating">
-					<p>Authenticating...</p>
-					<img src="@/assets/loader/loader.svg" alt="loader">
+					<ul>
+						<li v-for="p in permissions" :key="p">{{p}}</li>
+					</ul>
 				</div>
 			</div>
 
+			<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" />
+			
+			<div class="loader" v-if="authenticating">
+				<p>Authenticating...</p>
+				<img src="@/assets/loader/loader.svg" alt="loader">
+			</div>
 		</div>
 		
 	</div>
@@ -149,7 +146,6 @@ export default class Login extends Vue {
 			.toggleBt {
 				color: @mainColor_warn;
 				font-weight: bold;
-				cursor: pointer;
 				img {
 					height: 20px;
 					margin-left: 5px;

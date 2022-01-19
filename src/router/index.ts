@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Chat from '../views/Chat.vue'
 import ChatLight from '../views/ChatLight.vue'
 import Login from '../views/Login.vue'
+import Logout from '../views/Logout.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -33,6 +34,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/login',
 		name: 'login',
 		component: Login
+	},
+	{
+		path: '/logout',
+		name: 'logout',
+		component: Logout
 	},
 	{
 		path: '/oauth',

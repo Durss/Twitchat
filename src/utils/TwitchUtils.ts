@@ -653,19 +653,27 @@ export namespace TwitchTypes {
         broadcaster_name: string;
         broadcaster_login: string;
         title: string;
-        winning_outcome_id?: any;
+        winning_outcome_id?: string;
         outcomes: {
 			id: string;
 			title: string;
 			users: number;
 			channel_points: number;
-			top_predictors?: any;
+			top_predictors?: {
+				user:{
+					id:string
+					name:string
+					login:string
+					channel_points_used:number
+					channel_points_won:number
+				}
+			}[];
 			color: string;
 		}[];
         prediction_window: number;
         status: string;
         created_at: string;
-        ended_at?: any;
-        locked_at?: any;
+        ended_at?: string;
+        locked_at?: string;
     }
 }

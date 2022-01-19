@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsaccount">
-		<Button @click="clearData()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Clear data storage" highlight class="logoutBt" />
 		<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Logout" highlight class="logoutBt" />
+		<Button @click="clearData()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Clear data storage" highlight class="logoutBt" />
 		<div class="credits">
 			<h2>Credits</h2>
 			<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
@@ -34,7 +34,7 @@ export default class ParamsAccount extends Vue {
 
 	public logout():void {
 		store.dispatch('logout');
-		this.$router.push({name:'login'});
+		this.$router.push({name:'logout'});
 	}
 
 	public clearData():void {
