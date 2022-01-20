@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" @click.ctrl="logJSON()">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/stars.svg" alt="new" class="stars">
 			<p>First time on this channel</p>
@@ -223,6 +223,11 @@ export default class ChatMessage extends Vue {
 	public openUserCard():void {
 		const message = this.messageData as IRCEventDataList.Message;
 		store.dispatch("openUserCard", message.tags.username);
+	}
+
+	public logJSON():void {
+		const message = this.messageData as IRCEventDataList.Message;
+		console.log(message);
 	}
 
 	/**

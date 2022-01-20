@@ -570,16 +570,5 @@
             "id": "16426427196530.3987779790806514",
             "tmi-sent-ts": "1642642719653"
         }
-    },
-    "raid2":{
-        "type": "highlight",
-        "channel": "#durss",
-        "tags": {
-            "info": "this tags prop is a fake one to make things easier for my code",
-            "id": "16426440291040.9510683754652076",
-            "tmi-sent-ts": "1642644029104"
-        },
-        "username": "DurssBot",
-        "viewers": 1
     }
 }
