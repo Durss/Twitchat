@@ -153,7 +153,8 @@ export default class ChatMessage extends Vue {
 	 */
 	public get filteredBadges():TwitchTypes.Badge[] {
 		let res:TwitchTypes.Badge[] = [];
-		if(store.state.params.appearance.showBadges.value) {
+		if(store.state.params.appearance.showBadges.value
+		&& !store.state.params.appearance.minimalistBadges.value) {
 			try {
 				const message = this.messageData as IRCEventDataList.Message;
 				const channelID:string = message.tags['room-id'] as string;
@@ -207,7 +208,8 @@ export default class ChatMessage extends Vue {
 	public get miniBadges():{color:string, label:string, class?:string}[] {
 		let badges:{color:string, label:string, class?:string}[] = [];
 		const message = this.messageData as IRCEventDataList.Message;
-		if(store.state.params.appearance.minimalistBadges.value) {
+		if(store.state.params.appearance.showBadges.value
+		&& store.state.params.appearance.minimalistBadges.value) {
 			if(message.tags.badges?.predictions?.indexOf("pink")) badges.push({color:"#f50e9b", label:"Prediction", class:"prediction"});
 			if(message.tags.badges?.predictions?.indexOf("blue")) badges.push({color:"#387aff", label:"Prediction", class:"prediction"});
 			if(message.tags.badges?.vip) badges.push({color:"#e00bb9", label:"VIP"});
@@ -221,13 +223,13 @@ export default class ChatMessage extends Vue {
 	}
 
 	public openUserCard():void {
+		if(this.lightmode) return;
 		const message = this.messageData as IRCEventDataList.Message;
 		store.dispatch("openUserCard", message.tags.username);
 	}
 
 	public logJSON():void {
-		const message = this.messageData as IRCEventDataList.Message;
-		console.log(message);
+		console.log(this.messageData);
 	}
 
 	/**
