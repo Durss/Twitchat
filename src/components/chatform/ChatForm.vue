@@ -3,7 +3,7 @@
 		<div class="holder">
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
-				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="openCommands()" />
+				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="toggleCommands()" />
 			</div>
 
 			<form @submit.prevent="sendMessage()" class="inputForm">
@@ -41,6 +41,7 @@ import store, { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChannelNotifications from '../channelnotifications/ChannelNotifications.vue';
@@ -84,13 +85,15 @@ export default class ChatForm extends Vue {
 	}
 
 	private onClick(e:MouseEvent):void {
+		if(!this.showCommands) return;
+		
 		let target = e.target as HTMLDivElement;
 		const ref = this.$refs.commandsContent as HTMLDivElement;
 		while(target != document.body && target != ref) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			this.showCommands = false;
+			this.toggleCommands();
 		}
 	}
 	
@@ -98,8 +101,22 @@ export default class ChatForm extends Vue {
 		store.dispatch("showParams", true);
 	}
 	
-	public openCommands():void {
-		this.showCommands = !this.showCommands;
+	public async toggleCommands():Promise<void> {
+		if(this.showCommands) {
+			const ref = this.$refs.commandsContent as HTMLDivElement;
+			gsap.killTweensOf(ref);
+			gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
+			gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY, scaleX", ease:"back.in", onComplete:() => {
+				this.showCommands = false;
+			}});
+		} else {
+			this.showCommands = true;
+			await this.$nextTick();
+			const ref = this.$refs.commandsContent as HTMLDivElement;
+			gsap.killTweensOf(ref);
+			gsap.from(ref, {duration:.5, scaleX:0, clearProps:"scaleX", ease:"elastic.out(.7)"});
+			gsap.from(ref, {duration:.5, scaleY:0, delay:.07, clearProps:"scaleY", ease:"elastic.out(.7)"});
+		}
 	}
 
 	public async sendMessage():Promise<void> {
@@ -115,12 +132,12 @@ export default class ChatForm extends Vue {
 		}else
 		if(cmd == "/cypherkey") {
 			TwitchCypherPlugin.instance.cypherKey = params[0];
-			Utils.fakeChatNotice("Cypher key successfully configured !");
+			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
 		}else if(cmd == "/cypherreset") {
 			store.dispatch("setCypherEnabled", false);
 			TwitchCypherPlugin.instance.cypherKey = "";
-			Utils.fakeChatNotice("Cypher key removed successfully.");
+			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
 		}else{
 			try {
@@ -267,6 +284,7 @@ export default class ChatForm extends Vue {
 			width: 250px;
 			display: flex;
 			flex-direction: column;
+			transform-origin: bottom left;
 			&>*:not(:last-child) {
 				margin-bottom: 5px;
 			}

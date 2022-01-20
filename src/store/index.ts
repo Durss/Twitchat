@@ -180,7 +180,7 @@ export default createStore({
 			}else{
 				
 				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
-					//Custom secret feature hehehe
+					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 					m.message = await TwitchCypherPlugin.instance.decrypt(m.message);
 					m.cyphered = true;
 				}

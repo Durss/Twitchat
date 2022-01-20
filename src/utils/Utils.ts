@@ -1,5 +1,4 @@
 import store from '../store';
-import IRCClient from './IRCClient';
 
 /**
  * Created by Durss
@@ -119,24 +118,5 @@ export default class Utils {
 			res = days+"j "+res;
 		}
 		return res;
-	}
-
-	/**
-	 * Sends a fake notice on the chat
-	 * 
-	 * @param message 
-	 */
-	public static fakeChatNotice(message:string):void {
-		store.dispatch("addChatMessage", {
-			"type": "notice",
-			"channel": IRCClient.instance.channel,
-			"msgid": "fake",
-			"message": message,
-			"tags": {
-				"info": "this tags prop is a fake one to make things easier for my code",
-				"id": Date.now().toString() + Math.random().toString(),
-				"tmi-sent-ts": Date.now()
-			}
-		});
 	}
 }

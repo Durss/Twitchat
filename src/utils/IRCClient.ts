@@ -268,23 +268,10 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public sendMessage(message:string):Promise<unknown> {
-		// const params = message.split(" ").splice(1);
-		// if(/\/slow .*/.test(message)) {
-		// 	return this.client.slow(this.channel, parseInt(params[0]));
-		// }else if(/\/mod.*/.test(message)) {
-		// 	return this.client.mod(this.channel, params[0]);
-		// }else if(/\/clear/.test(message)) {
-		// 	return this.client.clear(this.channel);
-		// }else if(/\/vip.*/.test(message)) {
-		// 	return this.client.vip(this.channel, params[0]);
-		// }else if(/\/unvip.*/.test(message)) {
-		// 	return this.client.vip(this.channel, params[0]);
-		// }else{
-			return this.client.say(this.login, message);
-		// }
+		return this.client.say(this.login, message);
 	}
 
-	public sendNotice(msgid:tmi.MsgID, message:string):void {
+	public sendNotice(msgid:tmi.MsgID|string, message:string):void {
 		const tags = this.getFakeTags();
 		if(!this.idToExample[msgid]) this.idToExample[msgid] = {type:"notice", channel:this.channel, msgid, message, tags};
 		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel:this.channel, msgid, message, tags}));
