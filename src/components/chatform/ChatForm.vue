@@ -114,8 +114,8 @@ export default class ChatForm extends Vue {
 			await this.$nextTick();
 			const ref = this.$refs.commandsContent as HTMLDivElement;
 			gsap.killTweensOf(ref);
-			gsap.from(ref, {duration:.5, scaleX:0, clearProps:"scaleX", ease:"elastic.out(.7)"});
-			gsap.from(ref, {duration:.5, scaleY:0, delay:.07, clearProps:"scaleY", ease:"elastic.out(.7)"});
+			gsap.from(ref, {duration:.2, scaleX:0, clearProps:"scaleX", ease:"back.out"});
+			gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
 		}
 	}
 

@@ -1,11 +1,14 @@
 <template>
 	<div class="newusers" v-show="localMessages.length > 0">
 		<div class="header" @click="showList = !showList">
+			<Button :icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
+				class="scrollBt"
+				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
+				@click.stop="toggleScroll()" />
 			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
 			<Button :icon="require('@/assets/icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
-				highlight
 				@click.stop="clearAll()" />
 		</div>
 		
@@ -54,6 +57,7 @@ export default class NewUsers extends Vue {
 
 	public overIndex:number = -1;
 	public showList:boolean = true;
+	public scrollDownAuto:boolean = false;
 	public indexOffset:number = 0;
 	public localMessages:IRCEventDataList.Message[] = [];
 
@@ -73,6 +77,12 @@ export default class NewUsers extends Vue {
 				this.idToDisplayed[m.tags.id as string] = true;
 				this.localMessages.push(m);
 			}
+			await this.$nextTick();
+			let el = (this.$refs.messageList as Vue).$el;
+			if(this.scrollDownAuto) {
+				el.scrollTop = el.scrollHeight;
+			}
+
 		}, {
 			deep:true
 		});
@@ -175,6 +185,18 @@ export default class NewUsers extends Vue {
 		}
 	}
 
+	public toggleScroll():void {
+		this.scrollDownAuto = !this.scrollDownAuto;
+		if(this.scrollDownAuto) {
+			let el = (this.$refs.messageList as Vue).$el;
+			if(this.scrollDownAuto) {
+				el.scrollTop = el.scrollHeight;
+			}else{
+				el.scrollTop = 0;
+			}
+		}
+	}
+
 	public enter(el:HTMLElement, done:()=>void):void {
 		gsap.from(el, {
 			duration:0.2,
@@ -239,6 +261,7 @@ export default class NewUsers extends Vue {
 		h1 {
 			text-align: center;
 			color: #ffffff;
+			margin: 0 10px;
 
 			.count {
 				// font-style: italic;
@@ -246,8 +269,7 @@ export default class NewUsers extends Vue {
 				font-weight: normal;
 			}
 		}
-		.clearBt {
-			margin-left: 10px;
+		.clearBt, .scrollBt {
 			height: 25px;
 			width: 25px;
 			padding: 3px;
