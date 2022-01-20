@@ -22,6 +22,8 @@ export default createStore({
 		mods: [],
 		currentPoll: {},
 		currentPrediction: {},
+		cypherKey: '',
+		cypherEnabled: false,
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -300,6 +302,8 @@ export default createStore({
 			}) as  TwitchTypes.Prediction;
 		},
 
+		setCypherEnabled(state, payload:boolean) { state.cypherEnabled = payload; },
+
 	},
 
 
@@ -425,6 +429,8 @@ export default createStore({
 		setPolls({commit}, payload:TwitchTypes.Poll[]) { commit("setPolls", payload); },
 
 		setPredictions({commit}, payload:TwitchTypes.Prediction[]) { commit("setPredictions", payload); },
+
+		setCypherEnabled({commit}, payload:boolean) { commit("setCypherEnabled", payload); },
 	},
 	modules: {
 	}

@@ -23,8 +23,7 @@
 				:key="m.tags.id"
 				:messageData="m"
 				:data-index="index"
-				:disableAutomod="true"
-				:disableFirstTime="true"
+				:lightmode="true"
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
 				@click="deleteMessage(m, index)" />

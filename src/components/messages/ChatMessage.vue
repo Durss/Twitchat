@@ -60,8 +60,7 @@ import ChatModTools from './ChatModTools.vue';
 	props:{
 		messageData:Object,
 		// deleteOverlay:{type:Boolean, default:false},
-		disableAutomod:{type:Boolean, default:false},
-		disableFirstTime:{type:Boolean, default:false},
+		lightmode:{type:Boolean, default:false},
 		disableConversation:{type:Boolean, default:false},
 	},
 	emits:['showConversation'],
@@ -70,8 +69,7 @@ export default class ChatMessage extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
 	// public deleteOverlay!:boolean;
-	public disableAutomod!:boolean;
-	public disableFirstTime!:boolean;
+	public lightmode!:boolean;
 	public disableConversation!:boolean;
 	
 	public firstTime:boolean = false;
@@ -90,26 +88,31 @@ export default class ChatMessage extends Vue {
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
 		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
+		if(this.messageData.cyphered) res.push("cyphered");
 
-		if(store.state.params.appearance.highlightMentions.value
-		&& store.state.user.login
-		&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
-			res.push("mention");
-		}
+		if(!this.lightmode) {
+			if(store.state.params.appearance.highlightMentions.value
+			&& store.state.user.login
+			&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
+				res.push("mention");
+			}
 
-		if(message.tags.subscriber) {
-			res.push("size_"+store.state.params.appearance.subsSize.value);
-			if(store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
+			if(message.tags.subscriber) {
+				res.push("size_"+store.state.params.appearance.subsSize.value);
+				if(store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
+			}
+			else if(message.tags.vip){
+				res.push("size_"+store.state.params.appearance.vipsSize.value);
+				if(store.state.params.appearance.highlightVips.value) res.push("highlightVips");
+			}else
+			if(message.tags.mod) {
+				res.push("size_"+store.state.params.appearance.modsSize.value);
+				if(store.state.params.appearance.highlightMods.value) res.push("highlightMods");
+			}
+			else res.push("size_"+store.state.params.appearance.defaultSize.value);
+		}else {
+			res.push("size_"+store.state.params.appearance.defaultSize.value);
 		}
-		else if(message.tags.vip){
-			res.push("size_"+store.state.params.appearance.vipsSize.value);
-			if(store.state.params.appearance.highlightVips.value) res.push("highlightVips");
-		}else
-		if(message.tags.mod) {
-			res.push("size_"+store.state.params.appearance.modsSize.value);
-			if(store.state.params.appearance.highlightMods.value) res.push("highlightMods");
-		}
-		else res.push("size_"+store.state.params.appearance.defaultSize.value);
 
 		return res;
 	}
@@ -229,10 +232,10 @@ export default class ChatMessage extends Vue {
 		const mess = this.messageData as IRCEventDataList.Message;
 		
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'] && !this.disableFirstTime;
+		this.firstTime = mess.tags['first-msg'] && !this.lightmode;
 
 		//Manage automod content
-		if(!this.disableAutomod && mess.automod) {
+		if(!this.lightmode && mess.automod) {
 			this.automod = mess.automod;
 			let reasons:string[] = [];
 			for (let i = 0; i < mess.automod.message.content.fragments.length; i++) {
@@ -437,6 +440,10 @@ export default class ChatMessage extends Vue {
 				}
 			}
 		}
+	}
+
+	&.cyphered {
+		background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 20px, #ffffff30 20px, #ffffff30 40px);
 	}
 }
 </style>

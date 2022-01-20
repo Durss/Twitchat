@@ -1,5 +1,5 @@
 <template>
-	<div class="chatform">
+	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
@@ -10,6 +10,8 @@
 				<input type="text" class="dark" v-model="message" v-if="!error" placeholder="message...">
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				<Button class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
+				<Button class="submit" :icon="require('@/assets/icons/unlock.svg')" @click="toggleCypher()" v-if="cypherConfigured && !$store.state.cypherEnabled" bounce data-tooltip="Send encrypted messages" />
+				<Button class="submit" :icon="require('@/assets/icons/lock.svg')" @click="toggleCypher()" v-if="cypherConfigured && $store.state.cypherEnabled" bounce />
 			</form>
 
 			<div class="actions" ref="commandsContent" v-if="showCommands">
@@ -62,9 +64,15 @@ export default class ChatForm extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get params():{[key:string]:ParameterData} {
-		return store.state.params.roomStatus;
+	public get classes():string[] {
+		let res = ["chatform"];
+		if(store.state.cypherEnabled) res.push("cypherMode");
+		return res;
 	}
+
+	public get params():{[key:string]:ParameterData} { return store.state.params.roomStatus; }
+
+	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
@@ -109,8 +117,16 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = params[0];
 			Utils.fakeChatNotice("Cypher key successfully configured !");
 			this.message = "";
+		}else if(cmd == "/cypherreset") {
+			store.dispatch("setCypherEnabled", false);
+			TwitchCypherPlugin.instance.cypherKey = "";
+			Utils.fakeChatNotice("Cypher key removed successfully.");
+			this.message = "";
 		}else{
 			try {
+				if(store.state.cypherEnabled) {
+					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
+				}
 				await IRCClient.instance.sendMessage(this.message);
 				this.message = "";
 			}catch(error) {
@@ -156,6 +172,10 @@ export default class ChatForm extends Vue {
 			this.raidUser = "";
 		}).catch(()=> { });
 	}
+
+	public toggleCypher():void {
+		store.dispatch("setCypherEnabled", !store.state.cypherEnabled);
+	}
 }
 </script>
 
@@ -167,6 +187,12 @@ export default class ChatForm extends Vue {
 	height: @height;
 	margin: auto;
 	position: relative;
+
+	&.cypherMode {
+		.holder {
+			background-image: repeating-linear-gradient(-45deg, #00000020, #00000020 20px, #ffffff10 20px, #ffffff10 40px);
+		}
+	}
 
 	.holder {
 		position: absolute;

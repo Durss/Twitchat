@@ -1,3 +1,4 @@
+import store from "@/store";
 import Store from "@/store/Store";
 
 /**
@@ -32,6 +33,7 @@ export default class TwitchCypherPlugin {
 
 	public set cypherKey(value:string) {
 		this._cypherKey = value;
+		store.state.cypherKey = value;
 		Store.set("cypherKey", value);
 	}
 	
@@ -96,7 +98,10 @@ export default class TwitchCypherPlugin {
 		safeChars = safeChars.replace(/\]/gi, "\\]");
 		this.regMatch = new RegExp("["+safeChars+"]", "g");
 		const key = Store.get("cypherKey");
-		if(key) this._cypherKey = key;
+		if(key){
+			this._cypherKey = key;
+			store.state.cypherKey = key;
+		}
 	}
 
     private getPasswordKey (password:string):Promise<CryptoKey> {
