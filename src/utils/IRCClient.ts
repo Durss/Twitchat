@@ -16,8 +16,8 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -61,7 +61,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["codemiko", "mistermv", "andythefrenchy", "pykamusic", "hanawins", "littlebigwhale","bagherajones", "hortyunderscore", "colas_bim", "alisa", "tipstevens" ]);
+				channels = channels.concat(["thesushidragon", "mistermv", "andythefrenchy", "pykamusic", "hanawins", "littlebigwhale","bagherajones", "hortyunderscore", "colas_bim", "alisa", "tipstevens" ]);
 			}
 
 			(async ()=> {
@@ -304,7 +304,7 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		//Ignore bot messages if requested
-		if(store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 			return;
 		}
 		//Ignore /me messages

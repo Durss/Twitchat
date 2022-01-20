@@ -10,8 +10,8 @@
 		</div>
 		
 		<NewUsers v-if="$store.state.params.filters.firstMessage.value" />
-		<PollForm v-if="currentModal == 'poll'" @close="currentModal = ''" />
-		<PredictionForm v-if="currentModal == 'pred'" @close="currentModal = ''" />
+		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
+		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 	</div>
 </template>
 
@@ -66,6 +66,12 @@ export default class Chat extends Vue {
 		}
 		.chatForm {
 			width: 100%;
+		}
+	}
+
+	.popin {
+		:deep(.holder) {
+			max-height: 100% !important;
 		}
 	}
 }
