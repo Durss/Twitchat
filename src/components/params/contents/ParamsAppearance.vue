@@ -25,7 +25,7 @@ export default class ParamsAppearance extends Vue {
 	public get params():{[key:string]:ParameterData} {
 		let res:{[key:string]:ParameterData} = {};
 		for (const key in store.state.params.appearance) {
-			if(key == "minimalistBadge") continue;
+			if(key == "minimalistBadges") continue;
 			/* eslint-disable-next-line */
 			res[key] = (store.state.params.appearance as any)[key];
 		}
