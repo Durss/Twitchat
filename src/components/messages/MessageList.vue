@@ -61,7 +61,8 @@
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import IRCClient from '@/utils/IRCClient';
+import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -97,6 +98,7 @@ export default class MessageList extends Vue {
 	private idDisplayed:{[key:string]:boolean} = {};
 	private lastHoverdMessage!:{event:MouseEvent, message:IRCEventDataList.Message};
 	private closeConvTimeout!:number;
+	private deleteMessageHandler!:(e:IRCEvent)=>void;
 
 	public get classes():string[] {
 		let res = ["messagelist"];
@@ -149,12 +151,34 @@ export default class MessageList extends Vue {
 			}
 		});
 
+		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
+
+		IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler)
+
 		await this.$nextTick();
 		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
 		this.disposed = true;
+	}
+
+	/**
+	 * Called when a message is deleted
+	 * Messages are automatically deleted from the ref collection
+	 * but if we scroll up to lock the messages, it switches to a
+	 * local history that's not linked anymore to the main collection.
+	 * If the message is added to that history, it won't be deleted
+	 * automatically, hence, we need this to do it.
+	 */
+	public onDeleteMessage(e:IRCEvent):void {
+		if(this.pendingMessages.length > 0) {
+			const data = e.data as IRCEventDataList.MessageDeleted;
+			let index = this.pendingMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
+			if(index > -1) {
+				this.pendingMessages.splice(index, 1);
+			}
+		}
 	}
 
 	/**
