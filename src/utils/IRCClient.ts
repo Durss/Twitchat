@@ -294,6 +294,10 @@ export default class IRCClient extends EventDispatcher {
 		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 			return;
 		}
+		//Ignore custom users
+		if(store.state.params.filters.hideUsers.value.toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+			return;
+		}
 		//Ignore /me messages
 		if(!store.state.params.filters.showSelf.value && tags["message-type"] == "action") {
 			return;

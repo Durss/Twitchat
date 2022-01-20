@@ -31,10 +31,6 @@ export default class ParamsAppearance extends Vue {
 		}
 		return res;
 	}
-
-	public mounted():void {
-		this.minibadge = store.state.params.appearance.minimalistBadges;
-	}
 }
 </script>
 

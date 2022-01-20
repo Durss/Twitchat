@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="holder" ref="messageHolder" @mousewheel="onMouseWheel($event)">
-			<div v-for="m in localMessages" :key="m.tags.id" ref="message">
+			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="messageHolder">
 				<ChatMessage
 					v-if="m.type == 'message'"
 					class="message"
@@ -372,9 +372,10 @@ export default class MessageList extends Vue {
 		padding: 10px 0;
 		padding-bottom: 0;
 
-		.message:nth-child(even) {
-			// background-color: red !important;//rgba(255, 255, 255, 1);
-		}
+		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
+		// .messageHolder:nth-child(odd) {
+			// background-color: rgba(255, 255, 255, .05);
+		// }
 	}
 
 	.locked {

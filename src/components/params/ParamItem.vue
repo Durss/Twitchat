@@ -5,9 +5,14 @@
 			<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
 		</div>
 		
-		<div v-if="paramData.type == 'number'" class="toggle">
-			<label :for="'toggle'+key" v-html="label"></label>
-			<input :id="'toggle'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
+		<div v-if="paramData.type == 'number'" class="number">
+			<label :for="'number'+key" v-html="label"></label>
+			<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
+		</div>
+		
+		<div v-if="paramData.type == 'list'" class="list">
+			<label :for="'list'+key" v-html="label"></label>
+			<input :id="'list'+key" type="text" v-model="paramData.value">
 		</div>
 		
 		<div v-if="paramData.type == 'slider'" class="slider">
@@ -59,7 +64,7 @@ export default class ParamItem extends Vue {
 
 <style scoped lang="less">
 .paramitem{
-	.toggle {
+	.toggle, .number {
 		display: flex;
 		flex-direction: row;
 		label {
@@ -67,17 +72,17 @@ export default class ParamItem extends Vue {
 			// text-align: right;
 			margin-right: 20px;
 			cursor: pointer;
-			:deep(.small) {
-				// display: block;
-				font-size: .9em;
-				font-style: italic;
-			}
 		}
 	}
-	.slider {
+	:deep(.small) {
+		// display: block;
+		font-size: .9em;
+		font-style: italic;
+	}
+	.slider, .list {
 		display: flex;
 		flex-direction: column;
-		label {
+		&:not(.list)>label {
 			text-align: center;
 		}
 	}

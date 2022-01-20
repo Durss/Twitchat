@@ -45,7 +45,8 @@ export default createStore({
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
 				showSelf: {type:"toggle", value:true, label:"Show my messages"},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages"},
-				showBots: {type:"toggle", value:false, label:"Show bot's messages"},
+				showBots: {type:"toggle", value:false, label:"Show known bot's messages"},
+				hideUsers: {type:"list", value:"", label:"Hide custom users (coma seperated)"},
 				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
 				showSubs: {type:"toggle", value:true, label:"Show subs alerts"},
@@ -439,8 +440,8 @@ export default createStore({
 export type ParameterCategory = "appearance" | "filters"| "roomStatus";
 
 export interface ParameterData {
-	type:"toggle"|"slider"|"number"|string;
-	value:boolean|number;
+	type:"toggle"|"slider"|"number"|"list"|string;
+	value:boolean|number|string;
 	label:string;
 	min?:number;
 	max?:number;
