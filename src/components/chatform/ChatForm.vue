@@ -7,7 +7,7 @@
 			</div>
 
 			<form @submit.prevent="sendMessage()" class="inputForm">
-				<input type="text" class="dark" v-model="message" v-if="!error">
+				<input type="text" class="dark" v-model="message" v-if="!error" placeholder="message...">
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				<Button class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
 			</form>
@@ -37,6 +37,7 @@
 <script lang="ts">
 import store, { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
+import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -94,12 +95,28 @@ export default class ChatForm extends Vue {
 	}
 
 	public async sendMessage():Promise<void> {
-		try {
-			await IRCClient.instance.sendMessage(this.message);
+		const params = this.message.split(" ");
+		const cmd = params.shift()?.toLowerCase();
+		if(cmd == "/poll") {
+			this.$emit("poll");
 			this.message = "";
-		}catch(error) {
-			console.log(error);
-			this.error = true;
+		}else
+		if(cmd == "/prediction") {
+			this.$emit("pred");
+			this.message = "";
+		}else
+		if(cmd == "/cypherkey") {
+			TwitchCypherPlugin.instance.cypherKey = params[0];
+			Utils.fakeChatNotice("Cypher key successfully configured !");
+			this.message = "";
+		}else{
+			try {
+				await IRCClient.instance.sendMessage(this.message);
+				this.message = "";
+			}catch(error) {
+				console.log(error);
+				this.error = true;
+			}
 		}
 	}
 
@@ -144,9 +161,10 @@ export default class ChatForm extends Vue {
 
 <style scoped lang="less">
 .chatform{
+	@height: 40px;
 	display: flex;
 	flex-direction: row;
-	height: 30px;
+	height: @height;
 	margin: auto;
 	position: relative;
 
@@ -155,12 +173,14 @@ export default class ChatForm extends Vue {
 		width: 100%;
 		display: flex;
 		flex-direction: row;
-		height: 30px;
+		height: @height;
 		margin: auto;
 		position: relative;
 		z-index: 2;
 		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-		background-color: @mainColor_dark;
+		background-color: @mainColor_dark_extralight;
+		padding: 5px;
+		border-radius: 5px;
 
 		.leftForm {
 			height: 100%;
@@ -168,7 +188,7 @@ export default class ChatForm extends Vue {
 				width: 30px;
 				height: 30px;
 				border-radius: 5px;
-				transform-origin: bottom;
+				background: none;
 			}
 		}
 	
@@ -183,6 +203,9 @@ export default class ChatForm extends Vue {
 				flex-grow: 1;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
+				background: transparent;
+				border: none;
+				border-radius: 0;
 			}
 			.submit {
 				height: 100%;
@@ -190,7 +213,7 @@ export default class ChatForm extends Vue {
 				border-radius: 5px;
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
-				transform-origin: left;
+				background: none;
 			}
 			.error {
 				cursor: pointer;

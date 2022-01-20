@@ -141,9 +141,10 @@ export default class PubSub {
 				}
 				
 				IRCClient.instance.addMessage(textMessage, tags, false, localObj);
+			}else 
+			if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
+				store.dispatch("delChatMessage", localObj.message.id);
 			}
-
-
 
 		}else if(event.type == "reward-redeemed") {
 			//Manage rewards

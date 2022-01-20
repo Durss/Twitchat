@@ -1,10 +1,19 @@
 <template>
 	<div class="predictionstate">
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
+		<div class="outcomeTitle" v-if="prediction.status == 'LOCKED'"><span class="arrow">⤺</span> Choose outcome</div>
 		<div class="choices">
-			<div class="choice" v-for="c in prediction.outcomes" :key="c" :style="getAnswerStyles(c)">
-				<div>{{c.title}}</div>
-				<div>{{getPercent(c)}}% ({{c.channel_points}}pts)</div>
+			<div class="choice" v-for="c in prediction.outcomes" :key="c.id">
+				<div class="color" v-if="prediction.status != 'LOCKED'"></div>
+				<Button class="winBt"
+					@click="setOutcome(c)"
+					:icon="require('@/assets/icons/checkmark_white.svg')"
+					v-if="prediction.status == 'LOCKED'"
+					:loading="loading" />
+				<div class="bar" :style="getAnswerStyles(c)">
+					<div>{{c.title}}</div>
+					<div>{{getPercent(c)}}% ({{c.channel_points}}pts)</div>
+				</div>
 			</div>
 		</div>
 		<div class="actions">
@@ -48,7 +57,7 @@ export default class PredictionState extends Vue {
 
 	public getAnswerStyles(c:TwitchTypes.PredictionOutcome):unknown {
 		return {
-			backgroundSize: `${this.getPercent(c)*2}% 100%`
+			backgroundSize: `${this.getPercent(c)}% 100%`
 		}
 	}
 
@@ -62,9 +71,25 @@ export default class PredictionState extends Vue {
 		clearInterval(this.interval);
 	}
 
+	public setOutcome(c:TwitchTypes.PredictionOutcome):void {
+		this.loading = true;
+		Utils.confirm("\""+c.title+"\" wins?", "Do you confirm this outcome?")
+		.then(async ()=> {
+			try {
+				await TwitchUtils.endPrediction(this.prediction.id, c.id);
+			}catch(error) {
+				this.loading = false;
+				store.state.alert = "An error occurred while chosing prediction's outcome";
+			}
+			this.loading = false;
+		}).catch(()=> {
+			this.loading = false;
+		});
+	}
+
 	public deletePrediction():void {
 		this.loading = true;
-		Utils.confirm("Delete Prediction", "Are you sure you want to delete this prediction ?")
+		Utils.confirm("Delete Prediction", "Are you sure you want to delete this prediction ? Users will be refund.")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.id, "", true);
@@ -98,21 +123,77 @@ export default class PredictionState extends Vue {
 		}
 	}
 
+	.outcomeTitle {
+		color: @mainColor_light;
+		margin-bottom: 20px;
+		margin-left: 15px;
+		.arrow {
+			display: inline;
+			font-size: 25px;
+			display: inline-block;
+			margin-right: -10px;
+			position: relative;
+			animation: slide .5s infinite ease-in-out alternate-reverse;
+			transform: rotate(-40deg);
+			transform-origin: bottom right;
+		}
+		@keyframes slide {
+			from {transform: rotate(-40deg);}
+			to {transform: rotate(-60deg);}
+		}
+	}
+
 	.choices {
 		.choice {
 			display: flex;
 			flex-direction: row;
-			border-radius: 10px;
-			padding: 7px 15px;
-			font-size: 16px;
-			color: @mainColor_light;
-			@c: fade(@mainColor_light, 15%);
-			background: linear-gradient(to right, @c 100%, @c 100%);
-			background-color: fade(@mainColor_light, 5%);
-			background-repeat: no-repeat;
-			justify-content: space-between;
+			align-items: center;
+			justify-content: stretch;
 			&:not(:last-child) {
 				margin-bottom: 5px;
+			}
+
+			.color {
+				background-color: #f50e9b;
+				width: 20px;
+				height: 20px;
+				display: inline-block;
+				border-radius: 50%;
+				align-self: center;
+				margin-right: 5px;
+			}
+			&:first-of-type {
+				.color, .winBt {
+					background-color: #387aff;
+				}
+			}
+
+			.winBt {
+				height: 30px;
+				width: 30px;
+				background-color: #f50e9b;
+				margin-right: 5px;
+				padding: 0px;
+				:deep(.icon) {
+					width: 18px;
+					height: 18px;
+				}
+			}
+			
+			.bar {
+				flex-grow: 1;
+				display: flex;
+				flex-direction: row;
+				border-radius: 10px;
+				padding: 7px 15px;
+				font-size: 16px;
+				color: @mainColor_light;
+				@c: fade(@mainColor_light, 15%);
+				transition: background-size .2s;
+				background: linear-gradient(to right, @c 100%, @c 100%);
+				background-color: fade(@mainColor_light, 5%);
+				background-repeat: no-repeat;
+				justify-content: space-between;
 			}
 		}
 	}

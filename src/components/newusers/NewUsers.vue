@@ -192,10 +192,8 @@ export default class NewUsers extends Vue {
 	}
 	public leave(el:HTMLElement, done:()=>void):void {
 		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.075;
-		if(delay > 1) {
-			setTimeout(()=>{
-				done();
-			}, 1000);
+		if(delay > .5) {
+			done();
 		}else{
 			gsap.to(el, {
 				duration:0.15,
@@ -227,7 +225,8 @@ export default class NewUsers extends Vue {
 	width: 100%;
 	max-width: 600px;
 	margin: auto;
-	background-color: #218bac;
+	// background-color: #218bac;
+	background-color: darken(@mainColor_normal, 20%);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;

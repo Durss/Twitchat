@@ -10,15 +10,15 @@
 				<form  @submit.prevent="submitPoll()">
 					<div class="row">
 						<label for="poll_title">Question</label>
-						<input type="text" v-model="title">
+						<input type="text" v-model="title" maxlength="60">
 					</div>
 					<div class="row">
 						<label for="poll_title">Answers (at least 2)</label>
-						<input type="text" id="poll_title" v-model="answer1">
-						<input type="text" v-model="answer2">
-						<input type="text" v-model="answer3">
-						<input type="text" v-model="answer4">
-						<input type="text" v-model="answer5">
+						<input type="text" id="poll_title" v-model="answer1" maxlength="25">
+						<input type="text" v-model="answer2" maxlength="25">
+						<input type="text" v-model="answer3" maxlength="25">
+						<input type="text" v-model="answer4" maxlength="25">
+						<input type="text" v-model="answer5" maxlength="25">
 					</div>
 					<div class="row right">
 						<ParamItem :paramData="extraVotesParam" />
@@ -33,7 +33,7 @@
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
-						<Button title="Submit" type="submit" :loading="loading" :disabled="answers.length < 2" />
+						<Button title="Submit" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
 				</form>

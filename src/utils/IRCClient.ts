@@ -172,12 +172,19 @@ export default class IRCClient extends EventDispatcher {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
 				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"highlight", channel, tags, username, viewers};
-				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"highlight", channel, tags, username, viewers}));
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, {type:"highlight", channel, tags, username, viewers}));
 			});
 			
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
 				if(!this.idToExample["timeout"]) this.idToExample["timeout"] = {type:"notice", channel, username, reason, duration};
 				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", channel, username, reason, duration}));
+			});
+			
+			this.client.on("hosted", (channel: string, username: string, viewers: number, autohost: boolean)=> {
+				let message = username+" is hosting with "+viewers+" viewers";
+				if(autohost) message += " (autohost)";
+				const tags = this.getFakeTags();
+				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", msgid:"usage_host", channel, message, tags, username, viewers, autohost}));
 			});
 
 			this.client.on("disconnected", ()=> {
@@ -234,7 +241,7 @@ export default class IRCClient extends EventDispatcher {
 			});
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
-				if(tags["message-type"] == "chat") {
+				if(tags["message-type"] == "chat" || tags["message-type"] == "action") {
 					this.addMessage(message, tags, self, undefined, channel);
 				}
 			});
@@ -297,11 +304,15 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		//Ignore bot messages if requested
-		if(store.state.params.filters.hideBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+		if(store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+			return;
+		}
+		//Ignore /me messages
+		if(!store.state.params.filters.showSelf.value && tags["message-type"] == "action") {
 			return;
 		}
 		//Ignore self if requested
-		if(!store.state.params.filters.showSelf.value && tags["user-id"] == store.state.user.user_id) {
+		if(!store.state.params.filters.showSlashMe.value && tags["user-id"] == store.state.user.user_id) {
 			return;
 		}
 		//Ignore commands

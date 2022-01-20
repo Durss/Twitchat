@@ -124,6 +124,7 @@ export default class TwitchUtils {
 					const badge = badgeSet.versions[userBadgeID];
 					if(badge) {
 						result.push(badge);
+						continue;
 					}
 				}
 			}

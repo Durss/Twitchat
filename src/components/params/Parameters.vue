@@ -97,5 +97,10 @@ export default class Parameters extends Vue {
 		}
 	}
 
+	.holder {
+		top: 0;
+		transform: translate(-50%, 0);
+	}
+
 }
 </style>

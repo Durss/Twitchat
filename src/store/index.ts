@@ -1,7 +1,8 @@
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
+import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import PubSub from '@/utils/PubSub';
+import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import { Userstate } from 'tmi.js';
 import { RouteLocation } from 'vue-router';
@@ -27,7 +28,7 @@ export default createStore({
 				showEmotes: {type:"toggle", value:true, label:"Show emotes"},
 				showBadges: {type:"toggle", value:true, label:"Show badges"},
 				minimalistBadges: {type:"toggle", value:false, label:"Show minimalist badges"},
-				displayTime: {type:"toggle", value:true, label:"Display time"},
+				displayTime: {type:"toggle", value:false, label:"Display time"},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods"},
@@ -41,7 +42,8 @@ export default createStore({
 			filters: {
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
 				showSelf: {type:"toggle", value:true, label:"Show my messages"},
-				hideBots: {type:"toggle", value:false, label:"Hide bots"},
+				showSlashMe: {type:"toggle", value:true, label:"Show /me messages"},
+				showBots: {type:"toggle", value:false, label:"Show bot's messages"},
 				ignoreCommands: {type:"toggle", value:true, label:"Hide commands (messages starting with \"!\")"},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
 				showSubs: {type:"toggle", value:true, label:"Show subs alerts"},
@@ -152,78 +154,103 @@ export default createStore({
 
 		openUserCard(state, payload) { state.userCard = payload; },
 		
-		addChatMessage(state, payload:IRCEventDataList.Message) {
-			let messages = state.chatMessages as IRCEventDataList.Message[]
-			messages.push(payload);
+		async addChatMessage(state, payload:IRCEventData) {
+			let messages = state.chatMessages as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
+			const m = payload as IRCEventDataList.Message;
+			
+			//Limit history size
 			const maxMessages = state.params.appearance.historySize.value;
 			if(messages.length > maxMessages) {
 				messages = messages.slice(-maxMessages);
 				state.chatMessages = messages as never[];
 			}
-			
-			//If message is an answer, set original message's ref to the answer
-			if(payload.tags["reply-parent-msg-id"]) {
-				//Called when using the "answer feature" on twitch chat
-				let original:IRCEventDataList.Message | null = null;
-				let reply:IRCEventDataList.Message | null = null;
-				for (let i = 0; i < messages.length; i++) {
-					const c = messages[i] as IRCEventDataList.Message;
-					if(c.tags.id === payload.tags["reply-parent-msg-id"]) original = c;
-					if(c.tags.id === payload.tags.id) reply = c;
-					if(original && reply) break;
-				}
-				
-				if(reply && original) {
-					if(original.answerTo) {
-						reply.answerTo = original.answerTo;
-						if(original.answerTo.answers) {
-							original.answerTo.answers.push(payload);
+
+			if(payload.type == "notice") {
+				if((payload as IRCEventDataList.Notice).msgid == "usage_host") {
+					const raids = (messages as IRCEventDataList.Highlight[]).filter(v => v.viewers != undefined);
+					for (let i = 0; i < raids.length; i++) {
+						if(raids[i].username?.toLowerCase() == (payload as IRCEventDataList.Notice).username?.toLowerCase()) {
+							console.log("Already raided ! Ignore host event");
+							return;
 						}
-					}else{
-						reply.answerTo = original;
-						if(!original.answers) original.answers = [];
-						original.answers.push(payload);
 					}
 				}
 			}else{
-				//If there's a mention, search for last messages within
-				//a max timeframe to find if the message may be a reply to
-				//a message that was sent by the mentionned user
-				if(/@\w/gi.test(payload.message)) {
-					// console.log("Mention found");
-					const ts = Date.now();
-					const timeframe = 5*60*1000;//Check if a massges answers another within this timeframe
-					const matches = payload.message.match(/@\w+/gi) as RegExpMatchArray;
-					for (let i = 0; i < matches.length; i++) {
-						const match = matches[i].replace("@", "").toLowerCase();
-						// console.log("Search for message from ", match);
-						const candidates = messages.filter(m => m.tags.username == match);
-						//Search for oldest matching candidate
-						for (let j = 0; j < candidates.length; j++) {
-							const c = candidates[j];
-							// console.log("Found candidate", c);
-							if(ts - parseInt(c.tags['tmi-sent-ts'] as string) < timeframe) {
-								// console.log("Timeframe is OK !");
-								if(c.answers) {
-									//If it's the root message of a conversation
-									c.answers.push(payload);
-									payload.answerTo = c;
-								}else if(c.answerTo && c.answerTo.answers) {
-									//If the messages answers to a message itself answering to another message
-									c.answerTo.answers.push(payload);
-									payload.answerTo = c.answerTo;
-								}else{
-									//If message answers to a message not from a conversation
-									payload.answerTo = c;
-									if(!c.answers) c.answers = [];
-									c.answers.push(payload);
+				
+				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
+					//Custom secret feature hehehe
+					m.message = await TwitchCypherPlugin.instance.decrypt(m.message);
+					m.cyphered = true;
+				}
+				
+				//If message is an answer, set original message's ref to the answer
+				//Called when using the "answer feature" on twitch chat
+				if(m.tags && m.tags["reply-parent-msg-id"]) {
+					let original:IRCEventDataList.Message | null = null;
+					const reply:IRCEventDataList.Message | null = m;
+					//Search for original message the user answered to
+					for (let i = 0; i < messages.length; i++) {
+						const c = messages[i] as IRCEventDataList.Message;
+						if(c.tags.id === m.tags["reply-parent-msg-id"]) {
+							original = c;
+							break;
+						}
+					}
+	
+					if(reply && original) {
+						if(original.answerTo) {
+							reply.answerTo = original.answerTo;
+							if(original.answerTo.answers) {
+								original.answerTo.answers.push( m );
+							}
+						}else{
+							reply.answerTo = original;
+							if(!original.answers) original.answers = [];
+							original.answers.push( m );
+						}
+					}
+				}else{
+					//If there's a mention, search for last messages within
+					//a max timeframe to find if the message may be a reply to
+					//a message that was sent by the mentionned user
+					if(/@\w/gi.test(m.message)) {
+						// console.log("Mention found");
+						const ts = Date.now();
+						const timeframe = 5*60*1000;//Check if a massges answers another within this timeframe
+						const matches = m.message.match(/@\w+/gi) as RegExpMatchArray;
+						for (let i = 0; i < matches.length; i++) {
+							const match = matches[i].replace("@", "").toLowerCase();
+							// console.log("Search for message from ", match);
+							const candidates = messages.filter(m => m.tags.username == match);
+							//Search for oldest matching candidate
+							for (let j = 0; j < candidates.length; j++) {
+								const c = candidates[j] as IRCEventDataList.Message;
+								// console.log("Found candidate", c);
+								if(ts - parseInt(c.tags['tmi-sent-ts'] as string) < timeframe) {
+									// console.log("Timeframe is OK !");
+									if(c.answers) {
+										//If it's the root message of a conversation
+										c.answers.push( m );
+										m.answerTo = c;
+									}else if(c.answerTo && c.answerTo.answers) {
+										//If the messages answers to a message itself answering to another message
+										c.answerTo.answers.push( m );
+										m.answerTo = c.answerTo;
+									}else{
+										//If message answers to a message not from a conversation
+										m.answerTo = c;
+										if(!c.answers) c.answers = [];
+										c.answers.push( m );
+									}
+									break;
 								}
-								break;
 							}
 						}
 					}
 				}
 			}
+
+			messages.push( m );
 		},
 		
 		delChatMessage(state, messageId:string) { 
@@ -289,7 +316,7 @@ export default createStore({
 			for (const cat in state.params) {
 				const c = cat as ParameterCategory;
 				for (const key in props) {
-					const k:ParameterType = key.replace(/^p:/gi, "") as ParameterType;
+					const k = key.replace(/^p:/gi, "");
 					if(props[key] == null) continue;
 					if(/^p:/gi.test(key) && k in state.params[c]) {
 						const v:string = props[key] as string;
@@ -403,8 +430,7 @@ export default createStore({
 	}
 })
 
-export type ParameterCategory = "appearance" | "filters";
-export type ParameterType = "hideBots" | "showBadges" | "showEmotes" | "minimalistBadges" | "historySize" | "firstMessage" | "highlightMentions" | "showSelf" | "displayTime" | "ignoreCommands" | "defaultSize" | "modsSize" | "vipsSize" | "subsSize";
+export type ParameterCategory = "appearance" | "filters"| "roomStatus";
 
 export interface ParameterData {
 	type:"toggle"|"slider"|"number"|string;

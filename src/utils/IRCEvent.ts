@@ -33,6 +33,7 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Automod
 						|  IRCEventDataList.Notice
 						|  IRCEventDataList.Highlight
+						|  IRCEventDataList.Hosted
 						|  IRCEventDataList.RoomState;
 
 export namespace IRCEventDataList {
@@ -47,6 +48,7 @@ export namespace IRCEventDataList {
 		reward?:PubSubTypes.RewardData;
 		answerTo?:Message;
 		answers?:Message[];
+		cyphered?:boolean;
 		type:"message";
 	}
 
@@ -93,6 +95,18 @@ export namespace IRCEventDataList {
 		type:"notice";
 	}
 
+	export interface Hosted {
+		channel: string;
+		viewers: number;
+		autohost:boolean;
+		username?: string;
+		tags:ChatUserstate;
+		message:string;
+		msgid: MsgID;
+		//custom data
+		type:"notice";
+	}
+
 	export interface Highlight {
 		channel: string;
 		message?: string;
@@ -110,8 +124,9 @@ export namespace IRCEventDataList {
 	}
 
 	export interface RoomState {
-        raw: string;
-        tags: {
+		type:"notice";
+		raw: string;
+		tags: {
 			"emote-only": boolean;
 			"followers-only": string;
 			r9k: boolean;
@@ -121,8 +136,8 @@ export namespace IRCEventDataList {
 			"subs-only": boolean;
 			channel: string;
 		};
-        prefix: string;
-        command: string;
-        params: string[];
+		prefix: string;
+		command: string;
+		params: string[];
 	}
 }

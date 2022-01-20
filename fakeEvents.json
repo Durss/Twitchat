@@ -524,5 +524,62 @@
         "badges-raw": "broadcaster/1,subscriber/9",
         "username": "durss",
         "message-type": "chat"
+    },
+    "cyphered":{
+        "type": "message",
+        "message": "╜|═‒╧ꟷꟷ┌═╢–╙¦┤┼┼¦╫¦‒‒∟¯ꞁ╫╜═▬╬╩▬―▬╡╩┘╩╢∟╖╦⌠│╦╫⸗│║╙╤╫ⱶ╒¯╒ꞁ╬≡╩ɭ¦–╫╓∟―ɭ╧╝╛╖╕‒╡╘┐Ɩ╙▬┼┘╟╨╜╢╣│╥",
+        "tags": {
+            "badge-info": {
+                "subscriber": "10"
+            },
+            "badges": {
+                "broadcaster": "1",
+                "subscriber": "9"
+            },
+            "client-nonce": "a8dda452eac6620383f5538205b84548",
+            "color": "#9ACD32",
+            "display-name": "Durss",
+            "emotes": null,
+            "first-msg": false,
+            "flags": null,
+            "id": "46fa6d2a-1a68-4b4b-9ef1-acc43b16f6b3",
+            "mod": false,
+            "room-id": "29961813",
+            "subscriber": true,
+            "tmi-sent-ts": "1642628287540",
+            "turbo": false,
+            "user-id": "29961813",
+            "user-type": null,
+            "emotes-raw": null,
+            "badge-info-raw": "subscriber/10",
+            "badges-raw": "broadcaster/1,subscriber/9",
+            "username": "durss",
+            "message-type": "chat"
+        },
+        "channel": "#durss",
+        "self": false,
+        "firstMessage": true
+    },
+    "host": {
+        "type": "notice",
+        "channel": "#durss",
+        "msgid": "usage_host",
+        "message": "durssbot is hosting with 0 viewers",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16426427196530.3987779790806514",
+            "tmi-sent-ts": "1642642719653"
+        }
+    },
+    "raid2":{
+        "type": "highlight",
+        "channel": "#durss",
+        "tags": {
+            "info": "this tags prop is a fake one to make things easier for my code",
+            "id": "16426440291040.9510683754652076",
+            "tmi-sent-ts": "1642644029104"
+        },
+        "username": "DurssBot",
+        "viewers": 1
     }
 }

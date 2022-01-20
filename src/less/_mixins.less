@@ -20,8 +20,8 @@
 	&>.holder {
 		.block();
 		left: 50%;
-		top: 0;
-		transform: translate(-50%, 0);
+		top: 50%;
+		transform: translate(-50%, -50%);
 		position: absolute;
 		margin: auto;
 		width: 90%;
@@ -48,8 +48,11 @@
 				height: 30px;
 				max-width: 30px;
 				max-height: 30px;
-				padding: 5px;
+				padding: 0;
 				border-radius: 5px;
+				:deep(.icon) {
+					max-height: 20px;
+				}
 			}
 		}
 

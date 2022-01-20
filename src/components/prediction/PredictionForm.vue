@@ -10,24 +10,18 @@
 				<form  @submit.prevent="submitPoll()">
 					<div class="row">
 						<label for="poll_title">Question</label>
-						<input type="text" v-model="title">
+						<input type="text" v-model="title" maxlength="45">
 					</div>
-					<div class="row">
-						<label for="poll_title">Answers (at least 2)</label>
-						<div class="line">
-							<div class="dot blue"></div>
-							<input type="text" id="poll_title" v-model="answer1">
-						</div>
-						<div class="line">
-							<div class="dot red"></div>
-							<input type="text" v-model="answer2">
-						</div>
+					<div class="row answers">
+						<label for="poll_title">Answers</label>
+						<input type="text" id="poll_title" v-model="answer1" maxlength="25">
+						<input type="text" v-model="answer2" maxlength="25">
 					</div>
 					<div class="row">
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
-						<Button title="Submit" type="submit" :loading="loading" :disabled="answers.length != 2" />
+						<Button title="Submit" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length != 2" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
 				</form>
@@ -88,7 +82,7 @@ export default class PredictionForm extends Vue {
 		this.error = "";
 
 		try {
-			await TwitchUtils.createPrediction(this.title, this.answers, this.voteDuration.value as number);
+			await TwitchUtils.createPrediction(this.title, this.answers, this.voteDuration.value as number * 60);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
@@ -133,26 +127,23 @@ export default class PredictionForm extends Vue {
 					background-color: @mainColor_alert;
 				}
 
-				.line {
-					display: flex;
-					flex-direction: row;
+				&.answers {
 					input {
 						flex-grow: 1;
+						border-width: 3px;
+						@c:#f50e9b;
+						color: @c;
+						border-color: @c;
+						background-color: lighten(@c, 40%);
 					}
-					.dot {
-						background-color: #f50e9b;
-						width: 20px;
-						height: 20px;
-						display: inline-block;
-						border-radius: 50%;
-						align-self: center;
-						margin-right: 5px;
-					}
-					&:first-of-type>.dot {
-						background-color: #387aff;
+					input:first-of-type {
+						@c:#387aff;
+						color: @c;
+						border-color: @c;
+						background-color: lighten(@c, 30%);
+						margin-bottom: 5px;
 					}
 				}
-
 			}
 		}
 	}

@@ -29,6 +29,7 @@
 			<span class="miniBadges" v-if="miniBadges.length > 0">
 				<span class="badge" v-for="(b,index) in miniBadges"
 					:key="index"
+					:class="b.class"
 					:style="{backgroundColor:b.color}"
 					:data-tooltip="b.label"></span>
 			</span>
@@ -76,6 +77,7 @@ export default class ChatMessage extends Vue {
 	public firstTime:boolean = false;
 	public automod:PubSubTypes.AutomodData | null = null;
 	public automodReasons:string = "";
+	public badges:TwitchTypes.Badge[] = [];
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
@@ -87,6 +89,7 @@ export default class ChatMessage extends Vue {
 		
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
+		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
 
 		if(store.state.params.appearance.highlightMentions.value
 		&& store.state.user.login
@@ -94,18 +97,17 @@ export default class ChatMessage extends Vue {
 			res.push("mention");
 		}
 
-
-		if(message.tags.mod) {
-			res.push("size_"+store.state.params.appearance.modsSize.value);
-			if(store.state.params.appearance.highlightMods.value) res.push("highlightMods");
+		if(message.tags.subscriber) {
+			res.push("size_"+store.state.params.appearance.subsSize.value);
+			if(store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
 		}
 		else if(message.tags.vip){
 			res.push("size_"+store.state.params.appearance.vipsSize.value);
 			if(store.state.params.appearance.highlightVips.value) res.push("highlightVips");
-		}
-		else if(message.tags.subscriber) {
-			res.push("size_"+store.state.params.appearance.subsSize.value);
-			if(store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
+		}else
+		if(message.tags.mod) {
+			res.push("size_"+store.state.params.appearance.modsSize.value);
+			if(store.state.params.appearance.highlightMods.value) res.push("highlightMods");
 		}
 		else res.push("size_"+store.state.params.appearance.defaultSize.value);
 
@@ -199,10 +201,12 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Displays minimalist badges
 	 */
-	public get miniBadges():{color:string, label:string}[] {
-		let badges:{color:string, label:string}[] = [];
+	public get miniBadges():{color:string, label:string, class?:string}[] {
+		let badges:{color:string, label:string, class?:string}[] = [];
 		const message = this.messageData as IRCEventDataList.Message;
 		if(store.state.params.appearance.minimalistBadges.value) {
+			if(message.tags.badges?.predictions?.indexOf("pink")) badges.push({color:"#f50e9b", label:"Prediction", class:"prediction"});
+			if(message.tags.badges?.predictions?.indexOf("blue")) badges.push({color:"#387aff", label:"Prediction", class:"prediction"});
 			if(message.tags.badges?.vip) badges.push({color:"#e00bb9", label:"VIP"});
 			if(message.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
 			if(message.tags.badges?.premium) badges.push({color:"#00a3ff", label:"Prime"});
@@ -212,8 +216,6 @@ export default class ChatMessage extends Vue {
 		}
 		return badges;
 	}
-
-	public badges:TwitchTypes.Badge[] = [];
 
 	public openUserCard():void {
 		const message = this.messageData as IRCEventDataList.Message;
@@ -278,7 +280,7 @@ export default class ChatMessage extends Vue {
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.
-			store.dispatch("delChatMessage", message.tags.id)
+			store.dispatch("delChatMessage", message.tags.id);
 		}
 	}
 }
@@ -298,6 +300,12 @@ export default class ChatMessage extends Vue {
 
 	&.mention{
 		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>
+	}
+
+	&.slashMe {
+		.message {
+			font-style: italic;
+		}
 	}
 
 	&.deleteOverlay{
@@ -355,6 +363,10 @@ export default class ChatMessage extends Vue {
 				margin: 0 1px 0px 0;
 				&:last-child {
 					margin-right: 0;
+				}
+				&.prediction {
+					width: 12px;
+					border-radius: 50%;
 				}
 			}
 		}

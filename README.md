@@ -46,7 +46,9 @@ The goal is to reduce as much as possible the number of missed messages with fea
 - [ ] Allow to read whispers
 - [ ] Make it possible to define configurations via query params for OBS chats
 - [ ] Parse BTTV and FFZ emotes
-- [ ] Request scopes when trying to use associated features
+- [ ] Request scopes on-demand
+- [ ] Autocomplete comands
+- [ ] Emotes selector
 <br>
 <br>
 <br>

@@ -52,7 +52,7 @@ export default class ChatHighlight extends Vue {
 		}else if(this.messageData.recipient) {
 			type = "subgift";
 			this.filtered = !store.state.params.filters.showSubs.value;
-		}else if(this.messageData.viewers) {
+		}else if(this.messageData.viewers != undefined) {
 			type = "raid";
 			value = this.messageData.viewers;
 			this.filtered = !store.state.params.filters.showRaids.value;
@@ -109,7 +109,7 @@ export default class ChatHighlight extends Vue {
 				const localObj = this.messageData.reward as PubSubTypes.RewardData;
 				res = localObj.redemption.user.display_name;
 				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
-				res += " (x"+localObj.redemption.reward.cost+" points)";
+				res += " <span class='small'>("+localObj.redemption.reward.cost+" pts)</span>";
 				this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
 				break;
 			}
@@ -178,6 +178,9 @@ export default class ChatHighlight extends Vue {
 		:deep(strong) {
 			font-weight: bold;
 			color: @mainColor_warn;
+		}
+		:deep(.small) {
+			font-size: .6em;
 		}
 	}
 
