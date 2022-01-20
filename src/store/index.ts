@@ -182,8 +182,9 @@ export default createStore({
 				
 				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
 					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
+					const original = m.message;
 					m.message = await TwitchCypherPlugin.instance.decrypt(m.message);
-					m.cyphered = true;
+					m.cyphered = m.message != original;
 				}
 				
 				//If message is an answer, set original message's ref to the answer
