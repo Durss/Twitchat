@@ -1,26 +1,43 @@
 <template>
 	<div :class="classes">
 		<div class="holder" ref="messageHolder" @mousewheel="onMouseWheel($event)">
-			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="messageHolder">
+			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
+			@mouseenter="enterMessage(m)"
+			@mouseleave="leaveMessage(m)">
 				<ChatMessage
 					v-if="m.type == 'message'"
 					class="message"
 					:messageData="m"
 					@showConversation="onMouseEnter"
 					@mouseleave="onMouseLeave(m)"
+					:ref="'message_'+m.tags.id"
 					/>
 				<ChatNotice
 					v-if="m.type == 'notice'"
 					class="message"
 					:messageData="m"
+					:ref="'message_'+m.tags.id"
 					/>
 				<ChatHighlight
 					v-if="m.type == 'highlight'"
 					class="message"
 					:messageData="m"
+					:ref="'message_'+m.tags.id"
 					/>
+
+				<img class="markRead" src="@/assets/icons/markRead.svg"
+					v-if="!lightMode && m.markedAsRead"
+					data-tooltip="Read flag">
+
+				<transition name="slide">
+					<ChatMessageHoverActions class="hoverActions"
+					v-if="m.showHoverActions"
+					:messageData="m"
+					@toggleMarkRead="toggleMarkRead(m)" />
+				</transition>
 			</div>
 		</div>
+		
 
 		<div class="locked" v-if="(lockScroll || pendingMessages.length > 0) && !lightMode">
 			<!-- data-tooltip="auto scroll locked"> -->
@@ -68,6 +85,7 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatHighlight from './ChatHighlight.vue';
+import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
 import ChatNotice from './ChatNotice.vue';
 
 @Options({
@@ -76,6 +94,7 @@ import ChatNotice from './ChatNotice.vue';
 		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
+		ChatMessageHoverActions,
 	},
 	props: {
 		max:Number,
@@ -94,7 +113,8 @@ export default class MessageList extends Vue {
 
 	private disposed:boolean = false;
 	private frameIndex:number = 0;
-	private virtualScrollY?:number;
+	private markedReadItems:IRCEventDataList.Message[] = [];
+	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private lastHoverdMessage!:{event:MouseEvent, message:IRCEventDataList.Message};
 	private closeConvTimeout!:number;
@@ -109,8 +129,43 @@ export default class MessageList extends Vue {
 	}
 
 	public get conversationStyles():unknown {
-		return {
-			top: this.conversationPos+"px"
+		return { top: this.conversationPos+"px" }
+	}
+
+	public async scrollToLatestRead():Promise<void> {
+		let foundItem = false;
+		for (let index = this.localMessages.length-1; index >= 0; index--) {
+			const m = this.localMessages[index];
+			if(m.markedAsRead) {
+				const messRef = (this.$refs.message as HTMLDivElement[])[index];
+				
+				const el = this.$refs.messageHolder as HTMLDivElement;
+				const h = (this.$el as HTMLDivElement).clientHeight;
+				const scrollY = messRef.offsetTop - h/2;
+				if(scrollY < this.virtualScrollY) {
+					//If element is higher than half of screen, scroll to it
+					this.virtualScrollY = scrollY;
+					this.lockScroll = true;
+					await (async ()=> {
+						return new Promise((resolve,)=> {
+							gsap.to(el, {scrollTo:this.virtualScrollY, duration: .5, ease:"sine.inOut", onComplete:()=>{
+								resolve(null);
+							}});
+						})
+					})();
+				}
+				//Flash element after potential scroll
+				gsap.set(messRef, {backgroundColor:"rgba(255,255,255,0)"});
+				gsap.to(messRef, {backgroundColor:"rgba(255,255,255,.5)", duration: .1, yoyo:true, repeat:5, ease:"sine.inOut"});
+				foundItem = true;
+				break;
+			}
+		}
+		//Fail safe in case something goes wrong this will prevent from
+		//being unable to hide the "mark as read" button from the notifications
+		if(!foundItem) {
+			this.markedReadItems = [];
+			store.state.isMessageMarkedAsRead = false;
 		}
 	}
 
@@ -134,9 +189,10 @@ export default class MessageList extends Vue {
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].tags.id as string] = true;
 			}
+
 			this.scrollToPrevMessage();
 		}, {
-			deep:true
+			// deep:true
 		});
 		
 		const list = this.$refs.messageHolder as HTMLDivElement;
@@ -191,6 +247,11 @@ export default class MessageList extends Vue {
 		this.localMessages = this.localMessages.slice(-this.max);
 
 		this.lockScroll = false;
+		
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const h = (this.$el as HTMLDivElement).clientHeight;
+		const maxScroll = (el.scrollHeight - h);
+		this.virtualScrollY = maxScroll
 	}
 
 	/**
@@ -207,7 +268,6 @@ export default class MessageList extends Vue {
 			if((maxScroll - el.scrollTop) < 50) {
 				this.showNextPendingMessage();
 			}
-
 		}
 	}
 
@@ -223,7 +283,7 @@ export default class MessageList extends Vue {
 		const h = (this.$el as HTMLDivElement).clientHeight;
 		const maxScroll = (el.scrollHeight - h);
 		if(!this.lockScroll) {
-			if(!this.virtualScrollY) this.virtualScrollY = maxScroll;
+			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
 
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
 			if(dist > 100) {
@@ -237,7 +297,7 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY;
 		}
 
-		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%10 == 0) {
+		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%3 == 0) {
 			this.showNextPendingMessage();
 		}
 		
@@ -273,6 +333,24 @@ export default class MessageList extends Vue {
 			this.virtualScrollY = lastMessRef.offsetTop + lastMessRef.clientHeight - h;
 			el.scrollTop = this.virtualScrollY;
 		}
+
+		this.refreshMarkedAsReadHistory();
+	}
+
+	/**
+	 * Check if the messages marked as read are still there
+	 * Clean them if they're not
+	 */
+	private refreshMarkedAsReadHistory():void {
+		// console.log("REFRESH");
+		for (let i = 0; i < this.markedReadItems.length; i++) {
+			const m = this.markedReadItems[i];
+			if((this.$refs["message_"+m.tags.id] as Vue[]).length == 0) {
+				this.markedReadItems.splice(i, 1);
+				i--;
+			}
+		}
+		store.state.isMessageMarkedAsRead = this.markedReadItems.length > 0;
 	}
 
 	/**
@@ -329,6 +407,36 @@ export default class MessageList extends Vue {
 		}, 0);
 	}
 
+	/**
+	 * Called when hovering a message
+	 */
+	public enterMessage(m:IRCEventDataList.Message):void {
+		if(m.type != "message" && m.type != "highlight") return;
+		m.showHoverActions = true;
+	}
+
+	/**
+	 * Called on a message rollout
+	 */
+	public leaveMessage(m:IRCEventDataList.Message):void {
+		m.showHoverActions = false;
+	}
+
+	/**
+	 * Called on a message is clicked
+	 */
+	public toggleMarkRead(m:IRCEventDataList.Message):void {
+		m.markedAsRead = !m.markedAsRead;
+		if(m.markedAsRead) {
+			this.markedReadItems.push( m );
+			store.state.isMessageMarkedAsRead = true;
+		}else {
+			this.markedReadItems = this.markedReadItems.filter(m2=>m2.tags.id != m.tags.id);
+			store.state.isMessageMarkedAsRead = this.markedReadItems.length > 0;
+		}
+		m.showHoverActions = false;
+	}
+
 }
 </script>
 
@@ -367,15 +475,56 @@ export default class MessageList extends Vue {
 		max-height: 100%;
 		width: calc(100% - 10px);
 		overflow-y: auto;
+		overflow-x: hidden;
 		position: absolute;
 		bottom: 0;
 		padding: 10px 0;
 		padding-bottom: 0;
 
 		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
-		// .messageHolder:nth-child(odd) {
+		// .subHolder:nth-child(odd) {
 			// background-color: rgba(255, 255, 255, .05);
 		// }
+		.subHolder {
+			display: flex;
+			flex-direction: row;
+			position: relative;
+
+			&:hover {
+				background-color: rgba(255, 255, 255, .2);
+			}
+
+			.message {
+				flex-grow: 1;
+			}
+			.markRead {
+				align-self: center;
+				max-width: 30px;
+				opacity: .75;
+				margin-left: 5px;
+			}
+		}
+
+		.hoverActions {
+			position: absolute;
+			right: 0;
+			top: 50%;
+			transform:translateY(-50%);
+		}
+
+		.slide-enter-active {
+			transition: all 0.2s;
+			transform: translate(0%, -50%);
+		}
+
+		.slide-leave-active {
+			transition: all 0.2s;
+		}
+		
+		.slide-enter-from,
+		.slide-leave-to {
+			transform: translate(100%, -50%);
+		}
 	}
 
 	.locked {

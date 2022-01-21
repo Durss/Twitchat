@@ -198,7 +198,7 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	private scrollTo(down:boolean = true):void {
+	private scrollTo():void {
 		let el = this.$refs.messageList as Vue;
 		if(el) {
 			if(this.scrollDownAuto) {

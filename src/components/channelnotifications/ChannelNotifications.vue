@@ -1,8 +1,22 @@
 <template>
 	<div class="channelnotifications">
 		<div class="notifications">
-			<Button :icon="require('@/assets/icons/poll.svg')" small bounce @click="currentContent = 'poll'" v-if="$store.state.currentPoll?.id" />
-			<Button :icon="require('@/assets/icons/prediction.svg')" small bounce @click="currentContent = 'prediction'" v-if="$store.state.currentPrediction?.id" />
+			<Button :icon="require('@/assets/icons/poll.svg')"
+				small
+				bounce
+				@click="currentContent = 'poll'"
+				v-if="$store.state.currentPoll?.id" />
+			<Button :icon="require('@/assets/icons/prediction.svg')"
+				small
+				bounce
+				@click="currentContent = 'prediction'"
+				v-if="$store.state.currentPrediction?.id" />
+			<Button :icon="require('@/assets/icons/markRead.svg')"
+				small
+				bounce
+				v-if="$store.state.isMessageMarkedAsRead"
+				data-tooltip="Scroll to last<br>messaged flagged"
+				@click="$emit('goToLastRead')" />
 		</div>
 		<div ref="content">
 			<transition name="slide">
@@ -28,7 +42,8 @@ import PredictionState from './PredictionState.vue';
 		Button,
 		PollState,
 		PredictionState,
-	}
+	},
+	emits:['goToLastRead'],
 })
 export default class ChannelNotifications extends Vue {
 
@@ -88,7 +103,8 @@ export default class ChannelNotifications extends Vue {
 			margin-left: 1px;
 			padding-bottom: 10px;
 			:deep(.icon) {
-				width: 15px;
+				width: 25px;
+				max-height: 20px;
 			}
 		}
 	}

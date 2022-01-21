@@ -1,10 +1,11 @@
 <template>
 	<div class="chat">
 		<div class="chatHolder">
-			<MessageList class="messages" :max="$store.state.params.appearance.historySize.value" />
+			<MessageList ref="messages" class="messages" :max="$store.state.params.appearance.historySize.value" />
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
+				@goToLastRead="goToLastRead()"
 				@clear="clearChat()"
 				/>
 		</div>
@@ -45,6 +46,10 @@ export default class Chat extends Vue {
 
 	public clearChat():void {
 		IRCClient.instance.client.clear(IRCClient.instance.channel);
+	}
+
+	public goToLastRead():void {
+		(this.$refs.messages as MessageList).scrollToLatestRead();
 	}
 }
 

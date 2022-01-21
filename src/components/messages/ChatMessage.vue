@@ -60,7 +60,7 @@ import ChatModTools from './ChatModTools.vue';
 	props:{
 		messageData:Object,
 		// deleteOverlay:{type:Boolean, default:false},
-		lightmode:{type:Boolean, default:false},
+		lightMode:{type:Boolean, default:false},
 		disableConversation:{type:Boolean, default:false},
 	},
 	emits:['showConversation'],
@@ -69,7 +69,7 @@ export default class ChatMessage extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
 	// public deleteOverlay!:boolean;
-	public lightmode!:boolean;
+	public lightMode!:boolean;
 	public disableConversation!:boolean;
 	
 	public firstTime:boolean = false;
@@ -90,7 +90,7 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
 		if(this.messageData.cyphered) res.push("cyphered");
 
-		if(!this.lightmode) {
+		if(!this.lightMode) {
 			if(store.state.params.appearance.highlightMentions.value
 			&& store.state.user.login
 			&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
@@ -223,7 +223,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public openUserCard():void {
-		if(this.lightmode) return;
+		if(this.lightMode) return;
 		const message = this.messageData as IRCEventDataList.Message;
 		store.dispatch("openUserCard", message.tags.username);
 	}
@@ -239,10 +239,10 @@ export default class ChatMessage extends Vue {
 		const mess = this.messageData as IRCEventDataList.Message;
 		
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'] && !this.lightmode;
+		this.firstTime = mess.tags['first-msg'] && !this.lightMode;
 
 		//Manage automod content
-		if(!this.lightmode && mess.automod) {
+		if(!this.lightMode && mess.automod) {
 			this.automod = mess.automod;
 			let reasons:string[] = [];
 			for (let i = 0; i < mess.automod.message.content.fragments.length; i++) {

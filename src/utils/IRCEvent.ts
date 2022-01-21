@@ -49,6 +49,8 @@ export namespace IRCEventDataList {
 		answerTo?:Message;
 		answers?:Message[];
 		cyphered?:boolean;
+		markedAsRead?:boolean;
+		showHoverActions?:boolean;
 		type:"message";
 	}
 

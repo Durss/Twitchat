@@ -7,11 +7,15 @@
 			</div>
 
 			<form @submit.prevent="sendMessage()" class="inputForm">
-				<input type="text" class="dark" v-model="message" v-if="!error" placeholder="message...">
+				<input type="text" class="dark" v-model="message" v-if="!error" placeholder="message..." maxlength="500">
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				<Button class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
-				<Button class="submit" :icon="require('@/assets/icons/unlock.svg')" @click="toggleCypher()" v-if="cypherConfigured && !$store.state.cypherEnabled" bounce data-tooltip="Send encrypted messages" />
-				<Button class="submit" :icon="require('@/assets/icons/lock.svg')" @click="toggleCypher()" v-if="cypherConfigured && $store.state.cypherEnabled" bounce />
+				<Button class="submit"
+					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'un':'')+'lock.svg')"
+					@click="toggleCypher()"
+					v-if="cypherConfigured"
+					bounce
+					data-tooltip="Send encrypted<br>messages" />
 			</form>
 
 			<div class="actions" ref="commandsContent" v-if="showCommands">
@@ -25,14 +29,14 @@
 				<div class="raid">
 					<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 					<form @submit.prevent="raid()">
-						<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser">
+						<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
 						<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 					</form>
 				</div>
 			</div>
 		</div>
 
-		<ChannelNotifications class="notifications" />
+		<ChannelNotifications class="notifications" @goToLastRead="$emit('goToLastRead')" />
 	</div>
 </template>
 
@@ -54,7 +58,7 @@ import ParamItem from '../params/ParamItem.vue';
 		ParamItem,
 		ChannelNotifications,
 	},
-	emits: ["poll","pred","clear"]
+	emits: ["poll","pred","clear","goToLastRead"]
 })
 export default class ChatForm extends Vue {
 
@@ -120,6 +124,8 @@ export default class ChatForm extends Vue {
 	}
 
 	public async sendMessage():Promise<void> {
+		if(this.message.length == 0) return;
+
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
 		if(cmd == "/poll") {

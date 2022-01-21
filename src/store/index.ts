@@ -24,6 +24,7 @@ export default createStore({
 		currentPrediction: {},
 		cypherKey: '',
 		cypherEnabled: false,
+		isMessageMarkedAsRead: false,
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -158,12 +159,12 @@ export default createStore({
 		openUserCard(state, payload) { state.userCard = payload; },
 		
 		async addChatMessage(state, payload:IRCEventData) {
-			let messages = state.chatMessages as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
 			const m = payload as IRCEventDataList.Message;
+			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
 			
 			//Limit history size
 			const maxMessages = state.params.appearance.historySize.value;
-			if(messages.length > maxMessages) {
+			if(messages.length >= maxMessages) {
 				messages = messages.slice(-maxMessages);
 				state.chatMessages = messages as never[];
 			}
@@ -255,6 +256,7 @@ export default createStore({
 			}
 
 			messages.push( m );
+			state.chatMessages = messages as never[];
 		},
 		
 		delChatMessage(state, messageId:string) { 
@@ -292,15 +294,13 @@ export default createStore({
 
 		setPolls(state, payload:TwitchTypes.Poll[]) {
 			state.currentPoll = payload.find(v => {
-				const tooOld = v.ended_at ? Date.now() > new Date(v.ended_at).getTime() + 2*60*1000 : false;
-				return v.status == "ACTIVE" && !tooOld
+				return (v.status == "ACTIVE" || v.status == "COMPLETED");
 			}) as  TwitchTypes.Poll;
 		},
 		
 		setPredictions(state, payload:TwitchTypes.Prediction[]) {
 			state.currentPrediction = payload.find(v => {
-				const tooOld = v.ended_at ? Date.now() > new Date(v.ended_at).getTime() + 2*60*1000 : false;
-				return (v.status == "ACTIVE" || v.status == "LOCKED") && !tooOld
+				return (v.status == "ACTIVE" || v.status == "LOCKED");
 			}) as  TwitchTypes.Prediction;
 		},
 
@@ -355,6 +355,10 @@ export default createStore({
 					})
 					TwitchUtils.getPolls();
 					TwitchUtils.getPredictions();
+					setInterval(()=> {
+						TwitchUtils.getPolls();
+						TwitchUtils.getPredictions();
+					}, 1*60*1000);
 				}catch(error) {
 					console.log(error);
 					state.authenticated = false;

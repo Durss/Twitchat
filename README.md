@@ -38,8 +38,8 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Highlight messages by roles *(mods, vips, subs)*
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
+- [x] Flag a message as "read" and scroll back to it easily
 
-- [ ] Mark last message read and allow to go back to it
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
