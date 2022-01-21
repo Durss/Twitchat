@@ -1,6 +1,6 @@
 <template>
 	<div class="newusers" v-show="localMessages.length > 0">
-		<div class="header" @click="showList = !showList">
+		<div class="header" @click="toggleList()">
 			<Button :icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
 				class="scrollBt"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
@@ -26,7 +26,8 @@
 				:key="m.tags.id"
 				:messageData="m"
 				:data-index="index"
-				:lightmode="true"
+				:lightMode="true"
+				:disableConversation="true"
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
 				@click="deleteMessage(m, index)" />
@@ -78,13 +79,9 @@ export default class NewUsers extends Vue {
 				this.localMessages.push(m);
 			}
 			await this.$nextTick();
-			let el = (this.$refs.messageList as Vue).$el;
-			if(this.scrollDownAuto) {
-				el.scrollTop = el.scrollHeight;
-			}
-
+			this.scrollTo();
 		}, {
-			deep:true
+			// deep:true,
 		});
 		
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
@@ -173,6 +170,7 @@ export default class NewUsers extends Vue {
 			(items[index].$el as HTMLDivElement).style.textDecoration = "line-through";
 		}
 	}
+
 	public onMouseOut():void {
 		this.overIndex = -1;
 		let items = this.$refs.message as Vue[];
@@ -185,14 +183,28 @@ export default class NewUsers extends Vue {
 		}
 	}
 
+	public async toggleList():Promise<void> {
+		this.showList = !this.showList
+		if(this.showList) {
+			await this.$nextTick();
+			this.scrollTo();
+		}
+	}
+
 	public toggleScroll():void {
 		this.scrollDownAuto = !this.scrollDownAuto;
 		if(this.scrollDownAuto) {
-			let el = (this.$refs.messageList as Vue).$el;
+			this.scrollTo();
+		}
+	}
+
+	private scrollTo(down:boolean = true):void {
+		let el = this.$refs.messageList as Vue;
+		if(el) {
 			if(this.scrollDownAuto) {
-				el.scrollTop = el.scrollHeight;
+				el.$el.scrollTop = el.$el.scrollHeight;
 			}else{
-				el.scrollTop = 0;
+				el.$el.scrollTop = 0;
 			}
 		}
 	}
