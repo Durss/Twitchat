@@ -3,7 +3,7 @@ import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import Config from "./Config";
-import IRCEvent, { IRCEventDataList } from "./IRCEvent";
+import IRCEvent, { IRCEventData, IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
@@ -16,8 +16,8 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -26,6 +26,7 @@ export default class IRCClient extends EventDispatcher {
 	public channel!:string;
 	public connected:boolean = false;
 	public botsLogins:string[] = [];
+	public increment:number = 0;
 	
 	constructor() {
 		super();
@@ -61,7 +62,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["thesushidragon", "mistermv", "andythefrenchy", "pykamusic", "hanawins", "littlebigwhale","bagherajones", "hortyunderscore", "colas_bim", "alisa", "tipstevens" ]);
+				channels = channels.concat(["littlebigwhale", "bagherajones", "hortyunderscore", "tipstevens" ]);
 			}
 
 			(async ()=> {
@@ -290,14 +291,6 @@ export default class IRCClient extends EventDispatcher {
 			console.log(this.idToExample);
 		}
 		
-		//Ignore bot messages if requested
-		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
-			return;
-		}
-		//Ignore custom users
-		if(store.state.params.filters.hideUsers.value.toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
-			return;
-		}
 		//Ignore /me messages
 		if(!store.state.params.filters.showSelf.value && tags["message-type"] == "action") {
 			return;
@@ -306,13 +299,21 @@ export default class IRCClient extends EventDispatcher {
 		if(!store.state.params.filters.showSlashMe.value && tags["user-id"] == store.state.user.user_id) {
 			return;
 		}
+		//Ignore bot messages if requested
+		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+			return;
+		}
+		//Ignore custom users
+		if(store.state.params.filters.hideUsers.value.toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+			return;
+		}
 		//Ignore commands
 		if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 			return;
 		}
 
 		//Add message
-		const data:IRCEventDataList.Message = {type:"message",
+		let data:IRCEventDataList.Message = {type:"message",
 												message,
 												tags,
 												channel:channel? channel : this.channel,
@@ -323,7 +324,7 @@ export default class IRCClient extends EventDispatcher {
 
 		//For some (stupid) reason, twitch does not send these
 		//data for the broadcaster's messages...
-		if(!tags.id) tags.id = Math.random().toString();
+		if(!tags.id) tags.id = this.getFakeGuid();
 		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
 
 		if(this.uidsDone[tags['user-id'] as string] !== true) {
@@ -331,7 +332,16 @@ export default class IRCClient extends EventDispatcher {
 			this.uidsDone[tags['user-id'] as string] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
-
+		
+		//This line avoids an edge case issue.
+		//If the current TMI client sends messages super fast (some ms between each message),
+		//the tags property is not updated for the later messages that will receive
+		//the exact same tags instance (not only the same values).
+		//This makes multiple mess	ages sharing the same ID which can cause
+		//issues with VueJS keyd items (ex: on v-for loops) that would share
+		//the same value which is not authorized
+		data = JSON.parse(JSON.stringify(data)) as IRCEventDataList.Message;
+		
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 	}
 	
@@ -344,9 +354,15 @@ export default class IRCClient extends EventDispatcher {
 	private getFakeTags():tmi.ChatUserstate {
 		return {
 			info:"this tags prop is a fake one to make things easier for my code",
-			id:Date.now().toString() + Math.random().toString(),
+			id:this.getFakeGuid(),
 			"tmi-sent-ts": Date.now().toString(),
 		};
+	}
+
+	private getFakeGuid():string {
+		let suffix = (this.increment++).toString(16);
+		while(suffix.length < 12) suffix = "0" + suffix;
+		return "00000000-0000-0000-0000-"+suffix;
 	}
 
 	private async sendFakeEvents():Promise<void> {
