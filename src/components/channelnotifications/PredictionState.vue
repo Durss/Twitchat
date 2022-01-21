@@ -1,9 +1,10 @@
 <template>
 	<div class="predictionstate">
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
+		<ProgressBar class="progress" :percent="progressPercent" v-if="prediction.status == 'ACTIVE'" />
 		<div class="outcomeTitle" v-if="prediction.status == 'LOCKED'"><span class="arrow">⤺</span> Choose outcome</div>
 		<div class="choices">
-			<div class="choice" v-for="c in prediction.outcomes" :key="c.id">
+			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
 				<div class="color" v-if="prediction.status != 'LOCKED'"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
@@ -17,7 +18,8 @@
 			</div>
 		</div>
 		<div class="actions">
-			<Button title="Delete prediction" @click="deletePrediction()" :loading="loading" />
+			<Button title="Delete prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.status == 'ACTIVE'" />
+			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.status == 'LOCKED'" />
 		</div>
 	</div>
 </template>
@@ -26,20 +28,24 @@
 import store from '@/store';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ProgressBar from '../ProgressBar.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		ProgressBar,
 	}
 })
 export default class PredictionState extends Vue {
 
 	public loading:boolean = false;
-
-	private interval!:number;
+	public progressPercent:number = 0;
+	
+	private disposed:boolean = false;
 
 	public get prediction():TwitchTypes.Prediction {
 		return store.state.currentPrediction as TwitchTypes.Prediction;
@@ -57,18 +63,30 @@ export default class PredictionState extends Vue {
 
 	public getAnswerStyles(c:TwitchTypes.PredictionOutcome):unknown {
 		return {
-			backgroundSize: `${this.getPercent(c)}% 100%`
+			backgroundSize: `${this.getPercent(c)}% 100%`,
 		}
 	}
 
 	public mounted():void {
-		this.interval = setInterval(()=> {
-			TwitchUtils.getPredictions();
-		}, 5000)
+		this.loadPredictions();
+
+		const ellapsed = new Date().getTime() - new Date(this.prediction.created_at).getTime();
+		const duration = this.prediction.prediction_window*1000;
+		const timeLeft = duration - ellapsed
+		this.progressPercent = ellapsed/duration;
+		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 	}
 
+	private async loadPredictions():Promise<void> {
+		if(this.disposed) return;
+		await TwitchUtils.getPredictions();
+		await Utils.promisedTimeout(1000);
+		this.loadPredictions();
+	}
+
+
 	public beforeUnmount():void {
-		clearInterval(this.interval);
+		this.disposed = true;
 	}
 
 	public setOutcome(c:TwitchTypes.PredictionOutcome):void {
@@ -113,7 +131,6 @@ export default class PredictionState extends Vue {
 		color: @mainColor_light;
 		width: 100%;
 		text-align: center;
-		border-bottom: 1px solid @mainColor_light;
 		padding-bottom: 10px;
 		margin-bottom: 10px;
 		word-break: break-word;
@@ -121,6 +138,10 @@ export default class PredictionState extends Vue {
 			width: 20px;
 			margin-right: 10px;
 		}
+	}
+
+	.progress {
+		margin-bottom: 10px;
 	}
 
 	.outcomeTitle {

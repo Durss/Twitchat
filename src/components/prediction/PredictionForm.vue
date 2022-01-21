@@ -9,12 +9,12 @@
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
 					<div class="row">
-						<label for="poll_title">Question</label>
-						<input type="text" v-model="title" maxlength="45">
+						<label for="prediction_title">Question</label>
+						<input type="text" id="prediction_title" v-model="title" maxlength="45">
 					</div>
 					<div class="row answers">
-						<label for="poll_title">Answers</label>
-						<input type="text" id="poll_title" v-model="answer1" maxlength="25">
+						<label for="prediction_answer">Answers</label>
+						<input type="text" id="prediction_answer" v-model="answer1" maxlength="25">
 						<input type="text" v-model="answer2" maxlength="25">
 					</div>
 					<div class="row">

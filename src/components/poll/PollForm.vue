@@ -10,11 +10,11 @@
 				<form  @submit.prevent="submitPoll()">
 					<div class="row">
 						<label for="poll_title">Question</label>
-						<input type="text" v-model="title" maxlength="60">
+						<input type="text" id="poll_title" v-model="title" maxlength="60">
 					</div>
 					<div class="row">
-						<label for="poll_title">Answers (at least 2)</label>
-						<input type="text" id="poll_title" v-model="answer1" maxlength="25">
+						<label for="poll_answer">Answers (at least 2)</label>
+						<input type="text" id="poll_answer" v-model="answer1" maxlength="25">
 						<input type="text" v-model="answer2" maxlength="25">
 						<input type="text" v-model="answer3" maxlength="25">
 						<input type="text" v-model="answer4" maxlength="25">
@@ -105,7 +105,7 @@ export default class PollForm extends Vue {
 		try {
 			await TwitchUtils.createPoll(this.title,
 									this.answers,
-									this.voteDuration.value as number * 60,
+									15,//this.voteDuration.value as number * 60,
 									this.bitsVoteParam.value as number,
 									this.pointsVoteParam.value as number);
 		}catch(error:unknown) {

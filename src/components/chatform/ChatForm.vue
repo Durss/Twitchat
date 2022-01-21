@@ -19,9 +19,9 @@
 			</form>
 
 			<div class="actions" ref="commandsContent" v-if="showCommands">
-				<Button @click="$emit('poll')" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="$store.state.currentPoll?.id != undefined" />
-				<Button @click="$emit('pred')" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="$store.state.currentPrediction?.id != undefined" />
-				<Button @click="$emit('clear')" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
+				<Button @click="$emit('poll'); toggleCommands()" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
+				<Button @click="$emit('pred'); toggleCommands()" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="$store.state.currentPrediction?.id != undefined" />
+				<Button @click="$emit('clear'); toggleCommands()" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 				<div v-for="(p,key) in params" :key="key">
 					<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
@@ -44,6 +44,7 @@
 import store, { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
+import { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -76,6 +77,10 @@ export default class ChatForm extends Vue {
 	}
 
 	public get params():{[key:string]:ParameterData} { return store.state.params.roomStatus; }
+	public get canCreatePoll():boolean {
+		const poll = store.state.currentPoll as TwitchTypes.Poll;
+		return poll == undefined || poll.status != "ACTIVE";
+	}
 
 	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
 
@@ -118,7 +123,7 @@ export default class ChatForm extends Vue {
 			await this.$nextTick();
 			const ref = this.$refs.commandsContent as HTMLDivElement;
 			gsap.killTweensOf(ref);
-			gsap.from(ref, {duration:.2, scaleX:0, clearProps:"scaleX", ease:"back.out"});
+			gsap.from(ref, {duration:.2, scaleX:0, delay:.1, clearProps:"scaleX", ease:"back.out"});
 			gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
 		}
 	}
