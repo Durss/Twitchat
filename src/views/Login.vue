@@ -5,15 +5,28 @@
 		</div>
 
 		<div class="content">
-			<div class="infos" v-if="!authenticating"><b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions to work.<br>Click <b>Authorize</b> button bellow</div>
+			<div class="description" v-if="!authenticating">
+				<b>Twitchat</b> aims to fill gaps from the official Twitch chat.
+				<br>
+				<br>
+				It's goal is to make it easier for a streamer to communicate with her/his audience by missing the fewer messages possible with some special features.
+			</div>
+
+			<div class="infos"
+			v-if="!authenticating"
+			>
+				<b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions to work.
+				<br>
+				<a v-if="!showPermissions" @click.prevent="showPermissions = !showPermissions" class="toggleBt">► more info ◄</a>
+			</div>
 			
 			<div class="permissions" v-if="!authenticating">
-				<a @click="showPermissions = !showPermissions" class="toggleBt">Permissions details<img src="@/assets/icons/infos.svg"></a>
 				<div class="details" v-if="showPermissions">
 					<div>
 						Twitchat needs these permissions to offer you as much features as possible.<br>
+						Your authentication token will never be sent or stored on our server.<br>
 						<br>
-						Your authentication token will never be stored on our server.
+						Here are the permissions needed:
 					</div>
 					<ul>
 						<li v-for="p in permissions" :key="p">{{p}}</li>
@@ -21,7 +34,7 @@
 				</div>
 			</div>
 
-			<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" />
+			<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" bounce />
 			
 			<div class="loader" v-if="authenticating">
 				<p>Authenticating...</p>
@@ -124,7 +137,7 @@ export default class Login extends Vue {
 	.center();
 	.block();
 	position: absolute;
-	width: min-content;
+	width: 380px;
 	z-index: 1;
 	
 	.head {
@@ -137,22 +150,24 @@ export default class Login extends Vue {
 	.content {
 		text-align: center;
 
-		.infos {
+		.description {
 			margin-bottom: 20px;
 			min-width: 250px;
 		}
 
-		.permissions {
+		.infos {
 			margin-bottom: 20px;
+			min-width: 250px;
+			color: @mainColor_warn;
 			.toggleBt {
 				color: @mainColor_warn;
 				font-weight: bold;
-				img {
-					height: 20px;
-					margin-left: 5px;
-					vertical-align: middle;
-				}
+				// text-decoration: underline;
 			}
+		}
+
+		.permissions {
+			margin-bottom: 20px;
 			.details {
 				text-align: left;
 				color: @mainColor_warn;

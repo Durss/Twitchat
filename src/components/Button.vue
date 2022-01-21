@@ -199,6 +199,7 @@ export default class Button extends Vue {
 	text-align: center;
 	border-radius: @border_radius;
 	will-change: transform;
+	text-decoration: none;
 
 	&:hover {
 		background-color: @mainColor_normal_light;
