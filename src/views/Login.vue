@@ -41,6 +41,11 @@
 				<img src="@/assets/loader/loader.svg" alt="loader">
 			</div>
 		</div>
+
+		<div class="footer">
+			<p>Made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
+			<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+		</div>
 		
 	</div>
 </template>
@@ -210,6 +215,12 @@ export default class Login extends Vue {
 		.icon {
 			height: 50px;
 		}
+	}
+
+	.footer {
+		text-align: center;
+		font-size: .8em;
+		margin-bottom: 10px;
 	}
 }
 </style>
