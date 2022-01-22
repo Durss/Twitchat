@@ -8,7 +8,7 @@
 					v-if="m.type == 'message'"
 					class="message"
 					:messageData="m"
-					@showConversation="onMouseEnter"
+					@showConversation="openConversation"
 					@mouseleave="onMouseLeave(m)"
 					:ref="'message_'+m.tags.id"
 					/>
@@ -52,7 +52,7 @@
 		<div class="conversation"
 		ref="conversationHolder"
 		v-if="conversation.length > 0" :style="conversationStyles"
-		@mouseenter="onMouseEnter()"
+		@mouseenter="openConversation()"
 		@mouseleave="onMouseLeave()">
 			<div class="head">
 				<h1>Conversation</h1>
@@ -354,10 +354,10 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Called when hovering a message
+	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
-	public async onMouseEnter(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
+	public async openConversation(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
 		if(!event) {
 			event = this.lastHoverdMessage.event;
 			m = this.lastHoverdMessage.message;
@@ -398,6 +398,7 @@ export default class MessageList extends Vue {
 	 * Close the conversation if any displayed
 	 */
 	public onMouseLeave():void {
+		if(this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = setTimeout(()=>{
