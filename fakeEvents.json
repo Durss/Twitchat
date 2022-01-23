@@ -64,7 +64,8 @@
 			"message-type": "chat",
 			"room-id": "29961813"
 		},
-		"type": "highlight"
+		"type": "highlight",
+        "firstMessage": true
 	},
     "firstMessage": {
         "type": "message",
@@ -152,7 +153,8 @@
             "planName": "SUBSCRIBER"
         },
         "months": 1,
-        "username": "brad_rose"
+        "username": "brad_rose",
+        "firstMessage": true
     },
     "subgift": {
         "type": "highlight",
@@ -200,7 +202,8 @@
             "badges-raw": "subscriber/3012,sub-gifter/5",
             "message-type": "subgift"
         },
-        "recipient": "aken44800"
+        "recipient": "aken44800",
+        "firstMessage": true
     },
     "timeout_success": {
         "type": "notice",
@@ -335,7 +338,8 @@
         },
         "msgid": "raid",
         "username": "Vetheo",
-        "viewers": 727
+        "viewers": 727,
+        "firstMessage": true
     },
     "subs_off": {
         "type": "notice",
@@ -357,17 +361,6 @@
             "info": "this tags prop is a fake one to make things easier for my code",
             "id": "16423785960820.898062365866219",
             "tmi-sent-ts": "1642378596082"
-        }
-    },
-    "slow_off": {
-        "type": "notice",
-        "channel": "#thesushidragon",
-        "msgid": "slow_off",
-        "message": "This room is no longer in slow mode.",
-        "tags": {
-            "info": "this tags prop is a fake one to make things easier for my code",
-            "id": "16423787543690.3165883498369553",
-            "tmi-sent-ts": "1642378754369"
         }
     },
     "cheer": {
@@ -404,7 +397,8 @@
             "username": "stefan_ifl",
             "message-type": "chat"
         },
-        "message": "waterm45Pog amazing content dude ! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100"
+        "message": "waterm45Pog amazing content dude ! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100",
+        "firstMessage": true
     },
     "usage_clear": {
         "type": "notice",
@@ -450,7 +444,8 @@
             "badge-info-raw": "subscriber/4",
             "badges-raw": "subscriber/3,premium/1",
             "message-type": "giftpaidupgrade"
-        }
+        },
+        "firstMessage": true
     },
     "giftpaidupgrade2":{
         "type": "highlight",
@@ -484,7 +479,8 @@
             "badge-info-raw": "subscriber/3",
             "badges-raw": "subscriber/3",
             "message-type": "giftpaidupgrade"
-        }
+        },
+        "firstMessage": true
     },
     "host_on":{
         "type": "notice",
@@ -523,7 +519,8 @@
         "badge-info-raw": "subscriber/10",
         "badges-raw": "broadcaster/1,subscriber/9",
         "username": "durss",
-        "message-type": "chat"
+        "message-type": "chat",
+        "firstMessage": true
     },
     "cyphered":{
         "type": "message",

@@ -19,11 +19,12 @@
 			ref="messageList"
 			class="messageList"
 		>
+		<div v-for="(m,index) in localMessages" :key="m.tags.id">
+
 			<ChatMessage
-				v-for="(m,index) in localMessages"
 				class="message"
 				ref="message"
-				:key="m.tags.id"
+				v-if="m.type == 'message'"
 				:messageData="m"
 				:data-index="index"
 				:lightMode="true"
@@ -31,6 +32,18 @@
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
 				@click="deleteMessage(m, index)" />
+
+			<ChatHighlight
+				class="message"
+				ref="message"
+				v-if="m.type == 'highlight'"
+				:messageData="m"
+				:data-index="index"
+				:lightMode="true"
+				@mouseover="onMouseOver($event, index)"
+				@mouseout="onMouseOut()"
+				@click="deleteMessage(m, index)" />
+		</div>
 		</transition-group>
 				<!-- :deleteOverlay="highlightState[m.tags.id]" -->
 				<!-- :deleteOverlay="(streakMode && index<=overIndex) || index == overIndex" -->
@@ -46,12 +59,14 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ChatHighlight from '../messages/ChatHighlight.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ChatMessage,
+		ChatHighlight,
 	}
 })
 export default class NewUsers extends Vue {
@@ -60,7 +75,7 @@ export default class NewUsers extends Vue {
 	public showList:boolean = true;
 	public scrollDownAuto:boolean = false;
 	public indexOffset:number = 0;
-	public localMessages:IRCEventDataList.Message[] = [];
+	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 
 	private streakMode:boolean = true;
 	private highlightState:{[key:string]:boolean} = {};
@@ -71,7 +86,9 @@ export default class NewUsers extends Vue {
 
 	public mounted():void {
 		watch(() => store.state.chatMessages, async (value) => {
-			const list = (value as IRCEventDataList.Message[]).filter(m => m.firstMessage === true).concat();
+			const list = (value as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
+			.filter(m => m.firstMessage === true && m.tags["user-id"] != store.state.user.user_id)
+			.concat();
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(this.idToDisplayed[m.tags.id as string]) continue;
@@ -225,7 +242,7 @@ export default class NewUsers extends Vue {
 	}
 	public leave(el:HTMLElement, done:()=>void):void {
 		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.075;
-		if(delay > .5) {
+		if(delay > .75) {
 			done();
 		}else{
 			gsap.to(el, {
@@ -299,6 +316,7 @@ export default class NewUsers extends Vue {
 			color: #fff;
 			padding: 5px;
 			font-size: 18px;
+			background-color: fade(#ffffff, 15%);
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);
@@ -307,13 +325,6 @@ export default class NewUsers extends Vue {
 				vertical-align: middle;
 			}
 	
-			&:nth-child(odd) {
-				background-color: fade(#ffffff, 2.5%);
-			}
-	
-			&:hover {
-				background-color: fade(#ffffff, 5%);
-			}
 			/* Enter and leave animations can use different */
 			/* durations and timing functions.              */
 			.fade-enter-active {

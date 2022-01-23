@@ -16,8 +16,8 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -281,6 +281,12 @@ export default class IRCClient extends EventDispatcher {
 
 	public addHighlight(data:IRCEventDataList.Highlight):void {
 		data.type = "highlight";
+
+		if(this.uidsDone[data.tags['user-id'] as string] !== true) {
+			data.firstMessage = true;
+			this.uidsDone[data.tags['user-id'] as string] = true;
+		}
+
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
 	}
 
@@ -289,27 +295,6 @@ export default class IRCClient extends EventDispatcher {
 
 		if(message == "!logJSON") {
 			console.log(this.idToExample);
-		}
-		
-		//Ignore /me messages
-		if(!store.state.params.filters.showSelf.value && tags["message-type"] == "action") {
-			return;
-		}
-		//Ignore self if requested
-		if(!store.state.params.filters.showSlashMe.value && tags["user-id"] == store.state.user.user_id) {
-			return;
-		}
-		//Ignore bot messages if requested
-		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
-			return;
-		}
-		//Ignore custom users
-		if(store.state.params.filters.hideUsers.value.toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
-			return;
-		}
-		//Ignore commands
-		if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
-			return;
 		}
 
 		//Add message
@@ -341,6 +326,29 @@ export default class IRCClient extends EventDispatcher {
 		//issues with VueJS keyd items (ex: on v-for loops) that would share
 		//the same value which is not authorized
 		data = JSON.parse(JSON.stringify(data)) as IRCEventDataList.Message;
+		
+		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
+		
+		//Ignore /me messages
+		if(!store.state.params.filters.showSlashMe.value && tags["message-type"] == "action") {
+			return;
+		}
+		//Ignore self if requested
+		if(!store.state.params.filters.showSelf.value && tags["user-id"] == store.state.user.user_id) {
+			return;
+		}
+		//Ignore bot messages if requested
+		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+			return;
+		}
+		//Ignore custom users
+		if(store.state.params.filters.hideUsers.value.toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+			return;
+		}
+		//Ignore commands
+		if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
+			return;
+		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 	}

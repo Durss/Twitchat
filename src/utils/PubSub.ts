@@ -166,7 +166,6 @@ export default class PubSub {
 					tags,
 					type:"highlight",
 				}
-				console.log(data);
 				IRCClient.instance.addHighlight(data);
 			}
 

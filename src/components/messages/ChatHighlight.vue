@@ -1,9 +1,11 @@
 <template>
-	<div class="chathighlight" v-show="!filtered">
+	<div :class="classes" v-show="!filtered">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
-		<span class="reason" v-html="reason"></span>
-		<div class="message" v-if="messageText" v-html="messageText"></div>
+		<div class="messageHolder">
+			<span class="reason" v-html="reason"></span>
+			<div class="message" v-if="messageText" v-html="messageText"></div>
+		</div>
 	</div>
 </template>
 
@@ -17,6 +19,7 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
+		lightMode:Boolean,
 		messageData:Object,
 	},
 	components:{}
@@ -24,9 +27,16 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatHighlight extends Vue {
 	
 	public messageData!:IRCEventDataList.Highlight;
+	public lightMode!:boolean;
 	public messageText:string = '';
 	public icon:string = "";
 	public filtered:boolean = false;
+
+	public get classes():string[] {
+		let res = ["chathighlight"];
+		if(this.lightMode) res.push("light");
+		return res;
+	}
 
 	public get time():string {
 		const message = this.messageData as IRCEventDataList.Highlight;
@@ -151,12 +161,40 @@ export default class ChatHighlight extends Vue {
 
 <style scoped lang="less">
 .chathighlight{
-	background-color: rgba(255, 255, 255, .15) !important;
+	background-color: rgba(255, 255, 255, .15);
 	border-radius: 5px;
 	margin: 5px 0;
 	padding: 10px  5px!important;
 	text-align: center;
 	font-size: 18px;
+
+	&.light {
+		background-color: transparent;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		.time {
+			display: inline-block;
+			position: relative;
+		}
+		.icon {
+			height: 20px;
+			width: 20px;
+			margin: 0 10px 0 0;
+		}
+
+		.messageHolder {
+			flex-grow: 1;
+			.reason {
+				font-size: 16px;
+			}
+			.message {
+				margin: 0;
+				display: block;
+				color: rgba(255, 255, 255, .75);
+			}
+		}
+	}
 
 	.time {
 		display: block;
@@ -173,38 +211,40 @@ export default class ChatHighlight extends Vue {
 		margin-bottom: 10px;
 	}
 
-	.reason {
-		color: #fff;
-		:deep(strong) {
-			font-weight: bold;
-			color: @mainColor_warn;
+	.messageHolder {
+		.reason {
+			color: #fff;
+			:deep(strong) {
+				font-weight: bold;
+				color: @mainColor_warn;
+			}
+			:deep(.small) {
+				font-size: .6em;
+			}
 		}
-		:deep(.small) {
-			font-size: .6em;
-		}
-	}
-
-	.message {
-		margin-top: 10px;
-		color: rgba(255, 255, 255, .5);
-		color: @mainColor_normal;
-		font-style: italic;
-		:deep(.cheermote) {
-			height: 30px;
-		}
-		&::before {
-			content: "“";
-			font-family: "Nunito";
-			font-size: 2em;
-			vertical-align: middle;
-			margin-right: 10px;
-		}
-		&::after {
-			content: "”";
-			font-family: "Nunito";
-			font-size: 2em;
-			vertical-align: middle;
-			margin-left: 6px;
+	
+		.message {
+			margin-top: 10px;
+			color: rgba(255, 255, 255, .5);
+			color: @mainColor_normal;
+			font-style: italic;
+			:deep(.cheermote) {
+				height: 30px;
+			}
+			&::before {
+				content: "“";
+				font-family: "Nunito";
+				font-size: 2em;
+				vertical-align: middle;
+				margin-right: 10px;
+			}
+			&::after {
+				content: "”";
+				font-family: "Nunito";
+				font-size: 2em;
+				vertical-align: middle;
+				margin-left: 6px;
+			}
 		}
 	}
 }

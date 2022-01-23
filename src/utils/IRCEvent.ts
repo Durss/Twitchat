@@ -8,6 +8,7 @@ import { PubSubTypes } from './PubSub';
 export default class IRCEvent extends Event {
 
 	public static MESSAGE:string = "MESSAGE";
+	public static UNFILTERED_MESSAGE:string = "UNFILTERED_MESSAGE";
 	public static CONNECTED:string = "CONNECTED";
 	public static DISCONNECTED:string = "DISCONNECTED";
 	public static BADGES_LOADED:string = "BADGES_LOADED";
@@ -122,6 +123,7 @@ export namespace IRCEventDataList {
 		"msg-id"?: MsgID;
 		reward?: PubSubTypes.RewardData;
 		//custom data
+		firstMessage?:boolean;
 		type:"highlight";
 	}
 
