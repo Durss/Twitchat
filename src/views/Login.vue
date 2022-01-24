@@ -24,7 +24,7 @@
 				<div class="details" v-if="showPermissions">
 					<div>
 						Twitchat needs these permissions to offer you as much features as possible.<br>
-						Your authentication token will never be sent or stored on our server.<br>
+						Your authentication token will never be stored on our server.<br>
 						<br>
 						Here are the permissions needed:
 					</div>
