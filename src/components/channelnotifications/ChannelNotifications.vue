@@ -26,12 +26,20 @@
 				v-if="$store.state.trackedUsers.length > 0"
 				data-tooltip="View tracked users"
 				@click="currentContent='trackedUsers'" />
+
+			<Button :icon="require('@/assets/icons/ticket.svg')"
+				small
+				bounce
+				v-if="$store.state.raffle.command"
+				data-tooltip="Raffle"
+				@click="currentContent='raffle'" />
 		</div>
 		<div ref="content">
 			<transition name="slide">
 				<PollState class="content" v-if="currentContent == 'poll' && $store.state.currentPoll?.id" />
 				<PredictionState class="content" v-else-if="currentContent == 'prediction' && $store.state.currentPrediction?.id" />
 				<TrackedUsers class="content" v-else-if="currentContent == 'trackedUsers'" />
+				<RaffleState class="content" v-else-if="currentContent == 'raffle' && $store.state.raffle.command" />
 			</transition>
 		</div>
 	</div>
@@ -45,6 +53,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
+import RaffleState from './RaffleState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 
 @Options({
@@ -52,6 +61,7 @@ import TrackedUsers from './TrackedUsers.vue';
 	components:{
 		Button,
 		PollState,
+		RaffleState,
 		TrackedUsers,
 		PredictionState,
 	},

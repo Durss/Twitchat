@@ -2,6 +2,7 @@
 	<div class="commandhelper">
 		<Button @click="$emit('poll'); close();" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
 		<Button @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="$store.state.currentPrediction?.id != undefined" />
+		<Button @click="$emit('raffle'); close();" :icon="require('@/assets/icons/ticket.svg')" title="Create raffle" bounce />
 		<Button @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 		<div v-for="(p,key) in params" :key="key">
@@ -33,7 +34,7 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:["close","poll","pred","clear"]
+	emits:["close","poll","pred","clear","raffle"]
 })
 export default class CommandHelper extends Vue {
 	public raidUser:string = "";

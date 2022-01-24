@@ -29,6 +29,7 @@ export default createStore({
 		userEmotesCache: {},
 		emotesCache: [],
 		trackedUsers: [],
+		raffle: {},
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -331,6 +332,8 @@ export default createStore({
 			}
 		},
 
+		startRaffle(state, payload:RaffleData) { state.raffle = payload; }
+
 	},
 
 
@@ -401,6 +404,20 @@ export default createStore({
 				if(trackedUser) {
 					if(!trackedUser.messages) trackedUser.messages = [];
 					trackedUser.messages.push(message);
+				}
+				
+				//If a raffle is in progress, check if the user can enter
+				const raffle:RaffleData = state.raffle as RaffleData;
+				console.log(raffle);
+				console.log(message);
+				if(raffle.command && message.message.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
+					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
+					console.log(ellapsed, raffle.duration*60000);
+					if(ellapsed <= raffle.duration * 60000
+					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)) {
+						console.log("enter raffle");
+						raffle.users.push(message.tags);
+					}
 				}
 			});
 
@@ -482,6 +499,8 @@ export default createStore({
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
+
+		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 	},
 	modules: {
 	}
@@ -497,4 +516,13 @@ export interface ParameterData {
 	max?:number;
 	step?:number;
 	icon?:string;
+	placeholder?:string;
+}
+
+export interface RaffleData {
+	command:string;
+	duration:number;
+	maxUsers:number;
+	created_at:number;
+	users:ChatUserstate[];
 }

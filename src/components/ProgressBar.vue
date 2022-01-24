@@ -35,7 +35,7 @@ export default class ProgressBar extends Vue {
 	padding: 1px;
 	.fill {
 		height: 3px;
-		width: 50%;
+		width: 100%;
 		background-color: darken(@mainColor_normal, 20%);
 		margin-right: 0;
 		margin-left: auto;

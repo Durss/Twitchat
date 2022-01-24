@@ -5,6 +5,7 @@
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
+				@raffle="currentModal = 'raffle'"
 				@goToLastRead="goToLastRead()"
 				@clear="clearChat()"
 				/>
@@ -12,6 +13,7 @@
 		
 		<NewUsers v-if="$store.state.params.filters.firstMessage.value" />
 		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
+		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 	</div>
 </template>
@@ -22,6 +24,7 @@ import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
+import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import IRCClient from '@/utils/IRCClient';
 import { Options, Vue } from 'vue-class-component';
 
@@ -30,6 +33,7 @@ import { Options, Vue } from 'vue-class-component';
 		NewUsers,
 		ChatForm,
 		PollForm,
+		RaffleForm,
 		PredictionForm,
 		MessageList,
 	},

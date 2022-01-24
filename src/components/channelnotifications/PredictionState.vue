@@ -132,7 +132,6 @@ export default class PredictionState extends Vue {
 		width: 100%;
 		text-align: center;
 		padding-bottom: 10px;
-		margin-bottom: 10px;
 		word-break: break-word;
 		img {
 			width: 20px;

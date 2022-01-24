@@ -12,7 +12,7 @@
 		
 		<div v-if="paramData.type == 'list'" class="list">
 			<label :for="'list'+key" v-html="label"></label>
-			<input :id="'list'+key" type="text" v-model="paramData.value">
+			<input :id="'list'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder">
 		</div>
 		
 		<div v-if="paramData.type == 'slider'" class="slider">

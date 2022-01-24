@@ -36,6 +36,7 @@
 				@poll="$emit('poll')"
 				@pred="$emit('pred')"
 				@clear="$emit('clear')"
+				@raffle="$emit('raffle')"
 				@close="showCommands = false" />
 
 			<EmoteSelector class="emotes"
@@ -73,7 +74,7 @@ import EmoteSelectorLive from './EmoteSelectorLive.vue';
 		EmoteSelectorLive,
 		ChannelNotifications,
 	},
-	emits: ["poll","pred","clear","goToLastRead"]
+	emits: ["poll","pred","clear","raffle","goToLastRead"]
 })
 export default class ChatForm extends Vue {
 
@@ -147,7 +148,7 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
-			
+
 		}else{
 			//Send message
 			try {

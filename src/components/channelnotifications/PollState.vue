@@ -121,9 +121,7 @@ export default class PollState extends Vue {
 		color: @mainColor_light;
 		width: 100%;
 		text-align: center;
-		// border-bottom: 1px solid @mainColor_light;
 		padding-bottom: 10px;
-		// margin-bottom: 10px;
 		word-break: break-word;
 		img {
 			height: 20px;
