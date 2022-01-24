@@ -22,6 +22,8 @@ The main goal is to reduce as much as possible the number of missed messages and
 # Features
 - [x] Display the first message of users seperatly
 - [x] Make it easier to follow a conversation between users
+- [x] Flag a message as "read" and scroll back to it easily
+- [x] Create a raffle with the viewers and pick random winners
 - [x] Allow to filter some messages *(bots, commands, self, etc...)*
 - [x] Customizable message features *(remove badges, show minimalist badges, remove emotes, etc...)*
 - [x] Customizable message appearance by roles *(viewers, mods, vips, subs)*
@@ -32,10 +34,8 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Display when it's the first message ever of a user on the channel
 - [x] Display mod notifications
 - [x] Display sub/bits/raid/reward messages
-- [x] Highlight messages by roles *(mods, vips, subs)*
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
-- [x] Flag a message as "read" and scroll back to it easily
 - [x] Emote selector 
 
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*

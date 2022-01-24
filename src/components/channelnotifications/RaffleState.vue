@@ -2,7 +2,7 @@
 	<div class="rafflestate">
 		<h1 class="title"><img src="@/assets/icons/ticket.svg">Raffle</h1>
 
-		<ProgressBar class="progress" :percent="progressPercent" />
+		<ProgressBar class="progress" :percent="progressPercent" :duration="raffleData.duration*60000" />
 
 		<div class="item users">
 			<img src="@/assets/icons/user.svg" alt="user">
@@ -21,7 +21,7 @@
 			:icon="require('@/assets/icons/ticket.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
-			:disabled="!raffleData.users || raffleData.users.length == 0" />
+			:disabled="!raffleData.users || raffleData.users.length == 0 || winners.length == raffleData.users.length" />
 
 		<div class="item command">
 			<div class="title">Configured command</div>
@@ -83,7 +83,11 @@ export default class RaffleState extends Vue {
 	}
 
 	public pickWinner():void {
-		const winner = Utils.pickRand(this.raffleData.users);
+		let winner:ChatUserstate;
+		do{
+			winner = Utils.pickRand(this.raffleData.users);
+		}while(this.winners.find(w => w['user-id'] == winner['user-id']));
+
 		this.winners.push( winner );
 		if(this.postOnChatParam.value) {
 			IRCClient.instance.sendMessage("Congrats @"+winner['display-name']+" you won the raffle!");

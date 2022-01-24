@@ -1,7 +1,12 @@
 <template>
 	<div class="pollstate">
 		<h1 class="title"><img src="@/assets/icons/poll.svg">{{poll.title}}</h1>
-		<ProgressBar class="progress" :percent="progressPercent" v-if="poll.status == 'ACTIVE'" />
+		
+		<ProgressBar class="progress"
+			:percent="progressPercent"
+			:duration="this.poll.duration*1000"
+			v-if="poll.status == 'ACTIVE'" />
+		
 		<div class="choices">
 			<div v-for="(c, index) in poll.choices"
 			:key="index"

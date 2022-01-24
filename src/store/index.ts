@@ -408,11 +408,9 @@ export default createStore({
 				
 				//If a raffle is in progress, check if the user can enter
 				const raffle:RaffleData = state.raffle as RaffleData;
-				console.log(raffle);
-				console.log(message);
 				if(raffle.command && message.message.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
-					console.log(ellapsed, raffle.duration*60000);
+					//Check if within time frame and max users count isn't reached
 					if(ellapsed <= raffle.duration * 60000
 					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)) {
 						console.log("enter raffle");

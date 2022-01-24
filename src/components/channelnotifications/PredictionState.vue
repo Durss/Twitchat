@@ -1,8 +1,14 @@
 <template>
 	<div class="predictionstate">
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
-		<ProgressBar class="progress" :percent="progressPercent" v-if="prediction.status == 'ACTIVE'" />
+		
+		<ProgressBar class="progress"
+			:percent="progressPercent"
+			:duration="this.prediction.prediction_window*1000"
+			v-if="prediction.status == 'ACTIVE'" />
+		
 		<div class="outcomeTitle" v-if="prediction.status == 'LOCKED'"><span class="arrow">⤺</span> Choose outcome</div>
+		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
 				<div class="color" v-if="prediction.status != 'LOCKED'"></div>

@@ -69,14 +69,16 @@ export default class RaffleForm extends Vue {
 	}
 
 	public onSubmit():void {
+		const cmd = this.command.value? this.command.value as string : "!raffle";
 		const payload:RaffleData = {
-			command:this.command.value as string,
+			command:cmd,
 			duration:this.enterDuration.value as number,
 			maxUsers:this.maxUsersToggle.value ? this.maxUsers.value as number : 0,
 			created_at:new Date().getTime(),
 			users:[],
 		};
 		store.dispatch("startRaffle", payload);
+		this.close();
 	}
 	
 }
