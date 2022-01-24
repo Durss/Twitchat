@@ -1,7 +1,8 @@
 import router from "@/router";
 import store from "@/store";
-import { Badges } from "tmi.js";
+import { Badges, ChatUserstate } from "tmi.js";
 import Config from "./Config";
+import { IRCEventDataList } from "./IRCEvent";
 import Utils from "./Utils";
 
 /**
@@ -774,4 +775,9 @@ export namespace TwitchTypes {
 		theme_mode: "light" | "dark";
 	}
 
+
+	export interface TrackedUser {
+		user:ChatUserstate;
+		messages:IRCEventDataList.Message[];
+	}
 }

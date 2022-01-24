@@ -31,9 +31,9 @@
 
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
-					v-if="m.showHoverActions"
-					:messageData="m"
-					@toggleMarkRead="toggleMarkRead(m)" />
+						v-if="m.showHoverActions"
+						:messageData="m"
+						@toggleMarkRead="toggleMarkRead(m)" />
 				</transition>
 			</div>
 		</div>

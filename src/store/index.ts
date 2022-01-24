@@ -4,7 +4,7 @@ import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import PubSub from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
-import { UserNoticeState, Userstate } from 'tmi.js';
+import { ChatUserstate, UserNoticeState, Userstate } from 'tmi.js';
 import { RouteLocation } from 'vue-router';
 import { createStore } from 'vuex';
 import Store from './Store';
@@ -28,6 +28,7 @@ export default createStore({
 		tmiUserState: {},
 		userEmotesCache: {},
 		emotesCache: [],
+		trackedUsers: [],
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -315,6 +316,21 @@ export default createStore({
 
 		setUserEmotesCache(state, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { state.userEmotesCache = payload; },
 
+		trackUser(state, payload:ChatUserstate) {
+			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
+			if(list.findIndex(v=>v.user['user-id'] == payload['user-id']) == -1) {
+				state.trackedUsers.push({user:payload, messages:[]} as never);
+			}
+		},
+
+		untrackUser(state, payload:ChatUserstate) {
+			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
+			const index = list.findIndex(v=>v.user['user-id'] == payload['user-id']);
+			if(index != -1) {
+				state.trackedUsers.splice(index, 1);
+			}
+		},
+
 	},
 
 
@@ -377,6 +393,16 @@ export default createStore({
 					return;
 				}
 			}
+
+			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, (event:IRCEvent) => {
+				const message = event.data as IRCEventDataList.Message;
+				const trackedUser = (state.trackedUsers as TwitchTypes.TrackedUser[]).find(v => v.user['user-id'] == message.tags['user-id']);
+				
+				if(trackedUser) {
+					if(!trackedUser.messages) trackedUser.messages = [];
+					trackedUser.messages.push(message);
+				}
+			});
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
@@ -452,6 +478,10 @@ export default createStore({
 		setEmotes({commit}, payload:TwitchTypes.Emote[]) { commit("setEmotes", payload); },
 
 		setUserEmotesCache({commit}, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
+
+		trackUser({commit}, payload:ChatUserstate) { commit("trackUser", payload); },
+
+		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
 	},
 	modules: {
 	}

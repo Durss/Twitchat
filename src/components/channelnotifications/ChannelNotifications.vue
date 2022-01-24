@@ -6,22 +6,32 @@
 				bounce
 				@click="currentContent = 'poll'"
 				v-if="$store.state.currentPoll?.id" />
+
 			<Button :icon="require('@/assets/icons/prediction.svg')"
 				small
 				bounce
 				@click="currentContent = 'prediction'"
 				v-if="$store.state.currentPrediction?.id" />
+
 			<Button :icon="require('@/assets/icons/markRead.svg')"
 				small
 				bounce
 				v-if="$store.state.isMessageMarkedAsRead"
 				data-tooltip="Scroll to last<br>messaged flagged"
 				@click="$emit('goToLastRead')" />
+
+			<Button :icon="require('@/assets/icons/magnet.svg')"
+				small
+				bounce
+				v-if="$store.state.trackedUsers.length > 0"
+				data-tooltip="View tracked users"
+				@click="currentContent='trackedUsers'" />
 		</div>
 		<div ref="content">
 			<transition name="slide">
 				<PollState class="content" v-if="currentContent == 'poll' && $store.state.currentPoll?.id" />
 				<PredictionState class="content" v-else-if="currentContent == 'prediction' && $store.state.currentPrediction?.id" />
+				<TrackedUsers class="content" v-else-if="currentContent == 'trackedUsers'" />
 			</transition>
 		</div>
 	</div>
@@ -35,12 +45,14 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
+import TrackedUsers from './TrackedUsers.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		PollState,
+		TrackedUsers,
 		PredictionState,
 	},
 	emits:['goToLastRead'],
@@ -95,16 +107,21 @@ export default class ChannelNotifications extends Vue {
 		flex-direction: row;
 		justify-content: flex-end;
 		padding-right: 3px;
+		align-items: flex-end;
 		.button {
 			pointer-events:all;
 			transform-origin: bottom;
 			border-bottom-right-radius: 0;
 			border-bottom-left-radius: 0;
 			margin-left: 1px;
-			padding-bottom: 10px;
+			height: 33px;
+			transition: height 0.2s;
 			:deep(.icon) {
 				width: 25px;
 				max-height: 20px;
+			}
+			&:hover {
+				height: 40px;
 			}
 		}
 	}
@@ -122,6 +139,8 @@ export default class ChannelNotifications extends Vue {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
+		max-height: calc(100vh - 100px);
+		overflow-y: auto;
 		transform: translateY(-100%);
 	}
 

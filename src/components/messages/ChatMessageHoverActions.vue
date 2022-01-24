@@ -1,13 +1,21 @@
 <template>
 	<div class="ChatMessageHoverActions">
+		<Button :icon="require('@/assets/icons/magnet.svg')"
+			data-tooltip="Track user"
+			@click="trackUser()"
+			v-if="!isSelf"
+			/>
+		
 		<Button :icon="require('@/assets/icons/markRead.svg')"
-		data-tooltip="Flag as read"
-		@click="$emit('toggleMarkRead')" />
+			data-tooltip="Flag as read"
+			@click="$emit('toggleMarkRead')" />
 	</div>
 </template>
 
 <script lang="ts">
+import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import { TwitchTypes } from '@/utils/TwitchUtils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -18,11 +26,20 @@ import Button from '../Button.vue';
 	components:{
 		Button,
 	},
-	emits: ["toggleMarkRead"]
+	emits: ["toggleMarkRead", "trackUser"]
 })
 export default class ChatMessageHoverActions extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
+
+	public get isSelf():boolean {
+		return this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+	}
+
+	public trackUser():void {
+		const user = this.messageData.tags;
+		store.dispatch("trackUser", user);
+	}
 }
 </script>
 
@@ -41,6 +58,9 @@ export default class ChatMessageHoverActions extends Vue {
 		padding: 2px;
 		:deep(.icon) {
 			min-width: 100%;
+		}
+		&:not(:last-child) {
+			margin-right: 2px;
 		}
 	}
 }
