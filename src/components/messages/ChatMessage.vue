@@ -178,9 +178,12 @@ export default class ChatMessage extends Vue {
 			if(this.automod) {
 				result = text;
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words
+				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
 			}else{
-				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes);
+				//Allow custom parsing of emotes only if it's a message of ours
+				//to avoid killing perfromances.
+				const customParsing = mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
@@ -386,9 +389,9 @@ export default class ChatMessage extends Vue {
 		color: #d1d1d1;
 		:deep( .emote ) {
 			width: 28px;
-			max-height: 28px;
-			min-height: 21px;
+			height: 28px;
 			vertical-align: middle;
+			object-fit: contain;
 		}
 	}
 

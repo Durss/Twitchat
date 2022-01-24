@@ -225,6 +225,12 @@ export default class IRCClient extends EventDispatcher {
 						this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
 						break;
 					}
+					case "USERSTATE": {
+						// console.log(data);
+						store.dispatch("setUserState", data as tmi.UserNoticeState);
+						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
+						break;
+					}
 					case "NOTICE": {
 						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");

@@ -4,7 +4,7 @@ import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import PubSub from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
-import { Userstate } from 'tmi.js';
+import { UserNoticeState, Userstate } from 'tmi.js';
 import { RouteLocation } from 'vue-router';
 import { createStore } from 'vuex';
 import Store from './Store';
@@ -25,6 +25,9 @@ export default createStore({
 		cypherKey: '',
 		cypherEnabled: false,
 		isMessageMarkedAsRead: false,
+		tmiUserState: {},
+		userEmotesCache: {},
+		emotesCache: {},
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -306,6 +309,12 @@ export default createStore({
 
 		setCypherEnabled(state, payload:boolean) { state.cypherEnabled = payload; },
 
+		setUserState(state, payload:UserNoticeState) { state.tmiUserState = payload; },
+
+		setEmotes(state, payload:TwitchTypes.Emote[]) { state.emotesCache = payload; },
+
+		setUserEmotesCache(state, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { state.userEmotesCache = payload; },
+
 	},
 
 
@@ -437,6 +446,12 @@ export default createStore({
 		setPredictions({commit}, payload:TwitchTypes.Prediction[]) { commit("setPredictions", payload); },
 
 		setCypherEnabled({commit}, payload:boolean) { commit("setCypherEnabled", payload); },
+
+		setUserState({commit}, payload:UserNoticeState) { commit("setUserState", payload); },
+
+		setEmotes({commit}, payload:TwitchTypes.Emote[]) { commit("setEmotes", payload); },
+
+		setUserEmotesCache({commit}, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
 	},
 	modules: {
 	}

@@ -31,10 +31,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Possibility to connect to any channel without authentication to use it as OBS overlay
 - [x] Display when it's the first message ever of a user on the channel
 - [x] Display mod notifications
-- [x] Display sub messages
-- [x] Display bits messages
-- [x] Display raid messages
-- [x] Display reward messages
+- [x] Display sub/bits/raid/reward messages
 - [x] Highlight messages by roles *(mods, vips, subs)*
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
@@ -48,7 +45,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [ ] Parse BTTV and FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Autocomplete comands
-- [ ] Emotes selector
+- [ ] Emotes selector (in progress)
 <br>
 <br>
 <br>
@@ -66,7 +63,11 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:read:redemptions",
 		"channel:moderate",
 		"moderation:read",
-		"moderator:manage:automod"
+		"moderator:manage:automod",
+		"channel:manage:polls",
+		"channel:manage:predictions",
+		"channel:read:hype_train",
+		"channel_editor"
 	]
 }
 ```

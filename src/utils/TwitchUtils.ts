@@ -2,6 +2,7 @@ import router from "@/router";
 import store from "@/store";
 import { Badges } from "tmi.js";
 import Config from "./Config";
+import Utils from "./Utils";
 
 /**
 * Created : 19/01/2021 
@@ -11,6 +12,7 @@ export default class TwitchUtils {
 	public static client_id:string = "";
 	public static badgesCache:{[key:string]:{[key:string]:TwitchTypes.BadgesSet}} = {};
 	public static cheermoteCache:{[key:string]:TwitchTypes.CheermoteSet[]} = {};
+	public static emoteCache:TwitchTypes.Emote[] = [];
 
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
@@ -135,9 +137,38 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false):{type:string, value:string, emote?:string}[] {
+	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false, customParsing:boolean = false):{type:string, value:string, emote?:string}[] {
 		if(!emotes || emotes.length == 0) {
-			return [{type:"text", value:message}];
+			//Attempt to parse emotes manually.
+			//Darn IRC that doesn't sends back proper emotes tag back
+			//to its sender...
+			if(customParsing && store.state.userEmotesCache) {
+				let fakeTag = "";
+				const emoteList = store.state.emotesCache as TwitchTypes.Emote[];
+				//Parse all available emotes
+				for (let i = 0; i < emoteList.length; i++) {
+					const e = emoteList[i];
+					const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+					const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "gi"))];
+					if(matches && matches.length > 0) {
+						//Current emote has been found
+						//Generate fake emotes data in the expected format:
+						//  ID:start-end,start-end/ID:start-end,start-end
+						if(fakeTag.length > 0) fakeTag += "/";
+						fakeTag += e.id+":";
+						for (let i = 0; i < matches.length; i++) {
+							const index = (matches[i].index as number);
+							fakeTag += index+"-"+(index+e.name.length);
+							if(i < matches.length-1) fakeTag+=",";
+						}
+					}
+				}
+				if(fakeTag.length > 0) fakeTag +=";";
+				emotes = fakeTag;
+			}
+			if(!emotes || emotes.length == 0) {
+				return [{type:"text", value:message}];
+			}
 		}
 
 		const emotesList:{id:string, start:number, end:number}[] = [];
@@ -220,24 +251,30 @@ export default class TwitchUtils {
 	 * @param logins 
 	 * @returns 
 	 */
-	public static async loadChannelsInfo(logins:string[]):Promise<unknown> {
+	public static async loadChannelsInfo(ids:string[]):Promise<TwitchTypes.UserInfo[]> {
 
-		if(logins) {
-			logins = logins.filter(v => v != null && v != undefined);
-			logins = logins.map(v => encodeURIComponent(v));
+		if(ids) {
+			ids = ids.filter(v => v != null && v != undefined);
+			ids = ids.map(v => encodeURIComponent(v));
 		}
 		
-		const params = "login="+logins.join("&login=");
-		const url = "https://api.twitch.tv/helix/users?"+params;
-		const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
-		const result = await fetch(url, {
-			headers:{
-				"Client-ID": this.client_id,
-				"Authorization": "Bearer "+access_token,
-				"Content-Type": "application/json",
-			}
-		});
-		return result;
+		let users:TwitchTypes.UserInfo[] = [];
+		//Split by 100 max to comply with API limitations
+		while(ids.length > 0) {
+			const params = "id="+ids.splice(0,100).join("&id=");
+			const url = "https://api.twitch.tv/helix/users?"+params;
+			const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
+			const result = await fetch(url, {
+				headers:{
+					"Client-ID": this.client_id,
+					"Authorization": "Bearer "+access_token,
+					"Content-Type": "application/json",
+				}
+			});
+			const json = await result.json();
+			users = users.concat(json.data);
+		}
+		return users;
 	}
 	
 	/***
@@ -461,9 +498,6 @@ export default class TwitchUtils {
 		throw(json);
 	}
 
-
-
-
 	/**
 	 * Get the latest hype train info
 	 */
@@ -483,6 +517,54 @@ export default class TwitchUtils {
 		}
 		throw(json);
 	}
+
+	/**
+	 * Get the emotes list
+	 */
+	public static async getEmotes():Promise<TwitchTypes.Emote[]> {
+		while(this.emoteCache.length == 0) {
+			await Utils.promisedTimeout(100);
+			console.log("WAIT");
+		}
+		return this.emoteCache;
+	}
+
+	/**
+	 * Get the emotes list
+	 */
+	public static async loadEmoteSets(sets:string[]):Promise<TwitchTypes.Emote[]> {
+		if(this.emoteCache.length > 0) return this.emoteCache;
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		let emotes:TwitchTypes.Emote[] = [];
+		do {
+			const params = sets.splice(0,25).join("&emote_set_id=");
+			const res = await fetch("https://api.twitch.tv/helix/chat/emotes/set?emote_set_id="+params, options);
+			const json = await res.json();
+			if(res.status == 200) {
+				emotes = emotes.concat(json.data);
+			}else{
+				throw(json);
+			}
+		}while(sets.length > 0);
+		this.emoteCache = emotes;
+		//Sort them by name length DESC to make manual emote parsing easier.
+		//When sending a message on IRC, we don't get a clean callback
+		//message with parsed emotes (nor id, timestamp and other stuff)
+		//This means that every message from this interface must be parsed
+		//manually. Love it..
+		emotes.sort((a,b)=> b.name.length - a.name.length );
+		store.dispatch("setEmotes", emotes);
+		console.log(emotes);
+		return emotes;
+	}
+
 }
 
 export namespace TwitchTypes {
@@ -532,20 +614,6 @@ export namespace TwitchTypes {
 		offline_image_url: string;
 		view_count:        number;
 		created_at:        string;
-		
-		//Custom injected data from server.
-		streamInfos:       StreamInfo;
-		//Custom injected data from server.
-		rawData:       {
-			id:string;
-			lastActivity:number;//Timestamp
-			created_at:number;//Timestamp
-			description?:string;
-			/**
-			 * @deprecated Don't use this, it's only here for legacy purpose.
-			 */
-			name?:string;
-		};
 	}
 
 	export interface BadgesSet {
@@ -688,4 +756,21 @@ export namespace TwitchTypes {
 		}[];
 		color: string;
 	}
+
+	export interface Emote {
+		id: string;
+		name: string;
+		images: {
+			url_1x: string;
+			url_2x: string;
+			url_4x: string;
+		};
+		emote_type: string;
+		emote_set_id: string;
+		owner_id: string;
+		format: "static" | "animated";
+		scale: "1.0" | "2.0" | "3.0";
+		theme_mode: "light" | "dark";
+	}
+
 }
