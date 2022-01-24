@@ -96,20 +96,17 @@ export default class ChatMessage extends Vue {
 			&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
 				res.push("mention");
 			}
+			
+			//Set text size
+			if(message.tags.subscriber) res.push("size_"+store.state.params.appearance.subsSize.value);
+			else if(message.tags.vip) res.push("size_"+store.state.params.appearance.vipsSize.value);
+			else if(message.tags.mod) res.push("size_"+store.state.params.appearance.modsSize.value);
+			else res.push("size_"+store.state.params.appearance.defaultSize.value);
 
-			if(message.tags.subscriber) {
-				res.push("size_"+store.state.params.appearance.subsSize.value);
-			}
-			else if(message.tags.vip){
-				res.push("size_"+store.state.params.appearance.vipsSize.value);
-			}else
-			if(message.tags.mod) {
-				res.push("size_"+store.state.params.appearance.modsSize.value);
-			}
+			//Set highlight
 			if(message.tags.mod && store.state.params.appearance.highlightMods.value) res.push("highlightMods");
 			else if(message.tags.vip && store.state.params.appearance.highlightVips.value) res.push("highlightVips");
 			else if(message.tags.subscriber && store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
-			else res.push("size_"+store.state.params.appearance.defaultSize.value);
 		}else {
 			res.push("size_"+store.state.params.appearance.defaultSize.value);
 		}
