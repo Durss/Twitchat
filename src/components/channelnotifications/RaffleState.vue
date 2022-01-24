@@ -114,7 +114,7 @@ export default class RaffleState extends Vue {
 	}
 
 	.progress {
-		margin-bottom: 10px;
+		margin-bottom: 20px;
 	}
 
 	.item {

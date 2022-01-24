@@ -135,7 +135,7 @@ export default class PollState extends Vue {
 	}
 
 	.progress {
-		margin-bottom: 10px;
+		margin-bottom: 20px;
 	}
 
 	.choices {
