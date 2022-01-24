@@ -15,7 +15,6 @@
 <script lang="ts">
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
-import { TwitchTypes } from '@/utils/TwitchUtils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -37,8 +36,7 @@ export default class ChatMessageHoverActions extends Vue {
 	}
 
 	public trackUser():void {
-		const user = this.messageData.tags;
-		store.dispatch("trackUser", user);
+		store.dispatch("trackUser", this.messageData);
 	}
 }
 </script>

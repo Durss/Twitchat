@@ -316,10 +316,10 @@ export default createStore({
 
 		setUserEmotesCache(state, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { state.userEmotesCache = payload; },
 
-		trackUser(state, payload:ChatUserstate) {
+		trackUser(state, payload:IRCEventDataList.Message) {
 			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
-			if(list.findIndex(v=>v.user['user-id'] == payload['user-id']) == -1) {
-				state.trackedUsers.push({user:payload, messages:[]} as never);
+			if(list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']) == -1) {
+				state.trackedUsers.push({user:payload.tags, messages:[payload]} as never);
 			}
 		},
 
@@ -479,7 +479,7 @@ export default createStore({
 
 		setUserEmotesCache({commit}, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
 
-		trackUser({commit}, payload:ChatUserstate) { commit("trackUser", payload); },
+		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
 	},
