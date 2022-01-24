@@ -99,16 +99,16 @@ export default class ChatMessage extends Vue {
 
 			if(message.tags.subscriber) {
 				res.push("size_"+store.state.params.appearance.subsSize.value);
-				if(store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
 			}
 			else if(message.tags.vip){
 				res.push("size_"+store.state.params.appearance.vipsSize.value);
-				if(store.state.params.appearance.highlightVips.value) res.push("highlightVips");
 			}else
 			if(message.tags.mod) {
 				res.push("size_"+store.state.params.appearance.modsSize.value);
-				if(store.state.params.appearance.highlightMods.value) res.push("highlightMods");
 			}
+			if(message.tags.mod && store.state.params.appearance.highlightMods.value) res.push("highlightMods");
+			else if(message.tags.vip && store.state.params.appearance.highlightVips.value) res.push("highlightVips");
+			else if(message.tags.subscriber && store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
 			else res.push("size_"+store.state.params.appearance.defaultSize.value);
 		}else {
 			res.push("size_"+store.state.params.appearance.defaultSize.value);
