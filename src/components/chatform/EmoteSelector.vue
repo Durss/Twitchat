@@ -64,11 +64,12 @@ export default class EmoteSelector extends Vue {
 
 	public get filteredEmotes():TwitchTypes.Emote[] {
 		let res:TwitchTypes.Emote[] = [];
+		const s = this.filter.toLowerCase();
 		for (let i = 0; i < this.users.length; i++) {
 			const u = this.users[i];
 			for (let j = 0; j < u.emotes.length; j++) {
 				const e = u.emotes[j];
-				if(e.name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1) {
+				if(e.name.toLowerCase().indexOf(s) > -1) {
 					res.push(e);
 				}
 			}

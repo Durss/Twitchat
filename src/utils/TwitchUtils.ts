@@ -145,10 +145,13 @@ export default class TwitchUtils {
 			if(customParsing && store.state.userEmotesCache) {
 				let fakeTag = "";
 				const emoteList = store.state.emotesCache as TwitchTypes.Emote[];
+				const tagsDone:{[key:string]:boolean} = {};
 				//Parse all available emotes
 				for (let i = 0; i < emoteList.length; i++) {
 					const e = emoteList[i];
 					const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+					if(tagsDone[name]) continue;
+					tagsDone[name] = true;
 					const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "gi"))];
 					if(matches && matches.length > 0) {
 						//Current emote has been found
@@ -524,7 +527,6 @@ export default class TwitchUtils {
 	public static async getEmotes():Promise<TwitchTypes.Emote[]> {
 		while(this.emoteCache.length == 0) {
 			await Utils.promisedTimeout(100);
-			console.log("WAIT");
 		}
 		return this.emoteCache;
 	}
@@ -561,7 +563,6 @@ export default class TwitchUtils {
 		//manually. Love it..
 		emotes.sort((a,b)=> b.name.length - a.name.length );
 		store.dispatch("setEmotes", emotes);
-		console.log(emotes);
 		return emotes;
 	}
 

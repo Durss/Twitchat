@@ -200,7 +200,7 @@ export default class ChatHighlight extends Vue {
 	}
 
 	.time {
-		display: block;
+		display: block !important;
 		position: absolute;
 	}
 

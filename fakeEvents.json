@@ -541,7 +541,7 @@
     },
     "messageManualEmotesParsing":{
         "type": "message",
-        "message": "durssSLIP durssSLIP2 durssSLIP3 durssSLIP3 durssSLIP3 durssSLIP durssSLIP2",
+        "message": ":D durssSLIP durssSLIP2 durssSLIP3 durssSLIP3 durssSLIP3 durssSLIP durssSLIP2",
         "tags": {
             "badge-info": {
                 "subscriber": "10"

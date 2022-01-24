@@ -36,16 +36,16 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
 - [x] Flag a message as "read" and scroll back to it easily
+- [x] Emote selector 
 
 - [ ] Highlight a user temporarilly *(to make sure not to miss an answer)*
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Allow to read whispers
-- [ ] Make it possible to define configurations via query params for OBS chats
+- [ ] Make it possible to define configurations via query params for OBS chat template
 - [ ] Parse BTTV and FFZ emotes
 - [ ] Request scopes on-demand
-- [ ] Autocomplete comands
-- [ ] Emotes selector (in progress)
+- [ ] Autocomplete commands
 <br>
 <br>
 <br>

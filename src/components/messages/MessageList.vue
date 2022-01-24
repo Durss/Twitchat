@@ -449,7 +449,6 @@ export default class MessageList extends Vue {
 	&.lightMode {
 		.holder {
 			overflow: hidden;
-
 			.message:nth-child(even) {
 				background-color: transparent;
 			}
@@ -461,6 +460,8 @@ export default class MessageList extends Vue {
 		font-size: 13px;
 		margin-right: 5px;
 		vertical-align: middle;
+		width: 36px;
+		display: inline-block;
 	}
 
 	.message {

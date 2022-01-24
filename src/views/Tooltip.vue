@@ -87,7 +87,9 @@ export default class Tooltip extends Vue {
 		this.opened = false;
 		this.message = "";
 		gsap.killTweensOf(this.$el);
-		gsap.to(this.$el, {duration:.2, opacity:0, onComplete:()=>this.onHideComplete()});
+		gsap.to(this.$el, {duration:.2, opacity:0, onComplete:()=>{
+			this.opened = false;
+		}});
 		return true;
 	}
 
@@ -111,7 +113,8 @@ export default class Tooltip extends Vue {
 				if(target.dataset && target.dataset.tooltip) break;
 				target = target.parentNode as HTMLDivElement;
 			}
-			//Target can be null if pressing mouse inside window and moving outside browser while keeping mouse pressed (at least on chrome)
+			//Target can be null if pressing mouse inside window and moving
+			//outside browser while keeping mouse pressed (at least on chrome)
 			if(target && target != document.body) {
 				let mess = target.dataset.tooltip;
 				if(mess && mess != this.message) {
@@ -151,13 +154,6 @@ export default class Tooltip extends Vue {
 				store.dispatch("closeTooltip");
 			}
 		}
-	}
-
-	/**
-	 * Called when hidding completes
-	 */
-	private onHideComplete():void {
-		this.opened = false;
 	}
 
 }

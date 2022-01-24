@@ -27,7 +27,7 @@ export default createStore({
 		isMessageMarkedAsRead: false,
 		tmiUserState: {},
 		userEmotesCache: {},
-		emotesCache: {},
+		emotesCache: [],
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -311,7 +311,7 @@ export default createStore({
 
 		setUserState(state, payload:UserNoticeState) { state.tmiUserState = payload; },
 
-		setEmotes(state, payload:TwitchTypes.Emote[]) { state.emotesCache = payload; },
+		setEmotes(state, payload:TwitchTypes.Emote[]) { state.emotesCache = payload as never[]; },
 
 		setUserEmotesCache(state, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { state.userEmotesCache = payload; },
 

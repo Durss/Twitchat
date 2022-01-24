@@ -25,6 +25,12 @@
 					data-tooltip="Send encrypted<br>messages" />
 			</form>
 
+			<EmoteSelectorLive class="emotesLive"
+				:search="emoteSearch"
+				v-if="emoteSearch.length > 1"
+				@close="emoteSearch = ''"
+				@select="onSelectEmote" />
+
 			<CommandHelper class="actions"
 				v-if="showCommands"
 				@poll="$emit('poll')"
@@ -48,12 +54,14 @@ import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import { TwitchTypes } from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChannelNotifications from '../channelnotifications/ChannelNotifications.vue';
 import ParamItem from '../params/ParamItem.vue';
 import CommandHelper from './CommandHelper.vue';
 import EmoteSelector from './EmoteSelector.vue';
+import EmoteSelectorLive from './EmoteSelectorLive.vue';
 
 @Options({
 	props:{},
@@ -62,6 +70,7 @@ import EmoteSelector from './EmoteSelector.vue';
 		ParamItem,
 		CommandHelper,
 		EmoteSelector,
+		EmoteSelectorLive,
 		ChannelNotifications,
 	},
 	emits: ["poll","pred","clear","goToLastRead"]
@@ -69,6 +78,7 @@ import EmoteSelector from './EmoteSelector.vue';
 export default class ChatForm extends Vue {
 
 	public message:string = "";
+	public emoteSearch:string = "";
 	public error:boolean = false;
 	public showEmotes:boolean = false;
 	public showCommands:boolean = false;
@@ -82,6 +92,21 @@ export default class ChatForm extends Vue {
 	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
 
 	public mounted():void {
+		watch(():string => this.message, (newVal:string):void => {
+			const input = this.$refs.input as HTMLInputElement;
+			let carretPos = input.selectionStart as number | 0;
+			for (let i = carretPos-1; i >= 0; i--) {
+				const currentChar = newVal.charAt(i);
+				if(currentChar == ":") {
+					this.emoteSearch = newVal.substring(i+1, carretPos);
+					break;
+				}
+				if(/\s/gi.test(currentChar)) {
+					this.emoteSearch = "";
+					break;
+				}
+			}
+		});
 	}
 
 	public beforeunmout():void {
@@ -93,27 +118,38 @@ export default class ChatForm extends Vue {
 	
 	public async sendMessage():Promise<void> {
 		if(this.message.length == 0) return;
+		if(this.emoteSearch.length > 1) return;
 
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
 		if(cmd == "/poll") {
+			//Open poll form
 			this.$emit("poll");
 			this.message = "";
 		}else
+
 		if(cmd == "/prediction") {
+			//Open prediction form
 			this.$emit("pred");
 			this.message = "";
 		}else
+
 		if(cmd == "/cypherkey") {
+			//Secret feature
 			TwitchCypherPlugin.instance.cypherKey = params[0];
 			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
-		}else if(cmd == "/cypherreset") {
+		}else
+
+		if(cmd == "/cypherreset") {
+			//Secret feature
 			store.dispatch("setCypherEnabled", false);
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
+			
 		}else{
+			//Send message
 			try {
 				if(store.state.cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
@@ -127,21 +163,48 @@ export default class ChatForm extends Vue {
 		}
 	}
 
+	/**
+	 * Toggle secret cypher keyboard
+	 */
 	public toggleCypher():void {
 		store.dispatch("setCypherEnabled", !store.state.cypherEnabled);
 	}
 
-	public onSelectEmote(emote:TwitchTypes.Emote):void {
+	/**
+	 * Called when selecting an emote from the emote selector
+	 */
+	public async onSelectEmote(emote:TwitchTypes.Emote):Promise<void> {
 		const input = this.$refs.input as HTMLInputElement;
 		let carretPos = input.selectionStart;
+		let localMessage = this.message;
 		if(!carretPos) carretPos = 0;
-		console.log(this.message.charAt(carretPos-1));
-		const prefix = /\s/gi.test(this.message.charAt(carretPos-1))? "" : " ";
-		const suffix = /\s/gi.test(this.message.charAt(carretPos-1+emote.name.length))? "" : " ";
-		const code = prefix + emote.name + suffix;
-		this.message = this.message.substring(0, carretPos) + code + this.message.substring(carretPos);
-		carretPos += code.length;
-		console.log(carretPos);
+
+		if(this.emoteSearch) {
+			for (let i = carretPos; i >= 0; i--) {
+				const currentChar = localMessage.charAt(i);
+				if(currentChar == ":") {
+					const prefix = localMessage.substring(0, i-1);
+					const suffix = localMessage.substring(i+1+this.emoteSearch.length);
+					localMessage = prefix + " " + emote.name + suffix;
+					console.log(localMessage);
+					carretPos = prefix.length + emote.name.length + 1;
+					break;
+				}
+			}
+			this.emoteSearch = "";
+		}else{
+			const prefix = /\s/gi.test(localMessage.charAt(carretPos-1))? "" : " ";
+			const suffix = /\s/gi.test(localMessage.charAt(carretPos-1+emote.name.length))? "" : " ";
+			const code = prefix + emote.name + suffix;
+			localMessage = localMessage.substring(0, carretPos) + code + localMessage.substring(carretPos);
+			carretPos += code.length;
+		}
+		
+
+		this.message = localMessage;
+
+		await this.$nextTick();
+		
 		input.setSelectionRange(carretPos, carretPos, "forward");
 	}
 
@@ -220,7 +283,7 @@ export default class ChatForm extends Vue {
 		}
 	}
 
-	.actions, .notifications, .emotes {
+	.actions, .notifications, .emotes, .emotesLive {
 		position: absolute;
 		top: 0;
 		left: 0;
