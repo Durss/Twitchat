@@ -187,6 +187,7 @@ export default class RaffleState extends Vue {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
+				justify-content: center;
 				span {
 					cursor: pointer;
 					margin-left: 5px;
