@@ -188,7 +188,9 @@ export default class ChatMessage extends Vue {
 						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {
-						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' height='112' width='112'><br><center>"+v.emote+"</center>";
+						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.emote+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
