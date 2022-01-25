@@ -1,6 +1,7 @@
 import router from "@/router";
 import store from "@/store";
 import { Badges, ChatUserstate } from "tmi.js";
+import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import { IRCEventDataList } from "./IRCEvent";
 import Utils from "./Utils";
@@ -138,11 +139,13 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false, customParsing:boolean = false):{type:string, value:string, emote?:string}[] {
+	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false, customParsing:boolean = false):TwitchTypes.ParseMessageChunk[] {
 		if(!emotes || emotes.length == 0) {
 			//Attempt to parse emotes manually.
-			//Darn IRC that doesn't sends back proper emotes tag back
+			//Darn IRC that doesn't sends back proper emotes tag 
 			//to its sender...
+			//Parses for all emotes and generates a fake "emotes"
+			//tag as if it was sent by IRC.
 			if(customParsing && store.state.userEmotesCache) {
 				let fakeTag = "";
 				const emoteList = store.state.emotesCache as TwitchTypes.Emote[];
@@ -153,7 +156,7 @@ export default class TwitchUtils {
 					const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 					if(tagsDone[name]) continue;
 					tagsDone[name] = true;
-					const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "gi"))];
+					const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
 					if(matches && matches.length > 0) {
 						//Current emote has been found
 						//Generate fake emotes data in the expected format:
@@ -170,37 +173,58 @@ export default class TwitchUtils {
 				if(fakeTag.length > 0) fakeTag +=";";
 				emotes = fakeTag;
 			}
-			if(!emotes || emotes.length == 0) {
-				return [{type:"text", value:message}];
-			}
+			// if(!emotes || emotes.length == 0) {
+			// 	return [{type:"text", value:message}];
+			// }
+		}
+
+		if(!emotes) emotes = "";
+		let bttvTag = BTTVUtils.instance.generateEmoteTag(message)
+		if(bttvTag) {
+			if(emotes.length > 0) bttvTag += "/";
+			emotes = bttvTag + emotes;
 		}
 
 		const emotesList:{id:string, start:number, end:number}[] = [];
 		//Parse raw emotes data
 		const chunks = (emotes as string).split("/");
-		for (let i = 0; i < chunks.length; i++) {
-			const c = chunks[i];
-			const id = c.split(":")[0];
-			const positions = c.split(":")[1].split(",");
-			for (let j = 0; j < positions.length; j++) {
-				const p = positions[j];
-				const start = parseInt(p.split("-")[0]);
-				const end = parseInt(p.split("-")[1]);
-				emotesList.push({id, start, end});
+		if(chunks.length > 0) {
+			for (let i = 0; i < chunks.length; i++) {
+				const c = chunks[i];
+				if(c.length == 0) continue;
+				const id = c.split(":")[0];
+				const positions = c.split(":")[1].split(",");
+				for (let j = 0; j < positions.length; j++) {
+					const p = positions[j];
+					const start = parseInt(p.split("-")[0]);
+					const end = parseInt(p.split("-")[1]);
+					emotesList.push({id, start, end});
+				}
 			}
 		}
 		//Sort emotes by start position
 		emotesList.sort((a,b) => a.start - b.start)
 
 		let cursor = 0;
-		const result:{type:string, emote?:string, value:string}[] = [];
+		const result:TwitchTypes.ParseMessageChunk[] = [];
 		//Convert emotes to image tags
 		for (let i = 0; i < emotesList.length; i++) {
 			const e = emotesList[i];
-			if(cursor < e.start) result.push( {type:"text", value:message.substring(cursor, e.start)} );
+			if(cursor < e.start) {
+				result.push( {type:"text", value:message.substring(cursor, e.start)} );
+			}
 			if(!removeEmotes) {
-				const code = message.substring(e.start, e.end + 1);
-				result.push( {type:"emote", emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
+				const code = message.substring(e.start, e.end + 1).trim();
+				if(e.id.indexOf("BTTV_") == 0) {
+					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
+					if(bttvE) {
+						result.push( {type:"emote", emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
+					}else{
+						result.push( {type:"text", value:code} );
+					}
+				}else{
+					result.push( {type:"emote", emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
+				}
 			}
 			cursor = e.end + 1;
 		}
@@ -775,9 +799,14 @@ export namespace TwitchTypes {
 		theme_mode: "light" | "dark";
 	}
 
-
 	export interface TrackedUser {
 		user:ChatUserstate;
 		messages:IRCEventDataList.Message[];
+	}
+
+	export interface ParseMessageChunk {
+		type:"text"|"emote";
+		emote?:string;
+		value:string;
 	}
 }

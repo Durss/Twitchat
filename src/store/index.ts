@@ -1,3 +1,4 @@
+import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
@@ -34,8 +35,9 @@ export default createStore({
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
 				showEmotes: {type:"toggle", value:true, label:"Show emotes"},
+				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes"},
 				showBadges: {type:"toggle", value:true, label:"Show badges"},
-				minimalistBadges: {type:"toggle", value:false, label:"Show minimalist badges"},
+				minimalistBadges: {type:"toggle", value:false, label:"Minified badges"},
 				displayTime: {type:"toggle", value:false, label:"Display time"},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50},
@@ -293,6 +295,13 @@ export default createStore({
 					/* eslint-disable-next-line */
 					const v = (state.params[c] as any)[key].value;
 					Store.set("p:"+key, v);
+					if(key=="bttvEmotes") {
+						if(v === true) {
+							BTTVUtils.instance.enable();
+						}else{
+							BTTVUtils.instance.disable();
+						}
+					}
 				}
 			}
 		},
@@ -417,6 +426,14 @@ export default createStore({
 						console.log("enter raffle");
 						raffle.users.push(message.tags);
 					}
+				}
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
+				if(state.params.appearance.bttvEmotes.value === true) {
+					BTTVUtils.instance.enable();
+				}else{
+					BTTVUtils.instance.disable();
 				}
 			});
 

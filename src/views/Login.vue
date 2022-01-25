@@ -23,7 +23,7 @@
 			<div class="permissions" v-if="!authenticating">
 				<div class="details" v-if="showPermissions">
 					<div>
-						Twitchat needs these permissions to offer you as much features as possible.<br>
+						Twitchat needs these permissions to offer you as much Twitch features as possible.<br>
 						Your authentication token will never be stored on our server.<br>
 						<br>
 						Here are the permissions needed:

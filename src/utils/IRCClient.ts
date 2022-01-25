@@ -2,6 +2,7 @@ import store from "@/store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
+import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
@@ -16,8 +17,8 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -76,7 +77,9 @@ export default class IRCClient extends EventDispatcher {
 					//Load user specific badges infos
 					await TwitchUtils.loadUserBadges(uids[i]);
 					await TwitchUtils.loadCheermoteList(uids[i]);
+					await BTTVUtils.instance.addChannel(uids[i]);
 				}
+				
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
 
 				try {

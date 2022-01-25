@@ -218,6 +218,7 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.moderator) badges.push({color:"#39db00", label:"Moderator"});
 			if(message.tags.badges?.staff) badges.push({color:"#666666", label:"Twitch staff"});
 			if(message.tags.badges?.broadcaster) badges.push({color:"#ff0000", label:"Broadcaster"});
+			//TODO add parteners
 		}
 		return badges;
 	}
