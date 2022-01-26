@@ -31,6 +31,7 @@ export default createStore({
 		emotesCache: [],
 		trackedUsers: [],
 		raffle: {},
+		whispers: {},
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -51,6 +52,7 @@ export default createStore({
 			},
 			filters: {
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
+				receiveWhispers: {type:"toggle", value:false, label:"Receive whispers"},
 				showSelf: {type:"toggle", value:true, label:"Show my messages"},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages"},
 				showBots: {type:"toggle", value:false, label:"Show known bot's messages"},
@@ -341,7 +343,13 @@ export default createStore({
 			}
 		},
 
-		startRaffle(state, payload:RaffleData) { state.raffle = payload; }
+		startRaffle(state, payload:RaffleData) { state.raffle = payload; },
+
+		closeWhispers(state, userID:string) {
+			const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
+			delete whispers[userID];
+			state.whispers = whispers;
+		},
 
 	},
 
@@ -465,6 +473,18 @@ export default createStore({
 				state.chatMessages = [];
 			});
 
+			IRCClient.instance.addEventListener(IRCEvent.WHISPER, (event:IRCEvent) => {
+				if(state.params.filters.receiveWhispers.value === true) {
+					const data = event.data as IRCEventDataList.Whisper;
+					const uid = data.tags['user-id'] as string;
+					const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
+					if(!whispers[uid]) whispers[uid] = [];
+					data.timestamp = Date.now();
+					whispers[uid].push(data);
+					state.whispers = whispers;
+				}
+			});
+
 			IRCClient.instance.addEventListener(IRCEvent.ROOMSTATE, (event:IRCEvent) => {
 				const data = event.data as IRCEventDataList.RoomState
 				if(data.tags['emote-only'] != undefined) state.params.roomStatus.emotesOnly.value = data.tags['emote-only'] != false;
@@ -517,6 +537,8 @@ export default createStore({
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
 
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
+
+		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 	},
 	modules: {
 	}

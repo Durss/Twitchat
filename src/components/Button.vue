@@ -411,9 +411,9 @@ export default class Button extends Vue {
 	&.small {
 		padding: 4px;
 		border-radius: 5px;
-		background: @mainColor_normal_extralight;
+		background-color: @mainColor_light;
 		&:hover {
-			background: @mainColor_normal_light;
+			background-color: @mainColor_normal_extralight;
 		}
 		.label {
 			font-size: 16px;

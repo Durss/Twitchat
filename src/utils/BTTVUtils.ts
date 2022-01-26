@@ -140,7 +140,9 @@ export default class BTTVUtils {
 		try {
 			const res = await fetch("https://api.betterttv.net/3/cached/users/twitch/"+channelId);
 			const json = await res.json();
-			this.channelEmotes[channelId] = json.channelEmotes;
+			if(json.channelEmotes) {
+				this.channelEmotes[channelId] = json.channelEmotes;
+			}
 		}catch(error) {
 			//
 		}

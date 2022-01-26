@@ -317,6 +317,7 @@ export default class NewUsers extends Vue {
 			padding: 5px;
 			font-size: 18px;
 			background-color: fade(#ffffff, 5%);
+			margin-bottom: 5px;
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);

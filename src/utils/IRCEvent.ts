@@ -20,6 +20,7 @@ export default class IRCEvent extends Event {
 	public static DELETE_MESSAGE:string = "DELETE_MESSAGE";
 	public static AUTOMOD:string = "AUTOMOD";
 	public static ROOMSTATE:string = "ROOMSTATE";
+	public static WHISPER:string = "WHISPER";
 	
 	constructor(type:string, public data?:IRCEventData) {
 		super(type);
@@ -35,7 +36,8 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Notice
 						|  IRCEventDataList.Highlight
 						|  IRCEventDataList.Hosted
-						|  IRCEventDataList.RoomState;
+						|  IRCEventDataList.RoomState
+						|  IRCEventDataList.Whisper;
 
 export namespace IRCEventDataList {
 	export interface Message {
@@ -130,6 +132,9 @@ export namespace IRCEventDataList {
 	export interface RoomState {
 		type:"notice";
 		raw: string;
+		prefix: string;
+		command: string;
+		params: string[];
 		tags: {
 			"emote-only": boolean;
 			"followers-only": string;
@@ -140,8 +145,30 @@ export namespace IRCEventDataList {
 			"subs-only": boolean;
 			channel: string;
 		};
-		prefix: string;
+	}
+
+	export interface Whisper {
+		type:"message";
+		raw: string;
 		command: string;
 		params: string[];
+		tags: {
+			badges?: any;
+			color: string;
+			"display-name": string;
+			emotes?: any;
+			"message-id": string;
+			"thread-id": string;
+			turbo: boolean;
+			"user-id": string;
+			"user-type"?: any;
+			"emotes-raw"?: any;
+			"badges-raw"?: any;
+			username: string;
+			"message-type": string;
+		};
+		//custom data
+		timestamp:number;
+		isAnswer?:boolean;
 	}
 }

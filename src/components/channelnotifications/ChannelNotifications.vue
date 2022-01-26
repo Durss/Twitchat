@@ -1,38 +1,57 @@
 <template>
 	<div class="channelnotifications">
 		<div class="notifications">
-			<Button :icon="require('@/assets/icons/poll.svg')"
-				small
-				bounce
-				@click="currentContent = 'poll'"
-				v-if="$store.state.currentPoll?.id" />
+			<transition name="slideBT" :duration="{enter:500, leave:1200}">
+				<Button :icon="require('@/assets/icons/poll.svg')"
+					small
+					bounce
+					@click="currentContent = 'poll'"
+					v-if="$store.state.currentPoll?.id" />
+			</transition>
 
-			<Button :icon="require('@/assets/icons/prediction.svg')"
-				small
-				bounce
-				@click="currentContent = 'prediction'"
-				v-if="$store.state.currentPrediction?.id" />
+			<transition name="slideBT" :duration="{enter:500, leave:1200}">
+				<Button :icon="require('@/assets/icons/prediction.svg')"
+					small
+					bounce
+					@click="currentContent = 'prediction'"
+					v-if="$store.state.currentPrediction?.id" />
+			</transition>
 
-			<Button :icon="require('@/assets/icons/markRead.svg')"
-				small
-				bounce
-				v-if="$store.state.isMessageMarkedAsRead"
-				data-tooltip="Scroll to last<br>messaged flagged"
-				@click="$emit('goToLastRead')" />
+			<transition name="slideBT" :duration="{enter:500, leave:1200}">
+				<Button :icon="require('@/assets/icons/markRead.svg')"
+					small
+					bounce
+					v-if="$store.state.isMessageMarkedAsRead"
+					data-tooltip="Scroll to last<br>messaged flagged"
+					@click="$emit('goToLastRead')" />
+			</transition>
 
-			<Button :icon="require('@/assets/icons/magnet.svg')"
-				small
-				bounce
-				v-if="$store.state.trackedUsers.length > 0"
-				data-tooltip="View tracked users"
-				@click="currentContent='trackedUsers'" />
+			<transition name="slideBT" :duration="{enter:500, leave:1200}">
+				<Button :icon="require('@/assets/icons/magnet.svg')"
+					small
+					bounce
+					v-if="$store.state.trackedUsers.length > 0"
+					data-tooltip="View tracked users"
+					@click="currentContent='trackedUsers'" />
+			</transition>
 
-			<Button :icon="require('@/assets/icons/ticket.svg')"
-				small
-				bounce
-				v-if="$store.state.raffle.command"
-				data-tooltip="Raffle"
-				@click="currentContent='raffle'" />
+			<transition name="slideBT" :duration="{enter:500, leave:1200}">
+				<Button :icon="require('@/assets/icons/ticket.svg')"
+					small
+					bounce
+					v-if="$store.state.raffle.command"
+					data-tooltip="Raffle"
+					@click="currentContent='raffle'" />
+			</transition>
+
+			<transition name="slideBT" :duration="{enter:500, leave:1200}">
+				<Button :icon="require('@/assets/icons/whispers.svg')"
+					small
+					bounce
+					v-if="whispersAvailable"
+					data-tooltip="Whispers"
+					@click="currentContent='whispers'" />
+			</transition>
 		</div>
 		<div ref="content">
 			<transition name="slide">
@@ -40,6 +59,7 @@
 				<PredictionState class="content" v-else-if="currentContent == 'prediction' && $store.state.currentPrediction?.id" />
 				<TrackedUsers class="content" v-else-if="currentContent == 'trackedUsers'" />
 				<RaffleState class="content" v-else-if="currentContent == 'raffle' && $store.state.raffle.command" />
+				<WhispersState class="content" v-else-if="currentContent == 'whispers' && whispersAvailable" />
 			</transition>
 		</div>
 	</div>
@@ -47,6 +67,7 @@
 
 <script lang="ts">
 import store from '@/store';
+import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -55,6 +76,7 @@ import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
 import RaffleState from './RaffleState.vue';
 import TrackedUsers from './TrackedUsers.vue';
+import WhispersState from './WhispersState.vue';
 
 @Options({
 	props:{},
@@ -63,6 +85,7 @@ import TrackedUsers from './TrackedUsers.vue';
 		PollState,
 		RaffleState,
 		TrackedUsers,
+		WhispersState,
 		PredictionState,
 	},
 	emits:['goToLastRead'],
@@ -72,6 +95,14 @@ export default class ChannelNotifications extends Vue {
 	public currentContent:string = '';
 
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public get whispersAvailable():boolean {
+		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
+		for (const key in store.state.whispers) {
+			if (whispers[key].length > 0) return true;
+		}
+		return false;
+	}
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
@@ -107,9 +138,6 @@ export default class ChannelNotifications extends Vue {
 .channelnotifications{
 	width: 100%;
 	pointer-events:none;
-	// width: min-content;
-	// right: 0;
-	// left: auto;
 
 	.notifications {
 		pointer-events:none;
@@ -124,14 +152,29 @@ export default class ChannelNotifications extends Vue {
 			border-bottom-right-radius: 0;
 			border-bottom-left-radius: 0;
 			margin-left: 1px;
-			height: 33px;
-			transition: height 0.2s;
+			height: 40px;
+			padding-bottom: 15px;
+			transition: height 0.2s, background-color 0.25s;
+			transform: translateY(10px);
 			:deep(.icon) {
 				width: 25px;
 				max-height: 20px;
 			}
 			&:hover {
-				height: 40px;
+				height: 50px;
+			}
+
+			&.slideBT-enter-active {
+				transition: transform .5s cubic-bezier(0.175, 0.885, 0.320, 1.275);
+			}
+
+			&.slideBT-leave-active {
+				transition: transform .5s cubic-bezier(0.600, -0.280, 0.735, 0.045);
+			}
+			
+			&.slideBT-enter-from,
+			&.slideBT-leave-to {
+				transform: translateY(50px);
 			}
 		}
 	}
@@ -155,11 +198,11 @@ export default class ChannelNotifications extends Vue {
 	}
 
 	.slide-enter-active {
-		transition: all 0.2s;
+		transition: transform 0.2s;
 	}
 
 	.slide-leave-active {
-		transition: all 0.2s;
+		transition: transform 0.2s;
 	}
 	
 	.slide-enter-from,

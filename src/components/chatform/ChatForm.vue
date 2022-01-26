@@ -15,9 +15,9 @@
 					placeholder="message..."
 					maxlength="500">
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
-				<Button type="submit" class="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce />
-				<Button class="submit" :icon="require('@/assets/icons/emote.svg')" @click="showEmotes = true;" bounce />
-				<Button class="submit"
+				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" />
+				<Button :icon="require('@/assets/icons/emote.svg')" @click="showEmotes = true;" bounce />
+				<Button
 					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'un':'')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
@@ -266,7 +266,7 @@ export default class ChatForm extends Vue {
 				border: none;
 				border-radius: 0;
 			}
-			.submit {
+			.button {
 				height: 100%;
 				padding: 5px;
 				border-radius: 5px;

@@ -18,7 +18,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private login!:string;
 	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -79,7 +79,7 @@ export default class IRCClient extends EventDispatcher {
 					await TwitchUtils.loadCheermoteList(uids[i]);
 					await BTTVUtils.instance.addChannel(uids[i]);
 				}
-				
+
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
 
 				try {
@@ -209,13 +209,17 @@ export default class IRCClient extends EventDispatcher {
 				// console.log("################## ON RAW ##################");
 				// console.log(messageCloned);
 				// if (message.command != "PRIVMSG") {
-					// console.log(data.command);
+					console.log(data.command);
 					// console.log(data);
 				switch(data.command) {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
 					case "ROOMSTATE": {
 						this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
+						break;
+					}
+					case "WHISPER": {
+						this.dispatchEvent(new IRCEvent(IRCEvent.WHISPER, (data as unknown) as IRCEventDataList.Whisper));
 						break;
 					}
 					case "USERSTATE": {
@@ -271,6 +275,34 @@ export default class IRCClient extends EventDispatcher {
 		return this.client.say(this.login, message);
 	}
 
+	public whisper(whisperSource:IRCEventDataList.Whisper, message:string):Promise<unknown> {
+		const data:IRCEventDataList.Whisper = {
+			type:"message",
+			raw: "",
+			command: "WHISPER",
+			params: [this.login, message],
+			tags: {
+				badges: null,
+				"badges-raw": null,
+				color: whisperSource.tags.color,
+				"display-name": whisperSource.tags["display-name"],
+				emotes: null,
+				"emotes-raw": null,
+				"message-id": this.increment.toString(),
+				"message-type": "whisper",
+				"thread-id": whisperSource.tags["thread-id"],
+				turbo: false,
+				"user-id": whisperSource.tags["user-id"],
+				"user-type": null,
+				username: whisperSource.tags.username,
+			},
+			timestamp:Date.now(),
+			isAnswer:true,
+		}
+		this.dispatchEvent(new IRCEvent(IRCEvent.WHISPER, data));
+		return this.client.whisper(whisperSource.tags.username, message);
+	}
+
 	public sendNotice(msgid:tmi.MsgID|string, message:string):void {
 		const tags = this.getFakeTags();
 		if(!this.idToExample[msgid]) this.idToExample[msgid] = {type:"notice", channel:this.channel, msgid, message, tags};
@@ -283,7 +315,6 @@ export default class IRCClient extends EventDispatcher {
 
 		if(this.uidsDone[data.tags['user-id'] as string] !== true) {
 			data.firstMessage = true;
-			console.log("FLAG FIRST !");
 			this.uidsDone[data.tags['user-id'] as string] = true;
 		}
 

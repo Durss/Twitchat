@@ -22,7 +22,7 @@
 				alt="conversation"
 				@mouseover="$emit('showConversation', $event, messageData)">
 			
-			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" />
+			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" />
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 			

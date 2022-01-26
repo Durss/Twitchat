@@ -173,9 +173,6 @@ export default class TwitchUtils {
 				if(fakeTag.length > 0) fakeTag +=";";
 				emotes = fakeTag;
 			}
-			// if(!emotes || emotes.length == 0) {
-			// 	return [{type:"text", value:message}];
-			// }
 		}
 
 		if(!emotes) emotes = "";
@@ -183,6 +180,10 @@ export default class TwitchUtils {
 		if(bttvTag) {
 			if(emotes.length > 0) bttvTag += "/";
 			emotes = bttvTag + emotes;
+		}
+		
+		if(!emotes || emotes.length == 0) {
+			return [{type:"text", value:message}];
 		}
 
 		const emotesList:{id:string, start:number, end:number}[] = [];
