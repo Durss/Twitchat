@@ -68,12 +68,6 @@ export default class WhispersState extends Vue {
 		this.selectedUser = user;
 	}
 
-	public mounted():void {
-		console.log(store.state.whispers);
-		this.selectedUser = (store.state.whispers as {[key:string]:IRCEventDataList.Whisper[]})["647389082"][0].tags['user-id'];
-		console.log(this.selectedUser);
-	}
-
 	public parseMessage(whisper:IRCEventDataList.Whisper):string {
 		const message = whisper.params[1];
 		const chunks = TwitchUtils.parseEmotes(message, whisper.tags['emotes-raw']);
