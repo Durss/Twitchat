@@ -150,12 +150,13 @@ export default class PubSub {
 			//Manage rewards
 			if(store.state.params.filters.showRewards.value) {
 				const localObj = event.data as  PubSubTypes.RewardData;
+				console.log(localObj);
 				const tags:IRCTagsExtended = {
 					"username":localObj.redemption.user.display_name,
 					"display-name": localObj.redemption.user.display_name,
 					"id": localObj.redemption.id,
 					"user-id": localObj.redemption.user.id,
-					"tmi-sent-ts": localObj.timestamp,
+					"tmi-sent-ts": new Date(localObj.timestamp).getTime().toString(),
 					"message-type": "chat",
 					"room-id": localObj.redemption.channel_id,
 				};
