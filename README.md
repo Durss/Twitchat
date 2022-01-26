@@ -20,29 +20,28 @@ The main goal is to reduce as much as possible the number of missed messages and
 <br>
 
 # Features
-- [x] Display the first message of users seperatly
+- [x] Display the first message of users seperatly so you don't forget to greet them
 - [x] Make it easier to follow a conversation between users
 - [x] Flag a message as "read" and scroll back to it easily
 - [x] Track a user to make sure not to miss her/his messages
 - [x] Create a raffle with the viewers and pick random winners
-- [x] Allow to filter some messages *(bots, commands, self, etc...)*
-- [x] Customizable message features *(remove badges, show minimalist badges, remove emotes, etc...)*
-- [x] Customizable message appearance by roles *(viewers, mods, vips, subs)*
-- [x] Display mod actions *(ban, timeout, delete message)*
-- [x] Handle automod allow/deny flow
-- [x] Pause chat autoscroll if scrolling it up
-- [x] Possibility to connect to any channel without authentication to use it as OBS overlay
+- [x] Display received whispers and answer them *(option off by default)*
+- [x] Filter some messages *(bots, commands, self, etc...)*
+- [x] Customize messages *(remove badges, show minimalist badges, remove emotes)*
+- [x] Customize messages appearance by roles *(viewers, mods, vips, subs)*
+- [x] Moderate messages *(ban, timeout, delete message)*
+- [x] Allow/deny messages blocked by automod
 - [x] Display when it's the first message ever of a user on the channel
-- [x] Display mod notifications
-- [x] Display sub/bits/raid/reward messages
+- [x] Display mod notifications on chat (ex: "User XXX has been banned by YYY")
+- [x] Display sub/bits/raid/reward notifications
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
 - [x] Emote selector 
 - [x] BTTV emotes supported
 
+- [ ] Possibility to connect to any channel without authentication to use it as OBS overlay
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
-- [ ] Allow to read whispers
 - [ ] Make it possible to define configurations via query params for OBS chat template
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
