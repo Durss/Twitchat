@@ -46,6 +46,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Autocomplete commands
+- [ ] Show subs/cheers/raids/rewards in a dedicated list
 <br>
 <br>
 <br>
