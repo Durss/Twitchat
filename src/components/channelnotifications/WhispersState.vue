@@ -193,6 +193,7 @@ export default class WhispersState extends Vue {
 					margin-right: 5px;
 					margin-top: 3px;
 					width: 36px;
+					font-variant-numeric: tabular-nums;
 				}
 			}
 		}

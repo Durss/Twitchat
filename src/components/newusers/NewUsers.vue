@@ -1,5 +1,5 @@
 <template>
-	<div class="newusers" v-show="localMessages.length > 0">
+	<div :class="classes" v-show="localMessages.length > 0">
 		<div class="header" @click="toggleList()">
 			<Button :icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
 				class="scrollBt"
@@ -83,6 +83,11 @@ export default class NewUsers extends Vue {
 
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
 
+	public get classes():string[] {
+		let res = ["newusers"];
+		res.push("size_"+store.state.params.appearance.defaultSize.value);
+		return res;
+	}
 
 	public mounted():void {
 		watch(() => store.state.chatMessages, async (value) => {
@@ -281,6 +286,37 @@ export default class NewUsers extends Vue {
 	display: flex;
 	flex-direction: column;
 
+	&.size_1 {
+		.messageList{
+			font-size: 10px;
+			.message{ padding: 2px; }
+		}
+	}
+	&.size_2 {
+		.messageList{
+			font-size: 14px;
+			.message{ padding: 2px; }
+		}
+	}
+	&.size_3 {
+		.messageList{
+			font-size: 18px;
+			.message{ padding: 5px; }
+		}
+	}
+	&.size_4 {
+		.messageList{
+			font-size: 24px;
+			.message{ padding: 5px; }
+		}
+	}
+	&.size_5 {
+		.messageList{
+			font-size: 30px;
+			.message{ padding: 10px; }
+		}
+	}
+
 	.header {
 		padding: 10px 0;
 		display: flex;
@@ -315,13 +351,11 @@ export default class NewUsers extends Vue {
 			font-family: "Inter";
 			color: #fff;
 			padding: 5px;
-			font-size: 18px;
 			background-color: fade(#ffffff, 5%);
 			margin-bottom: 5px;
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);
-				font-size: 13px;
 				margin-right: 5px;
 				vertical-align: middle;
 			}

@@ -62,6 +62,7 @@ export default class ProgressBar extends Vue {
 		padding: 3px 6px;
 		border-radius: 15px;
 		font-size: 15px;
+		font-variant-numeric: tabular-nums;
 	}
 }
 </style>

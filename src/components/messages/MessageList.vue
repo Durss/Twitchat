@@ -22,6 +22,7 @@
 					v-if="m.type == 'highlight'"
 					class="message"
 					:messageData="m"
+					lightMode
 					:ref="'message_'+m.tags.id"
 					/>
 
@@ -98,7 +99,7 @@ import ChatNotice from './ChatNotice.vue';
 	},
 	props: {
 		max:Number,
-		lightMode:Boolean,
+		lightMode:Boolean,//Used by OBS chat
 	}
 })
 export default class MessageList extends Vue {
@@ -124,6 +125,8 @@ export default class MessageList extends Vue {
 		let res = ["messagelist"];
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll || this.pendingMessages.length > 0) res.push("scrollLocked");
+
+		res.push("size_"+store.state.params.appearance.defaultSize.value);
 
 		return res;
 	}
@@ -446,6 +449,27 @@ export default class MessageList extends Vue {
 	padding: 10px;
 	position: relative;
 
+	&.size_1 {
+		font-size: 10px;
+		.message{ padding: 2px; }
+	}
+	&.size_2 {
+		font-size: 14px;
+		.message{ padding: 2px; }
+	}
+	&.size_3 {
+		font-size: 18px;
+		.message{ padding: 5px; }
+	}
+	&.size_4 {
+		font-size: 24px;
+		.message{ padding: 5px; }
+	}
+	&.size_5 {
+		font-size: 30px;
+		.message{ padding: 10px; }
+	}
+
 	&.lightMode {
 		.holder {
 			overflow: hidden;
@@ -469,8 +493,6 @@ export default class MessageList extends Vue {
 		font-family: "Inter";
 		color: #fff;
 		padding: 5px;
-		min-height: 28px;
-		font-size: 18px;
 	}
 
 	.holder {

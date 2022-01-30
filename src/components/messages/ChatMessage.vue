@@ -1,12 +1,13 @@
 <template>
-	<div :class="classes" @click.ctrl="logJSON()">
+	<div :class="classes" @click.ctrl="copyJSON()">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/stars.svg" alt="new" class="stars">
 			<p>First time on this channel</p>
 		</div>
 		
 		<div v-if="automod" class="automod">
-			<div class="header">The following message has been blocked by automod for the following reason(s) : {{automodReasons}}</div>
+			<img src="@/assets/icons/automod.svg">
+			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
 			<div class="actions">
 				<Button title="Accept" @click="modMessage(true)" />
 				<Button title="Reject" @click="modMessage(false)" highlight />
@@ -38,6 +39,7 @@
 		</div>
 		
 		<span class="message" v-html="text"></span>
+		<div v-if="messageData && messageData.tags">{{messageData.tags.vip}}</div>
 	</div>
 
 </template>
@@ -97,18 +99,10 @@ export default class ChatMessage extends Vue {
 				res.push("mention");
 			}
 			
-			//Set text size
-			if(message.tags.subscriber) res.push("size_"+store.state.params.appearance.subsSize.value);
-			else if(message.tags.vip) res.push("size_"+store.state.params.appearance.vipsSize.value);
-			else if(message.tags.mod) res.push("size_"+store.state.params.appearance.modsSize.value);
-			else res.push("size_"+store.state.params.appearance.defaultSize.value);
-
 			//Set highlight
 			if(message.tags.mod && store.state.params.appearance.highlightMods.value) res.push("highlightMods");
-			else if(message.tags.vip && store.state.params.appearance.highlightVips.value) res.push("highlightVips");
+			else if(message.tags.badges?.vip && store.state.params.appearance.highlightVips.value) res.push("highlightVips");
 			else if(message.tags.subscriber && store.state.params.appearance.highlightSubs.value) res.push("highlightSubs");
-		}else {
-			res.push("size_"+store.state.params.appearance.defaultSize.value);
 		}
 
 		return res;
@@ -231,7 +225,8 @@ export default class ChatMessage extends Vue {
 		store.dispatch("openUserCard", message.tags.username);
 	}
 
-	public logJSON():void {
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);
 	}
 
@@ -302,11 +297,6 @@ export default class ChatMessage extends Vue {
 <style scoped lang="less">
 .chatmessage{
 
-	&.size_1 { font-size: 12px !important; }
-	&.size_2 { font-size: 16px !important; }
-	&.size_3 { font-size: 20px !important; }
-	&.size_4 { font-size: 25px !important; }
-
 	&.highlightSubs { background-color: fade(#9147ff, 20%); }
 	&.highlightVips { background-color: fade(#e00bb9, 20%); }
 	&.highlightMods { background-color: fade(#39db00, 20%); }
@@ -366,19 +356,18 @@ export default class ChatMessage extends Vue {
 	
 		.miniBadges {
 			padding: 1px;
-			height: 12px;
 			margin-right: 5px;
 			display: inline-block;
 			.badge {
 				display: inline-block;
-				width: 6px;
-				height: 12px;
+				width: .5em;
+				height: 1em;
 				margin: 0 1px 0px 0;
 				&:last-child {
 					margin-right: 0;
 				}
 				&.prediction {
-					width: 12px;
+					width: 1em;
 					border-radius: 50%;
 				}
 			}
@@ -406,7 +395,7 @@ export default class ChatMessage extends Vue {
 			align-items: center;
 			justify-content: center;
 			margin-bottom: 10px;
-			font-size: 20px;
+			font-size: 1.25em;
 			.stars {
 				height: 30px;
 				margin-bottom: 10px;
@@ -431,13 +420,21 @@ export default class ChatMessage extends Vue {
 
 		.automod {
 			background-color: #fff;
-			padding: 10px;
+			padding: .35em;
 			border-radius: 5px;
 			margin-bottom: 10px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+
+			img {
+				height: 1.5em;
+				margin-right: .5em;
+			}
 
 			.header {
-				margin-bottom: 10px;
 				color: black;
+				flex-grow: 1;
 			}
 
 			.actions {
@@ -445,7 +442,7 @@ export default class ChatMessage extends Vue {
 				.button {
 					padding: 2px 5px;
 					border-radius: 5px;
-					font-size: 18px;
+					font-size: 1em;
 					margin-right: 10px;
 				}
 			}

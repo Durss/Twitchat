@@ -243,6 +243,8 @@ export default class ChatForm extends Vue {
 
 		.leftForm {
 			height: 100%;
+			display: flex;
+			flex-direction: row;
 			.button {
 				width: 30px;
 				height: 30px;
@@ -259,6 +261,7 @@ export default class ChatForm extends Vue {
 			flex-grow: 1;
 			input {
 				height: 100%;
+				width: 100%;
 				flex-grow: 1;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;

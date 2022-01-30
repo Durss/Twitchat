@@ -50,8 +50,8 @@ export default class ChatNotice extends Vue {
 .chatnotice{
 
 	.icon {
-		width: 18px;
-		height: 18px;
+		width: 1.5em;
+		height: 1.5em;
 		margin-right: 5px;
 		vertical-align: middle;
 	}
