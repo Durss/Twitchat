@@ -20,6 +20,7 @@
 <script lang="ts">
 import store from '@/store';
 import { TwitchTypes } from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -60,6 +61,10 @@ export default class EmoteSelectorLive extends Vue {
 		this.selectedIndex = 0;
 		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
 		document.addEventListener("keydown", this.keyDownHandler);
+		watch(()=>this.search, ()=>{
+			this.autoClose();
+		});
+		this.autoClose();
 	}
 
 	public beforeUnmount():void {
@@ -85,8 +90,14 @@ export default class EmoteSelectorLive extends Vue {
 				break;
 		}
 		
-		this.selectedIndex = this.selectedIndex%this.filteredEmotes.length;
-		if(this.selectedIndex < 0) this.selectedIndex = this.filteredEmotes.length-1;
+		const len = this.filteredEmotes.length;
+		this.selectedIndex = this.selectedIndex%len;
+		if(this.selectedIndex < 0) this.selectedIndex = len-1;
+	}
+
+	private autoClose():void {
+		const len = this.filteredEmotes.length;
+		if(len==0) this.$emit("close");
 	}
 
 }
