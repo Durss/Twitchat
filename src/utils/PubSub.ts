@@ -11,6 +11,7 @@ export default class PubSub {
 	private static _instance:PubSub;
 	private socket!:WebSocket;
 	private pingInterval!:number;
+	private reconnectTimeout!:number;
 	
 	constructor() {
 	
@@ -68,6 +69,10 @@ export default class PubSub {
 			} else {
 				// alert('[close] Connection died');
 			}
+			clearTimeout(this.reconnectTimeout)
+			this.reconnectTimeout = setTimeout(()=>{
+				this.connect();
+			}, 1000);
 		};
 		
 		this.socket.onerror = (error) => {
