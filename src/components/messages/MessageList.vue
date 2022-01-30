@@ -300,7 +300,7 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY;
 		}
 
-		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%3 == 0) {
+		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%15 == 0) {
 			this.showNextPendingMessage();
 		}
 		
