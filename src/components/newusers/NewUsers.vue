@@ -226,7 +226,7 @@ export default class NewUsers extends Vue {
 			if(this.scrollDownAuto) {
 				el.$el.scrollTop = el.$el.scrollHeight;
 			}else{
-				el.$el.scrollTop = 0;
+				// el.$el.scrollTop = 0;
 			}
 		}
 	}
