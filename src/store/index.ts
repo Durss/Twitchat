@@ -174,7 +174,8 @@ export default createStore({
 			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
 			
 			//Limit history size
-			const maxMessages = state.params.appearance.historySize.value;
+			// const maxMessages = state.params.appearance.historySize.value;
+			const maxMessages = 1000;
 			if(messages.length >= maxMessages) {
 				messages = messages.slice(-maxMessages);
 				state.chatMessages = messages as never[];

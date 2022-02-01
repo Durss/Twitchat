@@ -9,6 +9,7 @@
 					class="message"
 					:messageData="m"
 					@showConversation="openConversation"
+					@showUserMessages="openUserHistory"
 					@mouseleave="onMouseLeave(m)"
 					:ref="'message_'+m.tags.id"
 					/>
@@ -53,10 +54,11 @@
 		<div class="conversation"
 		ref="conversationHolder"
 		v-if="conversation.length > 0" :style="conversationStyles"
-		@mouseenter="openConversation()"
+		@mouseenter="reopenLastConversation()"
 		@mouseleave="onMouseLeave()">
 			<div class="head">
-				<h1>Conversation</h1>
+				<h1 v-if="conversationMode">Conversation</h1>
+				<h1 v-if="!conversationMode">History</h1>
 				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
@@ -111,13 +113,13 @@ export default class MessageList extends Vue {
 	public lightMode:boolean = false;
 	public lockScroll:boolean = false;
 	public conversationPos:number = 0;
+	public conversationMode:boolean = true;//Used to change title between History/Conversation
 
 	private disposed:boolean = false;
 	private frameIndex:number = 0;
 	private markedReadItems:IRCEventDataList.Message[] = [];
 	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
-	private lastHoverdMessage!:{event:MouseEvent, message:IRCEventDataList.Message};
 	private closeConvTimeout!:number;
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
 
@@ -188,7 +190,7 @@ export default class MessageList extends Vue {
 				return;
 			}
 			
-			this.localMessages = value.concat();
+			this.localMessages = value.concat().slice(-this.max);
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].tags.id as string] = true;
 			}
@@ -357,18 +359,21 @@ export default class MessageList extends Vue {
 	}
 
 	/**
+	 * Avoids closing the conversation when rolling over it
+	 */
+	public async reopenLastConversation():Promise<void> {
+		clearTimeout(this.closeConvTimeout);
+	}
+
+	/**
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
 	public async openConversation(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
-		if(!event) {
-			event = this.lastHoverdMessage.event;
-			m = this.lastHoverdMessage.message;
-		}
 		if(!m || (!m.answerTo && !m.answers)) return;
 
-		this.lastHoverdMessage = { event, message:m };
-		
+		this.conversationMode = true;
+
 		if(m.answers) {
 			this.conversation = m.answers.concat();
 			this.conversation.unshift( m );
@@ -377,7 +382,35 @@ export default class MessageList extends Vue {
 			this.conversation.unshift( m.answerTo );
 		}
 		await this.$nextTick();
-		
+		this.openConversationHolder(event);
+	}
+
+	/**
+	 * Called to open a user's messages history
+	 */
+	public async openUserHistory(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
+		if(!m) return;
+
+		this.conversationMode = false;
+
+		let messageList:IRCEventDataList.Message[] = [];
+		for (let i = 0; i < store.state.chatMessages.length; i++) {
+			const mess = store.state.chatMessages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
+			if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
+				messageList.push(mess);
+			}
+		}
+		this.conversation = messageList;
+
+		await this.$nextTick();
+		this.openConversationHolder(event);
+	}
+
+	/**
+	 * Opens up the conversation holder.
+	 * Call this after making sure the messages are rendered
+	 */
+	private openConversationHolder(event:MouseEvent):void {
 		let el = event.target as HTMLDivElement;
 		var top = 0;
 		do {
