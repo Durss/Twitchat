@@ -1,6 +1,9 @@
 <template>
-	<div :class="classes">
-		<div class="holder" ref="messageHolder" @mousewheel="onMouseWheel($event)">
+	<div :class="classes"
+	@mouseenter="lockScroll = true"
+	@mouseleave="lockScroll = pendingMessages.length > 0">
+		<div class="holder" ref="messageHolder"
+		@mousewheel="onMouseWheel($event)">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
 			@mouseleave="leaveMessage(m)">
@@ -206,7 +209,7 @@ export default class MessageList extends Vue {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const h = (this.$el as HTMLDivElement).clientHeight;
 			const maxScroll = (el.scrollHeight - h);
-			const scrollAtBottom = (maxScroll - el.scrollTop) < 2;
+			const scrollAtBottom = (maxScroll - el.scrollTop) < 1;
 			if(scrollAtBottom) {
 				this.lockScroll = false;
 			}
@@ -551,6 +554,10 @@ export default class MessageList extends Vue {
 				background-color: rgba(255, 255, 255, .2);
 			}
 
+			&:last-child {
+				padding-bottom: 10px;
+			}
+
 			.message {
 				flex-grow: 1;
 			}
@@ -665,6 +672,7 @@ export default class MessageList extends Vue {
 			h1 {
 				text-align: center;
 				flex-grow: 1;
+				color: @mainColor_light;
 			}
 			.button {
 				width: 20px;
