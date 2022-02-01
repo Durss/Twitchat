@@ -32,6 +32,7 @@ export default createStore({
 		trackedUsers: [],
 		raffle: {},
 		whispers: {},
+		raiding: "",
 		params: {
 			appearance: {
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
@@ -351,6 +352,8 @@ export default createStore({
 			state.whispers = whispers;
 		},
 
+		setRaiding(state, userName:string) { state.raiding = userName; },
+
 	},
 
 
@@ -539,6 +542,8 @@ export default createStore({
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
+
+		setRaiding({commit}, userName:string) { commit("setRaiding", userName); },
 	},
 	modules: {
 	}

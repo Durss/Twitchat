@@ -8,12 +8,16 @@
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
 		</div>
-		<div class="raid">
+		<div class="raid" v-if="$store.state.raiding?.length < 2">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
+		</div>
+		<div class="raid" v-else>
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding}}</label>
+			<Button @click="cancelRaid()" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>
 </template>
@@ -95,6 +99,10 @@ export default class CommandHelper extends Vue {
 			IRCClient.instance.sendMessage("/raid "+this.raidUser);
 			this.raidUser = "";
 		}).catch(()=> { });
+	}
+
+	public cancelRaid():void {
+		IRCClient.instance.sendMessage("/unraid");
 	}
 
 	public onChangeParam(key:string, p:ParameterData):void {

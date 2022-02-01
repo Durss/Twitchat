@@ -179,7 +179,7 @@ export default class PubSub {
 			
 		}else if(event.type == "moderation_action") {
 			//Manage moderation actions
-			const localObj = event.data as PubSubTypes.ModerationData
+			const localObj = event.data as PubSubTypes.ModerationData;
 			switch(localObj.moderation_action) {
 				case "clear": 
 					IRCClient.instance.sendNotice("usage_clear", "Chat cleared by "+localObj.created_by);
@@ -203,6 +203,14 @@ export default class PubSub {
 				case "unban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unbanned by "+localObj.created_by);
+					break;
+				}
+				case "raid": {
+					store.dispatch("setRaiding", localObj.args? localObj.args[0] : "");
+					break;
+				}
+				case "unraid": {
+					store.dispatch("setRaiding", "");
 					break;
 				}
 				default:
