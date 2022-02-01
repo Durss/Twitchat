@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="!filtered">
+	<div :class="classes" v-show="!filtered" @click.ctrl="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<div class="messageHolder">
@@ -158,6 +158,11 @@ export default class ChatHighlight extends Vue {
 				this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
 			}
 		}
+	}
+
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 	}
 }
 </script>

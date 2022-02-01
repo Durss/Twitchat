@@ -1,5 +1,5 @@
 <template>
-	<div class="chatnotice">
+	<div class="chatnotice" @click.ctrl="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img src="@/assets/icons/infos.svg" alt="notice" class="icon">
@@ -42,6 +42,11 @@ export default class ChatNotice extends Vue {
 		const message = this.messageData as IRCEventDataList.Notice;
 		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	}
+
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 	}
 }
 </script>
