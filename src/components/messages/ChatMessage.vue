@@ -391,14 +391,13 @@ export default class ChatMessage extends Vue {
 		margin: 5px 0;
 		.header {
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			margin-bottom: 10px;
 			font-size: 1.25em;
 			.stars {
 				height: 30px;
-				margin-bottom: 10px;
+				margin-right: 10px;
 			}
 		}
 	}
