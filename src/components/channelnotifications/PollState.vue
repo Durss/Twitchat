@@ -70,7 +70,7 @@ export default class PollState extends Vue {
 	public getAnswerClasses(c:TwitchTypes.PollChoice):string[] {
 		let res:string[] = ["choice"];
 		
-		if(this.poll.status == "COMPLETED") {
+		if(this.poll.status != "ACTIVE") {
 			let max = 0;
 			this.poll.choices.forEach(v => { max = Math.max(max, v.votes); });
 			if(c.votes == max) res.push("win");
@@ -92,8 +92,6 @@ export default class PollState extends Vue {
 	private async loadPolls():Promise<void> {
 		if(this.disposed) return;
 		await TwitchUtils.getPolls();//This actually automatically refresh the storage
-		await Utils.promisedTimeout(1000);
-		this.loadPolls();
 	}
 
 	public beforeUnmount():void {

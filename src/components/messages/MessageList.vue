@@ -593,16 +593,14 @@ export default class MessageList extends Vue {
 	.noMessage {
 		position:absolute;
 		width: calc(100% - 20px);
+		max-width: 560px;
 		bottom: 0;
-		color: rgba(255, 255, 255, .3);
-		font-family: "Inter";
-		font-style: italic;
 		mask-image: url(../../assets/chatPlaceholder.png);
 		mask-repeat: no-repeat;
 		mask-size: cover;
 		.gradient {
 			width: 100%;
-			height: 400px;
+			height: 513px;
 			background: url(../../assets/chatPlaceholder_gradient.png);
 			animation: scroll 5s linear infinite, fade 1s linear alternate infinite;
 			

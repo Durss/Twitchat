@@ -117,7 +117,6 @@ export default class Login extends Vue {
 				store.dispatch("authenticate", {code, cb:(success:boolean)=> {
 					this.authenticating = false;
 					if(success) {
-						console.log("SUCCESS");
 						this.$router.push({name:"chat"});
 					}else{
 						store.state.alert = "Invalid credentials";

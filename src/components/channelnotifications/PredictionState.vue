@@ -86,8 +86,6 @@ export default class PredictionState extends Vue {
 	private async loadPredictions():Promise<void> {
 		if(this.disposed) return;
 		await TwitchUtils.getPredictions();
-		await Utils.promisedTimeout(1000);
-		this.loadPredictions();
 	}
 
 

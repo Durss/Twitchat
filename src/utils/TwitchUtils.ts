@@ -763,7 +763,7 @@ export namespace TwitchTypes {
 		prediction_window: number;
 		status: "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED";
 		created_at: string;
-		ended_at: string;
+		ended_at?: string;
 		locked_at?: string;
 	}
 
@@ -772,16 +772,16 @@ export namespace TwitchTypes {
 		title: string;
 		users: number;
 		channel_points: number;
-		top_predictors?: {
-			user:{
-				id:string
-				name:string
-				login:string
-				channel_points_used:number
-				channel_points_won:number
-			}
-		}[];
+		top_predictors?: PredictionPredictor[];
 		color: string;
+	}
+
+	export interface PredictionPredictor {
+		id:string;
+		name:string;
+		login:string;
+		channel_points_used:number;
+		channel_points_won:number;
 	}
 
 	export interface Emote {

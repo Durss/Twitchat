@@ -1,7 +1,7 @@
 import store from "@/store";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
-import { TwitchTypes } from "./TwitchUtils";
+import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
 
 /**
 * Created : 13/01/2022 
@@ -47,6 +47,13 @@ export default class PubSub {
 				"channel-points-channel-v1."+store.state.user.user_id,
 				"chat_moderator_actions."+store.state.user.user_id+"."+store.state.user.user_id,
 				"automod-queue."+store.state.user.user_id+"."+store.state.user.user_id,
+				"user-moderation-notifications."+store.state.user.user_id+"."+store.state.user.user_id,
+				"raid."+store.state.user.user_id,
+				"predictions-channel-v1."+store.state.user.user_id,
+				"polls."+store.state.user.user_id,
+				"hype-train-events-v1."+store.state.user.user_id,
+				// "follows."+store.state.user.user_id,
+				// "stream-change-v1."+store.state.user.user_id,
 			]);
 		};
 		
@@ -121,59 +128,34 @@ export default class PubSub {
 	private parseEvent(event:{type:string, data:unknown}):void {
 		if(event.type == "automod_caught_message") {
 			const localObj = event.data as  PubSubTypes.AutomodData;
-			if(localObj.status == "PENDING") {
-				const tags:IRCTagsExtended = {
-					"username":localObj.message.sender.login,
-					"color": localObj.message.sender.chat_color,
-					"display-name": localObj.message.sender.display_name,
-					"id": localObj.message.id,
-					"user-id": localObj.message.sender.user_id,
-					"tmi-sent-ts": new Date(localObj.message.sent_at).getTime().toString(),
-					"message-type": "chat",
-					"room-id": localObj.message.sender.user_id,
-				};
-				let textMessage = "";
-				for (let i = 0; i < localObj.message.content.fragments.length; i++) {
-					const el = localObj.message.content.fragments[i];
-					if(el.automod != undefined) textMessage += "<mark>"
-					//Avoid XSS attack
-					if(el.emoticon) {
-						textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
-					}else{
-						textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-					}
-					if(el.automod != undefined) textMessage += "</mark>"
-				}
-				
-				IRCClient.instance.addMessage(textMessage, tags, false, localObj);
-			}else 
-			if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
-				store.dispatch("delChatMessage", localObj.message.id);
-			}
+			this.automodEvent(localObj);
 
+
+			
 		}else if(event.type == "reward-redeemed") {
 			//Manage rewards
 			if(store.state.params.filters.showRewards.value) {
 				const localObj = event.data as  PubSubTypes.RewardData;
-				console.log(localObj);
-				const tags:IRCTagsExtended = {
-					"username":localObj.redemption.user.display_name,
-					"display-name": localObj.redemption.user.display_name,
-					"id": localObj.redemption.id,
-					"user-id": localObj.redemption.user.id,
-					"tmi-sent-ts": new Date(localObj.timestamp).getTime().toString(),
-					"message-type": "chat",
-					"room-id": localObj.redemption.channel_id,
-				};
-
-				const data:IRCEventDataList.Highlight = {
-					reward: localObj,
-					channel: IRCClient.instance.channel,
-					tags,
-					type:"highlight",
-				}
-				IRCClient.instance.addHighlight(data);
+				this.rewardEvent(localObj);
 			}
+
+
+			
+		}else if(event.type == "POLL_CREATE" || event.type == "POLL_UPDATE" || event.type == "POLL_COMPLETE") {
+			const localObj = event.data as PubSubTypes.PollData;
+			this.pollEvent(localObj)
+
+
+			
+		}else if(event.type == "POLL_ARCHIVED" || event.type == "POLL_TERMINATE" || event.type == "POLL_MODERATE" || event.type == "POLL_INVALID") {
+			TwitchUtils.getPolls();
+
+
+			
+		}else if(event.type == "event-created" || event.type == "event-updated") {
+			const localObj = event.data as PubSubTypes.PredictionData;
+			this.predictionEvent(localObj);
+			
 
 
 			
@@ -218,6 +200,151 @@ export default class PubSub {
 					break;
 			}
 		}
+	}
+
+	/**
+	 * Called when a message is held by automod
+	 * @param localObj
+	 */
+	private automodEvent(localObj:PubSubTypes.AutomodData):void {
+		if(localObj.status == "PENDING") {
+			const tags:IRCTagsExtended = {
+				"username":localObj.message.sender.login,
+				"color": localObj.message.sender.chat_color,
+				"display-name": localObj.message.sender.display_name,
+				"id": localObj.message.id,
+				"user-id": localObj.message.sender.user_id,
+				"tmi-sent-ts": new Date(localObj.message.sent_at).getTime().toString(),
+				"message-type": "chat",
+				"room-id": localObj.message.sender.user_id,
+			};
+			let textMessage = "";
+			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
+				const el = localObj.message.content.fragments[i];
+				if(el.automod != undefined) textMessage += "<mark>"
+				//Avoid XSS attack
+				if(el.emoticon) {
+					textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
+				}else{
+					textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				}
+				if(el.automod != undefined) textMessage += "</mark>"
+			}
+			
+			IRCClient.instance.addMessage(textMessage, tags, false, localObj);
+		}else 
+		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
+			store.dispatch("delChatMessage", localObj.message.id);
+		}
+	}
+
+	/**
+	 * Called when a user redeems a reward
+	 */
+	private rewardEvent(localObj:PubSubTypes.RewardData):void {
+		const tags:IRCTagsExtended = {
+			"username":localObj.redemption.user.display_name,
+			"display-name": localObj.redemption.user.display_name,
+			"id": localObj.redemption.id,
+			"user-id": localObj.redemption.user.id,
+			"tmi-sent-ts": new Date(localObj.timestamp).getTime().toString(),
+			"message-type": "chat",
+			"room-id": localObj.redemption.channel_id,
+		};
+
+		const data:IRCEventDataList.Highlight = {
+			reward: localObj,
+			channel: IRCClient.instance.channel,
+			tags,
+			type:"highlight",
+		}
+		IRCClient.instance.addHighlight(data);
+	}
+
+	/**
+	 * Called when a poll event occurs (create/update/close)
+	 * @param localObj
+	 */
+	private pollEvent(localObj:PubSubTypes.PollData):void {
+		//convert data to API style format
+		const choices:TwitchTypes.PollChoice[] = [];
+		for (let i = 0; i < localObj.poll.choices.length; i++) {
+			const c = localObj.poll.choices[i];
+			choices.push({
+				id: c.choice_id,
+				title: c.title,
+				votes: c.total_voters,
+				channel_points_votes: c.votes.channel_points,
+				bits_votes: c.votes.bits,
+			})
+		}
+		const poll:TwitchTypes.Poll = {
+			id: localObj.poll.poll_id,
+			broadcaster_id: localObj.poll.owned_by,
+			broadcaster_name: store.state.user.login,
+			broadcaster_login: store.state.user.login,
+			title: localObj.poll.title,
+			choices: choices,
+			bits_voting_enabled: localObj.poll.settings.bits_votes.is_enabled,
+			bits_per_vote: localObj.poll.settings.bits_votes.cost,
+			channel_points_voting_enabled: localObj.poll.settings.channel_points_votes.is_enabled,
+			channel_points_per_vote: localObj.poll.settings.channel_points_votes.cost,
+			status: localObj.poll.status as "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODERATED" | "INVALID",
+			duration: localObj.poll.duration_seconds,
+			started_at: localObj.poll.started_at,
+			ended_at: localObj.poll.ended_at,
+		}
+		store.dispatch("setPolls", [poll])
+	}
+
+	/**
+	 * Called when a prediction event occurs (create/update/close)
+	 */
+	private predictionEvent(localObj:PubSubTypes.PredictionData):void {
+	
+		// convert data to API style format
+		const outcomes:TwitchTypes.PredictionOutcome[] = [];
+		for (let i = 0; i < localObj.event.outcomes.length; i++) {
+			const c = localObj.event.outcomes[i];
+			const top_predictors:TwitchTypes.PredictionPredictor[] = [];
+			for (let j = 0; j < c.top_predictors.length; j++) {
+				const p = c.top_predictors[j];
+				top_predictors.push({
+					id:p.id,
+					name:p.user_display_name,
+					login:p.user_display_name,
+					channel_points_used:p.points,
+					channel_points_won:p.result?.points_won,
+				})
+			}
+			outcomes.push({
+				id: c.id,
+				title: c.title,
+				users: c.total_users,
+				channel_points: c.total_points,
+				color:c.color,
+				top_predictors,
+			})
+		}
+		if(localObj.event.status == "RESOLVE_PENDING") {
+			localObj.event.status = "LOCKED";
+		}
+		const prediction:TwitchTypes.Prediction = {
+			id: localObj.event.id,
+			broadcaster_id: localObj.event.created_by.user_id,
+			broadcaster_name: localObj.event.created_by.user_display_name,
+			broadcaster_login: localObj.event.created_by.user_display_name,
+			title: localObj.event.title,
+			winning_outcome_id: "TODO",
+			outcomes: outcomes,
+			prediction_window: localObj.event.prediction_window_seconds,
+			status: localObj.event.status as "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED",
+			created_at: localObj.event.created_at,
+			ended_at: localObj.event.ended_at,
+			locked_at: localObj.event.locked_at,
+		}
+		console.log(prediction);
+		store.dispatch("setPredictions", [prediction])
 	}
 }
 
@@ -269,6 +396,74 @@ export namespace PubSubTypes {
 		from_automod: boolean;
 	}
 
+	export interface PollData {
+		poll:{
+			poll_id: string;
+			owned_by: string;
+			created_by: string;
+			title: string;
+			started_at: string;
+			ended_at?: string;
+			ended_by?: string;
+			duration_seconds: number;
+			settings: {
+				multi_choice: {is_enabled: boolean;};
+				subscriber_only: {is_enabled: boolean;};
+				subscriber_multiplier: {is_enabled: boolean;};
+				bits_votes: {
+					is_enabled: boolean;
+					cost: number;
+				};
+				channel_points_votes: {
+					is_enabled: boolean;
+					cost: number;
+				};
+			};
+			status: string;
+			choices: {
+				choice_id: string;
+				title: string;
+				votes: {
+					total: number;
+					bits: number;
+					channel_points: number;
+					base: number;
+				};
+				tokens: {
+					bits: number;
+					channel_points: number;
+				};
+				total_voters: number;
+			}[];
+			votes: {
+				total: number;
+				bits: number;
+				channel_points: number;
+				base: number;
+			};
+			tokens: {
+				bits: number;
+				channel_points: number;
+			};
+			total_voters: number;
+			remaining_duration_milliseconds: number;
+			top_contributor?: {
+				user_id: string,
+				display_name: string,
+			};
+			top_bits_contributor?: {
+				user_id: string,
+				display_name: string,
+				bits_contributed: number
+			};
+			top_channel_points_contributor?: {
+				user_id: string,
+				display_name: string,
+				channel_points_contributed: number
+			};
+		}
+	}
+
 	export interface RewardData {
         timestamp: string;
         redemption: {
@@ -306,6 +501,56 @@ export namespace PubSubTypes {
 			status: string;
 		};
 	}
+
+    export interface PredictionData {
+        timestamp: string;
+        event: {
+			id: string;
+			channel_id: string;
+			created_at: string;
+			created_by: {
+				type: string;
+				user_id: string;
+				user_display_name: string;
+				extension_client_id?: string;
+			};
+			ended_at?: string;
+			ended_by?: string;
+			locked_at?: string;
+			locked_by?: string;
+			outcomes: {
+				id: string;
+				color: string;
+				title: string;
+				total_points: number;
+				total_users: number;
+				top_predictors: {
+					id: string,
+					event_id: string,
+					outcome_id: string,
+					channel_id: string,
+					points: number,
+					predicted_at: string,
+					updated_at: string,
+					user_id: string,
+					result: {
+						type: "WIN"|"LOSE",
+						points_won: number,
+						is_acknowledged: boolean,
+					},
+					user_display_name: string
+				}[];
+				badge: {
+					version: string;
+					set_id: string;
+				};
+			}[];
+			prediction_window_seconds: number;
+			status: "RESOLVE_PENDING" | "RESOLVED" | "LOCKED" | "ACTIVE";
+			title: string;
+			winning_outcome_id?: string;
+		};
+    }
 
     interface Image {
         url_1x: string;

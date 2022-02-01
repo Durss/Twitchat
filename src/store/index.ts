@@ -118,6 +118,7 @@ export default createStore({
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.TWITCH_APP_SCOPES.length; i++) {
 					if(Config.TWITCH_APP_SCOPES.indexOf(state.user.scopes[i]) == -1) {
+						console.log("Missing scope:", state.user.scopes[i]);
 						state.authenticated = false;
 						state.oAuthToken = {};
 						if(cb) cb(false);
@@ -311,7 +312,7 @@ export default createStore({
 
 		setPolls(state, payload:TwitchTypes.Poll[]) {
 			state.currentPoll = payload.find(v => {
-				return (v.status == "ACTIVE" || v.status == "COMPLETED");
+				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
 			}) as  TwitchTypes.Poll;
 		},
 		
