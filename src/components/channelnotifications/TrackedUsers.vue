@@ -100,8 +100,9 @@ export default class TrackedUsers extends Vue {
 		align-self: center;
 		font-style: italic;
 		opacity: 0.5;
-		padding-left: 5px;
+		padding-right: 5px;
 		flex-grow: 1;
+		text-align: right;
 	}
 
 	.messages {
