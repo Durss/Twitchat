@@ -68,7 +68,8 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:manage:polls",
 		"channel:manage:predictions",
 		"channel:read:hype_train",
-		"channel_editor"
+		"channel_editor",
+		"whispers:edit"
 	]
 }
 ```

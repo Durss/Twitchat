@@ -1,5 +1,5 @@
 <template>
-	<div class="app">
+	<div :class="classes">
 		<router-view />
 		<Parameters v-if="$store.state.authenticated" />
 		<UserCard />
@@ -14,6 +14,7 @@
 import Parameters from '@/components/params/Parameters.vue';
 import UserCard from '@/components/user/UserCard.vue';
 import { Options, Vue } from 'vue-class-component';
+import router from './router';
 import store from './store';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
@@ -31,9 +32,14 @@ import Tooltip from "./views/Tooltip.vue";
 })
 export default class App extends Vue {
 
-
 	public get authenticated():boolean {
 		return store.state.authenticated || (this.$route.meta.needAuth !== true && store.state.initComplete);
+	}
+
+	public get classes():string[] {
+		let res = ["app"];
+		if(this.$route.meta.noBG === true) res.push("noBG");
+		return res;
 	}
 
 }
@@ -41,12 +47,13 @@ export default class App extends Vue {
 
 <style scoped lang="less">
 .app{
-	font-family: Inter, Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
 	width: 100%;
 	height: 100vh;
 	font-size: 20px;
+
+	&:not(.noBG) {
+		background-color: @mainColor_dark;
+	}
 
 	.loader {
 		.center();

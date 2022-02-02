@@ -1,13 +1,14 @@
 <template>
 	<div class="chatlight">
 		<div class="chatHolder">
-			<MessageList class="messages" :max="50" :lightMode="true" />
+			<MessageList class="messages" :max="maxSize" :lightMode="true" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import MessageList from '@/components/messages/MessageList.vue';
+import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { Options, Vue } from 'vue-class-component';
 
@@ -20,8 +21,11 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatLight extends Vue {
 
+	public maxSize:number = 50;
+
 	public mounted():void {
 		IRCClient.instance.connect(this.$route.params.login as string);
+		store.state.realHistorySize = this.maxSize;//Reduces memory footprint
 	}
 }
 </script>

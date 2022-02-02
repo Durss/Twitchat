@@ -5,8 +5,8 @@ import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import PubSub from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { ChatUserstate, UserNoticeState, Userstate } from 'tmi.js';
-import { RouteLocation } from 'vue-router';
 import { createStore } from 'vuex';
 import Store from './Store';
 
@@ -32,44 +32,45 @@ export default createStore({
 		raffle: {},
 		whispers: {},
 		raiding: "",
+		realHistorySize: 1000,
 		params: {
 			appearance: {
-				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in"},
-				showEmotes: {type:"toggle", value:true, label:"Show emotes"},
-				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes"},
-				showBadges: {type:"toggle", value:true, label:"Show badges"},
-				minimalistBadges: {type:"toggle", value:false, label:"Minified badges"},
-				displayTime: {type:"toggle", value:false, label:"Display time"},
-				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)"},
-				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50},
-				highlightMods: {type:"toggle", value:true, label:"Highlight Mods"},
-				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs"},
-				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs"},
-				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1},
+				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in", id:1},
+				showEmotes: {type:"toggle", value:true, label:"Show emotes", id:2},
+				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3},
+				showBadges: {type:"toggle", value:true, label:"Show badges", id:4},
+				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5},
+				displayTime: {type:"toggle", value:false, label:"Display time", id:6},
+				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)", id:7},
+				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
+				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9},
+				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10},
+				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11},
+				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
 			},
 			filters: {
-				showSelf: {type:"toggle", value:true, label:"Show my messages"},
-				showSlashMe: {type:"toggle", value:true, label:"Show /me messages"},
-				showBots: {type:"toggle", value:true, label:"Show known bot's messages"},
-				hideUsers: {type:"list", value:"", label:"Hide custom users (coma seperated)"},
-				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")"},
-				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed"},
-				showSubs: {type:"toggle", value:true, label:"Show sub alerts"},
-				showCheers: {type:"toggle", value:true, label:"Show bit alerts"},
-				showRaids: {type:"toggle", value:true, label:"Show raid alerts"},
+				showSelf: {type:"toggle", value:true, label:"Show my messages", id:100},
+				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
+				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
+				hideUsers: {type:"list", value:"", label:"Hide custom users (coma seperated)", id:103},
+				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104},
+				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105},
+				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106},
+				showCheers: {type:"toggle", value:true, label:"Show bit alerts", id:107},
+				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108},
 			},
 			features: {
-				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers"},
-				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)"},
-				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name"},
-				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading"},
+				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200},
+				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201},
+				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202},
+				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203},
+				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204},
 			},
 			roomStatus: {
-				emotesOnly:{ type:"toggle", value:false, label:"Emotes only" },
-				followersOnly:{ type:"toggle", value:false, label:"Followers only" },
-				subsOnly:{ type:"toggle", value:false, label:"Subs only" },
-				slowMode:{ type:"toggle", value:false, label:"Slow mode" }
+				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
+				followersOnly:{ type:"toggle", value:false, label:"Followers only", id:301},
+				subsOnly:{ type:"toggle", value:false, label:"Subs only", id:302},
+				slowMode:{ type:"toggle", value:false, label:"Slow mode", id:303}
 			}
 		},
 		user: {
@@ -176,7 +177,7 @@ export default createStore({
 			
 			//Limit history size
 			// const maxMessages = state.params.appearance.historySize.value;
-			const maxMessages = 1000;
+			const maxMessages = state.realHistorySize;
 			if(messages.length >= maxMessages) {
 				messages = messages.slice(-maxMessages);
 				state.chatMessages = messages as never[];
@@ -364,7 +365,7 @@ export default createStore({
 
 	
 	actions: {
-		async startApp({state, commit}, payload) {
+		async startApp({state, commit}) {
 			const res = await fetch(Config.API_PATH+"/configs");
 			const jsonConfigs = await res.json();
 			TwitchUtils.client_id = jsonConfigs.client_id;
@@ -394,8 +395,30 @@ export default createStore({
 				}
 			}
 
+			const queryParams = Utils.getQueryParameterByName("params");
+			if(queryParams) {
+				//eslint-disable-next-line
+				let json:any;
+				try {
+					json = JSON.parse(atob(queryParams));
+					for (const cat in state.params) {
+						//eslint-disable-next-line
+						const values = (state.params as any)[cat];
+						for (const key in values) {
+							const p = values[key] as ParameterData;
+							if(Object.prototype.hasOwnProperty.call(json, p.id as number)) {
+								p.value = json[p.id as number] as (string | number | boolean);
+							}
+						}
+					}
+					Store.set("oAuthToken", JSON.stringify(json.access_token));
+				}catch(error){
+					//ignore
+				}
+			}
+
 			const token = Store.get("oAuthToken");
-			if(token && (payload.to as RouteLocation).meta.public !== true) {
+			if(token) {
 				try {
 					await new Promise((resolve,reject)=> {
 						commit("authenticate", {cb:(success:boolean)=>{
@@ -557,6 +580,7 @@ export default createStore({
 export type ParameterCategory = "appearance" | "filters"| "roomStatus";
 
 export interface ParameterData {
+	id?:number;
 	type:"toggle"|"slider"|"number"|"list"|string;
 	value:boolean|number|string;
 	label:string;

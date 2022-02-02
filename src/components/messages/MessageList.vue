@@ -194,6 +194,7 @@ export default class MessageList extends Vue {
 	}
 
 	public onHoverList():void {
+		if(this.lightMode) return;
 		this.lockScroll = true;
 	}
 
@@ -255,6 +256,7 @@ export default class MessageList extends Vue {
 	 * If hovering and scrolling down whit wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
+		if(this.lightMode) return;
 		//If scrolling down while at the bottom of the list, load next message
 		if(event.deltaY < 0) {
 			this.lockScroll = true;
@@ -356,7 +358,7 @@ export default class MessageList extends Vue {
 	 * Display the full conversation if any
 	 */
 	public async openConversation(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
-		if(!m || (!m.answerTo && !m.answers)) return;
+		if(this.lightMode || !m || (!m.answerTo && !m.answers)) return;
 
 		this.conversationMode = true;
 
@@ -375,7 +377,7 @@ export default class MessageList extends Vue {
 	 * Called to open a user's messages history
 	 */
 	public async openUserHistory(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
-		if(!m) return;
+		if(this.lightMode || !m) return;
 
 		this.conversationMode = false;
 
@@ -489,7 +491,9 @@ export default class MessageList extends Vue {
 	}
 
 	&.lightMode {
+		padding: 0;
 		.holder {
+			padding: 0;
 			overflow: hidden;
 			.message:nth-child(even) {
 				background-color: transparent;

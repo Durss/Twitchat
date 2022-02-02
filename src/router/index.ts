@@ -28,6 +28,7 @@ const routes: Array<RouteRecordRaw> = [
 		meta: {
 			needAuth:false,
 			public:true,
+			noBG:true,
 		}
 	},
 	{

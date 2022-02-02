@@ -1,7 +1,8 @@
 <template>
 	<div class="chat">
 		<div class="chatHolder">
-			<MessageList ref="messages" class="messages" :max="$store.state.params.appearance.historySize.value" />
+			<MessageList ref="messages" class="messages"
+				:max="$store.state.params.appearance.historySize.value" />
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
