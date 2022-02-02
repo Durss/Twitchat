@@ -17,7 +17,7 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos">
-			<img v-if="!disableConversation && isConversation"
+			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value"
 				class="convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
@@ -37,7 +37,7 @@
 			</span>
 			
 			<span @click="openUserCard()"
-			@mouseenter="$emit('showUserMessages', $event, messageData)"
+			@mouseenter="hoverNickName($event)"
 			@mouseleave="$emit('mouseleave', $event)"
 			class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
 		</div>
@@ -227,6 +227,15 @@ export default class ChatMessage extends Vue {
 		if(this.lightMode) return;
 		const message = this.messageData as IRCEventDataList.Message;
 		store.dispatch("openUserCard", message.tags.username);
+	}
+
+	/**
+	 * Called when rolling over the nick name
+	 */
+	public hoverNickName(event:MouseEvent):void {
+		if(store.state.params.features.userHistoryEnabled.value) {
+			this.$emit('showUserMessages', event, this.messageData);
+		}
 	}
 
 	public copyJSON():void {

@@ -49,8 +49,6 @@ export default createStore({
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1},
 			},
 			filters: {
-				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
-				receiveWhispers: {type:"toggle", value:false, label:"Receive whispers"},
 				showSelf: {type:"toggle", value:true, label:"Show my messages"},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages"},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages"},
@@ -60,6 +58,12 @@ export default createStore({
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts"},
 				showCheers: {type:"toggle", value:true, label:"Show bit alerts"},
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts"},
+			},
+			features: {
+				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers"},
+				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
+				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)"},
+				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name"},
 			},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only" },
@@ -476,7 +480,7 @@ export default createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.WHISPER, (event:IRCEvent) => {
-				if(state.params.filters.receiveWhispers.value === true) {
+				if(state.params.features.receiveWhispers.value === true) {
 					const data = event.data as IRCEventDataList.Whisper;
 					const uid = data.tags['user-id'] as string;
 					const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};

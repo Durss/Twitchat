@@ -7,6 +7,7 @@
 				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="toggle(true)" class="close" bounce/>
 			</div>
 			<div class="menu">
+				<Button white bounce title="Features" @click="content='features'" :selected="content=='features'" />
 				<Button white bounce title="Appearance" @click="content='appearance'" :selected="content=='appearance'" />
 				<Button white bounce title="Filters" @click="content='filters'" :selected="content=='filters'" />
 				<Button white bounce title="Account" @click="content='account'" :selected="content=='account'" />
@@ -15,6 +16,7 @@
 				<ParamsAppearence v-if="content=='appearance'" />
 				<ParamsFilters v-if="content=='filters'" />
 				<ParamsAccount v-if="content=='account'" />
+				<ParamsFeatures v-if="content=='features'" />
 			</div>
 		</div>
 	</div>
@@ -29,6 +31,7 @@ import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsAppearence from './contents/ParamsAppearance.vue';
+import ParamsFeatures from './contents/ParamsFeatures.vue';
 import ParamsFilters from './contents/ParamsFilters.vue';
 import ParamItem from './ParamItem.vue';
 
@@ -40,12 +43,13 @@ import ParamItem from './ParamItem.vue';
 		ToggleButton,
 		ParamsFilters,
 		ParamsAccount,
+		ParamsFeatures,
 		ParamsAppearence,
 	}
 })
 export default class Parameters extends Vue {
 
-	public content:'appearance' | 'filters' | 'account' = 'appearance';
+	public content:'appearance' | 'filters' | 'account' | 'features' = 'features';
 
 	public showMenu:boolean = false;
 

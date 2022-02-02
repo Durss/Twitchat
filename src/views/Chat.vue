@@ -11,7 +11,7 @@
 				/>
 		</div>
 		
-		<NewUsers v-if="$store.state.params.filters.firstMessage.value" />
+		<NewUsers v-if="$store.state.params.features.firstMessage.value" />
 		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
 		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
