@@ -1,16 +1,5 @@
 <template>
 	<div class="trackedusers">
-		<div class="users">
-			<div class="user"
-			v-for="u in $store.state.trackedUsers"
-			:key="u.user['user-id']"
-			@click="selectUser(u)">
-				<Button class="login" :title="'('+u.messages.length+') '+u.user['display-name']" bounce />
-			</div>
-		</div>
-
-		<div v-if="!selectedUser" class="selectInfo">⬅ select a user</div>
-		
 		<div class="messages" v-if="selectedUser">
 			<Button :icon="require('@/assets/icons/magnet.svg')"
 				class="untrackBt"
@@ -23,6 +12,17 @@
 				:lightMode="true"
 				:disableConversation="true"
 				class="message" />
+		</div>
+
+		<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
+		
+		<div class="users">
+			<div class="user"
+			v-for="u in $store.state.trackedUsers"
+			:key="u.user['user-id']"
+			@click="selectUser(u)">
+				<Button class="login" :title="'('+u.messages.length+') '+u.user['display-name']" bounce />
+			</div>
 		</div>
 	</div>
 </template>
@@ -69,8 +69,8 @@ export default class TrackedUsers extends Vue {
 	.users {
 		display: flex;
 		flex-direction: column;
-		border-right: 1px solid #fff;
-		padding-right: 5px;
+		border-left: 1px solid #fff;
+		padding-left: 5px;
 		position: sticky;
 		top	: 0;
 		.user {
@@ -101,6 +101,7 @@ export default class TrackedUsers extends Vue {
 		font-style: italic;
 		opacity: 0.5;
 		padding-left: 5px;
+		flex-grow: 1;
 	}
 
 	.messages {

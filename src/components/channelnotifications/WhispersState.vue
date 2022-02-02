@@ -1,15 +1,5 @@
 <template>
 	<div class="whispersstate">
-		<div class="users">
-			<div class="user"
-			v-for="(u, uid) in $store.state.whispers"
-			:key="uid"
-			@click="selectUser(uid)">
-				<Button class="login" :title="'('+u.length+') '+u[0].tags['display-name']" bounce />
-			</div>
-		</div>
-
-		<div v-if="!selectedUser" class="selectInfo">⬅ select a user</div>
 		
 		<div class="whispers" v-if="selectedUser">
 			<div class="messages">
@@ -29,6 +19,17 @@
 				:title="'Close whispers with '+$store.state.whispers[selectedUser][0].tags['display-name']"
 				bounce highlight
 				@click="deleteWhispers(selectedUser)" />
+		</div>
+
+		<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
+
+		<div class="users">
+			<div class="user"
+			v-for="(u, uid) in $store.state.whispers"
+			:key="uid"
+			@click="selectUser(uid)">
+				<Button class="login" :title="'('+u.length+') '+u[0].tags['display-name']" bounce />
+			</div>
 		</div>
 	</div>
 </template>
@@ -115,8 +116,8 @@ export default class WhispersState extends Vue {
 	.users {
 		display: flex;
 		flex-direction: column;
-		border-right: 1px solid #fff;
-		padding-right: 5px;
+		border-left: 1px solid #fff;
+		padding-left: 5px;
 		position: sticky;
 		top	: 0;
 		.user {
@@ -147,6 +148,7 @@ export default class WhispersState extends Vue {
 		font-style: italic;
 		opacity: 0.5;
 		padding-left: 5px;
+		flex-grow: 1;
 	}
 
 	.whispers {
