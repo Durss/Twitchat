@@ -64,6 +64,7 @@ export default createStore({
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello"},
 				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)"},
 				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name"},
+				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading"},
 			},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only" },

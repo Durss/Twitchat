@@ -460,6 +460,7 @@ export default class MessageList extends Vue {
 	 * Called on a message is clicked
 	 */
 	public toggleMarkRead(m:IRCEventDataList.Message):void {
+		if(store.state.params.features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {
 			this.prevMarkedReadItem.markedAsRead = false;
