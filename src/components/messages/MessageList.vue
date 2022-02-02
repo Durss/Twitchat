@@ -211,7 +211,6 @@ export default class MessageList extends Vue {
 	 * automatically, hence, we need this to do it.
 	 */
 	public onDeleteMessage(e:IRCEvent):void {
-		console.log("ON DELETE");
 		const data = e.data as IRCEventDataList.MessageDeleted;
 		if(this.pendingMessages.length > 0) {
 			let index = this.pendingMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
@@ -337,28 +336,18 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY;
 		}
 
-		this.refreshMarkedAsReadHistory();
-	}
-
-	/**
-	 * Check if the messages marked as read are still there
-	 * Clean them if they're not
-	 */
-	private refreshMarkedAsReadHistory():void {
-		// console.log("REFRESH");
+		//Check if last makred as read message is still there
 		if(this.prevMarkedReadItem) {
 			if((this.$refs["message_"+this.prevMarkedReadItem.tags.id] as Vue[]).length == 0) {
 				this.prevMarkedReadItem = null;
 			}
 		}
-			store.state.isMessageMarkedAsRead = this.prevMarkedReadItem != null;
 	}
 
 	/**
 	 * Avoids closing the conversation when rolling over it
 	 */
 	public async reopenLastConversation():Promise<void> {
-		console.log("CLEAR TIMEOUT");
 		clearTimeout(this.closeConvTimeout);
 	}
 
@@ -468,7 +457,6 @@ export default class MessageList extends Vue {
 		if(m.markedAsRead) {
 			this.prevMarkedReadItem = m;
 		}
-		store.state.isMessageMarkedAsRead = this.prevMarkedReadItem != null;
 	}
 
 }

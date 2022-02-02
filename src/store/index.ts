@@ -25,7 +25,6 @@ export default createStore({
 		currentPrediction: {},
 		cypherKey: '',
 		cypherEnabled: false,
-		isMessageMarkedAsRead: false,
 		tmiUserState: {},
 		userEmotesCache: {},
 		emotesCache: [],
