@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
-	@mouseenter="lockScroll = true"
-	@mouseleave="lockScroll = pendingMessages.length > 0">
+	@mouseenter="onHoverList()"
+	@mouseleave="onLeaveList()">
 		<div class="holder" ref="messageHolder"
 		@mousewheel="onMouseWheel($event)">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
@@ -45,7 +45,6 @@
 		
 
 		<div class="locked" v-if="(lockScroll || pendingMessages.length > 0) && !lightMode">
-			<!-- data-tooltip="auto scroll locked"> -->
 			<div class="label">
 				<p v-if="lockScroll">Chat paused</p>
 				<Button :icon="require('@/assets/icons/down.svg')" @click="unPause()" />
@@ -115,6 +114,7 @@ export default class MessageList extends Vue {
 	public conversation:IRCEventDataList.Message[] = [];
 	public lightMode:boolean = false;
 	public lockScroll:boolean = false;
+	public catchingUpPendingMessages:boolean = false;
 	public conversationPos:number = 0;
 	public conversationMode:boolean = true;//Used to change title between History/Conversation
 
@@ -129,7 +129,6 @@ export default class MessageList extends Vue {
 	public get classes():string[] {
 		let res = ["messagelist"];
 		if(this.lightMode) res.push("lightMode");
-		if(this.lockScroll || this.pendingMessages.length > 0) res.push("scrollLocked");
 
 		res.push("size_"+store.state.params.appearance.defaultSize.value);
 
@@ -148,7 +147,7 @@ export default class MessageList extends Vue {
 				const messRef = (this.$refs.message as HTMLDivElement[])[index];
 				
 				const el = this.$refs.messageHolder as HTMLDivElement;
-				const h = (this.$el as HTMLDivElement).clientHeight;
+				const h = (this.$el as HTMLDivElement).offsetHeight;
 				const scrollY = messRef.offsetTop - h/2;
 				if(scrollY < this.virtualScrollY) {
 					//If element is higher than half of screen, scroll to it
@@ -178,7 +177,7 @@ export default class MessageList extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.localMessages = store.state.chatMessages.concat();
+		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
 		watch(() => store.state.chatMessages, async (value:IRCEventDataList.Message[]) => {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
@@ -206,10 +205,9 @@ export default class MessageList extends Vue {
 		const list = this.$refs.messageHolder as HTMLDivElement;
 		list.addEventListener("scroll", ()=>{
 			if(this.disposed) return;
-			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$el as HTMLDivElement).clientHeight;
-			const maxScroll = (el.scrollHeight - h);
-			const scrollAtBottom = (maxScroll - el.scrollTop) < 1;
+			const h = (this.$el as HTMLDivElement).offsetHeight;
+			const maxScroll = (list.scrollHeight - h);
+			const scrollAtBottom = (maxScroll - list.scrollTop) < 1;
 			if(scrollAtBottom) {
 				this.lockScroll = false;
 			}
@@ -227,9 +225,18 @@ export default class MessageList extends Vue {
 		this.disposed = true;
 	}
 
+	public onHoverList():void {
+		this.lockScroll = true;
+	}
+
+	public onLeaveList():void {
+		if(this.catchingUpPendingMessages) return;
+		this.lockScroll = false;
+	}
+
 	/**
 	 * Called when a message is deleted
-	 * Messages are automatically deleted from the ref collection
+	 * Messages are automatically deleted from the store collection
 	 * but if we scroll up to lock the messages, it switches to a
 	 * local history that's not linked anymore to the main collection.
 	 * If the message is added to that history, it won't be deleted
@@ -250,16 +257,26 @@ export default class MessageList extends Vue {
 	 */
 	public async unPause():Promise<void> {
 		let messages = this.pendingMessages.slice(-this.max);
-		this.localMessages = this.localMessages.concat(messages);
 		this.pendingMessages = [];
-		this.localMessages = this.localMessages.slice(-this.max);
+		this.localMessages = this.localMessages.concat(messages).slice(-this.max);
 
-		this.lockScroll = false;
-		
-		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$el as HTMLDivElement).clientHeight;
-		const maxScroll = (el.scrollHeight - h);
-		this.virtualScrollY = maxScroll
+		//Using setTimeout as a workaround for a shit mouseenter behavior.
+		//When clicking the "scroll down" button, its holder is removed
+		//from the DOM which makes the main holder fire a mouseenter event.
+		//Because of that the "lockScroll" flag is set back to true right
+		//after clicking the "scroll down" button which freezes the scroll.
+		//I couldn't find any better solution than this.
+		//Not even a "await this.$nextTick()".
+		setTimeout(()=> {
+			this.lockScroll = false;
+			
+			const el = this.$refs.messageHolder as HTMLDivElement;
+			const h = (this.$el as HTMLDivElement).offsetHeight;
+			const maxScroll = (el.scrollHeight - h);
+			this.virtualScrollY = maxScroll;
+			this.catchingUpPendingMessages = false;
+		}, 0);
+
 	}
 
 	/**
@@ -271,9 +288,13 @@ export default class MessageList extends Vue {
 			this.lockScroll = true;
 		}else{
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$el as HTMLDivElement).clientHeight;
+			const h = (this.$el as HTMLDivElement).offsetHeight;
 			const maxScroll = (el.scrollHeight - h);
-			if((maxScroll - el.scrollTop) < 50) {
+
+			const messRefs = this.$refs.message as HTMLDivElement[];
+			const lastMessRef = messRefs[messRefs.length-1];
+
+			if((maxScroll - el.scrollTop) <= lastMessRef.offsetHeight) {
 				this.showNextPendingMessage();
 			}
 		}
@@ -288,7 +309,7 @@ export default class MessageList extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$el as HTMLDivElement).clientHeight;
+		const h = (this.$el as HTMLDivElement).offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
 		if(!this.lockScroll) {
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
@@ -305,7 +326,7 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY;
 		}
 
-		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%15 == 0) {
+		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%12 == 0) {
 			this.showNextPendingMessage();
 		}
 		
@@ -316,6 +337,7 @@ export default class MessageList extends Vue {
 	 */
 	private showNextPendingMessage():void {
 		if(this.pendingMessages.length == 0) return;
+		this.catchingUpPendingMessages = true;
 		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
 		this.idDisplayed[m.tags.id as string] = true;
 		this.localMessages.push( m );
@@ -333,12 +355,12 @@ export default class MessageList extends Vue {
 	private async scrollToPrevMessage():Promise<void> {
 		await this.$nextTick();
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$el as HTMLDivElement).clientHeight;
+		const h = (this.$el as HTMLDivElement).offsetHeight;
 		const messRefs = this.$refs.message as HTMLDivElement[];
 		const lastMessRef = messRefs[messRefs.length-2];
 		
 		if(lastMessRef) {
-			this.virtualScrollY = lastMessRef.offsetTop + lastMessRef.clientHeight - h;
+			this.virtualScrollY = lastMessRef.offsetTop + lastMessRef.offsetHeight - h;
 			el.scrollTop = this.virtualScrollY;
 		}
 
@@ -365,6 +387,7 @@ export default class MessageList extends Vue {
 	 * Avoids closing the conversation when rolling over it
 	 */
 	public async reopenLastConversation():Promise<void> {
+		console.log("CLEAR TIMEOUT");
 		clearTimeout(this.closeConvTimeout);
 	}
 
@@ -414,6 +437,8 @@ export default class MessageList extends Vue {
 	 * Call this after making sure the messages are rendered
 	 */
 	private openConversationHolder(event:MouseEvent):void {
+		clearTimeout(this.closeConvTimeout);
+
 		let el = event.target as HTMLDivElement;
 		var top = 0;
 		do {
@@ -423,13 +448,11 @@ export default class MessageList extends Vue {
 
 		const mainHolder = this.$refs.messageHolder as HTMLDivElement;
 		const holder = this.$refs.conversationHolder as HTMLDivElement;
-		this.conversationPos = Math.max(0, top - holder.clientHeight - mainHolder.scrollTop);
+		this.conversationPos = Math.max(0, top - holder.offsetHeight - mainHolder.scrollTop);
 		
 		const messholder = this.$refs.conversationMessages as HTMLDivElement;
 		messholder.scrollTop = messholder.scrollHeight;
 		gsap.to(mainHolder, {opacity:.25, duration:.25});
-
-		clearTimeout(this.closeConvTimeout);
 	}
 
 	/**
@@ -540,6 +563,7 @@ export default class MessageList extends Vue {
 		bottom: 0;
 		padding: 10px 0;
 		padding-bottom: 0;
+		margin-bottom: 10px;
 
 		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
 		// .subHolder:nth-child(odd) {
@@ -552,10 +576,6 @@ export default class MessageList extends Vue {
 
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
-			}
-
-			&:last-child {
-				padding-bottom: 10px;
 			}
 
 			.message {
@@ -602,6 +622,7 @@ export default class MessageList extends Vue {
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
+		pointer-events: none;
 		.label {
 			color: #fff;
 			width: min-content;
@@ -616,6 +637,7 @@ export default class MessageList extends Vue {
 				width: 100%;
 				background: none;
 				padding: 0;
+				pointer-events: all;
 				&:hover {
 					background: rgba(255, 255, 255, .5);
 				}

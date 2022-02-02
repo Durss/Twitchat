@@ -21,6 +21,7 @@
 				class="convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
+				@mouseleave="$emit('mouseleave', $event)"
 				@mouseover="$emit('showConversation', $event, messageData)">
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" />
@@ -35,7 +36,10 @@
 					:data-tooltip="b.label"></span>
 			</span>
 			
-			<span @click="openUserCard()" @mouseenter="$emit('showUserMessages', $event, messageData)" class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
+			<span @click="openUserCard()"
+			@mouseenter="$emit('showUserMessages', $event, messageData)"
+			@mouseleave="$emit('mouseleave', $event)"
+			class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
 		</div>
 		
 		<span class="message" v-html="text"></span>
@@ -65,7 +69,7 @@ import ChatModTools from './ChatModTools.vue';
 		lightMode:{type:Boolean, default:false},
 		disableConversation:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages'],
+	emits:['showConversation', 'showUserMessages', 'mouseleave'],
 })
 export default class ChatMessage extends Vue {
 
