@@ -46,7 +46,7 @@
 			
 		</div>
 
-		<ChannelNotifications class="notifications" @goToLastRead="$emit('goToLastRead')" />
+		<ChannelNotifications class="notifications" />
 	</div>
 </template>
 
@@ -74,7 +74,7 @@ import EmoteSelectorLive from './EmoteSelectorLive.vue';
 		EmoteSelectorLive,
 		ChannelNotifications,
 	},
-	emits: ["poll","pred","clear","raffle","goToLastRead"]
+	emits: ["poll","pred","clear","raffle"]
 })
 export default class ChatForm extends Vue {
 

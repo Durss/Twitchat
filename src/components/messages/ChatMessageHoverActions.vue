@@ -5,10 +5,6 @@
 			@click="trackUser()"
 			v-if="!isSelf"
 			/>
-		
-		<Button :icon="require('@/assets/icons/markRead.svg')"
-			data-tooltip="Flag as read"
-			@click="$emit('toggleMarkRead')" />
 	</div>
 </template>
 
@@ -25,7 +21,7 @@ import Button from '../Button.vue';
 	components:{
 		Button,
 	},
-	emits: ["toggleMarkRead", "trackUser"]
+	emits: ["trackUser"]
 })
 export default class ChatMessageHoverActions extends Vue {
 

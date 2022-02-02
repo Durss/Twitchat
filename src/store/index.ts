@@ -273,23 +273,25 @@ export default createStore({
 		},
 		
 		delChatMessage(state, messageId:string) { 
-			const list = (state.chatMessages as IRCEventDataList.Message[]);
+			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				if(messageId == list[i].tags.id) {
-					state.chatMessages.splice(i, 1);
+					list.splice(i, 1);
 				}
 			}
+			state.chatMessages = list as never[];
 		},
+
 		delUserMessages(state, username:Userstate) {
-			const list = (state.chatMessages as IRCEventDataList.Message[]);
+			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(m.tags.username?.toLowerCase() == username.toLowerCase()) {
-					state.chatMessages.splice(i, 1);
+					list.splice(i, 1);
 					i--;
 				}
-				
 			}
+			state.chatMessages = list as never[];
 		},
 
 		updateParams(state) {

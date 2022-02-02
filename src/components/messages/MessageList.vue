@@ -6,7 +6,8 @@
 		@mousewheel="onMouseWheel($event)">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
-			@mouseleave="leaveMessage(m)">
+			@mouseleave="leaveMessage(m)"
+			@click="toggleMarkRead(m)">
 				<ChatMessage
 					v-if="m.type == 'message'"
 					class="message"
@@ -30,9 +31,11 @@
 					:ref="'message_'+m.tags.id"
 					/>
 
-				<img class="markRead" src="@/assets/icons/markRead.svg"
+				<div class="markRead"
+					v-if="!lightMode && m.markedAsRead"></div>
+				<!-- <img class="markRead" src="@/assets/icons/markRead.svg"
 					v-if="!lightMode && m.markedAsRead"
-					data-tooltip="Read flag">
+					data-tooltip="Read flag"> -->
 
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
@@ -120,7 +123,7 @@ export default class MessageList extends Vue {
 
 	private disposed:boolean = false;
 	private frameIndex:number = 0;
-	private markedReadItems:IRCEventDataList.Message[] = [];
+	private prevMarkedReadItem:IRCEventDataList.Message | null = null;
 	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private closeConvTimeout!:number;
@@ -137,43 +140,6 @@ export default class MessageList extends Vue {
 
 	public get conversationStyles():unknown {
 		return { top: this.conversationPos+"px" }
-	}
-
-	public async scrollToLatestRead():Promise<void> {
-		let foundItem = false;
-		for (let index = this.localMessages.length-1; index >= 0; index--) {
-			const m = this.localMessages[index];
-			if(m.markedAsRead) {
-				const messRef = (this.$refs.message as HTMLDivElement[])[index];
-				
-				const el = this.$refs.messageHolder as HTMLDivElement;
-				const h = (this.$el as HTMLDivElement).offsetHeight;
-				const scrollY = messRef.offsetTop - h/2;
-				if(scrollY < this.virtualScrollY) {
-					//If element is higher than half of screen, scroll to it
-					this.virtualScrollY = scrollY;
-					this.lockScroll = true;
-					await (async ()=> {
-						return new Promise((resolve,)=> {
-							gsap.to(el, {scrollTo:this.virtualScrollY, duration: .5, ease:"sine.inOut", onComplete:()=>{
-								resolve(null);
-							}});
-						})
-					})();
-				}
-				//Flash element after potential scroll
-				gsap.set(messRef, {backgroundColor:"rgba(255,255,255,0)"});
-				gsap.to(messRef, {backgroundColor:"rgba(255,255,255,.5)", duration: .1, yoyo:true, repeat:5, ease:"sine.inOut"});
-				foundItem = true;
-				break;
-			}
-		}
-		//Fail safe in case something goes wrong this will prevent from
-		//being unable to hide the "mark as read" button from the notifications
-		if(!foundItem) {
-			this.markedReadItems = [];
-			store.state.isMessageMarkedAsRead = false;
-		}
 	}
 
 	public async mounted():Promise<void> {
@@ -215,7 +181,7 @@ export default class MessageList extends Vue {
 
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
 
-		IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler)
+		IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 
 		await this.$nextTick();
 		this.renderFrame();
@@ -223,6 +189,8 @@ export default class MessageList extends Vue {
 
 	public beforeUnmount():void {
 		this.disposed = true;
+
+		IRCClient.instance.removeEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
 
 	public onHoverList():void {
@@ -243,12 +211,17 @@ export default class MessageList extends Vue {
 	 * automatically, hence, we need this to do it.
 	 */
 	public onDeleteMessage(e:IRCEvent):void {
+		console.log("ON DELETE");
+		const data = e.data as IRCEventDataList.MessageDeleted;
 		if(this.pendingMessages.length > 0) {
-			const data = e.data as IRCEventDataList.MessageDeleted;
 			let index = this.pendingMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
 			if(index > -1) {
 				this.pendingMessages.splice(index, 1);
 			}
+		}
+		let index = this.localMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
+		if(index > -1) {
+			this.localMessages.splice(index, 1);
 		}
 	}
 
@@ -373,14 +346,12 @@ export default class MessageList extends Vue {
 	 */
 	private refreshMarkedAsReadHistory():void {
 		// console.log("REFRESH");
-		for (let i = 0; i < this.markedReadItems.length; i++) {
-			const m = this.markedReadItems[i];
-			if((this.$refs["message_"+m.tags.id] as Vue[]).length == 0) {
-				this.markedReadItems.splice(i, 1);
-				i--;
+		if(this.prevMarkedReadItem) {
+			if((this.$refs["message_"+this.prevMarkedReadItem.tags.id] as Vue[]).length == 0) {
+				this.prevMarkedReadItem = null;
 			}
 		}
-		store.state.isMessageMarkedAsRead = this.markedReadItems.length > 0;
+			store.state.isMessageMarkedAsRead = this.prevMarkedReadItem != null;
 	}
 
 	/**
@@ -490,14 +461,13 @@ export default class MessageList extends Vue {
 	 */
 	public toggleMarkRead(m:IRCEventDataList.Message):void {
 		m.markedAsRead = !m.markedAsRead;
-		if(m.markedAsRead) {
-			this.markedReadItems.push( m );
-			store.state.isMessageMarkedAsRead = true;
-		}else {
-			this.markedReadItems = this.markedReadItems.filter(m2=>m2.tags.id != m.tags.id);
-			store.state.isMessageMarkedAsRead = this.markedReadItems.length > 0;
+		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {
+			this.prevMarkedReadItem.markedAsRead = false;
 		}
-		m.showHoverActions = false;
+		if(m.markedAsRead) {
+			this.prevMarkedReadItem = m;
+		}
+		store.state.isMessageMarkedAsRead = this.prevMarkedReadItem != null;
 	}
 
 }
@@ -582,10 +552,13 @@ export default class MessageList extends Vue {
 				flex-grow: 1;
 			}
 			.markRead {
-				align-self: center;
-				max-width: 30px;
-				opacity: .75;
-				margin-left: 5px;
+				width: 100%;
+				height: 10000px;
+				background: fade(@mainColor_dark, 80%);
+				border-bottom: 2px solid @mainColor_light;
+				position: absolute;
+				bottom: 0;
+				pointer-events: none;
 			}
 		}
 

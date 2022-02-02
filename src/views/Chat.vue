@@ -6,7 +6,6 @@
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
 				@raffle="currentModal = 'raffle'"
-				@goToLastRead="goToLastRead()"
 				@clear="clearChat()"
 				/>
 		</div>
@@ -50,10 +49,6 @@ export default class Chat extends Vue {
 
 	public clearChat():void {
 		IRCClient.instance.client.clear(IRCClient.instance.channel);
-	}
-
-	public goToLastRead():void {
-		(this.$refs.messages as MessageList).scrollToLatestRead();
 	}
 }
 

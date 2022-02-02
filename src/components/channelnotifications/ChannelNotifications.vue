@@ -18,15 +18,6 @@
 			</transition>
 
 			<transition name="slideBT" :duration="{enter:500, leave:1200}">
-				<Button :icon="require('@/assets/icons/markRead.svg')"
-					small
-					bounce
-					v-if="$store.state.isMessageMarkedAsRead"
-					data-tooltip="Scroll to last<br>messaged flagged"
-					@click="$emit('goToLastRead')" />
-			</transition>
-
-			<transition name="slideBT" :duration="{enter:500, leave:1200}">
 				<Button :icon="require('@/assets/icons/magnet.svg')"
 					small
 					bounce
