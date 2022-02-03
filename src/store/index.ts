@@ -235,7 +235,7 @@ export default createStore({
 					if(/@\w/gi.test(m.message)) {
 						// console.log("Mention found");
 						const ts = Date.now();
-						const timeframe = 5*60*1000;//Check if a massges answers another within this timeframe
+						const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
 						const matches = m.message.match(/@\w+/gi) as RegExpMatchArray;
 						for (let i = 0; i < matches.length; i++) {
 							const match = matches[i].replace("@", "").toLowerCase();

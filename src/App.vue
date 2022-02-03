@@ -14,7 +14,6 @@
 import Parameters from '@/components/params/Parameters.vue';
 import UserCard from '@/components/user/UserCard.vue';
 import { Options, Vue } from 'vue-class-component';
-import router from './router';
 import store from './store';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";

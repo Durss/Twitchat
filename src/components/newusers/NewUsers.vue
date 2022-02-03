@@ -53,9 +53,10 @@
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import Store from '@/store/Store';
+import IRCClient from '@/utils/IRCClient';
+import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -79,9 +80,9 @@ export default class NewUsers extends Vue {
 
 	private streakMode:boolean = true;
 	private highlightState:{[key:string]:boolean} = {};
-	private idToDisplayed:{[id:string]:boolean} = {};
 
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
+	private messageHandler!:(e:IRCEvent)=> void;
 
 	public get classes():string[] {
 		let res = ["newusers"];
@@ -90,21 +91,10 @@ export default class NewUsers extends Vue {
 	}
 
 	public mounted():void {
-		watch(() => store.state.chatMessages, async (value) => {
-			const list = (value as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
-			.filter(m => m.firstMessage === true && m.tags["user-id"] != store.state.user.user_id)
-			.concat();
-			for (let i = 0; i < list.length; i++) {
-				const m = list[i];
-				if(this.idToDisplayed[m.tags.id as string]) continue;
-				this.idToDisplayed[m.tags.id as string] = true;
-				this.localMessages.push(m);
-			}
-			await this.$nextTick();
-			this.scrollTo();
-		}, {
-			// deep:true,
-		});
+		const storeValue = Store.get("greetScrollDownAuto");
+		if(storeValue == "true") this.scrollDownAuto = true;
+
+		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
 			if(e.key != "Control" && e.key != "Shift") return;
@@ -115,13 +105,29 @@ export default class NewUsers extends Vue {
 				this.streakMode = false;
 			}
 		};
+
 		document.addEventListener("keydown", this.keyboardEventHandler);
 		document.addEventListener("keyup", this.keyboardEventHandler);
+		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
+		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 	}
 
 	public beforeUnmount():void {
 		document.removeEventListener("keydown", this.keyboardEventHandler);
 		document.removeEventListener("keyup", this.keyboardEventHandler);
+		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
+		IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
+	}
+
+	private async onMessage(e:IRCEvent):Promise<void> {
+		const maxLength = 200;
+		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
+		if(m.firstMessage) this.localMessages.push(m);
+		if(this.localMessages.length >= maxLength) {
+			this.localMessages = this.localMessages.slice(-maxLength);
+		}
+		await this.$nextTick();
+		this.scrollTo();
 	}
 
 	public deleteMessage(m:IRCEventDataList.Message, index:number):void {
@@ -215,6 +221,7 @@ export default class NewUsers extends Vue {
 
 	public toggleScroll():void {
 		this.scrollDownAuto = !this.scrollDownAuto;
+		Store.set("greetScrollDownAuto", this.scrollDownAuto? 'true' : 'false');
 		if(this.scrollDownAuto) {
 			this.scrollTo();
 		}
