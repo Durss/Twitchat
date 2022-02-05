@@ -250,7 +250,6 @@ export default class ChatMessage extends Vue {
 		this.hasMention = store.state.params.appearance.highlightMentions.value
 			&& store.state.user.login != null
 			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
-			console.log(this.text);
 		
 	}
 
