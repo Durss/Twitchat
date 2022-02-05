@@ -153,17 +153,17 @@ export namespace IRCEventDataList {
 		command: string;
 		params: string[];
 		tags: {
-			badges?: any;
+			badges?: unknown;
 			color: string;
 			"display-name": string;
-			emotes?: any;
+			emotes?: unknown;
 			"message-id": string;
 			"thread-id": string;
 			turbo: boolean;
 			"user-id": string;
-			"user-type"?: any;
-			"emotes-raw"?: any;
-			"badges-raw"?: any;
+			"user-type"?: string;
+			"emotes-raw"?: string;
+			"badges-raw"?: string;
 			username: string;
 			"message-type": string;
 		};
