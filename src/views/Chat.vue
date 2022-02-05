@@ -3,6 +3,9 @@
 		<div class="chatHolder">
 			<MessageList ref="messages" class="messages"
 				:max="$store.state.params.appearance.historySize.value" />
+			
+			<RaidState v-if="$store.state.raiding" />
+
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
@@ -19,6 +22,7 @@
 </template>
 
 <script lang="ts">
+import RaidState from '@/components/channelnotifications/RaidState.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
@@ -33,9 +37,10 @@ import { Options, Vue } from 'vue-class-component';
 		NewUsers,
 		ChatForm,
 		PollForm,
+		RaidState,
 		RaffleForm,
-		PredictionForm,
 		MessageList,
+		PredictionForm,
 	},
 	props:{
 	},
