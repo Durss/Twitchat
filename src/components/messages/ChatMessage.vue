@@ -300,6 +300,10 @@ export default class ChatMessage extends Vue {
 					}else if(v.type == "emote") {
 						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
 						url = url.replace(/1x$/gi, "3x");//BTTV format
+						if(store.state.params.appearance.defaultSize.value >= 3) {
+							v.value = v.value.replace(/1.0$/gi, "2.0");
+							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
+						}
 						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.emote+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}

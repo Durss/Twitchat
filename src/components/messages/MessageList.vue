@@ -596,7 +596,7 @@ export default class MessageList extends Vue {
 		transform: translateX(-50%);
 		width: 100%;
 		padding: 0;
-		padding-bottom: 10px;
+		padding-bottom: 15px;
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
@@ -607,6 +607,7 @@ export default class MessageList extends Vue {
 		.label {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
 			color: #fff;
 			width: min-content;
 			white-space: nowrap;
