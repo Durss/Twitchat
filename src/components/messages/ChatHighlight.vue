@@ -89,7 +89,7 @@ export default class ChatHighlight extends Vue {
 		switch(type) {
 			case "follow":
 				this.icon = require('@/assets/icons/follow.svg');
-				res = "<strong>"+this.messageData.username+"</strong> followed you channel!";
+				res = "<strong>"+this.messageData.username+"</strong> followed your channel!";
 				break;
 			case "raid":
 				this.icon = require('@/assets/icons/raid.svg');
