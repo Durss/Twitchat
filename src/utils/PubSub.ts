@@ -126,13 +126,9 @@ export default class PubSub {
 	}
 
 	private parseEvent(messageType:string, data:{type:string, data:unknown}, topic:string):void {
-		if(messageType == "MESSAGE") {
+		if(topic == "following."+store.state.user.user_id) {
 			const localObj = (data as unknown) as PubSubTypes.Following;
-			if(topic == "following."+store.state.user.user_id) {
-				this.followingEvent(localObj);
-			}else {
-				console.log("Unhandled MESSAGE topic type: "+topic);
-			}
+			this.followingEvent(localObj);
 
 
 			

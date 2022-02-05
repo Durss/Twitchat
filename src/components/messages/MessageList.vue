@@ -1,9 +1,9 @@
 <template>
 	<div :class="classes"
 	@mouseenter="onHoverList()"
-	@mouseleave="onLeaveList()">
-		<div class="holder" ref="messageHolder"
-		@mousewheel="onMouseWheel($event)">
+	@mouseleave="onLeaveList()"
+	@mousewheel="onMouseWheel($event)">
+		<div class="holder" ref="messageHolder">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
 			@mouseleave="leaveMessage(m)"
@@ -45,15 +45,13 @@
 				</transition>
 			</div>
 		</div>
-		
 
 		<div class="locked" v-if="(lockScroll || pendingMessages.length > 0) && !lightMode">
 			<div class="label">
 				<p v-if="lockScroll">Chat paused</p>
-				<Button :icon="require('@/assets/icons/down.svg')" @click="unPause()" />
 				<p v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</p>
+				<Button v-if="pendingMessages.length > 0" :icon="require('@/assets/icons/down.svg')" @click="unPause()" />
 			</div>
-			<div class="bar"></div>
 		</div>
 
 		<div class="conversation"
@@ -132,6 +130,7 @@ export default class MessageList extends Vue {
 	public get classes():string[] {
 		let res = ["messagelist"];
 		if(this.lightMode) res.push("lightMode");
+		if(this.lockScroll) res.push("lockScroll");
 
 		res.push("size_"+store.state.params.appearance.defaultSize.value);
 
@@ -199,8 +198,10 @@ export default class MessageList extends Vue {
 	}
 
 	public onLeaveList():void {
-		if(this.catchingUpPendingMessages) return;
-		this.lockScroll = false;
+		// if(this.catchingUpPendingMessages) return;
+		if(this.pendingMessages.length == 0) {
+			this.lockScroll = false;
+		}
 	}
 
 	/**
@@ -257,13 +258,18 @@ export default class MessageList extends Vue {
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
 		if(this.lightMode) return;
-		//If scrolling down while at the bottom of the list, load next message
 		if(event.deltaY < 0) {
 			this.lockScroll = true;
 		}else{
+			//If scrolling down while at the bottom of the list, load next message
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const h = (this.$el as HTMLDivElement).offsetHeight;
 			const maxScroll = (el.scrollHeight - h);
+			console.log(maxScroll, h);
+			if(maxScroll < 0) {
+				this.showNextPendingMessage();
+				return;
+			}
 
 			const messRefs = this.$refs.message as HTMLDivElement[];
 			const lastMessRef = messRefs[messRefs.length-1];
@@ -437,7 +443,9 @@ export default class MessageList extends Vue {
 	 */
 	public enterMessage(m:IRCEventDataList.Message):void {
 		if(m.type != "message" && m.type != "highlight") return;
-		m.showHoverActions = true;
+		if(m.tags['user-id'] != store.state.user.user_id) {
+			m.showHoverActions = true;
+		}
 	}
 
 	/**
@@ -501,6 +509,12 @@ export default class MessageList extends Vue {
 		}
 	}
 
+	&.lockScroll {
+		.holder {
+			margin-bottom: 40px;
+		}
+	}
+
 	:deep(.time) {
 		color: fade(#ffffff, 75%);
 		font-size: 13px;
@@ -527,6 +541,8 @@ export default class MessageList extends Vue {
 		padding: 10px 0;
 		padding-bottom: 0;
 		margin-bottom: 10px;
+
+		transition: margin-bottom .25s;
 
 		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
 		// .subHolder:nth-child(odd) {
@@ -580,41 +596,38 @@ export default class MessageList extends Vue {
 	.locked {
 		z-index: 1;
 		position: absolute;
-		bottom: 0;
+		bottom: -10px;
 		left: 50%;
 		transform: translateX(-50%);
 		width: 100%;
 		padding: 0;
+		padding-bottom: 10px;
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
 		pointer-events: none;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+		background: @mainColor_normal;
 		.label {
+			display: flex;
+			flex-direction: row;
 			color: #fff;
 			width: min-content;
 			white-space: nowrap;
 			margin: auto;
 			padding: 5px;
 			font-size: 14px;
-			border-top-left-radius: 10px;
-			border-top-right-radius: 10px;
-			background-color: @mainColor_normal;//#888888;
 			.button {
 				width: 100%;
 				background: none;
 				padding: 0;
 				pointer-events: all;
+				margin-left: 5px;
 				&:hover {
 					background: rgba(255, 255, 255, .5);
 				}
 			}
-		}
-		.bar {
-			height: 10px;
-			margin-top: -10px;
-			border-top-left-radius: 10px;
-			border-top-right-radius: 10px;
-			background: linear-gradient(0deg, @mainColor_normal 10%, fade(@mainColor_normal, 0) 100%);
 		}
 	}
 
