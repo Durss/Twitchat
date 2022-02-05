@@ -1,5 +1,5 @@
 <template>
-	<div class="trackedusers">
+	<div :class="classes">
 		<div class="messages" v-if="selectedUser">
 			<Button :icon="require('@/assets/icons/magnet.svg')"
 				class="untrackBt"
@@ -46,6 +46,12 @@ export default class TrackedUsers extends Vue {
 
 	public selectedUser:TwitchTypes.TrackedUser | null = null;
 
+	public get classes():string[] {
+		let res = ["trackedusers"];
+		res.push("size_"+store.state.params.appearance.defaultSize.value);
+		return res;
+	}
+
 	public selectUser(user:TwitchTypes.TrackedUser):void {
 		this.selectedUser = user;
 	}
@@ -66,6 +72,38 @@ export default class TrackedUsers extends Vue {
 	display: flex;
 	flex-direction: row !important;
 	color: #fff;
+
+	&.size_1 {
+		.messages{
+			font-size: 10px;
+			.message{ margin-bottom: 2px; }
+		}
+	}
+	&.size_2 {
+		.messages{
+			font-size: 14px;
+			.message{ margin-bottom: 2px; }
+		}
+	}
+	&.size_3 {
+		.messages{
+			font-size: 18px;
+			.message{ margin-bottom: 5px; }
+		}
+	}
+	&.size_4 {
+		.messages{
+			font-size: 24px;
+			.message{ margin-bottom: 5px; }
+		}
+	}
+	&.size_5 {
+		.messages{
+			font-size: 30px;
+			.message{ margin-bottom: 10px; }
+		}
+	}
+
 	.users {
 		display: flex;
 		flex-direction: column;

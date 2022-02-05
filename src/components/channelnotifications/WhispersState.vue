@@ -1,5 +1,5 @@
 <template>
-	<div class="whispersstate">
+	<div :class="classes">
 		
 		<div class="whispers" v-if="selectedUser">
 			<div class="messages">
@@ -53,6 +53,12 @@ export default class WhispersState extends Vue {
 
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
+
+	public get classes():string[] {
+		let res = ["whispersstate"];
+		res.push("size_"+store.state.params.appearance.defaultSize.value);
+		return res;
+	}
 
 	public messageClasses(whisper:IRCEventDataList.Whisper):string[] {
 		let classes:string[] = ["message"];
@@ -112,6 +118,37 @@ export default class WhispersState extends Vue {
 	display: flex;
 	flex-direction: row !important;
 	color: #fff;
+
+	&.size_1 {
+		.messages{
+			font-size: 10px;
+			.message{ margin-bottom: 2px; }
+		}
+	}
+	&.size_2 {
+		.messages{
+			font-size: 14px;
+			.message{ margin-bottom: 2px; }
+		}
+	}
+	&.size_3 {
+		.messages{
+			font-size: 18px;
+			.message{ margin-bottom: 5px; }
+		}
+	}
+	&.size_4 {
+		.messages{
+			font-size: 24px;
+			.message{ margin-bottom: 5px; }
+		}
+	}
+	&.size_5 {
+		.messages{
+			font-size: 30px;
+			.message{ margin-bottom: 10px; }
+		}
+	}
 	
 	.users {
 		display: flex;
