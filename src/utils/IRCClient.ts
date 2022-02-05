@@ -128,14 +128,12 @@ export default class IRCClient extends EventDispatcher {
 				const index = this.onlineUsers.indexOf(user);
 				if(index > -1) return;
 				
-				console.log("JOIN", user);
 				this.onlineUsers.push(user);
 				this.onlineUsers.sort();
 				store.dispatch("setViewersList", this.onlineUsers);
 			});
 			
 			this.client.on("part", (channel:string, user:string) => {
-				console.log("LEAVE", user);
 				const index = this.onlineUsers.indexOf(user);
 				this.onlineUsers.splice(index, 1);
 				store.dispatch("setViewersList", this.onlineUsers);
