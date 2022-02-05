@@ -399,8 +399,8 @@ export default class ChatMessage extends Vue {
 	.message {
 		color: #d1d1d1;
 		:deep( .emote ) {
-			width: 28px;
-			height: 28px;
+			width: 2em;
+			height: 2em;
 			vertical-align: middle;
 			object-fit: contain;
 		}
