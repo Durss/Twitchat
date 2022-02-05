@@ -28,6 +28,7 @@ export default class IRCClient extends EventDispatcher {
 	public connected:boolean = false;
 	public botsLogins:string[] = [];
 	public increment:number = 0;
+	public onlineUsers:string[] = [];
 	
 	constructor() {
 		super();
@@ -55,7 +56,7 @@ export default class IRCClient extends EventDispatcher {
 	******************/
 	public connect(login:string, token?:string):Promise<void> {
 		if(this.connected) return Promise.resolve();
-		
+
 		this.connected = true;
 		return new Promise((resolve, reject) => {
 			this.login = login;
@@ -121,6 +122,23 @@ export default class IRCClient extends EventDispatcher {
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
 				}
+			});
+
+			this.client.on("join", (channel:string, user:string) => {
+				const index = this.onlineUsers.indexOf(user);
+				if(index > -1) return;
+				
+				console.log("JOIN", user);
+				this.onlineUsers.push(user);
+				this.onlineUsers.sort();
+				store.dispatch("setViewersList", this.onlineUsers);
+			});
+			
+			this.client.on("part", (channel:string, user:string) => {
+				console.log("LEAVE", user);
+				const index = this.onlineUsers.indexOf(user);
+				this.onlineUsers.splice(index, 1);
+				store.dispatch("setViewersList", this.onlineUsers);
 			});
 
 			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {

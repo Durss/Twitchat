@@ -13,7 +13,8 @@
 					v-if="!error"
 					ref="input"
 					placeholder="message..."
-					maxlength="500">
+					maxlength="500"
+					@keydown.tab.prevent="onTab()">
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" />
 				<Button :icon="require('@/assets/icons/emote.svg')" @click="showEmotes = true;" bounce />
@@ -25,10 +26,10 @@
 					data-tooltip="Send encrypted<br>messages" />
 			</form>
 
-			<EmoteSelectorLive class="emotesLive"
-				:search="emoteSearch"
-				v-if="emoteSearch.length > 1"
-				@close="emoteSearch = ''"
+			<AutocompleteForm class="emotesLive"
+				:search="autoCompleteSearch"
+				v-if="autoCompleteSearch.length > 1"
+				@close="autoCompleteSearch = ''"
 				@select="onSelectEmote" />
 
 			<CommandHelper class="actions"
@@ -62,7 +63,7 @@ import ChannelNotifications from '../channelnotifications/ChannelNotifications.v
 import ParamItem from '../params/ParamItem.vue';
 import CommandHelper from './CommandHelper.vue';
 import EmoteSelector from './EmoteSelector.vue';
-import EmoteSelectorLive from './EmoteSelectorLive.vue';
+import AutocompleteForm from './AutocompleteForm.vue';
 
 @Options({
 	props:{},
@@ -71,7 +72,7 @@ import EmoteSelectorLive from './EmoteSelectorLive.vue';
 		ParamItem,
 		CommandHelper,
 		EmoteSelector,
-		EmoteSelectorLive,
+		AutocompleteForm,
 		ChannelNotifications,
 	},
 	emits: ["poll","pred","clear","raffle"]
@@ -79,7 +80,7 @@ import EmoteSelectorLive from './EmoteSelectorLive.vue';
 export default class ChatForm extends Vue {
 
 	public message:string = "";
-	public emoteSearch:string = "";
+	public autoCompleteSearch:string = "";
 	public error:boolean = false;
 	public showEmotes:boolean = false;
 	public showCommands:boolean = false;
@@ -98,12 +99,12 @@ export default class ChatForm extends Vue {
 			let carretPos = input.selectionStart as number | 0;
 			for (let i = carretPos-1; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
-				if(currentChar == ":") {
-					this.emoteSearch = newVal.substring(i+1, carretPos);
+				if(currentChar == ":" || ((/\s/gi.test(currentChar) || i == 0) && this.autoCompleteSearch)) {
+					this.autoCompleteSearch = newVal.substring(i+1, carretPos);
 					break;
 				}
 				if(/\s/gi.test(currentChar)) {
-					this.emoteSearch = "";
+					this.autoCompleteSearch = "";
 					break;
 				}
 			}
@@ -119,7 +120,7 @@ export default class ChatForm extends Vue {
 	
 	public async sendMessage():Promise<void> {
 		if(this.message.length == 0) return;
-		if(this.emoteSearch.length > 1) return;
+		if(this.autoCompleteSearch.length > 1) return;
 
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
@@ -172,31 +173,34 @@ export default class ChatForm extends Vue {
 	}
 
 	/**
-	 * Called when selecting an emote from the emote selector
+	 * Called when selecting an emote from one the emote selectors
 	 */
-	public async onSelectEmote(emote:TwitchTypes.Emote):Promise<void> {
+	public async onSelectEmote(item:string):Promise<void> {
 		const input = this.$refs.input as HTMLInputElement;
 		let carretPos = input.selectionStart;
 		let localMessage = this.message;
-		if(!carretPos) carretPos = 0;
+		if(!carretPos) carretPos = 1;
+		carretPos --;
 
-		if(this.emoteSearch) {
+		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = localMessage.charAt(i);
-				if(currentChar == ":") {
-					const prefix = localMessage.substring(0, i-1);
-					const suffix = localMessage.substring(i+1+this.emoteSearch.length);
-					localMessage = prefix + " " + emote.name + suffix;
+				if(currentChar == ":" || /\s/gi.test(currentChar) || i == 0) {
+					console.log(i, currentChar);
+					const offset = currentChar == ":"? 1 : 0;
+					const prefix = localMessage.substring(0, i-offset);
+					const suffix = localMessage.substring(i+1+this.autoCompleteSearch.length);
+					localMessage = prefix + " " + item + suffix;
 					console.log(localMessage);
-					carretPos = prefix.length + emote.name.length + 1;
+					carretPos = prefix.length + item.length + 1;
 					break;
 				}
 			}
-			this.emoteSearch = "";
+			this.autoCompleteSearch = "";
 		}else{
 			const prefix = /\s/gi.test(localMessage.charAt(carretPos-1))? "" : " ";
-			const suffix = /\s/gi.test(localMessage.charAt(carretPos-1+emote.name.length))? "" : " ";
-			const code = prefix + emote.name + suffix;
+			const suffix = /\s/gi.test(localMessage.charAt(carretPos-1+item.length))? "" : " ";
+			const code = prefix + item + suffix;
 			localMessage = localMessage.substring(0, carretPos) + code + localMessage.substring(carretPos);
 			carretPos += code.length;
 		}
@@ -207,6 +211,25 @@ export default class ChatForm extends Vue {
 		await this.$nextTick();
 		
 		input.setSelectionRange(carretPos, carretPos, "forward");
+	}
+
+	/**
+	 * Called when pressing tab key on input field
+	 */
+	public onTab():void {
+		const input = this.$refs.input as HTMLInputElement;
+		let carretPos = input.selectionStart as number;
+		let i = carretPos - 1;
+		for (; i > -1; i--) {
+			const c = this.message.charAt(i);
+			if(/\s/gi.test(c)) break;
+		}
+		const len = carretPos - i;
+		if(len > 2) {
+			console.log("SEARCH : ",this.message.substring(i+1, carretPos));
+			this.autoCompleteSearch = this.message.substring(i+1, carretPos);
+		}
+		console.log("OKOKOKOK");
 	}
 
 }

@@ -29,6 +29,7 @@ export default createStore({
 		userEmotesCache: {},
 		emotesCache: [],
 		trackedUsers: [],
+		onlineUsers: [],
 		raffle: {},
 		whispers: {},
 		raiding: "",
@@ -361,6 +362,8 @@ export default createStore({
 
 		setRaiding(state, userName:string) { state.raiding = userName; },
 
+		setViewersList(state, users:string[]) { state.onlineUsers = users as never[] },
+
 	},
 
 
@@ -573,6 +576,8 @@ export default createStore({
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
 		setRaiding({commit}, userName:string) { commit("setRaiding", userName); },
+
+		setViewersList({commit}, users:string[]) { commit("setViewersList", users); },
 	},
 	modules: {
 	}
