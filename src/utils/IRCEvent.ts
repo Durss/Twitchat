@@ -122,7 +122,7 @@ export namespace IRCEventDataList {
 		recipient?: string;
 		methods?: SubMethods;
 		viewers?: number;
-		"msg-id"?: MsgID;
+		"msg-id"?: MsgID | "follow";
 		reward?: PubSubTypes.RewardData;
 		//custom data
 		firstMessage?:boolean;

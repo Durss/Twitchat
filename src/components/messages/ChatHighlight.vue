@@ -46,8 +46,12 @@ export default class ChatHighlight extends Vue {
 
 	public get reason():string {
 		let value:number|"prime" = 0;
-		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|null = null;
-		if(this.messageData.tags.bits) {
+		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|null = null;
+		if(this.messageData['msg-id'] == "follow") {
+			type = "follow";
+			this.filtered = !store.state.params.filters.showFollow.value;
+
+		}else if(this.messageData.tags.bits) {
 			value = this.messageData.tags.bits;
 			type = "bits";
 			this.filtered = !store.state.params.filters.showCheers.value;
@@ -83,6 +87,10 @@ export default class ChatHighlight extends Vue {
 
 		let res = "";
 		switch(type) {
+			case "follow":
+				this.icon = require('@/assets/icons/follow.svg');
+				res = "<strong>"+this.messageData.username+"</strong> followed you channel!";
+				break;
 			case "raid":
 				this.icon = require('@/assets/icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
@@ -133,7 +141,7 @@ export default class ChatHighlight extends Vue {
 		if(text) {
 			try {
 				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid kill perfromances.
+				//to avoid killing perfromances.
 				const customParsing = this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
 				let removeEmotes = !store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);

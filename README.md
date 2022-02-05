@@ -25,7 +25,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Flag a message as "read" and scroll back to it easily
 - [x] Track a user to make sure not to miss her/his messages
 - [x] Create a raffle with the viewers and pick random winners
-- [x] Display received whispers and answer them *(option off by default)*
+- [x] Display received whispers and answer them
 - [x] Filter some messages *(bots, commands, self, etc...)*
 - [x] Customize messages *(remove badges, show minimalist badges, remove emotes)*
 - [x] Customize messages appearance by roles *(viewers, mods, vips, subs)*
@@ -33,20 +33,20 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Allow/deny messages blocked by automod
 - [x] Display when it's the first message ever of a user on the channel
 - [x] Display mod notifications on chat (ex: "User XXX has been banned by YYY")
-- [x] Display sub/bits/raid/reward notifications
+- [x] Display sub/bits/raid/reward/follow notifications
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
 - [x] Emote selector 
 - [x] BTTV emotes supported
 
-- [ ] Possibility to connect to any channel without authentication to use it as OBS overlay
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
-- [ ] Make it possible to define configurations via query params for OBS chat template
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Autocomplete commands
 - [ ] Show subs/cheers/raids/rewards in a dedicated list
+- [ ] Show hype train events
+- [ ] Autocomplete nick names via TAB key
 <br>
 <br>
 <br>

@@ -69,7 +69,7 @@ export default class TwitchUtils {
 		};
 		//URL could be replaced with this one to avoid needing an auth token :
 		//https://badges.twitch.tv/v1/badges/channels/{UID}/display
-		// const result = await fetch("https://api.twitch.tv/helix/chat/badges?broadcaster_id="+uid, options);
+		// const result = await fetch(Config.TWITCH_API_PATH+"chat/badges?broadcaster_id="+uid, options);
 		const result = await fetch("https://badges.twitch.tv/v1/badges/channels/"+uid+"/display", options);
 		if(result.status == 200) {
 			const json = await result.json();
@@ -98,7 +98,7 @@ export default class TwitchUtils {
 		};
 		//URL could be replaced with this one to avoid needing an auth token :
 		//https://badges.twitch.tv/v1/badges/global/display
-		// const result = await fetch("https://api.twitch.tv/helix/chat/badges/global", options);
+		// const result = await fetch(Config.TWITCH_API_PATH+"chat/badges/global", options);
 		const result = await fetch("https://badges.twitch.tv/v1/badges/global/display", options);
 		if(result.status == 200) {
 			const json = await result.json();
@@ -291,7 +291,7 @@ export default class TwitchUtils {
 		//Split by 100 max to comply with API limitations
 		while(ids.length > 0) {
 			const params = "id="+ids.splice(0,100).join("&id=");
-			const url = "https://api.twitch.tv/helix/users?"+params;
+			const url = Config.TWITCH_API_PATH+"users?"+params;
 			const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
 			const result = await fetch(url, {
 				headers:{
@@ -323,7 +323,7 @@ export default class TwitchUtils {
 				action:accept? "ALLOW" : "DENY",
 			})
 		}
-		const res = await fetch("https://api.twitch.tv/helix/moderation/automod/message", options);
+		const res = await fetch(Config.TWITCH_API_PATH+"moderation/automod/message", options);
 		return res.status <= 400;
 	}
 
@@ -339,7 +339,7 @@ export default class TwitchUtils {
 				'Content-Type': "application/json",
 			},
 		}
-		const res = await fetch("https://api.twitch.tv/helix/moderation/moderators?broadcaster_id="+store.state.user.user_id, options);
+		const res = await fetch(Config.TWITCH_API_PATH+"moderation/moderators?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		return json.data;
 		
@@ -359,7 +359,7 @@ export default class TwitchUtils {
 				'Content-Type': "application/json",
 			},
 		}
-		const res = await fetch("https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id="+store.state.user.user_id, options);
+		const res = await fetch(Config.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		this.cheermoteCache[uid] = json.data;
 		return json.data;
@@ -387,7 +387,7 @@ export default class TwitchUtils {
 				channel_points_per_vote:pointsPerVote,
 			})
 		}
-		const res = await fetch("https://api.twitch.tv/helix/polls", options);
+		const res = await fetch(Config.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			setTimeout(()=> {
@@ -411,7 +411,7 @@ export default class TwitchUtils {
 				'Content-Type': "application/json",
 			},
 		}
-		const res = await fetch("https://api.twitch.tv/helix/polls?broadcaster_id="+store.state.user.user_id, options);
+		const res = await fetch(Config.TWITCH_API_PATH+"polls?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			store.dispatch("setPolls", json.data);
@@ -437,7 +437,7 @@ export default class TwitchUtils {
 				broadcaster_id:store.state.user.user_id,
 			})
 		}
-		const res = await fetch("https://api.twitch.tv/helix/polls", options);
+		const res = await fetch(Config.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			store.dispatch("setPolls", json.data);
@@ -467,7 +467,7 @@ export default class TwitchUtils {
 				prediction_window:duration,
 			})
 		}
-		const res = await fetch("https://api.twitch.tv/helix/predictions", options);
+		const res = await fetch(Config.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			setTimeout(()=> {
@@ -491,7 +491,7 @@ export default class TwitchUtils {
 				'Content-Type': "application/json",
 			},
 		}
-		const res = await fetch("https://api.twitch.tv/helix/predictions?broadcaster_id="+store.state.user.user_id, options);
+		const res = await fetch(Config.TWITCH_API_PATH+"predictions?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			store.dispatch("setPredictions", json.data);
@@ -518,7 +518,7 @@ export default class TwitchUtils {
 				broadcaster_id:store.state.user.user_id,
 			})
 		}
-		const res = await fetch("https://api.twitch.tv/helix/predictions", options);
+		const res = await fetch(Config.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			store.dispatch("setPredictions", json.data);
@@ -539,7 +539,7 @@ export default class TwitchUtils {
 				'Content-Type': "application/json",
 			},
 		}
-		const res = await fetch("https://api.twitch.tv/helix/hypetrain/events?broadcaster_id="+store.state.user.user_id, options);
+		const res = await fetch(Config.TWITCH_API_PATH+"hypetrain/events?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			return json.data;
@@ -573,7 +573,7 @@ export default class TwitchUtils {
 		let emotes:TwitchTypes.Emote[] = [];
 		do {
 			const params = sets.splice(0,25).join("&emote_set_id=");
-			const res = await fetch("https://api.twitch.tv/helix/chat/emotes/set?emote_set_id="+params, options);
+			const res = await fetch(Config.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
 			const json = await res.json();
 			if(res.status == 200) {
 				emotes = emotes.concat(json.data);

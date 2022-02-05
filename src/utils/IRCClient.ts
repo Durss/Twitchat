@@ -63,7 +63,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["hiuuugs", "opcrotte", "aqtuc", "littlebigwhale", "antoinedaniel", "mistermv", "bagherajones", "hortyunderscore" ]);
+				channels = channels.concat(["andythefrenchy", "hiuuugs", "opcrotte", "aqtuc", "littlebigwhale", "antoinedaniel", "mistermv", "bagherajones", "hortyunderscore" ]);
 			}
 
 			(async ()=> {
@@ -212,10 +212,10 @@ export default class IRCClient extends EventDispatcher {
 					// console.log(data.command);
 					// console.log(data);
 				switch(data.command) {
-					//Using this instead of the "notice" event from TMI as it's not
-					//fired for many notices whereas here we get them all
 					case "ROOMSTATE": {
-						this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
+						if((data.params as string[])[0] == this.channel) {
+							this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
+						}
 						break;
 					}
 					case "WHISPER": {
@@ -228,6 +228,9 @@ export default class IRCClient extends EventDispatcher {
 						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
 						break;
 					}
+
+					//Using this instead of the "notice" event from TMI as it's not
+					//fired for many notices whereas here we get them all
 					case "NOTICE": {
 						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
@@ -312,12 +315,15 @@ export default class IRCClient extends EventDispatcher {
 
 	public addHighlight(data:IRCEventDataList.Highlight):void {
 		data.type = "highlight";
+		
+		if(!data.tags.id) data.tags.id = this.getFakeGuid();
 
 		if(this.uidsDone[data.tags['user-id'] as string] !== true) {
 			data.firstMessage = true;
 			this.uidsDone[data.tags['user-id'] as string] = true;
-		}
 
+		}
+		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
 	}
 

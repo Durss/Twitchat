@@ -58,6 +58,7 @@ export default createStore({
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106},
 				showCheers: {type:"toggle", value:true, label:"Show bit alerts", id:107},
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108},
+				showFollow: {type:"toggle", value:true, label:"Show follow alerts", id:109},
 			},
 			features: {
 				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200},

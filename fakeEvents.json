@@ -573,5 +573,18 @@
         "channel": "#durss",
         "self": false,
         "firstMessage": true
+    },
+
+    "following":{
+        "channel": "#durss",
+        "tags": {
+            "username": "DurssBot",
+            "tmi-sent-ts": "1644088397887",
+            "id": "00000000-0000-0000-0001-000000000000"
+        },
+        "username": "DurssBot",
+        "msg-id": "follow",
+        "type": "highlight",
+        "firstMessage": true
     }
 }

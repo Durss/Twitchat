@@ -52,7 +52,7 @@ export default class PubSub {
 				"predictions-channel-v1."+store.state.user.user_id,
 				"polls."+store.state.user.user_id,
 				"hype-train-events-v1."+store.state.user.user_id,
-				// "follows."+store.state.user.user_id,
+				"following."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
 			]);
 		};
@@ -63,7 +63,7 @@ export default class PubSub {
 			const message = JSON.parse(e.data) as {type:string, data:{message:string, topic:string}};
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
-				this.parseEvent(data);
+				this.parseEvent(message.type, data, message.data.topic);
 			// }else{
 			// 	console.log(event);
 			}
@@ -125,43 +125,53 @@ export default class PubSub {
 		this.send(json);
 	}
 
-	private parseEvent(event:{type:string, data:unknown}):void {
-		if(event.type == "automod_caught_message") {
-			const localObj = event.data as  PubSubTypes.AutomodData;
+	private parseEvent(messageType:string, data:{type:string, data:unknown}, topic:string):void {
+		if(messageType == "MESSAGE") {
+			const localObj = (data as unknown) as PubSubTypes.Following;
+			if(topic == "following."+store.state.user.user_id) {
+				this.followingEvent(localObj);
+			}else {
+				console.log("Unhandled MESSAGE topic type: "+topic);
+			}
+
+
+			
+		}else if(data.type == "automod_caught_message") {
+			const localObj = data.data as  PubSubTypes.AutomodData;
 			this.automodEvent(localObj);
 
 
 			
-		}else if(event.type == "reward-redeemed") {
+		}else if(data.type == "reward-redeemed") {
 			//Manage rewards
 			if(store.state.params.filters.showRewards.value) {
-				const localObj = event.data as  PubSubTypes.RewardData;
+				const localObj = data.data as  PubSubTypes.RewardData;
 				this.rewardEvent(localObj);
 			}
 
 
 			
-		}else if(event.type == "POLL_CREATE" || event.type == "POLL_UPDATE" || event.type == "POLL_COMPLETE") {
-			const localObj = event.data as PubSubTypes.PollData;
+		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE") {
+			const localObj = data.data as PubSubTypes.PollData;
 			this.pollEvent(localObj)
 
 
 			
-		}else if(event.type == "POLL_ARCHIVED" || event.type == "POLL_TERMINATE" || event.type == "POLL_MODERATE" || event.type == "POLL_INVALID") {
+		}else if(data.type == "POLL_ARCHIVED" || data.type == "POLL_TERMINATE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
 			TwitchUtils.getPolls();
 
 
 			
-		}else if(event.type == "event-created" || event.type == "event-updated") {
-			const localObj = event.data as PubSubTypes.PredictionData;
+		}else if(data.type == "event-created" || data.type == "event-updated") {
+			const localObj = data.data as PubSubTypes.PredictionData;
 			this.predictionEvent(localObj);
 			
 
 
 			
-		}else if(event.type == "moderation_action") {
+		}else if(data.type == "moderation_action") {
 			//Manage moderation actions
-			const localObj = event.data as PubSubTypes.ModerationData;
+			const localObj = data.data as PubSubTypes.ModerationData;
 			switch(localObj.moderation_action) {
 				case "clear": 
 					IRCClient.instance.sendNotice("usage_clear", "Chat cleared by "+localObj.created_by);
@@ -346,9 +356,29 @@ export default class PubSub {
 		console.log(prediction);
 		store.dispatch("setPredictions", [prediction])
 	}
+
+	private followingEvent(data:PubSubTypes.Following):void {
+		const message:IRCEventDataList.Highlight = {
+			channel: IRCClient.instance.channel,
+			tags:{
+				"username":data.display_name,
+				"tmi-sent-ts": Date.now().toString(),
+			},
+			username: data.display_name,
+			"msg-id": "follow",
+			"type": "highlight",
+		}
+		IRCClient.instance.addHighlight(message);
+	}
 }
 
 export namespace PubSubTypes {
+	export interface Following {
+		display_name: string;
+		username: string;
+		user_id:string;
+	}
+
 	export interface AutomodData {
         content_classification: {
 			category: string;
