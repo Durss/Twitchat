@@ -478,24 +478,19 @@ export default class MessageList extends Vue {
 	position: relative;
 
 	&.size_1 {
-		font-size: 10px;
-		.message{ padding: 2px; }
+		.message{ font-size: 10px; padding: 2px; }
 	}
 	&.size_2 {
-		font-size: 14px;
-		.message{ padding: 2px; }
+		.message{ font-size: 14px; padding: 2px; }
 	}
 	&.size_3 {
-		font-size: 18px;
-		.message{ padding: 5px; }
+		.message{ font-size: 18px; padding: 5px; }
 	}
 	&.size_4 {
-		font-size: 24px;
-		.message{ padding: 5px; }
+		.message{ font-size: 24px; padding: 5px; }
 	}
 	&.size_5 {
-		font-size: 30px;
-		.message{ padding: 10px; }
+		.message{ font-size: 30px; padding: 10px; }
 	}
 
 	&.lightMode {

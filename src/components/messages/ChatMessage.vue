@@ -80,8 +80,10 @@ export default class ChatMessage extends Vue {
 	
 	public firstTime:boolean = false;
 	public automod:PubSubTypes.AutomodData | null = null;
+	public text:string = "";
 	public automodReasons:string = "";
 	public badges:TwitchTypes.Badge[] = [];
+	public hasMention:boolean = false;
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
@@ -97,11 +99,7 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.cyphered) res.push("cyphered");
 
 		if(!this.lightMode) {
-			if(store.state.params.appearance.highlightMentions.value
-			&& store.state.user.login
-			&& this.text.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1) {
-				res.push("mention");
-			}
+			if(this.hasMention) res.push("mention");
 			
 			//Set highlight
 			if(message.tags.mod && store.state.params.appearance.highlightMods.value) res.push("highlightMods");
@@ -159,47 +157,6 @@ export default class ChatMessage extends Vue {
 			}
 		}
 		return res;
-	}
-
-	/**
-	 * Gets text message with parsed emotes
-	 */
-	public get text():string {
-		let result:string;
-		const mess = this.messageData as IRCEventDataList.Message;
-		let text = mess.message;
-		try {
-			let removeEmotes = !store.state.params.appearance.showEmotes.value;
-			if(this.automod) {
-				result = text;
-				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
-			}else{
-				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing perfromances.
-				const customParsing = mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
-				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
-				result = "";
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-						url = url.replace(/1x$/gi, "3x");//BTTV format
-						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.emote+"</center>";
-						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-					}
-				}
-			}
-		}catch(error) {
-			console.log(error);
-			console.log(mess);
-			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		}
-		
-		return ": "+result;
 	}
 
 	/**
@@ -288,6 +245,13 @@ export default class ChatMessage extends Vue {
 			}
 			this.automodReasons = textReasons.join(", ");
 		}
+			
+		this.text = this.parseText();
+		this.hasMention = store.state.params.appearance.highlightMentions.value
+			&& store.state.user.login != null
+			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
+			console.log(this.text);
+		
 	}
 
 	/**
@@ -303,6 +267,52 @@ export default class ChatMessage extends Vue {
 			//If the message was allowed, twitch will send it back, no need to keep it.
 			store.dispatch("delChatMessage", message.tags.id);
 		}
+	}
+
+	/**
+	 * Gets text message with parsed emotes
+	 */
+	public parseText():string {
+		let result:string;
+		const doHighlight = store.state.params.appearance.highlightMentions.value;
+		const highlightLogin = store.state.user.login;
+		const mess = this.messageData as IRCEventDataList.Message;
+		let text = mess.message;
+		try {
+			let removeEmotes = !store.state.params.appearance.showEmotes.value;
+			if(this.automod) {
+				result = text;
+				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
+			}else{
+				//Allow custom parsing of emotes only if it's a message of ours
+				//to avoid killing perfromances.
+				const customParsing = mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
+				result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						if(doHighlight) {
+							v.value = v.value.replace(new RegExp(highlightLogin, "gi"), "<strong>$&</strong>");
+						}
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.emote+"</center>";
+						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+					}
+				}
+			}
+		}catch(error) {
+			console.log(error);
+			console.log(mess);
+			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		}
+		
+		return ": "+result;
 	}
 }
 </script>
