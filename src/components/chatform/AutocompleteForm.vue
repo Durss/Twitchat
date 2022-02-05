@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import store from '@/store';
+import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -111,15 +112,39 @@ export default class AutocompleteForm extends Vue {
 		let res:ListItem[] = [];
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
+			const usersDone:{[key:string]:boolean} = {};
+			//Search in 100 last
+			for (let i = 0; i < Math.min(100, store.state.chatMessages.length); i++) {
+				const m = store.state.chatMessages[i] as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Notice;
+				if(m.type == "message" || m.type == "highlight") {
+					const userName = m.tags['display-name'];
+					const userNameLow = userName?.toLowerCase();
+					if(userNameLow && usersDone[userNameLow] !== true) {
+						if(userNameLow.indexOf(s) == 0) {
+							usersDone[userNameLow] = true;
+							res.push({
+								type:"user",
+								label:userName as string,
+								id:userName as string,
+							});
+						}
+					}
+				}
+			}
+
 			const users = store.state.onlineUsers as string[];
 			for (let j = 0; j < users.length; j++) {
-				const u = users[j];
-				if(u.toLowerCase().indexOf(s) > -1) {
-					res.push({
-						type:"user",
-						label:u,
-						id:u,
-					});
+				const userName = users[j];
+				const userNameLow = userName?.toLowerCase();
+				if(userNameLow && usersDone[userNameLow] !== true) {
+					if(userName.toLowerCase().indexOf(s) == 0) {
+						usersDone[userNameLow] = true;
+						res.push({
+							type:"user",
+							label:userName,
+							id:userName,
+						});
+					}
 				}
 			}
 

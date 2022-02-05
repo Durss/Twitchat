@@ -99,8 +99,9 @@ export default class ChatForm extends Vue {
 			let carretPos = input.selectionStart as number | 0;
 			for (let i = carretPos-1; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
+				const offset = currentChar == ":"? 1 : 0;
 				if(currentChar == ":" || ((/\s/gi.test(currentChar) || i == 0) && this.autoCompleteSearch)) {
-					this.autoCompleteSearch = newVal.substring(i+1, carretPos);
+					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
 				}
 				if(/\s/gi.test(currentChar)) {
@@ -186,12 +187,10 @@ export default class ChatForm extends Vue {
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = localMessage.charAt(i);
 				if(currentChar == ":" || /\s/gi.test(currentChar) || i == 0) {
-					console.log(i, currentChar);
 					const offset = currentChar == ":"? 1 : 0;
 					const prefix = localMessage.substring(0, i-offset);
 					const suffix = localMessage.substring(i+1+this.autoCompleteSearch.length);
 					localMessage = prefix + " " + item + suffix;
-					console.log(localMessage);
 					carretPos = prefix.length + item.length + 1;
 					break;
 				}
@@ -226,10 +225,8 @@ export default class ChatForm extends Vue {
 		}
 		const len = carretPos - i;
 		if(len > 2) {
-			console.log("SEARCH : ",this.message.substring(i+1, carretPos));
 			this.autoCompleteSearch = this.message.substring(i+1, carretPos);
 		}
-		console.log("OKOKOKOK");
 	}
 
 }
