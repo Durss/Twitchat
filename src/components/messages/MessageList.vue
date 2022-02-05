@@ -193,7 +193,7 @@ export default class MessageList extends Vue {
 	}
 
 	public onHoverList():void {
-		if(this.lightMode) return;
+		if(this.lightMode || !store.state.params.features.lockAutoScroll.value) return;
 		this.lockScroll = true;
 	}
 
@@ -265,7 +265,7 @@ export default class MessageList extends Vue {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const h = (this.$el as HTMLDivElement).offsetHeight;
 			const maxScroll = (el.scrollHeight - h);
-			console.log(maxScroll, h);
+			
 			if(maxScroll < 0) {
 				this.showNextPendingMessage();
 				return;
@@ -512,8 +512,7 @@ export default class MessageList extends Vue {
 
 	:deep(.time) {
 		color: fade(#ffffff, 75%);
-		font-size: 13px;
-		margin-right: 5px;
+		font-size: 11px;
 		vertical-align: middle;
 		width: 36px;
 		display: inline-block;

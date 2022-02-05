@@ -67,6 +67,7 @@ export default createStore({
 				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202},
 				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203},
 				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204},
+				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205},
 			},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
