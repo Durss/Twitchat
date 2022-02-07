@@ -12,6 +12,7 @@
 </template>
 
 <script lang="ts">
+import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -38,8 +39,16 @@ export default class RaidState extends Vue {
 		}, 250);
 	}
 
+	public unmounted():void {
+		clearInterval(this.timerInterval);
+	}
+
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
+		if(seconds <= 0) {
+			store.dispatch("setRaiding", "");
+			return;
+		}
 		this.timeLeft = Utils.formatDuration(seconds);
 	}
 
