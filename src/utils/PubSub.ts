@@ -2,6 +2,7 @@ import store from "@/store";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
+import Utils from "./Utils";
 
 /**
 * Created : 13/01/2022 
@@ -63,7 +64,7 @@ export default class PubSub {
 			const message = JSON.parse(e.data) as {type:string, data:{message:string, topic:string}};
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
-				this.parseEvent(message.type, data, message.data.topic);
+				this.parseEvent(data, message.data.topic);
 			// }else{
 			// 	console.log(event);
 			}
@@ -85,7 +86,20 @@ export default class PubSub {
 		this.socket.onerror = (error) => {
 			console.log(error);
 		};
+	}
 
+	public async simulateHypeTrain():Promise<void> {
+		this.parseEvent(PubsubJSON.HypeTrainStart);
+		Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.HypeTrainProgress);
+		this.parseEvent(PubsubJSON.HypeTrainConductorUpdate);
+		Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.HypeTrainProgress);
+		this.parseEvent(PubsubJSON.HypeTrainLevelUp);
+		Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.HypeTrainComplete);
+		Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.HypeTrainExpire);
 	}
 	
 	
@@ -125,10 +139,30 @@ export default class PubSub {
 		this.send(json);
 	}
 
-	private parseEvent(messageType:string, data:{type:string, data:unknown}, topic:string):void {
+	private parseEvent(data:{type:string, data:unknown}, topic?:string):void {
 		if(topic == "following."+store.state.user.user_id) {
 			const localObj = (data as unknown) as PubSubTypes.Following;
 			this.followingEvent(localObj);
+
+
+			
+		}else if(data.type == "hype-train-start") {
+			this.hypeTrainStart(data.data as  PubSubTypes.HypeTrainStart);
+
+
+			
+		}else if(data.type == "hype-train-progression") {
+			this.hypeTrainProgress(data.data as  PubSubTypes.HypeTrainProgress);
+
+
+			
+		}else if(data.type == "hype-train-level-up") {
+			this.hypeTrainLevelUp(data.data as  PubSubTypes.HypeTrainLevelUp);
+
+
+			
+		}else if(data.type == "hype-train-end") {
+			this.hypeTrainEnd(data.data as  PubSubTypes.HypeTrainEnd);
 
 
 			
@@ -349,10 +383,12 @@ export default class PubSub {
 			ended_at: localObj.event.ended_at,
 			locked_at: localObj.event.locked_at,
 		}
-		console.log(prediction);
 		store.dispatch("setPredictions", [prediction])
 	}
 
+	/**
+	 * Called when having a new follower
+	 */
 	private followingEvent(data:PubSubTypes.Following):void {
 		const message:IRCEventDataList.Highlight = {
 			channel: IRCClient.instance.channel,
@@ -366,6 +402,39 @@ export default class PubSub {
 		}
 		IRCClient.instance.addHighlight(message);
 	}
+
+	/**
+	 * Called when a hype train starts
+	 * @param data 
+	 */
+	private hypeTrainStart(data:PubSubTypes.HypeTrainStart):void {
+		store.dispatch("setHypeTrain", data);
+	}
+	
+	/**
+	 * Called when a hype train is progressing (new sub/bits)
+	 * @param data 
+	 */
+	private hypeTrainProgress(data:PubSubTypes.HypeTrainProgress):void {
+		store.dispatch("setHypeTrainProgress", data);
+	}
+	
+	/**
+	 * Called when a hype train levels up
+	 * @param data 
+	 */
+	private hypeTrainLevelUp(data:PubSubTypes.HypeTrainLevelUp):void {
+		store.dispatch("setHypeTrainLevel", data);
+	}
+	
+	/**
+	 * Called when a hype train completes or expires
+	 * @param data 
+	 */
+	private hypeTrainEnd(data:PubSubTypes.HypeTrainEnd):void {
+		store.dispatch("setHypeTrainEnd", data);
+	}
+	
 }
 
 export namespace PubSubTypes {
@@ -376,11 +445,11 @@ export namespace PubSubTypes {
 	}
 
 	export interface AutomodData {
-        content_classification: {
+		content_classification: {
 			category: string;
 			level: number;
 		};
-        message: {
+		message: {
 			content: {
 				text: string;
 				fragments: {
@@ -403,10 +472,10 @@ export namespace PubSubTypes {
 			};
 			sent_at: string;
 		};
-        reason_code: string;
-        resolver_id: string;
-        resolver_login: string;
-        status: string;
+		reason_code: string;
+		resolver_id: string;
+		resolver_login: string;
+		status: string;
 	}
 	
 	export interface ModerationData {
@@ -491,8 +560,8 @@ export namespace PubSubTypes {
 	}
 
 	export interface RewardData {
-        timestamp: string;
-        redemption: {
+		timestamp: string;
+		redemption: {
 			id: string;
 			user: {
 				id: string;
@@ -528,9 +597,9 @@ export namespace PubSubTypes {
 		};
 	}
 
-    export interface PredictionData {
-        timestamp: string;
-        event: {
+	export interface PredictionData {
+		timestamp: string;
+		event: {
 			id: string;
 			channel_id: string;
 			created_at: string;
@@ -576,32 +645,205 @@ export namespace PubSubTypes {
 			title: string;
 			winning_outcome_id?: string;
 		};
-    }
+	}
 
-    interface Image {
-        url_1x: string;
-        url_2x: string;
-        url_4x: string;
-    }
+	interface Image {
+		url_1x: string;
+		url_2x: string;
+		url_4x: string;
+	}
 
-    interface DefaultImage {
-        url_1x: string;
-        url_2x: string;
-        url_4x: string;
-    }
+	interface DefaultImage {
+		url_1x: string;
+		url_2x: string;
+		url_4x: string;
+	}
 
-    interface MaxPerStream {
-        is_enabled: boolean;
-        max_per_stream: number;
-    }
+	interface MaxPerStream {
+		is_enabled: boolean;
+		max_per_stream: number;
+	}
 
-    interface MaxPerUserPerStream {
-        is_enabled: boolean;
-        max_per_user_per_stream: number;
-    }
+	interface MaxPerUserPerStream {
+		is_enabled: boolean;
+		max_per_user_per_stream: number;
+	}
 
-    interface GlobalCooldown {
-        is_enabled: boolean;
-        global_cooldown_seconds: number;
-    }
+	interface GlobalCooldown {
+		is_enabled: boolean;
+		global_cooldown_seconds: number;
+	}
+
+	export interface HypeTrainStart {
+		channel_id: string;
+		id: string;
+		started_at: number;
+		expires_at: number;
+		updated_at: number;
+		ended_at?: number;
+		ending_reason?: string;
+		config: {
+			channel_id: string;
+			is_enabled: boolean;
+			is_whitelisted: boolean;
+			kickoff: {
+				num_of_events: number;
+				min_points: number;
+				duration: number;
+			};
+			cooldown_duration: number;
+			level_duration: number;
+			difficulty: string;
+			reward_end_date?: number;
+			participation_conversion_rates: {
+				"BITS.CHEER": number;
+				"BITS.EXTENSION": number;
+				"BITS.POLL": number;
+				"SUBS.TIER_1_GIFTED_SUB": number;
+				"SUBS.TIER_1_SUB": number;
+				"SUBS.TIER_2_GIFTED_SUB": number;
+				"SUBS.TIER_2_SUB": number;
+				"SUBS.TIER_3_GIFTED_SUB": number;
+				"SUBS.TIER_3_SUB": number;
+			};
+			notification_thresholds: {
+				"BITS.CHEER": number;
+				"BITS.EXTENSION": number;
+				"BITS.POLL": number;
+				"SUBS.TIER_1_GIFTED_SUB": number;
+				"SUBS.TIER_1_SUB": number;
+				"SUBS.TIER_2_GIFTED_SUB": number;
+				"SUBS.TIER_2_SUB": number;
+				"SUBS.TIER_3_GIFTED_SUB": number;
+				"SUBS.TIER_3_SUB": number;
+			};
+			difficulty_settings: {
+				MEDIUM: {
+					value: number;
+					goal: number;
+					rewards: {
+						type: string;
+						id: string;
+						group_id: string;
+						reward_level: number;
+						set_id: string;
+						token: string;
+					}[];
+				}[];
+			};
+			conductor_rewards: {
+				BITS: {
+					
+					CURRENT: {
+						type: string;
+						id: string;
+						group_id: string;
+						reward_level: number;
+						badge_id: string;
+						image_url: string;
+					}[];
+					FORMER: {
+						type: string;
+						id: string;
+						group_id: string;
+						reward_level: number;
+						badge_id: string;
+						image_url: string;
+					}[];
+				};
+				SUBS: {
+					CURRENT: {
+						type: string;
+						id: string;
+						group_id: string;
+						reward_level: number;
+						badge_id: string;
+						image_url: string;
+					}[];
+					FORMER: {
+						type: string;
+						id: string;
+						group_id: string;
+						reward_level: number;
+						badge_id: string;
+						image_url: string;
+					}[];
+				};
+			};
+			callout_emote_id: string;
+			callout_emote_token: string;
+			theme_color: string;
+			has_conductor_badges: boolean;
+		};
+		participations: {
+			"SUBS.TIER_1_GIFTED_SUB": number;
+			"SUBS.TIER_1_SUB": number;
+			"SUBS.TIER_3_SUB": number;
+		};
+		conductors: unknown;
+		progress: HypeProgressInfo;
+	}
+
+	export interface HypeTrainProgress {
+		user_id: string;
+		user_login: string;
+		user_display_name: string;
+		sequence_id: number;
+		action: string;
+		source: string;
+		quantity: number;
+		progress: HypeProgressInfo;
+	}
+
+	export interface HypeTrainConductorUpdate {
+		source: string;
+		user: {
+			id: string;
+			login: string;
+			display_name: string;
+			profile_image_url: string;
+		};
+		participations: {
+			"BITS.CHEER": number;
+			"SUBS.TIER_1_SUB": number;
+		};
+	}
+
+	export interface HypeTrainLevelUp {
+		time_to_expire: number;
+		progress: HypeProgressInfo;
+	}
+	
+	export interface HypeTrainEnd {
+		ended_at: number;
+		ending_reason: "COMPLETED" | "EXPIRED";
+	}
+	
+	interface HypeProgressInfo {
+		level: {
+			value: number;
+			goal: number;
+			rewards: {
+				type: string;
+				id: string;
+				group_id: string;
+				reward_level: number;
+				set_id: string;
+				token: string;
+			}[]
+		};
+		value: number;
+		goal: number;
+		total: number;
+		remaining_seconds: number;
+	}
+}
+
+namespace PubsubJSON {
+	export const HypeTrainStart = {"type":"hype-train-start","data":{"channel_id":"1234","id":"4375b14c-acae-4ce4-9ef1-800482bb6022","started_at":1603127828000,"expires_at":1603128128000,"updated_at":1603127828000,"ended_at":null,"ending_reason":null,"config":{"channel_id":"1234","is_enabled":true,"is_whitelisted":true,"kickoff":{"num_of_events":4,"min_points":100,"duration":300000000000},"cooldown_duration":7200000000000,"level_duration":300000000000,"difficulty":"MEDIUM","reward_end_date":null,"participation_conversion_rates":{"BITS.CHEER":1,"BITS.EXTENSION":1,"BITS.POLL":1,"SUBS.TIER_1_GIFTED_SUB":500,"SUBS.TIER_1_SUB":500,"SUBS.TIER_2_GIFTED_SUB":1000,"SUBS.TIER_2_SUB":1000,"SUBS.TIER_3_GIFTED_SUB":2500,"SUBS.TIER_3_SUB":2500},"notification_thresholds":{"BITS.CHEER":1000,"BITS.EXTENSION":1000,"BITS.POLL":1000,"SUBS.TIER_1_GIFTED_SUB":5,"SUBS.TIER_1_SUB":5,"SUBS.TIER_2_GIFTED_SUB":5,"SUBS.TIER_2_SUB":5,"SUBS.TIER_3_GIFTED_SUB":5,"SUBS.TIER_3_SUB":5},"difficulty_settings":{"MEDIUM":[{"value":1,"goal":2000,"rewards":[{"type":"EMOTE","id":"301739462","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeChimp"},{"type":"EMOTE","id":"301739463","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeGhost"},{"type":"EMOTE","id":"301739465","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeChest"},{"type":"EMOTE","id":"301739466","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFrog"},{"type":"EMOTE","id":"301739468","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeCherry"}]},{"value":2,"goal":4500,"rewards":[{"type":"EMOTE","id":"301739479","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSideeye"},{"type":"EMOTE","id":"301739472","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBrain"},{"type":"EMOTE","id":"301739475","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeZap"},{"type":"EMOTE","id":"301739476","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeShip"},{"type":"EMOTE","id":"301739478","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSign"}]},{"value":3,"goal":7600,"rewards":[{"type":"EMOTE","id":"301739481","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeYikes"},{"type":"EMOTE","id":"301739482","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeRacer"},{"type":"EMOTE","id":"301739483","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeCar"},{"type":"EMOTE","id":"301739484","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFirst"},{"type":"EMOTE","id":"301739485","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeTrophy"}]},{"value":4,"goal":11500,"rewards":[{"type":"EMOTE","id":"301739489","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBlock"},{"type":"EMOTE","id":"301739490","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeDaze"},{"type":"EMOTE","id":"301739491","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBounce"},{"type":"EMOTE","id":"301739492","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeJewel"},{"type":"EMOTE","id":"301739493","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBlob"}]},{"value":5,"goal":17000,"rewards":[{"type":"EMOTE","id":"301739495","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeLove"},{"type":"EMOTE","id":"301739496","group_id":"","reward_level":0,"set_id":"301040478","token":"HypePunk"},{"type":"EMOTE","id":"301739497","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeKO"},{"type":"EMOTE","id":"301739499","group_id":"","reward_level":0,"set_id":"301040478","token":"HypePunch"},{"type":"EMOTE","id":"301739501","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFire"}]}]},"conductor_rewards":{"BITS":{"CURRENT":[{"type":"BADGE","id":"1","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsxOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2"}],"FORMER":[{"type":"BADGE","id":"2","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsyOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2"}]},"SUBS":{"CURRENT":[{"type":"BADGE","id":"1","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsxOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2"}],"FORMER":[{"type":"BADGE","id":"2","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsyOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2"}]}},"callout_emote_id":"300640072","callout_emote_token":"PogChamp","theme_color":"#a970ff","has_conductor_badges":true},"participations":{"SUBS.TIER_1_GIFTED_SUB":2,"SUBS.TIER_1_SUB":1,"SUBS.TIER_3_SUB":1},"conductors":{},"progress":{"level":{"value":2,"goal":4500,"rewards":[{"type":"EMOTE","id":"301739479","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSideeye"},{"type":"EMOTE","id":"301739472","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBrain"},{"type":"EMOTE","id":"301739475","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeZap"},{"type":"EMOTE","id":"301739476","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeShip"},{"type":"EMOTE","id":"301739478","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSign"}]},"value":2000,"goal":2500,"total":4000,"remaining_seconds":299}}};
+	export const HypeTrainConductorUpdate = {"type":"hype-train-conductor-update","data":{"source":"SUBS","user":{"id":"1234","login":"tmi","display_name":"TMI","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/deadbeef-profile_image-50x50.png"},"participations":{"BITS.CHEER":101,"SUBS.TIER_1_SUB":1}}};
+	export const HypeTrainProgress = {"type":"hype-train-progression","data":{"user_id":"52309415","user_login":"tmi","user_display_name":"TMI","sequence_id":4101,"action":"TIER_1_GIFTED_SUB","source":"BITS","quantity":101,"progress":{"level":{"value":2,"goal":4500,"rewards":[{"type":"EMOTE","id":"301739479","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSideeye"},{"type":"EMOTE","id":"301739472","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBrain"},{"type":"EMOTE","id":"301739475","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeZap"},{"type":"EMOTE","id":"301739476","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeShip"},{"type":"EMOTE","id":"301739478","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSign"}]},"value":2101,"goal":2500,"total":4101,"remaining_seconds":252}}};
+	export const HypeTrainLevelUp = {"type":"hype-train-level-up","data":{"time_to_expire":1603128256000,"progress":{"level":{"value":3,"goal":7600,"rewards":[{"type":"EMOTE","id":"301739481","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeYikes"},{"type":"EMOTE","id":"301739482","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeRacer"},{"type":"EMOTE","id":"301739483","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeCar"},{"type":"EMOTE","id":"301739484","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFirst"},{"type":"EMOTE","id":"301739485","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeTrophy"}]},"value":101,"goal":3100,"total":4601,"remaining_seconds":299}}};
+	export const HypeTrainComplete = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"COMPLETED"}};
+	export const HypeTrainExpire = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"EXPIRE"}};
 }

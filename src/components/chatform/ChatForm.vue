@@ -25,9 +25,10 @@
 					v-if="cypherConfigured"
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
+				<Button :icon="require('@/assets/icons/debug.svg')" bounce @click="showDevMenu = true" v-if="$store.state.devmode" />
 			</form>
 
-			<AutocompleteForm class="emotesLive"
+			<AutocompleteForm class="contentWindows emotesLive"
 				:search="autoCompleteSearch"
 				v-if="autoCompleteSearch.length > 1"
 				:emotes="autoCompleteEmotes"
@@ -35,7 +36,7 @@
 				@close="autoCompleteSearch = ''"
 				@select="onSelectEmote" />
 
-			<CommandHelper class="actions"
+			<CommandHelper class="contentWindows actions"
 				v-if="showCommands"
 				@poll="$emit('poll')"
 				@pred="$emit('pred')"
@@ -43,18 +44,23 @@
 				@raffle="$emit('raffle')"
 				@close="showCommands = false" />
 
-			<EmoteSelector class="emotes"
+			<EmoteSelector class="contentWindows emotes"
 				v-if="showEmotes"
 				@select="onSelectEmote"
 				@close="showEmotes = false" />
 
-			<RewardsList class="emotes"
+			<!-- Actually not used, what the API allows us to do is useless -->
+			<RewardsList class="contentWindows rewards"
 				v-if="showRewards"
 				@close="showRewards = false" />
+
+			<DevmodeMenu class="contentWindows devmode"
+				v-if="showDevMenu"
+				@close="showDevMenu = false" />
 			
 		</div>
 
-		<ChannelNotifications class="notifications" />
+		<ChannelNotifications class="contentWindows notifications" />
 	</div>
 </template>
 
@@ -70,6 +76,7 @@ import ChannelNotifications from '../channelnotifications/ChannelNotifications.v
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
 import CommandHelper from './CommandHelper.vue';
+import DevmodeMenu from './DevmodeMenu.vue';
 import EmoteSelector from './EmoteSelector.vue';
 import RewardsList from './RewardsList.vue';
 
@@ -78,6 +85,7 @@ import RewardsList from './RewardsList.vue';
 	components:{
 		Button,
 		ParamItem,
+		DevmodeMenu,
 		RewardsList,
 		CommandHelper,
 		EmoteSelector,
@@ -93,6 +101,7 @@ export default class ChatForm extends Vue {
 	public error:boolean = false;
 	public showEmotes:boolean = false;
 	public showRewards:boolean = false;
+	public showDevMenu:boolean = false;
 	public showCommands:boolean = false;
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
@@ -143,6 +152,11 @@ export default class ChatForm extends Vue {
 
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
+		if(cmd == "/devmode") {
+			this.message = "";
+			store.dispatch("toggleDevMode");
+		}else
+
 		if(cmd == "/poll") {
 			//Open poll form
 			this.$emit("poll");
@@ -336,7 +350,7 @@ export default class ChatForm extends Vue {
 		}
 	}
 
-	.actions, .notifications, .emotes, .emotesLive {
+	.contentWindows {
 		position: absolute;
 		top: 0;
 		left: 0;

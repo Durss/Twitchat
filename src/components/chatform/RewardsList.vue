@@ -22,7 +22,6 @@
 
 <script lang="ts">
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -65,7 +64,7 @@ export default class RewardsList extends Vue {
 		this.rewards.sort((a, b) => a.cost - b.cost);
 		this.rewards.forEach(v=> {
 			//Watch for "enabled" state change
-			watch(() => v, (r) => {
+			watch(() => v, () => {
 				TwitchUtils.setRewardEnabled(v.id, v.is_enabled);
 			}, { deep: true });
 		})

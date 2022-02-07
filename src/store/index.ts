@@ -15,6 +15,7 @@ export default createStore({
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
+		devmode: false,
 		oAuthToken: {},
 		alert: "",
 		tooltip: "",
@@ -366,6 +367,11 @@ export default createStore({
 
 		setViewersList(state, users:string[]) { state.onlineUsers = users as never[] },
 
+		toggleDevMode(state) {
+			state.devmode = !state.devmode;
+			IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
+		},
+
 	},
 
 
@@ -437,10 +443,12 @@ export default createStore({
 					})
 					TwitchUtils.getPolls();
 					TwitchUtils.getPredictions();
-					setInterval(()=> {
-						TwitchUtils.getPolls();
-						TwitchUtils.getPredictions();
-					}, 1*60*1000);
+					//This was a way to check if a poll or prediction was active
+					//before switching to pubsub events.
+					// setInterval(()=> {
+					// 	TwitchUtils.getPolls();
+					// 	TwitchUtils.getPredictions();
+					// }, 1*60*1000);
 				}catch(error) {
 					console.log(error);
 					state.authenticated = false;
@@ -594,6 +602,8 @@ export default createStore({
 		setRaiding({commit}, userName:string) { commit("setRaiding", userName); },
 
 		setViewersList({commit}, users:string[]) { commit("setViewersList", users); },
+
+		toggleDevMode({commit}) { commit("toggleDevMode"); },
 	},
 	modules: {
 	}
@@ -619,4 +629,12 @@ export interface RaffleData {
 	maxUsers:number;
 	created_at:number;
 	users:ChatUserstate[];
+}
+
+export interface HyperTrainState {
+	level:number;
+	currentValue:number;
+	goal:number;
+	started_at:number;
+	timeLeft:number;
 }

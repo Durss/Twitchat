@@ -30,7 +30,7 @@ export default class RaidState extends Vue {
 
 	private timerDuration:number = 90000;
 	private timerStart:number = 0;
-	private timerInterval:any;
+	private timerInterval!:number;
 
 	public mounted():void {
 		this.timerStart = Date.now();

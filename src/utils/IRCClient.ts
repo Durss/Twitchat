@@ -4,7 +4,7 @@ import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
-import IRCEvent, { IRCEventDataList } from "./IRCEvent";
+import IRCEvent, { IRCEventData, IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
@@ -94,7 +94,7 @@ export default class IRCClient extends EventDispatcher {
 				}
 
 				if(this.fakeEvents) {
-					this.sendFakeEvents();
+					this.sendFakeEvent();
 				}
 			})();
 			
@@ -405,6 +405,34 @@ export default class IRCClient extends EventDispatcher {
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
 	}
+
+	/**
+	 * Sends a fake event by its code (see fakeEvents.json)
+	 * @param code
+	 */
+	public async sendFakeEvent(code?:string):Promise<void> {
+		const fakeEventsRes = await fetch(Config.API_PATH+"/fakeevents");
+		const fakeEventsJSON = await fakeEventsRes.json();
+		for (const key in fakeEventsJSON) {
+			if(code && key != code) continue;
+			const json = fakeEventsJSON[key];
+			if(json.type == "notice") {
+				(json as IRCEventDataList.Notice).tags.id = this.getFakeGuid();
+				(json as IRCEventDataList.Notice).tags["tmi-sent-ts"] = Date.now().toString();
+				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, json));
+			}
+			if(json.type == "message") {
+				(json as IRCEventDataList.Message).tags.id = this.getFakeGuid();
+				(json as IRCEventDataList.Message).tags["tmi-sent-ts"] = Date.now().toString();
+				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
+			}
+			if(json.type == "highlight") {
+				(json as IRCEventDataList.Highlight).tags.id = this.getFakeGuid();
+				(json as IRCEventDataList.Highlight).tags["tmi-sent-ts"] = Date.now().toString();
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
+			}
+		}
+	}
 	
 	
 	
@@ -424,24 +452,6 @@ export default class IRCClient extends EventDispatcher {
 		let suffix = (this.increment++).toString(16);
 		while(suffix.length < 12) suffix = "0" + suffix;
 		return "00000000-0000-0000-0000-"+suffix;
-	}
-
-	private async sendFakeEvents():Promise<void> {
-		const fakeEventsRes = await fetch(Config.API_PATH+"/fakeevents");
-		const fakeEventsJSON = await fakeEventsRes.json();
-		for (const key in fakeEventsJSON) {
-			const json = fakeEventsJSON[key];
-			if(json.type == "notice") {
-				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, json));
-			}
-			if(json.type == "message") {
-				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
-			}
-			if(json.type == "highlight") {
-				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
-			}
-			await Utils.promisedTimeout(100);
-		}
 	}
 }
 
