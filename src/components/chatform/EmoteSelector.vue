@@ -4,7 +4,8 @@
 			<img src="@/assets/loader/loader_white.svg" alt="loader">
 			<p>loading...</p>
 		</div>
-		<input type="text" v-model="filter" placeholder="search..." class="dark">
+
+		<input v-if="users.length > 0" type="text" v-model="filter" placeholder="search..." class="dark">
 
 		<div class="list" v-if="users.length > 0 && filter">
 			<div v-if="filter" class="item">
@@ -178,18 +179,12 @@ export default class EmoteSelector extends Vue {
 
 <style scoped lang="less">
 .emoteselector{
-	padding: 10px;
-	background-color: @mainColor_dark;
-	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-	border-radius: 10px;
+	.window();
 	width: min-content;
-	max-width: 100%;
-	display: flex;
-	flex-direction: column;
-	transform-origin: bottom right;
 	left: auto;
-	margin-left: auto;
 	right: 0;
+	margin-left: auto;
+	transform-origin: bottom right;
 
 	&>*:not(:last-child) {
 		margin-bottom: 5px;
@@ -226,7 +221,7 @@ export default class EmoteSelector extends Vue {
 				flex-direction: row;
 				align-items: center;
 				margin-bottom: 5px;
-				background-color: @mainColor_light;
+				background-color: @mainColor_normal;
 				border-radius: 20px;
 				.avatar {
 					height: 25px;
@@ -234,9 +229,9 @@ export default class EmoteSelector extends Vue {
 					margin-right: 10px;
 				}
 				.login {
-					color: @mainColor_dark;
+					color: @mainColor_light;
 					flex-grow: 1;
-					font-weight: bold;
+					font-size: 15px;
 				}
 			}
 			.emotes {

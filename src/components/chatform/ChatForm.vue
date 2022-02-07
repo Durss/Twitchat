@@ -4,6 +4,7 @@
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
 				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="showCommands = true" />
+				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="showRewards = true" /> -->
 			</div>
 
 			<form @submit.prevent="sendMessage()" class="inputForm">
@@ -19,7 +20,7 @@
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" />
 				<Button :icon="require('@/assets/icons/emote.svg')" @click="showEmotes = true;" bounce />
 				<Button
-					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'un':'')+'lock.svg')"
+					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
@@ -46,6 +47,10 @@
 				v-if="showEmotes"
 				@select="onSelectEmote"
 				@close="showEmotes = false" />
+
+			<RewardsList class="emotes"
+				v-if="showRewards"
+				@close="showRewards = false" />
 			
 		</div>
 
@@ -57,6 +62,7 @@
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
+import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -65,12 +71,14 @@ import ParamItem from '../params/ParamItem.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
 import CommandHelper from './CommandHelper.vue';
 import EmoteSelector from './EmoteSelector.vue';
+import RewardsList from './RewardsList.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ParamItem,
+		RewardsList,
 		CommandHelper,
 		EmoteSelector,
 		AutocompleteForm,
@@ -84,6 +92,7 @@ export default class ChatForm extends Vue {
 	public autoCompleteSearch:string = "";
 	public error:boolean = false;
 	public showEmotes:boolean = false;
+	public showRewards:boolean = false;
 	public showCommands:boolean = false;
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
@@ -97,6 +106,7 @@ export default class ChatForm extends Vue {
 	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
 
 	public mounted():void {
+		TwitchUtils.loadRewards();
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;

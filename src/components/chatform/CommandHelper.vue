@@ -135,15 +135,8 @@ export default class CommandHelper extends Vue {
 
 <style scoped lang="less">
 .commandhelper{
-	left: 30px;
-	padding: 10px;
-	background-color: @mainColor_dark;
-	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-	border-radius: 10px;
-	width: 250px;
-	display: flex;
-	flex-direction: column;
-	transform-origin: bottom left;
+	.window();
+	
 	&>*:not(:last-child) {
 		margin-bottom: 5px;
 	}

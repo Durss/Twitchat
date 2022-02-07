@@ -9,16 +9,19 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
+		small:{type:Boolean, default: false},
 		modelValue:{type:Boolean, default: false},
 	},
 	components:{},
 	emits: ['update:modelValue'],
 })
 export default class ToggleButton extends Vue {
+	public small!:boolean;
 	public modelValue!:boolean;
 
 	public get classes():string[] {
 		let res = ["togglebutton"];
+		if(this.small) res.push("small");
 		if(this.modelValue) res.push("selected");
 		return res;
 	}
@@ -45,6 +48,17 @@ export default class ToggleButton extends Vue {
 	&:hover {
 		border-color: @mainColor_normal_light;
 		background-color: @mainColor_normal_extralight;
+	}
+
+	&.small {
+		@size: 15px;
+		height: @size;
+		width: 30px;
+		min-width: 30px;
+		.circle {
+			width: @size - 4px;
+			height: @size - 4px;
+		}
 	}
 
 	&.selected {

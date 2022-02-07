@@ -15,6 +15,7 @@ export default class TwitchUtils {
 	public static badgesCache:{[key:string]:{[key:string]:TwitchTypes.BadgesSet}} = {};
 	public static cheermoteCache:{[key:string]:TwitchTypes.CheermoteSet[]} = {};
 	public static emoteCache:TwitchTypes.Emote[] = [];
+	public static rewardsCache:TwitchTypes.Reward[] = [];
 
 	public static get oAuthURL():string {
 		const path = router.resolve({name:"oauth"}).href;
@@ -585,11 +586,56 @@ export default class TwitchUtils {
 		//Sort them by name length DESC to make manual emote parsing easier.
 		//When sending a message on IRC, we don't get a clean callback
 		//message with parsed emotes (nor id, timestamp and other stuff)
-		//This means that every message from this interface must be parsed
-		//manually. Love it..
+		//This means that every message sent from this interface must be
+		//parsed manually. Love it..
 		emotes.sort((a,b)=> b.name.length - a.name.length );
 		store.dispatch("setEmotes", emotes);
 		return emotes;
+	}
+
+	/**
+	 * Get the rewards list
+	 */
+	public static async loadRewards():Promise<TwitchTypes.Reward[]> {
+		if(this.rewardsCache.length > 0) return this.rewardsCache;
+		const options = {
+			method:"GET",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		let rewards:TwitchTypes.Reward[] = [];
+		const res = await fetch(Config.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+store.state.user.user_id, options);
+		const json = await res.json();
+		if(res.status == 200) {
+			rewards = json.data;
+		}else{
+			throw(json);
+		}
+		this.rewardsCache = rewards;
+		return rewards;
+	}
+
+	/**
+	 * Lists all available rewards
+	 * 
+	 * @returns
+	 */
+	public static async setRewardEnabled(id:string, enabled:boolean):Promise<void> {
+		const headers = {
+			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+			'Client-Id': this.client_id,
+			"Content-Type": "application/json",
+		}
+		const res = await fetch(Config.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+store.state.user.user_id+"&id="+id, {
+			method:"PATCH",
+			headers,
+			// body:JSON.stringify({is_enabled:!enabled}),
+			body:JSON.stringify({is_paused:!enabled}),
+		})
+		return await res.json();
 	}
 
 }
@@ -809,5 +855,45 @@ export namespace TwitchTypes {
 		type:"text"|"emote";
 		emote?:string;
 		value:string;
+	}
+
+	export interface Reward {
+        broadcaster_name: string;
+        broadcaster_login: string;
+        broadcaster_id: string;
+        id: string;
+        image?: {
+			url_1x: string;
+			url_2x: string;
+			url_4x: string;
+		};
+        background_color: string;
+        is_enabled: boolean;
+        cost: number;
+        title: string;
+        prompt: string;
+        is_user_input_required: boolean;
+        max_per_stream_setting: {
+			is_enabled: boolean;
+			max_per_stream: number;
+		};
+        max_per_user_per_stream_setting: {
+			is_enabled: boolean;
+			max_per_user_per_stream: number;
+		};
+        global_cooldown_setting: {
+			is_enabled: boolean;
+			global_cooldown_seconds: number;
+		};
+        is_paused: boolean;
+        is_in_stock: boolean;
+        default_image: {
+			url_1x: string;
+			url_2x: string;
+			url_4x: string;
+		};
+        should_redemptions_skip_request_queue: boolean;
+        redemptions_redeemed_current_stream?: number;
+        cooldown_expires_at?: string;
 	}
 }

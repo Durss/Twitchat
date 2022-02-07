@@ -38,6 +38,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Create/Delete predictions
 - [x] Emote selector 
 - [x] BTTV emotes supported
+- [x] Message autocomplete nickname via "@", emotes via ":" or both via TAB key
 
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
@@ -46,7 +47,6 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [ ] Autocomplete commands
 - [ ] Show subs/cheers/raids/rewards/follows in a dedicated list
 - [ ] Show hype train events
-- [ ] Autocomplete nick names via TAB key
 <br>
 <br>
 <br>

@@ -43,12 +43,17 @@ export default class ParamsFilters extends Vue {
 		.subItem {
 			margin-left: auto;
 			margin-right: 0;
-			margin-top: 10px;
+			margin-top: 5px;
 			width: calc(100% - 40px);
-			:deep(.toggle)::before {
-				content: "⤷";
-				display: inline-block;
-				margin-right: 5px;
+			:deep(.toggle) {
+				&::before {
+					content: "⤷";
+					display: inline-block;
+					margin-right: 5px;
+				}
+				label {
+					font-size: .9em;
+				}
 			}
 		}
 	}
