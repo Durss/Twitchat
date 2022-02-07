@@ -128,7 +128,15 @@ export default class ChatHighlight extends Vue {
 				res = localObj.redemption.user.display_name;
 				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
 				res += " <span class='small'>("+localObj.redemption.reward.cost+" pts)</span>";
-				this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
+				if(this.messageData.reward?.redemption.reward.image) {
+					this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
+				}else{
+					this.icon = this.messageData.reward?.redemption.reward.default_image.url_2x as string;
+				}
+				if(this.messageData.reward?.redemption.reward.prompt
+				&& store.state.params.filters.showRewardsInfos.value) {
+					this.messageText = this.messageData.reward?.redemption.reward.prompt;
+				}
 				break;
 			}
 		}

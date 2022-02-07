@@ -56,6 +56,7 @@ export default createStore({
 				hideUsers: {type:"list", value:"", label:"Hide custom users (coma seperated)", id:103},
 				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105},
+				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110},
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106},
 				showCheers: {type:"toggle", value:true, label:"Show bit alerts", id:107},
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108},
@@ -530,6 +531,20 @@ export default createStore({
 			});
 			
 			state.initComplete = true;
+
+			const uniqueIdsCheck:{[key:number]:boolean} = {};
+			for (const cat in state.params) {
+				//eslint-disable-next-line
+				const values = (state.params as any)[cat];
+				for (const key in values) {
+					const p = values[key] as ParameterData;
+					if(uniqueIdsCheck[p.id as number] === true) {
+						state.alert = "Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"";
+						break;
+					}
+					uniqueIdsCheck[p.id as number] = true;
+				}
+			}
 		},
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
