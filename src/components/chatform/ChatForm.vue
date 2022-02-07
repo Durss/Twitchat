@@ -29,6 +29,8 @@
 			<AutocompleteForm class="emotesLive"
 				:search="autoCompleteSearch"
 				v-if="autoCompleteSearch.length > 1"
+				:emotes="autoCompleteEmotes"
+				:users="autoCompleteUsers"
 				@close="autoCompleteSearch = ''"
 				@select="onSelectEmote" />
 
@@ -55,15 +57,14 @@
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
-import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChannelNotifications from '../channelnotifications/ChannelNotifications.vue';
 import ParamItem from '../params/ParamItem.vue';
+import AutocompleteForm from './AutocompleteForm.vue';
 import CommandHelper from './CommandHelper.vue';
 import EmoteSelector from './EmoteSelector.vue';
-import AutocompleteForm from './AutocompleteForm.vue';
 
 @Options({
 	props:{},
@@ -84,6 +85,8 @@ export default class ChatForm extends Vue {
 	public error:boolean = false;
 	public showEmotes:boolean = false;
 	public showCommands:boolean = false;
+	public autoCompleteEmotes:boolean = false;
+	public autoCompleteUsers:boolean = false;
 
 	public get classes():string[] {
 		let res = ["chatform"];
@@ -97,15 +100,20 @@ export default class ChatForm extends Vue {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
-			for (let i = carretPos-1; i >= 0; i--) {
+			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
-				const offset = currentChar == ":"? 1 : 0;
-				if(currentChar == ":" || ((/\s/gi.test(currentChar) || i == 0) && this.autoCompleteSearch)) {
-					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
-					break;
-				}
+				const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
 				if(/\s/gi.test(currentChar)) {
 					this.autoCompleteSearch = "";
+					break;
+				}
+
+				if(currentChar == ":" || 
+				currentChar == "@" || 
+				(i == 0 && this.autoCompleteSearch)) {
+					this.autoCompleteUsers = currentChar == "@";
+					this.autoCompleteEmotes = currentChar == ":";
+					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
 				}
 			}
@@ -186,11 +194,14 @@ export default class ChatForm extends Vue {
 		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = localMessage.charAt(i);
-				if(currentChar == ":" || /\s/gi.test(currentChar) || i == 0) {
-					const offset = currentChar == ":"? 1 : 0;
-					const prefix = localMessage.substring(0, i-offset);
+				if(currentChar == ":" || 
+				currentChar == "@" ||
+				/\s/gi.test(currentChar) || i == 0) {
+					const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
+					let prefix = localMessage.substring(0, i-offset);
 					const suffix = localMessage.substring(i+1+this.autoCompleteSearch.length);
-					localMessage = prefix + " " + item + suffix;
+					if(prefix) prefix += " ";
+					localMessage = prefix + item + suffix;
 					carretPos = prefix.length + item.length + 1;
 					break;
 				}
@@ -204,12 +215,18 @@ export default class ChatForm extends Vue {
 			carretPos += code.length;
 		}
 		
+		
 
 		this.message = localMessage;
 
 		await this.$nextTick();
 		
 		input.setSelectionRange(carretPos, carretPos, "forward");
+		//Force autocomplete close.
+		//Due to async rendering the watcher might detect search update before
+		//the selectionRange is effective wich may cause the autocomplete open
+		//Here we ensure it stays closed
+		this.autoCompleteSearch = "";
 	}
 
 	/**
@@ -225,6 +242,8 @@ export default class ChatForm extends Vue {
 		}
 		const len = carretPos - i;
 		if(len > 2) {
+			this.autoCompleteUsers = true;
+			this.autoCompleteEmotes = true;
 			this.autoCompleteSearch = this.message.substring(i+1, carretPos);
 		}
 	}

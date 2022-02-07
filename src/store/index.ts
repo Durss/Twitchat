@@ -36,17 +36,17 @@ export default createStore({
 		realHistorySize: 1000,
 		params: {
 			appearance: {
-				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in", id:1},
 				showEmotes: {type:"toggle", value:true, label:"Show emotes", id:2},
 				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3},
 				showBadges: {type:"toggle", value:true, label:"Show badges", id:4},
 				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5},
 				displayTime: {type:"toggle", value:false, label:"Display time", id:6},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message of a user (all time)", id:7},
-				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
+				highlightMentions: {type:"toggle", value:true, label:"Highlight messages i'm mentioned in", id:1},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11},
+				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
 			},
 			filters: {

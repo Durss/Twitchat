@@ -5,7 +5,7 @@
 		:key="i.id"
 		:ref="'item_'+i.id"
 		:class="getClasses(index, i)"
-		@click="$emit('select', i.label);">
+		@click="selectItem(i)">
 			<img
 				class="image"
 				loading="lazy" 
@@ -28,6 +28,8 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
+		emotes:Boolean,
+		users:Boolean,
 		search:String,
 	},
 	components:{},
@@ -40,6 +42,8 @@ import { Options, Vue } from 'vue-class-component';
 export default class AutocompleteForm extends Vue {
 	
 	public search!:string;
+	public emotes!:boolean;
+	public users!:boolean;
 
 	public selectedIndex:number = 0;
 	public filteredItems:ListItem[] = [];
@@ -68,6 +72,11 @@ export default class AutocompleteForm extends Vue {
 		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
+	public selectItem(item:ListItem):void {
+		const prefix = (item.type == "user")? "@": "";
+		this.$emit("select", prefix + item.label);
+	}
+
 	public onkeyDown(e:KeyboardEvent):void {
 		switch(e.key) {
 			case "Escape":
@@ -93,10 +102,11 @@ export default class AutocompleteForm extends Vue {
 				this.selectedIndex ++;
 				e.preventDefault();
 				break;
-			case "Enter":
-				this.$emit("select", this.filteredItems[this.selectedIndex].label);
+			case "Enter": {
+				this.selectItem(this.filteredItems[this.selectedIndex]);
 				e.preventDefault();
 				break;
+			}
 		}
 		
 		const len = this.filteredItems.length;
@@ -112,54 +122,59 @@ export default class AutocompleteForm extends Vue {
 		let res:ListItem[] = [];
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
-			const usersDone:{[key:string]:boolean} = {};
-			//Search in 100 last
-			for (let i = 0; i < Math.min(100, store.state.chatMessages.length); i++) {
-				const m = store.state.chatMessages[i] as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Notice;
-				if(m.type == "message" || m.type == "highlight") {
-					const userName = m.tags['display-name'];
+			if(this.users) {
+				const usersDone:{[key:string]:boolean} = {};
+				//Search in 100 last
+				for (let i = 0; i < Math.min(100, store.state.chatMessages.length); i++) {
+					const m = store.state.chatMessages[i] as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Notice;
+					if(m.type == "message" || m.type == "highlight") {
+						const userName = m.tags['display-name'];
+						const userNameLow = userName?.toLowerCase();
+						if(userNameLow && usersDone[userNameLow] !== true) {
+							if(userNameLow.indexOf(s) == 0) {
+								usersDone[userNameLow] = true;
+								res.push({
+									type:"user",
+									label:userName as string,
+									id:userName as string,
+								});
+							}
+						}
+					}
+				}
+	
+				const users = store.state.onlineUsers as string[];
+				for (let j = 0; j < users.length; j++) {
+					const userName = users[j];
 					const userNameLow = userName?.toLowerCase();
 					if(userNameLow && usersDone[userNameLow] !== true) {
-						if(userNameLow.indexOf(s) == 0) {
+						if(userName.toLowerCase().indexOf(s) == 0) {
 							usersDone[userNameLow] = true;
 							res.push({
 								type:"user",
-								label:userName as string,
-								id:userName as string,
+								label:userName,
+								id:userName,
 							});
 						}
 					}
 				}
 			}
 
-			const users = store.state.onlineUsers as string[];
-			for (let j = 0; j < users.length; j++) {
-				const userName = users[j];
-				const userNameLow = userName?.toLowerCase();
-				if(userNameLow && usersDone[userNameLow] !== true) {
-					if(userName.toLowerCase().indexOf(s) == 0) {
-						usersDone[userNameLow] = true;
+			if(this.emotes) {
+				const emotes = store.state.emotesCache;
+				for (let j = 0; j < emotes.length; j++) {
+					const e = emotes[j] as TwitchTypes.Emote;
+					if(e.name.toLowerCase().indexOf(s) > -1) {
 						res.push({
-							type:"user",
-							label:userName,
-							id:userName,
+							type:"emote",
+							label:e.name,
+							emote:e,
+							id:e.id,
 						});
 					}
 				}
 			}
 
-			const emotes = store.state.emotesCache;
-			for (let j = 0; j < emotes.length; j++) {
-				const e = emotes[j] as TwitchTypes.Emote;
-				if(e.name.toLowerCase().indexOf(s) > -1) {
-					res.push({
-						type:"emote",
-						label:e.name,
-						emote:e,
-						id:e.id,
-					});
-				}
-			}
 			this.filteredItems = res;
 		}
 		
