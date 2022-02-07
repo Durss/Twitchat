@@ -285,7 +285,6 @@ export default class NewUsers extends Vue {
 	transform: translateX(-50%);
 	max-height: 35vh;
 	width: 100%;
-	max-width: 600px;
 	margin: auto;
 	// background-color: #218bac;
 	background-color: darken(@mainColor_normal, 20%);

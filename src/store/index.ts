@@ -466,7 +466,7 @@ export default createStore({
 					//Check if within time frame and max users count isn't reached
 					if(ellapsed <= raffle.duration * 60000
 					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
-					&& !raffle.users.find(v=>v.user['user-id'] == message.tags['user-id'])) {
+					&& !raffle.users.find(v=>v['user-id'] == message.tags['user-id'])) {
 						console.log("enter raffle");
 						raffle.users.push(message.tags);
 					}
