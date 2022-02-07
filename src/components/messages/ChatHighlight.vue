@@ -91,14 +91,17 @@ export default class ChatHighlight extends Vue {
 				this.icon = require('@/assets/icons/follow.svg');
 				res = "<strong>"+this.messageData.username+"</strong> followed your channel!";
 				break;
+
 			case "raid":
 				this.icon = require('@/assets/icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
 				break;
+
 			case "bits":
 				res = "<strong>"+this.messageData.tags.username+"</strong> sent <strong>"+value+"</strong> bits";
 				this.icon = require('@/assets/icons/bits.svg');
 				break;
+
 			case "sub":
 				if(value == "prime") {
 					res = "<strong>"+this.messageData.username+"</strong> subscribed with Prime";
@@ -115,14 +118,17 @@ export default class ChatHighlight extends Vue {
 					res += " ("+this.messageData.tags['msg-param-cumulative-months']+" months streak)";
 				}
 				break;
+
 			case "subgift":
 				this.icon = require('@/assets/icons/gift.svg');
 				res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
 				break;
+
 			case "subgiftUpgrade":
 				this.icon = require('@/assets/icons/gift.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is continuing the Gift Sub they got from <strong>"+this.messageData.sender+"</strong>";
 				break;
+
 			case "reward":{
 				const localObj = this.messageData.reward as PubSubTypes.RewardData;
 				res = localObj.redemption.user.display_name;
@@ -214,8 +220,10 @@ export default class ChatHighlight extends Vue {
 			}
 			.message {
 				margin: 0;
+				margin-top: .5em;
 				display: block;
 				color: rgba(255, 255, 255, .75);
+				line-height: 1.2em;
 			}
 		}
 	}

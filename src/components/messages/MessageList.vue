@@ -481,7 +481,7 @@ export default class MessageList extends Vue {
 		.message{ font-size: 10px; padding: 2px; }
 	}
 	&.size_2 {
-		.message{ font-size: 14px; padding: 2px; }
+		.message{ font-size: 13px; padding: 2px; }
 	}
 	&.size_3 {
 		.message{ font-size: 18px; padding: 5px; }
