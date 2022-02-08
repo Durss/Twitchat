@@ -200,10 +200,6 @@ export default class RewardsList extends Vue {
 				margin-bottom: 5px;
 				flex-grow: 1;
 			}
-
-			.toggle {
-				// background-color: rgba(255, 255, 255, .5);
-			}
 		}
 	}
 	

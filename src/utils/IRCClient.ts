@@ -4,10 +4,9 @@ import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
-import IRCEvent, { IRCEventData, IRCEventDataList } from "./IRCEvent";
+import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
-import Utils from "./Utils";
 
 /**
 * Created : 19/01/2021 

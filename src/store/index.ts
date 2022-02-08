@@ -2,7 +2,7 @@ import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
-import PubSub from '@/utils/PubSub';
+import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -33,6 +33,8 @@ export default createStore({
 		onlineUsers: [],
 		raffle: {},
 		whispers: {},
+		hypeTrain: {},
+		hypeTrainEnd: {},
 		raiding: "",
 		realHistorySize: 1000,
 		params: {
@@ -366,11 +368,15 @@ export default createStore({
 		setRaiding(state, userName:string) { state.raiding = userName; },
 
 		setViewersList(state, users:string[]) { state.onlineUsers = users as never[] },
-
+		
 		toggleDevMode(state) {
 			state.devmode = !state.devmode;
 			IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
 		},
+
+		setHypeTrain(state, data:HyperTrainState[]) { state.hypeTrain = data; },
+
+		setHypeTrainEnd(state, data:PubSubTypes.HypeTrainEnd) { state.hypeTrainEnd = data; },
 
 	},
 
@@ -602,8 +608,12 @@ export default createStore({
 		setRaiding({commit}, userName:string) { commit("setRaiding", userName); },
 
 		setViewersList({commit}, users:string[]) { commit("setViewersList", users); },
-
+		
 		toggleDevMode({commit}) { commit("toggleDevMode"); },
+
+		setHypeTrain({commit}, data:HyperTrainState) { commit("setHypeTrain", data); },
+
+		setHypeTrainEnd({commit}, data:PubSubTypes.HypeTrainEnd) { commit("setHypeTrainEnd", data); },
 	},
 	modules: {
 	}

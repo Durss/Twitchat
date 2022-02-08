@@ -11,13 +11,15 @@
 			<Button title="Simulate ban" @click="simulateEvent('ban_success')" :icon="require('@/assets/icons/ban.svg')" />
 			<Button title="Simulate automod" @click="simulateEvent('automod')" :icon="require('@/assets/icons/automod_white.svg')" />
 			<Button title="Simulate host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
-			<Button title="Message missing emotes tag" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
+			<Button title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
+			<Button title="Simulate hype train" @click="simulateEvent('hypeTrain')" :icon="require('@/assets/icons/train.svg')" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
+import PubSub from '@/utils/PubSub';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -72,7 +74,11 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateEvent(code:string):void {
-		IRCClient.instance.sendFakeEvent(code);
+		if(code == "hypeTrain") {
+			PubSub.instance.simulateHypeTrain();
+		}else{
+			IRCClient.instance.sendFakeEvent(code);
+		}
 	}
 
 }
@@ -94,9 +100,13 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	.list {
-		display: flex;
-		flex-direction: column;
+		height: 400px;
+		max-width: 100%;
+		max-height: 80%;
+		overflow-x: hidden;
+		overflow-y: auto;
 		.button {
+			width: 100%;
 			margin-bottom: 5px;
 		}
 	}

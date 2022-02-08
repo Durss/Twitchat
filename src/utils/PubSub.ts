@@ -1,4 +1,4 @@
-import store from "@/store";
+import store, { HyperTrainState } from "@/store";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
@@ -408,7 +408,15 @@ export default class PubSub {
 	 * @param data 
 	 */
 	private hypeTrainStart(data:PubSubTypes.HypeTrainStart):void {
-		store.dispatch("setHypeTrain", data);
+		const train:HyperTrainState = {
+			level:data.progress.level.value,
+			currentValue:data.progress.value,
+			goal:data.progress.goal,
+			started_at:data.started_at,
+			timeLeft:data.progress.remaining_seconds,
+		};
+		store.dispatch("setHypeTrain", train);
+		store.dispatch("setHypeTrainEnd", null);
 	}
 	
 	/**
@@ -416,7 +424,14 @@ export default class PubSub {
 	 * @param data 
 	 */
 	private hypeTrainProgress(data:PubSubTypes.HypeTrainProgress):void {
-		store.dispatch("setHypeTrainProgress", data);
+		const train:HyperTrainState = {
+			level:data.progress.level.value,
+			currentValue:data.progress.value,
+			goal:data.progress.goal,
+			started_at:(store.state.hypeTrain as HyperTrainState).started_at,
+			timeLeft:data.progress.remaining_seconds,
+		};
+		store.dispatch("setHypeTrain", train);
 	}
 	
 	/**
@@ -424,7 +439,14 @@ export default class PubSub {
 	 * @param data 
 	 */
 	private hypeTrainLevelUp(data:PubSubTypes.HypeTrainLevelUp):void {
-		store.dispatch("setHypeTrainLevel", data);
+		const train:HyperTrainState = {
+			level:data.progress.level.value,
+			currentValue:data.progress.value,
+			goal:data.progress.goal,
+			started_at:(store.state.hypeTrain as HyperTrainState).started_at,
+			timeLeft:data.progress.remaining_seconds,
+		};
+		store.dispatch("setHypeTrain", train);
 	}
 	
 	/**
