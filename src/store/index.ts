@@ -374,7 +374,7 @@ export default createStore({
 			IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
 		},
 
-		setHypeTrain(state, data:HyperTrainState[]) { state.hypeTrain = data; },
+		setHypeTrain(state, data:HypeTrainStateData[]) { state.hypeTrain = data; },
 
 		setHypeTrainEnd(state, data:PubSubTypes.HypeTrainEnd) { state.hypeTrainEnd = data; },
 
@@ -611,7 +611,7 @@ export default createStore({
 		
 		toggleDevMode({commit}) { commit("toggleDevMode"); },
 
-		setHypeTrain({commit}, data:HyperTrainState) { commit("setHypeTrain", data); },
+		setHypeTrain({commit}, data:HypeTrainStateData) { commit("setHypeTrain", data); },
 
 		setHypeTrainEnd({commit}, data:PubSubTypes.HypeTrainEnd) { commit("setHypeTrainEnd", data); },
 	},
@@ -641,7 +641,7 @@ export interface RaffleData {
 	users:ChatUserstate[];
 }
 
-export interface HyperTrainState {
+export interface HypeTrainStateData {
 	level:number;
 	currentValue:number;
 	goal:number;

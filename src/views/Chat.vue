@@ -4,7 +4,8 @@
 			<MessageList ref="messages" class="messages"
 				:max="$store.state.params.appearance.historySize.value" />
 			
-			<RaidState v-if="$store.state.raiding" />
+			<RaidState class="eventInfo" v-if="$store.state.raiding" />
+			<HypeTrainState class="eventInfo" v-if="$store.state.hypeTrain?.level" />
 
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
@@ -22,6 +23,7 @@
 </template>
 
 <script lang="ts">
+import HypeTrainState from '@/components/channelnotifications/HypeTrainState.vue';
 import RaidState from '@/components/channelnotifications/RaidState.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
 import MessageList from '@/components/messages/MessageList.vue';
@@ -38,6 +40,7 @@ import { Options, Vue } from 'vue-class-component';
 		ChatForm,
 		PollForm,
 		RaidState,
+		HypeTrainState,
 		RaffleForm,
 		MessageList,
 		PredictionForm,
@@ -83,6 +86,10 @@ export default class Chat extends Vue {
 		:deep(.holder) {
 			max-height: 100% !important;
 		}
+	}
+
+	.eventInfo {
+		z-index: 1;
 	}
 }
 </style>
