@@ -375,13 +375,17 @@ export default createStore({
 		setViewersList(state, users:string[]) { state.onlineUsers = users as never[] },
 		
 		toggleDevMode(state, forcedState?:boolean) {
+			let notify = true;
 			if(forcedState !== undefined) {
 				state.devmode = forcedState;
+				notify = forcedState
 			}else{
 				state.devmode = !state.devmode;
 			}
 			Store.set("devmode", state.devmode? "true" : "false");
-			IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
+			if(notify) {
+				IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
+			}
 		},
 
 		setHypeTrain(state, data:HypeTrainStateData[]) { state.hypeTrain = data; },
