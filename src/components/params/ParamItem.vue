@@ -1,5 +1,7 @@
 <template>
 	<div class="paramitem">
+		<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+
 		<div v-if="paramData.type == 'toggle'" class="toggle">
 			<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value"></label>
 			<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
@@ -17,7 +19,6 @@
 		
 		<div v-if="paramData.type == 'slider'" class="slider">
 			<label :for="'slider'+key">
-				<img :src="paramData.icon" v-if="paramData.icon">
 				{{paramData.label}} <span>({{paramData.value}})</span>
 			</label>
 			<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value">
@@ -64,7 +65,18 @@ export default class ParamItem extends Vue {
 
 <style scoped lang="less">
 .paramitem{
+	display: flex;
+	flex-direction: row;
+
+	.icon {
+		width: 1em;
+		height: 1em;
+		object-fit: contain;
+		margin-right: 10px;
+	}
+	
 	.toggle, .number {
+		flex-grow: 1;
 		display: flex;
 		flex-direction: row;
 		label {
@@ -80,6 +92,7 @@ export default class ParamItem extends Vue {
 		font-style: italic;
 	}
 	.slider, .list {
+		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
 		&:not(.list)>label {

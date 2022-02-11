@@ -5,7 +5,8 @@
 				:max="$store.state.params.appearance.historySize.value" />
 			
 			<RaidState class="eventInfo" v-if="$store.state.raiding" />
-			<HypeTrainState class="eventInfo" v-if="$store.state.hypeTrain?.level" />
+			
+			<HypeTrainState class="eventInfo" v-if="$store.state.params.filters.showHypeTrain.value && $store.state.hypeTrain?.level" />
 
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
