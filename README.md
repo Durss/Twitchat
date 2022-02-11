@@ -34,6 +34,8 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Display when it's the first message ever of a user on the channel
 - [x] Display mod notifications on chat (ex: "User XXX has been banned by YYY")
 - [x] Display sub/bits/raid/reward/follow notifications
+- [x] Display hype train status
+- [x] Integrated activity feed to see subs/cheers/follows/raids/rewards history
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
 - [x] Emote selector 
@@ -45,8 +47,6 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Autocomplete commands
-- [ ] Show subs/cheers/raids/rewards/follows in a dedicated list
-- [ ] Show hype train events
 <br>
 <br>
 <br>
