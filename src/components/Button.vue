@@ -411,17 +411,17 @@ export default class Button extends Vue {
 	&.small {
 		padding: 4px;
 		border-radius: 5px;
-		background-color: @mainColor_light;
-		&:hover {
-			background-color: @mainColor_normal_extralight;
-		}
+		// background-color: @mainColor_light;
+		// &:hover {
+		// 	background-color: @mainColor_normal_extralight;
+		// }
 		.label {
 			font-size: 16px;
 		}
 		.icon {
 			min-width: 15px;
 			min-height: 15px;
-			filter: invert();
+			// filter: invert();
 		}
 		&.checkbox {
 			padding: 0;

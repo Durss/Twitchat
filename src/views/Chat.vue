@@ -5,13 +5,18 @@
 				:max="$store.state.params.appearance.historySize.value" />
 			
 			<RaidState class="eventInfo" v-if="$store.state.raiding" />
-			
+
 			<HypeTrainState class="eventInfo" v-if="$store.state.params.filters.showHypeTrain.value && $store.state.hypeTrain?.level" />
+			
+			<ChannelNotifications class="notifications"
+				:currentContent="currentNotificationContent"
+				@close="currentNotificationContent=''"/>
 
 			<ChatForm class="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
 				@raffle="currentModal = 'raffle'"
+				@showNotificationContent="setCurrentNotification"
 				@clear="clearChat()"
 				/>
 		</div>
@@ -24,6 +29,7 @@
 </template>
 
 <script lang="ts">
+import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
 import HypeTrainState from '@/components/channelnotifications/HypeTrainState.vue';
 import RaidState from '@/components/channelnotifications/RaidState.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
@@ -45,6 +51,7 @@ import { Options, Vue } from 'vue-class-component';
 		RaffleForm,
 		MessageList,
 		PredictionForm,
+		ChannelNotifications,
 	},
 	props:{
 	},
@@ -52,6 +59,7 @@ import { Options, Vue } from 'vue-class-component';
 export default class Chat extends Vue {
 
 	public currentModal:string = "";
+	public currentNotificationContent:string = "";
 
 	public mounted():void {
 		
@@ -59,6 +67,10 @@ export default class Chat extends Vue {
 
 	public clearChat():void {
 		IRCClient.instance.client.clear(IRCClient.instance.channel);
+	}
+
+	public setCurrentNotification(value:string):void {
+		this.currentNotificationContent = value;
 	}
 }
 

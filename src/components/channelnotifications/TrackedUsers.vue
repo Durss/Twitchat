@@ -1,12 +1,6 @@
 <template>
 	<div :class="classes">
 		<div class="messages" v-if="selectedUser">
-			<Button :icon="require('@/assets/icons/magnet.svg')"
-				class="untrackBt"
-				title="Untrack user"
-				bounce highlight
-				@click="untrackUser(selectedUser)" />
-
 			<ChatMessage v-for="m in selectedUser.messages" :key="m.id"
 				:messageData="m"
 				:lightMode="true"
@@ -19,9 +13,15 @@
 		<div class="users">
 			<div class="user"
 			v-for="u in $store.state.trackedUsers"
-			:key="u.user['user-id']"
-			@click="selectUser(u)">
-				<Button class="login" :title="'('+u.messages.length+') '+u.user['display-name']" bounce />
+			:key="u.user['user-id']">
+				<Button class="login"
+					@click="selectUser(u)"
+					:title="'('+u.messages.length+') '+u.user['display-name']"
+					bounce />
+				<Button :icon="require('@/assets/icons/cross_white.svg')"
+					class="deleteBt"
+					bounce highlight small
+				@click="untrackUser(selectedUser)" />
 			</div>
 		</div>
 	</div>
@@ -120,8 +120,7 @@ export default class TrackedUsers extends Vue {
 			max-width: 130px;
 			.login {
 				color: #fff;
-				width: 100%;
-				min-width: 100%;
+				flex-grow: 1;
 				padding: 2px 5px;
 				:deep(.label) {
 					width: 80px;
@@ -129,6 +128,19 @@ export default class TrackedUsers extends Vue {
 					text-align: left;
 					text-overflow: ellipsis;
 					overflow: hidden;
+				}
+			}
+
+			.deleteBt {
+				margin: auto;
+				padding: 2px;
+				height: 21px;
+				min-height: 21px;
+				min-width: 21px;
+				flex-grow: 0;
+				:deep(.icon) {
+					height: 14px;
+					min-height: 14px;
 				}
 			}
 		}
@@ -144,7 +156,7 @@ export default class TrackedUsers extends Vue {
 	}
 
 	.messages {
-		padding-left: 5px;
+		padding-right: 5px;
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;

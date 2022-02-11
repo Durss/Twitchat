@@ -26,6 +26,34 @@
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
 				<Button :icon="require('@/assets/icons/debug.svg')" bounce @click="showDevMenu = true" v-if="$store.state.devmode" />
+
+					<Button :icon="require('@/assets/icons/poll.svg')"
+						bounce
+						@click="$emit('showNotificationContent', 'poll')"
+						v-if="$store.state.currentPoll?.id" />
+
+					<Button :icon="require('@/assets/icons/prediction.svg')"
+						bounce
+						@click="$emit('showNotificationContent', 'prediction')"
+						v-if="$store.state.currentPrediction?.id" />
+
+					<Button :icon="require('@/assets/icons/magnet.svg')"
+						bounce
+						v-if="$store.state.trackedUsers.length > 0"
+						data-tooltip="View tracked users"
+						@click="$emit('showNotificationContent', 'trackedUsers')" />
+
+					<Button :icon="require('@/assets/icons/ticket.svg')"
+						bounce
+						v-if="$store.state.raffle.command"
+						data-tooltip="Raffle"
+						@click="$emit('showNotificationContent', 'raffle')" />
+
+					<Button :icon="require('@/assets/icons/whispers.svg')"
+						bounce
+						v-if="whispersAvailable"
+						data-tooltip="Whispers"
+						@click="$emit('showNotificationContent', 'whispers')" />
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
@@ -59,20 +87,18 @@
 				@close="showDevMenu = false" />
 			
 		</div>
-
-		<ChannelNotifications class="contentWindows notifications" />
 	</div>
 </template>
 
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
+import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChannelNotifications from '../channelnotifications/ChannelNotifications.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
 import CommandHelper from './CommandHelper.vue';
@@ -90,9 +116,8 @@ import RewardsList from './RewardsList.vue';
 		CommandHelper,
 		EmoteSelector,
 		AutocompleteForm,
-		ChannelNotifications,
 	},
-	emits: ["poll","pred","clear","raffle"]
+	emits: ["poll","pred","clear","raffle","showNotificationContent"]
 })
 export default class ChatForm extends Vue {
 
@@ -110,6 +135,14 @@ export default class ChatForm extends Vue {
 		let res = ["chatform"];
 		if(store.state.cypherEnabled) res.push("cypherMode");
 		return res;
+	}
+
+	public get whispersAvailable():boolean {
+		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
+		for (const key in store.state.whispers) {
+			if (whispers[key].length > 0) return true;
+		}
+		return false;
 	}
 
 	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
@@ -137,9 +170,27 @@ export default class ChatForm extends Vue {
 				}
 			}
 		});
+		
+
+		//Auto opens the prediction status if pending for completion
+		watch(() => store.state.currentPrediction, () => {
+			let prediction = store.state.currentPrediction as TwitchTypes.Prediction;
+			if(prediction && prediction.status == "LOCKED") {
+				this.$emit("showNotificationContent", "prediction");
+			}
+		});
+		
+
+		//Auto opens the poll status if terminated
+		watch(() => store.state.currentPoll, () => {
+			let poll = store.state.currentPoll as TwitchTypes.Poll;
+			if(poll && poll.status == "COMPLETED") {
+				this.$emit("showNotificationContent", "poll");
+			}
+		});
 	}
 
-	public beforeunmout():void {
+	public beforeUnmout():void {
 	}
 	
 	public openParams():void {
@@ -280,7 +331,7 @@ export default class ChatForm extends Vue {
 	@height: 40px;
 	display: flex;
 	flex-direction: row;
-	height: @height;
+	min-height: @height;
 	margin: auto;
 	position: relative;
 
@@ -295,7 +346,7 @@ export default class ChatForm extends Vue {
 		width: 100%;
 		display: flex;
 		flex-direction: row;
-		height: @height;
+		min-height: @height;
 		margin: auto;
 		position: relative;
 		z-index: 2;
@@ -322,9 +373,10 @@ export default class ChatForm extends Vue {
 			align-items: center;
 			justify-content: center;
 			flex-grow: 1;
+			flex-wrap: wrap;
 			input {
-				height: 100%;
-				width: 100%;
+				min-width: 50px;
+				width: 0%;
 				flex-grow: 1;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
@@ -333,12 +385,18 @@ export default class ChatForm extends Vue {
 				border-radius: 0;
 			}
 			.button {
-				height: 100%;
-				padding: 5px;
+				height: 1em;
+				padding: 0 0 0 5px;
 				border-radius: 5px;
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 				background: none;
+				:deep(.icon) {
+					height: 18px;
+					width: 22px;
+					min-width: auto;
+					object-fit: contain;
+				}
 			}
 			.error {
 				cursor: pointer;

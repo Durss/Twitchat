@@ -1,49 +1,5 @@
 <template>
 	<div class="channelnotifications">
-		<div class="notifications">
-			<transition name="slideBT" :duration="{enter:500, leave:1200}">
-				<Button :icon="require('@/assets/icons/poll.svg')"
-					small
-					bounce
-					@click="currentContent = 'poll'"
-					v-if="$store.state.currentPoll?.id" />
-			</transition>
-
-			<transition name="slideBT" :duration="{enter:500, leave:1200}">
-				<Button :icon="require('@/assets/icons/prediction.svg')"
-					small
-					bounce
-					@click="currentContent = 'prediction'"
-					v-if="$store.state.currentPrediction?.id" />
-			</transition>
-
-			<transition name="slideBT" :duration="{enter:500, leave:1200}">
-				<Button :icon="require('@/assets/icons/magnet.svg')"
-					small
-					bounce
-					v-if="$store.state.trackedUsers.length > 0"
-					data-tooltip="View tracked users"
-					@click="currentContent='trackedUsers'" />
-			</transition>
-
-			<transition name="slideBT" :duration="{enter:500, leave:1200}">
-				<Button :icon="require('@/assets/icons/ticket.svg')"
-					small
-					bounce
-					v-if="$store.state.raffle.command"
-					data-tooltip="Raffle"
-					@click="currentContent='raffle'" />
-			</transition>
-
-			<transition name="slideBT" :duration="{enter:500, leave:1200}">
-				<Button :icon="require('@/assets/icons/whispers.svg')"
-					small
-					bounce
-					v-if="whispersAvailable"
-					data-tooltip="Whispers"
-					@click="currentContent='whispers'" />
-			</transition>
-		</div>
 		<div ref="content">
 			<transition name="slide">
 				<PollState class="content" v-if="currentContent == 'poll' && $store.state.currentPoll?.id" />
@@ -59,8 +15,6 @@
 <script lang="ts">
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
-import { TwitchTypes } from '@/utils/TwitchUtils';
-import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PollState from './PollState.vue';
@@ -70,7 +24,9 @@ import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
 
 @Options({
-	props:{},
+	props:{
+		currentContent:String,
+	},
 	components:{
 		Button,
 		PollState,
@@ -79,11 +35,11 @@ import WhispersState from './WhispersState.vue';
 		WhispersState,
 		PredictionState,
 	},
-	emits:['goToLastRead'],
+	emits:['goToLastRead', 'close'],
 })
 export default class ChannelNotifications extends Vue {
 
-	public currentContent:string = '';
+	public currentContent!:string;
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -98,17 +54,9 @@ export default class ChannelNotifications extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-
-		//Auto opens the prediction status if pending for completion
-		watch(() => store.state.currentPrediction, () => {
-			let prediction = store.state.currentPrediction as TwitchTypes.Prediction
-			if(prediction && prediction.status == "LOCKED") {
-				this.currentContent = "prediction";
-			}
-		});
 	}
 
-	public beforeunmout():void {
+	public beforeUnmout():void {
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 
@@ -119,7 +67,7 @@ export default class ChannelNotifications extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			this.currentContent = '';
+			this.$emit("close");
 		}
 	}
 }
@@ -129,12 +77,13 @@ export default class ChannelNotifications extends Vue {
 .channelnotifications{
 	width: 100%;
 	pointer-events:none;
+	// background-color: @mainColor_dark_light;
 
 	.notifications {
 		pointer-events:none;
 		display: flex;
 		flex-direction: row;
-		justify-content: flex-end;
+		justify-content: center;
 		padding-right: 3px;
 		align-items: flex-end;
 		.button {

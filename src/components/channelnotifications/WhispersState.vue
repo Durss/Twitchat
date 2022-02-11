@@ -10,15 +10,9 @@
 			</div>
 
 			<form @submit.prevent="sendWhisper()">
-				<input type="text" placeholder="whisper message..." class="dark" v-model="whisper">
+				<input type="text" placeholder="answer..." class="dark" v-model="whisper">
 				<Button class="submit" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" :disabled="!this.whisper" />
 			</form>
-
-			<Button :icon="require('@/assets/icons/cross_white.svg')"
-				class="deleteBt"
-				:title="'Close whispers with '+$store.state.whispers[selectedUser][0].tags['display-name']"
-				bounce highlight
-				@click="deleteWhispers(selectedUser)" />
 		</div>
 
 		<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
@@ -26,9 +20,16 @@
 		<div class="users">
 			<div class="user"
 			v-for="(u, uid) in $store.state.whispers"
-			:key="uid"
-			@click="selectUser(uid)">
-				<Button class="login" :title="'('+u.length+') '+u[0].tags['display-name']" bounce />
+			:key="uid">
+				<Button class="login"
+					@click="selectUser(uid)"
+					:title="'('+u.length+') '+u[0].tags['display-name']"
+					bounce />
+					
+				<Button :icon="require('@/assets/icons/cross_white.svg')"
+					class="deleteBt"
+					bounce highlight small
+					@click="deleteWhispers(selectedUser)" />
 			</div>
 		</div>
 	</div>
@@ -166,8 +167,7 @@ export default class WhispersState extends Vue {
 			max-width: 130px;
 			.login {
 				color: #fff;
-				width: 100%;
-				min-width: 100%;
+				flex-grow: 1;
 				padding: 2px 5px;
 				:deep(.label) {
 					width: 80px;
@@ -175,6 +175,19 @@ export default class WhispersState extends Vue {
 					text-align: left;
 					text-overflow: ellipsis;
 					overflow: hidden;
+				}
+			}
+
+			.deleteBt {
+				margin: auto;
+				padding: 2px;
+				height: 21px;
+				min-height: 21px;
+				min-width: 21px;
+				flex-grow: 0;
+				:deep(.icon) {
+					height: 14px;
+					min-height: 14px;
 				}
 			}
 		}
@@ -191,7 +204,7 @@ export default class WhispersState extends Vue {
 
 	.whispers {
 		flex-grow: 1;
-		padding-left: 5px;
+		padding-right: 5px;
 		display: flex;
 		font-size: 16px;
 		flex-direction: column;
@@ -243,6 +256,7 @@ export default class WhispersState extends Vue {
 			flex-direction: row;
 			margin-top: 10px;
 			input {
+				width: 100%;
 				flex-grow: 1;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
@@ -254,18 +268,6 @@ export default class WhispersState extends Vue {
 				:deep(img) {
 					height: 16px;
 				}
-			}
-		}
-
-		.deleteBt {
-			margin: auto;
-			padding: 0 10px;
-			font-size: 16px;
-			height: 25px;
-			min-height: 25px;
-			flex-grow: 0;
-			:deep(img) {
-				height: 16px;
 			}
 		}
 	}
