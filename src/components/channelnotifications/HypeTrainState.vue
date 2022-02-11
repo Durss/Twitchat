@@ -8,7 +8,10 @@
 		
 		<div class="content" v-if="trainData.state === 'COMPLETED'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon">
-			<h1>Congrats! Hype train level {{completeLevel}} complete!</h1>
+			<h1>
+				Hype train complete<br />
+				<span class="subtitle">Level <strong>{{completeLevel}}</strong> reached</span>
+			</h1>
 		</div>
 		
 		<div class="content" v-if="trainData.state === 'EXPIRE'">
@@ -125,6 +128,14 @@ export default class HypeTrainState extends Vue {
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
+
+		h1 {
+			text-align: center;
+			.subtitle {
+				font-size: .9em;
+				font-weight: normal;
+			}
+		}
 		
 		.icon {
 			height: 25px;

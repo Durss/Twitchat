@@ -2,7 +2,7 @@
 	<div :class="classes" @click.ctrl="copyJSON()">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
-			<p>First time on this channel</p>
+			<p>First time on your channel</p>
 		</div>
 		
 		<div v-if="automod" class="automod">
