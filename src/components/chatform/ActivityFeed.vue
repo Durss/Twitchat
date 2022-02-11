@@ -71,14 +71,13 @@ export default class ActivityFeed extends Vue {
 			}else if(m.reward) {
 				type = "reward";
 			}
-			if(type == "sub" && showSubs) result.push(m);
-			if(type == "reward" && showRewards) result.push(m);
-			if(type == "raid" && showRaids) result.push(m);
-			if(type == "bits" && showBits) result.push(m);
-			if(type == "follow" && showFollow) result.push(m);
+			if(type == "sub" && showSubs) result.unshift(m);
+			if(type == "reward" && showRewards) result.unshift(m);
+			if(type == "raid" && showRaids) result.unshift(m);
+			if(type == "bits" && showBits) result.unshift(m);
+			if(type == "follow" && showFollow) result.unshift(m);
 		}
 
-		console.log(this.filters);
 		Store.set("activityFeedFilters", this.filters);
 
 		return result;

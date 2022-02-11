@@ -2,7 +2,7 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<Button title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/bits.svg')" />
+			<Button title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
 			<Button title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
 			<Button title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
 			<Button title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/sub.svg')" />
