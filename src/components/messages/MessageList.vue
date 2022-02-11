@@ -124,6 +124,7 @@ export default class MessageList extends Vue {
 	private prevMarkedReadItem:IRCEventDataList.Message | null = null;
 	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
+	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
 
@@ -385,19 +386,22 @@ export default class MessageList extends Vue {
 	public async openUserHistory(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
 		if(this.lightMode || !m) return;
 
-		this.conversationMode = false;
-
-		let messageList:IRCEventDataList.Message[] = [];
-		for (let i = 0; i < store.state.chatMessages.length; i++) {
-			const mess = store.state.chatMessages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
-			if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
-				messageList.push(mess);
+		clearTimeout(this.openConvTimeout);
+		this.openConvTimeout = setTimeout(async ()=> {
+			this.conversationMode = false;
+	
+			let messageList:IRCEventDataList.Message[] = [];
+			for (let i = 0; i < store.state.chatMessages.length; i++) {
+				const mess = store.state.chatMessages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
+				if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
+					messageList.push(mess);
+				}
 			}
-		}
-		this.conversation = messageList;
-
-		await this.$nextTick();
-		this.openConversationHolder(event);
+			this.conversation = messageList;
+	
+			await this.$nextTick();
+			this.openConversationHolder(event);
+		}, 200)
 	}
 
 	/**
@@ -428,6 +432,7 @@ export default class MessageList extends Vue {
 	 * Close the conversation if any displayed
 	 */
 	public onMouseLeave():void {
+		clearTimeout(this.openConvTimeout);
 		if(this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window

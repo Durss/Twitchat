@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" @click.ctrl="copyJSON()">
 		<div v-if="firstTime" class="header">
-			<img src="@/assets/icons/stars.svg" alt="new" class="stars">
+			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
 			<p>First time on this channel</p>
 		</div>
 		
@@ -428,10 +428,10 @@ export default class ChatMessage extends Vue {
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			font-size: 1.25em;
-			.stars {
-				height: 30px;
-				margin-right: 10px;
+			font-size: 1em;
+			.icon {
+				height: 1.2em;
+				margin: 5px;
 			}
 		}
 	}
