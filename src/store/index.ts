@@ -2,7 +2,7 @@ import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
-import PubSub, { PubSubTypes } from '@/utils/PubSub';
+import PubSub from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -34,7 +34,6 @@ export default createStore({
 		raffle: {},
 		whispers: {},
 		hypeTrain: {},
-		hypeTrainEnd: {},
 		raiding: "",
 		realHistorySize: 1000,
 		params: {
@@ -369,14 +368,17 @@ export default createStore({
 
 		setViewersList(state, users:string[]) { state.onlineUsers = users as never[] },
 		
-		toggleDevMode(state) {
-			state.devmode = !state.devmode;
+		toggleDevMode(state, forcedState?:boolean) {
+			if(forcedState !== undefined) {
+				state.devmode = forcedState;
+			}else{
+				state.devmode = !state.devmode;
+			}
+			Store.set("devmode", state.devmode? "true" : "false");
 			IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
 		},
 
 		setHypeTrain(state, data:HypeTrainStateData[]) { state.hypeTrain = data; },
-
-		setHypeTrainEnd(state, data:PubSubTypes.HypeTrainEnd) { state.hypeTrainEnd = data; },
 
 	},
 
@@ -546,6 +548,7 @@ export default createStore({
 			
 			state.initComplete = true;
 
+			//Makes sure all parameters have a unique ID !
 			const uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in state.params) {
 				//eslint-disable-next-line
@@ -559,6 +562,9 @@ export default createStore({
 					uniqueIdsCheck[p.id as number] = true;
 				}
 			}
+				
+			const devmode = Store.get("devmode") === "true";
+			this.dispatch("toggleDevMode", devmode);
 		},
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
@@ -609,11 +615,9 @@ export default createStore({
 
 		setViewersList({commit}, users:string[]) { commit("setViewersList", users); },
 		
-		toggleDevMode({commit}) { commit("toggleDevMode"); },
+		toggleDevMode({commit}, forcedState?:boolean) { commit("toggleDevMode", forcedState); },
 
 		setHypeTrain({commit}, data:HypeTrainStateData) { commit("setHypeTrain", data); },
-
-		setHypeTrainEnd({commit}, data:PubSubTypes.HypeTrainEnd) { commit("setHypeTrainEnd", data); },
 	},
 	modules: {
 	}
@@ -647,4 +651,5 @@ export interface HypeTrainStateData {
 	goal:number;
 	started_at:number;
 	timeLeft:number;
+	state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 }

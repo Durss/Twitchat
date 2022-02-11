@@ -1,7 +1,7 @@
 <template>
 	<div class="progressbar">
 		<div class="fill" :style="getStyles()"></div>
-		<div class="timer" v-if="percent<1 && duration">{{timeLeft}}</div>
+		<div class="timer" v-if="percent<=1 && duration != undefined">{{timeLeft}}s</div>
 	</div>
 </template>
 
@@ -47,9 +47,7 @@ export default class ProgressBar extends Vue {
 		height: 3px;
 		width: 100%;
 		background-color: darken(@mainColor_normal, 20%);
-		margin-right: 0;
-		margin-left: auto;
-		transform-origin: right;
+		transform-origin: left;
 		will-change: transform;
 	}
 

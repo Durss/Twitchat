@@ -82,7 +82,7 @@ export default class Utils {
 	public static secondsToInputValue(seconds: number): string {
 		const h = Math.floor(seconds / 3600000);
 		const m = Math.floor((seconds - h * 3600000) / 60000);
-		const s = Math.round((seconds - h * 3600000 - m * 60000) / 1000);
+		const s = Math.floor((seconds - h * 3600000 - m * 60000) / 1000);
 		let res = this.toDigits(s);
 		if(m > 0 || h > 0) res = this.toDigits(m) + ":" + res;
 		if(h > 0) res = this.toDigits(h) + ":" + res;
