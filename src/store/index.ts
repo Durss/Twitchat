@@ -21,6 +21,7 @@ export default createStore({
 		tooltip: "",
 		userCard: "",
 		chatMessages: [],
+		chatHighlights: [],
 		mods: [],
 		currentPoll: {},
 		currentPrediction: {},
@@ -179,7 +180,6 @@ export default createStore({
 		openUserCard(state, payload) { state.userCard = payload; },
 		
 		async addChatMessage(state, payload:IRCEventData) {
-			const m = payload as IRCEventDataList.Message;
 			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
 			
 			//Limit history size
@@ -201,6 +201,7 @@ export default createStore({
 					}
 				}
 			}else{
+				const m = payload as IRCEventDataList.Message;
 				
 				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
 					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
@@ -276,7 +277,11 @@ export default createStore({
 				}
 			}
 
-			messages.push( m );
+			if(payload.type == "highlight") {
+				state.chatHighlights.push(payload as never);
+			}
+
+			messages.push( payload as IRCEventDataList.Message|IRCEventDataList.Highlight );
 			state.chatMessages = messages as never[];
 		},
 		

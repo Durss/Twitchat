@@ -194,7 +194,7 @@ export default class ChatHighlight extends Vue {
 	background-color: rgba(255, 255, 255, .15);
 	border-radius: 5px;
 	margin: 5px 0;
-	padding: 10px  5px!important;
+	padding: 5px !important;
 	text-align: center;
 
 	&.light {
@@ -208,9 +208,9 @@ export default class ChatHighlight extends Vue {
 			font-variant-numeric: tabular-nums;
 		}
 		.icon {
-			height: 20px;
-			width: 20px;
-			margin: 0 10px 0 0;
+			width: 1.5em;
+			height: 1.5em;
+			margin: 0 .5em 0 0;
 		}
 
 		.messageHolder {
@@ -262,8 +262,10 @@ export default class ChatHighlight extends Vue {
 			color: @mainColor_normal;
 			font-style: italic;
 			:deep(.cheermote), :deep(.emote) {
-				height: 30px;
+				width: 2em;
+				height: 2em;
 				vertical-align: middle;
+				object-fit: contain;
 			}
 			&::before {
 				content: "“";

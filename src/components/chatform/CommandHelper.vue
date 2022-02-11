@@ -41,6 +41,7 @@ import ParamItem from '../params/ParamItem.vue';
 	emits:["close","poll","pred","clear","raffle"]
 })
 export default class CommandHelper extends Vue {
+	
 	public raidUser:string = "";
 
 	private clickHandler!:(e:MouseEvent) => void;

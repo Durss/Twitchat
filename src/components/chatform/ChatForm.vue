@@ -4,6 +4,7 @@
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
 				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="showCommands = true" />
+				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="showFeed = true" v-if="$store.state.chatHighlights?.length > 0" />
 				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="showRewards = true" /> -->
 			</div>
 
@@ -92,6 +93,10 @@
 			<DevmodeMenu class="contentWindows devmode"
 				v-if="showDevMenu"
 				@close="showDevMenu = false" />
+
+			<ActivityFeed class="contentWindows feed"
+				v-if="showFeed"
+				@close="showFeed = false" />
 			
 		</div>
 	</div>
@@ -107,6 +112,7 @@ import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
+import ActivityFeed from './ActivityFeed.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
 import CommandHelper from './CommandHelper.vue';
 import DevmodeMenu from './DevmodeMenu.vue';
@@ -120,6 +126,7 @@ import RewardsList from './RewardsList.vue';
 		ParamItem,
 		DevmodeMenu,
 		RewardsList,
+		ActivityFeed,
 		CommandHelper,
 		EmoteSelector,
 		AutocompleteForm,
@@ -131,6 +138,7 @@ export default class ChatForm extends Vue {
 	public message:string = "";
 	public autoCompleteSearch:string = "";
 	public error:boolean = false;
+	public showFeed:boolean = false;
 	public showEmotes:boolean = false;
 	public showRewards:boolean = false;
 	public showDevMenu:boolean = false;
