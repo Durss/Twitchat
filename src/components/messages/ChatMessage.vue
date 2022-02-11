@@ -42,6 +42,7 @@
 			class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
 		</div>
 		
+		<span>: </span>
 		<span class="message" v-html="text"></span>
 		<div v-if="messageData && messageData.tags">{{messageData.tags.vip}}</div>
 	</div>
@@ -97,6 +98,7 @@ export default class ChatMessage extends Vue {
 		if(this.firstTime) res.push("firstTimeOnChannel");
 		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
 		if(this.messageData.cyphered) res.push("cyphered");
+		if(this.messageData.tags["msg-id"] === "highlighted-message") res.push("highlighted");
 
 		if(!this.lightMode) {
 			if(this.hasMention) res.push("mention");
@@ -315,7 +317,7 @@ export default class ChatMessage extends Vue {
 			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		}
 		
-		return ": "+result;
+		return result;
 	}
 }
 </script>
@@ -323,9 +325,15 @@ export default class ChatMessage extends Vue {
 <style scoped lang="less">
 .chatmessage{
 
-	&.highlightSubs { background-color: fade(#9147ff, 20%); }
-	&.highlightVips { background-color: fade(#e00bb9, 20%); }
-	&.highlightMods { background-color: fade(#39db00, 20%); }
+	&.highlightSubs { background-color: fade(#9147ff, 15%); }
+	&.highlightVips { background-color: fade(#e00bb9, 15%); }
+	&.highlightMods { background-color: fade(#39db00, 15%); }
+	&.highlighted { 
+		.message {
+			padding: 0 .25em;
+			background-color: @mainColor_normal; color:#fff
+		}
+	}
 
 	&.mention{
 		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>

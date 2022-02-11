@@ -17,43 +17,50 @@
 					maxlength="500"
 					@keydown.tab.prevent="onTab()">
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
+				
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" />
+				
 				<Button :icon="require('@/assets/icons/emote.svg')" @click="showEmotes = true;" bounce />
+				
 				<Button
 					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
-				<Button :icon="require('@/assets/icons/debug.svg')" bounce @click="showDevMenu = true" v-if="$store.state.devmode" />
 
-					<Button :icon="require('@/assets/icons/poll.svg')"
-						bounce
-						@click="$emit('showNotificationContent', 'poll')"
-						v-if="$store.state.currentPoll?.id" />
+				<Button :icon="require('@/assets/icons/poll.svg')"
+					bounce
+					@click="$emit('showNotificationContent', 'poll')"
+					v-if="$store.state.currentPoll?.id" />
 
-					<Button :icon="require('@/assets/icons/prediction.svg')"
-						bounce
-						@click="$emit('showNotificationContent', 'prediction')"
-						v-if="$store.state.currentPrediction?.id" />
+				<Button :icon="require('@/assets/icons/prediction.svg')"
+					bounce
+					@click="$emit('showNotificationContent', 'prediction')"
+					v-if="$store.state.currentPrediction?.id" />
 
-					<Button :icon="require('@/assets/icons/magnet.svg')"
-						bounce
-						v-if="$store.state.trackedUsers.length > 0"
-						data-tooltip="View tracked users"
-						@click="$emit('showNotificationContent', 'trackedUsers')" />
+				<Button :icon="require('@/assets/icons/magnet.svg')"
+					bounce
+					v-if="$store.state.trackedUsers.length > 0"
+					data-tooltip="View tracked users"
+					@click="$emit('showNotificationContent', 'trackedUsers')" />
 
-					<Button :icon="require('@/assets/icons/ticket.svg')"
-						bounce
-						v-if="$store.state.raffle.command"
-						data-tooltip="Raffle"
-						@click="$emit('showNotificationContent', 'raffle')" />
+				<Button :icon="require('@/assets/icons/ticket.svg')"
+					bounce
+					v-if="$store.state.raffle.command"
+					data-tooltip="Raffle"
+					@click="$emit('showNotificationContent', 'raffle')" />
 
-					<Button :icon="require('@/assets/icons/whispers.svg')"
-						bounce
-						v-if="whispersAvailable"
-						data-tooltip="Whispers"
-						@click="$emit('showNotificationContent', 'whispers')" />
+				<Button :icon="require('@/assets/icons/whispers.svg')"
+					bounce
+					v-if="whispersAvailable"
+					data-tooltip="Whispers"
+					@click="$emit('showNotificationContent', 'whispers')" />
+					
+				<Button :icon="require('@/assets/icons/debug.svg')"
+					bounce
+					@click="showDevMenu = true"
+					v-if="$store.state.devmode" />
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
