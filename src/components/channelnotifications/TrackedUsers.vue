@@ -21,7 +21,7 @@
 				<Button :icon="require('@/assets/icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
-				@click="untrackUser(selectedUser)" />
+				@click="untrackUser(u)" />
 			</div>
 		</div>
 	</div>

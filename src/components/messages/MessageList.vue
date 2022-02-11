@@ -50,7 +50,7 @@
 			<div class="label">
 				<p v-if="lockScroll">Chat paused</p>
 				<p v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</p>
-				<Button v-if="pendingMessages.length > 0" :icon="require('@/assets/icons/down.svg')" @click="unPause()" />
+				<Button v-if="pendingMessages.length > 0" :icon="require('@/assets/icons/down.svg')" @click.stop="unPause()" />
 			</div>
 		</div>
 

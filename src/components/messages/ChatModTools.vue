@@ -1,8 +1,8 @@
 <template>
 	<div class="chatmodtools">
-		<img src="@/assets/icons/ban.svg" alt="ban" data-tooltip="Ban" @click="ban()">
-		<img src="@/assets/icons/timeout.svg" alt="timeout" data-tooltip="Timeout<br/>(10min)" @click="timeout()">
-		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click="deleteMessage()">
+		<img src="@/assets/icons/ban.svg" alt="ban" data-tooltip="Ban" @click.stop="ban()">
+		<img src="@/assets/icons/timeout.svg" alt="timeout" data-tooltip="Timeout<br/>(10min)" @click.stop="timeout()">
+		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()">
 	</div>
 </template>
 

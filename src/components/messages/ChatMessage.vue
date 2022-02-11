@@ -9,8 +9,8 @@
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
 			<div class="actions">
-				<Button title="Accept" @click="modMessage(true)" />
-				<Button title="Reject" @click="modMessage(false)" highlight />
+				<Button title="Accept" @click.stop="modMessage(true)" />
+				<Button title="Reject" @click.stop="modMessage(false)" highlight />
 			</div>
 		</div>
 
@@ -22,7 +22,7 @@
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
 				@mouseleave="$emit('mouseleave', $event)"
-				@mouseover="$emit('showConversation', $event, messageData)">
+				@click.stop="$emit('showConversation', $event, messageData)">
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" />
 			
@@ -37,9 +37,9 @@
 			</span>
 			
 			<span @click="openUserCard()"
-			@mouseenter="hoverNickName($event)"
-			@mouseleave="$emit('mouseleave', $event)"
-			class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
+				@mouseenter="hoverNickName($event)"
+				@mouseleave="$emit('mouseleave', $event)"
+				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
 		</div>
 		
 		<span>: </span>

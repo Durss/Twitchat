@@ -6,7 +6,7 @@
 	:target="target"
 	:to="to"
 	:href="type=='link'? to : null"
-	@click="onClick($event)"
+	@click.stop="onClick($event)"
 	:style="progressStyle"
 	v-model="modelValue">
 		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">

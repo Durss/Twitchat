@@ -8,7 +8,7 @@
 
 			<HypeTrainState class="eventInfo" v-if="$store.state.params.filters.showHypeTrain.value && $store.state.hypeTrain?.level" />
 			
-			<ChannelNotifications class="notifications"
+			<ChannelNotifications class="eventInfo"
 				:currentContent="currentNotificationContent"
 				@close="currentNotificationContent=''"/>
 
