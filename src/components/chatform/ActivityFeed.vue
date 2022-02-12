@@ -139,7 +139,7 @@ export default class ActivityFeed extends Vue {
 	right: 0;
 	left: auto;
 	margin-left: auto;
-	transform-origin: bottom left;
+	transform-origin: bottom center;
 
 	.head {
 		position: relative;
@@ -155,6 +155,7 @@ export default class ActivityFeed extends Vue {
 			position: absolute;
 			right: 0;
 			top: 0;
+			z-index: 1;
 		}
 	}
 
