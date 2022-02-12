@@ -120,6 +120,7 @@ export default class IRCClient extends EventDispatcher {
 					console.log("IRCClient :: Connection succeed");
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
+					this.sendNotice("online", "Welcome to the chat room "+channel+"!")
 				}
 			});
 

@@ -2,9 +2,9 @@
 	<div class="activityfeed">
 		<div class="head">
 			<h1>Activity feed</h1>
-			<ActivityFeedFilters v-model="filters" />
+			<ActivityFeedFilters v-model="filters" class="filters" />
 		</div>
-		<div class="messageList">
+		<div  v-if="messages.length > 0" class="messageList">
 			<ChatHighlight
 				v-for="(m,index) in messages" :key="m.tags.id"
 				class="message"
@@ -13,6 +13,8 @@
 				:data-index="index"
 				:lightMode="true" />
 		</div>
+
+		<div v-if="messages.length == 0" class="noActivity">- No activity yet -</div>
 	</div>
 </template>
 
@@ -140,8 +142,7 @@ export default class ActivityFeed extends Vue {
 	transform-origin: bottom left;
 
 	.head {
-		display: flex;
-		flex-direction: row;
+		position: relative;
 		h1 {
 			flex-grow: 1;
 			color: @mainColor_light;
@@ -149,12 +150,27 @@ export default class ActivityFeed extends Vue {
 			text-align: center;
 			margin-bottom: 10px;
 		}
+
+		.filters {
+			position: absolute;
+			right: 0;
+			top: 0;
+		}
+	}
+
+	.noActivity {
+		font-style: italic;
+		color: @mainColor_light;
+		font-size: 12px;
+		text-align: center;
+		margin: 15px 0;
+		opacity: .5;
 	}
 
 	.messageList{
 		font-size: 12px;
 		max-height: 50vh;
-		min-height: 200px;
+		min-height: 30px;
 		overflow-y: auto;
 		.message{
 			margin: 2px 0;
