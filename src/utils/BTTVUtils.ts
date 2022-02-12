@@ -67,8 +67,8 @@ export default class BTTVUtils {
 				//  ID:start-end,start-end/ID:start-end,start-end
 				fakeTag += "BTTV_"+e.id+":";
 				for (let i = 0; i < matches.length; i++) {
-					const index = (matches[i].index as number);
-					fakeTag += index+"-"+(index+e.code.length);
+					const index = (matches[i].index as number) + 1;
+					fakeTag += index+"-"+(index+e.code.length-1);
 					if(i < matches.length-1) fakeTag+=",";
 				}
 			}
