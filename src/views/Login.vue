@@ -95,7 +95,7 @@ export default class Login extends Vue {
 			"user:manage:blocked_users": "Manage blocked users",
 			"user:read:follows": "Read follows of a user",
 			"user:read:subscriptions": "Read subs of a user",
-			"whispers:edit": "Receive whispers",
+			"whispers:edit": "Send whispers",
 		}
 		return Config.TWITCH_APP_SCOPES.map(v => {
 			if(scopeToInfos[v]) return scopeToInfos[v];
