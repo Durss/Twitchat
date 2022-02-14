@@ -108,6 +108,10 @@ export default class PubSub {
 		await Utils.promisedTimeout(10000);
 		this.parseEvent(PubsubJSON.HypeTrainExpire);
 	}
+
+	public async simulatePoll():Promise<void> {
+		this.parseEvent(PubsubJSON.Poll);
+	}
 	
 	
 	
@@ -934,4 +938,5 @@ namespace PubsubJSON {
 	export const HypeTrainLevelUp5 = {"type":"hype-train-level-up","data":{"time_to_expire":1644508891000,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}]},"value":1700,"goal":3000,"total":9500,"remaining_seconds":299}}};
 	export const HypeTrainComplete = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"COMPLETED"}};
 	export const HypeTrainExpire = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"EXPIRE"}};
+	export const Poll = {"type":"poll","data":{"id":"32d9d2ec-a7b1-4a48-9a12-d7a9da8724f7","broadcaster_id":"29961813","broadcaster_name":"durss","broadcaster_login":"durss","title":"What's the best answer ?","choices":[{"id":"a4b1d024-9038-4283-aba1-e668401e9a61","title":"This one !","votes":72,"channel_points_votes":0,"bits_votes":0},{"id":"b4b0d680-62ea-4afd-ad00-f14fb5ad39ea","title":"Nope this one","votes":821,"channel_points_votes":0,"bits_votes":0},{"id":"6db29ec5-2c32-46c6-b7b7-0aa456fe19c7","title":"nope nope this","votes":25,"channel_points_votes":0,"bits_votes":0},{"id":"5df00c88-cd41-499b-a65b-7b17a3815fe7","title":"gngngngn","votes":10,"channel_points_votes":0,"bits_votes":0},{"id":"1317838e-c9e3-4365-bba2-6db215df48b7","title":"it mey ! Am da good ooone","votes":185,"channel_points_votes":0,"bits_votes":0}],"bits_voting_enabled":false,"bits_per_vote":0,"channel_points_voting_enabled":false,"channel_points_per_vote":0,"status":"COMPLETED","duration":60,"started_at":"2022-02-14T18:03:48.81370842Z","ended_at":"2022-02-14T18:04:48.81370842Z"}};
 }

@@ -433,6 +433,12 @@ export default class IRCClient extends EventDispatcher {
 			}
 		}
 	}
+
+	public getFakeGuid():string {
+		let suffix = (this.increment++).toString(16);
+		while(suffix.length < 12) suffix = "0" + suffix;
+		return "00000000-0000-0000-0000-"+suffix;
+	}
 	
 	
 	
@@ -446,12 +452,6 @@ export default class IRCClient extends EventDispatcher {
 			id:this.getFakeGuid(),
 			"tmi-sent-ts": Date.now().toString(),
 		};
-	}
-
-	private getFakeGuid():string {
-		let suffix = (this.increment++).toString(16);
-		while(suffix.length < 12) suffix = "0" + suffix;
-		return "00000000-0000-0000-0000-"+suffix;
 	}
 }
 

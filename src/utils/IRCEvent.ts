@@ -1,6 +1,7 @@
 import { Event } from '@/utils/EventDispatcher';
 import { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from 'tmi.js';
 import { PubSubTypes } from './PubSub';
+import { TwitchTypes } from './TwitchUtils';
 
 /**
 * Created : 07/12/2020 
@@ -28,6 +29,7 @@ export default class IRCEvent extends Event {
 	
 }
 
+export type ActivityFeedData = IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult;
 export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Timeout
 						|  IRCEventDataList.Ban
@@ -37,8 +39,10 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Highlight
 						|  IRCEventDataList.Hosted
 						|  IRCEventDataList.RoomState
-						|  IRCEventDataList.Whisper;
-
+						|  IRCEventDataList.Whisper
+						|  IRCEventDataList.PollResult
+						|  IRCEventDataList.PredictionResult
+						;
 export namespace IRCEventDataList {
 	export interface Message {
 		channel:string;
@@ -170,5 +174,17 @@ export namespace IRCEventDataList {
 		//custom data
 		timestamp:number;
 		isAnswer?:boolean;
+	}
+
+	export interface PollResult {
+		type:"poll";
+		data:TwitchTypes.Poll;
+		tags: { id:string };
+	}
+
+	export interface PredictionResult {
+		type:"prediction";
+		data:TwitchTypes.Prediction;
+		tags: { id:string };
 	}
 }

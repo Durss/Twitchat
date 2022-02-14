@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
 				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="showCommands = true" />
-				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="showFeed = true" v-if="$store.state.chatHighlights?.length > 0" />
+				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="showFeed = true" v-if="$store.state.activityFeed?.length > 0" />
 				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="showRewards = true" /> -->
 			</div>
 

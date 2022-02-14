@@ -1,7 +1,7 @@
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
+import IRCEvent, { IRCEventData, IRCEventDataList, ActivityFeedData } from '@/utils/IRCEvent';
 import PubSub from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
@@ -21,7 +21,7 @@ export default createStore({
 		tooltip: "",
 		userCard: "",
 		chatMessages: [],
-		chatHighlights: [],
+		activityFeed: [],
 		mods: [],
 		currentPoll: {},
 		currentPrediction: {},
@@ -278,7 +278,7 @@ export default createStore({
 			}
 
 			if(payload.type == "highlight") {
-				state.chatHighlights.push(payload as never);
+				state.activityFeed.push(payload as never);
 			}
 
 			messages.push( payload as IRCEventDataList.Message|IRCEventDataList.Highlight );
@@ -328,12 +328,24 @@ export default createStore({
 		},
 
 		setPolls(state, payload:TwitchTypes.Poll[]) {
+			const list = state.activityFeed as ActivityFeedData[];
+			if(payload[0].status == "COMPLETED") {
+				if(list.findIndex(v=>v.type == "poll" && v.data.id == payload[0].id) == -1) {
+					state.activityFeed.push({tags:{id:IRCClient.instance.getFakeGuid()}, type:"poll", data:payload[0]} as never);
+				}
+			}
 			state.currentPoll = payload.find(v => {
 				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
 			}) as  TwitchTypes.Poll;
 		},
 		
 		setPredictions(state, payload:TwitchTypes.Prediction[]) {
+			const list = state.activityFeed as ActivityFeedData[];
+			if(payload[0].status == "RESOLVED" && new Date(payload[0].ended_at as string).getTime() > Date.now() - 5 * 60 * 1000) {
+				if(list.findIndex(v=>v.type == "prediction" && v.data.id == payload[0].id) == -1) {
+					state.activityFeed.push({tags:{id:IRCClient.instance.getFakeGuid()}, type:"prediction", data:payload[0]} as never);
+				}
+			}
 			state.currentPrediction = payload.find(v => {
 				return (v.status == "ACTIVE" || v.status == "LOCKED");
 			}) as  TwitchTypes.Prediction;

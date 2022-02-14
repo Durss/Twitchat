@@ -18,13 +18,13 @@
 					:ref="'message_'+m.tags.id"
 					/>
 				<ChatNotice
-					v-if="m.type == 'notice'"
+					v-else-if="m.type == 'notice'"
 					class="message"
 					:messageData="m"
 					:ref="'message_'+m.tags.id"
 					/>
 				<ChatHighlight
-					v-if="m.type == 'highlight'"
+					v-else-if="m.type == 'highlight'"
 					class="message"
 					:messageData="m"
 					lightMode
@@ -39,7 +39,7 @@
 
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
-						v-if="m.showHoverActions"
+						v-if="m.showHoverActions && !lightMode"
 						:messageData="m"
 						@toggleMarkRead="toggleMarkRead(m)" />
 				</transition>

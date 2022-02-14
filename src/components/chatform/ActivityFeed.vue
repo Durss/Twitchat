@@ -5,13 +5,27 @@
 			<ActivityFeedFilters v-model="filters" class="filters" />
 		</div>
 		<div  v-if="messages.length > 0" class="messageList">
-			<ChatHighlight
-				v-for="(m,index) in messages" :key="m.tags.id"
-				class="message"
-				ref="message"
-				:messageData="m"
-				:data-index="index"
-				:lightMode="true" />
+			<div v-for="(m,index) in messages" :key="m.tags.id">
+				<ChatHighlight
+					class="message"
+					ref="message"
+					v-if="m.type == 'highlight'"
+					:messageData="m"
+					:data-index="index"
+					:lightMode="true" />
+
+				<ChatPollResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'poll'"
+					:pollData="m" />
+
+				<ChatPredictionResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'prediction'"
+					:predictionData="m" />
+			</div>
 		</div>
 
 		<div v-if="messages.length == 0" class="noActivity">- No activity yet -</div>
@@ -21,30 +35,34 @@
 <script lang="ts">
 import store from '@/store';
 import Store from '@/store/Store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import { ActivityFeedData, IRCEventDataList } from '@/utils/IRCEvent';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ChatHighlight from '../messages/ChatHighlight.vue';
+import ChatPollResult from '../messages/ChatPollResult.vue';
+import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 
 @Options({
 	props:{},
 	components:{
 		ChatHighlight,
+		ChatPollResult,
+		ChatPredictionResult,
 		ActivityFeedFilters,
 	}
 })
 export default class ActivityFeed extends Vue {
 
-	public filters:string = "sub,follow,bits,raid";
+	public filters:string = "sub,follow,bits,raid,poll,prediction";
 	
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get messages():IRCEventDataList.Highlight[] {
-		const list = (store.state.chatHighlights as IRCEventDataList.Highlight[])
-		.filter(v => v.type == "highlight");
+	public get messages():ActivityFeedData[] {
+		const list = (store.state.activityFeed as ActivityFeedData[])
+		.filter(v => v.type == "highlight" || v.type == "poll" || v.type == "prediction");
 
-		const result:IRCEventDataList.Highlight[] = [];
+		const result:ActivityFeedData[] = [];
 		
 		let items = this.filters.split(",");
 		const showSubs = items.indexOf("sub") > -1;
@@ -52,11 +70,17 @@ export default class ActivityFeed extends Vue {
 		const showBits = items.indexOf("bits") > -1;
 		const showRaids = items.indexOf("raid") > -1;
 		const showRewards = items.indexOf("rewards") > -1;
+		const showPolls = items.indexOf("poll") > -1;
+		const showPredictions = items.indexOf("prediction") > -1;
 		
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|null = null;
-			if(m['msg-id'] == "follow") {
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|null = null;
+			if(m.type == "poll") {
+				type = "poll";
+			}else if(m.type == "prediction") {
+				type = "prediction";
+			}else if(m['msg-id'] == "follow") {
 				type = "follow";
 			}else if(m.tags.bits) {
 				type = "bits";
@@ -78,6 +102,8 @@ export default class ActivityFeed extends Vue {
 			if(type == "raid" && showRaids) result.unshift(m);
 			if(type == "bits" && showBits) result.unshift(m);
 			if(type == "follow" && showFollow) result.unshift(m);
+			if(type == "poll" && showPolls) result.unshift(m);
+			if(type == "prediction" && showPredictions) result.unshift(m);
 		}
 
 		Store.set("activityFeedFilters", this.filters);
@@ -87,7 +113,7 @@ export default class ActivityFeed extends Vue {
 
 	public beforeMount():void {
 		const f = Store.get("activityFeedFilters");
-		console.log("MOUTNED", f);
+		console.log(store.state.activityFeed);
 		if(f) this.filters = f;
 	}
 

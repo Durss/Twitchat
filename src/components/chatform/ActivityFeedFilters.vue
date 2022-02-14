@@ -22,6 +22,14 @@
 				<label for="AF_rewards" @click="showRewards = !showRewards; onChange();">Rewards</label>
 				<ToggleButton id="AF_rewards" small clear v-model="showRewards" @change="onChange()" />
 			</div>
+			<div class="row">
+				<label for="AF_polls" @click="showPolls = !showPolls; onChange();">Polls</label>
+				<ToggleButton id="AF_polls" small clear v-model="showPolls" @change="onChange()" />
+			</div>
+			<div class="row">
+				<label for="AF_prediction" @click="showPredictions = !showPredictions; onChange();">Predictions</label>
+				<ToggleButton id="AF_prediction" small clear v-model="showPredictions" @change="onChange()" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -52,6 +60,8 @@ export default class ActivityFeedFilters extends Vue {
 	public showBits:boolean = true;
 	public showRaids:boolean = true;
 	public showRewards:boolean = true;
+	public showPolls:boolean = true;
+	public showPredictions:boolean = true;
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -62,6 +72,8 @@ export default class ActivityFeedFilters extends Vue {
 		this.showBits = items.indexOf("bits") > -1;
 		this.showRaids = items.indexOf("raid") > -1;
 		this.showRewards = items.indexOf("rewards") > -1;
+		this.showPolls = items.indexOf("poll") > -1;
+		this.showPredictions = items.indexOf("prediction") > -1;
 		
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -78,6 +90,8 @@ export default class ActivityFeedFilters extends Vue {
 		if(this.showBits) data.push("bits");
 		if(this.showRaids) data.push("raid");
 		if(this.showRewards) data.push("rewards");
+		if(this.showPolls) data.push("poll");
+		if(this.showPredictions) data.push("prediction");
 		
 		this.$emit("update:modelValue", data.join(","));
 	}
@@ -113,10 +127,14 @@ export default class ActivityFeedFilters extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			vertical-align: middle;
+			margin-bottom: 3px;
 			label {
 				font-size: 14px;
 				color: @mainColor_light;
 				flex-grow: 1;
+				margin: 0;
+				margin-right: 5px;
 				cursor: pointer;
 			}
 		}

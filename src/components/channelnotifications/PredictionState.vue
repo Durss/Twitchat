@@ -19,7 +19,11 @@
 					:loading="loading" />
 				<div class="bar" :style="getAnswerStyles(c)">
 					<div>{{c.title}}</div>
-					<div>{{getPercent(c)}}% ({{c.channel_points}}pts)</div>
+					<div class="details">
+						<span class="percent">{{getPercent(c)}}%</span>
+						<span class="votes"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{c.users}}</span>
+						<span class="points"><img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">{{c.channel_points}}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -209,7 +213,7 @@ export default class PredictionState extends Vue {
 				display: flex;
 				flex-direction: row;
 				border-radius: 10px;
-				padding: 7px 15px;
+				padding: 4px 15px;
 				font-size: 16px;
 				color: @mainColor_light;
 				@c: fade(@mainColor_light, 15%);
@@ -218,6 +222,31 @@ export default class PredictionState extends Vue {
 				background-color: fade(@mainColor_light, 5%);
 				background-repeat: no-repeat;
 				justify-content: space-between;
+				align-items: center;
+
+				.details{
+					display: flex;
+					flex-direction: row;
+
+					.percent, .votes, .points {
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						padding: 5px;
+						border-radius: 5px;
+						background-color: rgba(0, 0, 0, .25);
+						font-size: .8em;
+
+						&:not(:last-child) {
+							margin-right: 5px;
+						}
+
+						.icon {
+							height: 1em;
+							margin-right: 5px;
+						}
+					}
+				}
 			}
 		}
 	}

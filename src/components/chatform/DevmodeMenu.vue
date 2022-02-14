@@ -12,6 +12,7 @@
 			<Button title="Hype train" @click="simulateEvent('hypeTrain')" :icon="require('@/assets/icons/train.svg')" />
 			<Button title="Ban" @click="simulateEvent('ban_success')" :icon="require('@/assets/icons/ban.svg')" />
 			<Button title="Automod" @click="simulateEvent('automod')" :icon="require('@/assets/icons/automod_white.svg')" />
+			<Button title="Poll" @click="simulateEvent('poll')" :icon="require('@/assets/icons/poll.svg')" />
 			<Button title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
 			<Button title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
 		</div>
@@ -77,6 +78,9 @@ export default class DevmodeMenu extends Vue {
 	public simulateEvent(code:string):void {
 		if(code == "hypeTrain") {
 			PubSub.instance.simulateHypeTrain();
+		}else
+		if(code == "poll") {
+			PubSub.instance.simulatePoll();
 		}else{
 			IRCClient.instance.sendFakeEvent(code);
 		}
