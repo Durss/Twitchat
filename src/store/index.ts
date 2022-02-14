@@ -65,6 +65,7 @@ export default createStore({
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
 				showFollow: {type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: {type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
+				showPollPredResults: {type:"toggle", value:true, label:"Show polls and prediction results on chat", id:112, icon:"poll_purple.svg"},
 			},
 			features: {
 				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200},
@@ -277,7 +278,9 @@ export default createStore({
 				}
 			}
 
-			if(payload.type == "highlight") {
+			if(payload.type == "highlight"
+			|| payload.type == "poll"
+			|| payload.type == "prediction") {
 				state.activityFeed.push(payload as never);
 			}
 
@@ -325,30 +328,6 @@ export default createStore({
 					}
 				}
 			}
-		},
-
-		setPolls(state, payload:TwitchTypes.Poll[]) {
-			const list = state.activityFeed as ActivityFeedData[];
-			if(payload[0].status == "COMPLETED") {
-				if(list.findIndex(v=>v.type == "poll" && v.data.id == payload[0].id) == -1) {
-					state.activityFeed.push({tags:{id:IRCClient.instance.getFakeGuid()}, type:"poll", data:payload[0]} as never);
-				}
-			}
-			state.currentPoll = payload.find(v => {
-				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
-			}) as  TwitchTypes.Poll;
-		},
-		
-		setPredictions(state, payload:TwitchTypes.Prediction[]) {
-			const list = state.activityFeed as ActivityFeedData[];
-			if(payload[0].status == "RESOLVED" && new Date(payload[0].ended_at as string).getTime() > Date.now() - 5 * 60 * 1000) {
-				if(list.findIndex(v=>v.type == "prediction" && v.data.id == payload[0].id) == -1) {
-					state.activityFeed.push({tags:{id:IRCClient.instance.getFakeGuid()}, type:"prediction", data:payload[0]} as never);
-				}
-			}
-			state.currentPrediction = payload.find(v => {
-				return (v.status == "ACTIVE" || v.status == "LOCKED");
-			}) as  TwitchTypes.Prediction;
 		},
 
 		setCypherEnabled(state, payload:boolean) { state.cypherEnabled = payload; },
@@ -613,9 +592,31 @@ export default createStore({
 
 		updateParams({commit}) { commit("updateParams"); },
 
-		setPolls({commit}, payload:TwitchTypes.Poll[]) { commit("setPolls", payload); },
+		setPolls({state}, payload:TwitchTypes.Poll[]) {
+			const list = state.activityFeed as ActivityFeedData[];
+			if(payload[0].status == "COMPLETED") {
+				if(list.findIndex(v=>v.type == "poll" && v.data.id == payload[0].id) == -1) {
+					const m = {tags:{id:IRCClient.instance.getFakeGuid()}, type:"poll", data:payload[0]};
+					this.dispatch("addChatMessage", m);
+				}
+			}
+			state.currentPoll = payload.find(v => {
+				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
+			}) as  TwitchTypes.Poll;
+		},
 
-		setPredictions({commit}, payload:TwitchTypes.Prediction[]) { commit("setPredictions", payload); },
+		setPredictions({state}, payload:TwitchTypes.Prediction[]) {
+			const list = state.activityFeed as ActivityFeedData[];
+			if(payload[0].status == "RESOLVED" && new Date(payload[0].ended_at as string).getTime() > Date.now() - 5 * 60 * 1000) {
+				if(list.findIndex(v=>v.type == "prediction" && v.data.id == payload[0].id) == -1) {
+					const m = {tags:{id:IRCClient.instance.getFakeGuid()}, type:"prediction", data:payload[0]};
+					this.dispatch("addChatMessage", m);
+				}
+			}
+			state.currentPrediction = payload.find(v => {
+				return (v.status == "ACTIVE" || v.status == "LOCKED");
+			}) as  TwitchTypes.Prediction;
+		},
 
 		setCypherEnabled({commit}, payload:boolean) { commit("setCypherEnabled", payload); },
 

@@ -106,7 +106,7 @@ export default class ChatPollResult extends Vue {
 					flex-grow: 1;
 					display: flex;
 					flex-direction: row;
-					padding: 5px;
+					padding: 3px;
 					border-radius: 5px;
 					@c: fade(@mainColor_light, 25%);
 					background: linear-gradient(to right, @c 100%, @c 100%);
@@ -118,6 +118,10 @@ export default class ChatPollResult extends Vue {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
+						padding: 5px;
+						border-radius: 5px;
+						background-color: rgba(0, 0, 0, .25);
+						font-size: .8em;
 
 						.icon {
 							height: 1em;

@@ -17,12 +17,14 @@
 					@mouseleave="onMouseLeave(m)"
 					:ref="'message_'+m.tags.id"
 					/>
+					
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
 					class="message"
 					:messageData="m"
 					:ref="'message_'+m.tags.id"
 					/>
+
 				<ChatHighlight
 					v-else-if="m.type == 'highlight'"
 					class="message"
@@ -30,6 +32,18 @@
 					lightMode
 					:ref="'message_'+m.tags.id"
 					/>
+
+				<ChatPollResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'poll' && $store.state.params.filters.showPollPredResults.value"
+					:pollData="m" />
+
+				<ChatPredictionResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
+					:predictionData="m" />
 
 				<div class="markRead"
 					v-if="!lightMode && m.markedAsRead"></div>
@@ -93,6 +107,8 @@ import Button from '../Button.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
 import ChatNotice from './ChatNotice.vue';
+import ChatPollResult from './ChatPollResult.vue';
+import ChatPredictionResult from './ChatPredictionResult.vue';
 
 @Options({
 	components:{
@@ -100,6 +116,8 @@ import ChatNotice from './ChatNotice.vue';
 		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
+		ChatPollResult,
+		ChatPredictionResult,
 		ChatMessageHoverActions,
 	},
 	props: {
