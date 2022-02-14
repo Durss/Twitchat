@@ -9,7 +9,7 @@
 			<div class="content">
 				<div class="description">
 					<p>This feature allows you to randomly pick a user on your audience.</p>
-					<p>Set a <strong>command</strong> your viewers will have to enter, a max duration to enter or a max number of users and start the raffle.</p>
+					<p>Set a <strong>command</strong> your viewers will have to enter, a max duration to enter the raffle or a max number of users allowed, and start the raffle.</p>
 				</div>
 				<form @submit.prevent="onSubmit()">
 					<div class="row">
