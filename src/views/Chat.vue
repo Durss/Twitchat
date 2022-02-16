@@ -4,10 +4,6 @@
 			<MessageList ref="messages" class="messages"
 				:max="$store.state.params.appearance.historySize.value" />
 			
-			<RaidState class="eventInfo" v-if="$store.state.raiding" />
-
-			<HypeTrainState class="eventInfo" v-if="$store.state.params.filters.showHypeTrain.value && $store.state.hypeTrain?.level" />
-			
 			<ChannelNotifications class="eventInfo"
 				:currentContent="currentNotificationContent"
 				@close="currentNotificationContent=''"/>
@@ -46,8 +42,6 @@ import { Options, Vue } from 'vue-class-component';
 		NewUsers,
 		ChatForm,
 		PollForm,
-		RaidState,
-		HypeTrainState,
 		RaffleForm,
 		MessageList,
 		PredictionForm,

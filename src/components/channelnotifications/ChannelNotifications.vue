@@ -8,6 +8,14 @@
 				<RaffleState class="content" v-else-if="currentContent == 'raffle' && $store.state.raffle.command" />
 				<WhispersState class="content" v-else-if="currentContent == 'whispers' && whispersAvailable" />
 			</transition>
+
+			<transition name="slide">
+				<RaidState class="content" v-if="$store.state.raiding" />
+			</transition>
+
+			<transition name="slide">
+				<HypeTrainState class="content" v-if="$store.state.params.filters.showHypeTrain.value && $store.state.hypeTrain?.level" />
+			</transition>
 		</div>
 	</div>
 </template>
@@ -16,10 +24,11 @@
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
-import Button from '../Button.vue';
+import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
 import RaffleState from './RaffleState.vue';
+import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
 
@@ -28,9 +37,10 @@ import WhispersState from './WhispersState.vue';
 		currentContent:String,
 	},
 	components:{
-		Button,
 		PollState,
 		RaffleState,
+		RaidState,
+		HypeTrainState,
 		TrackedUsers,
 		WhispersState,
 		PredictionState,
@@ -67,6 +77,7 @@ export default class ChannelNotifications extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
+			console.log("close");
 			this.$emit("close");
 		}
 	}
@@ -77,51 +88,10 @@ export default class ChannelNotifications extends Vue {
 .channelnotifications{
 	width: 100%;
 	pointer-events:none;
-	// background-color: @mainColor_dark_light;
-
-	.notifications {
-		pointer-events:none;
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		padding-right: 3px;
-		align-items: flex-end;
-		.button {
-			pointer-events:all;
-			transform-origin: bottom;
-			border-bottom-right-radius: 0;
-			border-bottom-left-radius: 0;
-			margin-left: 1px;
-			height: 40px;
-			padding-bottom: 15px;
-			transition: height 0.2s, background-color 0.25s;
-			transform: translateY(10px);
-			:deep(.icon) {
-				width: 25px;
-				max-height: 20px;
-			}
-			&:hover {
-				height: 50px;
-			}
-
-			&.slideBT-enter-active {
-				transition: transform .5s cubic-bezier(0.175, 0.885, 0.320, 1.275);
-			}
-
-			&.slideBT-leave-active {
-				transition: transform .5s cubic-bezier(0.600, -0.280, 0.735, 0.045);
-			}
-			
-			&.slideBT-enter-from,
-			&.slideBT-leave-to {
-				transform: translateY(50px);
-			}
-		}
-	}
 
 	.content {
 		pointer-events:all;
-		position: absolute;
+		// position: absolute;
 		padding: 10px;
 		padding-bottom: 20px;
 		background-color: darken(@mainColor_normal, 20%);
@@ -134,20 +104,24 @@ export default class ChannelNotifications extends Vue {
 		width: 100%;
 		max-height: calc(100vh - 100px);
 		overflow-y: auto;
-		transform: translateY(-100%);
+		max-height: 500px;
+		transform: scaleY(100%);
+		transform-origin: bottom center;
 	}
 
 	.slide-enter-active {
-		transition: transform 0.2s;
+		transition: all 0.2s;
 	}
 
 	.slide-leave-active {
-		transition: transform 0.2s;
+		transition: all 0.2s;
 	}
 	
 	.slide-enter-from,
 	.slide-leave-to {
-		transform: translateY(0);
+		max-height: 0;
+		padding: 0;
+		transform: scaleY(0);
 	}
 }
 </style>
