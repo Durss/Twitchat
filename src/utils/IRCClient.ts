@@ -6,7 +6,8 @@ import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
-import TwitchUtils from "./TwitchUtils";
+import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
+import Utils from "./Utils";
 
 /**
 * Created : 19/01/2021 
@@ -17,7 +18,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private login!:string;
 	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	
@@ -415,6 +416,7 @@ export default class IRCClient extends EventDispatcher {
 		const fakeEventsJSON = await fakeEventsRes.json();
 		for (const key in fakeEventsJSON) {
 			if(code && key != code) continue;
+
 			const json = fakeEventsJSON[key];
 			if(json.type == "notice") {
 				(json as IRCEventDataList.Notice).tags.id = this.getFakeGuid();
@@ -431,6 +433,11 @@ export default class IRCClient extends EventDispatcher {
 				(json as IRCEventDataList.Highlight).tags["tmi-sent-ts"] = Date.now().toString();
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
 			}
+			if(json.type == "poll") {
+				(json as IRCEventDataList.PollResult).tags.id = this.getFakeGuid();
+				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
+			}
+			await Utils.promisedTimeout(50);
 		}
 	}
 

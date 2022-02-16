@@ -35,13 +35,13 @@
 
 				<ChatPollResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'poll' && $store.state.params.filters.showPollPredResults.value"
 					:pollData="m" />
 
 				<ChatPredictionResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
 					:predictionData="m" />
 
@@ -273,7 +273,7 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * If hovering and scrolling down whit wheel, load next message
+	 * If hovering and scrolling down with wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
 		if(this.lightMode) return;
@@ -359,11 +359,14 @@ export default class MessageList extends Vue {
 		const lastMessRef = messRefs[messRefs.length-2];
 		
 		if(lastMessRef) {
-			this.virtualScrollY = lastMessRef.offsetTop + lastMessRef.offsetHeight - h;
-			el.scrollTop = this.virtualScrollY;
+			const add = lastMessRef.offsetTop + lastMessRef.offsetHeight - h;
+			if(!isNaN(add)) {
+				this.virtualScrollY = add;
+				el.scrollTop = this.virtualScrollY;
+			}
 		}
 
-		//Check if last makred as read message is still there
+		//Check if last marked as read message is still there
 		if(this.prevMarkedReadItem) {
 			if((this.$refs["message_"+this.prevMarkedReadItem.tags.id] as Vue[]).length == 0) {
 				this.prevMarkedReadItem = null;
@@ -466,7 +469,7 @@ export default class MessageList extends Vue {
 	 */
 	public enterMessage(m:IRCEventDataList.Message):void {
 		if(m.type != "message" && m.type != "highlight") return;
-		if(m.tags['user-id'] != store.state.user.user_id) {
+		if(m.tags['user-id'] && m.tags['user-id'] != store.state.user.user_id) {
 			m.showHoverActions = true;
 		}
 	}

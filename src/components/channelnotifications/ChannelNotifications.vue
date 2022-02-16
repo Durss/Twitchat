@@ -77,7 +77,6 @@ export default class ChannelNotifications extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			console.log("close");
 			this.$emit("close");
 		}
 	}

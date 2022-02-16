@@ -586,5 +586,43 @@
         "msg-id": "follow",
         "type": "highlight",
         "firstMessage": true
+    },
+
+    "pollResult": {
+        "tags": {
+            "id": "00000000-0000-0000-0000-000000000034"
+        },
+        "type": "poll",
+        "data": {
+            "id": "3c96966e-9141-4d0d-98fe-8e417301144c",
+            "broadcaster_id": "29961813",
+            "broadcaster_name": "durss",
+            "broadcaster_login": "durss",
+            "title": "Poll test",
+            "choices": [
+                {
+                    "id": "b2dc37a4-6469-41f3-9d09-57644cc813b3",
+                    "title": "option 1",
+                    "votes": 0,
+                    "channel_points_votes": 0,
+                    "bits_votes": 0
+                },
+                {
+                    "id": "a1b43c9c-b52a-4885-9d4e-2c2c0d99218b",
+                    "title": "option 2",
+                    "votes": 0,
+                    "channel_points_votes": 0,
+                    "bits_votes": 0
+                }
+            ],
+            "bits_voting_enabled": false,
+            "bits_per_vote": 0,
+            "channel_points_voting_enabled": false,
+            "channel_points_per_vote": 0,
+            "status": "COMPLETED",
+            "duration": 60,
+            "started_at": "2022-02-16T17:59:57.589127933Z",
+            "ended_at": "2022-02-16T18:00:57.589127933Z"
+        }
     }
 }

@@ -1,5 +1,5 @@
 <template>
-	<div class="chatpollresult">
+	<div class="chatpollresult" @click.ctrl="copyJSON()">
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{prediction.title}}</div>
@@ -21,6 +21,7 @@
 <script lang="ts">
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -31,7 +32,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatPollResult extends Vue {
 
-	public pollData!:IRCEventDataList.PollResult
+	public pollData!:IRCEventDataList.PollResult;
 
 	public get prediction():TwitchTypes.Poll {
 		return this.pollData.data;
@@ -48,6 +49,11 @@ export default class ChatPollResult extends Vue {
 		return {
 			backgroundSize: `${percent * 100}% 100%`,
 		};
+	}
+
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.pollData));
+		console.log(this.pollData);
 	}
 
 }
