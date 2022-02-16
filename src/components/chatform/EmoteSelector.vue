@@ -181,6 +181,7 @@ export default class EmoteSelector extends Vue {
 .emoteselector{
 	.window();
 	width: min-content;
+	max-width: 100vw;
 	left: auto;
 	right: 0;
 	margin-left: auto;
