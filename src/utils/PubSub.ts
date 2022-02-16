@@ -13,6 +13,7 @@ export default class PubSub {
 	private socket!:WebSocket;
 	private pingInterval!:number;
 	private reconnectTimeout!:number;
+	private hypeTrainApproachingTimer!:number;
 	
 	constructor() {
 	
@@ -415,7 +416,7 @@ export default class PubSub {
 	}
 
 	/**
-	 * Called when a hype train starts
+	 * Called when a hype train approaches
 	 * @param data 
 	 */
 	private hypeTrainApproaching(data:PubSubTypes.HypeTrainApproaching):void {
@@ -429,6 +430,10 @@ export default class PubSub {
 			state: "APPROACHING",
 		};
 		store.dispatch("setHypeTrain", train);
+		//Hide "hypetrain approaching" notification if expired
+		this.hypeTrainApproachingTimer = setTimeout(()=> {
+			store.dispatch("setHypeTrain", {});
+		}, train.timeLeft * 1000);
 	}
 
 	/**
@@ -436,6 +441,7 @@ export default class PubSub {
 	 * @param data 
 	 */
 	private hypeTrainStart(data:PubSubTypes.HypeTrainStart):void {
+		clearTimeout(this.hypeTrainApproachingTimer);
 		const train:HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
@@ -496,7 +502,7 @@ export default class PubSub {
 		setTimeout(()=> {
 			//Hide hype train popin
 			store.dispatch("setHypeTrain", {});
-		}, 15000)
+		}, 20000)
 	}
 	
 }
