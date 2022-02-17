@@ -94,6 +94,7 @@ export default class ChatPollResult extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
+				margin-bottom: 1px;
 				
 				.choiceTitle {
 					width: 50%;
@@ -116,7 +117,7 @@ export default class ChatPollResult extends Vue {
 					border-radius: 5px;
 					@c: fade(@mainColor_light, 25%);
 					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: fade(@c, 25%);
+					background-color: fade(@c, 20%);
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 

@@ -6,12 +6,14 @@
 					:max="$store.state.params.appearance.historySize.value" />
 
 				<transition name="fade">
-					<div class="dimmer" v-if="currentNotificationContent" @click="currentNotificationContent=''"></div>
+					<div class="dimmer" v-if="showDimmer" @click="currentNotificationContent=''"></div>
 				</transition>
 			</div>
 			
 			<ChannelNotifications class="eventInfo"
 				:currentContent="currentNotificationContent"
+				@showDimmer="showDimmer=true"
+				@hideDimmer="showDimmer=false"
 				@close="currentNotificationContent=''"/>
 
 			<ChatForm class="chatForm"
@@ -56,6 +58,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Chat extends Vue {
 
+	public showDimmer:boolean = false;
 	public currentModal:string = "";
 	public currentNotificationContent:string = "";
 

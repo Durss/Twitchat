@@ -437,6 +437,10 @@ export default class IRCClient extends EventDispatcher {
 				(json as IRCEventDataList.PollResult).tags.id = this.getFakeGuid();
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
+			if(json.type == "prediction") {
+				(json as IRCEventDataList.PredictionResult).tags.id = this.getFakeGuid();
+				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
+			}
 			await Utils.promisedTimeout(50);
 		}
 	}

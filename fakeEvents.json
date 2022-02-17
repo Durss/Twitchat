@@ -590,7 +590,7 @@
 
     "pollResult": {
         "tags": {
-            "id": "00000000-0000-0000-0000-000000000034"
+            "id": "00000000-0000-0000-0001-000000000034"
         },
         "type": "poll",
         "data": {
@@ -624,5 +624,61 @@
             "started_at": "2022-02-16T17:59:57.589127933Z",
             "ended_at": "2022-02-16T18:00:57.589127933Z"
         }
+    },
+
+    "predictionResult": {
+        "tags": {
+            "id": "00000000-0000-0000-0001-000000000017"
+        },
+        "type": "prediction",
+        "data": {
+            "id": "09ced600-a679-45c5-ad50-4979090f6db1",
+            "broadcaster_id": "29961813",
+            "broadcaster_name": "Durss",
+            "broadcaster_login": "durss",
+            "title": "Prediction test",
+            "winning_outcome_id": "a9753995-f25d-40d1-81cd-a9b7605b58d7",
+            "outcomes": [
+                {
+                    "id": "a9753995-f25d-40d1-81cd-a9b7605b58d7",
+                    "title": "blue",
+                    "users": 1,
+                    "channel_points": 80,
+                    "top_predictors": [
+                        {
+                            "user_id": "647389082",
+                            "user_login": "durssbot",
+                            "user_name": "DurssBot",
+                            "channel_points_used": 80,
+                            "channel_points_won": 0
+                        }
+                    ],
+                    "color": "BLUE"
+                },
+                {
+                    "id": "7a483df8-3ec8-4e15-8e9a-da64fc574ad9",
+                    "title": "red",
+                    "users": 1,
+                    "channel_points": 188,
+                    "top_predictors": [
+                        {
+                            "user_id": "29961813",
+                            "user_login": "durss",
+                            "user_name": "Durss",
+                            "channel_points_used": 188,
+                            "channel_points_won": 0
+                        }
+                    ],
+                    "color": "PINK"
+                }
+            ],
+            "prediction_window": 30,
+            "status": "RESOLVED",
+            "created_at": "2022-02-17T19:10:55.130396565Z",
+            "ended_at": "2022-02-17T19:11:30.109908422Z",
+            "locked_at": "2022-02-17T19:11:24.804100656Z"
+        },
+        "showHoverActions": false,
+        "markedAsRead": false
     }
 }

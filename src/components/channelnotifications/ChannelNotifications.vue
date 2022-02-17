@@ -2,29 +2,31 @@
 	<div class="channelnotifications">
 		<div ref="content" class="holder">
 			<transition name="slide">
-				<PollState class="content" v-if="currentContent == 'poll' && $store.state.currentPoll?.id" />
-				<PredictionState class="content" v-else-if="currentContent == 'prediction' && $store.state.currentPrediction?.id" />
-				<TrackedUsers class="content" v-else-if="currentContent == 'trackedUsers'" />
-				<RaffleState class="content" v-else-if="currentContent == 'raffle' && $store.state.raffle.command" />
-				<WhispersState class="content" v-else-if="currentContent == 'whispers' && whispersAvailable" />
+				<PollState class="content" v-if="showPoll" />
+				<PredictionState class="content" v-else-if="showPrediction" />
+				<TrackedUsers class="content" v-else-if="showTrackedUsers" />
+				<RaffleState class="content" v-else-if="showRaffle" />
+				<WhispersState class="content" v-else-if="showWhispers" />
 			</transition>
 
 			<transition name="slide">
-				<RaidState class="content" v-if="$store.state.raiding" />
+				<RaidState class="content" v-if="showRaid" />
 			</transition>
 
 			<transition name="slide">
-				<HypeTrainState class="content" v-if="$store.state.params.filters.showHypeTrain.value && $store.state.hypeTrain?.level" />
+				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
-			<Button :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" small @click="$emit('close')" />
+			<Button v-if="showClose" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" small @click="$emit('close')" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import store, { HypeTrainStateData, RaffleData } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import { TwitchTypes } from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import HypeTrainState from './HypeTrainState.vue';
@@ -49,13 +51,29 @@ import WhispersState from './WhispersState.vue';
 		HypeTrainState,
 		PredictionState,
 	},
-	emits:['goToLastRead', 'close'],
+	emits:['close','showDimmer', 'hideDimmer'],
 })
 export default class ChannelNotifications extends Vue {
 
 	public currentContent!:string;
 
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public get showRaid():boolean { return store.state.raiding?.length > 0; }
+	public get showHypeTrain():boolean { return store.state.params.filters.showHypeTrain.value && (store.state.hypeTrain as HypeTrainStateData).level != undefined; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchTypes.Poll)?.id != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchTypes.Prediction)?.id != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && (store.state.raffle as RaffleData).command != null; }
+	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
+	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
+
+	public get showClose():boolean {
+		return this.showPoll
+			|| this.showPrediction
+			|| this.showRaffle
+			|| this.showWhispers
+			|| this.showTrackedUsers;
+	}
 
 	public get whispersAvailable():boolean {
 		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
@@ -68,17 +86,19 @@ export default class ChannelNotifications extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
+
+		watch(()=>this.showClose, ()=> {
+			if(this.showClose) this.$emit("showDimmer");
+			else this.$emit("hideDimmer");
+		})
+
 	}
 
 	public beforeUnmount():void {
-		console.log("UNMOUNT");
-		
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 
 	private onClick(e:MouseEvent):void {
-		console.log("CILICK");
-
 		let target = e.target as HTMLDivElement;
 		const ref = this.$refs.content as HTMLDivElement;
 		while(target != document.body && target != ref) {

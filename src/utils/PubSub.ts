@@ -199,9 +199,8 @@ export default class PubSub {
 
 
 			
-		}else if(data.type == "POLL_ARCHIVED" || data.type == "POLL_TERMINATE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
+		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_TERMINATE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
 			TwitchUtils.getPolls();
-
 
 			
 		}else if(data.type == "event-created" || data.type == "event-updated") {

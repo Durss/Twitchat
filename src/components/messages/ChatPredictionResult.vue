@@ -1,5 +1,5 @@
 <template>
-	<div class="chatpredictionresult">
+	<div class="chatpredictionresult" @click.ctrl="copyJSON()">
 		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{prediction.title}}</div>
@@ -29,6 +29,7 @@
 <script lang="ts">
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -65,6 +66,11 @@ export default class ChatPredictionResult extends Vue {
 		return {
 			backgroundSize: `${percent}% 100%`,
 		};
+	}
+
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.predictionData));
+		console.log(this.predictionData);
 	}
 
 }
@@ -104,12 +110,13 @@ export default class ChatPredictionResult extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
+				margin-bottom: 1px;
 
 				&:first-of-type {
 					.bar {
 						@c: #387aff;
 						background: linear-gradient(to right, @c 100%, @c 100%);
-						background-color: fade(@c, 25%);
+						background-color: fade(@c, 20%);
 						background-repeat: no-repeat;
 					}
 				}
@@ -140,7 +147,7 @@ export default class ChatPredictionResult extends Vue {
 					border-radius: 5px;
 					@c: #f50e9b;
 					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: fade(@c, 25%);
+					background-color: fade(@c, 20%);
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 
