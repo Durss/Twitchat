@@ -1,8 +1,14 @@
 <template>
 	<div class="chat">
 		<div class="chatHolder">
-			<MessageList ref="messages" class="messages"
-				:max="$store.state.params.appearance.historySize.value" />
+			<div class="messagesHolder">
+				<MessageList ref="messages" class="messages"
+					:max="$store.state.params.appearance.historySize.value" />
+
+				<transition name="fade">
+					<div class="dimmer" v-if="currentNotificationContent" @click="currentNotificationContent=''"></div>
+				</transition>
+			</div>
 			
 			<ChannelNotifications class="eventInfo"
 				:currentContent="currentNotificationContent"
@@ -26,8 +32,6 @@
 
 <script lang="ts">
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
-import HypeTrainState from '@/components/channelnotifications/HypeTrainState.vue';
-import RaidState from '@/components/channelnotifications/RaidState.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
@@ -81,8 +85,39 @@ export default class Chat extends Vue {
 		margin: auto;
 		display: flex;
 		flex-direction: column;
-		.messages {
+
+		.messagesHolder {
+			position: relative;
 			flex-grow: 1;
+
+			.messages {
+				width: 100%;
+				height: 100%;
+			}
+
+			.dimmer {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, .5);
+				opacity:1;
+				cursor: pointer;
+
+				&.fade-enter-active {
+					transition: all .25s;
+				}
+
+				&.fade-leave-active {
+					transition: all .25s;
+				}
+				
+				&.fade-enter-from,
+				&.fade-leave-to {
+					opacity:0;
+				}
+			}
 		}
 		.chatForm {
 			width: 100%;

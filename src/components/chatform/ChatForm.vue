@@ -205,7 +205,7 @@ export default class ChatForm extends Vue {
 		});
 	}
 
-	public beforeUnmout():void {
+	public beforeUnmount():void {
 	}
 	
 	public openParams():void {
