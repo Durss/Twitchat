@@ -2,14 +2,12 @@
 	<div class="login">
 		<div class="head">
 			<img class="icon" src="@/assets/logo.svg" alt="twitch">
+			<div class="beta">beta</div>
 		</div>
 
 		<div class="content">
 			<div class="description" v-if="!authenticating">
-				<b>Twitchat</b> aims to fill gaps from the official Twitch chat.
-				<br>
-				<br>
-				It's goal is to make it easier for a streamer to communicate with her/his audience by missing the fewer messages possible with some special features.
+				<b>Twitchat</b> aims to fill gaps from the official Twitch chat for the streamers.
 			</div>
 
 			<div class="infos"
@@ -144,9 +142,26 @@ export default class Login extends Vue {
 	position: absolute;
 	width: 380px;
 	z-index: 1;
+
+	.beta {
+		position: absolute;
+		top: 10px;
+		right: -50px;
+		background-color: @mainColor_normal;
+		color: @mainColor_light;
+		padding: 5px 50px;
+		border-radius: 10px;
+		text-transform: uppercase;
+		font-size: 18px;
+		transform: rotate(45deg);
+	}
 	
 	.head {
 		margin-bottom:0;
+		padding: 0;
+		padding-top: 20px;
+		width: 200px;
+		margin: auto;
 		.icon {
 			height: 50px;
 		}

@@ -1,14 +1,20 @@
 <template>
 	<div class="paramsaccount">
-		<div class="row">
-			<label for="obsEmbed">Add chat in OBS overlay</label>
+		<div class="splitter">
+			<h2 for="obsEmbed">Add chat as an OBS overlay</h2>
 			<p class="info">Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
 			<input type="text" id="obsEmbed" v-model="obsOverlayURL">
 		</div>
 
 		<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Logout" highlight class="logoutBt" />
 		
-		<div class="credits">
+		<div class="splitter">
+			<h2>Suggestions and issues</h2>
+			<p>If you have a feature idea or experiencing an issue, please <a href="https://github.com/Durss/Twitchat/issues" target="_blank">create an issue on github</a>.</p>
+			<p>I want this tool to be as good as possible, if anything annoys you when using it, I want to know it!</p>
+		</div>
+		
+		<div class="splitter">
 			<h2>Credits</h2>
 			<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
 			<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
@@ -84,32 +90,27 @@ export default class ParamsAccount extends Vue {
 		margin-bottom: 5px;
 	}
 
-	.row {
+	.splitter {
+		text-align: center;
 		display: flex;
 		flex-direction: column;
-		margin-bottom: 10px;
 		justify-content: flex-start;
 
-		p {
-			font-size: .8em;
-			margin-bottom: 5px;
-			font-style: italic;
+		&:not(:first-child) {
+			margin-top: 40px;
 		}
-	}
-
-	.credits {
-		text-align: center;
 
 		h2 {
 			border-bottom: 1px solid @mainColor_normal;
 			// border-left: 3px solid @mainColor_normal;
 			padding-left: 5px;
 			font-size: 20px;
-			margin-top: 20px;
 		}
 		p {
 			margin-left: 10px;
 			margin-top: 10px;
+			font-size: .85em;
+			margin-bottom: 5px;
 
 			.link {
 				&:not(:last-child) {
