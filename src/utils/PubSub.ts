@@ -1,4 +1,5 @@
 import store, { HypeTrainStateData } from "@/store";
+import { ChatUserstate } from "tmi.js";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
@@ -50,11 +51,17 @@ export default class PubSub {
 				"chat_moderator_actions."+store.state.user.user_id+"."+store.state.user.user_id,
 				"automod-queue."+store.state.user.user_id+"."+store.state.user.user_id,
 				"user-moderation-notifications."+store.state.user.user_id+"."+store.state.user.user_id,
+				"leaderboard-events-v1.bits-usage-by-channel-v1-"+store.state.user.user_id+"-WEEK",
+				"leaderboard-events-v1.sub-gifts-sent-"+store.state.user.user_id+"-WEEK",
 				"raid."+store.state.user.user_id,
 				"predictions-channel-v1."+store.state.user.user_id,
 				"polls."+store.state.user.user_id,
 				"hype-train-events-v1."+store.state.user.user_id,
 				"following."+store.state.user.user_id,
+				"ads."+store.state.user.user_id,
+
+				//None of the available scopes allows to listen to the following topics
+				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
 			]);
 		};
@@ -108,6 +115,31 @@ export default class PubSub {
 		this.parseEvent(PubsubJSON.HypeTrainComplete);
 		await Utils.promisedTimeout(10000);
 		this.parseEvent(PubsubJSON.HypeTrainExpire);
+	}
+
+	public async simulateLowTrustUser():Promise<void> {
+		const m = PubsubJSON.LowTrustMessage;
+		m.data.message_id = IRCClient.instance.getFakeGuid();
+		const tags:ChatUserstate = {
+			'message-type': "chat",
+			username: m.data.low_trust_user.sender.login,
+			color: m.data.low_trust_user.sender.chat_color,
+			"display-name": m.data.low_trust_user.sender.display_name,
+			id: m.data.message_id,
+			mod: false,
+			turbo: false,
+			'emotes-raw': "",
+			'badges-raw': "",
+			'badge-info-raw': "",
+			"room-id": m.data.low_trust_user.channel_id,
+			subscriber: false,
+			'user-type': "",
+			"user-id": m.data.low_trust_user.sender.user_id,
+			"tmi-sent-ts": Date.now().toString(),
+		}
+		IRCClient.instance.addMessage(m.data.message_content.fragments[0].text, tags, false);
+		this.parseEvent(m);
+
 	}
 	
 	
@@ -178,9 +210,18 @@ export default class PubSub {
 
 
 			
+		}else if(data.type == "hype-train-cooldown-expiration") {
+			IRCClient.instance.sendNotice("hype_cooldown_expired", "Hype train can be started again !");
+
+
+			
 		}else if(data.type == "automod_caught_message") {
-			const localObj = data.data as  PubSubTypes.AutomodData;
-			this.automodEvent(localObj);
+			this.automodEvent(data.data as  PubSubTypes.AutomodData);
+
+
+			
+		}else if(data.type == "low_trust_user_new_message") {
+			this.lowTrustMessage(data.data as  PubSubTypes.LowTrustMessage);
 
 
 			
@@ -287,6 +328,15 @@ export default class PubSub {
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
 			store.dispatch("delChatMessage", localObj.message.id);
 		}
+	}
+
+	/**
+	 * Called when a low trust user is detected
+	 * 
+	 * @param localObj
+	 */
+	private lowTrustMessage(localObj:PubSubTypes.LowTrustMessage):void {
+		store.dispatch("flagLowTrustMessage", localObj);
 	}
 
 	/**
@@ -923,6 +973,43 @@ export namespace PubSubTypes {
 		total: number;
 		remaining_seconds: number;
 	}
+
+	export interface LowTrustMessage {
+        low_trust_user: LowTrustUser;
+        message_content: {
+			text: string;
+			fragments: {
+				text: string;
+			}[];
+		};
+        message_id: string;
+        sent_at: Date;
+	}
+
+    interface LowTrustUser {
+        id: string;
+        low_trust_id: string;
+        channel_id: string;
+        sender: {
+			user_id: string;
+			login: string;
+			display_name: string;
+			chat_color: string;
+			badges: {
+				id: string;
+				version: string;
+			}[];
+		};
+        evaluated_at: Date;
+        updated_at: Date;
+        ban_evasion_evaluation: "UNLIKELY_EVADER" | string;
+        treatment: "RESTRICTED" | "ACTIVE_MONITORING";
+        updated_by: {
+			id: string;
+			login: string;
+			display_name: string;
+		};
+    }
 }
 
 namespace PubsubJSON {
@@ -938,4 +1025,6 @@ namespace PubsubJSON {
 	export const HypeTrainLevelUp5 = {"type":"hype-train-level-up","data":{"time_to_expire":1644508891000,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}]},"value":1700,"goal":3000,"total":9500,"remaining_seconds":299}}};
 	export const HypeTrainComplete = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"COMPLETED"}};
 	export const HypeTrainExpire = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"EXPIRE"}};
+	export const HypeTrainCooldownOver = {"type":"hype-train-cooldown-expiration"};
+	export const LowTrustMessage = {"type":"low_trust_user_new_message","data":{"low_trust_user":{"id":"647389082","low_trust_id":"Mjk5NjE4MTMuNjQ3Mzg5MDgy","channel_id":"29961813","sender":{"user_id":"647389082","login":"durssbot","display_name":"DurssBot","chat_color":"#8A2BE2","badges":[{"id":"vip","version":"1"}]},"evaluated_at":"2022-01-12T15:39:44Z","updated_at":"2022-02-19T21:13:27Z","ban_evasion_evaluation":"UNLIKELY_EVADER","treatment":"ACTIVE_MONITORING","updated_by":{"id":"29961813","login":"durss","display_name":"Durss"}},"message_content":{"text":"test","fragments":[{"text":"test"}]},"message_id":"f5958f42-d1c1-45d0-857d-8533125b50a7","sent_at":"2022-02-19T21:14:41Z"}};
 }

@@ -16,6 +16,7 @@
 			<Button title="Prediction result" @click="simulateEvent('predictionResult')" :icon="require('@/assets/icons/prediction.svg')" />
 			<Button title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
 			<Button title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
+			<Button title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
 		</div>
 	</div>
 </template>
@@ -79,6 +80,8 @@ export default class DevmodeMenu extends Vue {
 	public simulateEvent(code:string):void {
 		if(code == "hypeTrain") {
 			PubSub.instance.simulateHypeTrain();
+		}else if(code == "lowTrustUser") {
+			PubSub.instance.simulateLowTrustUser();
 		}else{
 			IRCClient.instance.sendFakeEvent(code);
 		}

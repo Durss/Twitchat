@@ -166,7 +166,7 @@ export default class ChatHighlight extends Vue {
 						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {
-						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.emote+"</center>";
+						let tt = "<img src='"+v.value.replace(/1.0$/gi, "3.0")+"' width='112' height='112'><br><center>"+v.label+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}

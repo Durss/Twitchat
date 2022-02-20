@@ -58,6 +58,7 @@ export namespace IRCEventDataList {
 		cyphered?:boolean;
 		markedAsRead?:boolean;
 		showHoverActions?:boolean;
+		lowTrust?:boolean;
 		type:"message";
 	}
 

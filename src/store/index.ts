@@ -2,7 +2,7 @@ import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventData, IRCEventDataList, ActivityFeedData } from '@/utils/IRCEvent';
-import PubSub from '@/utils/PubSub';
+import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -16,6 +16,7 @@ export default createStore({
 		authenticated: false,
 		showParams: false,
 		devmode: false,
+		canSplitView: false,
 		oAuthToken: {},
 		alert: "",
 		tooltip: "",
@@ -39,6 +40,7 @@ export default createStore({
 		realHistorySize: 1000,
 		params: {
 			appearance: {
+				splitView: {type:"toggle", value:true, label:"Split view (left:chat ; right:activities, notifications, etc..)", id:13, icon:"split_purple.svg"},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
@@ -128,8 +130,8 @@ export default createStore({
 				state.user = userRes as TwitchTypes.Token;
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.TWITCH_APP_SCOPES.length; i++) {
-					if(Config.TWITCH_APP_SCOPES.indexOf(state.user.scopes[i]) == -1) {
-						console.log("Missing scope:", state.user.scopes[i]);
+					if(state.user.scopes.indexOf(Config.TWITCH_APP_SCOPES[i]) == -1) {
+						console.log("Missing scope:", Config.TWITCH_APP_SCOPES[i]);
 						state.authenticated = false;
 						state.oAuthToken = {};
 						if(cb) cb(false);
@@ -381,6 +383,26 @@ export default createStore({
 
 		setHypeTrain(state, data:HypeTrainStateData[]) { state.hypeTrain = data; },
 
+		flagLowTrustMessage(state, data:PubSubTypes.LowTrustMessage) {
+			//Ignore message if user is "restricted"
+			if(data.low_trust_user.treatment == 'RESTRICTED') return;
+
+			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
+			for (let i = 0; i < list.length; i++) {
+				const m = list[i];
+				if(m.tags.id == data.message_id) {
+					list[i].lowTrust = true;
+					return;
+				}
+			}
+
+			//TODO if reaching this point that means the message was not found.
+			//theorically the "low trust" message might arrive before the message itself.
+			//We may want to handle such case.
+		},
+
+		canSplitView(state, value:boolean) { state.canSplitView = value; },
+
 	},
 
 
@@ -485,7 +507,6 @@ export default createStore({
 					if(ellapsed <= raffle.duration * 60000
 					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
 					&& !raffle.users.find(v=>v['user-id'] == message.tags['user-id'])) {
-						console.log("enter raffle");
 						raffle.users.push(message.tags);
 					}
 				}
@@ -641,6 +662,10 @@ export default createStore({
 		toggleDevMode({commit}, forcedState?:boolean) { commit("toggleDevMode", forcedState); },
 
 		setHypeTrain({commit}, data:HypeTrainStateData) { commit("setHypeTrain", data); },
+
+		flagLowTrustMessage({commit}, data:PubSubTypes.LowTrustMessage) { commit("flagLowTrustMessage", data); },
+
+		canSplitView({commit}, value:boolean) { commit("canSplitView", value); },
 	},
 	modules: {
 	}

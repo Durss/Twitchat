@@ -13,6 +13,11 @@
 				<Button title="Reject" @click.stop="modMessage(false)" highlight />
 			</div>
 		</div>
+		
+		<div v-if="messageData.lowTrust" class="lowTrust">
+			<img src="@/assets/icons/shield.svg">
+			<div class="header"><strong>Suspicious user</strong></div>
+		</div>
 
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
@@ -97,6 +102,7 @@ export default class ChatMessage extends Vue {
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
 		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
+		if(this.messageData.lowTrust) res.push("lowTrust");
 		if(this.messageData.cyphered) res.push("cyphered");
 		if(this.messageData.tags["msg-id"] === "highlighted-message") res.push("highlighted");
 
@@ -306,7 +312,7 @@ export default class ChatMessage extends Vue {
 							v.value = v.value.replace(/1.0$/gi, "2.0");
 							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
 						}
-						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.emote+"</center>";
+						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.label+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
@@ -383,9 +389,9 @@ export default class ChatMessage extends Vue {
 		}
 	
 		.login {
-			font-weight: bold;
 			cursor: pointer;
-			text-shadow: 0 0px 1px fade(#000, 50%);
+			font-weight: bold;
+			-webkit-text-stroke: fade(#000, 50%) .25px;
 		}
 	
 		.miniBadges {
@@ -484,6 +490,29 @@ export default class ChatMessage extends Vue {
 
 	&.cyphered {
 		background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 20px, #ffffff30 20px, #ffffff30 40px);
+	}
+
+	&.lowTrust {
+		margin-top: 5px;
+		border-radius: 5px;
+		background-color: fade(@mainColor_alert, 100%) !important;
+		
+		.lowTrust {
+			padding: .35em;
+			border-radius: 5px;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+
+			img {
+				height: 1em;
+				margin-right: .5em;
+			}
+
+			.header {
+				color: @mainColor_light;
+			}
+		}
 	}
 }
 </style>
