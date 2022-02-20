@@ -29,7 +29,7 @@
 				<Button :icon="require('@/assets/icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
-					@click="deleteWhispers(selectedUser)" />
+					@click="deleteWhispers(uid)" />
 			</div>
 		</div>
 	</div>
@@ -106,8 +106,9 @@ export default class WhispersState extends Vue {
 		this.whisper = "";
 	}
 
-	public deleteWhispers():void {
-		store.dispatch("closeWhispers", this.selectedUser);
+	public deleteWhispers(user:string):void {
+		console.log(">>", user);
+		store.dispatch("closeWhispers", user);
 		this.selectedUser = null;
 	}
 
@@ -182,6 +183,7 @@ export default class WhispersState extends Vue {
 				margin: auto;
 				padding: 2px;
 				height: 21px;
+				width: 21px;
 				min-height: 21px;
 				min-width: 21px;
 				flex-grow: 0;
@@ -218,7 +220,7 @@ export default class WhispersState extends Vue {
 				margin-bottom: 5px;
 				display: flex;
 				flex-direction: row;
-				align-items: flex-start;
+				align-items: center;
 				padding: 0px 5px 2px 5px;
 				
 				&:nth-child(even) {
