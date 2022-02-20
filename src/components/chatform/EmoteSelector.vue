@@ -18,7 +18,7 @@
 						:src="'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/1.0'"
 						:alt="e.name"
 						:data-tooltip="e.name"
-						@click="$emit('select', e)">
+						@click="$emit('select', e.name)">
 				</div>
 			</div>
 		</div>
@@ -38,7 +38,7 @@
 						:src="'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/1.0'"
 						:alt="e.name"
 						:data-tooltip="e.name"
-						@click="$emit('select', e)">
+						@click="$emit('select', e.name)">
 				</div>
 			</div>
 		</div>
@@ -181,7 +181,6 @@ export default class EmoteSelector extends Vue {
 .emoteselector{
 	.window();
 	width: min-content;
-	max-width: 100vw;
 	left: auto;
 	right: 0;
 	margin-left: auto;
