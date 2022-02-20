@@ -287,7 +287,7 @@ export default class NewUsers extends Vue {
 
 	&.size_1 {
 		.messageList{
-			font-size: 10px;
+			font-size: 11px;
 			.message{ padding: 2px; }
 		}
 	}

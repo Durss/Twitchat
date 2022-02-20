@@ -504,7 +504,7 @@ export default class MessageList extends Vue {
 	position: relative;
 
 	&.size_1 {
-		.message{ font-size: 10px; padding: 2px; }
+		.message{ font-size: 11px; padding: 2px; }
 	}
 	&.size_2 {
 		.message{ font-size: 13px; padding: 2px; }

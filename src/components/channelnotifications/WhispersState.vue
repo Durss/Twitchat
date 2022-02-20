@@ -122,7 +122,7 @@ export default class WhispersState extends Vue {
 
 	&.size_1 {
 		.messages{
-			font-size: 10px;
+			font-size: 11px;
 			.message{ margin-bottom: 2px; }
 		}
 	}
