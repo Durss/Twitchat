@@ -77,6 +77,7 @@ export default class MessageSearch extends Vue {
 <style scoped lang="less">
 .messagesearch{
 	min-height: 70px;
+	max-height: 50vh;
 	position: relative;
 	display: flex;
 	flex-direction: column;
