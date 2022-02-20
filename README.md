@@ -41,14 +41,16 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Emote selector 
 - [x] BTTV emotes supported
 - [x] Message autocomplete nickname via "@", emotes via ":" or both via TAB key
-
+- [x] Autocomplete commands
+- [x] Allow to search on all messages
+- [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
+<br>
+<br>
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
-- [ ] Autocomplete commands
 - [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
-- [ ] allow to search on all messages
 <br>
 <br>
 <br>
