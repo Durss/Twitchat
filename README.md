@@ -45,7 +45,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Allow to search on all messages
 - [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
 <br>
-<br>
+
 - [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Parse FFZ emotes
