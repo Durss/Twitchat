@@ -1,0 +1,152 @@
+<template>
+	<div :class="classes">
+
+		<Button small
+			:icon="require('@/assets/icons/cross_white.svg')"
+			@click="$emit('close')"
+			class="closeBt"
+		/>
+		
+		<h1>Search results <span class="count" v-if="messages.length > 0">({{messages.length}})</span></h1>
+		<div class="messages" v-if="messages.length > 0">
+			<ChatMessage
+				v-for="m in messages"
+				:key="m.tags.id"
+				class="message"
+				:messageData="m"
+				:ref="'message_'+m.tags.id"
+				:lightMode="true"
+				:disableConversation="true"
+				:enableWordHighlight="true"
+			/>
+		</div>
+
+		<div class="noResult" v-if="messages.length == 0">
+			No result for search "{{search}}"
+		</div>
+	</div>
+</template>
+
+<script lang="ts">
+import store from '@/store';
+import { IRCEventDataList } from '@/utils/IRCEvent';
+import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
+
+@Options({
+	props:{
+		search:String
+	},
+	components:{
+		Button,
+		ChatMessage,
+	},
+	emits:["close"]
+})
+export default class MessageSearch extends Vue {
+
+	public search!:string;
+
+	public get classes():string[] {
+		let res = ["messagesearch"];
+
+		res.push("size_"+store.state.params.appearance.defaultSize.value);
+		if(this.messages.length > 0) res.push("hasResult");
+
+		return res;
+	}
+
+	public get messages():IRCEventDataList.Message[] {
+		const list = store.state.chatMessages.concat();
+		const result:IRCEventDataList.Message[] = [];
+		for (let i = 0; i < list.length; i++) {
+			const m = list[i] as IRCEventDataList.Message;
+			if(m.type != "message") continue;
+			if(m.message.indexOf(this.search) > -1) {
+				m.highlightWord = this.search;
+				result.push(m);
+			}
+		}
+		return result;
+	}
+
+}
+</script>
+
+<style scoped lang="less">
+.messagesearch{
+	min-height: 70px;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+
+	&.hasResult {
+		min-height: 120px;
+	}
+
+	&.size_1 {
+		.messages {
+			.message{ font-size: 11px; padding: 2px; }
+		}
+	}
+	&.size_2 {
+		.messages {
+			.message{ font-size: 13px; padding: 2px; }
+		}
+	}
+	&.size_3 {
+		.messages {
+			.message{ font-size: 18px; padding: 5px; }
+		}
+	}
+	&.size_4 {
+		.messages {
+			.message{ font-size: 24px; padding: 5px; }
+		}
+	}
+	&.size_5 {
+		.messages {
+			.message{ font-size: 30px; padding: 10px; }
+		}
+	}
+
+	h1 {
+		text-align: center;
+		color: #ffffff;
+		margin: 10px 0;
+		.count {
+			font-size: .7em;
+			font-weight: normal;
+		}
+	}
+
+	.closeBt {
+		.clearButton();
+		position: absolute;
+		top:5px;
+		right:5px;
+		z-index: 1;
+	}
+
+	.messages {
+		overflow-y: auto;
+
+		:deep(.time) {
+			color: fade(#ffffff, 75%);
+			font-size: 11px;
+			vertical-align: middle;
+			width: 36px;
+			display: inline-block;
+		}
+	}
+
+	.noResult {
+		color: #ffffff;
+		opacity: .5;
+		font-size: 14px;
+		font-style: italic;
+		text-align: center;
+	}
+}
+</style>

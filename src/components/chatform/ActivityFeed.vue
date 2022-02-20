@@ -193,6 +193,11 @@ export default class ActivityFeed extends Vue {
 		flex-grow: 1;
 		padding: 0;
 
+		.head {
+			top: 5px;
+			right: 3px;
+		}
+
 		.messageList {
 			max-height: unset;
 			min-height: auto;
@@ -208,7 +213,6 @@ export default class ActivityFeed extends Vue {
 	.head {
 		position: relative;
 		h1 {
-			flex-grow: 1;
 			color: @mainColor_light;
 			align-self: center;
 			text-align: center;

@@ -17,7 +17,11 @@
 				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
-			<Button v-if="showClose" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" small @click="$emit('close')" />
+			<div class="closeBt" v-if="showClose">
+				<Button small
+					:icon="require('@/assets/icons/cross_white.svg')"
+					@click="$emit('close')" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -122,7 +126,7 @@ export default class ChannelNotifications extends Vue {
 		.content {
 			pointer-events:all;
 			padding: 10px;
-			padding-bottom: 20px;
+			padding-bottom: 10px;
 			background-color: darken(@mainColor_normal, 20%);
 			box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 			border-radius: 10px;
@@ -144,9 +148,14 @@ export default class ChannelNotifications extends Vue {
 		.closeBt {
 			position: absolute;
 			top:10px;
-			right:10px;
+			left:50%;
+			transform: translate(-50%, -100%);
 			z-index: 1;
 			pointer-events:all;
+			background-color: darken(@mainColor_normal, 20%);
+			padding: 10px;
+			border-top-left-radius: 20px;
+			border-top-right-radius: 20px;
 		}
 
 		.slide-enter-active {

@@ -13,14 +13,19 @@
 				:alt="i.label"
 				:data-tooltip="i.label"
 				v-if="i.type=='emote'">
-			<img v-else class="image" src="@/assets/icons/user.svg" alt="user">
+			
+			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
+
+			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="user">
+
 			<div class="name">{{i.label}}</div>
+			<div class="infos" v-if="i.infos">{{i.infos}}</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import store, { CommandData } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -30,6 +35,7 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		emotes:Boolean,
 		users:Boolean,
+		commands:Boolean,
 		search:String,
 	},
 	components:{},
@@ -44,6 +50,7 @@ export default class AutocompleteForm extends Vue {
 	public search!:string;
 	public emotes!:boolean;
 	public users!:boolean;
+	public commands!:boolean;
 
 	public selectedIndex:number = 0;
 	public filteredItems:ListItem[] = [];
@@ -51,8 +58,7 @@ export default class AutocompleteForm extends Vue {
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
 		if(index == this.selectedIndex) res.push('selected');
-		if(item.type == "emote") res.push('emote');
-		else res.push('user');
+		res.push(item.type);
 		return res;
 	}
 
@@ -63,9 +69,9 @@ export default class AutocompleteForm extends Vue {
 		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
 		document.addEventListener("keydown", this.keyDownHandler);
 		watch(()=>this.search, ()=>{
-			this.onSearchChange()
+			this.onSearchChange();
 		});
-		this.onSearchChange()
+		this.onSearchChange();
 	}
 
 	public beforeUnmount():void {
@@ -73,8 +79,12 @@ export default class AutocompleteForm extends Vue {
 	}
 
 	public selectItem(item:ListItem):void {
-		const prefix = (item.type == "user")? "@": "";
-		this.$emit("select", prefix + item.label);
+		if(item.type == "cmd") {
+			this.$emit("select", item.cmd);
+		}else{
+			const prefix = (item.type == "user")? "@": "";
+			this.$emit("select", prefix + item.label);
+		}
 	}
 
 	public onkeyDown(e:KeyboardEvent):void {
@@ -175,6 +185,22 @@ export default class AutocompleteForm extends Vue {
 				}
 			}
 
+			if(this.commands) {
+				const cmds = store.state.commands;
+				for (let j = 0; j < cmds.length; j++) {
+					const e = cmds[j] as CommandData;
+					if(e.cmd.toLowerCase().indexOf(s) > -1) {
+						res.push({
+							type:"cmd",
+							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
+							cmd:e.cmd,
+							infos:e.details,
+							id:e.id,
+						});
+					}
+				}
+			}
+
 			this.filteredItems = res;
 		}
 		
@@ -184,7 +210,7 @@ export default class AutocompleteForm extends Vue {
 	}
 }
 
-export type ListItem = UserItem | EmoteItem;
+export type ListItem = UserItem | EmoteItem | CommandItem;
 
 interface UserItem {
 	type:"user";
@@ -197,6 +223,14 @@ interface EmoteItem {
 	id:string;
 	label:string;
 	emote:TwitchTypes.Emote;
+}
+
+interface CommandItem {
+	type:"cmd";
+	id:string;
+	label:string;
+	cmd:string;
+	infos:string;
 }
 </script>
 
@@ -228,10 +262,31 @@ interface EmoteItem {
 			background-color: fade(@mainColor_light, 20%);
 		}
 
+		&.cmd {
+			// display: flex;
+			// flex-direction: row;
+			// justify-content: space-between;
+			// align-items: center;
+			.name {
+				flex-grow: 1;
+				white-space: nowrap;
+				margin-right: 5px;
+			}
+			.image {
+				padding: 5px;
+			}
+		}
 
 		.name {
 			color: #fff;
 			font-size: 14px;
+		}
+
+		.infos {
+			color: fade(#fff, 70%);
+			font-size: 12px;
+			font-style: italic;
+			text-align: right;
 		}
 
 		.image {

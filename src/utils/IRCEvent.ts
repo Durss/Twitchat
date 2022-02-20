@@ -59,6 +59,7 @@ export namespace IRCEventDataList {
 		markedAsRead?:boolean;
 		showHoverActions?:boolean;
 		lowTrust?:boolean;
+		highlightWord?:string;
 		type:"message";
 	}
 

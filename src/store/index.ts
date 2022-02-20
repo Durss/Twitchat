@@ -38,9 +38,36 @@ export default createStore({
 		hypeTrain: {},
 		raiding: "",
 		realHistorySize: 1000,
+		commands: [
+			{
+				id:"search",
+				cmd:"/search {text}",
+				details:"Search for a message by its content",
+			},
+			{
+				id:"poll",
+				cmd:"/poll",
+				details:"Start a poll",
+			},
+			{
+				id:"prediction",
+				cmd:"/prediction",
+				details:"Start a prediction",
+			},
+			{
+				id:"raffle",
+				cmd:"/raffle",
+				details:"Start a raffle",
+			},
+			{
+				id:"raid",
+				cmd:"/raid {channel}",
+				details:"Raid someone",
+			}
+		],
 		params: {
 			appearance: {
-				splitView: {type:"toggle", value:true, label:"Split view (left:chat ; right:activities, notifications, etc..)", id:13, icon:"split_purple.svg"},
+				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/new users on right)", id:13, icon:"split_purple.svg"},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
@@ -712,4 +739,10 @@ export interface HypeTrainStateData {
 	started_at:number;
 	timeLeft:number;
 	state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
+}
+
+export interface CommandData {
+	id:string;
+	cmd:string;
+	details:string;
 }

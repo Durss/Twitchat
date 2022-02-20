@@ -6,9 +6,17 @@
 					:max="$store.state.params.appearance.historySize.value" />
 
 				<transition name="fade">
-					<div class="dimmer" v-if="showDimmer" @click="currentNotificationContent=''"></div>
+					<div class="dimmer" v-if="!splitView && (showDimmer || currentMessageSearch.length > 0)"
+						@click="currentNotificationContent=currentMessageSearch=''"
+					></div>
 				</transition>
 			</div>
+
+			<MessageSearch class="searchResult"
+				v-if="currentMessageSearch && !splitView"
+				:search="currentMessageSearch"
+				@close="currentMessageSearch = ''"
+			/>
 
 			<ChannelNotifications class="eventInfo"
 				v-if="!splitView"
@@ -17,13 +25,22 @@
 				@hideDimmer="showDimmer=false"
 				@close="currentNotificationContent=''"/>
 
-			<ChatForm class="chatForm"
+			<ChatForm class="chatForm" ref="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
 				@raffle="currentModal = 'raffle'"
-				@showNotificationContent="setCurrentNotification"
-				@clear="clearChat()"
+				@search="searchMessage"
+				v-model:showFeed="showFeed" @update:showFeed="v => showFeed = v"
+				v-model:showEmotes="showEmotes" @update:showEmotes="v => showEmotes = v"
+				v-model:showRewards="showRewards" @update:showRewards="v => showRewards = v"
+				v-model:showCommands="showCommands" @update:showCommands="v => showCommands = v"
+			>
+				<ChatNotificationButtons
+					v-if="!splitView"
+					@setCurrentNotification="setCurrentNotification"
+					v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
 				/>
+			</ChatForm>
 		</div>
 
 		<div class="rightColumn" v-if="splitView">
@@ -31,14 +48,56 @@
 
 			<ActivityFeed class="activityFeed" listMode />
 
+			<MessageSearch class="searchResult"
+				v-if="currentMessageSearch"
+				:search="currentMessageSearch"
+				@close="currentMessageSearch = ''"
+			/>
+
 			<ChannelNotifications class="eventInfo"
 				:currentContent="currentNotificationContent"
 				@showDimmer="showDimmer=true"
 				@hideDimmer="showDimmer=false"
-				@close="currentNotificationContent=''"/>
+				@close="currentNotificationContent=''"
+			/>
+
+			<div class="notificationActions">
+				<ChatNotificationButtons
+					@setCurrentNotification="setCurrentNotification"
+					v-model:showEmotes="showEmotes" @update:showEmotes="v => showEmotes = v"
+					v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
+				/>
+			</div>
 		</div>
+
+		<CommandHelper class="contentWindows actions"
+			v-if="showCommands"
+			@poll="currentModal = 'poll'"
+			@pred="currentModal = 'pred'"
+			@raffle="currentModal = 'raffle'"
+			@clear="clearChat()"
+			@close="showCommands = false" />
+
+		<EmoteSelector class="contentWindows emotes"
+			v-if="showEmotes"
+			@select="onSelectEmote"
+			@close="showEmotes = false" />
+
+		<!-- Actually not used, what the API allows us to do is useless -->
+		<RewardsList class="contentWindows rewards"
+			v-if="showRewards"
+			@close="showRewards = false" />
+
+		<DevmodeMenu class="contentWindows devmode"
+			v-if="showDevMenu"
+			@close="showDevMenu = false" />
+
+		<ActivityFeed class="contentWindows feed"
+			v-if="showFeed"
+			@close="showFeed = false" />
 		
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
+
 		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
 		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
@@ -46,9 +105,10 @@
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
-import ActivityFeed from '@/components/chatform/ActivityFeed.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
+import ChatNotificationButtons from '@/components/chatform/ChatNotificationButtons.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
 import PollForm from '@/components/poll/PollForm.vue';
@@ -56,18 +116,33 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
+import { TwitchTypes } from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
+import CommandHelper from '@/components/chatform/CommandHelper.vue';
+import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
+import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
+import RewardsList from '@/components/chatform/RewardsList.vue';
+import ActivityFeed from '@/components/chatform/ActivityFeed.vue';
+import MessageSearch from '@/components/chatform/MessageSearch.vue';
 
 @Options({
 	components:{
+		Button,
 		NewUsers,
 		ChatForm,
 		PollForm,
 		RaffleForm,
 		MessageList,
+		DevmodeMenu,
+		RewardsList,
 		ActivityFeed,
+		CommandHelper,
+		MessageSearch,
+		EmoteSelector,
 		PredictionForm,
 		ChannelNotifications,
+		ChatNotificationButtons,
 	},
 	props:{
 	},
@@ -75,7 +150,13 @@ import { Options, Vue } from 'vue-class-component';
 export default class Chat extends Vue {
 
 	public showDimmer:boolean = false;
+	public showFeed:boolean = false;
+	public showEmotes:boolean = false;
+	public showRewards:boolean = false;
+	public showDevMenu:boolean = false;
+	public showCommands:boolean = false;
 	public currentModal:string = "";
+	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value && store.state.canSplitView; }
@@ -92,6 +173,24 @@ export default class Chat extends Vue {
 		this.resizeHandler = (e:Event)=> this.onResize(e);
 		window.addEventListener("resize", this.resizeHandler);
 		this.onResize();
+		
+
+		//Auto opens the prediction status if pending for completion
+		watch(() => store.state.currentPrediction, () => {
+			let prediction = store.state.currentPrediction as TwitchTypes.Prediction;
+			if(prediction && prediction.status == "LOCKED") {
+				this.setCurrentNotification("prediction");
+			}
+		});
+		
+
+		//Auto opens the poll status if terminated
+		watch(() => store.state.currentPoll, () => {
+			let poll = store.state.currentPoll as TwitchTypes.Poll;
+			if(poll && poll.status == "COMPLETED") {
+				this.setCurrentNotification("poll");
+			}
+		});
 	}
 
 	public beforeUnmount():void {
@@ -103,7 +202,7 @@ export default class Chat extends Vue {
 	}
 
 	public onResize(e?:Event):void {
-		const value = document.body.clientWidth > 600;
+		const value = document.body.clientWidth > 599;
 		if(value != store.state.canSplitView) {
 			store.dispatch("canSplitView", value);
 		}
@@ -111,6 +210,21 @@ export default class Chat extends Vue {
 
 	public setCurrentNotification(value:string):void {
 		this.currentNotificationContent = value;
+	}
+
+	/**
+	 * Called when selecting an emote from the emote selectors
+	 */
+	public onSelectEmote(item:string):void {
+		(this.$refs.chatForm as ChatForm).onSelectItem(item);
+	}
+
+	/**
+	 * Called when searching for a message
+	 */
+	public searchMessage(str:string):void {
+		this.currentModal = 'search';
+		this.currentMessageSearch = str;
 	}
 }
 
@@ -147,6 +261,36 @@ export default class Chat extends Vue {
 				width: 100%;
 				min-height: 0;//Shit hack to make overflow behave properly
 			}
+
+			.notificationActions {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				background-color: @mainColor_dark_extralight;
+				padding: 10px;
+				min-height: 40px;
+				border-radius: 5px;
+				z-index: 2;
+				box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
+			}
+		}
+
+		.contentWindows {
+			// position: fixed;
+			&.emotes {
+				left: 50vw;
+				right: auto;
+				max-width: 50vw;
+				margin: auto;
+				transform-origin: bottom left;
+			}
+		}
+
+		.popin {
+			width: 50vw;
+			left: auto;
+			right: 0;
+			top: 0;
 		}
 	}
 
@@ -213,6 +357,13 @@ export default class Chat extends Vue {
 
 	.eventInfo {
 		z-index: 1;
+	}
+
+	.contentWindows {
+		position: absolute;
+		bottom: 40px;
+		left: 0;
+		z-index: 2;
 	}
 }
 </style>

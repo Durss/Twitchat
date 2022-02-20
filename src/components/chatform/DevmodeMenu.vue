@@ -2,21 +2,21 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<Button title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
-			<Button title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
-			<Button title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button title="Follow" @click="simulateEvent('following')" :icon="require('@/assets/icons/follow.svg')" />
-			<Button title="Reward redeem" @click="simulateEvent('reward')" :icon="require('@/assets/icons/channelPoints.svg')" />
-			<Button title="Hype train" @click="simulateEvent('hypeTrain')" :icon="require('@/assets/icons/train.svg')" />
-			<Button title="Ban" @click="simulateEvent('ban_success')" :icon="require('@/assets/icons/ban.svg')" />
-			<Button title="Automod" @click="simulateEvent('automod')" :icon="require('@/assets/icons/automod_white.svg')" />
-			<Button title="Poll result" @click="simulateEvent('pollResult')" :icon="require('@/assets/icons/poll.svg')" />
-			<Button title="Prediction result" @click="simulateEvent('predictionResult')" :icon="require('@/assets/icons/prediction.svg')" />
-			<Button title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
-			<Button title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
-			<Button title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
+			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
+			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
+			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
+			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/sub.svg')" />
+			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="require('@/assets/icons/sub.svg')" />
+			<Button small title="Follow" @click="simulateEvent('following')" :icon="require('@/assets/icons/follow.svg')" />
+			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="require('@/assets/icons/channelPoints.svg')" />
+			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="require('@/assets/icons/train.svg')" />
+			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="require('@/assets/icons/ban.svg')" />
+			<Button small title="Automod" @click="simulateEvent('automod')" :icon="require('@/assets/icons/automod_white.svg')" />
+			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="require('@/assets/icons/poll.svg')" />
+			<Button small title="Prediction result" @click="simulateEvent('predictionResult')" :icon="require('@/assets/icons/prediction.svg')" />
+			<Button small title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
+			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
+			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
 		</div>
 	</div>
 </template>

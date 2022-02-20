@@ -122,6 +122,7 @@ export default class ActivityFeedFilters extends Vue {
 		border-radius: 5px;
 		position: absolute;
 		background-color: @mainColor_dark_light;
+		box-shadow: 0px 0px 10px 0px rgba(0,0,0,1);
 
 		.row {
 			display: flex;

@@ -3,9 +3,9 @@
 		<div class="holder">
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
-				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="showCommands = true" />
-				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="showFeed = true" v-if="$store.state.activityFeed?.length > 0" />
-				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="showRewards = true" /> -->
+				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
+				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
 			<form @submit.prevent="sendMessage()" class="inputForm">
@@ -17,11 +17,16 @@
 					placeholder="message..."
 					maxlength="500"
 					@keydown.tab.prevent="onTab()">
+				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" />
 				
-				<Button :icon="require('@/assets/icons/emote.svg')" @click="showEmotes = true;" bounce />
+				<Button :icon="require('@/assets/icons/emote.svg')"
+					bounce 
+					@click="$emit('update:showEmotes',true);" />
+				
+				<slot />
 				
 				<Button
 					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
@@ -29,74 +34,16 @@
 					v-if="cypherConfigured"
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
-
-				<Button :icon="require('@/assets/icons/poll.svg')"
-					bounce
-					@click="$emit('showNotificationContent', 'poll')"
-					v-if="$store.state.currentPoll?.id" />
-
-				<Button :icon="require('@/assets/icons/prediction.svg')"
-					bounce
-					@click="$emit('showNotificationContent', 'prediction')"
-					v-if="$store.state.currentPrediction?.id" />
-
-				<Button :icon="require('@/assets/icons/magnet.svg')"
-					bounce
-					v-if="$store.state.trackedUsers.length > 0"
-					data-tooltip="View tracked users"
-					@click="$emit('showNotificationContent', 'trackedUsers')" />
-
-				<Button :icon="require('@/assets/icons/ticket.svg')"
-					bounce
-					v-if="$store.state.raffle.command"
-					data-tooltip="Raffle"
-					@click="$emit('showNotificationContent', 'raffle')" />
-
-				<Button :icon="require('@/assets/icons/whispers.svg')"
-					bounce
-					v-if="whispersAvailable"
-					data-tooltip="Whispers"
-					@click="$emit('showNotificationContent', 'whispers')" />
-					
-				<Button :icon="require('@/assets/icons/debug.svg')"
-					bounce
-					@click="showDevMenu = true"
-					v-if="$store.state.devmode" />
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
 				:search="autoCompleteSearch"
-				v-if="autoCompleteSearch.length > 1"
+				v-if="autoCompleteSearch.length > 1 || (autoCompleteCommands && autoCompleteSearch.length > 0)"
 				:emotes="autoCompleteEmotes"
 				:users="autoCompleteUsers"
+				:commands="autoCompleteCommands"
 				@close="autoCompleteSearch = ''"
-				@select="onSelectEmote" />
-
-			<CommandHelper class="contentWindows actions"
-				v-if="showCommands"
-				@poll="$emit('poll')"
-				@pred="$emit('pred')"
-				@clear="$emit('clear')"
-				@raffle="$emit('raffle')"
-				@close="showCommands = false" />
-
-			<EmoteSelector class="contentWindows emotes"
-				v-if="showEmotes"
-				@select="onSelectEmote"
-				@close="showEmotes = false" />
-
-			<!-- Actually not used, what the API allows us to do is useless -->
-			<RewardsList class="contentWindows rewards"
-				v-if="showRewards"
-				@close="showRewards = false" />
-
-			<DevmodeMenu class="contentWindows devmode"
-				v-if="showDevMenu"
-				@close="showDevMenu = false" />
-
-			<ActivityFeed class="contentWindows feed"
-				v-if="showFeed"
-				@close="showFeed = false" />
+				@select="onSelectItem" />
 			
 		</div>
 	</div>
@@ -105,46 +52,43 @@
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
-import ActivityFeed from './ActivityFeed.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
-import CommandHelper from './CommandHelper.vue';
-import DevmodeMenu from './DevmodeMenu.vue';
-import EmoteSelector from './EmoteSelector.vue';
-import RewardsList from './RewardsList.vue';
 
 @Options({
-	props:{},
+	props:{
+		showFeed:Boolean,
+		showEmotes:Boolean,
+		showCommands:Boolean,
+		showRewards:Boolean,
+	},
 	components:{
 		Button,
 		ParamItem,
-		DevmodeMenu,
-		RewardsList,
-		ActivityFeed,
-		CommandHelper,
-		EmoteSelector,
 		AutocompleteForm,
 	},
-	emits: ["poll","pred","clear","raffle","showNotificationContent"]
+	emits: [
+		"poll","pred","clear","raffle","search",
+		"update:showFeed", "update:showEmotes", "update:showCommands", "update:showRewards"
+	],
 })
 export default class ChatForm extends Vue {
+	public showFeed!:boolean;
+	public showEmotes!:boolean;
+	public showCommands!:boolean;
+	public showRewards!:boolean;
 
 	public message:string = "";
-	public autoCompleteSearch:string = "";
 	public error:boolean = false;
-	public showFeed:boolean = false;
-	public showEmotes:boolean = false;
-	public showRewards:boolean = false;
-	public showDevMenu:boolean = false;
-	public showCommands:boolean = false;
+	public autoCompleteSearch:string = "";
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
+	public autoCompleteCommands:boolean = false;
 
 	public get classes():string[] {
 		let res = ["chatform"];
@@ -152,21 +96,19 @@ export default class ChatForm extends Vue {
 		return res;
 	}
 
-	public get whispersAvailable():boolean {
-		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
-		for (const key in store.state.whispers) {
-			if (whispers[key].length > 0) return true;
-		}
-		return false;
-	}
-
 	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
+	
+	public get showFeedBt():boolean {
+		return store.state.activityFeed?.length > 0
+		&& (!store.state.canSplitView || !store.state.params.appearance.splitView.value);
+	}
 
 	public mounted():void {
 		TwitchUtils.loadRewards();
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
+			
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
 				const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
@@ -177,30 +119,14 @@ export default class ChatForm extends Vue {
 
 				if(currentChar == ":" || 
 				currentChar == "@" || 
+				currentChar == "/" || 
 				(i == 0 && this.autoCompleteSearch)) {
 					this.autoCompleteUsers = currentChar == "@";
 					this.autoCompleteEmotes = currentChar == ":";
+					this.autoCompleteCommands = currentChar == "/";
 					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
 				}
-			}
-		});
-		
-
-		//Auto opens the prediction status if pending for completion
-		watch(() => store.state.currentPrediction, () => {
-			let prediction = store.state.currentPrediction as TwitchTypes.Prediction;
-			if(prediction && prediction.status == "LOCKED") {
-				this.$emit("showNotificationContent", "prediction");
-			}
-		});
-		
-
-		//Auto opens the poll status if terminated
-		watch(() => store.state.currentPoll, () => {
-			let poll = store.state.currentPoll as TwitchTypes.Poll;
-			if(poll && poll.status == "COMPLETED") {
-				this.$emit("showNotificationContent", "poll");
 			}
 		});
 	}
@@ -232,6 +158,19 @@ export default class ChatForm extends Vue {
 		if(cmd == "/prediction") {
 			//Open prediction form
 			this.$emit("pred");
+			this.message = "";
+		}else
+
+		if(cmd == "/raffle") {
+			//Open prediction form
+			this.$emit("raffle");
+			this.message = "";
+		}else
+
+		if(cmd == "/search") {
+			//Open prediction form
+			const search = params.join(" ");
+			this.$emit("search", search);
 			this.message = "";
 		}else
 
@@ -272,9 +211,10 @@ export default class ChatForm extends Vue {
 	}
 
 	/**
-	 * Called when selecting an emote from one the emote selectors
+	 * Called when selecting an emote/user/cmd from the emote selector
+	 * or the auto complete selector
 	 */
-	public async onSelectEmote(item:string):Promise<void> {
+	public async onSelectItem(item:string):Promise<void> {
 		const input = this.$refs.input as HTMLInputElement;
 		let carretPos = input.selectionStart;
 		let localMessage = this.message;
@@ -305,13 +245,18 @@ export default class ChatForm extends Vue {
 			carretPos += code.length;
 		}
 		
-		
-
+		if(/\{.*?\}/gi.test(item)) {
+			localMessage = localMessage.replace(/{(.*?)\}/gi, "$1");
+		}
 		this.message = localMessage;
 
 		await this.$nextTick();
 		
-		input.setSelectionRange(carretPos, carretPos, "forward");
+		if(/\{.*?\}/gi.test(item)) {
+			input.setSelectionRange(item.indexOf("{"), item.indexOf("}"), "forward");
+		}else{
+			input.setSelectionRange(carretPos, carretPos, "forward");
+		}
 		//Force autocomplete close.
 		//Due to async rendering the watcher might detect search update before
 		//the selectionRange is effective wich may cause the autocomplete open
@@ -334,6 +279,7 @@ export default class ChatForm extends Vue {
 		if(len > 2) {
 			this.autoCompleteUsers = true;
 			this.autoCompleteEmotes = true;
+			this.autoCompleteCommands = true;
 			this.autoCompleteSearch = this.message.substring(i+1, carretPos);
 		}
 	}
@@ -365,7 +311,7 @@ export default class ChatForm extends Vue {
 		margin: auto;
 		position: relative;
 		z-index: 2;
-		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
+		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
 		background-color: @mainColor_dark_extralight;
 		padding: 5px;
 		border-radius: 5px;
@@ -400,18 +346,7 @@ export default class ChatForm extends Vue {
 				border-radius: 0;
 			}
 			.button {
-				height: 1em;
-				padding: 0 0 0 5px;
-				border-radius: 5px;
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-				background: none;
-				:deep(.icon) {
-					height: 18px;
-					width: 22px;
-					min-width: auto;
-					object-fit: contain;
-				}
+				.clearButton();
 			}
 			.error {
 				cursor: pointer;

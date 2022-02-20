@@ -74,6 +74,7 @@ import ChatModTools from './ChatModTools.vue';
 		// deleteOverlay:{type:Boolean, default:false},
 		lightMode:{type:Boolean, default:false},
 		disableConversation:{type:Boolean, default:false},
+		enableWordHighlight:{type:Boolean, default:false},
 	},
 	emits:['showConversation', 'showUserMessages', 'mouseleave'],
 })
@@ -83,6 +84,7 @@ export default class ChatMessage extends Vue {
 	// public deleteOverlay!:boolean;
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
+	public enableWordHighlight!:boolean;
 	
 	public firstTime:boolean = false;
 	public automod:PubSubTypes.AutomodData | null = null;
@@ -255,6 +257,11 @@ export default class ChatMessage extends Vue {
 		}
 			
 		this.text = this.parseText();
+
+		if(this.enableWordHighlight && this.messageData.highlightWord) {
+			this.text = this.text.replace(new RegExp("("+this.messageData.highlightWord+")", "gi"), "<span class='highlightedWord'>$1</span>");
+		}
+
 		this.hasMention = store.state.params.appearance.highlightMentions.value
 			&& store.state.user.login != null
 			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
@@ -421,6 +428,17 @@ export default class ChatMessage extends Vue {
 			height: 2em;
 			vertical-align: middle;
 			object-fit: contain;
+		}
+		:deep(a) {
+			word-break: break-all;
+		}
+		:deep(.highlightedWord) {
+			font-size: 1.2em;
+			font-weight: bold;
+			color: @mainColor_dark;
+			padding: 0 3px;
+			border-radius: 3px;
+			background-color: @mainColor_light;
 		}
 	}
 

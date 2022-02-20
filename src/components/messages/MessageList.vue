@@ -69,10 +69,11 @@
 		</div>
 
 		<div class="conversation"
-		ref="conversationHolder"
-		v-if="conversation.length > 0" :style="conversationStyles"
-		@mouseenter="reopenLastConversation()"
-		@mouseleave="onMouseLeave()">
+			ref="conversationHolder"
+			v-if="conversation.length > 0" :style="conversationStyles"
+			@mouseenter="reopenLastConversation()"
+			@mouseleave="onMouseLeave()"
+		>
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">History</h1>

@@ -135,6 +135,7 @@ export default class TrackedUsers extends Vue {
 				margin: auto;
 				padding: 2px;
 				height: 21px;
+				width: 21px;
 				min-height: 21px;
 				min-width: 21px;
 				flex-grow: 0;
@@ -161,18 +162,6 @@ export default class TrackedUsers extends Vue {
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
-
-		.untrackBt {
-			position: sticky;
-			top	: 0;
-			padding: 0 10px;
-			font-size: 16px;
-			margin: 0 auto;
-			margin-bottom: 10px;
-			height: 25px;
-			min-height: 25px;
-			flex-grow: 0;
-		}
 
 		:deep(.time) {
 			color: fade(#ffffff, 75%);
