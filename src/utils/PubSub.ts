@@ -455,12 +455,13 @@ export default class PubSub {
 			channel: IRCClient.instance.channel,
 			tags:{
 				"username":data.display_name,
+				"user-id":data.user_id,
 				"tmi-sent-ts": Date.now().toString(),
 			},
 			username: data.display_name,
 			"msg-id": "follow",
 			"type": "highlight",
-		}
+		};
 		IRCClient.instance.addHighlight(message);
 	}
 

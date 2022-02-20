@@ -94,7 +94,6 @@ export default class BTTVUtils {
 				if(e.code == code) return e;
 			}
 		}
-		console.log("Code", code);
 		return null;
 	}
 
