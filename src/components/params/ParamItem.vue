@@ -3,7 +3,7 @@
 		<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
 		<div v-if="paramData.type == 'toggle'" class="toggle">
-			<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value"></label>
+			<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
 			<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
 		</div>
 		
