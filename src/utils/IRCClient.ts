@@ -6,7 +6,7 @@ import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
-import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
+import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
 
 /**
@@ -17,7 +17,7 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
@@ -418,27 +418,21 @@ export default class IRCClient extends EventDispatcher {
 			if(code && key != code) continue;
 
 			const json = fakeEventsJSON[key];
+			(json as IRCEventDataList.Notice).tags.id = this.getFakeGuid();
+			(json as IRCEventDataList.Highlight).tags["tmi-sent-ts"] = Date.now().toString();
 			if(json.type == "notice") {
-				(json as IRCEventDataList.Notice).tags.id = this.getFakeGuid();
-				(json as IRCEventDataList.Notice).tags["tmi-sent-ts"] = Date.now().toString();
 				this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, json));
 			}
 			if(json.type == "message") {
-				(json as IRCEventDataList.Message).tags.id = this.getFakeGuid();
-				(json as IRCEventDataList.Message).tags["tmi-sent-ts"] = Date.now().toString();
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
 			if(json.type == "highlight") {
-				(json as IRCEventDataList.Highlight).tags.id = this.getFakeGuid();
-				(json as IRCEventDataList.Highlight).tags["tmi-sent-ts"] = Date.now().toString();
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
 			}
 			if(json.type == "poll") {
-				(json as IRCEventDataList.PollResult).tags.id = this.getFakeGuid();
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
 			if(json.type == "prediction") {
-				(json as IRCEventDataList.PredictionResult).tags.id = this.getFakeGuid();
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
 			await Utils.promisedTimeout(50);

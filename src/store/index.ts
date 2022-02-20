@@ -617,7 +617,13 @@ export default createStore({
 			const list = state.activityFeed as ActivityFeedData[];
 			if(payload[0].status == "COMPLETED") {
 				if(list.findIndex(v=>v.type == "poll" && v.data.id == payload[0].id) == -1) {
-					const m = {tags:{id:IRCClient.instance.getFakeGuid()}, type:"poll", data:payload[0]};
+					const m:IRCEventDataList.PollResult = {
+						tags:{
+							id:IRCClient.instance.getFakeGuid(),
+							"tmi-sent-ts": Date.now().toString()},
+						type:"poll",
+						data:payload[0]
+					};
 					this.dispatch("addChatMessage", m);
 				}
 			}
@@ -630,7 +636,13 @@ export default createStore({
 			const list = state.activityFeed as ActivityFeedData[];
 			if(payload[0].status == "RESOLVED" && new Date(payload[0].ended_at as string).getTime() > Date.now() - 5 * 60 * 1000) {
 				if(list.findIndex(v=>v.type == "prediction" && v.data.id == payload[0].id) == -1) {
-					const m = {tags:{id:IRCClient.instance.getFakeGuid()}, type:"prediction", data:payload[0]};
+					const m:IRCEventDataList.PredictionResult = {
+						tags:{
+							id:IRCClient.instance.getFakeGuid(),
+							"tmi-sent-ts": Date.now().toString()},
+						type:"prediction",
+						data:payload[0]
+					};
 					this.dispatch("addChatMessage", m);
 				}
 			}

@@ -6,7 +6,7 @@ import App from './App.vue';
 import './less/index.less';
 import router from './router';
 import store from './store';
-import { TwitchTypes } from './utils/TwitchUtils';
+import TwitchUtils, { TwitchTypes } from './utils/TwitchUtils';
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -66,3 +66,10 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 });
 
 createApp(App).use(store).use(router).mount('#app');
+
+// (
+// 	async () => {
+// 		const res = await TwitchUtils.validateToken("xxx");
+// 		console.log(res);
+// 	}
+// )()

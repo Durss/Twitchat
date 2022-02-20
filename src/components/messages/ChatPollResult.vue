@@ -1,5 +1,6 @@
 <template>
 	<div class="chatpollresult" @click.ctrl="copyJSON()">
+		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{prediction.title}}</div>
@@ -36,6 +37,11 @@ export default class ChatPollResult extends Vue {
 
 	public get prediction():TwitchTypes.Poll {
 		return this.pollData.data;
+	}
+
+	public get time():string {
+		const d = new Date(parseInt(this.pollData.tags['tmi-sent-ts'] as string));
+		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public getChoiceStyles(o:TwitchTypes.PollChoice):{[key:string]:string} {

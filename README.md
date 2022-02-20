@@ -47,6 +47,8 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Autocomplete commands
+- [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
+- [ ] allow to search on all messages
 <br>
 <br>
 <br>

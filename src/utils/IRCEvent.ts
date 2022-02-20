@@ -180,12 +180,12 @@ export namespace IRCEventDataList {
 	export interface PollResult {
 		type:"poll";
 		data:TwitchTypes.Poll;
-		tags: { id:string };
+		tags: { id:string, "tmi-sent-ts":string };
 	}
-
+	
 	export interface PredictionResult {
 		type:"prediction";
 		data:TwitchTypes.Prediction;
-		tags: { id:string };
+		tags: { id:string, "tmi-sent-ts":string };
 	}
 }

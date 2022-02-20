@@ -279,13 +279,6 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .newusers{
-	position: fixed;
-	top: 0;
-	left: 50%;
-	transform: translateX(-50%);
-	max-height: 35vh;
-	width: 100%;
-	margin: auto;
 	// background-color: #218bac;
 	background-color: darken(@mainColor_normal, 20%);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);

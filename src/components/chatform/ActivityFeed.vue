@@ -1,7 +1,7 @@
 <template>
-	<div class="activityfeed">
+	<div :class="classes">
 		<div class="head">
-			<h1>Activity feed</h1>
+			<h1 v-if="!listMode">Activity feed</h1>
 			<ActivityFeedFilters v-model="filters" class="filters" />
 		</div>
 		<div  v-if="messages.length > 0" class="messageList">
@@ -35,7 +35,7 @@
 <script lang="ts">
 import store from '@/store';
 import Store from '@/store/Store';
-import { ActivityFeedData, IRCEventDataList } from '@/utils/IRCEvent';
+import { ActivityFeedData } from '@/utils/IRCEvent';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ChatHighlight from '../messages/ChatHighlight.vue';
@@ -44,7 +44,12 @@ import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 
 @Options({
-	props:{},
+	props:{
+		listMode: {
+			type: Boolean,
+			default: false,
+		},
+	},
 	components:{
 		ChatHighlight,
 		ChatPollResult,
@@ -54,9 +59,17 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 })
 export default class ActivityFeed extends Vue {
 
+	public listMode!:boolean;
+
 	public filters:string = "sub,follow,bits,raid,poll,prediction";
 	
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public get classes():string[] {
+		const res = ["activityfeed"];
+		if(this.listMode === true) res.push("listMode");
+		return res;
+	}
 	
 	public get messages():ActivityFeedData[] {
 		const list = (store.state.activityFeed as ActivityFeedData[])
@@ -107,26 +120,33 @@ export default class ActivityFeed extends Vue {
 		}
 
 		Store.set("activityFeedFilters", this.filters);
+		
+		// if(this.listMode) {
+		// 	result.reverse();
+		// }
 
 		return result;
 	}
 
 	public beforeMount():void {
 		const f = Store.get("activityFeedFilters");
-		console.log(store.state.activityFeed);
 		if(f) this.filters = f;
 	}
 
 	public async mounted():Promise<void> {
 
 		await this.$nextTick();
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
-		this.open();
+		if(!this.listMode) {
+			this.clickHandler = (e:MouseEvent) => this.onClick(e);
+			document.addEventListener("mousedown", this.clickHandler);
+			this.open();
+		}
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("mousedown", this.clickHandler);
+		if(!this.listMode) {
+			document.removeEventListener("mousedown", this.clickHandler);
+		}
 	}
 
 	private open():void {
@@ -166,6 +186,24 @@ export default class ActivityFeed extends Vue {
 	left: auto;
 	margin-left: auto;
 	transform-origin: bottom center;
+
+	&.listMode {
+		background: none;
+		box-shadow: unset;
+		flex-grow: 1;
+		padding: 0;
+
+		.messageList {
+			max-height: unset;
+			min-height: auto;
+			flex-grow: 1;
+			justify-self: flex-end;
+		}
+
+		.activityfeed {
+			width: 100%;
+		}
+	}
 
 	.head {
 		position: relative;

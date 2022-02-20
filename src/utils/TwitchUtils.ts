@@ -220,12 +220,12 @@ export default class TwitchUtils {
 				if(e.id.indexOf("BTTV_") == 0) {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
-						result.push( {type:"emote", emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
+						result.push( {type:"emote", label:"BTTV: "+code, emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
 				}else{
-					result.push( {type:"emote", emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
+					result.push( {type:"emote", label:code, emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
 				}
 			}
 			cursor = e.end + 1;
@@ -854,6 +854,7 @@ export namespace TwitchTypes {
 	export interface ParseMessageChunk {
 		type:"text"|"emote";
 		emote?:string;
+		label?:string;
 		value:string;
 	}
 
