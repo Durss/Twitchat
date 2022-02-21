@@ -504,9 +504,17 @@ export default createStore({
 								reject();
 							}
 						}});
-					})
-					TwitchUtils.getPolls();
-					TwitchUtils.getPredictions();
+					});
+
+					//Use an anonymous method to avoid locking loading
+					(async () => {
+						try {
+							await TwitchUtils.getPolls();
+							await TwitchUtils.getPredictions();
+						}catch(e) {
+							//User is probably not an affiliate
+						}
+					})();
 					//This was a way to check if a poll or prediction was active
 					//before switching to pubsub events.
 					// setInterval(()=> {

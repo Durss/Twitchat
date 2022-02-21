@@ -59,7 +59,13 @@ export default class RewardsList extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.rewards = await TwitchUtils.loadRewards();
+		try {
+			this.rewards = await TwitchUtils.loadRewards();
+		}catch(e) {
+			//User is probably not an affiliate
+			this.rewards = [];
+			return;
+		}
 		// this.rewards = this.rewards.filter(v => v.is_enabled);
 		this.rewards.sort((a, b) => a.cost - b.cost);
 		this.rewards.forEach(v=> {

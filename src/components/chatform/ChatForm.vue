@@ -104,8 +104,7 @@ export default class ChatForm extends Vue {
 		&& (!store.state.canSplitView || !store.state.params.appearance.splitView.value);
 	}
 
-	public mounted():void {
-		TwitchUtils.loadRewards();
+	public async mounted():Promise<void> {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
@@ -130,6 +129,12 @@ export default class ChatForm extends Vue {
 				}
 			}
 		});
+
+		try {
+			await TwitchUtils.loadRewards();
+		}catch(e) {
+			//User is probably not an affiliate
+		}
 	}
 
 	public beforeUnmount():void {
@@ -184,7 +189,6 @@ export default class ChatForm extends Vue {
 			const userInfos = await TwitchUtils.loadUserInfo(undefined, [user]);
 			if(userInfos?.length > 0) {
 				const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
-				console.log(channelInfo);
 				let message = store.state.params.appearance.shoutoutLabel.value;
 				message = message.replace(/\$USER/gi, userInfos[0].display_name);
 				message = message.replace(/\$URL/gi, "twitch.tv/"+userInfos[0].login);
