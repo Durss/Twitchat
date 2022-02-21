@@ -61,8 +61,13 @@ export default createStore({
 			},
 			{
 				id:"raid",
-				cmd:"/raid {channel}",
+				cmd:"/raid {user}",
 				details:"Raid someone",
+			},
+			{
+				id:"so",
+				cmd:"/so {user}",
+				details:"Shoutout a user",
 			}
 		],
 		params: {
@@ -78,6 +83,7 @@ export default createStore({
 				showBadges: {type:"toggle", value:true, label:"Show badges", id:4},
 				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5},
 				displayTime: {type:"toggle", value:false, label:"Display time", id:6},
+				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
 			},
@@ -85,7 +91,7 @@ export default createStore({
 				showSelf: {type:"toggle", value:true, label:"Show my messages", id:100},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
-				hideUsers: {type:"list", value:"", label:"Hide custom users (coma seperated)", id:103},
+				hideUsers: {type:"text", value:"", label:"Hide some users (coma seperated)", id:103},
 				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
 				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, icon:""},

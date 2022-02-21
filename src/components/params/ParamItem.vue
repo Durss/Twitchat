@@ -12,9 +12,9 @@
 			<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
 		</div>
 		
-		<div v-if="paramData.type == 'list'" class="list">
-			<label :for="'list'+key" v-html="label"></label>
-			<input :id="'list'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder">
+		<div v-if="paramData.type == 'text'" class="text">
+			<label :for="'text'+key" v-html="label"></label>
+			<input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder">
 		</div>
 		
 		<div v-if="paramData.type == 'slider'" class="slider">
@@ -91,11 +91,11 @@ export default class ParamItem extends Vue {
 		font-size: .9em;
 		font-style: italic;
 	}
-	.slider, .list {
+	.slider, .text {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
-		&:not(.list)>label {
+		&:not(.text)>label {
 			text-align: center;
 		}
 	}

@@ -20,7 +20,7 @@
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
-				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" />
+				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" />
 				
 				<Button :icon="require('@/assets/icons/emote.svg')"
 					bounce 
@@ -85,6 +85,7 @@ export default class ChatForm extends Vue {
 
 	public message:string = "";
 	public error:boolean = false;
+	public sendingMessage:boolean = false;
 	public autoCompleteSearch:string = "";
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
@@ -162,15 +163,39 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/raffle") {
-			//Open prediction form
+			//Open raffle form
 			this.$emit("raffle");
 			this.message = "";
 		}else
 
 		if(cmd == "/search") {
-			//Open prediction form
+			//Search a for messages
 			const search = params.join(" ");
 			this.$emit("search", search);
+			this.message = "";
+		}else
+
+		if(cmd == "/so") {
+			this.sendingMessage = true;
+			this.message = "...";
+			//Make a shoutout
+			let user = params[0];
+			user = user.trim().replace(/^@/gi, "");
+			const userInfos = await TwitchUtils.loadUserInfo(undefined, [user]);
+			if(userInfos?.length > 0) {
+				const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
+				console.log(channelInfo);
+				let message = store.state.params.appearance.shoutoutLabel.value;
+				message = message.replace(/\$USER/gi, userInfos[0].display_name);
+				message = message.replace(/\$URL/gi, "twitch.tv/"+userInfos[0].login);
+				message = message.replace(/\$STREAM/gi, channelInfo[0].title);
+				message = message.replace(/\$CATEGORY/gi, channelInfo[0].game_name);
+				IRCClient.instance.sendMessage(message);
+			}else{
+				//Warn user doesn't exist
+				store.state.alert = "User "+user+" doesn't exist.";
+			}
+			this.sendingMessage = false;
 			this.message = "";
 		}else
 

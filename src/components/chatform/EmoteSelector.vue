@@ -89,7 +89,7 @@ export default class EmoteSelector extends Vue {
 			//Remove users with wrong IDs (like "twitch")
 			users = users.filter(v => parseInt(v.owner_id).toString() === v.owner_id)
 			//Load all users details to get their names
-			const userList = await TwitchUtils.loadChannelsInfo(users.map(v => v.owner_id));
+			const userList = await TwitchUtils.loadUserInfo(users.map(v => v.owner_id));
 			//Sort them by name
 			userList.sort((a, b) => a.display_name > b.display_name?  1 : -1);
 			//Build a fast access object to know the index of a user from its ID.

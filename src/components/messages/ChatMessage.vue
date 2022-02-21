@@ -309,7 +309,7 @@ export default class ChatMessage extends Vue {
 					if(v.type == "text") {
 						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 						if(doHighlight) {
-							v.value = v.value.replace(new RegExp(highlightLogin, "gi"), "<strong>$&</strong>");
+							v.value = v.value.replace(new RegExp("(^| )"+highlightLogin+"( |$)", "gim"), "<strong>$&</strong>");
 						}
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {

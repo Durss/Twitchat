@@ -275,23 +275,50 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets channels infos by their ID.
-	 * Only works with a bearer token, not a TMI token !
+	 * Gets user infos by their ID.
 	 * 
 	 * @param logins 
 	 * @returns 
 	 */
-	public static async loadChannelsInfo(ids:string[]):Promise<TwitchTypes.UserInfo[]> {
-
-		if(ids) {
-			ids = ids.filter(v => v != null && v != undefined);
-			ids = ids.map(v => encodeURIComponent(v));
+	public static async loadChannelInfo(uids:string[]):Promise<TwitchTypes.ChannelInfo[]> {
+	
+		let channels:TwitchTypes.ChannelInfo[] = [];
+		//Split by 100 max to comply with API limitations
+		while(uids.length > 0) {
+			const param = "broadcaster_id";
+			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
+			const url = Config.TWITCH_API_PATH+"channels?"+params;
+			const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
+			const result = await fetch(url, {
+				headers:{
+					"Client-ID": this.client_id,
+					"Authorization": "Bearer "+access_token,
+					"Content-Type": "application/json",
+				}
+			});
+			const json = await result.json();
+			channels = channels.concat(json.data);
 		}
-		
+		return channels;
+	}
+
+	/**
+	 * Gets user infos by their ID.
+	 * 
+	 * @param logins 
+	 * @returns 
+	 */
+	public static async loadUserInfo(ids?:string[], logins?:string[]):Promise<TwitchTypes.UserInfo[]> {
+		let items:string[] | undefined = ids? ids : logins;
+		if(items == undefined) return [];
+		items = items.filter(v => v != null && v != undefined);
+		items = items.map(v => encodeURIComponent(v));
+	
 		let users:TwitchTypes.UserInfo[] = [];
 		//Split by 100 max to comply with API limitations
-		while(ids.length > 0) {
-			const params = "id="+ids.splice(0,100).join("&id=");
+		while(items.length > 0) {
+			const param = ids ? "id" : "login";
+			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.TWITCH_API_PATH+"users?"+params;
 			const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
 			const result = await fetch(url, {
@@ -305,6 +332,38 @@ export default class TwitchUtils {
 			users = users.concat(json.data);
 		}
 		return users;
+	}
+
+	/**
+	 * Gets latest stream's info.
+	 * 
+	 * @param logins 
+	 * @returns 
+	 */
+	public static async loadCurrentStreamInfo(ids?:string[], logins?:string[]):Promise<TwitchTypes.StreamInfo[]> {
+		let items:string[] | undefined = ids? ids : logins;
+		if(items == undefined) return [];
+		items = items.filter(v => v != null && v != undefined);
+		items = items.map(v => encodeURIComponent(v));
+	
+		let streams:TwitchTypes.StreamInfo[] = [];
+		//Split by 100 max to comply with API limitations
+		while(items.length > 0) {
+			const param = ids ? "user_id" : "user_login";
+			const params = param+"="+items.splice(0,100).join("&"+param+"=");
+			const url = Config.TWITCH_API_PATH+"streams?first=1&"+params;
+			const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
+			const result = await fetch(url, {
+				headers:{
+					"Client-ID": this.client_id,
+					"Authorization": "Bearer "+access_token,
+					"Content-Type": "application/json",
+				}
+			});
+			const json = await result.json();
+			streams = streams.concat(json.data);
+		}
+		return streams;
 	}
 	
 	/***
@@ -674,6 +733,17 @@ export namespace TwitchTypes {
 		language:      string;
 		thumbnail_url: string;
 		tag_ids:       string[];
+	}
+
+	export interface ChannelInfo {
+		broadcaster_id:        string;
+		broadcaster_login:     string;
+		broadcaster_name:      string;
+		broadcaster_language:  string;
+		game_id:               string;
+		game_name:             string;
+		title:                 string;
+		delay:                 number;
 	}
 
 	export interface UserInfo {
