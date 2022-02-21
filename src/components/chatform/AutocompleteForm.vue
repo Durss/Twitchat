@@ -287,6 +287,7 @@ interface CommandItem {
 			font-size: 12px;
 			font-style: italic;
 			text-align: right;
+			padding-right: 5px;
 		}
 
 		.image {
