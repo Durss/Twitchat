@@ -3,7 +3,7 @@
 
 		<Button small
 			:icon="require('@/assets/icons/cross_white.svg')"
-			@click="$emit('close')"
+			@click="close()"
 			class="closeBt"
 		/>
 		
@@ -30,14 +30,13 @@
 <script lang="ts">
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 
 @Options({
-	props:{
-		search:String
-	},
+	props:{},
 	components:{
 		Button,
 		ChatMessage,
@@ -46,7 +45,8 @@ import ChatMessage from '../messages/ChatMessage.vue';
 })
 export default class MessageSearch extends Vue {
 
-	public search!:string;
+	public search:string = "";
+	public messages:IRCEventDataList.Message[] = [];
 
 	public get classes():string[] {
 		let res = ["messagesearch"];
@@ -57,7 +57,16 @@ export default class MessageSearch extends Vue {
 		return res;
 	}
 
-	public get messages():IRCEventDataList.Message[] {
+	public mounted():void {
+		watch(() => store.state.searchMessages, () => {
+			this.updateList();
+		});
+		this.updateList();
+	}
+
+	private updateList():void {
+		this.search = store.state.searchMessages;
+
 		const list = store.state.chatMessages.concat();
 		const result:IRCEventDataList.Message[] = [];
 		for (let i = 0; i < list.length; i++) {
@@ -68,7 +77,11 @@ export default class MessageSearch extends Vue {
 				result.push(m);
 			}
 		}
-		return result;
+		this.messages = result;
+	}
+
+	public close():void {
+		store.dispatch("searchMessages", "");
 	}
 
 }
