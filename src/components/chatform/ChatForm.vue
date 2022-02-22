@@ -25,8 +25,45 @@
 				<Button :icon="require('@/assets/icons/emote.svg')"
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
-				
-				<slot />
+
+				<Button :icon="require('@/assets/icons/poll.svg')"
+					bounce
+					@click="$emit('setCurrentNotification', 'poll')"
+					v-if="$store.state.currentPoll?.id" />
+
+				<Button :icon="require('@/assets/icons/prediction.svg')"
+					bounce
+					@click="$emit('setCurrentNotification', 'prediction')"
+					v-if="$store.state.currentPrediction?.id" />
+
+				<Button :icon="require('@/assets/icons/magnet.svg')"
+					bounce
+					v-if="$store.state.trackedUsers.length > 0"
+					data-tooltip="View tracked users"
+					@click="$emit('setCurrentNotification', 'trackedUsers')" />
+
+				<Button :icon="require('@/assets/icons/ticket.svg')"
+					bounce
+					v-if="$store.state.raffle.command != null"
+					data-tooltip="Raffle"
+					@click="$emit('setCurrentNotification', 'raffle')" />
+
+				<Button :icon="require('@/assets/icons/bingo.svg')"
+					bounce
+					v-if="$store.state.bingo.guessNumber != null"
+					data-tooltip="Bingo"
+					@click="$emit('setCurrentNotification', 'bingo')" />
+
+				<Button :icon="require('@/assets/icons/whispers.svg')"
+					bounce
+					v-if="whispersAvailable"
+					data-tooltip="Whispers"
+					@click="$emit('setCurrentNotification', 'whispers')" />
+					
+				<Button :icon="require('@/assets/icons/debug.svg')"
+					bounce
+					@click="$emit('update:showDevMenu',true);"
+					v-if="$store.state.devmode" />
 				
 				<Button
 					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
@@ -52,9 +89,9 @@
 <script lang="ts">
 import store, { BingoConfig } from '@/store';
 import IRCClient from '@/utils/IRCClient';
+import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -74,11 +111,21 @@ import AutocompleteForm from './AutocompleteForm.vue';
 		AutocompleteForm,
 	},
 	emits: [
-		"poll","pred","clear","raffle","search",
-		"update:showFeed", "update:showEmotes", "update:showCommands", "update:showRewards"
+		"poll",
+		"pred",
+		"clear",
+		"raffle",
+		"search",
+		"update:showFeed",
+		"update:showEmotes",
+		"update:showCommands",
+		"update:showRewards",
+		"update:showDevMenu",
+		"setCurrentNotification"
 	],
 })
 export default class ChatForm extends Vue {
+
 	public showFeed!:boolean;
 	public showEmotes!:boolean;
 	public showCommands!:boolean;
@@ -91,6 +138,14 @@ export default class ChatForm extends Vue {
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
 	public autoCompleteCommands:boolean = false;
+
+	public get whispersAvailable():boolean {
+		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
+		for (const key in store.state.whispers) {
+			if (whispers[key].length > 0) return true;
+		}
+		return false;
+	}
 
 	public get classes():string[] {
 		let res = ["chatform"];
@@ -392,15 +447,16 @@ export default class ChatForm extends Vue {
 				border: none;
 				border-radius: 0;
 			}
-			.button {
-				.clearButton();
-			}
 			.error {
 				cursor: pointer;
 				text-align: center;
 				flex-grow: 1;
 				font-size: 18px;
 				color: #ff0000;
+			}
+
+			.button {
+				.clearButton() !important;
 			}
 		}
 	}

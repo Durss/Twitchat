@@ -35,23 +35,19 @@
 		</div>
 
 		<div class="bottom">
-			
 			<ChatForm class="chatForm" ref="chatForm"
 				@poll="currentModal = 'poll'"
 				@pred="currentModal = 'pred'"
 				@raffle="currentModal = 'raffle'"
 				@bingo="currentModal = 'bingo'"
 				@search="searchMessage"
+				@setCurrentNotification="setCurrentNotification"
 				v-model:showFeed="showFeed" @update:showFeed="v => showFeed = v"
 				v-model:showEmotes="showEmotes" @update:showEmotes="v => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="v => showRewards = v"
 				v-model:showCommands="showCommands" @update:showCommands="v => showCommands = v"
-			>
-				<ChatNotificationButtons
-					@setCurrentNotification="setCurrentNotification"
-					v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
-				/>
-			</ChatForm>
+				v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
+			/>
 		</div>
 
 		<!-- Actually not used, what the API allows us to do is useless -->
@@ -91,10 +87,16 @@
 </template>
 
 <script lang="ts">
+import BingoForm from '@/components/bingo/BingoForm.vue';
 import Button from '@/components/Button.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
+import ActivityFeed from '@/components/chatform/ActivityFeed.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
-import ChatNotificationButtons from '@/components/chatform/ChatNotificationButtons.vue';
+import CommandHelper from '@/components/chatform/CommandHelper.vue';
+import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
+import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
+import MessageSearch from '@/components/chatform/MessageSearch.vue';
+import RewardsList from '@/components/chatform/RewardsList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
 import PollForm from '@/components/poll/PollForm.vue';
@@ -105,13 +107,6 @@ import IRCClient from '@/utils/IRCClient';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
-import CommandHelper from '@/components/chatform/CommandHelper.vue';
-import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
-import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
-import RewardsList from '@/components/chatform/RewardsList.vue';
-import ActivityFeed from '@/components/chatform/ActivityFeed.vue';
-import MessageSearch from '@/components/chatform/MessageSearch.vue';
-import BingoForm from '@/components/bingo/BingoForm.vue';
 
 @Options({
 	components:{
@@ -130,7 +125,6 @@ import BingoForm from '@/components/bingo/BingoForm.vue';
 		EmoteSelector,
 		PredictionForm,
 		ChannelNotifications,
-		ChatNotificationButtons,
 	},
 	props:{
 	},
@@ -158,7 +152,7 @@ export default class Chat extends Vue {
 	private resizeHandler!:(e:Event) => void;
 
 	public mounted():void {
-		this.resizeHandler = (e:Event)=> this.onResize(e);
+		this.resizeHandler = ()=> this.onResize();
 		window.addEventListener("resize", this.resizeHandler);
 		this.onResize();
 		
@@ -196,7 +190,7 @@ export default class Chat extends Vue {
 		IRCClient.instance.client.clear(IRCClient.instance.channel);
 	}
 
-	public onResize(e?:Event):void {
+	public onResize():void {
 		const value = document.body.clientWidth > 599;
 		if(value != store.state.canSplitView) {
 			store.dispatch("canSplitView", value);
