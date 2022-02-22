@@ -18,9 +18,15 @@
 
 	<Button :icon="require('@/assets/icons/ticket.svg')"
 		bounce
-		v-if="$store.state.raffle.command"
+		v-if="$store.state.raffle.command != null"
 		data-tooltip="Raffle"
 		@click="$emit('setCurrentNotification', 'raffle')" />
+
+	<Button :icon="require('@/assets/icons/bingo.svg')"
+		bounce
+		v-if="$store.state.bingo.guessNumber != null"
+		data-tooltip="Bingo"
+		@click="$emit('setCurrentNotification', 'bingo')" />
 
 	<Button :icon="require('@/assets/icons/whispers.svg')"
 		bounce

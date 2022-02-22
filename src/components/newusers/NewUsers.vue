@@ -45,8 +45,6 @@
 				@click="deleteMessage(m, index)" />
 		</div>
 		</transition-group>
-				<!-- :deleteOverlay="highlightState[m.tags.id]" -->
-				<!-- :deleteOverlay="(streakMode && index<=overIndex) || index == overIndex" -->
 	</div>
 </template>
 

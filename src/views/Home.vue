@@ -172,7 +172,6 @@ export default class Home extends Vue {
 		background-size: contain;
 		background-repeat: no-repeat;
 		background-position: center center;
-		max-width: 1200px;
 		margin: auto;
 		padding: 2em 5px;
 

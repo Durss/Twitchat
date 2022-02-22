@@ -32,7 +32,7 @@
 
 		<Button class="item"
 			:icon="require('@/assets/icons/cross_white.svg')"
-			title="Close"
+			title="Stop Raffle"
 			highlight
 			@click="closeRaffle()" />
 	</div>

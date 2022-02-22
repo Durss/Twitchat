@@ -50,10 +50,11 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import store, { BingoConfig } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -173,10 +174,27 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/bingo") {
+			//Open bingo form
+			if(params[0] == "number" || params[0] == "emote") {
+				const payload:BingoConfig = {
+					guessNumber: params[0] == "number",
+					guessEmote: params[0] == "emote",
+					min: 0,
+					max: 100,
+				};
+				store.dispatch("startBingo", payload);
+			}else{
+				this.$emit("bingo");
+			}
+			this.message = "";
+		}else
+
 		if(cmd == "/search") {
 			//Search a for messages
 			const search = params.join(" ");
-			this.$emit("search", search);
+			// this.$emit("search", search);
+			store.dispatch("searchMessages", search);
 			this.message = "";
 		}else
 

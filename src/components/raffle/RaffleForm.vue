@@ -129,7 +129,7 @@ export default class RaffleForm extends Vue {
 					}
 				}
 				:deep(input) {
-					width: 150px;
+					width: 100px;
 					text-align: center;
 				}
 			}

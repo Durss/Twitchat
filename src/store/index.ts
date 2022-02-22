@@ -21,6 +21,7 @@ export default createStore({
 		alert: "",
 		tooltip: "",
 		userCard: "",
+		searchMessages: "",
 		chatMessages: [],
 		activityFeed: [],
 		mods: [],
@@ -34,6 +35,7 @@ export default createStore({
 		trackedUsers: [],
 		onlineUsers: [],
 		raffle: {},
+		bingo: {},
 		whispers: {},
 		hypeTrain: {},
 		raiding: "",
@@ -58,6 +60,11 @@ export default createStore({
 				id:"raffle",
 				cmd:"/raffle",
 				details:"Start a raffle",
+			},
+			{
+				id:"so",
+				cmd:"/bingo {number|emote}",
+				details:"Create a bingo session",
 			},
 			{
 				id:"raid",
@@ -238,6 +245,27 @@ export default createStore({
 				}
 			}else{
 				const m = payload as IRCEventDataList.Message;
+
+				const bingo = state.bingo as BingoData;
+				if(bingo.opened === true && m.message) {
+					let win = bingo.numberValue && parseInt(m.message) == bingo.numberValue;
+					win ||= bingo.emoteValue
+					&& m.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
+
+					if(win) {
+						console.log("win !!");
+						if(!bingo.winners) bingo.winners = [];
+						bingo.winners.push(m.tags);
+						bingo.opened = false;
+						//For some reason TMI.js doesn't send the message back to the sender
+						//if sending it on a new message event.
+						//If we didn't wait for a frame, the message would be sent properly
+						//but wouldn't appear on this chat.
+						setTimeout(()=> {
+							IRCClient.instance.sendMessage(`🎉🎉🎉 Congrats ${m.tags['display-name']} you won the bingo 🎉🎉🎉`);
+						},0);
+					}
+				}
 				
 				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
 					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
@@ -390,6 +418,23 @@ export default createStore({
 
 		startRaffle(state, payload:RaffleData) { state.raffle = payload; },
 
+		async startBingo(state, payload:BingoConfig) {
+			const min = payload.min as number;
+			const max = payload.max as number;
+			
+			let emotes = await TwitchUtils.getEmotes();
+			emotes = emotes.filter(v => v.emote_type == "globals");
+
+			const data:BingoData = {
+				guessNumber: payload.guessNumber,
+				guessEmote: payload.guessEmote,
+				numberValue: Math.round(Math.random() * (max-min) + min),
+				emoteValue: Utils.pickRand(emotes),
+				opened: true,
+			};
+			state.bingo = data;
+		},
+
 		closeWhispers(state, userID:string) {
 			const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 			delete whispers[userID];
@@ -435,6 +480,8 @@ export default createStore({
 		},
 
 		canSplitView(state, value:boolean) { state.canSplitView = value; },
+
+		searchMessages(state, value:string) { state.searchMessages = value; },
 
 	},
 
@@ -706,6 +753,8 @@ export default createStore({
 
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 
+		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
+
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
 		setRaiding({commit}, userName:string) { commit("setRaiding", userName); },
@@ -719,6 +768,8 @@ export default createStore({
 		flagLowTrustMessage({commit}, data:PubSubTypes.LowTrustMessage) { commit("flagLowTrustMessage", data); },
 
 		canSplitView({commit}, value:boolean) { commit("canSplitView", value); },
+
+		searchMessages({commit}, value:string) { commit("searchMessages", value); },
 	},
 	modules: {
 	}
@@ -744,6 +795,22 @@ export interface RaffleData {
 	maxUsers:number;
 	created_at:number;
 	users:ChatUserstate[];
+}
+
+export interface BingoConfig {
+	guessNumber:boolean;
+	guessEmote:boolean;
+	min:number;
+	max:number;
+}
+
+export interface BingoData {
+	guessNumber:boolean;
+	guessEmote:boolean;
+	numberValue:number;
+	emoteValue:TwitchTypes.Emote;
+	winners?:ChatUserstate[];
+	opened:boolean;
 }
 
 export interface HypeTrainStateData {

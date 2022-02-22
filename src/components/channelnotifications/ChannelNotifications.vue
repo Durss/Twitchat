@@ -7,6 +7,11 @@
 				<TrackedUsers class="content" v-else-if="showTrackedUsers" />
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<WhispersState class="content" v-else-if="showWhispers" />
+				<BingoState class="content" v-else-if="showBingo" />
+			</transition>
+
+			<transition name="slide">
+				<MessageSearch class="content" v-if="$store.state.searchMessages" />
 			</transition>
 
 			<transition name="slide">
@@ -27,12 +32,14 @@
 </template>
 
 <script lang="ts">
-import store, { HypeTrainStateData, RaffleData } from '@/store';
+import store, { BingoData, HypeTrainStateData, RaffleData } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import MessageSearch from '../chatform/MessageSearch.vue';
+import BingoState from './BingoState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
@@ -49,8 +56,10 @@ import WhispersState from './WhispersState.vue';
 		Button,
 		PollState,
 		RaidState,
+		BingoState,
 		RaffleState,
 		TrackedUsers,
+		MessageSearch,
 		WhispersState,
 		HypeTrainState,
 		PredictionState,
@@ -68,14 +77,16 @@ export default class ChannelNotifications extends Vue {
 	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchTypes.Poll)?.id != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchTypes.Prediction)?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && (store.state.raffle as RaffleData).command != null; }
+	public get showBingo():boolean { return this.currentContent == 'bingo' && (store.state.bingo as BingoData)?.guessNumber != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
 	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
 
 	public get showClose():boolean {
 		return this.showPoll
-			|| this.showPrediction
+			|| this.showBingo
 			|| this.showRaffle
 			|| this.showWhispers
+			|| this.showPrediction
 			|| this.showTrackedUsers;
 	}
 
@@ -135,14 +146,10 @@ export default class ChannelNotifications extends Vue {
 			display: flex;
 			flex-direction: column;
 			width: 100%;
-			// max-height: 10vh;
 			max-height: calc(100vh - 100px);
 			overflow-y: auto;
-			// max-height: 215px;
-			// transform: translateY(0);
-			// transform: scaleY(100%);
-			// transform-origin: bottom center;
 			margin-bottom: 0;
+			z-index: 1;
 		}
 
 		.closeBt {
