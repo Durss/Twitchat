@@ -5,13 +5,13 @@
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
-			<Button v-if="isRaid"
-				small white
-				title="Shoutout"
-				:icon="require('@/assets/icons/shoutout_purple.svg')"
-				@click="shoutout()"
-			/>
 		</div>
+			<Button v-if="isRaid"
+				small 
+				:icon="require('@/assets/icons/shoutout.svg')"
+				@click="shoutout()"
+				data-tooltip="Send a shoutout"
+			/>
 	</div>
 </template>
 
