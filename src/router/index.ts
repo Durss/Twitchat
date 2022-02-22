@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Chat from '../views/Chat.vue'
+import Home from '../views/Home.vue'
 import ChatLight from '../views/ChatLight.vue'
 import Login from '../views/Login.vue'
 import Logout from '../views/Logout.vue'
@@ -8,9 +9,10 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
 		name: 'home',
-		component: Chat,
+		component: Home,
 		meta: {
-			needAuth:true,
+			overflow:true,
+			needAuth:false,
 		}
 	},
 	{

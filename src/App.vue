@@ -38,6 +38,7 @@ export default class App extends Vue {
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.$route.meta.noBG === true) res.push("noBG");
+		if(this.$route.meta.overflow === true) res.push("overflow");
 		return res;
 	}
 
@@ -49,6 +50,11 @@ export default class App extends Vue {
 	width: 100%;
 	height: 100vh;
 	font-size: 20px;
+	overflow: hidden;
+
+	&.overflow {
+		overflow: auto;
+	}
 
 	&:not(.noBG) {
 		background-color: @mainColor_dark;

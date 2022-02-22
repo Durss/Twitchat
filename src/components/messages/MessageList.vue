@@ -541,7 +541,7 @@ export default class MessageList extends Vue {
 		color: fade(#ffffff, 75%);
 		font-size: 11px;
 		vertical-align: middle;
-		width: 36px;
+		min-width: 36px;
 		display: inline-block;
 	}
 
@@ -550,6 +550,7 @@ export default class MessageList extends Vue {
 		font-family: "Inter";
 		color: #fff;
 		padding: 5px;
+		// border-bottom: 1px solid rgba(255, 255, 255, .05);
 	}
 
 	.holder {
@@ -617,12 +618,12 @@ export default class MessageList extends Vue {
 	.locked {
 		z-index: 1;
 		position: absolute;
-		bottom: -10px;
+		bottom: 0px;
 		left: 50%;
 		transform: translateX(-50%);
 		width: 100%;
 		padding: 0;
-		padding-bottom: 15px;
+		padding-bottom: 5px;
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
@@ -630,6 +631,7 @@ export default class MessageList extends Vue {
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 		background: @mainColor_normal;
+
 		.label {
 			display: flex;
 			flex-direction: row;

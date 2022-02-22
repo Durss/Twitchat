@@ -208,8 +208,8 @@ export default class ChatHighlight extends Vue {
 			font-variant-numeric: tabular-nums;
 		}
 		.icon {
-			width: 1.5em;
-			height: 1.5em;
+			width: 1.4em;
+			height: 1.4em;
 			margin: 0 .5em 0 0;
 		}
 

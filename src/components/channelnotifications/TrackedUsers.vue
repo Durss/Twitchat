@@ -168,7 +168,7 @@ export default class TrackedUsers extends Vue {
 			font-size: 13px;
 			margin-right: 5px;
 			vertical-align: middle;
-			width: 36px;
+			min-width: 36px;
 			display: inline-block;
 			font-variant-numeric: tabular-nums;
 		}

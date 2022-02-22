@@ -356,6 +356,7 @@ export default class NewUsers extends Vue {
 			:deep(.time) {
 				color: fade(#ffffff, 75%);
 				margin-right: 5px;
+				min-width: 36px;
 				vertical-align: middle;
 			}
 	

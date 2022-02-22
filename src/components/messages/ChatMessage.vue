@@ -206,8 +206,14 @@ export default class ChatMessage extends Vue {
 	}
 
 	public copyJSON():void {
+		const answersBckp = this.messageData.answers;
+		const answerToBckp = this.messageData.answerTo;
+		this.messageData.answers = undefined;
+		this.messageData.answerTo = undefined;
 		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);
+		this.messageData.answers = answersBckp;
+		this.messageData.answerTo = answerToBckp;
 	}
 
 	/**

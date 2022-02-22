@@ -65,7 +65,11 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	next();
 });
 
-createApp(App).use(store).use(router).mount('#app');
+createApp(App)
+.use(store)
+.use(router)
+.use(router)
+.mount('#app');
 
 // (
 // 	async () => {

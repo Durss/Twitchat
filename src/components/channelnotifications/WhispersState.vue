@@ -247,7 +247,7 @@ export default class WhispersState extends Vue {
 					font-size: 13px;
 					margin-right: 5px;
 					margin-top: 3px;
-					width: 36px;
+					min-width: 36px;
 					font-variant-numeric: tabular-nums;
 				}
 			}

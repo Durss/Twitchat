@@ -604,15 +604,15 @@
                 {
                     "id": "b2dc37a4-6469-41f3-9d09-57644cc813b3",
                     "title": "option 1",
-                    "votes": 0,
-                    "channel_points_votes": 0,
+                    "votes": 2,
+                    "channel_points_votes": 450,
                     "bits_votes": 0
                 },
                 {
                     "id": "a1b43c9c-b52a-4885-9d4e-2c2c0d99218b",
                     "title": "option 2",
-                    "votes": 0,
-                    "channel_points_votes": 0,
+                    "votes": 5,
+                    "channel_points_votes": 250,
                     "bits_votes": 0
                 }
             ],

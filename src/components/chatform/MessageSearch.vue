@@ -137,7 +137,7 @@ export default class MessageSearch extends Vue {
 			color: fade(#ffffff, 75%);
 			font-size: 11px;
 			vertical-align: middle;
-			width: 36px;
+			min-width: 36px;
 			display: inline-block;
 		}
 	}

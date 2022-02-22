@@ -98,7 +98,6 @@ export default class RaffleForm extends Vue {
 		.description {
 			text-align: center;
 			font-size: .8em;
-			margin-bottom: 20px;
 		}
 
 		form {

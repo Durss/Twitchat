@@ -346,6 +346,7 @@ export default class Chat extends Vue {
 		}
 		.chatForm {
 			width: 100%;
+			z-index: 31;
 		}
 	}
 
@@ -364,6 +365,10 @@ export default class Chat extends Vue {
 		bottom: 40px;
 		left: 0;
 		z-index: 2;
+
+		&.emotes {
+			width: 100%;
+		}
 	}
 }
 </style>

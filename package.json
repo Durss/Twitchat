@@ -36,6 +36,7 @@
     "gsap": "^3.9.1",
     "less": "^3.0.4",
     "less-loader": "^7.0.1",
-    "typescript": "~4.1.5"
+    "typescript": "~4.1.5",
+    "vue3-carousel": "^0.1.36"
   }
 }
