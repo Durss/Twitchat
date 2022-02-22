@@ -64,15 +64,25 @@ export default class MessageSearch extends Vue {
 		this.updateList();
 	}
 
-	private updateList():void {
-		this.search = store.state.searchMessages;
+	private async updateList():Promise<void> {
+		if(this.search != store.state.searchMessages) {
+			//If search has changed clear all current results
+			//to make sure items are properly updated.
+			//If an item from the prev search is still there
+			//with the new search, the highlight wouldn't be
+			//updated if we wouldn't remove it first.
+			this.search = store.state.searchMessages;
+			this.messages = [];
+			await this.$nextTick();
+		}
 
 		const list = store.state.chatMessages.concat();
 		const result:IRCEventDataList.Message[] = [];
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i] as IRCEventDataList.Message;
 			if(m.type != "message") continue;
-			if(m.message.indexOf(this.search) > -1) {
+			console.log(this.search);
+			if(new RegExp(this.search, "gim").test(m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, ""))) {
 				m.highlightWord = this.search;
 				result.push(m);
 			}
@@ -96,7 +106,7 @@ export default class MessageSearch extends Vue {
 	flex-direction: column;
 
 	&.hasResult {
-		min-height: 120px;
+		// min-height: 120px;
 	}
 
 	&.size_1 {

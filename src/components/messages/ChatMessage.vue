@@ -71,7 +71,6 @@ import ChatModTools from './ChatModTools.vue';
 	},
 	props:{
 		messageData:Object,
-		// deleteOverlay:{type:Boolean, default:false},
 		lightMode:{type:Boolean, default:false},
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
@@ -81,7 +80,6 @@ import ChatModTools from './ChatModTools.vue';
 export default class ChatMessage extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
-	// public deleteOverlay!:boolean;
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
@@ -97,10 +95,6 @@ export default class ChatMessage extends Vue {
 		let res = ["chatmessage"];
 		const message = this.messageData as IRCEventDataList.Message;
 
-		//NOT used anymore !
-		//See NewUsers.vue line ~150
-		// if(this.deleteOverlay) res.push("deleteOverlay");
-		
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
 		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
@@ -264,10 +258,6 @@ export default class ChatMessage extends Vue {
 			
 		this.text = this.parseText();
 
-		if(this.enableWordHighlight && this.messageData.highlightWord) {
-			this.text = this.text.replace(new RegExp("("+this.messageData.highlightWord+")", "gi"), "<span class='highlightedWord'>$1</span>");
-		}
-
 		this.hasMention = store.state.params.appearance.highlightMentions.value
 			&& store.state.user.login != null
 			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
@@ -314,6 +304,13 @@ export default class ChatMessage extends Vue {
 					const v = chunks[i];
 					if(v.type == "text") {
 						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+
+						//If search for a message by a keyword, highlight it
+						if(this.enableWordHighlight && this.messageData.highlightWord) {
+							v.value = v.value.replace(new RegExp("("+this.messageData.highlightWord+")", "gim"), "<span class='highlightedWord'>$1</span>");
+						}
+
+						//If requested to highlight mentions, highlight them
 						if(doHighlight) {
 							v.value = v.value.replace(new RegExp("(^| )"+highlightLogin+"( |$)", "gim"), "<strong>$&</strong>");
 						}
@@ -364,15 +361,6 @@ export default class ChatMessage extends Vue {
 		}
 	}
 
-	&.deleteOverlay{
-		//NOT used anymore !
-		//See NewUsers.vue line ~150
-		color: white;
-		opacity: .5;
-		text-decoration: line-through;
-		background-color: red !important;//oooo..bad me >_>
-	}
-
 	.infos {
 		display: inline;
 		.convBt {
@@ -404,7 +392,11 @@ export default class ChatMessage extends Vue {
 		.login {
 			cursor: pointer;
 			font-weight: bold;
-			-webkit-text-stroke: fade(#000, 50%) .25px;
+			// -webkit-text-stroke: fade(#000, 50%) .25px;
+			&:hover {
+				background-color: @mainColor_light;
+				border-radius: 3px;
+			}
 		}
 	
 		.miniBadges {
