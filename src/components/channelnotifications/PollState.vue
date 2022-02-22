@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div class="actions">
-			<Button title="End poll" @click="deletePoll()" :loading="loading" v-if="poll.status == 'ACTIVE'" />
+			<Button title="End poll" @click="endPoll()" :loading="loading" v-if="poll.status == 'ACTIVE'" />
 		</div>
 	</div>
 </template>
@@ -98,9 +98,9 @@ export default class PollState extends Vue {
 		this.disposed = true;
 	}
 
-	public deletePoll():void {
+	public endPoll():void {
 		this.loading = true;
-		Utils.confirm("Delete Poll", "Are you sure you want to delete this poll ?")
+		Utils.confirm("End Poll", "Are you sure you want to end this poll now?")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPoll(this.poll.id);
@@ -155,15 +155,15 @@ export default class PollState extends Vue {
 			}
 
 			&.win {
-				@c: fade(#00cc00, 100%);
+				@c: fade(#00cc00, 40%);
 				background-image: linear-gradient(to right, @c 100%, @c 100%);
-				border: 1px solid #00cc00;
+				// border: 1px solid fade(#00cc00, 20%);
 			}
 
 			&.lose {
 				@c: fade(#cc0000, 40%);
 				background-image: linear-gradient(to right, @c 100%, @c 100%);
-				border: 1px solid #cc0000;
+				// border: 1px solid #cc0000;
 			}
 		}
 	}
