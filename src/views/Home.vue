@@ -107,7 +107,7 @@
 								<li>Display BTTV emotes</li>
 								<li>...</li>
 							</ul>
-							<b>Get a more complete list <a href="https://github.com/Durss/Twitchat" target="_blank">on this page</a></b>
+							<b>Get a more complete list <a href="https://github.com/Durss/Twitchat#readme" target="_blank">on this page</a></b>
 						</div>
 					</Slide>
 					<template #addons>
