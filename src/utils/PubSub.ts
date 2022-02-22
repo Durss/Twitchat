@@ -371,10 +371,13 @@ export default class PubSub {
 		const choices:TwitchTypes.PollChoice[] = [];
 		for (let i = 0; i < localObj.poll.choices.length; i++) {
 			const c = localObj.poll.choices[i];
+			let votes = c.total_voters;
+			if(c.votes.channel_points) votes += c.votes.channel_points;
+			if(c.votes.bits) votes += c.votes.bits;
 			choices.push({
 				id: c.choice_id,
 				title: c.title,
-				votes: c.total_voters,
+				votes: votes,
 				channel_points_votes: c.votes.channel_points,
 				bits_votes: c.votes.bits,
 			})

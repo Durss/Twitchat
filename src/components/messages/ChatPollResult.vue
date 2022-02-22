@@ -3,9 +3,9 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
-			<div class="title">{{prediction.title}}</div>
+			<div class="title">{{poll.title}}</div>
 			<div class="choices">
-				<div v-for="o in prediction.choices" :key="o.id" class="choice">
+				<div v-for="o in poll.choices" :key="o.id" class="choice">
 					<div class="choiceTitle">{{o.title}}</div>
 					<div class="bar" :style="getChoiceStyles(o)">
 						<div class="users">
@@ -35,7 +35,7 @@ export default class ChatPollResult extends Vue {
 
 	public pollData!:IRCEventDataList.PollResult;
 
-	public get prediction():TwitchTypes.Poll {
+	public get poll():TwitchTypes.Poll {
 		return this.pollData.data;
 	}
 
@@ -46,9 +46,9 @@ export default class ChatPollResult extends Vue {
 
 	public getChoiceStyles(o:TwitchTypes.PollChoice):{[key:string]:string} {
 		let totalVotes = 0;
-		if(this.prediction) {
-			for (let i = 0; i < this.prediction.choices.length; i++) {
-				totalVotes += this.prediction.choices[i].votes;
+		if(this.poll) {
+			for (let i = 0; i < this.poll.choices.length; i++) {
+				totalVotes += this.poll.choices[i].votes;
 			}
 		}
 		const percent = o.votes/Math.max(1,totalVotes);

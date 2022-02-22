@@ -70,8 +70,8 @@ export default class PollForm extends Vue {
 	public answer4:string = "";
 	public answer5:string = "";
 	public extraVotesParam:ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
-	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:10};
-	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:10};
+	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
+	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
 
 	public get answers():string[] {
