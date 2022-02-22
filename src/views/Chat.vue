@@ -357,6 +357,7 @@ export default class Chat extends Vue {
 
 	.popin {
 		margin-left: auto;
+		z-index: 1;
 		:deep(.holder) {
 			max-height: 100% !important;
 		}
