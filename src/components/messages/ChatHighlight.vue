@@ -5,6 +5,12 @@
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
+			<Button v-if="isRaid"
+				small white
+				title="Shoutout"
+				:icon="require('@/assets/icons/shoutout_purple.svg')"
+				@click="shoutout()"
+			/>
 		</div>
 	</div>
 </template>
@@ -16,13 +22,16 @@ import { PubSubTypes } from '@/utils/PubSub';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
 
 @Options({
 	props:{
 		lightMode:Boolean,
 		messageData:Object,
 	},
-	components:{}
+	components:{
+		Button,
+	}
 })
 export default class ChatHighlight extends Vue {
 	
@@ -31,6 +40,7 @@ export default class ChatHighlight extends Vue {
 	public messageText:string = '';
 	public icon:string = "";
 	public filtered:boolean = false;
+	public isRaid:boolean = false;
 
 	public get classes():string[] {
 		let res = ["chathighlight"];
@@ -93,6 +103,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case "raid":
+				this.isRaid = true;
 				this.icon = require('@/assets/icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
 				break;
@@ -186,6 +197,12 @@ export default class ChatHighlight extends Vue {
 		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);
 	}
+
+	public async shoutout():Promise<void> {
+		if(this.messageData.viewers != undefined) {
+			await TwitchUtils.shoutout(this.messageData.username as string);
+		}
+	}
 }
 </script>
 
@@ -245,6 +262,21 @@ export default class ChatHighlight extends Vue {
 	}
 
 	.messageHolder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		&>*:not(:first-child) {
+			margin-top: 10px;
+		}
+
+		.button {
+			:deep(.icon) {
+				height: .7em;
+				min-height: .7em;
+			}
+		}
+
 		.reason {
 			color: #fff;
 			:deep(strong) {
@@ -257,7 +289,6 @@ export default class ChatHighlight extends Vue {
 		}
 	
 		.message {
-			margin-top: 10px;
 			color: rgba(255, 255, 255, .5);
 			color: @mainColor_normal;
 			font-style: italic;
