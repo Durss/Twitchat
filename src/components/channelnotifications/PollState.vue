@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div class="actions">
-			<Button title="Delete poll" @click="deletePoll()" :loading="loading" v-if="poll.status == 'ACTIVE'" />
+			<Button title="End poll" @click="deletePoll()" :loading="loading" v-if="poll.status == 'ACTIVE'" />
 		</div>
 	</div>
 </template>
