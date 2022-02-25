@@ -80,6 +80,7 @@ export default createStore({
 		params: {
 			appearance: {
 				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/new users on right)", id:13, icon:"split_purple.svg"},
+				splitViewSwitch: {type:"toggle", value:false, label:"Switch columns", id:15},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},

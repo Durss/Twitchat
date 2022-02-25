@@ -3,6 +3,7 @@
 		<div class="row" v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" />
 			<ParamItem class="subItem" v-if="key == 'showBadges' && $store.state.params.appearance.showBadges.value" :paramData="minibadge" />
+			<ParamItem class="subItem" v-if="key == 'splitView' && $store.state.params.appearance.splitView.value" :paramData="splitViewSwitch" />
 		</div>
 	</div>
 </template>
@@ -21,11 +22,13 @@ import ParamItem from '../ParamItem.vue';
 export default class ParamsAppearance extends Vue {
 
 	public minibadge: ParameterData = store.state.params.appearance.minimalistBadges;
+	public splitViewSwitch: ParameterData = store.state.params.appearance.splitViewSwitch;
 
 	public get params():{[key:string]:ParameterData} {
 		let res:{[key:string]:ParameterData} = {};
 		for (const key in store.state.params.appearance) {
 			if(key == "minimalistBadges") continue;
+			if(key == "splitViewSwitch") continue;
 			/* eslint-disable-next-line */
 			res[key] = (store.state.params.appearance as any)[key];
 		}

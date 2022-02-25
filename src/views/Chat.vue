@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="top">
+		<div :class="topClasses">
 			<div class="leftColumn">
 				<MessageList ref="messages" class="messages"
 					:max="$store.state.params.appearance.historySize.value" />
@@ -148,6 +148,12 @@ export default class Chat extends Vue {
 		if(this.splitView) res.push("splitView");
 		return res;
 	}
+
+	public get topClasses():string[] {
+		const res = ["top"];
+		if(store.state.params.appearance.splitViewSwitch.value === true) res.push("switchCols");
+		return res;
+	}
 	
 	private resizeHandler!:(e:Event) => void;
 
@@ -227,10 +233,15 @@ export default class Chat extends Vue {
 	flex-direction: column;
 
 	&.splitView {
-		// display: flex;
-		// flex-direction: row;
 
 		.top {
+			display: flex;
+			flex-direction: row;
+
+			&.switchCols {
+				flex-direction: row-reverse;
+			}
+
 			.leftColumn {
 				width: 50%;
 			}
