@@ -107,7 +107,7 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static parseURLs(text:string, target:string = "_blank"):string {
-		let res = text.replace(/([-a-z0-9@:%_+.~#?&//=]{2,256})((?<!\W)\.[a-z]{2,4}\b(\/[-a-z0-9@:%_+.~#?&//=]*[a-z0-9/])?)/gi, "<a href='$1$2' target='"+target+"'>$1$2</a>");
+		let res = text.replace(/([-a-z0-9@:%_+.~#?&//=]{2,256})((?<!\W)\.[a-z]{2,10}\b(\/[-a-z0-9@:%_+.~#?&//=]*[a-z0-9/])?)/gi, "<a href='$1$2' target='"+target+"'>$1$2</a>");
 		res = res.replace(/href='(?!https?)(\/\/)?(.*?)'/gi, "href='https://$2'");
 		res = res.replace(/(\.|,)$/gi, "");
 		return res;
