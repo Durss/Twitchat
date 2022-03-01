@@ -10,6 +10,7 @@
 				small 
 				:icon="require('@/assets/icons/shoutout.svg')"
 				@click="shoutout()"
+				:loading="shoutoutLoading"
 				data-tooltip="Send a shoutout"
 			/>
 	</div>
@@ -41,6 +42,7 @@ export default class ChatHighlight extends Vue {
 	public icon:string = "";
 	public filtered:boolean = false;
 	public isRaid:boolean = false;
+	public shoutoutLoading:boolean = false;
 
 	public get classes():string[] {
 		let res = ["chathighlight"];
@@ -71,10 +73,7 @@ export default class ChatHighlight extends Vue {
 			this.filtered = !store.state.params.filters.showSubs.value;
 		}else if(this.messageData.methods?.plan) {
 			value = parseInt(this.messageData.methods.plan)/1000;
-			type = "sub";
-			this.filtered = !store.state.params.filters.showSubs.value;
-		}else if(this.messageData.recipient) {
-			type = "subgift";
+			type = this.messageData.recipient? "subgift" : "sub";
 			this.filtered = !store.state.params.filters.showSubs.value;
 		}else if(this.messageData.viewers != undefined) {
 			type = "raid";
@@ -199,9 +198,16 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public async shoutout():Promise<void> {
+		this.shoutoutLoading = true;
 		if(this.messageData.viewers != undefined) {
-			await TwitchUtils.shoutout(this.messageData.username as string);
+			try {
+				await TwitchUtils.shoutout(this.messageData.username as string);
+			}catch(error) {
+				store.state.alert = "Shout failed :(";
+				console.log(error);
+			}
 		}
+		this.shoutoutLoading = false;
 	}
 }
 </script>

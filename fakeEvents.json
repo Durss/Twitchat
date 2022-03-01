@@ -203,7 +203,7 @@
             "message-type": "subgift"
         },
         "recipient": "aken44800",
-        "firstMessage": true
+        "firstMessage": false
     },
     "timeout_success": {
         "type": "notice",

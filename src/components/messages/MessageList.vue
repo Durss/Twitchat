@@ -267,6 +267,7 @@ export default class MessageList extends Vue {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const h = (this.$el as HTMLDivElement).offsetHeight;
 			const maxScroll = (el.scrollHeight - h);
+			// if(isNaN(maxScroll)) console.log("WTF?? ", el.scrollHeight, h);
 			this.virtualScrollY = maxScroll;
 			this.catchingUpPendingMessages = false;
 		}, 0);
@@ -312,6 +313,7 @@ export default class MessageList extends Vue {
 		const h = (this.$el as HTMLDivElement).offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
 		if(!this.lockScroll) {
+			// if(isNaN(maxScroll)) console.log("WTF2?? ", el.scrollHeight, h);
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
 
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
@@ -321,10 +323,14 @@ export default class MessageList extends Vue {
 				// const ease = Math.max(.1, Math.min(100, dist)/200);
 				const ease = .1;
 				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease;
+				// if(isNaN(this.virtualScrollY)) console.log("WTF3?? ", maxScroll);
 			}
 			// if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
 			el.scrollTop = this.virtualScrollY;
 		}
+		// if(el.scrollTop == 0 || el.scrollHeight ==0 || h == 0) {
+		// 	console.log(el.scrollTop, el.scrollHeight, h, this.virtualScrollY);
+		// }
 
 		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%12 == 0) {
 			this.showNextPendingMessage();
@@ -361,8 +367,8 @@ export default class MessageList extends Vue {
 		
 		if(lastMessRef) {
 			const add = lastMessRef.offsetTop + lastMessRef.offsetHeight - h;
-			if(!isNaN(add)) {
-				this.virtualScrollY = add;
+			if(!isNaN(add) && h > 0) {
+				// console.log("add : "+add, lastMessRef.offsetTop, lastMessRef.offsetHeight, h);
 				el.scrollTop = this.virtualScrollY;
 			}
 		}
