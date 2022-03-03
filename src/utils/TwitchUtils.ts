@@ -389,25 +389,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Get the moderators list of a channel
-	 */
-	public static async getModsList():Promise<{ user_id:string, user_login:string, user_name:string }[]> {
-		const options = {
-			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
-		}
-		const res = await fetch(Config.TWITCH_API_PATH+"moderation/moderators?broadcaster_id="+store.state.user.user_id, options);
-		const json = await res.json();
-		return json.data;
-		
-	}
-
-	/**
-	 * Get the moderators list of a channel
+	 * Get the cheermote list of a channel
 	 */
 	public static async loadCheermoteList(uid:string):Promise<TwitchTypes.CheermoteSet[]> {
 		if(this.cheermoteCache[uid]) return this.cheermoteCache[uid];
@@ -721,9 +703,40 @@ export default class TwitchUtils {
 		}
 	}
 
+	/**
+	 * Get the moderators list of a channel
+	 */
+	public static async getModerators():Promise<TwitchTypes.ModeratorUser[]> {
+		const headers = {
+			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+			'Client-Id': this.client_id,
+			"Content-Type": "application/json",
+		}
+		let list:TwitchTypes.ModeratorUser[] = [];
+		let cursor:string|null = null;
+		do {
+			const pCursor = cursor? "&after="+cursor : "";
+			const res = await fetch(Config.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+store.state.user.user_id+pCursor, {
+				method:"GET",
+				headers,
+			});
+			const json:{data:TwitchTypes.ModeratorUser[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null)
+		return list;
+	}
 }
 
 export namespace TwitchTypes {
+	export interface ModeratorUser {
+		user_id: string;
+		user_login: string;
+		user_name: string;
+	}
+	
 	export interface Token {
 		client_id: string;
 		login: string;

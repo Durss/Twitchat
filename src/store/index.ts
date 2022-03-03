@@ -191,7 +191,7 @@ export default createStore({
 					PubSub.instance.connect();
 				}
 
-				state.mods = await TwitchUtils.getModsList() as never[];
+				state.mods = await TwitchUtils.getModerators() as never[];
 
 				state.authenticated = true;
 				if(cb) cb(true);
@@ -444,7 +444,10 @@ export default createStore({
 
 		setRaiding(state, userName:string) { state.raiding = userName; },
 
-		setViewersList(state, users:string[]) { state.onlineUsers = users as never[] },
+		setViewersList(state, users:string[]) {
+			state.onlineUsers.splice(0, state.onlineUsers.length);
+			state.onlineUsers = state.onlineUsers.concat(users as never[]);
+		},
 		
 		toggleDevMode(state, forcedState?:boolean) {
 			let notify = true;

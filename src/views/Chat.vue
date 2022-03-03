@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div :class="topClasses">
+		<div class="top">
 			<div class="leftColumn">
 				<MessageList ref="messages" class="messages"
 					:max="$store.state.params.appearance.historySize.value" />
@@ -46,6 +46,7 @@
 				v-model:showEmotes="showEmotes" @update:showEmotes="v => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="v => showRewards = v"
 				v-model:showCommands="showCommands" @update:showCommands="v => showCommands = v"
+				v-model:showChatUsers="showChatUsers" @update:showChatUsers="v => showChatUsers = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
 			/>
 		</div>
@@ -76,6 +77,10 @@
 			v-if="showEmotes"
 			@select="onSelectEmote"
 			@close="showEmotes = false" />
+
+		<UserList class="contentWindows users"
+			v-if="showChatUsers"
+			@close="showChatUsers = false" />
 		
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
 
@@ -97,6 +102,7 @@ import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
+import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
 import PollForm from '@/components/poll/PollForm.vue';
@@ -113,6 +119,7 @@ import { Options, Vue } from 'vue-class-component';
 		Button,
 		NewUsers,
 		ChatForm,
+		UserList,
 		PollForm,
 		BingoForm,
 		RaffleForm,
@@ -137,6 +144,7 @@ export default class Chat extends Vue {
 	public showRewards:boolean = false;
 	public showDevMenu:boolean = false;
 	public showCommands:boolean = false;
+	public showChatUsers:boolean = false;
 	public currentModal:string = "";
 	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
@@ -146,15 +154,10 @@ export default class Chat extends Vue {
 	public get classes():string[] {
 		const res = ["chat"];
 		if(this.splitView) res.push("splitView");
-		return res;
-	}
-
-	public get topClasses():string[] {
-		const res = ["top"];
 		if(store.state.params.appearance.splitViewSwitch.value === true) res.push("switchCols");
 		return res;
 	}
-	
+
 	private resizeHandler!:(e:Event) => void;
 
 	public mounted():void {
@@ -238,10 +241,6 @@ export default class Chat extends Vue {
 			display: flex;
 			flex-direction: row;
 
-			&.switchCols {
-				flex-direction: row-reverse;
-			}
-
 			.leftColumn {
 				width: 50%;
 			}
@@ -283,6 +282,28 @@ export default class Chat extends Vue {
 			width: 50vw;
 			left: auto;
 			right: 0;
+			top: 0;
+		}
+
+		.contentWindows {
+			&.emotes {
+				right: 0;
+				left: auto;
+				max-width: 50vw;
+				margin: auto;
+			}
+		}
+	}
+
+	&.switchCols {
+		.top {
+			flex-direction: row-reverse;
+		}
+
+		.popin {
+			width: 50vw;
+			left: 0;
+			right: auto;
 			top: 0;
 		}
 
@@ -356,10 +377,6 @@ export default class Chat extends Vue {
 		}
 	}
 
-	.bottom {
-		// flex-grow: 1;
-	}
-
 	.popin {
 		margin-left: auto;
 		z-index: 1;
@@ -380,6 +397,11 @@ export default class Chat extends Vue {
 
 		&.emotes {
 			max-width: 100%;
+		}
+
+		&.users {
+			max-height: 80vh;
+			width: 100%;
 		}
 	}
 }

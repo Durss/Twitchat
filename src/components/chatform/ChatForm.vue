@@ -4,6 +4,7 @@
 			<div class="leftForm">
 				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
 				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" />
 				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
@@ -119,6 +120,7 @@ import AutocompleteForm from './AutocompleteForm.vue';
 		"update:showFeed",
 		"update:showEmotes",
 		"update:showCommands",
+		"update:showChatUsers",
 		"update:showRewards",
 		"update:showDevMenu",
 		"setCurrentNotification"

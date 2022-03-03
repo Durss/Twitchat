@@ -116,6 +116,7 @@ export default class IRCClient extends EventDispatcher {
 			}
 			
 			this.client.on("join", (channel:string, user:string)=> {
+				console.log("join", channel, user);
 				if(user == this.login) {
 					this.connected = true;
 					console.log("IRCClient :: Connection succeed");
@@ -403,6 +404,13 @@ export default class IRCClient extends EventDispatcher {
 		//Ignore commands
 		if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
 			return;
+		}
+		
+		const index = this.onlineUsers.indexOf(tags.username as string);
+		if(index == -1) {
+			this.onlineUsers.push(tags["display-name"] as string);
+			this.onlineUsers.sort();
+			store.dispatch("setViewersList", this.onlineUsers);
 		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));

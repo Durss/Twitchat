@@ -45,7 +45,6 @@ export default class Confirm extends Vue {
 		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
-	// @Watch('$store.state.confirm', { immediate: true, deep: true })
 	public onConfirmChanged():void {
 		let hidden = !store.state.confirm || !store.state.confirm.title;
 		

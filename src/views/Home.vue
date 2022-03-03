@@ -216,7 +216,7 @@ export default class Home extends Vue {
 			margin: auto;
 			// background-color: rgba(255, 255, 255, .2);
 			background-color: fade(@mainColor_normal, 50%);
-			background: linear-gradient(180deg, rgba(145,71,255,.7) 0%, rgba(145,71,255,.0) 100%);
+			background: linear-gradient(0deg, rgba(145,71,255,.7) 0%, rgba(145,71,255,.0) 100%);
 			// border: 1px solid fade(@mainColor_normal, 30%);
 			border-radius: 20px;
 			padding: 20px;
