@@ -445,8 +445,20 @@ export default createStore({
 		setRaiding(state, userName:string) { state.raiding = userName; },
 
 		setViewersList(state, users:string[]) {
-			state.onlineUsers.splice(0, state.onlineUsers.length);
-			state.onlineUsers = state.onlineUsers.concat(users as never[]);
+			//Dedupe users
+			const list:string[] = [];
+			const done:{[key:string]:boolean} = {};
+			for (let i = 0; i < users.length; i++) {
+				const user = users[i];
+				if(!done[user]) {
+					list.push(user);
+					done[user] = true;
+				}
+			}
+			state.onlineUsers.splice(0, state.onlineUsers.length);//cleanup prev users
+			state.onlineUsers = state.onlineUsers.concat(list as never[]);//Add new users
+			//Don't just do "state.onlineUsers = users" or the arrays's reference/reactivity
+			//accross the app would be broken
 		},
 		
 		toggleDevMode(state, forcedState?:boolean) {

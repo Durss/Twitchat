@@ -408,7 +408,7 @@ export default class IRCClient extends EventDispatcher {
 		
 		const index = this.onlineUsers.indexOf(tags.username as string);
 		if(index == -1) {
-			this.onlineUsers.push(tags["display-name"] as string);
+			this.onlineUsers.push(tags.username as string);
 			this.onlineUsers.sort();
 			store.dispatch("setViewersList", this.onlineUsers);
 		}

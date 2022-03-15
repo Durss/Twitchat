@@ -47,6 +47,12 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/oauth',
 		name: 'oauth',
 		component: Login,
+	},
+	{
+		path: "/:path(.*)",
+		redirect:() => {
+			return {name:"home"}
+		},
 	}
 ]
 

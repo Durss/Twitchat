@@ -26,7 +26,6 @@
 
 <script lang="ts">
 import store, { CommandData } from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
