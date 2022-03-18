@@ -60,7 +60,6 @@ export default class PubSub {
 				"following."+store.state.user.user_id,
 				"ads."+store.state.user.user_id,
 
-				//None of the available scopes allows to listen to the following topics
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
 			]);
