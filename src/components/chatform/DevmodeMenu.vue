@@ -17,6 +17,7 @@
 			<Button small title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
 			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
+			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="require('@/assets/icons/copy.svg')" />
 		</div>
 	</div>
 </template>
@@ -24,6 +25,7 @@
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
 import PubSub from '@/utils/PubSub';
+import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -85,6 +87,17 @@ export default class DevmodeMenu extends Vue {
 		}else{
 			IRCClient.instance.sendFakeEvent(code);
 		}
+	}
+
+	public exportPubsubHistory():void {
+		const data = JSON.stringify(PubSub.instance.eventsHistory);
+		const blob = new Blob([data], { type: 'application/json' });
+		const url = window.URL.createObjectURL(blob)
+		const a = document.createElement('a')
+		a.setAttribute('href', url)
+		a.setAttribute('download', 'history.json');
+	
+		a.click()
 	}
 
 }

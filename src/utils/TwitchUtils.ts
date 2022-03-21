@@ -728,6 +728,46 @@ export default class TwitchUtils {
 		}while(cursor != null)
 		return list;
 	}
+	
+
+	/**
+	 * Get all the active streams that the current user is following
+	 */
+	public static async getActiveFollowedStreams():Promise<TwitchTypes.StreamInfo[]> {
+		const headers = {
+			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+			'Client-Id': this.client_id,
+			"Content-Type": "application/json",
+		}
+		let list:TwitchTypes.StreamInfo[] = [];
+		let cursor:string|null = null;
+		do {
+			const pCursor = cursor? "&after="+cursor : "";
+			const res = await fetch(Config.TWITCH_API_PATH+"streams/followed?first=100&user_id="+store.state.user.user_id+pCursor, {
+				method:"GET",
+				headers,
+			});
+			const json:{data:TwitchTypes.StreamInfo[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+
+			const uids = json.data.map(x => x.user_id);
+			const users = await this.loadUserInfo(uids);
+			users.forEach(u => {
+				for (let i = 0; i < json.data.length; i++) {
+					const s = json.data[i];
+					if(s.user_id == u.id) {
+						s.user_info = u;
+						break;
+					}
+				}
+			});
+
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null)
+		return list;
+	}
 }
 
 export namespace TwitchTypes {
@@ -770,6 +810,8 @@ export namespace TwitchTypes {
 		language:      string;
 		thumbnail_url: string;
 		tag_ids:       string[];
+		//Custom tag
+		user_info:     UserInfo;
 	}
 
 	export interface ChannelInfo {

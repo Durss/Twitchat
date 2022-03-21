@@ -117,6 +117,7 @@ import AutocompleteForm from './AutocompleteForm.vue';
 		"clear",
 		"raffle",
 		"search",
+		"liveStreams",
 		"update:showFeed",
 		"update:showEmotes",
 		"update:showCommands",
@@ -177,7 +178,7 @@ export default class ChatForm extends Vue {
 
 				if(currentChar == ":" || 
 				currentChar == "@" || 
-				currentChar == "/" || 
+				(currentChar == "/" && carretPos == 1) || 
 				(i == 0 && this.autoCompleteSearch)) {
 					this.autoCompleteUsers = currentChar == "@";
 					this.autoCompleteEmotes = currentChar == ":";
@@ -264,6 +265,11 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
+			this.$emit("liveStreams");
+			this.message = "";
+		}else
+
 		if(cmd == "/cypherkey") {
 			//Secret feature
 			TwitchCypherPlugin.instance.cypherKey = params[0];
@@ -310,6 +316,7 @@ export default class ChatForm extends Vue {
 		let localMessage = this.message;
 		if(!carretPos) carretPos = 1;
 		carretPos --;
+		console.log(carretPos);
 
 		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {
@@ -319,7 +326,7 @@ export default class ChatForm extends Vue {
 				/\s/gi.test(currentChar) || i == 0) {
 					const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
 					let prefix = localMessage.substring(0, i-offset);
-					const suffix = localMessage.substring(i+1+this.autoCompleteSearch.length);
+					const suffix = localMessage.substring(i+1+this.autoCompleteSearch.length)+" ";
 					if(prefix) prefix += " ";
 					localMessage = prefix + item + suffix;
 					carretPos = prefix.length + item.length + 1;
@@ -342,11 +349,15 @@ export default class ChatForm extends Vue {
 
 		await this.$nextTick();
 		
+		//Pre select commands placeholder
 		if(/\{.*?\}/gi.test(item)) {
 			input.setSelectionRange(item.indexOf("{"), item.indexOf("}"), "forward");
 		}else{
+			console.log("SELECT CARRET", carretPos);
 			input.setSelectionRange(carretPos, carretPos, "forward");
+			input.focus();
 		}
+
 		//Force autocomplete close.
 		//Due to async rendering the watcher might detect search update before
 		//the selectionRange is effective wich may cause the autocomplete open

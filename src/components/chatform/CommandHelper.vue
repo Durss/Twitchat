@@ -15,6 +15,7 @@
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
+			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding}}</label>
@@ -39,7 +40,7 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:["close","poll","pred","clear","raffle","bingo"]
+	emits:["close","poll","pred","clear","raffle","bingo","liveStreams"]
 })
 export default class CommandHelper extends Vue {
 	
@@ -132,6 +133,11 @@ export default class CommandHelper extends Vue {
 			}
 		}
 	}
+
+	public openLiveFollowings():void {
+		this.close();
+		this.$emit("liveStreams");
+	}
 }
 </script>
 
@@ -173,6 +179,15 @@ export default class CommandHelper extends Vue {
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 				transform-origin: left;
+			}
+		}
+
+		.followings {
+			text-align: center;
+			font-size: .8em;
+			color: @mainColor_normal;
+			&:hover {
+				color: @mainColor_normal_light;
 			}
 		}
 	}

@@ -15,6 +15,7 @@ export default class PubSub {
 	private pingInterval!:number;
 	private reconnectTimeout!:number;
 	private hypeTrainApproachingTimer!:number;
+	private history:any[] = [];
 	
 	constructor() {
 	
@@ -29,6 +30,8 @@ export default class PubSub {
 		}
 		return PubSub._instance;
 	}
+
+	public get eventsHistory():any[] { return this.history; }
 	
 	
 	
@@ -72,6 +75,9 @@ export default class PubSub {
 			const message = JSON.parse(e.data) as {type:string, data:{message:string, topic:string}};
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
+				if(store.state.devmode) {
+					this.history.push(message);
+				}
 				this.parseEvent(data, message.data.topic);
 			// }else{
 			// 	console.log(event);

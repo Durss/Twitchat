@@ -21,6 +21,7 @@ export default class IRCClient extends EventDispatcher {
 	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
+	private selfTags!:tmi.ChatUserstate;
 	
 	public client!:tmi.Client;
 	public token!:string|undefined;
@@ -293,6 +294,18 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public sendMessage(message:string):Promise<unknown> {
+		//Workaround to a weird behavior of TMI/IRC.
+		//If the message starts by a "\" it's properly sent on all
+		//connected clients, but the sender never receives it.
+		if(message.indexOf("\\") === 0) {
+			const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
+			tags.username = this.login;
+			tags["display-name"] = this.login;
+			tags["user-id"] = store.state.user.user_id;
+			tags.id = this.getFakeGuid();
+			this.addMessage(message, tags, true, undefined, this.channel);
+		}
+		
 		return this.client.say(this.login, message);
 	}
 
@@ -348,6 +361,10 @@ export default class IRCClient extends EventDispatcher {
 
 	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData, channel?:string):void {
 		const login = tags.username as string;
+
+		if(login == this.login) {
+			this.selfTags = JSON.parse(JSON.stringify(tags));
+		}
 
 		if(message == "!logJSON") {
 			console.log(this.idToExample);

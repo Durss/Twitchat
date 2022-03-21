@@ -1,12 +1,13 @@
 <template>
 	<div class="paramsaccount">
+
+		<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Logout" highlight class="logoutBt" />
+		
 		<div class="splitter">
 			<h2 for="obsEmbed">Add chat as an OBS overlay</h2>
 			<p class="info">Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
 			<input type="text" id="obsEmbed" v-model="obsOverlayURL">
 		</div>
-
-		<Button @click="logout()" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Logout" highlight class="logoutBt" />
 		
 		<div class="splitter">
 			<h2>Suggestions and issues</h2>

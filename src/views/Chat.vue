@@ -40,6 +40,7 @@
 				@pred="currentModal = 'pred'"
 				@raffle="currentModal = 'raffle'"
 				@bingo="currentModal = 'bingo'"
+				@liveStreams="currentModal = 'liveStreams'"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showFeed="showFeed" @update:showFeed="v => showFeed = v"
@@ -70,8 +71,10 @@
 			@pred="currentModal = 'pred'"
 			@raffle="currentModal = 'raffle'"
 			@bingo="currentModal = 'bingo'"
+			@liveStreams="currentModal = 'liveStreams'"
 			@clear="clearChat()"
-			@close="showCommands = false" />
+			@close="showCommands = false"
+		/>
 
 		<EmoteSelector class="contentWindows emotes"
 			v-if="showEmotes"
@@ -88,6 +91,7 @@
 		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
+		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
 	</div>
 </template>
 
@@ -100,6 +104,7 @@ import ChatForm from '@/components/chatform/ChatForm.vue';
 import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
+import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
 import UserList from '@/components/chatform/UserList.vue';
@@ -131,6 +136,7 @@ import { Options, Vue } from 'vue-class-component';
 		MessageSearch,
 		EmoteSelector,
 		PredictionForm,
+		LiveFollowings,
 		ChannelNotifications,
 	},
 	props:{
@@ -145,6 +151,7 @@ export default class Chat extends Vue {
 	public showDevMenu:boolean = false;
 	public showCommands:boolean = false;
 	public showChatUsers:boolean = false;
+	public showLiveFollowings:boolean = false;
 	public currentModal:string = "";
 	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
@@ -153,8 +160,12 @@ export default class Chat extends Vue {
 
 	public get classes():string[] {
 		const res = ["chat"];
-		if(this.splitView) res.push("splitView");
-		if(store.state.params.appearance.splitViewSwitch.value === true) res.push("switchCols");
+		if(this.splitView) {
+			res.push("splitView");
+			if(store.state.params.appearance.splitViewSwitch.value === true) {
+				res.push("switchCols");
+			}
+		}
 		return res;
 	}
 
@@ -292,6 +303,11 @@ export default class Chat extends Vue {
 				max-width: 50vw;
 				margin: auto;
 			}
+
+			&.streams {
+				width: 50%;
+				height: 100%;
+			}
 		}
 	}
 
@@ -380,6 +396,7 @@ export default class Chat extends Vue {
 	.popin {
 		margin-left: auto;
 		z-index: 1;
+		height: calc(100% - 40px);///40 => footer height
 		:deep(.holder) {
 			max-height: 100% !important;
 		}

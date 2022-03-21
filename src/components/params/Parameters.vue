@@ -101,9 +101,14 @@ export default class Parameters extends Vue {
 		}
 	}
 
+	.dimmer {
+		z-index: 1;
+	}
+
 	.holder {
 		top: 0;
 		transform: translate(-50%, 0);
+		z-index: 2;
 	}
 
 }
