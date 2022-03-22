@@ -47,6 +47,7 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
+		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
 
@@ -249,6 +250,16 @@ export default class ChatHighlight extends Vue {
 				line-height: 1.2em;
 			}
 		}
+	}
+
+	&.tracked {
+		@c1:fade(@mainColor_warn_extralight,5%);
+		@c2:fade(@mainColor_warn_extralight,10%);
+		// background-color: @c1;
+		@s1:5px;
+		@s2:10px;
+		background-image: repeating-linear-gradient(90deg, @c1, @c1 @s1, @c2 @s1, @c2 @s2);
+		border-left: 5px solid @mainColor_warn_extralight;
 	}
 
 	.time {
