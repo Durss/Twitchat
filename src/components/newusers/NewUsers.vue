@@ -32,13 +32,12 @@
 		
 		<transition-group name="fade"
 			v-if="showList"
-			@leave="leave"
 			tag="div"
 			ref="messageList"
 			class="messageList"
 		>
+		<!-- @leave="leave" -->
 		<div v-for="(m,index) in localMessages" :key="m.tags.id">
-
 			<ChatMessage
 				class="message"
 				ref="message"
@@ -121,27 +120,9 @@ export default class NewUsers extends Vue {
 		}
 
 		watch(()=>this.autoDeleteAfter, ()=>{
+			//Save new "auto delete after" value when changed
 			Store.set("greetAutoDeleteAfter", this.autoDeleteAfter.toString());
 		});
-
-		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
-		
-		this.keyboardEventHandler = (e:KeyboardEvent) => {
-			if(e.key != "Control" && e.key != "Shift") return;
-
-			if(e.type == "keyup" && !this.streakMode) {
-				this.streakMode = true;
-			}else if(e.type == "keydown") {
-				this.streakMode = false;
-			}
-		};
-
-		this.localMessages = store.state.chatMessages;
-
-		document.addEventListener("keydown", this.keyboardEventHandler);
-		document.addEventListener("keyup", this.keyboardEventHandler);
-		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
-		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 
 		//Automatically deletes messages after the configured delay
 		this.deleteInterval = setInterval(()=> {
@@ -155,7 +136,28 @@ export default class NewUsers extends Vue {
 					i--;
 				}
 			}
-		}, 60000);
+		}, 30000);
+
+		//Debug to add all the current messages to the list
+		// this.localMessages = JSON.parse(JSON.stringify(store.state.chatMessages)).filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight");
+
+		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
+		
+		//Listen for shift/Ctr keys to define if deleting in streak or single mode
+		this.keyboardEventHandler = (e:KeyboardEvent) => {
+			if(e.key != "Control" && e.key != "Shift") return;
+
+			if(e.type == "keyup" && !this.streakMode) {
+				this.streakMode = true;
+			}else if(e.type == "keydown") {
+				this.streakMode = false;
+			}
+		};
+
+		document.addEventListener("keydown", this.keyboardEventHandler);
+		document.addEventListener("keyup", this.keyboardEventHandler);
+		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
+		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 	}
 
 	public beforeUnmount():void {
@@ -166,9 +168,13 @@ export default class NewUsers extends Vue {
 		IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 	}
 
+	/**
+	 * Called when a new message is received
+	 */
 	private async onMessage(e:IRCEvent):Promise<void> {
-		const maxLength = 200;
+		const maxLength = 100;
 		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
+		if(m.type != "message" && m.type != "highlight") return;
 		if(m.firstMessage) this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
 			this.localMessages = this.localMessages.slice(-maxLength);
@@ -177,6 +183,10 @@ export default class NewUsers extends Vue {
 		this.scrollTo();
 	}
 
+	/**
+	 * Called when clicking a message
+	 * Either removes a streak of messages or one single message
+	 */
 	public deleteMessage(m:IRCEventDataList.Message, index:number, singleMode:boolean):void {
 		let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
 
@@ -200,6 +210,9 @@ export default class NewUsers extends Vue {
 		}
 	}
 
+	/**
+	 * Removes all messages
+	 */
 	public clearAll():void {
 		let deleteCount = this.localMessages.length;
 		Utils.confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
@@ -214,6 +227,9 @@ export default class NewUsers extends Vue {
 		});
 	}
 
+	/**
+	 * Called when rolling over an item
+	 */
 	public onMouseOver(e:MouseEvent, index:number):void {
 		this.overIndex = index;
 		let items = this.$refs.message as Vue[];
@@ -246,6 +262,9 @@ export default class NewUsers extends Vue {
 		}
 	}
 
+	/**
+	 * Called when rolling out of an item
+	 */
 	public onMouseOut():void {
 		this.overIndex = -1;
 		let items = this.$refs.message as Vue[];
@@ -279,12 +298,13 @@ export default class NewUsers extends Vue {
 		if(el) {
 			if(this.scrollDownAuto) {
 				el.$el.scrollTop = el.$el.scrollHeight;
-			}else{
-				// el.$el.scrollTop = 0;
 			}
 		}
 	}
 
+	/**
+	 * Animates a newly added item
+	 */
 	public enter(el:HTMLElement, done:()=>void):void {
 		gsap.from(el, {
 			duration:0.2,
@@ -299,6 +319,10 @@ export default class NewUsers extends Vue {
 			}
 		});
 	}
+
+	/**
+	 * Animates an item when removed from the list
+	 */
 	public leave(el:HTMLElement, done:()=>void):void {
 		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.075;
 		if(delay > .75) {
