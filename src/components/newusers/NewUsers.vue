@@ -5,11 +5,29 @@
 				class="scrollBt"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
 				@click.stop="toggleScroll()" />
+
 			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
+
 			<Button :icon="require('@/assets/icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
 				@click.stop="clearAll()" />
+		</div>
+
+		<div class="topForm" v-if="showList">
+			<div class="row">
+				<label><img src="@/assets/icons/timeout.svg" alt="timer">Auto delete after</label>
+				<select v-model.number="autoDeleteAfter">
+					<option value="-1">never</option>
+					<option value="60">1m</option>
+					<option value="300">5m</option>
+					<option value="600">10m</option>
+					<option value="900">15m</option>
+					<option value="1200">20m</option>
+					<option value="1800">30m</option>
+					<option value="3600">1h</option>
+				</select>
+			</div>
 		</div>
 		
 		<transition-group name="fade"
@@ -57,6 +75,7 @@ import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -76,6 +95,8 @@ export default class NewUsers extends Vue {
 	public showList:boolean = true;
 	public scrollDownAuto:boolean = false;
 	public indexOffset:number = 0;
+	public autoDeleteAfter:number = 600;
+	public deleteInterval:number = -1;
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 
 	private streakMode:boolean = true;
@@ -94,6 +115,15 @@ export default class NewUsers extends Vue {
 		const storeValue = Store.get("greetScrollDownAuto");
 		if(storeValue == "true") this.scrollDownAuto = true;
 
+		const autoDeleteStore = Store.get("greetAutoDeleteAfter");
+		if(autoDeleteStore != null) {
+			this.autoDeleteAfter = parseInt(autoDeleteStore);
+		}
+
+		watch(()=>this.autoDeleteAfter, ()=>{
+			Store.set("greetAutoDeleteAfter", this.autoDeleteAfter.toString());
+		});
+
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
@@ -106,13 +136,30 @@ export default class NewUsers extends Vue {
 			}
 		};
 
+		this.localMessages = store.state.chatMessages;
+
 		document.addEventListener("keydown", this.keyboardEventHandler);
 		document.addEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
+
+		//Automatically deletes messages after the configured delay
+		this.deleteInterval = setInterval(()=> {
+			if(this.autoDeleteAfter == -1) return;
+
+			const clearTimeoffset = Date.now() - this.autoDeleteAfter * 1000;
+			for (let i = 0; i < this.localMessages.length; i++) {
+				const m = this.localMessages[i];
+				if(parseInt(m.tags['tmi-sent-ts'] as string) < clearTimeoffset) {
+					this.localMessages.splice(i, 1);
+					i--;
+				}
+			}
+		}, 60000);
 	}
 
 	public beforeUnmount():void {
+		clearInterval(this.deleteInterval);
 		document.removeEventListener("keydown", this.keyboardEventHandler);
 		document.removeEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
@@ -338,6 +385,36 @@ export default class NewUsers extends Vue {
 			width: 25px;
 			padding: 3px;
 			border-radius: 5px;
+		}
+	}
+
+	.topForm {
+		display: flex;
+		flex-direction: column;
+		background-color: rgba(0, 0, 0, .2);
+		align-items: center;
+		padding: 4px 0;
+		.row {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+
+			label {
+				font-size: 16px;
+				margin: 0;
+				margin-right: 5px;
+				color: @mainColor_light;
+				img {
+					height: .8em;
+					margin-right: 3px;
+					// vertical-align: middle;
+				}
+			}
+			select {
+				font-size: 14px;
+				padding: 0px 2px;
+				border-radius: 5px;
+			}
 		}
 	}
 
