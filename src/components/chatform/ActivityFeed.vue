@@ -68,6 +68,7 @@ export default class ActivityFeed extends Vue {
 	public get classes():string[] {
 		const res = ["activityfeed"];
 		if(this.listMode === true) res.push("listMode");
+		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 	
@@ -186,6 +187,22 @@ export default class ActivityFeed extends Vue {
 	left: auto;
 	margin-left: auto;
 	transform-origin: bottom center;
+
+	&.size_1 {
+		.message{ font-size: 11px; padding: 2px; }
+	}
+	&.size_2 {
+		.message{ font-size: 13px; padding: 2px; }
+	}
+	&.size_3 {
+		.message{ font-size: 18px; padding: 5px; }
+	}
+	&.size_4 {
+		.message{ font-size: 24px; padding: 5px; }
+	}
+	&.size_5 {
+		.message{ font-size: 30px; padding: 10px; }
+	}
 
 	&.listMode {
 		background: none;
