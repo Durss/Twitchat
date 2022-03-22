@@ -31,7 +31,8 @@
 				:disableConversation="true"
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
-				@click="deleteMessage(m, index)" />
+				@click="deleteMessage(m, index)"
+				@click.right.prevent="deleteMessage(m, index, true)" />
 
 			<ChatHighlight
 				class="message"
@@ -42,7 +43,8 @@
 				:lightMode="true"
 				@mouseover="onMouseOver($event, index)"
 				@mouseout="onMouseOut()"
-				@click="deleteMessage(m, index)" />
+				@click="deleteMessage(m, index)"
+				@click.right.prevent="deleteMessage(m, index, true)" />
 		</div>
 		</transition-group>
 	</div>
@@ -128,10 +130,10 @@ export default class NewUsers extends Vue {
 		this.scrollTo();
 	}
 
-	public deleteMessage(m:IRCEventDataList.Message, index:number):void {
+	public deleteMessage(m:IRCEventDataList.Message, index:number, singleMode:boolean):void {
 		let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
-		
-		if(!this.streakMode) {
+
+		if(!this.streakMode || singleMode) {
 			m.firstMessage = false;
 			this.localMessages.splice(index, 1);
 			this.indexOffset = parseInt(el.$el.dataset.index as string);
