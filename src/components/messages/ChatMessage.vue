@@ -102,6 +102,7 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.lowTrust) res.push("lowTrust");
 		if(this.messageData.cyphered) res.push("cyphered");
 		if(this.messageData.tags["msg-id"] === "highlighted-message") res.push("highlighted");
+		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 
 		if(!this.lightMode) {
 			if(this.hasMention) res.push("mention");
@@ -370,6 +371,16 @@ export default class ChatMessage extends Vue {
 			opacity: 1;
 			text-decoration: none;
 		}
+	}
+
+	&.tracked {
+		@c1:fade(@mainColor_warn_extralight,5%);
+		@c2:fade(@mainColor_warn_extralight,10%);
+		// background-color: @c1;
+		@s1:5px;
+		@s2:10px;
+		background-image: repeating-linear-gradient(90deg, @c1, @c1 @s1, @c2 @s1, @c2 @s2);
+		border-left: 5px solid @mainColor_warn_extralight;
 	}
 
 	.infos {

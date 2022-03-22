@@ -417,8 +417,11 @@ export default createStore({
 
 		trackUser(state, payload:IRCEventDataList.Message) {
 			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
-			if(list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']) == -1) {
+			const index = list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']);
+			if(index == -1) {
 				state.trackedUsers.push({user:payload.tags, messages:[payload]});
+			}else{
+				list.splice(index,1);
 			}
 		},
 
