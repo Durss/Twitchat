@@ -117,7 +117,7 @@ export default class ChatMessage extends Vue {
 
 	public get showModTools():boolean {
 		const message = this.messageData as IRCEventDataList.Message;
-		return (store.state.mods as TwitchTypes.Moderator[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+		return (store.state.mods as TwitchTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
 			||
 		(
 			message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase()//TODO set actual channel id not the user id
@@ -365,8 +365,10 @@ export default class ChatMessage extends Vue {
 	&.deleted {
 		opacity: .25;
 		transition: opacity .2s;
+		text-decoration: line-through;
 		&:hover{
 			opacity: 1;
+			text-decoration: none;
 		}
 	}
 

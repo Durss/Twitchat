@@ -25,7 +25,6 @@
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
 import PubSub from '@/utils/PubSub';
-import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

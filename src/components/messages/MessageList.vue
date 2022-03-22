@@ -129,9 +129,9 @@ import ChatPredictionResult from './ChatPredictionResult.vue';
 export default class MessageList extends Vue {
 
 	public max!: number;
-	public localMessages:IRCEventDataList.Message[] = [];
-	public pendingMessages:IRCEventDataList.Message[] = [];
-	public conversation:IRCEventDataList.Message[] = [];
+	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
+	public pendingMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
+	public conversation:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 	public lightMode:boolean = false;
 	public lockScroll:boolean = false;
 	public catchingUpPendingMessages:boolean = false;
@@ -163,7 +163,7 @@ export default class MessageList extends Vue {
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
-		watch(() => store.state.chatMessages, async (value:IRCEventDataList.Message[]) => {
+		watch(() => store.state.chatMessages, async (value:(IRCEventDataList.Message | IRCEventDataList.Highlight)[]) => {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0) {

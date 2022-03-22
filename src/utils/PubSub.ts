@@ -15,7 +15,7 @@ export default class PubSub {
 	private pingInterval!:number;
 	private reconnectTimeout!:number;
 	private hypeTrainApproachingTimer!:number;
-	private history:any[] = [];
+	private history:PubSubTypes.SocketMessage[] = [];
 	
 	constructor() {
 	
@@ -31,7 +31,7 @@ export default class PubSub {
 		return PubSub._instance;
 	}
 
-	public get eventsHistory():any[] { return this.history; }
+	public get eventsHistory():PubSubTypes.SocketMessage[] { return this.history; }
 	
 	
 	
@@ -71,7 +71,7 @@ export default class PubSub {
 		this.socket.onmessage = (event:unknown) => {
 			// alert(`[message] Data received from server: ${event.data}`);
 			const e = event as {data:string};
-			const message = JSON.parse(e.data) as {type:string, data:{message:string, topic:string}};
+			const message = JSON.parse(e.data) as PubSubTypes.SocketMessage;
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
 				if(store.state.devmode) {
@@ -566,6 +566,15 @@ export default class PubSub {
 }
 
 export namespace PubSubTypes {
+
+	export interface SocketMessage {
+		type: string;
+		data: {
+			message: string;
+			topic: string;
+		}
+	}
+
 	export interface Following {
 		display_name: string;
 		username: string;

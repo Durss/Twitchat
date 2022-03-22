@@ -1,12 +1,12 @@
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { IRCEventData, IRCEventDataList, ActivityFeedData } from '@/utils/IRCEvent';
+import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { ChatUserstate, UserNoticeState, Userstate } from 'tmi.js';
+import { ChatUserstate, UserNoticeState } from 'tmi.js';
 import { createStore } from 'vuex';
 import Store from './Store';
 
@@ -17,27 +17,27 @@ export default createStore({
 		showParams: false,
 		devmode: false,
 		canSplitView: false,
-		oAuthToken: {},
+		oAuthToken: {} as TwitchTypes.AuthTokenResult|null,
 		alert: "",
 		tooltip: "",
 		userCard: "",
 		searchMessages: "",
-		chatMessages: [],
-		activityFeed: [],
-		mods: [],
-		currentPoll: {},
-		currentPrediction: {},
+		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight)[],
+		activityFeed: [] as (IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult)[],
+		mods: [] as TwitchTypes.ModeratorUser[],
+		currentPoll: {} as TwitchTypes.Poll,
+		currentPrediction: {} as TwitchTypes.Prediction,
 		cypherKey: '',
 		cypherEnabled: false,
-		tmiUserState: {},
-		userEmotesCache: {},
-		emotesCache: [],
-		trackedUsers: [],
-		onlineUsers: [],
-		raffle: {},
-		bingo: {},
-		whispers: {},
-		hypeTrain: {},
+		tmiUserState: {} as UserNoticeState,
+		userEmotesCache: {} as {user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[],
+		emotesCache: [] as TwitchTypes.Emote[],
+		trackedUsers: [] as TwitchTypes.TrackedUser[],
+		onlineUsers: [] as string[],
+		raffle: {} as RaffleData,
+		bingo: {} as BingoData,
+		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
+		hypeTrain: {} as HypeTrainStateData,
 		raiding: "",
 		realHistorySize: 1000,
 		commands: [
@@ -175,7 +175,7 @@ export default createStore({
 					if(state.user.scopes.indexOf(Config.TWITCH_APP_SCOPES[i]) == -1) {
 						console.log("Missing scope:", Config.TWITCH_APP_SCOPES[i]);
 						state.authenticated = false;
-						state.oAuthToken = {};
+						state.oAuthToken = null;
 						if(cb) cb(false);
 						return;
 					}
@@ -192,7 +192,7 @@ export default createStore({
 					PubSub.instance.connect();
 				}
 
-				state.mods = await TwitchUtils.getModerators() as never[];
+				state.mods = await TwitchUtils.getModerators();
 
 				state.authenticated = true;
 				if(cb) cb(true);
@@ -208,7 +208,7 @@ export default createStore({
 		setUser(state, user) { state.user = user; },
 
 		logout(state) {
-			state.oAuthToken = {};
+			state.oAuthToken = null;
 			state.authenticated = false;
 			Store.remove("oAuthToken");
 			IRCClient.instance.disconnect();
@@ -232,7 +232,7 @@ export default createStore({
 			const maxMessages = state.realHistorySize;
 			if(messages.length >= maxMessages) {
 				messages = messages.slice(-maxMessages);
-				state.chatMessages = messages as never[];
+				state.chatMessages = messages;
 			}
 
 			if(payload.type == "notice") {
@@ -346,11 +346,11 @@ export default createStore({
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
 			|| payload.type == "prediction") {
-				state.activityFeed.push(payload as never);
+				state.activityFeed.push(payload);
 			}
 
 			messages.push( payload as IRCEventDataList.Message|IRCEventDataList.Highlight );
-			state.chatMessages = messages as never[];
+			state.chatMessages = messages;
 		},
 		
 		delChatMessage(state, messageId:string) { 
@@ -366,7 +366,7 @@ export default createStore({
 					break;
 				}
 			}
-			state.chatMessages = list as never[];
+			state.chatMessages = list;
 		},
 
 		delUserMessages(state, username:string) {
@@ -384,7 +384,7 @@ export default createStore({
 					}
 				}
 			}
-			state.chatMessages = list as never[];
+			state.chatMessages = list;
 		},
 
 		updateParams(state) {
@@ -411,14 +411,14 @@ export default createStore({
 
 		setUserState(state, payload:UserNoticeState) { state.tmiUserState = payload; },
 
-		setEmotes(state, payload:TwitchTypes.Emote[]) { state.emotesCache = payload as never[]; },
+		setEmotes(state, payload:TwitchTypes.Emote[]) { state.emotesCache = payload; },
 
 		setUserEmotesCache(state, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { state.userEmotesCache = payload; },
 
 		trackUser(state, payload:IRCEventDataList.Message) {
 			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
 			if(list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']) == -1) {
-				state.trackedUsers.push({user:payload.tags, messages:[payload]} as never);
+				state.trackedUsers.push({user:payload.tags, messages:[payload]});
 			}
 		},
 
@@ -469,7 +469,7 @@ export default createStore({
 				}
 			}
 			state.onlineUsers.splice(0, state.onlineUsers.length);//cleanup prev users
-			state.onlineUsers = state.onlineUsers.concat(list as never[]);//Add new users
+			state.onlineUsers = state.onlineUsers.concat(list);//Add new users
 			//Don't just do "state.onlineUsers = users" or the arrays's reference/reactivity
 			//accross the app would be broken
 		},
@@ -488,7 +488,7 @@ export default createStore({
 			}
 		},
 
-		setHypeTrain(state, data:HypeTrainStateData[]) { state.hypeTrain = data; },
+		setHypeTrain(state, data:HypeTrainStateData) { state.hypeTrain = data; },
 
 		flagLowTrustMessage(state, data:PubSubTypes.LowTrustMessage) {
 			//Ignore message if user is "restricted"
@@ -535,13 +535,13 @@ export default createStore({
 						/* eslint-disable-next-line */
 						const pointer = (state.params[c] as any)[k];
 						if(typeof pointer.value === 'boolean') {
-							pointer.value = (v == "true") as never;
+							pointer.value = (v == "true");
 						}
 						if(typeof pointer.value === 'string') {
-							pointer.value = v as never;
+							pointer.value = v;
 						}
 						if(typeof pointer.value === 'number') {
-							pointer.value = parseFloat(v) as never;
+							pointer.value = parseFloat(v);
 						}
 					}
 				}

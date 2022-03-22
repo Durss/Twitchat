@@ -790,12 +790,6 @@ export namespace TwitchTypes {
 		message: string;
 	}
 
-	export interface Moderator {
-		user_id: string;
-		user_login: string;
-		user_naùe: string;
-	}
-
 	export interface StreamInfo {
 		id:            string;
 		user_id:       string;
