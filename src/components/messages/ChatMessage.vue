@@ -97,6 +97,7 @@ export default class ChatMessage extends Vue {
 
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
+		if(this.messageData.deleted) res.push("deleted");
 		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
 		if(this.messageData.lowTrust) res.push("lowTrust");
 		if(this.messageData.cyphered) res.push("cyphered");
@@ -358,6 +359,14 @@ export default class ChatMessage extends Vue {
 	&.slashMe {
 		.message {
 			font-style: italic;
+		}
+	}
+
+	&.deleted {
+		opacity: .25;
+		transition: opacity .2s;
+		&:hover{
+			opacity: 1;
 		}
 	}
 

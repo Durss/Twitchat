@@ -97,6 +97,7 @@ export default createStore({
 			},
 			filters: {
 				showSelf: {type:"toggle", value:true, label:"Show my messages", id:100},
+				keepDeletedMessages: {type:"toggle", value:true, label:"Keep deleted messages", id:113},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
 				hideUsers: {type:"text", value:"", label:"Hide some users (coma seperated)", id:103},
@@ -353,22 +354,34 @@ export default createStore({
 		},
 		
 		delChatMessage(state, messageId:string) { 
+			const keepDeletedMessages = state.params.filters.keepDeletedMessages.value;
 			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				if(messageId == list[i].tags.id) {
-					list.splice(i, 1);
+					if(keepDeletedMessages === true) {
+						list[i].deleted = true;
+					}else{
+						list.splice(i, 1);
+					}
+					break;
 				}
 			}
 			state.chatMessages = list as never[];
 		},
 
-		delUserMessages(state, username:Userstate) {
+		delUserMessages(state, username:string) {
+			username = username.toLowerCase()
+			const keepDeletedMessages = state.params.filters.keepDeletedMessages.value;
 			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
-				if(m.tags.username?.toLowerCase() == username.toLowerCase()) {
-					list.splice(i, 1);
-					i--;
+				if(m.tags.username?.toLowerCase() == username && m.type == "message") {
+					if(keepDeletedMessages === true) {
+						list[i].deleted = true;
+					}else{
+						list.splice(i, 1);
+						i--;
+					}
 				}
 			}
 			state.chatMessages = list as never[];
