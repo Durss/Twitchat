@@ -403,15 +403,15 @@ export default class IRCClient extends EventDispatcher {
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
 		
 		//Ignore /me messages
-		if(!store.state.params.filters.showSlashMe.value && tags["message-type"] == "action") {
+		if(!store.state.params.filters.showSlashMe.value === true && tags["message-type"] == "action") {
 			return;
 		}
 		//Ignore self if requested
-		if(!store.state.params.filters.showSelf.value && tags["user-id"] == store.state.user.user_id) {
+		if(!store.state.params.filters.showSelf.value === true && tags["user-id"] == store.state.user.user_id) {
 			return;
 		}
 		//Ignore bot messages if requested
-		if(!store.state.params.filters.showBots.value && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+		if(!store.state.params.filters.showBots.value === true && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 			return;
 		}
 		//Ignore custom users
@@ -419,8 +419,15 @@ export default class IRCClient extends EventDispatcher {
 			return;
 		}
 		//Ignore commands
-		if(store.state.params.filters.ignoreCommands.value && /^ *!.*/gi.test(message)) {
-			return;
+		if(store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
+			const blocked = store.state.params.filters.blockedCommands.value as string;
+			if(blocked.length > 0) {
+				const blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
+				const cmd = message.split(" ")[0].substring(1).trim().toLowerCase();
+				if(blockedList.indexOf(cmd) > -1) return;
+			}else{
+				return;
+			}
 		}
 		
 		const index = this.onlineUsers.indexOf(tags.username as string);

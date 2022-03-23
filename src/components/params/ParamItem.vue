@@ -1,24 +1,25 @@
 <template class="cffdfdf">
-	<div class="paramitem">
+	<div :class="classes">
 		<div class="content">
 			<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
-			<div v-if="paramData.type == 'toggle'" class="toggle">
-				<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
+			<div v-if="paramData.type == 'toggle'" class="holder toggle">
+				<label :for="'toggle'+key" v-if="label" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
 				<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
 			</div>
 			
-			<div v-if="paramData.type == 'number'" class="number">
-				<label :for="'number'+key" v-html="label"></label>
+			<div v-if="paramData.type == 'number'" class="holder number">
+				<label :for="'number'+key" v-if="label" v-html="label"></label>
 				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
 			</div>
 			
-			<div v-if="paramData.type == 'text'" class="text">
-				<label :for="'text'+key" v-html="label"></label>
-				<input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder">
+			<div v-if="paramData.type == 'text'" class="holder text">
+				<label :for="'text'+key" v-if="label" v-html="label"></label>
+				<textarea  :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder"></textarea>
+				<!-- <input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder"> -->
 			</div>
 			
-			<div v-if="paramData.type == 'slider'" class="slider">
+			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<label :for="'slider'+key">
 					{{paramData.label}} <span>({{paramData.value}})</span>
 				</label>
@@ -32,7 +33,7 @@
 			ref="messageList"
 			class="messageList"
 		>
-			<ParamItem v-for="c in children" :key="c.id" :paramData="c" class="child" />
+			<ParamItem v-for="c in children" :key="c.id" :paramData="c" class="child" :childLevel="childLevel+1" />
 		</transition-group>
 	</div>
 </template>
@@ -47,7 +48,11 @@ import ToggleButton from '../ToggleButton.vue';
 @Options({
 	name:"ParamItem",//This is needed so recursion works properly
 	props:{
-		paramData:Object
+		paramData:Object,
+		childLevel:{
+			type:Number,
+			default:0,
+		},
 	},
 	components:{
 		Button,
@@ -56,7 +61,9 @@ import ToggleButton from '../ToggleButton.vue';
 	emits: ["change"]
 })
 export default class ParamItem extends Vue {
+	
 	public paramData!:ParameterData;
+	public childLevel!:number;
 	public key:string = Math.random().toString();
 
 	public get children():ParameterData[] {
@@ -73,6 +80,12 @@ export default class ParamItem extends Vue {
 			}
 		}
 		return children;
+	}
+
+	public get classes():string[] {
+		const res = ["paramitem"];
+		res.push("level_"+this.childLevel);
+		return res;
 	}
 
 	public get label():string {
@@ -117,7 +130,7 @@ export default class ParamItem extends Vue {
 		}
 		:deep(.small) {
 			// display: block;
-			font-size: .9em;
+			font-size: .75em;
 			font-style: italic;
 		}
 		.slider, .text {
@@ -128,14 +141,34 @@ export default class ParamItem extends Vue {
 				text-align: center;
 			}
 		}
+
+		textarea {
+			// max-width: 100%;
+			resize: vertical;
+		}
 	}
+
+	&.level_1,
+	&.level_2,
+	&.level_3,
+	&.level_4 {
+		.child {
+			@padding:15px;
+			width: calc(100% - @padding);
+		}
+	}
+
 	.child {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;
-		width: calc(100% - 40px);
-		:deep(.toggle) {
+		@padding:10%;
+		width: calc(100% - @padding);
+		position: relative;
+		:deep(.holder) {
 			&::before {
+				position: absolute;
+				left: -15px;
 				content: "⤷";
 				display: inline-block;
 				margin-right: 5px;

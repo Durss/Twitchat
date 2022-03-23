@@ -79,7 +79,7 @@ export default createStore({
 		] as CommandData[],
 		params: {
 			appearance: {
-				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/new users on right)", id:13, icon:"split_purple.svg"},
+				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: {type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
@@ -100,8 +100,10 @@ export default createStore({
 				keepDeletedMessages: {type:"toggle", value:true, label:"Keep deleted messages", id:113},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
-				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103},
-				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104},
+				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg"},
+				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104, icon:"commands_purple.svg"},
+				ignoreListCommands: {type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
+				blockedCommands: {type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
 				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, icon:""},
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106, icon:"sub_purple.svg"},

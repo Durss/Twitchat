@@ -150,9 +150,12 @@ export default class ChatHighlight extends Vue {
 				}else{
 					this.icon = this.messageData.reward?.redemption.reward.default_image.url_2x as string;
 				}
-				if(this.messageData.reward?.redemption.reward.prompt
-				&& store.state.params.filters.showRewardsInfos.value) {
-					this.messageText = this.messageData.reward?.redemption.reward.prompt;
+				if(this.messageData.reward?.redemption.reward.prompt) {
+					if(store.state.params.filters.showRewardsInfos.value === true) {
+						this.messageText = this.messageData.reward?.redemption.reward.prompt;
+					}else{
+						this.messageText = "";
+					}
 				}
 				break;
 			}
