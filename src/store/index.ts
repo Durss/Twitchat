@@ -199,6 +199,7 @@ export default createStore({
 				state.mods = await TwitchUtils.getModerators();
 
 				state.authenticated = true;
+				state.followingStates[state.user.user_id] = true;
 				if(cb) cb(true);
 			}catch(error) {
 				console.log(error);
