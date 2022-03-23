@@ -1,28 +1,39 @@
-<template>
+<template class="cffdfdf">
 	<div class="paramitem">
-		<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+		<div class="content">
+			<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
-		<div v-if="paramData.type == 'toggle'" class="toggle">
-			<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
-			<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
+			<div v-if="paramData.type == 'toggle'" class="toggle">
+				<label :for="'toggle'+key" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
+				<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
+			</div>
+			
+			<div v-if="paramData.type == 'number'" class="number">
+				<label :for="'number'+key" v-html="label"></label>
+				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
+			</div>
+			
+			<div v-if="paramData.type == 'text'" class="text">
+				<label :for="'text'+key" v-html="label"></label>
+				<input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder">
+			</div>
+			
+			<div v-if="paramData.type == 'slider'" class="slider">
+				<label :for="'slider'+key">
+					{{paramData.label}} <span>({{paramData.value}})</span>
+				</label>
+				<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value">
+			</div>
 		</div>
+
 		
-		<div v-if="paramData.type == 'number'" class="number">
-			<label :for="'number'+key" v-html="label"></label>
-			<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
-		</div>
-		
-		<div v-if="paramData.type == 'text'" class="text">
-			<label :for="'text'+key" v-html="label"></label>
-			<input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder">
-		</div>
-		
-		<div v-if="paramData.type == 'slider'" class="slider">
-			<label :for="'slider'+key">
-				{{paramData.label}} <span>({{paramData.value}})</span>
-			</label>
-			<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value">
-		</div>
+		<transition-group name="fade"
+			tag="div"
+			ref="messageList"
+			class="messageList"
+		>
+			<ParamItem v-for="c in children" :key="c.id" :paramData="c" class="child" />
+		</transition-group>
 	</div>
 </template>
 
@@ -34,6 +45,7 @@ import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 
 @Options({
+	name:"ParamItem",//This is needed so recursion works properly
 	props:{
 		paramData:Object
 	},
@@ -46,6 +58,22 @@ import ToggleButton from '../ToggleButton.vue';
 export default class ParamItem extends Vue {
 	public paramData!:ParameterData;
 	public key:string = Math.random().toString();
+
+	public get children():ParameterData[] {
+		if(this.paramData.value as boolean === false) return [];
+
+		const list = store.state.params;
+		const children:ParameterData[] = [];
+		for (const key in list) {
+			const params = (list as {[key:string]:{[key:string]:ParameterData}})[key];
+			for (const key2 in params) {
+				if(params[key2].parent == this.paramData.id) {
+					children.push(params[key2]);
+				}
+			}
+		}
+		return children;
+	}
 
 	public get label():string {
 		return this.paramData.label.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
@@ -65,39 +93,73 @@ export default class ParamItem extends Vue {
 
 <style scoped lang="less">
 .paramitem{
-	display: flex;
-	flex-direction: row;
-
-	.icon {
-		width: 1em;
-		height: 1em;
-		object-fit: contain;
-		margin-right: 10px;
-	}
-	
-	.toggle, .number {
-		flex-grow: 1;
+	.content {
 		display: flex;
 		flex-direction: row;
-		label {
+
+		.icon {
+			width: 1em;
+			height: 1em;
+			object-fit: contain;
+			margin-right: 10px;
+		}
+		
+		.toggle, .number {
 			flex-grow: 1;
-			// text-align: right;
-			margin-right: 20px;
-			cursor: pointer;
+			display: flex;
+			flex-direction: row;
+			label {
+				flex-grow: 1;
+				// text-align: right;
+				margin-right: 20px;
+				cursor: pointer;
+			}
+		}
+		:deep(.small) {
+			// display: block;
+			font-size: .9em;
+			font-style: italic;
+		}
+		.slider, .text {
+			flex-grow: 1;
+			display: flex;
+			flex-direction: column;
+			&:not(.text)>label {
+				text-align: center;
+			}
 		}
 	}
-	:deep(.small) {
-		// display: block;
-		font-size: .9em;
-		font-style: italic;
-	}
-	.slider, .text {
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		&:not(.text)>label {
-			text-align: center;
+	.child {
+		margin-left: auto;
+		margin-right: 0;
+		margin-top: 5px;
+		width: calc(100% - 40px);
+		:deep(.toggle) {
+			&::before {
+				content: "⤷";
+				display: inline-block;
+				margin-right: 5px;
+			}
+			label {
+				font-size: .9em;
+			}
 		}
+	}
+	
+	/* Enter and leave animations can use different */
+	/* durations and timing functions.              */
+	.fade-enter-active {
+		transition: all 0.2s;
+	}
+
+	.fade-leave-active {
+		transition: all 0.2s;
+	}
+
+	.fade-enter-from,
+	.fade-leave-to {
+		opacity: 0;
+		transform: translateY(-10px);
 	}
 }
 </style>

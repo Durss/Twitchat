@@ -415,7 +415,7 @@ export default class IRCClient extends EventDispatcher {
 			return;
 		}
 		//Ignore custom users
-		if(store.state.params.filters.hideUsers.value.toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+		if((store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
 			return;
 		}
 		//Ignore commands

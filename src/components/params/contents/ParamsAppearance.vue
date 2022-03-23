@@ -2,8 +2,6 @@
 	<div class="paramsappearance">
 		<div class="row" v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" />
-			<ParamItem class="subItem" v-if="key == 'showBadges' && $store.state.params.appearance.showBadges.value" :paramData="minibadge" />
-			<ParamItem class="subItem" v-if="key == 'splitView' && $store.state.params.appearance.splitView.value" :paramData="splitViewSwitch" />
 		</div>
 	</div>
 </template>
@@ -21,16 +19,11 @@ import ParamItem from '../ParamItem.vue';
 })
 export default class ParamsAppearance extends Vue {
 
-	public minibadge: ParameterData = store.state.params.appearance.minimalistBadges;
-	public splitViewSwitch: ParameterData = store.state.params.appearance.splitViewSwitch;
-
 	public get params():{[key:string]:ParameterData} {
 		let res:{[key:string]:ParameterData} = {};
 		for (const key in store.state.params.appearance) {
-			if(key == "minimalistBadges") continue;
-			if(key == "splitViewSwitch") continue;
-			/* eslint-disable-next-line */
-			res[key] = (store.state.params.appearance as any)[key];
+			if(store.state.params.appearance[key].parent) continue;
+			res[key] = (store.state.params.appearance as {[key:string]:ParameterData})[key] as ParameterData;
 		}
 		return res;
 	}
@@ -41,23 +34,6 @@ export default class ParamsAppearance extends Vue {
 .paramsappearance{
 	.row {
 		margin: 10px 0;
-
-		.subItem {
-			margin-left: auto;
-			margin-right: 0;
-			margin-top: 5px;
-			width: calc(100% - 40px);
-			:deep(.toggle) {
-				&::before {
-					content: "⤷";
-					display: inline-block;
-					margin-right: 5px;
-				}
-				label {
-					font-size: .9em;
-				}
-			}
-		}
 	}
 }
 </style>

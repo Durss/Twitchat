@@ -156,7 +156,7 @@ export default class Chat extends Vue {
 	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
 	
-	public get splitView():boolean { return store.state.params.appearance.splitView.value && store.state.canSplitView; }
+	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }
 
 	public get classes():string[] {
 		const res = ["chat"];

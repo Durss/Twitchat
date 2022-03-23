@@ -20,7 +20,12 @@ import ParamItem from '../ParamItem.vue';
 export default class ParamsFeatures extends Vue {
 
 	public get params():{[key:string]:ParameterData} {
-		return store.state.params.features;
+		let res:{[key:string]:ParameterData} = {};
+		for (const key in store.state.params.features) {
+			if(store.state.params.features[key].parent) continue;
+			res[key] = (store.state.params.features as {[key:string]:ParameterData})[key] as ParameterData;
+		}
+		return res;
 	}
 }
 </script>

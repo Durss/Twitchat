@@ -691,7 +691,7 @@ export default class TwitchUtils {
 		const userInfos = await TwitchUtils.loadUserInfo(undefined, [username]);
 		if(userInfos?.length > 0) {
 			const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
-			let message = store.state.params.appearance.shoutoutLabel.value;
+			let message = store.state.params.appearance.shoutoutLabel.value as string;
 			message = message.replace(/\$USER/gi, userInfos[0].display_name);
 			message = message.replace(/\$URL/gi, "twitch.tv/"+userInfos[0].login);
 			message = message.replace(/\$STREAM/gi, channelInfo[0].title);

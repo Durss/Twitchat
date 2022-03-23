@@ -52,7 +52,7 @@ export default class LiveFollowings extends Vue {
 	public loading:boolean = true;
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get splitView():boolean { return store.state.params.appearance.splitView.value && store.state.canSplitView; }
+	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }
 	public get classes():string[] {
 		const res = ["livefollowings"];
 		if(this.splitView) res.push("splitView");

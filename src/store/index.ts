@@ -76,11 +76,11 @@ export default createStore({
 				cmd:"/so {user}",
 				details:"Shoutout a user",
 			}
-		],
+		] as CommandData[],
 		params: {
 			appearance: {
 				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/new users on right)", id:13, icon:"split_purple.svg"},
-				splitViewSwitch: {type:"toggle", value:false, label:"Switch columns", id:15},
+				splitViewSwitch: {type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
@@ -94,23 +94,23 @@ export default createStore({
 				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg"},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
-			},
+			} as {[key:string]:ParameterData},
 			filters: {
 				showSelf: {type:"toggle", value:true, label:"Show my messages", id:100},
 				keepDeletedMessages: {type:"toggle", value:true, label:"Keep deleted messages", id:113},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
-				hideUsers: {type:"text", value:"", label:"Hide some users (coma seperated)", id:103},
+				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103},
 				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
-				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, icon:""},
+				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, icon:""},
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106, icon:"sub_purple.svg"},
 				showCheers: {type:"toggle", value:true, label:"Show bit alerts", id:107, icon:"bits_purple.svg"},
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
 				showFollow: {type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: {type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
 				showPollPredResults: {type:"toggle", value:true, label:"Show polls and prediction results on chat", id:112, icon:"poll_purple.svg"},
-			},
+			} as {[key:string]:ParameterData},
 			features: {
 				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
 				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg"},
@@ -118,13 +118,13 @@ export default createStore({
 				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg"},
 				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
 				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
-			},
+			} as {[key:string]:ParameterData},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
 				followersOnly:{ type:"toggle", value:false, label:"Followers only", id:301},
 				subsOnly:{ type:"toggle", value:false, label:"Subs only", id:302},
 				slowMode:{ type:"toggle", value:false, label:"Slow mode", id:303}
-			}
+			} as {[key:string]:ParameterData}
 		},
 		user: {
 			client_id: "",
@@ -819,6 +819,7 @@ export interface ParameterData {
 	step?:number;
 	icon?:string;
 	placeholder?:string;
+	parent?:number;
 }
 
 export interface RaffleData {
