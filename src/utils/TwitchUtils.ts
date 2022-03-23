@@ -768,6 +768,25 @@ export default class TwitchUtils {
 		}while(cursor != null)
 		return list;
 	}
+
+	/**
+	 * Gets if the specified user is following the channel
+	 * 
+	 * @param uid user ID list
+	 */
+	public static async getFollowState(uid:string):Promise<TwitchTypes.Following> {
+		const headers = {
+			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+			'Client-Id': this.client_id,
+			"Content-Type": "application/json",
+		}
+		const res = await fetch(Config.TWITCH_API_PATH+"users/follows?to_id="+store.state.user.user_id+"&from_id="+uid, {
+			method:"GET",
+			headers,
+		});
+		const json:{data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+		return json.data[0];
+	}
 }
 
 export namespace TwitchTypes {
@@ -1039,5 +1058,14 @@ export namespace TwitchTypes {
         should_redemptions_skip_request_queue: boolean;
         redemptions_redeemed_current_stream?: number;
         cooldown_expires_at?: string;
+	}
+	
+	export interface Following {
+		from_id: string;
+		from_login: string;
+		from_name: string;
+		to_id: string;
+		to_name: string;
+		followed_at: string;
 	}
 }

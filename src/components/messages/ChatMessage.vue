@@ -32,7 +32,7 @@
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" />
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
-			
+
 			<span class="miniBadges" v-if="miniBadges.length > 0">
 				<span class="badge" v-for="(b,index) in miniBadges"
 					:key="index"
@@ -40,6 +40,8 @@
 					:style="{backgroundColor:b.color}"
 					:data-tooltip="b.label"></span>
 			</span>
+			
+			<img class="noFollowBadge" src="@/assets/icons/unfollow.svg" alt="no follow" v-if="showNofollow" data-tooltip="Not a follower">
 			
 			<span @click="openUserCard()"
 				@mouseenter="hoverNickName($event)"
@@ -90,6 +92,14 @@ export default class ChatMessage extends Vue {
 	public automodReasons:string = "";
 	public badges:TwitchTypes.Badge[] = [];
 	public hasMention:boolean = false;
+	
+	public get showNofollow():boolean{
+		if(store.state.params.appearance.highlightNonFollowers.value === true) {
+			const uid = this.messageData.tags['user-id'] as string;
+			if(uid && store.state.followingStates[uid] === false) return true;
+		}
+		return false
+	}
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
@@ -102,6 +112,7 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.lowTrust) res.push("lowTrust");
 		if(this.messageData.cyphered) res.push("cyphered");
 		if(this.messageData.tags["msg-id"] === "highlighted-message") res.push("highlighted");
+		if(this.showNofollow) res.push("noFollow");
 		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 
 		if(!this.lightMode) {
@@ -550,6 +561,14 @@ export default class ChatMessage extends Vue {
 			.header {
 				color: @mainColor_light;
 			}
+		}
+	}
+
+	&.noFollow {
+		.noFollowBadge {
+			height: 1em;
+			margin-right: 5px;
+			vertical-align: middle;
 		}
 	}
 }

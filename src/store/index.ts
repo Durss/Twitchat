@@ -40,6 +40,7 @@ export default createStore({
 		hypeTrain: {} as HypeTrainStateData,
 		raiding: "",
 		realHistorySize: 1000,
+		followingStates: {} as {[key:string]:boolean},
 		commands: [
 			{
 				id:"search",
@@ -85,6 +86,7 @@ export default createStore({
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
 				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message (all time)", id:7, icon:"firstTime_purple.svg"},
+				highlightNonFollowers: {type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"follow_purple.svg"},
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
 				showEmotes: {type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
 				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
@@ -249,6 +251,15 @@ export default createStore({
 				}
 			}else{
 				const m = payload as IRCEventDataList.Message;
+				
+				if(state.params.appearance.highlightNonFollowers.value === true) {
+					const uid = m.tags['user-id'] as string;
+					if(uid && state.followingStates[uid] == undefined) {
+						TwitchUtils.getFollowState(uid).then((res:TwitchTypes.Following) => {
+							state.followingStates[uid] = res != undefined;
+						}).catch(()=>{/*ignore*/})
+					}
+				}
 
 				const bingo = state.bingo as BingoData;
 				if(bingo.opened === true && m.message) {

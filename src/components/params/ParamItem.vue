@@ -15,7 +15,7 @@
 			
 			<div v-if="paramData.type == 'text'" class="holder text">
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea  :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder"></textarea>
+				<textarea :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2"></textarea>
 				<!-- <input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder"> -->
 			</div>
 			

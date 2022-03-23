@@ -422,7 +422,8 @@ export default class IRCClient extends EventDispatcher {
 		if(store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
 			const blocked = store.state.params.filters.blockedCommands.value as string;
 			if(blocked.length > 0) {
-				const blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
+				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
+				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
 				const cmd = message.split(" ")[0].substring(1).trim().toLowerCase();
 				if(blockedList.indexOf(cmd) > -1) return;
 			}else{
@@ -459,15 +460,19 @@ export default class IRCClient extends EventDispatcher {
 			if(json.type == "message") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
-			if(json.type == "highlight") {
-				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
-			}
 			if(json.type == "poll") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
 			if(json.type == "prediction") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
+			
+			if(json.type == "highlight") {
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
+			}else{
+				this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
+			}
+			
 			await Utils.promisedTimeout(50);
 		}
 	}

@@ -221,7 +221,7 @@ export default class ChatHighlight extends Vue {
 	background-color: rgba(255, 255, 255, .15);
 	border-radius: 5px;
 	margin: 5px 0;
-	padding: 5px !important;
+	// padding: 5px !important;
 	text-align: center;
 
 	&.light {
