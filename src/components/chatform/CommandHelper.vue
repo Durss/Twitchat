@@ -9,7 +9,7 @@
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
 		</div>
-		<div class="raid" v-if="$store.state.raiding?.length < 2">
+		<div class="raid" v-if="$store.state.raiding == null">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
@@ -18,7 +18,7 @@
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding}}</label>
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding.target_display_name}}</label>
 			<Button @click="cancelRaid()" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>
