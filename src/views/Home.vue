@@ -65,6 +65,13 @@
 						<img src="@/assets/img/example_raffle.png" alt="raffle">
 					</Slide>
 					<Slide :key="6" class="slide">
+						<div class="head"><img src="@/assets/icons/unfollow_white.svg" alt="raffle" class="icon"> Non followers</div>
+						<div class="description">
+							See if a user is following your channel or not
+						</div>
+						<img src="@/assets/img/example_nofollow.jpg" alt="not follwing">
+					</Slide>
+					<Slide :key="7" class="slide">
 						<div class="head"><img src="@/assets/icons/split.svg" alt="poll" class="icon"> Split view</div>
 						<div class="description">
 							You can split the view in half to give more space to your chat.
@@ -72,7 +79,7 @@
 						</div>
 						<img src="@/assets/img/example_splitview.jpg" alt="splitView">
 					</Slide>
-					<Slide :key="7" class="slide">
+					<Slide :key="8" class="slide">
 						<div class="head"><img src="@/assets/icons/whispers.svg" alt="whisper" class="icon"> Whispers</div>
 						<div class="description">
 							Opening twitch to read a whisper and answer it can be pretty annoying.
@@ -80,17 +87,17 @@
 						</div>
 						<img src="@/assets/img/example_whisper.jpg" alt="splitwhisper">
 					</Slide>
-					<Slide :key="8" class="slide">
+					<Slide :key="9" class="slide">
 						<div class="head"><img src="@/assets/icons/poll.svg" alt="poll" class="icon"> Manage polls</div>
 						<div class="description">Create polls, see their progress live and <strong>never miss their result</strong> sent on chat and stored on the activity feed.</div>
 						<img src="@/assets/img/example_poll.jpg" alt="poll">
 					</Slide>
-					<Slide :key="9" class="slide">
+					<Slide :key="10" class="slide">
 						<div class="head"><img src="@/assets/icons/prediction.svg" alt="prediction" class="icon"> Manage predictions</div>
 						<div class="description">Create predictions, see their progress live and <strong>never miss their result</strong> sent on chat and stored on the activity feed.</div>
 						<img src="@/assets/img/example_prediction.jpg" alt="prediction">
 					</Slide>
-					<Slide :key="10" class="slide">
+					<Slide :key="11" class="slide">
 						<div class="head"><img src="@/assets/icons/stars.svg" alt="prediction" class="icon"> And much more</div>
 						<div class="description">
 							<b>Twitchat has many more features, including native ones:</b>
