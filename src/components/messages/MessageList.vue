@@ -188,15 +188,15 @@ export default class MessageList extends Vue {
 		});
 		
 		const list = this.$refs.messageHolder as HTMLDivElement;
-		list.addEventListener("scroll", ()=>{
-			if(this.disposed) return;
-			const h = (this.$el as HTMLDivElement).offsetHeight;
-			const maxScroll = (list.scrollHeight - h);
-			const scrollAtBottom = (maxScroll - list.scrollTop) < 1;
-			if(scrollAtBottom) {
-				this.lockScroll = false;
-			}
-		});
+		// list.addEventListener("scroll", ()=>{
+		// 	if(this.disposed) return;
+		// 	const h = (this.$el as HTMLDivElement).offsetHeight;
+		// 	const maxScroll = (list.scrollHeight - h);
+		// 	const scrollAtBottom = (maxScroll - list.scrollTop) < 1;
+		// 	if(scrollAtBottom) {
+		// 		this.lockScroll = false;
+		// 	}
+		// });
 
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
 
