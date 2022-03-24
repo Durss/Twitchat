@@ -258,7 +258,7 @@ export default createStore({
 				if(state.params.appearance.highlightNonFollowers.value === true) {
 					const uid = m.tags['user-id'] as string;
 					if(uid && state.followingStates[uid] == undefined) {
-						TwitchUtils.getFollowState(uid).then((res:TwitchTypes.Following) => {
+						TwitchUtils.getFollowState(uid, m.tags['room-id']).then((res:TwitchTypes.Following) => {
 							state.followingStates[uid] = res != undefined;
 						}).catch(()=>{/*ignore*/})
 					}

@@ -774,13 +774,14 @@ export default class TwitchUtils {
 	 * 
 	 * @param uid user ID list
 	 */
-	public static async getFollowState(uid:string):Promise<TwitchTypes.Following> {
+	public static async getFollowState(uid:string, channelId?:string):Promise<TwitchTypes.Following> {
+		if(!channelId) channelId = store.state.user.user_id;
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
 			'Client-Id': this.client_id,
 			"Content-Type": "application/json",
 		}
-		const res = await fetch(Config.TWITCH_API_PATH+"users/follows?to_id="+store.state.user.user_id+"&from_id="+uid, {
+		const res = await fetch(Config.TWITCH_API_PATH+"users/follows?to_id="+channelId+"&from_id="+uid, {
 			method:"GET",
 			headers,
 		});
