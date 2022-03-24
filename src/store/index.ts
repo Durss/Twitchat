@@ -93,7 +93,7 @@ export default createStore({
 				showViewersCount: {type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
 				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
 				showBadges: {type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
-				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5},
+				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5, parent:4},
 				displayTime: {type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg"},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
