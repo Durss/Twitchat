@@ -139,7 +139,7 @@ export default class NewUsers extends Vue {
 					i--;
 				}
 			}
-		}, 30000);
+		}, 10000);
 
 		//Debug to add all the current messages to the list
 		// this.localMessages = JSON.parse(JSON.stringify(store.state.chatMessages)).filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight");
