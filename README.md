@@ -70,7 +70,8 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:manage:predictions",
 		"channel:read:hype_train",
 		"channel_editor",
-		"whispers:edit"
+		"whispers:edit",
+		"user:read:follows"
 	]
 }
 ```

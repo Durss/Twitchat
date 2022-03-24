@@ -142,6 +142,8 @@ export default class NewUsers extends Vue {
 		}, 10000);
 
 		//Debug to add all the current messages to the list
+		//Uncomment it if you want messages to be added to the list after
+		//a hor reload during development
 		// this.localMessages = JSON.parse(JSON.stringify(store.state.chatMessages)).filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight");
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
