@@ -169,7 +169,7 @@ export default class ChatHighlight extends Vue {
 		if(text) {
 			try {
 				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing perfromances.
+				//to avoid killing performances.
 				const customParsing = this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
 				let removeEmotes = !store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
@@ -192,6 +192,8 @@ export default class ChatHighlight extends Vue {
 
 			if(this.messageData.tags.bits) {
 				this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
+			}else{
+				this.messageText = result;
 			}
 		}
 	}
