@@ -2,7 +2,7 @@
 	<div class="raidstate">
 		<div>
 			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
-			Raiding <strong>{{$store.state.raiding}}</strong>
+			Raiding <strong>{{$store.state.raiding.target_display_name}}</strong> with <strong>{{$store.state.raiding.viewer_count}}</strong> viewers
 			<span class="timer">({{timeLeft}}s)</span>
 		</div>
 

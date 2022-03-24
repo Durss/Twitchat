@@ -38,9 +38,10 @@ export default createStore({
 		bingo: {} as BingoData,
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
 		hypeTrain: {} as HypeTrainStateData,
-		raiding: "",
+		raiding: null as PubSubTypes.RaidInfos|null,
 		realHistorySize: 1000,
 		followingStates: {} as {[key:string]:boolean},
+		playbackState: null as PubSubTypes.PlaybackInfo|null,
 		commands: [
 			{
 				id:"search",
@@ -89,6 +90,7 @@ export default createStore({
 				highlightNonFollowers: {type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg"},
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
 				showEmotes: {type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
+				showViewersCount: {type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
 				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
 				showBadges: {type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5},
@@ -472,7 +474,7 @@ export default createStore({
 			state.whispers = whispers;
 		},
 
-		setRaiding(state, userName:string) { state.raiding = userName; },
+		setRaiding(state, infos:PubSubTypes.RaidInfos) { state.raiding = infos; },
 
 		setViewersList(state, users:string[]) {
 			//Dedupe users
@@ -528,6 +530,8 @@ export default createStore({
 		canSplitView(state, value:boolean) { state.canSplitView = value; },
 
 		searchMessages(state, value:string) { state.searchMessages = value; },
+
+		setPlaybackState(state, value:PubSubTypes.PlaybackInfo) { state.playbackState = value; },
 
 	},
 
@@ -803,7 +807,7 @@ export default createStore({
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
-		setRaiding({commit}, userName:string) { commit("setRaiding", userName); },
+		setRaiding({commit}, infos:PubSubTypes.RaidInfos) { commit("setRaiding", infos); },
 
 		setViewersList({commit}, users:string[]) { commit("setViewersList", users); },
 		
@@ -816,6 +820,8 @@ export default createStore({
 		canSplitView({commit}, value:boolean) { commit("canSplitView", value); },
 
 		searchMessages({commit}, value:string) { commit("searchMessages", value); },
+
+		setPlaybackState({commit}, value:PubSubTypes.PlaybackInfo) { commit("setPlaybackState", value); },
 	},
 	modules: {
 	}

@@ -65,7 +65,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["maghla"]);
+				channels = channels.concat(["gom4rt", "mistermv"]);
 			}
 
 			(async ()=> {
@@ -472,7 +472,7 @@ export default class IRCClient extends EventDispatcher {
 			}else{
 				this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
 			}
-			
+
 			await Utils.promisedTimeout(50);
 		}
 	}

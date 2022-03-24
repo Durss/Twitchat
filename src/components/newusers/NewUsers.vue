@@ -20,6 +20,9 @@
 				<select v-model.number="autoDeleteAfter">
 					<option value="-1">never</option>
 					<option value="60">1m</option>
+					<option value="120">2m</option>
+					<option value="180">3m</option>
+					<option value="240">4m</option>
 					<option value="300">5m</option>
 					<option value="600">10m</option>
 					<option value="900">15m</option>

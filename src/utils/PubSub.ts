@@ -62,6 +62,7 @@ export default class PubSub {
 				"hype-train-events-v1."+store.state.user.user_id,
 				"following."+store.state.user.user_id,
 				"ads."+store.state.user.user_id,
+				"video-playback-by-id."+store.state.user.user_id,
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
@@ -183,53 +184,59 @@ export default class PubSub {
 		this.send(json);
 	}
 
-	private parseEvent(data:{type:string, data:unknown}, topic?:string):void {
+	private parseEvent(data:{type:string, data:unknown, raid?:PubSubTypes.RaidInfos}, topic?:string):void {
 		if(topic == "following."+store.state.user.user_id) {
 			const localObj = (data as unknown) as PubSubTypes.Following;
 			this.followingEvent(localObj);
 
 
-			
+
+		}else if(topic == "video-playback-by-id."+store.state.user.user_id) {
+			const localObj = (data as unknown) as PubSubTypes.PlaybackInfo;
+			store.dispatch("setPlaybackState", localObj);
+
+
+
 		}else if(data.type == "hype-train-approaching") {
 			this.hypeTrainApproaching(data.data as  PubSubTypes.HypeTrainApproaching);
 
 
-			
+
 		}else if(data.type == "hype-train-start") {
 			this.hypeTrainStart(data.data as  PubSubTypes.HypeTrainStart);
 
 
-			
+
 		}else if(data.type == "hype-train-progression") {
 			this.hypeTrainProgress(data.data as  PubSubTypes.HypeTrainProgress);
 
 
-			
+
 		}else if(data.type == "hype-train-level-up") {
 			this.hypeTrainLevelUp(data.data as  PubSubTypes.HypeTrainLevelUp);
 
 
-			
+
 		}else if(data.type == "hype-train-end") {
 			this.hypeTrainEnd(data.data as  PubSubTypes.HypeTrainEnd);
 
 
-			
+
 		}else if(data.type == "hype-train-cooldown-expiration") {
 			IRCClient.instance.sendNotice("hype_cooldown_expired", "Hype train can be started again !");
 
 
-			
+
 		}else if(data.type == "automod_caught_message") {
 			this.automodEvent(data.data as  PubSubTypes.AutomodData);
 
 
-			
+
 		}else if(data.type == "low_trust_user_new_message") {
 			this.lowTrustMessage(data.data as  PubSubTypes.LowTrustMessage);
 
 
-			
+
 		}else if(data.type == "reward-redeemed") {
 			//Manage rewards
 			if(store.state.params.filters.showRewards.value) {
@@ -238,20 +245,26 @@ export default class PubSub {
 			}
 
 
-			
+
 		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE") {
 			const localObj = data.data as PubSubTypes.PollData;
 			this.pollEvent(localObj)
 
 
-			
+
 		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_TERMINATE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
 			TwitchUtils.getPolls();
 
-			
+
+
 		}else if(data.type == "event-created" || data.type == "event-updated") {
 			const localObj = data.data as PubSubTypes.PredictionData;
 			this.predictionEvent(localObj);
+
+
+
+		}else if(data.type == "raid_update_v2" || data.type == "raid_go_v2") {
+			store.dispatch("setRaiding", data.raid);
 			
 
 
@@ -285,11 +298,23 @@ export default class PubSub {
 					break;
 				}
 				case "raid": {
-					store.dispatch("setRaiding", localObj.args? localObj.args[0] : "");
+					const infos:PubSubTypes.RaidInfos = {
+						id: IRCClient.instance.getFakeGuid(),
+						creator_id: store.state.user.user_id,
+						source_id: store.state.user.user_id,
+						target_id: "",
+						target_login: localObj.args? localObj.args[0] : "",
+						target_display_name: localObj.args? localObj.args[0] : "",
+						target_profile_image: "",
+						transition_jitter_seconds: 1,
+						force_raid_now_seconds: 90,
+						viewer_count: 0,
+					};
+					store.dispatch("setRaiding", infos);
 					break;
 				}
 				case "unraid": {
-					store.dispatch("setRaiding", "");
+					store.dispatch("setRaiding", null);
 					break;
 				}
 				default:
@@ -579,6 +604,12 @@ export namespace PubSubTypes {
 		display_name: string;
 		username: string;
 		user_id:string;
+	}
+
+	export interface PlaybackInfo {
+		type: string;
+		server_time: number;
+		viewers: number;
 	}
 
 	export interface AutomodData {
@@ -993,22 +1024,22 @@ export namespace PubSubTypes {
 	}
 
 	export interface LowTrustMessage {
-        low_trust_user: LowTrustUser;
-        message_content: {
+		low_trust_user: LowTrustUser;
+		message_content: {
 			text: string;
 			fragments: {
 				text: string;
 			}[];
 		};
-        message_id: string;
-        sent_at: Date;
+		message_id: string;
+		sent_at: Date;
 	}
 
-    interface LowTrustUser {
-        id: string;
-        low_trust_id: string;
-        channel_id: string;
-        sender: {
+	interface LowTrustUser {
+		id: string;
+		low_trust_id: string;
+		channel_id: string;
+		sender: {
 			user_id: string;
 			login: string;
 			display_name: string;
@@ -1018,16 +1049,29 @@ export namespace PubSubTypes {
 				version: string;
 			}[];
 		};
-        evaluated_at: Date;
-        updated_at: Date;
-        ban_evasion_evaluation: "UNLIKELY_EVADER" | string;
-        treatment: "RESTRICTED" | "ACTIVE_MONITORING";
-        updated_by: {
+		evaluated_at: Date;
+		updated_at: Date;
+		ban_evasion_evaluation: "UNLIKELY_EVADER" | string;
+		treatment: "RESTRICTED" | "ACTIVE_MONITORING";
+		updated_by: {
 			id: string;
 			login: string;
 			display_name: string;
 		};
-    }
+	}
+
+	export interface RaidInfos {
+		id: string;
+		creator_id: string;
+		source_id: string;
+		target_id: string;
+		target_login: string;
+		target_display_name: string;
+		target_profile_image: string;
+		transition_jitter_seconds: number;
+		force_raid_now_seconds: number;
+		viewer_count: number;
+	}
 }
 
 namespace PubsubJSON {

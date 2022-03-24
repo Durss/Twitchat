@@ -72,7 +72,7 @@ export default class ChannelNotifications extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get showRaid():boolean { return store.state.raiding?.length > 0; }
+	public get showRaid():boolean { return store.state.raiding != null; }
 	public get showHypeTrain():boolean { return store.state.params.filters.showHypeTrain.value as boolean && (store.state.hypeTrain as HypeTrainStateData).level != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchTypes.Poll)?.id != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchTypes.Prediction)?.id != null; }

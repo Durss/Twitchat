@@ -72,6 +72,14 @@
 					v-if="cypherConfigured"
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
+
+				<div v-if="$store.state.params.appearance.showViewersCount.value === true && $store.state.playbackState"
+					class="viewCount"
+					data-tooltip="Viewer count"
+				>
+					<p>{{$store.state.playbackState.viewers}}</p>
+					<img src="@/assets/icons/user.svg" alt="viewers">
+				</div>
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
@@ -456,6 +464,23 @@ export default class ChatForm extends Vue {
 
 			.button {
 				.clearButton() !important;
+			}
+
+			.viewCount {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				white-space: nowrap;
+				color: @mainColor_light;
+				margin-left: 5px;
+				font-size: 14px;
+				padding: 5px;
+				border-radius: 5px;
+				background-color: rgba(255,255,255,.25);
+				img {
+					height: .7em;
+					margin-left: 2px;
+				}
 			}
 		}
 	}
