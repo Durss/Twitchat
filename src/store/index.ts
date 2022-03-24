@@ -253,8 +253,16 @@ export default createStore({
 					}
 				}
 			}else{
+				//If it's a follow event, flag user as a follower
+				if(payload.type == "highlight") {
+					if(payload['msg-id'] == "follow") {
+						state.followingStates[payload.tags['user-id'] as string] = true;
+					}
+				}
+
 				const m = payload as IRCEventDataList.Message;
 				
+				//Check if user is following
 				if(state.params.appearance.highlightNonFollowers.value === true) {
 					const uid = m.tags['user-id'] as string;
 					if(uid && state.followingStates[uid] == undefined) {
