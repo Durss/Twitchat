@@ -73,7 +73,8 @@
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
 
-				<div v-if="$store.state.params.appearance.showViewersCount.value === true && $store.state.playbackState"
+				<div v-if="$store.state.params.appearance.showViewersCount.value === true
+				&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
 					class="viewCount"
 					data-tooltip="Viewer count"
 				>

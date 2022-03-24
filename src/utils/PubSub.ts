@@ -193,7 +193,12 @@ export default class PubSub {
 
 		}else if(topic == "video-playback-by-id."+store.state.user.user_id) {
 			const localObj = (data as unknown) as PubSubTypes.PlaybackInfo;
-			store.dispatch("setPlaybackState", localObj);
+			if(localObj.type == "viewcount") {
+				store.dispatch("setPlaybackState", localObj);
+			}else 
+			if(localObj.type == "stream-down") {
+				store.dispatch("setPlaybackState", null);
+			}
 
 
 
