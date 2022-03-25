@@ -12,6 +12,7 @@
 					v-if="m.type == 'message'"
 					class="message"
 					:messageData="m"
+					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
 					@mouseleave="onMouseLeave(m)"
@@ -169,7 +170,7 @@ export default class MessageList extends Vue {
 			if(this.lockScroll || this.pendingMessages.length > 0) {
 				for (let i = 0; i < store.state.chatMessages.length; i++) {
 					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
-					if(this.idDisplayed[value[i].tags.id as string] !== true) {
+					if(this.idDisplayed[m.tags.id as string] !== true) {
 						this.idDisplayed[m.tags.id as string] = true;
 						this.pendingMessages.push(m);
 					}
@@ -178,6 +179,7 @@ export default class MessageList extends Vue {
 			}
 			
 			this.localMessages = value.concat().slice(-this.max);
+			this.filterMessages();
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].tags.id as string] = true;
 			}
@@ -253,6 +255,7 @@ export default class MessageList extends Vue {
 		let messages = this.pendingMessages.slice(-this.max);
 		this.pendingMessages = [];
 		this.localMessages = this.localMessages.concat(messages).slice(-this.max);
+		this.filterMessages();
 
 		//Using setTimeout as a workaround for a shit mouseenter behavior.
 		//When clicking the "scroll down" button, its holder is removed
@@ -271,7 +274,21 @@ export default class MessageList extends Vue {
 			this.virtualScrollY = maxScroll;
 			this.catchingUpPendingMessages = false;
 		}, 0);
+	}
 
+	/**
+	 * Filters out messages for the chat light (overlay)
+	 */
+	private filterMessages():void {
+		if(!this.lightMode) return;
+		
+		for (let i = 0; i < this.localMessages.length; i++) {
+			const m = this.localMessages[i];
+			if(m.type != "message" || m.automod) {
+				this.localMessages.splice(i, 1);
+				i--;
+			}
+		}
 	}
 
 	/**
@@ -429,7 +446,7 @@ export default class MessageList extends Vue {
 	
 			await this.$nextTick();
 			this.openConversationHolder(event);
-		}, 200)
+		}, 350)
 	}
 
 	/**
@@ -545,10 +562,11 @@ export default class MessageList extends Vue {
 
 	:deep(.time) {
 		color: fade(#ffffff, 75%);
-		font-size: 11px;
+		font-size: .8em;
 		vertical-align: middle;
-		min-width: 36px;
 		display: inline-block;
+		margin-right: .7em;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.message {

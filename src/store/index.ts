@@ -124,6 +124,7 @@ export default createStore({
 				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg"},
 				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
 				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
+				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 			} as {[key:string]:ParameterData},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},

@@ -158,10 +158,11 @@ export default class MessageSearch extends Vue {
 
 		:deep(.time) {
 			color: fade(#ffffff, 75%);
-			font-size: 11px;
+			font-size: .8em;
 			vertical-align: middle;
-			min-width: 36px;
 			display: inline-block;
+			margin-right: .7em;
+			font-variant-numeric: tabular-nums;
 		}
 	}
 

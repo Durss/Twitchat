@@ -461,9 +461,10 @@ export default class NewUsers extends Vue {
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);
-				margin-right: 5px;
-				min-width: 36px;
+				font-size: .8em;
 				vertical-align: middle;
+				margin-right: .7em;
+				font-variant-numeric: tabular-nums;
 			}
 	
 			/* Enter and leave animations can use different */

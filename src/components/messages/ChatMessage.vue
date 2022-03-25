@@ -22,7 +22,7 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos">
-			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value"
+			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value && !lightMode"
 				class="convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
@@ -51,7 +51,6 @@
 		
 		<span>: </span>
 		<span class="message" v-html="text"></span>
-		<div v-if="messageData && messageData.tags">{{messageData.tags.vip}}</div>
 	</div>
 
 </template>
@@ -128,6 +127,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get showModTools():boolean {
+		if(this.lightMode) return false;
+		if(store.state.params.features.showModTools.value === false) return false;
 		const message = this.messageData as IRCEventDataList.Message;
 		return (store.state.mods as TwitchTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
 			||
