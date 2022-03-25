@@ -81,7 +81,6 @@ export default class MessageSearch extends Vue {
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i] as IRCEventDataList.Message;
 			if(m.type != "message") continue;
-			console.log(this.search);
 			if(new RegExp(this.search, "gim").test(m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, ""))) {
 				m.highlightWord = this.search;
 				result.push(m);
