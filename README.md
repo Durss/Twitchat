@@ -19,12 +19,13 @@ The main goal is to reduce as much as possible the number of missed messages and
 # Features
 - [x] Display the first message of users seperatly so you don't forget to greet them
 - [x] Make it easier to follow a conversation between users
-- [x] Flag a message as "read" and scroll back to it easily
+- [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss her/his messages
 - [x] Create a raffle with the viewers and pick random winners
+- [x] Create a bingo in which users have to find a number or an emoji
 - [x] See if a user is not following the channel
 - [x] Display received whispers and answer them
-- [x] Filter some messages *(bots, commands, self, etc...)*
+- [x] Filter some messages *(bots, commands, self, /me, etc...)*
 - [x] Customize messages *(remove badges, show minimalist badges, remove emotes)*
 - [x] Customize messages appearance by roles *(viewers, mods, vips, subs)*
 - [x] Moderate messages *(ban, timeout, delete message)*
@@ -39,14 +40,13 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Create/Delete predictions
 - [x] Emote selector 
 - [x] BTTV emotes supported
-- [x] Message autocomplete nickname via "@", emotes via ":" or both via TAB key
-- [x] Autocomplete commands
-- [x] Allow to search on all messages
+- [x] Message autocomplete nickname via "@", emotes via ":", commands via "/" or all via TAB key
+- [x] Allow to search on all messages via command `/search`
 - [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
-- [x] Filter only specific commands
-- [x] See viewers count
-- [x] Keep or hide deleted messages
-- [x] See all my followings that are live
+- [x] Filter out only specific commands
+- [x] See live viewers count
+- [x] Keep or remove deleted messages
+- [x] See all my followings that are live to raid them easily
 <br>
 
 - [ ] Expose an API to control some stuff remotely(?)
