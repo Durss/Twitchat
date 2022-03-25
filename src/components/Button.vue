@@ -202,6 +202,7 @@ export default class Button extends Vue {
 	text-decoration: none;
 
 	&:hover {
+		color: @mainColor_light;
 		background-color: @mainColor_normal_light;
 	}
 

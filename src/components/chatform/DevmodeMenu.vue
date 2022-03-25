@@ -17,7 +17,8 @@
 			<Button small title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
 			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
-			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="require('@/assets/icons/copy.svg')" />
+			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="require('@/assets/icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
+			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="require('@/assets/icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>
 	</div>
 </template>
@@ -25,6 +26,7 @@
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
 import PubSub from '@/utils/PubSub';
+import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -36,6 +38,9 @@ import Button from '../Button.vue';
 	}
 })
 export default class DevmodeMenu extends Vue {
+
+	public pubsubHistoryLink:string|null = null;
+	public generatingHistory:boolean = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -88,15 +93,14 @@ export default class DevmodeMenu extends Vue {
 		}
 	}
 
-	public exportPubsubHistory():void {
+	public async exportPubsubHistory():Promise<void> {
+		this.generatingHistory = true;
 		const data = JSON.stringify(PubSub.instance.eventsHistory);
 		const blob = new Blob([data], { type: 'application/json' });
 		const url = window.URL.createObjectURL(blob)
-		const a = document.createElement('a')
-		a.setAttribute('href', url)
-		a.setAttribute('download', 'history.json');
-	
-		a.click()
+		await Utils.promisedTimeout(1000);
+		this.pubsubHistoryLink = url;
+		this.generatingHistory = false;
 	}
 
 }
