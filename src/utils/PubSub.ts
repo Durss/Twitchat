@@ -63,6 +63,7 @@ export default class PubSub {
 				"following."+store.state.user.user_id,
 				"ads."+store.state.user.user_id,
 				"video-playback-by-id."+store.state.user.user_id,
+				"community-boost-events-v1."+store.state.user.user_id,
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
@@ -76,7 +77,10 @@ export default class PubSub {
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
 				if(store.state.devmode) {
-					this.history.push(message);
+					//Ignore viewers count to avoid massive logs
+					if(message.data.topic != "video-playback-by-id."+store.state.user.user_id) {
+						this.history.push(message);
+					}
 				}
 				this.parseEvent(data, message.data.topic);
 			// }else{
@@ -102,6 +106,10 @@ export default class PubSub {
 		};
 	}
 
+	public async simulateHypeCooldown():Promise<void> {
+		this.parseEvent(PubsubJSON.HypeTrainCooldownOver);
+	}
+
 	public async simulateHypeTrain():Promise<void> {
 		this.parseEvent(PubsubJSON.HypeTrainApproaching);
 		await Utils.promisedTimeout(10000);
@@ -121,6 +129,17 @@ export default class PubSub {
 		this.parseEvent(PubsubJSON.HypeTrainComplete);
 		await Utils.promisedTimeout(10000);
 		this.parseEvent(PubsubJSON.HypeTrainExpire);
+	}
+
+	public async simulateCommunityBoost():Promise<void> {
+		this.parseEvent(PubsubJSON.BoostStarting);
+		await Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.BoostProgress1);
+		await Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.BoostProgress2);
+		await Utils.promisedTimeout(10000);
+		this.parseEvent(PubsubJSON.BoostComplete);
+
 	}
 
 	public async simulateLowTrustUser():Promise<void> {
@@ -184,7 +203,7 @@ export default class PubSub {
 		this.send(json);
 	}
 
-	private parseEvent(data:{type:string, data:unknown, raid?:PubSubTypes.RaidInfos}, topic?:string):void {
+	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubTypes.RaidInfos}, topic?:string):void {
 		if(topic == "following."+store.state.user.user_id) {
 			const localObj = (data as unknown) as PubSubTypes.Following;
 			this.followingEvent(localObj);
@@ -228,7 +247,14 @@ export default class PubSub {
 
 
 		}else if(data.type == "hype-train-cooldown-expiration") {
-			IRCClient.instance.sendNotice("hype_cooldown_expired", "Hype train can be started again !");
+			IRCClient.instance.sendHighlight({
+				channel: store.state.user.login,
+				type:"highlight",
+				tags:{
+					"tmi-sent-ts":Date.now().toString(),
+				},
+				"msg-id": "hype_cooldown_expired",
+			});
 
 
 
@@ -271,12 +297,32 @@ export default class PubSub {
 		}else if(data.type == "raid_update_v2") {
 			store.dispatch("setRaiding", data.raid);
 
-
-
 		}else if(data.type == "raid_go_v2") {
 			store.dispatch("setRaiding", null);
-			
 
+
+
+		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression") {
+			store.dispatch("setCommunityBoost", data.data as PubSubTypes.CommunityBoost);
+			
+		}else if(data.type == "community-boost-end") {
+			const boost = data.data as PubSubTypes.CommunityBoost;
+			store.dispatch("setCommunityBoost", boost);
+			IRCClient.instance.sendHighlight({
+				channel: store.state.user.login,
+				viewers: boost.total_goal_progress? boost.total_goal_progress : boost.boost_orders[0].GoalProgress,
+				type:"highlight",
+				tags:{
+					"tmi-sent-ts":Date.now().toString(),
+				},
+				"msg-id": "community_boost_complete",
+			});
+			
+			setTimeout(()=> {
+				//Automatically hide the boost after a few seconds
+				store.dispatch("setCommunityBoost", null);
+			}, 30000);
+			
 
 			
 		}else if(data.type == "moderation_action") {
@@ -399,7 +445,7 @@ export default class PubSub {
 			tags,
 			type:"highlight",
 		}
-		IRCClient.instance.addHighlight(data);
+		IRCClient.instance.sendHighlight(data);
 	}
 
 	/**
@@ -505,7 +551,7 @@ export default class PubSub {
 			"msg-id": "follow",
 			"type": "highlight",
 		};
-		IRCClient.instance.addHighlight(message);
+		IRCClient.instance.sendHighlight(message);
 	}
 
 	/**
@@ -521,6 +567,7 @@ export default class PubSub {
 			started_at:Date.now(),
 			timeLeft:data.events_remaining_durations[key],
 			state: "APPROACHING",
+			is_boost_train:data.is_boost_train,
 		};
 		store.dispatch("setHypeTrain", train);
 		//Hide "hypetrain approaching" notification if expired
@@ -542,6 +589,7 @@ export default class PubSub {
 			started_at:Date.now(),//data.started_at,
 			timeLeft:data.progress.remaining_seconds,
 			state: "START",
+			is_boost_train:data.is_boost_train,
 		};
 		store.dispatch("setHypeTrain", train);
 	}
@@ -558,6 +606,7 @@ export default class PubSub {
 			started_at:(store.state.hypeTrain as HypeTrainStateData).started_at,
 			timeLeft:data.progress.remaining_seconds,
 			state: "PROGRESSING",
+			is_boost_train:data.is_boost_train,
 		};
 		store.dispatch("setHypeTrain", train);
 	}
@@ -574,6 +623,7 @@ export default class PubSub {
 			started_at:(store.state.hypeTrain as HypeTrainStateData).started_at,
 			timeLeft:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
+			is_boost_train:data.is_boost_train,
 		};
 		store.dispatch("setHypeTrain", train);
 	}
@@ -867,6 +917,7 @@ export namespace PubSubTypes {
         creator_color: string;
         participants: string[];
         approaching_hype_train_id: string;
+        is_boost_train: boolean;
 	}
 
 	export interface HypeTrainStart {
@@ -977,6 +1028,7 @@ export namespace PubSubTypes {
 		};
 		conductors: unknown;
 		progress: HypeProgressInfo;
+		is_boost_train:boolean;
 	}
 
 	export interface HypeTrainProgress {
@@ -988,6 +1040,7 @@ export namespace PubSubTypes {
 		source: string;
 		quantity: number;
 		progress: HypeProgressInfo;
+		is_boost_train:boolean;
 	}
 
 	export interface HypeTrainConductorUpdate {
@@ -1007,11 +1060,13 @@ export namespace PubSubTypes {
 	export interface HypeTrainLevelUp {
 		time_to_expire: number;
 		progress: HypeProgressInfo;
+		is_boost_train:boolean;
 	}
 	
 	export interface HypeTrainEnd {
 		ended_at: number;
 		ending_reason: "COMPLETED" | "EXPIRE";
+		is_boost_train:boolean;
 	}
 	
 	interface HypeProgressInfo {
@@ -1031,6 +1086,7 @@ export namespace PubSubTypes {
 		goal: number;
 		total: number;
 		remaining_seconds: number;
+		is_boost_train:boolean;
 	}
 
 	export interface LowTrustMessage {
@@ -1082,23 +1138,42 @@ export namespace PubSubTypes {
 		force_raid_now_seconds: number;
 		viewer_count: number;
 	}
+
+	export interface CommunityBoost {
+        channel_id: string;
+		total_goal_target:number;
+		total_goal_progress?:number;
+		ending_reason:"ORDER_STATE_FULFILLED";
+        boost_orders: {
+			ID: string;
+			State: "ORDER_STATE_DELIVERING" | "DELIVERING_ORDER" | "ORDER_STATE_FULFILLED";
+			GoalProgress: number;
+			GoalTarget: number;
+		}[];
+	}
 }
 
 namespace PubsubJSON {
-	export const HypeTrainApproaching = {"type":"hype-train-approaching","data":{"channel_id":"52340608","goal":3,"events_remaining_durations":{"1":30},"level_one_rewards":[{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"},{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"},{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"}],"creator_color":"556DC4","participants":["70111491","476143728"],"approaching_hype_train_id":"dbc814a0-c3d5-4a37-94e3-361d10015ef8"}};
-	export const HypeTrainStart = {"type":"hype-train-start","data":{"channel_id":"1234","id":"4375b14c-acae-4ce4-9ef1-800482bb6022","started_at":1603127828000,"expires_at":1603128128000,"updated_at":1603127828000,"ended_at":null,"ending_reason":null,"config":{"channel_id":"1234","is_enabled":true,"is_whitelisted":true,"kickoff":{"num_of_events":4,"min_points":100,"duration":300000000000},"cooldown_duration":7200000000000,"level_duration":300000000000,"difficulty":"MEDIUM","reward_end_date":null,"participation_conversion_rates":{"BITS.CHEER":1,"BITS.EXTENSION":1,"BITS.POLL":1,"SUBS.TIER_1_GIFTED_SUB":500,"SUBS.TIER_1_SUB":500,"SUBS.TIER_2_GIFTED_SUB":1000,"SUBS.TIER_2_SUB":1000,"SUBS.TIER_3_GIFTED_SUB":2500,"SUBS.TIER_3_SUB":2500},"notification_thresholds":{"BITS.CHEER":1000,"BITS.EXTENSION":1000,"BITS.POLL":1000,"SUBS.TIER_1_GIFTED_SUB":5,"SUBS.TIER_1_SUB":5,"SUBS.TIER_2_GIFTED_SUB":5,"SUBS.TIER_2_SUB":5,"SUBS.TIER_3_GIFTED_SUB":5,"SUBS.TIER_3_SUB":5},"difficulty_settings":{"MEDIUM":[{"value":1,"goal":2000,"rewards":[{"type":"EMOTE","id":"301739462","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeChimp"},{"type":"EMOTE","id":"301739463","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeGhost"},{"type":"EMOTE","id":"301739465","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeChest"},{"type":"EMOTE","id":"301739466","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFrog"},{"type":"EMOTE","id":"301739468","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeCherry"}]},{"value":2,"goal":4500,"rewards":[{"type":"EMOTE","id":"301739479","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSideeye"},{"type":"EMOTE","id":"301739472","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBrain"},{"type":"EMOTE","id":"301739475","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeZap"},{"type":"EMOTE","id":"301739476","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeShip"},{"type":"EMOTE","id":"301739478","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSign"}]},{"value":3,"goal":7600,"rewards":[{"type":"EMOTE","id":"301739481","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeYikes"},{"type":"EMOTE","id":"301739482","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeRacer"},{"type":"EMOTE","id":"301739483","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeCar"},{"type":"EMOTE","id":"301739484","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFirst"},{"type":"EMOTE","id":"301739485","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeTrophy"}]},{"value":4,"goal":11500,"rewards":[{"type":"EMOTE","id":"301739489","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBlock"},{"type":"EMOTE","id":"301739490","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeDaze"},{"type":"EMOTE","id":"301739491","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBounce"},{"type":"EMOTE","id":"301739492","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeJewel"},{"type":"EMOTE","id":"301739493","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBlob"}]},{"value":5,"goal":17000,"rewards":[{"type":"EMOTE","id":"301739495","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeLove"},{"type":"EMOTE","id":"301739496","group_id":"","reward_level":0,"set_id":"301040478","token":"HypePunk"},{"type":"EMOTE","id":"301739497","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeKO"},{"type":"EMOTE","id":"301739499","group_id":"","reward_level":0,"set_id":"301040478","token":"HypePunch"},{"type":"EMOTE","id":"301739501","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeFire"}]}]},"conductor_rewards":{"BITS":{"CURRENT":[{"type":"BADGE","id":"1","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsxOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2"}],"FORMER":[{"type":"BADGE","id":"2","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsyOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2"}]},"SUBS":{"CURRENT":[{"type":"BADGE","id":"1","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsxOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2"}],"FORMER":[{"type":"BADGE","id":"2","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsyOzgwNTI1Nzk5","image_url":"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2"}]}},"callout_emote_id":"300640072","callout_emote_token":"PogChamp","theme_color":"#a970ff","has_conductor_badges":true},"participations":{"SUBS.TIER_1_GIFTED_SUB":2,"SUBS.TIER_1_SUB":1,"SUBS.TIER_3_SUB":1},"conductors":{},"progress":{"level":{"value":1,"goal":4500,"rewards":[{"type":"EMOTE","id":"301739479","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSideeye"},{"type":"EMOTE","id":"301739472","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeBrain"},{"type":"EMOTE","id":"301739475","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeZap"},{"type":"EMOTE","id":"301739476","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeShip"},{"type":"EMOTE","id":"301739478","group_id":"","reward_level":0,"set_id":"301040478","token":"HypeSign"}]},"value":2000,"goal":2500,"total":4000,"remaining_seconds":299}}};
-	export const HypeTrainConductorUpdateSubs = {"type":"hype-train-conductor-update","data":{"source":"SUBS","user":{"id":"90633364","login":"mentalox_","display_name":"Mentalox_","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/5d8be54f-d5d8-4c98-b1f3-7ad3a8f4a13c-profile_image-50x50.png"},"participations":{"SUBS.TIER_1_SUB":1}}};
-	export const HypeTrainConductorUpdateSubGifts = {"type":"hype-train-conductor-update","data":{"source":"SUBS","user":{"id":"66141357","login":"myredge","display_name":"Myredge","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/a52a3f12-3d19-49e4-81f2-1f67715ee45f-profile_image-50x50.png"},"participations":{"SUBS.TIER_1_GIFTED_SUB":11}}};
-	export const HypeTrainConductorUpdateBits = {"type":"hype-train-conductor-update","data":{"source":"BITS","user":{"id":"490834664","login":"wulna","display_name":"wulna","profile_image_url":"https://static-cdn.jtvnw.net/user-default-pictures-uv/dbdc9198-def8-11e9-8681-784f43822e80-profile_image-50x50.png"},"participations":{"BITS.CHEER":1000}}};
+	export const HypeTrainApproaching = {"type":"hype-train-approaching","data":{"channel_id":"227146018","goal":3,"events_remaining_durations":{"1":252},"level_one_rewards":[{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"},{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"},{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"}],"creator_color":"00AA7F","participants":["38001049","59580201"],"approaching_hype_train_id":"fbafb76e-0447-49ca-b008-c954f374be33","is_boost_train":false}};
+	export const HypeTrainStart = {"type":"hype-train-start","data":{"channel_id":"227146018","id":"fbafb76e-0447-49ca-b008-c954f374be33","started_at":1648207198000,"expires_at":1648207498000,"updated_at":1648207198000,"ended_at":null,"ending_reason":null,"config":{"channel_id":"227146018","is_enabled":true,"is_whitelisted":true,"kickoff":{"num_of_events":3,"min_points":100,"duration":300000000000},"cooldown_duration":3600000000000,"level_duration":300000000000,"difficulty":"EASY","reward_end_date":null,"participation_conversion_rates":{"BITS.CHEER":1,"BITS.EXTENSION":1,"BITS.POLL":1,"SUBS.TIER_1_GIFTED_SUB":500,"SUBS.TIER_1_SUB":500,"SUBS.TIER_2_GIFTED_SUB":1000,"SUBS.TIER_2_SUB":1000,"SUBS.TIER_3_GIFTED_SUB":2500,"SUBS.TIER_3_SUB":2500},"notification_thresholds":{"BITS.CHEER":1000,"BITS.EXTENSION":1000,"BITS.POLL":1000,"SUBS.TIER_1_GIFTED_SUB":5,"SUBS.TIER_1_SUB":5,"SUBS.TIER_2_GIFTED_SUB":5,"SUBS.TIER_2_SUB":5,"SUBS.TIER_3_GIFTED_SUB":5,"SUBS.TIER_3_SUB":5},"difficulty_settings":{"EASY":[{"value":1,"goal":1600,"rewards":[{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"},{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"},{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"}],"impressions":300},{"value":2,"goal":3400,"rewards":[{"type":"EMOTE","id":"emotesv2_0457808073314f62962554c12ebb6b4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands1"},{"type":"EMOTE","id":"emotesv2_8c40cd16027f48c0a70ac7b1fa1c397e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands2"},{"type":"EMOTE","id":"emotesv2_0330a84e75ad48c1821c1d29a7dadd4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeFail"},{"type":"EMOTE","id":"emotesv2_9b68a8fa2f1d457496ac016b251e06b6","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHai"},{"type":"EMOTE","id":"emotesv2_9bcc622c0b2a48b180a159c25a2b8245","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeNom"}],"impressions":600},{"value":3,"goal":5500,"rewards":[{"type":"EMOTE","id":"emotesv2_08abf0cd0e78494a9da8a2315c3648f4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeBLEH"},{"type":"EMOTE","id":"emotesv2_ccc146905a694f3b8df390f55e34002a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeApplause"},{"type":"EMOTE","id":"emotesv2_4918bd32ff5b476f82bda49f3e958767","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeRage"},{"type":"EMOTE","id":"emotesv2_7d01d1cf36b549098434c7a6e50a8828","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeMwah"},{"type":"EMOTE","id":"emotesv2_43da115e6b6749828f7dee47d17dd315","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHuh"}],"impressions":900},{"value":4,"goal":7800,"rewards":[{"type":"EMOTE","id":"emotesv2_663dbd72c3ae48c585ffd61f3c348fa9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeWave"},{"type":"EMOTE","id":"emotesv2_271ea48a09ca418baad2ea1f734ab09e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeReading"},{"type":"EMOTE","id":"emotesv2_1337536bcecf49f4bb9cd1a699341ee2","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeShock"},{"type":"EMOTE","id":"emotesv2_8c1d964bd7e14fe1b8bd61d29ee0eb8c","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeStress"},{"type":"EMOTE","id":"emotesv2_cdc7a602ee08462e81fb6cc0e3e8de61","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCry"}],"impressions":1200},{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}],"impressions":1500}]},"conductor_rewards":{"BITS":{"CURRENT":[{"type":"BADGE","id":"1","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsxOzIyNzE0NjAxOA==","image_url":"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2"}],"FORMER":[{"type":"BADGE","id":"2","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsyOzIyNzE0NjAxOA==","image_url":"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2"}]},"SUBS":{"CURRENT":[{"type":"BADGE","id":"1","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsxOzIyNzE0NjAxOA==","image_url":"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2"}],"FORMER":[{"type":"BADGE","id":"2","group_id":"hype-train","reward_level":0,"badge_id":"aHlwZS10cmFpbjsyOzIyNzE0NjAxOA==","image_url":"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2"}]}},"callout_emote_id":"emotesv2_cfe2a115df084866815c8595f849a5b8","callout_emote_token":"cabridMwaller","use_creator_color":true,"primary_hex_color":"00AA7F","use_personalized_settings":false,"has_conductor_badges":true,"boost_train_config":{"twitch_impressions":{"EASY":500,"HARD":500,"INSANE":500,"MEDIUM":500,"SUPER HARD":500}}},"participations":{"BITS.CHEER":100,"SUBS.TIER_1_GIFTED_SUB":2},"conductors":{},"progress":{"level":{"value":1,"goal":1600,"rewards":[{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"},{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"},{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"}],"impressions":300},"value":1100,"goal":1600,"total":1100,"remaining_seconds":299},"is_boost_train":false}};
+	export const HypeTrainConductorUpdateSubs = {"type":"hype-train-conductor-update","data":{"source":"SUBS","user":{"id":"38001049","login":"chunt3r","display_name":"chunt3r","profile_image_url":"https://static-cdn.jtvnw.net/user-default-pictures-uv/dbdc9198-def8-11e9-8681-784f43822e80-profile_image-50x50.png"},"participations":{"SUBS.TIER_1_SUB":1}}};
+	export const HypeTrainConductorUpdateSubGifts = {"type":"hype-train-conductor-update","data":{"source":"SUBS","user":{"id":"38001049","login":"chunt3r","display_name":"chunt3r","profile_image_url":"https://static-cdn.jtvnw.net/user-default-pictures-uv/dbdc9198-def8-11e9-8681-784f43822e80-profile_image-50x50.png"},"participations":{"SUBS.TIER_1_GIFTED_SUB":1}}};
+	export const HypeTrainConductorUpdateBits = {"type":"hype-train-conductor-update","data":{"source":"BITS","user":{"id":"59580201","login":"lemmycaution66","display_name":"Lemmycaution66","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/lemmycaution66-profile_image-c6ca6e5082712677-50x50.jpeg"},"participations":{"BITS.CHEER":100}}};
 	export const HypeTrainProgressSub = {"type":"hype-train-progression","data":{"user_id":"206185174","user_login":"sapioce","user_display_name":"Sapioce","user_profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/53c0895f-cc6d-4ab5-a171-7a0782d55ae5-profile_image-50x50.png","sequence_id":15000,"action":"TIER_1_SUB","source":"SUBS","quantity":1,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}]},"value":7200,"goal":3000,"total":15000,"remaining_seconds":63}}};
-	export const HypeTrainProgressSubGift = {"type":"hype-train-progression","data":{"user_id":"66141357","user_login":"myredge","user_display_name":"Myredge","user_profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/a52a3f12-3d19-49e4-81f2-1f67715ee45f-profile_image-50x50.png","sequence_id":12000,"action":"TIER_1_GIFTED_SUB","source":"SUBS","quantity":5,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}]},"value":4200,"goal":3000,"total":12000,"remaining_seconds":264}}};
+	export const HypeTrainProgressSubGift = {"type":"hype-train-progression","data":{"user_id":"38001049","user_login":"chunt3r","user_display_name":"chunt3r","user_profile_image_url":"https://static-cdn.jtvnw.net/user-default-pictures-uv/dbdc9198-def8-11e9-8681-784f43822e80-profile_image-50x50.png","sequence_id":1600,"action":"TIER_1_GIFTED_SUB","source":"SUBS","quantity":1,"progress":{"level":{"value":2,"goal":3400,"rewards":[{"type":"EMOTE","id":"emotesv2_0457808073314f62962554c12ebb6b4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands1"},{"type":"EMOTE","id":"emotesv2_8c40cd16027f48c0a70ac7b1fa1c397e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands2"},{"type":"EMOTE","id":"emotesv2_0330a84e75ad48c1821c1d29a7dadd4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeFail"},{"type":"EMOTE","id":"emotesv2_9b68a8fa2f1d457496ac016b251e06b6","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHai"},{"type":"EMOTE","id":"emotesv2_9bcc622c0b2a48b180a159c25a2b8245","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeNom"}],"impressions":600},"value":0,"goal":1800,"total":1600,"remaining_seconds":252},"is_boost_train":false}};
 	export const HypeTrainProgressBits = {"type":"hype-train-progression","data":{"user_id":"490834664","user_login":"wulna","user_display_name":"wulna","user_profile_image_url":"https://static-cdn.jtvnw.net/user-default-pictures-uv/dbdc9198-def8-11e9-8681-784f43822e80-profile_image-50x50.png","sequence_id":25500,"action":"CHEER","source":"BITS","quantity":1000,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}]},"value":17700,"goal":3000,"total":25500,"remaining_seconds":22}}};
-	export const HypeTrainLevelUp2 = {"type":"hype-train-level-up","data":{"time_to_expire":1644515518000,"progress":{"level":{"value":2,"goal":3400,"rewards":[{"type":"EMOTE","id":"emotesv2_0457808073314f62962554c12ebb6b4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands1"},{"type":"EMOTE","id":"emotesv2_8c40cd16027f48c0a70ac7b1fa1c397e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands2"},{"type":"EMOTE","id":"emotesv2_0330a84e75ad48c1821c1d29a7dadd4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeFail"},{"type":"EMOTE","id":"emotesv2_9b68a8fa2f1d457496ac016b251e06b6","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHai"},{"type":"EMOTE","id":"emotesv2_9bcc622c0b2a48b180a159c25a2b8245","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeNom"}]},"value":400,"goal":1800,"total":2000,"remaining_seconds":299}}};
-	export const HypeTrainLevelUp5 = {"type":"hype-train-level-up","data":{"time_to_expire":1644508891000,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}]},"value":1700,"goal":3000,"total":9500,"remaining_seconds":299}}};
-	export const HypeTrainComplete = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"COMPLETED"}};
+	export const HypeTrainLevelUp2 = {"type":"hype-train-level-up","data":{"time_to_expire":1648207545000,"progress":{"level":{"value":2,"goal":3400,"rewards":[{"type":"EMOTE","id":"emotesv2_0457808073314f62962554c12ebb6b4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands1"},{"type":"EMOTE","id":"emotesv2_8c40cd16027f48c0a70ac7b1fa1c397e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHands2"},{"type":"EMOTE","id":"emotesv2_0330a84e75ad48c1821c1d29a7dadd4d","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeFail"},{"type":"EMOTE","id":"emotesv2_9b68a8fa2f1d457496ac016b251e06b6","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHai"},{"type":"EMOTE","id":"emotesv2_9bcc622c0b2a48b180a159c25a2b8245","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeNom"}],"impressions":600},"value":0,"goal":1800,"total":1600,"remaining_seconds":299},"is_boost_train":false}};
+	export const HypeTrainLevelUp3 = {"type":"hype-train-level-up","data":{"time_to_expire":1648207714000,"progress":{"level":{"value":3,"goal":5500,"rewards":[{"type":"EMOTE","id":"emotesv2_08abf0cd0e78494a9da8a2315c3648f4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeBLEH"},{"type":"EMOTE","id":"emotesv2_ccc146905a694f3b8df390f55e34002a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeApplause"},{"type":"EMOTE","id":"emotesv2_4918bd32ff5b476f82bda49f3e958767","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeRage"},{"type":"EMOTE","id":"emotesv2_7d01d1cf36b549098434c7a6e50a8828","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeMwah"},{"type":"EMOTE","id":"emotesv2_43da115e6b6749828f7dee47d17dd315","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeHuh"}],"impressions":900},"value":1200,"goal":2100,"total":4600,"remaining_seconds":299},"is_boost_train":false}};
+	export const HypeTrainLevelUp4 = {"type":"hype-train-level-up","data":{"time_to_expire":1648207802000,"progress":{"level":{"value":4,"goal":7800,"rewards":[{"type":"EMOTE","id":"emotesv2_663dbd72c3ae48c585ffd61f3c348fa9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeWave"},{"type":"EMOTE","id":"emotesv2_271ea48a09ca418baad2ea1f734ab09e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeReading"},{"type":"EMOTE","id":"emotesv2_1337536bcecf49f4bb9cd1a699341ee2","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeShock"},{"type":"EMOTE","id":"emotesv2_8c1d964bd7e14fe1b8bd61d29ee0eb8c","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeStress"},{"type":"EMOTE","id":"emotesv2_cdc7a602ee08462e81fb6cc0e3e8de61","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCry"}],"impressions":1200},"value":1600,"goal":2300,"total":7100,"remaining_seconds":299},"is_boost_train":false}};
+	export const HypeTrainLevelUp5 = {"type":"hype-train-level-up","data":{"time_to_expire":1648207960000,"progress":{"level":{"value":5,"goal":10800,"rewards":[{"type":"EMOTE","id":"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCheer"},{"type":"EMOTE","id":"emotesv2_1630ff0e5ff34a808f4b25320a540ee7","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLurk"},{"type":"EMOTE","id":"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePopcorn"},{"type":"EMOTE","id":"emotesv2_1885b5088372466b800789b02daf7b65","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeEvil"},{"type":"EMOTE","id":"emotesv2_85a13cc47247425fa152b9292c4589a9","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeAwww"}],"impressions":1500},"value":1800,"goal":3000,"total":9600,"remaining_seconds":299},"is_boost_train":false}};
+	export const HypeTrainComplete = {"type":"hype-train-end","data":{"ended_at":1648207961000,"ending_reason":"COMPLETED","is_boost_train":false}};
 	export const HypeTrainExpire = {"type":"hype-train-end","data":{"ended_at":1603128366000,"ending_reason":"EXPIRE"}};
 	export const HypeTrainCooldownOver = {"type":"hype-train-cooldown-expiration"};
 	export const LowTrustMessage = {"type":"low_trust_user_new_message","data":{"low_trust_user":{"id":"647389082","low_trust_id":"Mjk5NjE4MTMuNjQ3Mzg5MDgy","channel_id":"29961813","sender":{"user_id":"647389082","login":"durssbot","display_name":"DurssBot","chat_color":"#8A2BE2","badges":[{"id":"vip","version":"1"}]},"evaluated_at":"2022-01-12T15:39:44Z","updated_at":"2022-02-19T21:13:27Z","ban_evasion_evaluation":"UNLIKELY_EVADER","treatment":"ACTIVE_MONITORING","updated_by":{"id":"29961813","login":"durss","display_name":"Durss"}},"message_content":{"text":"test","fragments":[{"text":"test"}]},"message_id":"f5958f42-d1c1-45d0-857d-8533125b50a7","sent_at":"2022-02-19T21:14:41Z"}};
 	export const MidrollRequest = {"type":"midroll_request","data":{"jitter_buckets":1,"jitter_time":5000,"warmup_time":5000,"commercial_id":"d6a04370d98f4cfea4e1516715ce0f6b","weighted_buckets":[1]}};
 	export const VideoPlayback = {"type":"viewcount","server_time":1645373070.319400,"viewers":63}
+	export const BoostStarting = {"type":"community-boost-start","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"ORDER_STATE_DELIVERING","GoalProgress":0,"GoalTarget":1100}]}};
+	export const BoostProgress1 = {"type":"community-boost-progression","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"DELIVERING_ORDER","GoalProgress":150,"GoalTarget":1100}],"total_goal_progress":150, "total_goal_target":1100}};
+	export const BoostProgress2 = {"type":"community-boost-progression","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"DELIVERING_ORDER","GoalProgress":700,"GoalTarget":1100}],"total_goal_progress":700,"total_goal_target":1100}};
+	export const BoostComplete = {"type":"community-boost-end","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"ORDER_STATE_FULFILLED","GoalProgress":1104,"GoalTarget":1100}],"ending_reason":"ORDER_STATE_FULFILLED"}};
 }

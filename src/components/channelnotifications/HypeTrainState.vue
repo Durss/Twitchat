@@ -1,31 +1,40 @@
 <template>
-	<div class="hypetrainstate" :style="styles">
+	<div :class="classes" :style="styles">
 		
 		<div class="content" v-if="trainData.state === 'APPROACHING'">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon">
-			<h1>Hype train Approaching!</h1>
+			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<h1>{{label}} train Approaching!</h1>
 		</div>
 		
 		<div class="content" v-if="trainData.state === 'COMPLETED'">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon">
+			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
-				Hype train complete<br />
+				{{label}} train complete<br />
 				<span class="subtitle">Level <strong>{{completeLevel}}</strong> reached</span>
 			</h1>
 		</div>
 		
 		<div class="content" v-if="trainData.state === 'EXPIRE'">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon">
-			<h1>Hype train went away...</h1>
+			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<h1>{{label}} train went away...</h1>
 		</div>
 		
 		<div class="content" v-if="trainProgress">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon">
-			<h1>Hype train level {{trainData.level}}</h1>
+			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<h1>{{label}} train level {{trainData.level}}</h1>
 			<p class="percent">{{roundProgressPercent}}%</p>
 		</div>
 
-		<ProgressBar v-if="trainProgress || trainData.state === 'APPROACHING'" class="progressBar" :duration="trainData.timeLeft*1000" :percent="timerPercent" />
+		<ProgressBar v-if="trainProgress || trainData.state === 'APPROACHING'"
+			class="progressBar"
+			:duration="trainData.timeLeft*1000"
+			:percent="timerPercent"
+			:green="boostMode"
+		/>
 	</div>
 </template>
 
@@ -49,6 +58,14 @@ export default class HypeTrainState extends Vue {
 
 	public timerPercent:number = 0;
 	public progressPercent:number = 0;
+
+	public get boostMode():boolean {
+		return true; //this.trainData.is_boost_train
+	}
+
+	public get label():string {
+		return this.boostMode? "Boost" : "Hype";
+	}
 
 	public get completeLevel():number {
 		let level = this.trainData.level;
@@ -81,6 +98,12 @@ export default class HypeTrainState extends Vue {
 		return {};
 	}
 
+	public get classes():string[] {
+		const res = ["hypetrainstate"];
+		if(this.boostMode) res.push("boost");
+		return res;
+	}
+
 	public mounted():void {
 		this.dataChange();
 		watch(()=>store.state.hypeTrain, ()=>this.dataChange());
@@ -104,19 +127,11 @@ export default class HypeTrainState extends Vue {
 
 <style scoped lang="less">
 .hypetrainstate{
-	color: @mainColor_light;
-	padding: 10px;
-	border-top-left-radius: 10px;
-	border-top-right-radius: 10px;
-	@c: darken(@mainColor_normal, 10%);
-	background-color: darken(@mainColor_normal, 20%);
-	background-image: linear-gradient(to right, @c 100%, @c 100%);
-	background-size: 0% 100%;
-	background-repeat: no-repeat;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	position: relative;
+
+	&.boost {
+		@c: darken(#00f0f0, 15%);
+		background-color: @c !important;
+	}
 
 	.progressBar {
 		margin: 10px 0;
@@ -128,6 +143,7 @@ export default class HypeTrainState extends Vue {
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
+		color: @mainColor_light;
 
 		h1 {
 			text-align: center;

@@ -62,10 +62,6 @@ export default class RaidState extends Vue {
 <style scoped lang="less">
 .raidstate{
 	color: @mainColor_light;
-	padding: 10px;
-	border-top-left-radius: 10px;
-	border-top-right-radius: 10px;
-	background-color: darken(@mainColor_normal, 20%);
 	text-align: center;
 	
 	.icon {

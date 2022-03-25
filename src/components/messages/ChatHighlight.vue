@@ -75,10 +75,16 @@ export default class ChatHighlight extends Vue {
 
 	public get reason():string {
 		let value:number|"prime" = 0;
-		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|null = null;
+		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|"hype_cooldown_expired"|"community_boost_complete"|null = null;
 		if(this.messageData['msg-id'] == "follow") {
 			type = "follow";
 			this.filtered = !store.state.params.filters.showFollow.value;
+
+		}else if(this.messageData['msg-id'] === "hype_cooldown_expired") {
+			type = "hype_cooldown_expired";
+
+		}else if(this.messageData['msg-id'] === "community_boost_complete") {
+			type = "community_boost_complete";
 
 		}else if(this.messageData.tags.bits) {
 			value = this.messageData.tags.bits;
@@ -105,7 +111,7 @@ export default class ChatHighlight extends Vue {
 			this.filtered = !store.state.params.filters.showSubs.value;
 		}
 		if(type == null) {
-			console.log("Unhandled highlight");
+			console.warn("Unhandled highlight");
 			console.log(this.messageData);
 			this.filtered = true;
 			return "";
@@ -116,6 +122,16 @@ export default class ChatHighlight extends Vue {
 			case "follow":
 				this.icon = require('@/assets/icons/follow.svg');
 				res = "<strong>"+this.messageData.username+"</strong> followed your channel!";
+				break;
+
+			case "hype_cooldown_expired":
+				this.icon = require('@/assets/icons/train.svg');
+				res = "Hype train can be started again!";
+				break;
+
+			case "community_boost_complete":
+				this.icon = require('@/assets/icons/boost.svg');
+				res = "Your channel has been boosted to "+this.messageData.viewers;
 				break;
 
 			case "raid":

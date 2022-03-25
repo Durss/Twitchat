@@ -146,37 +146,37 @@ export default class IRCClient extends EventDispatcher {
 
 			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {
 				if(!this.idToExample["cheer"]) this.idToExample["cheer"] = {type:"highlight", channel, tags, message};
-				this.addHighlight({type:"highlight", channel, tags, message});
+				this.sendHighlight({type:"highlight", channel, tags, message});
 			});
 			
 			this.client.on('resub', async (channel: string, username: string, months: number, message: string, tags: tmi.SubUserstate, methods: tmi.SubMethods) => {
 				if(!this.idToExample["resub"]) this.idToExample["resub"] = {type:"highlight", channel, tags, message, methods, months, username};
-				this.addHighlight({type:"highlight", channel, tags, message, methods, months, username});
+				this.sendHighlight({type:"highlight", channel, tags, message, methods, months, username});
 			});
 			
 			this.client.on('subscription', async (channel: string, username: string, methods: tmi.SubMethods, message: string, tags: tmi.SubUserstate) => {
 				if(!this.idToExample["subscription"]) this.idToExample["subscription"] = {type:"highlight", channel, username, methods, tags, message};
-				this.addHighlight({type:"highlight", channel, username, methods, tags, message});
+				this.sendHighlight({type:"highlight", channel, username, methods, tags, message});
 			});
 			
 			this.client.on('subgift', async (channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate) => {
 				if(!this.idToExample["subgift"]) this.idToExample["subgift"] = {type:"highlight", channel, username, methods, months:streakMonths, tags, recipient};
-				this.addHighlight({type:"highlight", channel, username, methods, months:streakMonths, tags, recipient});
+				this.sendHighlight({type:"highlight", channel, username, methods, months:streakMonths, tags, recipient});
 			});
 			
 			this.client.on('anonsubgift', async (channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate) => {
 				if(!this.idToExample["anonsubgift"]) this.idToExample["anonsubgift"] = {type:"highlight", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient};
-				this.addHighlight({type:"highlight", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient});
+				this.sendHighlight({type:"highlight", channel, username:"Un anonyme", methods, months:streakMonths, tags, recipient});
 			});
 			
 			this.client.on('giftpaidupgrade', async (channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate) => {
 				if(!this.idToExample["giftpaidupgrade"]) this.idToExample["giftpaidupgrade"] = {type:"highlight", channel, username, sender, tags};
-				this.addHighlight({type:"highlight", channel, username, sender, tags});
+				this.sendHighlight({type:"highlight", channel, username, sender, tags});
 			});
 			
 			this.client.on('anongiftpaidupgrade', async (channel: string, username: string, tags: tmi.AnonSubGiftUpgradeUserstate) => {
 				if(!this.idToExample["anongiftpaidupgrade"]) this.idToExample["anongiftpaidupgrade"] = {type:"highlight", channel, username, tags};
-				this.addHighlight({type:"highlight", channel, username, tags});
+				this.sendHighlight({type:"highlight", channel, username, tags});
 			});
 			
 			this.client.on("ban", (channel: string, username: string, reason: string)=> {
@@ -197,7 +197,7 @@ export default class IRCClient extends EventDispatcher {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
 				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"highlight", channel, tags, username, viewers};
-				this.addHighlight({type:"highlight", channel, tags, username, viewers});
+				this.sendHighlight({type:"highlight", channel, tags, username, viewers});
 			});
 			
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
@@ -346,7 +346,7 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 
-	public addHighlight(data:IRCEventDataList.Highlight):void {
+	public sendHighlight(data:IRCEventDataList.Highlight):void {
 		data.type = "highlight";
 		
 		if(!data.tags.id) data.tags.id = this.getFakeGuid();
@@ -355,7 +355,6 @@ export default class IRCClient extends EventDispatcher {
 		if(this.uidsDone[key] !== true) {
 			data.firstMessage = true;
 			this.uidsDone[key] = true;
-
 		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));

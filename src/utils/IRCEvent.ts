@@ -129,7 +129,7 @@ export namespace IRCEventDataList {
 		recipient?: string;
 		methods?: SubMethods;
 		viewers?: number;
-		"msg-id"?: MsgID | "follow";
+		"msg-id"?: MsgID | "follow" | "hype_cooldown_expired" | "community_boost_complete";
 		reward?: PubSubTypes.RewardData;
 		//custom data
 		firstMessage?:boolean;

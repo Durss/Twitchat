@@ -74,13 +74,16 @@
 					data-tooltip="Send encrypted<br>messages" />
 
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
-				&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
+					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
 					class="viewCount"
 					data-tooltip="Viewer count"
 				>
 					<p>{{$store.state.playbackState.viewers}}</p>
 					<img src="@/assets/icons/user.svg" alt="viewers">
 				</div>
+
+				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
+
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
@@ -107,6 +110,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
+import CommunityBoostInfo from './CommunityBoostInfo.vue';
 
 @Options({
 	props:{
@@ -119,6 +123,7 @@ import AutocompleteForm from './AutocompleteForm.vue';
 		Button,
 		ParamItem,
 		AutocompleteForm,
+		CommunityBoostInfo,
 	},
 	emits: [
 		"poll",

@@ -1,5 +1,5 @@
 <template>
-	<div class="progressbar">
+	<div :class="classes">
 		<div class="fill" :style="getStyles()"></div>
 		<div class="timer" v-if="percent<=1 && duration != undefined">{{timeLeft}}s</div>
 	</div>
@@ -13,6 +13,10 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		percent:Number,
 		duration:Number,
+		green:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{}
 })
@@ -20,6 +24,7 @@ export default class ProgressBar extends Vue {
 
 	public percent!:number;
 	public duration!:number;//In ms
+	public green!:boolean;
 
 	public get timeLeft():string {
 		return Utils.formatDuration(this.duration * (1-this.percent))
@@ -29,6 +34,12 @@ export default class ProgressBar extends Vue {
 		return {
 			transform: `scaleX(${(1-this.percent) * 100}%)`,
 		}
+	}
+
+	public get classes():string[] {
+		const res = ["progressbar"];
+		if(this.green) res.push('green');
+		return res;
 	}
 
 }
@@ -42,6 +53,16 @@ export default class ProgressBar extends Vue {
 	background: white;
 	padding: 1px;
 	position: relative;
+
+	&.green {
+		@c: darken(#00f0f0, 15%);
+		.fill {
+			background-color: @c;
+		}
+		.timer {
+			color: @c;
+		}
+	}
 
 	.fill {
 		height: 3px;

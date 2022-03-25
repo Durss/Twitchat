@@ -43,6 +43,7 @@ export default createStore({
 		realHistorySize: 1000,
 		followingStates: {} as {[key:string]:boolean},
 		playbackState: null as PubSubTypes.PlaybackInfo|null,
+		communityBoostState: null as PubSubTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
 		commands: [
 			{
@@ -572,6 +573,8 @@ export default createStore({
 
 		setPlaybackState(state, value:PubSubTypes.PlaybackInfo) { state.playbackState = value; },
 
+		setCommunityBoost(state, value:PubSubTypes.CommunityBoost) { state.communityBoostState = value; },
+
 	},
 
 
@@ -861,6 +864,8 @@ export default createStore({
 		searchMessages({commit}, value:string) { commit("searchMessages", value); },
 
 		setPlaybackState({commit}, value:PubSubTypes.PlaybackInfo) { commit("setPlaybackState", value); },
+
+		setCommunityBoost({commit}, value:PubSubTypes.CommunityBoost) { commit("setCommunityBoost", value); },
 	},
 	modules: {
 	}
@@ -912,6 +917,7 @@ export interface HypeTrainStateData {
 	started_at:number;
 	timeLeft:number;
 	state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
+	is_boost_train:boolean;
 }
 
 export interface CommandData {

@@ -47,6 +47,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] See live viewers count
 - [x] Keep or remove deleted messages
 - [x] See all my followings that are live to raid them easily
+- [x] Supports new boost trains
 <br>
 
 - [ ] Expose an API to control some stuff remotely(?)

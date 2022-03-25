@@ -5,11 +5,14 @@
 			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="require('@/assets/icons/sub.svg')" />
+			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/gift.svg')" />
+			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="require('@/assets/icons/gift.svg')" />
+			<Button small title="Subgift x20" @click="simulateEvent('subgiftx20')" :icon="require('@/assets/icons/gift.svg')" />
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="require('@/assets/icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="require('@/assets/icons/channelPoints.svg')" />
 			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="require('@/assets/icons/train.svg')" />
+			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="require('@/assets/icons/train.svg')" />
+			<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="require('@/assets/icons/boost.svg')" />
 			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="require('@/assets/icons/ban.svg')" />
 			<Button small title="Automod" @click="simulateEvent('automod')" :icon="require('@/assets/icons/automod_white.svg')" />
 			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="require('@/assets/icons/poll.svg')" />
@@ -86,8 +89,15 @@ export default class DevmodeMenu extends Vue {
 	public simulateEvent(code:string):void {
 		if(code == "hypeTrain") {
 			PubSub.instance.simulateHypeTrain();
+		}else if(code == "hypeTrainCooldown") {
+			PubSub.instance.simulateHypeCooldown();
 		}else if(code == "lowTrustUser") {
 			PubSub.instance.simulateLowTrustUser();
+		}else if(code == "communityBoost") {
+			PubSub.instance.simulateCommunityBoost();
+		}else if(code == "subgiftx20") {
+			PubSub.instance.simulateLowTrustUser();
+			IRCClient.instance.sendFakeEvent("subgift");
 		}else{
 			IRCClient.instance.sendFakeEvent(code);
 		}
