@@ -330,14 +330,14 @@
 	},
     "raided": {
         "type": "highlight",
-        "channel": "#kamet0",
+        "channel": "#durss",
         "tags": {
             "info": "this tags prop is a fake one to make things easier for my code",
             "id": "16423778121330.0751974390273129",
             "tmi-sent-ts": "1642377812133"
         },
         "msgid": "raid",
-        "username": "Vetheo",
+        "username": "antoinedaniel",
         "viewers": 727,
         "firstMessage": true
     },

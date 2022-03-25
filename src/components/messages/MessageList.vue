@@ -189,7 +189,7 @@ export default class MessageList extends Vue {
 			// deep:true
 		});
 		
-		const list = this.$refs.messageHolder as HTMLDivElement;
+		// const list = this.$refs.messageHolder as HTMLDivElement;
 		// list.addEventListener("scroll", ()=>{
 		// 	if(this.disposed) return;
 		// 	const h = (this.$el as HTMLDivElement).offsetHeight;
@@ -281,7 +281,7 @@ export default class MessageList extends Vue {
 	 */
 	private filterMessages():void {
 		if(!this.lightMode) return;
-		
+
 		for (let i = 0; i < this.localMessages.length; i++) {
 			const m = this.localMessages[i];
 			if(m.type != "message" || m.automod) {

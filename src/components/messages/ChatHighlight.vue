@@ -5,6 +5,12 @@
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
+			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+			<div v-if="streamInfo" class="streamInfo">
+				<div class="head">Last stream infos</div>
+				<div class="title">{{streamInfo.title}}</div>
+				<div class="game">{{streamInfo.game_name}}</div>
+			</div>
 		</div>
 			<Button v-if="isRaid"
 				small 
@@ -20,7 +26,7 @@
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { PubSubTypes } from '@/utils/PubSub';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -43,6 +49,15 @@ export default class ChatHighlight extends Vue {
 	public filtered:boolean = false;
 	public isRaid:boolean = false;
 	public shoutoutLoading:boolean = false;
+	public loading:boolean = false;
+	private _streamInfo:TwitchTypes.ChannelInfo|null = null;
+
+	public get streamInfo():TwitchTypes.ChannelInfo|null {
+		if(store.state.params.features.raidStreamInfo.value === true) {
+			return this._streamInfo;
+		}
+		return null;
+	}
 
 	public get classes():string[] {
 		let res = ["chathighlight"];
@@ -106,6 +121,10 @@ export default class ChatHighlight extends Vue {
 				this.isRaid = true;
 				this.icon = require('@/assets/icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
+
+				if(store.state.params.features.raidStreamInfo.value === true) {
+					this.loadLastStreamInfos()
+				}
 				break;
 
 			case "bits":
@@ -214,6 +233,22 @@ export default class ChatHighlight extends Vue {
 			}
 		}
 		this.shoutoutLoading = false;
+	}
+
+	private async loadLastStreamInfos():Promise<void> {
+		this.loading = true;
+		this._streamInfo = null;
+		try {
+			const users = await TwitchUtils.loadUserInfo(undefined, [this.messageData.username as string]);
+			const streams = await TwitchUtils.loadChannelInfo([users[0].id]);
+			console.log(streams);
+			if(streams && streams.length > 0) {
+				this._streamInfo = streams[0];
+			}
+		}catch(error) {
+			//TODO
+		}
+		this.loading = false;
 	}
 }
 </script>
@@ -333,6 +368,35 @@ export default class ChatHighlight extends Vue {
 				font-size: 2em;
 				vertical-align: middle;
 				margin-left: 6px;
+			}
+		}
+
+		.loader {
+			height: 2em;
+		}
+
+		.streamInfo {
+			color: @mainColor_light;
+			background-color: rgba(255, 255, 255, .15);
+			border-radius: 5px;
+			overflow: hidden;
+			width: 90%;
+			.head {
+				padding: .5em;
+				font-weight: bold;
+				background-color: rgba(255, 255, 255, .25);
+				text-transform: uppercase;
+			}
+			.title {
+				padding: 5px;
+				text-align: left;
+				// font-weight: bold;
+			}
+			.game {
+				padding: 5px;
+				padding-top: 0;
+				text-align: left;
+				font-style: italic;
 			}
 		}
 	}
