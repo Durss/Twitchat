@@ -50,11 +50,12 @@ export default class ChatHighlight extends Vue {
 	public isRaid:boolean = false;
 	public shoutoutLoading:boolean = false;
 	public loading:boolean = false;
-	private _streamInfo:TwitchTypes.ChannelInfo|null = null;
+	
+	private pStreamInfo:TwitchTypes.ChannelInfo|null = null;
 
 	public get streamInfo():TwitchTypes.ChannelInfo|null {
 		if(store.state.params.features.raidStreamInfo.value === true) {
-			return this._streamInfo;
+			return this.pStreamInfo;
 		}
 		return null;
 	}
@@ -237,13 +238,13 @@ export default class ChatHighlight extends Vue {
 
 	private async loadLastStreamInfos():Promise<void> {
 		this.loading = true;
-		this._streamInfo = null;
+		this.pStreamInfo = null;
 		try {
 			const users = await TwitchUtils.loadUserInfo(undefined, [this.messageData.username as string]);
 			const streams = await TwitchUtils.loadChannelInfo([users[0].id]);
 			console.log(streams);
 			if(streams && streams.length > 0) {
-				this._streamInfo = streams[0];
+				this.pStreamInfo = streams[0];
 			}
 		}catch(error) {
 			//TODO
