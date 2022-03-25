@@ -17,6 +17,7 @@ export default createStore({
 		showParams: false,
 		devmode: false,
 		canSplitView: false,
+		hasChannelPoints: false,
 		oAuthToken: {} as TwitchTypes.AuthTokenResult|null,
 		alert: "",
 		tooltip: "",
@@ -73,21 +74,25 @@ export default createStore({
 				id:"poll",
 				cmd:"/poll {title}",
 				details:"Start a poll",
+				needChannelPoints:true,
 			},
 			{
 				id:"prediction",
 				cmd:"/prediction {title}",
 				details:"Start a prediction",
+				needChannelPoints:true,
 			},
 			{
 				id:"vip",
 				cmd:"/vip {user}",
 				details:"Give VIP status to a user",
+				needChannelPoints:true,
 			},
 			{
 				id:"unvip",
 				cmd:"/unvip {user}",
 				details:"Remove VIP status to a user",
+				needChannelPoints:true,
 			},
 			{
 				id:"to",
@@ -220,6 +225,9 @@ export default createStore({
 					IRCClient.instance.connect(state.user.login, json.access_token);
 					PubSub.instance.connect();
 				}
+				
+				const users = await TwitchUtils.loadUserInfo([state.user.user_id]);
+				state.hasChannelPoints = users[0].broadcaster_type != "";
 
 				state.mods = await TwitchUtils.getModerators();
 
@@ -910,4 +918,5 @@ export interface CommandData {
 	id:string;
 	cmd:string;
 	details:string;
+	needChannelPoints?:boolean;
 }

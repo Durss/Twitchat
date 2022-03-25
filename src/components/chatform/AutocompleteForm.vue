@@ -165,6 +165,7 @@ export default class AutocompleteForm extends Vue {
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
+						if(e.needChannelPoints === true && !store.state.hasChannelPoints) continue;
 						res.push({
 							type:"cmd",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),

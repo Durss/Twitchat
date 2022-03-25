@@ -1,7 +1,7 @@
 <template>
 	<div class="commandhelper">
 		<Button small @click="$emit('poll'); close();" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
-		<Button small @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="$store.state.currentPrediction?.id != undefined" />
+		<Button small @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
 		<Button small @click="$emit('raffle'); close();" :icon="require('@/assets/icons/ticket.svg')" title="Create raffle" bounce />
 		<Button small @click="$emit('bingo'); close();" :icon="require('@/assets/icons/bingo.svg')" title="Create bingo" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
@@ -50,7 +50,11 @@ export default class CommandHelper extends Vue {
 	
 	public get params():{[key:string]:ParameterData} { return store.state.params.roomStatus; }
 
+	public get canCreatePrediction():boolean {
+		return store.state.currentPrediction?.id == undefined && store.state.hasChannelPoints === true;
+	}
 	public get canCreatePoll():boolean {
+		if(!store.state.hasChannelPoints) return false;
 		const poll = store.state.currentPoll as TwitchTypes.Poll;
 		return poll == undefined || poll.status != "ACTIVE";
 	}

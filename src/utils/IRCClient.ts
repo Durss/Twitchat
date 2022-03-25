@@ -70,8 +70,9 @@ export default class IRCClient extends EventDispatcher {
 
 			(async ()=> {
 				//Get user IDs from logins to then load their badges
-				const userInfos = await fetch(Config.API_PATH+"/user?logins="+channels.join(","));
-				const uids = ((await userInfos.json()) as [{id:string}]).map(user => user.id);
+
+				const users = await TwitchUtils.loadUserInfo(undefined, channels);
+				const uids = users.map(user => user.id);
 				
 				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
