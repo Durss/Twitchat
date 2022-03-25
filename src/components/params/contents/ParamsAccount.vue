@@ -19,6 +19,7 @@
 			<h2>Credits</h2>
 			<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
 			<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p>Put food in my mouth <a href="https://github.com/sponsors/Durss" target="_blank" class="button">🍔👉😮</a></p>
 			<p>
 				<a class="link" href="https://www.durss.ninja" target="_blank"><img src="@/assets/img/work.svg" data-tooltip="Portfolio" alt="portfolio"></a>
 				<a class="link" href="https://instagram.com/durss" target="_blank"><img src="@/assets/img/instagram.png" data-tooltip="Instagram" alt="instagram"></a>
@@ -120,6 +121,15 @@ export default class ParamsAccount extends Vue {
 				img {
 					height: 40px;
 				}
+			}
+		}
+
+		.button {
+			background-color: @mainColor_normal;
+			padding: 3px;
+			border-radius: 5px;
+			&:hover {
+				background-color: @mainColor_normal_light;
 			}
 		}
 	}
