@@ -68,6 +68,7 @@ export default class ParamItem extends Vue {
 
 	public get children():ParameterData[] {
 		if(this.paramData.value as boolean === false) return [];
+		if(this.paramData.id == undefined) return [];
 
 		const list = store.state.params;
 		const children:ParameterData[] = [];
