@@ -284,7 +284,7 @@ export default class MessageList extends Vue {
 
 		for (let i = 0; i < this.localMessages.length; i++) {
 			const m = this.localMessages[i];
-			if(m.type != "message" || m.automod) {
+			if(m.type != "message" || m.automod || m.deleted) {
 				this.localMessages.splice(i, 1);
 				i--;
 			}
