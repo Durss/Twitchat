@@ -86,7 +86,7 @@ export default class DevmodeMenu extends Vue {
 		}
 	}
 
-	public simulateEvent(code:string):void {
+	public async simulateEvent(code:string):Promise<void> {
 		if(code == "hypeTrain") {
 			PubSub.instance.simulateHypeTrain();
 		}else if(code == "hypeTrainCooldown") {
@@ -96,8 +96,10 @@ export default class DevmodeMenu extends Vue {
 		}else if(code == "communityBoost") {
 			PubSub.instance.simulateCommunityBoost();
 		}else if(code == "subgiftx20") {
-			PubSub.instance.simulateLowTrustUser();
-			IRCClient.instance.sendFakeEvent("subgift");
+			for (let i = 0; i < 20; i++) {
+				IRCClient.instance.sendFakeEvent("subgift");
+				await Utils.promisedTimeout(60);
+			}
 		}else{
 			IRCClient.instance.sendFakeEvent(code);
 		}

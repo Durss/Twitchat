@@ -168,7 +168,13 @@ export default class ChatHighlight extends Vue {
 
 			case "subgift":
 				this.icon = require('@/assets/icons/gift.svg');
-				res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
+				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
+					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
+					const recipientsStr = "<strong>"+recipients.join("</strong>, <strong>")+"</strong>";
+					res = "<strong>"+this.messageData.username+"</strong> gifted <strong>"+(this.messageData.subgiftAdditionalRecipents?.length+1)+"</strong> Tier "+value+" to "+recipientsStr;
+				}else{
+					res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
+				}
 				break;
 
 			case "subgiftUpgrade":

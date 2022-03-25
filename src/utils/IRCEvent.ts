@@ -134,6 +134,7 @@ export namespace IRCEventDataList {
 		//custom data
 		firstMessage?:boolean;
 		type:"highlight";
+		subgiftAdditionalRecipents?:string[];
 	}
 
 	export interface RoomState {

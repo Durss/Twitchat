@@ -285,14 +285,25 @@ export default createStore({
 					}
 				}
 			}else{
-				//If it's a follow event, flag user as a follower
-				if(payload.type == "highlight") {
-					if(payload['msg-id'] == "follow") {
-						state.followingStates[payload.tags['user-id'] as string] = true;
+				
+				const m = payload as IRCEventDataList.Message;
+
+				//If it's a subgift, merge it with potential previous ones
+				if(payload.type == "highlight" && payload.recipient) {
+					for (let i = 0; i < messages.length; i++) {
+						const m = messages[i];
+						if(m.type != "highlight") continue;
+						//If the message is a subgift from the same user and happened
+						//in the last 5s, merge it.
+						if(m.methods?.plan && m.sender == payload.sender
+						&& Date.now() - parseInt(m.tags['tmi-sent-ts'] as string) < 5000) {
+							if(!m.subgiftAdditionalRecipents) m.subgiftAdditionalRecipents = [];
+							m.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
+							m.subgiftAdditionalRecipents.push(m.recipient as string);
+							return;
+						}
 					}
 				}
-
-				const m = payload as IRCEventDataList.Message;
 				
 				//Check if user is following
 				if(state.params.appearance.highlightNonFollowers.value === true) {
@@ -304,6 +315,14 @@ export default createStore({
 					}
 				}
 
+				//If it's a follow event, flag user as a follower
+				if(payload.type == "highlight") {
+					if(payload['msg-id'] == "follow") {
+						state.followingStates[payload.tags['user-id'] as string] = true;
+					}
+				}
+
+				//If a bingo's in progress, check if the user won it
 				const bingo = state.bingo as BingoData;
 				if(bingo.opened === true && m.message) {
 					let win = bingo.numberValue && parseInt(m.message) == bingo.numberValue;
@@ -325,8 +344,8 @@ export default createStore({
 					}
 				}
 				
+				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
-					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 					const original = m.message;
 					m.message = await TwitchCypherPlugin.instance.decrypt(m.message);
 					m.cyphered = m.message != original;
