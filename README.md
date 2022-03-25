@@ -22,6 +22,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Flag a message as "read" and scroll back to it easily
 - [x] Track a user to make sure not to miss her/his messages
 - [x] Create a raffle with the viewers and pick random winners
+- [x] See if a user is not following the channel
 - [x] Display received whispers and answer them
 - [x] Filter some messages *(bots, commands, self, etc...)*
 - [x] Customize messages *(remove badges, show minimalist badges, remove emotes)*
@@ -32,6 +33,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Display mod notifications on chat (ex: "User XXX has been banned by YYY")
 - [x] Display sub/bits/raid/reward/follow notifications
 - [x] Display hype train status
+- [x] Show the last stream info of a raider
 - [x] Integrated activity feed to see subs/cheers/follows/raids/rewards history
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
@@ -41,9 +43,12 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Autocomplete commands
 - [x] Allow to search on all messages
 - [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
+- [x] Filter only specific commands
+- [x] See viewers count
+- [x] Keep or hide deleted messages
+- [x] See all my followings that are live
 <br>
 
-- [ ] Filter all commands but a custom list
 - [ ] Expose an API to control some stuff remotely(?)
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
