@@ -131,7 +131,7 @@ export default class ChatHighlight extends Vue {
 
 			case "community_boost_complete":
 				this.icon = require('@/assets/icons/boost.svg');
-				res = "Your channel has been boosted to "+this.messageData.viewers;
+				res = "Your channel has been boosted to "+this.messageData.viewers+" people";
 				break;
 
 			case "raid":
