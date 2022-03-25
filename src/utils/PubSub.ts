@@ -268,8 +268,13 @@ export default class PubSub {
 
 
 
-		}else if(data.type == "raid_update_v2" || data.type == "raid_go_v2") {
+		}else if(data.type == "raid_update_v2") {
 			store.dispatch("setRaiding", data.raid);
+
+
+
+		}else if(data.type == "raid_go_v2") {
+			store.dispatch("setRaiding", null);
 			
 
 
