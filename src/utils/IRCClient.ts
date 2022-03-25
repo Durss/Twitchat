@@ -352,7 +352,7 @@ export default class IRCClient extends EventDispatcher {
 		if(!data.tags.id) data.tags.id = this.getFakeGuid();
 
 		const key = data.tags['user-id'] as string;
-		if(this.uidsDone[key] !== true) {
+		if(key && this.uidsDone[key] !== true) {
 			data.firstMessage = true;
 			this.uidsDone[key] = true;
 		}

@@ -133,11 +133,11 @@ export default class PubSub {
 
 	public async simulateCommunityBoost():Promise<void> {
 		this.parseEvent(PubsubJSON.BoostStarting);
-		await Utils.promisedTimeout(10000);
+		await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.BoostProgress1);
-		await Utils.promisedTimeout(10000);
+		await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.BoostProgress2);
-		await Utils.promisedTimeout(10000);
+		await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.BoostComplete);
 
 	}
