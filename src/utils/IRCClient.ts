@@ -117,18 +117,16 @@ export default class IRCClient extends EventDispatcher {
 				this.connected = true;
 			}
 			
-			this.client.on("join", (channel:string, user:string)=> {
-				console.log("join", channel, user);
-				if(user == this.login) {
+			this.client.on("join", (channel:string, user:string) => {
+				user = user.toLowerCase();
+				if(user == this.login.toLowerCase()) {
 					this.connected = true;
 					console.log("IRCClient :: Connection succeed");
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
 					this.sendNotice("online", "Welcome to the chat room "+channel+"!")
 				}
-			});
 
-			this.client.on("join", (channel:string, user:string) => {
 				const index = this.onlineUsers.indexOf(user);
 				if(index > -1) return;
 				
@@ -138,8 +136,11 @@ export default class IRCClient extends EventDispatcher {
 			});
 			
 			this.client.on("part", (channel:string, user:string) => {
+				user = user.toLowerCase();
 				const index = this.onlineUsers.indexOf(user);
-				this.onlineUsers.splice(index, 1);
+				if(index > -1) {
+					this.onlineUsers.splice(index, 1);
+				}
 				store.dispatch("setViewersList", this.onlineUsers);
 			});
 
@@ -432,9 +433,10 @@ export default class IRCClient extends EventDispatcher {
 			}
 		}
 		
-		const index = this.onlineUsers.indexOf(tags.username as string);
+		const loginLower = (tags.username as string).toLowerCase();
+		const index = this.onlineUsers.indexOf(loginLower);
 		if(index == -1) {
-			this.onlineUsers.push(tags.username as string);
+			this.onlineUsers.push(loginLower);
 			this.onlineUsers.sort();
 			store.dispatch("setViewersList", this.onlineUsers);
 		}
