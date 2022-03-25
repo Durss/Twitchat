@@ -9,9 +9,9 @@
 		
 		<div class="choices">
 			<div v-for="(c, index) in poll.choices"
-			:key="index"
-			:style="getAnswerStyles(c)"
-			:class="getAnswerClasses(c)"
+				:key="index"
+				:style="getAnswerStyles(c)"
+				:class="getAnswerClasses(c)"
 			>
 				<div>{{c.title}}</div>
 				<div>{{getPercent(c)}}% ({{c.votes}})</div>
@@ -113,6 +113,11 @@ export default class PollState extends Vue {
 			this.loading = false;
 		});
 	}
+
+	// public async vote(c:TwitchTypes.PollChoice, index:number):Promise<void> {
+		//Doesn't work, it's just a custom command catched locally by twitch :(
+		// IRCClient.instance.sendMessage("/vote " + index);
+	// }
 
 }
 </script>

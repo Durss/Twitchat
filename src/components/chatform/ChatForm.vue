@@ -225,12 +225,14 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/poll") {
 			//Open poll form
+			store.state.tempStoreValue = params[0];
 			this.$emit("poll");
 			this.message = "";
 		}else
 
 		if(cmd == "/prediction") {
 			//Open prediction form
+			store.state.tempStoreValue = params[0];
 			this.$emit("pred");
 			this.message = "";
 		}else

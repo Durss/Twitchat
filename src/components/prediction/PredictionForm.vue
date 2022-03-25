@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { ParameterData } from '@/store';
+import store, { ParameterData } from '@/store';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -64,6 +64,10 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		if(store.state.tempStoreValue) {
+			this.title = store.state.tempStoreValue as string;
+			store.state.tempStoreValue = null;
+		}
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});

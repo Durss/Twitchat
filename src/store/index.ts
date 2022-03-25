@@ -42,6 +42,7 @@ export default createStore({
 		realHistorySize: 1000,
 		followingStates: {} as {[key:string]:boolean},
 		playbackState: null as PubSubTypes.PlaybackInfo|null,
+		tempStoreValue: null as unknown,
 		commands: [
 			{
 				id:"search",
@@ -49,22 +50,12 @@ export default createStore({
 				details:"Search for a message by its content",
 			},
 			{
-				id:"poll",
-				cmd:"/poll",
-				details:"Start a poll",
-			},
-			{
-				id:"prediction",
-				cmd:"/prediction",
-				details:"Start a prediction",
-			},
-			{
 				id:"raffle",
 				cmd:"/raffle",
 				details:"Start a raffle",
 			},
 			{
-				id:"so",
+				id:"bingo",
 				cmd:"/bingo {number|emote}",
 				details:"Create a bingo session",
 			},
@@ -77,6 +68,36 @@ export default createStore({
 				id:"so",
 				cmd:"/so {user}",
 				details:"Shoutout a user",
+			},
+			{
+				id:"poll",
+				cmd:"/poll {title}",
+				details:"Start a poll",
+			},
+			{
+				id:"prediction",
+				cmd:"/prediction {title}",
+				details:"Start a prediction",
+			},
+			{
+				id:"vip",
+				cmd:"/vip {user}",
+				details:"Give VIP status to a user",
+			},
+			{
+				id:"unvip",
+				cmd:"/unvip {user}",
+				details:"Remove VIP status to a user",
+			},
+			{
+				id:"to",
+				cmd:"/timeout {user} {duration} {reason}",
+				details:"Ban a user temporarily",
+			},
+			{
+				id:"unban",
+				cmd:"/unban {user}",
+				details:"Unban a user",
 			}
 		] as CommandData[],
 		params: {
@@ -384,7 +405,7 @@ export default createStore({
 			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				if(messageId == list[i].tags.id) {
-					if(keepDeletedMessages === true) {
+					if(keepDeletedMessages === true && !list[i].automod) {
 						list[i].deleted = true;
 					}else{
 						list.splice(i, 1);
