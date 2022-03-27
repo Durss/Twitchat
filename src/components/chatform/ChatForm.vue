@@ -9,7 +9,7 @@
 				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
-			<form @submit.prevent="sendMessage()" class="inputForm">
+			<form @submit.prevent="" class="inputForm">
 				<input type="text"
 					class="dark"
 					v-model="message"
@@ -17,11 +17,12 @@
 					ref="input"
 					placeholder="message..."
 					maxlength="500"
-					@keydown.tab.prevent="onTab()">
+					@keydown.tab.prevent="onTab()"
+					@keydown.enter="sendMessage()">
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
-				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" />
+				<Button @click="sendMessage()" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" />
 				
 				<Button :icon="require('@/assets/icons/emote.svg')"
 					bounce 
