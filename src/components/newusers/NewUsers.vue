@@ -139,7 +139,7 @@ export default class NewUsers extends Vue {
 					i--;
 				}
 			}
-		}, 10000);
+		}, 5000);
 
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
