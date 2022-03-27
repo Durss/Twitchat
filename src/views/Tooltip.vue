@@ -79,7 +79,7 @@ export default class Tooltip extends Vue {
 		//If so, listen for their load complete event to replace
 		//the tooltip once they're loaded.
 		const images = (this.$refs.content as HTMLDivElement).querySelectorAll("img");
-		(images as any).forEach((img:HTMLImageElement) => {
+		images.forEach((img:HTMLImageElement) => {
 			img.onload = () => {
 				this.onMouseMove(this.lastMouseEvent, false);
 			};

@@ -306,17 +306,23 @@ export default createStore({
 					}
 				}
 
-				//Search in the last 200 messages and 2min if this message has already been sent
+				//Search in the last 50 messages if this message has already been sent
 				//If so, just increment the previous one
 				if(state.params.features.groupIdenticalMessage.value === true) {
-					const end = Math.max(0, messages.length - 200);
-					for (let i = messages.length-1; i > end; i--) {
+					const len = messages.length;
+					const end = Math.max(0, len - 50);
+					for (let i = len-1; i > end; i--) {
 						const mess = messages[i];
 						if(mess.type == "message"
 						&& m.tags['user-id'] == mess.tags['user-id']
+						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//i > len-20 more or less says "if message is still visible on screen"
 						&& m.message == mess.message) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
 							mess.occurrenceCount ++;
+							mess.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
+							messages.splice(i, 1);
+							messages.push(mess);
+							state.chatMessages = messages;	
 							return;
 						}
 					}
