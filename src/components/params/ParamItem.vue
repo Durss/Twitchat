@@ -4,22 +4,42 @@
 			<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
 			<div v-if="paramData.type == 'toggle'" class="holder toggle">
+				<Button v-if="paramData.example"
+					:icon="require('@/assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					class="helpBt"
+				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
 				<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
+				<Button v-if="paramData.example"
+					:icon="require('@/assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					class="helpBt"
+				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
 				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
 			</div>
 			
 			<div v-if="paramData.type == 'text'" class="holder text">
+				<Button v-if="paramData.example"
+					:icon="require('@/assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					class="helpBt"
+				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
 				<textarea :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2"></textarea>
 				<!-- <input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder"> -->
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
+				<Button v-if="paramData.example"
+					:icon="require('@/assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					class="helpBt"
+				/>
 				<label :for="'slider'+key">
 					{{paramData.label}} <span>({{paramData.value}})</span>
 				</label>
@@ -115,6 +135,25 @@ export default class ParamItem extends Vue {
 			height: 1em;
 			object-fit: contain;
 			margin-right: 10px;
+		}
+		
+
+		.helpBt {
+			background: none;
+			@size: 20px;
+			width: @size;
+			min-width: @size;
+			height: @size;
+			min-height: @size;
+			padding: 0;
+			margin: 0;
+			margin-right: 10px;
+			:deep(.icon) {
+				width: 100%;
+				height: 100%;
+				max-width: 100%;
+				max-height: 100%;
+			}
 		}
 		
 		.toggle, .number {

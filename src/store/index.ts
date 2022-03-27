@@ -113,14 +113,14 @@ export default createStore({
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
-				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message (all time)", id:7, icon:"firstTime_purple.svg"},
-				highlightNonFollowers: {type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg"},
+				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message (all time)", id:7, icon:"firstTime_purple.svg", example:"firstMessage.png"},
+				highlightNonFollowers: {type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
 				highlightMentions: {type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
 				showEmotes: {type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
 				showViewersCount: {type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
 				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
 				showBadges: {type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
-				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5, parent:4},
+				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: {type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg"},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
@@ -136,24 +136,24 @@ export default createStore({
 				ignoreListCommands: {type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
 				blockedCommands: {type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
-				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, icon:""},
+				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, example:"rewardDetails.png"},
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106, icon:"sub_purple.svg"},
 				showCheers: {type:"toggle", value:true, label:"Show bit alerts", id:107, icon:"bits_purple.svg"},
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
 				showFollow: {type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: {type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
-				showPollPredResults: {type:"toggle", value:true, label:"Show polls and prediction results on chat", id:112, icon:"poll_purple.svg"},
+				showPollPredResults: {type:"toggle", value:true, label:"Show polls and prediction results on chat", id:112, icon:"poll_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
 			features: {
 				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
-				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg"},
-				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg"},
-				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg"},
+				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
+				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
+				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
 				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
 				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
 				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
-				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg"},
-				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical message (increments a counter on the first occurrence)", id:208}
+				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
+				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the same message multiple times simply shows a counter on the first one)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.png"}
 			} as {[key:string]:ParameterData},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
@@ -306,12 +306,15 @@ export default createStore({
 					}
 				}
 
+				//Search in the last 200 messages and 2min if this message has already been sent
+				//If so, just increment the previous one
 				if(state.params.features.groupIdenticalMessage.value === true) {
-					const end = Math.max(0, messages.length - 100);
+					const end = Math.max(0, messages.length - 200);
 					for (let i = messages.length-1; i > end; i--) {
 						const mess = messages[i];
-						if(mess.type == "message" && m.message == mess.message) {
-							console.log("FOUND !");
+						if(mess.type == "message"
+						&& m.tags['user-id'] == mess.tags['user-id']
+						&& m.message == mess.message) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
 							mess.occurrenceCount ++;
 							return;
@@ -917,6 +920,7 @@ export interface ParameterData {
 	icon?:string;
 	placeholder?:string;
 	parent?:number;
+	example?:string;
 }
 
 export interface RaffleData {
