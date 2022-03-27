@@ -42,6 +42,11 @@
 			</span>
 			
 			<img class="noFollowBadge" src="@/assets/icons/unfollow.svg" alt="no follow" v-if="showNofollow" data-tooltip="Not a follower">
+
+			<div class="occurrenceCount"
+				ref="occurrenceCount"
+				data-tooltip="NUmber of times this message has been sent"
+				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount}}</div>
 			
 			<span @click="openUserCard()"
 				@mouseenter="hoverNickName($event)"
@@ -61,6 +66,8 @@ import { IRCEventDataList } from '@/utils/IRCEvent';
 import { PubSubTypes } from '@/utils/PubSub';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import { watch } from '@vue/runtime-core';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from './ChatModTools.vue';
@@ -271,11 +278,15 @@ export default class ChatMessage extends Vue {
 		}
 			
 		this.text = this.parseText();
-
+		
 		this.hasMention = store.state.params.appearance.highlightMentions.value as boolean
 			&& store.state.user.login != null
 			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
 		
+		watch(()=>this.messageData.occurrenceCount, async ()=>{
+			await this.$nextTick();
+			gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
+		});
 	}
 
 	/**
@@ -450,6 +461,16 @@ export default class ChatMessage extends Vue {
 					border-radius: 50%;
 				}
 			}
+		}
+
+		.occurrenceCount {
+			display: inline-block;
+			background: @mainColor_warn;
+			padding: .2em .4em;
+			margin-right: 5px;
+			font-weight: bold;
+			border-radius: 10px;
+			color:@mainColor_dark;
 		}
 	}
 

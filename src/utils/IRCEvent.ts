@@ -60,6 +60,7 @@ export namespace IRCEventDataList {
 		showHoverActions?:boolean;
 		lowTrust?:boolean;
 		deleted?:boolean;
+		occurrenceCount?:number;
 		highlightWord?:string;
 		type:"message";
 	}

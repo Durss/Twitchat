@@ -153,6 +153,7 @@ export default createStore({
 				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
 				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg"},
+				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical message (increments a counter on the first occurrence)", id:208}
 			} as {[key:string]:ParameterData},
 			roomStatus: {
 				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
@@ -300,6 +301,19 @@ export default createStore({
 							if(!m.subgiftAdditionalRecipents) m.subgiftAdditionalRecipents = [];
 							m.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
 							m.subgiftAdditionalRecipents.push(m.recipient as string);
+							return;
+						}
+					}
+				}
+
+				if(state.params.features.groupIdenticalMessage.value === true) {
+					const end = Math.max(0, messages.length - 100);
+					for (let i = messages.length-1; i > end; i--) {
+						const mess = messages[i];
+						if(mess.type == "message" && m.message == mess.message) {
+							console.log("FOUND !");
+							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
+							mess.occurrenceCount ++;
 							return;
 						}
 					}
