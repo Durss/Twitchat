@@ -65,12 +65,25 @@ export default class Tooltip extends Vue {
 	 * Opens the tooltip
 	 * @param content
 	 */
-	public show(content:string):void {
+	public async show(content:string):Promise<void> {
 		if(this.message == content && this.opened) return;
 		this.opened = true;
 		this.message = content;
+		
+		await this.$nextTick();
+
 		gsap.killTweensOf(this.$el);
 		gsap.to(this.$el, {duration:.2, opacity:1});
+
+		//check if there are image tags on the tootlip's content.
+		//If so, listen for their load complete event to replace
+		//the tooltip once they're loaded.
+		const images = (this.$refs.content as HTMLDivElement).querySelectorAll("img");
+		(images as any).forEach((img:HTMLImageElement) => {
+			img.onload = () => {
+				this.onMouseMove(this.lastMouseEvent, false);
+			};
+		});
 		
 		if(this.lastMouseEvent) {
 			this.$nextTick().then(()=> {
@@ -171,7 +184,7 @@ export default class Tooltip extends Vue {
 		padding: 4px;
 		border-radius: 5px;
 		background-color: @mainColor_highlight;
-		max-width: 300px;
+		// max-width: 300px;
 		text-align: center;
 		font-size: 14px;
 
