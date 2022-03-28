@@ -16,10 +16,11 @@
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
-				<ParamsAppearence v-if="content=='appearance'" />
+				<ParamsList :category="content" />
+				<!-- <ParamsAppearence v-if="content=='appearance'" />
 				<ParamsFilters v-if="content=='filters'" />
 				<ParamsAccount v-if="content=='account'" />
-				<ParamsFeatures v-if="content=='features'" />
+				<ParamsFeatures v-if="content=='features'" /> -->
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -40,9 +41,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
-import ParamsAppearence from './contents/ParamsAppearance.vue';
-import ParamsFeatures from './contents/ParamsFeatures.vue';
-import ParamsFilters from './contents/ParamsFilters.vue';
+import ParamsList from './contents/ParamsList.vue';
 import ParamItem from './ParamItem.vue';
 
 @Options({
@@ -50,11 +49,9 @@ import ParamItem from './ParamItem.vue';
 	components:{
 		Button,
 		ParamItem,
+		ParamsList,
 		ToggleButton,
-		ParamsFilters,
 		ParamsAccount,
-		ParamsFeatures,
-		ParamsAppearence,
 	}
 })
 export default class Parameters extends Vue {
@@ -171,7 +168,9 @@ export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'features'
 
 	.search{
 		margin:auto;
-		margin-top: 5px;
+		margin-top: 15px;
+		margin-bottom: -10px;
+		z-index: 1;
 	}
 
 	.searchResult {

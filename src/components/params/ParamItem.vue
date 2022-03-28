@@ -168,6 +168,7 @@ export default class ParamItem extends Vue {
 			label {
 				flex-grow: 1;
 				// text-align: right;
+				margin: 0;
 				margin-right: 20px;
 				cursor: pointer;
 			}
