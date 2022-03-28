@@ -37,7 +37,6 @@
 				<span class="badge" v-for="(b,index) in miniBadges"
 					:key="index"
 					:class="b.class"
-					:style="{backgroundColor:b.color}"
 					:data-tooltip="b.label"></span>
 			</span>
 			
@@ -187,19 +186,20 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Displays minimalist badges
 	 */
-	public get miniBadges():{color:string, label:string, class?:string}[] {
-		let badges:{color:string, label:string, class?:string}[] = [];
+	public get miniBadges():{label:string, class?:string}[] {
+		let badges:{label:string, class?:string}[] = [];
 		const message = this.messageData as IRCEventDataList.Message;
 		if(store.state.params.appearance.showBadges.value
 		&& store.state.params.appearance.minimalistBadges.value) {
-			if(message.tags.badges?.predictions?.indexOf("pink")) badges.push({color:"#f50e9b", label:"Prediction", class:"prediction"});
-			if(message.tags.badges?.predictions?.indexOf("blue")) badges.push({color:"#387aff", label:"Prediction", class:"prediction"});
-			if(message.tags.badges?.vip) badges.push({color:"#e00bb9", label:"VIP"});
-			if(message.tags.badges?.subscriber) badges.push({color:"#9147ff", label:"Sub"});
-			if(message.tags.badges?.premium) badges.push({color:"#00a3ff", label:"Prime"});
-			if(message.tags.badges?.moderator) badges.push({color:"#39db00", label:"Moderator"});
-			if(message.tags.badges?.staff) badges.push({color:"#666666", label:"Twitch staff"});
-			if(message.tags.badges?.broadcaster) badges.push({color:"#ff0000", label:"Broadcaster"});
+			if(message.tags.badges?.predictions?.indexOf("pink")) badges.push({label:"Prediction", class:"prediction pink"});
+			if(message.tags.badges?.predictions?.indexOf("blue")) badges.push({label:"Prediction", class:"prediction blue"});
+			if(message.tags.badges?.vip) badges.push({label:"VIP", class:"vip"});
+			if(message.tags.badges?.subscriber) badges.push({label:"Sub", class:"subscriber"});
+			if(message.tags.badges?.premium) badges.push({label:"Prime", class:"premium"});
+			if(message.tags.badges?.moderator) badges.push({label:"Moderator", class:"moderator"});
+			if(message.tags.badges?.staff) badges.push({label:"Twitch staff", class:"staff"});
+			if(message.tags.badges?.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
+			if(message.tags.badges?.partner) badges.push({label:"Partner", class:"partner"});
 			//TODO add parteners
 		}
 		return badges;
@@ -432,8 +432,21 @@ export default class ChatMessage extends Vue {
 			&:last-of-type {
 				margin-right: 5px;
 			}
+
+			&.predictions {
+				&.pink{ background-color: #f50e9b;}
+				&.blue{ background-color: #387aff;}
+			}
+			&.vip{ background-color: #387aff;}
+			&.vip{ background-color: #e00bb9;}
+			&.subscriber{ background-color: #9147ff;}
+			&.premium{ background-color: #00a3ff;}
+			&.moderator{ background-color: #39db00;}
+			&.staff{ background-color: #666666;}
+			&.broadcaster{ background-color: #ff0000;}
+			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
 		}
-	
+
 		.login {
 			cursor: pointer;
 			font-weight: bold;
