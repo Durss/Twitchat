@@ -502,12 +502,13 @@ export default class ChatForm extends Vue {
 					padding: 2px 5px;
 					font-weight: bold;
 					color: @mainColor_dark;
-					background-color: @mainColor_light;
+					background-color: @mainColor_warn;
 				}
 			}
 
 			.button {
 				.clearButton() !important;
+				border-radius: 50%;
 				&:hover {
 					background-color: fade(@mainColor_light, 20%) !important;
 				}
