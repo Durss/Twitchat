@@ -112,7 +112,7 @@
     },
     "resub": {
         "type": "highlight",
-        "channel": "#gotaga",
+        "channel": "#durss",
         "tags": {
             "badge-info": null,
             "badges": {
@@ -158,7 +158,7 @@
     },
     "subgift": {
         "type": "highlight",
-        "channel": "#gotaga",
+        "channel": "#durss",
         "username": "SwizzerJ",
         "methods": {
             "prime": false,
@@ -260,7 +260,7 @@
             "badges-raw": "subscriber/0,premium/1",
             "message-type": "sub"
         },
-        "message": null
+        "message": "Woop wooooooop !"
     },
     "ban_success": {
         "type": "notice",

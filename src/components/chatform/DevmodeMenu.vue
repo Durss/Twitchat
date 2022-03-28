@@ -6,6 +6,7 @@
 			<Button small title="Raid" @click="simulateEvent('raided')" :icon="require('@/assets/icons/bits.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
+			<Button small title="ReSub" @click="simulateEvent('resub')" :icon="require('@/assets/icons/sub.svg')" />
 			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/gift.svg')" />
 			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="require('@/assets/icons/gift.svg')" />
 			<Button small title="Subgift x20" @click="simulateEvent('subgiftx20')" :icon="require('@/assets/icons/gift.svg')" />

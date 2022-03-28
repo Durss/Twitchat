@@ -162,7 +162,7 @@ export default class ChatHighlight extends Vue {
 				}
 				if(this.messageData.tags['msg-param-streak-months']
 				&& this.messageData.tags['msg-param-should-share-streak']) {
-					res += " ("+this.messageData.tags['msg-param-streak-months']+" months streak)";
+					res += " ("+this.messageData.tags['msg-param-cumulative-months']+" months streak)";
 				}
 				break;
 
