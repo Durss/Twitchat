@@ -14,8 +14,8 @@
 		<div class="splitter">
 			<h2 @click="showSuggestions = !showSuggestions"><img src="@/assets/icons/idea_purple.svg" alt="suggestion" class="icon suggestion">Suggestions and issues</h2>
 			<div v-if="showSuggestions">
-				<p>If you have a feature idea or experiencing an issue, please <a href="https://github.com/Durss/Twitchat/issues" target="_blank">create an issue on github</a>.</p>
-				<p>I want this tool to be as good as possible, if anything annoys you when using it, I want to know it!</p>
+				<p>If you have a feature idea or are experiencing an issue, please <a href="https://github.com/Durss/Twitchat/issues" target="_blank">create an issue on github</a>.</p>
+				<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know it</strong>!</p>
 			</div>
 		</div>
 		
