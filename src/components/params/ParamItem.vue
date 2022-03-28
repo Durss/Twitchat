@@ -129,6 +129,11 @@ export default class ParamItem extends Vue {
 	.content {
 		display: flex;
 		flex-direction: row;
+		transition: background-color .1s;
+
+		&:hover {
+			background-color: fade(@mainColor_normal, 10%);
+		}
 
 		.icon {
 			width: 1em;
