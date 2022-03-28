@@ -328,7 +328,7 @@ export default class Button extends Vue {
 		max-height: 20px;
 		height: 20px;
 		margin-right: 10px;
-		vertical-align: middle;
+		vertical-align: text-top;
 	}
 
 	.spinner {

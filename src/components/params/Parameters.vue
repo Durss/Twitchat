@@ -12,7 +12,7 @@
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
-			<div class="search">
+			<div class="search" v-if="content != 'account'">
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
