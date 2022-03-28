@@ -62,7 +62,7 @@ export default class Parameters extends Vue {
 	public content:ParamsContenType = 'features';
 	public prevContent:ParamsContenType = null;
 
-	public showMenu:boolean = true;
+	public showMenu:boolean = false;
 	public filteredParams:ParameterData[] = [];
 
 	public search:string = "";
