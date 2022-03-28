@@ -493,8 +493,8 @@ export default createStore({
 				const c = cat as ParameterCategory;
 				for (const key in state.params[c]) {
 					/* eslint-disable-next-line */
-					const v = (state.params[c] as any)[key].value;
-					Store.set("p:"+key, v);
+					const v = state.params[c][key as ParameterCategory].value;
+					Store.set("p:"+key, v.toString());
 					if(key=="bttvEmotes") {
 						if(v === true) {
 							BTTVUtils.instance.enable();
@@ -639,7 +639,7 @@ export default createStore({
 					if(/^p:/gi.test(key) && k in state.params[c]) {
 						const v:string = props[key] as string;
 						/* eslint-disable-next-line */
-						const pointer = (state.params[c] as any)[k];
+						const pointer = state.params[c][k as ParameterCategory];
 						if(typeof pointer.value === 'boolean') {
 							pointer.value = (v == "true");
 						}
@@ -661,7 +661,7 @@ export default createStore({
 					json = JSON.parse(atob(queryParams));
 					for (const cat in state.params) {
 						//eslint-disable-next-line
-						const values = (state.params as any)[cat];
+						const values = state.params[cat as ParameterCategory];
 						for (const key in values) {
 							const p = values[key] as ParameterData;
 							if(Object.prototype.hasOwnProperty.call(json, p.id as number)) {
@@ -798,7 +798,7 @@ export default createStore({
 			const uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in state.params) {
 				//eslint-disable-next-line
-				const values = (state.params as any)[cat];
+				const values = state.params[cat as ParameterCategory];
 				for (const key in values) {
 					const p = values[key] as ParameterData;
 					if(uniqueIdsCheck[p.id as number] === true) {

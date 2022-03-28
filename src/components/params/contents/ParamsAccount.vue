@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import router from '@/router';
-import store, { ParameterData } from '@/store';
+import store, { ParameterCategory, ParameterData } from '@/store';
 import Store from '@/store/Store';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -80,7 +80,7 @@ export default class ParamsAccount extends Vue {
 		const params:any = {};
 		for (const cat in store.state.params) {
 			//eslint-disable-next-line
-			const values = (store.state.params as any)[cat];
+			const values = store.state.params[cat as ParameterCategory];
 			for (const key in values) {
 				const p = values[key] as ParameterData;
 				if(p.id) {

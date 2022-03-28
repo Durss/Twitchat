@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -113,8 +113,7 @@ export default class Parameters extends Vue {
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
 		for (const categoryID in store.state.params) {
-			//eslint-disable-next-line
-			const category = (store.state.params as any)[categoryID] as {[ley:string]:ParameterData};
+			const category = store.state.params[categoryID as ParameterCategory] as {[ley:string]:ParameterData};
 			for (const prop in category) {
 				const data:ParameterData = category[prop];
 				
