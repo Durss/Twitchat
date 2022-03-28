@@ -28,51 +28,70 @@
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
 
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
 					v-if="$store.state.currentPoll?.id" />
+				</transition>
 
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
 					v-if="$store.state.currentPrediction?.id" />
+				</transition>
 
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/magnet.svg')"
 					bounce
 					v-if="$store.state.trackedUsers.length > 0"
 					data-tooltip="View tracked users"
 					@click="$emit('setCurrentNotification', 'trackedUsers')" />
+				</transition>
 
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/ticket.svg')"
 					bounce
 					v-if="$store.state.raffle.command != null"
 					data-tooltip="Raffle"
 					@click="$emit('setCurrentNotification', 'raffle')" />
+				</transition>
 
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/bingo.svg')"
 					bounce
 					v-if="$store.state.bingo.guessNumber != null"
 					data-tooltip="Bingo"
 					@click="$emit('setCurrentNotification', 'bingo')" />
+				</transition>
 
-				<Button :icon="require('@/assets/icons/whispers.svg')"
-					bounce
-					v-if="whispersAvailable"
-					data-tooltip="Whispers"
-					@click="$emit('setCurrentNotification', 'whispers')" />
-					
+				<transition name="blink">
+				<div class="whispers" v-if="whispersAvailable">
+					<Button :icon="require('@/assets/icons/whispers.svg')"
+						bounce
+						small
+						data-tooltip="Whispers"
+						@click="$emit('setCurrentNotification', 'whispers')" />
+					<div class="count" v-if="$store.state.whispersUnreadCount > 0">{{$store.state.whispersUnreadCount}}</div>
+				</div>
+				</transition>
+
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
 					v-if="$store.state.devmode" />
-				
+				</transition>
+
+				<transition name="blink">
 				<Button
 					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
+				</transition>
 
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
@@ -471,8 +490,41 @@ export default class ChatForm extends Vue {
 				color: #ff0000;
 			}
 
+			.whispers {
+				position: relative;
+				.count {
+					position: absolute;
+					top: 0;
+					right: 0;
+					transform: translate(20%, -50%);
+					border-radius: 20px;
+					font-size: 10px;
+					padding: 2px 5px;
+					font-weight: bold;
+					color: @mainColor_dark;
+					background-color: @mainColor_light;
+				}
+			}
+
 			.button {
 				.clearButton() !important;
+			}
+
+			.blink-enter-active {
+				transition: all 1s;
+			}
+
+			.blink-leave-active {
+				transition: all .25s;
+			}
+			
+			.blink-enter-from {
+				opacity: 1;
+				background: #ffffff !important;
+				transform: scale(1.5);
+			}
+			.blink-leave-to {
+				opacity: 0;
 			}
 
 			.viewCount {

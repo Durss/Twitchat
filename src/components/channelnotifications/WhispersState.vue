@@ -41,6 +41,7 @@ import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -59,6 +60,13 @@ export default class WhispersState extends Vue {
 		let res = ["whispersstate"];
 		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		return res;
+	}
+
+	public mounted():void {
+		store.state.whispersUnreadCount = 0;
+		watch(() => store.state.whispers, () => {
+			store.state.whispersUnreadCount = 0;
+		}, {deep:true})
 	}
 
 	public messageClasses(whisper:IRCEventDataList.Whisper):string[] {
@@ -107,7 +115,6 @@ export default class WhispersState extends Vue {
 	}
 
 	public deleteWhispers(user:string):void {
-		console.log(">>", user);
 		store.dispatch("closeWhispers", user);
 		this.selectedUser = null;
 	}

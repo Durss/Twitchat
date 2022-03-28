@@ -38,6 +38,7 @@ export default createStore({
 		raffle: {} as RaffleData,
 		bingo: {} as BingoData,
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
+		whispersUnreadCount: 0 as number,
 		hypeTrain: {} as HypeTrainStateData,
 		raiding: null as PubSubTypes.RaidInfos|null,
 		realHistorySize: 1000,
@@ -779,6 +780,7 @@ export default createStore({
 					data.timestamp = Date.now();
 					whispers[uid].push(data);
 					state.whispers = whispers;
+					state.whispersUnreadCount ++;
 				}
 			});
 
