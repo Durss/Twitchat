@@ -26,7 +26,6 @@ export default class TwitchCypherPlugin {
 	static get instance():TwitchCypherPlugin {
 		if(!TwitchCypherPlugin._instance) {
 			TwitchCypherPlugin._instance = new TwitchCypherPlugin();
-			TwitchCypherPlugin._instance.initialize();
 		}
 		return TwitchCypherPlugin._instance;
 	}
@@ -42,6 +41,21 @@ export default class TwitchCypherPlugin {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Initializes the plugin
+	 */
+	public initialize():void {
+		let safeChars = this.charsReplacements;
+		safeChars = safeChars.replace(/\[/gi, "\\[");
+		safeChars = safeChars.replace(/\]/gi, "\\]");
+		this.regMatch = new RegExp("["+safeChars+"]", "g");
+		const key = Store.get("cypherKey");
+		if(key){
+			this._cypherKey = key;
+			store.state.cypherKey = key;
+		}
+	}
+
 	/**
 	 * Check if the specified message is an encrypted one
 	 * 
@@ -92,17 +106,6 @@ export default class TwitchCypherPlugin {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-	private initialize():void {
-		let safeChars = this.charsReplacements;
-		safeChars = safeChars.replace(/\[/gi, "\\[");
-		safeChars = safeChars.replace(/\]/gi, "\\]");
-		this.regMatch = new RegExp("["+safeChars+"]", "g");
-		const key = Store.get("cypherKey");
-		if(key){
-			this._cypherKey = key;
-			store.state.cypherKey = key;
-		}
-	}
 
     private getPasswordKey (password:string):Promise<CryptoKey> {
 		return window.crypto.subtle.importKey("raw", this.enc.encode(password), "PBKDF2", false, [

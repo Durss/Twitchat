@@ -508,6 +508,9 @@ export default class ChatForm extends Vue {
 
 			.button {
 				.clearButton() !important;
+				&:hover {
+					background-color: fade(@mainColor_light, 20%) !important;
+				}
 			}
 
 			.blink-enter-active {

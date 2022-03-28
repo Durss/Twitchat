@@ -808,7 +808,9 @@ export default createStore({
 					uniqueIdsCheck[p.id as number] = true;
 				}
 			}
-				
+			
+			TwitchCypherPlugin.instance.initialize();
+
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
 		},
