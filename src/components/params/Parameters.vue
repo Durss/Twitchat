@@ -16,11 +16,7 @@
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
-				<ParamsList :category="content" />
-				<!-- <ParamsAppearence v-if="content=='appearance'" />
-				<ParamsFilters v-if="content=='filters'" />
-				<ParamsAccount v-if="content=='account'" />
-				<ParamsFeatures v-if="content=='features'" /> -->
+				<ParamsList v-if="content" :category="content" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -128,12 +124,13 @@ export default class Parameters extends Vue {
 				if(new RegExp(safeSearch, "gi").test(data.label)) {
 					if(data.parent) {
 						for (const key in category) {
-							if(category[key].id == data.parent) {
+							if(category[key].id == data.parent && IDsDone[category[key].id as number] !== true) {
 								IDsDone[category[key].id as number] = true;
 								this.filteredParams.push(category[key]);
 							}
 						}
 					}else{
+						IDsDone[data.id as number] = true;
 						this.filteredParams.push(data);
 					}
 				}
