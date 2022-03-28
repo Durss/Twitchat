@@ -48,7 +48,7 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():{[key:string]:ParameterData} { return store.state.params.roomStatus; }
+	public get params():{[key:string]:ParameterData} { return store.state.roomStatusParams; }
 
 	public get canCreatePrediction():boolean {
 		return store.state.currentPrediction?.id == undefined && store.state.hasChannelPoints === true;

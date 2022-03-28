@@ -2,7 +2,8 @@
 	<div class="tooltip">
 		<div class="holder"
 		:style="styles"
-		:class="upsideDown? 'upsideDown' : ''" ref="holder"
+		:class="upsideDown? 'upsideDown' : ''"
+		ref="holder"
 		v-show="opened"
 		key="tooltip">
 			<div ref="content" v-html="message"></div>
@@ -72,8 +73,8 @@ export default class Tooltip extends Vue {
 		
 		await this.$nextTick();
 
-		gsap.killTweensOf(this.$el);
-		gsap.to(this.$el, {duration:.2, opacity:1});
+		gsap.killTweensOf(this.$refs.holder as HTMLDivElement);
+		gsap.to(this.$refs.holder as HTMLDivElement, {duration:.2, opacity:1});
 
 		//check if there are image tags on the tootlip's content.
 		//If so, listen for their load complete event to replace
@@ -99,8 +100,8 @@ export default class Tooltip extends Vue {
 		if(!this.opened) return false;
 		this.opened = false;
 		this.message = "";
-		gsap.killTweensOf(this.$el);
-		gsap.to(this.$el, {duration:.2, opacity:0, onComplete:()=>{
+		gsap.killTweensOf(this.$refs.holder as HTMLDivElement);
+		gsap.to(this.$refs.holder as HTMLDivElement, {duration:.2, opacity:0, onComplete:()=>{
 			this.opened = false;
 		}});
 		return true;
@@ -174,10 +175,10 @@ export default class Tooltip extends Vue {
 
 <style scoped lang="less">
 .tooltip{
-	opacity: 0;
 	&>.holder {
-		pointer-events: none;
+		opacity: 0;
 		z-index: 100;
+		pointer-events: none;
 		position: fixed;
 		display: inline;
 		color: #fff;

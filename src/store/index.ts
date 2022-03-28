@@ -154,14 +154,14 @@ export default createStore({
 				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
 				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"}
-			} as {[key:string]:ParameterData},
-			roomStatus: {
-				emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
-				followersOnly:{ type:"toggle", value:false, label:"Followers only", id:301},
-				subsOnly:{ type:"toggle", value:false, label:"Subs only", id:302},
-				slowMode:{ type:"toggle", value:false, label:"Slow mode", id:303}
 			} as {[key:string]:ParameterData}
 		},
+		roomStatusParams: {
+			emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
+			followersOnly:{ type:"toggle", value:false, label:"Followers only", id:301},
+			subsOnly:{ type:"toggle", value:false, label:"Subs only", id:302},
+			slowMode:{ type:"toggle", value:false, label:"Slow mode", id:303}
+		} as {[key:string]:ParameterData},
 		user: {
 			client_id: "",
 			login: "",
@@ -784,10 +784,10 @@ export default createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.ROOMSTATE, (event:IRCEvent) => {
 				const data = event.data as IRCEventDataList.RoomState
-				if(data.tags['emote-only'] != undefined) state.params.roomStatus.emotesOnly.value = data.tags['emote-only'] != false;
-				if(data.tags['subs-only'] != undefined) state.params.roomStatus.subsOnly.value = data.tags['subs-only'] != false;
-				if(data.tags['followers-only'] != undefined) state.params.roomStatus.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
-				if(data.tags.slow != undefined) state.params.roomStatus.slowMode.value = data.tags.slow != false;
+				if(data.tags['emote-only'] != undefined) state.roomStatusParams.emotesOnly.value = data.tags['emote-only'] != false;
+				if(data.tags['subs-only'] != undefined) state.roomStatusParams.subsOnly.value = data.tags['subs-only'] != false;
+				if(data.tags['followers-only'] != undefined) state.roomStatusParams.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
+				if(data.tags.slow != undefined) state.roomStatusParams.slowMode.value = data.tags.slow != false;
 			});
 			
 			state.initComplete = true;
@@ -913,7 +913,7 @@ export default createStore({
 	}
 })
 
-export type ParameterCategory = "appearance" | "filters"| "roomStatus";
+export type ParameterCategory = "appearance" | "filters"| "features";
 
 export interface ParameterData {
 	id?:number;
