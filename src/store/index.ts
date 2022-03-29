@@ -1,3 +1,4 @@
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
@@ -46,6 +47,8 @@ export default createStore({
 		playbackState: null as PubSubTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
+		obsSceneCommands: [] as OBSSceneCommand[],
+		obsPermissions: null as OBSPermissions|null,
 		commands: [
 			{
 				id:"search",
@@ -123,7 +126,7 @@ export default createStore({
 				showBadges: {type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: {type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
-				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg"},
+				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg", longText:true},
 				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
 			} as {[key:string]:ParameterData},
@@ -132,10 +135,10 @@ export default createStore({
 				keepDeletedMessages: {type:"toggle", value:true, label:"Keep deleted messages", id:113},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
-				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg"},
+				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
 				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104, icon:"commands_purple.svg"},
 				ignoreListCommands: {type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
-				blockedCommands: {type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114},
+				blockedCommands: {type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114, longText:true},
 				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
 				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, example:"rewardDetails.png"},
 				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106, icon:"sub_purple.svg"},
@@ -289,6 +292,22 @@ export default createStore({
 			}else{
 				
 				const m = payload as IRCEventDataList.Message;
+
+				for (let i = 0; i < state.obsSceneCommands.length; i++) {
+					const scene = state.obsSceneCommands[i];
+					if(scene.command.trim().toLowerCase() == m.message.trim().toLowerCase()) {
+						if(
+							state.obsPermissions?.mods && m.tags.badges?.moderator ||
+							state.obsPermissions?.vips && m.tags.badges?.vip ||
+							state.obsPermissions?.subs && m.tags.badges?.subscriber ||
+							state.obsPermissions?.all ||
+							m.tags.badges?.broadcaster
+						) {
+							OBSWebsocket.instance.setScene(scene.scene.sceneName);
+						}
+						return;
+					}
+				}
 
 				//If it's a subgift, merge it with potential previous ones
 				if(payload.type == "highlight" && payload.recipient) {
@@ -618,6 +637,17 @@ export default createStore({
 
 		setCommunityBoost(state, value:PubSubTypes.CommunityBoost) { state.communityBoostState = value; },
 
+		setOBSSceneCommands(state, value:OBSSceneCommand[]) {
+			state.obsSceneCommands = value;
+			Store.set("obsConf_scenes", JSON.stringify(value));
+		},
+
+
+		setOBSPermissions(state, value:OBSPermissions) {
+			state.obsPermissions = value;
+			Store.set("obsConf_permissions", JSON.stringify(value));
+		},
+
 	},
 
 
@@ -673,6 +703,25 @@ export default createStore({
 				}catch(error){
 					//ignore
 				}
+			}
+			
+			//Init OBS command params
+			const obsSceneCommands = Store.get("obsConf_scenes");
+			if(obsSceneCommands) {
+				state.obsSceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS permissions
+			const obsPermissions = Store.get("obsConf_permissions");
+			if(obsPermissions) {
+				state.obsPermissions = JSON.parse(obsPermissions);
+			}
+
+			//Init OBS connection
+			const port = Store.get("obsPort");
+			const pass = Store.get("obsPass");
+			if(port && pass) {
+				OBSWebsocket.instance.connect(port, pass);
 			}
 
 			const token = Store.get("oAuthToken");
@@ -912,6 +961,10 @@ export default createStore({
 		setPlaybackState({commit}, value:PubSubTypes.PlaybackInfo) { commit("setPlaybackState", value); },
 
 		setCommunityBoost({commit}, value:PubSubTypes.CommunityBoost) { commit("setCommunityBoost", value); },
+
+		setOBSSceneCommands({commit}, value:OBSSceneCommand[]) { commit("setOBSSceneCommands", value); },
+
+		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
 	},
 	modules: {
 	}
@@ -925,10 +978,26 @@ export interface IParameterCategory {
 	features:{[key:string]:ParameterData};
 }
 
+export interface OBSPermissions {
+	mods:boolean;
+	vips:boolean;
+	subs:boolean;
+	all:boolean;
+}
+
+export interface OBSSceneCommand {
+	scene:{
+		sceneIndex:number
+		sceneName:string
+	}
+	command:string
+}
+
 export interface ParameterData {
 	id?:number;
-	type:"toggle"|"slider"|"number"|"list"|string;
+	type:"toggle"|"slider"|"number"|"text"|"password"|string;
 	value:boolean|number|string;
+	longText?:boolean;
 	label:string;
 	min?:number;
 	max?:number;
@@ -937,6 +1006,7 @@ export interface ParameterData {
 	placeholder?:string;
 	parent?:number;
 	example?:string;
+	storage?:unknown;
 }
 
 export interface RaffleData {

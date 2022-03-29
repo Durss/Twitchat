@@ -5,28 +5,28 @@
 		<div class="users braodcaster" v-if="braodcaster.length > 0">
 			<div class="title">Broadcaster</div>
 			<div class="list">
-				<div class="user" v-for="u in braodcaster" :key="u.id">{{u.login}}</div>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in braodcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users mods" v-if="mods.length > 0">
 			<div class="title">Moderators</div>
 			<div class="list">
-				<div class="user" v-for="u in mods" :key="u.id">{{u.login}}</div>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users vips" v-if="vips.length > 0">
 			<div class="title">VIPs</div>
 			<div class="list">
-				<div class="user" v-for="u in vips" :key="u.id">{{u.login}}</div>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 
 		<div class="users simple" v-if="simple.length > 0">
 			<div class="title">Users</div>
 			<div class="list">
-				<div class="user" v-for="u in simple" :key="u.id">{{u.login}}</div>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 	</div>
@@ -161,6 +161,7 @@ interface UserItem {
 				text-overflow: ellipsis;
 				overflow: hidden;
 				width: 100%;
+				text-transform: capitalize;
 			}
 		}
 	}

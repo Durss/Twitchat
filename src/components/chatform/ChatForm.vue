@@ -474,6 +474,8 @@ export default class ChatForm extends Vue {
 			flex-wrap: wrap;
 			input {
 				min-width: 50px;
+				//These 2 following lines seems stupide AF but they allow 
+				//the input to autosize to it's min length
 				width: 0%;
 				flex-grow: 1;
 				border-top-right-radius: 0;

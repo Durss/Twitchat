@@ -10,14 +10,16 @@
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
+				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
-			<div class="search" v-if="content != 'account'">
+			<div class="search" v-if="isGenericListContent">
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
-				<ParamsList v-if="content && content != 'account'" :category="content" />
+				<ParamsList v-if="content && isGenericListContent" :category="content" />
 				<ParamsAccount v-if="content == 'account'" />
+				<ParamsOBS v-if="content == 'obs'" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -31,6 +33,8 @@
 </template>
 
 <script lang="ts">
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'features' |'obs' | null ;
+
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -39,6 +43,7 @@ import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsList from './contents/ParamsList.vue';
+import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamItem from './ParamItem.vue';
 
 @Options({
@@ -46,11 +51,13 @@ import ParamItem from './ParamItem.vue';
 	components:{
 		Button,
 		ParamItem,
+		ParamsOBS,
 		ParamsList,
 		ToggleButton,
 		ParamsAccount,
 	}
 })
+
 export default class Parameters extends Vue {
 
 	public content:ParamsContenType = 'features';
@@ -60,6 +67,10 @@ export default class Parameters extends Vue {
 	public filteredParams:ParameterData[] = [];
 
 	public search:string = "";
+
+	public get isGenericListContent():boolean {
+		return this.content != "obs" && this.content != "account";
+	}
 
 	public async mounted():Promise<void> {
 		store.dispatch("showParams", false);
@@ -138,8 +149,6 @@ export default class Parameters extends Vue {
 		}
 	}
 }
-
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'features' | null ;
 </script>
 
 <style scoped lang="less">

@@ -9,8 +9,8 @@
 					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
-				<label :for="'toggle'+key" v-if="label" v-html="label" @click="paramData.value = !paramData.value; onChange()"></label>
-				<ToggleButton :id="'toggle'+key" v-model="paramData.value" @update:modelValue="onChange()" />
+				<label :for="'toggle'+key" v-if="label" v-html="label" @click="paramData.value = !paramData.value;"></label>
+				<ToggleButton :id="'toggle'+key" v-model="paramData.value" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -23,15 +23,15 @@
 				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
 			</div>
 			
-			<div v-if="paramData.type == 'text'" class="holder text">
+			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
 				<Button v-if="paramData.example"
 					:icon="require('@/assets/icons/help_purple.svg')"
 					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2"></textarea>
-				<!-- <input :id="'text'+key" type="text" v-model="paramData.value" :placeholder="paramData.placeholder"> -->
+				<textarea v-if="paramData.longText===true" :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2"></textarea>
+				<input v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -104,6 +104,7 @@ export default class ParamItem extends Vue {
 
 	public get classes():string[] {
 		const res = ["paramitem"];
+		if(this.paramData.longText) res.push("longText");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -115,17 +116,24 @@ export default class ParamItem extends Vue {
 	public mounted():void {
 		watch(() => this.paramData.value, () => {
 			store.dispatch('updateParams');
+			this.$emit("change");
 		});
-	}
-
-	public onChange():void {
-		this.$emit("change");
 	}
 }
 </script>
 
 <style scoped lang="less">
 .paramitem{
+	&.longText {
+		.content {
+			.text {
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+			}
+		}
+		}
+
 	.content {
 		display: flex;
 		flex-direction: row;
@@ -161,7 +169,7 @@ export default class ParamItem extends Vue {
 			}
 		}
 		
-		.toggle, .number {
+		.toggle, .number, .text {
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
@@ -178,7 +186,7 @@ export default class ParamItem extends Vue {
 			font-size: .75em;
 			font-style: italic;
 		}
-		.slider, .text {
+		.slider {
 			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
