@@ -294,17 +294,19 @@ export default createStore({
 				const m = payload as IRCEventDataList.Message;
 
 				//check if it's a command to control OBS scene
-				for (let i = 0; i < state.obsSceneCommands.length; i++) {
-					const scene = state.obsSceneCommands[i];
-					if(scene.command.trim().toLowerCase() == m.message.trim().toLowerCase()) {
-						if(
-							state.obsPermissions?.mods && m.tags.badges?.moderator ||
-							state.obsPermissions?.vips && m.tags.badges?.vip ||
-							state.obsPermissions?.subs && m.tags.badges?.subscriber ||
-							state.obsPermissions?.all ||
-							m.tags.badges?.broadcaster
-						) {
-							OBSWebsocket.instance.setScene(scene.scene.sceneName);
+				if(m.type == "message" && m.message) {
+					for (let i = 0; i < state.obsSceneCommands.length; i++) {
+						const scene = state.obsSceneCommands[i];
+						if(scene.command.trim().toLowerCase() == m.message.trim().toLowerCase()) {
+							if(
+								state.obsPermissions?.mods && m.tags.badges?.moderator ||
+								state.obsPermissions?.vips && m.tags.badges?.vip ||
+								state.obsPermissions?.subs && m.tags.badges?.subscriber ||
+								state.obsPermissions?.all ||
+								m.tags.badges?.broadcaster
+							) {
+								OBSWebsocket.instance.setScene(scene.scene.sceneName);
+							}
 						}
 					}
 				}
