@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"core-js": "^3.6.5",
+		"lorem-ipsum": "^2.0.4",
 		"node-fetch": "^2.6.6",
 		"node-static": "^0.7.11",
 		"obs-websocket-js": "^5.0.0-beta.1",
