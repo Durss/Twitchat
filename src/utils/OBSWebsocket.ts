@@ -1,4 +1,5 @@
 import OBSWebSocket from 'obs-websocket-js';
+import { JsonArray } from 'type-fest';
 
 /**
 * Created : 29/03/2022 
@@ -57,11 +58,15 @@ export default class OBSWebsocket {
 		return true;
 	}
 
-	public async setScene(name:string) {
+	public async setScene(name:string):Promise<void> {
 		return await this.obs.call("SetCurrentProgramScene", {sceneName:name});
 	}
 	
-	public async getScenes() {
+	public async getScenes():Promise<{
+		currentProgramSceneName: string;
+		currentPreviewSceneName: string;
+		scenes: JsonArray;
+	}> {
 		return await this.obs.call("GetSceneList");
 	}
 	

@@ -31,7 +31,7 @@
 				<div>OBS Scene</div>
 				<div>Chat command</div>
 			</div>
-			<ParamItem v-for="p in sceneParams" :key="p.label" :paramData="p" @change="onSceneCommandUpdate(p)" class="row"/>
+			<ParamItem v-for="p in sceneParams" :key="p.label" :paramData="p" @change="onSceneCommandUpdate()" class="row"/>
 		</div>
 	</div>
 </template>
@@ -101,12 +101,12 @@ export default class ParamsOBS extends Vue {
 		this.loading = false;
 	}
 
-	public onSceneCommandUpdate(p:ParameterData):void {
+	public onSceneCommandUpdate():void {
 		const params = this.sceneParams.map(v=> {return { scene:v.storage, command:v.value }});
 		store.dispatch("setOBSSceneCommands", params);
 	}
 
-	public onPermissionChange(p:ParameterData):void {
+	public onPermissionChange():void {
 		const params = {
 			mods:this.obsAllowed_mods.value,
 			vips:this.obsAllowed_vips.value,
