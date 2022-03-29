@@ -322,7 +322,7 @@ export default createStore({
 						&& Date.now() - parseInt(m.tags['tmi-sent-ts'] as string) < 5000) {
 							if(!m.subgiftAdditionalRecipents) m.subgiftAdditionalRecipents = [];
 							m.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
-							m.subgiftAdditionalRecipents.push(m.recipient as string);
+							m.subgiftAdditionalRecipents.push(payload.recipient as string);
 							return;
 						}
 					}
