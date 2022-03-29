@@ -34,8 +34,6 @@ export default class OBSWebsocket {
 	* PUBLIC METHODS *
 	******************/
 	public async connect(port:string, pass:string, autoReconnect:boolean = true):Promise<boolean> {
-		console.log("CONNECT", port, pass);
-		
 		clearTimeout(this.reconnectTimeout);
 		this.obs = new OBSWebSocket();
 		try {
