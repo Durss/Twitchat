@@ -131,7 +131,7 @@ export default class CommandHelper extends Vue {
 				break;
 			}
 			case "slowMode": {
-				if(p.value) IRCClient.instance.client.slow(channel, 10);
+				if(p.value) IRCClient.instance.client.slow(channel, 5);
 				else  IRCClient.instance.client.slowoff(channel)
 				break;
 			}
