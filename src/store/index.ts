@@ -293,6 +293,7 @@ export default createStore({
 				
 				const m = payload as IRCEventDataList.Message;
 
+				//check if it's a command to control OBS scene
 				for (let i = 0; i < state.obsSceneCommands.length; i++) {
 					const scene = state.obsSceneCommands[i];
 					if(scene.command.trim().toLowerCase() == m.message.trim().toLowerCase()) {
@@ -305,7 +306,6 @@ export default createStore({
 						) {
 							OBSWebsocket.instance.setScene(scene.scene.sceneName);
 						}
-						return;
 					}
 				}
 
