@@ -16,7 +16,8 @@
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
-				<ParamsList v-if="content" :category="content" />
+				<ParamsList v-if="content && content != 'account'" :category="content" />
+				<ParamsAccount v-if="content == 'account'" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
