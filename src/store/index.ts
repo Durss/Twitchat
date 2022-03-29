@@ -156,7 +156,7 @@ export default createStore({
 				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
 				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"}
 			} as {[key:string]:ParameterData}
-		},
+		} as IParameterCategory,
 		roomStatusParams: {
 			emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
 			followersOnly:{ type:"toggle", value:false, label:"Followers only", id:301},
@@ -918,6 +918,12 @@ export default createStore({
 })
 
 export type ParameterCategory = "appearance" | "filters"| "features";
+
+export interface IParameterCategory {
+	appearance:{[key:string]:ParameterData};
+	filters:{[key:string]:ParameterData};
+	features:{[key:string]:ParameterData};
+}
 
 export interface ParameterData {
 	id?:number;
