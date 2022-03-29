@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -92,7 +92,7 @@ export default class ParamItem extends Vue {
 		const list = store.state.params;
 		const children:ParameterData[] = [];
 		for (const key in list) {
-			const params = (list as {[key:string]:{[key:string]:ParameterData}})[key];
+			const params = list[key as ParameterCategory];
 			for (const key2 in params) {
 				if(params[key2].parent != undefined && params[key2].parent == this.paramData.id) {
 					children.push(params[key2]);
