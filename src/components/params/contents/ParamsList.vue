@@ -25,7 +25,12 @@ export default class ParamsList extends Vue {
 
 	public get params():{[key:string]:ParameterData} {
 		if(!this.category) return {};
-		return store.state.params[this.category];
+		let res:{[key:string]:ParameterData} = {};
+		for (const key in store.state.params[this.category]) {
+			if(store.state.params[this.category][key].parent) continue;
+			res[key] = (store.state.params[this.category] as {[key:string]:ParameterData})[key] as ParameterData;
+		}
+		return res;
 	}
 
 }
