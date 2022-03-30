@@ -8,7 +8,6 @@ import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import { PubSubTypes } from "./PubSub";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
-import { LoremIpsum } from "lorem-ipsum";
 
 /**
 * Created : 19/01/2021 
@@ -20,7 +19,6 @@ export default class IRCClient extends EventDispatcher {
 	private login!:string;
 	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
-	private sendRandomMessages:boolean = true && !Config.IS_PROD;//Enable to send random message perpetually (ex: to test scrolling behavior)
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	private selfTags!:tmi.ChatUserstate;
@@ -127,28 +125,6 @@ export default class IRCClient extends EventDispatcher {
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
 					this.sendNotice("online", "Welcome to the chat room "+channel+"!");
-
-					console.log(channel, this.login);
-					if(channel.substring(1) == this.login && this.sendRandomMessages) {
-						const lorem = new LoremIpsum({
-							sentencesPerParagraph: {
-								max: 8,
-								min: 4
-							},
-							wordsPerSentence: {
-								max: 16,
-								min: 4
-							}
-						});
-						setInterval(()=> {
-							const tags = this.getFakeTags();
-							tags.username = this.login;
-							tags["display-name"] = this.login;
-							tags["user-id"] = store.state.user.user_id;
-							tags.id = this.getFakeGuid();
-							this.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
-						}, 1000)
-					}
 				}
 
 				const index = this.onlineUsers.indexOf(user);
@@ -508,20 +484,20 @@ export default class IRCClient extends EventDispatcher {
 		while(suffix.length < 12) suffix = "0" + suffix;
 		return "00000000-0000-0000-0000-"+suffix;
 	}
-	
-	
-	
-	/*******************
-	* PRIVATE METHODS *
-	*******************/
 
-	private getFakeTags():tmi.ChatUserstate {
+	public getFakeTags():tmi.ChatUserstate {
 		return {
 			info:"this tags prop is a fake one to make things easier for my code",
 			id:this.getFakeGuid(),
 			"tmi-sent-ts": Date.now().toString(),
 		};
 	}
+	
+	
+	
+	/*******************
+	* PRIVATE METHODS *
+	*******************/
 }
 
 //adding props missing from typings
