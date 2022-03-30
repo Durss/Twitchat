@@ -131,6 +131,7 @@ import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
+import { LoremIpsum } from "lorem-ipsum";
 
 @Options({
 	props:{
@@ -175,6 +176,7 @@ export default class ChatForm extends Vue {
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
 	public autoCompleteCommands:boolean = false;
+	public spamInterval:number = 0;
 
 	public get whispersAvailable():boolean {
 		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
@@ -231,6 +233,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public beforeUnmount():void {
+		clearInterval(this.spamInterval);
 	}
 	
 	public openParams():void {
@@ -311,6 +314,36 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = params[0];
 			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
+		}else
+
+		if(cmd == "/spam" && store.state.devmode) {
+			clearInterval(this.spamInterval);
+			const lorem = new LoremIpsum({
+				sentencesPerParagraph: {
+					max: 8,
+					min: 4
+				},
+				wordsPerSentence: {
+					max: 16,
+					min: 4
+				}
+			});
+			this.spamInterval = setInterval(()=> {
+				const tags = IRCClient.instance.getFakeTags();
+				tags.username = store.state.user.login;
+				tags["display-name"] = store.state.user.login;
+				tags["user-id"] = store.state.user.user_id;
+				tags.id = IRCClient.instance.getFakeGuid();
+				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
+			}, 250);
+			this.message = "";
+
+		}else
+
+		if(cmd == "/unspam" && store.state.devmode) {
+			clearInterval(this.spamInterval);
+			this.message = "";
+			
 		}else
 
 		if(cmd == "/cypherreset") {

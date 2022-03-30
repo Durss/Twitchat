@@ -318,11 +318,11 @@ export default createStore({
 						if(m.type != "highlight") continue;
 						//If the message is a subgift from the same user and happened
 						//in the last 5s, merge it.
-						if(m.methods?.plan && m.sender == payload.sender
+						if(m.methods?.plan && m.tags.login == payload.tags.login
 						&& Date.now() - parseInt(m.tags['tmi-sent-ts'] as string) < 5000) {
 							if(!m.subgiftAdditionalRecipents) m.subgiftAdditionalRecipents = [];
 							m.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
-							m.subgiftAdditionalRecipents.push(m.recipient as string);
+							m.subgiftAdditionalRecipents.push(payload.recipient as string);
 							return;
 						}
 					}
