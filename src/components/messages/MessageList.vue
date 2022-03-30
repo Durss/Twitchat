@@ -3,7 +3,7 @@
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
 	@mousewheel="onMouseWheel($event)">
-		<div class="holder" ref="messageHolder">
+		<div class="holder" ref="messageHolder" id="test">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
 			@mouseleave="leaveMessage(m)"
@@ -61,7 +61,7 @@
 			</div>
 		</div>
 
-		<div class="locked" v-if="(lockScroll || pendingMessages.length > 0) && !lightMode">
+		<div class="locked" v-if="(lockScroll || pendingMessages.length > 2) && !lightMode">
 			<div class="label">
 				<p v-if="lockScroll">Chat paused</p>
 				<p v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</p>
@@ -135,7 +135,6 @@ export default class MessageList extends Vue {
 	public conversation:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 	public lightMode:boolean = false;
 	public lockScroll:boolean = false;
-	public catchingUpPendingMessages:boolean = false;
 	public conversationPos:number = 0;
 	public conversationMode:boolean = true;//Used to change title between History/Conversation
 
@@ -167,7 +166,11 @@ export default class MessageList extends Vue {
 		watch(() => store.state.chatMessages, async (value:(IRCEventDataList.Message | IRCEventDataList.Highlight)[]) => {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
-			if(this.lockScroll || this.pendingMessages.length > 0) {
+			const el = this.$refs.messageHolder as HTMLDivElement;
+			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
+			const maxScroll = (el.scrollHeight - h);
+
+			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
 				for (let i = 0; i < store.state.chatMessages.length; i++) {
 					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
 					if(this.idDisplayed[m.tags.id as string] !== true) {
@@ -188,17 +191,6 @@ export default class MessageList extends Vue {
 		}, {
 			// deep:true
 		});
-		
-		// const list = this.$refs.messageHolder as HTMLDivElement;
-		// list.addEventListener("scroll", ()=>{
-		// 	if(this.disposed) return;
-		// 	const h = (this.$el as HTMLDivElement).offsetHeight;
-		// 	const maxScroll = (list.scrollHeight - h);
-		// 	const scrollAtBottom = (maxScroll - list.scrollTop) < 1;
-		// 	if(scrollAtBottom) {
-		// 		this.lockScroll = false;
-		// 	}
-		// });
 
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
 
@@ -221,7 +213,11 @@ export default class MessageList extends Vue {
 
 	public onLeaveList():void {
 		// if(this.catchingUpPendingMessages) return;
-		if(this.pendingMessages.length == 0) {
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
+		const maxScroll = (el.scrollHeight - h);
+
+		if(this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
 			this.lockScroll = false;
 		}
 	}
@@ -268,11 +264,9 @@ export default class MessageList extends Vue {
 			this.lockScroll = false;
 			
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$el as HTMLDivElement).offsetHeight;
+			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
 			const maxScroll = (el.scrollHeight - h);
-			// if(isNaN(maxScroll)) console.log("WTF?? ", el.scrollHeight, h);
 			this.virtualScrollY = maxScroll;
-			this.catchingUpPendingMessages = false;
 		}, 0);
 	}
 
@@ -301,11 +295,11 @@ export default class MessageList extends Vue {
 		}else{
 			//If scrolling down while at the bottom of the list, load next message
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$el as HTMLDivElement).offsetHeight;
+			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
 			const maxScroll = (el.scrollHeight - h);
 			
 			if(maxScroll < 0) {
-				this.showNextPendingMessage();
+				this.showNextPendingMessage(true);
 				return;
 			}
 
@@ -313,7 +307,9 @@ export default class MessageList extends Vue {
 			const lastMessRef = messRefs[messRefs.length-1];
 
 			if((maxScroll - el.scrollTop) <= lastMessRef.offsetHeight) {
-				this.showNextPendingMessage();
+				event.preventDefault();
+				event.stopPropagation();
+				this.showNextPendingMessage(true);
 			}
 		}
 	}
@@ -327,29 +323,36 @@ export default class MessageList extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$el as HTMLDivElement).offsetHeight;
+		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
+
+		const messRefs = this.$refs.message as HTMLDivElement[];
+		const lastMessRef = messRefs[ messRefs.length - 1 ];
+
 		if(!this.lockScroll) {
-			// if(isNaN(maxScroll)) console.log("WTF2?? ", el.scrollHeight, h);
+			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
 
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
-			if(dist > 100) {
-				this.virtualScrollY += 20;
+			if(dist > 10 || this.pendingMessages.length > 0) {
+				//Linear scroll if need to scroll by more than 10px
+				this.virtualScrollY += Math.max(2, this.pendingMessages.length*2);
 			}else{
-				// const ease = Math.max(.1, Math.min(100, dist)/200);
+				//easeout scroll when reaching bottom
 				const ease = .1;
 				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease;
-				// if(isNaN(this.virtualScrollY)) console.log("WTF3?? ", maxScroll);
 			}
-			// if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
+			//Avoid virtual scroll to go beyond bottom
+			if(this.virtualScrollY >= maxScroll-2) {
+				this.virtualScrollY = maxScroll;
+			}
 			el.scrollTop = this.virtualScrollY;
 		}
-		// if(el.scrollTop == 0 || el.scrollHeight ==0 || h == 0) {
-		// 	console.log(el.scrollTop, el.scrollHeight, h, this.virtualScrollY);
-		// }
 
-		if(!this.lockScroll && this.pendingMessages.length > 0 && ++this.frameIndex%12 == 0) {
+		//Show next pending message if at the bottom and scroll isn't locked
+		if(el.scrollTop >= maxScroll
+		&& !this.lockScroll
+		&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
 		}
 		
@@ -358,16 +361,16 @@ export default class MessageList extends Vue {
 	/**
 	 * Get the next pending message and display it to the list
 	 */
-	private showNextPendingMessage():void {
+	private showNextPendingMessage(wheelOrigin:boolean = false):void {
 		if(this.pendingMessages.length == 0) return;
-		this.catchingUpPendingMessages = true;
+		
 		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
 		this.idDisplayed[m.tags.id as string] = true;
 		this.localMessages.push( m );
 		if(this.localMessages.length > this.max) {
 			this.localMessages = this.localMessages.slice(-this.max);
 		}
-		this.scrollToPrevMessage();
+		this.scrollToPrevMessage(wheelOrigin);
 	}
 
 	/**
@@ -375,18 +378,25 @@ export default class MessageList extends Vue {
 	 * Will scroll so the previous message is on the bottom of the list
 	 * so the new message displays smoothly from the bottom of the screen
 	 */
-	private async scrollToPrevMessage():Promise<void> {
+	private async scrollToPrevMessage(wheelOrigin:boolean = false):Promise<void> {
 		await this.$nextTick();
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$el as HTMLDivElement).offsetHeight;
+		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
+		const maxScroll = (el.scrollHeight - h);
+
 		const messRefs = this.$refs.message as HTMLDivElement[];
-		const lastMessRef = messRefs[messRefs.length-2];
+		const lastMessRef = messRefs[ messRefs.length - 1 ];
 		
 		if(lastMessRef) {
-			const add = lastMessRef.offsetTop + lastMessRef.offsetHeight - h;
-			if(!isNaN(add) && h > 0) {
-				// console.log("add : "+add, lastMessRef.offsetTop, lastMessRef.offsetHeight, h);
-				el.scrollTop = this.virtualScrollY;
+			if(wheelOrigin) {
+				//If scrolling down with mouse wheel while scrolling is locked, interpolate
+				//scroll via tween as the renderFrame does nothing while scroll is locked
+				gsap.killTweensOf(el);
+				gsap.to(el, {duration:.35, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
+					this.virtualScrollY = el.scrollTop;
+				}});
+			}else{
+				this.virtualScrollY = maxScroll - lastMessRef.offsetHeight;
 			}
 		}
 
@@ -524,8 +534,10 @@ export default class MessageList extends Vue {
 
 <style scoped lang="less">
 .messagelist{
-	padding: 10px;
+	// padding: 10px;
 	position: relative;
+	display: flex;
+	flex-direction: column;
 
 	&.size_1 {
 		.message{ font-size: 11px; padding: 2px; }
@@ -556,7 +568,7 @@ export default class MessageList extends Vue {
 
 	&.lockScroll {
 		.holder {
-			margin-bottom: 40px;
+			// margin-bottom: 40px;
 		}
 	}
 
@@ -582,11 +594,12 @@ export default class MessageList extends Vue {
 		width: calc(100% - 10px);
 		overflow-y: auto;
 		overflow-x: hidden;
-		position: absolute;
-		bottom: 0;
-		padding: 10px 0;
+		// position: absolute;
+		// bottom: 0;
+		// padding: 10px 0;
+		padding: 0;
 		padding-bottom: 0;
-		margin-bottom: 10px;
+		// margin-bottom: 10px;
 
 		transition: margin-bottom .25s;
 
@@ -641,10 +654,10 @@ export default class MessageList extends Vue {
 
 	.locked {
 		z-index: 1;
-		position: absolute;
-		bottom: 0px;
-		left: 50%;
-		transform: translateX(-50%);
+		// position: absolute;
+		// bottom: 0px;
+		// left: 50%;
+		// transform: translateX(-50%);
 		width: 100%;
 		padding: 0;
 		padding-bottom: 5px;
