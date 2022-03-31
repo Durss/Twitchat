@@ -4,28 +4,25 @@
 		<Button @click="logout()" :icon="require('@/assets/icons/logout.svg')" bounce title="Logout" highlight class="logoutBt" />
 		
 		<div class="splitter">
-			<h2 @click="showObs = !showObs"><img src="@/assets/icons/obs_purple.svg" alt="obs" class="icon">Add chat as an OBS overlay</h2>
-			<div v-if="showObs">
-				<p class="info">Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
+			<ToggleBlock title="Add chat as an OBS overlay" icon="obs_purple" :open="false">
+				<p>Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
 				<input type="text" v-model="obsOverlayURL">
-			</div>
+			</ToggleBlock>
 		</div>
 		
 		<div class="splitter">
-			<h2 @click="showSuggestions = !showSuggestions"><img src="@/assets/icons/idea_purple.svg" alt="suggestion" class="icon suggestion">Suggestions and issues</h2>
-			<div v-if="showSuggestions">
+			<ToggleBlock title="Suggestions and issues" icon="idea_purple" :open="false">
 				<p>If you have a feature idea or are experiencing an issue, please <a href="https://github.com/Durss/Twitchat/issues" target="_blank">create an issue on github</a>.</p>
 				<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know it</strong>!</p>
-			</div>
+			</ToggleBlock>
 		</div>
 		
 		<div class="splitter">
-			<h2 @click="showCredits = !showCredits"><img src="@/assets/icons/info_purple.svg" alt="infos" class="icon">Credits</h2>
-			<div v-if="showCredits">
+			<ToggleBlock title="Credits" icon="info_purple" :open="true">
 				<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
 				<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
-				<p>Put food in my mouth <a href="https://github.com/sponsors/Durss" target="_blank" class="button">🍔👉😮</a></p>
-				<p>
+				<p>Put food in my mouth <a href="https://github.com/sponsors/Durss" target="_blank" class="foodButton">🍔👉😮</a></p>
+				<p class="socials">
 					<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" data-tooltip="Durss puzzle boxes" alt="puzzle boxes"></a>
 					<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" data-tooltip="Multiblindtest" alt="multi blindtest"></a>
 					<a class="link" href="https://www.durss.ninja" target="_blank"><img src="@/assets/img/work.svg" data-tooltip="Portfolio" alt="portfolio"></a>
@@ -34,12 +31,13 @@
 					<a class="link" href="https://tiktok.com/@dursss" target="_blank"><img src="@/assets/img/tiktok.png" data-tooltip="Tiktok" alt="tiktok"></a>
 					<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" data-tooltip="Twitch" alt="twitch"></a>
 				</p>
-			</div>
+			</ToggleBlock>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import router from '@/router';
 import store, { ParameterCategory, ParameterData } from '@/store';
 import Store from '@/store/Store';
@@ -52,6 +50,7 @@ import Button from '../../Button.vue';
 	props:{},
 	components:{
 		Button,
+		ToggleBlock,
 	}
 })
 export default class ParamsAccount extends Vue {
@@ -113,26 +112,7 @@ export default class ParamsAccount extends Vue {
 			margin-top: 20px;
 		}
 
-		h2 {
-			border-bottom: 2px solid @mainColor_normal;
-			// border-left: 3px solid @mainColor_normal;
-			padding-left: 5px;
-			font-size: 20px;
-			cursor: pointer;
-			
-
-			.icon {
-				height: 1.5em;
-				display: block;
-				margin:auto;
-				&.suggestion {
-					height: 2em;
-				}
-			}
-		}
 		p {
-			margin-left: 10px;
-			margin-top: 10px;
 			font-size: .85em;
 			margin-bottom: 5px;
 
@@ -144,9 +124,13 @@ export default class ParamsAccount extends Vue {
 					height: 40px;
 				}
 			}
+
+			&.socials {
+				margin-top: 1em;
+			}
 		}
 
-		.button {
+		.foodButton {
 			background-color: @mainColor_normal;
 			padding: 3px;
 			border-radius: 5px;
