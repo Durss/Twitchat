@@ -326,9 +326,6 @@ export default class MessageList extends Vue {
 		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
 
-		const messRefs = this.$refs.message as HTMLDivElement[];
-		const lastMessRef = messRefs[ messRefs.length - 1 ];
-
 		if(!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
