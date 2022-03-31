@@ -336,6 +336,8 @@ export default class MessageList extends Vue {
 
 
 		const messRefs = this.$refs.message as HTMLDivElement[];
+		if(!messRefs) return;
+		
 		const lastMessRef = messRefs[ messRefs.length - 1 ];
 		const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
 
