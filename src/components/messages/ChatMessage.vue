@@ -47,7 +47,7 @@
 				data-tooltip="Number of times this message has been sent"
 				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
-			<span @click="openUserCard()"
+			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="$emit('mouseleave', $event)"
 				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
