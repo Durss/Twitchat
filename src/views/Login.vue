@@ -7,15 +7,20 @@
 
 		<div class="content">
 			<div class="description" v-if="!authenticating">
-				<b>Twitchat</b> aims to fill gaps from the official Twitch chat for the streamers.
+				<b>Twitchat</b> aims to fill gaps from the official Twitch chat for the streamers
 			</div>
 
 			<div class="infos"
 			v-if="!authenticating"
 			>
-				<b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions to work.
+				<b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions
 				<br>
-				<a v-if="!showPermissions" @click.prevent="showPermissions = !showPermissions" class="toggleBt">► more info ◄</a>
+				<Button small title="More info"
+					class="moreInfoBt"
+					v-if="!showPermissions"
+					@click.prevent="showPermissions = !showPermissions"
+					:icon="require('@/assets/icons/help.svg')"
+				/>
 			</div>
 			
 			<div class="permissions" v-if="!authenticating">
@@ -32,7 +37,13 @@
 				</div>
 			</div>
 
-			<Button class="authorizeBt" type="link" :href="oAuthURL" title="Authorize" v-if="!authenticating" bounce />
+			<Button class="authorizeBt"
+				type="link"
+				:href="oAuthURL"
+				title="Authorize"
+				v-if="!authenticating" bounce
+				:icon="require('@/assets/icons/twitch_white.svg')"
+			/>
 			
 			<div class="loader" v-if="authenticating">
 				<p>Authenticating...</p>
@@ -70,29 +81,29 @@ export default class Login extends Vue {
 
 	public get permissions():string[] {
 		const scopeToInfos:{[key:string]:string} = {
-			"chat:read": "Read chat",
-			"chat:edit": "Write on chat",
-			"channel_editor": "Start raid/host",
+			"chat:read": "Read your chat",
+			"chat:edit": "Write on your chat",
+			"channel_editor": "Start a raid/host",
 			"channel:read:redemptions": "Read redemptions",
 			"channel:moderate": "Perform moderation actions",
 			"channel:manage:polls": "Manage polls",
 			"channel:manage:predictions": "Manage predictions",
 			"channel:read:hype_train": "Read hype train state",
-			"moderation:read": "Get moderation data",
+			"moderation:read": "List your moderators",
 			"moderator:manage:automod": "Manage automoded messages",
 			"bits:read": "Read bits leaderboard",
 			"channel:edit:commercial": "Start an ad",
-			"channel:manage:broadcast": "Manage broadcast infos",
+			"channel:manage:broadcast": "Update your stream info",
 			"channel:manage:redemptions": "Manage rewards",
-			"channel:read:goals": "Read current goals",
-			"channel:read:subscriptions": "Get list of subs",
+			"channel:read:goals": "Read current goals (sub/follow)",
+			"channel:read:subscriptions": "Get list of your subs",
 			"moderator:manage:banned_users": "Manage banned users",
 			"moderator:read:blocked_terms": "Read blocked terms",
 			"moderator:manage:blocked_terms": "Manage blocked terms",
 			"user:read:blocked_users": "Read blocked users",
 			"user:manage:blocked_users": "Manage blocked users",
-			"user:read:follows": "Read follows of a user",
-			"user:read:subscriptions": "Read subs of a user",
+			"user:read:follows": "List your followings",
+			"user:read:subscriptions": "List your subscribers",
 			"whispers:edit": "Send whispers",
 		}
 		return Config.TWITCH_APP_SCOPES.map(v => {
@@ -179,10 +190,12 @@ export default class Login extends Vue {
 			margin-bottom: 20px;
 			min-width: 250px;
 			color: @mainColor_warn;
-			.toggleBt {
-				color: @mainColor_warn;
-				font-weight: bold;
-				// text-decoration: underline;
+			.moreInfoBt {
+				margin-top: 5px;
+				background-color: @mainColor_warn;
+				&:hover {
+					background-color: @mainColor_warn_light;
+				}
 			}
 		}
 
