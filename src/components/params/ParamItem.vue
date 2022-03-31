@@ -45,6 +45,18 @@
 				</label>
 				<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value">
 			</div>
+			
+			<div v-if="paramData.type == 'list'" class="holder list">
+				<Button v-if="paramData.example"
+					:icon="require('@/assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					class="helpBt"
+				/>
+				<label :for="'list'+key">{{paramData.label}}</label>
+				<select v-model="paramData.value" :id="'list'+key">
+					<option v-for="a in paramData.listValues" :key="a" :value="a">{{a}}</option>
+				</select>
+			</div>
 		</div>
 
 		
@@ -169,7 +181,7 @@ export default class ParamItem extends Vue {
 			}
 		}
 		
-		.toggle, .number, .text {
+		.toggle, .number, .text, .list {
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
