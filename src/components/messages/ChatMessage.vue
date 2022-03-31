@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" @click.ctrl="copyJSON()">
+	<div :class="classes" @click.ctrl.stop.capture="copyJSON()">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
 			<p>First time on your channel</p>
@@ -229,6 +229,7 @@ export default class ChatMessage extends Vue {
 		console.log(this.messageData);
 		this.messageData.answers = answersBckp;
 		this.messageData.answerTo = answerToBckp;
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	/**

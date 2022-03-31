@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="!filtered" @click.ctrl="copyJSON()">
+	<div :class="classes" v-show="!filtered" @click.ctrl.stop.capture="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<div class="messageHolder">
@@ -15,7 +15,7 @@
 			<Button v-if="isRaid"
 				small 
 				:icon="require('@/assets/icons/shoutout.svg')"
-				@click="shoutout()"
+				@click.stop="shoutout()"
 				:loading="shoutoutLoading"
 				data-tooltip="Send a shoutout"
 			/>
@@ -28,6 +28,7 @@ import { IRCEventDataList } from '@/utils/IRCEvent';
 import { PubSubTypes } from '@/utils/PubSub';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -243,6 +244,7 @@ export default class ChatHighlight extends Vue {
 	public copyJSON():void {
 		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	public async shoutout():Promise<void> {
