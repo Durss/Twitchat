@@ -26,6 +26,7 @@ export default class UserCard extends Vue {
 				width=350,height=500,left=100,top=100`;
 				url ="https://www.twitch.tv/popout/"+store.state.user.login+"/viewercard/"+this.username;
 				window.open(url, 'profilePage', params);
+				store.dispatch("openUserCard", null);//Reset so we can open the same card again
 			}else{
 				window.open(url, '_bloank');
 			}
