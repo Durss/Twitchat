@@ -313,9 +313,11 @@ export default class MessageList extends Vue {
 			const lastMessRef = messRefs[messRefs.length-1];
 
 			if((maxScroll - el.scrollTop) <= lastMessRef.offsetHeight) {
-				event.preventDefault();
-				event.stopPropagation();
-				this.showNextPendingMessage(true);
+				if(this.pendingMessages.length > 0) {
+					event.preventDefault();
+					event.stopPropagation();
+					this.showNextPendingMessage(true);
+				}
 			}
 		}
 	}
