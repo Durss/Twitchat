@@ -29,7 +29,7 @@ export default class IRCEvent extends Event {
 	
 }
 
-export type ActivityFeedData = IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult;
+export type ActivityFeedData = IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult | IRCEventDataList.Message;
 export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Timeout
 						|  IRCEventDataList.Ban

@@ -25,7 +25,7 @@ export default createStore({
 		userCard: "",
 		searchMessages: "",
 		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight)[],
-		activityFeed: [] as (IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult)[],
+		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchTypes.ModeratorUser[],
 		currentPoll: {} as TwitchTypes.Poll,
 		currentPrediction: {} as TwitchTypes.Prediction,
@@ -159,7 +159,8 @@ export default createStore({
 				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
 				raidHighlightUser: {type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
-				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"}
+				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
+				keepHighlightMyMessages:{ type:"toggle", value:true, label:"Reward \"highlight my message\" pushes messages to activity feed", id:210, icon:"notification_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
@@ -476,8 +477,15 @@ export default createStore({
 
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
-			|| payload.type == "prediction") {
-				state.activityFeed.push(payload);
+			|| payload.type == "prediction"
+			|| (
+				state.params.features.keepHighlightMyMessages.value === true
+				&& payload.type == "message"
+				&& (payload as IRCEventDataList.Message).tags["msg-id"] === "highlighted-message"
+			)) {
+				console.log("ADD TO FEED");
+				console.log(payload);
+				state.activityFeed.push(payload as ActivityFeedData);
 			}
 
 			messages.push( payload as IRCEventDataList.Message|IRCEventDataList.Highlight );

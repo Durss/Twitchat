@@ -6,6 +6,14 @@
 		</div>
 		<div  v-if="messages.length > 0" class="messageList">
 			<div v-for="(m,index) in messages" :key="m.tags.id">
+				<ChatMessage
+					class="message"
+					ref="message"
+					v-if="m.type == 'message'"
+					:messageData="m"
+					:data-index="index"
+					:lightMode="true" />
+
 				<ChatHighlight
 					class="message"
 					ref="message"
@@ -39,6 +47,7 @@ import { ActivityFeedData } from '@/utils/IRCEvent';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ChatHighlight from '../messages/ChatHighlight.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
 import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
@@ -51,6 +60,7 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 		},
 	},
 	components:{
+		ChatMessage,
 		ChatHighlight,
 		ChatPollResult,
 		ChatPredictionResult,
@@ -74,7 +84,7 @@ export default class ActivityFeed extends Vue {
 	
 	public get messages():ActivityFeedData[] {
 		const list = (store.state.activityFeed as ActivityFeedData[])
-		.filter(v => v.type == "highlight" || v.type == "poll" || v.type == "prediction");
+		.filter(v => v.type == "highlight" || v.type == "poll" || v.type == "prediction" || (v.type == "message" && v.tags["msg-id"] === "highlighted-message"));
 
 		const result:ActivityFeedData[] = [];
 		
@@ -86,9 +96,16 @@ export default class ActivityFeed extends Vue {
 		const showRewards = items.indexOf("rewards") > -1;
 		const showPolls = items.indexOf("poll") > -1;
 		const showPredictions = items.indexOf("prediction") > -1;
+
 		
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
+			if(m.type == "message") {
+				console.log("kfodkfldkfkd hehe");
+				result.unshift(m)
+				continue;
+			}
+
 			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|null = null;
 			if(m.type == "poll") {
 				type = "poll";
