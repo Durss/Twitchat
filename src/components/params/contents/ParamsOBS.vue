@@ -35,7 +35,7 @@
 
 		<ToggleBlock class="block scenes"
 		v-if="connected"
-		:open="true"
+		:open="false"
 		icon="microphone_purple"
 		title="OBS microphone">
 			<p class="info">You sometimes forget to unmute your microphone ?<br>Select your microphone source and set commands so your mods can mute or unmute your mic.</p>

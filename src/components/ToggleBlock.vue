@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts">
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 
@@ -41,6 +42,10 @@ export default class ToggleBlock extends Vue {
 
 	public mounted():void {
 		this.showContent = this.open;
+		
+		watch(() => this.open, () => {
+			this.showContent = this.open;
+		})
 	}
 
 	public async toggle():Promise<void> {
