@@ -297,30 +297,34 @@ export default createStore({
 				
 				const m = payload as IRCEventDataList.Message;
 
-				if(m.type == "message" && m.message) {
-					const cmd = m.message.trim().toLowerCase();
-					//check if it's a command to control OBS scene
-					for (let i = 0; i < state.obsSceneCommands.length; i++) {
-						const scene = state.obsSceneCommands[i];
-						if(scene.command.trim().toLowerCase() == cmd) {
-							if(
-								state.obsPermissions?.mods && m.tags.badges?.moderator ||
-								state.obsPermissions?.vips && m.tags.badges?.vip ||
-								state.obsPermissions?.subs && m.tags.badges?.subscriber ||
-								state.obsPermissions?.all ||
-								m.tags.badges?.broadcaster
-							) {
+				if(m.type == "message" && m.message && m.tags.username) {
+					const allowedUsers = state.obsPermissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
+					console.log("USERS", allowedUsers);
+					if(
+						state.obsPermissions?.mods && m.tags.badges?.moderator ||
+						state.obsPermissions?.vips && m.tags.badges?.vip ||
+						state.obsPermissions?.subs && m.tags.badges?.subscriber ||
+						state.obsPermissions?.all ||
+						m.tags.badges?.broadcaster ||
+						allowedUsers?.indexOf(m.tags.username.toLowerCase()) != -1
+					) {
+						console.log("ALLOWED");
+						const cmd = m.message.trim().toLowerCase();
+						//check if it's a command to control OBS scene
+						for (let i = 0; i < state.obsSceneCommands.length; i++) {
+							const scene = state.obsSceneCommands[i];
+							if(scene.command.trim().toLowerCase() == cmd) {
 								OBSWebsocket.instance.setScene(scene.scene.sceneName);
 							}
 						}
-					}
 
-					//Check if it's a command to mute/unmute an audio source
-					if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
-						OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, true);
-					}
-					if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
-						OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, false);
+						//Check if it's a command to mute/unmute an audio source
+						if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
+							OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, true);
+						}
+						if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
+							OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, false);
+						}
 					}
 				}
 
@@ -484,8 +488,6 @@ export default createStore({
 				&& payload.type == "message"
 				&& (payload as IRCEventDataList.Message).tags["msg-id"] === "highlighted-message"
 			)) {
-				console.log("ADD TO FEED");
-				console.log(payload);
 				state.activityFeed.push(payload as ActivityFeedData);
 			}
 
@@ -1019,6 +1021,7 @@ export interface OBSPermissions {
 	vips:boolean;
 	subs:boolean;
 	all:boolean;
+	users:string;
 }
 
 export interface OBSSceneCommand {

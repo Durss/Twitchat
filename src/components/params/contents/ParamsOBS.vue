@@ -114,6 +114,15 @@ export default class ParamsOBS extends Vue {
 			}
 		}
 
+		const storedPermissions = store.state.obsPermissions;
+		if(storedPermissions) {
+			this.obsAllowed_mods.value = storedPermissions.mods;
+			this.obsAllowed_vips.value = storedPermissions.vips;
+			this.obsAllowed_subs.value = storedPermissions.subs;
+			this.obsAllowed_all.value = storedPermissions.all;
+			this.obsAllowed_usernames.value = storedPermissions.users;
+		}
+
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
 	}
@@ -165,6 +174,7 @@ export default class ParamsOBS extends Vue {
 			vips:this.obsAllowed_vips.value,
 			subs:this.obsAllowed_subs.value,
 			all:this.obsAllowed_all.value,
+			users:this.obsAllowed_usernames.value,
 		}
 		store.dispatch("setOBSPermissions", params);
 	}
