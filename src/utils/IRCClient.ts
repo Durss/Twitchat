@@ -18,7 +18,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private login!:string;
 	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	private selfTags!:tmi.ChatUserstate;
@@ -65,7 +65,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["mewstelle"]);
+				channels = channels.concat(["thesushidragon"]);
 			}
 
 			(async ()=> {
@@ -193,11 +193,34 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, msgID, message}));
 			});
 			
-			this.client.on("raided", (channel: string, username: string, viewers: number) => {
+			this.client.on("raided", async (channel: string, username: string, viewers: number) => {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
 				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"highlight", channel, tags, username, viewers};
 				this.sendHighlight({type:"highlight", channel, tags, username, viewers});
+				
+				//If "highlight raider's messages for 5min" option is enabled
+				if(store.state.params.features.raidHighlightUser.value == true) {
+					//Get user ID as the user tracking feature needs it
+					const user = (await TwitchUtils.loadUserInfo(undefined, [username]))[0];
+					const message:IRCEventDataList.Message = {
+						tags:this.getFakeTags(),
+						channel,
+						message:username+" is raiding with a party of "+viewers,
+						self:false,
+						firstMessage:false,
+						type:"message"
+					}
+					message.tags.username = username;
+					message.tags["display-name"] = user.display_name;
+					message.tags["user-id"] = user.id;
+					//Track the user
+					store.dispatch("trackUser", message);
+					//Untrack the user after 5 minutes
+					setTimeout(()=> {
+						store.dispatch("untrackUser", message.tags);
+					}, 5 * 60 * 1000);
+				}
 			});
 			
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {

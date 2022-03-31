@@ -157,6 +157,7 @@ export default createStore({
 				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
 				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
+				raidHighlightUser: {type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
 				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"}
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
@@ -539,8 +540,10 @@ export default createStore({
 			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
 			const index = list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']);
 			if(index == -1) {
+				//Was not tracked, track the user
 				state.trackedUsers.push({user:payload.tags, messages:[payload]});
 			}else{
+				//User was already tracked, untrack her/him
 				list.splice(index,1);
 			}
 		},
