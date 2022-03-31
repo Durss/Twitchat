@@ -3,7 +3,7 @@
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
 	@mousewheel="onMouseWheel($event)">
-		<div class="holder" ref="messageHolder" id="test">
+		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
 			@mouseleave="leaveMessage(m)"
@@ -61,7 +61,7 @@
 			</div>
 		</div>
 
-		<div class="locked" v-if="(lockScroll || pendingMessages.length > 2) && !lightMode">
+		<div class="locked" v-if="(lockScroll) && !lightMode">
 			<div class="label">
 				<p v-if="lockScroll">Chat paused</p>
 				<p v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</p>
@@ -139,7 +139,7 @@ export default class MessageList extends Vue {
 	public conversationMode:boolean = true;//Used to change title between History/Conversation
 
 	private disposed:boolean = false;
-	private frameIndex:number = 0;
+	private holderOffsetY:number = 0;
 	private prevMarkedReadItem:IRCEventDataList.Message | null = null;
 	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
@@ -155,6 +155,12 @@ export default class MessageList extends Vue {
 		res.push("size_"+store.state.params.appearance.defaultSize.value);
 
 		return res;
+	}
+
+	public get holderStyles():{[key:string]:string} {
+		return {
+			transform:"translateY("+this.holderOffsetY+"px)",
+		};
 	}
 
 	public get conversationStyles():unknown {
@@ -326,6 +332,12 @@ export default class MessageList extends Vue {
 		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
 
+
+		const messRefs = this.$refs.message as HTMLDivElement[];
+		const lastMessRef = messRefs[ messRefs.length - 1 ];
+		const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
+
+		let ease = .1;
 		if(!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
@@ -333,10 +345,9 @@ export default class MessageList extends Vue {
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
 			if(dist > 10 || this.pendingMessages.length > 0) {
 				//Linear scroll if need to scroll by more than 10px
-				this.virtualScrollY += Math.max(2, this.pendingMessages.length*2);
+				this.virtualScrollY += Math.max(2, this.pendingMessages.length*4);
 			}else{
 				//easeout scroll when reaching bottom
-				const ease = .1;
 				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease;
 			}
 			//Avoid virtual scroll to go beyond bottom
@@ -344,6 +355,14 @@ export default class MessageList extends Vue {
 				this.virtualScrollY = maxScroll;
 			}
 			el.scrollTop = this.virtualScrollY;
+		}
+		
+		if(bottom < h) {
+			console.log("ok");
+			if(this.holderOffsetY == 0) ease = 1;
+			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease;
+		}else{
+			this.holderOffsetY = 0;
 		}
 
 		//Show next pending message if at the bottom and scroll isn't locked
@@ -389,7 +408,7 @@ export default class MessageList extends Vue {
 				//If scrolling down with mouse wheel while scrolling is locked, interpolate
 				//scroll via tween as the renderFrame does nothing while scroll is locked
 				gsap.killTweensOf(el);
-				gsap.to(el, {duration:.35, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
+				gsap.to(el, {duration:.2, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
 					this.virtualScrollY = el.scrollTop;
 				}});
 			}else{
@@ -531,9 +550,8 @@ export default class MessageList extends Vue {
 
 <style scoped lang="less">
 .messagelist{
-	// padding: 10px;
-	position: relative;
 	display: flex;
+	position: relative;
 	flex-direction: column;
 
 	&.size_1 {
@@ -563,12 +581,6 @@ export default class MessageList extends Vue {
 		}
 	}
 
-	&.lockScroll {
-		.holder {
-			// margin-bottom: 40px;
-		}
-	}
-
 	:deep(.time) {
 		color: fade(#ffffff, 75%);
 		font-size: .8em;
@@ -583,7 +595,6 @@ export default class MessageList extends Vue {
 		font-family: "Inter";
 		color: #fff;
 		padding: 5px;
-		// border-bottom: 1px solid rgba(255, 255, 255, .05);
 	}
 
 	.holder {
@@ -591,12 +602,13 @@ export default class MessageList extends Vue {
 		width: calc(100% - 10px);
 		overflow-y: auto;
 		overflow-x: hidden;
-		// position: absolute;
-		// bottom: 0;
-		// padding: 10px 0;
 		padding: 0;
 		padding-bottom: 0;
-		// margin-bottom: 10px;
+		flex-grow: 1;
+		// display: flex;
+		// flex-direction: column;
+		// justify-content: flex-end;
+		// overflow: auto;
 
 		transition: margin-bottom .25s;
 
@@ -651,10 +663,6 @@ export default class MessageList extends Vue {
 
 	.locked {
 		z-index: 1;
-		// position: absolute;
-		// bottom: 0px;
-		// left: 50%;
-		// transform: translateX(-50%);
 		width: 100%;
 		padding: 0;
 		padding-bottom: 5px;
