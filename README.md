@@ -48,6 +48,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Keep or remove deleted messages
 - [x] See all my followings that are live to raid them easily
 - [x] Supports new boost trains
+- [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 <br>
 
 - [ ] Expose an API to control some stuff remotely(?)
