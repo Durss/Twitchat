@@ -360,7 +360,6 @@ export default class MessageList extends Vue {
 		}
 		
 		if(bottom < h) {
-			console.log("ok");
 			if(this.holderOffsetY == 0) ease = 1;
 			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease;
 		}else{
@@ -600,19 +599,9 @@ export default class MessageList extends Vue {
 	}
 
 	.holder {
-		max-height: 100%;
-		width: calc(100% - 10px);
 		overflow-y: auto;
 		overflow-x: hidden;
-		padding: 0;
-		padding-bottom: 0;
 		flex-grow: 1;
-		// display: flex;
-		// flex-direction: column;
-		// justify-content: flex-end;
-		// overflow: auto;
-
-		transition: margin-bottom .25s;
 
 		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
 		// .subHolder:nth-child(odd) {

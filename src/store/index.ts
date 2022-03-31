@@ -48,6 +48,7 @@ export default createStore({
 		communityBoostState: null as PubSubTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
+		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: null as OBSPermissions|null,
 		commands: [
 			{
@@ -294,11 +295,12 @@ export default createStore({
 				
 				const m = payload as IRCEventDataList.Message;
 
-				//check if it's a command to control OBS scene
 				if(m.type == "message" && m.message) {
+					const cmd = m.message.trim().toLowerCase();
+					//check if it's a command to control OBS scene
 					for (let i = 0; i < state.obsSceneCommands.length; i++) {
 						const scene = state.obsSceneCommands[i];
-						if(scene.command.trim().toLowerCase() == m.message.trim().toLowerCase()) {
+						if(scene.command.trim().toLowerCase() == cmd) {
 							if(
 								state.obsPermissions?.mods && m.tags.badges?.moderator ||
 								state.obsPermissions?.vips && m.tags.badges?.vip ||
@@ -309,6 +311,14 @@ export default createStore({
 								OBSWebsocket.instance.setScene(scene.scene.sceneName);
 							}
 						}
+					}
+
+					//Check if it's a command to mute/unmute an audio source
+					if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
+						OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, true);
+					}
+					if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
+						OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, false);
 					}
 				}
 
@@ -647,6 +657,10 @@ export default createStore({
 			Store.set("obsConf_scenes", JSON.stringify(value));
 		},
 
+		setOBSMuteUnmuteCommands(state, value:OBSMuteUnmuteCommands) {
+			state.obsMuteUnmuteCommands = value;
+			Store.set("obsConf_muteUnmute", JSON.stringify(value));
+		},
 
 		setOBSPermissions(state, value:OBSPermissions) {
 			state.obsPermissions = value;
@@ -714,6 +728,12 @@ export default createStore({
 			const obsSceneCommands = Store.get("obsConf_scenes");
 			if(obsSceneCommands) {
 				state.obsSceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS command params
+			const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
+			if(OBSMuteUnmuteCommandss) {
+				state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
 			}
 			
 			//Init OBS permissions
@@ -969,6 +989,8 @@ export default createStore({
 
 		setOBSSceneCommands({commit}, value:OBSSceneCommand[]) { commit("setOBSSceneCommands", value); },
 
+		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
+
 		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
 	},
 	modules: {
@@ -992,16 +1014,23 @@ export interface OBSPermissions {
 
 export interface OBSSceneCommand {
 	scene:{
-		sceneIndex:number
-		sceneName:string
+		sceneIndex:number;
+		sceneName:string;
 	}
-	command:string
+	command:string;
+}
+
+export interface OBSMuteUnmuteCommands {
+	audioSourceName:string;
+	muteCommand:string;
+	unmuteCommand:string;
 }
 
 export interface ParameterData {
 	id?:number;
-	type:"toggle"|"slider"|"number"|"text"|"password"|string;
-	value:boolean|number|string;
+	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|string;
+	value:boolean|number|string|string;
+	listValues?:string[];
 	longText?:boolean;
 	label:string;
 	min?:number;

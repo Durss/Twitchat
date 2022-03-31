@@ -206,7 +206,7 @@ export default class IRCClient extends EventDispatcher {
 					const message:IRCEventDataList.Message = {
 						tags:this.getFakeTags(),
 						channel,
-						message:username+" is raiding with a party of "+viewers,
+						message:"raiding with a party of "+viewers,
 						self:false,
 						firstMessage:false,
 						type:"message"

@@ -1,5 +1,5 @@
 import OBSWebSocket from 'obs-websocket-js';
-import { JsonArray } from 'type-fest';
+import { JsonArray,JsonObject } from 'type-fest';
 
 /**
 * Created : 29/03/2022 
@@ -70,6 +70,24 @@ export default class OBSWebsocket {
 		return await this.obs.call("GetSceneList");
 	}
 	
+	public async getAudioSources():Promise<{
+		inputs: JsonArray;
+	}> {
+		const kinds = await this.getInputKindList();
+		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
+		return await this.obs.call("GetInputList", {inputKind:audioKind});
+	}
+	
+	public async getInputKindList():Promise<{
+		inputKinds: string[];
+	}> {
+		return await this.obs.call("GetInputKindList");
+	}
+
+	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
+		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
+	}
+	
 	
 	
 	/*******************
@@ -79,3 +97,5 @@ export default class OBSWebsocket {
 		
 	}
 }
+
+export interface OBSAudioSource {inputKind:string, inputName:string, unversionedInputKind:string}
