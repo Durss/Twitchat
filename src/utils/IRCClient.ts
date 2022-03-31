@@ -18,7 +18,7 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private login!:string;
 	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = true && !Config.IS_PROD;//Enable to send fake events and test different displays
+	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	private selfTags!:tmi.ChatUserstate;
@@ -252,10 +252,23 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on('raw_message', (messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }) => {
 				// console.log("################## ON RAW ##################");
 				// console.log(messageCloned);
-				// if (message.command != "PRIVMSG") {
-					// console.log(data.command);
-					// console.log(data);
+				// if (data.command != "PRIVMSG") {
 				switch(data.command) {
+					case "USERNOTICE": {
+						if(((data.tags as tmi.ChatUserstate)["msg-id"] as unknown) === "announcement") {
+							const params = data.params as string[];
+							const tags = data.tags as tmi.ChatUserstate;
+							tags.username = tags.login;
+
+							//That darn TMI parses the "badges" and "badge-info" props right after
+							//dispatching the "raw_message" event. Which fucks up the message display.
+							//Let's wait a frame so the props are parsed and everything works fine! Love it!
+							setTimeout(() => {
+								this.addMessage(params[1], tags, params[0] == this.channel);
+							},0)
+						}
+						break;
+					}
 					case "ROOMSTATE": {
 						if((data.params as string[])[0] == this.channel) {
 							this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
@@ -395,7 +408,8 @@ export default class IRCClient extends EventDispatcher {
 		}
 
 		//Add message
-		let data:IRCEventDataList.Message = {type:"message",
+		let data:IRCEventDataList.Message = {
+												type:"message",
 												message,
 												tags,
 												channel:channel? channel : this.channel,
@@ -426,7 +440,7 @@ export default class IRCClient extends EventDispatcher {
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
 		
-		//Ignore /me messages
+		//Ignore /me messages if requested
 		if(!store.state.params.filters.showSlashMe.value === true && tags["message-type"] == "action") {
 			return;
 		}

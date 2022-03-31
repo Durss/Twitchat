@@ -18,6 +18,11 @@
 			<img src="@/assets/icons/shield.svg">
 			<div class="header"><strong>Suspicious user</strong></div>
 		</div>
+		
+		<div v-if="isAnnouncement" class="announcement">
+			<img src="@/assets/icons/announcement.svg">
+			<div class="header"><strong>Announcement</strong></div>
+		</div>
 
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
@@ -97,6 +102,11 @@ export default class ChatMessage extends Vue {
 	public automodReasons:string = "";
 	public badges:TwitchTypes.Badge[] = [];
 	public hasMention:boolean = false;
+
+	public get isAnnouncement():boolean {
+		const message = this.messageData as IRCEventDataList.Message;
+		return message.tags["msg-id"] == "announcement";
+	}
 	
 	public get showNofollow():boolean{
 		if(store.state.params.appearance.highlightNonFollowers.value === true) {
@@ -112,13 +122,14 @@ export default class ChatMessage extends Vue {
 
 		if(this.automod) res.push("automod");
 		if(this.firstTime) res.push("firstTimeOnChannel");
-		if(this.messageData.deleted) res.push("deleted");
-		if(this.messageData.tags['message-type'] == "action") res.push("slashMe");
-		if(this.messageData.lowTrust) res.push("lowTrust");
-		if(this.messageData.cyphered) res.push("cyphered");
-		if(this.messageData.tags["msg-id"] === "highlighted-message") res.push("highlighted");
+		if(message.deleted) res.push("deleted");
+		if(message.lowTrust) res.push("lowTrust");
+		if(message.cyphered) res.push("cyphered");
 		if(this.showNofollow) res.push("noFollow");
-		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
+		if(message.tags['message-type'] == "action") res.push("slashMe");
+		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
+		if(this.isAnnouncement) res.push("announcement", message.tags["msg-param-color"].toLowerCase());
+		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1) res.push("tracked");
 
 		if(!this.lightMode) {
 			if(this.hasMention) res.push("mention");
@@ -200,7 +211,6 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.staff) badges.push({label:"Twitch staff", class:"staff"});
 			if(message.tags.badges?.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
 			if(message.tags.badges?.partner) badges.push({label:"Partner", class:"partner"});
-			//TODO add parteners
 		}
 		return badges;
 	}
@@ -366,6 +376,7 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
+	padding: .25em;
 
 	&.highlightSubs { background-color: fade(#9147ff, 15%); }
 	&.highlightVips { background-color: fade(#e00bb9, 15%); }
@@ -605,6 +616,46 @@ export default class ChatMessage extends Vue {
 			height: 1em;
 			margin-right: 5px;
 			vertical-align: middle;
+		}
+	}
+
+	&.announcement {
+		border-image-slice: 1;
+		border-left: .6em solid rgba(255, 255, 255, .5);
+		border-right: .6em solid rgba(255, 255, 255, .5);
+		padding: 0;
+		padding-bottom: .25em;
+		background-color: rgba(255, 255, 255, .1);
+
+		.announcement {
+			display: flex;
+			margin: 0;
+			padding: .2em;
+			margin-bottom: .25em;
+			flex-direction: row;
+			justify-content: center;
+			background-color: rgba(255, 255, 255, .1);
+
+			img {
+				height: 1em;
+				margin-right: .5em;
+			}
+
+			.header {
+				color: @mainColor_light;
+			}
+		}
+		&.purple {
+			border-image-source: linear-gradient(#9146ff,#ff75e6);
+		}
+		&.blue {
+			border-image-source: linear-gradient(#00d6d6,#9146ff);;
+		}
+		&.green {
+			border-image-source: linear-gradient(#00db84,#57bee6);
+		}
+		&.orange {
+			border-image-source: linear-gradient(#ffb31a,#e0e000);
 		}
 	}
 }

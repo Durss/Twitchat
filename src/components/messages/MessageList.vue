@@ -558,19 +558,19 @@ export default class MessageList extends Vue {
 	flex-direction: column;
 
 	&.size_1 {
-		.message{ font-size: 11px; padding: 2px; }
+		.message{ font-size: 11px; }
 	}
 	&.size_2 {
-		.message{ font-size: 13px; padding: 2px; }
+		.message{ font-size: 13px; }
 	}
 	&.size_3 {
-		.message{ font-size: 18px; padding: 5px; }
+		.message{ font-size: 18px; }
 	}
 	&.size_4 {
-		.message{ font-size: 24px; padding: 5px; }
+		.message{ font-size: 24px; }
 	}
 	&.size_5 {
-		.message{ font-size: 30px; padding: 10px; }
+		.message{ font-size: 30px; }
 	}
 
 	&.lightMode {
@@ -597,7 +597,6 @@ export default class MessageList extends Vue {
 		overflow: hidden;
 		font-family: "Inter";
 		color: #fff;
-		padding: 5px;
 	}
 
 	.holder {

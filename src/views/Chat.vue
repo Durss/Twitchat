@@ -258,6 +258,7 @@ export default class Chat extends Vue {
 
 			.leftColumn {
 				width: 50%;
+				padding-right: 2px;
 			}
 			
 			.rightColumn {
@@ -318,6 +319,11 @@ export default class Chat extends Vue {
 	&.switchCols {
 		.top {
 			flex-direction: row-reverse;
+		}
+
+		.leftColumn {
+			padding-left: 2px;
+			padding-right: 0;
 		}
 
 		.popin {

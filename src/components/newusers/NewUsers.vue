@@ -362,34 +362,19 @@ export default class NewUsers extends Vue {
 	flex-direction: column;
 
 	&.size_1 {
-		.messageList{
-			font-size: 11px;
-			.message{ padding: 2px; }
-		}
+		.messageList{ font-size: 11px; }
 	}
 	&.size_2 {
-		.messageList{
-			font-size: 13px;
-			.message{ padding: 2px; }
-		}
+		.messageList{ font-size: 13px; }
 	}
 	&.size_3 {
-		.messageList{
-			font-size: 18px;
-			.message{ padding: 5px; }
-		}
+		.messageList{ font-size: 18px; }
 	}
 	&.size_4 {
-		.messageList{
-			font-size: 24px;
-			.message{ padding: 5px; }
-		}
+		.messageList{ font-size: 24px; }
 	}
 	&.size_5 {
-		.messageList{
-			font-size: 30px;
-			.message{ padding: 10px; }
-		}
+		.messageList{ font-size: 30px; }
 	}
 
 	.header {

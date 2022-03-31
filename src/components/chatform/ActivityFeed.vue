@@ -101,7 +101,6 @@ export default class ActivityFeed extends Vue {
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
 			if(m.type == "message") {
-				console.log("kfodkfldkfkd hehe");
 				result.unshift(m)
 				continue;
 			}
@@ -206,19 +205,19 @@ export default class ActivityFeed extends Vue {
 	transform-origin: bottom center;
 
 	&.size_1 {
-		.message{ font-size: 11px; padding: 2px; }
+		.message{ font-size: 11px; }
 	}
 	&.size_2 {
-		.message{ font-size: 13px; padding: 2px; }
+		.message{ font-size: 13px; }
 	}
 	&.size_3 {
-		.message{ font-size: 18px; padding: 5px; }
+		.message{ font-size: 18px; }
 	}
 	&.size_4 {
-		.message{ font-size: 24px; padding: 5px; }
+		.message{ font-size: 24px; }
 	}
 	&.size_5 {
-		.message{ font-size: 30px; padding: 10px; }
+		.message{ font-size: 30px; }
 	}
 
 	&.listMode {

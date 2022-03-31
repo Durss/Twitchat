@@ -1,5 +1,5 @@
 import OBSWebSocket from 'obs-websocket-js';
-import { JsonArray,JsonObject } from 'type-fest';
+import { JsonArray } from 'type-fest';
 
 /**
 * Created : 29/03/2022 

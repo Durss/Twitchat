@@ -385,7 +385,6 @@ export default class ChatForm extends Vue {
 		let localMessage = this.message;
 		if(!carretPos) carretPos = 1;
 		carretPos --;
-		console.log(carretPos);
 
 		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {
@@ -422,7 +421,6 @@ export default class ChatForm extends Vue {
 		if(/\{.*?\}/gi.test(item)) {
 			input.setSelectionRange(item.indexOf("{"), item.indexOf("}"), "forward");
 		}else{
-			console.log("SELECT CARRET", carretPos);
 			input.setSelectionRange(carretPos, carretPos, "forward");
 			input.focus();
 		}

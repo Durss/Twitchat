@@ -110,27 +110,27 @@ export default class MessageSearch extends Vue {
 
 	&.size_1 {
 		.messages {
-			.message{ font-size: 11px; padding: 2px; }
+			.message{ font-size: 11px; }
 		}
 	}
 	&.size_2 {
 		.messages {
-			.message{ font-size: 13px; padding: 2px; }
+			.message{ font-size: 13px; }
 		}
 	}
 	&.size_3 {
 		.messages {
-			.message{ font-size: 18px; padding: 5px; }
+			.message{ font-size: 18px; }
 		}
 	}
 	&.size_4 {
 		.messages {
-			.message{ font-size: 24px; padding: 5px; }
+			.message{ font-size: 24px; }
 		}
 	}
 	&.size_5 {
 		.messages {
-			.message{ font-size: 30px; padding: 10px; }
+			.message{ font-size: 30px; }
 		}
 	}
 
