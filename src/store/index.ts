@@ -299,7 +299,6 @@ export default createStore({
 
 				if(m.type == "message" && m.message && m.tags.username) {
 					const allowedUsers = state.obsPermissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
-					console.log("USERS", allowedUsers);
 					if(
 						state.obsPermissions?.mods && m.tags.badges?.moderator ||
 						state.obsPermissions?.vips && m.tags.badges?.vip ||
@@ -308,7 +307,6 @@ export default createStore({
 						m.tags.badges?.broadcaster ||
 						allowedUsers?.indexOf(m.tags.username.toLowerCase()) != -1
 					) {
-						console.log("ALLOWED");
 						const cmd = m.message.trim().toLowerCase();
 						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
