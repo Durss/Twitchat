@@ -3,7 +3,10 @@
 		<div class="top">
 			<div class="leftColumn">
 				<MessageList ref="messages" class="messages"
+					v-if="!hideChat"
 					:max="$store.state.params.appearance.historySize.value" />
+					
+				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 
 				<transition name="fade">
 					<div class="dimmer" v-if="!splitView && (showDimmer || currentMessageSearch.length > 0)"
@@ -156,7 +159,8 @@ export default class Chat extends Vue {
 	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
 	
-	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }
+	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
+	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -330,6 +334,12 @@ export default class Chat extends Vue {
 				max-width: 50vw;
 				margin: auto;
 			}
+		}
+	}
+
+	.leftColumn {
+		.activityFeed {
+			margin-left: 0;
 		}
 	}
 

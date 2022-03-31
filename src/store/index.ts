@@ -115,6 +115,7 @@ export default createStore({
 			appearance: {
 				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: {type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
+				hideChat: {type:"toggle", value:false, label:"Hide chat (if you want only the activity feed on an OBS dock)", id:18, icon:"nochat_purple.svg"},
 				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 				highlightVips: {type:"toggle", value:true, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
@@ -160,7 +161,7 @@ export default createStore({
 				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
 				raidHighlightUser: {type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
 				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-				keepHighlightMyMessages:{ type:"toggle", value:true, label:"Reward \"highlight my message\" pushes messages to activity feed", id:210, icon:"notification_purple.svg"},
+				keepHighlightMyMessages:{ type:"toggle", value:false, label:"Reward \"highlight my message\" pushes messages to activity feed", id:210, icon:"notification_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
