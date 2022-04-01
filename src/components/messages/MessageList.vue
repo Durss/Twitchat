@@ -212,9 +212,17 @@ export default class MessageList extends Vue {
 		IRCClient.instance.removeEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
 
-	public onHoverList():void {
+	public async onHoverList():Promise<void> {
 		if(this.lightMode || !store.state.params.features.lockAutoScroll.value) return;
+		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
+		if(scrollDown) {
+			await this.$nextTick();
+			const el = this.$refs.messageHolder as HTMLDivElement;
+			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
+			const maxScroll = (el.scrollHeight - h);
+			el.scrollTop = this.virtualScrollY = maxScroll
+		}
 	}
 
 	public onLeaveList():void {
