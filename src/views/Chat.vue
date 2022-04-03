@@ -182,15 +182,17 @@ export default class Chat extends Vue {
 		
 
 		//Auto opens the prediction status if pending for completion
-		watch(() => store.state.currentPrediction, () => {
+		watch(() => store.state.currentPrediction, (newValue, prevValue) => {
 			let prediction = store.state.currentPrediction as TwitchTypes.Prediction;
-			if(prediction && prediction.status == "LOCKED") this.setCurrentNotification("prediction");
+			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
+			if(prediction && prediction.status == "LOCKED" || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
-		watch(() => store.state.currentPoll, () => {
+		watch(() => store.state.currentPoll, (newValue, prevValue) => {
 			let poll = store.state.currentPoll as TwitchTypes.Poll;
-			if(poll && poll.status == "COMPLETED") this.setCurrentNotification("poll");
+			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
+			if(poll && poll.status == "COMPLETED" || isNew) this.setCurrentNotification("poll");
 		});
 
 		//Auto opens the bingo status when created

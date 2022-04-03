@@ -31,8 +31,9 @@ export default class ProgressBar extends Vue {
 	}
 
 	public getStyles():unknown {
+		const percent = Math.min(1, (1-this.percent)) * 100;
 		return {
-			transform: `scaleX(${(1-this.percent) * 100}%)`,
+			transform: `scaleX(${percent}%)`,
 		}
 	}
 

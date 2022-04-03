@@ -97,8 +97,10 @@
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
 					class="viewCount"
 					data-tooltip="Viewer count"
+					@click="censoredViewCount = !censoredViewCount"
 				>
-					<p>{{$store.state.playbackState.viewers}}</p>
+					<p v-if="censoredViewCount">x</p>
+					<p v-if="!censoredViewCount">{{$store.state.playbackState.viewers}}</p>
 					<img src="@/assets/icons/user.svg" alt="viewers">
 				</div>
 
@@ -172,6 +174,7 @@ export default class ChatForm extends Vue {
 	public message:string = "";
 	public error:boolean = false;
 	public sendingMessage:boolean = false;
+	public censoredViewCount:boolean = false;
 	public autoCompleteSearch:string = "";
 	public autoCompleteEmotes:boolean = false;
 	public autoCompleteUsers:boolean = false;
