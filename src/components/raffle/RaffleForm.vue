@@ -49,7 +49,7 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class RaffleForm extends Vue {
 
-	public command:ParameterData = {type:"list", value:"", label:"Command", placeholder:"!raffle"};
+	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
 	public maxUsers:ParameterData = {label:"Max users count", value:0, type:"number", min:0, max:999999999};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
