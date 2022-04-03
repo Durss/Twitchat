@@ -18,7 +18,7 @@ export default class TwitchUtils {
 	public static emoteCache:TwitchTypes.Emote[] = [];
 	public static rewardsCache:TwitchTypes.Reward[] = [];
 
-	public static get oAuthURL():string {
+	public static getOAuthURL(csrfToken:string):string {
 		const path = router.resolve({name:"oauth"}).href;
 		const redirect = encodeURIComponent( document.location.origin+path );
 		const scopes = encodeURIComponent( Config.TWITCH_APP_SCOPES.join(" ") );
@@ -28,7 +28,8 @@ export default class TwitchUtils {
 		url += "&redirect_uri="+redirect;
 		url += "&response_type=code";
 		url += "&scope="+scopes;
-		url += "&state=";
+		url += "&state="+csrfToken;
+		url += "&force_verify=true";
 		return url;
 	}
 	

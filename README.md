@@ -67,6 +67,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 	"client_id": "",
 	"client_secret": "",
 	"redirect_uri": "http://localhost:8080/oauth",
+	"csrf_key": "",
 	"scopes": [
 		"chat:read",
 		"chat:edit",
@@ -84,6 +85,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
+Write anything in the `csrf_key` field, it will be used to secure twitch authentication from CSRF attacks.\
 Configure the redirect URI of the twitch application with your localhost and/or production URI.\
 Set it as the `redirect_uri` value of the credentials.\
 The `redirect uri` must end with `/oauth`, example :

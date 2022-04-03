@@ -6,6 +6,7 @@ const fileServer = new statik.Server('./dist');
 const http = require('http');
 const UrlParser = require('url');
 const fetch = require('node-fetch');
+const jwt = require('jsonwebtoken');
 
 console.log("=============");
 console.log("Server stated");
@@ -40,6 +41,11 @@ http.createServer((request, response) => {
 			//Generate token from auth code
 			}else if(request.url.indexOf("api/gettoken") > -1) {
 				generateToken(request, response);
+				return;
+			
+			//Generate token from auth code
+			}else if(request.url.indexOf("api/CSRFToken") > -1) {
+				CSRFToken(request, response);
 				return;
 			
 			//Generate token from auth code
@@ -89,17 +95,57 @@ async function generateToken(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
 	
 	let url = "https://id.twitch.tv/oauth2/token";
-    url += "?client_id="+credentials.client_id;
-    url += "&client_secret="+credentials.client_secret;
-    url += "&code="+params.code;
-    url += "&grant_type=authorization_code";
-    url += "&redirect_uri="+credentials.redirect_uri;
+	url += "?client_id="+credentials.client_id;
+	url += "&client_secret="+credentials.client_secret;
+	url += "&code="+params.code;
+	url += "&grant_type=authorization_code";
+	url += "&redirect_uri="+credentials.redirect_uri;
 	
 	let res = await fetch(url, {method:"POST"});
 	let json = await res.json();
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify(json));
+}
+
+/**
+ * Generates/verifies a CSRF token to secure twitch authentication
+ * 
+ * @param {*} request 
+ * @param {*} response 
+ */
+async function CSRFToken(request, response) {
+	if(request.method == "GET") {
+		//Generate a token
+		const token = jwt.sign({date:Date.now()}, credentials.csrf_key);
+		response.writeHead(200, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({token}));
+		return;
+
+	}else if(request.method == "POST") {
+		//Verifies a CSRF token
+		const params = UrlParser.parse(request.url, true).query;
+		const result = jwt.verify(params.token, credentials.csrf_key);
+		if(result) {
+			//Token valid only for 5 minutes
+			if(result.date > Date.now() - 5*60*1000) {
+				response.writeHead(200, {'Content-Type': 'application/json'});
+				response.end(JSON.stringify({success:true}));
+			}else{
+				//Token expired
+				response.writeHead(200, {'Content-Type': 'application/json'});
+				response.end(JSON.stringify({success:false, message:"CSRF token expired"}));
+			}
+		}else{
+			//Invalid token
+			response.writeHead(200, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false, message:"Invalid CSRF token"}));
+		}
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:false, message:"Unsupported method "+request.method}));
 }
 
 /**
@@ -112,10 +158,10 @@ async function refreshToken(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
 	
 	let url = "https://id.twitch.tv/oauth2/token";
-    url += "?client_id="+credentials.client_id;
-    url += "&client_secret="+credentials.client_secret;
-    url += "&refresh_token="+params.token;
-    url += "&grant_type=refresh_token";
+	url += "?client_id="+credentials.client_id;
+	url += "&client_secret="+credentials.client_secret;
+	url += "&refresh_token="+params.token;
+	url += "&grant_type=refresh_token";
 	
 	let res = await fetch(url, {method:"POST"});
 	let json = await res.json();

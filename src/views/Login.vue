@@ -41,7 +41,10 @@
 				type="link"
 				:href="oAuthURL"
 				title="Authorize"
-				v-if="!authenticating" bounce
+				v-if="!authenticating"
+				bounce
+				:loading="generatingCSRF"
+				:data-tooltip="generatingCSRF? 'Generating CSRF token...' : ''"
 				:icon="require('@/assets/icons/twitch_white.svg')"
 			/>
 			
@@ -76,8 +79,10 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Login extends Vue {
 
+	public generatingCSRF:boolean = false;
 	public authenticating:boolean = false;
 	public showPermissions:boolean = false;
+	public oAuthURL:string = "";
 
 	public get permissions():string[] {
 		const scopeToInfos:{[key:string]:string} = {
@@ -112,31 +117,38 @@ export default class Login extends Vue {
 		});
 	}
 
-	public get oAuthURL():string {
-		return TwitchUtils.oAuthURL;
-	}
-
-	public mounted():void {
-
+	public async mounted():Promise<void> {
 		if(this.$route.name == "oauth") {
 			this.authenticating = true;
 			const code = Utils.getQueryParameterByName("code");
-			// let state = Utils.getQueryParameterByName("state");
-			// let error = Utils.getQueryParameterByName("error");
+			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				store.dispatch("authenticate", {code, cb:(success:boolean)=> {
+				const csrfRes = await fetch(Config.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
+				const csrf = await csrfRes.json();
+				if(!csrf.success) {
+					store.state.alert = csrf.message;
 					this.authenticating = false;
-					if(success) {
-						this.$router.push({name:"chat"});
-					}else{
-						store.state.alert = "Invalid credentials";
+				}else{
+					store.dispatch("authenticate", {code, csrf, cb:(success:boolean)=> {
 						this.authenticating = false;
-					}
-				}});
+						if(success) {
+							this.$router.push({name:"chat"});
+						}else{
+							store.state.alert = "Invalid credentials";
+							this.authenticating = false;
+						}
+					}});
+				}
 			}else{
 				store.state.alert = "You refused access to the Twitch application.";
 				this.authenticating = false;
 			}
+		}else{
+			this.generatingCSRF = true;
+			const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
+			const json = await res.json();
+			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
+			this.generatingCSRF = false;
 		}
 
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
