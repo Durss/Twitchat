@@ -7,7 +7,7 @@
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
 			@mouseleave="leaveMessage(m)"
-			@click="toggleMarkRead(m)">
+			@click="toggleMarkRead(m, $event)">
 				<ChatMessage
 					v-if="m.type == 'message'"
 					class="message"
@@ -55,8 +55,7 @@
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
 						v-if="m.showHoverActions && !lightMode"
-						:messageData="m"
-						@toggleMarkRead="toggleMarkRead(m)" />
+						:messageData="m" />
 				</transition>
 			</div>
 		</div>
@@ -545,7 +544,9 @@ export default class MessageList extends Vue {
 	/**
 	 * Called on a message is clicked
 	 */
-	public toggleMarkRead(m:IRCEventDataList.Message):void {
+	public toggleMarkRead(m:IRCEventDataList.Message, event:MouseEvent):void {
+		const target = event.target as HTMLElement;
+		if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
 		if(store.state.params.features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {
