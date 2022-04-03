@@ -72,9 +72,11 @@ http.createServer((request, response) => {
 		}else{
 			fileServer.serve(request, response, (err, result) => {
 				if (err) {
-					console.error(
-						"Error serving " + request.url + " - " + err.message
-					);
+					if(request.url.toLowerCase().indexOf("oauth") == -1) {
+						console.error(
+							"Error serving " + request.url + " - " + err.message
+						);
+					}
 					fileServer.serveFile(
 						'/index.html', 200, {}, request, response
 					);
