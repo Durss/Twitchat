@@ -146,7 +146,7 @@ export default class ChannelNotifications extends Vue {
 			display: flex;
 			flex-direction: column;
 			width: 100%;
-			max-height: calc(100vh - 100px);
+			max-height: 50vh;//calc(100vh - 100px);
 			overflow-y: auto;
 			margin-bottom: 0;
 			z-index: 1;

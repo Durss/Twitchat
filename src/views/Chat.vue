@@ -7,20 +7,6 @@
 					:max="$store.state.params.appearance.historySize.value" />
 					
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
-
-				<transition name="fade">
-					<div class="dimmer" v-if="!splitView && (showDimmer || currentMessageSearch.length > 0)"
-						@click="currentNotificationContent=currentMessageSearch=''"
-					></div>
-				</transition>
-
-				<ChannelNotifications
-					v-if="!splitView"
-					:currentContent="currentNotificationContent"
-					@showDimmer="showDimmer=true"
-					@hideDimmer="showDimmer=false"
-					@close="currentNotificationContent=''"
-				/>
 			</div>
 
 			<div class="rightColumn" v-if="splitView">
@@ -30,12 +16,16 @@
 
 				<ChannelNotifications
 					:currentContent="currentNotificationContent"
-					@showDimmer="showDimmer=true"
-					@hideDimmer="showDimmer=false"
 					@close="currentNotificationContent=''"
 				/>
 			</div>
 		</div>
+
+		<ChannelNotifications
+			v-if="!splitView"
+			:currentContent="currentNotificationContent"
+			@close="currentNotificationContent=''"
+		/>
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
@@ -147,7 +137,6 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Chat extends Vue {
 
-	public showDimmer:boolean = false;
 	public showFeed:boolean = false;
 	public showEmotes:boolean = false;
 	public showRewards:boolean = false;
@@ -377,8 +366,7 @@ export default class Chat extends Vue {
 			flex-direction: column;
 
 			.messages {
-				width: 100%;
-				height: 100%;
+				flex-grow: 1;
 			}
 
 			.dimmer {

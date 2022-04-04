@@ -46,11 +46,7 @@
 					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
 					:predictionData="m" />
 
-				<div class="markRead"
-					v-if="!lightMode && m.markedAsRead"></div>
-				<!-- <img class="markRead" src="@/assets/icons/markRead.svg"
-					v-if="!lightMode && m.markedAsRead"
-					data-tooltip="Read flag"> -->
+				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
@@ -345,8 +341,10 @@ export default class MessageList extends Vue {
 		const messRefs = this.$refs.message as HTMLDivElement[];
 		if(!messRefs) return;
 		
-		const lastMessRef = messRefs[ messRefs.length - 1 ];
-		const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
+		// const lastMessRef = messRefs[ messRefs.length - 1 ];
+		// const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
+		const lastMess = el.children[el.children.length-1] as HTMLDivElement;
+		const bottom = lastMess.offsetTop + lastMess.offsetHeight;
 
 		let ease = .1;
 		if(!this.lockScroll) {
@@ -356,7 +354,7 @@ export default class MessageList extends Vue {
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
 			if(dist > 10 || this.pendingMessages.length > 0) {
 				//Linear scroll if need to scroll by more than 10px
-				this.virtualScrollY += Math.max(2, this.pendingMessages.length*4);
+				this.virtualScrollY += Math.max(5, this.pendingMessages.length*4);
 			}else{
 				//easeout scroll when reaching bottom
 				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease;
@@ -369,8 +367,12 @@ export default class MessageList extends Vue {
 		}
 		
 		if(bottom < h) {
+			//If messages height is smaller than the holder height, move the holder to the bottom
 			if(this.holderOffsetY == 0) ease = 1;
 			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease;
+			if(Math.abs(h - bottom - this.holderOffsetY) < 2) {
+				this.holderOffsetY = h - bottom;
+			}
 		}else{
 			this.holderOffsetY = 0;
 		}
@@ -476,6 +478,7 @@ export default class MessageList extends Vue {
 				const mess = store.state.chatMessages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
 				if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
 					messageList.push(mess);
+					if(messageList.length > 100) break;//Limit to 100 for perf reasons
 				}
 			}
 			this.conversation = messageList;
@@ -491,17 +494,9 @@ export default class MessageList extends Vue {
 	 */
 	private openConversationHolder(event:MouseEvent):void {
 		clearTimeout(this.closeConvTimeout);
-
-		let el = event.target as HTMLDivElement;
-		var top = 0;
-		do {
-			top += el.offsetTop  || 0;
-			el = el.offsetParent as HTMLDivElement;
-		} while(el);
-
 		const mainHolder = this.$refs.messageHolder as HTMLDivElement;
 		const holder = this.$refs.conversationHolder as HTMLDivElement;
-		this.conversationPos = Math.max(0, top - holder.offsetHeight - mainHolder.scrollTop);
+		this.conversationPos = Math.max(0, event.clientY - holder.offsetHeight);
 		
 		const messholder = this.$refs.conversationMessages as HTMLDivElement;
 		messholder.scrollTop = messholder.scrollHeight;
@@ -520,7 +515,7 @@ export default class MessageList extends Vue {
 		this.closeConvTimeout = setTimeout(()=>{
 			this.conversation = [];
 			const mainHolder = this.$refs.messageHolder as HTMLDivElement;
-			gsap.to(mainHolder, {opacity:1, clearProps:true, duration:.25});
+			gsap.to(mainHolder, {opacity:1, duration:.25});
 		}, 0);
 	}
 
@@ -565,6 +560,7 @@ export default class MessageList extends Vue {
 	display: flex;
 	position: relative;
 	flex-direction: column;
+	max-height: 100%;
 
 	&.size_1 {
 		.message{ font-size: 11px; }
@@ -618,16 +614,9 @@ export default class MessageList extends Vue {
 			// background-color: rgba(255, 255, 255, .05);
 		// }
 		.subHolder {
-			display: flex;
-			flex-direction: row;
 			position: relative;
-
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
-			}
-
-			.message {
-				flex-grow: 1;
 			}
 			.markRead {
 				width: 100%;
@@ -638,27 +627,27 @@ export default class MessageList extends Vue {
 				bottom: 0;
 				pointer-events: none;
 			}
-		}
 
-		.hoverActions {
-			position: absolute;
-			right: 0;
-			top: 50%;
-			transform:translateY(-50%);
-		}
+			.hoverActions {
+				position: absolute;
+				right: 0;
+				top: 50%;
+				transform:translateY(-50%);
 
-		.slide-enter-active {
-			transition: all 0.2s;
-			transform: translate(0%, -50%);
-		}
+				&.slide-enter-active {
+					transition: all 0.2s;
+					transform: translate(0%, -50%);
+				}
 
-		.slide-leave-active {
-			transition: all 0.2s;
-		}
-		
-		.slide-enter-from,
-		.slide-leave-to {
-			transform: translate(100%, -50%);
+				&.slide-leave-active {
+					transition: all 0.2s;
+				}
+				
+				&.slide-enter-from,
+				&.slide-leave-to {
+					transform: translate(100%, -50%);
+				}
+			}
 		}
 	}
 
@@ -728,6 +717,7 @@ export default class MessageList extends Vue {
 		background-color: @mainColor_dark;
 		padding: 10px;
 		left: 0;
+		top: 0;
 		width: 100%;
 		max-width: 100%;
 		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
