@@ -81,7 +81,10 @@ export default class MessageSearch extends Vue {
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i] as IRCEventDataList.Message;
 			if(m.type != "message") continue;
-			if(new RegExp(this.search, "gim").test(m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, ""))) {
+			//Remove any HTML tag to avoid wrong search results
+			const text = m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+			if(new RegExp(this.search, "gim").test(text)
+			|| m.tags['display-name']?.toLowerCase() == this.search.toLowerCase()) {
 				m.highlightWord = this.search;
 				result.push(m);
 			}
@@ -99,7 +102,7 @@ export default class MessageSearch extends Vue {
 <style scoped lang="less">
 .messagesearch{
 	min-height: 70px;
-	max-height: 50vh;
+	max-height: 10vh;
 	position: relative;
 	display: flex;
 	flex-direction: column;
