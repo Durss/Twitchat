@@ -158,12 +158,14 @@ export default class ChatHighlight extends Vue {
 					res = "<strong>"+this.messageData.username+"</strong> subscribed at Tier "+value;
 					this.icon = require('@/assets/icons/sub.svg');
 				}
-				if(this.messageData.months) {
+
+				if(typeof this.messageData.tags["msg-param-cumulative-months"] === "string") {
+					res += " for "+this.messageData.tags["msg-param-cumulative-months"] +" months";
+				} else if(this.messageData.months) {
 					res += " for "+this.messageData.months+" months";
 				}
-				if(this.messageData.tags['msg-param-streak-months']
-				&& this.messageData.tags['msg-param-should-share-streak']) {
-					res += " ("+this.messageData.tags['msg-param-cumulative-months']+" months streak)";
+				if(typeof this.messageData.tags['msg-param-streak-months'] === "string") {
+					res += " ("+this.messageData.tags['msg-param-streak-months']+" months streak)";
 				}
 				break;
 
