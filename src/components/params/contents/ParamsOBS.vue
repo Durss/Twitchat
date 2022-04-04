@@ -13,7 +13,7 @@
 			<ParamItem :paramData="obsPass_conf" class="row"/>
 			<Button title="connect" @click="connect()" class="connectBt" v-if="!connected" :loading="loading" />
 			<transition name="fade">
-				<div v-if="connectError" @click="connectError = false" class="error">Unable to connect with OBS. Double check the port and password and make sure you installed <a href="https://github.com/obsproject/obs-websocket/releases">OBS-websocket plugin (v5)</a></div>
+				<div v-if="connectError" @click="connectError = false" class="error">Unable to connect with OBS. Double check the port and password and make sure you installed <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-websocket plugin (v5)</a></div>
 			</transition>
 			<transition name="fade">
 				<div v-if="connectSuccess" @click="connectSuccess = false" class="success">Connected with OBS</div>

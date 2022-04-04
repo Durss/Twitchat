@@ -298,7 +298,7 @@ export default class ChatHighlight extends Vue {
 		.icon {
 			width: 1.4em;
 			height: 1.4em;
-			margin: 0 .5em 0 0;
+			margin: 0 .5em;
 		}
 
 		.messageHolder {
@@ -335,11 +335,10 @@ export default class ChatHighlight extends Vue {
 	.icon {
 		height: 40px;
 		width: 40px;
+		display: block;
 		margin-bottom: 10px;
 		margin-right: 10px;
-		display: block;
-		margin: auto;
-		margin-bottom: 10px;
+		margin-left: 10px;
 	}
 
 	.messageHolder {

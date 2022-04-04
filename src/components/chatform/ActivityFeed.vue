@@ -2,8 +2,12 @@
 	<div :class="classes">
 		<div class="head">
 			<h1 v-if="!listMode">Activity feed</h1>
-			<ActivityFeedFilters v-model="filters" class="filters" />
 		</div>
+
+		<div v-if="messages.length == 0" class="noActivity">- No activity yet -</div>
+
+		<ActivityFeedFilters v-model="filters" class="filters" />
+		
 		<div  v-if="messages.length > 0" class="messageList">
 			<div v-for="(m,index) in messages" :key="m.tags.id">
 				<ChatMessage
@@ -35,8 +39,6 @@
 					:predictionData="m" />
 			</div>
 		</div>
-
-		<div v-if="messages.length == 0" class="noActivity">- No activity yet -</div>
 	</div>
 </template>
 
@@ -169,15 +171,13 @@ export default class ActivityFeed extends Vue {
 	private open():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.2, scaleX:0, delay:.1, clearProps:"scaleX", ease:"back.out"});
-		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+		gsap.from(ref, {duration:.2, scaleY:0, clearProps:"scaleY", ease:"back.out(5)"});
 	}
 
 	private close():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
-		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY, scaleX", ease:"back.in", onComplete:() => {
+		gsap.to(ref, {duration:.2, scaleY:0, clearProps:"scaleY, scaleX", ease:"back.in(5)", onComplete:() => {
 			this.$emit("close");
 		}});
 	}
@@ -203,6 +203,7 @@ export default class ActivityFeed extends Vue {
 	left: auto;
 	margin-left: auto;
 	transform-origin: bottom center;
+	position: relative;
 
 	&.size_1 {
 		.message{ font-size: 11px; }
@@ -244,19 +245,18 @@ export default class ActivityFeed extends Vue {
 	}
 
 	.head {
-		position: relative;
 		h1 {
 			color: @mainColor_light;
 			align-self: center;
 			text-align: center;
 			margin-bottom: 10px;
 		}
+	}
 
-		.filters {
-			position: absolute;
-			right: 0;
-			top: 0;
-		}
+	.filters {
+		position: absolute;
+		right: 0;
+		top: 0;
 	}
 
 	.noActivity {
