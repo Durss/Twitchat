@@ -440,7 +440,6 @@ export default class NewUsers extends Vue {
 			overflow: hidden;
 			font-family: "Inter";
 			color: #fff;
-			padding: 5px;
 			background-color: fade(#ffffff, 5%);
 			margin-bottom: 5px;
 

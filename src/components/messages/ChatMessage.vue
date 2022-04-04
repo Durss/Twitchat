@@ -128,8 +128,11 @@ export default class ChatMessage extends Vue {
 		if(this.showNofollow) res.push("noFollow");
 		if(message.tags['message-type'] == "action") res.push("slashMe");
 		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
-		if(this.isAnnouncement) res.push("announcement", message.tags["msg-param-color"].toLowerCase());
 		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1) res.push("tracked");
+		if(this.isAnnouncement) {
+			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
+			res.push("announcement", color);
+		}
 
 		if(!this.lightMode) {
 			if(this.hasMention) res.push("mention");
@@ -377,10 +380,11 @@ export default class ChatMessage extends Vue {
 <style scoped lang="less">
 .chatmessage{
 	padding: .25em;
+	margin-bottom: 1px;
 
-	&.highlightSubs { background-color: fade(#9147ff, 15%); }
-	&.highlightVips { background-color: fade(#e00bb9, 15%); }
-	&.highlightMods { background-color: fade(#39db00, 15%); }
+	&.highlightSubs { background-color: fade(#9147ff, 7%); }
+	&.highlightVips { background-color: fade(#e00bb9, 7%); }
+	&.highlightMods { background-color: fade(#39db00, 7%); }
 	&.highlighted { 
 		.message {
 			padding: 0 .25em;
