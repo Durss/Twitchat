@@ -19,6 +19,7 @@ export default class UserCard extends Vue {
 	public mounted():void {
 		watch(() => store.state.userCard, () => {
 			this.username = store.state.userCard;
+			if(this.username == null) return;
 
 			let url = "https://www.twitch.tv/"+this.username;
 			if(store.state.user?.login) {
@@ -28,7 +29,7 @@ export default class UserCard extends Vue {
 				window.open(url, 'profilePage', params);
 				store.dispatch("openUserCard", null);//Reset so we can open the same card again
 			}else{
-				window.open(url, '_bloank');
+				window.open(url, '_blank');
 			}
 		});
 	}
