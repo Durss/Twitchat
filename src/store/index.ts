@@ -89,6 +89,12 @@ export default createStore({
 				needChannelPoints:true,
 			},
 			{
+				id:"announce",
+				cmd:"/announce {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
 				id:"vip",
 				cmd:"/vip {user}",
 				details:"Give VIP status to a user",
