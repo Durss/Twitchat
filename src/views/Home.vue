@@ -19,6 +19,15 @@
 				class="loginBt"
 				:icon="require('@/assets/icons/twitch.svg')"
 			/>
+
+			<Button :icon="require('@/assets/icons/discord.svg')"
+				title="Join Discord"
+				href="https://discord.gg/xFVBprgRvg"
+				target="_blank"
+				type="link"
+				class="discordBt"
+				big
+			/>
 			
 			<div class="features">
 				<!-- <dir class="title">Features</dir> -->
@@ -195,6 +204,17 @@ export default class Home extends Vue {
 			margin: 0 0 2em 0;
 			border-radius: 50px;
 			font-weight: bold;
+		}
+
+		.discordBt {
+			margin: 0 auto 2em auto;
+			border-radius: 50px;
+			font-weight: bold;
+			display: block;
+			width: min-content;
+			:deep(.icon) {
+				vertical-align: bottom;
+			}
 		}
 
 		&>.description {

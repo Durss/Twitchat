@@ -12,7 +12,8 @@
 		
 		<div class="splitter">
 			<ToggleBlock title="Suggestions and issues" icon="idea_purple" :open="false">
-				<p>If you have a feature idea or are experiencing an issue, please <a href="https://github.com/Durss/Twitchat/issues" target="_blank">create an issue on github</a>.</p>
+				<p>If you have a feature idea or are experiencing an issue:</p>
+				<Button :icon="require('@/assets/icons/discord.svg')" title="Join us on Discord" href="https://discord.gg/xFVBprgRvg" target="_blank" type="link" class="discordBt" />
 				<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know it</strong>!</p>
 			</ToggleBlock>
 		</div>
@@ -137,6 +138,10 @@ export default class ParamsAccount extends Vue {
 			&:hover {
 				background-color: @mainColor_normal_light;
 			}
+		}
+
+		.discordBt {
+			margin: .5em 0;
 		}
 	}
 }
