@@ -3,13 +3,9 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 648.6 527" style="enable-background:new 0 0 648.6 527;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#9147FF;}
-	.st1{opacity:0.1;fill:#9147FF;}
-	.st2{opacity:0.2;fill:#9147FF;}
+	.st0{opacity:0.2;fill:#9147FF;enable-background:new    ;}
+	.st1{fill:#9147FF;}
 </style>
-<path class="st0" d="M129.7,527L129.7,527C58.1,527,0,468.9,0,397.3V129.7C0,58.1,58.1,0,129.7,0h0V527z"/>
-<rect x="129.7" class="st1" width="129.7" height="527"/>
-<rect x="259.5" class="st2" width="129.7" height="527"/>
-<rect x="389.2" class="st1" width="129.7" height="527"/>
-<rect x="518.9" class="st2" width="129.7" height="527"/>
+<rect x="129.7" class="st0" width="518.9" height="527"/>
+<rect class="st1" width="129.7" height="527"/>
 </svg>

@@ -19,7 +19,7 @@
 			<div class="header"><strong>Suspicious user</strong></div>
 		</div>
 		
-		<div v-if="isAnnouncement" class="announcement">
+		<div v-if="isAnnouncement" class="announcementHolder">
 			<img src="@/assets/icons/announcement.svg">
 			<div class="header"><strong>Announcement</strong></div>
 		</div>
@@ -121,10 +121,11 @@ export default class ChatMessage extends Vue {
 
 	public get deletedMessage():string {
 		if(this.messageData.deletedData) {
-			return "(deleted by "+this.messageData.deletedData.created_by+")";
-		}else{
-			return "";
+			return "<deleted by "+this.messageData.deletedData.created_by+">";
+		}else if(this.messageData.deleted){
+			return "<message deleted>";
 		}
+		return "";
 	}
 
 	public get classes():string[] {
@@ -435,8 +436,13 @@ export default class ChatMessage extends Vue {
 		// background-color: @c1;
 		@s1:5px;
 		@s2:10px;
-		background-image: repeating-linear-gradient(90deg, @c1, @c1 @s1, @c2 @s1, @c2 @s2);
-		border-left: 5px solid @mainColor_warn_extralight;
+		// background-image: repeating-linear-gradient(90deg, @c1, @c1 @s1, @c2 @s1, @c2 @s2);
+		// border-left: 5px solid @mainColor_warn_extralight;
+		
+		border-image-slice: 1;
+		border-left: .6em solid rgba(255, 255, 255, .5);
+		background-color: rgba(255, 255, 255, .1);
+
 	}
 
 	.infos {
@@ -653,7 +659,7 @@ export default class ChatMessage extends Vue {
 		padding-bottom: .25em;
 		background-color: rgba(255, 255, 255, .1);
 
-		.announcement {
+		.announcementHolder {
 			display: flex;
 			margin: 0;
 			padding: .2em;

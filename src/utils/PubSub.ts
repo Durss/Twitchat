@@ -64,6 +64,7 @@ export default class PubSub {
 				"ads."+store.state.user.user_id,
 				"video-playback-by-id."+store.state.user.user_id,
 				"community-boost-events-v1."+store.state.user.user_id,
+				"ad-property-refresh."+store.state.user.user_id,
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,

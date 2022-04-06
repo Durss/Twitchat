@@ -2,7 +2,7 @@
 	<div class="paramsobs">
 		<div class="head">
 			<p>Allow your mods basic control over your OBS</p>
-			<p class="install">In order to work, this needs <a href="https://github.com/obsproject/obs-websocket/releases">OBS-websocket plugin (v5)</a> to be installed.</p>
+			<p class="install">In order to work, this needs <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-websocket plugin (v5)</a> to be installed.</p>
 		</div>
 
 		<ToggleBlock class="block conf"
