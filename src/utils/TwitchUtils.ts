@@ -238,8 +238,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Replaces emotes by image tags on the message
-		*/
+	 * Replaces emotes by image tags on the message
+	 */
 	public static async parseCheermotes(message:string, channel_id:string):Promise<string> {
 		let emotes:TwitchTypes.CheermoteSet[];
 		try {
@@ -277,11 +277,11 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Gets user infos by their ID.
-		* 
-		* @param logins 
-		* @returns 
-		*/
+	 * Gets user infos by their ID.
+	 * 
+	 * @param logins 
+	 * @returns 
+	 */
 	public static async loadChannelInfo(uids:string[]):Promise<TwitchTypes.ChannelInfo[]> {
 	
 		let channels:TwitchTypes.ChannelInfo[] = [];
@@ -305,11 +305,11 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Gets user infos by their ID.
-		* 
-		* @param logins 
-		* @returns 
-		*/
+	 * Gets user infos by their ID.
+	 * 
+	 * @param logins 
+	 * @returns 
+	 */
 	public static async loadUserInfo(ids?:string[], logins?:string[]):Promise<TwitchTypes.UserInfo[]> {
 		let items:string[] | undefined = ids? ids : logins;
 		if(items == undefined) return [];
@@ -337,11 +337,11 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Gets latest stream's info.
-		* 
-		* @param logins 
-		* @returns 
-		*/
+	 * Gets latest stream's info.
+	 * 
+	 * @param logins 
+	 * @returns 
+	 */
 	public static async loadCurrentStreamInfo(ids?:string[], logins?:string[]):Promise<TwitchTypes.StreamInfo[]> {
 		let items:string[] | undefined = ids? ids : logins;
 		if(items == undefined) return [];
@@ -369,8 +369,8 @@ export default class TwitchUtils {
 	}
 	
 	/***
-		* Allow or reject an automoded message
-		*/
+	 * Allow or reject an automoded message
+	 */
 	public static async modMessage(accept:boolean, messageId:string):Promise<boolean> {
 		const options = {
 			method:"POST",
@@ -390,8 +390,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get the cheermote list of a channel
-		*/
+	 * Get the cheermote list of a channel
+	 */
 	public static async loadCheermoteList(uid:string):Promise<TwitchTypes.CheermoteSet[]> {
 		if(this.cheermoteCache[uid]) return this.cheermoteCache[uid];
 		
@@ -410,8 +410,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Create a poll
-		*/
+	 * Create a poll
+	 */
 	public static async createPoll(question:string, answers:string[], duration:number, bitsPerVote:number = 0, pointsPerVote:number = 0):Promise<TwitchTypes.Poll[]> {
 		const options = {
 			method:"POST",
@@ -444,8 +444,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get a list of the latest polls
-		*/
+	 * Get a list of the latest polls
+	 */
 	public static async getPolls():Promise<TwitchTypes.Poll[]> {
 		const options = {
 			method:"GET",
@@ -465,8 +465,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Ends a poll
-		*/
+	 * Ends a poll
+	 */
 	public static async endPoll(pollId:string):Promise<TwitchTypes.Poll[]> {
 		const options = {
 			method:"PATCH",
@@ -494,8 +494,8 @@ export default class TwitchUtils {
 	
 
 	/**
-		* Create a prediction
-		*/
+	 * Create a prediction
+	 */
 	public static async createPrediction(question:string, answers:string[], duration:number):Promise<TwitchTypes.Prediction[]> {
 		const options = {
 			method:"POST",
@@ -524,8 +524,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get a list of the latest predictions
-		*/
+	 * Get a list of the latest predictions
+	 */
 	public static async getPredictions():Promise<TwitchTypes.Prediction[]> {
 		const options = {
 			method:"GET",
@@ -545,8 +545,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Ends a prediction
-		*/
+	 * Ends a prediction
+	 */
 	public static async endPrediction(pollId:string, winId:string, cancel:boolean = false):Promise<TwitchTypes.Prediction[]> {
 		const options = {
 			method:"PATCH",
@@ -572,8 +572,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get the latest hype train info
-		*/
+	 * Get the latest hype train info
+	 */
 	public static async getHypeTrains():Promise<TwitchTypes.HypeTrain[]> {
 		const options = {
 			method:"GET",
@@ -592,8 +592,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get the emotes list
-		*/
+	 * Get the emotes list
+	 */
 	public static async getEmotes():Promise<TwitchTypes.Emote[]> {
 		while(this.emoteCache.length == 0) {
 			await Utils.promisedTimeout(100);
@@ -602,8 +602,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get the emotes list
-		*/
+	 * Get the emotes list
+	 */
 	public static async loadEmoteSets(sets:string[]):Promise<TwitchTypes.Emote[]> {
 		if(this.emoteCache.length > 0) return this.emoteCache;
 		const options = {
@@ -637,8 +637,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get the rewards list
-		*/
+	 * Get the rewards list
+	 */
 	public static async loadRewards():Promise<TwitchTypes.Reward[]> {
 		if(this.rewardsCache.length > 0) return this.rewardsCache;
 		const options = {
@@ -662,8 +662,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-	* Get the reward redemptions list
-	*/
+	 * Get the reward redemptions list
+	 */
 	public static async loadRedemptions():Promise<TwitchTypes.RewardRedemption[]> {
 		const options = {
 			method:"GET",
@@ -685,10 +685,10 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Lists all available rewards
-		* 
-		* @returns
-		*/
+	 * Lists all available rewards
+	 * 
+	 * @returns
+	 */
 	public static async setRewardEnabled(id:string, enabled:boolean):Promise<void> {
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
@@ -705,10 +705,10 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Executes a shoutout
-		* 
-		* @param username 
-		*/
+	 * Executes a shoutout
+	 * 
+	 * @param username 
+	 */
 	public static async shoutout(username:string):Promise<void> {
 		//Make a shoutout
 		username = username.trim().replace(/^@/gi, "");
@@ -728,8 +728,8 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Get the moderators list of a channel
-		*/
+	 * Get the moderators list of a channel
+	 */
 	public static async getModerators():Promise<TwitchTypes.ModeratorUser[]> {
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
@@ -755,8 +755,8 @@ export default class TwitchUtils {
 	
 
 	/**
-		* Get all the active streams that the current user is following
-		*/
+	 * Get all the active streams that the current user is following
+	 */
 	public static async getActiveFollowedStreams():Promise<TwitchTypes.StreamInfo[]> {
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
@@ -794,10 +794,10 @@ export default class TwitchUtils {
 	}
 
 	/**
-		* Gets if the specified user is following the channel
-		* 
-		* @param uid user ID list
-		*/
+	 * Gets if the specified user is following the channel
+	 * 
+	 * @param uid user ID list
+	 */
 	public static async getFollowState(uid:string, channelId?:string):Promise<TwitchTypes.Following> {
 		if(!channelId) channelId = store.state.user.user_id;
 		const headers = {
@@ -811,6 +811,32 @@ export default class TwitchUtils {
 		});
 		const json:{data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
 		return json.data[0];
+	}
+
+	/**
+	 * Gets if the specified user is following the channel
+	 * 
+	 * @param uid user ID list
+	 */
+	public static async startCommercial(duration:number):Promise<TwitchTypes.Commercial> {
+		// if(duration != 30 && duration != 60 && duration != 90 && duration != 120 && duration != 150 && duration != 180) {
+		// 	throw("Invalid commercial duration, must be 30, 60, 90, 120, 150 or 180");
+		// }
+		const options = {
+			method:"POST",
+			headers: {
+				'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+				'Client-Id': this.client_id,
+				'Content-Type': "application/json",
+			},
+		}
+		const res = await fetch(Config.TWITCH_API_PATH+"channels/commercial?broadcaster_id="+store.state.user.user_id+"&length="+duration, options);
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
+			return json.data[0];
+		}
 	}
 }
 
@@ -1111,5 +1137,11 @@ export namespace TwitchTypes {
 		to_id: string;
 		to_name: string;
 		followed_at: string;
+	}
+	
+	export interface Commercial {
+		length: number;
+		message: string;
+		retry_after: number;
 	}
 }

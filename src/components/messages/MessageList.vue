@@ -615,6 +615,9 @@ export default class MessageList extends Vue {
 		// }
 		.subHolder {
 			position: relative;
+			&:last-child {
+				padding-bottom: 5px;
+			}
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
 			}

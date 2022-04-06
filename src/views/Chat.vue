@@ -34,6 +34,7 @@
 				@raffle="currentModal = 'raffle'"
 				@bingo="currentModal = 'bingo'"
 				@liveStreams="currentModal = 'liveStreams'"
+				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showFeed="showFeed" @update:showFeed="v => showFeed = v"
@@ -65,6 +66,7 @@
 			@raffle="currentModal = 'raffle'"
 			@bingo="currentModal = 'bingo'"
 			@liveStreams="currentModal = 'liveStreams'"
+			@ad="startAd"
 			@clear="clearChat()"
 			@close="showCommands = false"
 		/>
@@ -108,7 +110,8 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import store, { BingoData, RaffleData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 
@@ -203,6 +206,23 @@ export default class Chat extends Vue {
 
 	public clearChat():void {
 		IRCClient.instance.client.clear(IRCClient.instance.channel);
+	}
+
+	public startAd(duration:number):void {
+		if(isNaN(duration)) duration = 30;
+		Utils.confirm("Start a commercial?", "The commercial will last "+duration+"s").then(async () => {
+			try {
+				const res = await TwitchUtils.startCommercial(duration);
+				if(res.length > 0) {
+					store.dispatch("setCommercialEnd", Date.now() + res.length * 1000);
+				}
+			}catch(error) {
+				const e = (error as unknown) as {error:string, message:string, status:number}
+				console.log(error);
+				IRCClient.instance.sendNotice("commercial", e.message);
+				// store.state.alert = "An unknown error occured when starting commercial"
+			}
+		}).catch(()=>{});
 	}
 
 	public onResize():void {

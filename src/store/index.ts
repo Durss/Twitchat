@@ -1,8 +1,8 @@
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
@@ -24,13 +24,14 @@ export default createStore({
 		tooltip: "",
 		userCard: "",
 		searchMessages: "",
+		cypherKey: "",
+		cypherEnabled: false,
+		commercialEnd: 0,//Date.now() + 120000,
 		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight)[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchTypes.ModeratorUser[],
 		currentPoll: {} as TwitchTypes.Poll,
 		currentPrediction: {} as TwitchTypes.Prediction,
-		cypherKey: '',
-		cypherEnabled: false,
 		tmiUserState: {} as UserNoticeState,
 		userEmotesCache: {} as {user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[],
 		emotesCache: [] as TwitchTypes.Emote[],
@@ -92,6 +93,12 @@ export default createStore({
 				id:"announce",
 				cmd:"/announce {message}",
 				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"commercial",
+				cmd:"/commercial {duration}",
+				details:"Starts an ad. Duration: 30, 60, 90, 120, 150 or 180",
 				needChannelPoints:false,
 			},
 			{
@@ -499,13 +506,14 @@ export default createStore({
 			state.chatMessages = messages;
 		},
 		
-		delChatMessage(state, messageId:string) { 
+		delChatMessage(state, data:{messageId:string, deleteData:PubSubTypes.DeletedMessage}) { 
 			const keepDeletedMessages = state.params.filters.keepDeletedMessages.value;
 			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
-				if(messageId == list[i].tags.id) {
+				if(data.messageId == list[i].tags.id) {
 					if(keepDeletedMessages === true && !list[i].automod) {
 						list[i].deleted = true;
+						list[i].deletedData = data.deleteData;
 					}else{
 						list.splice(i, 1);
 					}
@@ -682,6 +690,8 @@ export default createStore({
 			Store.set("obsConf_permissions", JSON.stringify(value));
 		},
 
+		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
+
 	},
 
 
@@ -845,7 +855,10 @@ export default createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, (event:IRCEvent) => {
-				this.dispatch("delChatMessage", (event.data as IRCEventDataList.MessageDeleted).tags['target-msg-id']);
+				const data = {
+					messageId:(event.data as IRCEventDataList.MessageDeleted).tags['target-msg-id']
+				}
+				this.dispatch("delChatMessage", data);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
@@ -922,7 +935,7 @@ export default createStore({
 		
 		addChatMessage({commit}, payload) { commit("addChatMessage", payload); },
 		
-		delChatMessage({commit}, messageId) { commit("delChatMessage", messageId); },
+		delChatMessage({commit}, data) { commit("delChatMessage", data); },
 
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 
@@ -1007,6 +1020,16 @@ export default createStore({
 		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
 
 		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
+
+		setCommercialEnd({commit}, date:number) {
+			commit("setCommercialEnd", date);
+			if(date === 0) {
+				IRCClient.instance.sendNotice("commercial", "Commercial break complete");
+			}else{
+				const duration = Math.floor((date - Date.now())/1000)
+				IRCClient.instance.sendNotice("commercial", "A commercial just started for "+duration+" seconds");
+			}
+		},
 	},
 	modules: {
 	}

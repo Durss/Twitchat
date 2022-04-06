@@ -6,6 +6,14 @@
 		<Button small @click="$emit('bingo'); close();" :icon="require('@/assets/icons/bingo.svg')" title="Create bingo" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
+		<div class="commercial">
+			<Button small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce />
+			<Button small @click="$emit('ad', 60); close();" title="60s" bounce />
+			<Button small @click="$emit('ad', 90); close();" title="90s" bounce />
+			<Button small @click="$emit('ad', 120); close();" title="120s" bounce />
+			<Button small @click="$emit('ad', 180); close();" title="180s" bounce />
+		</div>
+
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
 		</div>
@@ -40,7 +48,7 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:["close","poll","pred","clear","raffle","bingo","liveStreams"]
+	emits:["close","poll","pred","clear","raffle","bingo","liveStreams","ad"]
 })
 export default class CommandHelper extends Vue {
 	
@@ -150,13 +158,21 @@ export default class CommandHelper extends Vue {
 	.window();
 	
 	&>*:not(:last-child) {
-		margin-bottom: 5px;
+		margin-bottom: .25em;
 	}
 	.button {
 		:deep(img) {
 			max-width: 20px;
 		}
 	}
+
+	.commercial {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		margin-bottom: .5em;
+	}
+
 	.raid {
 		display: flex;
 		flex-direction: column;
@@ -192,6 +208,26 @@ export default class CommandHelper extends Vue {
 			color: @mainColor_normal;
 			&:hover {
 				color: @mainColor_normal_light;
+			}
+		}
+	}
+}
+
+@media only screen and (max-width: 285px) {
+	.commandhelper {
+		.commercial {
+			.button:nth-last-child(1) {
+				display: none;
+			}
+		}
+	}
+}
+
+@media only screen and (max-width: 240px) {
+	.commandhelper {
+		.commercial {
+			.button:nth-last-child(2) {
+				display: none;
 			}
 		}
 	}

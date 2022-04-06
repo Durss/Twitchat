@@ -15,6 +15,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import store from '@/store';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -30,19 +31,25 @@ export default class Confirm extends Vue {
 	public yesLabel:string = "";
 	public noLabel:string = "";
 	public hidden:boolean = true;
+	public submitPressed:boolean = false;
 
 	private keyUpHandler!:(e:KeyboardEvent) => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 
 	public mounted():void {
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
-		watch(() => store.state.confirm, () => {
+		document.addEventListener("keydown", this.keyDownHandler);
+		watch(() => store.state.confirm, async () => {
+			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
 		});
 	}
 
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
+		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
 	public onConfirmChanged():void {
@@ -72,10 +79,21 @@ export default class Confirm extends Vue {
 		}
 	}
 
+	private onDownUp(e:KeyboardEvent):void {
+		if(this.hidden) return;
+		console.log("3OKOFKDOFKDOKFD");
+		if(e.key == "Enter" || e.key == " ") {//Enter / space
+			this.submitPressed = true;
+		}
+	}
+
 	private onKeyUp(e:KeyboardEvent):void {
 		if(this.hidden) return;
 		if(e.key == "Enter" || e.key == " ") {//Enter / space
-			this.answer(true);
+			if(this.submitPressed) {
+				this.answer(true);
+				this.submitPressed = false;
+			}
 			e.preventDefault();
 			e.stopPropagation();
 		}

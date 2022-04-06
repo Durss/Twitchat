@@ -106,6 +106,8 @@
 
 				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
 
+				<CommercialTimer v-if="isCommercial" />
+
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
@@ -128,12 +130,13 @@ import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
+import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteForm from './AutocompleteForm.vue';
+import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
-import { LoremIpsum } from "lorem-ipsum";
 
 @Options({
 	props:{
@@ -145,10 +148,12 @@ import { LoremIpsum } from "lorem-ipsum";
 	components:{
 		Button,
 		ParamItem,
+		CommercialTimer,
 		AutocompleteForm,
 		CommunityBoostInfo,
 	},
 	emits: [
+		"ad",
 		"poll",
 		"pred",
 		"clear",
@@ -196,6 +201,8 @@ export default class ChatForm extends Vue {
 	}
 
 	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
+
+	public get isCommercial():boolean { return store.state.commercialEnd != 0; }
 	
 	public get showFeedBt():boolean {
 		return store.state.activityFeed?.length > 0
@@ -245,7 +252,7 @@ export default class ChatForm extends Vue {
 	
 	public async sendMessage():Promise<void> {
 		if(this.message.length == 0) return;
-		if(this.autoCompleteSearch.length > 1) return;
+		if(this.autoCompleteSearch.length > 0) return;
 
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
@@ -349,6 +356,12 @@ export default class ChatForm extends Vue {
 			
 		}else
 
+		if(cmd == "/commercial") {
+			this.$emit("ad", params.length > 0? parseInt(params[0]) : 30);
+			this.message = "";
+			
+		}else
+
 		if(cmd == "/cypherreset") {
 			//Secret feature
 			store.dispatch("setCypherEnabled", false);
@@ -388,6 +401,8 @@ export default class ChatForm extends Vue {
 		let localMessage = this.message;
 		if(!carretPos) carretPos = 1;
 		carretPos --;
+
+		console.log("Selected", item);
 
 		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {

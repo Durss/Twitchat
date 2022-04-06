@@ -37,6 +37,13 @@
 					ref="message"
 					v-else-if="m.type == 'prediction'"
 					:predictionData="m" />
+
+				<ChatNotice
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'commercial'"
+					:messageData="m"
+					/>
 			</div>
 		</div>
 	</div>
@@ -50,6 +57,7 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ChatHighlight from '../messages/ChatHighlight.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
+import ChatNotice from '../messages/ChatNotice.vue';
 import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
@@ -62,6 +70,7 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 		},
 	},
 	components:{
+		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
 		ChatPollResult,
@@ -86,7 +95,10 @@ export default class ActivityFeed extends Vue {
 	
 	public get messages():ActivityFeedData[] {
 		const list = (store.state.activityFeed as ActivityFeedData[])
-		.filter(v => v.type == "highlight" || v.type == "poll" || v.type == "prediction" || (v.type == "message" && v.tags["msg-id"] === "highlighted-message"));
+		.filter(v => v.type == "highlight"
+		|| v.type == "poll"
+		|| v.type == "prediction"
+		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message"));
 
 		const result:ActivityFeedData[] = [];
 		
@@ -107,7 +119,7 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|null = null;
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|null = null;
 			if(m.type == "poll") {
 				type = "poll";
 			}else if(m.type == "prediction") {

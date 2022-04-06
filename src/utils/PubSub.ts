@@ -329,9 +329,10 @@ export default class PubSub {
 			//Manage moderation actions
 			const localObj = data.data as PubSubTypes.ModerationData;
 			switch(localObj.moderation_action) {
-				case "clear": 
+				case "clear": {
 					IRCClient.instance.sendNotice("usage_clear", "Chat cleared by "+localObj.created_by);
 					break;
+				}
 				case "timeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
 					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "unknown";
@@ -373,6 +374,14 @@ export default class PubSub {
 					store.dispatch("setRaiding", null);
 					break;
 				}
+				case "delete": {
+					const data = {
+						messageId:localObj.args? localObj.args[2] : "",
+						deleteData:localObj,
+					}
+					store.dispatch("delChatMessage", data);
+					break;
+				}
 				default:
 					console.log("Unhandled event type: "+localObj.moderation_action);
 					break;
@@ -412,7 +421,7 @@ export default class PubSub {
 			IRCClient.instance.addMessage(textMessage, tags, false, localObj);
 		}else 
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
-			store.dispatch("delChatMessage", localObj.message.id);
+			store.dispatch("delChatMessage", {messageId:localObj.message.id});
 		}
 	}
 
@@ -1150,6 +1159,19 @@ export namespace PubSubTypes {
 			GoalProgress: number;
 			GoalTarget: number;
 		}[];
+	}
+
+	export interface DeletedMessage {
+		type: string;
+		moderation_action: string;
+		args: string[];
+		created_by: string;
+		created_by_user_id: string;
+		created_at: string;
+		msg_id: string;
+		target_user_id: string;
+		target_user_login: string;
+		from_automod: boolean;
 	}
 }
 

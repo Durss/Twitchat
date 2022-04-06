@@ -29,7 +29,12 @@ export default class IRCEvent extends Event {
 	
 }
 
-export type ActivityFeedData = IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult | IRCEventDataList.Message;
+export type ActivityFeedData = IRCEventDataList.Highlight
+							|  IRCEventDataList.PollResult
+							|  IRCEventDataList.PredictionResult
+							|  IRCEventDataList.Message
+							// |  IRCEventDataList.Commercial
+							;
 export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Timeout
 						|  IRCEventDataList.Ban
@@ -42,6 +47,7 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Whisper
 						|  IRCEventDataList.PollResult
 						|  IRCEventDataList.PredictionResult
+						|  IRCEventDataList.Commercial
 						;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -60,6 +66,7 @@ export namespace IRCEventDataList {
 		showHoverActions?:boolean;
 		lowTrust?:boolean;
 		deleted?:boolean;
+		deletedData?:PubSubTypes.DeletedMessage;
 		occurrenceCount?:number;
 		highlightWord?:string;
 		type:"message";
@@ -190,6 +197,12 @@ export namespace IRCEventDataList {
 	export interface PredictionResult {
 		type:"prediction";
 		data:TwitchTypes.Prediction;
+		tags: { id:string, "tmi-sent-ts":string };
+	}
+
+	export interface Commercial extends Notice {
+		msgid:"commercial";
+		ended:boolean;
 		tags: { id:string, "tmi-sent-ts":string };
 	}
 }

@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
 			<p>First time on your channel</p>
 		</div>
-		
+
 		<div v-if="automod" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
@@ -59,7 +59,10 @@
 		</div>
 		
 		<span>: </span>
-		<span class="message" v-html="text"></span>
+		<span class="message">
+			<span class="text" v-html="text"></span>
+			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
+		</span>
 	</div>
 
 </template>
@@ -114,6 +117,14 @@ export default class ChatMessage extends Vue {
 			if(uid && store.state.followingStates[uid] === false) return true;
 		}
 		return false
+	}
+
+	public get deletedMessage():string {
+		if(this.messageData.deletedData) {
+			return "(deleted by "+this.messageData.deletedData.created_by+")";
+		}else{
+			return "";
+		}
 	}
 
 	public get classes():string[] {
@@ -296,7 +307,7 @@ export default class ChatMessage extends Vue {
 		this.hasMention = store.state.params.appearance.highlightMentions.value as boolean
 			&& store.state.user.login != null
 			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
-		
+
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
 			await this.$nextTick();
 			gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
@@ -405,10 +416,16 @@ export default class ChatMessage extends Vue {
 	&.deleted {
 		opacity: .25;
 		transition: opacity .2s;
-		text-decoration: line-through;
+		.message {
+			.text { display: none; }
+		}
 		&:hover{
 			opacity: 1;
 			text-decoration: none;
+			.message {
+				.text { display: inline; }
+				.deleted { display: none; }
+			}
 		}
 	}
 
@@ -505,6 +522,7 @@ export default class ChatMessage extends Vue {
 
 	.message {
 		color: #d1d1d1;
+		// position: relative;
 		:deep( .emote ) {
 			width: 2em;
 			height: 2em;
@@ -521,6 +539,10 @@ export default class ChatMessage extends Vue {
 			padding: 0 3px;
 			border-radius: 3px;
 			background-color: @mainColor_light;
+		}
+
+		.deleted {
+			font-style: italic;
 		}
 	}
 
