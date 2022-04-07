@@ -22,7 +22,7 @@
 						<ParamItem class="item" :paramData="maxUsersToggle" />
 					</div>
 					<div class="row">
-						<ParamItem class="item child" :paramData="maxUsers" v-if="maxUsersToggle.value" />
+						<ParamItem class="item" :paramData="ponderateVotes" />
 					</div>
 					<div class="row">
 						<Button type="submit" title="Start" />
@@ -51,10 +51,17 @@ export default class RaffleForm extends Vue {
 
 	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
-	public maxUsers:ParameterData = {label:"Max users count", value:0, type:"number", min:0, max:999999999};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
+	public maxUsers:ParameterData = {label:"Max users count", value:10, type:"number", min:0, max:1000000};
+	public ponderateVotes:ParameterData = {label:"Ponderate votes (additional votes given for every matching params)", value:true, type:"toggle"};
+	public ponderateVotes_vip:ParameterData = {label:"VIP", value:0, type:"number", min:0, max:100, icon:"vip_purple.svg"};
+	public ponderateVotes_sub:ParameterData = {label:"Subscriber", value:0, type:"number", min:0, max:100, icon:"sub_purple.svg"};
+	public ponderateVotes_subgift:ParameterData = {label:"Sub gifter", value:0, type:"number", min:0, max:100, icon:"gift_purple.svg"};
+	public ponderateVotes_follower:ParameterData = {label:"Follower", value:0, type:"number", min:0, max:100, icon:"follow_purple.svg"};
 
 	public async mounted():Promise<void> {
+		this.maxUsersToggle.children = [this.maxUsers];
+		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
@@ -76,7 +83,12 @@ export default class RaffleForm extends Vue {
 			maxUsers:this.maxUsersToggle.value ? this.maxUsers.value as number : 0,
 			created_at:new Date().getTime(),
 			users:[],
+			followRatio: this.ponderateVotes_follower.value as number,
+			vipRatio: this.ponderateVotes_vip.value as number,
+			subRatio: this.ponderateVotes_sub.value as number,
+			subgitRatio: this.ponderateVotes_subgift.value as number,
 		};
+		console.log(payload);
 		store.dispatch("startRaffle", payload);
 		this.close();
 	}
@@ -107,20 +119,6 @@ export default class RaffleForm extends Vue {
 				display: flex;
 				flex-direction: column;
 				margin-top: 10px;
-				.item {
-
-					&.child {
-						margin-left: auto;
-						margin-right: 0;
-						margin-top: 10px;
-						width: calc(100% - 20px);
-						:deep(label)::before {
-							content: "⤷";
-							display: inline-block;
-							margin-right: 5px;
-						}
-					}
-				}
 
 				:deep(.list) {
 					flex-direction: row;

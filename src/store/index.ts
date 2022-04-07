@@ -812,7 +812,7 @@ export default createStore({
 				}
 			}
 
-			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, (event:IRCEvent) => {
+			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const message = event.data as IRCEventDataList.Message;
 				const trackedUser = (state.trackedUsers as TwitchTypes.TrackedUser[]).find(v => v.user['user-id'] == message.tags['user-id']);
 				
@@ -825,11 +825,27 @@ export default createStore({
 				const raffle:RaffleData = state.raffle as RaffleData;
 				if(raffle.command && message.message.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
-					//Check if within time frame and max users count isn't reached
+					//Check if within time frame and max users count isn't reached and that user
+					//hasn't already entered
 					if(ellapsed <= raffle.duration * 60000
 					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
-					&& !raffle.users.find(v=>v['user-id'] == message.tags['user-id'])) {
-						raffle.users.push(message.tags);
+					&& !raffle.users.find(v=>v.user['user-id'] == message.tags['user-id'])) {
+						let score = 1;
+						const user = message.tags;
+						//Apply ratios if any is defined
+						if(raffle.vipRatio > 0 && user.badges?.vip) score += raffle.vipRatio;
+						if(raffle.subRatio > 0 && user.badges?.subscriber)  score += raffle.subRatio;
+						if(raffle.subgitRatio > 0 && user.badges?.['sub-gifter'])  score += raffle.subgitRatio;
+						if(raffle.followRatio > 0) {
+							//Check if user is following
+							const uid = user['user-id'] as string;
+							if(uid && state.followingStates[uid] == undefined) {
+								const res = await TwitchUtils.getFollowState(uid, user['room-id'])
+								state.followingStates[uid] = res != undefined;
+							}
+							if(state.followingStates[uid] === true) score += raffle.followRatio;
+						}
+						raffle.users.push( { score, user } );
 					}
 				}
 			});
@@ -1080,6 +1096,7 @@ export interface ParameterData {
 	parent?:number;
 	example?:string;
 	storage?:unknown;
+	children?:ParameterData[];
 }
 
 export interface RaffleData {
@@ -1087,7 +1104,16 @@ export interface RaffleData {
 	duration:number;
 	maxUsers:number;
 	created_at:number;
-	users:ChatUserstate[];
+	users:RaffleVote[];
+	vipRatio:number;
+	followRatio:number;
+	subRatio:number;
+	subgitRatio:number;
+}
+
+export interface RaffleVote {
+	user:ChatUserstate;
+	score:number;
 }
 
 export interface BingoConfig {

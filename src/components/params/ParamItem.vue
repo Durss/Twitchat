@@ -59,20 +59,19 @@
 			</div>
 		</div>
 
-		
-		<transition-group name="fade"
-			tag="div"
-			ref="messageList"
-			class="messageList"
-		>
-			<ParamItem v-for="c in children" :key="c.id" :paramData="c" class="child" :childLevel="childLevel+1" />
-		</transition-group>
+		<ParamItem v-for="(c, index) in children"
+			class="child"
+			ref="param_child"
+			:key="'child_'+index+c.id"
+			:paramData="c"
+			:childLevel="childLevel+1" />
 	</div>
 </template>
 
 <script lang="ts">
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -98,21 +97,7 @@ export default class ParamItem extends Vue {
 	public childLevel!:number;
 	public key:string = Math.random().toString();
 
-	public get children():ParameterData[] {
-		if(this.paramData.value as boolean === false) return [];
-
-		const list = store.state.params;
-		const children:ParameterData[] = [];
-		for (const key in list) {
-			const params = list[key as ParameterCategory];
-			for (const key2 in params) {
-				if(params[key2].parent != undefined && params[key2].parent == this.paramData.id) {
-					children.push(params[key2]);
-				}
-			}
-		}
-		return children;
-	}
+	public children:ParameterData[] = [];
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -129,13 +114,59 @@ export default class ParamItem extends Vue {
 		watch(() => this.paramData.value, () => {
 			store.dispatch('updateParams');
 			this.$emit("change");
+			this.buildChildren();
 		});
+		watch(() => this.paramData.children, () => {
+			this.buildChildren();
+		});
+		this.buildChildren();
+	}
+
+	private async buildChildren():Promise<void> {
+		if(this.paramData.value === false){
+			if(this.children.length > 0) {
+				//Hide transition
+				const childrenItems = this.$refs.param_child as Vue[];
+				const divs = childrenItems.map(v => v.$el);
+				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
+						onComplete:()=> {
+							this.children = [];
+						}});
+			}
+			return;
+		}
+		const list = store.state.params;
+		let children:ParameterData[] = [];
+		for (const key in list) {
+			const params = list[key as ParameterCategory];
+			for (const key2 in params) {
+				if(params[key2].parent != undefined && params[key2].parent == this.paramData.id) {
+					children.push(params[key2]);
+				}
+			}
+		}
+
+		if(this.paramData.children) {
+			children = children.concat(this.paramData.children);
+		}
+		
+		this.children = children;
+
+		if(children.length > 0){
+			//Show transitions
+			await this.$nextTick();
+			const childrenItems = this.$refs.param_child as Vue[];
+			const divs = childrenItems.map(v => v.$el);
+			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
+		}
 	}
 }
 </script>
 
 <style scoped lang="less">
 .paramitem{
+	overflow: hidden;
+	
 	&.longText {
 		.content {
 			.text {
@@ -144,7 +175,7 @@ export default class ParamItem extends Vue {
 				flex-direction: column;
 			}
 		}
-		}
+	}
 
 	.content {
 		display: flex;
@@ -242,22 +273,6 @@ export default class ParamItem extends Vue {
 				font-size: .9em;
 			}
 		}
-	}
-	
-	/* Enter and leave animations can use different */
-	/* durations and timing functions.              */
-	.fade-enter-active {
-		transition: all 0.2s;
-	}
-
-	.fade-leave-active {
-		transition: all 0.2s;
-	}
-
-	.fade-enter-from,
-	.fade-leave-to {
-		opacity: 0;
-		transform: translateY(-10px);
 	}
 }
 </style>
