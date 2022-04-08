@@ -87,6 +87,8 @@
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+		
+		<Parameters v-if="$store.state.authenticated" />
 	</div>
 </template>
 
@@ -114,6 +116,7 @@ import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
+import Parameters from '@/components/params/Parameters.vue';
 
 @Options({
 	components:{
@@ -123,6 +126,7 @@ import { Options, Vue } from 'vue-class-component';
 		UserList,
 		PollForm,
 		BingoForm,
+		Parameters,
 		RaffleForm,
 		MessageList,
 		DevmodeMenu,

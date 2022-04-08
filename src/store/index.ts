@@ -331,12 +331,15 @@ export default createStore({
 							}
 						}
 
-						//Check if it's a command to mute/unmute an audio source
-						if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
-							OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, true);
-						}
-						if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
-							OBSWebsocket.instance.setMuteState(state.obsMuteUnmuteCommands?.audioSourceName, false);
+						const audioSourceName = state.obsMuteUnmuteCommands?.audioSourceName;
+						if(audioSourceName) {
+							//Check if it's a command to mute/unmute an audio source
+							if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
+								OBSWebsocket.instance.setMuteState(audioSourceName, true);
+							}
+							if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
+								OBSWebsocket.instance.setMuteState(audioSourceName, false);
+							}
 						}
 					}
 				}

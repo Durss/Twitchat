@@ -1,5 +1,6 @@
 import OBSWebSocket from 'obs-websocket-js';
 import { JsonArray } from 'type-fest';
+import { reactive } from 'vue';
 
 /**
 * Created : 29/03/2022 
@@ -9,13 +10,13 @@ export default class OBSWebsocket {
 	private static _instance:OBSWebsocket;
 
 	public connected:boolean = false;
-
+	
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
 	private connectAttempsCount:number = 0;
+	private autoReconnect:boolean = false;
 	
 	constructor() {
-	
 	}
 	
 	/********************
@@ -23,7 +24,7 @@ export default class OBSWebsocket {
 	********************/
 	static get instance():OBSWebsocket {
 		if(!OBSWebsocket._instance) {
-			OBSWebsocket._instance = new OBSWebsocket();
+			OBSWebsocket._instance = reactive(new OBSWebsocket()) as OBSWebsocket;
 			OBSWebsocket._instance.initialize();
 		}
 		return OBSWebsocket._instance;
@@ -34,13 +35,21 @@ export default class OBSWebsocket {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	public async disconnect():Promise<void> {
+		this.autoReconnect = false;
+		this.obs.disconnect();
+	}
+
 	public async connect(port:string, pass:string, autoReconnect:boolean = true):Promise<boolean> {
 		clearTimeout(this.reconnectTimeout);
+		this.autoReconnect = autoReconnect;
 		this.obs = new OBSWebSocket();
 		try {
+			console.log("ws://127.0.0.1:"+port, pass);
 			await this.obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 		}catch(error) {
-			if(autoReconnect) {
+			console.log(error);
+			if(this.autoReconnect) {
 				this.connectAttempsCount ++;
 				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass);
@@ -51,7 +60,8 @@ export default class OBSWebsocket {
 		this.connected = true;
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
-			if(autoReconnect) {
+			console.log("Disconnect");
+			if(this.autoReconnect) {
 				this.connect(port, pass);
 			}
 		})

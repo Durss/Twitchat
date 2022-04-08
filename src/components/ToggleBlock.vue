@@ -44,18 +44,21 @@ export default class ToggleBlock extends Vue {
 		this.showContent = this.open;
 		
 		watch(() => this.open, () => {
-			this.showContent = this.open;
+			this.toggle(this.open);
 		})
 	}
 
-	public async toggle():Promise<void> {
+	public async toggle(forcedState:boolean):Promise<void> {
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
-		if(this.showContent) {
-			params.onComplete = ()=>{
-				this.showContent = false;
-			}
+		let open = !this.showContent;
+		if(forcedState !== undefined) {
+			open = forcedState;
+			if(open == this.showContent) return;//Already in the proper state, ignore
+		}
+		if(!open) {
+			params.onComplete = ()=>{ this.showContent = false; }
 			gsap.to(this.$refs.content as HTMLDivElement, params);
-		}else{
+		}else {
 			this.showContent = true;
 			await this.$nextTick();
 			gsap.from(this.$refs.content as HTMLDivElement, params);

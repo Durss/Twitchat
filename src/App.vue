@@ -1,7 +1,6 @@
 <template>
 	<div :class="classes">
 		<router-view />
-		<Parameters v-if="$store.state.authenticated" />
 		<UserCard />
 		<Confirm />
 		<Alert />
@@ -11,7 +10,6 @@
 </template>
 
 <script lang="ts">
-import Parameters from '@/components/params/Parameters.vue';
 import UserCard from '@/components/user/UserCard.vue';
 import { Options, Vue } from 'vue-class-component';
 import store from './store';
@@ -26,7 +24,6 @@ import Tooltip from "./views/Tooltip.vue";
 		Confirm,
 		Tooltip,
 		UserCard,
-		Parameters,
 	}
 })
 export default class App extends Vue {
