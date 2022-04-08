@@ -18,11 +18,11 @@
 					placeholder="message..."
 					maxlength="500"
 					@keydown.tab.prevent="onTab()"
-					@keydown.enter="sendMessage()">
+					@keyup.enter="sendMessage()">
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
-				<Button @click="sendMessage()" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" />
+				<Button @click="sendMessage()" type="button" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" />
 				
 				<Button :icon="require('@/assets/icons/emote.svg')"
 					bounce 
@@ -127,6 +127,7 @@
 import store, { BingoConfig } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import PublicInterface from '@/utils/PublicInterface';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -159,6 +160,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		"clear",
 		"raffle",
 		"search",
+		"bingo",
 		"liveStreams",
 		"update:showFeed",
 		"update:showEmotes",
@@ -368,6 +370,9 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
+
+		}else if(cmd == "/test") {
+			PublicInterface.instance.send("this is a test message wooooohoooooooOOOOOO ????????");
 
 		}else{
 			//Send message

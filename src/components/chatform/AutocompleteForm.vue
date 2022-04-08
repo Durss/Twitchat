@@ -87,7 +87,6 @@ export default class AutocompleteForm extends Vue {
 	}
 
 	public onkeyDown(e:KeyboardEvent):void {
-		console.log("3OKOKFDFD");
 		switch(e.key) {
 			case "Escape":
 				this.$emit("close");
