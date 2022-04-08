@@ -39,6 +39,8 @@ export default createStore({
 		onlineUsers: [] as string[],
 		raffle: {} as RaffleData,
 		bingo: {} as BingoData,
+		bingo_message: "🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
+		bingo_messagePost: true,
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
 		whispersUnreadCount: 0 as number,
 		hypeTrain: {} as HypeTrainStateData,
@@ -401,18 +403,16 @@ export default createStore({
 					let win = bingo.numberValue && parseInt(m.message) == bingo.numberValue;
 					win ||= bingo.emoteValue
 					&& m.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
-
-					if(win) {
-						console.log("win !!");
-						if(!bingo.winners) bingo.winners = [];
-						bingo.winners.push(m.tags);
-						bingo.opened = false;
-						//For some reason TMI.js doesn't send the message back to the sender
-						//if sending it on a new message event.
+					if(win && state.bingo_messagePost) {
+						//TMI.js never cease to amaze me.
+						//It doesn't send the message back to the sender if sending
+						//it just after receiving a message.
 						//If we didn't wait for a frame, the message would be sent properly
 						//but wouldn't appear on this chat.
 						setTimeout(()=> {
-							IRCClient.instance.sendMessage(`🎉🎉🎉 Congrats ${m.tags['display-name']} you won the bingo 🎉🎉🎉`);
+							let message = state.bingo_message;
+							message = message.replace(/\{USER\}/gi, m.tags['display-name'] as string)
+							IRCClient.instance.sendMessage(message);
 						},0);
 					}
 				}
@@ -604,6 +604,7 @@ export default createStore({
 				numberValue: Math.round(Math.random() * (max-min) + min),
 				emoteValue: Utils.pickRand(emotes),
 				opened: true,
+				winners: [],
 			};
 			state.bingo = data;
 		},
@@ -765,6 +766,16 @@ export default createStore({
 			const obsPermissions = Store.get("obsConf_permissions");
 			if(obsPermissions) {
 				state.obsPermissions = JSON.parse(obsPermissions);
+			}
+			
+			//Bingo conf
+			const bingoMessage = Store.get("bingo_message");
+			if(bingoMessage) {
+				state.bingo_message = bingoMessage;
+			}
+			const bingoPostMessage = Store.get("bingo_postOnChat");
+			if(bingoPostMessage) {
+				state.bingo_messagePost = bingoPostMessage === 'true';
 			}
 
 			//Init OBS connection
@@ -1128,7 +1139,7 @@ export interface BingoData {
 	guessEmote:boolean;
 	numberValue:number;
 	emoteValue:TwitchTypes.Emote;
-	winners?:ChatUserstate[];
+	winners:ChatUserstate[];
 	opened:boolean;
 }
 
