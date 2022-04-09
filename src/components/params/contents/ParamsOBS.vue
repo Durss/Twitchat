@@ -29,11 +29,11 @@
 			<OBSPermissions />
 		</ToggleBlock>
 
-		<ToggleBlock class="block scenes"
+		<ToggleBlock class="block mic"
 		v-if="connected"
 		:open="false"
 		icon="microphone_purple"
-		title="OBS microphone">
+		title="Control microphone">
 			<OBSAudioSourceForm />
 		</ToggleBlock>
 
@@ -41,8 +41,16 @@
 		v-if="connected"
 		:open="false"
 		icon="list_purple"
-		title="OBS Scenes">
+		title="Control scenes">
 			<OBSScenes />
+		</ToggleBlock>
+
+		<ToggleBlock class="block overlay"
+		v-if="connected"
+		:open="false"
+		icon="show_purple"
+		title="Control sources">
+			<OBSSources />
 		</ToggleBlock>
 	</div>
 </template>
@@ -59,6 +67,7 @@ import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSPermissions from './obs/OBSPermissions.vue';
 import OBSScenes from './obs/OBSScenes.vue';
+import OBSSources from './obs/OBSSources.vue';
 
 
 @Options({
@@ -68,6 +77,7 @@ import OBSScenes from './obs/OBSScenes.vue';
 		ParamItem,
 		OBSScenes,
 		ToggleBlock,
+		OBSSources,
 		OBSPermissions,
 		OBSAudioSourceForm,
 	}
