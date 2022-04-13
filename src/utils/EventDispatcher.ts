@@ -15,11 +15,11 @@ export class Event {
 		this._target = targetObj;
 	}
 	
-	public getTarget():unknown {
+	public get target():unknown {
 		return this._target;
 	}
 
-	public getType():string {
+	public get type():string {
 		return this._type;
 	}
 }
@@ -59,7 +59,7 @@ export class EventDispatcher {
 
 	public dispatchEvent (evt:Event):void {
 		for (let i = 0; i < this._listeners.length; i++) {
-			if (this._listeners[i].type === evt.getType()) {
+			if (this._listeners[i].type === evt.type) {
 				this._listeners[i].listener.call(this, evt);
 			}
 		}

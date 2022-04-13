@@ -127,7 +127,6 @@
 import store, { BingoConfig } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
-import PublicInterface from '@/utils/PublicInterface';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -370,9 +369,6 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
-
-		}else if(cmd == "/test") {
-			PublicInterface.instance.send("this is a test message wooooohoooooooOOOOOO ????????");
 
 		}else{
 			//Send message

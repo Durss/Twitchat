@@ -22,6 +22,7 @@
 			<Button small title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
 			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
+			<Button small title="OBS-WS broadcast test" @click="obsWSBroadcast()" :icon="require('@/assets/icons/notification.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="require('@/assets/icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="require('@/assets/icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>
@@ -30,6 +31,7 @@
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import PubSub from '@/utils/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
@@ -115,6 +117,10 @@ export default class DevmodeMenu extends Vue {
 		await Utils.promisedTimeout(1000);
 		this.pubsubHistoryLink = url;
 		this.generatingHistory = false;
+	}
+
+	public obsWSBroadcast():void {
+		OBSWebsocket.instance.broadcast("TEST", {message:"this is a test! Do you copy?"});
 	}
 
 }
