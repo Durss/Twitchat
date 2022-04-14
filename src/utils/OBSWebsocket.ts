@@ -58,8 +58,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
 		this.obs = new OBSWebSocket();
+
 		try {
-			console.log("ws://127.0.0.1:"+port, pass);
 			await this.obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 		}catch(error) {
 			console.log(error);

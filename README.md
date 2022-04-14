@@ -9,9 +9,13 @@
 </div>
 <br>
 <br>
-This is a custom twitch chat that aims to fill gaps in the official Twitch chat mostly for streamers.
+A custom twitch chat that aims to fill gaps in the official Twitch chat for streamers.
 <br>
-The main goal is to reduce as much as possible the number of missed messages and better understand conversations between users.
+The main goal is to follow your chat as best as possible.
+<br>
+<br>
+For developpers, **Twitchat exposes an API** to receive events and control some features remotely.
+Documentation can be found [here](PUBLIC_API.md).
 <br>
 <br>
 <br>
@@ -52,7 +56,7 @@ The main goal is to reduce as much as possible the number of missed messages and
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 <br>
 
-- [ ] Expose an API to control some stuff remotely(?)
+- [ ] Expose an API to control some stuff remotely (WIP)
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
@@ -80,7 +84,8 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:read:hype_train",
 		"channel_editor",
 		"whispers:edit",
-		"user:read:follows"
+		"user:read:follows",
+		"channel:edit:commercial"
 	]
 }
 ```
@@ -94,6 +99,7 @@ http://localhost:8080/oauth
 ```
 <br>
 By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
+
 <br>
 <br>
 <br>
@@ -118,6 +124,26 @@ npm run build
 ```
 node server.js
 ```
+<br>
+<br>
+<br>
+
+# Install server
+[Compile the project](#compile-project) and push the content of the `server` folder on your server.\
+Next to these files, create a `dist` folder and push the content of your local `dist` folder.\
+Also add the `credentials.json` and `fakeEvents.json` files next to the server's files.\
+Install all the production dependencies and [run the server](#run-server).
+Finally, create a `env.conf` file, just write `prod` inside, and push it at the root of the project.\
+\
+Here is the expected file structure:\
+─ root\
+  ├─ dist/\
+  ├─ node_modules/\
+  ├─ server.js\
+  ├─ env.conf\
+  ├─ credentials.json\
+  ├─ fakeEvents.json\
+<br>
 <br>
 <br>
 
