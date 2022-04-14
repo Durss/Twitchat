@@ -5,7 +5,7 @@ import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
-import OBSWebsocket from "./OBSWebsocket";
+import PublicAPI from "./PublicAPI";
 import { PubSubTypes } from "./PubSub";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -451,22 +451,22 @@ export default class IRCClient extends EventDispatcher {
 		
 		//Ignore /me messages if requested
 		if(!store.state.params.filters.showSlashMe.value === true && tags["message-type"] == "action") {
-			OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
+			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 			return;
 		}
 		//Ignore self if requested
 		if(!store.state.params.filters.showSelf.value === true && tags["user-id"] == store.state.user.user_id) {
-			OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
+			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}
 		//Ignore bot messages if requested
 		if(!store.state.params.filters.showBots.value === true && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
-			OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
+			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}
 		//Ignore custom users
 		if((store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
-			OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
+			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 			return;
 		}
 		//Ignore commands
@@ -478,12 +478,12 @@ export default class IRCClient extends EventDispatcher {
 				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
 				const cmd = message.split(" ")[0].substring(1).trim().toLowerCase();
 				if(blockedList.indexOf(cmd) > -1) {
-					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 					return;
 				}
 			}else{
 				//Ignore all commands
-				OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 				return;
 			}
 		}

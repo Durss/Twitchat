@@ -3,7 +3,7 @@ import { ChatUserstate } from "tmi.js";
 import { JsonObject } from "type-fest";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
-import OBSWebsocket from "./OBSWebsocket";
+import PublicAPI from "./PublicAPI";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
 import Utils from "./Utils";
@@ -498,7 +498,7 @@ export default class PubSub {
 			ended_at: localObj.poll.ended_at,
 		};
 
-		OBSWebsocket.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
+		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
 		
 		store.dispatch("setPolls", [poll])
 	}
@@ -550,7 +550,7 @@ export default class PubSub {
 			locked_at: localObj.event.locked_at,
 		};
 
-		OBSWebsocket.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
+		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
 		store.dispatch("setPredictions", [prediction])
 	}
 
@@ -576,7 +576,7 @@ export default class PubSub {
 			username: data.username,
 			user_id: data.user_id,
 		}
-		OBSWebsocket.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+		PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 		
 		IRCClient.instance.sendHighlight(message);
 	}

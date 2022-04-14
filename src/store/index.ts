@@ -3,6 +3,7 @@ import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
@@ -505,26 +506,26 @@ export default createStore({
 				//If it's a text message and user isn't a follower, broadcast to WS
 				if(payload.type == "message") {
 					if(state.followingStates[textMessage.tags['user-id'] as string] === false) {
-						OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
+						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
 					}
 				}
 
 				//Check if the message contains a mention
-				if(state.params.appearance.highlightMentions.value === true) {
+				if(textMessage.message && state.params.appearance.highlightMentions.value === true) {
 					textMessage.hasMention = state.user.login != null
 					&& new RegExp("(^| )("+state.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
 					if(textMessage.hasMention) {
 						//Broadcast to OBS-Ws
-						OBSWebsocket.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
+						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
 					}
 					
 				}
 			}
 
 			//If it's a text message and user isn't a follower, broadcast to WS
-			if(message.firstMessage === true)		OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
+			if(message.firstMessage === true)		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
 			//If it's a text message and it's the all-time first message
-			if(message.tags['first-msg'] === true)	OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
+			if(message.tags['first-msg'] === true)	PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
@@ -552,7 +553,7 @@ export default createStore({
 						message:list[i].message,
 						tags:list[i].tags,
 					}
-					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 
 					//Delete message from list
 					if(keepDeletedMessages === true && !list[i].automod) {
@@ -580,7 +581,7 @@ export default createStore({
 						message:list[i].message,
 						tags:list[i].tags,
 					}
-					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 
 					//Delete message from list
 					if(keepDeletedMessages === true) {
@@ -973,7 +974,7 @@ export default createStore({
 						'display-name': user.tags['display-name'],
 						'message-id': user.tags['message-id'],
 					}
-					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:state.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:state.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 				}
 			});
 

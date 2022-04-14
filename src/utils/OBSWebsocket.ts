@@ -31,6 +31,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 		return OBSWebsocket._instance;
 	}
+
+	public get obsSocket():OBSWebSocket { return this.obs; }
 	
 	
 	
@@ -155,7 +157,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
-	 * Broadcast a message ot all the connected clients
+	 * Broadcast a message to all the connected clients
 	 * @param data
 	 */
 	public async broadcast(type:TwitchatEventType, data:JsonObject):Promise<void> {
