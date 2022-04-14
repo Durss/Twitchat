@@ -45,9 +45,10 @@ The example refer to `TwitchatActionType` and `TwitchatEventType`. You can find 
 const bc:BroadcastChannel = new BroadcastChannel("twitchat");
 
 //Called when receiving a Twitchat event
-bc.onmessage = (e: MessageEvent<any>):any => {
-	console.log(`Twitchat event ${e.data.type} received !`);
-	console.log(e.data.data);//JSON data of the event
+bc.onmessage = (e: MessageEvent<unknown>):void => {
+	const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue};
+	console.log(`Twitchat event ${event.type} received !`);
+	console.log(event.data);//JSON data of the event
 }
 
 //Request an action to be performed by twitchat
