@@ -838,6 +838,7 @@ export default createStore({
 			if(port && pass) {
 				OBSWebsocket.instance.connect(port, pass);
 			}
+			PublicAPI.instance.initialize();
 
 			const token = Store.get("oAuthToken");
 			if(token) {

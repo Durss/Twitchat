@@ -1,4 +1,5 @@
 import { JsonArray, JsonObject, JsonValue } from "type-fest";
+import { watch } from "vue";
 import { EventDispatcher } from "./EventDispatcher";
 import OBSWebsocket from "./OBSWebsocket";
 import TwitchatEvent, { TwitchatActionType, TwitchatEventType } from "./TwitchatEvent";
@@ -22,7 +23,6 @@ export default class PublicAPI extends EventDispatcher {
 	static get instance():PublicAPI {
 		if(!PublicAPI._instance) {
 			PublicAPI._instance = new PublicAPI();
-			PublicAPI._instance.initialize();
 		}
 		return PublicAPI._instance;
 	}
@@ -32,6 +32,21 @@ export default class PublicAPI extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Initializes the public API
+	 */
+	public initialize():void {
+		this._bc = new BroadcastChannel("twitchat");
+
+		//If receiving data from another browser tab, broadcast it
+		this._bc.onmessage = (e: MessageEvent<unknown>):void => {
+			const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
+			this.dispatchEvent(new TwitchatEvent(event.type, event.data));
+		}
+		
+		this.listenOBS();
+	}
+
 	/**
 	 * Broadcast a message
 	 * 
@@ -55,14 +70,13 @@ export default class PublicAPI extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-
-	private initialize():void {
-		this._bc = new BroadcastChannel("twitchat");
-
-		//If receiving data from another browser tab, broadcast it
-		this._bc.onmessage = (e: MessageEvent<unknown>):void => {
-			const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
-			this.dispatchEvent(new TwitchatEvent(event.type, event.data));
+	private listenOBS():void {
+		//OBS api not ready yet, wait for it
+		if(!OBSWebsocket.instance.obsSocket) {
+			watch(()=>OBSWebsocket.instance.obsSocket, ()=> {
+				this.listenOBS();
+			});
+			return;
 		}
 		
 		//@ts-ignore
