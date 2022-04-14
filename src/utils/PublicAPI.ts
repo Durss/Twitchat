@@ -39,11 +39,15 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param data 
 	 */
 	public async broadcast(type:TwitchatEventType, data:JsonObject):Promise<void> {
+		//Broadcast to other browser's tabs
+		try {
+			this._bc.postMessage({type, data:JSON.parse(JSON.stringify(data))});
+		}catch(error) {
+			console.error(error);
+		}
+
 		//Broadcast to any OBS Websocket connected client
 		OBSWebsocket.instance.broadcast(type, data);
-
-		//Broadcast to other tabs
-		this._bc.postMessage({type, data});
 	}
 	
 	
@@ -54,6 +58,11 @@ export default class PublicAPI extends EventDispatcher {
 
 	private initialize():void {
 		this._bc = new BroadcastChannel("twitchat");
+
+		//If receiving data from another browser tab, broadcast it
+		this._bc.onmessage = (ev: MessageEvent<any>):any => {
+			this.dispatchEvent(new TwitchatEvent(ev.data.type, ev.data.data));
+		}
 		
 		//@ts-ignore
 		OBSWebsocket.instance.obsSocket.on("CustomEvent",
