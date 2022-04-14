@@ -10,13 +10,18 @@
 <br>
 <br>
 
-Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.
+Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.\
+The same events and actions are possible through the `BroadcastChannel` API that allows communicating between 2 tabs of the browser *(ex: 2 browser sources in OBS)*
 
 # Table of content
 * [Prerequisites](#prerequisites)
 * [Connect example](#connect-example)
+  * [BroadcastChannel](#broadcastChannel)
+  * [OBS-websocket](#obs-websocket)
+  * [Available events and actions](#available-events-and-actions)
 * [Events](#events)
 * [Actions](#actions)
+
 
 # Prerequisites
 This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) V5 to be installed and running!\
@@ -32,8 +37,30 @@ OBS will act as a bridge to transmit Twitchat messages to any connected client.\
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
-Bellow is an example to connect to OBS-Websocket.
-There's an example 
+Bellow are typescript examples to use the API via `BroadcastChannel` and via `OBS-Websocket`.\
+The example refer to `TwitchatActionType` and `TwitchatEventType`. You can find their [signatures here](#available-events-and-actions).
+
+## BroadcastChannel
+```typescript
+const bc:BroadcastChannel = new BroadcastChannel("twitchat");
+
+//Called when receiving a Twitchat event
+bc.onmessage = (e: MessageEvent<any>):any => {
+	console.log(`Twitchat event ${e.data.type} received !`);
+	console.log(e.data.data);//JSON data of the event
+}
+
+//Request an action to be performed by twitchat
+function executeAction(type:TwitchatActionType, data:unknown):void {
+	//Make sure there are no function or any invalid data in the object by
+	//stringifying to JSON and parsing it back.
+	const dataJS = JSON.parse(JSON.stringify(data));
+	bc.postMessage({type, data:dataJS});
+}
+
+```
+
+## OBS-websocket
 
 ```typescript
 import OBSWebSocket from 'obs-websocket-js';
@@ -82,11 +109,16 @@ function onTwitchatEvent(e:{origin:"twitchat", type:TwitchatEventType, data:unkn
 		//Ignore any message not coming from twitchat
 		if(e.origin != "twitchat") return;
 
-		console.log(`Twitchat event ${e.type} received !`)
+		console.log(`Twitchat event ${e.type} received !`);
+		console.log(e.data);//JSON data of the event
 	}
 
 connect();
+```
 
+## Available events and actions
+Here are the types signatures used on the above examples
+```typescript
 //Events fired by Twitchat
 export type TwitchatEventType =
 	"MESSAGE_READ"
