@@ -303,12 +303,13 @@ export default class ChatMessage extends Vue {
 			}
 			this.automodReasons = textReasons.join(", ");
 		}
-			
 		this.text = this.parseText();
-		
+
 		this.hasMention = store.state.params.appearance.highlightMentions.value as boolean
 			&& store.state.user.login != null
-			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "").toLowerCase().indexOf(store.state.user.login.toLowerCase()) > 8;
+			//Remove all HTML tags
+			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "")
+			.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1;
 
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
 			await this.$nextTick();
@@ -364,7 +365,7 @@ export default class ChatMessage extends Vue {
 
 						//If requested to highlight mentions, highlight them
 						if(doHighlight) {
-							v.value = v.value.replace(new RegExp("(^| )"+highlightLogin+"( |$)", "gim"), "<strong>$&</strong>");
+							v.value = v.value.replace(new RegExp("(^| )("+highlightLogin+")( |$)", "gim"), "$1<span class='highlightedWord'>$2</span>$3");
 						}
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {
