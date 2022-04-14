@@ -130,11 +130,11 @@ node server.js
 <br>
 
 # Install server
-[Compile the project](#compile-project) and push the content of the `server` folder on your server.\
-Next to these files, create a `dist` folder and push the content of your local `dist` folder.\
-Also add the `credentials.json` and `fakeEvents.json` files next to the server's files.\
+[Compile the project](#compile-project) and push the `server.js` file on your server.\
+Next to this file, create a `dist` folder and push the content of your local `dist` folder inside it.\
+Also add the `credentials.json` and `fakeEvents.json` files at the root of the project.\
+Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
-Finally, create a `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 \
 Here is the expected file structure:\
 ─ root\
