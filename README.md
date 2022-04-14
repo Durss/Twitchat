@@ -14,7 +14,8 @@ A custom twitch chat that aims to fill gaps in the official Twitch chat for stre
 The main goal is to follow your chat as best as possible.
 <br>
 <br>
-For developpers, **Twitchat exposes an API** to receive events and control some features remotely.
+
+For developpers, **Twitchat exposes an API** to receive events and control some features remotely.\
 Documentation can be found [here](PUBLIC_API.md).
 <br>
 <br>
