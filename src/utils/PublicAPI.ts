@@ -60,8 +60,9 @@ export default class PublicAPI extends EventDispatcher {
 		this._bc = new BroadcastChannel("twitchat");
 
 		//If receiving data from another browser tab, broadcast it
-		this._bc.onmessage = (ev: MessageEvent<any>):any => {
-			this.dispatchEvent(new TwitchatEvent(ev.data.type, ev.data.data));
+		this._bc.onmessage = (e: MessageEvent<unknown>):void => {
+			const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
+			this.dispatchEvent(new TwitchatEvent(event.type, event.data));
 		}
 		
 		//@ts-ignore
