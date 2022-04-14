@@ -97,6 +97,8 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -550,6 +552,13 @@ export default class MessageList extends Vue {
 		if(m.markedAsRead) {
 			this.prevMarkedReadItem = m;
 		}
+
+		const message = {
+			channel:m.channel,
+			message:m.message,
+			tags:m.tags,
+		}
+		OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead, message});
 	}
 
 }

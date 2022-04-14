@@ -15,7 +15,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
-	private connectAttempsCount:number = 0;
 	private autoReconnect:boolean = false;
 	
 	constructor() {
@@ -64,17 +63,15 @@ export default class OBSWebsocket extends EventDispatcher {
 		}catch(error) {
 			console.log(error);
 			if(this.autoReconnect) {
-				this.connectAttempsCount ++;
 				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass);
-				}, Math.pow(this.connectAttempsCount, 3)*1000);
+				}, 5000);
 			}
 			return false;
 		}
 		this.connected = true;
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
-			console.log("Disconnect");
 			if(this.autoReconnect) {
 				this.connect(port, pass);
 			}
@@ -97,6 +94,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @returns 
 	 */
 	public async setScene(name:string):Promise<void> {
+		if(!this.connected) return;
+		
 		return await this.obs.call("SetCurrentProgramScene", {sceneName:name});
 	}
 	
@@ -110,6 +109,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		currentPreviewSceneName: string;
 		scenes: JsonArray;
 	}> {
+		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
+		
 		return await this.obs.call("GetSceneList");
 	}
 	
@@ -121,6 +122,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async getAudioSources():Promise<{
 		inputs: JsonArray;
 	}> {
+		if(!this.connected) return {inputs:[]};
+		
 		const kinds = await this.getInputKindList();
 		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
 		return await this.obs.call("GetInputList", {inputKind:audioKind});
@@ -133,6 +136,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async getInputKindList():Promise<{
 		inputKinds: string[];
 	}> {
+		if(!this.connected) return {inputKinds:[]};
+		
 		return await this.obs.call("GetInputKindList");
 	}
 
@@ -144,6 +149,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @returns 
 	 */
 	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
+		if(!this.connected) return;
+		
 		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
 	}
 
@@ -152,6 +159,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param data
 	 */
 	public async broadcast(type:TwitchatEventType, data:JsonObject):Promise<void> {
+		if(!this.connected) return;
+
 		const eventData = { origin:"twitchat", type, data }
 		this.obs.call("BroadcastCustomEvent", {eventData});
 	}

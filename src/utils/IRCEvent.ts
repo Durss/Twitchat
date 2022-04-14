@@ -69,6 +69,7 @@ export namespace IRCEventDataList {
 		deletedData?:PubSubTypes.DeletedMessage;
 		occurrenceCount?:number;
 		highlightWord?:string;
+		hasMention?:boolean;
 		type:"message";
 	}
 

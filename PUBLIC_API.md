@@ -119,8 +119,153 @@ export type TwitchatActionType =
 ```
 
 # Events
-List of the events fired by Twitchat you can listen to.\
-_--**TODO**--_
+List of the events fired by Twitchat you can listen to and the JSON data sent in parameters.
+
+
+## **MESSAGE_READ**
+Sent when clicking a message on the chat to mark it as read
+```typescript
+{
+	channel:string,
+	message:string,
+	tags:any,//IRC tags data
+}
+```
+## **MESSAGE_NON_FOLLOWER**
+Sent when a non-follower sends a message
+```typescript
+{
+	channel:string,
+	message:string,
+	tags:any,//IRC tags data
+}
+```
+## **MESSAGE_FILTERED**
+Sent when a message is filtered out.
+If you don't want commands to be displayed on the chat, anytime a command is sent this event will be fired.
+```typescript
+{
+	channel:string,
+	message:string,
+	tags:any,//IRC tags data
+}
+```
+## **MESSAGE_DELETED**
+Sent when a message is deleted.
+```typescript
+{
+	channel:string,
+	message:string,
+	tags:any,//IRC tags data
+}
+```
+## **MESSAGE_FIRST**
+Sent when a user sends her/his first message of the stream *("Greet them" section)*.
+```typescript
+{
+	channel:string,
+	message:string,
+	tags:any,//IRC tags data
+}
+```
+## **MESSAGE_FIRST_ALL_TIME**
+Sent when a user sends her/his first message on the channel.
+```typescript
+{
+	channel:string,
+	message:string,
+	tags:any,//IRC tags data
+}
+```
+## **MESSAGE_WHISPER**
+The actual message received isn't sent for privacy reasons.
+```typescript
+{
+	unreadCount:number,//Number of unread whispers
+	user:{
+		id: string,
+		login: string,
+		color: string,
+		badges: any,//IRC parsed badges infos
+		'display-name': string,
+		'message-id': string,
+	},
+}
+```
+## **FOLLOW**
+Sent when a user follows the channel
+```typescript
+{
+	display_name: string,
+	username: string,
+	user_id: string,
+}
+```
+## **MENTION**
+Called when a message contains a mention of your nickname
+```typescript
+{
+	display_name: string,
+	username: string,
+	user_id: string,
+}
+```
+## **POLL**
+Sent when a poll starts, updates (when someone votes) and ends.
+```typescript
+{
+	id: string,
+	broadcaster_id: string,
+	broadcaster_name: string,
+	broadcaster_login: string,
+	title: string,
+	choices: {
+				id: string,
+				title: string,
+				votes: number,
+				channel_points_votes: number,
+				bits_votes: number,
+			},
+	bits_voting_enabled: boolean,
+	bits_per_vote: number,
+	channel_points_voting_enabled: boolean,
+	channel_points_per_vote: number,
+	status: "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODERATED" | "INVALID",
+	duration: number,
+	started_at: string,
+	ended_at: string | undefined,
+};
+```
+## **PREDICTION**
+Sent when a prediction starts, updates (when someone votes) and ends.
+```typescript
+{
+	id: string,
+	broadcaster_id: string,
+	broadcaster_name: string,
+	broadcaster_login: string,
+	title: string,
+	outcomes: {
+				id: string,
+				title: string,
+				users: number,
+				channel_points: number,
+				color:string,
+				top_predictors:{
+					id:string,
+					name:string,
+					login:string,
+					channel_points_used:number,
+					channel_points_won:number | undefined,
+				},
+			},
+	prediction_window: number,
+	status: "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED",
+	created_at: string,
+	ended_at: string | undefined,
+	locked_at: string | undefined,
+}
+```
 
 # Actions
 List of actions you can request Twitchat to perform.\

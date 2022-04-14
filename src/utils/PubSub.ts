@@ -1,7 +1,10 @@
 import store, { HypeTrainStateData } from "@/store";
 import { ChatUserstate } from "tmi.js";
+import { JsonObject } from "type-fest";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
+import OBSWebsocket from "./OBSWebsocket";
+import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
 import Utils from "./Utils";
 
@@ -493,7 +496,10 @@ export default class PubSub {
 			duration: localObj.poll.duration_seconds,
 			started_at: localObj.poll.started_at,
 			ended_at: localObj.poll.ended_at,
-		}
+		};
+
+		OBSWebsocket.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
+		
 		store.dispatch("setPolls", [poll])
 	}
 
@@ -542,7 +548,9 @@ export default class PubSub {
 			created_at: localObj.event.created_at,
 			ended_at: localObj.event.ended_at,
 			locked_at: localObj.event.locked_at,
-		}
+		};
+
+		OBSWebsocket.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
 		store.dispatch("setPredictions", [prediction])
 	}
 
@@ -561,6 +569,15 @@ export default class PubSub {
 			"msg-id": "follow",
 			"type": "highlight",
 		};
+
+		//Broadcast to OBS-ws
+		const wsMessage = {
+			display_name: data.display_name,
+			username: data.username,
+			user_id: data.user_id,
+		}
+		OBSWebsocket.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+		
 		IRCClient.instance.sendHighlight(message);
 	}
 

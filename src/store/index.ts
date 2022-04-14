@@ -4,10 +4,12 @@ import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { ChatUserstate, UserNoticeState } from 'tmi.js';
+import { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
 import Store from './Store';
 
@@ -290,6 +292,13 @@ export default createStore({
 		async addChatMessage(state, payload:IRCEventData) {
 			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
 			
+			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight
+			const wsMessage = {
+				channel:message.channel,
+				message:message.message,
+				tags:message.tags,
+			}
+			
 			//Limit history size
 			// const maxMessages = state.params.appearance.historySize.value;
 			const maxMessages = state.realHistorySize;
@@ -310,19 +319,19 @@ export default createStore({
 				}
 			}else{
 				
-				const m = payload as IRCEventDataList.Message;
+				const textMessage = payload as IRCEventDataList.Message;
 
-				if(m.type == "message" && m.message && m.tags.username) {
+				if(textMessage.type == "message" && textMessage.message && textMessage.tags.username) {
 					const allowedUsers = state.obsPermissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
 					if(
-						state.obsPermissions?.mods && m.tags.badges?.moderator ||
-						state.obsPermissions?.vips && m.tags.badges?.vip ||
-						state.obsPermissions?.subs && m.tags.badges?.subscriber ||
+						state.obsPermissions?.mods && textMessage.tags.badges?.moderator ||
+						state.obsPermissions?.vips && textMessage.tags.badges?.vip ||
+						state.obsPermissions?.subs && textMessage.tags.badges?.subscriber ||
 						state.obsPermissions?.all ||
-						m.tags.badges?.broadcaster ||
-						allowedUsers?.indexOf(m.tags.username.toLowerCase()) != -1
+						textMessage.tags.badges?.broadcaster ||
+						allowedUsers?.indexOf(textMessage.tags.username.toLowerCase()) != -1
 					) {
-						const cmd = m.message.trim().toLowerCase();
+						const cmd = textMessage.message.trim().toLowerCase();
 						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
 							const scene = state.obsSceneCommands[i];
@@ -369,9 +378,9 @@ export default createStore({
 					for (let i = len-1; i > end; i--) {
 						const mess = messages[i];
 						if(mess.type == "message"
-						&& m.tags['user-id'] == mess.tags['user-id']
+						&& textMessage.tags['user-id'] == mess.tags['user-id']
 						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//i > len-20 more or less says "if message is still visible on screen"
-						&& m.message == mess.message) {
+						&& textMessage.message == mess.message) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
 							mess.occurrenceCount ++;
 							mess.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
@@ -385,9 +394,9 @@ export default createStore({
 				
 				//Check if user is following
 				if(state.params.appearance.highlightNonFollowers.value === true) {
-					const uid = m.tags['user-id'] as string;
+					const uid = textMessage.tags['user-id'] as string;
 					if(uid && state.followingStates[uid] == undefined) {
-						TwitchUtils.getFollowState(uid, m.tags['room-id']).then((res:TwitchTypes.Following) => {
+						TwitchUtils.getFollowState(uid, textMessage.tags['room-id']).then((res:TwitchTypes.Following) => {
 							state.followingStates[uid] = res != undefined;
 						}).catch(()=>{/*ignore*/})
 					}
@@ -402,10 +411,10 @@ export default createStore({
 
 				//If a bingo's in progress, check if the user won it
 				const bingo = state.bingo as BingoData;
-				if(bingo.opened === true && m.message) {
-					let win = bingo.numberValue && parseInt(m.message) == bingo.numberValue;
+				if(bingo.opened === true && textMessage.message) {
+					let win = bingo.numberValue && parseInt(textMessage.message) == bingo.numberValue;
 					win ||= bingo.emoteValue
-					&& m.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
+					&& textMessage.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
 					if(win && state.bingo_messagePost) {
 						//TMI.js never cease to amaze me.
 						//It doesn't send the message back to the sender if sending
@@ -414,28 +423,28 @@ export default createStore({
 						//but wouldn't appear on this chat.
 						setTimeout(()=> {
 							let message = state.bingo_message;
-							message = message.replace(/\{USER\}/gi, m.tags['display-name'] as string)
+							message = message.replace(/\{USER\}/gi, textMessage.tags['display-name'] as string)
 							IRCClient.instance.sendMessage(message);
 						},0);
 					}
 				}
 				
 				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-				if(TwitchCypherPlugin.instance.isCyperCandidate(m.message)) {
-					const original = m.message;
-					m.message = await TwitchCypherPlugin.instance.decrypt(m.message);
-					m.cyphered = m.message != original;
+				if(TwitchCypherPlugin.instance.isCyperCandidate(textMessage.message)) {
+					const original = textMessage.message;
+					textMessage.message = await TwitchCypherPlugin.instance.decrypt(textMessage.message);
+					textMessage.cyphered = textMessage.message != original;
 				}
 				
 				//If message is an answer, set original message's ref to the answer
 				//Called when using the "answer feature" on twitch chat
-				if(m.tags && m.tags["reply-parent-msg-id"]) {
+				if(textMessage.tags && textMessage.tags["reply-parent-msg-id"]) {
 					let original:IRCEventDataList.Message | null = null;
-					const reply:IRCEventDataList.Message | null = m;
+					const reply:IRCEventDataList.Message | null = textMessage;
 					//Search for original message the user answered to
 					for (let i = 0; i < messages.length; i++) {
 						const c = messages[i] as IRCEventDataList.Message;
-						if(c.tags.id === m.tags["reply-parent-msg-id"]) {
+						if(c.tags.id === textMessage.tags["reply-parent-msg-id"]) {
 							original = c;
 							break;
 						}
@@ -445,23 +454,23 @@ export default createStore({
 						if(original.answerTo) {
 							reply.answerTo = original.answerTo;
 							if(original.answerTo.answers) {
-								original.answerTo.answers.push( m );
+								original.answerTo.answers.push( textMessage );
 							}
 						}else{
 							reply.answerTo = original;
 							if(!original.answers) original.answers = [];
-							original.answers.push( m );
+							original.answers.push( textMessage );
 						}
 					}
 				}else{
 					//If there's a mention, search for last messages within
 					//a max timeframe to find if the message may be a reply to
 					//a message that was sent by the mentionned user
-					if(/@\w/gi.test(m.message)) {
+					if(/@\w/gi.test(textMessage.message)) {
 						// console.log("Mention found");
 						const ts = Date.now();
 						const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
-						const matches = m.message.match(/@\w+/gi) as RegExpMatchArray;
+						const matches = textMessage.message.match(/@\w+/gi) as RegExpMatchArray;
 						for (let i = 0; i < matches.length; i++) {
 							const match = matches[i].replace("@", "").toLowerCase();
 							// console.log("Search for message from ", match);
@@ -474,17 +483,17 @@ export default createStore({
 									// console.log("Timeframe is OK !");
 									if(c.answers) {
 										//If it's the root message of a conversation
-										c.answers.push( m );
-										m.answerTo = c;
+										c.answers.push( textMessage );
+										textMessage.answerTo = c;
 									}else if(c.answerTo && c.answerTo.answers) {
 										//If the messages answers to a message itself answering to another message
-										c.answerTo.answers.push( m );
-										m.answerTo = c.answerTo;
+										c.answerTo.answers.push( textMessage );
+										textMessage.answerTo = c.answerTo;
 									}else{
 										//If message answers to a message not from a conversation
-										m.answerTo = c;
+										textMessage.answerTo = c;
 										if(!c.answers) c.answers = [];
-										c.answers.push( m );
+										c.answers.push( textMessage );
 									}
 									break;
 								}
@@ -492,7 +501,30 @@ export default createStore({
 						}
 					}
 				}
+
+				//If it's a text message and user isn't a follower, broadcast to WS
+				if(payload.type == "message") {
+					if(state.followingStates[textMessage.tags['user-id'] as string] === false) {
+						OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
+					}
+				}
+
+				//Check if the message contains a mention
+				if(state.params.appearance.highlightMentions.value === true) {
+					textMessage.hasMention = state.user.login != null
+					&& new RegExp("(^| )("+state.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
+					if(textMessage.hasMention) {
+						//Broadcast to OBS-Ws
+						OBSWebsocket.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
+					}
+					
+				}
 			}
+
+			//If it's a text message and user isn't a follower, broadcast to WS
+			if(message.firstMessage === true)		OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
+			//If it's a text message and it's the all-time first message
+			if(message.tags['first-msg'] === true)	OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
@@ -514,6 +546,15 @@ export default createStore({
 			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				if(data.messageId == list[i].tags.id) {
+					//Broadcast to OBS-ws
+					const wsMessage = {
+						channel:list[i].channel,
+						message:list[i].message,
+						tags:list[i].tags,
+					}
+					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+
+					//Delete message from list
 					if(keepDeletedMessages === true && !list[i].automod) {
 						list[i].deleted = true;
 						list[i].deletedData = data.deleteData;
@@ -533,6 +574,15 @@ export default createStore({
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(m.tags.username?.toLowerCase() == username && m.type == "message") {
+					//Broadcast to OBS-ws
+					const wsMessage = {
+						channel:list[i].channel,
+						message:list[i].message,
+						tags:list[i].tags,
+					}
+					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+
+					//Delete message from list
 					if(keepDeletedMessages === true) {
 						list[i].deleted = true;
 					}else{
@@ -905,14 +955,25 @@ export default createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.WHISPER, (event:IRCEvent) => {
 				if(state.params.features.receiveWhispers.value === true) {
-					const data = event.data as IRCEventDataList.Whisper;
-					const uid = data.tags['user-id'] as string;
+					const user = event.data as IRCEventDataList.Whisper;
+					const uid = user.tags['user-id'] as string;
 					const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 					if(!whispers[uid]) whispers[uid] = [];
-					data.timestamp = Date.now();
-					whispers[uid].push(data);
+					user.timestamp = Date.now();
+					whispers[uid].push(user);
 					state.whispers = whispers;
 					state.whispersUnreadCount ++;
+
+					//Broadcast to OBS-ws
+					const wsUser = {
+						id: user.tags['user-id'],
+						login: user.tags.username,
+						color: user.tags.color,
+						badges: user.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
+						'display-name': user.tags['display-name'],
+						'message-id': user.tags['message-id'],
+					}
+					OBSWebsocket.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:state.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 				}
 			});
 

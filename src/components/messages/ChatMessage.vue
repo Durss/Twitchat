@@ -104,7 +104,6 @@ export default class ChatMessage extends Vue {
 	public text:string = "";
 	public automodReasons:string = "";
 	public badges:TwitchTypes.Badge[] = [];
-	public hasMention:boolean = false;
 
 	public get isAnnouncement():boolean {
 		const message = this.messageData as IRCEventDataList.Message;
@@ -148,7 +147,7 @@ export default class ChatMessage extends Vue {
 		}
 
 		if(!this.lightMode) {
-			if(this.hasMention) res.push("mention");
+			if(message.hasMention) res.push("mention");
 			
 			//Set highlight
 			if(message.tags.mod && store.state.params.appearance.highlightMods.value) res.push("highlightMods");
@@ -304,12 +303,6 @@ export default class ChatMessage extends Vue {
 			this.automodReasons = textReasons.join(", ");
 		}
 		this.text = this.parseText();
-
-		this.hasMention = store.state.params.appearance.highlightMentions.value as boolean
-			&& store.state.user.login != null
-			//Remove all HTML tags
-			&& this.text.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "")
-			.toLowerCase().indexOf(store.state.user.login.toLowerCase()) > -1;
 
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
 			await this.$nextTick();
