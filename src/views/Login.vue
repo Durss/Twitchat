@@ -143,7 +143,9 @@ export default class Login extends Vue {
 				store.state.alert = "You refused access to the Twitch application.";
 				this.authenticating = false;
 			}
-		}else{
+		}
+		
+		if(!this.authenticating){
 			this.generatingCSRF = true;
 			const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
 			const json = await res.json();
