@@ -61,12 +61,12 @@ export default class AutocompleteForm extends Vue {
 		return res;
 	}
 
-	private keyDownHandler!:(e:KeyboardEvent) => void;
+	private keyUpHandler!:(e:KeyboardEvent) => void;
 
 	public mounted():void {
 		this.selectedIndex = 0;
-		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
-		document.addEventListener("keydown", this.keyDownHandler);
+		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyUp(e);
+		document.addEventListener("keyup", this.keyUpHandler);
 		watch(()=>this.search, ()=>{
 			this.onSearchChange();
 		});
@@ -74,7 +74,7 @@ export default class AutocompleteForm extends Vue {
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("keydown", this.keyDownHandler);
+		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
 	public selectItem(item:ListItem):void {
@@ -86,7 +86,7 @@ export default class AutocompleteForm extends Vue {
 		}
 	}
 
-	public onkeyDown(e:KeyboardEvent):void {
+	public onkeyUp(e:KeyboardEvent):void {
 		switch(e.key) {
 			case "Escape":
 				this.$emit("close");
@@ -112,8 +112,9 @@ export default class AutocompleteForm extends Vue {
 				e.preventDefault();
 				break;
 			case "Enter": {
-				this.selectItem(this.filteredItems[this.selectedIndex]);
 				e.preventDefault();
+				e.stopPropagation();
+				this.selectItem(this.filteredItems[this.selectedIndex]);
 				break;
 			}
 		}

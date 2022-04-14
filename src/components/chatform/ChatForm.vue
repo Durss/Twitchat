@@ -403,8 +403,6 @@ export default class ChatForm extends Vue {
 		if(!carretPos) carretPos = 1;
 		carretPos --;
 
-		console.log("Selected", item);
-
 		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = localMessage.charAt(i);
