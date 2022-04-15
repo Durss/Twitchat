@@ -409,29 +409,6 @@ export default createStore({
 						state.followingStates[payload.tags['user-id'] as string] = true;
 					}
 				}
-
-				//If a bingo's in progress, check if the user won it
-				const bingo = state.bingo as BingoData;
-				if(bingo.opened === true && textMessage.message) {
-					let win = bingo.numberValue && parseInt(textMessage.message) == bingo.numberValue;
-					win ||= bingo.emoteValue
-					&& textMessage.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
-					if(win) {
-						state.bingo.winners = [textMessage.tags];
-						if(state.bingo_messagePost) {
-							//TMI.js never cease to amaze me.
-							//It doesn't send the message back to the sender if sending
-							//it just after receiving a message.
-							//If we didn't wait for a frame, the message would be sent properly
-							//but wouldn't appear on this chat.
-							setTimeout(()=> {
-								let message = state.bingo_message;
-								message = message.replace(/\{USER\}/gi, textMessage.tags['display-name'] as string)
-								IRCClient.instance.sendMessage(message);
-							},0);
-						}
-					}
-				}
 				
 				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 				if(TwitchCypherPlugin.instance.isCyperCandidate(textMessage.message)) {
@@ -882,25 +859,25 @@ export default createStore({
 			}
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
-				const message = event.data as IRCEventDataList.Message;
-				const trackedUser = (state.trackedUsers as TwitchTypes.TrackedUser[]).find(v => v.user['user-id'] == message.tags['user-id']);
+				const messageData = event.data as IRCEventDataList.Message;
+				const trackedUser = (state.trackedUsers as TwitchTypes.TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
 				
 				if(trackedUser) {
 					if(!trackedUser.messages) trackedUser.messages = [];
-					trackedUser.messages.push(message);
+					trackedUser.messages.push(messageData);
 				}
 				
 				//If a raffle is in progress, check if the user can enter
 				const raffle:RaffleData = state.raffle as RaffleData;
-				if(raffle.command && message.message.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
+				if(raffle.command && messageData.message.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 					//Check if within time frame and max users count isn't reached and that user
 					//hasn't already entered
 					if(ellapsed <= raffle.duration * 60000
 					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
-					&& !raffle.users.find(v=>v.user['user-id'] == message.tags['user-id'])) {
+					&& !raffle.users.find(v=>v.user['user-id'] == messageData.tags['user-id'])) {
 						let score = 1;
-						const user = message.tags;
+						const user = messageData.tags;
 						//Apply ratios if any is defined
 						if(raffle.vipRatio > 0 && user.badges?.vip) score += raffle.vipRatio;
 						if(raffle.subRatio > 0 && user.badges?.subscriber)  score += raffle.subRatio;
@@ -915,6 +892,29 @@ export default createStore({
 							if(state.followingStates[uid] === true) score += raffle.followRatio;
 						}
 						raffle.users.push( { score, user } );
+					}
+				}
+
+				//If a bingo's in progress, check if the user won it
+				const bingo = state.bingo as BingoData;
+				if(bingo.opened === true && messageData.message && state.bingo.winners.length == 0) {
+					let win = bingo.numberValue && parseInt(messageData.message) == bingo.numberValue;
+					win ||= bingo.emoteValue
+					&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
+					if(win) {
+						state.bingo.winners = [messageData.tags];
+						if(state.bingo_messagePost) {
+							//TMI.js never cease to amaze me.
+							//It doesn't send the message back to the sender if sending
+							//it just after receiving a message.
+							//If we didn't wait for a frame, the message would be sent properly
+							//but wouldn't appear on this chat.
+							setTimeout(()=> {
+								let message = state.bingo_message;
+								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
+								IRCClient.instance.sendMessage(message);
+							},0);
+						}
 					}
 				}
 			});
