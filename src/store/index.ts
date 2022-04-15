@@ -416,17 +416,20 @@ export default createStore({
 					let win = bingo.numberValue && parseInt(textMessage.message) == bingo.numberValue;
 					win ||= bingo.emoteValue
 					&& textMessage.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
-					if(win && state.bingo_messagePost) {
-						//TMI.js never cease to amaze me.
-						//It doesn't send the message back to the sender if sending
-						//it just after receiving a message.
-						//If we didn't wait for a frame, the message would be sent properly
-						//but wouldn't appear on this chat.
-						setTimeout(()=> {
-							let message = state.bingo_message;
-							message = message.replace(/\{USER\}/gi, textMessage.tags['display-name'] as string)
-							IRCClient.instance.sendMessage(message);
-						},0);
+					if(win) {
+						state.bingo.winners = [textMessage.tags];
+						if(state.bingo_messagePost) {
+							//TMI.js never cease to amaze me.
+							//It doesn't send the message back to the sender if sending
+							//it just after receiving a message.
+							//If we didn't wait for a frame, the message would be sent properly
+							//but wouldn't appear on this chat.
+							setTimeout(()=> {
+								let message = state.bingo_message;
+								message = message.replace(/\{USER\}/gi, textMessage.tags['display-name'] as string)
+								IRCClient.instance.sendMessage(message);
+							},0);
+						}
 					}
 				}
 				
