@@ -53,7 +53,7 @@ export default class RaffleForm extends Vue {
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
 	public maxUsers:ParameterData = {label:"Max users count", value:10, type:"number", min:0, max:1000000};
-	public ponderateVotes:ParameterData = {label:"Ponderate votes (additional votes given for every matching params)", value:true, type:"toggle"};
+	public ponderateVotes:ParameterData = {label:"Ponderate votes (additional votes given for every matching params)", value:false, type:"toggle"};
 	public ponderateVotes_vip:ParameterData = {label:"VIP", value:0, type:"number", min:0, max:100, icon:"vip_purple.svg"};
 	public ponderateVotes_sub:ParameterData = {label:"Subscriber", value:0, type:"number", min:0, max:100, icon:"sub_purple.svg"};
 	public ponderateVotes_subgift:ParameterData = {label:"Sub gifter", value:0, type:"number", min:0, max:100, icon:"gift_purple.svg"};
