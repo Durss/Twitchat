@@ -55,9 +55,9 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Supports new boost trains
 - [x] Supports new `/announce message` feature
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
+- [x] Expose an API to control some stuff remotely
 <br>
 
-- [ ] Expose an API to control some stuff remotely (WIP)
 - [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
