@@ -2,7 +2,7 @@ import OBSWebSocket from 'obs-websocket-js';
 import { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from './EventDispatcher';
-import TwitchatEvent, { TwitchatEventType } from './TwitchatEvent';
+import TwitchatEvent, { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
 
 /**
 * Created : 29/03/2022 
@@ -63,7 +63,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		try {
 			await this.obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 		}catch(error) {
-			console.log(error);
 			if(this.autoReconnect) {
 				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass);
@@ -160,7 +159,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * Broadcast a message to all the connected clients
 	 * @param data
 	 */
-	public async broadcast(type:TwitchatEventType, data:JsonObject):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		if(!this.connected) return;
 
 		const eventData = { origin:"twitchat", type, data }

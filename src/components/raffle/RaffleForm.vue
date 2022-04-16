@@ -13,7 +13,7 @@
 				</div>
 				<form @submit.prevent="onSubmit()">
 					<div class="row">
-						<ParamItem class="item" :paramData="command" />
+						<ParamItem class="item" :paramData="command" :autofocus="true" />
 					</div>
 					<div class="row">
 						<ParamItem class="item" :paramData="enterDuration" />

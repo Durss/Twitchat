@@ -20,7 +20,7 @@
 						Your viewers will have to send a number between the min and max values <i>(included)</i> in the chat
 					</div>
 					<div class="row" v-if="guessNumber">
-						<ParamItem class="item" :paramData="minValue" />
+						<ParamItem class="item" :paramData="minValue" autofocus />
 					</div>
 					<div class="row" v-if="guessNumber">
 						<ParamItem class="item" :paramData="maxValue" />

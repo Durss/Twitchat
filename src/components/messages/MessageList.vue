@@ -137,12 +137,13 @@ export default class MessageList extends Vue {
 
 	private disposed:boolean = false;
 	private holderOffsetY:number = 0;
-	private prevMarkedReadItem:IRCEventDataList.Message | null = null;
+	private prevMarkedReadItem:IRCEventDataList.Message | IRCEventDataList.Highlight | null = null;
 	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
+	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get classes():string[] {
 		let res = ["messagelist"];
@@ -170,8 +171,7 @@ export default class MessageList extends Vue {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
-			const maxScroll = (el.scrollHeight - h);
+			const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
 				for (let i = 0; i < store.state.chatMessages.length; i++) {
@@ -196,8 +196,15 @@ export default class MessageList extends Vue {
 		});
 
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
+		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
 		IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 
 		await this.$nextTick();
 		this.renderFrame();
@@ -207,6 +214,12 @@ export default class MessageList extends Vue {
 		this.disposed = true;
 
 		IRCClient.instance.removeEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 	}
 
 	public async onHoverList():Promise<void> {
@@ -216,8 +229,7 @@ export default class MessageList extends Vue {
 		if(scrollDown) {
 			await this.$nextTick();
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
-			const maxScroll = (el.scrollHeight - h);
+			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			el.scrollTop = this.virtualScrollY = maxScroll
 		}
 	}
@@ -225,8 +237,7 @@ export default class MessageList extends Vue {
 	public onLeaveList():void {
 		// if(this.catchingUpPendingMessages) return;
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
-		const maxScroll = (el.scrollHeight - h);
+		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 		if(this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
 			this.lockScroll = false;
@@ -256,6 +267,54 @@ export default class MessageList extends Vue {
 	}
 
 	/**
+	 * Called when requesting an action from the public API
+	 */
+	private onPublicApiEvent(e:TwitchatEvent):void {
+		const data = e.data as {count?:number, scrollBy?:number};
+		let readCount = (data?.count && !isNaN(data.count as number))? data.count : 0;
+		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number))? data.scrollBy : 100;
+		switch(e.type) {
+			case TwitchatEvent.CHAT_FEED_READ: {
+				if(readCount === 0) readCount = 1;
+				const offset = this.localMessages.findIndex(v => v.markedAsRead === true)
+				if(offset > -1) readCount += offset;
+			}
+			/* falls through */
+			case TwitchatEvent.CHAT_FEED_READ_ALL: {
+				if(readCount === 0 || readCount > this.localMessages.length-1) {
+					readCount = this.localMessages.length-1;
+				}
+				if(readCount < 0) readCount = 0;
+				this.toggleMarkRead(this.localMessages[readCount]);
+				break;
+			}
+			case TwitchatEvent.CHAT_FEED_PAUSE:{
+				this.lockScroll = true;
+				break;
+			}
+			case TwitchatEvent.CHAT_FEED_UNPAUSE:{
+				this.unPause();
+				break;
+			}
+			case TwitchatEvent.CHAT_FEED_SCROLL_UP:{
+				this.lockScroll = true;
+				const el = this.$refs.messageHolder as HTMLDivElement;
+				gsap.to(el, {scrollTop:el.scrollTop - scrollBy, duration: .15, ease: "power1.inOut"});
+				break;
+			}
+			case TwitchatEvent.CHAT_FEED_SCROLL_DOWN:{
+				const el = this.$refs.messageHolder as HTMLDivElement;
+				const vScroll = el.scrollTop + scrollBy;
+				const unPause = vScroll >= el.scrollHeight - el.offsetHeight;
+				gsap.to(el, {scrollTop:vScroll, duration: .15, ease: "power1.inOut", onComplete:()=>{
+					if(unPause) this.unPause();
+				}});
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Catch up all pending messages
 	 */
 	public async unPause():Promise<void> {
@@ -275,8 +334,7 @@ export default class MessageList extends Vue {
 			this.lockScroll = false;
 			
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
-			const maxScroll = (el.scrollHeight - h);
+			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			this.virtualScrollY = maxScroll;
 		}, 0);
 	}
@@ -306,8 +364,7 @@ export default class MessageList extends Vue {
 		}else{
 			//If scrolling down while at the bottom of the list, load next message
 			const el = this.$refs.messageHolder as HTMLDivElement;
-			const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
-			const maxScroll = (el.scrollHeight - h);
+			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			
 			if(maxScroll < 0) {
 				this.showNextPendingMessage(true);
@@ -336,7 +393,7 @@ export default class MessageList extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
+		const h = el.offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
 
 
@@ -413,8 +470,7 @@ export default class MessageList extends Vue {
 	private async scrollToPrevMessage(wheelOrigin:boolean = false):Promise<void> {
 		await this.$nextTick();
 		const el = this.$refs.messageHolder as HTMLDivElement;
-		const h = (this.$refs.messageHolder as HTMLDivElement).offsetHeight;
-		const maxScroll = (el.scrollHeight - h);
+		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 		const messRefs = this.$refs.message as HTMLDivElement[];
 		const lastMessRef = messRefs[ messRefs.length - 1 ];
@@ -543,9 +599,11 @@ export default class MessageList extends Vue {
 	/**
 	 * Called on a message is clicked
 	 */
-	public toggleMarkRead(m:IRCEventDataList.Message, event:MouseEvent):void {
-		const target = event.target as HTMLElement;
-		if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
+	public toggleMarkRead(m:IRCEventDataList.Message | IRCEventDataList.Highlight, event?:MouseEvent):void {
+		if(event) {
+			const target = event.target as HTMLElement;
+			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
+		}
 		if(store.state.params.features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {

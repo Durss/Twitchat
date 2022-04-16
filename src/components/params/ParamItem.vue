@@ -20,7 +20,7 @@
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
-				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step">
+				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus">
 			</div>
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
@@ -30,8 +30,8 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea v-if="paramData.longText===true" :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2"></textarea>
-				<input v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder">
+				<textarea v-if="paramData.longText===true" :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -43,7 +43,7 @@
 				<label :for="'slider'+key">
 					{{paramData.label}} <span>({{paramData.value}})</span>
 				</label>
-				<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value">
+				<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus">
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -53,7 +53,7 @@
 					class="helpBt"
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
-				<select v-model="paramData.value" :id="'list'+key">
+				<select v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus">
 					<option v-for="a in paramData.listValues" :key="a" :value="a">{{a}}</option>
 				</select>
 			</div>
@@ -83,6 +83,10 @@ import ToggleButton from '../ToggleButton.vue';
 		childLevel:{
 			type:Number,
 			default:0,
+		},
+		autofocus:{
+			type:Boolean,
+			default:false,
 		},
 	},
 	components:{
@@ -165,7 +169,7 @@ export default class ParamItem extends Vue {
 
 <style scoped lang="less">
 .paramitem{
-	overflow: hidden;
+	overflow-y: clip;
 	
 	&.longText {
 		.content {
@@ -258,7 +262,7 @@ export default class ParamItem extends Vue {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;
-		@padding:10%;
+		@padding:7%;
 		width: calc(100% - @padding);
 		position: relative;
 		:deep(.holder) {
@@ -266,8 +270,8 @@ export default class ParamItem extends Vue {
 				position: absolute;
 				left: -15px;
 				content: "⤷";
-				display: inline-block;
-				margin-right: 5px;
+				display: block;
+				// margin-right: 5px;
 			}
 			label {
 				font-size: .9em;

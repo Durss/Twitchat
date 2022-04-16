@@ -119,10 +119,11 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get deletedMessage():string {
+		const censor = (store.state.params.filters.censorDeletedMessages.value===true)
 		if(this.messageData.deletedData) {
-			return "<deleted by "+this.messageData.deletedData.created_by+">";
+			return censor ? "<deleted by "+this.messageData.deletedData.created_by+">" : "";
 		}else if(this.messageData.deleted){
-			return "<message deleted>";
+			return censor ? "<message deleted>" : "";
 		}
 		return "";
 	}
@@ -145,6 +146,7 @@ export default class ChatMessage extends Vue {
 			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
 			res.push("announcement", color);
 		}
+		if(store.state.params.filters.censorDeletedMessages.value===true) res.push("censor");
 
 		if(!this.lightMode) {
 			if(message.hasMention) res.push("mention");
@@ -412,8 +414,10 @@ export default class ChatMessage extends Vue {
 	&.deleted {
 		opacity: .25;
 		transition: opacity .2s;
-		.message {
-			.text { display: none; }
+		&.censor {
+			.message {
+				.text { display: none; }
+			}
 		}
 		&:hover{
 			opacity: 1;

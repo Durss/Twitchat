@@ -153,6 +153,7 @@ export default createStore({
 			filters: {
 				showSelf: {type:"toggle", value:true, label:"Show my messages", id:100},
 				keepDeletedMessages: {type:"toggle", value:true, label:"Keep deleted messages", id:113},
+				censorDeletedMessages: {type:"toggle", value:true, label:"Censor deleted messages", id:116, parent:113},
 				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
 				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
 				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},

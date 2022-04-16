@@ -32,6 +32,7 @@
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
@@ -120,7 +121,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public obsWSBroadcast():void {
-		OBSWebsocket.instance.broadcast("TEST", {message:"this is a test! Do you copy?"});
+		PublicAPI.instance.broadcast("ACTIVITY_FEED_TOGGLE");
 	}
 
 }

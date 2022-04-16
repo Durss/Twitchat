@@ -11,12 +11,10 @@
 <br>
 
 Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.\
-The same events and actions are possible through the `BroadcastChannel` API that allows communicating between 2 tabs of the browser *(ex: 2 browser sources in OBS)*
 
 # Table of content
 * [Prerequisites](#prerequisites)
 * [Connect example](#connect-example)
-  * [BroadcastChannel](#broadcastChannel)
   * [OBS-websocket](#obs-websocket)
   * [Available events and actions](#available-events-and-actions)
 * [Events](#events)
@@ -37,29 +35,9 @@ OBS will act as a bridge to transmit Twitchat messages to any connected client.\
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
-Bellow are typescript examples to use the API via `BroadcastChannel` and via `OBS-Websocket`.\
+Bellow is a typescript example to use the API via `OBS-Websocket`.\
 The example refer to `TwitchatActionType` and `TwitchatEventType`. You can find their [signatures here](#available-events-and-actions).
 
-## BroadcastChannel
-```typescript
-const bc:BroadcastChannel = new BroadcastChannel("twitchat");
-
-//Called when receiving a Twitchat event
-bc.onmessage = (e: MessageEvent<unknown>):void => {
-	const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue};
-	console.log(`Twitchat event ${event.type} received !`);
-	console.log(event.data);//JSON data of the event
-}
-
-//Request an action to be performed by twitchat
-function executeAction(type:TwitchatActionType, data:unknown):void {
-	//Make sure there are no function or any invalid data in the object by
-	//stringifying to JSON and parsing it back.
-	const dataJS = JSON.parse(JSON.stringify(data));
-	bc.postMessage({type, data:dataJS});
-}
-
-```
 
 ## OBS-websocket
 
@@ -146,9 +124,12 @@ export type TwitchatActionType =
 	| "CHAT_FEED_SCROLL_DOWN"
 	| "POLL_TOGGLE"
 	| "PREDICTION_TOGGLE"
+	| "BINGO_TOGGLE"
+	| "RAFFLE_TOGGLE"
 	| "ACTIVITY_FEED_TOGGLE"
 	| "VIEWERS_COUNT_TOGGLE"
-	| "MOD_TOOLS_TOGGLE";
+	| "MOD_TOOLS_TOGGLE"
+	| "CENSOR_DELETED_MESSAGES_TOGGLE";
 ```
 
 # Events
@@ -302,4 +283,115 @@ Sent when a prediction starts, updates (when someone votes) and ends.
 
 # Actions
 List of actions you can request Twitchat to perform.\
-_--**TODO**--_
+
+## **GREET_FEED_READ**
+Marks "`count`" messages as read in the "Greet them" section.\
+*Default value = 1*
+### JSON param *(optional)*
+```typescript
+{
+	"count": number,
+}
+```
+## **GREET_FEED_READ_ALL**
+Marks all the messages as read in the "Greet them" section
+### JSON param
+```
+-none-
+```
+
+## **CHAT_FEED_READ**
+Marks "`count`" messages as read in the chat feed.\
+`count` value can be negative to move the read mark back.
+*Default value = 1*
+### JSON param *(optional)*
+```typescript
+{
+	"count": number,
+}
+```
+## **CHAT_FEED_READ_ALL**
+Marks all the messages as read in the chat feed.
+### JSON param
+```
+-none-
+```
+## **CHAT_FEED_PAUSE**
+Pauses the chat
+### JSON param
+```
+-none-
+```
+## **CHAT_FEED_UNPAUSE**
+Resumes the chat by scrolling back to bottom
+### JSON param
+```
+-none-
+```
+## **CHAT_FEED_SCROLL_UP**
+Scroll the chat feed up by the number of pixels specified in the `scrollBy` value.\
+*Default value = 100*
+### JSON param *(optional)*
+```typescript
+{
+	"scrollBy":number
+}
+```
+## **CHAT_FEED_SCROLL_DOWN**
+Scroll the chat feed down by the number of pixels specified in the `scrollBy` value.\
+*Default value = 100*
+### JSON param *(optional)*
+```typescript
+{
+	"scrollBy":number
+}
+```
+## **POLL_TOGGLE**
+Toggle current poll's visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **PREDICTION_TOGGLE**
+Toggle current prediction's visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **BINGO_TOGGLE**
+Toggle current bingo's visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **RAFFLE_TOGGLE**
+Toggle current raffle's visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **ACTIVITY_FEED_TOGGLE**
+Toggle activity feed's visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **VIEWERS_COUNT_TOGGLE**
+Toggle viewer count's visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **MOD_TOOLS_TOGGLE**
+Toggle moderation tools' visibility
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **CENSOR_DELETED_MESSAGES_TOGGLE**
+Toggle the censorship of the deleted messages\
+If censorship is enabled, deleted messages content is replaced by `<deleted message>`.
+### JSON param *(optional)*
+```typescript
+-none-
+```

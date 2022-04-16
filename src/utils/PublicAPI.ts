@@ -53,10 +53,11 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param type 
 	 * @param data 
 	 */
-	public async broadcast(type:TwitchatEventType, data:JsonObject):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		//Broadcast to other browser's tabs
 		try {
-			this._bc.postMessage({type, data:JSON.parse(JSON.stringify(data))});
+			if(data) data = JSON.parse(JSON.stringify(data));
+			this._bc.postMessage({type, data});
 		}catch(error) {
 			console.error(error);
 		}

@@ -117,6 +117,8 @@ import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Parameters from '@/components/params/Parameters.vue';
+import TwitchatEvent from '@/utils/TwitchatEvent';
+import PublicAPI from '@/utils/PublicAPI';
 
 @Options({
 	components:{
@@ -155,6 +157,8 @@ export default class Chat extends Vue {
 	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
 	
+	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
 
@@ -173,7 +177,16 @@ export default class Chat extends Vue {
 
 	public mounted():void {
 		this.resizeHandler = ()=> this.onResize();
+		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		window.addEventListener("resize", this.resizeHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.ACTIVITY_FEED_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		this.onResize();
 		
 
@@ -206,10 +219,61 @@ export default class Chat extends Vue {
 
 	public beforeUnmount():void {
 		window.removeEventListener("resize", this.resizeHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.ACTIVITY_FEED_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 	}
 
 	public clearChat():void {
 		IRCClient.instance.client.clear(IRCClient.instance.channel);
+	}
+
+	/**
+	 * Called when requesting an action from the public API
+	 */
+	private onPublicApiEvent(e:TwitchatEvent):void {
+		let notif = "";
+		let modal = "";
+		switch(e.type) {
+			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
+			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
+			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
+			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
+			case TwitchatEvent.ACTIVITY_FEED_TOGGLE: this.showFeed = !this.showFeed; break;
+			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
+				store.state.params.appearance.showViewersCount.value = !store.state.params.appearance.showViewersCount.value;
+				store.dispatch('updateParams');
+				break;
+			case TwitchatEvent.MOD_TOOLS_TOGGLE:
+				store.state.params.features.showModTools.value = !store.state.params.features.showModTools.value;
+				store.dispatch('updateParams');
+				break;
+			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
+				store.state.params.filters.censorDeletedMessages.value = !store.state.params.filters.censorDeletedMessages.value;
+				store.dispatch('updateParams');
+				break;
+		}
+
+		if(notif) {
+			if(this.currentNotificationContent == notif) {
+				this.currentNotificationContent = "";
+			}else{
+				this.currentNotificationContent = notif;
+			}
+		}
+
+		if(modal) {
+			if(this.currentModal == modal) {
+				this.currentModal = "";
+			}else{
+				this.currentModal = modal;
+			}
+		}
 	}
 
 	public startAd(duration:number):void {

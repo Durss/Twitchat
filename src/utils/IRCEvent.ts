@@ -142,6 +142,7 @@ export namespace IRCEventDataList {
 		reward?: PubSubTypes.RewardData;
 		//custom data
 		firstMessage?:boolean;
+		markedAsRead?:boolean;
 		type:"highlight";
 		subgiftAdditionalRecipents?:string[];
 	}

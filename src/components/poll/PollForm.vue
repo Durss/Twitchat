@@ -10,11 +10,11 @@
 				<form  @submit.prevent="submitPoll()">
 					<div class="row">
 						<label for="poll_title">Question</label>
-						<input type="text" id="poll_title" v-model="title" maxlength="60">
+						<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''">
 					</div>
 					<div class="row">
 						<label for="poll_answer">Answers (at least 2)</label>
-						<input type="text" id="poll_answer" v-model="answer1" maxlength="25">
+						<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''">
 						<input type="text" v-model="answer2" maxlength="25">
 						<input type="text" v-model="answer3" maxlength="25">
 						<input type="text" v-model="answer4" maxlength="25">
@@ -84,11 +84,14 @@ export default class PollForm extends Vue {
 		return res;
 	}
 
-	public async mounted():Promise<void> {
+	public async beforeMount():Promise<void> {
 		if(store.state.tempStoreValue) {
 			this.title = store.state.tempStoreValue as string;
 			store.state.tempStoreValue = null;
 		}
+	}
+
+	public async mounted():Promise<void> {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});

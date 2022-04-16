@@ -76,6 +76,8 @@ import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -106,6 +108,7 @@ export default class NewUsers extends Vue {
 
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
 	private messageHandler!:(e:IRCEvent)=> void;
+	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get classes():string[] {
 		let res = ["newusers"];
@@ -144,9 +147,10 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		// this.localMessages = JSON.parse(JSON.stringify(store.state.chatMessages)).filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight");
+		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight"));
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
+		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		
 		//Listen for shift/Ctr keys to define if deleting in streak or single mode
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
@@ -163,6 +167,8 @@ export default class NewUsers extends Vue {
 		document.addEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}
 
 	public beforeUnmount():void {
@@ -171,6 +177,8 @@ export default class NewUsers extends Vue {
 		document.removeEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}
 
 	/**
@@ -186,6 +194,34 @@ export default class NewUsers extends Vue {
 		}
 		await this.$nextTick();
 		this.scrollTo();
+	}
+
+	/**
+	 * Called when requesting an action from the public API
+	 */
+	private onPublicApiEvent(e:TwitchatEvent):void {
+		const data = e.data as {count?:number};
+		let readCount = 0;
+		switch(e.type) {
+			case TwitchatEvent.GREET_FEED_READ: {
+				if(data && !isNaN(data.count as number)) {
+					readCount = data.count as number;
+				}else{
+					readCount = 1;
+				}
+				break;
+			}
+			case TwitchatEvent.GREET_FEED_READ_ALL: {
+				readCount = this.localMessages.length
+				break;
+			}
+		}
+		
+		for (let i = 0; i < readCount; i++) {
+			if(this.localMessages.length === 0) break;
+			this.localMessages[0].firstMessage = false;
+			this.localMessages.splice(0, 1);
+		}
 	}
 
 	/**
@@ -219,6 +255,8 @@ export default class NewUsers extends Vue {
 	 * Removes all messages
 	 */
 	public clearAll():void {
+		//Store the count of messages to delete so if new messages are added
+		//while confirming the clear, these new messages are kept
 		let deleteCount = this.localMessages.length;
 		Utils.confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
 			for (let i = 0; i < deleteCount; i++) {

@@ -106,7 +106,6 @@ export default class ChannelNotifications extends Vue {
 			if(this.showClose) this.$emit("showDimmer");
 			else this.$emit("hideDimmer");
 		})
-
 	}
 
 	public beforeUnmount():void {
