@@ -41,8 +41,7 @@ export default class TwitchatEvent extends Event {
 }
 
 export type TwitchatEventType =
-	"TEST"//Just here for debug
-	| "MESSAGE_READ"//Done
+	"MESSAGE_READ"//Done
 	| "MESSAGE_NON_FOLLOWER"//Done
 	| "MESSAGE_FILTERED"//Done
 	| "MESSAGE_DELETED"//Done
