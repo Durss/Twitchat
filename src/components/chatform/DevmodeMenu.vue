@@ -31,7 +31,6 @@
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import Utils from '@/utils/Utils';
