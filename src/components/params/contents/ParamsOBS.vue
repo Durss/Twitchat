@@ -45,13 +45,13 @@
 			<OBSScenes />
 		</ToggleBlock>
 
-		<ToggleBlock class="block overlay"
+		<!-- <ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="false"
 		icon="show_purple"
 		title="Control sources">
 			<OBSSources />
-		</ToggleBlock>
+		</ToggleBlock> -->
 	</div>
 </template>
 

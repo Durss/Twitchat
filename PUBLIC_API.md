@@ -84,15 +84,23 @@ function sendMessage(type:TwitchatActionType, data:unknown):Promise<void> {
  * Called when receiving a message from Twitchat
  */
 function onTwitchatEvent(e:{origin:"twitchat", type:TwitchatEventType, data:unknown}):void {
-		if(e.type == undefined) return;
-		//Ignore any message not coming from twitchat
-		if(e.origin != "twitchat") return;
+	if(e.type == undefined) return;
+	//Ignore any message not coming from twitchat
+	if(e.origin != "twitchat") return;
 
-		console.log(`Twitchat event ${e.type} received !`);
-		console.log(e.data);//JSON data of the event
+	console.log(`Twitchat event ${e.type} received !`);
+	console.log(e.data);//JSON data of the event
+
+	//Example
+	if(e.type == "MESSAGE_NON_FOLLOWER") {
+		console.log(`The user ${e.data.tags.username} is not following the channel and sent this message : ${e.data.message}`)
 	}
+}
 
-connect();
+connect().then(()=> {
+	//Marks 1 message as read in the "Greet them section"
+	sendMessage("GREET_FEED_READ", {count:1});
+});
 ```
 
 ## Available events and actions
