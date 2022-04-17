@@ -471,11 +471,10 @@ export default class ChatMessage extends Vue {
 				margin-right: 5px;
 			}
 
-			&.predictions {
+			&.prediction {
 				&.pink{ background-color: #f50e9b;}
 				&.blue{ background-color: #387aff;}
 			}
-			&.vip{ background-color: #387aff;}
 			&.vip{ background-color: #e00bb9;}
 			&.subscriber{ background-color: #9147ff;}
 			&.premium{ background-color: #00a3ff;}
