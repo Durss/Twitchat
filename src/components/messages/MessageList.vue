@@ -69,6 +69,7 @@
 			v-if="conversation.length > 0" :style="conversationStyles"
 			@mouseenter="reopenLastConversation()"
 			@mouseleave="onMouseLeave()"
+			@mousewheel.stop=""
 		>
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>

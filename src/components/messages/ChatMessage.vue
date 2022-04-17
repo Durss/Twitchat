@@ -187,8 +187,19 @@ export default class ChatMessage extends Vue {
 	 */
 	public get loginStyles():unknown {
 		const message = this.messageData as IRCEventDataList.Message;
+		let color = 0xffffff;
+		if(message.tags.color) {
+			color = parseInt(message.tags.color.replace("#", ""), 16);
+		}
+		const hsl = Utils.rgb2hsl(color);
+		const minL = .6;
+		if(hsl.l < minL) {
+			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+		}
+		let colorStr = color.toString(16);
+		while(colorStr.length < 6) colorStr = "0"+colorStr;
 		let res = {
-			color:message.tags.color,
+			color: "#"+colorStr,
 		};
 		return res;
 	}
@@ -489,7 +500,7 @@ export default class ChatMessage extends Vue {
 			font-weight: bold;
 			// -webkit-text-stroke: fade(#000, 50%) .25px;
 			&:hover {
-				background-color: @mainColor_light;
+				background-color: fade(@mainColor_light, 10%);
 				border-radius: 3px;
 			}
 		}

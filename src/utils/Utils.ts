@@ -121,4 +121,30 @@ export default class Utils {
 		}
 		return res;
 	}
+
+	/**
+	 * Converts an RGB color to HSL
+	 * @returns h:360 - s:0-1 - l:0-1
+	 */
+	public static rgb2hsl(color:number):{h:number,s:number,l:number} {
+		const r:number = (color >> 16 & 0xff) / 0xff;
+		const g:number = (color >> 8 & 0xff) / 0xff;
+		const b:number = (color & 0xff) / 0xff;
+		const v = Math.max(r,g,b), c=v-Math.min(r,g,b), f=(1-Math.abs(v+v-c-1)); 
+		const h = c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
+		return {h:60*(h<0?h+6:h), s:f ? c/f : 0, l:(v+v-c)/2};
+	}
+
+	/**
+	 * Converts an HTSL color to RGB
+	 * @param h 0-360
+	 * @param s 0-1
+	 * @param l 0-1
+	 * @returns 
+	 */
+	public static hsl2rgb(h:number,s:number,l:number):number {
+		const a = s*Math.min(l,1-l);
+		const f = (n:number,k:number=(n+h/30)%12) => l - a*Math.max(Math.min(k-3,9-k,1),-1);
+		return ((f(0)*0xff)<<16) | ((f(8)*0xff)<<8) | (f(4)*0xff);
+	}   
 }
