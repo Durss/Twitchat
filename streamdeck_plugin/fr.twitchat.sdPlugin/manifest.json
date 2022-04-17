@@ -1,0 +1,54 @@
+{
+	"Actions": [
+		{
+			"Icon": "actionIcon",
+			"Name": "Clear all new users",
+			"States": [
+				{
+					"Image": "actionDefaultImage",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"SupportedInMultiActions": false,
+			"Tooltip": "Clears 'greet them' section",
+			"UUID": "fr.twitchat.action.GREET_FEED_READ_ALL"
+		},
+		{
+			"Icon": "actionIcon",
+			"Name": "Clear X new users",
+			"States": [
+				{
+					"Image": "actionDefaultImage",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "newUsers_pi.html",
+			"SupportedInMultiActions": false,
+			"Tooltip": "Clears 'greet them' section",
+			"UUID": "fr.twitchat.action.GREET_FEED_READ"
+		}
+	],
+	"SDKVersion": 2,
+	"Author": "Durss",
+	"CodePath": "index.html",
+	"Description": "Manage twitchat",
+	"Name": "Twitchat",
+	"Icon": "pluginIcon",
+	"URL": "https://twitchat.fr",
+	"Version": "1.0",
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.11"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Software": {
+		"MinimumVersion": "4.1"
+	}
+}

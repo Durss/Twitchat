@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>fr.twitchat.action.GREET_FEED_READ</title>
+	<link rel="stylesheet" href="sdpi.css">
+	<script src="common.js"></script>
+</head>
+
+<body>
+	<div class="sdpi-wrapper">
+		<div type="range" class="sdpi-item">
+			<div class="sdpi-item-label">Number of messages (<span id="value"></span>)</div>
+			<div class="sdpi-item-value range">
+				<span class="clickable" value="1">1</span>
+				<input class="setvalueSlider" type="range" min="1" max="10" value="1" id="count"
+					oninput="sendValueToPlugin(Number(event.target.value), 'setValue')">
+				<span class="clickable" value="10">10</span>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var pluginAction = null,
+			uuid = '',
+			aValueSlider = document.querySelectorAll('.setvalueSlider'),
+			oValueSelector = document.querySelector(".setvalueSelect");
+		if ($SD) {
+			$SD.on('connected', (jsonObj) => {
+				const value = jsonObj.actionInfo.payload.settings.keyPressCounter;
+				document.getElementById("count").value = value;
+				uuid = jsonObj['uuid'];
+				if (jsonObj.hasOwnProperty('actionInfo')) {
+					pluginAction = jsonObj.actionInfo['action'];
+				}
+			});
+		};
+
+		/** you can also use ES6 syntax like so:
+		*
+		*   if ($SD) $SD.on('connected', (jsonObj) => { uuid=jsonObj.uuid }));
+		*    
+		*/
+
+		function sendValueToPlugin(value, param) {
+			if ($SD && $SD.connection) {
+				var payload = {};
+				if (param) {
+					payload[param] = value;
+				}
+				document.getElementById("value").innerHTML = value;
+				$SD.api.sendToPlugin(uuid, pluginAction, payload);
+			}
+		}
+
+	</script>
+
+</body>
+
+</html>
