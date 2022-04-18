@@ -10,6 +10,7 @@
 					"FontSize": "10"
 				}
 			],
+			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": false,
 			"Tooltip": "Clears 'greet them' section",
 			"UUID": "fr.twitchat.action.GREET_FEED_READ_ALL"
@@ -24,12 +25,44 @@
 					"FontSize": "10"
 				}
 			],
-			"PropertyInspectorPath": "newUsers_pi.html",
+			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": false,
-			"Tooltip": "Clears 'greet them' section",
+			"Tooltip": "Clears X messages from the 'greet them' section",
 			"UUID": "fr.twitchat.action.GREET_FEED_READ"
+		},
+		{
+			"Icon": "actionIcon",
+			"Name": "Mark chat feed as read",
+			"States": [
+				{
+					"Image": "actionDefaultImage",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"Tooltip": "Marks all messages in chat feed as read",
+			"UUID": "fr.twitchat.action.CHAT_FEED_READ_ALL"
+		},
+		{
+			"Icon": "actionIcon",
+			"Name": "Mark X chat message as read",
+			"States": [
+				{
+					"Image": "actionDefaultImage",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"Tooltip": "Marks X messages in chat feed as read",
+			"UUID": "fr.twitchat.action.CHAT_FEED_READ"
 		}
 	],
+	"Category":"Twitchat",
+	"CategoryIcon":"pluginIcon",
 	"SDKVersion": 2,
 	"Author": "Durss",
 	"CodePath": "index.html",

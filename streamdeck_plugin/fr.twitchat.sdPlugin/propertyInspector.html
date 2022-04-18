@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>fr.twitchat.action</title>
+	<link rel="stylesheet" href="sdpi.css">
+	<script src="common.js"></script>
+	<style>
+		.hidden {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="sdpi-wrapper">
+		<div id="obsParams" class="hidden">
+			<div class="sdpi-heading">OBS Websocket</div>
+			<details class="message">
+				<summary>Set your OBS-Websocket (v5+) credentials</summary>
+			</details>
+			<div class="sdpi-item">
+				<div class="sdpi-item-label">Port</div>
+				<input class="sdpi-item-value" value="4455" placeholder="4455" oninput="sendValueToPlugin(event.target.value, 'OBSWS_PORT')" id="OBSWS_PORT">
+			</div>
+			<div class="sdpi-item">
+				<div class="sdpi-item-label">Pass</div>
+				<input class="sdpi-item-value" type="password" value="" oninput="sendValueToPlugin(event.target.value, 'OBSWS_PASS')" id="OBSWS_PASS">
+			</div>
+			<div class="sdpi-item">
+				<div class="sdpi-item-label">Help</div>
+				<details class="sdpi-item-value">
+					<summary>Where can i find these values?</summary>
+					<p>You can find these values on OBS under the <strong>"Tools -> obs-websocket"</strong> menu.</p>
+					<p>Make sure you first <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">installed Obs-Websocket v5+</a></p>
+				</details>
+			</div>
+		</div>
+
+		<div class="sdpi-heading">Parameters</div>
+
+		<details class="message">
+			<summary class="hidden" data-CHAT_FEED_READ>This action marks the specified number of messages as read in the chat feed</summary>
+			<summary class="hidden" data-GREET_FEED_READ>This action removes the specified number of messages from the <strong>"Greet them"</strong> feed</summary>
+		</details>
+
+		<div type="range" class="sdpi-item hidden" data-GREET_FEED_READ data-CHAT_FEED_READ>
+			<div class="sdpi-item-label">Number of messages (<span id="value"></span>)</div>
+			<div class="sdpi-item-value range">
+				<span class="clickable" value="1">1</span>
+				<input class="setvalueSlider hidden" type="range" min="1" max="10" value="1" id="GREET_FEED_READ" oninput="sendValueToPlugin(Number(event.target.value), 'GREET_FEED_READ')" data-GREET_FEED_READ>
+				<input class="setvalueSlider hidden" type="range" min="1" max="10" value="1" id="CHAT_FEED_READ" oninput="sendValueToPlugin(Number(event.target.value), 'CHAT_FEED_READ')" data-CHAT_FEED_READ>
+				<span class="clickable" value="10">10</span>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var pluginAction = null, uuid = '';
+		if ($SD) {
+			$SD.on('connected', (jsonObj) => {
+				const settings = jsonObj.actionInfo.payload.settings;
+				console.log(settings);
+				uuid = jsonObj['uuid'];
+				if (jsonObj.hasOwnProperty('actionInfo')) {
+					pluginAction = jsonObj.actionInfo['action'];
+				}
+
+				if(settings.OBSWS_CONNECTED !== true) {
+					document.getElementById("obsParams").classList.remove("hidden");
+				}
+
+				const propName = jsonObj.actionInfo['action'].replace("fr.twitchat.action.", "").toUpperCase();
+				const holders = document.querySelectorAll("[data-"+propName+"]");
+				
+				for (let i = 0; i < holders.length; i++) {
+					const el = holders[i];
+					el.classList.remove("hidden");
+				}
+				const holdersRemove = document.querySelectorAll(".hidden");
+				for (let i = 0; i < holdersRemove.length; i++) {
+					const el = holdersRemove[i];
+					el.parentElement.removeChild(el);
+				}
+
+				//Sync value from plugin's storage
+				for (const key in settings) {
+					if(document.getElementById(key)) {
+						document.getElementById(key).value = settings[key];
+						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key];
+					}
+				}
+			});
+		};
+
+		/** you can also use ES6 syntax like so:
+		*
+		*   if ($SD) $SD.on('connected', (jsonObj) => { uuid=jsonObj.uuid }));
+		*    
+		*/
+
+		function sendValueToPlugin(value, param) {
+			if ($SD && $SD.connection) {
+				console.log(param, value);
+				var payload = {};
+				payload[param] = value;
+				const valueHolder = document.getElementById("value");
+				if(valueHolder) {
+					valueHolder.innerHTML = value;
+				}
+				$SD.api.sendToPlugin(uuid, pluginAction, payload);
+			}
+		}
+
+	</script>
+
+</body>
+
+</html>
