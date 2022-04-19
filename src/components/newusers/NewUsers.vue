@@ -147,7 +147,7 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight"));
+		// this.localMessages = this.localMessages.concat(store.state.chatMessages.filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight"));
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
