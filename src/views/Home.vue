@@ -31,7 +31,7 @@
 
 			<Button :icon="require('@/assets/icons/elgato.svg')"
 				title="Stream Deck™ plugin"
-				href="./fr.twitchat.streamDeckPlugin"
+				href="https://apps.elgato.com/plugins/fr.twitchat"
 				target="_blank"
 				type="link"
 				class="elgatoBt"
