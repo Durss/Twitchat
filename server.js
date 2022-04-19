@@ -145,7 +145,7 @@ async function CSRFToken(request, response) {
 			}else{
 				//Token expired
 				response.writeHead(200, {'Content-Type': 'application/json'});
-				response.end(JSON.stringify({success:false, message:"CSRF token expired"}));
+				response.end(JSON.stringify({success:false, message:"CSRF token expired, please try again"}));
 			}
 		}else{
 			//Invalid token
