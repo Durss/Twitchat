@@ -2,7 +2,7 @@
 	<div class="paramsobs">
 		<div class="head">
 			<p>Allow your mods basic control over your OBS</p>
-			<p class="install">In order to work, this needs <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-websocket plugin (v5)</a> to be installed.</p>
+			<p class="install">In order to work, this needs <a :href="obswsInstaller" target="_blank">OBS-websocket plugin V5</a> to be installed.</p>
 		</div>
 
 		<ToggleBlock class="block conf"
@@ -60,6 +60,7 @@ import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { ParameterData } from '@/store';
 import Store from '@/store/Store';
+import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -92,6 +93,8 @@ export default class ParamsOBS extends Vue {
 	public openConnectForm:boolean = false;
 	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
+
+	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
 
 	public mounted():void {
 		const port = Store.get("obsPort");

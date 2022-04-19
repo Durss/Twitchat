@@ -28,11 +28,20 @@
 				class="discordBt"
 				big
 			/>
+
+			<Button :icon="require('@/assets/icons/elgato.svg')"
+				title="Stream Deck™ plugin"
+				href="./fr.twitchat.streamDeckPlugin"
+				target="_blank"
+				type="link"
+				class="elgatoBt"
+				big
+			/>
 			
 			<div class="features">
 				<!-- <dir class="title">Features</dir> -->
 				<Carousel :items-to-show="1" :wrapAround="true" :autoplay="10000" :pauseAutoplayOnHover="true">
-					<Slide :key="0" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/hand.svg" alt="hand" class="icon">Greet your viewers</div>
 						<div class="description">
 							Afraid to forget greeting a viewer?
@@ -40,12 +49,12 @@
 						</div>
 						<img src="@/assets/img/example_greet.jpg" alt="greet">
 					</Slide>
-					<Slide :key="1" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/checkmark_white.svg" alt="check" class="icon">Read mark</div>
 						<div class="description">Stop scrolling for hours for the message you stopped reading at, just click it and <strong>instantly see where you stopped reading your chat</strong></div>
 						<img src="@/assets/img/example_mark_read.jpg" alt="poll">
 					</Slide>
-					<Slide :key="2" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/conversation.svg" alt="conversation" class="icon"> Follow conversations</div>
 						<div class="description">
 							Following conversations between viewers can be pretty challenging.
@@ -53,12 +62,12 @@
 						</div>
 						<img src="@/assets/img/example_conversation.jpg" alt="poll">
 					</Slide>
-					<Slide :key="3" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/search.svg" alt="search" class="icon"> Search messages</div>
 						<div class="description">Search messages containing any word.</div>
 						<img src="@/assets/img/example_search.jpg" alt="poll">
 					</Slide>
-					<Slide :key="4" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/vip.svg" alt="vip" class="icon"> Mini badges</div>
 						<div class="description">
 							Badges sometimes makes reading harder.
@@ -66,14 +75,14 @@
 						</div>
 						<img src="@/assets/img/example_minibadges.png" alt="badges">
 					</Slide>
-					<Slide :key="5" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/ticket.svg" alt="raffle" class="icon"> Raffle</div>
 						<div class="description">
 							Twitchat allows you to <strong>start a raffle</strong> and pick a random winner.
 						</div>
 						<img src="@/assets/img/example_raffle.png" alt="raffle">
 					</Slide>
-					<Slide :key="6" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/bingo.svg" alt="bingo" class="icon"> Bingo</div>
 						<div class="description">
 							Twitchat allows you to <strong>start a bingo</strong>.
@@ -81,14 +90,14 @@
 						</div>
 						<img src="@/assets/img/example_bingo.png" alt="raffle">
 					</Slide>
-					<Slide :key="7" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/unfollow_white.svg" alt="raffle" class="icon"> Non followers</div>
 						<div class="description">
 							See if a user is following your channel or not
 						</div>
 						<img src="@/assets/img/example_nofollow.jpg" alt="not follwing">
 					</Slide>
-					<Slide :key="8" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/split.svg" alt="poll" class="icon"> Split view</div>
 						<div class="description">
 							You can split the view in half to give more space to your chat.
@@ -96,7 +105,7 @@
 						</div>
 						<img src="@/assets/img/example_splitview.jpg" alt="splitView">
 					</Slide>
-					<Slide :key="9" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/whispers.svg" alt="whisper" class="icon"> Whispers</div>
 						<div class="description">
 							Opening twitch to read a whisper and answer it can be pretty annoying.
@@ -104,17 +113,22 @@
 						</div>
 						<img src="@/assets/img/example_whisper.jpg" alt="splitwhisper">
 					</Slide>
-					<Slide :key="10" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/poll.svg" alt="poll" class="icon"> Manage polls</div>
 						<div class="description">Create polls, see their progress live and <strong>never miss their result</strong> sent on chat and stored on the activity feed.</div>
 						<img src="@/assets/img/example_poll.jpg" alt="poll">
 					</Slide>
-					<Slide :key="11" class="slide">
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/prediction.svg" alt="prediction" class="icon"> Manage predictions</div>
 						<div class="description">Create predictions, see their progress live and <strong>never miss their result</strong> sent on chat and stored on the activity feed.</div>
 						<img src="@/assets/img/example_prediction.jpg" alt="prediction">
 					</Slide>
-					<Slide :key="12" class="slide">
+					<Slide :key="nextIndex" class="slide">
+						<div class="head"><img src="@/assets/icons/elgato.svg" alt="elgato" class="icon"> Control with your streamdeck</div>
+						<div class="description">Perform some quick actions from yourstreamdeck Streamdeck.<br><strong>Pause/unpause</strong> chat, remove clear entries from the <strong>greet them</strong> section, <strong>mark as read</strong> some or all chat messages, <strong>scroll</strong> the chat, open/close <strong>prediction/poll/bingo/raffle</strong> state, and more.</div>
+						<img src="@/assets/img/example_streamdeck.png" alt="streamdeck">
+					</Slide>
+					<Slide :key="nextIndex" class="slide">
 						<div class="head"><img src="@/assets/icons/stars.svg" alt="prediction" class="icon"> And much more</div>
 						<div class="description">
 							<b>Twitchat has many more features, including native ones:</b>
@@ -129,6 +143,7 @@
 								<li>Filter out command messages</li>
 								<li>Autocomplete emotes (:xxx), user names (@xxx) and commands (/xxx)</li>
 								<li>Display BTTV emotes</li>
+								<li>A public websocket API for developers</li>
 								<li>...</li>
 							</ul>
 							<b>Get a more complete list <a href="https://github.com/Durss/Twitchat#readme" target="_blank">on this page</a></b>
@@ -174,6 +189,9 @@ import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 export default class Home extends Vue {
 
 	public authenticated:boolean = false;
+	private index:number = 0;
+
+	public get nextIndex():number { return this.index ++; }
 
 	// public get loginPath():string { return router.resolve({name:'login'}).href; }
 
@@ -209,19 +227,31 @@ export default class Home extends Vue {
 		}
 
 		.loginBt {
-			margin: 0 0 2em 0;
+			margin: 0;
 			border-radius: 50px;
 			font-weight: bold;
+			padding:15px;
+			:deep(.label){
+				font-size: 20px;
+			}
 		}
 
-		.discordBt {
-			margin: 0 auto 2em auto;
+		.discordBt, .elgatoBt {
+			margin: 1em auto 0 auto;
 			border-radius: 50px;
 			font-weight: bold;
 			display: block;
 			width: min-content;
+			padding:15px 20px;
+			:deep(.label){
+				font-size: 20px;
+			}
 			:deep(.icon) {
-				vertical-align: bottom;
+				vertical-align:middle;
+			}
+
+			&.elgatoBt {
+				background-color: hsl(232, 81%, 40%);
 			}
 		}
 
@@ -248,7 +278,7 @@ export default class Home extends Vue {
 		.features {
 			widows: 90%;
 			max-width: 600px;
-			margin: auto;
+			margin: 2em auto;
 			// background-color: rgba(255, 255, 255, .2);
 			background-color: fade(@mainColor_normal, 50%);
 			background: linear-gradient(0deg, rgba(145,71,255,.7) 0%, rgba(145,71,255,.0) 100%);

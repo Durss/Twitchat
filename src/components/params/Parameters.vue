@@ -11,6 +11,7 @@
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs'" />
+				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
 			<div class="search" v-if="isGenericListContent">
@@ -19,6 +20,7 @@
 			<div class="content">
 				<ParamsList v-if="content && isGenericListContent" :category="content" />
 				<ParamsAccount v-if="content == 'account'" />
+				<ParamsStreamdeck v-if="content == 'streamdeck'" />
 				<ParamsOBS v-if="content == 'obs'" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
@@ -44,6 +46,7 @@ import ToggleButton from '../ToggleButton.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
+import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
 
 @Options({
@@ -55,6 +58,7 @@ import ParamItem from './ParamItem.vue';
 		ParamsList,
 		ToggleButton,
 		ParamsAccount,
+		ParamsStreamdeck,
 	}
 })
 
@@ -69,7 +73,7 @@ export default class Parameters extends Vue {
 	public search:string = "";
 
 	public get isGenericListContent():boolean {
-		return this.content != "obs" && this.content != "account";
+		return this.content == "features" || this.content == "appearance" || this.content == "filters";
 	}
 
 	public async mounted():Promise<void> {
