@@ -56,6 +56,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Supports new `/announce message` feature
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 - [x] Expose an API to control some stuff remotely
+- [x] Stream Deck plugin
 <br>
 
 - [ ] Parse FFZ emotes
