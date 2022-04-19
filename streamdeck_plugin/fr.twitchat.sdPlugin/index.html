@@ -4,13 +4,18 @@
 <head>
 	<title>fr.twitchat</title>
 	<meta charset="utf-8" />
+	<script type="text/javascript" src="obs-websocket.js"></script>
 </head>
 
 <body>
 	<script>
 
 		let websocket = null;
+		let websocketOBS = new OBSWebSocket();
+		let websocketOBS_firstConnect = true;
 		let pluginUUID = null;
+		let reconnectTimeout = null;
+		let connecting = false;
 		const settingsCache = {
 			GREET_FEED_READ: 1,
 			CHAT_FEED_READ: 1,
@@ -25,20 +30,38 @@
 
 		var actions = {
 
-			type: "fr.twitchat.action",
-
-			onKeyUp: (context, settings, coordinates, userDesiredState) => {
-				console.log("KEY UP", settings);
-				// this.SetTitle(context, keyPressCounter);
-			},
-
-			onWillAppear: (context, settings, coordinates) => {
-				for (const key in settingsCache) {
-					if (settings.hasOwnProperty(key)) {
-						settingsCache[key] = settings[key];
+			onKeyUp: (action) => {
+				// console.log("KEY UP", action, settings);
+				const actionName = action.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				let params;
+				switch(actionName) {
+					case "GREET_FEED_READ":{
+						params = {
+									"count": settingsCache.GREET_FEED_READ,
+								}
+						break;
+					}
+					case "CHAT_FEED_READ":{
+						params = {
+									"count": settingsCache.CHAT_FEED_READ,
+								}
+						break;
+					}
+					case "CHAT_FEED_SCROLL_UP":{
+						params = {
+									"scrollBy": settingsCache.CHAT_FEED_SCROLL_UP,
+								}
+						break;
+					}
+					case "CHAT_FEED_SCROLL_DOWN":{
+						params = {
+									"scrollBy": settingsCache.CHAT_FEED_SCROLL_DOWN,
+								}
+						break;
 					}
 				}
-				// this.SetTitle(context, keyPressCounter);
+				// console.log(actionName, params);
+				callTwitchat(actionName, params)
 			},
 
 			SetTitle: (context, value) => {
@@ -64,21 +87,41 @@
 				websocket.send(JSON.stringify(json));
 			},
 
+			SetGlobalSettings: (settings) => {
+				var json = {
+					"event": "setGlobalSettings",
+					"context": pluginUUID,
+					"payload": settings
+				};
+				websocket.send(JSON.stringify(json));
+			},
+
+			GetGlobalSettings: () => {
+				var json = {
+					"event": "getGlobalSettings",
+					"context": pluginUUID,
+					"payload": {}
+				};
+
+				websocket.send(JSON.stringify(json));
+			},
+
 			AddToSettings: (context, newSettings) => {
 				settingsCache[context] = newSettings;
 			}
 		};
 
-		function connectElgatoStreamDeckSocket(port, pluginUUID, registerEvent, info) {
+		function connectElgatoStreamDeckSocket(port, inPluginUUID, registerEvent, info) {
+			pluginUUID = inPluginUUID;
 			websocket = new WebSocket("ws://127.0.0.1:" + port);
 
 			websocket.onopen = () => {
-				var json = {
+				let json = {
 					"event": registerEvent,
 					"uuid": pluginUUID,
 				};
 				websocket.send(JSON.stringify(json));
-				// actions.SetSettings(context,settingsCache);
+				actions.GetGlobalSettings();
 			};
 
 			websocket.onmessage = (evt) => {
@@ -89,37 +132,56 @@
 				const context = jsonObj['context'];
 				const jsonPayload = jsonObj['payload'] || {};
 
-				console.log(event);
-
-				if(event == "willAppear") {
-					//Initialize settings by merging local defaults with stored values
+				//Called after requesting global state
+				if(event == "didReceiveGlobalSettings") {
 					var settings = jsonPayload.settings;
 					for (const key in settings) {
+						if(key == "OBSWS_CONNECTED") continue;
 						settingsCache[key] = settings[key];
 					}
-					actions.SetSettings(context,settingsCache);
+					if(settingsCache.OBSWS_PORT && settingsCache.OBSWS_PASS != undefined){
+						obsConnect(context);
+					}
+				}else
+
+				//Called everytime an action is displayed on streamdeck
+				if(event == "willAppear") {
+				}else
+
+				//Called when displaying a new property inspector
+				if(event == "propertyInspectorDidAppear") {
 				}
+
+				//Called when a streamdeck button is released
 				else if (event == "keyUp") {
 					var settings = jsonPayload['settings'];
-					var coordinates = jsonPayload['coordinates'];
-					var userDesiredState = jsonPayload['userDesiredState'];
-					actions.onKeyUp(context, settings, coordinates, userDesiredState);
+					// var coordinates = jsonPayload['coordinates'];
+					// var userDesiredState = jsonPayload['userDesiredState'];
+					actions.onKeyUp(action);
 				}
-				else if (event == "willAppear") {
-					var settings = jsonPayload['settings'];
-					var coordinates = jsonPayload['coordinates'];
-					actions.onWillAppear(context, settings, coordinates);
-				}
+
+				//Called when property inspector sends data
 				else if (event == "sendToPlugin") {
-					console.log(jsonPayload);
+					if(jsonPayload.OBSW_DO_CONNECT) {
+						settingsCache.OBSWS_PASS = jsonPayload.OBSW_DO_CONNECT.pass;
+						settingsCache.OBSWS_PORT = jsonPayload.OBSW_DO_CONNECT.port;
+						actions.SetGlobalSettings(settingsCache);
+						obsConnect(context);
+					}
+
 					for (const key in jsonPayload) {
 						if (settingsCache.hasOwnProperty(key)) {
 							var newValue = jsonPayload[key];
-							console.log("Save",key, newValue);
 							settingsCache[key] = newValue;
-							actions.SetSettings(context,settingsCache);
-							actions.SetTitle(context, newValue);
+							// actions.SetSettings(context,{value:newValue});
 						}
+					}
+					
+					if(jsonPayload.TEST != undefined) {
+						var settings = jsonPayload['settings'];
+						actions.onKeyUp(jsonPayload.TEST);
+					}else{
+						actions.SetGlobalSettings(settingsCache);
 					}
 				}
 			};
@@ -128,6 +190,70 @@
 				// Websocket is closed
 			};
 		};
+
+		/**
+		 * Connect to OBS via OBS-websocket
+		 */
+		function obsConnect(context) {
+			if(connecting || settingsCache.OBSWS_CONNECTED === true) return;
+			connecting = true;//Avoid double websocketOBS.connect() calls that messes up obs-ws
+			try {
+				websocketOBS.connect("ws://127.0.0.1:"+settingsCache.OBSWS_PORT, settingsCache.OBSWS_PASS, {rpcVersion:1})
+				.then(()=> {
+					connecting = false;
+					const changed = settingsCache.OBSWS_CONNECTED != true;
+					settingsCache.OBSWS_CONNECTED = true;
+					//If state has changed, tell the property inspector
+					if(changed) actions.SetGlobalSettings(settingsCache);
+				});
+			}catch(error) {
+				console.log("FAILED");
+				console.log(error);
+				connecting = false;
+				clearTimeout(reconnectTimeout);
+				reconnectTimeout = setTimeout(()=> {
+					obsConnect(context);
+				}, 5000);
+				return false;
+			}
+
+			if(websocketOBS_firstConnect) {
+				websocketOBS_firstConnect = false;
+
+				//Listen for socket connection close to auto reconnect
+				websocketOBS.addListener("ConnectionClosed", (e)=> {
+					connecting = false;
+					console.log("Connection closed", e);
+					const changed = settingsCache.OBSWS_CONNECTED != false;
+					settingsCache.OBSWS_CONNECTED = false;
+					//If state has changed, tell the property inspector
+					if(changed) actions.SetGlobalSettings(settingsCache);
+					clearTimeout(reconnectTimeout);
+					reconnectTimeout = setTimeout(()=> {
+						obsConnect(context);
+					}, 5000);
+				});
+	
+				/*
+					//Listen for Twitchat events. Unnecessary for now
+					websocketOBS.on("CustomEvent", (e) => {
+						if(e.type == undefined) return;
+						if(e.origin != "twitchat") return;
+						console.log(e.type);
+						console.log(e.data);
+					})
+				//*/
+			}
+		}
+
+		/**
+		 * Request Twitchat to perform an action
+		 */
+		function callTwitchat(event, data) {
+			if(!data) data = {};
+			const eventData = { origin:"twitchat", type:event, data:JSON.parse(JSON.stringify(data)) }
+			websocketOBS.call("BroadcastCustomEvent", {eventData});
+		}
 	</script>
 
 </body>
