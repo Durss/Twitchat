@@ -15,7 +15,7 @@
 			<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
 			<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
 			
-			<ToggleBlock class="info" small :open="true" title="Where can i find these values?" v-if="!connected">
+			<ToggleBlock class="info" small :open="false" title="Where can i find these values?" v-if="!connected">
 				After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
 				<br>
 				<br>This window will open with the credentials:

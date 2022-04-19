@@ -20,7 +20,7 @@
 				/>
 			</li>
 
-			<li><span class="index">3.</span>Once those plugins are installed, head over the OBS tab above and set the OBS-Websocket credentials to connect Twitchat with OBS.</li>
+			<li><span class="index">3.</span>Once those plugins are installed, head over the <strong>OBS tab</strong> above and set the OBS-Websocket credentials to connect Twitchat with OBS.</li>
 
 			<li><span class="index">4.</span>On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.
 			<br>You should be asked to enter your OBS-Websocket credentials like this:
