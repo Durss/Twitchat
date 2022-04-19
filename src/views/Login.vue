@@ -41,11 +41,19 @@
 				type="link"
 				:href="oAuthURL"
 				title="Authorize"
-				v-if="!authenticating"
+				v-if="!authenticating && oAuthURL"
 				bounce
 				:loading="generatingCSRF"
 				:data-tooltip="generatingCSRF? 'Generating CSRF token...' : ''"
 				:icon="require('@/assets/icons/twitch_white.svg')"
+			/>
+
+			<Button title="Try again"
+				highlight
+				v-if="!oAuthURL"
+				@click="generateCSRF()"
+				:loading="generatingCSRF"
+				:icon="require('@/assets/icons/refresh.svg')"
 			/>
 			
 			<div class="loader" v-if="authenticating">
@@ -118,6 +126,9 @@ export default class Login extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
+		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
+
 		if(this.$route.name == "oauth") {
 			this.authenticating = true;
 			const code = Utils.getQueryParameterByName("code");
@@ -146,15 +157,20 @@ export default class Login extends Vue {
 		}
 		
 		if(!this.authenticating){
-			this.generatingCSRF = true;
+			this.generateCSRF();
+		}
+	}
+
+	private async generateCSRF():Promise<void> {
+		this.generatingCSRF = true;
+		try {
 			const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
-			this.generatingCSRF = false;
+		}catch(e) {
+			store.state.alert = "An error occured while generating a CSRF token";
 		}
-
-		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
-		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
+		this.generatingCSRF = false;
 	}
 
 }
