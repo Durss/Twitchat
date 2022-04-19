@@ -14,11 +14,21 @@
 			</transition>
 			<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
 			<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
+			
+			<ToggleBlock class="info" small :open="true" title="Where can i find these values?" v-if="!connected">
+				After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
+				<br>
+				<br>This window will open with the credentials:
+				<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
+			</ToggleBlock>
+
 			<Button title="Connect" @click="connect()" class="connectBt" v-if="!connected" :loading="loading" />
 			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="require('@/assets/icons/cross_white.svg')" />
+
 			<transition name="fade">
 				<div v-if="connectError" @click="connectError = false" class="error">Unable to connect with OBS. Double check the port and password and make sure you installed <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-websocket plugin (v5)</a></div>
 			</transition>
+
 		</ToggleBlock>
 
 		<ToggleBlock class="block allowed"
@@ -178,6 +188,10 @@ export default class ParamsOBS extends Vue {
 	.conf {
 		display: flex;
 		flex-direction: column;
+		
+		.info {
+			margin-bottom: 1em;
+		}
 
 		.connectBt {
 			display: block;
