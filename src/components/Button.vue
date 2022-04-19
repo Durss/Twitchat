@@ -340,7 +340,7 @@ export default class Button extends Vue {
 	}
 
 	.label {
-		flex-grow: 1;
+		// flex-grow: 1;
 		white-space: nowrap;
 		// overflow: hidden;
 	}

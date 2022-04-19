@@ -150,6 +150,9 @@ export default class DevmodeMenu extends Vue {
 		.button {
 			width: 100%;
 			margin-bottom: 5px;
+			:deep(.label) {
+				flex-grow: 1;
+			}
 		}
 	}
 }

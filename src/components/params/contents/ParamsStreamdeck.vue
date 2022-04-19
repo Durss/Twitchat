@@ -2,18 +2,15 @@
 	<div class="paramsstreamdeck">
 		<p class="head">A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button</p>
 		
-		<p class="stepsHead">
-			<span class="line"></span>
-			<span>Install steps</span>
-			<span class="line"></span>
-		</p>
+		<Splitter title="Install steps" />
+
 		<ol>
 			<li><span class="index">1.</span>This plugin needs <a :href="obswsInstaller" target="_blank">OBS-websocket V5</a> plugin to be installed on OBS</li>
 			
 			<li><span class="index">2.</span> Install Stream Deck™ plugin:
 				<Button :icon="require('@/assets/icons/elgato.svg')"
 					title="Download plugin"
-					href="./fr.twitchat.streamDeckPlugin"
+					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
 					type="link"
 					class="elgatoBt"
@@ -34,6 +31,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import Splitter from '@/components/Splitter.vue';
 import Config from '@/utils/Config';
 import { Options, Vue } from 'vue-class-component';
 
@@ -41,6 +39,7 @@ import { Options, Vue } from 'vue-class-component';
 	props:{},
 	components:{
 		Button,
+		Splitter,
 	}
 })
 export default class ParamsStreamdeck extends Vue {
@@ -56,25 +55,6 @@ export default class ParamsStreamdeck extends Vue {
 	.head {
 		margin-bottom: 1em;
 		text-align: center;
-	}
-
-	.stepsHead {
-		display: flex;
-		flex-direction: row;
-		font-weight: bold;
-		justify-content: center;
-		align-items: center;
-		span {
-			padding: 0 1em;
-		}
-		.line {
-			flex-grow: 1;
-			background-color: @mainColor_normal;
-			height: 1px;
-			// border-top: 1px solid @mainColor_normal;
-			// border-bottom: 1px solid @mainColor_normal;
-			// height: 10px;
-		}
 	}
 	
 	ol {
