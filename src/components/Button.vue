@@ -20,7 +20,7 @@
 			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 		</div>
 
-		<img src="@/assets/loader/loader.svg" alt="loader" class="spinner" v-if="loading">
+		<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" v-if="loading">
 		<span class="label" :class="loading? 'hide' : 'show'" v-if="title && type!='checkbox'" v-html="title"></span>
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="$emit('change', $event)" />
 	</component>
