@@ -50,7 +50,7 @@
 
 			<Button title="Try again"
 				highlight
-				v-if="!oAuthURL"
+				v-if="!authenticating && !oAuthURL"
 				@click="generateCSRF()"
 				:loading="generatingCSRF"
 				:icon="require('@/assets/icons/refresh.svg')"
