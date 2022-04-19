@@ -87,7 +87,8 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel_editor",
 		"whispers:edit",
 		"user:read:follows",
-		"channel:edit:commercial"
+		"channel:edit:commercial",
+		"channel:read:subscriptions"
 	]
 }
 ```

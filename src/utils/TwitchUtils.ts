@@ -746,6 +746,7 @@ export default class TwitchUtils {
 			});
 			const json:{data:TwitchTypes.ModeratorUser[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
+			cursor = null;
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
 			}
@@ -786,6 +787,7 @@ export default class TwitchUtils {
 				}
 			});
 
+			cursor = null;
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
 			}
@@ -811,6 +813,34 @@ export default class TwitchUtils {
 		});
 		const json:{data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
 		return json.data[0];
+	}
+
+	/**
+	 * Gets a list of the current subscribers to the specified channel
+	 */
+	public static async getSubsList(channelId?:string):Promise<TwitchTypes.Subscriber[]> {
+		if(!channelId) channelId = store.state.user.user_id;
+		const headers = {
+			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+			'Client-Id': this.client_id,
+			"Content-Type": "application/json",
+		}
+		let list:TwitchTypes.Subscriber[] = [];
+		let cursor:string|null = null;
+		do {
+			const pCursor = cursor? "&after="+cursor : "";
+			const res = await fetch(Config.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+store.state.user.user_id+pCursor, {
+				method:"GET",
+				headers,
+			});
+			const json:{data:TwitchTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+			cursor = null;
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null)
+		return list;
 	}
 
 	/**
@@ -1144,4 +1174,19 @@ export namespace TwitchTypes {
 		message: string;
 		retry_after: number;
 	}
+
+    export interface Subscriber {
+        broadcaster_id: string;
+        broadcaster_login: string;
+        broadcaster_name: string;
+        gifter_id: string;
+        gifter_login: string;
+        gifter_name: string;
+        is_gift: boolean;
+        tier: string;
+        plan_name: string;
+        user_id: string;
+        user_name: string;
+        user_login: string;
+    }
 }
