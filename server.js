@@ -104,8 +104,16 @@ async function generateToken(request, response) {
 	url += "&grant_type=authorization_code";
 	url += "&redirect_uri="+credentials.redirect_uri;
 	
-	let res = await fetch(url, {method:"POST"});
-	let json = await res.json();
+	let json;
+	try {
+		let res = await fetch(url, {method:"POST"});
+		json = await res.json();
+	}catch(error) {
+		console.log(error);
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		return;
+	}
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify(json));
@@ -166,8 +174,15 @@ async function refreshToken(request, response) {
 	url += "&refresh_token="+params.token;
 	url += "&grant_type=refresh_token";
 	
-	let res = await fetch(url, {method:"POST"});
-	let json = await res.json();
+	let json;
+	try {
+		let res = await fetch(url, {method:"POST"});
+		json = await res.json();
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		return;
+	}
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify(json));
