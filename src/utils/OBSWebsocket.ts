@@ -178,6 +178,19 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Gets all the available filters of a specific source
+	 * 
+	 * @param sourceName 
+	 * @returns 
+	 */
+	public async getSourceFilters(sourceName:string):Promise<OBSFilter[]> {
+		if(!this.connected) return [];
+		
+		const res = await this.obs.call("GetSourceFilterList", {sourceName});
+		return (res.filters as unknown) as OBSFilter[];
+	}
+
+	/**
 	 * Broadcast a message to all the connected clients
 	 * @param data
 	 */
@@ -209,6 +222,14 @@ export interface OBSSourceItem {
 	sceneItemIndex:number;
 	sourceName:string;
 	sourceType:OBSSourceType;
+}
+
+export interface OBSFilter {
+	filterEnabled: boolean;
+	filterIndex: number;
+	filterKind: string;
+	filterName: string;
+	filterSettings: unknown;
 }
 
 export const OBSSceneTriggerTypes = {

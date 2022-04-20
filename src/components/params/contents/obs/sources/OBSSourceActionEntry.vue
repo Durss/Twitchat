@@ -22,7 +22,8 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store';
-import { OBSSceneTriggerTypes, OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { OBSFilter, OBSSceneTriggerTypes, OBSSourceItem } from '@/utils/OBSWebsocket';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -45,12 +46,14 @@ export default class OBSSourceActionEntry extends Vue {
 	public index!:number;
 	public event!:number;
 	
+	private filters:OBSFilter[] = [];
 	private showHideValues:ParameterDataListValue[] = [
 		{label:"Show", value:1},
 		{label:"Hide", value:0},
 	];
 	
 	public source_conf:ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
+	public filters_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
 	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[0].value, listValues:this.showHideValues, icon:"show_purple.svg" };
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
@@ -108,6 +111,13 @@ export default class OBSSourceActionEntry extends Vue {
 		this.helpers[OBSSceneTriggerTypes.CHAT_COMMAND] = [
 			{tag:"USER", desc:"User name"},
 		];
+
+		watch(()=>this.source_conf.value, ()=>{
+			this.onSourceChanged();
+		})
+		watch(()=>this.filters_conf.value, ()=>{
+			this.updateFilter();
+		});
 	}
 
 	public insert(h:{tag:string, desc:string}):void {
@@ -116,10 +126,31 @@ export default class OBSSourceActionEntry extends Vue {
 		const input = (holder.$el as HTMLDivElement).getElementsByTagName("textarea")[0];
 		let carretPos = input.selectionStart as number | 0;
 		if(!carretPos) carretPos = 0;
-		
 		//Insert tag
 		input.value = input.value.substring(0, carretPos) + tag + input.value.substring(carretPos);
+	}
 
+	private async onSourceChanged():Promise<void> {
+		this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value as string);
+		if(this.filters.length > 0) {
+			const list = this.filters.map(v => {return {label:v.filterName, value:v.filterIndex}});
+			list.unshift({label:"- none -", value:-1})
+			this.filters_conf.value = list[0].value;
+			this.filters_conf.listValues = list;
+			this.source_conf.children = [this.filters_conf];
+		}else{
+			this.source_conf.children = [];
+		}
+		this.updateFilter();
+	}
+
+	private updateFilter():void {
+		if(this.source_conf.children && this.source_conf.children?.length > 0
+		&& this.filters_conf.value > -1) {
+			this.show_conf.label = "Filter visibility";
+		}else{
+			this.show_conf.label = "Source visibility";
+		}
 	}
 
 }
