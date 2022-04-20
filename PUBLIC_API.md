@@ -10,7 +10,7 @@
 <br>
 <br>
 
-Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.\
+Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.
 
 # Table of content
 * [Prerequisites](#prerequisites)
@@ -28,7 +28,7 @@ After installing OBS-Websocket, start OBS, you may want set a password on `Tools
 \
 Once done, go on Twitchat, open the parameters and on the OBS panel specify the credentials to connect with OBS.\
 \
-OBS will act as a bridge to transmit Twitchat messages to any connected client.\
+OBS will act as a bridge to transmit Twitchat messages to any connected client.
 
 <br>
 
