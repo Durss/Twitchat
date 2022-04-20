@@ -20,7 +20,7 @@
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
-				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus">
+				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus" @blur="clampValue()">
 			</div>
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
@@ -54,7 +54,7 @@
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
 				<select v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus">
-					<option v-for="a in paramData.listValues" :key="a" :value="a">{{a}}</option>
+					<option v-for="a in paramData.listValues" :key="a" :value="a.value">{{a.label}}</option>
 				</select>
 			</div>
 		</div>
@@ -163,6 +163,11 @@ export default class ParamItem extends Vue {
 			const divs = childrenItems.map(v => v.$el);
 			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
 		}
+	}
+
+	public clampValue():void {
+		if(this.paramData.max != undefined && this.paramData.value > this.paramData.max) this.paramData.value = this.paramData.max;
+		if(this.paramData.min != undefined && this.paramData.value < this.paramData.min) this.paramData.value = this.paramData.min;
 	}
 }
 </script>

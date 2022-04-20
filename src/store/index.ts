@@ -1156,17 +1156,36 @@ export interface OBSSceneCommand {
 	command:string;
 }
 
+export interface OBSSourceCommand {
+	source:{
+		sceneIndex:number;
+		sceneName:string;
+	}
+	command:string;
+}
+
 export interface OBSMuteUnmuteCommands {
 	audioSourceName:string;
 	muteCommand:string;
 	unmuteCommand:string;
 }
 
+export interface OBSSourceAction {
+	sourceName:string;
+	show:boolean;
+	delay:number;
+}
+
+export interface ParameterDataListValue {
+	label:string;
+	value:string | number | boolean;
+	[paramater: string]: unknown;
+}
 export interface ParameterData {
 	id?:number;
 	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|string;
 	value:boolean|number|string|string;
-	listValues?:string[];
+	listValues?:ParameterDataListValue[];
 	longText?:boolean;
 	label:string;
 	min?:number;

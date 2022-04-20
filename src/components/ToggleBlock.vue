@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="header" @click="toggle()">
 			<img :src="require('@/assets/icons/'+icon+'.svg')" :alt="icon" class="icon" v-if="icon">
-			<h2>{{title}}</h2>
+			<h2 v-html="title"></h2>
 		</div>
 		<div class="content" v-if="showContent" ref="content">
 			<slot></slot>

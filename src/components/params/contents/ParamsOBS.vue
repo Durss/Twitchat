@@ -55,13 +55,13 @@
 			<OBSScenes />
 		</ToggleBlock>
 
-		<!-- <ToggleBlock class="block overlay"
+		<ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="false"
 		icon="show_purple"
 		title="Control sources">
-			<OBSSources />
-		</ToggleBlock> -->
+			<OBSSources @openSourceForm="$emit('setContent', 'obsSource')" />
+		</ToggleBlock>
 	</div>
 </template>
 
@@ -91,7 +91,8 @@ import OBSSources from './obs/OBSSources.vue';
 		OBSSources,
 		OBSPermissions,
 		OBSAudioSourceForm,
-	}
+	},
+	emits:['setContent']
 })
 export default class ParamsOBS extends Vue {
 

@@ -70,6 +70,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 			return false;
 		}
+
 		this.connected = true;
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
@@ -84,7 +85,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(e.origin != "twitchat") return;
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
-
+		
 		return true;
 	}
 
@@ -113,6 +114,27 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
 		
 		return await this.obs.call("GetSceneList");
+	}
+	
+	/**
+	 * Get all the sources references
+	 * 
+	 * @returns 
+	 */
+	public async getSources():Promise<OBSSourceItem[]> {
+		if(!this.connected) return [];
+		const scenes = await this.getScenes();
+		let sources:OBSSourceItem[] = [];
+		const idsDone:{[key:string]:boolean} = {};
+		for (let i = 0; i < scenes.scenes.length; i++) {
+			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
+			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
+			let items = (list.sceneItems as unknown) as OBSSourceItem[];
+			items = items.filter(v => idsDone[v.sourceName] !== true);
+			items.forEach(v => idsDone[v.sourceName] = true);
+			sources = sources.concat(items);
+		}
+		return sources;
 	}
 	
 	/**
@@ -176,4 +198,35 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export interface OBSAudioSource {inputKind:string, inputName:string, unversionedInputKind:string}
+export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2";
+export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
+
+export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}
+export interface OBSSourceItem {
+	inputKind:OBSInputKind;
+	isGroup:boolean|null;
+	sceneItemId:number;
+	sceneItemIndex:number;
+	sourceName:string;
+	sourceType:OBSSourceType;
+}
+
+export const OBSSceneTriggerTypes = {
+	FIRST_ALL_TIME:1,
+	FIRST_TODAY:2,
+	POLL_RESULT:3,
+	PREDICTION_RESULT:4,
+	RAFFLE_RESULT:5,
+	BINGO_RESULT:6,
+	CHAT_COMMAND:7,
+}
+
+export const OBSSceneTriggers = [
+	{label:"First message of a user all time", value:OBSSceneTriggerTypes.FIRST_ALL_TIME},
+	{label:"First message of a user today", value:OBSSceneTriggerTypes.FIRST_TODAY},
+	{label:"Poll result", value:OBSSceneTriggerTypes.POLL_RESULT},
+	{label:"Prediction result", value:OBSSceneTriggerTypes.PREDICTION_RESULT},
+	{label:"Raffle result", value:OBSSceneTriggerTypes.RAFFLE_RESULT},
+	{label:"Bingo result", value:OBSSceneTriggerTypes.BINGO_RESULT},
+	{label:"Chat command", value:OBSSceneTriggerTypes.CHAT_COMMAND},
+]
