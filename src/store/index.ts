@@ -56,6 +56,7 @@ export default createStore({
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: null as OBSPermissions|null,
+		obsSourceCommands: null as {[key:number]:OBSSourceAction[]}|null,
 		commands: [
 			{
 				id:"search",
@@ -726,6 +727,11 @@ export default createStore({
 			Store.set("obsConf_permissions", JSON.stringify(value));
 		},
 
+		setOBSSourceCommands(state, value:{[key:number]:OBSSourceAction[]}) {
+			state.obsSourceCommands = value;
+			Store.set("obsConf_sources", JSON.stringify(value));
+		},
+
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
 
 	},
@@ -785,10 +791,16 @@ export default createStore({
 				}
 			}
 			
-			//Init OBS command params
+			//Init OBS scenes params
 			const obsSceneCommands = Store.get("obsConf_scenes");
 			if(obsSceneCommands) {
 				state.obsSceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS sources params
+			const obsSourceCommands = Store.get("obsConf_sources");
+			if(obsSceneCommands) {
+				state.obsSourceCommands = JSON.parse(obsSourceCommands);
 			}
 			
 			//Init OBS command params
@@ -1118,6 +1130,8 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
 
+		setOBSSourceCommands({commit}, value:{[key:number]:OBSSourceAction[]}) { commit("setOBSSourceCommands", value); },
+
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
 			if(date === 0) {
@@ -1157,10 +1171,7 @@ export interface OBSSceneCommand {
 }
 
 export interface OBSSourceCommand {
-	source:{
-		sceneIndex:number;
-		sceneName:string;
-	}
+	source:OBSSourceAction
 	command:string;
 }
 
@@ -1171,8 +1182,11 @@ export interface OBSMuteUnmuteCommands {
 }
 
 export interface OBSSourceAction {
+	id:string;
 	sourceName:string;
+	filterName?:string;
 	show:boolean;
+	text?:string;
 	delay:number;
 }
 

@@ -6,7 +6,8 @@
 		<div class="splitter">
 			<ToggleBlock title="Add chat as an OBS overlay" icon="obs_purple" :open="false">
 				<p>Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
-				<input type="text" v-model="obsOverlayURL">
+				<i>- coming soon -</i>
+				<!-- <input type="text" v-model="obsOverlayURL"> -->
 			</ToggleBlock>
 		</div>
 		

@@ -81,7 +81,6 @@ export default class Confirm extends Vue {
 
 	private onDownUp(e:KeyboardEvent):void {
 		if(this.hidden) return;
-		console.log("3OKOFKDOFKDOKFD");
 		if(e.key == "Enter" || e.key == " ") {//Enter / space
 			this.submitPressed = true;
 		}

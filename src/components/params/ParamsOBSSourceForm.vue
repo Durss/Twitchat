@@ -1,19 +1,21 @@
 <template>
 	<div class="paramsobssourceform">
 		<ParamItem :paramData="event_conf" />
-		<OBSSourceActionEntry class="action" v-for="(a,index) in actionList" :key="index"
+		<OBSSourceActionEntry class="action" v-for="(a,index) in actionList" :key="a.id"
 			:action="a"
 			:index="index"
 			:sources="sources"
 			:event="event_conf.value"
+			@delete="deleteAction(a, index)"
 		/>
-		<Button title="+add action" class="addBt" @click="addAction()" />
+		<Button title="+add action" class="addBt" @click="addAction()" v-if="event_conf.value != ''" />
 	</div>
 </template>
 
 <script lang="ts">
-import { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store';
+import store, { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store';
 import OBSWebsocket, { OBSSceneTriggers, OBSSourceItem } from '@/utils/OBSWebsocket';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -46,6 +48,19 @@ export default class ParamsOBSSourceForm extends Vue {
 		});
 		this.listSources();
 
+		watch(()=> this.event_conf.value, () => {
+			if(this.event_conf.value == '') {
+				this.actionList = [];
+			}else {
+				if(store.state.obsSourceCommands) {
+					this.actionList = store.state.obsSourceCommands[this.event_conf.value as number];
+				}
+				if(this.actionList.length == 0) {
+					this.addAction();
+				}
+			}
+		});
+
 		this.events = this.events.concat(OBSSceneTriggers);
 		this.event_conf.value = this.events[0].value;
 		this.event_conf.listValues = this.events;
@@ -62,10 +77,18 @@ export default class ParamsOBSSourceForm extends Vue {
 
 	public addAction():void {
 		this.actionList.push({
-			sourceName:"string",
+			id:Math.random().toString(),
+			sourceName:"",
 			show:true,
 			delay:0,
 		});
+	}
+
+	public deleteAction(action:OBSSourceAction, index:number):void {
+		Utils.confirm("Delete action ?").then(()=> {
+			console.log("DELETE index", index);
+			this.actionList.splice(index, 1);
+		}).catch(()=> {});
 	}
 }
 </script>

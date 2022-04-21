@@ -3,6 +3,12 @@
 		<div class="header" @click="toggle()">
 			<img :src="require('@/assets/icons/'+icon+'.svg')" :alt="icon" class="icon" v-if="icon">
 			<h2 v-html="title"></h2>
+			<Button small highlight
+				:icon="require('@/assets/icons/cross_white.svg')"
+				class="deleteBt"
+				v-if="deletable!==false"
+				@click="$emit('delete')"
+			/>
 		</div>
 		<div class="content" v-if="showContent" ref="content">
 			<slot></slot>
@@ -14,6 +20,7 @@
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
+import Button from './Button.vue';
 
 @Options({
 	props:{
@@ -27,8 +34,15 @@ import { Options, Vue } from 'vue-class-component';
 			type:Boolean,
 			default:false,
 		},
+		deletable:{
+			type:Boolean,
+			default:false,
+		},
 	},
-	components:{}
+	components:{
+		Button,
+	},
+	emits:["delete"],
 })
 export default class ToggleBlock extends Vue {
 
@@ -36,6 +50,7 @@ export default class ToggleBlock extends Vue {
 	public title!:string
 	public open!:boolean;
 	public small!:boolean;
+	public deletable!:boolean;
 
 	public showContent:boolean = false;
 
@@ -135,7 +150,7 @@ export default class ToggleBlock extends Vue {
 		border-top-left-radius: 1em;
 		border-top-right-radius: 1em;
 		text-align: center;
-		padding: .5em 1em;
+		padding: .5em .5em;
 		cursor: pointer;
 		background-color: white;
 		display: flex;
@@ -147,6 +162,11 @@ export default class ToggleBlock extends Vue {
 		}
 		&:hover {
 			background-color: darken(@mainColor_light, 3%);
+		}
+
+		.deleteBt {
+			border-radius: 50%;
+			padding: .3em;
 		}
 	}
 

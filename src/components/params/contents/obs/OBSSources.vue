@@ -13,7 +13,6 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import OBSSourcesEntry from './sources/OBSSourcesEntry.vue';
 
