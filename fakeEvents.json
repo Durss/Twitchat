@@ -681,5 +681,37 @@
         },
         "showHoverActions": false,
         "markedAsRead": false
-    }
+    },
+	"presentation": {
+		"type": "message",
+		"message": "This is a presentation message hiiiideeehoooooooooooooooooo",
+		"tags": {
+			"badge-info": null,
+			"badges": null,
+			"color": "#9ACD32",
+			"display-name": "Durss",
+			"emotes": null,
+			"first-msg": true,
+			"flags": null,
+			"id": "4d195b04-8c92-44a5-ad60-44e9717ae113",
+			"mod": false,
+			"msg-id": "user-intro",
+			"room-id": "273351318",
+			"subscriber": false,
+			"tmi-sent-ts": "1650468841965",
+			"turbo": false,
+			"user-id": "29961813",
+			"user-type": null,
+			"emotes-raw": null,
+			"badge-info-raw": null,
+			"badges-raw": null,
+			"username": "durss",
+			"message-type": "chat"
+		},
+		"channel": "#redalicecreations",
+		"self": false,
+		"firstMessage": false,
+		"hasMention": false,
+		"showHoverActions": false
+	}
 }

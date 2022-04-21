@@ -5,6 +5,11 @@
 			<p>First time on your channel</p>
 		</div>
 
+		<div v-if="isPresentation" class="header">
+			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
+			<p>Welcome on this channel <strong>{{messageData.tags["display-name"]}}</strong></p>
+		</div>
+
 		<div v-if="automod" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
@@ -109,6 +114,11 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData as IRCEventDataList.Message;
 		return message.tags["msg-id"] == "announcement";
 	}
+
+	public get isPresentation():boolean {
+		const message = this.messageData as IRCEventDataList.Message;
+		return message.tags["msg-id"] == "user-intro";
+	}
 	
 	public get showNofollow():boolean{
 		if(store.state.params.appearance.highlightNonFollowers.value === true) {
@@ -133,7 +143,7 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData as IRCEventDataList.Message;
 
 		if(this.automod) res.push("automod");
-		if(this.firstTime) res.push("firstTimeOnChannel");
+		if(this.firstTime || this.isPresentation) res.push("firstTimeOnChannel");
 		if(message.deleted) res.push("deleted");
 		if(message.lowTrust) res.push("lowTrust");
 		if(message.cyphered) res.push("cyphered");
@@ -277,7 +287,7 @@ export default class ChatMessage extends Vue {
 		const mess = this.messageData as IRCEventDataList.Message;
 		
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'] && !this.lightMode;
+		this.firstTime = mess.tags['first-msg'] === true && !this.lightMode && !this.isPresentation;
 
 		//Manage automod content
 		if(!this.lightMode && mess.automod) {
