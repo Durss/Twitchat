@@ -85,7 +85,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(e.origin != "twitchat") return;
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
-		
+
 		return true;
 	}
 
@@ -199,6 +199,16 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		const eventData = { origin:"twitchat", type, data }
 		this.obs.call("BroadcastCustomEvent", {eventData});
+	}
+
+	/**
+	 * Change the content of a text source
+	 * 
+	 * @param sourceName 
+	 * @param text 
+	 */
+	public setTextSourceContent(sourceName:string, text:string):void {
+		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
 	}
 	
 	
