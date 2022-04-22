@@ -60,7 +60,7 @@ export default class HypeTrainState extends Vue {
 	public progressPercent:number = 0;
 
 	public get boostMode():boolean {
-		return true; //this.trainData.is_boost_train
+		return this.trainData.is_boost_train;
 	}
 
 	public get label():string {
