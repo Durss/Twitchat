@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :title="title" class="obssourceactionentry" deletable @delete="$emit('delete')">
+	<ToggleBlock :title="title" class="OBSEventsActionEntry" deletable @delete="$emit('delete')" medium>
 		<form @submit.prevent="onSubmit()">
 			<ParamItem class="item" :paramData="source_conf" />
 			<ParamItem class="item show" :paramData="show_conf" />
@@ -9,14 +9,20 @@
 			title="Special placeholders dynamically replaced"
 			:open="false">
 				<ul class="list" v-if="isTextSource">
-					<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)">
-						<strong data-tooltip="Insert">&#123;{{h.tag}}&#125;</strong>
+					<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
+						<strong>&#123;{{h.tag}}&#125;</strong>
 						{{h.desc}}
 					</li>
 				</ul>
 			</ToggleBlock>
 			<ParamItem class="item delay" :paramData="delay_conf" />
-			<Button type="submit" title="Save" class="saveBt" :icon="require('@/assets/icons/save.svg')" :disabled="!canSubmit" />
+			
+			<Button type="submit"
+			title="Save"
+			v-if="isChange"
+			class="saveBt"
+			:icon="require('@/assets/icons/save.svg')"
+			:disabled="!canSubmit" />
 		</form>
 	</ToggleBlock>
 </template>
@@ -28,7 +34,7 @@ import { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store'
 import OBSWebsocket, { OBSFilter, OBSSceneTriggerTypes, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
-import ParamItem from '../../../ParamItem.vue';
+import ParamItem from '../../ParamItem.vue';
 
 @Options({
 	props:{
@@ -42,9 +48,9 @@ import ParamItem from '../../../ParamItem.vue';
 		ParamItem,
 		ToggleBlock,
 	},
-	emits:["delete"]
+	emits:["delete", "update"]
 })
-export default class OBSSourceActionEntry extends Vue {
+export default class OBSEventsActionEntry extends Vue {
 
 	public action!:OBSSourceAction;
 	public sources!:OBSSourceItem[];
@@ -89,8 +95,14 @@ export default class OBSSourceActionEntry extends Vue {
 	/**
 	 * Can submit form ?
 	 */
-	public get canSubmit():boolean {
-		return this.source_conf.value != "";
+	public get canSubmit():boolean { return this.source_conf.value != ""; }
+	
+	public get isChange():boolean {
+		return this.action.sourceName != this.source_conf.value
+		|| this.action.filterName != this.filters_conf.value
+		|| this.action.delay != this.delay_conf.value
+		|| this.action.text != this.text_conf.value
+		|| this.action.show != this.show_conf.value;
 	}
 
 	public mounted():void {
@@ -100,7 +112,7 @@ export default class OBSSourceActionEntry extends Vue {
 		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
 		this.source_conf.listValues.unshift({label:"Select...", value:""});
 		//TODO remove
-		this.source_conf.value = this.sources.find(v => v.inputKind === 'text_gdiplus_v2')?.sourceName as string;
+		// this.source_conf.value = this.sources.find(v => v.inputKind === 'text_gdiplus_v2')?.sourceName as string;
 
 		//Prefill forms
 		if(this.action.sourceName) this.source_conf.value = this.action.sourceName;
@@ -109,15 +121,32 @@ export default class OBSSourceActionEntry extends Vue {
 		if(this.action.text) this.text_conf.value = this.action.text;
 		if(this.action.show) this.show_conf.value = this.action.show;
 
+		//Sets current default values to the action.
+		//This allows to hide the "save" button until something is changed
+		if(!this.action.sourceName) this.action.sourceName = this.source_conf.value as string;
+		if(!this.action.filterName) this.action.filterName = this.filters_conf.value as string;
+		if(!this.action.delay) this.action.delay = this.delay_conf.value as number;
+		if(!this.action.text) this.action.text = this.text_conf.value as string;
+		if(!this.action.show) this.action.show = this.show_conf.value as boolean;
+
+
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged())
 		watch(()=>this.filters_conf.value, ()=> this.updateFilter());
+		watch(()=>this.text_conf.value, ()=> {
+			OBSWebsocket
+		});
 	}
 
 	/**
 	 * Called when submitting the form
 	 */
 	public onSubmit():void {
-		console.log("SUBMIT !");
+		this.action.sourceName = this.source_conf.value as string;
+		this.action.filterName = this.filters_conf.value as string;
+		this.action.delay = this.delay_conf.value as number;
+		this.action.text = this.text_conf.value as string;
+		this.action.show = this.show_conf.value as boolean;
+		this.$emit("update");
 	}
 
 	/**
@@ -202,13 +231,36 @@ export default class OBSSourceActionEntry extends Vue {
 		this.helpers[OBSSceneTriggerTypes.CHAT_COMMAND] = [
 			{tag:"USER", desc:"User name"},
 		];
+
+		this.helpers[OBSSceneTriggerTypes.SUB] = [
+			{tag:"USER", desc:"User name"},
+			{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3"},
+			{tag:"MESSAGE", desc:"Message of the user"},
+		];
+
+		this.helpers[OBSSceneTriggerTypes.SUBGIFT] = [
+			{tag:"USER", desc:"User name of the sub gifter"},
+			{tag:"RECIPIENT", desc:"Recipient user name"},
+			{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3"},
+			{tag:"MESSAGE", desc:"Message of the user"},
+		];
+
+		this.helpers[OBSSceneTriggerTypes.BITS] = [
+			{tag:"USER", desc:"User name"},
+			{tag:"BITS", desc:"Number of bits"},
+			{tag:"MESSAGE", desc:"Message of the user"},
+		];
+
+		this.helpers[OBSSceneTriggerTypes.FOLLOW] = [
+			{tag:"USER", desc:"User name of the new follower"},
+		];
 	}
 
 }
 </script>
 
 <style scoped lang="less">
-.obssourceactionentry{
+.OBSEventsActionEntry{
 	:deep(.sourceName) {
 		font-size: .7em;
 		font-weight: normal;
@@ -221,7 +273,9 @@ export default class OBSSourceActionEntry extends Vue {
 	}
 	.delay, .show {
 		:deep(input){
-			width: 70px;
+			width: 90px;
+			flex-grow: unset;
+			min-width: unset;
 		}
 	}
 

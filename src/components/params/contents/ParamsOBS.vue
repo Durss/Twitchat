@@ -58,9 +58,9 @@
 		<ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="false"
-		icon="show_purple"
-		title="Control sources">
-			<OBSSources @openSourceForm="$emit('setContent', 'obsSource')" />
+		icon="notification_purple"
+		title="Twitchat events">
+			<OBSEvents @openSourceForm="$emit('setContent', 'obsSource')" />
 		</ToggleBlock>
 	</div>
 </template>
@@ -78,7 +78,7 @@ import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSPermissions from './obs/OBSPermissions.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import OBSSources from './obs/OBSSources.vue';
+import OBSEvents from './obs/OBSEvents.vue';
 
 
 @Options({
@@ -88,7 +88,7 @@ import OBSSources from './obs/OBSSources.vue';
 		ParamItem,
 		OBSScenes,
 		ToggleBlock,
-		OBSSources,
+		OBSEvents,
 		OBSPermissions,
 		OBSAudioSourceForm,
 	},

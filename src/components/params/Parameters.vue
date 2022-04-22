@@ -22,7 +22,7 @@
 				<ParamsAccount v-if="content == 'account'" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<ParamsOBSSourceForm v-if="content == 'obsSource'" @setContent="setContent" />
+				<OBSEventsAction v-if="content == 'obsSource'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -49,7 +49,7 @@ import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
-import ParamsOBSSourceForm from './ParamsOBSSourceForm.vue';
+import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
 
 @Options({
 	props:{},
@@ -61,7 +61,7 @@ import ParamsOBSSourceForm from './ParamsOBSSourceForm.vue';
 		ToggleButton,
 		ParamsAccount,
 		ParamsStreamdeck,
-		ParamsOBSSourceForm,
+		OBSEventsAction,
 	}
 })
 

@@ -250,6 +250,10 @@ export const OBSSceneTriggerTypes = {
 	RAFFLE_RESULT:5,
 	BINGO_RESULT:6,
 	CHAT_COMMAND:7,
+	SUB:8,
+	SUBGIFT:9,
+	BITS:10,
+	FOLLOW:11,
 }
 
 export const OBSSceneTriggers = [
@@ -260,4 +264,8 @@ export const OBSSceneTriggers = [
 	{label:"Raffle result", value:OBSSceneTriggerTypes.RAFFLE_RESULT},
 	{label:"Bingo result", value:OBSSceneTriggerTypes.BINGO_RESULT},
 	{label:"Chat command", value:OBSSceneTriggerTypes.CHAT_COMMAND},
+	{label:"Sub", value:OBSSceneTriggerTypes.SUB},
+	{label:"Subgift", value:OBSSceneTriggerTypes.SUBGIFT},
+	{label:"Bits", value:OBSSceneTriggerTypes.BITS},
+	{label:"New follower", value:OBSSceneTriggerTypes.FOLLOW},
 ]
