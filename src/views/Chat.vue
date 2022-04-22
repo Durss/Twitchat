@@ -61,6 +61,7 @@
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
+			:startAdCooldown="startAdCooldown"
 			@poll="currentModal = 'poll'"
 			@pred="currentModal = 'pred'"
 			@raffle="currentModal = 'raffle'"
@@ -153,6 +154,8 @@ export default class Chat extends Vue {
 	public showCommands:boolean = false;
 	public showChatUsers:boolean = false;
 	public showLiveFollowings:boolean = false;
+	public canStartAd:boolean = true;
+	public startAdCooldown:number = 0;
 	public currentModal:string = "";
 	public currentMessageSearch:string = "";
 	public currentNotificationContent:string = "";
@@ -277,11 +280,19 @@ export default class Chat extends Vue {
 	}
 
 	public startAd(duration:number):void {
+		if(!this.canStartAd) return;
+
 		if(isNaN(duration)) duration = 30;
-		Utils.confirm("Start a commercial?", "The commercial will last "+duration+"s").then(async () => {
+		Utils.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 			try {
 				const res = await TwitchUtils.startCommercial(duration);
 				if(res.length > 0) {
+					this.canStartAd = false;
+					this.startAdCooldown = Date.now() + res.retry_after * 1000;
+					setTimeout(()=>{
+						this.canStartAd = true;
+						this.startAdCooldown = 0;
+					}, this.startAdCooldown);
 					store.dispatch("setCommercialEnd", Date.now() + res.length * 1000);
 				}
 			}catch(error) {

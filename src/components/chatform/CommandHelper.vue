@@ -7,11 +7,12 @@
 		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 		<div class="commercial">
-			<Button small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce />
-			<Button small @click="$emit('ad', 60); close();" title="60s" bounce />
-			<Button small @click="$emit('ad', 90); close();" title="90s" bounce />
-			<Button small @click="$emit('ad', 120); close();" title="120s" bounce />
-			<Button small @click="$emit('ad', 180); close();" title="180s" bounce />
+			<Button v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
 		</div>
 
 		<div v-for="(p,key) in params" :key="key">
@@ -37,13 +38,16 @@ import store, { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 
 @Options({
-	props:{},
+	props:{
+		startAdCooldown:Number,
+	},
 	components:{
 		Button,
 		ParamItem,
@@ -52,11 +56,17 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class CommandHelper extends Vue {
 	
+	public startAdCooldown!:number;
 	public raidUser:string = "";
+	public adCooldown:number = 0;
+	private adCooldownInterval:number = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public get params():{[key:string]:ParameterData} { return store.state.roomStatusParams; }
+	public get adCooldownFormated():string {
+		return Utils.formatDuration(this.adCooldown);
+	}
 
 	public get canCreatePrediction():boolean {
 		return store.state.currentPrediction?.id == undefined && store.state.hasChannelPoints === true;
@@ -72,9 +82,19 @@ export default class CommandHelper extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
+
+		watch(()=>this.startAdCooldown, ()=>{
+			this.adCooldown = this.startAdCooldown - Date.now();
+		})
+		this.adCooldown = Math.max(0, this.startAdCooldown - Date.now());
+		this.adCooldownInterval = setInterval(()=>{
+			this.adCooldown -= 1000;
+			if(this.adCooldown < 0) this.adCooldown = 0;
+		}, 1000);
 	}
 
 	public beforeUnmount():void {
+		clearInterval(this.adCooldownInterval);
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 
@@ -171,6 +191,10 @@ export default class CommandHelper extends Vue {
 		flex-direction: row;
 		justify-content: space-between;
 		margin-bottom: .5em;
+		.cooldown {
+			font-size: .8em;
+			margin: auto;
+		}
 	}
 
 	.raid {
