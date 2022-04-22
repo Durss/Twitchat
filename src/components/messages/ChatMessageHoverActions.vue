@@ -5,12 +5,19 @@
 			@click="trackUser()"
 			v-if="!isSelf"
 			/>
+		<Button :icon="require('@/assets/icons/shoutout.svg')"
+			data-tooltip="Shoutout"
+			@click="shoutout()"
+			v-if="!isSelf"
+			:loading="shoutoutLoading"
+			/>
 	</div>
 </template>
 
 <script lang="ts">
 import store from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -26,6 +33,7 @@ import Button from '../Button.vue';
 export default class ChatMessageHoverActions extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
+	public shoutoutLoading:boolean = false;
 
 	public get isSelf():boolean {
 		return this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
@@ -33,6 +41,17 @@ export default class ChatMessageHoverActions extends Vue {
 
 	public trackUser():void {
 		store.dispatch("trackUser", this.messageData);
+	}
+
+	public async shoutout():Promise<void> {
+		this.shoutoutLoading = true;
+		try {
+			await TwitchUtils.shoutout(this.messageData.tags['display-name'] as string);
+		}catch(error) {
+			store.state.alert = "Shoutout failed :(";
+			console.log(error);
+		}
+		this.shoutoutLoading = false;
 	}
 }
 </script>

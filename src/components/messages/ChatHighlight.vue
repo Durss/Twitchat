@@ -255,7 +255,7 @@ export default class ChatHighlight extends Vue {
 			try {
 				await TwitchUtils.shoutout(this.messageData.username as string);
 			}catch(error) {
-				store.state.alert = "Shout failed :(";
+				store.state.alert = "Shoutout failed :(";
 				console.log(error);
 			}
 		}
