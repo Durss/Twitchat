@@ -12,13 +12,14 @@
 				<div class="game">{{streamInfo.game_name}}</div>
 			</div>
 		</div>
-			<Button v-if="isRaid"
-				small 
-				:icon="require('@/assets/icons/shoutout.svg')"
-				@click.stop="shoutout()"
-				:loading="shoutoutLoading"
-				data-tooltip="Send a shoutout"
-			/>
+		<Button v-if="isRaid"
+			small 
+			:icon="require('@/assets/icons/shoutout.svg')"
+			@click.stop="shoutout()"
+			:loading="shoutoutLoading"
+			data-tooltip="Send a shoutout"
+			class="soButton"
+		/>
 	</div>
 </template>
 
@@ -352,13 +353,6 @@ export default class ChatHighlight extends Vue {
 			margin-top: 10px;
 		}
 
-		.button {
-			:deep(.icon) {
-				height: .7em;
-				min-height: .7em;
-			}
-		}
-
 		.reason {
 			color: #fff;
 			:deep(strong) {
@@ -423,6 +417,13 @@ export default class ChatHighlight extends Vue {
 				text-align: left;
 				font-style: italic;
 			}
+		}
+	}
+
+	.soButton {
+		:deep(.icon) {
+			height: 1.5em;
+			min-height: 1.5em;
 		}
 	}
 }
