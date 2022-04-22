@@ -207,7 +207,7 @@ export default class TwitchUtils {
 			}
 		}
 		//Sort emotes by start position
-		emotesList.sort((a,b) => a.start - b.start)
+		emotesList.sort((a,b) => a.start - b.start);
 
 		let cursor = 0;
 		const result:TwitchTypes.ParseMessageChunk[] = [];
@@ -215,10 +215,10 @@ export default class TwitchUtils {
 		for (let i = 0; i < emotesList.length; i++) {
 			const e = emotesList[i];
 			if(cursor < e.start) {
-				result.push( {type:"text", value:message.substring(cursor, e.start)} );
+				result.push( {type:"text", value: Array.from(message).slice(cursor, e.start).join("")} );
 			}
 			if(!removeEmotes) {
-				const code = message.substring(e.start, e.end + 1).trim();
+				const code = Array.from(message).slice(e.start, e.end + 1).join("").trim();
 				if(e.id.indexOf("BTTV_") == 0) {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
@@ -232,7 +232,7 @@ export default class TwitchUtils {
 			}
 			cursor = e.end + 1;
 		}
-		result.push( {type:"text", value:message.substring(cursor)} );
+		result.push( {type:"text", value: Array.from(message).slice(cursor).join("")} );
 		
 		return result;
 	}
