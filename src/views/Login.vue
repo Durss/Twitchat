@@ -10,9 +10,15 @@
 				<b>Twitchat</b> aims to fill gaps from the official Twitch chat for the streamers
 			</div>
 
-			<div class="infos"
-			v-if="!authenticating"
-			>
+			<div v-if="!authenticating && newScopes.length > 0" class="newScopes">
+				<img src="@/assets/icons/update.svg" alt="update" class="icon">
+				<div class="title">An update needs these new permissions</div>
+				<ul>
+					<li v-for="p in newScopes" :key="p">{{p}}</li>
+				</ul>
+			</div>
+
+			<div class="infos" v-if="!authenticating">
 				<b>Twitchat</b> needs <b>{{permissions.length}}</b> permissions
 				<br>
 				<Button small title="More info"
@@ -91,36 +97,44 @@ export default class Login extends Vue {
 	public authenticating:boolean = false;
 	public showPermissions:boolean = false;
 	public oAuthURL:string = "";
+	
+	private scopeToInfos:{[key:string]:string} = {
+		"chat:read": "Read your chat",
+		"chat:edit": "Write on your chat",
+		"channel_editor": "Start a raid/host",
+		"channel:read:redemptions": "Read redemptions",
+		"channel:moderate": "Perform moderation actions",
+		"channel:manage:polls": "Manage polls",
+		"channel:manage:predictions": "Manage predictions",
+		"channel:read:hype_train": "Read hype train state",
+		"moderation:read": "List your moderators",
+		"moderator:manage:automod": "Manage automoded messages",
+		"bits:read": "Read bits leaderboard",
+		"channel:edit:commercial": "Start an ad",
+		"channel:manage:broadcast": "Update your stream info",
+		"channel:manage:redemptions": "Manage rewards",
+		"channel:read:goals": "Read current goals (sub/follow)",
+		"channel:read:subscriptions": "Get list of your subs",
+		"moderator:manage:banned_users": "Manage banned users",
+		"moderator:read:blocked_terms": "Read blocked terms",
+		"moderator:manage:blocked_terms": "Manage blocked terms",
+		"user:read:blocked_users": "Read blocked users",
+		"user:manage:blocked_users": "Manage blocked users",
+		"user:read:follows": "List your followings",
+		"user:read:subscriptions": "List your subscribers",
+		"whispers:edit": "Send whispers",
+	}
 
 	public get permissions():string[] {
-		const scopeToInfos:{[key:string]:string} = {
-			"chat:read": "Read your chat",
-			"chat:edit": "Write on your chat",
-			"channel_editor": "Start a raid/host",
-			"channel:read:redemptions": "Read redemptions",
-			"channel:moderate": "Perform moderation actions",
-			"channel:manage:polls": "Manage polls",
-			"channel:manage:predictions": "Manage predictions",
-			"channel:read:hype_train": "Read hype train state",
-			"moderation:read": "List your moderators",
-			"moderator:manage:automod": "Manage automoded messages",
-			"bits:read": "Read bits leaderboard",
-			"channel:edit:commercial": "Start an ad",
-			"channel:manage:broadcast": "Update your stream info",
-			"channel:manage:redemptions": "Manage rewards",
-			"channel:read:goals": "Read current goals (sub/follow)",
-			"channel:read:subscriptions": "Get list of your subs",
-			"moderator:manage:banned_users": "Manage banned users",
-			"moderator:read:blocked_terms": "Read blocked terms",
-			"moderator:manage:blocked_terms": "Manage blocked terms",
-			"user:read:blocked_users": "Read blocked users",
-			"user:manage:blocked_users": "Manage blocked users",
-			"user:read:follows": "List your followings",
-			"user:read:subscriptions": "List your subscribers",
-			"whispers:edit": "Send whispers",
-		}
 		return Config.TWITCH_APP_SCOPES.map(v => {
-			if(scopeToInfos[v]) return scopeToInfos[v];
+			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
+			return v;
+		});
+	}
+
+	public get newScopes():string[] {
+		return store.state.newScopeToRequest.map(v => {
+			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});
 	}
@@ -216,10 +230,27 @@ export default class Login extends Vue {
 			min-width: 250px;
 		}
 
+		.newScopes {
+			margin-bottom: 1em;
+			background-color: @mainColor_normal;
+			color: @mainColor_light;
+			border-radius: .5em;
+			padding: 1em;
+			padding-top: .5em;
+			.title {
+				font-weight: bold;
+			}
+			.icon {
+				height: 2em;
+				margin-bottom: .25em;
+			}
+		}
+
 		.infos {
 			margin-bottom: 20px;
 			min-width: 250px;
 			color: @mainColor_warn;
+
 			.moreInfoBt {
 				margin-top: 5px;
 				background-color: @mainColor_warn;
@@ -237,17 +268,6 @@ export default class Login extends Vue {
 				font-size: .9em;
 				max-height: 150px;
 				overflow-y: auto;
-				ul {
-					width: 190px;
-					margin: auto;
-					margin-top: 10px;
-					list-style: inside;
-					li {
-						text-align: left;
-						padding-left: 0;
-						font-size: .9em;
-					}
-				}
 			}
 		}
 
@@ -279,6 +299,18 @@ export default class Login extends Vue {
 		text-align: center;
 		font-size: .8em;
 		margin-bottom: 10px;
+	}
+
+	ul {
+		width: 200px;
+		margin: auto;
+		margin-top: 10px;
+		list-style: inside;
+		li {
+			text-align: left;
+			padding-left: 0;
+			font-size: .9em;
+		}
 	}
 }
 </style>
