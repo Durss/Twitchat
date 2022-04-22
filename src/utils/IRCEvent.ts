@@ -36,7 +36,7 @@ export type ActivityFeedData = IRCEventDataList.Highlight
 							|  IRCEventDataList.BingoResult
 							|  IRCEventDataList.RaffleResult
 							|  IRCEventDataList.Message
-							// |  IRCEventDataList.Commercial
+							|  IRCEventDataList.Commercial
 							;
 export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Timeout
@@ -199,29 +199,32 @@ export namespace IRCEventDataList {
 		type:"poll";
 		data:TwitchTypes.Poll;
 		tags: { id:string, "tmi-sent-ts":string };
+		[paramater: string]: unknown;
 	}
 	
 	export interface PredictionResult {
 		type:"prediction";
 		data:TwitchTypes.Prediction;
 		tags: { id:string, "tmi-sent-ts":string };
+		[paramater: string]: unknown;
 	}
 
 	export interface BingoResult {
 		type:"bingo";
 		data:BingoData;
 		tags: { id:string, "tmi-sent-ts":string };
+		[paramater: string]: unknown;
 	}
 
 	export interface RaffleResult {
 		type:"raffle";
 		data:RaffleData;
 		tags: { id:string, "tmi-sent-ts":string };
+		[paramater: string]: unknown;
 	}
 
 	export interface Commercial extends Notice {
-		msgid:"commercial";
 		ended:boolean;
-		tags: { id:string, "tmi-sent-ts":string };
+		tags: { id:string, "tmi-sent-ts":string, "msg-id":"commercial"; };
 	}
 }

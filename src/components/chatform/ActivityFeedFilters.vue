@@ -49,7 +49,7 @@ import ToggleButton from '../ToggleButton.vue';
 
 @Options({
 	props:{
-		modelValue:{type:String, default: ""},
+		modelValue:{type:Object, default: {}},
 	},
 	components:{
 		Button,
@@ -59,7 +59,7 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class ActivityFeedFilters extends Vue {
 	
-	public modelValue!:string;
+	public modelValue!:{[key:string]:boolean};
 
 	public opened:boolean = false;
 
@@ -76,16 +76,15 @@ export default class ActivityFeedFilters extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public mounted():void {
-		let items = this.modelValue.split(",");
-		this.showSubs = items.indexOf("sub") > -1;
-		this.showFollow = items.indexOf("follow") > -1;
-		this.showBits = items.indexOf("bits") > -1;
-		this.showRaids = items.indexOf("raid") > -1;
-		this.showRewards = items.indexOf("rewards") > -1;
-		this.showPolls = items.indexOf("poll") > -1;
-		this.showPredictions = items.indexOf("prediction") > -1;
-		this.showBingos = items.indexOf("bingo") > -1;
-		this.showRaffles = items.indexOf("raffle") > -1;
+		this.showSubs = this.modelValue["sub"] === true;
+		this.showFollow = this.modelValue["follow"] === true;
+		this.showBits = this.modelValue["bits"] === true;
+		this.showRaids = this.modelValue["raid"] === true;
+		this.showRewards = this.modelValue["rewards"] === true;
+		this.showPolls = this.modelValue["poll"] === true;
+		this.showPredictions = this.modelValue["prediction"] === true;
+		this.showBingos = this.modelValue["bingo"] === true;
+		this.showRaffles = this.modelValue["raffle"] === true;
 		
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -96,18 +95,18 @@ export default class ActivityFeedFilters extends Vue {
 	}
 
 	public onChange():void {
-		const data:string[] = [];
-		if(this.showSubs) data.push("sub");
-		if(this.showFollow) data.push("follow");
-		if(this.showBits) data.push("bits");
-		if(this.showRaids) data.push("raid");
-		if(this.showRewards) data.push("rewards");
-		if(this.showPolls) data.push("poll");
-		if(this.showPredictions) data.push("prediction");
-		if(this.showBingos) data.push("bingo");
-		if(this.showRaffles) data.push("raffle");
+		const data:{[key:string]:boolean} = {};
+		data["sub"] = this.showSubs;
+		data["follow"] = this.showFollow;
+		data["bits"] = this.showBits;
+		data["raid"] = this.showRaids;
+		data["rewards"] = this.showRewards;
+		data["poll"] = this.showPolls;
+		data["prediction"] = this.showPredictions;
+		data["bingo"] = this.showBingos;
+		data["raffle"] = this.showRaffles;
 		
-		this.$emit("update:modelValue", data.join(","));
+		this.$emit("update:modelValue", data);
 	}
 
 	private onClick(e:MouseEvent):void {

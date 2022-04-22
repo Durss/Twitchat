@@ -2,6 +2,7 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
+			<Button small title="Commercial" @click="simulateEvent('commercial')" :icon="require('@/assets/icons/coin.svg')" />
 			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
 			<Button small title="Presentation" @click="simulateEvent('presentation')" :icon="require('@/assets/icons/firstTime.svg')" />
 			<Button small title="Raid" @click="simulateEvent('raided')" :icon="require('@/assets/icons/bits.svg')" />

@@ -334,9 +334,9 @@
         "tags": {
             "info": "this tags prop is a fake one to make things easier for my code",
             "id": "16423778121330.0751974390273129",
-            "tmi-sent-ts": "1642377812133"
+            "tmi-sent-ts": "1642377812133",
+			"msg-id": "raid"
         },
-        "msgid": "raid",
         "username": "antoinedaniel",
         "viewers": 727,
         "firstMessage": true
@@ -714,5 +714,17 @@
 		"firstMessage": false,
 		"hasMention": false,
 		"showHoverActions": false
+	},
+	"commercial":{
+		"type": "notice",
+		"channel": "#durssbot",
+		"msgid": "commercial",
+		"message": "A commercial just started for 60 seconds",
+		"tags": {
+			"msg-id": "commercial",
+			"info": "this tags prop is a fake one to make things easier for my code",
+			"id": "00000000-0000-0000-0000-000000000003",
+			"tmi-sent-ts": "1650663299244"
+		}
 	}
 }

@@ -41,7 +41,7 @@
 				<ChatNotice
 					class="message"
 					ref="message"
-					v-else-if="m.type == 'commercial'"
+					v-else-if="m.tags['msg-id'] == 'commercial'"
 					:messageData="m"
 					/>
 
@@ -98,7 +98,8 @@ export default class ActivityFeed extends Vue {
 
 	public listMode!:boolean;
 
-	public filters:string = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
+	public filterKeys:string = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
+	public filters:{[key:string]:boolean} = {};
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -116,20 +117,21 @@ export default class ActivityFeed extends Vue {
 		|| v.type == "prediction"
 		|| v.type == "bingo"
 		|| v.type == "raffle"
-		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message"));
+		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message")
+		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
+		console.log(list);
 
 		const result:ActivityFeedData[] = [];
 		
-		let items = this.filters.split(",");
-		const showSubs = items.indexOf("sub") > -1;
-		const showFollow = items.indexOf("follow") > -1;
-		const showBits = items.indexOf("bits") > -1;
-		const showRaids = items.indexOf("raid") > -1;
-		const showRewards = items.indexOf("rewards") > -1;
-		const showPolls = items.indexOf("poll") > -1;
-		const showPredictions = items.indexOf("prediction") > -1;
-		const showBingos = items.indexOf("bingo") > -1;
-		const showRaffles = items.indexOf("raffle") > -1;
+		const showSubs			= this.filters["sub"] === true;
+		const showFollow		= this.filters["follow"] === true;
+		const showBits			= this.filters["bits"] === true;
+		const showRaids			= this.filters["raid"] === true;
+		const showRewards		= this.filters["rewards"] === true;
+		const showPolls			= this.filters["poll"] === true;
+		const showPredictions	= this.filters["prediction"] === true;
+		const showBingos		= this.filters["bingo"] === true;
+		const showRaffles		= this.filters["raffle"] === true;
 
 		
 		for (let i = 0; i < list.length; i++) {
@@ -150,6 +152,12 @@ export default class ActivityFeed extends Vue {
 				type = "raffle";
 			}else if(m.tags['msg-id'] == "follow") {
 				type = "follow";
+			}else if(m.tags['msg-id'] == "raid") {
+				type = "raid";
+			}else if(m.type == "notice") {
+				if(m.tags['msg-id'] == "commercial") {
+					type = "commercial";
+				}
 			}else if(m.tags.bits) {
 				type = "bits";
 			}else if(m.methods?.prime) {
@@ -160,8 +168,6 @@ export default class ActivityFeed extends Vue {
 				type = "sub";
 			}else if(m.tags['message-type'] == "giftpaidupgrade") {
 				type = "sub";
-			}else if(m.viewers != undefined) {
-				type = "raid";
 			}else if(m.reward) {
 				type = "reward";
 			}
@@ -174,9 +180,12 @@ export default class ActivityFeed extends Vue {
 			if(type == "prediction" && showPredictions) result.unshift(m);
 			if(type == "bingo" && showBingos) result.unshift(m);
 			if(type == "raffle" && showRaffles) result.unshift(m);
+			if(type == "commercial") result.unshift(m);
 		}
 
-		Store.set("activityFeedFilters", this.filters);
+		console.log(result);
+
+		Store.set("activityFeedFilters", JSON.stringify(this.filters));
 		
 		// if(this.listMode) {
 		// 	result.reverse();
@@ -187,7 +196,28 @@ export default class ActivityFeed extends Vue {
 
 	public beforeMount():void {
 		const f = Store.get("activityFeedFilters");
-		if(f) this.filters = f;
+		let json:{[key:string]:boolean} = {};
+		try {
+			json = JSON.parse(f);
+		}catch(e) {
+			if(typeof(f) == "string") {
+				//Migrate old data format:
+				//	"sub,follow,bits,..."
+				//To new format:
+				//	{sub:true, follow:false, bits:true}
+				const items = f.split(",");
+				for (let i = 0; i < items.length; i++) {
+					const key = items[i];
+					json[key] = true;
+				}
+				for (let i = 0; i < this.filterKeys.split(",").length; i++) {
+					const key = this.filterKeys.split(",")[i];
+					if(json[key] === undefined) json[key] = false;
+				}
+			}
+		}
+		console.log(json);
+		if(f) this.filters = json;
 	}
 
 	public async mounted():Promise<void> {
