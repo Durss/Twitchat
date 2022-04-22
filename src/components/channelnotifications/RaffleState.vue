@@ -12,10 +12,10 @@
 			<p class="max" v-if="raffleData.maxUsers">/{{raffleData.maxUsers}}</p>
 			<p>entered</p>
 		</div>
-		<div class="item winners" v-if="winners.length > 0">
-			<span class="title">Winners <span class="count">({{winners.length}})</span> :</span>
+		<div class="item winners" v-if="raffleData.winners.length > 0">
+			<span class="title">Winners <span class="count">({{raffleData.winners.length}})</span> :</span>
 			<div class="users">
-				<span v-for="w in winners" :key="w['user-id']" @click="openUserCard(w)">{{w.user['display-name']}}</span>
+				<span v-for="w in raffleData.winners" :key="w['user-id']" @click="openUserCard(w)">{{w.user['display-name']}}</span>
 			</div>
 		</div>
 
@@ -23,7 +23,7 @@
 			:icon="require('@/assets/icons/ticket.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
-			:disabled="!raffleData.users || raffleData.users.length == 0 || winners.length == raffleData.users.length" />
+			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
 
 		<ParamItem class="item postChat" :paramData="postOnChatParam" />
 
@@ -39,6 +39,7 @@
 import store, { ParameterData, RaffleData, RaffleVote } from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
+import { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -63,7 +64,6 @@ export default class RaffleState extends Vue {
 	public raffleData:RaffleData = store.state.raffle as RaffleData;
 	public postOnChatParam:ParameterData = {label:"Post winner on chat", value:false, type:"toggle"};
 	public postOnChatTextParam:ParameterData = {label:"Message ( username => {USER} )", value:"🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉", type:"text", longText:true};
-	public winners:RaffleVote[] = [];
 
 	public mounted():void {
 		const text = Store.get("raffle_message");
@@ -114,9 +114,21 @@ export default class RaffleState extends Vue {
 		
 		do{
 			winner = Utils.pickRand(list);
-		}while(this.winners.find(w => w.user['user-id'] == winner.user['user-id']));
+		}while(this.raffleData.winners.find(w => w.user['user-id'] == winner.user['user-id']));
 
-		this.winners.push( winner );
+		this.raffleData.winners.push( winner );
+
+		//Post result on chat
+		const payload:IRCEventDataList.RaffleResult = {
+			type:"raffle",
+			data:this.raffleData,
+			tags: {
+				id:IRCClient.instance.getFakeGuid(),
+				"tmi-sent-ts": Date.now().toString()
+			},
+		}
+		store.dispatch("addChatMessage", payload);
+		
 		if(this.postOnChatParam.value) {
 			IRCClient.instance.sendMessage((this.postOnChatTextParam.value as string).replace(/\{USER\}/gi, winner.user['display-name'] as string));
 		}

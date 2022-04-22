@@ -56,7 +56,7 @@ export default createStore({
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: null as OBSPermissions|null,
-		obsSourceCommands: null as {[key:number]:OBSSourceAction[]}|null,
+		obsSourceCommands: {} as {[key:number]:OBSSourceAction[]},
 		commands: [
 			{
 				id:"search",
@@ -168,7 +168,7 @@ export default createStore({
 				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
 				showFollow: {type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: {type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
-				showPollPredResults: {type:"toggle", value:true, label:"Show polls and prediction results on chat", id:112, icon:"poll_purple.svg", example:"pollPredOnChat.png"},
+				showPollPredResults: {type:"toggle", value:true, label:"Show poll, prediction, bingo and raffle results on chat", id:112, icon:"poll_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
 			features: {
 				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
@@ -407,7 +407,7 @@ export default createStore({
 
 				//If it's a follow event, flag user as a follower
 				if(payload.type == "highlight") {
-					if(payload['msg-id'] == "follow") {
+					if(payload.tags['msg-id'] == "follow") {
 						state.followingStates[payload.tags['user-id'] as string] = true;
 					}
 				}
@@ -495,7 +495,7 @@ export default createStore({
 				//Check if the message contains a mention
 				if(textMessage.message && state.params.appearance.highlightMentions.value === true) {
 					textMessage.hasMention = state.user.login != null
-					&& new RegExp("(^| )("+state.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
+					&& new RegExp("(^| |@)("+state.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
 					if(textMessage.hasMention) {
 						//Broadcast to OBS-Ws
 						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
@@ -512,6 +512,8 @@ export default createStore({
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
 			|| payload.type == "prediction"
+			|| payload.type == "bingo"
+			|| payload.type == "raffle"
 			|| (
 				state.params.features.keepHighlightMyMessages.value === true
 				&& payload.type == "message"
@@ -727,9 +729,9 @@ export default createStore({
 			Store.set("obsConf_permissions", JSON.stringify(value));
 		},
 
-		setOBSSourceCommands(state, value:{[key:number]:OBSSourceAction[]}) {
-			state.obsSourceCommands = value;
-			Store.set("obsConf_sources", JSON.stringify(value));
+		setOBSSourceCommands(state, value:{key:number, data:OBSSourceAction[]}) {
+			state.obsSourceCommands[value.key] = value.data;
+			Store.set("obsConf_sources", JSON.stringify(state.obsSourceCommands));
 		},
 
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
@@ -799,7 +801,7 @@ export default createStore({
 			
 			//Init OBS sources params
 			const obsSourceCommands = Store.get("obsConf_sources");
-			if(obsSceneCommands) {
+			if(obsSourceCommands) {
 				state.obsSourceCommands = JSON.parse(obsSourceCommands);
 			}
 			
@@ -926,6 +928,17 @@ export default createStore({
 								let message = state.bingo_message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);
+
+								//Post result on chat
+								const payload:IRCEventDataList.BingoResult = {
+									type:"bingo",
+									data:state.bingo,
+									tags: {
+										id:IRCClient.instance.getFakeGuid(),
+										"tmi-sent-ts": Date.now().toString()
+									},
+								}
+								this.dispatch("addChatMessage", payload);
 							},0);
 						}
 					}
@@ -1130,7 +1143,7 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
 
-		setOBSSourceCommands({commit}, value:{[key:number]:OBSSourceAction[]}) { commit("setOBSSourceCommands", value); },
+		setOBSSourceCommands({commit}, value:{key:number, data:OBSSourceAction[]}) { commit("setOBSSourceCommands", value); },
 
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
@@ -1223,6 +1236,7 @@ export interface RaffleData {
 	followRatio:number;
 	subRatio:number;
 	subgitRatio:number;
+	winners:ChatUserstate[];
 }
 
 export interface RaffleVote {

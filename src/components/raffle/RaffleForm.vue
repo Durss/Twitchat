@@ -137,6 +137,7 @@ export default class RaffleForm extends Vue {
 			vipRatio: this.ponderateVotes_vip.value as number,
 			subRatio: this.ponderateVotes_sub.value as number,
 			subgitRatio: this.ponderateVotes_subgift.value as number,
+			winners: [],
 		};
 		store.dispatch("startRaffle", payload);
 		this.close();

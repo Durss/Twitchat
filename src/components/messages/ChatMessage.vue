@@ -202,7 +202,7 @@ export default class ChatMessage extends Vue {
 			color = parseInt(message.tags.color.replace("#", ""), 16);
 		}
 		const hsl = Utils.rgb2hsl(color);
-		const minL = .6;
+		const minL = this.isPresentation || this.isAnnouncement || this.firstTime? .75 : .65;
 		if(hsl.l < minL) {
 			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
 		}
@@ -381,7 +381,7 @@ export default class ChatMessage extends Vue {
 
 						//If requested to highlight mentions, highlight them
 						if(doHighlight) {
-							v.value = v.value.replace(new RegExp("(^| )("+highlightLogin+")( |$)", "gim"), "$1<span class='highlightedWord'>$2</span>$3");
+							v.value = v.value.replace(new RegExp("(^| |@)("+highlightLogin+")( |$)", "gim"), "$1<span class='highlightedWord'>$2</span>$3");
 						}
 						result += Utils.parseURLs(v.value);
 					}else if(v.type == "emote") {

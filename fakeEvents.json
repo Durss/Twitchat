@@ -581,10 +581,10 @@
             "username": "DurssBot",
             "user-id":"647389082",
             "tmi-sent-ts": "1644088397887",
-            "id": "00000000-0000-0000-0001-000000000000"
+            "id": "00000000-0000-0000-0001-000000000000",
+			"msg-id": "follow"
         },
         "username": "DurssBot",
-        "msg-id": "follow",
         "type": "highlight",
         "firstMessage": false
     },
@@ -682,6 +682,7 @@
         "showHoverActions": false,
         "markedAsRead": false
     },
+	
 	"presentation": {
 		"type": "message",
 		"message": "This is a presentation message hiiiideeehoooooooooooooooooo",

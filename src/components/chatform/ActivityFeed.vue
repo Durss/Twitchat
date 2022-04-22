@@ -44,6 +44,18 @@
 					v-else-if="m.type == 'commercial'"
 					:messageData="m"
 					/>
+
+				<ChatBingoResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'bingo'"
+					:bingoData="m" />
+
+				<ChatRaffleResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'raffle'"
+					:raffleData="m" />
 			</div>
 		</div>
 	</div>
@@ -55,11 +67,13 @@ import Store from '@/store/Store';
 import { ActivityFeedData } from '@/utils/IRCEvent';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
+import ChatBingoResult from '../messages/ChatBingoResult.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 import ChatNotice from '../messages/ChatNotice.vue';
 import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
+import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 
 @Options({
@@ -74,6 +88,8 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 		ChatMessage,
 		ChatHighlight,
 		ChatPollResult,
+		ChatBingoResult,
+		ChatRaffleResult,
 		ChatPredictionResult,
 		ActivityFeedFilters,
 	}
@@ -82,7 +98,7 @@ export default class ActivityFeed extends Vue {
 
 	public listMode!:boolean;
 
-	public filters:string = "sub,follow,bits,raid,poll,prediction";
+	public filters:string = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -98,6 +114,8 @@ export default class ActivityFeed extends Vue {
 		.filter(v => v.type == "highlight"
 		|| v.type == "poll"
 		|| v.type == "prediction"
+		|| v.type == "bingo"
+		|| v.type == "raffle"
 		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message"));
 
 		const result:ActivityFeedData[] = [];
@@ -110,6 +128,8 @@ export default class ActivityFeed extends Vue {
 		const showRewards = items.indexOf("rewards") > -1;
 		const showPolls = items.indexOf("poll") > -1;
 		const showPredictions = items.indexOf("prediction") > -1;
+		const showBingos = items.indexOf("bingo") > -1;
+		const showRaffles = items.indexOf("raffle") > -1;
 
 		
 		for (let i = 0; i < list.length; i++) {
@@ -119,12 +139,16 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|null = null;
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|null = null;
 			if(m.type == "poll") {
 				type = "poll";
 			}else if(m.type == "prediction") {
 				type = "prediction";
-			}else if(m['msg-id'] == "follow") {
+			}else if(m.type == "bingo") {
+				type = "bingo";
+			}else if(m.type == "raffle") {
+				type = "raffle";
+			}else if(m.tags['msg-id'] == "follow") {
 				type = "follow";
 			}else if(m.tags.bits) {
 				type = "bits";
@@ -148,6 +172,8 @@ export default class ActivityFeed extends Vue {
 			if(type == "follow" && showFollow) result.unshift(m);
 			if(type == "poll" && showPolls) result.unshift(m);
 			if(type == "prediction" && showPredictions) result.unshift(m);
+			if(type == "bingo" && showBingos) result.unshift(m);
+			if(type == "raffle" && showRaffles) result.unshift(m);
 		}
 
 		Store.set("activityFeedFilters", this.filters);

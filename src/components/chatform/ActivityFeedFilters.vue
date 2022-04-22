@@ -30,6 +30,14 @@
 				<label for="AF_prediction" @click="showPredictions = !showPredictions; onChange();">Predictions</label>
 				<ToggleButton id="AF_prediction" small clear v-model="showPredictions" @change="onChange()" />
 			</div>
+			<div class="row">
+				<label for="AF_bingo" @click="showBingos = !showBingos; onChange();">Bingos</label>
+				<ToggleButton id="AF_bingo" small clear v-model="showBingos" @change="onChange()" />
+			</div>
+			<div class="row">
+				<label for="AF_raffle" @click="showRaffles = !showRaffles; onChange();">Raffles</label>
+				<ToggleButton id="AF_raffle" small clear v-model="showRaffles" @change="onChange()" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -62,6 +70,8 @@ export default class ActivityFeedFilters extends Vue {
 	public showRewards:boolean = true;
 	public showPolls:boolean = true;
 	public showPredictions:boolean = true;
+	public showBingos:boolean = true;
+	public showRaffles:boolean = true;
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -74,6 +84,8 @@ export default class ActivityFeedFilters extends Vue {
 		this.showRewards = items.indexOf("rewards") > -1;
 		this.showPolls = items.indexOf("poll") > -1;
 		this.showPredictions = items.indexOf("prediction") > -1;
+		this.showBingos = items.indexOf("bingo") > -1;
+		this.showRaffles = items.indexOf("raffle") > -1;
 		
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -92,6 +104,8 @@ export default class ActivityFeedFilters extends Vue {
 		if(this.showRewards) data.push("rewards");
 		if(this.showPolls) data.push("poll");
 		if(this.showPredictions) data.push("prediction");
+		if(this.showBingos) data.push("bingo");
+		if(this.showRaffles) data.push("raffle");
 		
 		this.$emit("update:modelValue", data.join(","));
 	}

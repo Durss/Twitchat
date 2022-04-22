@@ -256,8 +256,8 @@ export default class PubSub {
 				type:"highlight",
 				tags:{
 					"tmi-sent-ts":Date.now().toString(),
+					"msg-id": "hype_cooldown_expired",
 				},
-				"msg-id": "hype_cooldown_expired",
 			});
 
 
@@ -318,8 +318,8 @@ export default class PubSub {
 				type:"highlight",
 				tags:{
 					"tmi-sent-ts":Date.now().toString(),
+					"msg-id": "community_boost_complete",
 				},
-				"msg-id": "community_boost_complete",
 			});
 			
 			setTimeout(()=> {
@@ -564,9 +564,9 @@ export default class PubSub {
 				"username":data.display_name,
 				"user-id":data.user_id,
 				"tmi-sent-ts": Date.now().toString(),
+				"msg-id": "follow",
 			},
 			username: data.display_name,
-			"msg-id": "follow",
 			"type": "highlight",
 		};
 

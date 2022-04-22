@@ -46,6 +46,18 @@
 					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
 					:predictionData="m" />
 
+				<ChatBingoResult
+					class="message"
+					:ref="'message_'+m.tags.id"
+					v-else-if="m.type == 'bingo' && $store.state.params.filters.showPollPredResults.value"
+					:bingoData="m" />
+
+				<ChatRaffleResult
+					class="message"
+					:ref="'message_'+m.tags.id"
+					v-else-if="m.type == 'raffle' && $store.state.params.filters.showPollPredResults.value"
+					:raffleData="m" />
+
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<transition name="slide">
@@ -104,11 +116,13 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ChatBingoResult from './ChatBingoResult.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
 import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
+import ChatRaffleResult from './ChatRaffleResult.vue';
 
 @Options({
 	components:{
@@ -117,6 +131,8 @@ import ChatPredictionResult from './ChatPredictionResult.vue';
 		ChatMessage,
 		ChatHighlight,
 		ChatPollResult,
+		ChatBingoResult,
+		ChatRaffleResult,
 		ChatPredictionResult,
 		ChatMessageHoverActions,
 	},

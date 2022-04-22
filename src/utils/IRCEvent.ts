@@ -1,3 +1,4 @@
+import { BingoData, RaffleData } from '@/store';
 import { Event } from '@/utils/EventDispatcher';
 import { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from 'tmi.js';
 import { PubSubTypes } from './PubSub';
@@ -32,6 +33,8 @@ export default class IRCEvent extends Event {
 export type ActivityFeedData = IRCEventDataList.Highlight
 							|  IRCEventDataList.PollResult
 							|  IRCEventDataList.PredictionResult
+							|  IRCEventDataList.BingoResult
+							|  IRCEventDataList.RaffleResult
 							|  IRCEventDataList.Message
 							// |  IRCEventDataList.Commercial
 							;
@@ -47,6 +50,8 @@ export type IRCEventData = IRCEventDataList.Message
 						|  IRCEventDataList.Whisper
 						|  IRCEventDataList.PollResult
 						|  IRCEventDataList.PredictionResult
+						|  IRCEventDataList.BingoResult
+						|  IRCEventDataList.RaffleResult
 						|  IRCEventDataList.Commercial
 						;
 export namespace IRCEventDataList {
@@ -138,7 +143,7 @@ export namespace IRCEventDataList {
 		recipient?: string;
 		methods?: SubMethods;
 		viewers?: number;
-		"msg-id"?: MsgID | "follow" | "hype_cooldown_expired" | "community_boost_complete";
+		"msg-id"?: MsgID;
 		reward?: PubSubTypes.RewardData;
 		//custom data
 		firstMessage?:boolean;
@@ -199,6 +204,18 @@ export namespace IRCEventDataList {
 	export interface PredictionResult {
 		type:"prediction";
 		data:TwitchTypes.Prediction;
+		tags: { id:string, "tmi-sent-ts":string };
+	}
+
+	export interface BingoResult {
+		type:"bingo";
+		data:BingoData;
+		tags: { id:string, "tmi-sent-ts":string };
+	}
+
+	export interface RaffleResult {
+		type:"raffle";
+		data:RaffleData;
 		tags: { id:string, "tmi-sent-ts":string };
 	}
 
