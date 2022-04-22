@@ -90,15 +90,14 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
-	 * Set the current scene by its name
-	 * 
-	 * @param name 
-	 * @returns 
+	 * Broadcast a message to all the connected clients
+	 * @param data
 	 */
-	public async setScene(name:string):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		if(!this.connected) return;
-		
-		return await this.obs.call("SetCurrentProgramScene", {sceneName:name});
+
+		const eventData = { origin:"twitchat", type, data }
+		this.obs.call("BroadcastCustomEvent", {eventData});
 	}
 	
 	/**
@@ -165,19 +164,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
-	 * Mute/unmute an audio source by its name
-	 * 
-	 * @param sourceName 
-	 * @param mute 
-	 * @returns 
-	 */
-	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
-		if(!this.connected) return;
-		
-		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
-	}
-
-	/**
 	 * Gets all the available filters of a specific source
 	 * 
 	 * @param sourceName 
@@ -191,14 +177,15 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
-	 * Broadcast a message to all the connected clients
-	 * @param data
+	 * Set the current scene by its name
+	 * 
+	 * @param name 
+	 * @returns 
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
+	public async setCurrentScene(name:string):Promise<void> {
 		if(!this.connected) return;
-
-		const eventData = { origin:"twitchat", type, data }
-		this.obs.call("BroadcastCustomEvent", {eventData});
+		
+		return await this.obs.call("SetCurrentProgramScene", {sceneName:name});
 	}
 
 	/**
@@ -209,6 +196,51 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public setTextSourceContent(sourceName:string, text:string):void {
 		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
+	}
+
+	/**
+	 * Change a filter's visibility
+	 * 
+	 * @param sourceName 
+	 * @param filterName 
+	 * @param visible 
+	 */
+	public setFilterState(sourceName:string, filterName:string, visible:boolean):void {
+		//@ts-ignore ("SetSourceFilterEnabled" not yet defined on obs-websocket-js)
+		this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
+	}
+
+	/**
+	 * Set a sources's visibility on the current scene
+	 * 
+	 * @param sourceName 
+	 * @param visible 
+	 */
+	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
+		const scene = await this.obs.call("GetCurrentProgramScene");
+		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName:scene.currentProgramSceneName});
+		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
+		const item = items.find(v=> v.sourceName == sourceName)
+		if(item) {
+			this.obs.call("SetSceneItemEnabled", {
+				sceneName:scene.currentProgramSceneName,
+				sceneItemId:item.sceneItemId,
+				sceneItemEnabled:visible
+			});
+		}
+	}
+
+	/**
+	 * Mute/unmute an audio source by its name
+	 * 
+	 * @param sourceName 
+	 * @param mute 
+	 * @returns 
+	 */
+	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
+		if(!this.connected) return;
+		
+		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
 	}
 	
 	
@@ -242,7 +274,7 @@ export interface OBSFilter {
 	filterSettings: unknown;
 }
 
-export const OBSSceneTriggerTypes = {
+export const OBSTriggerEventTypes = {
 	FIRST_ALL_TIME:1,
 	FIRST_TODAY:2,
 	POLL_RESULT:3,
@@ -254,18 +286,20 @@ export const OBSSceneTriggerTypes = {
 	SUBGIFT:9,
 	BITS:10,
 	FOLLOW:11,
+	RAID:12,
 }
 
-export const OBSSceneTriggers = [
-	{label:"First message of a user all time", value:OBSSceneTriggerTypes.FIRST_ALL_TIME},
-	{label:"First message of a user today", value:OBSSceneTriggerTypes.FIRST_TODAY},
-	{label:"Poll result", value:OBSSceneTriggerTypes.POLL_RESULT},
-	{label:"Prediction result", value:OBSSceneTriggerTypes.PREDICTION_RESULT},
-	{label:"Raffle result", value:OBSSceneTriggerTypes.RAFFLE_RESULT},
-	{label:"Bingo result", value:OBSSceneTriggerTypes.BINGO_RESULT},
-	{label:"Chat command", value:OBSSceneTriggerTypes.CHAT_COMMAND},
-	{label:"Sub", value:OBSSceneTriggerTypes.SUB},
-	{label:"Subgift", value:OBSSceneTriggerTypes.SUBGIFT},
-	{label:"Bits", value:OBSSceneTriggerTypes.BITS},
-	{label:"New follower", value:OBSSceneTriggerTypes.FOLLOW},
+export const OBSTriggerEvents = [
+	{label:"First message of a user all time", value:OBSTriggerEventTypes.FIRST_ALL_TIME},
+	{label:"First message of a user today", value:OBSTriggerEventTypes.FIRST_TODAY},
+	{label:"Poll result", value:OBSTriggerEventTypes.POLL_RESULT},
+	{label:"Prediction result", value:OBSTriggerEventTypes.PREDICTION_RESULT},
+	{label:"Raffle result", value:OBSTriggerEventTypes.RAFFLE_RESULT},
+	{label:"Bingo result", value:OBSTriggerEventTypes.BINGO_RESULT},
+	{label:"Chat command", value:OBSTriggerEventTypes.CHAT_COMMAND},
+	{label:"Sub", value:OBSTriggerEventTypes.SUB},
+	{label:"Subgift", value:OBSTriggerEventTypes.SUBGIFT},
+	{label:"Bits", value:OBSTriggerEventTypes.BITS},
+	{label:"New follower", value:OBSTriggerEventTypes.FOLLOW},
+	{label:"Raid", value:OBSTriggerEventTypes.RAID},
 ]

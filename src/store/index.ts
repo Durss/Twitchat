@@ -2,6 +2,7 @@ import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
+import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
@@ -28,6 +29,7 @@ export default createStore({
 		userCard: "",
 		searchMessages: "",
 		cypherKey: "",
+		newScopeToRequest: [] as string[],
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
 		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight)[],
@@ -56,7 +58,7 @@ export default createStore({
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: null as OBSPermissions|null,
-		obsSourceCommands: {} as {[key:number]:OBSSourceAction[]},
+		obsEventActions: {} as {[key:number]:OBSSourceAction[]},
 		commands: [
 			{
 				id:"search",
@@ -240,9 +242,12 @@ export default createStore({
 						console.log("Missing scope:", Config.TWITCH_APP_SCOPES[i]);
 						state.authenticated = false;
 						state.oAuthToken = null;
-						if(cb) cb(false);
-						return;
+						state.newScopeToRequest.push(Config.TWITCH_APP_SCOPES[i]);
 					}
+				}
+				if(state.newScopeToRequest.length > 0) {
+					if(cb) cb(false);
+					return;
 				}
 				if(!json.expires_at) {
 					json.expires_at = Date.now() + json.expires_in*1000;
@@ -339,7 +344,7 @@ export default createStore({
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
 							const scene = state.obsSceneCommands[i];
 							if(scene.command.trim().toLowerCase() == cmd) {
-								OBSWebsocket.instance.setScene(scene.scene.sceneName);
+								OBSWebsocket.instance.setCurrentScene(scene.scene.sceneName);
 							}
 						}
 
@@ -518,11 +523,14 @@ export default createStore({
 				state.params.features.keepHighlightMyMessages.value === true
 				&& payload.type == "message"
 				&& (payload as IRCEventDataList.Message).tags["msg-id"] === "highlighted-message"
-			)) {
+			)
+			|| (payload as IRCEventDataList.Commercial).tags["msg-id"] === "commercial") {
 				state.activityFeed.push(payload as ActivityFeedData);
 			}
 
-			messages.push( payload as IRCEventDataList.Message|IRCEventDataList.Highlight );
+			OBSEventActionHandler.instance.onMessage(message);
+
+			messages.push( message );
 			state.chatMessages = messages;
 		},
 		
@@ -729,9 +737,9 @@ export default createStore({
 			Store.set("obsConf_permissions", JSON.stringify(value));
 		},
 
-		setOBSSourceCommands(state, value:{key:number, data:OBSSourceAction[]}) {
-			state.obsSourceCommands[value.key] = value.data;
-			Store.set("obsConf_sources", JSON.stringify(state.obsSourceCommands));
+		setObsEventActions(state, value:{key:number, data:OBSSourceAction[]}) {
+			state.obsEventActions[value.key] = value.data;
+			Store.set("obsConf_sources", JSON.stringify(state.obsEventActions));
 		},
 
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
@@ -800,9 +808,9 @@ export default createStore({
 			}
 			
 			//Init OBS sources params
-			const obsSourceCommands = Store.get("obsConf_sources");
-			if(obsSourceCommands) {
-				state.obsSourceCommands = JSON.parse(obsSourceCommands);
+			const obsEventActions = Store.get("obsConf_sources");
+			if(obsEventActions) {
+				state.obsEventActions = JSON.parse(obsEventActions);
 			}
 			
 			//Init OBS command params
@@ -1065,7 +1073,7 @@ export default createStore({
 
 		setPolls({state}, payload:TwitchTypes.Poll[]) {
 			const list = state.activityFeed as ActivityFeedData[];
-			if(payload[0].status == "COMPLETED") {
+			if(payload[0].status == "COMPLETED" || payload[0].status == "TERMINATED") {
 				if(list.findIndex(v=>v.type == "poll" && v.data.id == payload[0].id) == -1) {
 					const m:IRCEventDataList.PollResult = {
 						tags:{
@@ -1143,14 +1151,14 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
 
-		setOBSSourceCommands({commit}, value:{key:number, data:OBSSourceAction[]}) { commit("setOBSSourceCommands", value); },
+		setObsEventActions({commit}, value:{key:number, data:OBSSourceAction[]}) { commit("setObsEventActions", value); },
 
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
 			if(date === 0) {
 				IRCClient.instance.sendNotice("commercial", "Commercial break complete");
 			}else{
-				const duration = Math.floor((date - Date.now())/1000)
+				const duration = Math.round((date - Date.now())/1000)
 				IRCClient.instance.sendNotice("commercial", "A commercial just started for "+duration+" seconds");
 			}
 		},

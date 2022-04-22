@@ -119,7 +119,6 @@ export default class ActivityFeed extends Vue {
 		|| v.type == "raffle"
 		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message")
 		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
-		console.log(list);
 
 		const result:ActivityFeedData[] = [];
 		
@@ -182,8 +181,6 @@ export default class ActivityFeed extends Vue {
 			if(type == "raffle" && showRaffles) result.unshift(m);
 			if(type == "commercial") result.unshift(m);
 		}
-
-		console.log(result);
 
 		Store.set("activityFeedFilters", JSON.stringify(this.filters));
 		

@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import store, { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store';
-import OBSWebsocket, { OBSSceneTriggers, OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { OBSTriggerEvents, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -53,8 +53,7 @@ export default class OBSEventsAction extends Vue {
 			if(this.event_conf.value == '') {
 				this.actionList = [];
 			}else {
-				console.log(store.state.obsSourceCommands);
-				this.actionList = store.state.obsSourceCommands[this.event_conf.value as number];
+				this.actionList = store.state.obsEventActions[this.event_conf.value as number];
 				if(!this.actionList) this.actionList = [];
 				if(this.actionList.length == 0) {
 					this.addAction();
@@ -62,7 +61,7 @@ export default class OBSEventsAction extends Vue {
 			}
 		});
 
-		this.events = this.events.concat(OBSSceneTriggers);
+		this.events = this.events.concat(OBSTriggerEvents);
 		this.event_conf.value = this.events[0].value;
 		this.event_conf.listValues = this.events;
 	}
@@ -101,7 +100,7 @@ export default class OBSEventsAction extends Vue {
 	}
 
 	public saveData():void {
-		store.dispatch("setOBSSourceCommands", {
+		store.dispatch("setObsEventActions", {
 			key:this.event_conf.value as number,
 			data:this.actionList,
 		})

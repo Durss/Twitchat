@@ -31,7 +31,8 @@
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store';
-import OBSWebsocket, { OBSFilter, OBSSceneTriggerTypes, OBSSourceItem } from '@/utils/OBSWebsocket';
+import { OBSEventActionHelpers } from '@/utils/OBSEventActionHandler';
+import OBSWebsocket, { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
@@ -71,7 +72,7 @@ export default class OBSEventsActionEntry extends Vue {
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
 
-	public helpers:{[key:string]:{tag:string, desc:string}[]} = {};
+	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return OBSEventActionHelpers; }
 
 	/**
 	 * Get block's title
@@ -106,8 +107,6 @@ export default class OBSEventsActionEntry extends Vue {
 	}
 
 	public mounted():void {
-		this.initHelpers();
-
 		// this.localAction = {...this.action};//Clone object
 		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
 		this.source_conf.listValues.unshift({label:"Select...", value:""});
@@ -115,19 +114,19 @@ export default class OBSEventsActionEntry extends Vue {
 		// this.source_conf.value = this.sources.find(v => v.inputKind === 'text_gdiplus_v2')?.sourceName as string;
 
 		//Prefill forms
-		if(this.action.sourceName) this.source_conf.value = this.action.sourceName;
-		if(this.action.filterName) this.filters_conf.value = this.action.filterName;
-		if(this.action.delay) this.delay_conf.value = this.action.delay;
-		if(this.action.text) this.text_conf.value = this.action.text;
-		if(this.action.show) this.show_conf.value = this.action.show;
+		if(this.action.sourceName != undefined) this.source_conf.value = this.action.sourceName;
+		if(this.action.filterName != undefined) this.filters_conf.value = this.action.filterName;
+		if(this.action.delay != undefined) this.delay_conf.value = this.action.delay;
+		if(this.action.text != undefined) this.text_conf.value = this.action.text;
+		if(this.action.show != undefined) this.show_conf.value = this.action.show;
 
 		//Sets current default values to the action.
 		//This allows to hide the "save" button until something is changed
-		if(!this.action.sourceName) this.action.sourceName = this.source_conf.value as string;
-		if(!this.action.filterName) this.action.filterName = this.filters_conf.value as string;
-		if(!this.action.delay) this.action.delay = this.delay_conf.value as number;
-		if(!this.action.text) this.action.text = this.text_conf.value as string;
-		if(!this.action.show) this.action.show = this.show_conf.value as boolean;
+		if(this.action.sourceName == undefined) this.action.sourceName = this.source_conf.value as string;
+		if(this.action.filterName == undefined) this.action.filterName = this.filters_conf.value as string;
+		if(this.action.delay == undefined) this.action.delay = this.delay_conf.value as number;
+		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
+		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
 
 
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged())
@@ -160,6 +159,7 @@ export default class OBSEventsActionEntry extends Vue {
 		if(!carretPos) carretPos = 0;
 		//Insert tag
 		input.value = input.value.substring(0, carretPos) + tag + input.value.substring(carretPos);
+		this.text_conf.value = input.value;
 	}
 
 	/**
@@ -192,68 +192,6 @@ export default class OBSEventsActionEntry extends Vue {
 		}else{
 			this.show_conf.label = "Source visibility";
 		}
-	}
-
-	/**
-	 * Init token data.
-	 * Tokens are placeholders for a text to write on an OBS source
-	 */
-	private initHelpers():void {
-		this.helpers[OBSSceneTriggerTypes.FIRST_ALL_TIME] = [
-			{tag:"USER", desc:"User name"},
-			{tag:"MESSAGE", desc:"Message content"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.FIRST_TODAY] = [
-			{tag:"USER", desc:"User name"},
-			{tag:"MESSAGE", desc:"Message content"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.POLL_RESULT] = [
-			{tag:"TITLE", desc:"Poll title"},
-			{tag:"WIN", desc:"Winning choice title"},
-			{tag:"PERCENT", desc:"Votes percent of the winning choice"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.PREDICTION_RESULT] = [
-			{tag:"TITLE", desc:"Prediction title"},
-			{tag:"WIN", desc:"Winning choice title"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.BINGO_RESULT] = [
-			{tag:"WINNER", desc:"Winner name"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.RAFFLE_RESULT] = [
-			{tag:"WINNER", desc:"Winner name"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.CHAT_COMMAND] = [
-			{tag:"USER", desc:"User name"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.SUB] = [
-			{tag:"USER", desc:"User name"},
-			{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3"},
-			{tag:"MESSAGE", desc:"Message of the user"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.SUBGIFT] = [
-			{tag:"USER", desc:"User name of the sub gifter"},
-			{tag:"RECIPIENT", desc:"Recipient user name"},
-			{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3"},
-			{tag:"MESSAGE", desc:"Message of the user"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.BITS] = [
-			{tag:"USER", desc:"User name"},
-			{tag:"BITS", desc:"Number of bits"},
-			{tag:"MESSAGE", desc:"Message of the user"},
-		];
-
-		this.helpers[OBSSceneTriggerTypes.FOLLOW] = [
-			{tag:"USER", desc:"User name of the new follower"},
-		];
 	}
 
 }
