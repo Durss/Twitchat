@@ -106,6 +106,7 @@ export default class ParamItem extends Vue {
 	public get classes():string[] {
 		const res = ["paramitem"];
 		if(this.paramData.longText) res.push("longText");
+		if(this.paramData.label == '') res.push("noLabel");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -183,6 +184,15 @@ export default class ParamItem extends Vue {
 				display: flex;
 				flex-direction: column;
 			}
+		}
+	}
+
+	&.noLabel {
+		label {
+			display: none;
+		}
+		input, select, textarea {
+			width: 100%;
 		}
 	}
 

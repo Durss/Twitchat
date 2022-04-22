@@ -30,6 +30,10 @@ import Button from './Button.vue';
 			type:Boolean,
 			default:true,
 		},
+		medium:{
+			type:Boolean,
+			default:false,
+		},
 		small:{
 			type:Boolean,
 			default:false,
@@ -50,6 +54,7 @@ export default class ToggleBlock extends Vue {
 	public title!:string
 	public open!:boolean;
 	public small!:boolean;
+	public medium!:boolean;
 	public deletable!:boolean;
 
 	public showContent:boolean = false;
@@ -57,7 +62,9 @@ export default class ToggleBlock extends Vue {
 	public get classes():string[] {
 		let res = ["toggleblock"];
 		if(!this.showContent) res.push("closed");
-		if(this.small === true) res.push("small");
+		if(this.deletable != false && this.deletable != undefined) res.push("deletable");
+		if(this.small != false && this.small != undefined) res.push("small");
+		else if(this.medium != false && this.medium != undefined) res.push("medium");
 		return res;
 	}
 
@@ -103,7 +110,7 @@ export default class ToggleBlock extends Vue {
 	&.small {
 		font-size: .8em;
 		.header {
-			background: none;
+			background-color: fade(@mainColor_normal, 10%);
 			border: none;
 			padding: 0;
 			border-radius: 0;
@@ -120,16 +127,66 @@ export default class ToggleBlock extends Vue {
 		}
 		&.closed {
 			.header {
+				background-color: transparent;
 				h2::before {
 					content:"►";
 				}
 			}
 		}
 		.content {
-			background: none;
+			background-color: fade(@mainColor_normal, 10%);
 			padding: 0;
-			padding-left: 1.4em;
+			margin-left: 1.4em;
 			border-radius: 0;
+		}
+	}
+
+	&.medium {
+		@radius: .5em;
+		font-size: .9em;
+		&.closed {
+			.header {
+				border-bottom-left-radius: @radius;
+				border-bottom-right-radius: @radius;
+			}
+		}
+		&.deletable {
+			&>.header {
+				padding: 0;
+			}
+		}
+		&>.header {
+			padding: 0;
+			border-top-left-radius: @radius;
+			border-top-right-radius: @radius;
+			color: @mainColor_light;
+			background-color: transparent;
+			border-bottom-color: @mainColor_light;
+			overflow: hidden;
+			&:hover {
+				background-color: transparent;
+			}
+
+			h2 {
+				transition: background-color .25s;
+				background-color: @mainColor_normal;
+				padding: .25em;
+				&:hover {
+					background-color: lighten(@mainColor_normal, 10%);
+				}
+			}
+
+			.deleteBt {
+				border-radius: 0;
+				padding: .3em;
+				align-self: stretch;
+			}
+		}
+		&>.content {
+			padding: .5em;
+			border-bottom-left-radius: @radius;
+			border-bottom-right-radius: @radius;
+			background-color: #f2eef8;
 		}
 	}
 
@@ -150,7 +207,7 @@ export default class ToggleBlock extends Vue {
 		border-top-left-radius: 1em;
 		border-top-right-radius: 1em;
 		text-align: center;
-		padding: .5em .5em;
+		padding: .5em;
 		cursor: pointer;
 		background-color: white;
 		display: flex;

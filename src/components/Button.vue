@@ -191,7 +191,7 @@ export default class Button extends Vue {
 	cursor: pointer;
 	border: none;
 	padding: 5px 10px;
-	font-size: 20px;
+	font-size: 1em;
 	color: @mainColor_light;
 	background-color: @mainColor_normal;
 	transition: color .25s, background-color .25s;
@@ -242,18 +242,15 @@ export default class Button extends Vue {
 		padding: 7px;
 		.icon {
 			height: 100%;
-			max-height: 26px;
-			min-width: 26px;
+			max-height: 1em;
+			min-width: 1em;
 			margin: 0;
 			padding: 0;
 		}
 
 		&.big {
 			padding: 19px;
-			.icon {
-				min-width: 40px;
-				max-height: 40px;
-			}
+			font-size: 1.25em;
 		}
 
 	}
@@ -311,7 +308,6 @@ export default class Button extends Vue {
 			justify-self: flex-start;
 			text-align: left;
 			width: max-content;
-			font-size: 18px;
 			color: @mainColor_normal;
 			// overflow: visible;
 		}
@@ -325,8 +321,8 @@ export default class Button extends Vue {
 	}
 
 	.icon {
-		max-height: 20px;
-		height: 20px;
+		max-height: 1em;
+		height: 1em;
 		margin-right: 10px;
 		vertical-align: text-top;
 	}
@@ -390,13 +386,7 @@ export default class Button extends Vue {
 
 	&.big {
 		padding: 20px;
-		.label {
-			font-size: 33px;
-		}
-		.icon {
-			min-width: 30px;
-			min-height: 30px;
-		}
+		font-size: 1.25em;
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
@@ -412,18 +402,7 @@ export default class Button extends Vue {
 	&.small {
 		padding: 4px;
 		border-radius: 5px;
-		// background-color: @mainColor_light;
-		// &:hover {
-		// 	background-color: @mainColor_normal_extralight;
-		// }
-		.label {
-			font-size: 16px;
-		}
-		.icon {
-			min-width: 15px;
-			min-height: 15px;
-			// filter: invert();
-		}
+		font-size: .85em;
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
@@ -484,21 +463,10 @@ export default class Button extends Vue {
 	.button {
 		&.noTitle.big, &.big {
 			padding: 12px;
-			.label {
-				font-size: 25px;
-			}
-			.icon {
-				min-width: 25px;
-				min-height: 25px;
-			}
+			font-size: 1.2em;
 		}
 		&:not(.big) {
-			.label {
-				font-size: 15px;
-			}
-			.icon {
-				max-height: 18px;
-			}
+			font-size: .85em;
 		}
 	}
 }
