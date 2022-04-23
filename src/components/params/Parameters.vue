@@ -27,7 +27,7 @@
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
-						:key="d.name"
+						:key="d.id"
 						:paramData="d"
 					/>
 				</div>
@@ -79,7 +79,7 @@ export default class Parameters extends Vue {
 	public search:string = "";
 
 	public get isGenericListContent():boolean {
-		return this.content == "features" || this.content == "appearance" || this.content == "filters";
+		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;
 	}
 
 	public async mounted():Promise<void> {

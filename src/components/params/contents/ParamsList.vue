@@ -1,6 +1,6 @@
 <template>
 	<div class="paramslist">
-		<div class="row" v-for="(p,key) in params" :key="key">
+		<div class="row" v-for="(p) in params" :key="p.id">
 			<ParamItem :paramData="p" />
 		</div>
 	</div>
