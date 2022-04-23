@@ -296,10 +296,10 @@ export const OBSTriggerEvents = [
 	{label:"Prediction result", value:OBSTriggerEventTypes.PREDICTION_RESULT},
 	{label:"Raffle result", value:OBSTriggerEventTypes.RAFFLE_RESULT},
 	{label:"Bingo result", value:OBSTriggerEventTypes.BINGO_RESULT},
-	{label:"Chat command", value:OBSTriggerEventTypes.CHAT_COMMAND},
+	// {label:"Chat command", value:OBSTriggerEventTypes.CHAT_COMMAND},
 	{label:"Sub", value:OBSTriggerEventTypes.SUB},
 	{label:"Subgift", value:OBSTriggerEventTypes.SUBGIFT},
 	{label:"Bits", value:OBSTriggerEventTypes.BITS},
-	{label:"New follower", value:OBSTriggerEventTypes.FOLLOW},
+	{label:"Follow", value:OBSTriggerEventTypes.FOLLOW},
 	{label:"Raid", value:OBSTriggerEventTypes.RAID},
 ]

@@ -60,7 +60,7 @@
 		:open="false"
 		icon="notification_purple"
 		title="Twitchat events">
-			<OBSEvents @openSourceForm="$emit('setContent', 'obsSource')" />
+			<OBSEventsAction />
 		</ToggleBlock>
 	</div>
 </template>
@@ -78,7 +78,7 @@ import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSPermissions from './obs/OBSPermissions.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import OBSEvents from './obs/OBSEvents.vue';
+import OBSEventsAction from './obs/OBSEventsAction.vue';
 
 
 @Options({
@@ -88,7 +88,7 @@ import OBSEvents from './obs/OBSEvents.vue';
 		ParamItem,
 		OBSScenes,
 		ToggleBlock,
-		OBSEvents,
+		OBSEventsAction,
 		OBSPermissions,
 		OBSAudioSourceForm,
 	},
@@ -177,7 +177,7 @@ export default class ParamsOBS extends Vue {
 	}
 
 	.block:not(:first-of-type) {
-		margin-top: 20px;
+		margin-top: .5em;
 	}
 
 	.block {

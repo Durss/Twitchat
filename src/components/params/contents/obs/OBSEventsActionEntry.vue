@@ -1,5 +1,11 @@
 <template>
-	<ToggleBlock :title="title" class="OBSEventsActionEntry" deletable @delete="$emit('delete')" medium>
+	<ToggleBlock
+	orderable
+	deletable
+	medium
+	:open="opened"
+	:title="title" class="OBSEventsActionEntry"
+	@delete="$emit('delete')">
 		<form @submit.prevent="onSubmit()">
 			<ParamItem class="item" :paramData="source_conf" />
 			<ParamItem class="item show" :paramData="show_conf" />
@@ -58,8 +64,8 @@ export default class OBSEventsActionEntry extends Vue {
 	public index!:number;
 	public event!:number;
 
-	// public localAction:OBSSourceAction|null = null;
-	
+	public opened:boolean = false;
+
 	private filters:OBSFilter[] = [];
 	private showHideValues:ParameterDataListValue[] = [
 		{label:"Hide", value:false},
@@ -67,7 +73,7 @@ export default class OBSEventsActionEntry extends Vue {
 	];
 	
 	public source_conf:ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
-	public filters_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
+	public filter_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
 	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
@@ -79,9 +85,30 @@ export default class OBSEventsActionEntry extends Vue {
 	 */
 	public get title():string {
 		let res = 'Step '+(this.index+1);
-		let sourceName = this.source_conf.value as string;
-		sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		if(this.source_conf.value) res += "<br><span class='sourceName'>"+sourceName+"</span>"
+		return res+this.subtitle;
+	}
+
+	/**
+	 * Get block's subtitle
+	 */
+	public get subtitle():string {
+		let res = "";
+		const chunks:string[] = [(this.show_conf.value? "show" : "hide")];
+		if(this.source_conf.value) {
+			let sourceName = this.source_conf.value as string;
+			sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			chunks.push(sourceName);
+		}
+		if(this.filter_conf.value) {
+			let filterName = this.filter_conf.value as string;
+			filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			chunks.push(filterName);
+		}
+		if(chunks.length > 0) {
+			res += "<br><span class='subtitle'>";
+			res += chunks.join(" -> ");
+			res += "</span>";
+		}
 		return res;
 	}
 
@@ -99,23 +126,38 @@ export default class OBSEventsActionEntry extends Vue {
 	public get canSubmit():boolean { return this.source_conf.value != ""; }
 	
 	public get isChange():boolean {
+		if(this.index == 1) {
+			console.log(this.action);
+			console.log(this.filter_conf.value);
+		}
 		return this.action.sourceName != this.source_conf.value
-		|| this.action.filterName != this.filters_conf.value
+		|| this.action.filterName != this.filter_conf.value
 		|| this.action.delay != this.delay_conf.value
 		|| this.action.text != this.text_conf.value
 		|| this.action.show != this.show_conf.value;
 	}
 
-	public mounted():void {
-		// this.localAction = {...this.action};//Clone object
+	public async mounted():Promise<void> {
+		this.opened = this.action.sourceName == "";
 		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
 		this.source_conf.listValues.unshift({label:"Select...", value:""});
 		//TODO remove
 		// this.source_conf.value = this.sources.find(v => v.inputKind === 'text_gdiplus_v2')?.sourceName as string;
+		
 
 		//Prefill forms
-		if(this.action.sourceName != undefined) this.source_conf.value = this.action.sourceName;
-		if(this.action.filterName != undefined) this.filters_conf.value = this.action.filterName;
+		if(this.action.sourceName != undefined) {
+			this.source_conf.value = this.action.sourceName;
+			const forceFilter = this.action.filterName != undefined;
+			await this.onSourceChanged();
+			if(forceFilter && this.action.filterName) {
+				console.log(this.index, this.action.filterName);
+				this.filter_conf.value = this.action.filterName;
+				this.updateFilter();
+			}else{
+				this.filter_conf.value = "";
+			}
+		}
 		if(this.action.delay != undefined) this.delay_conf.value = this.action.delay;
 		if(this.action.text != undefined) this.text_conf.value = this.action.text;
 		if(this.action.show != undefined) this.show_conf.value = this.action.show;
@@ -123,17 +165,14 @@ export default class OBSEventsActionEntry extends Vue {
 		//Sets current default values to the action.
 		//This allows to hide the "save" button until something is changed
 		if(this.action.sourceName == undefined) this.action.sourceName = this.source_conf.value as string;
-		if(this.action.filterName == undefined) this.action.filterName = this.filters_conf.value as string;
+		if(this.action.filterName == undefined) this.action.filterName = this.filter_conf.value as string;
 		if(this.action.delay == undefined) this.action.delay = this.delay_conf.value as number;
 		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
 		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
 
 
-		watch(()=>this.source_conf.value, ()=> this.onSourceChanged())
-		watch(()=>this.filters_conf.value, ()=> this.updateFilter());
-		watch(()=>this.text_conf.value, ()=> {
-			OBSWebsocket
-		});
+		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
+		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
 
 	/**
@@ -141,7 +180,7 @@ export default class OBSEventsActionEntry extends Vue {
 	 */
 	public onSubmit():void {
 		this.action.sourceName = this.source_conf.value as string;
-		this.action.filterName = this.filters_conf.value as string;
+		this.action.filterName = this.filter_conf.value as string;
 		this.action.delay = this.delay_conf.value as number;
 		this.action.text = this.text_conf.value as string;
 		this.action.show = this.show_conf.value as boolean;
@@ -171,11 +210,11 @@ export default class OBSEventsActionEntry extends Vue {
 			this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value as string);
 		}
 		if(this.filters.length > 0) {
-			const list = this.filters.map(v => {return {label:v.filterName, value:v.filterIndex}});
-			list.unshift({label:"- none -", value:-1})
-			this.filters_conf.value = list[0].value;
-			this.filters_conf.listValues = list;
-			this.source_conf.children = [this.filters_conf];
+			const list = this.filters.map(v => {return {label:v.filterName, value:v.filterName}});
+			list.unshift({label:"- none -", value:""})
+			this.filter_conf.value = list[0].value;
+			this.filter_conf.listValues = list;
+			this.source_conf.children = [this.filter_conf];
 		}else{
 			this.source_conf.children = [];
 		}
@@ -187,7 +226,7 @@ export default class OBSEventsActionEntry extends Vue {
 	 */
 	private updateFilter():void {
 		if(this.source_conf.children && this.source_conf.children?.length > 0
-		&& this.filters_conf.value > -1) {
+		&& this.filter_conf.value != "") {
 			this.show_conf.label = "Filter visibility";
 		}else{
 			this.show_conf.label = "Source visibility";
@@ -199,7 +238,7 @@ export default class OBSEventsActionEntry extends Vue {
 
 <style scoped lang="less">
 .OBSEventsActionEntry{
-	:deep(.sourceName) {
+	:deep(.subtitle) {
 		font-size: .7em;
 		font-weight: normal;
 		vertical-align: middle;
@@ -209,6 +248,7 @@ export default class OBSEventsActionEntry extends Vue {
 	.item:not(:first-of-type) {
 		margin-top: .25em;
 	}
+
 	.delay, .show {
 		:deep(input){
 			width: 90px;

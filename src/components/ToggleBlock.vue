@@ -1,6 +1,12 @@
 <template>
 	<div :class="classes">
 		<div class="header" @click="toggle()">
+			<Button small
+				:icon="require('@/assets/icons/orderable_white.svg')"
+				class="orderBt"
+				v-if="orderable!==false"
+				@mousedown="$emit('startDrag', $event)"
+			/>
 			<img :src="require('@/assets/icons/'+icon+'.svg')" :alt="icon" class="icon" v-if="icon">
 			<h2 v-html="title"></h2>
 			<Button small highlight
@@ -42,11 +48,15 @@ import Button from './Button.vue';
 			type:Boolean,
 			default:false,
 		},
+		orderable:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
 	},
-	emits:["delete"],
+	emits:["delete", "startDrag"],
 })
 export default class ToggleBlock extends Vue {
 
@@ -56,6 +66,7 @@ export default class ToggleBlock extends Vue {
 	public small!:boolean;
 	public medium!:boolean;
 	public deletable!:boolean;
+	public orderable!:boolean;
 
 	public showContent:boolean = false;
 
@@ -180,6 +191,13 @@ export default class ToggleBlock extends Vue {
 				border-radius: 0;
 				padding: .3em;
 				align-self: stretch;
+			}
+
+			.orderBt {
+				border-radius: 0;
+				padding: .3em;
+				align-self: stretch;
+				width: 2.5em;
 			}
 		}
 		&>.content {

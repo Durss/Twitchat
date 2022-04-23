@@ -1,14 +1,32 @@
 <template>
 	<div class="OBSEventsAction">
+		<p class="header">Automatically show/hide OBS sources and filters when a specific Twitchat events occurs<br></p>
+		<p class="useCase"><strong>Use case examples :</strong> display an overlay when someone writes on your chat for the first time, when someone subs, when a poll completes, ...</p>
+
 		<ParamItem :paramData="event_conf" />
-		<OBSEventsActionEntry class="action" v-for="(a,index) in actionList" :key="a.id"
-			:action="a"
-			:index="index"
-			:sources="sources"
-			:event="event_conf.value"
-			@delete="deleteAction(a, index)"
-			@update="saveData();"
-		/>
+
+		<draggable 
+		v-model="actionList" 
+		group="actions" 
+		item-key="id"
+		ghost-class="ghost"
+		@change="saveData()"
+		direction="vertical"
+		handle=".action>.header>.orderBt"
+		:animation="250"
+		:dragoverBubble="true">
+			<template #item="{element, index}">
+				<OBSEventsActionEntry class="action"
+					:action="element"
+					:index="index"
+					:sources="sources"
+					:event="event_conf.value"
+					@delete="deleteAction(element, index)"
+					@update="saveData()"
+				/>
+			</template>
+		</draggable>
+
 		<Button title="+ Add step" class="addBt" @click="addAction()" v-if="event_conf.value != ''" />
 	</div>
 </template>
@@ -22,32 +40,29 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ParamItem from '../../ParamItem.vue';
 import OBSEventsActionEntry from './OBSEventsActionEntry.vue';
+import draggable from 'vuedraggable'
 
 @Options({
 	props:{},
 	components:{
+		draggable,
 		Button,
 		ParamItem,
 		OBSEventsActionEntry,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class OBSEventsAction extends Vue {
 
 	public actionList:OBSSourceAction[] = [];
-
-	public events:ParameterDataListValue[] = [
-		{label:"Select a trigger...", value:0},
-	];
-
 	public event_conf:ParameterData = { label:"", type:"list", value:"", listValues:[] };
 	public sources:OBSSourceItem[] = [];
-
-	public async mounted():Promise<void> {
+	
+	public async mounted():Promise<void> {draggable
 		watch(()=> OBSWebsocket.instance.connected, () => {
 			this.listSources();
 		});
-		this.listSources();
+		await this.listSources();
 
 		watch(()=> this.event_conf.value, () => {
 			if(this.event_conf.value == '') {
@@ -61,9 +76,12 @@ export default class OBSEventsAction extends Vue {
 			}
 		});
 
-		this.events = this.events.concat(OBSTriggerEvents);
-		this.event_conf.value = this.events[0].value;
-		this.event_conf.listValues = this.events;
+		let events = [
+			{label:"Select a trigger...", value:0},
+		];
+		events = events.concat(OBSTriggerEvents);
+		this.event_conf.value = events[0].value;
+		this.event_conf.listValues = events;
 	}
 
 	/**
@@ -91,7 +109,7 @@ export default class OBSEventsAction extends Vue {
 	}
 
 	/**
-	 * Called whenb deleting an action item
+	 * Called when deleting an action item
 	 */
 	public deleteAction(action:OBSSourceAction, index:number):void {
 		Utils.confirm("Delete action ?").then(()=> {
@@ -99,6 +117,9 @@ export default class OBSEventsAction extends Vue {
 		}).catch(()=> {});
 	}
 
+	/**
+	 * Saves the data to storage
+	 */
 	public saveData():void {
 		store.dispatch("setObsEventActions", {
 			key:this.event_conf.value as number,
@@ -115,16 +136,28 @@ export default class OBSEventsAction extends Vue {
 	flex-direction: column;
 	justify-content: center;
 
-	& > .action ~ .action {
+	.header {
+		text-align: center;
+		margin-bottom: .5em;
+	}
+
+	.useCase {
+		font-size: .8em;
+		margin-bottom: 1em;
+	}
+
+	.sortable-chosen {
+		filter: grayscale() brightness(1.5);
+	}
+
+	.action ~ .action {
 		padding-top: .5em;
 		margin-top: 0;
 		&::before{
 			content: "";
 			display: block;
 			width: 1em;
-			//Looks visually bigger than the top joint because of the next item's
-			//header background. Make it slightly smaller to compensate
-			height: .45em;
+			height: .5em;
 			background-color: @mainColor_normal;
 			border-top-left-radius: 100% 200%;
 			border-top-right-radius: 100% 200%;

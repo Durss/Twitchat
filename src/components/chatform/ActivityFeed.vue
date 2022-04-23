@@ -213,7 +213,6 @@ export default class ActivityFeed extends Vue {
 				}
 			}
 		}
-		console.log(json);
 		if(f) this.filters = json;
 	}
 
