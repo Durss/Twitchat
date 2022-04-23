@@ -232,7 +232,6 @@ export default class OBSEventsActionEntry extends Vue {
 			try {
 				this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value as string);
 			}catch(error) {
-				console.log("PHOQUE");
 				this.filters = []
 			}
 		}

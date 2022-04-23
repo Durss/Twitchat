@@ -35,7 +35,6 @@ export default class OBSEventActionHandler {
 	******************/
 	public onMessage(message:MessageTypes):void {
 		this.actionsSpool.push(message);
-		console.log(this.actionsSpool.length);
 		if(this.actionsSpool.length == 1) {
 			this.executeNext();
 		}
@@ -43,7 +42,6 @@ export default class OBSEventActionHandler {
 	
 	private executeNext():void{
 		const message = this.actionsSpool[0];
-		console.log("exec next", message);
 		if(!message) return;
 
 		if((message.type == "message" || message.type == "highlight")) {
@@ -88,7 +86,6 @@ export default class OBSEventActionHandler {
 			return;
 		}
 
-		console.log("Cannot be executed", message);
 		this.actionsSpool.shift();
 		this.executeNext();
 	}
@@ -170,8 +167,8 @@ export default class OBSEventActionHandler {
 	private async parseSteps(eventType:number, message:MessageTypes):Promise<void> {
 		const steps = store.state.obsEventActions[ eventType ];
 		if(!steps || steps.length == 0) return;
-		console.log(steps);
-		console.log(message);
+		// console.log(steps);
+		// console.log(message);
 
 		for (let i = 0; i < steps.length; i++) {
 			const step = steps[i];

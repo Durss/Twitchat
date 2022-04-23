@@ -110,7 +110,7 @@ export default class OBSEventsAction extends Vue {
 		try {
 			this.sources = await OBSWebsocket.instance.getSources();
 		}catch(error){
-			console.log("NIIIIIKKKKKK");
+			//
 		}
 		this.sources = this.sources.sort((a, b) => {
 			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
@@ -118,7 +118,6 @@ export default class OBSEventsAction extends Vue {
 			return 0;
 		});
 		if(refreshVue) {
-			this.$forceUpdate();
 			await Utils.promisedTimeout(500)
 		}
 		this.syncing = false;
