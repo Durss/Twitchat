@@ -57,7 +57,7 @@
 
 		<ToggleBlock class="block overlay"
 		v-if="connected"
-		:open="false"
+		:open="true"
 		icon="notification_purple"
 		title="Twitchat events">
 			<OBSEventsAction />

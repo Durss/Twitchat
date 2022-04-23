@@ -10,6 +10,8 @@ import Utils from './Utils';
 export default class OBSEventActionHandler {
 
 	private static _instance:OBSEventActionHandler;
+
+	private actionsSpool:MessageTypes[] = [];
 	
 	constructor() {
 	
@@ -31,14 +33,19 @@ export default class OBSEventActionHandler {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public onMessage(message:IRCEventDataList.Message
-	|IRCEventDataList.Highlight
-	|IRCEventDataList.Message
-	|IRCEventDataList.PredictionResult
-	|IRCEventDataList.PollResult
-	|IRCEventDataList.BingoResult
-	|IRCEventDataList.RaffleResult
-	):void {
+	public onMessage(message:MessageTypes):void {
+		this.actionsSpool.push(message);
+		console.log(this.actionsSpool.length);
+		if(this.actionsSpool.length == 1) {
+			this.executeNext();
+		}
+	}
+	
+	private executeNext():void{
+		const message = this.actionsSpool[0];
+		console.log("exec next", message);
+		if(!message) return;
+
 		if((message.type == "message" || message.type == "highlight")) {
 			switch(message.tags["msg-id"]) {
 				case "follow": this.handleFollower(message); return;
@@ -53,27 +60,37 @@ export default class OBSEventActionHandler {
 			}
 			if(message.tags["first-msg"] === true) {
 				this.handleFirstMessageEver(message);
+				return;
 
 			}else if(message.firstMessage === true) {
 				this.handleFirstMessageToday(message);
+				return;
 
 			} if(message.tags.bits) {
 				this.handleBits(message);
-
+				return;
 			}
 
 		}else if(message.type == "prediction") {
-			this.handlePrediction(message)
+			this.handlePrediction(message);
+			return;
 		
 		}else if(message.type == "poll") {
-			this.handlePoll(message)
+			this.handlePoll(message);
+			return;
 		
 		}else if(message.type == "bingo") {
-			this.handleBingo(message)
+			this.handleBingo(message);
+			return;
 
 		}else if(message.type == "raffle") {
-			this.handleRaffle(message)
+			this.handleRaffle(message);
+			return;
 		}
+
+		console.log("Cannot be executed", message);
+		this.actionsSpool.shift();
+		this.executeNext();
 	}
 
 	
@@ -168,6 +185,12 @@ export default class OBSEventActionHandler {
 				await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 			}
 			await Utils.promisedTimeout(step.delay * 1000);
+		}
+
+		//Remove item done
+		this.actionsSpool.shift();
+		if(this.actionsSpool.length > 0) {
+			this.executeNext();
 		}
 	}
 

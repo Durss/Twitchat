@@ -3,11 +3,12 @@
 	orderable
 	deletable
 	medium
+	:error="isMissingObsEntry"
 	:open="opened"
-	:title="title" class="OBSEventsActionEntry"
+	:title="title" :class="classes"
 	@delete="$emit('delete')">
 		<form @submit.prevent="onSubmit()">
-			<ParamItem class="item" :paramData="source_conf" />
+			<ParamItem class="item source" :paramData="source_conf" />
 			<ParamItem class="item show" :paramData="show_conf" />
 			<ParamItem class="item text" :paramData="text_conf" v-if="isTextSource" ref="textContent" />
 			<ToggleBlock small class="helper"
@@ -65,6 +66,7 @@ export default class OBSEventsActionEntry extends Vue {
 	public event!:number;
 
 	public opened:boolean = false;
+	public isMissingObsEntry:boolean = false;
 
 	private filters:OBSFilter[] = [];
 	private showHideValues:ParameterDataListValue[] = [
@@ -79,6 +81,12 @@ export default class OBSEventsActionEntry extends Vue {
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
 
 	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return OBSEventActionHelpers; }
+
+	public get classes():string[] {
+		const res = ["OBSEventsActionEntry"];
+		if(this.isMissingObsEntry) res.push("missingSource");
+		return res;
+	}
 
 	/**
 	 * Get block's title
@@ -146,31 +154,11 @@ export default class OBSEventsActionEntry extends Vue {
 		
 
 		//Prefill forms
-		if(this.action.sourceName != undefined) {
-			this.source_conf.value = this.action.sourceName;
-			const forceFilter = this.action.filterName != undefined;
-			await this.onSourceChanged();
-			if(forceFilter && this.action.filterName) {
-				console.log(this.index, this.action.filterName);
-				this.filter_conf.value = this.action.filterName;
-				this.updateFilter();
-			}else{
-				this.filter_conf.value = "";
-			}
-		}
-		if(this.action.delay != undefined) this.delay_conf.value = this.action.delay;
-		if(this.action.text != undefined) this.text_conf.value = this.action.text;
-		if(this.action.show != undefined) this.show_conf.value = this.action.show;
+		this.prefillForm();
 
-		//Sets current default values to the action.
-		//This allows to hide the "save" button until something is changed
-		if(this.action.sourceName == undefined) this.action.sourceName = this.source_conf.value as string;
-		if(this.action.filterName == undefined) this.action.filterName = this.filter_conf.value as string;
-		if(this.action.delay == undefined) this.action.delay = this.delay_conf.value as number;
-		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
-		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
-
-
+		watch(()=>this.sources, ()=> {
+			this.prefillForm();
+		});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
@@ -202,12 +190,51 @@ export default class OBSEventsActionEntry extends Vue {
 	}
 
 	/**
+	 * Prefills the form
+	 */
+	private async prefillForm():Promise<void> {
+		this.isMissingObsEntry = false;
+		if(this.action.sourceName != undefined) {
+			if(this.sources.findIndex(v=>v.sourceName===this.action.sourceName) > -1) {
+				this.source_conf.value = this.action.sourceName;
+				const forceFilter = this.action.filterName != undefined;
+				await this.onSourceChanged();
+				if(forceFilter && this.action.filterName) {
+					console.log(this.index, this.action.filterName);
+					this.filter_conf.value = this.action.filterName;
+					this.updateFilter();
+				}else{
+					this.filter_conf.value = "";
+				}
+			}else if(this.action.sourceName != ""){
+				this.isMissingObsEntry = true;
+			}
+		}
+		if(this.action.delay != undefined) this.delay_conf.value = this.action.delay;
+		if(this.action.text != undefined) this.text_conf.value = this.action.text;
+		if(this.action.show != undefined) this.show_conf.value = this.action.show;
+
+		//Sets current default values to the action.
+		//This allows to hide the "save" button until something is changed
+		if(this.action.sourceName == undefined) this.action.sourceName = this.source_conf.value as string;
+		if(this.action.filterName == undefined) this.action.filterName = this.filter_conf.value as string;
+		if(this.action.delay == undefined) this.action.delay = this.delay_conf.value as number;
+		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
+		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
+	}
+
+	/**
 	 * Called when selecting a new source
 	 */
 	private async onSourceChanged():Promise<void> {
 		this.filters = [];
 		if(this.source_conf.value != "") {
-			this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value as string);
+			try {
+				this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value as string);
+			}catch(error) {
+				console.log("PHOQUE");
+				this.filters = []
+			}
 		}
 		if(this.filters.length > 0) {
 			const list = this.filters.map(v => {return {label:v.filterName, value:v.filterName}});
@@ -243,6 +270,15 @@ export default class OBSEventsActionEntry extends Vue {
 		font-weight: normal;
 		vertical-align: middle;
 		font-style: italic;
+	}
+
+	&.missingSource {
+		.source {
+			padding: .25em;
+			border-radius: .5em;
+			border: 2px dashed @mainColor_alert;
+			background-color: fade(@mainColor_alert, 35%);
+		}
 	}
 
 	.item:not(:first-of-type) {

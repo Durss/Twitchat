@@ -339,7 +339,7 @@
         },
         "username": "antoinedaniel",
         "viewers": 727,
-        "firstMessage": true
+        "firstMessage": false
     },
     "subs_off": {
         "type": "notice",
@@ -573,7 +573,6 @@
         "self": false,
         "firstMessage": true
     },
-
     "following":{
         "channel": "#durss",
         "tags": {
@@ -587,7 +586,6 @@
         "type": "highlight",
         "firstMessage": false
     },
-
     "pollResult": {
         "tags": {
             "id": "00000000-0000-0000-0001-000000000034"
@@ -625,7 +623,6 @@
             "ended_at": "2022-02-16T18:00:57.589127933Z"
         }
     },
-
     "predictionResult": {
         "tags": {
             "id": "00000000-0000-0000-0001-000000000017"
@@ -681,7 +678,6 @@
         "showHoverActions": false,
         "markedAsRead": false
     },
-	
 	"presentation": {
 		"type": "message",
 		"message": "This is a presentation message hiiiideeehoooooooooooooooooo",

@@ -4,11 +4,12 @@
 			<Button small
 				:icon="require('@/assets/icons/orderable_white.svg')"
 				class="orderBt"
+				warn
 				v-if="orderable!==false"
 				@mousedown="$emit('startDrag', $event)"
 			/>
-			<img :src="require('@/assets/icons/'+icon+'.svg')" :alt="icon" class="icon" v-if="icon">
-			<h2 v-html="title"></h2>
+			<img :src="require('@/assets/icons/'+localIcon+'.svg')" :alt="localIcon" class="icon" v-if="localIcon">
+			<h2 v-html="localTitle"></h2>
 			<Button small highlight
 				:icon="require('@/assets/icons/cross_white.svg')"
 				class="deleteBt"
@@ -52,6 +53,10 @@ import Button from './Button.vue';
 			type:Boolean,
 			default:false,
 		},
+		error:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
@@ -63,6 +68,7 @@ export default class ToggleBlock extends Vue {
 	public icon!:string
 	public title!:string
 	public open!:boolean;
+	public error!:boolean;
 	public small!:boolean;
 	public medium!:boolean;
 	public deletable!:boolean;
@@ -72,11 +78,22 @@ export default class ToggleBlock extends Vue {
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
-		if(!this.showContent) res.push("closed");
-		if(this.deletable != false && this.deletable != undefined) res.push("deletable");
-		if(this.small != false && this.small != undefined) res.push("small");
-		else if(this.medium != false && this.medium != undefined) res.push("medium");
+		if(!this.showContent)			res.push("closed");
+		if(this.error !== false)		res.push("error");
+		if(this.deletable !== false)	res.push("deletable");
+		if(this.small !== false)		res.push("small");
+		else if(this.medium !== false)	res.push("medium");
 		return res;
+	}
+
+	public get localTitle():string {
+		if(this.error) return "ERROR - MISSING OBS SOURCE";
+		return this.title;
+	}
+
+	public get localIcon():string {
+		if(this.error) return "automod_white";
+		return this.icon;
 	}
 
 	public mounted():void {
@@ -171,20 +188,20 @@ export default class ToggleBlock extends Vue {
 			border-top-left-radius: @radius;
 			border-top-right-radius: @radius;
 			color: @mainColor_light;
-			background-color: transparent;
+			background-color: @mainColor_normal;
 			border-bottom-color: @mainColor_light;
 			overflow: hidden;
 			&:hover {
-				background-color: transparent;
+				background-color: lighten(@mainColor_normal, 10%);
 			}
 
 			h2 {
-				transition: background-color .25s;
-				background-color: @mainColor_normal;
+				// transition: background-color .25s;
+				// background-color: @mainColor_normal;
 				padding: .25em;
-				&:hover {
-					background-color: lighten(@mainColor_normal, 10%);
-				}
+				// &:hover {
+				// 	background-color: lighten(@mainColor_normal, 10%);
+				// }
 			}
 
 			.deleteBt {
@@ -254,6 +271,15 @@ export default class ToggleBlock extends Vue {
 		&>:deep(img) {
 			margin: .5em 0;
 			max-width: 100%;
+		}
+	}
+
+	&.error{
+		.header {
+			border: 2px dashed @mainColor_alert;
+			h2 {
+				// color: @mainColor_alert;
+			}
 		}
 	}
 }
