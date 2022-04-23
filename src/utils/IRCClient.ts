@@ -67,7 +67,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["littlebigwhale", "cokoooooo"]);
+				channels = channels.concat(["ioodyme", "kathleenfabric"]);
 			}
 
 			(async ()=> {
@@ -198,6 +198,7 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on("raided", async (channel: string, username: string, viewers: number) => {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
+				tags["msg-id"] = "raid";
 				if(!this.idToExample["raided"]) this.idToExample["raided"] = {type:"highlight", channel, tags, username, viewers};
 				this.sendHighlight({type:"highlight", channel, tags, username, viewers});
 				
