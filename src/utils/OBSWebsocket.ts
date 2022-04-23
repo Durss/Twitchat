@@ -254,7 +254,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param url 
 	 */
 	public setBrowserSourceURL(sourceName:string, url:string):void {
-		console.log("Lezgo", sourceName, url);
 		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
 	}
 	

@@ -183,7 +183,6 @@ export default class OBSEventActionHandler {
 			}
 			if(step.url) {
 				const url = await this.parseText(step, eventType, message, step.url as string, true);
-				console.log("SET URL", url);
 				await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 
 			}
@@ -248,11 +247,13 @@ export default class OBSEventActionHandler {
 				value = await TwitchUtils.parseCheermotes(value as string, m.tags['room-id'] as string);
 			}
 
-			//Strip HTML tags (removes emotes and cheermotes)
-			value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
-
-			if(urlEncode) {
-				value = encodeURIComponent(value as string);
+			if(value) {
+				//Strip HTML tags (removes emotes and cheermotes)
+				value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+				
+				if(urlEncode) {
+					value = encodeURIComponent(value as string);
+				}
 			}
 			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value as string);
 		}

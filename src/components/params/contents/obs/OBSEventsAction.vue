@@ -141,6 +141,7 @@ export default class OBSEventsAction extends Vue {
 	public deleteAction(action:OBSSourceAction, index:number):void {
 		Utils.confirm("Delete action ?").then(()=> {
 			this.actionList.splice(index, 1);
+			this.saveData();
 		}).catch(()=> {});
 	}
 
