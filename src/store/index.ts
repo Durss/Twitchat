@@ -877,6 +877,7 @@ export default createStore({
 					Store.remove("oAuthToken");
 					// document.location.href = TwitchUtils.oAuthURL;
 					// router.push({name: 'login'});
+					state.initComplete = true;
 					return;
 				}
 			}
