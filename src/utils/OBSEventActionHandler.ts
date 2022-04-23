@@ -178,8 +178,14 @@ export default class OBSEventActionHandler {
 				OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
 			}
 			if(step.text) {
-				const text = await this.parseText(step, eventType, message);
+				const text = await this.parseText(step, eventType, message, step.text as string);
 				await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+			}
+			if(step.url) {
+				const url = await this.parseText(step, eventType, message, step.url as string, true);
+				console.log("SET URL", url);
+				await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+
 			}
 			await Utils.promisedTimeout(step.delay * 1000);
 		}
@@ -195,8 +201,8 @@ export default class OBSEventActionHandler {
 	 * Replaces placeholders by their values on the message
 	 * @param step 
 	 */
-	private async parseText(step:OBSSourceAction, eventType:number, message:MessageTypes):Promise<string> {
-		let res = step.text as string;
+	private async parseText(step:OBSSourceAction, eventType:number, message:MessageTypes, src:string, urlEncode:boolean = false):Promise<string> {
+		let res = src;
 		const helpers = OBSEventActionHelpers[eventType];
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
@@ -242,10 +248,14 @@ export default class OBSEventActionHandler {
 				value = await TwitchUtils.parseCheermotes(value as string, m.tags['room-id'] as string);
 			}
 
+			//Strip HTML tags (removes emotes and cheermotes)
+			value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+
+			if(urlEncode) {
+				value = encodeURIComponent(value as string);
+			}
 			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value as string);
 		}
-		//Strip HTML tags (removes emotes and cheermotes)
-		res = res.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
 		return res;
 	}
 }

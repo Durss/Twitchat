@@ -1208,6 +1208,7 @@ export interface OBSSourceAction {
 	filterName?:string;
 	show:boolean;
 	text?:string;
+	url?:string;
 	delay:number;
 }
 

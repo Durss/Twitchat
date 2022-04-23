@@ -277,9 +277,6 @@ export default class ToggleBlock extends Vue {
 	&.error{
 		.header {
 			border: 2px dashed @mainColor_alert;
-			h2 {
-				// color: @mainColor_alert;
-			}
 		}
 	}
 }

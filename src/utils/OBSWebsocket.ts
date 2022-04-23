@@ -86,6 +86,10 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 
+		// const sources = await this.getSources();
+		// const settings = await this.obs.call("GetInputSettings", {inputName: "Twitch Chat"});
+		// console.log(settings);
+
 		return true;
 	}
 
@@ -241,6 +245,17 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return;
 		
 		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
+	}
+
+	/**
+	 * Change the URL of a browser source
+	 * 
+	 * @param sourceName 
+	 * @param url 
+	 */
+	public setBrowserSourceURL(sourceName:string, url:string):void {
+		console.log("Lezgo", sourceName, url);
+		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
 	}
 	
 	

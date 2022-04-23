@@ -11,11 +11,12 @@
 			<ParamItem class="item source" :paramData="source_conf" />
 			<ParamItem class="item show" :paramData="show_conf" />
 			<ParamItem class="item text" :paramData="text_conf" v-if="isTextSource" ref="textContent" />
+			<ParamItem class="item url" :paramData="url_conf" v-if="isBrowserSource" ref="textContent" />
 			<ToggleBlock small class="helper"
-			v-if="isTextSource && helpers[event]?.length > 0"
+			v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false">
-				<ul class="list" v-if="isTextSource">
+				<ul class="list">
 					<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
 						<strong>&#123;{{h.tag}}&#125;</strong>
 						{{h.desc}}
@@ -79,6 +80,7 @@ export default class OBSEventsActionEntry extends Vue {
 	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
+	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
 
 	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return OBSEventActionHelpers; }
 
@@ -129,19 +131,24 @@ export default class OBSEventsActionEntry extends Vue {
 	}
 
 	/**
+	 * Get if the selected source is a browwer source
+	 */
+	public get isBrowserSource():boolean {
+		return this.sources.find(v=> v.sourceName == this.source_conf.value as string)?.inputKind === 'browser_source'
+				&& this.show_conf.value === true;
+	}
+
+	/**
 	 * Can submit form ?
 	 */
 	public get canSubmit():boolean { return this.source_conf.value != ""; }
 	
 	public get isChange():boolean {
-		if(this.index == 1) {
-			console.log(this.action);
-			console.log(this.filter_conf.value);
-		}
 		return this.action.sourceName != this.source_conf.value
 		|| this.action.filterName != this.filter_conf.value
 		|| this.action.delay != this.delay_conf.value
 		|| this.action.text != this.text_conf.value
+		|| this.action.url != this.url_conf.value
 		|| this.action.show != this.show_conf.value;
 	}
 
@@ -156,9 +163,7 @@ export default class OBSEventsActionEntry extends Vue {
 		//Prefill forms
 		this.prefillForm();
 
-		watch(()=>this.sources, ()=> {
-			this.prefillForm();
-		});
+		watch(()=>this.sources, ()=> { this.prefillForm(); });
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
@@ -172,6 +177,7 @@ export default class OBSEventsActionEntry extends Vue {
 		this.action.delay = this.delay_conf.value as number;
 		this.action.text = this.text_conf.value as string;
 		this.action.show = this.show_conf.value as boolean;
+		this.action.url = this.url_conf.value as string;
 		this.$emit("update");
 	}
 
@@ -181,7 +187,7 @@ export default class OBSEventsActionEntry extends Vue {
 	public insert(h:{tag:string, desc:string}):void {
 		const tag = "{"+h.tag+"}";
 		const holder = this.$refs.textContent as ParamItem;
-		const input = (holder.$el as HTMLDivElement).getElementsByTagName("textarea")[0];
+		const input = (holder.$el as HTMLDivElement).getElementsByTagName(this.isTextSource? "textarea" : "input")[0];
 		let carretPos = input.selectionStart as number | 0;
 		if(!carretPos) carretPos = 0;
 		//Insert tag
@@ -213,6 +219,7 @@ export default class OBSEventsActionEntry extends Vue {
 		if(this.action.delay != undefined) this.delay_conf.value = this.action.delay;
 		if(this.action.text != undefined) this.text_conf.value = this.action.text;
 		if(this.action.show != undefined) this.show_conf.value = this.action.show;
+		if(this.action.url != undefined) this.url_conf.value = this.action.url;
 
 		//Sets current default values to the action.
 		//This allows to hide the "save" button until something is changed
@@ -221,12 +228,14 @@ export default class OBSEventsActionEntry extends Vue {
 		if(this.action.delay == undefined) this.action.delay = this.delay_conf.value as number;
 		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
 		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
+		if(this.action.url == undefined) this.action.url = this.url_conf.value as string;
 	}
 
 	/**
 	 * Called when selecting a new source
 	 */
 	private async onSourceChanged():Promise<void> {
+		this.isMissingObsEntry = false;
 		this.filters = [];
 		if(this.source_conf.value != "") {
 			try {
@@ -289,6 +298,14 @@ export default class OBSEventsActionEntry extends Vue {
 			width: 90px;
 			flex-grow: unset;
 			min-width: unset;
+		}
+	}
+
+	.url {
+		:deep(input){
+			text-align: left;
+			width: auto;
+			max-width: unset;
 		}
 	}
 
