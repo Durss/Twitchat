@@ -10,19 +10,20 @@
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
-				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='obsSource'" />
+				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
-				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
+				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account' || content == 'sponsor'" />
 			</div>
 			<div class="search" v-if="isGenericListContent">
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
-				<ParamsList v-if="content && isGenericListContent" :category="content" />
-				<ParamsAccount v-if="content == 'account'" />
-				<ParamsStreamdeck v-if="content == 'streamdeck'" />
+				<ParamsList v-if="content && isGenericListContent" :category="content" @setContent="setContent" />
+				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
+				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<OBSEventsAction v-if="content == 'obsSource'" @setContent="setContent" />
+				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
+				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -36,7 +37,7 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'features' | 'obs' | 'obsSource' | null ;
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | null ;
 
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
@@ -50,6 +51,7 @@ import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
 import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
+import ParamsSponsor from './contents/ParamsSponsor.vue';
 
 @Options({
 	props:{},
@@ -60,6 +62,7 @@ import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
 		ParamsList,
 		ToggleButton,
 		ParamsAccount,
+		ParamsSponsor,
 		ParamsStreamdeck,
 		OBSEventsAction,
 	}

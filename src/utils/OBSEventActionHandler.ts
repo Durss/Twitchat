@@ -247,7 +247,7 @@ export default class OBSEventActionHandler {
 				value = await TwitchUtils.parseCheermotes(value as string, m.tags['room-id'] as string);
 			}
 
-			if(value) {
+			if(value && typeof value == "string") {
 				//Strip HTML tags (removes emotes and cheermotes)
 				value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
 				

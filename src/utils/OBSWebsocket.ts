@@ -126,6 +126,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async getSources():Promise<OBSSourceItem[]> {
 		if(!this.connected) return [];
+		
 		const scenes = await this.getScenes();
 		let sources:OBSSourceItem[] = [];
 		const idsDone:{[key:string]:boolean} = {};
@@ -199,6 +200,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param text 
 	 */
 	public setTextSourceContent(sourceName:string, text:string):void {
+		if(!this.connected) return;
+		
 		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
 	}
 
@@ -210,6 +213,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param visible 
 	 */
 	public setFilterState(sourceName:string, filterName:string, visible:boolean):void {
+		if(!this.connected) return;
+		
 		//@ts-ignore ("SetSourceFilterEnabled" not yet defined on obs-websocket-js)
 		this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
 	}
@@ -221,6 +226,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param visible 
 	 */
 	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
+		if(!this.connected) return;
+
 		const scene = await this.obs.call("GetCurrentProgramScene");
 		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName:scene.currentProgramSceneName});
 		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
@@ -254,6 +261,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param url 
 	 */
 	public setBrowserSourceURL(sourceName:string, url:string):void {
+		if(!this.connected) return;
+		
 		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
 	}
 	
