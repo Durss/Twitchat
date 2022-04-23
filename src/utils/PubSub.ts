@@ -68,6 +68,7 @@ export default class PubSub {
 				"video-playback-by-id."+store.state.user.user_id,
 				"community-boost-events-v1."+store.state.user.user_id,
 				"ad-property-refresh."+store.state.user.user_id,
+				"whispers."+store.state.user.user_id,
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
@@ -222,6 +223,12 @@ export default class PubSub {
 			if(localObj.type == "stream-down") {
 				store.dispatch("setPlaybackState", null);
 			}
+
+
+
+		}else if(data.type == "thread") {
+			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
+			this.whisperRead(data.data as PubSubTypes.WhisperRead);
 
 
 
@@ -675,6 +682,12 @@ export default class PubSub {
 		}, 20000)
 	}
 	
+	/**
+	 * Called when whispers are read
+	 */
+	private whisperRead(data:PubSubTypes.WhisperRead):void {
+		store.dispatch("closeWhispers", data.id.split("_")[1]);
+	}
 }
 
 export namespace PubSubTypes {
@@ -1190,6 +1203,18 @@ export namespace PubSubTypes {
 		target_user_id: string;
 		target_user_login: string;
 		from_automod: boolean;
+	}
+
+	export interface WhisperRead {
+		id: string,//receiverID_senderID
+		last_read: number,//index of the last message read
+		archived: boolean,
+		muted: boolean,
+		spam_info: {
+			likelihood: string,
+			last_marked_not_spam: number
+		},
+		whitelisted_until: string
 	}
 }
 

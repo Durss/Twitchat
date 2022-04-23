@@ -123,6 +123,7 @@ export default class Login extends Vue {
 		"user:read:follows": "List your followings",
 		"user:read:subscriptions": "List your subscribers",
 		"whispers:edit": "Send whispers",
+		"whispers:read": "Receive whispers",
 	}
 
 	public get permissions():string[] {
