@@ -10,17 +10,42 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import { ParameterData } from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 
 @Options({
-	props:{},
+	props:{
+		mods:{
+			type:Boolean,
+			default:false,
+		},
+		vips:{
+			type:Boolean,
+			default:false,
+		},
+		subs:{
+			type:Boolean,
+			default:false,
+		},
+		all:{
+			type:Boolean,
+			default:false,
+		},
+		users:String,
+	},
 	components:{
 		ParamItem
-	}
+	},
+	emits:["update"]
 })
 export default class OBSPermissions extends Vue {
+
+	public mods!:boolean;
+	public vips!:boolean;
+	public subs!:boolean;
+	public all!:boolean;
+	public users!:string;
 	
 	public obsAllowed_mods:ParameterData = { type:"toggle", value:true, label:"Moderators", icon:"mod_purple.svg" };
 	public obsAllowed_vips:ParameterData = { type:"toggle", value:false, label:"VIPs", icon:"vip_purple.svg" };
@@ -29,25 +54,21 @@ export default class OBSPermissions extends Vue {
 	public obsAllowed_usernames:ParameterData = { type:"text", longText:true, value:"", label:"Specific users", placeholder:"user1, user2, user3, ..." };
 
 	public mounted():void {
-		const storedPermissions = store.state.obsPermissions;
-		if(storedPermissions) {
-			this.obsAllowed_mods.value = storedPermissions.mods;
-			this.obsAllowed_vips.value = storedPermissions.vips;
-			this.obsAllowed_subs.value = storedPermissions.subs;
-			this.obsAllowed_all.value = storedPermissions.all;
-			this.obsAllowed_usernames.value = storedPermissions.users;
-		}
+		this.obsAllowed_mods.value		= this.mods;
+		this.obsAllowed_vips.value		= this.vips;
+		this.obsAllowed_subs.value		= this.subs;
+		this.obsAllowed_all.value		= this.all;
+		this.obsAllowed_usernames.value	= this.users;
 	}
 
 	public onPermissionChange():void {
-		const params = {
-			mods:this.obsAllowed_mods.value,
-			vips:this.obsAllowed_vips.value,
-			subs:this.obsAllowed_subs.value,
-			all:this.obsAllowed_all.value,
-			users:this.obsAllowed_usernames.value,
-		}
-		store.dispatch("setOBSPermissions", params);
+		this.$emit("update", {
+			mods:this.mods,
+			vips:this.vips,
+			subs:this.subs,
+			all:this.all,
+			users:this.users,
+		});
 	}
 
 }
