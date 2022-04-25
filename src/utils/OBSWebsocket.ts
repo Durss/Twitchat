@@ -58,7 +58,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async connect(port:string, pass:string, autoReconnect:boolean = true):Promise<boolean> {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
-		this.obs = new OBSWebSocket();
 
 		try {
 			await this.obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
@@ -272,7 +271,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		
+		this.obs = new OBSWebSocket();
 	}
 }
 
