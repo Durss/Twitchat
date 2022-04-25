@@ -63,6 +63,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			await this.obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 		}catch(error) {
 			if(this.autoReconnect) {
+				clearTimeout(this.reconnectTimeout);
 				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass);
 				}, 5000);
@@ -74,7 +75,10 @@ export default class OBSWebsocket extends EventDispatcher {
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
 			if(this.autoReconnect) {
-				this.connect(port, pass);
+				clearTimeout(this.reconnectTimeout);
+				this.reconnectTimeout = setTimeout(()=> {
+					this.connect(port, pass);
+				}, 5000);
 			}
 		});
 
