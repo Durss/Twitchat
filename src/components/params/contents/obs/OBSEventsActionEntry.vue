@@ -26,11 +26,12 @@
 			<ParamItem class="item delay" :paramData="delay_conf" />
 			
 			<Button type="submit"
-			title="Save"
-			v-if="isChange"
-			class="saveBt"
-			:icon="require('@/assets/icons/save.svg')"
-			:disabled="!canSubmit" />
+				title="Save"
+				v-if="isChange"
+				class="saveBt"
+				:icon="require('@/assets/icons/save.svg')"
+				:disabled="!canSubmit"
+			/>
 		</form>
 	</ToggleBlock>
 </template>

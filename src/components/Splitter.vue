@@ -29,6 +29,8 @@ export default class Splitter extends Vue {
 	font-weight: bold;
 	justify-content: center;
 	align-items: center;
+	text-align: center;
+	
 	span {
 		padding: 0 1em;
 	}

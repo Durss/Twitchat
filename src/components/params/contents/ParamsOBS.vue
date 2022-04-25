@@ -31,12 +31,19 @@
 
 		</ToggleBlock>
 
-		<ToggleBlock class="block allowed"
+		<ToggleBlock class="block permissions"
 		v-if="connected"
 		:open="false"
 		icon="lock_purple"
 		title="Permissions">
-			<OBSPermissions />
+			<p class="info">Users allowed to use the chat commands</p>
+			<OBSPermissions class="content" @update="onPermissionChange"
+				:mods="perms_mods"
+				:vips="perms_vips"
+				:subs="perms_subs"
+				:all="perms_all"
+				:users="perms_users"
+			/>
 		</ToggleBlock>
 
 		<ToggleBlock class="block mic"
@@ -55,9 +62,17 @@
 			<OBSScenes />
 		</ToggleBlock>
 
-		<ToggleBlock class="block overlay"
+		<!-- <ToggleBlock class="block filters"
 		v-if="connected"
 		:open="false"
+		icon="graphicFilters_purple"
+		title="Control filters">
+			<OBSFilters />
+		</ToggleBlock> -->
+
+		<ToggleBlock class="block overlay"
+		v-if="connected"
+		:open="true"
 		icon="notification_purple"
 		title="Twitchat events">
 			<OBSEventsAction />
@@ -68,7 +83,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { ParameterData } from '@/store';
+import store, { ParameterData } from '@/store';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -79,6 +94,7 @@ import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSPermissions from './obs/OBSPermissions.vue';
 import OBSScenes from './obs/OBSScenes.vue';
 import OBSEventsAction from './obs/OBSEventsAction.vue';
+import OBSFilters from './obs/OBSFilters.vue';
 
 
 @Options({
@@ -87,6 +103,7 @@ import OBSEventsAction from './obs/OBSEventsAction.vue';
 		Button,
 		ParamItem,
 		OBSScenes,
+		OBSFilters,
 		ToggleBlock,
 		OBSEventsAction,
 		OBSPermissions,
@@ -104,6 +121,11 @@ export default class ParamsOBS extends Vue {
 	public openConnectForm:boolean = false;
 	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
+	public perms_mods:boolean = false;
+	public perms_vips:boolean = false;
+	public perms_subs:boolean = false;
+	public perms_all:boolean = false;
+	public perms_users:string = "";
 
 	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
 
@@ -118,6 +140,16 @@ export default class ParamsOBS extends Vue {
 			this.openConnectForm = !this.connected;
 		}else{
 			this.openConnectForm = true;
+		}
+		
+
+		const storedPermissions = store.state.obsPermissions;
+		if(storedPermissions) {
+			this.perms_mods = storedPermissions.mods;
+			this.perms_vips = storedPermissions.vips;
+			this.perms_subs = storedPermissions.subs;
+			this.perms_all = storedPermissions.all;
+			this.perms_users = storedPermissions.users;
 		}
 
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
@@ -148,6 +180,15 @@ export default class ParamsOBS extends Vue {
 
 	public async disconnect():Promise<void> {
 		OBSWebsocket.instance.disconnect();
+	}
+
+	public async onPermissionChange(data:{mods:boolean, vips:boolean, subs:boolean, all:boolean, users:string}):Promise<void> {
+		this.perms_mods = data.mods;
+		this.perms_vips = data.vips;
+		this.perms_subs = data.subs;
+		this.perms_all = data.all;
+		this.perms_users = data.users;
+		store.dispatch("setOBSPermissions", data);
 	}
 
 	private paramUpdate():void {
@@ -183,6 +224,15 @@ export default class ParamsOBS extends Vue {
 	.block {
 		.info {
 			margin-bottom: 1em;
+		}
+		&.permissions {
+			.info {
+				text-align: center;
+				margin-bottom: .5em;
+			}
+			.content {
+				width: 300px;
+			}
 		}
 	}
 

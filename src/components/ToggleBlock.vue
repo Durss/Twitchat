@@ -164,6 +164,7 @@ export default class ToggleBlock extends Vue {
 		.content {
 			background-color: fade(@mainColor_normal, 10%);
 			padding: 0;
+			padding-top: 1em;
 			margin-left: 1.4em;
 			border-radius: 0;
 		}
@@ -193,6 +194,12 @@ export default class ToggleBlock extends Vue {
 			overflow: hidden;
 			&:hover {
 				background-color: lighten(@mainColor_normal, 10%);
+			}
+
+			.icon {
+				margin-left: .25em;
+				height: 1em;
+				width: 1em;
 			}
 
 			h2 {

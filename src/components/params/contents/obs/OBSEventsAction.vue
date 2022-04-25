@@ -7,6 +7,8 @@
 
 		<Button title="Test action" class="testBt" @click="testAction()" v-if="canTestAction" />
 
+		<OBSEventsActionChatCommandParams v-if="isChatCmd" />
+
 		<draggable 
 		v-model="actionList" 
 		group="actions" 
@@ -40,13 +42,14 @@
 import store, { OBSSourceAction, ParameterData } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
-import OBSWebsocket, { OBSSourceItem, OBSTriggerEvents } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { OBSSourceItem, OBSTriggerEvents, OBSTriggerEventTypes } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ParamItem from '../../ParamItem.vue';
+import OBSEventsActionChatCommandParams from './OBSEventsActionChatCommandParams.vue';
 import OBSEventsActionEntry from './OBSEventsActionEntry.vue';
 
 @Options({
@@ -56,6 +59,7 @@ import OBSEventsActionEntry from './OBSEventsActionEntry.vue';
 		Button,
 		ParamItem,
 		OBSEventsActionEntry,
+		OBSEventsActionChatCommandParams,
 	},
 	emits:[]
 })
@@ -65,6 +69,8 @@ export default class OBSEventsAction extends Vue {
 	public event_conf:ParameterData = { label:"", type:"list", value:"", listValues:[] };
 	public sources:OBSSourceItem[] = [];
 	public syncing:boolean = false;
+
+	public get isChatCmd():boolean { return this.event_conf.value === OBSTriggerEventTypes.CHAT_COMMAND; }
 
 	public get canTestAction():boolean {
 		let canTest = false;
