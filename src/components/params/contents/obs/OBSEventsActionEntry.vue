@@ -6,7 +6,8 @@
 	:error="isMissingObsEntry"
 	:open="opened"
 	:title="title" :class="classes"
-	@delete="$emit('delete')">
+	@delete="$emit('delete')"
+	:icon="show_conf.value? 'show' : 'hide'">
 		<form @submit.prevent="onSubmit()">
 			<ParamItem class="item source" :paramData="source_conf" />
 			<ParamItem class="item show" :paramData="show_conf" />
@@ -39,7 +40,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { OBSSourceAction, ParameterData, ParameterDataListValue } from '@/store';
+import { OBSEventActionData, ParameterData, ParameterDataListValue } from '@/store';
 import { OBSEventActionHelpers } from '@/utils/OBSEventActionHandler';
 import OBSWebsocket, { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
@@ -51,7 +52,7 @@ import ParamItem from '../../ParamItem.vue';
 		action:Object,
 		sources:Object,
 		index:Number,
-		event:Number,
+		event:String,
 	},
 	components:{
 		Button,
@@ -62,10 +63,10 @@ import ParamItem from '../../ParamItem.vue';
 })
 export default class OBSEventsActionEntry extends Vue {
 
-	public action!:OBSSourceAction;
+	public action!:OBSEventActionData;
 	public sources!:OBSSourceItem[];
 	public index!:number;
-	public event!:number;
+	public event!:string;
 
 	public opened:boolean = false;
 	public isMissingObsEntry:boolean = false;
@@ -104,7 +105,7 @@ export default class OBSEventsActionEntry extends Vue {
 	 */
 	public get subtitle():string {
 		let res = "";
-		const chunks:string[] = [(this.show_conf.value? "show" : "hide")];
+		const chunks:string[] = [];
 		if(this.source_conf.value) {
 			let sourceName = this.source_conf.value as string;
 			sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -207,7 +208,6 @@ export default class OBSEventsActionEntry extends Vue {
 				const forceFilter = this.action.filterName != undefined;
 				await this.onSourceChanged();
 				if(forceFilter && this.action.filterName) {
-					console.log(this.index, this.action.filterName);
 					this.filter_conf.value = this.action.filterName;
 					this.updateFilter();
 				}else{
@@ -274,11 +274,18 @@ export default class OBSEventsActionEntry extends Vue {
 
 <style scoped lang="less">
 .OBSEventsActionEntry{
-	:deep(.subtitle) {
-		font-size: .7em;
-		font-weight: normal;
-		vertical-align: middle;
-		font-style: italic;
+	:deep(.header) {
+		.subtitle {
+			font-size: .7em;
+			font-weight: normal;
+			vertical-align: middle;
+			font-style: italic;
+		}
+		&>.icon {
+			height: 1.5em !important;
+			width: unset !important;
+			vertical-align: middle;
+		}
 	}
 
 	&.missingSource {

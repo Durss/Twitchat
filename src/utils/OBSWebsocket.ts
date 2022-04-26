@@ -300,30 +300,36 @@ export interface OBSFilter {
 	filterSettings: unknown;
 }
 
-export const OBSTriggerEventTypes = {
-	FIRST_ALL_TIME:1,
-	FIRST_TODAY:2,
-	POLL_RESULT:3,
-	PREDICTION_RESULT:4,
-	RAFFLE_RESULT:5,
-	BINGO_RESULT:6,
-	CHAT_COMMAND:7,
-	SUB:8,
-	SUBGIFT:9,
-	BITS:10,
-	FOLLOW:11,
-	RAID:12,
-}
-
-export const OBSTriggerEvents:{
-	label:string,
-	value:number,
+export interface OBSTriggerEventsType {
+	label:string;
+	value:string;
+	isCategory?:boolean,
 	jsonTest?:unknown,
 	command?:string,
 	permissions?:{mods:boolean, vips:boolean, subs:boolean, all:boolean, users:string},
 	cooldown?:{global:number, user:number},
-}[] = [
-	{label:"Chat command", value:OBSTriggerEventTypes.CHAT_COMMAND, jsonTest:{}},
+	[paramater: string]: unknown;
+}
+
+export const OBSTriggerEventTypes = {
+	FIRST_ALL_TIME:"1",
+	FIRST_TODAY:"2",
+	POLL_RESULT:"3",
+	PREDICTION_RESULT:"4",
+	RAFFLE_RESULT:"5",
+	BINGO_RESULT:"6",
+	CHAT_COMMAND:"7",
+	SUB:"8",
+	SUBGIFT:"9",
+	BITS:"10",
+	FOLLOW:"11",
+	RAID:"12",
+	REWARD_REDEEM:"13",
+}
+
+export const OBSTriggerEvents:OBSTriggerEventsType[] = [
+	{label:"Chat command", value:OBSTriggerEventTypes.CHAT_COMMAND, isCategory:true, jsonTest:{"type":"message","message":"!test","tags":{"badge-info":{"subscriber":"13"},"badges":{"broadcaster":"1","subscriber":"12"},"color":"#9ACD32","display-name":"Durss","emote-sets":"","mod":false,"subscriber":true,"user-type":null,"badge-info-raw":"subscriber/13","badges-raw":"broadcaster/1,subscriber/12","username":"durss","emotes":{},"emotes-raw":null,"message-type":"chat","id":"00000000-0000-0000-0000-000000000004","tmi-sent-ts":"1650938130680"},"channel":"#durss","self":true}},
+	{label:"Channel point reward", value:OBSTriggerEventTypes.REWARD_REDEEM, isCategory:true, jsonTest:{"reward":{"timestamp":"2022-04-25T22:54:53.897356718Z","redemption":{"user":{"id":"29961813","login":"durss","display_name":"Durss"},"reward":{"id":"TEST_ID","channel_id":"29961813","title":"Text reward","prompt":"This is a reward description","cost":1000},"status":"UNFULFILLED"}},"tags":{"username":"Durss","display-name":"Durss","id":"bdeddedd-6184-4b26-a74e-87a5ff99a1be","user-id":"29961813","tmi-sent-ts":"1650927293897","message-type":"chat","room-id":"29961813"},"type":"highlight"}},
 	{label:"First message of a user all time", value:OBSTriggerEventTypes.FIRST_ALL_TIME, jsonTest:{"type":"message","message":"This is my first message here !","tags":{"badges":{"premium":"1"},"client-nonce":"004c878edd9adf5b36717d6454db1b7c","color":"#9ACD32","display-name":"Durss","emote-only":true,"emotes":{},"first-msg":true,"flags":null,"id":"c5c54086-d0b5-4809-976a-254f4d206248","mod":false,"room-id":"121652526","subscriber":false,"tmi-sent-ts":"1642377332605","turbo":false,"user-id":"92203285","user-type":null,"emotes-raw":"","badge-info-raw":null,"badges-raw":"premium/1","username":"durss","message-type":"chat"},"channel":"#durss","self":false,"firstMessage":true}},
 	{label:"First message of a user today", value:OBSTriggerEventTypes.FIRST_TODAY, jsonTest:{"type":"message","message":"This is my first message for today!","tags":{"badges":{"premium":"1"},"client-nonce":"004c878edd9adf5b36717d6454db1b7c","color":"#9ACD32","display-name":"Durss","emote-only":true,"emotes":{},"first-msg":false,"flags":null,"id":"c5c54086-d0b5-4809-976a-254f4d206248","mod":false,"room-id":"121652526","subscriber":false,"tmi-sent-ts":"1642377332605","turbo":false,"user-id":"92203285","user-type":null,"emotes-raw":"","badge-info-raw":null,"badges-raw":"premium/1","username":"durss","message-type":"chat"},"channel":"#durss","self":false,"firstMessage":true}},
 	{label:"Poll result", value:OBSTriggerEventTypes.POLL_RESULT, jsonTest:{"tags":{"id":"00000000-0000-0000-0001-000000000034"},"type":"poll","data":{"id":"3c96966e-9141-4d0d-98fe-8e417301144c","broadcaster_id":"29961813","broadcaster_name":"durss","broadcaster_login":"durss","title":"Which option is the best?","choices":[{"id":"b2dc37a4-6469-41f3-9d09-57644cc813b3","title":"This one","votes":2,"channel_points_votes":450,"bits_votes":0},{"id":"a1b43c9c-b52a-4885-9d4e-2c2c0d99218b","title":"That one","votes":5,"channel_points_votes":250,"bits_votes":0}],"bits_voting_enabled":false,"bits_per_vote":0,"channel_points_voting_enabled":false,"channel_points_per_vote":0,"status":"COMPLETED","duration":60,"started_at":"2022-02-16T17:59:57.589127933Z","ended_at":"2022-02-16T18:00:57.589127933Z"}}},

@@ -58,7 +58,7 @@ export default createStore({
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: null as OBSPermissions|null,
-		obsEventActions: {} as {[key:number]:OBSSourceAction[]},
+		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
 		commands: [
 			{
 				id:"search",
@@ -737,7 +737,14 @@ export default createStore({
 			Store.set("obsConf_permissions", JSON.stringify(value));
 		},
 
-		setObsEventActions(state, value:{key:number, data:OBSSourceAction[]}) {
+		setObsEventActions(state, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) {
+			if(!Array.isArray(value.data)) {
+				//If command has been changed, cleanup the previous one from storage
+				if(value.data.prevKey) {
+					delete state.obsEventActions[value.data.prevKey];
+					delete value.data.prevKey;
+				}
+			}
 			state.obsEventActions[value.key] = value.data;
 			Store.set("obsConf_sources", JSON.stringify(state.obsEventActions));
 		},
@@ -1152,7 +1159,7 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
 
-		setObsEventActions({commit}, value:{key:number, data:OBSSourceAction[]}) { commit("setObsEventActions", value); },
+		setObsEventActions({commit}, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) { commit("setObsEventActions", value); },
 
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
@@ -1192,18 +1199,21 @@ export interface OBSSceneCommand {
 	command:string;
 }
 
-export interface OBSSourceCommand {
-	source:OBSSourceAction
-	command:string;
-}
-
 export interface OBSMuteUnmuteCommands {
 	audioSourceName:string;
 	muteCommand:string;
 	unmuteCommand:string;
 }
 
-export interface OBSSourceAction {
+export interface OBSEventActionDataCategory {
+	chatCommand:string;
+	prevKey?:string;
+	permissions:{mods:boolean, vips:boolean, subs:boolean, all:boolean, users:string};
+	cooldown:{global:number, user:number};
+	actions:OBSEventActionData[];
+}
+
+export interface OBSEventActionData {
 	id:string;
 	sourceName:string;
 	filterName?:string;
@@ -1218,6 +1228,7 @@ export interface ParameterDataListValue {
 	value:string | number | boolean;
 	[paramater: string]: unknown;
 }
+
 export interface ParameterData {
 	id?:number;
 	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|string;

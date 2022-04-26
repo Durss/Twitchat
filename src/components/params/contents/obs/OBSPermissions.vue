@@ -1,10 +1,10 @@
 <template>
 	<div class="obspermissions">
-		<ParamItem :paramData="param_mods" class="row" @change="onPermissionChange()"/>
-		<ParamItem :paramData="param_vips" class="row" @change="onPermissionChange()"/>
-		<ParamItem :paramData="param_subs" class="row" @change="onPermissionChange()"/>
-		<ParamItem :paramData="param_all" class="row" @change="onPermissionChange()"/>
-		<ParamItem :paramData="param_usernames" class="row" @change="onPermissionChange()"/>
+		<ParamItem :paramData="param_mods" class="row" @change="$emit('update:mods', param_mods.value); $emit('update')"/>
+		<ParamItem :paramData="param_vips" class="row" @change="$emit('update:vips', param_vips.value); $emit('update')"/>
+		<ParamItem :paramData="param_subs" class="row" @change="$emit('update:subs', param_subs.value); $emit('update')"/>
+		<ParamItem :paramData="param_all" class="row" @change="$emit('update:all', param_all.value); $emit('update')"/>
+		<ParamItem :paramData="param_usernames" class="row" @change="$emit('update:users', param_usernames.value); $emit('update')"/>
 	</div>
 </template>
 
@@ -36,7 +36,7 @@ import ParamItem from '../../ParamItem.vue';
 	components:{
 		ParamItem
 	},
-	emits:["update"]
+	emits:["update","update:mods","update:vips","update:subs","update:all","update:users"],
 })
 export default class OBSPermissions extends Vue {
 
@@ -58,16 +58,6 @@ export default class OBSPermissions extends Vue {
 		this.param_subs.value		= this.subs;
 		this.param_all.value		= this.all;
 		this.param_usernames.value	= this.users;
-	}
-
-	public onPermissionChange():void {
-		this.$emit("update", {
-			mods:this.param_mods.value,
-			vips:this.param_vips.value,
-			subs:this.param_subs.value,
-			all:this.param_all.value,
-			users:this.param_usernames.value,
-		});
 	}
 
 }

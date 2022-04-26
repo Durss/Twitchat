@@ -11,12 +11,11 @@
 
 		<ToggleBlock :open="false" class="row" small title="Users allowed to use this command">
 			<OBSPermissions
-				@update="onPermissionChange"
-				:mods="chatCmdParams.mods"
-				:vips="chatCmdParams.vips"
-				:subs="chatCmdParams.subs"
-				:all="chatCmdParams.all"
-				:users="chatCmdParams.users"
+				v-model:mods="chatCmdParams.mods"
+				v-model:vips="chatCmdParams.vips"
+				v-model:subs="chatCmdParams.subs"
+				v-model:all="chatCmdParams.all"
+				v-model:users="chatCmdParams.users"
 			/>
 		</ToggleBlock>
 
@@ -25,10 +24,11 @@
 			<ParamItem class="cooldown" :paramData="param_userCD" />
 		</ToggleBlock>
 
-			
 		<Button type="submit"
 			title="Save"
 			class="saveBt"
+			v-if="isChange"
+			@click="save()"
 			:icon="require('@/assets/icons/save.svg')"
 			:disabled="param_cmd.value === ''"
 		/>
@@ -38,37 +38,35 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { ParameterData } from '@/store';
+import { OBSEventActionDataCategory, ParameterData } from '@/store';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
+import { OBSChatCmdParameters } from './OBSEventsAction.vue';
 import OBSPermissions from './OBSPermissions.vue';
 
 @Options({
-	props:{},
+	props:{
+		actionData:Object,
+	},
 	components:{
 		Button,
 		ParamItem,
 		ToggleBlock,
 		OBSPermissions,
-	}
+	},
+	emits:['update'],
 })
 export default class OBSEventsActionChatCommandParams extends Vue {
 
-	public isChange:boolean = false;
+	public actionData!:OBSEventActionDataCategory;
 
 	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
 	public param_globalCD:ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
 	public param_userCD:ParameterData = { type:"number", value:0, label:"User cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
 
-	public chatCmdParams:{
-		vips:boolean,
-		subs:boolean,
-		mods:boolean,
-		all:boolean,
-		users:string,
-		userCooldown:number,
-		globalCooldown:number,
-	} = {
+	public chatCmdParams:OBSChatCmdParameters = {
+		cmd:"",
 		vips:false,
 		subs:false,
 		mods:true,
@@ -78,14 +76,41 @@ export default class OBSEventsActionChatCommandParams extends Vue {
 		globalCooldown:0,
 	};
 
-	mounted():void {
-		
+	/**
+	 * Check if somehting has changed on the form
+	 */
+	public get isChange():boolean {
+		return this.actionData.permissions?.mods != this.chatCmdParams.mods
+		|| this.actionData.permissions?.vips != this.chatCmdParams.vips
+		|| this.actionData.permissions?.subs != this.chatCmdParams.subs
+		|| this.actionData.permissions?.all != this.chatCmdParams.all
+		|| this.actionData.permissions?.users != this.chatCmdParams.users
+		|| this.actionData.cooldown?.user != this.param_userCD.value
+		|| this.actionData.cooldown?.global != this.param_globalCD.value
+		|| this.actionData.chatCommand != this.param_cmd.value;
 	}
 
-	public onPermissionChange():void {
-		this.$emit("update", {
-			permissions:this.chatCmdParams,
-		});
+	public mounted():void {
+		this.populate();
+		watch(()=> this.actionData, ()=> { this.populate(); }, { deep:true });
+	}
+
+	public populate():void {
+		this.chatCmdParams.mods = this.actionData.permissions?.mods;
+		this.chatCmdParams.vips = this.actionData.permissions?.vips;
+		this.chatCmdParams.subs = this.actionData.permissions?.subs;
+		this.chatCmdParams.all = this.actionData.permissions?.all;
+		this.chatCmdParams.users = this.actionData.permissions?.users;
+		this.param_userCD.value = this.actionData.cooldown?.user;
+		this.param_globalCD.value = this.actionData.cooldown?.global;
+		this.param_cmd.value = this.actionData.chatCommand;
+	}
+
+	public save():void {
+		this.chatCmdParams.cmd = this.param_cmd.value as string;
+		this.chatCmdParams.userCooldown = this.param_userCD.value as number;
+		this.chatCmdParams.globalCooldown = this.param_globalCD.value as number;
+		this.$emit("update", this.chatCmdParams);
 	}
 
 }

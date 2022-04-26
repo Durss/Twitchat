@@ -1,4 +1,4 @@
-import store, { OBSSourceAction } from '@/store';
+import store, { OBSEventActionData, OBSEventActionDataCategory } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket, { OBSTriggerEventTypes } from '@/utils/OBSWebsocket';
 import TwitchUtils from './TwitchUtils';
@@ -56,7 +56,16 @@ export default class OBSEventActionHandler {
 
 				case "raid": this.handleRaid(message); return;
 			}
-			if(message.tags["first-msg"] === true) {
+
+			if(message.reward) {
+				this.handleReward(message as IRCEventDataList.Highlight);
+				return;
+
+			}else if(message.message) {
+				this.handleChatCmd(message as IRCEventDataList.Message);
+				return;
+			
+			}else if(message.tags["first-msg"] === true) {
 				this.handleFirstMessageEver(message);
 				return;
 
@@ -64,9 +73,10 @@ export default class OBSEventActionHandler {
 				this.handleFirstMessageToday(message);
 				return;
 
-			} if(message.tags.bits) {
+			}else if(message.tags.bits) {
 				this.handleBits(message);
 				return;
+
 			}
 
 		}else if(message.type == "prediction") {
@@ -157,6 +167,23 @@ export default class OBSEventActionHandler {
 	private handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight):void {
 		this.parseSteps(OBSTriggerEventTypes.RAID, message);
 	}
+	
+	private handleChatCmd(message:IRCEventDataList.Message):void {
+		const cmd = message.message.trim();
+		this.parseSteps(OBSTriggerEventTypes.CHAT_COMMAND+"_"+cmd, message);
+	}
+	
+	private handleReward(message:IRCEventDataList.Highlight):void {
+		if(message.reward) {
+			let id = message.reward.redemption.reward.id;
+			if(id == "TEST_ID") {
+				id = OBSTriggerEventTypes.REWARD_REDEEM;
+			}else{
+				id = OBSTriggerEventTypes.REWARD_REDEEM+"_"+id;
+			}
+			this.parseSteps(id, message);
+		}
+	}
 
 	/**
 	 * Executes the steps of the trigger
@@ -164,25 +191,32 @@ export default class OBSEventActionHandler {
 	 * @param eventType 
 	 * @param message 
 	 */
-	private async parseSteps(eventType:number, message:MessageTypes):Promise<void> {
+	private async parseSteps(eventType:string, message:MessageTypes):Promise<void> {
 		const steps = store.state.obsEventActions[ eventType ];
-		if(!steps || steps.length == 0) return;
+		let actions:OBSEventActionData[] = [];
+		if(!Array.isArray(steps)) {
+			actions = (steps as OBSEventActionDataCategory).actions;
+		}else{
+			actions = steps;
+		}
+		console.log(actions);
+		if(!steps || actions.length == 0) return;
 		// console.log(steps);
 		// console.log(message);
 
-		for (let i = 0; i < steps.length; i++) {
-			const step = steps[i];
+		for (let i = 0; i < actions.length; i++) {
+			const step = actions[i];
 			if(step.filterName) {
 				OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
 			}else{
 				OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
 			}
 			if(step.text) {
-				const text = await this.parseText(step, eventType, message, step.text as string);
+				const text = await this.parseText(eventType, message, step.text as string);
 				await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 			}
 			if(step.url) {
-				const url = await this.parseText(step, eventType, message, step.url as string, true);
+				const url = await this.parseText(eventType, message, step.url as string, true);
 				await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 
 			}
@@ -198,10 +232,10 @@ export default class OBSEventActionHandler {
 
 	/**
 	 * Replaces placeholders by their values on the message
-	 * @param step 
 	 */
-	private async parseText(step:OBSSourceAction, eventType:number, message:MessageTypes, src:string, urlEncode:boolean = false):Promise<string> {
+	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode:boolean = false):Promise<string> {
 		let res = src;
+		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = OBSEventActionHelpers[eventType];
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
@@ -331,4 +365,11 @@ OBSEventActionHelpers[OBSTriggerEventTypes.FOLLOW] = [
 OBSEventActionHelpers[OBSTriggerEventTypes.RAID] = [
 	{tag:"USER", desc:"User name of the new follower", pointer:"username"},
 	{tag:"VIEWERS", desc:"Number of viewers", pointer:"viewers"},
+];
+
+OBSEventActionHelpers[OBSTriggerEventTypes.REWARD_REDEEM] = [
+	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+	{tag:"TITLE", desc:"Reward title", pointer:""},
+	{tag:"DESCRIPTION", desc:"Reward description", pointer:""},
+	{tag:"COST", desc:"Reward cost", pointer:""},
 ];

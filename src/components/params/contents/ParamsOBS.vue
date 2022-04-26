@@ -38,11 +38,11 @@
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
 			<OBSPermissions class="content" @update="onPermissionChange"
-				:mods="perms_mods"
-				:vips="perms_vips"
-				:subs="perms_subs"
-				:all="perms_all"
-				:users="perms_users"
+				v-model:mods="perms_mods"
+				v-model:vips="perms_vips"
+				v-model:subs="perms_subs"
+				v-model:all="perms_all"
+				v-model:users="perms_users"
 			/>
 		</ToggleBlock>
 
@@ -160,6 +160,9 @@ export default class ParamsOBS extends Vue {
 		});
 	}
 
+	/**
+	 * Connect to OBS websocket
+	 */
 	public async connect():Promise<void> {
 		this.loading = true;
 		this.connectSuccess = false;
@@ -182,15 +185,23 @@ export default class ParamsOBS extends Vue {
 		OBSWebsocket.instance.disconnect();
 	}
 
-	public async onPermissionChange(data:{mods:boolean, vips:boolean, subs:boolean, all:boolean, users:string}):Promise<void> {
-		this.perms_mods = data.mods;
-		this.perms_vips = data.vips;
-		this.perms_subs = data.subs;
-		this.perms_all = data.all;
-		this.perms_users = data.users;
+	/**
+	 * Called when changing commands permisions
+	 */
+	public async onPermissionChange():Promise<void> {
+		const data = {
+			mods: this.perms_mods,
+			vips: this.perms_vips,
+			subs: this.perms_subs,
+			all: this.perms_all,
+			users: this.perms_users,
+		}
 		store.dispatch("setOBSPermissions", data);
 	}
 
+	/**
+	 * Called when changing OBS credentials
+	 */
 	private paramUpdate():void {
 		this.connected = false;
 		Store.set("obsPort", this.obsPort_conf.value.toString());
