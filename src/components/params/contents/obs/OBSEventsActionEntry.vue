@@ -218,6 +218,7 @@ export default class OBSEventsActionEntry extends Vue {
 	 */
 	private async prefillForm():Promise<void> {
 		this.isMissingObsEntry = false;
+		this.filter_conf.value = ""
 		if(this.action.sourceName != undefined) {
 			if(this.sources.findIndex(v=>v.sourceName===this.action.sourceName) > -1) {
 				this.source_conf.value = this.action.sourceName;
