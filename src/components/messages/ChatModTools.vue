@@ -5,12 +5,12 @@
 		@click.stop="openToOptions()"
 		data-tooltip="Timeout">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
-			<Button @click.stop="timeout(1)" title="1s" small />
-			<Button @click.stop="timeout(30)" title="30s" small />
-			<Button @click.stop="timeout(60)" title="1m" small />
-			<Button @click.stop="timeout(300)" title="5m" small />
-			<Button @click.stop="timeout(600)" title="10m" small />
+			<Button @click.stop="timeout(10)" title="10s" small />
 			<Button @click.stop="timeout(1800)" title="30m" small />
+			<Button @click.stop="timeout(3600)" title="1h" small />
+			<Button @click.stop="timeout(3600*12)" title="12h" small />
+			<Button @click.stop="timeout(3600*24)" title="1d" small />
+			<Button @click.stop="timeout(3600*24*7)" title="1w" small />
 		</div>
 		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()">
 	</div>
