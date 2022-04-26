@@ -237,9 +237,11 @@ export default class OBSEventsAction extends Vue {
 			if(subkey == "0") {
 				this.resetActionCategory();
 			}
+		}else{
+			this.subevent_conf.value = "0";
 		}
 		
-		if(key == "0" || (!this.isChatCmd && subkey=="0")) {
+		if(key == "0") {
 			//A selection is missing
 			this.actionList = [];
 			this.resetActionCategory();
