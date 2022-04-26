@@ -1220,6 +1220,7 @@ export interface OBSEventActionData {
 	show:boolean;
 	text?:string;
 	url?:string;
+	mediaPath?:string;
 	delay:number;
 }
 
@@ -1231,7 +1232,7 @@ export interface ParameterDataListValue {
 
 export interface ParameterData {
 	id?:number;
-	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|string;
+	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse";
 	value:boolean|number|string|string;
 	listValues?:ParameterDataListValue[];
 	longText?:boolean;
@@ -1245,6 +1246,7 @@ export interface ParameterData {
 	example?:string;
 	storage?:unknown;
 	children?:ParameterData[];
+	accept?:string;
 }
 
 export interface RaffleData {

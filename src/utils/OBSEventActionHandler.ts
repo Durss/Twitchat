@@ -206,11 +206,6 @@ export default class OBSEventActionHandler {
 
 		for (let i = 0; i < actions.length; i++) {
 			const step = actions[i];
-			if(step.filterName) {
-				OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
-			}else{
-				OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
-			}
 			if(step.text) {
 				const text = await this.parseText(eventType, message, step.text as string);
 				await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
@@ -218,7 +213,15 @@ export default class OBSEventActionHandler {
 			if(step.url) {
 				const url = await this.parseText(eventType, message, step.url as string, true);
 				await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
-
+			}
+			if(step.mediaPath) {
+				await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
+			}
+			
+			if(step.filterName) {
+				OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+			}else{
+				OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
 			}
 			await Utils.promisedTimeout(step.delay * 1000);
 		}

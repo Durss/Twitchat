@@ -57,6 +57,22 @@
 					<option v-for="a in paramData.listValues" :key="a" :value="a.value">{{a.label}}</option>
 				</select>
 			</div>
+			
+			<div v-if="paramData.type == 'browse'" class="holder browse">
+				<Button v-if="paramData.example"
+					:icon="require('@/assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					class="helpBt"
+				/>
+				<label :for="'browse'+key" v-if="label" v-html="label"></label>
+				<input type="text" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder">
+				<!-- <Button v-model:file="paramData.value"
+					class="browseBt"
+					type="file"
+					:accept="paramData.accept?paramData.accept:'*'"
+					:icon="require('@/assets/icons/upload.svg')"
+				/> -->
+			</div>
 		</div>
 
 		<ParamItem v-for="(c, index) in children"
@@ -100,8 +116,9 @@ export default class ParamItem extends Vue {
 	public paramData!:ParameterData;
 	public childLevel!:number;
 	public key:string = Math.random().toString();
-
 	public children:ParameterData[] = [];
+
+	private file:unknown = {};
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -123,6 +140,9 @@ export default class ParamItem extends Vue {
 		});
 		watch(() => this.paramData.children, () => {
 			this.buildChildren();
+		});
+		watch(() => this.file, () => {
+			console.log(this.file);
 		});
 		this.buildChildren();
 	}
@@ -231,7 +251,7 @@ export default class ParamItem extends Vue {
 			}
 		}
 		
-		.toggle, .number, .text, .list {
+		.toggle, .number, .text, .list , .browse{
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
@@ -243,6 +263,7 @@ export default class ParamItem extends Vue {
 				cursor: pointer;
 			}
 		}
+
 		:deep(.small) {
 			// display: block;
 			font-size: .75em;
@@ -260,6 +281,20 @@ export default class ParamItem extends Vue {
 		textarea {
 			// max-width: 100%;
 			resize: vertical;
+		}
+
+		.browse {
+			.filePath {
+				width:auto;
+				max-width:unset;
+				text-align: left;
+				// border-top-right-radius: 0;
+				// border-bottom-right-radius: 0;
+			}
+			.browseBt {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
 		}
 	}
 

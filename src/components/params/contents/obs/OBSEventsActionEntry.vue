@@ -13,10 +13,12 @@
 			<ParamItem class="item show" :paramData="show_conf" />
 			<ParamItem class="item text" :paramData="text_conf" v-if="isTextSource" ref="textContent" />
 			<ParamItem class="item url" :paramData="url_conf" v-if="isBrowserSource" ref="textContent" />
+			<ParamItem class="item file" :paramData="media_conf" v-if="isMediaSource" ref="textContent" />
 			<ToggleBlock small class="helper"
-			v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
-			title="Special placeholders dynamically replaced"
-			:open="false">
+				v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
+				title="Special placeholders dynamically replaced"
+				:open="false"
+			>
 				<ul class="list">
 					<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
 						<strong>&#123;{{h.tag}}&#125;</strong>
@@ -83,6 +85,7 @@ export default class OBSEventsActionEntry extends Vue {
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
 	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
+	public media_conf:ParameterData = { label:"Media file", type:"browse", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 
 	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return OBSEventActionHelpers; }
 
@@ -141,6 +144,14 @@ export default class OBSEventsActionEntry extends Vue {
 	}
 
 	/**
+	 * Get if the selected source is a media source
+	 */
+	public get isMediaSource():boolean {
+		return this.sources.find(v=> v.sourceName == this.source_conf.value as string)?.inputKind === 'ffmpeg_source'
+				&& this.show_conf.value === true;
+	}
+
+	/**
 	 * Can submit form ?
 	 */
 	public get canSubmit():boolean { return this.source_conf.value != ""; }
@@ -151,6 +162,7 @@ export default class OBSEventsActionEntry extends Vue {
 		|| this.action.delay != this.delay_conf.value
 		|| this.action.text != this.text_conf.value
 		|| this.action.url != this.url_conf.value
+		|| this.action.mediaPath != this.media_conf.value
 		|| this.action.show != this.show_conf.value;
 	}
 
@@ -180,6 +192,7 @@ export default class OBSEventsActionEntry extends Vue {
 		this.action.text = this.text_conf.value as string;
 		this.action.show = this.show_conf.value as boolean;
 		this.action.url = this.url_conf.value as string;
+		this.action.mediaPath = this.media_conf.value as string;
 		this.$emit("update");
 	}
 
@@ -221,6 +234,7 @@ export default class OBSEventsActionEntry extends Vue {
 		if(this.action.text != undefined) this.text_conf.value = this.action.text;
 		if(this.action.show != undefined) this.show_conf.value = this.action.show;
 		if(this.action.url != undefined) this.url_conf.value = this.action.url;
+		if(this.action.mediaPath != undefined) this.media_conf.value = this.action.mediaPath;
 
 		//Sets current default values to the action.
 		//This allows to hide the "save" button until something is changed
@@ -230,6 +244,7 @@ export default class OBSEventsActionEntry extends Vue {
 		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
 		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
 		if(this.action.url == undefined) this.action.url = this.url_conf.value as string;
+		if(this.action.mediaPath == undefined) this.action.mediaPath = this.media_conf.value as string;
 	}
 
 	/**

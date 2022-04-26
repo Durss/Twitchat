@@ -22,7 +22,7 @@
 
 		<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" v-if="loading">
 		<span class="label" :class="loading? 'hide' : 'show'" v-if="title && type!='checkbox'" v-html="title"></span>
-		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="$emit('change', $event)" />
+		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 	</component>
 </template>
 
@@ -39,6 +39,7 @@ import { Options, Vue } from 'vue-class-component';
 		iconSelected:String,
 		title:String,
 		name:String,
+		file:String,
 		loading:{type:Boolean, default: false},
 		type:{type:String, default:'button'},
 		target:String,
@@ -54,7 +55,7 @@ import { Options, Vue } from 'vue-class-component';
 		bounce:{type:Boolean, default: false},
 		accept:{type:String, default: "image/*"},
 	},
-	emits: ['click', 'change', 'update:modelValue'],
+	emits: ['click', 'change', 'update:modelValue', 'update:file'],
 	expose: ['value'],
 })
 export default class Button extends Vue {
@@ -77,6 +78,7 @@ export default class Button extends Vue {
 	public modelValue!:boolean;
 	public bounce!:boolean;
 	public accept!:string;
+	public file!:string;
 
 	public pInterpolated:number = -1;
 	public checked:boolean = false;
@@ -153,6 +155,13 @@ export default class Button extends Vue {
 			gsap.killTweensOf(this);
 			gsap.to(this, {duration, pInterpolated:val.value, ease:"sine.inout"});
 		});
+	}
+
+	public onBrowseFile():void {
+		let input:HTMLInputElement = this.$refs.browse as HTMLInputElement;
+		if(input.files) {
+			this.$emit('update:file', input.files[0])
+		}
 	}
 	
 	public resetBrowse():void {

@@ -89,9 +89,22 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 
-		// const sources = await this.getSources();
-		// const settings = await this.obs.call("GetInputSettings", {inputName: "Twitch Chat"});
-		// console.log(settings);
+		/* LIST ALL INPUT KINDS
+		const sources = await this.getSources();
+		const inputKinds:{[key:string]:boolean} = {}
+		for (let i = 0; i < sources.length; i++) {
+			const e = sources[i];
+			if(inputKinds[e.inputKind] !== true) {
+				inputKinds[e.inputKind] = true;
+			}
+		}
+		console.log(inputKinds);
+		//*/
+
+		//* GET A SOURCE SETTINGS
+		const settings = await this.obs.call("GetInputSettings", {inputName: "MediaSourceTest"});
+		console.log(settings);
+		//*/
 
 		return true;
 	}
@@ -267,6 +280,18 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return;
 		
 		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
+	}
+
+	/**
+	 * Change the URL of an media (ffmpeg) source
+	 * 
+	 * @param sourceName 
+	 * @param url 
+	 */
+	public setMediaSourceURL(sourceName:string, url:string):void {
+		if(!this.connected) return;
+		
+		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url}});
 	}
 	
 	
