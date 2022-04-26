@@ -12,7 +12,8 @@
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
-				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account' || content == 'sponsor'" />
+				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
+				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 			</div>
 			<div class="search" v-if="isGenericListContent">
 				<input type="text" placeholder="Search a parameter..." v-model="search">
@@ -24,6 +25,7 @@
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
+				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -37,7 +39,7 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | null ;
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | null ;
 
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
@@ -52,6 +54,7 @@ import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
 import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
+import ParamsAbout from './contents/ParamsAbout.vue';
 
 @Options({
 	props:{},
@@ -60,6 +63,7 @@ import ParamsSponsor from './contents/ParamsSponsor.vue';
 		ParamItem,
 		ParamsOBS,
 		ParamsList,
+		ParamsAbout,
 		ToggleButton,
 		ParamsAccount,
 		ParamsSponsor,

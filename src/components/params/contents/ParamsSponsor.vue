@@ -1,6 +1,5 @@
 <template>
 	<div class="paramssponsor">
-		<h1>🍔 Feed me 🍔</h1>
 		<p>Twitchat took <strong>A LOT</strong> of my personnal time to create. Litterally months of my time.</p>
 		<p>It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.</p>
 		<p>Feel free to thank me with one of the options bellow!</p>

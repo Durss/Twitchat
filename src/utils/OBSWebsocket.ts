@@ -55,12 +55,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param autoReconnect 
 	 * @returns 
 	 */
-	public async connect(port:string, pass:string, autoReconnect:boolean = true):Promise<boolean> {
+	public async connect(port:string, pass:string, autoReconnect:boolean = true, ip:string = "127.0.0.1"):Promise<boolean> {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
 
 		try {
-			await this.obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
+			await this.obs.connect("ws://"+ip+":"+port, pass, {rpcVersion:1});
 		}catch(error) {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
@@ -107,6 +107,10 @@ export default class OBSWebsocket extends EventDispatcher {
 		//*/
 
 		return true;
+	}
+
+	public stopStreaming():void {
+		this.obs.call("StopStream");
 	}
 
 	/**

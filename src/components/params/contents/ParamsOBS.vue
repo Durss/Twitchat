@@ -14,6 +14,7 @@
 			</transition>
 			<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
 			<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
+			<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
 			
 			<ToggleBlock class="info" small :open="false" title="Where can i find these values?" v-if="!connected">
 				After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
@@ -121,6 +122,7 @@ export default class ParamsOBS extends Vue {
 	public openConnectForm:boolean = false;
 	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
+	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
 	public perms_mods:boolean = false;
 	public perms_vips:boolean = false;
 	public perms_subs:boolean = false;
@@ -132,8 +134,10 @@ export default class ParamsOBS extends Vue {
 	public mounted():void {
 		const port = Store.get("obsPort");
 		const pass = Store.get("obsPass");
+		const ip = Store.get("obsIP");
 		if(port) this.obsPort_conf.value = port;
 		if(pass) this.obsPass_conf.value = pass;
+		if(ip) this.obsIP_conf.value = ip;
 
 		if(port && pass) {
 			this.connected = OBSWebsocket.instance.connected;
@@ -154,6 +158,7 @@ export default class ParamsOBS extends Vue {
 
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
+		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
 			if(!this.connected) this.openConnectForm = true;
@@ -167,7 +172,12 @@ export default class ParamsOBS extends Vue {
 		this.loading = true;
 		this.connectSuccess = false;
 		this.connectError = false;
-		const connected = await OBSWebsocket.instance.connect(this.obsPort_conf.value as string, this.obsPass_conf.value as string, false);
+		const connected = await OBSWebsocket.instance.connect(
+							(this.obsPort_conf.value as number).toString(),
+							this.obsPass_conf.value as string,
+							false,
+							this.obsIP_conf.value as string
+						);
 		if(connected) {
 			this.paramUpdate();
 			this.connected = true;
@@ -207,6 +217,7 @@ export default class ParamsOBS extends Vue {
 		this.connected = false;
 		Store.set("obsPort", this.obsPort_conf.value.toString());
 		Store.set("obsPass", this.obsPass_conf.value as string);
+		Store.set("obsIP", this.obsIP_conf.value as string);
 	}
 }
 </script>

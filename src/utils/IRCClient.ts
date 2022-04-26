@@ -10,6 +10,7 @@ import { PubSubTypes } from "./PubSub";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
+import OBSWebsocket from "./OBSWebsocket";
 
 /**
 * Created : 19/01/2021 
@@ -19,7 +20,7 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};

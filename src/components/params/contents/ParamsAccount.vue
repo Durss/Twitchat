@@ -2,25 +2,24 @@
 	<div class="paramsaccount">
 
 		<Button @click="logout()" :icon="require('@/assets/icons/logout.svg')" bounce title="Logout" highlight class="logoutBt" />
-		<Button @click="$emit('setContent', 'sponsor')" :icon="require('@/assets/icons/coin.svg')" bounce title="Feed me 🍔👉😮" class="feedBt" />
 		
-		<div class="splitter">
+		<!-- <div class="splitter">
 			<ToggleBlock title="Add chat as an OBS overlay" icon="obs_purple" :open="false">
 				<p>Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
 				<i>- coming soon -</i>
-				<!-- <input type="text" v-model="obsOverlayURL"> -->
+				<input type="text" v-model="obsOverlayURL">
 			</ToggleBlock>
-		</div>
+		</div> -->
 		
-		<div class="splitter">
+		<!-- <div class="splitter">
 			<ToggleBlock title="Suggestions and issues" icon="idea_purple" :open="true">
 				<p>If you have a feature idea or are experiencing an issue:</p>
 				<Button :icon="require('@/assets/icons/discord.svg')" title="Tell us on Discord" href="https://discord.gg/fmqD2xUYvP" target="_blank" type="link" class="discordBt" />
 				<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know</strong>!</p>
 			</ToggleBlock>
-		</div>
+		</div> -->
 		
-		<div class="splitter">
+		<!-- <div class="splitter">
 			<ToggleBlock title="Credits" icon="info_purple" :open="true">
 				<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
 				<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
@@ -34,7 +33,7 @@
 					<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" data-tooltip="Twitch" alt="twitch"></a>
 				</p>
 			</ToggleBlock>
-		</div>
+		</div> -->
 	</div>
 </template>
 

@@ -185,6 +185,7 @@ export default createStore({
 				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
 				keepHighlightMyMessages:{ type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
 				notifyJoinLeave:{ type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
+				stopStreamOnRaid:{ type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
@@ -846,8 +847,9 @@ export default createStore({
 			//Init OBS connection
 			const port = Store.get("obsPort");
 			const pass = Store.get("obsPass");
+			const ip = Store.get("obsIP");
 			if(port && pass) {
-				OBSWebsocket.instance.connect(port, pass);
+				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 			PublicAPI.instance.initialize();
 

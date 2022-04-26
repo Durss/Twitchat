@@ -3,6 +3,7 @@ import { ChatUserstate } from "tmi.js";
 import { JsonObject } from "type-fest";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
+import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
@@ -309,6 +310,9 @@ export default class PubSub {
 			store.dispatch("setRaiding", data.raid);
 
 		}else if(data.type == "raid_go_v2") {
+			if(store.state.params.features.stopStreamOnRaid.value === true) {
+				OBSWebsocket.instance.stopStreaming();
+			}
 			store.dispatch("setRaiding", null);
 
 
