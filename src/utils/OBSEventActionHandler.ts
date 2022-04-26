@@ -12,6 +12,8 @@ export default class OBSEventActionHandler {
 	private static _instance:OBSEventActionHandler;
 
 	private actionsSpool:MessageTypes[] = [];
+	private userCooldowns:{[key:string]:number} = {};
+	private globalCooldowns:{[key:string]:number} = {};
 	
 	constructor() {
 	
@@ -194,36 +196,55 @@ export default class OBSEventActionHandler {
 	private async parseSteps(eventType:string, message:MessageTypes):Promise<void> {
 		const steps = store.state.obsEventActions[ eventType ];
 		let actions:OBSEventActionData[] = [];
+		let canExecute = true;
+
 		if(!Array.isArray(steps)) {
-			actions = (steps as OBSEventActionDataCategory).actions;
+			const data = steps as OBSEventActionDataCategory;
+			actions = data.actions;
+			const m = message as IRCEventDataList.Message;
+			const uid = m.tags['user-id'];
+			const key = eventType+"_"+uid;
+			const now = Date.now();
+			console.log(eventType, key);
+			console.log("G ", this.globalCooldowns[eventType]);
+			console.log("U ", this.userCooldowns[key]);
+			//Apply cooldowns if any
+			if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
+			else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
+
+			if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
+			else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
 		}else{
 			actions = steps;
 		}
-		console.log(actions);
-		if(!steps || actions.length == 0) return;
+		
+		if(!steps || actions.length == 0) canExecute = false;
 		// console.log(steps);
 		// console.log(message);
-
-		for (let i = 0; i < actions.length; i++) {
-			const step = actions[i];
-			if(step.text) {
-				const text = await this.parseText(eventType, message, step.text as string);
-				await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+		
+		console.log("Can execute ? ", canExecute);
+		if(canExecute) {
+			for (let i = 0; i < actions.length; i++) {
+				const step = actions[i];
+				if(step.text) {
+					const text = await this.parseText(eventType, message, step.text as string);
+					await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+				}
+				if(step.url) {
+					const url = await this.parseText(eventType, message, step.url as string, true);
+					await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+				}
+				if(step.mediaPath) {
+					await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
+				}
+	
+				if(step.filterName) {
+					OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+				}else{
+					OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
+				}
+				await Utils.promisedTimeout(step.delay * 1000);
 			}
-			if(step.url) {
-				const url = await this.parseText(eventType, message, step.url as string, true);
-				await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
-			}
-			if(step.mediaPath) {
-				await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
-			}
-			
-			if(step.filterName) {
-				OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
-			}else{
-				OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
-			}
-			await Utils.promisedTimeout(step.delay * 1000);
 		}
 
 		//Remove item done

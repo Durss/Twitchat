@@ -286,7 +286,7 @@ export default class OBSEventsAction extends Vue {
 				}
 			}else{
 				//Load actions for the selected trigger event or sub event
-				if(isSubSelection && this.subevent_conf.value != "0") {
+				if(this.isChatCmd && this.subevent_conf.value != "0") {
 					this.actionCategory = store.state.obsEventActions[key] as OBSEventActionDataCategory;
 					this.actionList = this.actionCategory.actions;
 				}else{
