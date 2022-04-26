@@ -80,8 +80,8 @@ import OBSEventsActionEntry from './OBSEventsActionEntry.vue';
 })
 export default class OBSEventsAction extends Vue {
 	public actionList:OBSEventActionData[] = [];
-	public event_conf:ParameterData = { label:"", type:"list", value:"", listValues:[] };
-	public subevent_conf:ParameterData = { label:"", type:"list", value:"", listValues:[] };
+	public event_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
+	public subevent_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
 	public sources:OBSSourceItem[] = [];
 	public syncing:boolean = false;
 	public isSublist:boolean = false;
