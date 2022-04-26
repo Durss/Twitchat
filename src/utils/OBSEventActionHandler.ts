@@ -183,6 +183,7 @@ export default class OBSEventActionHandler {
 			}else{
 				id = OBSTriggerEventTypes.REWARD_REDEEM+"_"+id;
 			}
+			console.log(message);
 			this.parseSteps(id, message);
 		}
 	}
@@ -393,7 +394,7 @@ OBSEventActionHelpers[OBSTriggerEventTypes.RAID] = [
 
 OBSEventActionHelpers[OBSTriggerEventTypes.REWARD_REDEEM] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"TITLE", desc:"Reward title", pointer:""},
-	{tag:"DESCRIPTION", desc:"Reward description", pointer:""},
-	{tag:"COST", desc:"Reward cost", pointer:""},
+	{tag:"TITLE", desc:"Reward title", pointer:"reward.redemption.reward.title"},
+	{tag:"DESCRIPTION", desc:"Reward description", pointer:"reward.redemption.reward.prompt"},
+	{tag:"COST", desc:"Reward cost", pointer:"reward.redemption.reward.cost"},
 ];
