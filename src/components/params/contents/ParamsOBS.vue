@@ -169,6 +169,7 @@ export default class ParamsOBS extends Vue {
 		this.connectError = false;
 		const connected = await OBSWebsocket.instance.connect(this.obsPort_conf.value as string, this.obsPass_conf.value as string, false);
 		if(connected) {
+			this.paramUpdate();
 			this.connected = true;
 			this.connectSuccess = true;
 			setTimeout(()=> {
