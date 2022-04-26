@@ -101,7 +101,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		console.log(inputKinds);
 		//*/
 
-		//* GET A SOURCE SETTINGS
+		/* GET A SOURCE SETTINGS
 		const settings = await this.obs.call("GetInputSettings", {inputName: "MediaSourceTest"});
 		console.log(settings);
 		//*/

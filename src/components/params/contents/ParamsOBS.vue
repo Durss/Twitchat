@@ -73,8 +73,8 @@
 		<ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="true"
-		icon="notification_purple"
-		title="Twitchat events">
+		icon="broadcast_purple"
+		title="Twitchat triggers">
 			<OBSEventsAction />
 		</ToggleBlock>
 	</div>
