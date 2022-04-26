@@ -96,9 +96,11 @@ export default class ToggleBlock extends Vue {
 		return this.icon;
 	}
 
-	public mounted():void {
+	public beforeMount():void {
 		this.showContent = this.open;
-		
+	}
+
+	public mounted():void {
 		watch(() => this.open, () => {
 			this.toggle(this.open);
 		})

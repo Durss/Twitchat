@@ -166,8 +166,11 @@ export default class OBSEventsActionEntry extends Vue {
 		|| this.action.show != this.show_conf.value;
 	}
 
-	public async mounted():Promise<void> {
+	public async beforeMount():Promise<void> {
 		this.opened = this.action.sourceName == "";
+	}
+
+	public async mounted():Promise<void> {
 		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
 		this.source_conf.listValues.unshift({label:"Select...", value:""});
 		//TODO remove
