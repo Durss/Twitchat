@@ -127,6 +127,10 @@ export default class IRCClient extends EventDispatcher {
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
 					this.sendNotice("online", "Welcome to the chat room "+channel+"!");
+				}else{
+					if(store.state.params.features.notifyJoinLeave.value === true) {
+						this.sendNotice("online", user+" enters the chat room");
+					}
 				}
 
 				const index = this.onlineUsers.indexOf(user);
@@ -142,6 +146,9 @@ export default class IRCClient extends EventDispatcher {
 				const index = this.onlineUsers.indexOf(user);
 				if(index > -1) {
 					this.onlineUsers.splice(index, 1);
+				}
+				if(store.state.params.features.notifyJoinLeave.value === true) {
+					this.sendNotice("offline", user+" left the chat room");
 				}
 				store.dispatch("setViewersList", this.onlineUsers);
 			});

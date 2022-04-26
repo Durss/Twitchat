@@ -1,8 +1,8 @@
 <template>
-	<div class="chatnotice" @click.ctrl="copyJSON()">
+	<div class="chatnotice" @click.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
-		<img src="@/assets/icons/infos.svg" alt="notice" class="icon">
+		<img :src="require('@/assets/icons/'+icon+'.svg')" alt="notice" class="icon">
 		<span class="message" v-html="text"></span>
 	</div>
 </template>
@@ -21,6 +21,7 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatNotice extends Vue {
 	
 	public messageData!:IRCEventDataList.Notice;
+	public icon:string = "infos";
 
 	/**
 	 * Gets text message with parsed emotes
@@ -42,6 +43,13 @@ export default class ChatNotice extends Vue {
 		const message = this.messageData as IRCEventDataList.Notice;
 		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	}
+
+	public mounted():void {
+		switch(this.messageData.tags["msg-id"]) {
+			case "online": this.icon = "enter"; break;
+			case "offline": this.icon = "leave"; break;
+		}
 	}
 
 	public copyJSON():void {

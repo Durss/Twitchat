@@ -184,6 +184,7 @@ export default createStore({
 				raidHighlightUser: {type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
 				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
 				keepHighlightMyMessages:{ type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
+				notifyJoinLeave:{ type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
