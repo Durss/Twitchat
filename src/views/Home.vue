@@ -22,7 +22,7 @@
 
 			<Button :icon="require('@/assets/icons/discord.svg')"
 				title="Join Discord"
-				href="https://discord.gg/xFVBprgRvg"
+				href="https://discord.gg/fmqD2xUYvP"
 				target="_blank"
 				type="link"
 				class="discordBt"
