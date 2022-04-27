@@ -199,7 +199,7 @@ export default class OBSEventsAction extends Vue {
 				//Push current command to the test JSON data
 				json.message = this.actionCategory.chatCommand;
 			}
-			OBSEventActionHandler.instance.onMessage(json);
+			OBSEventActionHandler.instance.onMessage(json, true);
 		}
 	}
 
