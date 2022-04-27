@@ -3,6 +3,7 @@
 		<div ref="content" class="holder">
 			<transition name="slide">
 				<PollState class="content" v-if="showPoll" />
+				<ChatPollState class="content" v-else-if="showChatPoll" />
 				<PredictionState class="content" v-else-if="showPrediction" />
 				<TrackedUsers class="content" v-else-if="showTrackedUsers" />
 				<RaffleState class="content" v-else-if="showRaffle" />
@@ -40,6 +41,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import MessageSearch from '../chatform/MessageSearch.vue';
 import BingoState from './BingoState.vue';
+import ChatPollState from './ChatPollState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
@@ -59,6 +61,7 @@ import WhispersState from './WhispersState.vue';
 		BingoState,
 		RaffleState,
 		TrackedUsers,
+		ChatPollState,
 		MessageSearch,
 		WhispersState,
 		HypeTrainState,
@@ -75,6 +78,7 @@ export default class ChannelNotifications extends Vue {
 	public get showRaid():boolean { return store.state.raiding != null; }
 	public get showHypeTrain():boolean { return store.state.params.filters.showHypeTrain.value as boolean && (store.state.hypeTrain as HypeTrainStateData).level != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchTypes.Poll)?.id != null; }
+	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && store.state.chatPoll != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchTypes.Prediction)?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && (store.state.raffle as RaffleData).command != null; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && (store.state.bingo as BingoData)?.guessNumber != null; }
@@ -85,6 +89,7 @@ export default class ChannelNotifications extends Vue {
 		return this.showPoll
 			|| this.showBingo
 			|| this.showRaffle
+			|| this.showChatPoll
 			|| this.showWhispers
 			|| this.showPrediction
 			|| this.showTrackedUsers;

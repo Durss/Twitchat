@@ -4,6 +4,7 @@
 		<Button small @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
 		<Button small @click="$emit('raffle'); close();" :icon="require('@/assets/icons/ticket.svg')" title="Create raffle" bounce />
 		<Button small @click="$emit('bingo'); close();" :icon="require('@/assets/icons/bingo.svg')" title="Create bingo" bounce />
+		<Button small @click="$emit('chatpoll'); close();" :icon="require('@/assets/icons/chatPoll.svg')" title="Create chat poll" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 		<div class="commercial">
@@ -52,7 +53,7 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:["close","poll","pred","clear","raffle","bingo","liveStreams","ad"]
+	emits:["close","poll","pred","clear","raffle","bingo","liveStreams","ad","chatpoll"]
 })
 export default class CommandHelper extends Vue {
 	

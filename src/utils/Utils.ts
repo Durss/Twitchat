@@ -1,4 +1,5 @@
-import store from '../store';
+import { ChatUserstate } from 'tmi.js';
+import store, { PermissionsData } from '../store';
 
 /**
  * Created by Durss
@@ -146,5 +147,21 @@ export default class Utils {
 		const a = s*Math.min(l,1-l);
 		const f = (n:number,k:number=(n+h/30)%12) => l - a*Math.max(Math.min(k-3,9-k,1),-1);
 		return ((f(0)*0xff)<<16) | ((f(8)*0xff)<<8) | (f(4)*0xff);
-	}   
+	}
+
+	/**
+	 * Check if a user matches a permission criterias
+	 */
+	public static checkPermissions(permissions:PermissionsData, user:ChatUserstate):boolean {
+		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split users by non-alphanumeric characters
+		const mod = user.badges?.moderator != undefined
+		const vip = user.badges?.vip != undefined
+		const sub = user.badges?.subscriber != undefined
+		return permissions.mods && mod ||
+			permissions.vips && vip ||
+			permissions.subs && sub ||
+			user.badges?.broadcaster != undefined ||
+			permissions.all ||
+			allowedUsers?.indexOf((user.username as string).toLowerCase()) != -1
+	}
 }

@@ -31,7 +31,7 @@
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
 				<textarea v-if="paramData.longText===true" :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus">
+				<input v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">

@@ -50,11 +50,15 @@ export default class ParamsList extends Vue {
 	}
 
 	public onShowItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.from(el, {height:0, duration:.2, ease:"sine.out"});
+		gsap.from(el, {height:0, duration:.2, ease:"sine.out", onComplete:()=>{
+			done();
+		}});
 	}
 
 	public onHideItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.to(el, {height:0, duration:.2, ease:"sine.out"});
+		gsap.to(el, {height:0, duration:.2, ease:"sine.out", onComplete:()=>{
+			done();
+		}});
 	}
 
 }

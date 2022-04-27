@@ -40,9 +40,7 @@ import ParamsSponsor from './ParamsSponsor.vue';
 		ParamsSponsor,
 	}
 })
-export default class ParamsAbout extends Vue {mounted() {
-	ParamsSponsor
-}
+export default class ParamsAbout extends Vue {
 
 }
 </script>

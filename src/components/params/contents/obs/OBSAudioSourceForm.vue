@@ -1,6 +1,6 @@
 <template>
 	<div class="obsaudiosourceform">
-		<p class="info">You sometimes forget to unmute your microphone ?<br>Select your microphone source and set commands so your mods can mute or unmute your mic.</p>
+		<p class="info">Give control over your microphone so some users can mute or unmute you from the chat</p>
 		<div v-if="!noAudioSource">
 			<ParamItem :paramData="obsAllowed_audioSources" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_muteCommand" class="row" @change="onAudioParamChange()"/>

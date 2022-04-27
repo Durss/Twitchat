@@ -36,6 +36,13 @@
 				</transition>
 
 				<transition name="blink">
+				<Button :icon="require('@/assets/icons/chatPoll.svg')"
+					bounce
+					@click="$emit('setCurrentNotification', 'chatpoll')"
+					v-if="$store.state.chatPoll != null" />
+				</transition>
+
+				<transition name="blink">
 				<Button :icon="require('@/assets/icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
@@ -160,6 +167,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		"raffle",
 		"search",
 		"bingo",
+		"chatpoll",
 		"liveStreams",
 		"update:showFeed",
 		"update:showEmotes",
@@ -260,6 +268,12 @@ export default class ChatForm extends Vue {
 		if(cmd == "/devmode") {
 			this.message = "";
 			store.dispatch("toggleDevMode");
+		}else
+
+		if(cmd == "/chatpoll") {
+			//Open chat poll form
+			this.$emit("chatpoll");
+			this.message = "";
 		}else
 
 		if(cmd == "/poll") {

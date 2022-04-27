@@ -1,3 +1,4 @@
+import { PermissionsData } from '@/store';
 import OBSWebSocket from 'obs-websocket-js';
 import { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
@@ -335,7 +336,7 @@ export interface OBSTriggerEventsType {
 	isCategory?:boolean,
 	jsonTest?:unknown,
 	command?:string,
-	permissions?:{mods:boolean, vips:boolean, subs:boolean, all:boolean, users:string},
+	permissions?:PermissionsData,
 	cooldown?:{global:number, user:number},
 	[paramater: string]: unknown;
 }

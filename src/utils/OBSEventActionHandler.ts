@@ -206,12 +206,19 @@ export default class OBSEventActionHandler {
 				const uid = m.tags['user-id'];
 				const key = eventType+"_"+uid;
 				const now = Date.now();
-				//Apply cooldowns if any
-				if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
-				else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
+				
+				//check permissions
+				if(!Utils.checkPermissions(data.permissions, m.tags)) {
+					canExecute = false;
+				}else{
+					//Apply cooldowns if any
+					if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
+					else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
+	
+					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
+					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
+				}
 
-				if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
-				else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
 			}else{
 				actions = steps;
 			}

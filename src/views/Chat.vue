@@ -30,6 +30,7 @@
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
 				@poll="currentModal = 'poll'"
+				@chatpoll="currentModal = 'chatpoll'"
 				@pred="currentModal = 'pred'"
 				@raffle="currentModal = 'raffle'"
 				@bingo="currentModal = 'bingo'"
@@ -63,6 +64,7 @@
 			v-if="showCommands"
 			:startAdCooldown="startAdCooldown"
 			@poll="currentModal = 'poll'"
+			@chatpoll="currentModal = 'chatpoll'"
 			@pred="currentModal = 'pred'"
 			@raffle="currentModal = 'raffle'"
 			@bingo="currentModal = 'bingo'"
@@ -84,6 +86,7 @@
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
 
 		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
+		<ChatPollForm class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" />
 		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
@@ -120,6 +123,7 @@ import { Options, Vue } from 'vue-class-component';
 import Parameters from '@/components/params/Parameters.vue';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 
 @Options({
 	components:{
@@ -135,6 +139,7 @@ import PublicAPI from '@/utils/PublicAPI';
 		DevmodeMenu,
 		RewardsList,
 		ActivityFeed,
+		ChatPollForm,
 		CommandHelper,
 		MessageSearch,
 		EmoteSelector,

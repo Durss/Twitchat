@@ -39,11 +39,11 @@
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
 			<OBSPermissions class="content" @update="onPermissionChange"
-				v-model:mods="perms_mods"
-				v-model:vips="perms_vips"
-				v-model:subs="perms_subs"
-				v-model:all="perms_all"
-				v-model:users="perms_users"
+				v-model:mods="permissions.mods"
+				v-model:vips="permissions.vips"
+				v-model:subs="permissions.subs"
+				v-model:all="permissions.all"
+				v-model:users="permissions.users"
 			/>
 		</ToggleBlock>
 
@@ -84,7 +84,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store, { ParameterData } from '@/store';
+import store, { ParameterData, PermissionsData } from '@/store';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -123,11 +123,13 @@ export default class ParamsOBS extends Vue {
 	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
 	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
-	public perms_mods:boolean = false;
-	public perms_vips:boolean = false;
-	public perms_subs:boolean = false;
-	public perms_all:boolean = false;
-	public perms_users:string = "";
+	public permissions:PermissionsData = {
+		mods: false,
+		vips: false,
+		subs: false,
+		all: false,
+		users: ""
+	}
 
 	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
 
@@ -148,13 +150,11 @@ export default class ParamsOBS extends Vue {
 		
 
 		const storedPermissions = store.state.obsPermissions;
-		if(storedPermissions) {
-			this.perms_mods = storedPermissions.mods;
-			this.perms_vips = storedPermissions.vips;
-			this.perms_subs = storedPermissions.subs;
-			this.perms_all = storedPermissions.all;
-			this.perms_users = storedPermissions.users;
-		}
+		this.permissions.mods = storedPermissions.mods;
+		this.permissions.vips = storedPermissions.vips;
+		this.permissions.subs = storedPermissions.subs;
+		this.permissions.all = storedPermissions.all;
+		this.permissions.users = storedPermissions.users;
 
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
@@ -200,14 +200,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		const data = {
-			mods: this.perms_mods,
-			vips: this.perms_vips,
-			subs: this.perms_subs,
-			all: this.perms_all,
-			users: this.perms_users,
-		}
-		store.dispatch("setOBSPermissions", data);
+		store.dispatch("setOBSPermissions", this.permissions);
 	}
 
 	/**

@@ -49,7 +49,6 @@ export default class PollState extends Vue {
 	public get poll():TwitchTypes.Poll {
 		return store.state.currentPoll as TwitchTypes.Poll;
 	}
-	
 
 	public getPercent(c:TwitchTypes.PollChoice):number {
 		let totalVotes = 0;

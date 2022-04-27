@@ -10,7 +10,6 @@ import { PubSubTypes } from "./PubSub";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
-import OBSWebsocket from "./OBSWebsocket";
 
 /**
 * Created : 19/01/2021 

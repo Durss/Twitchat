@@ -43,6 +43,7 @@ export default createStore({
 		trackedUsers: [] as TwitchTypes.TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: {} as RaffleData,
+		chatPoll: null as ChatPollData | null,
 		bingo: {} as BingoData,
 		bingo_message: "🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
 		bingo_messagePost: true,
@@ -57,7 +58,7 @@ export default createStore({
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
-		obsPermissions: null as OBSPermissions|null,
+		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
 		commands: [
 			{
@@ -90,6 +91,11 @@ export default createStore({
 				cmd:"/poll {title}",
 				details:"Start a poll",
 				needChannelPoints:true,
+			},
+			{
+				id:"chatpoll",
+				cmd:"/chatpoll",
+				details:"Start a chat poll",
 			},
 			{
 				id:"prediction",
@@ -332,15 +338,7 @@ export default createStore({
 				const textMessage = payload as IRCEventDataList.Message;
 
 				if(textMessage.type == "message" && textMessage.message && textMessage.tags.username) {
-					const allowedUsers = state.obsPermissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
-					if(
-						state.obsPermissions?.mods && textMessage.tags.badges?.moderator ||
-						state.obsPermissions?.vips && textMessage.tags.badges?.vip ||
-						state.obsPermissions?.subs && textMessage.tags.badges?.subscriber ||
-						state.obsPermissions?.all ||
-						textMessage.tags.badges?.broadcaster ||
-						allowedUsers?.indexOf(textMessage.tags.username.toLowerCase()) != -1
-					) {
+					if(Utils.checkPermissions(state.obsPermissions, textMessage.tags)) {
 						const cmd = textMessage.message.trim().toLowerCase();
 						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
@@ -639,6 +637,9 @@ export default createStore({
 
 		startRaffle(state, payload:RaffleData) { state.raffle = payload; },
 
+
+		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
+
 		async startBingo(state, payload:BingoConfig) {
 			const min = payload.min as number;
 			const max = payload.max as number;
@@ -734,7 +735,7 @@ export default createStore({
 			Store.set("obsConf_muteUnmute", JSON.stringify(value));
 		},
 
-		setOBSPermissions(state, value:OBSPermissions) {
+		setOBSPermissions(state, value:PermissionsData) {
 			state.obsPermissions = value;
 			Store.set("obsConf_permissions", JSON.stringify(value));
 		},
@@ -962,6 +963,22 @@ export default createStore({
 						}
 					}
 				}
+
+				//If there's a chat poll and the timer isn't over
+				const chatPoll = state.chatPoll as ChatPollData;
+				if(chatPoll && Date.now() - chatPoll.startTime < chatPoll.duration * 60 * 1000) {
+					const cmd = chatPoll.command.toLowerCase();
+					if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
+						const text = messageData.message.replace(cmd, "").trim();
+						if(text.length > 0) {
+							chatPoll.choices.push({
+								user: messageData.tags,
+								text
+							});
+						}
+					}
+
+				}
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
@@ -1134,6 +1151,8 @@ export default createStore({
 
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 
+		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
+
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
@@ -1160,7 +1179,7 @@ export default createStore({
 
 		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
 
-		setOBSPermissions({commit}, value:OBSPermissions) { commit("setOBSPermissions", value); },
+		setOBSPermissions({commit}, value:PermissionsData) { commit("setOBSPermissions", value); },
 
 		setObsEventActions({commit}, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) { commit("setObsEventActions", value); },
 
@@ -1186,13 +1205,6 @@ export interface IParameterCategory {
 	features:{[key:string]:ParameterData};
 }
 
-export interface OBSPermissions {
-	mods:boolean;
-	vips:boolean;
-	subs:boolean;
-	all:boolean;
-	users:string;
-}
 
 export interface OBSSceneCommand {
 	scene:{
@@ -1211,7 +1223,7 @@ export interface OBSMuteUnmuteCommands {
 export interface OBSEventActionDataCategory {
 	chatCommand:string;
 	prevKey?:string;
-	permissions:{mods:boolean, vips:boolean, subs:boolean, all:boolean, users:string};
+	permissions:PermissionsData;
 	cooldown:{global:number, user:number};
 	actions:OBSEventActionData[];
 }
@@ -1242,6 +1254,7 @@ export interface ParameterData {
 	label:string;
 	min?:number;
 	max?:number;
+	maxLength?:number;
 	step?:number;
 	icon?:string;
 	placeholder?:string;
@@ -1286,6 +1299,19 @@ export interface BingoData {
 	opened:boolean;
 }
 
+export interface ChatPollData {
+	command:string;
+	startTime:number;
+	duration:number;
+	choices:ChatPollDataChoice[];
+	winners:ChatPollDataChoice[];
+}
+
+export interface ChatPollDataChoice {
+	user:ChatUserstate;
+	text:string;
+}
+
 export interface HypeTrainStateData {
 	level:number;
 	currentValue:number;
@@ -1301,4 +1327,12 @@ export interface CommandData {
 	cmd:string;
 	details:string;
 	needChannelPoints?:boolean;
+}
+
+export interface PermissionsData {
+	mods:boolean;
+	vips:boolean;
+	subs:boolean;
+	all:boolean;
+	users:string;
 }

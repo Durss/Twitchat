@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import store, { OBSEventActionData, OBSEventActionDataCategory, ParameterData, ParameterDataListValue } from '@/store';
+import store, { OBSEventActionData, OBSEventActionDataCategory, ParameterData, ParameterDataListValue, PermissionsData } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
 import OBSWebsocket, { OBSSourceItem, OBSTriggerEvents, OBSTriggerEventsType, OBSTriggerEventTypes } from '@/utils/OBSWebsocket';
@@ -349,13 +349,8 @@ export default class OBSEventsAction extends Vue {
 	}
 }
 
-export interface OBSChatCmdParameters {
+export interface OBSChatCmdParameters extends PermissionsData {
 	cmd:string;
-	vips:boolean;
-	subs:boolean;
-	mods:boolean;
-	all:boolean;
-	users:string;
 	userCooldown:number;
 	globalCooldown:number;
 }
