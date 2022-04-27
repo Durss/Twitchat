@@ -103,9 +103,21 @@ export default class OBSWebsocket extends EventDispatcher {
 		//*/
 
 		/* GET A SOURCE SETTINGS
-		const settings = await this.obs.call("GetInputSettings", {inputName: "MediaSourceTest"});
+		const settings = await this.obs.call("GetInputSettings", {inputName: "TTImage"});
 		console.log(settings);
 		//*/
+
+		/* GET ALL SOURCES OF A SCENE
+		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName:"👦 Face (FS)"});
+		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			console.log(item);
+		}
+		//*/
+
+		// const res = await this.getSourceOnCurrentScene("TTImage");
+		// console.log(res);
 
 		return true;
 	}
@@ -249,17 +261,44 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
 
-		const scene = await this.obs.call("GetCurrentProgramScene");
-		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName:scene.currentProgramSceneName});
-		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
-		const item = items.find(v=> v.sourceName == sourceName)
+		const item = await this.getSourceOnCurrentScene(sourceName);
 		if(item) {
 			this.obs.call("SetSceneItemEnabled", {
-				sceneName:scene.currentProgramSceneName,
-				sceneItemId:item.sceneItemId,
+				sceneName:item.scene,
+				sceneItemId:item.source.sceneItemId,
 				sceneItemEnabled:visible
 			});
 		}
+	}
+
+	/**
+	 * Get a source by its name on the current scene.
+	 * Searches recursively on sub scenes
+	 * 
+	 * @param sourceName 
+	 * @param sceneName 
+	 * @returns 
+	 */
+	public async getSourceOnCurrentScene(sourceName:string, sceneName:string = ""):Promise<{scene:string, source:OBSSourceItem}|null> {
+		if(!sceneName) {
+			const scene = await this.obs.call("GetCurrentProgramScene");
+			sceneName = scene.currentProgramSceneName;
+		}
+		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName});
+		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
+		const item = items.find(v=> v.sourceName == sourceName);
+		if(item) {
+			return {scene:sceneName, source:item};
+		}else{
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(!item.isGroup && item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName);
+					if(res) return res;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -296,7 +335,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public setMediaSourceURL(sourceName:string, url:string):void {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url}});
+		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
 	}
 	
 	

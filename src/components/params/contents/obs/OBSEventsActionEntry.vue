@@ -4,6 +4,7 @@
 	deletable
 	medium
 	:error="isMissingObsEntry"
+	:errorTitle="errorTitle"
 	:open="opened"
 	:title="title" :class="classes"
 	@delete="$emit('delete')"
@@ -89,6 +90,15 @@ export default class OBSEventsActionEntry extends Vue {
 
 	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return OBSEventActionHelpers; }
 
+	public get errorTitle():string {
+		let res = "ERROR - MISSING OBS SOURCE";
+		res += "<br><span class='subtitle'>";
+		res += this.action.sourceName;
+		res += "</span>";
+		
+		return res;
+	}
+
 	public get classes():string[] {
 		const res = ["OBSEventsActionEntry"];
 		if(this.isMissingObsEntry) res.push("missingSource");
@@ -147,7 +157,10 @@ export default class OBSEventsActionEntry extends Vue {
 	 * Get if the selected source is a media source
 	 */
 	public get isMediaSource():boolean {
-		return this.sources.find(v=> v.sourceName == this.source_conf.value as string)?.inputKind === 'ffmpeg_source'
+		const inputKind = this.sources.find(v=> v.sourceName == this.source_conf.value as string)?.inputKind;
+		this.media_conf.label = "Media file";
+		if(inputKind === "image_source") this.media_conf.label = "Image file";
+		return (inputKind === 'ffmpeg_source' || inputKind === "image_source")
 				&& this.show_conf.value === true;
 	}
 

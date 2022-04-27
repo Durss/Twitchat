@@ -57,6 +57,10 @@ import Button from './Button.vue';
 			type:Boolean,
 			default:false,
 		},
+		errorTitle:{
+			type:String,
+			default:"",
+		},
 	},
 	components:{
 		Button,
@@ -73,6 +77,7 @@ export default class ToggleBlock extends Vue {
 	public medium!:boolean;
 	public deletable!:boolean;
 	public orderable!:boolean;
+	public errorTitle!:string;
 
 	public showContent:boolean = false;
 
@@ -87,7 +92,7 @@ export default class ToggleBlock extends Vue {
 	}
 
 	public get localTitle():string {
-		if(this.error) return "ERROR - MISSING OBS SOURCE";
+		if(this.error && this.errorTitle) return this.errorTitle;
 		return this.title;
 	}
 

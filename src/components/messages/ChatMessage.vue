@@ -357,6 +357,7 @@ export default class ChatMessage extends Vue {
 		const highlightLogin = store.state.user.login;
 		const mess = this.messageData as IRCEventDataList.Message;
 		let text = mess.message;
+		if(!text) return "";
 		try {
 			let removeEmotes = !store.state.params.appearance.showEmotes.value;
 			if(this.automod) {
