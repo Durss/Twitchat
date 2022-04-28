@@ -57,6 +57,8 @@
 				data-tooltip="Number of times this message has been sent"
 				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
+			<span class="pronoun">{{pronoun}}</span>
+			
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="$emit('mouseleave', $event)"
@@ -109,6 +111,31 @@ export default class ChatMessage extends Vue {
 	public text:string = "";
 	public automodReasons:string = "";
 	public badges:TwitchTypes.Badge[] = [];
+
+	public get pronoun():string|null {
+		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
+		if(!key) return null;
+		const hashmap:{[key:string]:string} = {
+			"aeaer" : "Ae/Aer",
+			"any" : "Any",
+			"eem" : "E/Em",
+			"faefaer" : "Fae/Faer",
+			"hehim" : "He/Him",
+			"heshe" : "He/She",
+			"hethem" : "He/They",
+			"itits" : "It/Its",
+			"other" : "Other",
+			"perper" : "Per/Per",
+			"sheher" : "She/Her",
+			"shethem" : "She/They",
+			"theythem" : "They/Them",
+			"vever" : "Ve/Ver",
+			"xexem" : "Xe/Xem",
+			"ziehir" : "Zie/Hir",
+		};
+		const res = hashmap[key];
+		return res? res : key;
+	}
 
 	public get isAnnouncement():boolean {
 		const message = this.messageData as IRCEventDataList.Message;
@@ -538,6 +565,14 @@ export default class ChatMessage extends Vue {
 			font-weight: bold;
 			border-radius: 10px;
 			color:@mainColor_dark;
+		}
+
+		.pronoun {
+			border-radius: 3px;
+			border: 1px solid @mainColor_light;
+			padding: 0 .1em;
+			margin-right: 5px;
+			vertical-align: middle;
 		}
 	}
 

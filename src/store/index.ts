@@ -53,6 +53,7 @@ export default createStore({
 		raiding: null as PubSubTypes.RaidInfos|null,
 		realHistorySize: 1000,
 		followingStates: {} as {[key:string]:boolean},
+		userPronouns: {} as {[key:string]:string},
 		playbackState: null as PubSubTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
@@ -192,6 +193,7 @@ export default createStore({
 				keepHighlightMyMessages:{ type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
 				notifyJoinLeave:{ type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
 				stopStreamOnRaid:{ type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
+				showUserPronouns:{ type:"toggle", value:false, label:"Show user pronouns (based on <a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>)", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
@@ -309,6 +311,7 @@ export default createStore({
 			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
 			
 			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight
+			const uid:string|undefined = message?.tags['user-id'];
 			const wsMessage = {
 				channel:message.channel,
 				message:message.message,
@@ -386,7 +389,7 @@ export default createStore({
 					for (let i = len-1; i > end; i--) {
 						const mess = messages[i];
 						if(mess.type == "message"
-						&& textMessage.tags['user-id'] == mess.tags['user-id']
+						&& uid == mess.tags['user-id']
 						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//i > len-20 more or less says "if message is still visible on screen"
 						&& textMessage.message == mess.message) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
@@ -402,7 +405,6 @@ export default createStore({
 				
 				//Check if user is following
 				if(state.params.appearance.highlightNonFollowers.value === true) {
-					const uid = textMessage.tags['user-id'] as string;
 					if(uid && state.followingStates[uid] == undefined) {
 						TwitchUtils.getFollowState(uid, textMessage.tags['room-id']).then((res:TwitchTypes.Following) => {
 							state.followingStates[uid] = res != undefined;
@@ -414,6 +416,15 @@ export default createStore({
 				if(payload.type == "highlight") {
 					if(payload.tags['msg-id'] == "follow") {
 						state.followingStates[payload.tags['user-id'] as string] = true;
+					}
+				}
+				
+				//Check if user is following
+				if(state.params.features.showUserPronouns.value === true) {
+					if(uid && state.userPronouns[uid] == undefined && textMessage.tags.username) {
+						TwitchUtils.getPronouns(textMessage.tags.username).then((res:TwitchTypes.Pronoun) => {
+							state.userPronouns[uid] = res.pronoun_id;
+						}).catch(()=>{/*ignore*/})
 					}
 				}
 				
@@ -491,8 +502,8 @@ export default createStore({
 				}
 
 				//If it's a text message and user isn't a follower, broadcast to WS
-				if(payload.type == "message") {
-					if(state.followingStates[textMessage.tags['user-id'] as string] === false) {
+				if(payload.type == "message" && uid) {
+					if(state.followingStates[uid] === false) {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
 					}
 				}
@@ -1070,6 +1081,8 @@ export default createStore({
 			}
 			
 			TwitchCypherPlugin.instance.initialize();
+
+			console.log("init");
 
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);

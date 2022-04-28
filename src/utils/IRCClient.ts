@@ -412,6 +412,8 @@ export default class IRCClient extends EventDispatcher {
 
 		if(login == this.login) {
 			this.selfTags = JSON.parse(JSON.stringify(tags));
+			//Darn IRC doesn't send back the user ID when message is sent from this client
+			if(!tags["user-id"]) tags["user-id"] = store.state.user.user_id;
 		}
 
 		if(message == "!logJSON") {

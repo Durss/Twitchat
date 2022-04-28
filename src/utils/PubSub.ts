@@ -310,7 +310,8 @@ export default class PubSub {
 			store.dispatch("setRaiding", data.raid);
 
 		}else if(data.type == "raid_go_v2") {
-			if(store.state.params.features.stopStreamOnRaid.value === true) {
+			if(store.state.params.features.stopStreamOnRaid.value === true
+			&& store.state.raiding) {
 				OBSWebsocket.instance.stopStreaming();
 			}
 			store.dispatch("setRaiding", null);

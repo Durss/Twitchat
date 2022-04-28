@@ -872,6 +872,22 @@ export default class TwitchUtils {
 			return json.data[0];
 		}
 	}
+
+	/**
+	 * Get pronouns of a user
+	 */
+	public static async getPronouns(username:string):Promise<TwitchTypes.Pronoun> {
+		const options = {
+			method:"GET",
+		};
+		const res = await fetch("https://pronouns.alejo.io/api/users/"+username, options);
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
+			return json[0];
+		}
+	}
 }
 
 export namespace TwitchTypes {
@@ -1193,4 +1209,10 @@ export namespace TwitchTypes {
         user_name: string;
         user_login: string;
     }
+
+	export interface Pronoun {
+		id:string;
+		login:string;
+		pronoun_id:string
+	}
 }

@@ -456,7 +456,7 @@ export default class MessageList extends Vue {
 		}
 
 		//Show next pending message if at the bottom and scroll isn't locked
-		if(el.scrollTop >= maxScroll
+		if(this.virtualScrollY >= maxScroll
 		&& !this.lockScroll
 		&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
