@@ -57,7 +57,7 @@
 				data-tooltip="Number of times this message has been sent"
 				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
-			<span class="pronoun">{{pronoun}}</span>
+			<span class="pronoun" v-if="$store.state.params.features.showUserPronouns.value===true">{{pronoun}}</span>
 			
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
@@ -568,6 +568,7 @@ export default class ChatMessage extends Vue {
 		}
 
 		.pronoun {
+			font-size: .8em;
 			border-radius: 3px;
 			border: 1px solid @mainColor_light;
 			padding: 0 .1em;
