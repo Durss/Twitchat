@@ -36,6 +36,7 @@
 import store from '@/store';
 import { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
+import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -64,10 +65,26 @@ export default class UserList extends Vue {
 		watch(() => store.state.onlineUsers, () => {
 			this.updateList();
 		}, { deep: true });
+		this.open();
 	}
 
 	public beforeUnmount():void {
 		document.removeEventListener("mousedown", this.clickHandler);
+	}
+
+	private open():void {
+		const ref = this.$el as HTMLDivElement;
+		gsap.killTweensOf(ref);
+		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+	}
+
+	private close():void {
+
+		const ref = this.$el as HTMLDivElement;
+		gsap.killTweensOf(ref);
+		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY", ease:"back.in", onComplete:() => {
+			this.$emit("close");
+		}});
 	}
 
 	private onClick(e:MouseEvent):void {
@@ -77,7 +94,7 @@ export default class UserList extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			this.$emit("close");
+			this.close();
 		}
 	}
 

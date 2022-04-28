@@ -41,7 +41,7 @@
 				v-model:showFeed="showFeed" @update:showFeed="v => showFeed = v"
 				v-model:showEmotes="showEmotes" @update:showEmotes="v => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="v => showRewards = v"
-				v-model:showCommands="showCommands" @update:showCommands="v => showCommands = v"
+				v-model:showCommands="showCommands" @update:showCommands="v => test(v)"
 				v-model:showChatUsers="showChatUsers" @update:showChatUsers="v => showChatUsers = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
 			/>
@@ -166,6 +166,10 @@ export default class Chat extends Vue {
 	public currentNotificationContent:string = "";
 	
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	public test(v:boolean):void {
+		this.showCommands = v;
+		console.log("RTESSTST", v);
+	}
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }

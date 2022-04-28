@@ -107,6 +107,7 @@ export default class CommandHelper extends Vue {
 	}
 
 	private close():void {
+
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});

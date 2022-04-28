@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="openParams()" />
+				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="toggleParams()" />
 				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
 				<Button :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" />
 				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
@@ -255,8 +255,8 @@ export default class ChatForm extends Vue {
 		clearInterval(this.spamInterval);
 	}
 	
-	public openParams():void {
-		store.dispatch("showParams", true);
+	public toggleParams():void {
+		store.dispatch("showParams", !store.state.showParams);
 	}
 	
 	public async sendMessage():Promise<void> {
