@@ -20,7 +20,7 @@ let credentialToken_invalidation_date = 0;
 http.createServer((request, response) => {
 
 	request.addListener('end', () => {
-		if(credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
+		if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
 			//Set CORS headers if host is found on the redirect URI
 			response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
 			response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
