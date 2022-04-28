@@ -980,12 +980,15 @@ export default createStore({
 				if(chatPoll && Date.now() - chatPoll.startTime < chatPoll.duration * 60 * 1000) {
 					const cmd = chatPoll.command.toLowerCase();
 					if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
-						const text = messageData.message.replace(cmd, "").trim();
-						if(text.length > 0) {
-							chatPoll.choices.push({
-								user: messageData.tags,
-								text
-							});
+						if(chatPoll.allowMultipleAnswers
+						|| chatPoll.choices.findIndex(v=>v.user['user-id'] == messageData.tags['user-id'])==-1) {
+							const text = messageData.message.replace(cmd, "").trim();
+							if(text.length > 0) {
+								chatPoll.choices.push({
+									user: messageData.tags,
+									text
+								});
+							}
 						}
 					}
 
@@ -1316,6 +1319,7 @@ export interface ChatPollData {
 	command:string;
 	startTime:number;
 	duration:number;
+	allowMultipleAnswers:boolean;
 	choices:ChatPollDataChoice[];
 	winners:ChatPollDataChoice[];
 }
