@@ -208,9 +208,9 @@ export default class ParamsOBS extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		Store.set("obsPort", this.obsPort_conf.value.toString());
-		Store.set("obsPass", this.obsPass_conf.value as string);
-		Store.set("obsIP", this.obsIP_conf.value as string);
+		Store.set("obsPort", this.obsPort_conf.value);
+		Store.set("obsPass", this.obsPass_conf.value);
+		Store.set("obsIP", this.obsIP_conf.value);
 	}
 }
 </script>

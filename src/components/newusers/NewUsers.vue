@@ -127,7 +127,7 @@ export default class NewUsers extends Vue {
 
 		watch(()=>this.autoDeleteAfter, ()=>{
 			//Save new "auto delete after" value when changed
-			Store.set("greetAutoDeleteAfter", this.autoDeleteAfter.toString());
+			Store.set("greetAutoDeleteAfter", this.autoDeleteAfter);
 		});
 
 		//Automatically deletes messages after the configured delay
@@ -330,7 +330,7 @@ export default class NewUsers extends Vue {
 
 	public toggleScroll():void {
 		this.scrollDownAuto = !this.scrollDownAuto;
-		Store.set("greetScrollDownAuto", this.scrollDownAuto? 'true' : 'false');
+		Store.set("greetScrollDownAuto", this.scrollDownAuto);
 		if(this.scrollDownAuto) {
 			this.scrollTo();
 		}

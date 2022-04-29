@@ -182,7 +182,7 @@ export default class ActivityFeed extends Vue {
 			if(type == "commercial") result.unshift(m);
 		}
 
-		Store.set("activityFeedFilters", JSON.stringify(this.filters));
+		Store.set("activityFeedFilters", this.filters);
 		
 		// if(this.listMode) {
 		// 	result.reverse();

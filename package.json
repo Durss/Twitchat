@@ -9,6 +9,7 @@
 		"lint": "vue-cli-service lint"
 	},
 	"dependencies": {
+		"ajv": "^6.12.6",
 		"core-js": "^3.6.5",
 		"jsonwebtoken": "^8.5.1",
 		"lorem-ipsum": "^2.0.4",

@@ -263,7 +263,7 @@ export default createStore({
 					json.expires_at = Date.now() + json.expires_in*1000;
 				}
 				state.oAuthToken = json;
-				Store.set("oAuthToken", JSON.stringify(json));
+				Store.set("oAuthToken", json);
 				
 				if(!state.authenticated) {
 					//Connect if we were not connected before
@@ -606,7 +606,7 @@ export default createStore({
 				for (const key in state.params[c]) {
 					/* eslint-disable-next-line */
 					const v = state.params[c][key as ParameterCategory].value;
-					Store.set("p:"+key, v.toString());
+					Store.set("p:"+key, v);
 					if(key=="bttvEmotes") {
 						if(v === true) {
 							BTTVUtils.instance.enable();
@@ -702,7 +702,7 @@ export default createStore({
 			}else{
 				state.devmode = !state.devmode;
 			}
-			Store.set("devmode", state.devmode? "true" : "false");
+			Store.set("devmode", state.devmode);
 			if(notify) {
 				IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
 			}
@@ -738,17 +738,17 @@ export default createStore({
 
 		setOBSSceneCommands(state, value:OBSSceneCommand[]) {
 			state.obsSceneCommands = value;
-			Store.set("obsConf_scenes", JSON.stringify(value));
+			Store.set("obsConf_scenes", value);
 		},
 
 		setOBSMuteUnmuteCommands(state, value:OBSMuteUnmuteCommands) {
 			state.obsMuteUnmuteCommands = value;
-			Store.set("obsConf_muteUnmute", JSON.stringify(value));
+			Store.set("obsConf_muteUnmute", value);
 		},
 
 		setOBSPermissions(state, value:PermissionsData) {
 			state.obsPermissions = value;
-			Store.set("obsConf_permissions", JSON.stringify(value));
+			Store.set("obsConf_permissions", value);
 		},
 
 		setObsEventActions(state, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) {
@@ -760,7 +760,7 @@ export default createStore({
 				}
 			}
 			state.obsEventActions[value.key] = value.data;
-			Store.set("obsConf_sources", JSON.stringify(state.obsEventActions));
+			Store.set("obsConf_sources", state.obsEventActions);
 		},
 
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
@@ -816,7 +816,7 @@ export default createStore({
 							}
 						}
 					}
-					Store.set("oAuthToken", JSON.stringify(json.access_token));
+					Store.set("oAuthToken", json.access_token);
 				}catch(error){
 					//ignore
 				}
@@ -861,7 +861,7 @@ export default createStore({
 			const pass = Store.get("obsPass");
 			const ip = Store.get("obsIP");
 			if(port && pass) {
-				OBSWebsocket.instance.connect(port, pass, true, ip);
+				OBSWebsocket.instance.connect(port, pass, true, ip? ip : "127.0.0.1");
 			}
 			PublicAPI.instance.initialize();
 

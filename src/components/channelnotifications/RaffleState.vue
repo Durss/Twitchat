@@ -83,7 +83,7 @@ export default class RaffleState extends Vue {
 		})
 
 		watch(()=>this.postOnChatParam.value, ()=> {
-			Store.set("raffle_postOnChat", this.postOnChatParam.value.toString() );
+			Store.set("raffle_postOnChat", this.postOnChatParam.value );
 		})
 	}
 

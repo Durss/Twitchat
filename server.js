@@ -7,17 +7,27 @@ const http = require('http');
 const UrlParser = require('url');
 const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
+const Ajv = require("ajv")
+
+const userDataFolder = "./userData/";
+const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
+let credentialToken = null;
+let credentialToken_invalidation_date = 0;
 
 console.log("=============");
 console.log("Server stated");
 console.log("=============");
 
-
-let credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
-let credentialToken = null;
-let credentialToken_invalidation_date = 0;
+if(!fs.existsSync(userDataFolder)) {
+	fs.mkdirSync(userDataFolder);
+}
 
 http.createServer((request, response) => {
+    let body = "";
+    request.on('readable', (r) =>{
+        const data = request.read();
+		if(data) body += data;
+    });
 
 	request.addListener('end', () => {
 		if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
@@ -37,6 +47,11 @@ http.createServer((request, response) => {
 				response.writeHead(200, {'Content-Type': 'application/json'});
 				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes}));
 				return;
+		
+			//Get/Set user data
+			}else if(request.url.indexOf("api/user") > -1) {
+				userData(request, response, body);
+				return;
 			
 			//Generate token from auth code
 			}else if(request.url.indexOf("api/gettoken") > -1) {
@@ -46,11 +61,6 @@ http.createServer((request, response) => {
 			//Generate token from auth code
 			}else if(request.url.indexOf("api/CSRFToken") > -1) {
 				CSRFToken(request, response);
-				return;
-			
-			//Generate token from auth code
-			}else if(request.url.indexOf("api/user") > -1) {
-				getUserInfos(request, response);
 				return;
 			
 			//Get fake chat events
@@ -189,32 +199,46 @@ async function refreshToken(request, response) {
 }
 
 /**
- * Get a user's infos
- * 
- * @param {*} request 
- * @param {*} response 
+ * Get/set a user's data
  */
-async function getUserInfos(request, response) {
-	const token = await getClientCredentialToken();
-	let queryParams = UrlParser.parse(request.url, true).query;
+async function userData(request, response, body) {
+	try {
+		body = JSON.parse(body);
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Invalid body data", success:false}));
+	}
+	const access_token = body.access_token;
+	let userInfo = {};
 
-	let headers = {
-		"Client-Id":credentials.client_id,
-		"Authorization":"Bearer "+token
-	};
-	var options = {
+	//Check access token validity
+	const headers = { "Authorization":"Bearer "+access_token };
+	const options = {
 		method: "GET",
 		headers: headers,
 	};
-	const params = "login="+queryParams.logins.split(",").join("&login=");
-	let result = await fetch("https://api.twitch.tv/helix/users?"+params, options)
+	const result = await fetch("https://id.twitch.tv/oauth2/validate", options)
 	if(result.status == 200) {
-		let json = await result.json();
-		response.writeHead(200, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify(json.data));
+		userInfo = await result.json();
 	}else{
 		response.writeHead(500, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({message:'error', success:false}));
+		response.end(JSON.stringify({message:"Invalid access token", success:false}));
+		return;
+	}
+
+	//avoid saving private data to server
+	delete body.data.obsPass;
+	delete body.data.oAuthToken;
+
+	//Test data format
+	if(schemaValidator(body.data)) {
+		fs.writeFileSync(userDataFolder+userInfo.user_id+".json", JSON.stringify(body.data), "utf8");
+		response.writeHead(200, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:true}));
+	}else{
+		const message = schemaValidator.errors;
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message, success:false}));
 	}
 }
 
@@ -276,3 +300,215 @@ async function getClientCredentialToken() {
 		return null;
 	}
 }
+
+/**
+ * Data schema to make sure people don't send random or invalid data to the server
+ */
+const UserDataSchema = {
+	type:"object",
+	additionalProperties: false,
+	properties:{
+		activityFeedFilters: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				sub:{
+					type:"boolean",
+				},
+				follow:{
+					type:"boolean",
+				},
+				bits:{
+					type:"boolean",
+				},
+				raid:{
+					type:"boolean",
+				},
+				rewards:{
+					type:"boolean",
+				},
+				poll:{
+					type:"boolean",
+				},
+				prediction:{
+					type:"boolean",
+				},
+				bingo:{
+					type:"boolean",
+				},
+				raffle:{
+					type:"boolean",
+				}
+			}
+		},
+		devmode: {type:"boolean"},
+		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
+		obsConf_muteUnmute: {
+			type:"object",
+			properties: {
+				audioSourceName:{type:"string"},
+				muteCommand:{type:"string"},
+				unmuteCommand:{type:"string"},
+			}
+		},
+		obsConf_permissions: {
+			type:"object",
+			properties: {
+				mods: {type:"boolean"},
+				vips: {type:"boolean"},
+				subs: {type:"boolean"},
+				all: {type:"boolean"},
+				users: {type:"string", maxLength:1000},
+			}
+		},
+		obsConf_scenes: {
+			type:"array",
+			items:[
+				{
+					type:"object",
+					additionalProperties: false,
+					properties:{
+						scene: 
+						{
+							type:"object",
+							additionalProperties: false,
+							properties:{
+								sceneIndex:{type:"integer"},
+								sceneName:{type:"string", maxLength:100},
+							}
+						},
+						command:{type:"string", maxLength:100},
+					}
+				}
+			]
+		},
+		obsConf_sources: {
+			type:["object"],
+			additionalProperties: true,
+			patternProperties: {
+				".*": {
+					anyOf:[
+						{
+							type:"array",
+							items:[
+								{
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:100},
+										sourceName: {type:"string", maxLength:100},
+										show: {type:"boolean"},
+										delay: {type:"number", minimum:0, maximum:999999999},
+										filterName: {type:"string", maxLength:100},
+										text: {type:"string", maxLength:500},
+										url: {type:"string", maxLength:1000},
+										mediaPath: {type:"string", maxLength:1000},
+									}
+								}
+							]
+						},
+						{
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								chatCommand: {type:"string", maxLength:100},
+								permissions: {
+									type:"object",
+									properties: {
+										mods: {type:"boolean"},
+										vips: {type:"boolean"},
+										subs: {type:"boolean"},
+										all: {type:"boolean"},
+										users: {type:"string", maxLength:1000},
+									}
+								},
+								cooldown: {
+									type:"object",
+									properties: {
+										global: {type:"number", minimum:0, maximum:60*60*12},
+										user: {type:"number", minimum:0, maximum:60*60*12},
+									}
+								},
+								actions:{
+									type:"array",
+									items: [
+										{
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												id: {type:"string", maxLength:100},
+												sourceName: {type:"string", maxLength:100},
+												show: {type:"boolean"},
+												delay: {type:"number"},
+												filterName: {type:"string", maxLength:100},
+												text: {type:"string", maxLength:500},
+												url: {type:"string", maxLength:1000},
+												mediaPath: {type:"string", maxLength:1000},
+											}
+										},
+									]
+								}
+							}
+						}
+					]
+				},
+			}
+		},
+		obsIP: {type:"string"},
+		obsPort: {type:"integer"},
+		raffle_postOnChat: {type:"boolean"},
+		"p:blockedCommands": {type:"string"},
+		"p:bttvEmotes": {type:"boolean"},
+		"p:censorDeletedMessages": {type:"boolean"},
+		"p:censoreDeletedMessages": {type:"boolean"},
+		"p:conversationsEnabled": {type:"boolean"},
+		"p:defaultSize": {type:"integer", minimum:0, maximum:5},
+		"p:displayTime": {type:"boolean"},
+		"p:firstMessage": {type:"boolean"},
+		"p:firstTimeMessage": {type:"boolean"},
+		"p:groupIdenticalMessage": {type:"boolean"},
+		"p:hideChat": {type:"boolean"},
+		"p:hideUsers": {type:"string"},
+		"p:highlightMentions": {type:"boolean"},
+		"p:highlightMods": {type:"boolean"},
+		"p:highlightNonFollowers": {type:"boolean"},
+		"p:highlightSubs": {type:"boolean"},
+		"p:highlightVips": {type:"boolean"},
+		"p:historySize": {type:"integer", minimum:50, maximum:500},
+		"p:ignoreCommands": {type:"boolean"},
+		"p:ignoreListCommands": {type:"boolean"},
+		"p:keepDeletedMessages": {type:"boolean"},
+		"p:keepHighlightMyMessages": {type:"boolean"},
+		"p:lockAutoScroll": {type:"boolean"},
+		"p:markAsRead": {type:"boolean"},
+		"p:minimalistBadges": {type:"boolean"},
+		"p:notifyJoinLeave": {type:"boolean"},
+		"p:raidHighlightUser": {type:"boolean"},
+		"p:raidStreamInfo": {type:"boolean"},
+		"p:receiveWhispers": {type:"boolean"},
+		"p:shoutoutLabel": {type:"string"},
+		"p:showBadges": {type:"boolean"},
+		"p:showBots": {type:"boolean"},
+		"p:showCheers": {type:"boolean"},
+		"p:showEmotes": {type:"boolean"},
+		"p:showFollow": {type:"boolean"},
+		"p:showHypeTrain": {type:"boolean"},
+		"p:showModTools": {type:"boolean"},
+		"p:showPollPredResults": {type:"boolean"},
+		"p:showRaids": {type:"boolean"},
+		"p:showRewards": {type:"boolean"},
+		"p:showRewardsInfos": {type:"boolean"},
+		"p:showSelf": {type:"boolean"},
+		"p:showSlashMe": {type:"boolean"},
+		"p:showSubs": {type:"boolean"},
+		"p:showUserPronouns": {type:"boolean"},
+		"p:showViewersCount": {type:"boolean"},
+		"p:splitView": {type:"boolean"},
+		"p:splitViewSwitch": {type:"boolean"},
+		"p:stopStreamOnRaid": {type:"boolean"},
+		"p:userHistoryEnabled": {type:"boolean"},
+	}
+}
+
+const ajv = new Ajv({strictTuples: false })
+const schemaValidator = ajv.compile( UserDataSchema );
