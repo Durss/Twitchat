@@ -57,7 +57,7 @@
 				data-tooltip="Number of times this message has been sent"
 				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
-			<span class="pronoun" v-if="$store.state.params.features.showUserPronouns.value===true">{{pronoun}}</span>
+			<span class="pronoun" v-if="pronoun && $store.state.params.features.showUserPronouns.value===true">{{pronoun}}</span>
 			
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
