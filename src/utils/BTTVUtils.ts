@@ -65,13 +65,16 @@ export default class BTTVUtils {
 				//Generate fake emotes data in the expected format:
 				//  ID:start-end,start-end/ID:start-end,start-end
 				fakeTag += "BTTV_"+e.id+":";
-				for (let i = 0; i < matches.length; i++) {
-					const index = (matches[i].index as number) + 1;
-					fakeTag += index+"-"+(index+e.code.length-1);
-					if(i < matches.length-1) fakeTag+=",";
+				for (let j = 0; j < matches.length; j++) {
+					const index = (matches[j].index as number);
+					fakeTag += index+"-"+(index+e.code.length);
+					if(j < matches.length-1) fakeTag+=",";
 				}
+				if(i < allEmotes.length -1 ) fakeTag +="/"
 			}
 		}
+
+		console.log(fakeTag);
 
 		return fakeTag;
 	}
