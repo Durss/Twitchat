@@ -278,7 +278,6 @@ export default class OBSEventActionHandler {
 		const helpers = OBSEventActionHelpers[eventType];
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
-			// let value = 
 			const chunks:string[] = h.pointer.split(".");
 			let value = message as unknown;
 			try {
@@ -314,7 +313,7 @@ export default class OBSEventActionHandler {
 				}
 			}
 			
-			if(eventType === OBSTriggerEventTypes.BITS && h.tag === "MESSAGE") {
+			if(value && eventType === OBSTriggerEventTypes.BITS && h.tag === "MESSAGE") {
 				//Parse cheermotes
 				const m = message as IRCEventDataList.Highlight;
 				value = await TwitchUtils.parseCheermotes(value as string, m.tags['room-id'] as string);
@@ -328,6 +327,7 @@ export default class OBSEventActionHandler {
 					value = encodeURIComponent(value as string);
 				}
 			}
+			if(value == undefined) value = "";
 			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value as string);
 		}
 		return res;
