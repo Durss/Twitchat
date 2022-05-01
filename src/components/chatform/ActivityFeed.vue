@@ -65,6 +65,7 @@
 import store from '@/store';
 import Store from '@/store/Store';
 import { ActivityFeedData } from '@/utils/IRCEvent';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ChatBingoResult from '../messages/ChatBingoResult.vue';
@@ -181,8 +182,6 @@ export default class ActivityFeed extends Vue {
 			if(type == "raffle" && showRaffles) result.unshift(m);
 			if(type == "commercial") result.unshift(m);
 		}
-
-		Store.set("activityFeedFilters", this.filters);
 		
 		// if(this.listMode) {
 		// 	result.reverse();
@@ -217,6 +216,10 @@ export default class ActivityFeed extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+
+		watch(()=>this.filters, ()=> {
+			Store.set("activityFeedFilters", this.filters);
+		});
 
 		await this.$nextTick();
 		if(!this.listMode) {
