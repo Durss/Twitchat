@@ -237,6 +237,7 @@ async function userData(request, response, body) {
 		response.end(JSON.stringify({success:true}));
 	}else{
 		const message = schemaValidator.errors;
+		console.log(message);
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message, success:false}));
 	}
@@ -454,6 +455,7 @@ const UserDataSchema = {
 				},
 			}
 		},
+		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
 		raffle_postOnChat: {type:"boolean"},

@@ -44,7 +44,8 @@ export default class Store {
 		if(!this.store) this.init();
 		if(!value) return;
 		this.rawStore[key] = value;
-		this.store.setItem(this.dataPrefix + key, JSON.stringify(value));
+		const str = typeof value == "string"? value : JSON.stringify(value);
+		this.store.setItem(this.dataPrefix + key, str);
 		this.save();
 	}
 
@@ -71,6 +72,11 @@ export default class Store {
 	*******************/
 	private static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
+		const v = this.get("v");
+		if(!v) {
+			this.fixBackslashes();
+			this.set("v", 1);
+		}
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -97,5 +103,22 @@ export default class Store {
 			const res = await fetch(Config.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
 			json = await res.json();
 		}, 1000);
+	}
+
+	/**
+	 * Temporary fix after making a mistake.
+	 * I was doing JSON.stringofy(value) when setting a value, even if
+	 * the value was already sa string wich made all double quotes
+	 * escaped potentially hunderds of times.
+	 * JSON.stringify('hello "world"!') => "hello \\"world\\"!"
+	 */
+	private static fixBackslashes():void {
+		let v = this.get("p:shoutoutLabel");
+		if(!v) return;
+		v = v.replace(/(^"\\"|\\|"$)/gi, "");
+		v = v.replace(/("|\\){2,}/gi, "$1");
+		v = v.replace(/(^"|"$)/gi, "");
+		v = v.trim();
+		this.set("p:shoutoutLabel", v);
 	}
 }
