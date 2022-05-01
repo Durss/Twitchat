@@ -11,6 +11,7 @@
 	"dependencies": {
 		"ajv": "^6.12.6",
 		"core-js": "^3.6.5",
+		"fast-json-patch": "^3.1.1",
 		"jsonwebtoken": "^8.5.1",
 		"lorem-ipsum": "^2.0.4",
 		"node-fetch": "^2.6.6",

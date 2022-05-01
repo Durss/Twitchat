@@ -8,6 +8,7 @@ const UrlParser = require('url');
 const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const Ajv = require("ajv")
+const JsonPatch = require('fast-json-patch');
 
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
@@ -229,13 +230,33 @@ async function userData(request, response, body) {
 	//avoid saving private data to server
 	delete body.data.obsPass;
 	delete body.data.oAuthToken;
+	// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
 
 	//Test data format
-	if(schemaValidator(body.data)) {
+	try {
+		const clone = JSON.parse(JSON.stringify(body.data));
+		// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
+
+		//schemaValidator() is supposed to tell if the format is valid or not.
+		//Because we enabled "removeAdditional" option, no error will be thrown
+		//if a field is not in the schema. Instead it will simply remove it.
+		//V9+ of the lib is supposed to allow us to retrieve the removed props,
+		//but it doesn't yet. As a workaround we use JSONPatch that compares
+		//the JSON before and after validation.
+		//This is not the most efficient way to do this, but we have no much
+		//other choice for now.
+		schemaValidator(body.data);
+		const diff = JsonPatch.compare(clone, body.data, false);
+		if(diff?.length > 0) {
+			console.log("Invalid format, some data has been removed from "+userInfo.login+"'s data");
+			console.log(diff);
+			fs.writeFileSync(userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+		}
 		fs.writeFileSync(userDataFolder+userInfo.user_id+".json", JSON.stringify(body.data), "utf8");
 		response.writeHead(200, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({success:true}));
-	}else{
+	}catch(error){
+		console.log(error);
 		const message = schemaValidator.errors;
 		console.log(message);
 		response.writeHead(500, {'Content-Type': 'application/json'});
@@ -342,8 +363,6 @@ const UserDataSchema = {
 				}
 			}
 		},
-		devmode: {type:"boolean"},
-		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		obsConf_muteUnmute: {
 			type:"object",
 			properties: {
@@ -388,7 +407,7 @@ const UserDataSchema = {
 			additionalProperties: true,
 			patternProperties: {
 				".*": {
-					anyOf:[
+					oneOf:[
 						{
 							type:"array",
 							items:[
@@ -458,7 +477,14 @@ const UserDataSchema = {
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
-		raffle_postOnChat: {type:"boolean"},
+		raffle_message: {type:"string"},
+		raffle_messageEnabled: {type:"boolean"},
+		bingo_message: {type:"string"},
+		bingo_messageEnabled: {type:"boolean"},
+		greetScrollDownAuto: {type:"boolean"},
+		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
+		devmode: {type:"boolean"},
+		cypherKey: {type:"string"},
 		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:censorDeletedMessages": {type:"boolean"},
@@ -512,5 +538,5 @@ const UserDataSchema = {
 	}
 }
 
-const ajv = new Ajv({strictTuples: false })
+const ajv = new Ajv({strictTuples: false, verbose:true, removeAdditional:true, discriminator:true })
 const schemaValidator = ajv.compile( UserDataSchema );
