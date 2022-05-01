@@ -43,10 +43,12 @@ export default createStore({
 		trackedUsers: [] as TwitchTypes.TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: {} as RaffleData,
+		raffle_message: "🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
+		raffle_messageEnabled: true,
 		chatPoll: null as ChatPollData | null,
 		bingo: {} as BingoData,
 		bingo_message: "🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
-		bingo_messagePost: true,
+		bingo_messageEnabled: true,
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
 		whispersUnreadCount: 0 as number,
 		hypeTrain: {} as HypeTrainStateData,
@@ -141,66 +143,66 @@ export default createStore({
 		] as CommandData[],
 		params: {
 			appearance: {
-				splitView: {type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
-				splitViewSwitch: {type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
-				hideChat: {type:"toggle", value:false, label:"Hide chat (if you want only the activity feed on an OBS dock)", id:18, icon:"nochat_purple.svg"},
-				highlightMods: {type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
-				highlightVips: {type:"toggle", value:false, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
-				highlightSubs: {type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
-				firstTimeMessage: {type:"toggle", value:true, label:"Highlight first message (all time)", id:7, icon:"firstTime_purple.svg", example:"firstMessage.png"},
-				highlightNonFollowers: {type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
-				highlightMentions: {type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
-				showEmotes: {type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
-				showViewersCount: {type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
-				bttvEmotes: {type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
-				showBadges: {type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
-				minimalistBadges: {type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
-				displayTime: {type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
-				shoutoutLabel: {type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg", longText:true},
-				historySize: {type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
-				defaultSize: {type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
+				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
+				splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
+				hideChat: 					{save:true, type:"toggle", value:false, label:"Hide chat (if you want only the activity feed on an OBS dock)", id:18, icon:"nochat_purple.svg"},
+				highlightMods: 				{save:true, type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
+				highlightVips: 				{save:true, type:"toggle", value:false, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
+				highlightSubs: 				{save:true, type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
+				firstTimeMessage: 			{save:true, type:"toggle", value:true, label:"Highlight first message (all time)", id:7, icon:"firstTime_purple.svg", example:"firstMessage.png"},
+				highlightNonFollowers: 		{save:true, type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
+				highlightMentions: 			{save:true, type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
+				showEmotes: 				{save:true, type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
+				showViewersCount: 			{save:true, type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
+				bttvEmotes: 				{save:true, type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
+				showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
+				minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
+				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
+				shoutoutLabel: 				{save:true, type:"text", value:"Go checkout $USER $URL. Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg", longText:true},
+				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
+				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
 			} as {[key:string]:ParameterData},
 			filters: {
-				showSelf: {type:"toggle", value:true, label:"Show my messages", id:100},
-				keepDeletedMessages: {type:"toggle", value:true, label:"Keep deleted messages", id:113},
-				censorDeletedMessages: {type:"toggle", value:true, label:"Censor deleted messages", id:116, parent:113},
-				showSlashMe: {type:"toggle", value:true, label:"Show /me messages", id:101},
-				showBots: {type:"toggle", value:true, label:"Show known bot's messages", id:102},
-				hideUsers: {type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
-				ignoreCommands: {type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104, icon:"commands_purple.svg"},
-				ignoreListCommands: {type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
-				blockedCommands: {type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114, longText:true},
-				showRewards: {type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
-				showRewardsInfos: {type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, example:"rewardDetails.png"},
-				showSubs: {type:"toggle", value:true, label:"Show sub alerts", id:106, icon:"sub_purple.svg"},
-				showCheers: {type:"toggle", value:true, label:"Show bit alerts", id:107, icon:"bits_purple.svg"},
-				showRaids: {type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
-				showFollow: {type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
-				showHypeTrain: {type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
-				showPollPredResults: {type:"toggle", value:true, label:"Show poll, prediction, bingo and raffle results on chat", id:112, icon:"poll_purple.svg", example:"pollPredOnChat.png"},
+				showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
+				keepDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Keep deleted messages", id:113},
+				censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:116, parent:113},
+				showSlashMe: 				{save:true, type:"toggle", value:true, label:"Show /me messages", id:101},
+				showBots: 					{save:true, type:"toggle", value:true, label:"Show known bot's messages", id:102},
+				hideUsers: 					{save:true, type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
+				ignoreCommands: 			{save:true, type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104, icon:"commands_purple.svg"},
+				ignoreListCommands: 		{save:true, type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
+				blockedCommands: 			{save:true, type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114, longText:true},
+				showRewards: 				{save:true, type:"toggle", value:true, label:"Show rewards redeemed", id:105, icon:"channelPoints_purple.svg"},
+				showRewardsInfos: 			{save:true, type:"toggle", value:false, label:"Show reward's details", id:110, parent:105, example:"rewardDetails.png"},
+				showSubs: 					{save:true, type:"toggle", value:true, label:"Show sub alerts", id:106, icon:"sub_purple.svg"},
+				showCheers: 				{save:true, type:"toggle", value:true, label:"Show bit alerts", id:107, icon:"bits_purple.svg"},
+				showRaids: 					{save:true, type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
+				showFollow: 				{save:true, type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
+				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
+				showPollPredResults: 		{save:true, type:"toggle", value:true, label:"Show poll, prediction, bingo and raffle results on chat", id:112, icon:"poll_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
 			features: {
-				receiveWhispers: {type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
-				firstMessage: {type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
-				conversationsEnabled: {type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
-				userHistoryEnabled: {type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
-				markAsRead: {type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
-				lockAutoScroll: {type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
-				showModTools: {type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
-				raidStreamInfo: {type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
-				raidHighlightUser: {type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
-				groupIdenticalMessage:{ type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-				keepHighlightMyMessages:{ type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
-				notifyJoinLeave:{ type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
-				stopStreamOnRaid:{ type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
-				showUserPronouns:{ type:"toggle", value:false, label:"Show user pronouns (based on <a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>)", id:213, icon:"user_purple.svg"},
+				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
+				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
+				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
+				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
+				markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
+				lockAutoScroll: 			{save:true, type:"toggle", value:true, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
+				showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
+				raidStreamInfo: 			{save:true, type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
+				raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
+				groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
+				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
+				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
+				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
+				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns (based on <a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>)", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
-			emotesOnly:{ type:"toggle", value:false, label:"Emotes only", id:300},
-			followersOnly:{ type:"toggle", value:false, label:"Followers only", id:301},
-			subsOnly:{ type:"toggle", value:false, label:"Subs only", id:302},
-			slowMode:{ type:"toggle", value:false, label:"Slow mode", id:303}
+			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
+			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
+			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
+			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
 		} as {[key:string]:ParameterData},
 		user: {
 			client_id: "",
@@ -646,10 +648,17 @@ export default createStore({
 			}
 		},
 
-		startRaffle(state, payload:RaffleData) { state.raffle = payload; },
-
-
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
+
+		startRaffle(state, payload:RaffleData) { state.raffle = payload; },
+		setRaffleMessage(state, message:string) {
+			state.raffle_message = message;
+			Store.set("raffle_message", message);
+		},
+		setRaffleMessageEnabled(state, enabled:boolean) {
+			state.raffle_messageEnabled = enabled;
+			Store.set("raffle_messageEnabled", enabled);
+		},
 
 		async startBingo(state, payload:BingoConfig) {
 			const min = payload.min as number;
@@ -667,6 +676,14 @@ export default createStore({
 				winners: [],
 			};
 			state.bingo = data;
+		},
+		setBingoMessage(state, message:string) {
+			state.bingo_message = message;
+			Store.set("bingo_message", message);
+		},
+		setBingoMessageEnabled(state, enabled:boolean) {
+			state.bingo_messageEnabled = enabled;
+			Store.set("bingo_messageEnabled", enabled);
 		},
 
 		closeWhispers(state, userID:string) {
@@ -851,9 +868,9 @@ export default createStore({
 			if(bingoMessage) {
 				state.bingo_message = bingoMessage;
 			}
-			const bingoPostMessage = Store.get("bingo_postOnChat");
-			if(bingoPostMessage) {
-				state.bingo_messagePost = bingoPostMessage === 'true';
+			const bingoMessageEnabled = Store.get("bingo_messageEnabled");
+			if(bingoMessageEnabled) {
+				state.bingo_messageEnabled = bingoMessageEnabled === 'true';
 			}
 
 			//Init OBS connection
@@ -949,7 +966,7 @@ export default createStore({
 					&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
 					if(win) {
 						state.bingo.winners = [messageData.tags];
-						if(state.bingo_messagePost) {
+						if(state.bingo_messageEnabled) {
 							//TMI.js never cease to amaze me.
 							//It doesn't send the message back to the sender if sending
 							//it just after receiving a message.
@@ -1071,7 +1088,6 @@ export default createStore({
 			//Makes sure all parameters have a unique ID !
 			const uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in state.params) {
-				//eslint-disable-next-line
 				const values = state.params[cat as ParameterCategory];
 				for (const key in values) {
 					const p = values[key] as ParameterData;
@@ -1084,8 +1100,6 @@ export default createStore({
 			}
 			
 			TwitchCypherPlugin.instance.initialize();
-
-			console.log("init");
 
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
@@ -1164,12 +1178,16 @@ export default createStore({
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
-
-		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
-
+		
 		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
 
+		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
+		setRaffleMessage({commit}, payload:string) { commit("setRaffleMessage", payload); },
+		setRaffleMessageEnabled({commit}, payload:boolean) { commit("setRaffleMessageEnabled", payload); },
+
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
+		setBingoMessage({commit}, payload:string) { commit("setBingoMessage", payload); },
+		setBingoMessageEnabled({commit}, payload:boolean) { commit("setBingoMessageEnabled", payload); },
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
@@ -1279,6 +1297,7 @@ export interface ParameterData {
 	storage?:unknown;
 	children?:ParameterData[];
 	accept?:string;
+	save?:boolean;//Save configuration to storage ?
 }
 
 export interface RaffleData {

@@ -77,6 +77,10 @@ export default class Store {
 			this.fixBackslashes();
 			this.set("v", 1);
 		}
+		if(v=="1") {
+			this.cleanupOldData();
+			this.set("v", 2);
+		}
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -111,6 +115,7 @@ export default class Store {
 	 * the value was already sa string wich made all double quotes
 	 * escaped potentially hunderds of times.
 	 * JSON.stringify('hello "world"!') => "hello \\"world\\"!"
+	 * Can be removed after some updates.
 	 */
 	private static fixBackslashes():void {
 		let v = this.get("p:shoutoutLabel");
@@ -120,5 +125,24 @@ export default class Store {
 		v = v.replace(/(^"|"$)/gi, "");
 		v = v.trim();
 		this.set("p:shoutoutLabel", v);
+	}
+
+	/**
+	 * Temporary utility to cleanup some old storage data
+	 * Can be removed after some updates.
+	 */
+	private static cleanupOldData():void {
+		//rename "raffle_postOnChat" to "raffle_messageEnabled" ofr more consistency
+		if(this.get("raffle_postOnChat") != null) {
+			this.set("raffle_messageEnabled", this.get("raffle_postOnChat"));
+			this.remove("raffle_postOnChat");
+		}
+		this.remove("p:emotesOnly");
+		this.remove("p:modsSize");
+		this.remove("p:vipsSize");
+		this.remove("p:followersOnly");
+		this.remove("p:subsSize");
+		this.remove("p:subsOnly");
+		this.remove("p:slowMode");
 	}
 }

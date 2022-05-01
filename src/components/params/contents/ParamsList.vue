@@ -1,7 +1,7 @@
 <template>
 	<div class="paramslist">
 		<div class="row" v-for="(p) in params" :key="p.id">
-			<ParamItem :paramData="p" />
+			<ParamItem :paramData="p" save />
 			<transition
 				@enter="onShowItem"
 				@leave="onHideItem"

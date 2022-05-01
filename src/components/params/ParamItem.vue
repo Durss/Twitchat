@@ -134,7 +134,9 @@ export default class ParamItem extends Vue {
 
 	public mounted():void {
 		watch(() => this.paramData.value, () => {
-			store.dispatch('updateParams');
+			if(this.paramData.save === true) {
+				store.dispatch('updateParams');
+			}
 			this.$emit("change");
 			this.buildChildren();
 		});

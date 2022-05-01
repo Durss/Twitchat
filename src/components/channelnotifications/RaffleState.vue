@@ -62,29 +62,22 @@ export default class RaffleState extends Vue {
 
 	public progressPercent:number = 0;
 	public raffleData:RaffleData = store.state.raffle as RaffleData;
-	public postOnChatParam:ParameterData = {label:"Post winner on chat", value:false, type:"toggle"};
-	public postOnChatTextParam:ParameterData = {label:"Message ( username => {USER} )", value:"🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉", type:"text", longText:true};
+	public postOnChatParam:ParameterData = { label:"Post winner on chat", value:false, type:"toggle"};
+	public postOnChatTextParam:ParameterData = { label:"Message ( username => {USER} )", value:"", type:"text", longText:true};
 
 	public mounted():void {
-		const text = Store.get("raffle_message");
-		if(text) this.postOnChatTextParam.value = text;
-		const postChat = Store.get("raffle_postOnChat");
-		if(postChat == "true") this.postOnChatParam.value = true;
+		this.postOnChatTextParam.value	= store.state.raffle_message;
+		this.postOnChatParam.value		= store.state.raffle_messageEnabled;
+		this.postOnChatParam.children	= [this.postOnChatTextParam];
 
-		this.postOnChatParam.children = [this.postOnChatTextParam];
 		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();
 		const duration = this.raffleData.duration*60000;
 		const timeLeft = duration - ellapsed;
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 
-		watch(()=>this.postOnChatTextParam.value, ()=> {
-			Store.set("raffle_message", this.postOnChatTextParam.value as string);
-		})
-
-		watch(()=>this.postOnChatParam.value, ()=> {
-			Store.set("raffle_postOnChat", this.postOnChatParam.value );
-		})
+		watch(()=>this.postOnChatTextParam.value, ()=> this.saveParams())
+		watch(()=>this.postOnChatParam.value, ()=> this.saveParams())
 	}
 
 	public closeRaffle():void {
@@ -132,6 +125,11 @@ export default class RaffleState extends Vue {
 		if(this.postOnChatParam.value) {
 			IRCClient.instance.sendMessage((this.postOnChatTextParam.value as string).replace(/\{USER\}/gi, winner.user['display-name'] as string));
 		}
+	}
+
+	public saveParams():void {
+		store.dispatch("setRaffleMessage", this.postOnChatTextParam.value);
+		store.dispatch("setRaffleMessageEnabled", this.postOnChatParam.value);
 	}
 
 }

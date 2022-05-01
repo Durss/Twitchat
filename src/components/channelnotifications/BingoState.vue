@@ -14,7 +14,7 @@
 			🎉 {{bingoData.winners[0]["display-name"]}} won 🎉
 		</div>
 
-		<ParamItem class="postChat" :paramData="postOnChatParam" />
+		<ParamItem class="postChat" :paramData="postOnChatParam" save />
 
 		<Button class="deleteBt"
 			:icon="require('@/assets/icons/cross_white.svg')"
@@ -39,31 +39,30 @@ import ParamItem from '../params/ParamItem.vue';
 	}
 })
 export default class BingoState extends Vue {
-	public postOnChatParam:ParameterData = {label:"Post winner on chat", value:false, type:"toggle"};
-	public postOnChatTextParam:ParameterData = {label:"Message ( username => {USER} )", value:"", type:"text", longText:true};
+	public postOnChatParam:ParameterData = { label:"Post winner on chat", value:false, type:"toggle"};
+	public postOnChatTextParam:ParameterData = { label:"Message ( username => {USER} )", value:"", type:"text", longText:true};
 
 	public get bingoData():BingoData {
 		return store.state.bingo as BingoData;
 	}
 
 	public mounted():void {
-		this.postOnChatTextParam.value = store.state.bingo_message;
-		this.postOnChatParam.value = store.state.bingo_messagePost;
+		this.postOnChatTextParam.value	= store.state.bingo_message;
+		this.postOnChatParam.value		= store.state.bingo_messageEnabled;
+		this.postOnChatParam.children	= [this.postOnChatTextParam];
 
-		this.postOnChatParam.children = [this.postOnChatTextParam];
-
-		watch(()=>this.postOnChatTextParam.value, ()=> {
-			store.state.bingo_message = this.postOnChatTextParam.value as string;//too lazy to make action/mutation for now :3
-		})
-
-		watch(()=>this.postOnChatParam.value, ()=> {
-			store.state.bingo_messagePost = this.postOnChatParam.value as boolean;//too lazy to make action/mutation for now :3
-		})
+		watch(()=>this.postOnChatTextParam.value, ()=> this.saveParams())
+		watch(()=>this.postOnChatParam.value, ()=> this.saveParams())
 	}
 
 	public closeBingo():void {
 		store.dispatch("startBingo", {});
 		this.$emit("close");
+	}
+
+	public saveParams():void {
+		store.dispatch("setBingoMessage", this.postOnChatTextParam.value);
+		store.dispatch("setBingoMessageEnabled", this.postOnChatParam.value);
 	}
 	
 }

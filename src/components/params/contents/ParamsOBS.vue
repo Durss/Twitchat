@@ -137,7 +137,7 @@ export default class ParamsOBS extends Vue {
 		const port = Store.get("obsPort");
 		const pass = Store.get("obsPass");
 		const ip = Store.get("obsIP");
-		if(port) this.obsPort_conf.value = port;
+		if(port) this.obsPort_conf.value = parseInt(port);
 		if(pass) this.obsPass_conf.value = pass;
 		if(ip) this.obsIP_conf.value = ip;
 
