@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsobs">
 		<div class="head">
-			<p>Allow your mods basic control over your OBS</p>
+			<p>Create your own twitch alerts and allow your mods basic control over your OBS</p>
 			<p class="install">In order to work, this needs <a :href="obswsInstaller" target="_blank">OBS-websocket plugin V5</a> to be installed.</p>
 		</div>
 
@@ -27,7 +27,7 @@
 			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="require('@/assets/icons/cross_white.svg')" />
 
 			<transition name="fade">
-				<div v-if="connectError" @click="connectError = false" class="error">Unable to connect with OBS. Double check the port and password and make sure you installed <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-websocket plugin (v5)</a></div>
+				<div v-if="connectError" @click="connectError = false" class="error">Unable to connect with OBS. Double check the port and password and make sure you installed <a :href="obswsInstaller" target="_blank">OBS-websocket plugin (v5)</a></div>
 			</transition>
 
 		</ToggleBlock>

@@ -12,8 +12,8 @@
 				</div>
 				<form @submit.prevent="onSubmit()">
 					<div class="tabs">
-						<Button title="Guess number" bounce :selected="guessNumber" @click="guessNumber = true; guessEmote = false;" :icon="require('@/assets/icons/number.svg')" />
-						<Button title="Guess emote" bounce :selected="guessEmote" @click="guessNumber = false; guessEmote = true;" :icon="require('@/assets/icons/emote.svg')" />
+						<Button title="Number" bounce :selected="guessNumber" @click="guessNumber = true; guessEmote = false;" :icon="require('@/assets/icons/number.svg')" />
+						<Button title="Emote" bounce :selected="guessEmote" @click="guessNumber = false; guessEmote = true;" :icon="require('@/assets/icons/emote.svg')" />
 					</div>
 					
 					<div class="info" v-if="guessNumber">

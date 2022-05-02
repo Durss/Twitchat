@@ -311,12 +311,18 @@ export default createStore({
 
 		sendTwitchatAd(state, contentID:number = -1) {
 			if(contentID == -1) {
-				let possibleAds = [1];
+				let possibleAds = [];
+				possibleAds.push(TwitchatAdTypes.SPONSOR);
+				possibleAds.push(TwitchatAdTypes.TIP);
+
 				const lastUpdateRead = parseInt(Store.get("updateIndex"));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
-					possibleAds = [2];
+					possibleAds = [TwitchatAdTypes.UPDATES];
 				}else{
-					for (let i = 0; i < 5; i++) possibleAds.push(0);
+					//Add 2 empty slots for every content type available
+					//to reduce chances to actually get an "ad"
+					const len = 2*possibleAds.length;
+					for (let i = 0; i < len; i++) possibleAds.push(0);
 				}
 		
 				contentID = Utils.pickRand(possibleAds);
@@ -1420,4 +1426,10 @@ export interface PermissionsData {
 	subs:boolean;
 	all:boolean;
 	users:string;
+}
+
+export const TwitchatAdTypes = {
+	SPONSOR:1,
+	UPDATES:2,
+	TIP:3,
 }

@@ -1,49 +1,61 @@
 <template>
 	<div class="chatad">
-		<div v-if="messageData.contentID == 1" class="sponsor">
+		<div v-if="isSponsor" class="sponsor">
 			<div class="title">🍔 I like food 🍔</div>
 			<div class="content">Are you enjoying <strong>Twitchat</strong> ?<br>
 			It took me a lot of time and efforts to create.<br>
 			Twitchat is free, but if you can afford it, any tip would really <strong>make my day brighter</strong>!</div>
 			<div class="cta">
-				<Button @click="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
+				<img @click.stop="openParamPage('sponsor')" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
+				<Button @click.stop="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
 			</div>
 		</div>
 
-		<div v-else-if="messageData.contentID == 2" class="updates">
+		<div v-else-if="isUpdate" class="updates">
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
 				<ul>
-					<li><Button small title="try it" @click="showSpecificParam('features.stopStreamOnRaid')" /> New option to automatically <strong>stop OBS stream</strong> after a raid completes</li>
-					<li><Button small title="try it" @click="showSpecificParam('features.showUserPronouns')" /> New parameter to show viewers <strong>pronouns</strong></li>
-					<li><Button small title="try it" @click="showSpecificParam('features.notifyJoinLeave')" /> New parameter to show when users <strong>enter/leave</strong> your chatroom</li>
-					<li><Button small title="try it" @click="$emit('showModal', 'chatpoll')" /> New "<strong>Chat poll</strong>" feature to create new kind of polls</li>
-					<li><Button small title="try it" @click="openParamPage('obs')" /> Create your own follow/sub/cheer/raid/rewards/.. alerts with the new <strong>trigger system</strong> that allows you to control and update your OBS sources adn filters</li>
+					<li><Button small title="try it" @click.stop="showSpecificParam('features.stopStreamOnRaid')" /> New option to automatically <strong>stop OBS stream</strong> after a raid completes</li>
+					<li><Button small title="try it" @click.stop="showSpecificParam('features.showUserPronouns')" /> New parameter to show viewers <strong>pronouns</strong></li>
+					<li><Button small title="try it" @click.stop="showSpecificParam('features.notifyJoinLeave')" /> New parameter to show when users <strong>enter/leave</strong> your chatroom</li>
+					<li><Button small title="try it" @click.stop="$emit('showModal', 'chatpoll')" /> New "<strong>Chat poll</strong>" feature to create new kind of polls</li>
+					<li><Button small title="try it" @click.stop="openParamPage('obs')" /> Create your own follow/sub/cheer/raid/rewards/.. alerts with the new <strong>trigger system</strong> that allows you to control and update your OBS sources adn filters</li>
 					<li>Frankerfacez emotes supported</li>
 				</ul>
 			</div>
 			<div class="cta">
-				<Button @click="markUpdateAsRead()" title="OK got it" />
+				<Button @click.stop="markUpdateAsRead()" title="OK got it" />
 			</div>
+		</div>
+
+		<div v-if="isTip" class="tip">
+			<div class="title">💡 Tips &amp; tricks 💡</div>
+			<ChatTipAndTrickAd class="content"
+				@showModal="v=> $emit('showModal', v)"
+				@openParam="v=> openParamPage(v)"
+				@openParamItem="v=> showSpecificParam(v)"
+			/>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store from '@/store';
+import store, { TwitchatAdTypes } from '@/store';
 import Store from '@/store/Store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
 import { ParamsContenType } from '../params/Parameters.vue';
+import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Options({
 	props:{
 		messageData:Object,
 	},
 	components:{
-		Button
+		Button,
+		ChatTipAndTrickAd,
 	},
 	emits:["showModal", "delete"]
 })
@@ -51,14 +63,16 @@ export default class ChatAd extends Vue {
 
 	public messageData!:IRCEventDataList.TwitchatAd;
 
-	//1 - sponsor
-	//2 - updates
+	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
+	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
+	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP; }
 
 	public mounted():void {
 		
 	}
 
 	public openParamPage(page:ParamsContenType):void {
+		console.log("OPEN PARAM", page);
 		store.state.tempStoreValue = "CONTENT:"+page;
 		store.dispatch("showParams", true);
 	}
@@ -138,6 +152,11 @@ export default class ChatAd extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+
+		.sponsorGif {
+			width: 8em;
+			cursor: pointer;
+		}
 	}
 
 }
