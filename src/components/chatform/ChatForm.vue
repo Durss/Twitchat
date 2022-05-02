@@ -167,9 +167,10 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		"raffle",
 		"search",
 		"bingo",
-		"showUpdates",
 		"chatpoll",
+		"TTuserList",
 		"liveStreams",
+		"showUpdates",
 		"update:showFeed",
 		"update:showEmotes",
 		"update:showCommands",
@@ -264,8 +265,21 @@ export default class ChatForm extends Vue {
 		if(this.message.length == 0) return;
 		if(this.autoCompleteSearch.length > 0) return;
 
+
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
+
+		let hash:string = "";
+		try {
+			const encoder = new TextEncoder();
+			const data = encoder.encode(cmd);
+			const buffer = await window.crypto.subtle.digest('SHA-256', data);
+			const hashArray = Array.from(new Uint8Array(buffer));
+			hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); 
+		}catch(error){
+			//ignore
+		}
+
 		if(cmd == "/devmode") {
 			this.message = "";
 			store.dispatch("toggleDevMode");
@@ -363,25 +377,31 @@ export default class ChatForm extends Vue {
 				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
 			}, 250);
 			this.message = "";
-
 		}else
 
 		if(cmd == "/unspam" && store.state.devmode) {
 			clearInterval(this.spamInterval);
 			this.message = "";
-			
 		}else
 
 		if(cmd == "/commercial") {
 			this.$emit("ad", params.length > 0? parseInt(params[0]) : 30);
 			this.message = "";
-			
 		}else
 
 		if(cmd == "/updates") {
 			store.dispatch("sendTwitchatAd", 2);
 			this.message = "";
-			
+		}else
+
+		if(hash == "31f4a7f4e0a1d55a70775e51038ddfa2ae196e56dda1b10e82db2278bd19b6dc") {
+			if(params.length == 0) {
+				store.state.alert = "Missing secret token";
+			}else{
+				store.state.tempStoreValue = params[0];
+				this.$emit('TTuserList');
+			}
+			this.message = "";
 		}else
 
 		if(cmd == "/cypherreset") {

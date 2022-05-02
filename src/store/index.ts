@@ -273,7 +273,7 @@ export default createStore({
 					json.expires_at = Date.now() + json.expires_in*1000;
 				}
 				state.oAuthToken = json;
-				Store.set("oAuthToken", json);
+				Store.set("oAuthToken", json, false);
 				
 				if(!state.authenticated) {
 					//Connect if we were not connected before
@@ -758,7 +758,9 @@ export default createStore({
 			}else{
 				state.devmode = !state.devmode;
 			}
-			Store.set("devmode", state.devmode);
+			if(state.devmode != JSON.parse(Store.get("devmode"))) {
+				Store.set("devmode", state.devmode);
+			}
 			if(notify) {
 				IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
 			}
@@ -872,7 +874,7 @@ export default createStore({
 							}
 						}
 					}
-					Store.set("oAuthToken", json.access_token);
+					Store.set("oAuthToken", json.access_token, false);
 				}catch(error){
 					//ignore
 				}

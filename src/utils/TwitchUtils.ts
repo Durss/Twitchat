@@ -63,13 +63,9 @@ export default class TwitchUtils {
 	public static async loadUserBadges(uid:string):Promise<{[key:string]:TwitchTypes.BadgesSet}> {
 		if(this.badgesCache[uid]) return this.badgesCache[uid];
 
-		const headers = {
-			// "Authorization":"Bearer "+store.state.authToken,
-			// "Client-Id": this.client_id
-		};
 		const options = {
 			method: "GET",
-			headers: headers,
+			headers: {},
 		};
 		//URL could be replaced with this one to avoid needing an auth token :
 		//https://badges.twitch.tv/v1/badges/channels/{UID}/display
@@ -92,13 +88,9 @@ export default class TwitchUtils {
 	public static async loadGlobalBadges():Promise<{[key:string]:TwitchTypes.BadgesSet}> {
 		if(this.badgesCache["global"]) return this.badgesCache["global"];
 
-		const headers = {
-			// "Authorization":"Bearer "+store.state.authToken,
-			// "Client-Id": this.client_id
-		};
 		const options = {
 			method: "GET",
-			headers: headers,
+			headers: {},
 		};
 		//URL could be replaced with this one to avoid needing an auth token :
 		//https://badges.twitch.tv/v1/badges/global/display

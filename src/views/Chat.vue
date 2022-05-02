@@ -36,6 +36,7 @@
 				@raffle="currentModal = 'raffle'"
 				@bingo="currentModal = 'bingo'"
 				@liveStreams="currentModal = 'liveStreams'"
+				@TTuserList="currentModal = 'TTuserList'"
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
@@ -83,7 +84,7 @@
 		<UserList class="contentWindows users"
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
-		
+
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
 
 		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
@@ -92,6 +93,7 @@
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+		<TTUserList class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
 	</div>
@@ -125,6 +127,7 @@ import Parameters from '@/components/params/Parameters.vue';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
+import TTUserList from '@/components/chatform/TTUserList.vue';
 
 @Options({
 	components:{
@@ -136,6 +139,7 @@ import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 		BingoForm,
 		Parameters,
 		RaffleForm,
+		TTUserList,
 		MessageList,
 		DevmodeMenu,
 		RewardsList,
@@ -158,8 +162,8 @@ export default class Chat extends Vue {
 	public showRewards:boolean = false;
 	public showDevMenu:boolean = false;
 	public showCommands:boolean = false;
+	public showUserList:boolean = false;
 	public showChatUsers:boolean = false;
-	public showLiveFollowings:boolean = false;
 	public canStartAd:boolean = true;
 	public startAdCooldown:number = 0;
 	public currentModal:string = "";

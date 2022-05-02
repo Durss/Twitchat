@@ -40,13 +40,13 @@ export default class Store {
 		return props;
 	}
 
-	public static set(key:string, value:JsonValue|unknown):void {
+	public static set(key:string, value:JsonValue|unknown, save:boolean = true):void {
 		if(!this.store) this.init();
 		if(value == undefined) return;
 		this.rawStore[key] = value;
 		const str = typeof value == "string"? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
-		this.save();
+		if(save) this.save();
 	}
 
 	public static remove(key:string):void {

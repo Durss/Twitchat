@@ -9,6 +9,7 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const Ajv = require("ajv")
 const JsonPatch = require('fast-json-patch');
+const crypto = require('crypto');
 
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
@@ -37,44 +38,52 @@ http.createServer((request, response) => {
 			response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
 			response.setHeader('Access-Control-Allow-Origin', "*");
 		}
-		if(request.method == "OPTION") {
+		
+		if(request.method == "OPTIONS") {
 			response.end("OK");
 			return;
 		}
+		
 		if(request.url.indexOf("api") > -1) {
+			const endpoint = request.url.replace(/\?.*/gi, "");
 			
 			//Get client ID
-			if(request.url.indexOf("api/configs") > -1) {
+			if(endpoint == "/api/configs") {
 				response.writeHead(200, {'Content-Type': 'application/json'});
 				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes}));
 				return;
 		
 			//Get/Set user data
-			}else if(request.url.indexOf("api/user") > -1) {
+			}else if(endpoint == "/api/user") {
 				userData(request, response, body);
 				return;
 			
 			//Generate token from auth code
-			}else if(request.url.indexOf("api/gettoken") > -1) {
+			}else if(endpoint == "/api/gettoken") {
 				generateToken(request, response);
 				return;
 			
 			//Generate token from auth code
-			}else if(request.url.indexOf("api/CSRFToken") > -1) {
+			}else if(endpoint == "/api/CSRFToken") {
 				CSRFToken(request, response);
 				return;
 			
 			//Get fake chat events
-			}else if(request.url.indexOf("api/fakeevents") > -1) {
+			}else if(endpoint == "/api/fakeevents") {
 				getFakeEvents(request, response);
 				return;
 
 			//Refresh access token
-			}else if(request.url.indexOf("api/refreshtoken") > -1) {
+			}else if(endpoint == "/api/refreshtoken") {
 				refreshToken(request, response);
 				return;
+
+			//Get users
+			}else if(endpoint == "/api/users") {
+				getUsers(request, response);
+				return;
 			
-				//Endpoint not found
+			//Endpoint not found
 			}else{
 				response.writeHead(404, {'Content-Type': 'application/json'});
 				response.end(JSON.stringify({error: "This endpoint does not exist"}));
@@ -89,9 +98,20 @@ http.createServer((request, response) => {
 							"Error serving " + request.url + " - " + err.message
 						);
 					}
-					fileServer.serveFile(
-						'/index.html', 200, {}, request, response
-					);
+
+					// let page = request.url;
+					// if(fs.existsSync("./dist/"+page)) {
+					// 	fileServer.serveFile( page, 200, {}, request, response );
+					// 	return;
+					// }
+					
+					// page += ".html";
+					// if(fs.existsSync("./dist/"+page)) {
+					// 	fileServer.serveFile( page, 200, {}, request, response );
+					// 	return;
+					// }
+
+					fileServer.serveFile( '/index.html', 200, {}, request, response );
 				}
 			});
 		}
@@ -275,6 +295,39 @@ async function getFakeEvents(request, response) {
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(json);
+}
+
+/**
+ * Get users list
+ */
+async function getUsers(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+	//Missing token
+	if(!params.token) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:false}));
+		return;
+	}
+	//Check token
+	const hash = crypto.createHash('sha256').update(credentials.csrf_key).digest("hex");
+	if(hash != params.token){
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:false, message:"invalid token"}));
+		return;
+	}
+
+	const files = fs.readdirSync(userDataFolder);
+	const list = files.filter(v => v.indexOf("_cleanup") == -1);
+	const users = []
+	list.forEach(v => {
+		users.push({
+			id: v.replace(".json", ""),
+			date:fs.statSync(userDataFolder + v).mtime.getTime()
+		})
+	} );
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:true, users}));
 }
 
 

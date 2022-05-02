@@ -22,6 +22,7 @@ Documentation can be found [here](PUBLIC_API.md).
 <br>
 
 # Features
+- [x] Create your own sub/follow/rewards/poll/... alerts with the OBS trigger system that allows to control your OBS sources and filters when an event occurs
 - [x] Display the first message of users seperatly so you don't forget to greet them
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
@@ -44,7 +45,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
 - [x] Emote selector 
-- [x] BTTV emotes supported
+- [x] BTTV and FFZ emotes supported
 - [x] Message autocomplete nickname via "@", emotes via ":", commands via "/" or all via TAB key
 - [x] Allow to search on all messages via command `/search`
 - [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
@@ -57,9 +58,9 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 - [x] Expose an API to control some stuff remotely
 - [x] Stream Deck plugin
+- [x] Chat poll feature: kind of a poll where your viewers decide its options
 <br>
 
-- [ ] Parse FFZ emotes
 - [ ] Request scopes on-demand
 - [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
 <br>
