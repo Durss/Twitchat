@@ -198,6 +198,9 @@ export default class MessageList extends Vue {
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
+		for (let i = 0; i < this.localMessages.length; i++) {
+			this.idDisplayed[this.localMessages[i].tags.id as string] = true;
+		}
 		
 		watch(() => store.state.chatMessages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
@@ -427,6 +430,11 @@ export default class MessageList extends Vue {
 			}
 
 			const messRefs = this.$refs.message as HTMLDivElement[];
+			if(!messRefs) {
+				//If hovering the chat before any message shows up, just load next message
+				this.showNextPendingMessage(true);
+				return;
+			}
 			const lastMessRef = messRefs[messRefs.length-1];
 
 			if((maxScroll - el.scrollTop) <= lastMessRef.offsetHeight) {
