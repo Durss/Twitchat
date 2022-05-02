@@ -487,6 +487,7 @@ const UserDataSchema = {
 		cypherKey: {type:"string"},
 		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
+		"p:ffzEmotes": {type:"boolean"},
 		"p:censorDeletedMessages": {type:"boolean"},
 		"p:censoreDeletedMessages": {type:"boolean"},
 		"p:conversationsEnabled": {type:"boolean"},

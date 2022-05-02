@@ -4,6 +4,7 @@ import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
+import FFZUtils from "./FFZUtils";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import PublicAPI from "./PublicAPI";
 import { PubSubTypes } from "./PubSub";
@@ -83,6 +84,7 @@ export default class IRCClient extends EventDispatcher {
 					await TwitchUtils.loadUserBadges(uids[i]);
 					await TwitchUtils.loadCheermoteList(uids[i]);
 					await BTTVUtils.instance.addChannel(uids[i]);
+					await FFZUtils.instance.addChannel(uids[i]);
 				}
 
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));

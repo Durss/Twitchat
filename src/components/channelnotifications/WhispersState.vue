@@ -96,6 +96,7 @@ export default class WhispersState extends Vue {
 			}else if(v.type == "emote") {
 				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
 				url = url.replace(/1x$/gi, "3x");//BTTV format
+				url = url.replace(/1$/gi, "4");//FFZ format
 				let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.label+"</center>";
 				result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 			}

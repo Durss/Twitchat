@@ -1,16 +1,15 @@
-
 /**
-* Created : 25/01/2022 
+* Created : 02/05/2022 
 */
-export default class BTTVUtils {
+export default class FFZUtils {
 
-	private static _instance:BTTVUtils;
+	private static _instance:FFZUtils;
 
 	private enabled:boolean = false;
 	private emotesLoaded:boolean = false;
 	private channelList:string[] = [];
-	private globalEmotes:BTTVEmote[] = [];
-	private channelEmotes:{[key:string]:BTTVEmote[]} = {};
+	private globalEmotes:FFZEmote[] = [];
+	private channelEmotes:{[key:string]:FFZEmote[]} = {};
 	
 	constructor() {
 	
@@ -19,11 +18,11 @@ export default class BTTVUtils {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():BTTVUtils {
-		if(!BTTVUtils._instance) {
-			BTTVUtils._instance = new BTTVUtils();
+	static get instance():FFZUtils {
+		if(!FFZUtils._instance) {
+			FFZUtils._instance = new FFZUtils();
 		}
-		return BTTVUtils._instance;
+		return FFZUtils._instance;
 	}
 	
 	
@@ -32,7 +31,7 @@ export default class BTTVUtils {
 	* PUBLIC METHODS *
 	******************/
 	/**
-	 * Adds a channel to the list of BTTV emotes to load
+	 * Adds a channel to the list of FFZ emotes to load
 	 */
 	public addChannel(channelId:string):void {
 		this.channelList.push(channelId);
@@ -58,16 +57,16 @@ export default class BTTVUtils {
 		//Parse global emotes
 		for (let i = 0; i < allEmotes.length; i++) {
 			const e = allEmotes[i];
-			const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 			const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
 			if(matches && matches.length > 0) {
 				//Current emote has been found
 				//Generate fake emotes data in the expected format:
 				//  ID:start-end,start-end/ID:start-end,start-end
-				fakeTag += "BTTV_"+e.id+":";
+				fakeTag += "FFZ_"+e.id+":";
 				for (let j = 0; j < matches.length; j++) {
 					const index = (matches[j].index as number);
-					fakeTag += index+"-"+(index+e.code.length);
+					fakeTag += index+"-"+(index+e.name.length);
 					if(j < matches.length-1) fakeTag+=",";
 				}
 				if(i < allEmotes.length -1 ) fakeTag +="/"
@@ -78,28 +77,28 @@ export default class BTTVUtils {
 	}
 
 	/**
-	 * Get a BTTV emote data from its code
+	 * Get a FFZ emote data from its code
 	 * //TODO optimize accesses with a hashmap
 	 * @param code 
 	 * @returns 
 	 */
-	public getEmoteFromCode(code:string):BTTVEmote|null {
+	public getEmoteFromCode(code:string):FFZEmote|null {
 		for (let i = 0; i < this.globalEmotes.length; i++) {
 			const e = this.globalEmotes[i];
-			if(e.code == code) return e;
+			if(e.name == code) return e;
 		}
 		for (const key in this.channelEmotes) {
 			const list = this.channelEmotes[key];
 			for (let i = 0; i < list.length; i++) {
 				const e = list[i];
-				if(e.code == code) return e;
+				if(e.name == code) return e;
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * Enables BTTV emotes
+	 * Enables FFZ emotes
 	 * Loads up the necessary emotes
 	 */
 	public async enable():Promise<void> {
@@ -114,11 +113,12 @@ export default class BTTVUtils {
 	}
 
 	/**
-	 * Disable BTTV emotes
+	 * Disable FFZ emotes
 	 */
 	public async disable():Promise<void> {
 		this.enabled = false;
 	}
+	
 	
 	
 	/*******************
@@ -127,9 +127,17 @@ export default class BTTVUtils {
 
 	private async loadGlobalEmotes():Promise<void> {
 		try {
-			const res = await fetch("https://api.betterttv.net/3/cached/emotes/global");
+			const res = await fetch("https://api.frankerfacez.com/v1/set/global");
 			const json = await res.json();
-			this.globalEmotes = json;
+			if(json.sets) {
+				let emotes:FFZEmote[] = [];
+				for (const key in json.sets) {
+					if(json.sets[key]?.emoticons.length > 0) {
+						emotes = emotes.concat(json.sets[key].emoticons)
+					}
+				}
+				this.globalEmotes = emotes;
+			}
 		}catch(error) {
 			//
 		}
@@ -137,10 +145,16 @@ export default class BTTVUtils {
 	
 	private async loadChannelEmotes(channelId:string):Promise<void> {
 		try {
-			const res = await fetch("https://api.betterttv.net/3/cached/users/twitch/"+channelId);
+			const res = await fetch("https://api.frankerfacez.com/v1/room/id/"+channelId);
 			const json = await res.json();
-			if(json.channelEmotes) {
-				this.channelEmotes[channelId] = json.channelEmotes;
+			if(json.sets) {
+				let emotes:FFZEmote[] = [];
+				for (const key in json.sets) {
+					if(json.sets[key]?.emoticons.length > 0) {
+						emotes = emotes.concat(json.sets[key].emoticons)
+					}
+				}
+				this.channelEmotes[channelId] = emotes;
 			}
 		}catch(error) {
 			//
@@ -148,9 +162,29 @@ export default class BTTVUtils {
 	}
 }
 
-interface BTTVEmote {
-	code:string;
-	id:string;
-	imageType:string;
-	userId:string;
+interface FFZEmote {
+	id: number;
+	name: string;
+	height: number;
+	width: number;
+	public: boolean;
+	hidden: boolean;
+	modifier: boolean;
+	offset?: any;
+	margins?: any;
+	css?: any;
+	owner: {
+		_id: number;
+		name: string;
+		display_name: string;
+	};
+	urls: {
+		1: string;
+		2: string;
+		4: string;
+	};
+	status: number;
+	usage_count: number;
+	created_at: Date;
+	last_updated: Date;
 }

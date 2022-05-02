@@ -3,6 +3,7 @@ import store from "@/store";
 import { Badges, ChatUserstate } from "tmi.js";
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
+import FFZUtils from "./FFZUtils";
 import IRCClient from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
 import Utils from "./Utils";
@@ -184,6 +185,11 @@ export default class TwitchUtils {
 			if(emotes.length > 0) bttvTag += "/";
 			emotes = bttvTag + emotes;
 		}
+		let ffzTag = FFZUtils.instance.generateEmoteTag(message)
+		if(ffzTag) {
+			if(emotes.length > 0) ffzTag += "/";
+			emotes = ffzTag + emotes;
+		}
 		
 		if(!emotes || emotes.length == 0) {
 			return [{type:"text", value:message}];
@@ -223,6 +229,14 @@ export default class TwitchUtils {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
 						result.push( {type:"emote", label:"BTTV: "+code, emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
+					}else{
+						result.push( {type:"text", value:code} );
+					}
+				}else
+				if(e.id.indexOf("FFZ_") == 0) {
+					const bttvE = FFZUtils.instance.getEmoteFromCode(code);
+					if(bttvE) {
+						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:"https://"+bttvE.urls[1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}

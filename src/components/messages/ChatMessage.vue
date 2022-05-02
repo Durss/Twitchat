@@ -394,7 +394,7 @@ export default class ChatMessage extends Vue {
 			}else{
 				//Allow custom parsing of emotes only if it's a message of ours
 				//to avoid killing perfromances.
-				const customParsing = mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				const customParsing = mess.tags['emotes-raw'] == null && mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
@@ -415,6 +415,7 @@ export default class ChatMessage extends Vue {
 					}else if(v.type == "emote") {
 						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
 						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/1$/gi, "4");//FFZ format
 						if(store.state.params.appearance.defaultSize.value >= 3) {
 							v.value = v.value.replace(/1.0$/gi, "2.0");
 							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format

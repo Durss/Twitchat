@@ -1,5 +1,6 @@
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
+import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
@@ -155,6 +156,7 @@ export default createStore({
 				showEmotes: 				{save:true, type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
 				showViewersCount: 			{save:true, type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
 				bttvEmotes: 				{save:true, type:"toggle", value:false, label:"Parse BTTV emotes", id:3, icon:"emote_purple.svg"},
+				ffzEmotes: 					{save:true, type:"toggle", value:false, label:"Parse FFZ emotes", id:19, icon:"emote_purple.svg"},
 				showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
@@ -616,6 +618,13 @@ export default createStore({
 							BTTVUtils.instance.disable();
 						}
 					}
+					if(key=="ffzEmotes") {
+						if(v === true) {
+							FFZUtils.instance.enable();
+						}else{
+							FFZUtils.instance.disable();
+						}
+					}
 				}
 			}
 		},
@@ -1017,6 +1026,11 @@ export default createStore({
 					BTTVUtils.instance.enable();
 				}else{
 					BTTVUtils.instance.disable();
+				}
+				if(state.params.appearance.ffzEmotes.value === true) {
+					FFZUtils.instance.enable();
+				}else{
+					FFZUtils.instance.disable();
 				}
 			});
 
