@@ -42,7 +42,7 @@ export default class Store {
 
 	public static set(key:string, value:JsonValue|unknown):void {
 		if(!this.store) this.init();
-		if(!value) return;
+		if(value == undefined) return;
 		this.rawStore[key] = value;
 		const str = typeof value == "string"? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
