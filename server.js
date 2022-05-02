@@ -44,7 +44,7 @@ http.createServer((request, response) => {
 			return;
 		}
 		
-		if(request.url.indexOf("api") > -1) {
+		if(request.url.indexOf("/api") == 0) {
 			const endpoint = request.url.replace(/\?.*/gi, "");
 			
 			//Get client ID
