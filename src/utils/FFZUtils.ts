@@ -170,9 +170,9 @@ interface FFZEmote {
 	public: boolean;
 	hidden: boolean;
 	modifier: boolean;
-	offset?: any;
-	margins?: any;
-	css?: any;
+	offset?: unknown;
+	margins?: unknown;
+	css?: unknown;
 	owner: {
 		_id: number;
 		name: string;

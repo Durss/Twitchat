@@ -37,7 +37,6 @@
 
 <script lang="ts">
 import store, { ParameterData, RaffleData, RaffleVote } from '@/store';
-import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
