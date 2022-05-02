@@ -55,7 +55,7 @@ export default class ChatAd extends Vue {
 	//2 - updates
 
 	public mounted():void {
-		console.log(this.messageData);
+		
 	}
 
 	public openParamPage(page:ParamsContenType):void {
