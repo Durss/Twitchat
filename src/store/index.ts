@@ -72,6 +72,11 @@ export default createStore({
 				details:"Show latest Twitchat updates",
 			},
 			{
+				id:"tip",
+				cmd:"/tip",
+				details:"Get a tip about Twitchat",
+			},
+			{
 				id:"search",
 				cmd:"/search {text}",
 				details:"Search for a message by its content",
@@ -314,6 +319,7 @@ export default createStore({
 				let possibleAds = [];
 				possibleAds.push(TwitchatAdTypes.SPONSOR);
 				possibleAds.push(TwitchatAdTypes.TIP);
+				possibleAds.push(TwitchatAdTypes.DISCORD);
 
 				const lastUpdateRead = parseInt(Store.get("updateIndex"));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
@@ -326,6 +332,7 @@ export default createStore({
 				}
 		
 				contentID = Utils.pickRand(possibleAds);
+				contentID = TwitchatAdTypes.TIP;//TODO comment this line
 				if(contentID == 0) return;
 			}
 
@@ -1432,4 +1439,5 @@ export const TwitchatAdTypes = {
 	SPONSOR:1,
 	UPDATES:2,
 	TIP:3,
+	DISCORD:4,
 }

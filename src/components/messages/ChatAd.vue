@@ -12,6 +12,7 @@
 		</div>
 
 		<div v-else-if="isUpdate" class="updates">
+			<Button @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
@@ -25,17 +26,35 @@
 				</ul>
 			</div>
 			<div class="cta">
-				<Button @click.stop="markUpdateAsRead()" title="OK got it" />
+				<Button @click.stop="deleteMessage()" title="OK got it" />
 			</div>
 		</div>
 
 		<div v-if="isTip" class="tip">
+			<Button @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">💡 Tips &amp; tricks 💡</div>
 			<ChatTipAndTrickAd class="content"
 				@showModal="v=> $emit('showModal', v)"
 				@openParam="v=> openParamPage(v)"
 				@openParamItem="v=> showSpecificParam(v)"
 			/>
+		</div>
+
+		<div v-if="isDiscord" class="discord">
+			<Button @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<div class="title">Join us on Discord</div>
+			<div class="content">
+				<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
+				<div>You have  feature suggestion or an issue to report?<br>join us on discord!</div>
+			</div>
+			<div class="cta">
+				<Button :icon="require('@/assets/icons/discord.svg')"
+					title="Join Discord"
+					:href="discordURL"
+					target="_blank"
+					type="link"
+				/>
+			</div>
 		</div>
 	</div>
 </template>
@@ -44,6 +63,7 @@
 import Button from '@/components/Button.vue';
 import store, { TwitchatAdTypes } from '@/store';
 import Store from '@/store/Store';
+import Config from '@/utils/Config';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
 import { ParamsContenType } from '../params/Parameters.vue';
@@ -57,7 +77,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 		Button,
 		ChatTipAndTrickAd,
 	},
-	emits:["showModal", "delete"]
+	emits:["showModal", "delete", "close"]
 })
 export default class ChatAd extends Vue {
 
@@ -66,6 +86,9 @@ export default class ChatAd extends Vue {
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP; }
+	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
+	
+	public get discordURL():string { return Config.DISCORD_URL; }
 
 	public mounted():void {
 		
@@ -82,8 +105,10 @@ export default class ChatAd extends Vue {
 		store.dispatch("showParams", true);
 	}
 
-	public markUpdateAsRead():void {
-		Store.set("updateIndex", store.state.latestUpdateIndex);
+	public deleteMessage():void {
+		if(this.isUpdate) {
+			Store.set("updateIndex", store.state.latestUpdateIndex);
+		}
 		store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
 	}
@@ -97,9 +122,17 @@ export default class ChatAd extends Vue {
 	border-radius: 1em;
 	overflow: hidden;
 	margin: .5em 0;
+	position: relative;
 
 	&>* {
 		color: @mainColor_normal;
+	}
+
+	.closeBt {
+		position: absolute;
+		top:0;
+		right:0;
+		height: 3em;
 	}
 
 	.title {
@@ -126,6 +159,11 @@ export default class ChatAd extends Vue {
 	.content {
 		padding: .5em;
 		text-align: center;
+
+		.icon {
+			height: 4em;
+			width: 4em;
+		}
 
 		ul {
 			text-align: left;

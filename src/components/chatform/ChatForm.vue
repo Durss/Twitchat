@@ -131,11 +131,12 @@
 </template>
 
 <script lang="ts">
-import store, { BingoConfig } from '@/store';
+import store, { BingoConfig, TwitchatAdTypes } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
@@ -391,6 +392,11 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/updates") {
 			store.dispatch("sendTwitchatAd", 2);
+			this.message = "";
+		}else
+
+		if(cmd == "/tip") {
+			store.dispatch("sendTwitchatAd", TwitchatAdTypes.TIP);
 			this.message = "";
 		}else
 

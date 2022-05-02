@@ -35,8 +35,8 @@ OBS will act as a bridge to transmit Twitchat messages to any connected client.
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
-Bellow is a typescript example to use the API via `OBS-Websocket`.\
-The example refer to `TwitchatActionType` and `TwitchatEventType`. You can find their [signatures here](#available-events-and-actions).
+Bellow is a typescript example to use the API via `OBS-Websocket-js`.\
+The example refers to `TwitchatActionType` and `TwitchatEventType`. You can find their [signatures here](#available-events-and-actions).
 
 
 ## OBS-websocket

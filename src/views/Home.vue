@@ -22,7 +22,7 @@
 
 			<Button :icon="require('@/assets/icons/discord.svg')"
 				title="Join Discord"
-				href="https://discord.gg/fmqD2xUYvP"
+				:href="discordURL"
 				target="_blank"
 				type="link"
 				class="discordBt"
@@ -174,6 +174,7 @@ import 'vue3-carousel/dist/carousel.css';
 //@typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
+import Config from '@/utils/Config';
 
 @Options({
 	props:{},
@@ -192,6 +193,7 @@ export default class Home extends Vue {
 	private index:number = 0;
 
 	public get nextIndex():number { return this.index ++; }
+	public get discordURL():string { return Config.DISCORD_URL; }
 
 	// public get loginPath():string { return router.resolve({name:'login'}).href; }
 

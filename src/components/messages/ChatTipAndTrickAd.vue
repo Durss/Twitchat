@@ -47,6 +47,19 @@
 			<div class="row">If you forget to switch scene or unmute yourself, a mod can be there and do it for you as a backup.</div>
 			<Button title="Try it now" @click.stop="openParam('obs')" />
 		</div>
+		
+		<div v-if="tipIndex===6" class="entry">
+			<img src="@/assets/icons/api_purple.svg" alt="api" class="icon">
+			<h1 class="row">Twitchat API</h1>
+			<div class="row">Did you know Twitchat exposes an API?</div>
+			<div class="row">If you're a developer, you can control and get events from Twitchat.</div>
+			<Button :icon="require('@/assets/icons/github_white.svg')"
+				title="Read documentation"
+				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
+				target="_blank"
+				type="link"
+			/>
+		</div>
 	</div>
 </template>
 
@@ -65,7 +78,7 @@ import { ParamsContenType } from '../params/Parameters.vue';
 export default class ChatTipAndTrickAd extends Vue {
 
 	public tipIndex:number = 0;
-	private maxIndex:number = 5;
+	private maxIndex:number = 6;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
@@ -84,6 +97,7 @@ export default class ChatTipAndTrickAd extends Vue {
 		.icon {
 			height: 4em;
 			width: 4em;
+			margin-bottom: .5em;
 		}
 		.row:not(:last-child) {
 			margin-bottom: .5em;

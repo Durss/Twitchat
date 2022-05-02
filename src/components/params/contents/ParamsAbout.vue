@@ -6,7 +6,7 @@
 
 		<ToggleBlock class="block" title="Suggestions and issues" icon="idea_purple" :open="true">
 			<p>If you have a feature idea or are experiencing an issue:</p>
-			<Button :icon="require('@/assets/icons/discord.svg')" title="Tell us on Discord" href="https://discord.gg/fmqD2xUYvP" target="_blank" type="link" class="discordBt" />
+			<Button :icon="require('@/assets/icons/discord.svg')" title="Tell us on Discord" :href="discordURL" target="_blank" type="link" class="discordBt" />
 			<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know</strong>!</p>
 		</ToggleBlock>
 
@@ -31,6 +31,7 @@ import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Button from '@/components/Button.vue';
 import ParamsSponsor from './ParamsSponsor.vue';
+import Config from '@/utils/Config';
 
 @Options({
 	props:{},
@@ -41,6 +42,8 @@ import ParamsSponsor from './ParamsSponsor.vue';
 	}
 })
 export default class ParamsAbout extends Vue {
+
+	public get discordURL():string { return Config.DISCORD_URL; }
 
 }
 </script>
