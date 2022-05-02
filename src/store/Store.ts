@@ -77,9 +77,9 @@ export default class Store {
 			this.fixBackslashes();
 			this.set("v", 1);
 		}
-		if(v=="1") {
+		if(v=="1" || v=="2") {
 			this.cleanupOldData();
-			this.set("v", 2);
+			this.set("v", 3);
 		}
 
 		const items = this.getAll();
@@ -144,5 +144,12 @@ export default class Store {
 		this.remove("p:subsSize");
 		this.remove("p:subsOnly");
 		this.remove("p:slowMode");
+		this.remove("p:emotesOnly");
+		this.remove("p:ignoreSelf");
+		this.remove("p:hideEmotes");
+		this.remove("tmiToken");
+		this.remove("authToken");
+		this.remove("p:hideBadges");
+		this.remove("p:hideBot");
 	}
 }
