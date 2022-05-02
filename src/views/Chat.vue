@@ -4,6 +4,7 @@
 			<div class="leftColumn">
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
+					@showModal="v => currentModal = v"
 					:max="$store.state.params.appearance.historySize.value" />
 					
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
@@ -92,7 +93,7 @@
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
 		
-		<Parameters v-if="$store.state.authenticated" />
+		<Parameters v-if="$store.state.showParams" />
 	</div>
 </template>
 

@@ -8,8 +8,16 @@
 			@mouseenter="enterMessage(m)"
 			@mouseleave="leaveMessage(m)"
 			@click="toggleMarkRead(m, $event)">
+				<ChatAd class="message"
+					:messageData="m"
+					v-if="m.type == 'ad' && !lightMode"
+					@showModal="v=>$emit('showModal', v)"
+					@delete="forceDelete(m)"
+					:ref="'message_'+m.tags.id"
+				/>
+
 				<ChatMessage
-					v-if="m.type == 'message'"
+					v-else-if="m.type == 'message'"
 					class="message"
 					:messageData="m"
 					:lightMode="lightMode"
@@ -62,7 +70,7 @@
 
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
-						v-if="m.showHoverActions && !lightMode"
+						v-if="m.type != 'ad' && m.showHoverActions && !lightMode"
 						:messageData="m" />
 				</transition>
 			</div>
@@ -116,6 +124,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ChatAd from './ChatAd.vue';
 import ChatBingoResult from './ChatBingoResult.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
@@ -127,6 +136,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 @Options({
 	components:{
 		Button,
+		ChatAd,
 		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
@@ -138,16 +148,20 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 	},
 	props: {
 		max:Number,
-		lightMode:Boolean,//Used by OBS chat
-	}
+		lightMode:{
+			type:Boolean,
+			default:false,
+		},//Used by OBS chat
+	},
+	emits:["showModal"]
 })
 export default class MessageList extends Vue {
 
 	public max!: number;
-	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
+	public lightMode!:boolean;
+	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight | IRCEventDataList.TwitchatAd)[] = [];
 	public pendingMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 	public conversation:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
-	public lightMode:boolean = false;
 	public lockScroll:boolean = false;
 	public conversationPos:number = 0;
 	public conversationMode:boolean = true;//Used to change title between History/Conversation
@@ -184,12 +198,13 @@ export default class MessageList extends Vue {
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
-		watch(() => store.state.chatMessages, async (value:(IRCEventDataList.Message | IRCEventDataList.Highlight)[]) => {
-			//If scrolling is locked or there are still messages pending
-			//add the new messages to the pending list
+		
+		watch(() => store.state.chatMessages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
-
+			
+			//If scrolling is locked or there are still messages pending
+			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
 				for (let i = 0; i < store.state.chatMessages.length; i++) {
 					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
@@ -208,8 +223,6 @@ export default class MessageList extends Vue {
 			}
 
 			this.scrollToPrevMessage();
-		}, {
-			// deep:true
 		});
 
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
@@ -271,15 +284,34 @@ export default class MessageList extends Vue {
 	 */
 	public onDeleteMessage(e:IRCEvent):void {
 		const data = e.data as IRCEventDataList.MessageDeleted;
+		const keepDeletedMessages = store.state.params.filters.keepDeletedMessages.value;
+		
 		if(this.pendingMessages.length > 0) {
 			let index = this.pendingMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
 			if(index > -1) {
-				this.pendingMessages.splice(index, 1);
+				const m = this.pendingMessages[index];
+				if(m.type == "message") {
+					if(keepDeletedMessages === true && !m.automod) {
+						m.deleted = true;
+					}else{
+						this.pendingMessages.splice(index, 1);
+					}
+				}
 			}
 		}
-		let index = this.localMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
+		let index = this.localMessages.findIndex(v => {
+			return v.tags.id === data.tags['target-msg-id']
+		});
+		
 		if(index > -1) {
-			this.localMessages.splice(index, 1);
+			const m = this.localMessages[index];
+			if(m.type == "message") {
+				if(keepDeletedMessages === true && !m.automod) {
+					m.deleted = true;
+				}else{
+					this.localMessages.splice(index, 1);
+				}
+			}
 		}
 	}
 
@@ -293,7 +325,10 @@ export default class MessageList extends Vue {
 		switch(e.type) {
 			case TwitchatEvent.CHAT_FEED_READ: {
 				if(readCount === 0) readCount = 1;
-				const offset = this.localMessages.findIndex(v => v.markedAsRead === true)
+				const offset = this.localMessages.findIndex(v => {
+					if(v.type == "ad") return;
+					v.markedAsRead === true
+				})
 				if(offset > -1) readCount += offset;
 			}
 			/* falls through */
@@ -302,7 +337,10 @@ export default class MessageList extends Vue {
 					readCount = this.localMessages.length-1;
 				}
 				if(readCount < 0) readCount = 0;
-				this.toggleMarkRead(this.localMessages[readCount]);
+				const m = this.localMessages[readCount];
+				if(m.type != "ad") {
+					this.toggleMarkRead(m);
+				}
 				break;
 			}
 			case TwitchatEvent.CHAT_FEED_PAUSE:{
@@ -636,6 +674,25 @@ export default class MessageList extends Vue {
 			tags:m.tags,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead, message});
+	}
+
+	/**
+	 * This is a warkaround a tricky issue.
+	 * When a messages is deleted by the storage, it's automatically
+	 * delete from this list, EXCEPT if the mouse is over the chat.
+	 * For IRC messages there's something actually deletes the messages
+	 * (see onDeleteMessage method) but this won't work for TwitchatAds
+	 * as they're running outside IRC context.
+	 * This "forceDelete" method handles that deletion
+	 */
+	public forceDelete(m:IRCEventDataList.TwitchatAd):void {
+		for (let i = 0; i < this.localMessages.length; i++) {
+			const el = this.localMessages[i];
+			if(el.tags.id == m.tags.id) {
+				this.localMessages.splice(i, 1);
+				i--;
+			}
+		}
 	}
 
 }

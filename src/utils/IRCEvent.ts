@@ -152,6 +152,15 @@ export namespace IRCEventDataList {
 		subgiftAdditionalRecipents?:string[];
 	}
 
+	export interface TwitchatAd {
+		tags:{
+			id:string
+		};
+		markedAsRead?:boolean;
+		contentID:number;
+		type:"ad";
+	}
+
 	export interface RoomState {
 		type:"notice";
 		raw: string;

@@ -2,7 +2,7 @@
 	<div class="paramssponsor">
 		<p>Twitchat took <strong>A LOT</strong> of my personnal time to create. Litterally months of my time.</p>
 		<p>It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.</p>
-		<p>Feel free to thank me with one of the options bellow!</p>
+		<p><strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!</p>
 
 		<img src="@/assets/img/eating.gif" alt="eating" />
 

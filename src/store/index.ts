@@ -18,6 +18,7 @@ import Store from './Store';
 
 export default createStore({
 	state: {
+		latestUpdateIndex: 1,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
@@ -33,7 +34,7 @@ export default createStore({
 		newScopeToRequest: [] as string[],
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
-		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight)[],
+		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd)[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchTypes.ModeratorUser[],
 		currentPoll: {} as TwitchTypes.Poll,
@@ -65,6 +66,11 @@ export default createStore({
 		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
 		commands: [
+			{
+				id:"updates",
+				cmd:"/updates",
+				details:"Show latest Twitchat updates",
+			},
 			{
 				id:"search",
 				cmd:"/search {text}",
@@ -302,6 +308,25 @@ export default createStore({
 		},
 
 		confirm(state, payload) { state.confirm = payload; },
+
+		sendTwitchatAd(state, contentID:number = -1) {
+			if(contentID == -1) {
+				let possibleAds = [1];
+				const lastUpdateRead = parseInt(Store.get("updateIndex"));
+				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
+					possibleAds = [2];
+				}else{
+					for (let i = 0; i < 5; i++) possibleAds.push(0);
+				}
+		
+				contentID = Utils.pickRand(possibleAds);
+				if(contentID == 0) return;
+			}
+
+			const list = state.chatMessages.concat();
+			list .push( {type:"ad", markedAsRead:false, contentID, tags:{id:"twitchatAd"+Math.random()}} );
+			state.chatMessages = list;
+		},
 
 		openTooltip(state, payload) { state.tooltip = payload; },
 		
@@ -551,23 +576,28 @@ export default createStore({
 		
 		delChatMessage(state, data:{messageId:string, deleteData:PubSubTypes.DeletedMessage}) { 
 			const keepDeletedMessages = state.params.filters.keepDeletedMessages.value;
-			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
+			const list = (state.chatMessages.concat() as (IRCEventDataList.Message | IRCEventDataList.TwitchatAd)[]);
 			for (let i = 0; i < list.length; i++) {
-				if(data.messageId == list[i].tags.id) {
-					//Broadcast to OBS-ws
-					const wsMessage = {
-						channel:list[i].channel,
-						message:list[i].message,
-						tags:list[i].tags,
-					}
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
-
-					//Delete message from list
-					if(keepDeletedMessages === true && !list[i].automod) {
-						list[i].deleted = true;
-						list[i].deletedData = data.deleteData;
-					}else{
+				const m = list[i];
+				if(data.messageId == m.tags.id) {
+					if(m.type == "ad") {
 						list.splice(i, 1);
+					}else{
+						//Broadcast to OBS-ws
+						const wsMessage = {
+							channel:m.channel,
+							message:m.message,
+							tags:m.tags,
+						}
+						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+	
+						//Delete message from list
+						if(keepDeletedMessages === true && !m.automod) {
+							m.deleted = true;
+							m.deletedData = data.deleteData;
+						}else{
+							list.splice(i, 1);
+						}
 					}
 					break;
 				}
@@ -1117,9 +1147,12 @@ export default createStore({
 
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
+			this.dispatch("sendTwitchatAd");
 		},
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
+		
+		sendTwitchatAd({commit}, contentID?:number) { commit("sendTwitchatAd", contentID); },
 
 		authenticate({ commit }, payload) { commit("authenticate", payload); },
 

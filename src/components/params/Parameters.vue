@@ -1,10 +1,10 @@
 <template>
 	<div class="parameters">
-		<div class="dimmer" ref="dimmer" @click="toggle(true)" v-if="showMenu"></div>
-		<div class="holder" ref="holder" v-if="showMenu">
+		<div class="dimmer" ref="dimmer" @click="close()"></div>
+		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Params</span>
-				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="toggle(true)" class="close" bounce/>
+				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
@@ -23,9 +23,10 @@
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
+				<!-- Used for direct link to sponsor content from chat ads -->
+				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 					<ParamItem v-for="d in filteredParams"
@@ -47,14 +48,14 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
+import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
+import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
+import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
-import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
-import ParamsSponsor from './contents/ParamsSponsor.vue';
-import ParamsAbout from './contents/ParamsAbout.vue';
 
 @Options({
 	props:{},
@@ -86,11 +87,27 @@ export default class Parameters extends Vue {
 		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;
 	}
 
+	public async beforeMount():Promise<void> {
+		const v = store.state.tempStoreValue as string;
+		if(!v) return;
+		if(v.indexOf("CONTENT:") === 0) {
+			//Requesting sponsor page
+			this.content = v.replace("CONTENT:", "") as ParamsContenType;
+			store.state.tempStoreValue = null;
+
+		}else if(v.indexOf("SEARCH:") === 0) {
+			//Prefilled search
+			const chunks = v.replace("SEARCH:", "").split(".");
+			if(chunks.length == 2) {
+				const cat = chunks[0] as ParameterCategory;
+				const paramKey = chunks[1];
+				this.search = store.state.params[cat][paramKey].label;
+			}
+
+		}
+	}
+
 	public async mounted():Promise<void> {
-		store.dispatch("showParams", false);
-		watch(() => store.state.showParams, (value:boolean) => {
-			this.toggle(!value);
-		});
 		watch(() => this.search, (value:string) => {
 			if(value.length == 0) {
 				this.content = this.prevContent;
@@ -100,24 +117,27 @@ export default class Parameters extends Vue {
 			this.content = null;
 			this.filterParams(this.search);
 		});
+
+		await this.$nextTick();
+	
+		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
+		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
+		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		
+		if(this.search) {
+			await this.$nextTick();
+			this.content = null;
+			this.filterParams(this.search);
+		}
 	}
 
-	public async toggle(forceClose:boolean = false):Promise<void> {
-		if(!this.showMenu && !forceClose) {
-			this.showMenu = true;
-			await this.$nextTick();
-		
-			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
-		}else{
-			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-			gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-				this.showMenu = false;
-				store.dispatch("showParams", false);
-			}});
-		}
+	public async close():Promise<void> {
+		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
+		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
+		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
+			this.showMenu = false;
+			store.dispatch("showParams", false);
+		}});
 	}
 
 	public setContent(id:ParamsContenType):void {

@@ -167,6 +167,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		"raffle",
 		"search",
 		"bingo",
+		"showUpdates",
 		"chatpoll",
 		"liveStreams",
 		"update:showFeed",
@@ -373,6 +374,12 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/commercial") {
 			this.$emit("ad", params.length > 0? parseInt(params[0]) : 30);
+			this.message = "";
+			
+		}else
+
+		if(cmd == "/updates") {
+			store.dispatch("sendTwitchatAd", 2);
 			this.message = "";
 			
 		}else
