@@ -76,15 +76,15 @@ export default class ActivityFeedFilters extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public mounted():void {
-		this.showSubs = this.modelValue["sub"] === true;
-		this.showFollow = this.modelValue["follow"] === true;
-		this.showBits = this.modelValue["bits"] === true;
-		this.showRaids = this.modelValue["raid"] === true;
-		this.showRewards = this.modelValue["rewards"] === true;
-		this.showPolls = this.modelValue["poll"] === true;
-		this.showPredictions = this.modelValue["prediction"] === true;
-		this.showBingos = this.modelValue["bingo"] === true;
-		this.showRaffles = this.modelValue["raffle"] === true;
+		this.showSubs = this.modelValue["sub"] == undefined || this.modelValue["sub"] === true;
+		this.showFollow = this.modelValue["follow"] == undefined || this.modelValue["follow"] === true;
+		this.showBits = this.modelValue["bits"] == undefined || this.modelValue["bits"] === true;
+		this.showRaids = this.modelValue["raid"] == undefined || this.modelValue["raid"] === true;
+		this.showRewards = this.modelValue["rewards"] == undefined || this.modelValue["rewards"] === true;
+		this.showPolls = this.modelValue["poll"] == undefined || this.modelValue["poll"] === true;
+		this.showPredictions = this.modelValue["prediction"] == undefined || this.modelValue["prediction"] === true;
+		this.showBingos = this.modelValue["bingo"] == undefined || this.modelValue["bingo"] === true;
+		this.showRaffles = this.modelValue["raffle"] == undefined || this.modelValue["raffle"] === true;
 		
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
