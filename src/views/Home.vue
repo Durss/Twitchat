@@ -159,6 +159,7 @@
 			<div class="footer">
 				<p>Made with 💘 by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
 				<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+				<p class="note">Twitchat is NOT affiliated with <a href="https://twitch.tv" target="_blank">Twitch</a> by any means</p>
 			</div>
 		</div>
 	</div>
@@ -368,6 +369,13 @@ export default class Home extends Vue {
 		text-align: center;
 		font-size: .8em;
 		margin-bottom: 10px;
+
+		.note {
+			font-style: italic;
+			margin-top: .5em;
+			font-size: .9em;
+			opacity: .8;
+		}
 	}
 }
 </style>
