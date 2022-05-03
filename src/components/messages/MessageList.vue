@@ -330,7 +330,7 @@ export default class MessageList extends Vue {
 				if(readCount === 0) readCount = 1;
 				const offset = this.localMessages.findIndex(v => {
 					if(v.type == "ad") return;
-					v.markedAsRead === true
+					return v.markedAsRead === true
 				})
 				if(offset > -1) readCount += offset;
 			}
