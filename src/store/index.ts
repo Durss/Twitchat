@@ -332,7 +332,7 @@ export default createStore({
 				}
 		
 				contentID = Utils.pickRand(possibleAds);
-				contentID = TwitchatAdTypes.TIP;//TODO comment this line
+				// contentID = TwitchatAdTypes.TIP;//TODO comment this line
 				if(contentID == 0) return;
 			}
 
