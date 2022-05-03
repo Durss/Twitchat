@@ -9,13 +9,13 @@
 </div>
 <br>
 <br>
-A custom twitch chat that aims to fill gaps in the official Twitch chat for streamers.
+A custom Twitch chat that aims to fill gaps in the official Twitch chat for streamers.
 <br>
-The main goal is to follow your chat as best as possible.
+The main goal is to allow a streamer to follow his chat as best as possible.
 <br>
 <br>
 
-For developpers, **Twitchat exposes an API** to receive events and control some features remotely.\
+For developers, **Twitchat exposes an API** to receive events and control some features remotely.\
 Documentation can be found [here](PUBLIC_API.md).
 <br>
 <br>
@@ -23,7 +23,7 @@ Documentation can be found [here](PUBLIC_API.md).
 
 # Features
 - [x] Create your own sub/follow/rewards/poll/... alerts with the OBS trigger system that allows to control your OBS sources and filters when an event occurs
-- [x] Display the first message of users seperatly so you don't forget to greet them
+- [x] Display the first message of users seperatly so you don’t forget to greet them
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss her/his messages
@@ -35,22 +35,22 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Customize messages *(remove badges, show minimalist badges, remove emotes)*
 - [x] Customize messages appearance by roles *(viewers, mods, vips, subs)*
 - [x] Moderate messages *(ban, timeout, delete message)*
-- [x] Allow/deny messages blocked by automod
-- [x] Display when it's the first message ever of a user on the channel
-- [x] Display mod notifications on chat (ex: "User XXX has been banned by YYY")
+- [x] Allow/deny messages blocked by AutoMod
+- [x] Display when it’s the first message ever of a user on the channel
+- [x] Display mod notifications on chat (i.e. “User XXX has been banned by YYY”)
 - [x] Display sub/bits/raid/reward/follow notifications
 - [x] Display hype train status
-- [x] Show the last stream info of a raider
-- [x] Integrated activity feed to see subs/cheers/follows/raids/rewards history
-- [x] Create/Delete polls
-- [x] Create/Delete predictions
+- [x] Show the informations about the last stream of a raider
+- [x] Embedded activity feed to see subs/cheers/follows/raids/rewards history
+- [x] Create/delete polls
+- [x] Create/delete predictions
 - [x] Emote selector 
 - [x] BTTV and FFZ emotes supported
-- [x] Message autocomplete nickname via "@", emotes via ":", commands via "/" or all via TAB key
+- [x] Message autocomplete nickname via “@”, emotes via “:”, commands via “/” or all via TAB key
 - [x] Allow to search on all messages via command `/search`
 - [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
 - [x] Filter out only specific commands
-- [x] See live viewers count
+- [x] See live viewer count
 - [x] Keep or remove deleted messages
 - [x] See all my followings that are live to raid them easily
 - [x] Supports new boost trains
@@ -62,13 +62,13 @@ Documentation can be found [here](PUBLIC_API.md).
 <br>
 
 - [ ] Request scopes on-demand
-- [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
+- [ ] Handle new “low trust” feature *(Done but no available scope to actually receive the messages)*.
 <br>
 <br>
 <br>
 
 # Project setup
-First create a `credentials.json` file on the root directory and fill in these values :
+First, create a `credentials.json` file on the root directory and fill in these values:
 ```json
 {
 	"client_id": "",
@@ -93,11 +93,11 @@ First create a `credentials.json` file on the root directory and fill in these v
 	]
 }
 ```
-Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
+Create a [Twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
 Write anything in the `csrf_key` field, it will be used to secure twitch authentication from CSRF attacks.\
-Configure the redirect URI of the twitch application with your localhost and/or production URI.\
+Configure the redirect URI of the Twitch application with your localhost and/or production URI.\
 Set it as the `redirect_uri` value of the credentials.\
-The `redirect uri` must end with `/oauth`, example :
+The `redirect uri` must end with `/oauth`, example:
 ```
 http://localhost:8080/oauth
 ```
@@ -141,16 +141,16 @@ Install all the production dependencies and [run the server](#run-server).
 \
 Here is the expected file structure:\
 ─ root\
-  ├─ dist/\
-  ├─ node_modules/\
-  ├─ server.js\
-  ├─ env.conf\
-  ├─ credentials.json\
-  ├─ fakeEvents.json\
+  ├─ dist/\
+  ├─ node_modules/\
+  ├─ server.js\
+  ├─ env.conf\
+  ├─ credentials.json\
+  ├─ fakeEvents.json\
 <br>
 <br>
 <br>
 
 # Server
-The server is super basic for now as there isn't much needs.
-For this reason it's a just a single file server coded in vanila JS that doesn't need any compilation. That might change in the futur.
+The server is super basic for now as there aren’t much needs.
+For this reason, it’s a just a single file server coded in vanilla JS that doesn’t need any compilation. That might change in the future.
