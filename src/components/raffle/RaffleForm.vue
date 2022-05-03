@@ -10,7 +10,12 @@
 				<div class="description">
 					<p>This feature allows you to randomly pick a user on your audience.</p>
 					<p>Set a <strong>command</strong> your viewers will have to enter, a max duration to enter the raffle or a max number of users allowed, and start the raffle.</p>
+					<ToggleBlock icon="infos" small title="Legal concerns" :open="false" class="legal">
+						<div>Depending on your country's legislation, making your viewers win something while using the "sub" ponderation option or randomly picking a winner amongst your subs might me illegal.</div>
+						<div>You may want to check this out before doing a giveaway.</div>
+					</ToggleBlock>
 				</div>
+
 				<form @submit.prevent="onSubmit()" class="form">
 					<div class="row">
 						<ParamItem class="item" :paramData="command" :autofocus="true" />
@@ -67,6 +72,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import Splitter from '../Splitter.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -74,6 +80,7 @@ import Splitter from '../Splitter.vue';
 		Button,
 		Splitter,
 		ParamItem,
+		ToggleBlock,
 	}
 })
 export default class RaffleForm extends Vue {
@@ -184,6 +191,14 @@ export default class RaffleForm extends Vue {
 			margin-bottom: 1em;
 			.button {
 				margin-top: .5em;
+			}
+			.legal {
+				text-align: justify;
+				color: @mainColor_warn;
+				:deep(.header),
+				:deep(.content) {
+					background-color: fade(@mainColor_warn, 10%);
+				}
 			}
 		}
 
