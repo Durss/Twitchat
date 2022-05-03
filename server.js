@@ -31,15 +31,20 @@ http.createServer((request, response) => {
 		if(data) body += data;
     });
 
-	request.addListener('end', () => {
-		if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
-			//Set CORS headers if host is found on the redirect URI
-			response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
-			response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
-			response.setHeader('Access-Control-Allow-Origin', "*");
+	request.addListener('end', async () => {
+		if(request.method == "HEAD") {
+			response.end();
+			return;
 		}
 		
 		if(request.method == "OPTIONS") {
+			if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
+				//Set CORS headers if host is found on the redirect URI
+				response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
+				response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
+				response.setHeader('Access-Control-Allow-Origin', "*");
+			}
+
 			response.end("OK");
 			return;
 		}
@@ -90,10 +95,11 @@ http.createServer((request, response) => {
 				return;
 			}
 		}else{
-			fileServer.serve(request, response, (err, result) => {
+			await fileServer.serve(request, response, async (err, result) => {
 				if (err) {
 					if(request.url.toLowerCase().indexOf("oauth") == -1
-					&& request.url.toLowerCase().indexOf("chat") == -1) {
+					&& request.url.toLowerCase().indexOf("chat") == -1
+					&& request.url.toLowerCase().indexOf("login") == -1) {
 						console.error(
 							"Error serving " + request.url + " - " + err.message
 						);
@@ -111,7 +117,7 @@ http.createServer((request, response) => {
 					// 	return;
 					// }
 
-					fileServer.serveFile( '/index.html', 200, {}, request, response );
+					await fileServer.serveFile( '/index.html', 200, {}, request, response );
 				}
 			});
 		}
