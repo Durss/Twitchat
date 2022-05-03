@@ -38,18 +38,13 @@ http.createServer((request, response) => {
 		}
 		
 		if(request.method == "OPTIONS") {
-			if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
-				//Set CORS headers if host is found on the redirect URI
-				response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
-				response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
-				response.setHeader('Access-Control-Allow-Origin', "*");
-			}
-
+			setHeaders(request, response);
 			response.end("OK");
 			return;
 		}
 		
 		if(request.url.indexOf("/api") == 0) {
+			setHeaders(request, response);
 			const endpoint = request.url.replace(/\?.*/gi, "");
 			
 			//Get client ID
@@ -124,6 +119,15 @@ http.createServer((request, response) => {
 	}).resume();
 }).listen(3018);
 
+
+function setHeaders(request, response) {
+	if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
+		//Set CORS headers if host is found on the redirect URI
+		response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
+		response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
+		response.setHeader('Access-Control-Allow-Origin', "*");
+	}
+}
 
 /**
  * Generates an access token from an auth code
