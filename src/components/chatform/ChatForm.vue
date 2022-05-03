@@ -136,7 +136,6 @@ import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
