@@ -2,7 +2,7 @@
 	<div class="paramsobs">
 		<div class="head">
 			<p>Create your own twitch alerts and allow your mods basic control over your OBS</p>
-			<p class="install">In order to work, this needs <a :href="obswsInstaller" target="_blank">OBS-websocket plugin V5</a> to be installed.</p>
+			<p class="install">In order to work, this needs <strong>OBS v27.2+</strong> and <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
 		</div>
 
 		<ToggleBlock class="block conf"
@@ -20,6 +20,7 @@
 				After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
 				<br>
 				<br>This window will open with the credentials:
+				<br><span class="warn">You'll probably want to leave the IP to <strong>127.0.0.1</strong>!</span>
 				<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
 			</ToggleBlock>
 
@@ -240,6 +241,10 @@ export default class ParamsOBS extends Vue {
 	.block {
 		.info {
 			margin-bottom: 1em;
+		}
+		.warn {
+			font-style: italic;
+			color: @mainColor_alert;
 		}
 		&.permissions {
 			.info {
