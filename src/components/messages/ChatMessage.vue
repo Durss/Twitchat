@@ -57,7 +57,9 @@
 				data-tooltip="Number of times this message has been sent"
 				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
-			<span class="pronoun" v-if="pronoun && $store.state.params.features.showUserPronouns.value===true">{{pronoun}}</span>
+			<span class="pronoun"
+				:data-tooltip="pronounLabel"
+				v-if="pronoun && $store.state.params.features.showUserPronouns.value===true">{{pronoun}}</span>
 			
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
@@ -116,6 +118,7 @@ export default class ChatMessage extends Vue {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
 		if(!key) return null;
 		const hashmap:{[key:string]:string} = {
+			// https://pronouns.alejo.io
 			"aeaer" : "Ae/Aer",
 			"any" : "Any",
 			"eem" : "E/Em",
@@ -132,9 +135,39 @@ export default class ChatMessage extends Vue {
 			"vever" : "Ve/Ver",
 			"xexem" : "Xe/Xem",
 			"ziehir" : "Zie/Hir",
+			// https://pronoundb.org
+			"hh": "he/him",
+			"hi": "he/it",
+			"hs": "he/she",
+			"ih": "it/him",
+			"ii": "it/its",
+			"is": "it/she",
+			"shh": "she/he",
+			"sh": "she/her",
+			"si": "she/it",
+			"st": "she/they",
+			"th": "they/he",
+			"ti": "they/it",
+			"ts": "they/she",
+			"tt": "they/them",
 		};
 		const res = hashmap[key];
 		return res? res : key;
+	}
+
+	public get pronounLabel(): string | null {
+		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
+		if(!key) return null;
+
+		const hashmap: {[key: string]: string} = {
+			// https://pronoundb.org
+			"any": "Any pronouns",
+			"other": "Other pronouns",
+			"ask": "Ask me my pronouns",
+			"avoid": "Avoid pronouns, use my name",
+		};
+
+		return hashmap[key];
 	}
 
 	public get isAnnouncement():boolean {
