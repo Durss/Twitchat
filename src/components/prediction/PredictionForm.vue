@@ -14,14 +14,27 @@
 					</div>
 					<div class="row answers">
 						<label for="prediction_answer">Answers</label>
-						<input type="text" id="prediction_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''">
-						<input type="text" v-model="answer2" maxlength="25">
+						<div v-for="(a, index) in answers"
+						:class="getAnswerClasses(index)"
+						:key="'answer'+index">
+							<input type="text"
+								v-model="answers[index]"
+								maxlength="25"
+								v-autofocus="index == 0 && title != ''"
+							>
+							<Button class="deleteBt" small
+								:icon="require('@/assets/icons/cross.svg')"
+								type="button"
+								v-if="answers.length > 2"
+								@click="deleteAnswer(index)"
+							/>
+						</div>
 					</div>
 					<div class="row">
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
-						<Button title="Submit" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length != 2" />
+						<Button title="Submit" type="submit" :loading="loading" :disabled="!canSubmit" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
 				</form>
@@ -32,7 +45,9 @@
 
 <script lang="ts">
 import store, { ParameterData } from '@/store';
+import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -52,14 +67,25 @@ export default class PredictionForm extends Vue {
 
 	public error:string = "";
 	public title:string = "";
-	public answer1:string = "";
-	public answer2:string = "";
+	public answers:string[] = ["", ""];
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
 
-	public get answers():string[] {
-		let res = [];
-		if(this.answer1) res.push(this.answer1);
-		if(this.answer2) res.push(this.answer2);
+	public get canSubmit():boolean {
+		return this.title.length > 1 && this.answers[0].length > 0 && this.answers[1].length > 0;
+	}
+
+	public get filledCount():number {
+		let filledCount = 0;
+		for (let i = 0; i < this.answers.length; i++) {
+			if(this.answers[i].length > 0) filledCount++;
+		}
+		return filledCount;
+	}
+
+	public getAnswerClasses(index:number):string[] {
+		const res = ["answer"];
+		if(this.filledCount < 3 && index == 1) res.push("red"); 
+		if(index > 1 && this.answers[index].length==0) res.push("disabled"); 
 		return res;
 	}
 
@@ -74,6 +100,31 @@ export default class PredictionForm extends Vue {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+
+		watch(()=>this.answers, ()=> {
+			let emptyCount = 0;
+			for (let i = 0; i < this.answers.length; i++) {
+				if(this.answers[i].length === 0) emptyCount++;
+			}
+			if(emptyCount == 0 && this.answers.length < Config.MAX_PREDICTION_OUTCOMES) {
+				this.answers.push("");
+			}else if(emptyCount > 1 && this.answers.length > 2) {
+				while(emptyCount > 1) {
+					for (let i = 0; i < this.answers.length; i++) {
+						if(this.answers[i].length === 0) {
+							this.answers.splice(i, 1);
+							emptyCount--;
+							break;
+						}
+					}
+				}
+
+			}
+		}, {deep:true});
+	}
+
+	public async deleteAnswer(index:number):Promise<void> {
+		this.answers.splice(index, 1);
 	}
 
 	public async close():Promise<void> {
@@ -88,8 +139,10 @@ export default class PredictionForm extends Vue {
 		this.loading = true;
 		this.error = "";
 
+		const answers = this.answers.filter(v => v.length > 0);
+
 		try {
-			await TwitchUtils.createPrediction(this.title, this.answers, this.voteDuration.value as number * 60);
+			await TwitchUtils.createPrediction(this.title, answers, this.voteDuration.value as number * 60);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
@@ -135,20 +188,41 @@ export default class PredictionForm extends Vue {
 				}
 
 				&.answers {
-					input {
+					.answer {
 						flex-grow: 1;
-						border-width: 3px;
-						@c:#f50e9b;
-						color: @c;
-						border-color: @c;
-						background-color: lighten(@c, 40%);
-					}
-					input:first-of-type {
-						@c:#387aff;
-						color: @c;
-						border-color: @c;
-						background-color: lighten(@c, 30%);
-						margin-bottom: 5px;
+						display: flex;
+						flex-direction: row;
+						&:not(:last-child) {
+							margin-bottom: 5px;
+						}
+						&.red {
+							input {
+								@c:#f50e9b;
+								color: @c;
+								border-color: @c;
+								background-color: lighten(@c, 40%);
+							}
+						}
+						&.disabled {
+							input {
+								@c:#727272;
+								color: @c;
+								border-color: @c;
+								background-color: lighten(@c, 40%);
+							}
+						}
+						input {
+							flex-grow: 1;
+							border-width: 3px;
+							@c:#387aff;
+							color: @c;
+							border-color: @c;
+							background-color: lighten(@c, 30%);
+						}
+						.deleteBt {
+							background: none;
+							padding-right: 0;
+						}
 					}
 				}
 			}
