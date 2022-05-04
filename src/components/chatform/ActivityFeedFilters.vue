@@ -85,6 +85,7 @@ export default class ActivityFeedFilters extends Vue {
 		this.showPredictions = this.modelValue["prediction"] == undefined || this.modelValue["prediction"] === true;
 		this.showBingos = this.modelValue["bingo"] == undefined || this.modelValue["bingo"] === true;
 		this.showRaffles = this.modelValue["raffle"] == undefined || this.modelValue["raffle"] === true;
+		this.onChange();
 		
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);

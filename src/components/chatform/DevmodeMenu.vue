@@ -5,7 +5,7 @@
 			<Button small title="Commercial" @click="simulateEvent('commercial')" :icon="require('@/assets/icons/coin.svg')" />
 			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
 			<Button small title="Presentation" @click="simulateEvent('presentation')" :icon="require('@/assets/icons/firstTime.svg')" />
-			<Button small title="Raid" @click="simulateEvent('raided')" :icon="require('@/assets/icons/bits.svg')" />
+			<Button small title="Raid" @click="simulateEvent('raided')" :icon="require('@/assets/icons/raid.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
 			<Button small title="ReSub" @click="simulateEvent('resub')" :icon="require('@/assets/icons/sub.svg')" />
