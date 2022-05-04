@@ -54,6 +54,7 @@ export default class ChatPredictionResult extends Vue {
 	public getOutcomeClasses(o:TwitchTypes.PredictionOutcome):string[] {
 		const res = ["outcome"];
 		if(this.prediction.winning_outcome_id === o.id) res.push("winner");
+		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
 
@@ -118,17 +119,19 @@ export default class ChatPredictionResult extends Vue {
 				align-items: center;
 				margin-bottom: 1px;
 
-				&:first-of-type {
-					.bar {
-						@c: #387aff;
-						background: linear-gradient(to right, @c 100%, @c 100%);
-						background-color: fade(@c, 20%);
-						background-repeat: no-repeat;
-					}
-				}
-
 				&.winner {
 					.check { display: inline; }
+				}
+
+				&:not(.noColorMode) {
+					&:not(:first-of-type) {
+						.bar {
+							@c: #f50e9b;
+							background: linear-gradient(to right, @c 100%, @c 100%);
+							background-color: fade(@c, 20%);
+							background-repeat: no-repeat;
+						}
+					}
 				}
 
 				.check {
@@ -151,7 +154,7 @@ export default class ChatPredictionResult extends Vue {
 					flex-direction: row;
 					padding: 3px;
 					border-radius: 5px;
-					@c: #f50e9b;
+					@c: #387aff;
 					background: linear-gradient(to right, @c 100%, @c 100%);
 					background-color: fade(@c, 20%);
 					background-repeat: no-repeat;

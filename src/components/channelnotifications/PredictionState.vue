@@ -1,5 +1,5 @@
 <template>
-	<div class="predictionstate">
+	<div :class="classes">
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
 		
 		<ProgressBar class="progress"
@@ -59,6 +59,12 @@ export default class PredictionState extends Vue {
 
 	public get prediction():TwitchTypes.Prediction {
 		return store.state.currentPrediction as TwitchTypes.Prediction;
+	}
+
+	public get classes():string[] {
+		let res = ["predictionstate"];
+		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
+		return res;
 	}
 
 	public getPercent(c:TwitchTypes.PredictionOutcome):number {
@@ -171,6 +177,18 @@ export default class PredictionState extends Vue {
 		}
 	}
 
+	&:not(.noColorMode) {
+		.choices {
+			.choice {
+				&:not(:first-of-type) {
+					.color, .winBt {
+					background-color: #f50e9b;
+					}
+				}
+			}
+		}
+	}
+
 	.choices {
 		.choice {
 			display: flex;
@@ -182,7 +200,7 @@ export default class PredictionState extends Vue {
 			}
 
 			.color {
-				background-color: #f50e9b;
+				background-color: #387aff;
 				width: 20px;
 				height: 20px;
 				display: inline-block;
@@ -199,7 +217,7 @@ export default class PredictionState extends Vue {
 			.winBt {
 				height: 30px;
 				width: 30px;
-				background-color: #f50e9b;
+				background-color: #387aff;
 				margin-right: 5px;
 				padding: 0px;
 				:deep(.icon) {
