@@ -6,7 +6,9 @@
 			<span class="timer">({{timeLeft}}s)</span>
 		</div>
 
-		<Button @click="cancelRaid()" class="cancelBt" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
+		<!-- <Button class="startBt" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
+		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry :(</div>
+		<Button class="cancelBt" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" @click="cancelRaid()" />
 
 	</div>
 </template>
@@ -77,6 +79,20 @@ export default class RaidState extends Vue {
 
 	.cancelBt {
 		margin-top: 10px;
+	}
+
+	.startBt {
+		margin-top: 10px;
+		pointer-events: none;
+	}
+
+	.alert {
+		margin-top: 10px;
+		font-size: .7em;
+		padding: .55em;
+		background-color: fade(@mainColor_alert, 50%);
+		border-radius: .5em;
+
 	}
 }
 </style>
