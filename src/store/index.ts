@@ -382,30 +382,6 @@ export default createStore({
 				
 				const textMessage = payload as IRCEventDataList.Message;
 
-				if(textMessage.type == "message" && textMessage.message && textMessage.tags.username) {
-					if(Utils.checkPermissions(state.obsPermissions, textMessage.tags)) {
-						const cmd = textMessage.message.trim().toLowerCase();
-						//check if it's a command to control OBS scene
-						for (let i = 0; i < state.obsSceneCommands.length; i++) {
-							const scene = state.obsSceneCommands[i];
-							if(scene.command.trim().toLowerCase() == cmd) {
-								OBSWebsocket.instance.setCurrentScene(scene.scene.sceneName);
-							}
-						}
-
-						const audioSourceName = state.obsMuteUnmuteCommands?.audioSourceName;
-						if(audioSourceName) {
-							//Check if it's a command to mute/unmute an audio source
-							if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
-								OBSWebsocket.instance.setMuteState(audioSourceName, true);
-							}
-							if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
-								OBSWebsocket.instance.setMuteState(audioSourceName, false);
-							}
-						}
-					}
-				}
-
 				//If it's a subgift, merge it with potential previous ones
 				if(payload.type == "highlight" && payload.recipient) {
 					for (let i = 0; i < messages.length; i++) {
@@ -580,8 +556,6 @@ export default createStore({
 			|| (payload as IRCEventDataList.Commercial).tags["msg-id"] === "commercial") {
 				state.activityFeed.push(payload as ActivityFeedData);
 			}
-
-			OBSEventActionHandler.instance.onMessage(message);
 
 			messages.push( message );
 			state.chatMessages = messages;
@@ -1062,8 +1036,33 @@ export default createStore({
 							}
 						}
 					}
-
 				}
+
+				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+					if(Utils.checkPermissions(state.obsPermissions, messageData.tags)) {
+						const cmd = messageData.message.trim().toLowerCase();
+						//check if it's a command to control OBS scene
+						for (let i = 0; i < state.obsSceneCommands.length; i++) {
+							const scene = state.obsSceneCommands[i];
+							if(scene.command.trim().toLowerCase() == cmd) {
+								OBSWebsocket.instance.setCurrentScene(scene.scene.sceneName);
+							}
+						}
+
+						const audioSourceName = state.obsMuteUnmuteCommands?.audioSourceName;
+						if(audioSourceName) {
+							//Check if it's a command to mute/unmute an audio source
+							if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
+								OBSWebsocket.instance.setMuteState(audioSourceName, true);
+							}
+							if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
+								OBSWebsocket.instance.setMuteState(audioSourceName, false);
+							}
+						}
+					}
+				}
+
+				OBSEventActionHandler.instance.onMessage(messageData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {

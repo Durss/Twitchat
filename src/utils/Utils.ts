@@ -158,9 +158,9 @@ export default class Utils {
 		const vip = user.badges?.vip != undefined;
 		const sub = user.badges?.subscriber != undefined;
 		const broadcaster = user.badges?.broadcaster != undefined;
-		const allowed = permissions.mods && mod ||
-						permissions.vips && vip ||
-						permissions.subs && sub ||
+		const allowed = (permissions.mods && mod) ||
+						(permissions.vips && vip) ||
+						(permissions.subs && sub) ||
 						permissions.all ||
 						broadcaster ||
 						allowedUsers?.indexOf((user.username as string).toLowerCase()) != -1;
