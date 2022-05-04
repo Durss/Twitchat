@@ -45,7 +45,7 @@
 			<div class="title">Join us on Discord</div>
 			<div class="content">
 				<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
-				<div>You have  feature suggestion or an issue to report?<br>join us on discord!</div>
+				<div>You have a feature suggestion or an issue to report?<br>join us on discord!</div>
 			</div>
 			<div class="cta">
 				<Button :icon="require('@/assets/icons/discord.svg')"

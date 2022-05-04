@@ -1,5 +1,6 @@
 <template>
 	<div class="raidstate">
+		<img v-if="user" :src="user.profile_image_url" alt="avatar" class="avatar">
 		<div>
 			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 			Raiding <strong>{{$store.state.raiding.target_display_name}}</strong> with <strong>{{$store.state.raiding.viewer_count}}</strong> viewers
@@ -16,6 +17,7 @@
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
+import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -29,16 +31,21 @@ import Button from '../Button.vue';
 export default class RaidState extends Vue {
 
 	public timeLeft:string = "";
+	public user:TwitchTypes.UserInfo|null = null;
 
 	private timerDuration:number = 90000;
 	private timerStart:number = 0;
 	private timerInterval!:number;
 
-	public mounted():void {
+	public async mounted():Promise<void> {
 		this.timerStart = Date.now();
 		this.timerInterval = setInterval(()=> {
 			this.updateTimer();
 		}, 250);
+		
+		if(store.state.raiding?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [store.state.raiding?.target_login as string]))[0];
+		}
 	}
 
 	public unmounted():void {
@@ -65,6 +72,14 @@ export default class RaidState extends Vue {
 .raidstate{
 	color: @mainColor_light;
 	text-align: center;
+
+	.avatar {
+		width: 3em;
+		border-radius: 50%;
+		margin: auto;
+		margin-bottom: .25em;
+		border: 2px solid @mainColor_light;
+	}
 	
 	.icon {
 		height: 25px;
