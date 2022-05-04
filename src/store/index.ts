@@ -208,7 +208,7 @@ export default createStore({
 				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
 				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
 				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
-				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns (based on <a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a> and <a href='https://pronoundb.org/' target='_blank'>PronounDB</a>')", id:213, icon:"user_purple.svg"},
+				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {

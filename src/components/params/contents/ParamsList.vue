@@ -6,9 +6,16 @@
 				@enter="onShowItem"
 				@leave="onHideItem"
 			>
-				<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="obsConnect">
+				<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
 					<img src="@/assets/icons/infos.svg" alt="info">
 					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
+				</div>
+				<div v-else-if="p.id == 213 && p.value === true && !isOBSConnected" class="info pronouns">
+					<p class="label">based on
+						<a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>
+						and
+						<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
+					</p>
 				</div>
 			</transition>
 		</div>
@@ -73,7 +80,7 @@ export default class ParamsList extends Vue {
 		margin-bottom: 10px;
 	}
 
-	.obsConnect {
+	.info {
 		overflow: hidden;
 		padding-left: calc(1em + 10px);
 		img {
@@ -83,7 +90,18 @@ export default class ParamsList extends Vue {
 
 		.label {
 			display: inline;
-			color: @mainColor_warn;
+		}
+
+		&.obsConnect {
+			.label {
+				color: @mainColor_warn;
+			}
+		}
+
+		&.pronouns {
+			.label {
+				font-size: .8em;
+			}
 		}
 	}
 }

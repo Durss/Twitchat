@@ -883,7 +883,7 @@ export default class TwitchUtils {
 	 * Get pronouns of a user
 	 */
 	public static async getPronouns(uid: string, username: string): Promise<TwitchTypes.Pronoun | null> {
-		const getPronounsAlejo = async (): Promise<TwitchTypes.Pronoun | null> => {
+		const getPronounAlejo = async (): Promise<TwitchTypes.Pronoun | null> => {
 			const res = await fetch(`https://pronouns.alejo.io/api/users/${username}`);
 			const data = await res.json();
 
@@ -896,7 +896,7 @@ export default class TwitchUtils {
 			return null;
 		};
 
-		const getPronounsPronouDb = async (): Promise<TwitchTypes.Pronoun | null> => {
+		const getPronounPronounDb = async (): Promise<TwitchTypes.Pronoun | null> => {
 			const res = await fetch(`https://pronoundb.org/api/v1/lookup?platform=twitch&id=${uid}`);
 			const data = await res.json();
 
@@ -910,9 +910,9 @@ export default class TwitchUtils {
 			};
 		}
 
-		let pronoun = await getPronounsAlejo();
+		let pronoun = await getPronounAlejo();
 		if (pronoun == null) {
-			pronoun = await getPronounsPronouDb();
+			pronoun = await getPronounPronounDb();
 		}
 
 		return pronoun;
