@@ -20,11 +20,15 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	private selfTags!:tmi.ChatUserstate;
+	private joinSpool:string[] = [];
+	private partSpool:string[] = [];
+	private joinSpoolTimeout:number = -1;
+	private partSpoolTimeout:number = -1;
 	
 	public client!:tmi.Client;
 	public token!:string|undefined;
@@ -131,7 +135,20 @@ export default class IRCClient extends EventDispatcher {
 					this.sendNotice("online", "Welcome to the chat room "+channel+"!");
 				}else{
 					if(store.state.params.features.notifyJoinLeave.value === true) {
-						this.sendNotice("online", user+" enters the chat room");
+						//Ignore bots
+						if(store.state.params.filters.showBots.value === true
+						|| this.botsLogins.indexOf(user) == -1) {
+							user = "<mark>"+user.replace(/</g, "&lt;").replace(/>/g, "&gt;")+"</mark>";
+							this.joinSpool.push(user);
+							clearTimeout(this.joinSpoolTimeout);
+							
+							this.joinSpoolTimeout = setTimeout(() => {
+								let message = this.joinSpool.join(", ")+" joined the chat room";
+								message = message.replace(/,([^,]*)$/, " and$1");
+								this.sendNotice("online", message);
+								this.joinSpool = [];
+							}, 1000);
+						}
 					}
 				}
 
@@ -150,7 +167,20 @@ export default class IRCClient extends EventDispatcher {
 					this.onlineUsers.splice(index, 1);
 				}
 				if(store.state.params.features.notifyJoinLeave.value === true) {
-					this.sendNotice("offline", user+" left the chat room");
+					//Ignore bots
+					if(store.state.params.filters.showBots.value === true
+					|| this.botsLogins.indexOf(user) == -1) {
+						user = "<mark>"+user.replace(/</g, "&lt;").replace(/>/g, "&gt;")+"</mark>";
+						this.partSpool.push(user);
+						clearTimeout(this.partSpoolTimeout);
+						
+						this.partSpoolTimeout = setTimeout(() => {
+							let message = this.partSpool.join(", ")+" left the chat room";
+							message = message.replace(/,([^,]*)$/, " and$1");
+							this.sendNotice("online", message);
+							this.partSpool = [];
+						}, 1000);
+					}
 				}
 				store.dispatch("setViewersList", this.onlineUsers);
 			});
@@ -463,17 +493,17 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		//Ignore /me messages if requested
-		if(!store.state.params.filters.showSlashMe.value === true && tags["message-type"] == "action") {
+		if(store.state.params.filters.showSlashMe.value === false && tags["message-type"] == "action") {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 			return;
 		}
 		//Ignore self if requested
-		if(!store.state.params.filters.showSelf.value === true && tags["user-id"] == store.state.user.user_id) {
+		if(store.state.params.filters.showSelf.value === false && tags["user-id"] == store.state.user.user_id) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}
 		//Ignore bot messages if requested
-		if(!store.state.params.filters.showBots.value === true && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+		if(store.state.params.filters.showBots.value === false && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}

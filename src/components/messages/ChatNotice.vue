@@ -31,7 +31,8 @@ export default class ChatNotice extends Vue {
 		let text = mess.message;
 		if(text){
 			text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
-			text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");
+			text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");//Allow <strong> tags
+			text = text.replace(/&lt;(\/)?mark&gt;/gi, "<$1mark>");//Allow <mark> tags
 		}else{
 			text = "";
 		}
@@ -72,6 +73,11 @@ export default class ChatNotice extends Vue {
 		font-style: italic;
 		opacity: .7;
 		color: @mainColor_warn;
+
+		:deep(mark) {
+			margin: 0 .2em;
+			color: @mainColor_warn;
+		}
 	}
 }
 </style>
