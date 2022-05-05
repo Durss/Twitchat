@@ -392,7 +392,7 @@ export default class NewUsers extends Vue {
 <style scoped lang="less">
 .newusers{
 	// background-color: #218bac;
-	background-color: darken(@mainColor_normal, 20%);
+	background-color: @windowStateColor;
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;

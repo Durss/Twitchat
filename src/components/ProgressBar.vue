@@ -68,7 +68,7 @@ export default class ProgressBar extends Vue {
 	.fill {
 		height: 3px;
 		width: 100%;
-		background-color: darken(@mainColor_normal, 20%);
+		background-color: @windowStateColor;
 		transform-origin: left;
 		will-change: transform;
 	}

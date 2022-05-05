@@ -72,7 +72,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["antoinedaniel", "guile", "desentredeux"]);
+				channels = channels.concat(["shakawah", "guile", "desentredeux"]);
 			}
 
 			(async ()=> {
@@ -143,7 +143,7 @@ export default class IRCClient extends EventDispatcher {
 							clearTimeout(this.joinSpoolTimeout);
 							
 							this.joinSpoolTimeout = setTimeout(() => {
-								const join = this.joinSpool.slice(0, 30);
+								const join = this.joinSpool.splice(0, 30);
 								let message = join.join(", ");
 								if(this.joinSpool.length > 0) {
 									message += " and <mark>"+this.joinSpool.length+"</mark> more...";
@@ -181,7 +181,7 @@ export default class IRCClient extends EventDispatcher {
 						clearTimeout(this.partSpoolTimeout);
 						
 						this.partSpoolTimeout = setTimeout(() => {
-							const join = this.partSpool.slice(0, 30);
+							const join = this.partSpool.splice(0, 30);
 							let message = join.join(", ");
 							if(this.partSpool.length > 0) {
 								message += " and <mark>"+this.partSpool.length+"</mark> more...";
