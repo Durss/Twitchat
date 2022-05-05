@@ -72,7 +72,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["antoinedaniel"]);
+				channels = channels.concat(["antoinedaniel", "guile", "desentredeux"]);
 			}
 
 			(async ()=> {
@@ -111,7 +111,7 @@ export default class IRCClient extends EventDispatcher {
 			if(token) {
 				this.client = new tmi.Client({
 					options: { debug: false, skipUpdatingEmotesets:true, },
-					connection: { reconnect: true },
+					connection: { reconnect: true, maxReconnectInverval:10000 },
 					channels:channels.concat(),
 					identity: {
 						username: login,
@@ -143,8 +143,14 @@ export default class IRCClient extends EventDispatcher {
 							clearTimeout(this.joinSpoolTimeout);
 							
 							this.joinSpoolTimeout = setTimeout(() => {
-								let message = this.joinSpool.join(", ")+" joined the chat room";
-								message = message.replace(/,([^,]*)$/, " and$1");
+								const reminders = this.joinSpool.slice(30);
+								let message = this.joinSpool.join(", ");
+								if(reminders.length > 0) {
+									message += " and <mark>"+reminders.length+"</mark> more...";
+								}else{
+									message = message.replace(/,([^,]*)$/, " and$1");
+								}
+								message += " joined the chat room";
 								this.sendNotice("online", message);
 								this.joinSpool = [];
 							}, 1000);
@@ -175,7 +181,14 @@ export default class IRCClient extends EventDispatcher {
 						clearTimeout(this.partSpoolTimeout);
 						
 						this.partSpoolTimeout = setTimeout(() => {
-							let message = this.partSpool.join(", ")+" left the chat room";
+							const reminders = this.partSpool.slice(30);
+							let message = this.partSpool.join(", ");
+							if(reminders.length > 0) {
+								message += " and <mark>"+reminders.length+" more</mark>...";
+							}else{
+								message = message.replace(/,([^,]*)$/, " and$1");
+							}
+							message += " left the chat room";
 							message = message.replace(/,([^,]*)$/, " and$1");
 							this.sendNotice("offline", message);
 							this.partSpool = [];
@@ -283,6 +296,7 @@ export default class IRCClient extends EventDispatcher {
 					reject();
 				}
 				this.connected = false;
+				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
 			});
 

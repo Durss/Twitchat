@@ -76,12 +76,9 @@
 			</div>
 		</div>
 
-		<div class="locked" v-if="(lockScroll) && !lightMode">
-			<div class="label">
-				<p v-if="lockScroll">Chat paused</p>
-				<p v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</p>
-				<Button v-if="pendingMessages.length > 0" :icon="require('@/assets/icons/down.svg')" @click.stop="unPause()" />
-			</div>
+		<div class="locked" v-if="lockScroll && !lightMode" @click.stop="unPause()">
+			<span v-if="lockScroll">Chat paused</span>
+			<span v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</span>
 		</div>
 
 		<div class="conversation"
@@ -164,6 +161,7 @@ export default class MessageList extends Vue {
 	public conversation:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 	public lockScroll:boolean = false;
 	public conversationPos:number = 0;
+	public scrollAtBottom:boolean = true;
 	public conversationMode:boolean = true;//Used to change title between History/Conversation
 
 	private disposed:boolean = false;
@@ -388,13 +386,14 @@ export default class MessageList extends Vue {
 		//after clicking the "scroll down" button which freezes the scroll.
 		//I couldn't find any better solution than this.
 		//Not even a "await this.$nextTick()".
+		this.lockScroll = false;
 		setTimeout(()=> {
 			this.lockScroll = false;
 			
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			this.virtualScrollY = maxScroll;
-		}, 0);
+		}, 1000);
 	}
 
 	/**
@@ -459,7 +458,6 @@ export default class MessageList extends Vue {
 		const h = el.offsetHeight;
 		const maxScroll = (el.scrollHeight - h);
 
-
 		const messRefs = this.$refs.message as HTMLDivElement[];
 		if(!messRefs) return;
 		
@@ -507,6 +505,9 @@ export default class MessageList extends Vue {
 		&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
 		}
+
+		this.scrollAtBottom = Math.abs(el.scrollTop - maxScroll) < 5;
+		console.log(this.scrollAtBottom);
 		
 	}
 
@@ -813,31 +814,17 @@ export default class MessageList extends Vue {
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
-		pointer-events: none;
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 		background: @mainColor_normal;
-
-		.label {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			color: #fff;
-			width: min-content;
-			white-space: nowrap;
-			margin: auto;
-			padding: 5px;
-			font-size: 14px;
-			.button {
-				width: 100%;
-				background: none;
-				padding: 0;
-				pointer-events: all;
-				margin-left: 5px;
-				&:hover {
-					background: rgba(255, 255, 255, .5);
-				}
-			}
+		color: #fff;
+		white-space: nowrap;
+		font-size: .7em;
+		padding: .7em;
+		transition: background-color .25s;
+		cursor: pointer;
+		&:hover {
+			background: @mainColor_normal_light;
 		}
 	}
 
