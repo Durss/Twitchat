@@ -143,10 +143,10 @@ export default class IRCClient extends EventDispatcher {
 							clearTimeout(this.joinSpoolTimeout);
 							
 							this.joinSpoolTimeout = setTimeout(() => {
-								const reminders = this.joinSpool.slice(30);
-								let message = this.joinSpool.join(", ");
-								if(reminders.length > 0) {
-									message += " and <mark>"+reminders.length+"</mark> more...";
+								const join = this.joinSpool.slice(0, 30);
+								let message = join.join(", ");
+								if(this.joinSpool.length > 0) {
+									message += " and <mark>"+this.joinSpool.length+"</mark> more...";
 								}else{
 									message = message.replace(/,([^,]*)$/, " and$1");
 								}
@@ -181,10 +181,10 @@ export default class IRCClient extends EventDispatcher {
 						clearTimeout(this.partSpoolTimeout);
 						
 						this.partSpoolTimeout = setTimeout(() => {
-							const reminders = this.partSpool.slice(30);
-							let message = this.partSpool.join(", ");
-							if(reminders.length > 0) {
-								message += " and <mark>"+reminders.length+" more</mark>...";
+							const join = this.partSpool.slice(0, 30);
+							let message = join.join(", ");
+							if(this.partSpool.length > 0) {
+								message += " and <mark>"+this.partSpool.length+"</mark> more...";
 							}else{
 								message = message.replace(/,([^,]*)$/, " and$1");
 							}
