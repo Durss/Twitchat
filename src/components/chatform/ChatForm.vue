@@ -18,7 +18,8 @@
 					placeholder="message..."
 					maxlength="500"
 					@keydown.tab.prevent="onTab()"
-					@keyup.enter="sendMessage()">
+					@keyup.enter="sendMessage()"
+					@keydown="onKeyDown">
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
@@ -118,8 +119,8 @@
 			</form>
 
 			<AutocompleteForm class="contentWindows emotesLive"
+				v-if="openAutoComplete"
 				:search="autoCompleteSearch"
-				v-if="autoCompleteSearch.length > 1 || (autoCompleteCommands && autoCompleteSearch.length > 0)"
 				:emotes="autoCompleteEmotes"
 				:users="autoCompleteUsers"
 				:commands="autoCompleteCommands"
@@ -196,6 +197,10 @@ export default class ChatForm extends Vue {
 	public autoCompleteUsers:boolean = false;
 	public autoCompleteCommands:boolean = false;
 	public spamInterval:number = 0;
+
+	public get openAutoComplete():boolean {
+		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
+	}
 
 	public get whispersAvailable():boolean {
 		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
@@ -493,6 +498,16 @@ export default class ChatForm extends Vue {
 		//the selectionRange is effective wich may cause the autocomplete open
 		//Here we ensure it stays closed
 		this.autoCompleteSearch = "";
+	}
+
+	/**
+	 * Called when pressing tab key on input field
+	 */
+	public onKeyDown(e:KeyboardEvent):void {
+		if(!this.openAutoComplete) return;
+		if(e.key == "ArrowUp" || e.key == "ArrowDown") {
+			e.preventDefault();
+		}
 	}
 
 	/**
