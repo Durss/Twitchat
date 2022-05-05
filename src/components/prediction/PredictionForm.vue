@@ -146,6 +146,9 @@ export default class PredictionForm extends Vue {
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
+			if(this.error.indexOf("or equal to 2") > -1) {
+				this.error = "Twitch API still not allows to create predictions with more than 2 items, sorry :(";
+			}
 			return;
 		}
 		this.loading = false;
