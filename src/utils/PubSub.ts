@@ -691,7 +691,7 @@ export default class PubSub {
 	 * Called when whispers are read
 	 */
 	private whisperRead(data:PubSubTypes.WhisperRead):void {
-		store.dispatch("closeWhispers", data.id.split("_")[1]);
+		// store.dispatch("closeWhispers", data.id.split("_")[1]);
 	}
 }
 
