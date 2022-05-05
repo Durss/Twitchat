@@ -136,8 +136,7 @@ export default class IRCClient extends EventDispatcher {
 				}else{
 					if(store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
-						if(store.state.params.filters.showBots.value === true
-						|| this.botsLogins.indexOf(user) == -1) {
+						if(this.botsLogins.indexOf(user) == -1) {
 							user = "<mark>"+user+"</mark>";
 							this.joinSpool.push(user);
 							clearTimeout(this.joinSpoolTimeout);
@@ -174,8 +173,7 @@ export default class IRCClient extends EventDispatcher {
 				}
 				if(store.state.params.features.notifyJoinLeave.value === true) {
 					//Ignore bots
-					if(store.state.params.filters.showBots.value === true
-					|| this.botsLogins.indexOf(user) == -1) {
+					if(this.botsLogins.indexOf(user) == -1) {
 						user = "<mark>"+user+"</mark>";
 						this.partSpool.push(user);
 						clearTimeout(this.partSpoolTimeout);
