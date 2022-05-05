@@ -69,7 +69,7 @@
 		
 		<span>: </span>
 		<span class="message">
-			<span class="text" v-html="text"></span>
+			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
 	</div>
@@ -328,6 +328,9 @@ export default class ChatMessage extends Vue {
 		}
 	}
 
+	/**
+	 * Copy JSON data of the message
+	 */
 	public copyJSON():void {
 		const answersBckp = this.messageData.answers;
 		const answerToBckp = this.messageData.answerTo;
@@ -463,8 +466,22 @@ export default class ChatMessage extends Vue {
 			console.log(mess);
 			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		}
+
+		const button = "<img src='"+require('@/assets/icons/copy_alert.svg')+"' class='copyBt' data-copy=\"$2\" data-tooltip='Copy'>";
+		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, "$1$2$3"+button);
 		
 		return result;
+	}
+
+	public clickMessage(e:MouseEvent):void {
+		const t = e.target as HTMLElement;
+		if(t.dataset.copy) {
+			Utils.copyToClipboard(t.dataset.copy);
+			e.stopPropagation();
+			gsap.fromTo(t, {scale:1.5, filter:"brightness(2)"}, {scale:1, filter:"brightness(1)", duration:0.2});
+		}else if(t.tagName == "A") {
+			e.stopPropagation();
+		}
 	}
 }
 </script>
@@ -630,6 +647,12 @@ export default class ChatMessage extends Vue {
 			padding: 0 3px;
 			border-radius: 3px;
 			background-color: @mainColor_light;
+		}
+		:deep(.copyBt) {
+			height: 1em;
+			margin-left: .25em;
+			vertical-align: middle;
+			cursor: pointer;
 		}
 
 		.deleted {

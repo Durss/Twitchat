@@ -260,6 +260,10 @@ async function userData(request, response, body) {
 	//avoid saving private data to server
 	delete body.data.obsPass;
 	delete body.data.oAuthToken;
+	//Do not save this to the server to avoid config to be erased
+	//on one of the instances
+	delete body.data.hideChat;
+	
 	// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
 
 	//Test data format
