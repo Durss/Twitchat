@@ -324,7 +324,7 @@ async function getUsers(request, response) {
 	}
 	//Check token
 	const hash = crypto.createHash('sha256').update(credentials.csrf_key).digest("hex");
-	if(hash != params.token){
+	if(hash != params.token.toLowerCase()){
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({success:false, message:"invalid token"}));
 		return;
