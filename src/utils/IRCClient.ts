@@ -138,7 +138,7 @@ export default class IRCClient extends EventDispatcher {
 						//Ignore bots
 						if(store.state.params.filters.showBots.value === true
 						|| this.botsLogins.indexOf(user) == -1) {
-							user = "<mark>"+user.replace(/</g, "&lt;").replace(/>/g, "&gt;")+"</mark>";
+							user = "<mark>"+user+"</mark>";
 							this.joinSpool.push(user);
 							clearTimeout(this.joinSpoolTimeout);
 							
@@ -170,14 +170,14 @@ export default class IRCClient extends EventDispatcher {
 					//Ignore bots
 					if(store.state.params.filters.showBots.value === true
 					|| this.botsLogins.indexOf(user) == -1) {
-						user = "<mark>"+user.replace(/</g, "&lt;").replace(/>/g, "&gt;")+"</mark>";
+						user = "<mark>"+user+"</mark>";
 						this.partSpool.push(user);
 						clearTimeout(this.partSpoolTimeout);
 						
 						this.partSpoolTimeout = setTimeout(() => {
 							let message = this.partSpool.join(", ")+" left the chat room";
 							message = message.replace(/,([^,]*)$/, " and$1");
-							this.sendNotice("online", message);
+							this.sendNotice("offline", message);
 							this.partSpool = [];
 						}, 1000);
 					}

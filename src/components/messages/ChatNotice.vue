@@ -1,5 +1,5 @@
 <template>
-	<div class="chatnotice" @click.ctrl.stop="copyJSON()">
+	<div :class="classes" @click.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="require('@/assets/icons/'+icon+'.svg')" alt="notice" class="icon">
@@ -40,6 +40,12 @@ export default class ChatNotice extends Vue {
 		return text;
 	}
 
+	public get classes():string[] {
+		let res = ["chatnotice"];
+		if(this.messageData.tags["msg-id"] == "offline") res.push("alert");
+		return res;
+	}
+
 	public get time():string {
 		const message = this.messageData as IRCEventDataList.Notice;
 		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
@@ -76,7 +82,16 @@ export default class ChatNotice extends Vue {
 
 		:deep(mark) {
 			margin: 0 .2em;
-			color: @mainColor_warn;
+			color: lighten(@mainColor_warn, 15%);
+		}
+	}
+
+	&.alert {
+		.message {
+			color: @mainColor_alert;
+			:deep(mark) {
+				color: lighten(@mainColor_alert, 10%);
+			}
 		}
 	}
 }
