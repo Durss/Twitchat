@@ -76,7 +76,7 @@
 			</div>
 		</div>
 
-		<div class="locked" v-if="lockScroll && !lightMode" @click.stop="unPause()">
+		<div class="locked" ref="locked" v-if="lockScroll && !lightMode" @click.stop="unPause()">
 			<span v-if="lockScroll">Chat paused</span>
 			<span v-if="pendingMessages.length > 0">(+{{pendingMessages.length}})</span>
 		</div>
@@ -257,8 +257,12 @@ export default class MessageList extends Vue {
 		if(this.lightMode || !store.state.params.features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
+
+		await this.$nextTick();
+
+		gsap.from(this.$refs.locked as HTMLDivElement, {duration:.2, height:0, scaleY:0, ease:"ease.out"});
+
 		if(scrollDown) {
-			await this.$nextTick();
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			el.scrollTop = this.virtualScrollY = maxScroll
@@ -378,22 +382,15 @@ export default class MessageList extends Vue {
 		this.pendingMessages = [];
 		this.localMessages = this.localMessages.concat(messages).slice(-this.max);
 		this.filterMessages();
+		
+		//Scroll toi bottom
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const maxScroll = (el.scrollHeight - el.offsetHeight);
+		this.virtualScrollY = maxScroll;
 
-		//Using setTimeout as a workaround for a shit mouseenter behavior.
-		//When clicking the "scroll down" button, its holder is removed
-		//from the DOM which makes the main holder fire a mouseenter event.
-		//Because of that the "lockScroll" flag is set back to true right
-		//after clicking the "scroll down" button which freezes the scroll.
-		//I couldn't find any better solution than this.
-		//Not even a "await this.$nextTick()".
-		this.lockScroll = false;
-		setTimeout(()=> {
+		gsap.to(this.$refs.locked as HTMLDivElement, {duration:.2, height:0, scaleY:0, ease:"ease.in", onComplete:()=> {
 			this.lockScroll = false;
-			
-			const el = this.$refs.messageHolder as HTMLDivElement;
-			const maxScroll = (el.scrollHeight - el.offsetHeight);
-			this.virtualScrollY = maxScroll;
-		}, 1000);
+		}});
 	}
 
 	/**
@@ -507,7 +504,6 @@ export default class MessageList extends Vue {
 		}
 
 		this.scrollAtBottom = Math.abs(el.scrollTop - maxScroll) < 5;
-		console.log(this.scrollAtBottom);
 		
 	}
 
@@ -822,6 +818,7 @@ export default class MessageList extends Vue {
 		font-size: .7em;
 		padding: .7em;
 		transition: background-color .25s;
+		transform-origin: bottom center;
 		cursor: pointer;
 		&:hover {
 			background: @mainColor_normal_light;
