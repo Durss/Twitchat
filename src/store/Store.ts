@@ -12,6 +12,7 @@ export default class Store {
 	private static dataPrefix:string = "twitchat_";
 	private static saveTO:number = -1;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
+	private static propToSavableState:{[key:string]:boolean} = {};
 	
 	
 	/********************
@@ -41,6 +42,7 @@ export default class Store {
 	}
 
 	public static set(key:string, value:JsonValue|unknown, save:boolean = true):void {
+		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
 		if(value == undefined) return;
 		this.rawStore[key] = value;
@@ -90,7 +92,7 @@ export default class Store {
 				//parsing failed, that's because it's a simple string, just keep it
 			}
 		}
-		this.rawStore = items
+		this.rawStore = items;
 		this.save();
 	}
 
@@ -98,11 +100,19 @@ export default class Store {
 		clearTimeout(this.saveTO);
 		const access_token = store.state.oAuthToken?.access_token;
 		if(!access_token) return;
+
+		const data = JSON.parse(JSON.stringify(this.rawStore));
+		//Do not save sensitive data to server
+		delete data.obsPass;
+		delete data.oAuthToken;
+		//Do not save this to the server to avoid config to be erased
+		//on one of the instances
+		delete data.hideChat;
 		
 		this.saveTO = setTimeout(async () => {
 			let json = {
 				access_token,
-				data:this.rawStore,
+				data:data,
 			};
 			const res = await fetch(Config.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
 			json = await res.json();
