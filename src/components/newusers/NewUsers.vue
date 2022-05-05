@@ -38,8 +38,8 @@
 			tag="div"
 			ref="messageList"
 			class="messageList"
+		@leave="leave"
 		>
-		<!-- @leave="leave" -->
 		<div v-for="(m,index) in localMessages" :key="m.tags.id">
 			<ChatMessage
 				class="message"
@@ -147,7 +147,7 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		// this.localMessages = this.localMessages.concat(store.state.chatMessages.filter((m:(IRCEventDataList.Message | IRCEventDataList.Highlight)) => m.type == "message" || m.type == "highlight"));
+		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]);
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
@@ -283,25 +283,23 @@ export default class NewUsers extends Vue {
 				if(!this.highlightState[item.tags.id as string]) {
 					this.highlightState[item.tags.id as string] = true;
 					//Why the hell do I use inline styles this way instead of
-					//doing it the Vue style by simply updating a prop set
+					//doing it the Vue way by simply updating a prop set
 					//to the component so it automatically updates when updating
 					//that prop ?
 					//Because it's drastically faster this way. There's a huge
 					//rendering pipeline performance issue i couldn't solve
 					//by any other method.
-					(items[i].$el as HTMLDivElement).style.background = "red";
-					(items[i].$el as HTMLDivElement).style.color = "white";
-					(items[i].$el as HTMLDivElement).style.opacity = ".5";
-					(items[i].$el as HTMLDivElement).style.textDecoration = "line-through";
+					let color = Utils.getLessVars().mainColor_light as string;
+					color = color.replace(/\)/gi, ", .1)");
+					(items[i].$el as HTMLDivElement).style.background = color as string;
 				}
 				
 			}
 		}else{
 			this.highlightState[this.localMessages[index].tags.id as string] = true;
-			(items[index].$el as HTMLDivElement).style.background = "red";
-			(items[index].$el as HTMLDivElement).style.color = "white";
-			(items[index].$el as HTMLDivElement).style.opacity = ".5";
-			(items[index].$el as HTMLDivElement).style.textDecoration = "line-through";
+			let color = Utils.getLessVars().mainColor_light as string;
+			color = color.replace(/\)/gi, ", .1)");
+			(items[index].$el as HTMLDivElement).style.background = color as string;
 		}
 	}
 
