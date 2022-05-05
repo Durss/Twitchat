@@ -112,7 +112,6 @@ export default class NewUsers extends Vue {
 
 	public get classes():string[] {
 		let res = ["newusers"];
-		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 
@@ -397,22 +396,6 @@ export default class NewUsers extends Vue {
 	display: flex;
 	flex-direction: column;
 
-	&.size_1 {
-		.messageList{ font-size: 11px; }
-	}
-	&.size_2 {
-		.messageList{ font-size: 13px; }
-	}
-	&.size_3 {
-		.messageList{ font-size: 18px; }
-	}
-	&.size_4 {
-		.messageList{ font-size: 24px; }
-	}
-	&.size_5 {
-		.messageList{ font-size: 30px; }
-	}
-
 	.header {
 		padding: 10px 0;
 		display: flex;
@@ -477,7 +460,9 @@ export default class NewUsers extends Vue {
 			font-family: "Inter";
 			color: #fff;
 			background-color: fade(#ffffff, 5%);
-			margin-bottom: 5px;
+			margin: .5em 0;
+			font-size: var(--messageSize);
+			transition: background-color .25s;
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);

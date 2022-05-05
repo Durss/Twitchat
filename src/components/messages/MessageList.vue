@@ -178,9 +178,6 @@ export default class MessageList extends Vue {
 		let res = ["messagelist"];
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll) res.push("lockScroll");
-
-		res.push("size_"+store.state.params.appearance.defaultSize.value);
-
 		return res;
 	}
 
@@ -710,22 +707,6 @@ export default class MessageList extends Vue {
 	flex-direction: column;
 	max-height: 100%;
 
-	&.size_1 {
-		.message{ font-size: 11px; }
-	}
-	&.size_2 {
-		.message{ font-size: 13px; }
-	}
-	&.size_3 {
-		.message{ font-size: 18px; }
-	}
-	&.size_4 {
-		.message{ font-size: 24px; }
-	}
-	&.size_5 {
-		.message{ font-size: 30px; }
-	}
-
 	&.lightMode {
 		padding: 0;
 		.holder {
@@ -750,6 +731,8 @@ export default class MessageList extends Vue {
 		overflow: hidden;
 		font-family: "Inter";
 		color: #fff;
+		margin: .5em 0;
+		font-size: var(--messageSize);
 	}
 
 	.holder {

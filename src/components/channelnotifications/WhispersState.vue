@@ -58,7 +58,6 @@ export default class WhispersState extends Vue {
 
 	public get classes():string[] {
 		let res = ["whispersstate"];
-		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 
@@ -129,36 +128,6 @@ export default class WhispersState extends Vue {
 	flex-direction: row !important;
 	color: #fff;
 
-	&.size_1 {
-		.messages{
-			font-size: 11px;
-			.message{ margin-bottom: 2px; }
-		}
-	}
-	&.size_2 {
-		.messages{
-			font-size: 13px;
-			.message{ margin-bottom: 2px; }
-		}
-	}
-	&.size_3 {
-		.messages{
-			font-size: 18px;
-			.message{ margin-bottom: 5px; }
-		}
-	}
-	&.size_4 {
-		.messages{
-			font-size: 24px;
-			.message{ margin-bottom: 5px; }
-		}
-	}
-	&.size_5 {
-		.messages{
-			font-size: 30px;
-			.message{ margin-bottom: 10px; }
-		}
-	}
 	
 	.users {
 		display: flex;
@@ -225,11 +194,12 @@ export default class WhispersState extends Vue {
 			overflow-y: auto;
 
 			.message {
-				margin-bottom: 5px;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				padding: 0px 5px 2px 5px;
+				margin: .5em 0;
+				font-size: var(--messageSize);
 				
 				&:nth-child(even) {
 					background-color: rgba(255, 255, 25, .1);

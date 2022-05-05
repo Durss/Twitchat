@@ -173,7 +173,7 @@ export default createStore({
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 				shoutoutLabel: 				{save:true, type:"text", value:"Go checkout $USER $URL . Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg", longText:true},
 				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
-				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:5, step:1, id:12},
+				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:7, step:1, id:12},
 			} as {[key:string]:ParameterData},
 			filters: {
 				showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},

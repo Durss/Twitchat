@@ -731,7 +731,7 @@ export default class ChatMessage extends Vue {
 	&.lowTrust {
 		margin-top: 5px;
 		border-radius: 5px;
-		background-color: fade(@mainColor_alert, 100%) !important;
+		background-color: fade(@mainColor_alert, 30%) !important;
 		
 		.lowTrust {
 			padding: .35em;

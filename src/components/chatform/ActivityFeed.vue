@@ -107,7 +107,6 @@ export default class ActivityFeed extends Vue {
 	public get classes():string[] {
 		const res = ["activityfeed"];
 		if(this.listMode === true) res.push("listMode");
-		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 	
@@ -272,21 +271,6 @@ export default class ActivityFeed extends Vue {
 	transform-origin: bottom center;
 	position: relative;
 
-	&.size_1 {
-		.message{ font-size: 11px; }
-	}
-	&.size_2 {
-		.message{ font-size: 13px; }
-	}
-	&.size_3 {
-		.message{ font-size: 18px; }
-	}
-	&.size_4 {
-		.message{ font-size: 24px; }
-	}
-	&.size_5 {
-		.message{ font-size: 30px; }
-	}
 
 	&.listMode {
 		background: none;
@@ -341,7 +325,8 @@ export default class ActivityFeed extends Vue {
 		min-height: 30px;
 		overflow-y: auto;
 		.message{
-			margin: 2px 0;
+			margin: .5em 0;
+			font-size: var(--messageSize);
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);

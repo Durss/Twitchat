@@ -50,10 +50,7 @@ export default class MessageSearch extends Vue {
 
 	public get classes():string[] {
 		let res = ["messagesearch"];
-
-		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		if(this.messages.length > 0) res.push("hasResult");
-
 		return res;
 	}
 
@@ -107,35 +104,6 @@ export default class MessageSearch extends Vue {
 	display: flex;
 	flex-direction: column;
 
-	&.hasResult {
-		// min-height: 120px;
-	}
-
-	&.size_1 {
-		.messages {
-			.message{ font-size: 11px; }
-		}
-	}
-	&.size_2 {
-		.messages {
-			.message{ font-size: 13px; }
-		}
-	}
-	&.size_3 {
-		.messages {
-			.message{ font-size: 18px; }
-		}
-	}
-	&.size_4 {
-		.messages {
-			.message{ font-size: 24px; }
-		}
-	}
-	&.size_5 {
-		.messages {
-			.message{ font-size: 30px; }
-		}
-	}
 
 	h1 {
 		text-align: center;
@@ -165,6 +133,11 @@ export default class MessageSearch extends Vue {
 			display: inline-block;
 			margin-right: .7em;
 			font-variant-numeric: tabular-nums;
+		}
+
+		.message {
+			margin: .25em 0;
+			font-size: var(--messageSize);
 		}
 	}
 

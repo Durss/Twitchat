@@ -48,7 +48,6 @@ export default class TrackedUsers extends Vue {
 
 	public get classes():string[] {
 		let res = ["trackedusers"];
-		res.push("size_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 
@@ -72,37 +71,6 @@ export default class TrackedUsers extends Vue {
 	display: flex;
 	flex-direction: row !important;
 	color: #fff;
-
-	&.size_1 {
-		.messages{
-			font-size: 11px;
-			.message{ margin-bottom: 2px; }
-		}
-	}
-	&.size_2 {
-		.messages{
-			font-size: 13px;
-			.message{ margin-bottom: 2px; }
-		}
-	}
-	&.size_3 {
-		.messages{
-			font-size: 18px;
-			.message{ margin-bottom: 5px; }
-		}
-	}
-	&.size_4 {
-		.messages{
-			font-size: 24px;
-			.message{ margin-bottom: 5px; }
-		}
-	}
-	&.size_5 {
-		.messages{
-			font-size: 30px;
-			.message{ margin-bottom: 10px; }
-		}
-	}
 
 	.users {
 		display: flex;
@@ -173,7 +141,8 @@ export default class TrackedUsers extends Vue {
 		}
 
 		.message {
-			margin-bottom: 5px;
+			margin: .25em 0;
+			font-size: var(--messageSize);
 		}
 	}
 }

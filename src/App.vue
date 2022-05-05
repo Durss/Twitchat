@@ -36,8 +36,11 @@ export default class App extends Vue {
 		let res = ["app"];
 		if(this.$route.meta.noBG === true) res.push("noBG");
 		if(this.$route.meta.overflow === true) res.push("overflow");
+		res.push("messageSize_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
+
+	public mounted():void {}
 
 }
 </script>
@@ -62,6 +65,42 @@ export default class App extends Vue {
 		position: absolute;
 		width: 80px;
 		height: 80px;
+	}
+
+	&.messageSize_1 {
+		:root & {
+			--messageSize: 11px;
+		}
+	}
+	&.messageSize_2 {
+		:root & {
+			--messageSize: 13px;
+		}
+	}
+	&.messageSize_3 {
+		:root & {
+			--messageSize: 18px;
+		}
+	}
+	&.messageSize_4 {
+		:root & {
+			--messageSize: 24px;
+		}
+	}
+	&.messageSize_5 {
+		:root & {
+			--messageSize: 30px;
+		}
+	}
+	&.messageSize_6 {
+		:root & {
+			--messageSize: 40px;
+		}
+	}
+	&.messageSize_7 {
+		:root & {
+			--messageSize: 50px;
+		}
 	}
 }
 @media only screen and (max-width: 500px) {
