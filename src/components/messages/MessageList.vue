@@ -3,6 +3,7 @@
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
 	@mousewheel="onMouseWheel($event)">
+		<div aria-live="lastMesssage" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
@@ -14,6 +15,7 @@
 					@showModal="v=>$emit('showModal', v)"
 					@delete="forceDelete(m)"
 					:ref="'message_'+m.tags.id"
+					@ariaMessage="v=>setAriaMessage(v)"
 				/>
 
 				<ChatMessage
@@ -25,6 +27,7 @@
 					@showUserMessages="openUserHistory"
 					@mouseleave="onMouseLeave(m)"
 					:ref="'message_'+m.tags.id"
+					@ariaMessage="v=>setAriaMessage(v)"
 					/>
 					
 				<ChatNotice
@@ -32,6 +35,7 @@
 					class="message"
 					:messageData="m"
 					:ref="'message_'+m.tags.id"
+					@ariaMessage="v=>setAriaMessage(v)"
 					/>
 
 				<ChatHighlight
@@ -40,31 +44,40 @@
 					:messageData="m"
 					lightMode
 					:ref="'message_'+m.tags.id"
+					@ariaMessage="v=>setAriaMessage(v)"
 					/>
 
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'poll' && $store.state.params.filters.showPollPredResults.value"
-					:pollData="m" />
+					@ariaMessage="v=>setAriaMessage(v)"
+					:pollData="m"
+				/>
 
 				<ChatPredictionResult
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
-					:predictionData="m" />
+					@ariaMessage="v=>setAriaMessage(v)"
+					:predictionData="m"
+				/>
 
 				<ChatBingoResult
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'bingo' && $store.state.params.filters.showPollPredResults.value"
-					:bingoData="m" />
+					@ariaMessage="v=>setAriaMessage(v)"
+					:bingoData="m"
+				/>
 
 				<ChatRaffleResult
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'raffle' && $store.state.params.filters.showPollPredResults.value"
-					:raffleData="m" />
+					@ariaMessage="v=>setAriaMessage(v)"
+					:raffleData="m"
+				/>
 
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
@@ -117,6 +130,7 @@ import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -159,6 +173,8 @@ export default class MessageList extends Vue {
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight | IRCEventDataList.TwitchatAd)[] = [];
 	public pendingMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 	public conversation:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
+	public ariaMessage:string = "";
+	public ariaMessageTimeout:number = -1;
 	public lockScroll:boolean = false;
 	public conversationPos:number = 0;
 	public scrollAtBottom:boolean = true;
@@ -556,6 +572,19 @@ export default class MessageList extends Vue {
 	/**
 	 * Avoids closing the conversation when rolling over it
 	 */
+	public async setAriaMessage(message:string):Promise<void> {
+		message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
+		message = message.replace(/<[^>]*>/gim, "");//Strip HTML tags
+		this.ariaMessage = message;
+		clearTimeout(this.ariaMessageTimeout);
+		this.ariaMessageTimeout = setTimeout(()=> {
+			this.ariaMessage = "";
+		}, 10000);
+	}
+
+	/**
+	 * Avoids closing the conversation when rolling over it
+	 */
 	public async reopenLastConversation():Promise<void> {
 		clearTimeout(this.closeConvTimeout);
 	}
@@ -725,6 +754,13 @@ export default class MessageList extends Vue {
 		display: inline-block;
 		margin-right: .7em;
 		font-variant-numeric: tabular-nums;
+	}
+
+	.ariaMessage {
+		position: absolute;
+		top: 0;
+		transform: translate(0, -200%);
+		z-index: 100;
 	}
 
 	.message {

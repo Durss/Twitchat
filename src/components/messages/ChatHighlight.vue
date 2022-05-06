@@ -41,7 +41,8 @@ import Button from '../Button.vue';
 	},
 	components:{
 		Button,
-	}
+	},
+	emits:["ariaMessage"]
 })
 export default class ChatHighlight extends Vue {
 	
@@ -245,6 +246,8 @@ export default class ChatHighlight extends Vue {
 			}else{
 				this.messageText = result;
 			}
+			
+			this.$emit("ariaMessage", this.reason+" "+this.messageText);
 		}
 	}
 

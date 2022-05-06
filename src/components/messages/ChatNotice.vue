@@ -16,7 +16,8 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		messageData:Object,
 	},
-	components:{}
+	components:{},
+	emits:["ariaMessage"]
 })
 export default class ChatNotice extends Vue {
 	
@@ -57,6 +58,7 @@ export default class ChatNotice extends Vue {
 			case "online": this.icon = "enter"; break;
 			case "offline": this.icon = "leave"; break;
 		}
+		this.$emit("ariaMessage", this.text);
 	}
 
 	public copyJSON():void {

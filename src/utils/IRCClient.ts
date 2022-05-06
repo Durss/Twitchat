@@ -72,7 +72,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["aqtuc"]);
+				channels = channels.concat(["gunselsenol"]);
 			}
 
 			(async ()=> {
@@ -132,7 +132,7 @@ export default class IRCClient extends EventDispatcher {
 					console.log("IRCClient :: Connection succeed");
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
-					this.sendNotice("online", "Welcome to the chat room "+channel+"!");
+					this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
 				}else{
 					if(store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
@@ -150,7 +150,7 @@ export default class IRCClient extends EventDispatcher {
 									message = message.replace(/,([^,]*)$/, " and$1");
 								}
 								message += " joined the chat room";
-								this.sendNotice("online", message);
+								this.sendNotice("online", message, channel);
 								this.joinSpool = [];
 							}, 1000);
 						}
@@ -188,7 +188,7 @@ export default class IRCClient extends EventDispatcher {
 							}
 							message += " left the chat room";
 							message = message.replace(/,([^,]*)$/, " and$1");
-							this.sendNotice("offline", message);
+							this.sendNotice("offline", message, channel);
 							this.partSpool = [];
 						}, 1000);
 					}
@@ -429,11 +429,12 @@ export default class IRCClient extends EventDispatcher {
 		return this.client.whisper(whisperSource.tags.username, message);
 	}
 
-	public sendNotice(msgid:tmi.MsgID|string, message:string):void {
+	public sendNotice(msgid:tmi.MsgID|string, message:string, channel?:string):void {
 		const tags = this.getFakeTags();
 		tags["msg-id"] = msgid;
+		channel = channel? channel : this.channel
 		if(!this.idToExample[msgid]) this.idToExample[msgid] = {type:"notice", channel:this.channel, msgid, message, tags};
-		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel:this.channel, msgid, message, tags}));
+		this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, msgid, message, tags}));
 	}
 
 

@@ -99,7 +99,7 @@ import ChatModTools from './ChatModTools.vue';
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages', 'mouseleave'],
+	emits:['showConversation', 'showUserMessages', 'mouseleave', 'ariaMessage'],
 })
 export default class ChatMessage extends Vue {
 
@@ -389,6 +389,7 @@ export default class ChatMessage extends Vue {
 			this.automodReasons = textReasons.join(", ");
 		}
 		this.text = this.parseText();
+		this.$emit("ariaMessage", this.text);
 
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
 			await this.$nextTick();

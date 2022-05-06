@@ -77,7 +77,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 		Button,
 		ChatTipAndTrickAd,
 	},
-	emits:["showModal", "delete", "close"]
+	emits:["showModal", "delete", "close", "ariaMessage"]
 })
 export default class ChatAd extends Vue {
 
