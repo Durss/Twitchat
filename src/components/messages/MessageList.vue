@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
-	@mousewheel="onMouseWheel($event)">
+	@wheel="onMouseWheel($event)">
 		<div aria-live="lastMesssage" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
@@ -99,7 +99,7 @@
 			v-if="conversation.length > 0" :style="conversationStyles"
 			@mouseenter="reopenLastConversation()"
 			@mouseleave="onMouseLeave()"
-			@mousewheel.stop=""
+			@wheel.stop=""
 		>
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
@@ -425,6 +425,7 @@ export default class MessageList extends Vue {
 	 * If hovering and scrolling down with wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
+		console.log("oKFDOKFD");
 		if(this.lightMode) return;
 		if(event.deltaY < 0) {
 			this.lockScroll = true;
