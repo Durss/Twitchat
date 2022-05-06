@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Params</span>
-				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close parameters" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />

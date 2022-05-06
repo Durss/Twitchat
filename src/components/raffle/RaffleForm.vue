@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create Raffle</span>
-				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close raffle form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -31,7 +31,7 @@
 					</div>
 
 					<div class="row">
-						<Button type="submit" title="Start" :icon="require('@/assets/icons/ticket.svg')" />
+						<Button aria-label="Start raffle" type="submit" title="Start" :icon="require('@/assets/icons/ticket.svg')" />
 					</div>
 				</form>
 					

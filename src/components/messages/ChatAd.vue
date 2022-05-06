@@ -7,31 +7,31 @@
 			Twitchat is free, but if you can afford it, any tip would really <strong>make my day brighter</strong>!</div>
 			<div class="cta">
 				<img @click.stop="openParamPage('sponsor')" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
-				<Button @click.stop="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
+				<Button aria-label="Open tip options" @click.stop="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
 			</div>
 		</div>
 
 		<div v-else-if="isUpdate" class="updates">
-			<Button @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
 				<ul>
-					<li><Button small title="try it" @click.stop="showSpecificParam('features.stopStreamOnRaid')" /> New option to automatically <strong>stop OBS stream</strong> after a raid completes</li>
-					<li><Button small title="try it" @click.stop="showSpecificParam('features.showUserPronouns')" /> New parameter to show viewers <strong>pronouns</strong></li>
-					<li><Button small title="try it" @click.stop="showSpecificParam('features.notifyJoinLeave')" /> New parameter to show when users <strong>enter/leave</strong> your chatroom</li>
-					<li><Button small title="try it" @click.stop="$emit('showModal', 'chatpoll')" /> New "<strong>Chat poll</strong>" feature to create new kind of polls</li>
-					<li><Button small title="try it" @click.stop="openParamPage('obs')" /> Create your own follow/sub/cheer/raid/rewards/.. alerts with the new <strong>trigger system</strong> that allows you to control and update your OBS sources adn filters</li>
+					<li><Button aria-label="Open stop stream on raid parameter" small title="try it" @click.stop="showSpecificParam('features.stopStreamOnRaid')" /> New option to automatically <strong>stop OBS stream</strong> after a raid completes</li>
+					<li><Button aria-label="Open user pronouns parameter" small title="try it" @click.stop="showSpecificParam('features.showUserPronouns')" /> New parameter to show viewers <strong>pronouns</strong></li>
+					<li><Button aria-label="Open chat join/leave parameter" small title="try it" @click.stop="showSpecificParam('features.notifyJoinLeave')" /> New parameter to show when users <strong>enter/leave</strong> your chatroom</li>
+					<li><Button aria-label="Open chat poll form" small title="try it" @click.stop="$emit('showModal', 'chatpoll')" /> New "<strong>Chat poll</strong>" feature to create new kind of polls</li>
+					<li><Button aria-label="Open OBS parameters" small title="try it" @click.stop="openParamPage('obs')" /> Create your own follow/sub/cheer/raid/rewards/.. alerts with the new <strong>trigger system</strong> that allows you to control and update your OBS sources adn filters</li>
 					<li>Frankerfacez emotes supported</li>
 				</ul>
 			</div>
 			<div class="cta">
-				<Button @click.stop="deleteMessage()" title="OK got it" />
+				<Button aria-label="Close updates" @click.stop="deleteMessage()" title="OK got it" />
 			</div>
 		</div>
 
 		<div v-if="isTip" class="tip">
-			<Button @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<Button aria-label="Close tips &amp; tricks message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">💡 Tips &amp; tricks 💡</div>
 			<ChatTipAndTrickAd class="content"
 				@showModal="v=> $emit('showModal', v)"
@@ -41,7 +41,7 @@
 		</div>
 
 		<div v-if="isDiscord" class="discord">
-			<Button @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<Button aria-label="Close discord message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">Join us on Discord</div>
 			<div class="content">
 				<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">

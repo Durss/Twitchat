@@ -1,14 +1,16 @@
 <template>
 	<div :class="classes" v-show="localMessages.length > 0">
 		<div class="header" @click="toggleList()">
-			<Button :icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
+			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
+				:icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
 				class="scrollBt"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
 				@click.stop="toggleScroll()" />
 
 			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
 
-			<Button :icon="require('@/assets/icons/delete.svg')"
+			<Button aria-label=""
+				:icon="require('@/assets/icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
 				@click.stop="clearAll()" />

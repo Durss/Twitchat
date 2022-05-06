@@ -1,39 +1,10 @@
 <template>
 	<div class="paramsaccount">
 
+		<div class="title">Connected as <strong>{{$store.state.user.login}}</strong></div>
+
 		<Button @click="logout()" :icon="require('@/assets/icons/logout.svg')" bounce title="Logout" highlight class="logoutBt" />
 		
-		<!-- <div class="splitter">
-			<ToggleBlock title="Add chat as an OBS overlay" icon="obs_purple" :open="false">
-				<p>Use this if you want to display the chat on your stream. The current parameters are defined on the URL.</p>
-				<i>- coming soon -</i>
-				<input type="text" v-model="obsOverlayURL">
-			</ToggleBlock>
-		</div> -->
-		
-		<!-- <div class="splitter">
-			<ToggleBlock title="Suggestions and issues" icon="idea_purple" :open="true">
-				<p>If you have a feature idea or are experiencing an issue:</p>
-				<Button :icon="require('@/assets/icons/discord.svg')" title="Tell us on Discord" href="https://discord.gg/fmqD2xUYvP" target="_blank" type="link" class="discordBt" />
-				<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know</strong>!</p>
-			</ToggleBlock>
-		</div> -->
-		
-		<!-- <div class="splitter">
-			<ToggleBlock title="Credits" icon="info_purple" :open="true">
-				<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
-				<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
-				<p class="socials">
-					<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" data-tooltip="Durss puzzle boxes" alt="puzzle boxes"></a>
-					<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" data-tooltip="Multiblindtest" alt="multi blindtest"></a>
-					<a class="link" href="https://www.durss.ninja" target="_blank"><img src="@/assets/img/work.svg" data-tooltip="Portfolio" alt="portfolio"></a>
-					<a class="link" href="https://instagram.com/durss" target="_blank"><img src="@/assets/img/instagram.png" data-tooltip="Instagram" alt="instagram"></a>
-					<a class="link" href="https://tiktok.com/@dursss" target="_blank"><img src="@/assets/img/tiktok.png" data-tooltip="Tiktok" alt="tiktok"></a>
-					<a class="link" href="https://github.com/durss" target="_blank"><img src="@/assets/img/github.png" data-tooltip="Github" alt="github"></a>
-					<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" data-tooltip="Twitch" alt="twitch"></a>
-				</p>
-			</ToggleBlock>
-		</div> -->
 	</div>
 </template>
 
@@ -103,6 +74,10 @@ export default class ParamsAccount extends Vue {
 		margin-bottom: 5px;
 	}
 	
+	.title {
+		text-align: center;
+		margin-bottom: 1em;
+	}
 
 	.splitter {
 		text-align: center;

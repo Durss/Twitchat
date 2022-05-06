@@ -14,8 +14,8 @@
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
 			<div class="actions">
-				<Button title="Accept" @click.stop="modMessage(true)" />
-				<Button title="Reject" @click.stop="modMessage(false)" highlight />
+				<Button aria-label="Accept automoeded message" title="Accept" @click.stop="modMessage(true)" />
+				<Button aria-label="Reject automoeded message" title="Reject" @click.stop="modMessage(false)" highlight />
 			</div>
 		</div>
 		

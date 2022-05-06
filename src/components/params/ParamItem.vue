@@ -3,7 +3,9 @@
 		<div class="content">
 			<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
-			<div v-if="paramData.type == 'toggle'" class="holder toggle">
+			<div v-if="paramData.type == 'toggle'" class="holder toggle"
+			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
+			>
 				<Button v-if="paramData.example"
 					:icon="require('@/assets/icons/help_purple.svg')"
 					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"

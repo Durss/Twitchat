@@ -13,6 +13,7 @@
 			</div>
 		</div>
 		<Button v-if="isRaid"
+			aria-label="Send a shoutout"
 			small 
 			:icon="require('@/assets/icons/shoutout.svg')"
 			@click.stop="shoutout()"

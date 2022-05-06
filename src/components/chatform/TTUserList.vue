@@ -3,7 +3,7 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button small :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="Close users list" small :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
 
 			<div class="noResult" v-if="!loading && users?.length == 0">no user found :(</div>
 

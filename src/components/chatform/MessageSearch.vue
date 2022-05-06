@@ -2,6 +2,7 @@
 	<div :class="classes">
 
 		<Button small
+			aria-label="Close search"
 			:icon="require('@/assets/icons/cross_white.svg')"
 			@click="close()"
 			class="closeBt"

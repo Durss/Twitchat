@@ -2,10 +2,10 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<Button :icon="require('@/assets/icons/params.svg')" bounce @click="toggleParams()" />
-				<Button :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" />
-				<Button :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
+				<Button aria-label="Open parameters" :icon="require('@/assets/icons/params.svg')" bounce @click="toggleParams()" />
+				<Button aria-label="Open chat commands" :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button aria-label="Open users list" :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" />
+				<Button aria-label="Open activity feed" :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
@@ -23,35 +23,41 @@
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
-				<Button @click="sendMessage()" type="button" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" />
+				<!-- <Button aria-label="send message"
+					@click="sendMessage()" type="button" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
 				
-				<Button :icon="require('@/assets/icons/emote.svg')"
+				<Button aria-label="Open emotes list"
+					:icon="require('@/assets/icons/emote.svg')"
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/poll.svg')"
+				<Button aria-label="Open current poll"
+					:icon="require('@/assets/icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
 					v-if="$store.state.currentPoll?.id" />
 				</transition>
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/chatPoll.svg')"
+				<Button aria-label="Open current chat poll"
+					:icon="require('@/assets/icons/chatPoll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'chatpoll')"
 					v-if="$store.state.chatPoll != null" />
 				</transition>
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/prediction.svg')"
+				<Button aria-label="Open current prediction"
+					:icon="require('@/assets/icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
 					v-if="$store.state.currentPrediction?.id" />
 				</transition>
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/magnet.svg')"
+				<Button aria-label="Open tracked users"
+					:icon="require('@/assets/icons/magnet.svg')"
 					bounce
 					v-if="$store.state.trackedUsers.length > 0"
 					data-tooltip="View tracked users"
@@ -59,7 +65,8 @@
 				</transition>
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/ticket.svg')"
+				<Button aria-label="Open current raffle"
+					:icon="require('@/assets/icons/ticket.svg')"
 					bounce
 					v-if="$store.state.raffle.command != null"
 					data-tooltip="Raffle"
@@ -67,7 +74,8 @@
 				</transition>
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/bingo.svg')"
+				<Button aria-label="Open current bingo"
+					:icon="require('@/assets/icons/bingo.svg')"
 					bounce
 					v-if="$store.state.bingo.guessNumber != null"
 					data-tooltip="Bingo"
@@ -76,7 +84,8 @@
 
 				<transition name="blink">
 				<div class="whispers" v-if="whispersAvailable">
-					<Button :icon="require('@/assets/icons/whispers.svg')"
+					<Button aria-label="Open whispers"
+						:icon="require('@/assets/icons/whispers.svg')"
 						bounce
 						small
 						data-tooltip="Whispers"
@@ -86,14 +95,15 @@
 				</transition>
 
 				<transition name="blink">
-				<Button :icon="require('@/assets/icons/debug.svg')"
+				<Button aria-label="Open dev mode options"
+					:icon="require('@/assets/icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
 					v-if="$store.state.devmode" />
 				</transition>
 
 				<transition name="blink">
-				<Button
+				<Button aria-label="Toggle messages encryption"
 					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"

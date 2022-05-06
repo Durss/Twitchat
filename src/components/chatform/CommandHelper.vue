@@ -8,11 +8,11 @@
 		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 		<div class="commercial">
-			<Button v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!$store.state.hasChannelPoints" />
 			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
 		</div>
 
@@ -23,13 +23,13 @@
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
-				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
+				<Button aria-label="Start raid" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding.target_display_name}}</label>
-			<Button @click="cancelRaid()" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
+			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>
 </template>

@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create prediction</span>
-				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close prediction form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
@@ -22,7 +22,7 @@
 								maxlength="25"
 								v-autofocus="index == 0 && title != ''"
 							>
-							<Button class="deleteBt" small
+							<Button aria-label="Delte outcome option" class="deleteBt" small
 								:icon="require('@/assets/icons/cross.svg')"
 								type="button"
 								v-if="answers.length > 2"

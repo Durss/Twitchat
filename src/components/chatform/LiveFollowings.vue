@@ -3,7 +3,7 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button small :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="Close live users list" small :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
 
 			<div class="noResult" v-if="!loading && streams?.length == 0">None of the people you follow is streaming :(</div>
 			

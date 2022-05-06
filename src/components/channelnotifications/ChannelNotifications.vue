@@ -25,6 +25,7 @@
 
 			<div class="closeBt" v-if="showClose">
 				<Button small
+					aria-label="Close current content"
 					:icon="require('@/assets/icons/cross_white.svg')"
 					@click="$emit('close')" />
 			</div>

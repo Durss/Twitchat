@@ -1,11 +1,13 @@
 <template>
 	<div class="ChatMessageHoverActions">
-		<Button :icon="require('@/assets/icons/magnet.svg')"
+		<Button :aria-label="'Track '+messageData.tags.username+' messages'"
+			:icon="require('@/assets/icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
 			v-if="!isSelf"
 			/>
-		<Button :icon="require('@/assets/icons/shoutout.svg')"
+		<Button :aria-label="'Shoutout '+messageData.tags.username"
+			:icon="require('@/assets/icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
 			v-if="!isSelf"

@@ -91,7 +91,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">History</h1>
-				<Button :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
+				<Button aria-label="close conversation" :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<ChatMessage
