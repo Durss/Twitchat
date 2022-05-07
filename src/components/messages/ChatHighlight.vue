@@ -294,13 +294,13 @@ export default class ChatHighlight extends Vue {
 	border-radius: 5px;
 	margin: 5px 0;
 	padding: 5px;
-	text-align: center;
+	// text-align: center;
 
 	&.light {
 		// background-color: transparent;
 		display: flex;
 		flex-direction: row;
-		align-items: center;
+		align-items: flex-start;
 		.time {
 			display: inline-block;
 			position: relative;
@@ -355,7 +355,7 @@ export default class ChatHighlight extends Vue {
 	.messageHolder {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: flex-start;
 
 		&>*:not(:first-child) {
 			margin-top: 10px;

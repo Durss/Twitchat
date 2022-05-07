@@ -16,6 +16,7 @@ import { ChatUserstate, UserNoticeState } from 'tmi.js';
 import { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
 import Store from './Store';
+import * as JSONPatch from "fast-json-patch";
 
 export default createStore({
 	state: {
@@ -46,12 +47,26 @@ export default createStore({
 		trackedUsers: [] as TwitchTypes.TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: {} as RaffleData,
-		raffle_message: "🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
-		raffle_messageEnabled: true,
+		botMessages: {
+			raffleStart: {
+				enabled:true,
+				message:"/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",
+			},
+			raffle: {
+				enabled:true,
+				message:"/announce 🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
+			},
+			bingoStart: {
+				enabled:true,
+				message:"/announce 🎉🎉🎉 Bingo has started 🎉🎉🎉 {GOAL}",
+			},
+			bingo: {
+				enabled:true,
+				message:"/announce 🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
+			},
+		} as IBotMessage,
 		chatPoll: null as ChatPollData | null,
 		bingo: {} as BingoData,
-		bingo_message: "🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
-		bingo_messageEnabled: true,
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
 		whispersUnreadCount: 0 as number,
 		hypeTrain: {} as HypeTrainStateData,
@@ -685,14 +700,12 @@ export default createStore({
 
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
 
-		startRaffle(state, payload:RaffleData) { state.raffle = payload; },
-		setRaffleMessage(state, message:string) {
-			state.raffle_message = message;
-			Store.set("raffle_message", message);
-		},
-		setRaffleMessageEnabled(state, enabled:boolean) {
-			state.raffle_messageEnabled = enabled;
-			Store.set("raffle_messageEnabled", enabled);
+		startRaffle(state, payload:RaffleData) {
+			state.raffle = payload;
+		
+			let message = state.botMessages.raffleStart.message;
+			message = message.replace(/\{CMD\}/gi, payload.command);
+			IRCClient.instance.sendMessage(message);
 		},
 
 		async startBingo(state, payload:BingoConfig) {
@@ -711,14 +724,16 @@ export default createStore({
 				winners: [],
 			};
 			state.bingo = data;
-		},
-		setBingoMessage(state, message:string) {
-			state.bingo_message = message;
-			Store.set("bingo_message", message);
-		},
-		setBingoMessageEnabled(state, enabled:boolean) {
-			state.bingo_messageEnabled = enabled;
-			Store.set("bingo_messageEnabled", enabled);
+			
+			let message = state.botMessages.bingoStart.message;
+			let goal = "Find ";
+			if(payload.guessEmote) {
+				goal += " one of the global Twitch emotes";
+			}else{
+				goal += " a number between "+min+" and "+max+" included";
+			}
+			message = message.replace(/\{GOAL\}/gi, goal as string);
+			IRCClient.instance.sendMessage(message);
 		},
 
 		closeWhispers(state, userID:string) {
@@ -817,6 +832,12 @@ export default createStore({
 			Store.set("obsConf_sources", state.obsEventActions);
 		},
 
+		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
+			state.botMessages[value.key].enabled = value.enabled;
+			state.botMessages[value.key].message = value.message;
+			Store.set("botMessages", state.botMessages);
+		},
+
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
 
 	},
@@ -900,15 +921,15 @@ export default createStore({
 				state.obsPermissions = JSON.parse(obsPermissions);
 			}
 			
-			//Bingo conf
-			const bingoMessage = Store.get("bingo_message");
-			if(bingoMessage) {
-				state.bingo_message = bingoMessage;
+			//Load bot messages
+			const botMessages = Store.get("botMessages");
+			if(botMessages) {
+				//Merge remote and local to avoid losing potential new
+				//default values on local data
+				JSONPatch.applyPatch(state.botMessages, JSON.parse(botMessages));
 			}
-			const bingoMessageEnabled = Store.get("bingo_messageEnabled");
-			if(bingoMessageEnabled) {
-				state.bingo_messageEnabled = bingoMessageEnabled === 'true';
-			}
+			
+			//TODO load bot messages
 
 			//Init OBS connection
 			const port = Store.get("obsPort");
@@ -969,7 +990,7 @@ export default createStore({
 				
 				//If a raffle is in progress, check if the user can enter
 				const raffle:RaffleData = state.raffle as RaffleData;
-				if(raffle.command && messageData.message.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
+				if(raffle.command && messageData.message?.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 					//Check if within time frame and max users count isn't reached and that user
 					//hasn't already entered
@@ -1003,14 +1024,14 @@ export default createStore({
 					&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
 					if(win) {
 						state.bingo.winners = [messageData.tags];
-						if(state.bingo_messageEnabled) {
+						if(state.botMessages.bingo) {
 							//TMI.js never cease to amaze me.
 							//It doesn't send the message back to the sender if sending
 							//it just after receiving a message.
 							//If we didn't wait for a frame, the message would be sent properly
 							//but wouldn't appear on this chat.
 							setTimeout(()=> {
-								let message = state.bingo_message;
+								let message = state.botMessages.bingo.message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);
 
@@ -1031,7 +1052,7 @@ export default createStore({
 
 				//If there's a chat poll and the timer isn't over
 				const chatPoll = state.chatPoll as ChatPollData;
-				if(chatPoll && Date.now() - chatPoll.startTime < chatPoll.duration * 60 * 1000) {
+				if(chatPoll && Date.now() - chatPoll.startTime < chatPoll.duration * 60 * 1000 && messageData.message) {
 					const cmd = chatPoll.command.toLowerCase();
 					if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
 						if(chatPoll.allowMultipleAnswers
@@ -1049,6 +1070,7 @@ export default createStore({
 
 				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
 					if(Utils.checkPermissions(state.obsPermissions, messageData.tags)) {
+						console.log("TEST", messageData.message);
 						const cmd = messageData.message.trim().toLowerCase();
 						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
@@ -1257,12 +1279,8 @@ export default createStore({
 		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
 
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
-		setRaffleMessage({commit}, payload:string) { commit("setRaffleMessage", payload); },
-		setRaffleMessageEnabled({commit}, payload:boolean) { commit("setRaffleMessageEnabled", payload); },
 
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
-		setBingoMessage({commit}, payload:string) { commit("setBingoMessage", payload); },
-		setBingoMessageEnabled({commit}, payload:boolean) { commit("setBingoMessageEnabled", payload); },
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
@@ -1292,6 +1310,8 @@ export default createStore({
 
 		setObsEventActions({commit}, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) { commit("setObsEventActions", value); },
 
+		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
+
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
 			if(date === 0) {
@@ -1305,6 +1325,18 @@ export default createStore({
 	modules: {
 	}
 })
+
+export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart";
+export interface IBotMessage {
+	bingo:BotMessageEntry;
+	raffle:BotMessageEntry;
+	bingoStart:BotMessageEntry;
+	raffleStart:BotMessageEntry;
+}
+export interface BotMessageEntry {
+	enabled:boolean;
+	message:string;
+}
 
 export type ParameterCategory = "appearance" | "filters"| "features";
 
@@ -1357,7 +1389,7 @@ export interface ParameterDataListValue {
 export interface ParameterData {
 	id?:number;
 	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse";
-	value:boolean|number|string|string;
+	value:boolean|number|string|string[];
 	listValues?:ParameterDataListValue[];
 	longText?:boolean;
 	label:string;

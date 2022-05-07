@@ -10,15 +10,17 @@
 						<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
 						{{o.title}}
 					</div>
-					<div :style="getOutcomeStyles(o)" class="bar">
-						<div class="percent">{{getOutcomePercent(o)}}%</div>
-						<div class="users">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon">
-							{{o.users}}
-						</div>
-						<div class="points">
-							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
-							{{o.channel_points}}
+					<div class="barCell">
+						<div :style="getOutcomeStyles(o)" class="bar">
+							<div class="percent">{{getOutcomePercent(o)}}%</div>
+							<div class="users">
+								<img src="@/assets/icons/user.svg" alt="user" class="icon">
+								{{o.users}}
+							</div>
+							<div class="points">
+								<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
+								{{o.channel_points}}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -111,12 +113,14 @@ export default class ChatPredictionResult extends Vue {
 			margin-bottom: 5px;
 		}
 		.outcomes {
-			display: flex;
-			flex-direction: column;
+			// If anyone figures out how to make that darn table autosize on labels
+			// (with a 50% max width) and fill up the remaining space with the bars,
+			// well, congrats and thank you <3
+			display: table;
+			table-layout: auto;
+			border-spacing: 1px;
 			.outcome {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
+				display: table-row;
 				margin-bottom: 1px;
 
 				&.winner {
@@ -140,12 +144,16 @@ export default class ChatPredictionResult extends Vue {
 				}
 				
 				.outcomeTitle {
-					width: 50%;
+					display: table-cell;
 					padding-right: 10px;
+					// min-width: 90px;
 					text-align: right;
-					text-overflow: ellipsis;
-					overflow: hidden;
-					white-space: nowrap;
+					word-break: break-all;
+				}
+
+				.barCell {
+					width: 80%;//Can't explain that value :D. It grows kind of exponentially..
+					display: table-cell;
 				}
 
 				.bar {

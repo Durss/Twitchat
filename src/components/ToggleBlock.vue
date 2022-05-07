@@ -111,7 +111,7 @@ export default class ToggleBlock extends Vue {
 		})
 	}
 
-	public async toggle(forcedState:boolean):Promise<void> {
+	public async toggle(forcedState?:boolean):Promise<void> {
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
 		let open = !this.showContent;
 		if(forcedState !== undefined) {
@@ -145,12 +145,12 @@ export default class ToggleBlock extends Vue {
 	&.small {
 		font-size: .8em;
 		.header {
-			background-color: fade(@mainColor_normal, 10%);
+			background-color: fade(@mainColor_normal, 15%);
 			border: none;
 			padding: 0;
 			border-radius: 0;
 			&:hover {
-				background-color: fade(@mainColor_normal, 10%);
+				background-color: fade(@mainColor_normal, 15%);
 			}
 			h2 {
 				text-align: left;

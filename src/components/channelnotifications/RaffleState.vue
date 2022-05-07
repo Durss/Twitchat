@@ -25,7 +25,7 @@
 			@click="pickWinner()"
 			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
 
-		<ParamItem class="item postChat" :paramData="postOnChatParam" />
+		<PostOnChatParam botMessageKey="raffle" class="item " :placeholders="winnerPlaceholders" />
 
 		<Button class="item"
 			:icon="require('@/assets/icons/cross_white.svg')"
@@ -36,16 +36,17 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData, RaffleData, RaffleVote } from '@/store';
+import store, { RaffleData, RaffleVote } from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { ChatUserstate } from 'tmi.js';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
+import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
+import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
 
 @Options({
@@ -54,6 +55,7 @@ import ProgressBar from '../ProgressBar.vue';
 		Button,
 		ParamItem,
 		ProgressBar,
+		PostOnChatParam,
 	},
 	emits:["close"]
 })
@@ -61,22 +63,15 @@ export default class RaffleState extends Vue {
 
 	public progressPercent:number = 0;
 	public raffleData:RaffleData = store.state.raffle as RaffleData;
-	public postOnChatParam:ParameterData = { label:"Post winner on chat", value:false, type:"toggle"};
-	public postOnChatTextParam:ParameterData = { label:"Message ( username => {USER} )", value:"", type:"text", longText:true};
+	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 
 	public mounted():void {
-		this.postOnChatTextParam.value	= store.state.raffle_message;
-		this.postOnChatParam.value		= store.state.raffle_messageEnabled;
-		this.postOnChatParam.children	= [this.postOnChatTextParam];
 
 		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();
 		const duration = this.raffleData.duration*60000;
 		const timeLeft = duration - ellapsed;
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
-
-		watch(()=>this.postOnChatTextParam.value, ()=> this.saveParams())
-		watch(()=>this.postOnChatParam.value, ()=> this.saveParams())
 	}
 
 	public closeRaffle():void {
@@ -121,14 +116,9 @@ export default class RaffleState extends Vue {
 		}
 		store.dispatch("addChatMessage", payload);
 		
-		if(this.postOnChatParam.value) {
-			IRCClient.instance.sendMessage((this.postOnChatTextParam.value as string).replace(/\{USER\}/gi, winner.user['display-name'] as string));
+		if(store.state.botMessages.raffle.enabled) {
+			IRCClient.instance.sendMessage(store.state.botMessages.raffle.message.replace(/\{USER\}/gi, winner.user['display-name'] as string));
 		}
-	}
-
-	public saveParams():void {
-		store.dispatch("setRaffleMessage", this.postOnChatTextParam.value);
-		store.dispatch("setRaffleMessageEnabled", this.postOnChatParam.value);
 	}
 
 }
@@ -180,17 +170,6 @@ export default class RaffleState extends Vue {
 				height: 14px;
 				align-self: baseline;
 				margin-right: 5px;
-			}
-		}
-
-		&.postChat {
-			width: 70%;
-			:deep(label) {
-				font-size: 15px;
-				align-self: center;
-			}
-			:deep(.child) {
-				width: 100%;
 			}
 		}
 

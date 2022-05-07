@@ -83,6 +83,10 @@ export default class Store {
 			this.cleanupOldData();
 			this.set("v", 3);
 		}
+		if(v=="3") {
+			this.migrateBotMessages();
+			this.set("v", 4);
+		}
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -161,5 +165,36 @@ export default class Store {
 		this.remove("authToken");
 		this.remove("p:hideBadges");
 		this.remove("p:hideBot");
+	}
+
+	/**
+	 * Move raffle and bingo messages inside a more generic "botMessage"
+	 * prop instead of having one prop for each field.
+	 */
+	private static migrateBotMessages():void {
+		const raffle_message =this.get("raffle_message");
+		const raffle_messageEnabled =this.get("raffle_messageEnabled");
+		const bingo_message =this.get("bingo_message");
+		const bingo_messageEnabled =this.get("bingo_messageEnabled");
+
+		const botMessages = {
+			raffle: {
+				enabled:raffle_message,
+				message:raffle_messageEnabled,
+			},
+			bingo: {
+				enabled:bingo_message,
+				message:bingo_messageEnabled,
+			}
+		}
+		//Save new data format
+		this.set("botMessages", botMessages);
+		
+		//Cleanup old data
+		this.remove("raffle_message");
+		this.remove("bingo_messageEnabled");
+		this.remove("raffle_messageEnabled");
+		this.remove("bingo_message");
+		console.log("CLEANUP DONE");
 	}
 }

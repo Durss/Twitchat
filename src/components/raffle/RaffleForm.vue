@@ -8,15 +8,21 @@
 			</div>
 			<div class="content">
 				<div class="description">
-					<p>This feature allows you to randomly pick a user on your audience.</p>
-					<p>Set a <strong>command</strong> your viewers will have to enter, a max duration to enter the raffle or a max number of users allowed, and start the raffle.</p>
 					<ToggleBlock icon="infos" small title="Legal concerns" :open="false" class="legal">
 						<div>Depending on your country's legislation, making your viewers win something while using the "sub" ponderation option or randomly picking a winner amongst your subs might be illegal.</div>
 						<div>You may want to check this out before doing a giveaway.</div>
 					</ToggleBlock>
 				</div>
+				
+				<div class="tabs">
+					<Button title="Chat command" bounce :selected="!subMode" @click="subMode = false" :icon="require('@/assets/icons/commands.svg')" />
+					<Button title="Subscribers" bounce :selected="subMode" @click="subMode = true" :icon="require('@/assets/icons/sub.svg')" />
+				</div>
 
-				<form @submit.prevent="onSubmit()" class="form">
+				<form @submit.prevent="onSubmit()" class="form" v-if="!subMode">
+					<div class="info">
+						<p>Randomly pick someone amongst users that sent a command</p>
+					</div>
 					<div class="row">
 						<ParamItem class="item" :paramData="command" :autofocus="true" />
 					</div>
@@ -35,12 +41,10 @@
 					</div>
 				</form>
 					
-				<Splitter title="OR" class="splitter" />
-
-				<div class="description">
-					<p>Randomly pick someone amongst all your current subscribers</p>
-				</div>
-				<div class="form">
+				<div class="form" v-if="subMode">
+					<div class="info">
+						<p>Randomly pick someone amongst all your current subscribers</p>
+					</div>
 					<div class="row">
 						<ParamItem class="item" :paramData="subs_includeGifters" />
 					</div>
@@ -58,6 +62,18 @@
 						<Button type="submit" :title="'Pick a sub <i>('+subsFiltered.length+')</i>'" :icon="require('@/assets/icons/sub.svg')" @click="pickSub()" :loading="loadingSubs" />
 					</div>
 				</div>
+
+				<Splitter title="Config" class="splitter" />
+
+				<PostOnChatParam class="chatParam" botMessageKey="raffleStart"
+					v-if="!subMode"
+					:placeholders="startPlaceholders"
+					title="Announce raffle start on chat"
+				/>
+				<PostOnChatParam class="chatParam" botMessageKey="raffle"
+					:placeholders="winnerPlaceholders"
+					title="Post raffle winner on chat"
+				/>
 			</div>
 		</div>
 	</div>
@@ -72,7 +88,10 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import Splitter from '../Splitter.vue';
+import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import IRCClient from '@/utils/IRCClient';
+import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 
 @Options({
 	props:{},
@@ -81,6 +100,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		Splitter,
 		ParamItem,
 		ToggleBlock,
+		PostOnChatParam,
 	}
 })
 export default class RaffleForm extends Vue {
@@ -89,6 +109,7 @@ export default class RaffleForm extends Vue {
 	public winner:TwitchTypes.Subscriber|null = null;
 	public winnerTmp:TwitchTypes.Subscriber|null = null;
 
+	public subMode:boolean = false;
 	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
@@ -100,9 +121,14 @@ export default class RaffleForm extends Vue {
 	public ponderateVotes_follower:ParameterData = {label:"Follower", value:0, type:"number", min:0, max:100, icon:"follow_purple.svg"};
 	public subs_includeGifters:ParameterData = {label:"Include sub gifters (user not sub but that subgifted someone else)", value:true, type:"toggle", icon:"gift_purple.svg"};
 	public subs_excludeGifted:ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
+	public startPlaceholders:PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
+	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private subs:TwitchTypes.Subscriber[] = [];
 
+	/**
+	 * Gets subs filtered by the current filters
+	 */
 	public get subsFiltered():TwitchTypes.Subscriber[] {
 		return this.subs.filter(v => {
 			if(this.subs_includeGifters.value == true && this.subs.find(v2=> v2.gifter_id == v.user_id)) return true;
@@ -124,6 +150,9 @@ export default class RaffleForm extends Vue {
 		this.loadingSubs = false;
 	}
 
+	/**
+	 * Close the form
+	 */
 	public async close():Promise<void> {
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
@@ -132,6 +161,9 @@ export default class RaffleForm extends Vue {
 		}});
 	}
 
+	/**
+	 * Create a chat raffle
+	 */
 	public onSubmit():void {
 		const cmd = this.command.value? this.command.value as string : "!raffle";
 		const payload:RaffleData = {
@@ -150,6 +182,9 @@ export default class RaffleForm extends Vue {
 		this.close();
 	}
 
+	/**
+	 * Picks a random user amongst our subs
+	 */
 	public async pickSub():Promise<void> {
 		this.winner = null;
 		let increment = {value:0};
@@ -167,6 +202,10 @@ export default class RaffleForm extends Vue {
 				gsap.fromTo(this.$refs.winnerHolder as HTMLDivElement,
 							{scaleX:1.25, scaleY:2},
 							{duration:1, scale:1, ease:"elastic.out(1, 0.5)"});
+
+				let message = store.state.botMessages.raffle.message;
+				message = message.replace(/\{USER\}/gi, this.winner?.user_name as string);
+				IRCClient.instance.sendMessage(message);
 			})
 		}})
 	}
@@ -185,6 +224,36 @@ export default class RaffleForm extends Vue {
 	.modal();
 
 	.content {
+		.tabs {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			margin-bottom: 1em;
+
+			.button {
+				background-color: @mainColor_normal;
+				&:not(.selected) {
+					background-color: fade(@mainColor_normal, 50%);
+				}
+
+				&:not(:last-child) {
+					margin-right: 1px;
+				}
+
+				&:first-child {
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+					transform-origin: right center;
+				}
+
+				&:last-child {
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+					transform-origin: left center;
+				}
+			}
+		}
+
 		.description {
 			text-align: center;
 			font-size: .8em;
@@ -200,6 +269,11 @@ export default class RaffleForm extends Vue {
 					background-color: fade(@mainColor_warn, 10%);
 				}
 			}
+		}
+
+		.info {
+			text-align: center;
+			opacity: .8;
 		}
 
 		.form {
@@ -259,6 +333,10 @@ export default class RaffleForm extends Vue {
 
 		.splitter {
 			margin: 1em 0;
+		}
+
+		.chatParam {
+			margin-bottom: 1em;
 		}
 	}
 }

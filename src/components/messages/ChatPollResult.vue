@@ -7,10 +7,12 @@
 			<div class="choices">
 				<div v-for="o in poll.choices" :key="o.id" class="choice">
 					<div class="choiceTitle">{{o.title}}</div>
-					<div class="bar" :style="getChoiceStyles(o)">
-						<div class="users">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon">
-							{{o.votes}}
+					<div class="barCell">
+						<div class="bar" :style="getChoiceStyles(o)">
+							<div class="users">
+								<img src="@/assets/icons/user.svg" alt="user" class="icon">
+								{{o.votes}}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -94,29 +96,30 @@ export default class ChatPollResult extends Vue {
 			margin-bottom: 5px;
 		}
 		.choices {
-			display: flex;
-			flex-direction: column;
+			// If anyone figures out how to make that darn table autosize on labels
+			// (with a 50% max width) and fill up the remaining space with the bars,
+			// well, congrats and thank you <3
+			display: table;
+			table-layout: auto;
+			border-spacing: 1px;
 			.choice {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
+				display: table-row;
 				margin-bottom: 1px;
 				
 				.choiceTitle {
-					width: 50%;
+					display: table-cell;
 					padding-right: 10px;
+					// min-width: 90px;
 					text-align: right;
-					text-overflow: ellipsis;
-					overflow: hidden;
-					white-space: nowrap;
-					// padding: 5px;
-					// border-radius: 5px;
-					// @c: fade(@mainColor_light, 25%);
-					// background-color: fade(@c, 25%);
+					word-break: break-all;
 				}
 
+				.barCell {
+					width: 80%;//Can't explain that value :D. It grows kind of exponentially..
+					display: table-cell;
+				}
 				.bar {
-					flex-grow: 1;
+					width: 100%;
 					display: flex;
 					flex-direction: row;
 					padding: 3px;

@@ -22,7 +22,7 @@
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
-				<input :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus" @blur="clampValue()">
+				<input ref="input" :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus" @blur="clampValue()">
 			</div>
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
@@ -32,8 +32,8 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea v-if="paramData.longText===true" :id="'text'+key" v-model="paramData.value" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
+				<textarea ref="input" v-if="paramData.longText===true" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input ref="input" v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -45,7 +45,7 @@
 				<label :for="'slider'+key">
 					{{paramData.label}} <span>({{paramData.value}})</span>
 				</label>
-				<input type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus">
+				<input ref="input" type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus">
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -55,8 +55,8 @@
 					class="helpBt"
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
-				<select v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus">
-					<option v-for="a in paramData.listValues" :key="a" :value="a.value">{{a.label}}</option>
+				<select ref="input" v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus">
+					<option v-for="a in paramData.listValues" :key="a.label" :value="a.value">{{a.label}}</option>
 				</select>
 			</div>
 			
@@ -115,12 +115,15 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class ParamItem extends Vue {
 	
+	public autofocus!:ParameterData;
 	public paramData!:ParameterData;
 	public childLevel!:number;
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
+	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;
 
 	private file:unknown = {};
+
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -132,6 +135,14 @@ export default class ParamItem extends Vue {
 
 	public get label():string {
 		return this.paramData.label.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+	}
+
+	public get textValue():string {
+		return this.paramData.value as string;
+	}
+
+	public set textValue(value:string) {
+		this.paramData.value = value;
 	}
 
 	public mounted():void {
@@ -149,6 +160,8 @@ export default class ParamItem extends Vue {
 			console.log(this.file);
 		});
 		this.buildChildren();
+		
+		this.inputField = this.$refs.input as HTMLTextAreaElement;
 	}
 
 	private async buildChildren():Promise<void> {

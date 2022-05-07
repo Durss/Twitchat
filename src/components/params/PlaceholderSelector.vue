@@ -1,0 +1,78 @@
+<template>
+	<ToggleBlock small class="placeholderselector"
+		title="Special placeholders dynamically replaced"
+		:open="false"
+	>
+		<ul class="list">
+			<li v-for="(h,index) in placeholders" :key="h.tag+index" @click="insert(h)" data-tooltip="Insert">
+				<strong>&#123;{{h.tag}}&#125;</strong>
+				{{h.desc}}
+			</li>
+		</ul>
+	</ToggleBlock>
+</template>
+
+<script lang="ts">
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import { Options, Vue } from 'vue-class-component';
+
+@Options({
+	props:{
+		placeholders:Object,
+		target:Object,
+	},
+	components:{
+		ToggleBlock,
+	},
+	emits:["update:modelValue"]
+})
+export default class PlaceholderSelector extends Vue {
+
+	public placeholders!:PlaceholderEntry[];
+	public target!:HTMLInputElement | HTMLTextAreaElement;
+	public modelValue!:string;
+
+	/**
+	 * Add a token on the text
+	 */
+	public insert(h:{tag:string, desc:string}):void {
+		const tag = "{"+h.tag+"}";
+		let carretPos = this.target.selectionStart as number | 0;
+		if(!carretPos) carretPos = 0;
+		//Insert tag
+		const text = this.target.value.substring(0, carretPos) + tag + this.target.value.substring(carretPos);
+		this.$emit("update:modelValue", text);
+	}
+}
+
+export interface PlaceholderEntry {
+	tag:string;
+	desc:string;
+}
+</script>
+
+<style scoped lang="less">
+.placeholderselector{
+	font-size: .8em;
+	padding-left: 2em;
+	.list {
+		list-style-type: none;
+		// padding-left: 1em;
+		li {
+			padding: .25em;
+			cursor: pointer;
+			&:hover {
+				background-color: fade(@mainColor_normal, 10%);
+			}
+			&:not(:last-child) {
+				border-bottom: 1px solid @mainColor_normal;
+			}
+			strong {
+				display: inline-block;
+				min-width: 82px;
+				border-right: 1px solid @mainColor_normal;
+			}
+		}
+	}
+}
+</style>

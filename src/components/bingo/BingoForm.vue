@@ -27,12 +27,24 @@
 					</div>
 
 					<div class="info" v-if="guessEmote">
-						Your viewers will have to send one of the <strong>{{globalEmotes.length}} global</strong> twitch emotes in the chat <i>(smileys excluded)</i>
+						Your viewers will have to send one of the <strong>{{globalEmotes.length}} global</strong> twitch emotes on your chat <i>(smileys excluded)</i>
 					</div>
 					<div class="row submit">
 						<Button type="submit" title="Start" />
 					</div>
 				</form>
+
+				<Splitter title="Config" class="splitter" />
+
+				<PostOnChatParam botMessageKey="bingoStart"
+					:placeholderEnabled="false"
+					title="Announce bingo start on chat"
+					:placeholders="startPlaceholders"
+				/>
+				<PostOnChatParam botMessageKey="bingo"
+					title="Post bingo winner on chat"
+					:placeholders="winnerPlaceholders"
+				/>
 			</div>
 		</div>
 	</div>
@@ -45,12 +57,17 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
+import Splitter from '../Splitter.vue';
+import PostOnChatParam from '../params/PostOnChatParam.vue';
+import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ParamItem,
+		Splitter,
+		PostOnChatParam,
 	}
 })
 export default class BingoForm extends Vue {
@@ -61,6 +78,8 @@ export default class BingoForm extends Vue {
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:true, type:"toggle"};
 	public minValue:ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
 	public maxValue:ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
+	public startPlaceholders:PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
+	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 
 	public async mounted():Promise<void> {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -72,6 +91,9 @@ export default class BingoForm extends Vue {
 		this.globalEmotes = emotes
 	}
 
+	/**
+	 * Close bingo form
+	 */
 	public async close():Promise<void> {
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
@@ -80,6 +102,9 @@ export default class BingoForm extends Vue {
 		}});
 	}
 
+	/**
+	 * Start a bingo
+	 */
 	public onSubmit():void {
 		const min = this.minValue.value as number;
 		const max = this.maxValue.value as number;
@@ -163,6 +188,10 @@ export default class BingoForm extends Vue {
 			.submit {
 				margin-top: 20px;
 			}
+		}
+
+		.splitter {
+			margin: 1em 0;
 		}
 	}
 	
