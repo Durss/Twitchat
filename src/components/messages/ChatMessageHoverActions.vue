@@ -67,10 +67,11 @@ export default class ChatMessageHoverActions extends Vue {
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 
 	.button {
-		width: 25px;
-		height: 25px;
+		width: 1em;
+		height: 1em;
 		border-radius: 5px;
 		padding: 2px;
+		// font-size: 20px;
 		:deep(.icon) {
 			min-width: 100%;
 		}

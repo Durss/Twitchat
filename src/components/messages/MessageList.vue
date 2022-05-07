@@ -132,7 +132,6 @@ import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -798,6 +797,8 @@ export default class MessageList extends Vue {
 		// }
 		.subHolder {
 			position: relative;
+			display: flex;
+			flex-direction: row;
 			&:last-child {
 				padding-bottom: 5px;
 			}
@@ -814,15 +815,26 @@ export default class MessageList extends Vue {
 				pointer-events: none;
 			}
 
+			.message {
+				flex-grow: 1;
+			}
+
 			.hoverActions {
-				position: absolute;
-				right: 0;
-				top: 50%;
-				transform:translateY(-50%);
+				// position: absolute;
+				// right: 0;
+				// top: 50%;
+				// transform:translateY(-50%);*
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				font-size: var(--messageSize);
+				margin: .5em 0;
 
 				&.slide-enter-active {
 					transition: all 0.2s;
-					transform: translate(0%, -50%);
+					transform: translate(0%, 0);
 				}
 
 				&.slide-leave-active {
@@ -831,7 +843,7 @@ export default class MessageList extends Vue {
 				
 				&.slide-enter-from,
 				&.slide-leave-to {
-					transform: translate(100%, -50%);
+					transform: translate(100%, 0);
 				}
 			}
 		}
