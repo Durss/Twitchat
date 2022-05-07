@@ -6,6 +6,7 @@ import Config from "./Config";
 import FFZUtils from "./FFZUtils";
 import IRCClient from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
+import SevenTVUtils from "./SevenTVUtils";
 import Utils from "./Utils";
 
 /**
@@ -182,6 +183,11 @@ export default class TwitchUtils {
 			if(emotes.length > 0) ffzTag += "/";
 			emotes = ffzTag + emotes;
 		}
+		let seventvTag = SevenTVUtils.instance.generateEmoteTag(message)
+		if(seventvTag) {
+			if(emotes.length > 0) seventvTag += "/";
+			emotes = seventvTag + emotes;
+		}
 		
 		if(!emotes || emotes.length == 0) {
 			return [{type:"text", value:message}];
@@ -229,6 +235,14 @@ export default class TwitchUtils {
 					const bttvE = FFZUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
 						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:"https://"+bttvE.urls[1]} );
+					}else{
+						result.push( {type:"text", value:code} );
+					}
+				}else
+				if(e.id.indexOf("7TV_") == 0) {
+					const sevenTVE = SevenTVUtils.instance.getEmoteFromCode(code);
+					if(sevenTVE) {
+						result.push( {type:"emote", label:"7TV: "+code, emote:code, value:sevenTVE.urls[1][1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}

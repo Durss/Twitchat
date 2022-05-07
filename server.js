@@ -544,6 +544,7 @@ const UserDataSchema = {
 		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
+		"p:sevenTVEmotes": {type:"boolean"},
 		"p:censorDeletedMessages": {type:"boolean"},
 		"p:censoreDeletedMessages": {type:"boolean"},
 		"p:conversationsEnabled": {type:"boolean"},

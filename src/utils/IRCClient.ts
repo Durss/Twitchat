@@ -8,6 +8,7 @@ import FFZUtils from "./FFZUtils";
 import IRCEvent, { IRCEventDataList } from "./IRCEvent";
 import PublicAPI from "./PublicAPI";
 import { PubSubTypes } from "./PubSub";
+import SevenTVUtils from "./SevenTVUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
@@ -20,7 +21,7 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
@@ -89,6 +90,7 @@ export default class IRCClient extends EventDispatcher {
 					await TwitchUtils.loadCheermoteList(uids[i]);
 					await BTTVUtils.instance.addChannel(uids[i]);
 					await FFZUtils.instance.addChannel(uids[i]);
+					await SevenTVUtils.instance.addChannel(uids[i]);
 				}
 
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));

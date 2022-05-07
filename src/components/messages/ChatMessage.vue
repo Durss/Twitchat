@@ -303,7 +303,7 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.predictions?.indexOf("pink")) badges.push({label:"Prediction", class:"prediction pink"});
 			if(message.tags.badges?.predictions?.indexOf("blue")) badges.push({label:"Prediction", class:"prediction blue"});
 			if(message.tags.badges?.vip) badges.push({label:"VIP", class:"vip"});
-			if(message.tags.badges?.subscriber) badges.push({label:"Sub", class:"subscriber"});
+			if(message.tags.badges?.subscriber && !message.tags.badges?.broadcaster) badges.push({label:"Sub", class:"subscriber"});
 			if(message.tags.badges?.premium) badges.push({label:"Prime", class:"premium"});
 			if(message.tags.badges?.moderator) badges.push({label:"Moderator", class:"moderator"});
 			if(message.tags.badges?.staff) badges.push({label:"Twitch staff", class:"staff"});
@@ -452,10 +452,20 @@ export default class ChatMessage extends Vue {
 					}else if(v.type == "emote") {
 						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
 						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/2x$/gi, "3x");//7TV format
 						url = url.replace(/1$/gi, "4");//FFZ format
+						
+						if(store.state.params.appearance.defaultSize.value >= 6) {
+							console.log("ok");
+							v.value = v.value.replace(/1.0$/gi, "3.0");
+							v.value = v.value.replace(/1x$/gi, "4x");//BTTV format
+							v.value = v.value.replace(/2x$/gi, "4x");//7TV format
+							v.value = v.value.replace(/1$/gi, "4");//FFZ format
+						}else
 						if(store.state.params.appearance.defaultSize.value >= 3) {
 							v.value = v.value.replace(/1.0$/gi, "2.0");
 							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
+							v.value = v.value.replace(/1$/gi, "2");//FFZ format
 						}
 						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.label+"</center>";
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
@@ -560,8 +570,8 @@ export default class ChatMessage extends Vue {
 		}
 
 		.badge {
-			width: 18px;
-			height: 18px;
+			width: 1em;
+			height: 1em;
 			vertical-align: middle;
 			&:last-of-type {
 				margin-right: 5px;
@@ -596,7 +606,7 @@ export default class ChatMessage extends Vue {
 			display: inline-block;
 			.badge {
 				display: inline-block;
-				width: .5em;
+				width: .4em;
 				height: 1em;
 				margin: 0 1px 0px 0;
 				&:last-child {

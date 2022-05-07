@@ -239,6 +239,14 @@ export default class MessageList extends Vue {
 			this.scrollToPrevMessage();
 		});
 
+		watch(()=>store.state.params.appearance.defaultSize.value, async ()=> {
+			await this.$nextTick();
+			const el = this.$refs.messageHolder as HTMLDivElement;
+			const maxScroll = (el.scrollHeight - el.offsetHeight);
+			el.scrollTop = this.virtualScrollY = maxScroll;
+			console.log("CHANGE");
+		})
+
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
