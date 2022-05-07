@@ -1,10 +1,12 @@
 import store, { HypeTrainStateData } from "@/store";
 import { ChatUserstate } from "tmi.js";
 import { JsonObject } from "type-fest";
+import { EventDispatcher } from "./EventDispatcher";
 import IRCClient, { IRCTagsExtended } from "./IRCClient";
 import { IRCEventDataList } from "./IRCEvent";
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
+import PubSubEvent from "./PubSubEvent";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
 import Utils from "./Utils";
@@ -12,7 +14,7 @@ import Utils from "./Utils";
 /**
 * Created : 13/01/2022 
 */
-export default class PubSub {
+export default class PubSub extends EventDispatcher{
 
 	private static _instance:PubSub;
 	private socket!:WebSocket;
@@ -22,7 +24,7 @@ export default class PubSub {
 	private history:PubSubTypes.SocketMessage[] = [];
 	
 	constructor() {
-	
+		super();
 	}
 	
 	/********************
@@ -437,6 +439,7 @@ export default class PubSub {
 			IRCClient.instance.addMessage(textMessage, tags, false, localObj);
 		}else 
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
+			this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, localObj.message.id));
 			store.dispatch("delChatMessage", {messageId:localObj.message.id});
 		}
 	}

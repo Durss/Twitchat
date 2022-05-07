@@ -129,6 +129,8 @@ import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
 import PublicAPI from '@/utils/PublicAPI';
+import PubSub from '@/utils/PubSub';
+import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -244,12 +246,12 @@ export default class MessageList extends Vue {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			el.scrollTop = this.virtualScrollY = maxScroll;
-			console.log("CHANGE");
 		})
 
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
+		PubSub.instance.addEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
@@ -308,12 +310,18 @@ export default class MessageList extends Vue {
 	 * If the message is added to that history, it won't be deleted
 	 * automatically, hence, we need this to do it.
 	 */
-	public onDeleteMessage(e:IRCEvent):void {
-		const data = e.data as IRCEventDataList.MessageDeleted;
+	public onDeleteMessage(e:IRCEvent|PubSubEvent):void {
+		let messageID = "";
+		if(typeof e.data == "string") {
+			messageID = e.data;
+		}else{
+			const data = e.data as IRCEventDataList.MessageDeleted;
+			messageID = data.tags['target-msg-id'] as string;
+		}
 		const keepDeletedMessages = store.state.params.filters.keepDeletedMessages.value;
-		
+
 		if(this.pendingMessages.length > 0) {
-			let index = this.pendingMessages.findIndex(v => v.tags.id === data.tags['target-msg-id']);
+			let index = this.pendingMessages.findIndex(v => v.tags.id === messageID);
 			if(index > -1) {
 				const m = this.pendingMessages[index];
 				if(m.type == "message") {
@@ -326,7 +334,7 @@ export default class MessageList extends Vue {
 			}
 		}
 		let index = this.localMessages.findIndex(v => {
-			return v.tags.id === data.tags['target-msg-id']
+			return v.tags.id === messageID
 		});
 		
 		if(index > -1) {
@@ -433,7 +441,6 @@ export default class MessageList extends Vue {
 	 * If hovering and scrolling down with wheel, load next message
 	 */
 	public async onMouseWheel(event:WheelEvent):Promise<void> {
-		console.log("oKFDOKFD");
 		if(this.lightMode) return;
 		if(event.deltaY < 0) {
 			this.lockScroll = true;
