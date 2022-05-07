@@ -43,6 +43,7 @@ import store, { HypeTrainStateData } from '@/store';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
+import { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ProgressBar from '../ProgressBar.vue';
 
@@ -89,7 +90,7 @@ export default class HypeTrainState extends Vue {
 		return Math.floor(this.progressPercent);
 	}
 
-	public get styles():unknown {
+	public get styles():StyleValue {
 		if(this.trainProgress) {
 			return {
 				backgroundSize: `${this.progressPercent}% 100%`,

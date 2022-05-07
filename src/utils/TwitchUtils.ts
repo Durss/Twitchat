@@ -1001,6 +1001,7 @@ export namespace TwitchTypes {
 
 	export interface Badge {
 		id: string;
+		title: string;
 		click_action: string;
 		click_url: string;
 		description: string;

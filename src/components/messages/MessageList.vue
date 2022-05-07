@@ -3,7 +3,7 @@
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
 	@wheel="onMouseWheel($event)">
-		<div aria-live="lastMesssage" role="alert" class="ariaMessage">{{ariaMessage}}</div>
+		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
 			@mouseenter="enterMessage(m)"
@@ -12,10 +12,10 @@
 				<ChatAd class="message"
 					:messageData="m"
 					v-if="m.type == 'ad' && !lightMode"
-					@showModal="v=>$emit('showModal', v)"
+					@showModal="(v:string)=>$emit('showModal', v)"
 					@delete="forceDelete(m)"
 					:ref="'message_'+m.tags.id"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 				/>
 
 				<ChatMessage
@@ -25,9 +25,9 @@
 					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
-					@mouseleave="onMouseLeave(m)"
+					@mouseleave="onMouseLeave()"
 					:ref="'message_'+m.tags.id"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 					
 				<ChatNotice
@@ -35,7 +35,7 @@
 					class="message"
 					:messageData="m"
 					:ref="'message_'+m.tags.id"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 
 				<ChatHighlight
@@ -44,14 +44,14 @@
 					:messageData="m"
 					lightMode
 					:ref="'message_'+m.tags.id"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'poll' && $store.state.params.filters.showPollPredResults.value"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
 				/>
 
@@ -59,7 +59,7 @@
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
 				/>
 
@@ -67,7 +67,7 @@
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'bingo' && $store.state.params.filters.showPollPredResults.value"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
 				/>
 
@@ -75,7 +75,7 @@
 					class="message"
 					:ref="'message_'+m.tags.id"
 					v-else-if="m.type == 'raffle' && $store.state.params.filters.showPollPredResults.value"
-					@ariaMessage="v=>setAriaMessage(v)"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
 				/>
 
@@ -83,7 +83,7 @@
 
 				<transition name="slide">
 					<ChatMessageHoverActions class="hoverActions"
-						v-if="m.type != 'ad' && m.showHoverActions && !lightMode"
+						v-if="m.type == 'message' && m.showHoverActions && !lightMode"
 						:messageData="m" />
 				</transition>
 			</div>
@@ -134,6 +134,7 @@ import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
+import { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
@@ -171,9 +172,9 @@ export default class MessageList extends Vue {
 
 	public max!: number;
 	public lightMode!:boolean;
-	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight | IRCEventDataList.TwitchatAd)[] = [];
-	public pendingMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
-	public conversation:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
+	public localMessages:MessageTypes[] = [];
+	public pendingMessages:MessageTypes[] = [];
+	public conversation:MessageTypes[] = [];
 	public ariaMessage:string = "";
 	public ariaMessageTimeout:number = -1;
 	public lockScroll:boolean = false;
@@ -183,7 +184,7 @@ export default class MessageList extends Vue {
 
 	private disposed:boolean = false;
 	private holderOffsetY:number = 0;
-	private prevMarkedReadItem:IRCEventDataList.Message | IRCEventDataList.Highlight | null = null;
+	private prevMarkedReadItem:MessageTypes | null = null;
 	private virtualScrollY:number = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
@@ -198,13 +199,13 @@ export default class MessageList extends Vue {
 		return res;
 	}
 
-	public get holderStyles():{[key:string]:string} {
+	public get holderStyles():StyleValue {
 		return {
 			transform:"translateY("+this.holderOffsetY+"px)",
 		};
 	}
 
-	public get conversationStyles():unknown {
+	public get conversationStyles():StyleValue {
 		return { top: this.conversationPos+"px" }
 	}
 
@@ -683,8 +684,8 @@ export default class MessageList extends Vue {
 	/**
 	 * Called when hovering a message
 	 */
-	public enterMessage(m:IRCEventDataList.Message):void {
-		if(m.type != "message" && m.type != "highlight") return;
+	public enterMessage(m:MessageTypes):void {
+		if(m.type != "message") return;
 		if(m.tags['user-id'] && m.tags['user-id'] != store.state.user.user_id) {
 			m.showHoverActions = true;
 		}
@@ -693,14 +694,15 @@ export default class MessageList extends Vue {
 	/**
 	 * Called on a message rollout
 	 */
-	public leaveMessage(m:IRCEventDataList.Message):void {
+	public leaveMessage(m:MessageTypes):void {
+		if(m.type != "message") return;
 		m.showHoverActions = false;
 	}
 
 	/**
 	 * Called on a message is clicked
 	 */
-	public toggleMarkRead(m:IRCEventDataList.Message | IRCEventDataList.Highlight, event?:MouseEvent):void {
+	public toggleMarkRead(m:MessageTypes, event?:MouseEvent):void {
 		if(event) {
 			const target = event.target as HTMLElement;
 			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
@@ -715,11 +717,11 @@ export default class MessageList extends Vue {
 		}
 
 		const message = {
-			channel:m.channel,
-			message:m.message,
+			channel:m.channel as string,
+			message:m.message as string,
 			tags:m.tags,
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead, message});
+		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});
 	}
 
 	/**
@@ -740,8 +742,15 @@ export default class MessageList extends Vue {
 			}
 		}
 	}
-
 }
+type MessageTypes = IRCEventDataList.Highlight
+				|  IRCEventDataList.PollResult
+				|  IRCEventDataList.PredictionResult
+				|  IRCEventDataList.BingoResult
+				|  IRCEventDataList.RaffleResult
+				|  IRCEventDataList.Message
+				|  IRCEventDataList.Commercial
+				|  IRCEventDataList.TwitchatAd;
 </script>
 
 <style scoped lang="less">

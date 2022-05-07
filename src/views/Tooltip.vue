@@ -16,6 +16,7 @@
 import store from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -33,7 +34,7 @@ export default class Tooltip extends Vue {
     private currentTarget!:HTMLElement|null;
     private lastMouseEvent!:MouseEvent;
 	
-    public get styles():unknown {
+    public get styles():StyleValue {
 		return {
 			left: this.position.x + "px",
 			top: this.position.y + "px",

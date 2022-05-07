@@ -153,12 +153,14 @@ export namespace IRCEventDataList {
 	}
 
 	export interface TwitchatAd {
+		channel: string;
 		tags:{
 			id:string
 		};
 		markedAsRead?:boolean;
 		contentID:number;
 		type:"ad";
+		[paramater: string]: unknown;
 	}
 
 	export interface RoomState {
@@ -235,5 +237,6 @@ export namespace IRCEventDataList {
 	export interface Commercial extends Notice {
 		ended:boolean;
 		tags: { id:string, "tmi-sent-ts":string, "msg-id":"commercial"; };
+		[paramater: string]: unknown;
 	}
 }

@@ -75,9 +75,10 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 createApp(App)
 .use(store)
 .use(router)
+.provide("$store", store)
 .directive('autofocus', {
-	mounted(el, binding) {
-		if(binding.value !== false) {
+	mounted(el:HTMLDivElement, binding:unknown) {
+		if((binding as {[key:string]:boolean}).value !== false) {
 			el.focus();
 		}
 	}

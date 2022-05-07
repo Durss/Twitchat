@@ -29,6 +29,7 @@
 <script lang="ts">
 import { Ref, watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -110,7 +111,7 @@ export default class Button extends Vue {
 		}
 	}
 
-	public get progressStyle():unknown {
+	public get progressStyle():StyleValue {
 		if(this.pInterpolated> -1 && this.pInterpolated<100) {
 			let p:number = Math.round(this.pInterpolated);
 			let color = "255, 255, 255";

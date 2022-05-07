@@ -7,6 +7,7 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
+import { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -30,7 +31,7 @@ export default class ProgressBar extends Vue {
 		return Utils.formatDuration(this.duration * (1-this.percent))
 	}
 
-	public getStyles():unknown {
+	public getStyles():StyleValue {
 		const percent = Math.min(1, (1-this.percent)) * 100;
 		return {
 			transform: `scaleX(${percent}%)`,

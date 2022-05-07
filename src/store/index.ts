@@ -339,7 +339,13 @@ export default createStore({
 			}
 
 			const list = state.chatMessages.concat();
-			list .push( {type:"ad", markedAsRead:false, contentID, tags:{id:"twitchatAd"+Math.random()}} );
+			list .push( {
+				type:"ad",
+				channel:"#"+state.user.login,
+				markedAsRead:false,
+				contentID,
+				tags:{id:"twitchatAd"+Math.random()}}
+			);
 			state.chatMessages = list;
 		},
 
