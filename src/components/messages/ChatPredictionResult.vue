@@ -119,6 +119,8 @@ export default class ChatPredictionResult extends Vue {
 			display: table;
 			table-layout: auto;
 			border-spacing: 1px;
+			width: 100%;
+
 			.outcome {
 				display: table-row;
 				margin-bottom: 1px;
@@ -146,18 +148,18 @@ export default class ChatPredictionResult extends Vue {
 				.outcomeTitle {
 					display: table-cell;
 					padding-right: 10px;
-					// min-width: 90px;
 					text-align: right;
-					word-break: break-all;
+					word-wrap: break-word;
+					word-break: break-word;
+					width: 10em;
 				}
 
 				.barCell {
-					width: 80%;//Can't explain that value :D. It grows kind of exponentially..
 					display: table-cell;
 				}
 
 				.bar {
-					flex-grow: 1;
+					width: 100%;
 					display: flex;
 					flex-direction: row;
 					padding: 3px;
