@@ -40,7 +40,7 @@
 			tag="div"
 			ref="messageList"
 			class="messageList"
-		@leave="leave"
+			@leave="(el, done) => leave($el, done)"
 		>
 		<div v-for="(m,index) in localMessages" :key="m.tags.id">
 			<ChatMessage
@@ -74,7 +74,6 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
@@ -229,7 +228,7 @@ export default class NewUsers extends Vue {
 	 * Called when clicking a message
 	 * Either removes a streak of messages or one single message
 	 */
-	public deleteMessage(m:IRCEventDataList.Message, index:number, singleMode:boolean):void {
+	public deleteMessage(m:IRCEventDataList.Message|IRCEventDataList.Highlight, index:number, singleMode:boolean = false):void {
 		let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
 
 		if(!this.streakMode || singleMode) {

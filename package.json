@@ -21,6 +21,8 @@
 		"vue": "^3.0.0",
 		"vue-class-component": "^8.0.0-0",
 		"vue-router": "^4.0.0-0",
+		"vue-select": "^4.0.0-beta.3",
+		"vue3-country-flag-icon": "^0.1.2",
 		"vuex": "^4.0.0-0"
 	},
 	"devDependencies": {
