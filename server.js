@@ -440,6 +440,7 @@ const UserDataSchema = {
 		},
 		obsConf_permissions: {
 			type:"object",
+			additionalProperties: false,
 			properties: {
 				mods: {type:"boolean"},
 				vips: {type:"boolean"},
@@ -538,6 +539,52 @@ const UserDataSchema = {
 							}
 						}
 					]
+				},
+			}
+		},
+		botMessages: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				raffleStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				raffle: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				bingoStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				bingo: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				shoutout: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
 				},
 			}
 		},
