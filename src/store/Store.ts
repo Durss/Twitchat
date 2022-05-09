@@ -212,7 +212,8 @@ export default class Store {
 		label = label.replace("$TITLE", "{TITLE}");
 		label = label.replace("$URL", "{URL}");
 		label = label.replace("$CATEGORY", "{CATEGORY}");
-		store.state.botMessages.shoutout.message = label;
+		// store.state.botMessages.shoutout.message = label;
+		store.dispatch("updateBotMessage", {key:"shoutout", enabled:true, message:label})
 		this.remove("p:shoutoutLabel");
 	}
 }

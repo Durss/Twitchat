@@ -66,7 +66,7 @@ export default createStore({
 			},
 			shoutout: {
 				enabled:true,
-				message:"/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
+				message:"!!!!!/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 		} as IBotMessage,
 		chatPoll: null as ChatPollData | null,
@@ -839,6 +839,7 @@ export default createStore({
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
 			state.botMessages[value.key].enabled = value.enabled;
 			state.botMessages[value.key].message = value.message;
+			console.log("UPDATE", value);
 			Store.set("botMessages", state.botMessages);
 		},
 
@@ -930,11 +931,12 @@ export default createStore({
 			if(botMessages) {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
-				JSONPatch.applyPatch(state.botMessages, JSON.parse(botMessages));
+				const localMessages = (state.botMessages as unknown) as JSONPatch.Operation[];
+				const remoteMessages = JSON.parse(botMessages);
+				JSONPatch.applyPatch(remoteMessages, localMessages);
+				state.botMessages = (remoteMessages as unknown) as IBotMessage;
 			}
 			
-			//TODO load bot messages
-
 			//Init OBS connection
 			const port = Store.get("obsPort");
 			const pass = Store.get("obsPass");
