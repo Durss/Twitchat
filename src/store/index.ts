@@ -1070,7 +1070,6 @@ export default createStore({
 
 				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
 					if(Utils.checkPermissions(state.obsPermissions, messageData.tags)) {
-						console.log("TEST", messageData.message);
 						const cmd = messageData.message.trim().toLowerCase();
 						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {

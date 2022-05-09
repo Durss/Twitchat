@@ -40,7 +40,7 @@
 			tag="div"
 			ref="messageList"
 			class="messageList"
-		@leave="leave"
+			@leave="(el, done)=>leave($el, done)"
 		>
 		<div v-for="(m,index) in localMessages" :key="m.tags.id">
 			<ChatMessage
@@ -167,7 +167,6 @@ export default class NewUsers extends Vue {
 		document.addEventListener("keydown", this.keyboardEventHandler);
 		document.addEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
-		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}
@@ -177,7 +176,6 @@ export default class NewUsers extends Vue {
 		document.removeEventListener("keydown", this.keyboardEventHandler);
 		document.removeEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
-		IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}
@@ -229,7 +227,7 @@ export default class NewUsers extends Vue {
 	 * Called when clicking a message
 	 * Either removes a streak of messages or one single message
 	 */
-	public deleteMessage(m:IRCEventDataList.Message, index:number, singleMode:boolean):void {
+	public deleteMessage(m:IRCEventDataList.Message|IRCEventDataList.Highlight, index:number, singleMode:boolean = false):void {
 		let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
 
 		if(!this.streakMode || singleMode) {
