@@ -64,6 +64,10 @@ export default createStore({
 				enabled:true,
 				message:"/announce 🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
 			},
+			shoutout: {
+				enabled:true,
+				message:"/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
+			},
 		} as IBotMessage,
 		chatPoll: null as ChatPollData | null,
 		bingo: {} as BingoData,
@@ -188,7 +192,7 @@ export default createStore({
 				showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
-				shoutoutLabel: 				{save:true, type:"text", value:"Go checkout $USER $URL . Her/His last stream's title was \"$STREAM\" in category \"$CATEGORY\".", label:"Shoutout message ($URL, $USER, $STREAM, $CATEGORY)", id:14, icon:"shoutout_purple.svg", longText:true},
+				shoutoutLabel: 				{save:true, type:"text", value:"", label:"Shoutout message", id:14, icon:"shoutout_purple.svg", longText:true},
 				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:7, step:1, id:12},
 			} as {[key:string]:ParameterData},
@@ -1325,12 +1329,13 @@ export default createStore({
 	}
 })
 
-export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart";
+export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
 export interface IBotMessage {
 	bingo:BotMessageEntry;
 	raffle:BotMessageEntry;
 	bingoStart:BotMessageEntry;
 	raffleStart:BotMessageEntry;
+	shoutout:BotMessageEntry;
 }
 export interface BotMessageEntry {
 	enabled:boolean;
@@ -1391,6 +1396,7 @@ export interface ParameterData {
 	value:boolean|number|string|string[];
 	listValues?:ParameterDataListValue[];
 	longText?:boolean;
+	noInput?:boolean;//Disable input to only keep title (used for shoutout param)
 	label:string;
 	min?:number;
 	max?:number;

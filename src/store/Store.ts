@@ -87,6 +87,10 @@ export default class Store {
 			this.migrateBotMessages();
 			this.set("v", 4);
 		}
+		if(v=="4") {
+			this.migrateSOMessage();
+			this.set("v", 5);
+		}
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -112,6 +116,7 @@ export default class Store {
 		//Do not save this to the server to avoid config to be erased
 		//on one of the instances
 		delete data.hideChat;
+		delete data["p:shoutoutLabel"];
 		
 		this.saveTO = setTimeout(async () => {
 			let json = {
@@ -195,6 +200,19 @@ export default class Store {
 		this.remove("bingo_messageEnabled");
 		this.remove("raffle_messageEnabled");
 		this.remove("bingo_message");
-		console.log("CLEANUP DONE");
+	}
+
+	/**
+	 * Shoutout message has been moved inside "botMessages" property.
+	 */
+	private static migrateSOMessage():void {
+		let label = this.get("p:shoutoutLabel");
+		label = label.replace("$USER", "{USER}");
+		label = label.replace("$STREAM", "{TITLE}");
+		label = label.replace("$TITLE", "{TITLE}");
+		label = label.replace("$URL", "{URL}");
+		label = label.replace("$CATEGORY", "{CATEGORY}");
+		store.state.botMessages.shoutout.message = label;
+		this.remove("p:shoutoutLabel");
 	}
 }
