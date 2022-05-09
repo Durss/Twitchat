@@ -12,6 +12,7 @@
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
+				<Button white bounce title="Voice bot" @click="setContent('voicebot')" :selected="content == 'voicebot'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 			</div>
@@ -25,6 +26,7 @@
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
 				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
+				<ParamsVoiceBot v-if="content == 'voicebot'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
@@ -40,7 +42,7 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | null ;
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'voicebot' | null ;
 
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
@@ -56,6 +58,7 @@ import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
+import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 
 @Options({
 	props:{},
@@ -68,6 +71,7 @@ import ParamItem from './ParamItem.vue';
 		ToggleButton,
 		ParamsAccount,
 		ParamsSponsor,
+		ParamsVoiceBot,
 		ParamsStreamdeck,
 		OBSEventsAction,
 	}
