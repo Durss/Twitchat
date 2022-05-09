@@ -89,8 +89,8 @@ export default class Store {
 		}
 		if(v=="4") {
 			this.migrateSOMessage();
-			this.set("v", 5);
 		}
+		this.set("v", 5);
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -207,6 +207,7 @@ export default class Store {
 	 */
 	private static migrateSOMessage():void {
 		let label = this.get("p:shoutoutLabel");
+		if(!label) return;
 		label = label.replace("$USER", "{USER}");
 		label = label.replace("$STREAM", "{TITLE}");
 		label = label.replace("$TITLE", "{TITLE}");

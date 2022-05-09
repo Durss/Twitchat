@@ -300,7 +300,7 @@ export default class ChatHighlight extends Vue {
 		// background-color: transparent;
 		display: flex;
 		flex-direction: row;
-		align-items: flex-start;
+		align-items: center;
 		.time {
 			display: inline-block;
 			position: relative;

@@ -12,11 +12,11 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import * as JSONPatch from "fast-json-patch";
 import { ChatUserstate, UserNoticeState } from 'tmi.js';
 import { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
 import Store from './Store';
-import * as JSONPatch from "fast-json-patch";
 
 export default createStore({
 	state: {
@@ -66,7 +66,7 @@ export default createStore({
 			},
 			shoutout: {
 				enabled:true,
-				message:"!!!!!/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
+				message:"/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 		} as IBotMessage,
 		chatPoll: null as ChatPollData | null,
@@ -839,7 +839,6 @@ export default createStore({
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
 			state.botMessages[value.key].enabled = value.enabled;
 			state.botMessages[value.key].message = value.message;
-			console.log("UPDATE", value);
 			Store.set("botMessages", state.botMessages);
 		},
 
@@ -931,9 +930,21 @@ export default createStore({
 			if(botMessages) {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
-				const localMessages = (state.botMessages as unknown) as JSONPatch.Operation[];
+				const localMessages = state.botMessages;
 				const remoteMessages = JSON.parse(botMessages);
-				JSONPatch.applyPatch(remoteMessages, localMessages);
+				// JSONPatch.applyPatch(localMessages, remoteMessages);
+				// JSONPatch.applyPatch(remoteMessages, localMessages);
+				for (const k in localMessages) {
+					const key = k as BotMessageField;
+					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
+						remoteMessages[key] = localMessages[key];
+					}
+					for (const subkey in localMessages[key]) {
+						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
+							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
+						}
+					}
+				}
 				state.botMessages = (remoteMessages as unknown) as IBotMessage;
 			}
 			
