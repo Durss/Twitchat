@@ -352,6 +352,9 @@ export default class IRCClient extends EventDispatcher {
 							if(msgid.indexOf("bad_delete_message_error") > -1) {
 								message = "You cannot delete this message.";
 							}
+							if(msgid.indexOf("authentication failed") > -1) {
+								message = "Authentication failed. Trying again...";
+							}
 						}
 						this.sendNotice(msgid as tmi.MsgID, message);
 						break;
