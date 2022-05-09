@@ -349,7 +349,7 @@ export default class IRCClient extends EventDispatcher {
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 						
 						if(!message) {
-							if(msgid.indexOf("bad_delete_message_error")) {
+							if(msgid.indexOf("bad_delete_message_error") > -1) {
 								message = "You cannot delete this message.";
 							}
 						}
