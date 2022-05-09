@@ -166,7 +166,6 @@ export default class NewUsers extends Vue {
 		document.addEventListener("keydown", this.keyboardEventHandler);
 		document.addEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
-		IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}
@@ -176,7 +175,6 @@ export default class NewUsers extends Vue {
 		document.removeEventListener("keydown", this.keyboardEventHandler);
 		document.removeEventListener("keyup", this.keyboardEventHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
-		IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.messageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}

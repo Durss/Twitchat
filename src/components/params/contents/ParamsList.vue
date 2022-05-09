@@ -1,7 +1,17 @@
 <template>
 	<div class="paramslist">
 		<div class="row" v-for="(p) in params" :key="p.id">
-			<ParamItem :paramData="p" save />
+			<!-- Special case for shoutout label -->
+			<PostOnChatParam v-if="p.id==14"
+				icon="shoutout_purple.svg"
+				botMessageKey="shoutout"
+				:noToggle="true"
+				:title="p.label"
+				:placeholders="soPlaceholders"
+			/>
+
+			<ParamItem v-else :paramData="p" save />
+			
 			<transition
 				@enter="onShowItem"
 				@leave="onHideItem"
@@ -28,6 +38,8 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
+import { PlaceholderEntry } from '../PlaceholderSelector.vue';
+import PostOnChatParam from '../PostOnChatParam.vue';
 
 @Options({
 	props:{
@@ -35,6 +47,7 @@ import ParamItem from '../ParamItem.vue';
 	},
 	components:{
 		ParamItem,
+		PostOnChatParam,
 	},
 	emits:['setContent'],
 })
@@ -44,6 +57,27 @@ export default class ParamsList extends Vue {
 
 	public get isOBSConnected():boolean {
 		return OBSWebsocket.instance.connected;
+	}
+
+	public get soPlaceholders():PlaceholderEntry[] {
+		return [
+			{
+				tag:"USER",
+				desc:"User name",
+			},
+			{
+				tag:"URL",
+				desc:"User channel URL",
+			},
+			{
+				tag:"TITLE",
+				desc:"Last stream's title",
+			},
+			{
+				tag:"CATEGORY",
+				desc:"Last stream's category",
+			},
+		];
 	}
 
 	public get params():{[key:string]:ParameterData} {

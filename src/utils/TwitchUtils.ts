@@ -735,15 +735,15 @@ export default class TwitchUtils {
 		const userInfos = await TwitchUtils.loadUserInfo(undefined, [username]);
 		if(userInfos?.length > 0) {
 			const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
-			let message = store.state.params.appearance.shoutoutLabel.value as string;
+			let message = store.state.botMessages.shoutout.message
 			let streamTitle = channelInfo[0].title;
 			let category = channelInfo[0].game_name;
 			if(!streamTitle) streamTitle = "no stream found"
 			if(!category) category = "no stream found"
-			message = message.replace(/\$USER/gi, userInfos[0].display_name);
-			message = message.replace(/\$URL/gi, "twitch.tv/"+userInfos[0].login);
-			message = message.replace(/\$STREAM/gi, streamTitle);
-			message = message.replace(/\$CATEGORY/gi, category);
+			message = message.replace(/\{USER\}/gi, userInfos[0].display_name);
+			message = message.replace(/\{URL\}/gi, "twitch.tv/"+userInfos[0].login);
+			message = message.replace(/\{TITLE\}/gi, streamTitle);
+			message = message.replace(/\{CATEGORY\}/gi, category);
 			await IRCClient.instance.sendMessage(message);
 		}else{
 			//Warn user doesn't exist

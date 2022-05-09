@@ -452,6 +452,7 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
+		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
 	}
 
 	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData, channel?:string):void {
@@ -493,9 +494,9 @@ export default class IRCClient extends EventDispatcher {
 		//If the current TMI client sends messages super fast (some ms between each message),
 		//the tags property is not updated for the later messages that will receive
 		//the exact same tags instance (not only the same values).
-		//This makes multiple mess	ages sharing the same ID which can cause
-		//issues with VueJS keyd items (ex: on v-for loops) that would share
-		//the same value which is not authorized
+		//This makes multiple messages sharing the same ID which can cause
+		//issues with VueJS keyed items (ex: on v-for loops) that would share
+		//the same value which is not allowed
 		data = JSON.parse(JSON.stringify(data)) as IRCEventDataList.Message;
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));

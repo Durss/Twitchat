@@ -27,6 +27,11 @@ import PlaceholderSelector, { PlaceholderEntry } from './PlaceholderSelector.vue
 		},
 		botMessageKey:String,
 		placeholders:Object,
+		icon:String,
+		noToggle:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		ParamItem,
@@ -35,11 +40,13 @@ import PlaceholderSelector, { PlaceholderEntry } from './PlaceholderSelector.vue
 })
 export default class PostOnChatParam extends Vue {
 	
+	public icon!:string;
 	public title!:string;
+	public noToggle!:boolean;
 	public botMessageKey!:BotMessageField;
 	public placeholders!:PlaceholderEntry[];
 
-	public enabledParam:ParameterData = { label:"", value:false, type:"toggle"};
+	public enabledParam:ParameterData = { label:"", value:false, type:"toggle", noInput:this.noToggle};
 	public textParam:ParameterData = { label:"", value:"", type:"text", longText:true};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
@@ -50,6 +57,9 @@ export default class PostOnChatParam extends Vue {
 		this.enabledParam.label		= this.title;
 		this.enabledParam.value		= data.enabled;
 		this.enabledParam.children	= [this.textParam];
+		if(this.icon) {
+			this.enabledParam.icon	= this.icon;
+		}
 
 		watch(()=>this.textParam.value, ()=> this.saveParams())
 		watch(()=>this.enabledParam.value, ()=> this.saveParams())

@@ -11,8 +11,8 @@
 					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
-				<label :for="'toggle'+key" v-if="label" v-html="label" @click="paramData.value = !paramData.value;"></label>
-				<ToggleButton :id="'toggle'+key" v-model="paramData.value" />
+				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
+				<ToggleButton :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -22,7 +22,7 @@
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
-				<input ref="input" :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus" @blur="clampValue()">
+				<input ref="input" :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus" @blur="clampValue()" v-if="!paramData.noInput">
 			</div>
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
@@ -32,8 +32,8 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" v-if="paramData.longText===true" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input ref="input" v-if="paramData.longText!==true" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
+				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -45,7 +45,7 @@
 				<label :for="'slider'+key">
 					{{paramData.label}} <span>({{paramData.value}})</span>
 				</label>
-				<input ref="input" type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus">
+				<input ref="input" type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus" v-if="!paramData.noInput">
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -55,7 +55,7 @@
 					class="helpBt"
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
-				<select ref="input" v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus">
+				<select ref="input" v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus" v-if="!paramData.noInput">
 					<option v-for="a in paramData.listValues" :key="a.label" :value="a.value">{{a.label}}</option>
 				</select>
 			</div>
@@ -67,7 +67,7 @@
 					class="helpBt"
 				/>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
-				<input type="text" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder">
+				<input type="text" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
 				<!-- <Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
@@ -115,9 +115,9 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class ParamItem extends Vue {
 	
-	public autofocus!:ParameterData;
-	public paramData!:ParameterData;
+	public autofocus!:boolean;
 	public childLevel!:number;
+	public paramData!:ParameterData;
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
 	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;

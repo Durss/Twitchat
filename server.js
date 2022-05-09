@@ -440,6 +440,7 @@ const UserDataSchema = {
 		},
 		obsConf_permissions: {
 			type:"object",
+			additionalProperties: false,
 			properties: {
 				mods: {type:"boolean"},
 				vips: {type:"boolean"},
@@ -541,6 +542,52 @@ const UserDataSchema = {
 				},
 			}
 		},
+		botMessages: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				raffleStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				raffle: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				bingoStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				bingo: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				shoutout: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+			}
+		},
 		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
@@ -572,7 +619,6 @@ const UserDataSchema = {
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:raidStreamInfo": {type:"boolean"},
 		"p:receiveWhispers": {type:"boolean"},
-		"p:shoutoutLabel": {type:"string"},
 		"p:showBadges": {type:"boolean"},
 		"p:showBots": {type:"boolean"},
 		"p:showCheers": {type:"boolean"},
