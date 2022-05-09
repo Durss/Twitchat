@@ -20,9 +20,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/chat',
 		name: 'chat',
 		component: Chat,
-		meta: {
-			needAuth:true,
-		}
 	},
 	{
 		path: '/chat/:login',
@@ -55,8 +52,6 @@ const routes: Array<RouteRecordRaw> = [
 		component: VoiceControl,
 		meta: {
 			overflow:true,
-			needAuth:false,
-			public:true,
 		}
 	},
 	{

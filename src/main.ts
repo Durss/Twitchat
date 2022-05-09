@@ -55,15 +55,15 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 
 	if (!store.state.authenticated) {
 		//Not authenticated, reroute to login
-		if(needAuth === true) {
-			next({name: 'login'});
+		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
+			next({name: 'login', params: {redirect: to.name?.toString()}});
 		}else{
 			next();
 		}
 		return;
 	}
 	
-	if(!needAuth && publicRoute !== true) {
+	if(!needAuth && (to.name == "login" || to.name == "oauth")) {
 		//Already authenticated, reroute to home
 		next({name: 'chat'});
 		return;
