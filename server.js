@@ -619,7 +619,6 @@ const UserDataSchema = {
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:raidStreamInfo": {type:"boolean"},
 		"p:receiveWhispers": {type:"boolean"},
-		"p:shoutoutLabel": {type:"string"},
 		"p:showBadges": {type:"boolean"},
 		"p:showBots": {type:"boolean"},
 		"p:showCheers": {type:"boolean"},
