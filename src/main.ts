@@ -43,7 +43,6 @@ async function scheduleTokenRefresh():Promise<void> {
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
 	const needAuth = to.meta.needAuth;
-	const publicRoute = to.meta.public;
 	
 	if (!store.state.initComplete) {
 		try {

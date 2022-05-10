@@ -12,7 +12,6 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import * as JSONPatch from "fast-json-patch";
 import { ChatUserstate, UserNoticeState } from 'tmi.js';
 import { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';

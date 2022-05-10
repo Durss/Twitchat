@@ -1,6 +1,6 @@
 <template>
 	<div class="voicecontrolform">
-		<LangSelector />
+		<LangSelector v-model:lang="lang" />
 		<Button v-if="!started" title="Start voice bot" />
 		<ToggleBlock title="Text flow" :enabled="false" class="block" v-if="started">
 			<div class="temp">{{tempText}}</div>
@@ -28,7 +28,7 @@ import Button from '../Button.vue';
 })
 export default class VoiceControlForm extends Vue {
 
-	
+	public lang:string = "";
 	public tempText:string = "";
 	public finalText:string = "";
 	public started:boolean = false;
@@ -37,8 +37,11 @@ export default class VoiceControlForm extends Vue {
 	private recognition!:SpeechRecognition;
 	private ignoreResult:boolean = false;
 
-	public mounted():void {
-
+	public beforeMount():void {
+		let userLang = navigator.language;
+		//@ts-ignore
+		if(!userLang) userLang = navigator.userLanguage; 
+		this.lang = userLang;
 	}
 
 	public async start():Promise<void> {

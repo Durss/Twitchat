@@ -27,7 +27,6 @@ const routes: Array<RouteRecordRaw> = [
 		component: ChatLight,
 		meta: {
 			needAuth:false,
-			public:true,
 			noBG:true,
 		}
 	},
