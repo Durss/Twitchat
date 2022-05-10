@@ -1,38 +1,25 @@
 <template>
 	<div class="langselector">
-		<vue-select v-model="langLocal" :options="languages" @option:selected="onChange(true)">
+		<vue-select v-model="langLocal" :options="languages" @option:selected="onChange(true)" :appendToBody="true">
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[1][0])" mode="rounded" class="flag" />
 				{{ option.label }}
 			</template>
 		</vue-select>
-		<vue-select v-model="sublangLocal" :options="subLanguages" v-if="subLanguages?.length > 1" @option:selected="onChange()">
+		<vue-select v-model="sublangLocal" :options="subLanguages" v-if="subLanguages?.length > 1" @option:selected="onChange()" :appendToBody="true">
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[0])" mode="rounded" class="flag" />
 				{{ option.label }}
 			</template>
 		</vue-select>
-
-		<!-- <div>
-			<div v-for="(l,index) in languages" :key="index" :value="index">
-				<CountryFlag :iso="getISOFromLang(l)" mode="rounded" class="flag" />
-				<span>{{l[0]}}</span>
-			</div>
-		</div>
-		<div v-if="subLanguages?.length > 1">
-			<div v-for="(l,index) in subLanguages" :key="index" :value="l[0]">
-				<span>{{l[1]}}</span>
-			</div>
-		</div> -->
 	</div>
 </template>
 
 <script lang="ts">
 import { Languages } from '@/Languages';
-import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import CountryFlag from 'vue3-country-flag-icon'
-import 'vue3-country-flag-icon/dist/CountryFlag.css' // import stylesheet
+import CountryFlag from 'vue3-country-flag-icon';
+import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
 
 @Options({
 	props:{
@@ -61,9 +48,7 @@ export default class LangSelector extends Vue {
 		return sublangs.map(v=> { return {label:v[1] as string, value:v}}); 
 	}
 
-	public getISOFromLang(l:string):string {
-		return l.split("-")[1];
-	}
+	public getISOFromLang(l:string):string { return l.split("-")[1]; }
 
 	public mounted():void {
 		//Pre-select language from "lang" param
@@ -85,13 +70,15 @@ export default class LangSelector extends Vue {
 		}
 	}
 
+	/**
+	 * Called when selecting a lang o rsublang from a list
+	 * @param resetSubList 
+	 */
 	public onChange(resetSubList:boolean = false):void {
 		if(resetSubList) {
 			this.sublangLocal.label = this.subLanguages[0].label;
 			this.sublangLocal.value = this.subLanguages[0].value;
 		}
-		console.log(this.langLocal.value[1][0]);
-		console.log(this.sublangLocal);
 		if(!this.sublangLocal.label) {
 			this.$emit("update:lang", this.langLocal.value[1][0]);
 		}else{
