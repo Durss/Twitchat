@@ -58,6 +58,7 @@ export default class SevenTVUtils {
 		//Parse global emotes
 		for (let i = 0; i < allEmotes.length; i++) {
 			const e = allEmotes[i];
+			if(!e.name) continue;//apparently some emotes have no name...
 			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 			const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
 			
