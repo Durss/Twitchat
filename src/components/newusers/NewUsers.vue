@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="localMessages.length > 0">
+	<div class="newusers" v-show="localMessages.length > 0">
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
 				:icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
@@ -40,7 +40,7 @@
 			tag="div"
 			ref="messageList"
 			class="messageList"
-			@leave="(el, done)=>leave($el, done)"
+			@leave="(el, done)=>leave(el, done)"
 		>
 		<div v-for="(m,index) in localMessages" :key="m.tags.id">
 			<ChatMessage
@@ -112,11 +112,6 @@ export default class NewUsers extends Vue {
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
-	public get classes():string[] {
-		let res = ["newusers"];
-		return res;
-	}
-
 	public mounted():void {
 		const storeValue = Store.get("greetScrollDownAuto");
 		if(storeValue == "true") this.scrollDownAuto = true;
@@ -148,7 +143,7 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		// this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
+		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
