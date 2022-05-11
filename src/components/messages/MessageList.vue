@@ -19,7 +19,7 @@
 				/>
 
 				<ChatMessage
-					v-else-if="m.type == 'message'"
+					v-else-if="m.type == 'message' || m.type == 'whisper'"
 					class="message"
 					:messageData="m"
 					:lightMode="lightMode"
@@ -716,9 +716,10 @@ export default class MessageList extends Vue {
 			this.prevMarkedReadItem = m;
 		}
 
+		const messageStr = m.type == "whisper"? m.params[1] : m.message;
 		const message = {
 			channel:m.channel as string,
-			message:m.message as string,
+			message:messageStr as string,
 			tags:m.tags,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});
@@ -750,7 +751,8 @@ type MessageTypes = IRCEventDataList.Highlight
 				|  IRCEventDataList.RaffleResult
 				|  IRCEventDataList.Message
 				|  IRCEventDataList.Commercial
-				|  IRCEventDataList.TwitchatAd;
+				|  IRCEventDataList.TwitchatAd
+				|  IRCEventDataList.Whisper;
 </script>
 
 <style scoped lang="less">

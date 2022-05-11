@@ -182,28 +182,19 @@ export namespace IRCEventDataList {
 	}
 
 	export interface Whisper {
-		type:"message";
+		type:"whisper";
 		raw: string;
+		channel: string;
 		command: string;
-		params: string[];
-		tags: {
-			badges?: unknown;
-			color: string;
-			"display-name": string;
-			emotes?: unknown;
-			"message-id": string;
-			"thread-id": string;
-			turbo: boolean;
-			"user-id": string;
-			"user-type"?: string;
-			"emotes-raw"?: string;
-			"badges-raw"?: string;
-			username: string;
-			"message-type": string;
-		};
+		params: string[];//Contains user message
+		tags: ChatUserstate;
 		//custom data
+		firstMessage:boolean;
+		markedAsRead:boolean;
 		timestamp:number;
 		isAnswer?:boolean;
+		occurrenceCount?:number;
+		highlightWord?:string;
 	}
 
 	export interface PollResult {

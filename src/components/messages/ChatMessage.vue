@@ -19,7 +19,7 @@
 			</div>
 		</div>
 		
-		<div v-if="messageData.lowTrust" class="lowTrust">
+		<div v-if="messageData.type == 'message' && messageData.lowTrust" class="lowTrust">
 			<img src="@/assets/icons/shield.svg">
 			<div class="header"><strong>Suspicious user</strong></div>
 		</div>
@@ -32,8 +32,9 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos">
+			<img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper">
 			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value && !lightMode"
-				class="convBt"
+				class="icon convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
 				@mouseleave="$emit('mouseleave', $event)"
@@ -55,7 +56,7 @@
 			<div class="occurrenceCount"
 				ref="occurrenceCount"
 				data-tooltip="Number of times this message has been sent"
-				v-if="messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
+				v-if="messageData.occurrenceCount != undefined && messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
 			<span class="pronoun"
 				:data-tooltip="pronounLabel"
@@ -104,7 +105,7 @@ import ChatModTools from './ChatModTools.vue';
 })
 export default class ChatMessage extends Vue {
 
-	public messageData!:IRCEventDataList.Message;
+	public messageData!:IRCEventDataList.Message|IRCEventDataList.Whisper;
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
@@ -190,6 +191,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get deletedMessage():string {
+		if(this.messageData.type != "message") return "";
+
 		const censor = (store.state.params.filters.censorDeletedMessages.value===true)
 		if(this.messageData.deletedData) {
 			return censor ? "<deleted by "+this.messageData.deletedData.created_by+">" : "";
@@ -201,13 +204,17 @@ export default class ChatMessage extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatmessage"];
-		const message = this.messageData as IRCEventDataList.Message;
+		const message = this.messageData;
 
 		if(this.automod) res.push("automod");
 		if(this.firstTime || this.isPresentation) res.push("firstTimeOnChannel");
-		if(message.deleted) res.push("deleted");
-		if(message.lowTrust) res.push("lowTrust");
-		if(message.cyphered) res.push("cyphered");
+		if(message.type == "whisper") {
+			res.push("whisper");
+		}else{
+			if(message.deleted) res.push("deleted");
+			if(message.lowTrust) res.push("lowTrust");
+			if(message.cyphered) res.push("cyphered");
+		}
 		if(this.showNofollow) res.push("noFollow");
 		if(message.tags['message-type'] == "action") res.push("slashMe");
 		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
@@ -220,7 +227,7 @@ export default class ChatMessage extends Vue {
 		if(store.state.params.filters.censorDeletedMessages.value===true) res.push("censor");
 
 		if(!this.lightMode) {
-			if(message.hasMention) res.push("mention");
+			if(message.type == "message" && message.hasMention) res.push("mention");
 			
 			//Set highlight
 			if(message.tags.mod && store.state.params.appearance.highlightMods.value) res.push("highlightMods");
@@ -250,6 +257,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get isConversation():boolean {
+		if(this.messageData.type == "whisper") return false;
 		return this.messageData.answers != undefined || this.messageData.answerTo != undefined;
 	}
 	
@@ -333,6 +341,10 @@ export default class ChatMessage extends Vue {
 	 * Copy JSON data of the message
 	 */
 	public copyJSON():void {
+		if(this.messageData.type == "whisper") {
+			Utils.copyToClipboard(JSON.stringify(this.messageData));
+			return;
+		}
 		const answersBckp = this.messageData.answers;
 		const answerToBckp = this.messageData.answerTo;
 		this.messageData.answers = undefined;
@@ -420,8 +432,8 @@ export default class ChatMessage extends Vue {
 		let result:string;
 		const doHighlight = store.state.params.appearance.highlightMentions.value;
 		const highlightLogin = store.state.user.login;
-		const mess = this.messageData as IRCEventDataList.Message;
-		let text = mess.message;
+		const mess = this.messageData;
+		let text = mess.type == "whisper"? mess.params[1] : mess.message;
 		if(!text) return "";
 		try {
 			let removeEmotes = !store.state.params.appearance.showEmotes.value;
@@ -553,16 +565,20 @@ export default class ChatMessage extends Vue {
 
 	.infos {
 		display: inline;
-		.convBt {
+		.icon {
 			opacity: 0.75;
 			height: 1em;
 			vertical-align: middle;
-			cursor: pointer;
-			&:hover {
-				opacity: .75;
-			}
+
 			&:not(:last-child) {
 				margin-right: 5px;
+			}
+
+			.convBt {
+				cursor: pointer;
+				&:hover {
+					opacity: .75;
+				}
 			}
 		}
 		.mod {
@@ -738,6 +754,10 @@ export default class ChatMessage extends Vue {
 
 	&.cyphered {
 		background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 20px, #ffffff30 20px, #ffffff30 40px);
+	}
+
+	&.whisper {
+		background-color: rgba(0, 0, 0, .5);
 	}
 
 	&.lowTrust {

@@ -9,9 +9,11 @@
 				</div>
 			</div>
 
+			<div v-if="error" class="error" @click="error = false">Unable to send whisper.<br>You must be at least affiliate but even if you are Twitch can randomly block whispers sent from outside of Twitch.</div>
+
 			<form @submit.prevent="sendWhisper()">
 				<input type="text" placeholder="answer..." class="dark" v-model="whisper">
-				<Button class="submit" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" :disabled="!this.whisper" />
+				<Button class="submit" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" :disabled="!whisper" />
 			</form>
 		</div>
 
@@ -22,14 +24,14 @@
 			v-for="(u, uid) in $store.state.whispers"
 			:key="uid">
 				<Button class="login"
-					@click="selectUser(uid)"
+					@click="selectUser(uid.toString())"
 					:title="'('+u.length+') '+u[0].tags['display-name']"
 					bounce />
 					
 				<Button :icon="require('@/assets/icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
-					@click="deleteWhispers(uid)" />
+					@click="deleteWhispers(uid.toString())" />
 			</div>
 		</div>
 	</div>
@@ -53,6 +55,7 @@ import Button from '../Button.vue';
 })
 export default class WhispersState extends Vue {
 
+	public error:boolean = true;
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
 
@@ -104,13 +107,18 @@ export default class WhispersState extends Vue {
 		return result;
 	}
 
-	public sendWhisper():void {
+	public async sendWhisper():Promise<void> {
 		if(!this.whisper) return;
 
+		this.error = false;
 		const whispers = store.state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 		const src = whispers[this.selectedUser as string][0];
 		
-		IRCClient.instance.whisper(src, this.whisper);
+		try {
+			await IRCClient.instance.whisper(src, this.whisper);
+		}catch(error) {
+			this.error = true;
+		}
 
 		this.whisper = "";
 	}
@@ -230,6 +238,14 @@ export default class WhispersState extends Vue {
 					font-variant-numeric: tabular-nums;
 				}
 			}
+		}
+
+		.error {
+			background-color: @mainColor_alert;
+			color:@mainColor_light;
+			padding: .5em;
+			border-radius: .5em;
+			cursor: pointer;
 		}
 	
 		form {

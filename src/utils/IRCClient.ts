@@ -406,18 +406,17 @@ export default class IRCClient extends EventDispatcher {
 		return this.client.say(this.login, message);
 	}
 
-	public whisper(whisperSource:IRCEventDataList.Whisper, message:string):Promise<unknown> {
+	public async whisper(whisperSource:IRCEventDataList.Whisper, message:string):Promise<void> {
 		const data:IRCEventDataList.Whisper = {
-			type:"message",
+			type:"whisper",
+			channel:IRCClient.instance.channel,
 			raw: "",
 			command: "WHISPER",
 			params: [this.login, message],
 			tags: {
-				badges: null,
 				"badges-raw": "",
 				color: whisperSource.tags.color,
 				"display-name": whisperSource.tags["display-name"],
-				emotes: null,
 				"emotes-raw": "",
 				"message-id": this.increment.toString(),
 				"message-type": "whisper",
@@ -426,12 +425,16 @@ export default class IRCClient extends EventDispatcher {
 				"user-id": whisperSource.tags["user-id"],
 				"user-type": "",
 				username: whisperSource.tags.username,
+				"tmi-sent-ts":Date.now().toString(),
 			},
+			firstMessage:false,
+			markedAsRead:false,
 			timestamp:Date.now(),
 			isAnswer:true,
 		}
+		
+		await this.client.whisper(whisperSource.tags.username as string, message);
 		this.dispatchEvent(new IRCEvent(IRCEvent.WHISPER, data));
-		return this.client.whisper(whisperSource.tags.username, message);
 	}
 
 	public sendNotice(msgid:tmi.MsgID|string, message:string, channel?:string):void {
