@@ -153,7 +153,7 @@ export default class Utils {
 	 * Check if a user matches a permission criterias
 	 */
 	public static checkPermissions(permissions:PermissionsData, user:ChatUserstate):boolean {
-		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split users by non-alphanumeric characters
+		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
 		const mod = user.badges?.moderator != undefined;
 		const vip = user.badges?.vip != undefined;
 		const sub = user.badges?.subscriber != undefined;

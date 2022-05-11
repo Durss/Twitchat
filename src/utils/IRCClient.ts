@@ -539,7 +539,7 @@ export default class IRCClient extends EventDispatcher {
 			const blocked = store.state.params.filters.blockedCommands.value as string;
 			if(blocked.length > 0) {
 				//Ignore all commands
-				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/gi);//Split commands by non-alphanumeric characters
+				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
 				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
 				const cmd = message.split(" ")[0].substring(1).trim().toLowerCase();
 				if(blockedList.indexOf(cmd) > -1) {
