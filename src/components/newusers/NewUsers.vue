@@ -74,7 +74,6 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
@@ -358,8 +357,8 @@ export default class NewUsers extends Vue {
 	/**
 	 * Animates an item when removed from the list
 	 */
-	public leave(el:HTMLElement, done:()=>void):void {
-		let delay = (parseInt(el.dataset.index as string)-this.indexOffset) * 0.075;
+	public leave(el:Element, done:()=>void):void {
+		let delay = (parseInt((el as HTMLElement).dataset.index as string)-this.indexOffset) * 0.075;
 		if(delay > .75) {
 			done();
 		}else{

@@ -219,7 +219,7 @@ export default class Utils {
 								aStr = oVal.match(rgStr)
 								if(aStr) oVal = aStr[1];
 							}
-							(<any>oLess)[sKey] = oVal;
+							oLess[sKey] = oVal;
 						}
 					}
 				}
