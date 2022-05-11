@@ -1,12 +1,23 @@
 <template>
 	<div class="langselector">
-		<vue-select v-model="langLocal" :options="languages" @option:selected="onChange(true)" :appendToBody="true">
+		<vue-select v-model="langLocal"
+		placeholder="Select language..."
+		:options="languages"
+		:appendToBody="true"
+		@option:selected="onChange(true)"
+		>
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[1][0])" mode="rounded" class="flag" />
 				{{ option.label }}
 			</template>
 		</vue-select>
-		<vue-select v-model="sublangLocal" :options="subLanguages" v-if="subLanguages?.length > 1" @option:selected="onChange()" :appendToBody="true">
+		<vue-select v-model="sublangLocal"
+		v-if="subLanguages?.length > 1"
+		placeholder="Select country..."
+		:options="subLanguages"
+		:appendToBody="true"
+		@option:selected="onChange()"
+		>
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[0])" mode="rounded" class="flag" />
 				{{ option.label }}
@@ -91,6 +102,13 @@ export default class LangSelector extends Vue {
 
 <style scoped lang="less">
 .langselector{
+	display: flex;
+	flex-direction: row;
+	&>*{
+		flex-grow: 1;
+		width: 50%;
+	}
+
 	.flag {
 		margin-right: .25em;
 	}

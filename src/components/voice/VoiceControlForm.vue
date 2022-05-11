@@ -1,22 +1,32 @@
 <template>
 	<div class="voicecontrolform">
-		<LangSelector v-model:lang="lang" />
-		<Button v-if="!started" title="Start voice bot" />
+		<label for="langSelector">Set your language:</label>
+		<LangSelector id="langSelector" v-model:lang="lang" class="langSelector" />
+		
+		<Button v-if="!started" title="Start voice bot" class="startBt" @click="startBot()" />
+		<Button v-if="started" title="Stop voice bot" class="startBt" @click="stopBot()" />
+		
 		<ToggleBlock title="Text flow" :enabled="false" class="block" v-if="started">
 			<div class="temp">{{tempText}}</div>
 		</ToggleBlock>
+		
 		<ToggleBlock title="Final text" :enabled="false" class="block" v-if="started">
 			<div class="final">{{finalText}}</div>
 		</ToggleBlock>
+
+		<VoiceTriggerList class="triggerList" />
 	</div>
 </template>
 
 <script lang="ts">
+import store from '@/store';
+import VoiceController from '@/utils/VoiceController';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import SpeechRecognition from '@/ISpeechRecognition';
-import ToggleBlock from '../ToggleBlock.vue';
-import LangSelector from '../LangSelector.vue';
 import Button from '../Button.vue';
+import LangSelector from '../LangSelector.vue';
+import ToggleBlock from '../ToggleBlock.vue';
+import VoiceTriggerList from './VoiceTriggerList.vue';
 
 @Options({
 	props:{},
@@ -24,101 +34,61 @@ import Button from '../Button.vue';
 		Button,
 		ToggleBlock,
 		LangSelector,
+		VoiceTriggerList,
 	}
 })
 export default class VoiceControlForm extends Vue {
 
 	public lang:string = "";
-	public tempText:string = "";
-	public finalText:string = "";
-	public started:boolean = false;
 
-	private timeoutNoAnswer:number = -1;
-	private recognition!:SpeechRecognition;
-	private ignoreResult:boolean = false;
+	public get started():boolean { return VoiceController.instance.started; }
+	public get tempText():string { return VoiceController.instance.tempText; }
+	public get finalText():string { return VoiceController.instance.finalText; }
 
 	public beforeMount():void {
 		let userLang = navigator.language;
 		//@ts-ignore
 		if(!userLang) userLang = navigator.userLanguage; 
+		if(userLang.length == 2) userLang = userLang + "-" + userLang.toUpperCase();
 		this.lang = userLang;
-	}
 
-	public async start():Promise<void> {
-		//@ts-ignore
-		let SRConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
-		this.recognition = new SRConstructor() as SpeechRecognition;
-		this.recognition.continuous = true;
-		this.recognition.interimResults = true;
-		this.recognition.lang = "fr-FR";
-		this.recognition.onresult = async (event) => {
-			console.log(event);
-			if(this.ignoreResult) return;
-
-			let texts = [];
-			this.tempText = "";
-			for (var i = event.resultIndex; i < event.results.length; ++i) {
-				if(event.results[i].isFinal) {
-					texts.push(event.results[i][0].transcript);
-					this.finalText = texts[0];
-				}else{
-					this.tempText += event.results[i][0].transcript;
-				}
-			}
-		}
-		
-		this.recognition.onend = () => {
-			// console.log("ON END");
-			this.recognition.start();
-			if(this.ignoreResult) {
-				this.startBotListening();
-				this.ignoreResult = false;
-			}
-		};
-
-		this.recognition.onspeechend = () => {
-			// console.log("SPEECH END");
-		};
-
-		this.recognition.onerror = () => {
-			// console.log("ON ERROR", e);
-		}
-
-		this.recognition.start();
-		this.started = true;
-	}
-
-	public beforeDestroy():void {
-		this.recognition.onend = null;
-		this.recognition.onerror = null;
-		this.recognition.onresult = null;
-		this.recognition.onspeechend = null;
-		clearTimeout(this.timeoutNoAnswer);
+		watch(()=>this.lang, ()=> this.updateLang());
+		this.updateLang()
 	}
 	
-	private startBotListening():void {
+	public startBot():void {
+		VoiceController.instance.start();
+	}
+	
+	public stopBot():void {
+		VoiceController.instance.stop();
+	}
 
+	private updateLang():void {
+		VoiceController.instance.lang = this.lang;
+		store.dispatch("setVoiceLang", this.lang);
 	}
 
 }
 </script>
 
 <style scoped lang="less">
-.speech2text{
+.voicecontrolform{
 	width: 100%;
 	height: 100%;
-	background: black;
-	.holder {
-		.center();
-		position: absolute;
-		
-		.block {
-			margin-bottom: 20px;
 
-			.temp {
-				opacity: .5;
-			}
-		}
+	.langSelector {
+		width:100%;
+		margin-bottom: 1em;
+	}
+	
+	.startBt{
+		display: block;
+		margin: auto;
+	}
+
+	.triggerList {
+		margin-top: 1em;
 	}
 }
 </style>

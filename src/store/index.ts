@@ -12,6 +12,8 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import VoiceAction from '@/utils/VoiceAction';
+import VoiceController from '@/utils/VoiceController';
 import { ChatUserstate, UserNoticeState } from 'tmi.js';
 import { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
@@ -46,6 +48,8 @@ export default createStore({
 		trackedUsers: [] as TwitchTypes.TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: {} as RaffleData,
+		voiceActions: [] as VoiceAction[],
+		voiceLang: "en-US",
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -841,6 +845,16 @@ export default createStore({
 			Store.set("botMessages", state.botMessages);
 		},
 
+		setVoiceLang(state, value:string) {
+			state.voiceLang = value
+			Store.set("voiceLang", value);
+		},
+
+		setVoiceActions(state, value:VoiceAction[]) {
+			state.voiceActions = value;
+			Store.set("voiceActions", value);
+		},
+
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
 
 	},
@@ -922,6 +936,19 @@ export default createStore({
 			const obsPermissions = Store.get("obsConf_permissions");
 			if(obsPermissions) {
 				state.obsPermissions = JSON.parse(obsPermissions);
+			}
+			
+			//Init OBS permissions
+			const voiceActions = Store.get("voiceActions");
+			if(voiceActions) {
+				state.voiceActions = JSON.parse(voiceActions);
+			}
+			
+			//Init OBS permissions
+			const voiceLang = Store.get("voiceLang");
+			if(voiceLang) {
+				state.voiceLang = voiceLang;
+				VoiceController.instance.lang = voiceLang;
 			}
 			
 			//Load bot messages
@@ -1326,6 +1353,10 @@ export default createStore({
 		setObsEventActions({commit}, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) { commit("setObsEventActions", value); },
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
+
+		setVoiceLang({commit}, value:string) { commit("setVoiceLang", value); },
+
+		setVoiceActions({commit}, value:VoiceAction[]) { commit("setVoiceActions", value); },
 
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
