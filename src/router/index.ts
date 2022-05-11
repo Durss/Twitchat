@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import ChatLight from '../views/ChatLight.vue'
 import Login from '../views/Login.vue'
 import Logout from '../views/Logout.vue'
+import VoiceControl from '../views/VoiceControl.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -19,9 +20,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/chat',
 		name: 'chat',
 		component: Chat,
-		meta: {
-			needAuth:true,
-		}
 	},
 	{
 		path: '/chat/:login',
@@ -29,7 +27,6 @@ const routes: Array<RouteRecordRaw> = [
 		component: ChatLight,
 		meta: {
 			needAuth:false,
-			public:true,
 			noBG:true,
 		}
 	},
@@ -47,6 +44,14 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/oauth',
 		name: 'oauth',
 		component: Login,
+	},
+	{
+		path: '/voice',
+		name: 'voice',
+		component: VoiceControl,
+		meta: {
+			overflow:true,
+		}
 	},
 	{
 		path: "/:path(.*)",

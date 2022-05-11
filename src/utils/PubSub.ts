@@ -694,7 +694,7 @@ export default class PubSub extends EventDispatcher{
 	 * Called when whispers are read
 	 */
 	private whisperRead(data:PubSubTypes.WhisperRead):void {
-		data;//
+		data;
 		// store.dispatch("closeWhispers", data.id.split("_")[1]);
 	}
 }

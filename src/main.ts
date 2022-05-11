@@ -7,6 +7,10 @@ import './less/index.less';
 import router from './router';
 import store from './store';
 import { TwitchTypes } from './utils/TwitchUtils';
+import CountryFlag from 'vue3-country-flag-icon'
+import 'vue3-country-flag-icon/dist/CountryFlag.css' // import stylesheet
+import VueSelect from "vue-select";
+import 'vue-select/dist/vue-select.css';
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -39,7 +43,6 @@ async function scheduleTokenRefresh():Promise<void> {
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
 	const needAuth = to.meta.needAuth;
-	const publicRoute = to.meta.public;
 	
 	if (!store.state.initComplete) {
 		try {
@@ -51,15 +54,15 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 
 	if (!store.state.authenticated) {
 		//Not authenticated, reroute to login
-		if(needAuth === true) {
-			next({name: 'login'});
+		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
+			next({name: 'login', params: {redirect: to.name?.toString()}});
 		}else{
 			next();
 		}
 		return;
 	}
 	
-	if(!needAuth && publicRoute !== true) {
+	if(!needAuth && (to.name == "login" || to.name == "oauth")) {
 		//Already authenticated, reroute to home
 		next({name: 'chat'});
 		return;
@@ -75,6 +78,8 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 createApp(App)
 .use(store)
 .use(router)
+.component("country-flag", CountryFlag)
+.component("vue-select", VueSelect)
 .provide("$store", store)
 .directive('autofocus', {
 	mounted(el:HTMLDivElement, binding:unknown) {
