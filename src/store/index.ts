@@ -35,7 +35,7 @@ export default createStore({
 		newScopeToRequest: [] as string[],
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
-		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd)[],
+		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper)[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchTypes.ModeratorUser[],
 		currentPoll: {} as TwitchTypes.Poll,
@@ -216,6 +216,7 @@ export default createStore({
 			} as {[key:string]:ParameterData},
 			features: {
 				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
+				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"SHow whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
 				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
 				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
 				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
@@ -376,13 +377,14 @@ export default createStore({
 		openUserCard(state, payload) { state.userCard = payload; },
 		
 		async addChatMessage(state, payload:IRCEventData) {
-			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight)[];
+			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper)[];
 			
-			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight
+			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper
 			const uid:string|undefined = message?.tags['user-id'];
+			const messageStr = message.type == "whisper"? message.params[1] : message.message;
 			const wsMessage = {
 				channel:message.channel,
-				message:message.message,
+				message:messageStr as string,
 				tags:message.tags,
 			}
 			
@@ -432,10 +434,11 @@ export default createStore({
 					const end = Math.max(0, len - 50);
 					for (let i = len-1; i > end; i--) {
 						const mess = messages[i];
+						const messageStr = mess.type == "whisper"? mess.params[1] : mess.message;
 						if(mess.type == "message"
 						&& uid == mess.tags['user-id']
 						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//i > len-20 more or less says "if message is still visible on screen"
-						&& textMessage.message == mess.message) {
+						&& textMessage.message == messageStr) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
 							mess.occurrenceCount ++;
 							mess.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
@@ -1162,23 +1165,30 @@ export default createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.WHISPER, (event:IRCEvent) => {
 				if(state.params.features.receiveWhispers.value === true) {
-					const user = event.data as IRCEventDataList.Whisper;
-					const uid = user.tags['user-id'] as string;
+					const data = event.data as IRCEventDataList.Whisper;
+					const uid = data.tags['user-id'] as string;
 					const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 					if(!whispers[uid]) whispers[uid] = [];
-					user.timestamp = Date.now();
-					whispers[uid].push(user);
+					data.timestamp = Date.now();
+					whispers[uid].push(data);
 					state.whispers = whispers;
 					state.whispersUnreadCount ++;
 
+					if(state.params.features.showWhispersOnChat.value === true) {
+						data.type = "whisper";
+						data.channel = IRCClient.instance.channel;
+						data.tags['tmi-sent-ts'] = Date.now().toString();
+						this.dispatch("addChatMessage", data);
+					}
+
 					//Broadcast to OBS-ws
 					const wsUser = {
-						id: user.tags['user-id'],
-						login: user.tags.username,
-						color: user.tags.color,
-						badges: user.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
-						'display-name': user.tags['display-name'],
-						'message-id': user.tags['message-id'],
+						id: data.tags['user-id'],
+						login: data.tags.username,
+						color: data.tags.color,
+						badges: data.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
+						'display-name': data.tags['display-name'],
+						'message-id': data.tags['message-id'],
 					}
 					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:state.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 				}
