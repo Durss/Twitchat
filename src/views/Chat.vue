@@ -4,7 +4,7 @@
 			<div class="leftColumn">
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
-					@showModal="v => currentModal = v"
+					@showModal="(v:string) => currentModal = v"
 					:max="$store.state.params.appearance.historySize.value" />
 					
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
@@ -40,12 +40,12 @@
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
-				v-model:showFeed="showFeed" @update:showFeed="v => showFeed = v"
-				v-model:showEmotes="showEmotes" @update:showEmotes="v => showEmotes = v"
-				v-model:showRewards="showRewards" @update:showRewards="v => showRewards = v"
-				v-model:showCommands="showCommands" @update:showCommands="v => showCommands = v"
-				v-model:showChatUsers="showChatUsers" @update:showChatUsers="v => showChatUsers = v"
-				v-model:showDevMenu="showDevMenu" @update:showDevMenu="v => showDevMenu = v"
+				v-model:showFeed="showFeed" @update:showFeed="(v:boolean) => showFeed = v"
+				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
+				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
+				v-model:showCommands="showCommands" @update:showCommands="(v:boolean) => showCommands = v"
+				v-model:showChatUsers="showChatUsers" @update:showChatUsers="(v:boolean) => showChatUsers = v"
+				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
 			/>
 		</div>
 
@@ -379,18 +379,6 @@ export default class Chat extends Vue {
 					width: 100%;
 					min-height: 0;//Shit hack to make overflow behave properly
 				}
-	
-				.notificationActions {
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					background-color: @mainColor_dark_extralight;
-					padding: 10px;
-					min-height: 40px;
-					border-radius: 5px;
-					z-index: 2;
-					box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
-				}
 			}
 		}
 
@@ -477,30 +465,6 @@ export default class Chat extends Vue {
 			.messages {
 				flex-grow: 1;
 			}
-
-			.dimmer {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(0, 0, 0, .5);
-				opacity:1;
-				cursor: pointer;
-
-				&.fade-enter-active {
-					transition: all .25s;
-				}
-
-				&.fade-leave-active {
-					transition: all .25s;
-				}
-				
-				&.fade-enter-from,
-				&.fade-leave-to {
-					opacity:0;
-				}
-			}
 		}
 		.chatForm {
 			width: 100%;
@@ -515,10 +479,6 @@ export default class Chat extends Vue {
 		:deep(.holder) {
 			max-height: 100% !important;
 		}
-	}
-
-	.eventInfo {
-		z-index: 1;
 	}
 
 	.contentWindows {
