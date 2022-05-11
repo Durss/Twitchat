@@ -82,9 +82,9 @@
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<transition name="slide">
-					<ChatMessageHoverActions class="hoverActions"
-						v-if="m.type == 'message' && m.showHoverActions && !lightMode"
-						:messageData="m" />
+					<div class="hoverActionsHolder" v-if="m.type == 'message' && m.showHoverActions && !lightMode">
+						<ChatMessageHoverActions class="hoverActions" :messageData="m" />
+					</div>
 				</transition>
 			</div>
 		</div>
@@ -104,7 +104,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">History</h1>
-				<Button aria-label="close conversation" :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
+				<Button class="button" aria-label="close conversation" :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<ChatMessage
@@ -809,8 +809,8 @@ type MessageTypes = IRCEventDataList.Highlight
 		// }
 		.subHolder {
 			position: relative;
-			display: flex;
-			flex-direction: row;
+			// display: flex;
+			// flex-direction: row;
 			&:last-child {
 				padding-bottom: 5px;
 			}
@@ -831,31 +831,34 @@ type MessageTypes = IRCEventDataList.Highlight
 				flex-grow: 1;
 			}
 
-			.hoverActions {
-				// position: absolute;
-				// right: 0;
-				// top: 50%;
-				// transform:translateY(-50%);*
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				justify-content: space-around;
-				flex-wrap: wrap;
-				font-size: var(--messageSize);
-				margin: .5em 0;
-
-				&.slide-enter-active {
+			.hoverActionsHolder {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				clip-path: polygon(0 -1000px, 100% -1000px, 100% 0, 0 0);
+				.hoverActions {
+					position: absolute;
+					left: 50%;
+					top: 0;
+					transform:translate(-50%, calc(-100% - .5em));
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: space-around;
+					flex-wrap: wrap;
+					font-size: var(--messageSize);
+					margin: .5em 0;
 					transition: all 0.2s;
-					transform: translate(0%, 0);
+				}
+	
+				&.slide-enter-active > .hoverActions {
+					transform: translate(-50%, calc(-100% - .5em));
 				}
 
-				&.slide-leave-active {
-					transition: all 0.2s;
-				}
-				
-				&.slide-enter-from,
-				&.slide-leave-to {
-					transform: translate(100%, 0);
+				&.slide-enter-from > .hoverActions,
+				&.slide-leave-to > .hoverActions {
+					transform: translate(-50%, 0);
 				}
 			}
 		}
