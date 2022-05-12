@@ -2,7 +2,7 @@ import SpeechRecognition from "@/ISpeechRecognition";
 import store from "@/store";
 import { reactive, watch } from "vue";
 import PublicAPI from "./PublicAPI";
-import TwitchatEvent, {TwitchatActionType} from "./TwitchatEvent";
+import TwitchatEvent from "./TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**
@@ -21,6 +21,7 @@ export default class VoiceController {
 	private timeoutNoAnswer:number = -1;
 	private recognition!:SpeechRecognition;
 	private hashmap:{[key:string]:VoiceAction} = {};
+	private carretIndex:number = 0;
 
 	
 	constructor() {
@@ -74,26 +75,34 @@ export default class VoiceController {
 
 			this.tempText = this.tempText.toLowerCase();
 			for (const key in this.hashmap) {
-				if(this.tempText.indexOf(key) > -1) {
+				const index = this.tempText.substring(Math.max(0,this.carretIndex)).indexOf(key);
+				if(index > -1) {
 					this.triggerAction(this.hashmap[key]);
+					this.carretIndex += index + key.length;
 				}
+			}
+
+			//Reset carret after temp text is cleared.
+			//Edge is turbo slow to fire the onspeechend event.
+			//This condition is a workaround for that issue.
+			if(this.tempText?.length == 0) {
+				this.carretIndex = -1;
 			}
 		}
 		
 		this.recognition.onend = () => {
+			this.carretIndex = -1;
 			if(!this.started) return;
 			this.recognition.start();
-			if(this.ignoreResult) {
-				//TODO
-				this.ignoreResult = false;
-			}
 		};
 
 		this.recognition.onspeechend = () => {
+			this.carretIndex = -1;
 			// console.log("SPEECH END");
 		};
-
+		
 		this.recognition.onerror = () => {
+			this.carretIndex = -1;
 			// console.log("ON ERROR", e);
 		}
 
@@ -143,23 +152,33 @@ export default class VoiceController {
 
 	private buildHashmap():void {
 		const actions = store.state.voiceActions;
+		this.hashmap = {};
 
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
 			if(!a.id) continue;
 			const sentences = a.sentences?.split(/\r|\n/gi);
 			sentences?.forEach(v => {
-				this.hashmap[v.toLowerCase()] = a;
+				const key = v.trim().toLowerCase();
+				if(key.length > 1) {
+					this.hashmap[key] = a;
+				}
 			}) 
 		}
 	}
 
 	private triggerAction(action:VoiceAction):void {
+		if(!action.id) return;
+		
 		switch(action.id) {
 			case VoiceAction.CHAT_FEED_PAUSE: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_PAUSE);break;
 			case VoiceAction.CHAT_FEED_UNPAUSE: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_UNPAUSE);break;
-			case VoiceAction.CHAT_FEED_SCROLL_UP: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP);break;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN);break;
+			case VoiceAction.CHAT_FEED_SCROLL_UP: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500});break;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500});break;
+			case VoiceAction.CHAT_FEED_READ: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10});break;
+			case VoiceAction.GREET_FEED_READ: PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10});break;
+			case VoiceAction.CHAT_FEED_READ_ALL: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ_ALL);break;
+			case VoiceAction.GREET_FEED_READ_ALL: PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ_ALL);break;
 		}
 	}
 }

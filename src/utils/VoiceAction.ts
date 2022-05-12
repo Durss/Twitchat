@@ -13,11 +13,11 @@ export default class VoiceAction {
 	public static STOP_PREDICTION_DESCRIPTION:string = "Close current description and choose an outcome";
 
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
-	public static GREET_FEED_READ_DESCRIPTION:string = "Mark 1 \"Greet them\" message as read";
+	public static GREET_FEED_READ_DESCRIPTION:string = "Mark 10 \"Greet them\" messages as read";
 	public static GREET_FEED_READ_ALL:TwitchatActionType = "GREET_FEED_READ_ALL";
 	public static GREET_FEED_READ_ALL_DESCRIPTION:string = "Mark all \"Greet them\" messages as read";
 	public static CHAT_FEED_READ:TwitchatActionType = "CHAT_FEED_READ";
-	public static CHAT_FEED_READ_DESCRIPTION:string = "Mark 1 chat message as read";
+	public static CHAT_FEED_READ_DESCRIPTION:string = "Mark 10 chat messages as read";
 	public static CHAT_FEED_READ_ALL:TwitchatActionType = "CHAT_FEED_READ_ALL";
 	public static CHAT_FEED_READ_ALL_DESCRIPTION:string = "Mark all chat messages as read";
 	public static CHAT_FEED_PAUSE:TwitchatActionType = "CHAT_FEED_PAUSE";

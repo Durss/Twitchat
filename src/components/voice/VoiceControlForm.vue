@@ -4,17 +4,14 @@
 		<LangSelector id="langSelector" v-model:lang="lang" class="langSelector" />
 		
 		<Button v-if="!started" title="Start voice bot" class="startBt" @click="startBot()" />
-		<Button v-if="started" title="Stop voice bot" class="startBt" @click="stopBot()" />
+		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" />
 		
-		<ToggleBlock title="Text flow" :enabled="false" class="block" v-if="started">
-			<div class="temp">{{tempText}}</div>
-		</ToggleBlock>
-		
-		<ToggleBlock title="Final text" :enabled="false" class="block" v-if="started">
-			<div class="final">{{finalText}}</div>
+		<ToggleBlock title="Speak to see the result" :enabled="false" class="block" v-if="started">
+			<div class="temp" v-if="tempText">{{tempText}}</div>
+			<div class="final" v-if="finalText && !tempText">{{finalText}}</div>
 		</ToggleBlock>
 
-		<VoiceTriggerList class="triggerList" />
+		<VoiceTriggerList class="block" />
 	</div>
 </template>
 
@@ -50,6 +47,7 @@ export default class VoiceControlForm extends Vue {
 		//@ts-ignore
 		if(!userLang) userLang = navigator.userLanguage; 
 		if(userLang.length == 2) userLang = userLang + "-" + userLang.toUpperCase();
+		if(store.state.voiceLang) userLang = store.state.voiceLang;
 		this.lang = userLang;
 
 		watch(()=>this.lang, ()=> this.updateLang());
@@ -82,13 +80,18 @@ export default class VoiceControlForm extends Vue {
 		margin-bottom: 1em;
 	}
 	
-	.startBt{
+	.startBt, .stopBt{
 		display: block;
 		margin: auto;
 	}
 
-	.triggerList {
+	.block {
 		margin-top: 1em;
+
+		.temp {
+			font-style: italic;
+		}
 	}
+
 }
 </style>

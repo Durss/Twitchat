@@ -73,7 +73,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["xurei", "cabridiy"]);
+				channels = channels.concat(["gunselsenol", "angledroit"]);
 			}
 
 			(async ()=> {

@@ -2,7 +2,15 @@
 	<div class="voicetriggerlist">
 		<Button :icon="require('@/assets/icons/add.svg')" title="Add action" class="addBt" @click="addAction()" />
 		
-		<ToggleBlock :open="isOpen(a.id)" medium :title="getLabelFromID(a.id)" v-for="(a,index) in actions" :key="a.id" class="action">
+		<ToggleBlock v-for="(a,index) in actions"
+			medium
+			:open="isOpen(a.id)"
+			:title="getLabelFromID(a.id)"
+			:key="a.id"
+			:ref="a.id"
+			class="action"
+		>
+		{{a.id}}
 			<label :for="'select'+index">Action to execute</label>
 			<vue-select :id="'select'+index"
 				label="label"
@@ -23,7 +31,10 @@
 
 <script lang="ts">
 import store from '@/store';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
+import gsap from 'gsap/all';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -41,6 +52,8 @@ export default class VoiceTriggerList extends Vue {
 	public actions:VoiceAction[] = [];
 	public openStates:{[id:string]:boolean} = {};
 
+	private triggerHandler!:(e:TwitchatEvent)=>void;
+
 	public mounted():void {
 		this.actions = JSON.parse(JSON.stringify(store.state.voiceActions));
 
@@ -53,6 +66,27 @@ export default class VoiceTriggerList extends Vue {
 		watch(()=>this.actions, ()=>{
 			store.dispatch("setVoiceActions", this.actions);
 		}, {deep:true});
+
+		this.triggerHandler = (e:TwitchatEvent) => this.onTrigger(e);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
+	}
+
+	public beforeUnmount():void {
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
 	}
 
 	public addAction():void {
@@ -95,7 +129,14 @@ export default class VoiceTriggerList extends Vue {
 		if(!label) label = "...select action..."
 		return label;
 	}
-	//
+	
+	public onTrigger(e:TwitchatEvent):void {
+		const el = this.$refs[e.type] as Vue[] | undefined;
+		if(el && el.length > 0 && el[0].$el != null) {
+			const div = (el[0].$el as HTMLDivElement).getElementsByClassName("header")[0];
+			gsap.fromTo(div, {paddingTop:"1em", paddingBottom:"1em", filter:"brightness(3)"}, {paddingTop:".25em", paddingBottom:".25em", filter:"brightness(1)", duration:1});
+		}
+	}
 
 }
 </script>
