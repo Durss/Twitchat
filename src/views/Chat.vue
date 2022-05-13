@@ -87,8 +87,8 @@
 
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
 
-		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
-		<ChatPollForm class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" />
+		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<ChatPollForm class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
 		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
@@ -165,6 +165,7 @@ export default class Chat extends Vue {
 	public showUserList:boolean = false;
 	public showChatUsers:boolean = false;
 	public canStartAd:boolean = true;
+	public voiceControl:boolean = false;
 	public startAdCooldown:number = 0;
 	public currentModal:string = "";
 	public currentMessageSearch:string = "";
@@ -200,6 +201,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		this.onResize();
 		
 
@@ -228,6 +231,10 @@ export default class Chat extends Vue {
 			let raffle = store.state.raffle as RaffleData;
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
 		});
+
+		watch(()=>this.currentModal, ()=>{
+			this.voiceControl = false;
+		})
 	}
 
 	public beforeUnmount():void {
@@ -240,6 +247,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 	}
 
 	public clearChat():void {
@@ -249,7 +258,7 @@ export default class Chat extends Vue {
 	/**
 	 * Called when requesting an action from the public API
 	 */
-	private onPublicApiEvent(e:TwitchatEvent):void {
+	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif = "";
 		let modal = "";
 		switch(e.type) {
@@ -269,6 +278,16 @@ export default class Chat extends Vue {
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
 				store.state.params.filters.censorDeletedMessages.value = !store.state.params.filters.censorDeletedMessages.value;
 				store.dispatch('updateParams');
+				break;
+			case TwitchatEvent.CREATE_POLL:
+				this.currentModal = 'poll';
+				await this.$nextTick();
+				this.voiceControl = true;
+				break;
+			case TwitchatEvent.CREATE_PREDICTION:
+				this.currentModal = 'prediction';
+				await this.$nextTick();
+				this.voiceControl = true;
 				break;
 		}
 

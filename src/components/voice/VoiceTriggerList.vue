@@ -1,16 +1,22 @@
 <template>
 	<div class="voicetriggerlist">
-		<Button :icon="require('@/assets/icons/add.svg')" title="Add action" class="addBt" @click="addAction()" />
+
+		<Button :icon="require('@/assets/icons/add.svg')" title="Add action" class="addBt"
+			@click="addAction()"
+			v-if="getActionIDs().length > 0"
+		/>
+
+		<VoiceGlobalCommands class="action global" v-model="globalCommands" />
 		
 		<ToggleBlock v-for="(a,index) in actions"
 			medium
 			:open="isOpen(a.id)"
 			:title="getLabelFromID(a.id)"
+			:icon="getIconFromID(a.id)"
 			:key="a.id"
 			:ref="a.id"
 			class="action"
 		>
-		{{a.id}}
 			<label :for="'select'+index">Action to execute</label>
 			<vue-select :id="'select'+index"
 				label="label"
@@ -22,7 +28,7 @@
 			></vue-select>
 
 			<label :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
-			<textarea :id="'text'+index" v-model="a.sentences" rows="5"></textarea>
+			<textarea :id="'text'+index" v-model="a.sentences" rows="5" maxlength="1000"></textarea>
 			
 			<Button @click="deleteAction(a.id)" :icon="require('@/assets/icons/cross_white.svg')" highlight title="Delete" class="saveBt" />
 		</ToggleBlock>
@@ -39,17 +45,20 @@ import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ToggleBlock,
+		VoiceGlobalCommands,
 	}
 })
 export default class VoiceTriggerList extends Vue {
 
 	public actions:VoiceAction[] = [];
+	public globalCommands:VoiceAction[] = [];
 	public openStates:{[id:string]:boolean} = {};
 
 	private triggerHandler!:(e:TwitchatEvent)=>void;
@@ -60,11 +69,21 @@ export default class VoiceTriggerList extends Vue {
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
 			if(!a.id) continue;
+			//@ts-ignore ignore global commands
+			if(VoiceAction[a.id+"_IS_GLOBAL"] === true) {
+				this.actions.splice(i, 1);
+				i--;
+				continue;
+			}
 			this.openStates[a.id] = false;
 		}
 
 		watch(()=>this.actions, ()=>{
-			store.dispatch("setVoiceActions", this.actions);
+			this.saveActions();
+		}, {deep:true});
+
+		watch(()=>this.globalCommands, ()=>{
+			this.saveActions();
 		}, {deep:true});
 
 		this.triggerHandler = (e:TwitchatEvent) => this.onTrigger(e);
@@ -76,6 +95,10 @@ export default class VoiceTriggerList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.triggerHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.triggerHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
 	}
 
 	public beforeUnmount():void {
@@ -87,6 +110,10 @@ export default class VoiceTriggerList extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.triggerHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.triggerHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
 	}
 
 	public addAction():void {
@@ -103,16 +130,32 @@ export default class VoiceTriggerList extends Vue {
 		return this.openStates[id];
 	}
 
-	public getActionIDs(action:VoiceAction):{label:string, value:string}[] {
+	public getActionIDs(action?:VoiceAction):{label:string, value:string}[] {
 		let availableActions = Object.keys(VoiceAction);
 		availableActions = availableActions.filter(v=> v.indexOf("_DESCRIPTION") == -1);
+		availableActions = availableActions.filter(v=> v.indexOf("_ICON") == -1);
+		availableActions = availableActions.filter(v=> v.indexOf("_IS_GLOBAL") == -1);
+
+		//Remove actions that are already in use
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
+			//If it's a new action that has no selection done yet
 			if(!a.id || a == action) continue;
+
 			const index = availableActions.indexOf(a.id);
 			if(index > -1) availableActions.splice(index, 1);
 		}
-		
+
+		//Remove global commands (erase, prev, next, submit)
+		for (let i = 0; i < availableActions.length; i++) {
+			//@ts-ignore
+			const isGlobal = VoiceAction[availableActions[i]+"_IS_GLOBAL"] === true;
+			if(isGlobal) {
+				availableActions.splice(i, 1);
+				i--;
+			}
+		}
+
 		return availableActions.map(v=> {
 			return {
 				//@ts-ignore
@@ -123,19 +166,37 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public getLabelFromID(id:string|undefined):string {
-		if(!id===null) return "ACTION ID FOUND : "+id;
+		if(!id===null) return "ACTION ID NOT FOUND : "+id;
 		//@ts-ignore
 		let label = VoiceAction[id+"_DESCRIPTION"];
 		if(!label) label = "...select action..."
 		return label;
 	}
+
+	public getIconFromID(id:string|undefined):string {
+		if(!id===null) return "ACTION ID NOT FOUND : "+id;
+		//@ts-ignore
+		return VoiceAction[id+"_ICON"];
+	}
 	
+	/**
+	 * When a voice action is triggerd, highlight it
+	 * 
+	 * @param e 
+	 */
 	public onTrigger(e:TwitchatEvent):void {
 		const el = this.$refs[e.type] as Vue[] | undefined;
 		if(el && el.length > 0 && el[0].$el != null) {
 			const div = (el[0].$el as HTMLDivElement).getElementsByClassName("header")[0];
 			gsap.fromTo(div, {paddingTop:"1em", paddingBottom:"1em", filter:"brightness(3)"}, {paddingTop:".25em", paddingBottom:".25em", filter:"brightness(1)", duration:1});
 		}
+	}
+
+	private saveActions():void {
+		let list:VoiceAction[] = [];
+		list = list.concat(this.actions);
+		list = list.concat(this.globalCommands);
+		store.dispatch("setVoiceActions", list);
 	}
 
 }
@@ -146,13 +207,25 @@ export default class VoiceTriggerList extends Vue {
 	
 	.addBt {
 		margin:auto;
+		margin-bottom: 1em;
 		display: block;
 	}
 
 	.action {
 		border: 1px solid @mainColor_normal;
 		border-radius: .5em;
-		margin-top: .5em;
+
+		&:not(:first-of-type) {
+			margin-top: .5em;
+		}
+
+		&.global {
+		border: 1px solid @mainColor_highlight;
+			:deep(.header) {
+				background-color: @mainColor_highlight;
+			}
+		}
+		
 		:deep(.content) {
 			display: flex;
 			flex-direction: column;

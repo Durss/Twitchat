@@ -1,23 +1,23 @@
 <template>
 	<div class="commandhelper">
-		<Button small @click="$emit('poll'); close();" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
-		<Button small @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
+		<Button small @click="$emit('poll'); close();" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" v-if="$store.state.hasChannelPoints" />
+		<Button small @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" v-if="$store.state.hasChannelPoints" />
 		<Button small @click="$emit('raffle'); close();" :icon="require('@/assets/icons/ticket.svg')" title="Create raffle" bounce />
 		<Button small @click="$emit('bingo'); close();" :icon="require('@/assets/icons/bingo.svg')" title="Create bingo" bounce />
 		<Button small @click="$emit('chatpoll'); close();" :icon="require('@/assets/icons/chatPoll.svg')" title="Create chat poll" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0 && $store.state.hasChannelPoints" small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce />
+			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0 && $store.state.hasChannelPoints" small @click="$emit('ad', 60); close();" title="60s" bounce />
+			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0 && $store.state.hasChannelPoints" small @click="$emit('ad', 90); close();" title="90s" bounce />
+			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0 && $store.state.hasChannelPoints" small @click="$emit('ad', 120); close();" title="120s" bounce />
+			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0 && $store.state.hasChannelPoints" small @click="$emit('ad', 180); close();" title="180s" bounce />
 			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
 		</div>
 
 		<div v-for="(p,key) in params" :key="key">
-			<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
+			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
 		</div>
 		<div class="raid" v-if="$store.state.raiding == null">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
@@ -106,8 +106,7 @@ export default class CommandHelper extends Vue {
 		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
 	}
 
-	private close():void {
-
+	public close():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});

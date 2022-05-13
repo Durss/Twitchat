@@ -2,7 +2,7 @@ import SpeechRecognition from "@/ISpeechRecognition";
 import store from "@/store";
 import { reactive, watch } from "vue";
 import PublicAPI from "./PublicAPI";
-import TwitchatEvent from "./TwitchatEvent";
+import TwitchatEvent, { TwitchatActionType } from "./TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**
@@ -37,6 +37,11 @@ export default class VoiceController {
 			VoiceController._instance.initialize();
 		}
 		return VoiceController._instance;
+	}
+
+	public get currentText():string {
+		if(this.tempText) return this.tempText;
+		return this.finalText;
 	}
 	
 	
@@ -171,14 +176,11 @@ export default class VoiceController {
 		if(!action.id) return;
 		
 		switch(action.id) {
-			case VoiceAction.CHAT_FEED_PAUSE: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_PAUSE);break;
-			case VoiceAction.CHAT_FEED_UNPAUSE: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_UNPAUSE);break;
-			case VoiceAction.CHAT_FEED_SCROLL_UP: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500});break;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500});break;
-			case VoiceAction.CHAT_FEED_READ: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10});break;
-			case VoiceAction.GREET_FEED_READ: PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10});break;
-			case VoiceAction.CHAT_FEED_READ_ALL: PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ_ALL);break;
-			case VoiceAction.GREET_FEED_READ_ALL: PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ_ALL);break;
+			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}); return;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}); return;
+			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}); return;
+			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}); return;
 		}
+		PublicAPI.instance.broadcast(action.id as TwitchatActionType);
 	}
 }

@@ -6,19 +6,40 @@
 				<span class="title">Create poll</span>
 				<Button aria-label="Close poll form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
+			
+			<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
+
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
 					<div class="row">
 						<label for="poll_title">Question</label>
-						<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''">
+						<div class="field">
+							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''">
+							<div class="len">{{title.length}}/60</div>
+						</div>
 					</div>
 					<div class="row">
 						<label for="poll_answer">Answers (at least 2)</label>
-						<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''">
-						<input type="text" v-model="answer2" maxlength="25">
-						<input type="text" v-model="answer3" maxlength="25">
-						<input type="text" v-model="answer4" maxlength="25">
-						<input type="text" v-model="answer5" maxlength="25">
+						<div class="field">
+							<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''">
+							<div class="len">{{answer1.length}}/25</div>
+						</div>
+						<div class="field">
+							<input type="text" v-model="answer2" maxlength="25">
+							<div class="len">{{answer2.length}}/25</div>
+						</div>
+						<div class="field">
+							<input type="text" v-model="answer3" maxlength="25">
+							<div class="len">{{answer3.length}}/25</div>
+						</div>
+						<div class="field">
+							<input type="text" v-model="answer4" maxlength="25">
+							<div class="len">{{answer4.length}}/25</div>
+						</div>
+						<div class="field">
+							<input type="text" v-model="answer5" maxlength="25">
+							<div class="len">{{answer5.length}}/25</div>
+						</div>
 					</div>
 					<div class="row right">
 						<ParamItem :paramData="extraVotesParam" />
@@ -44,21 +65,35 @@
 
 <script lang="ts">
 import store, { ParameterData } from '@/store';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
+import VoiceAction from '@/utils/VoiceAction';
+import VoiceController from '@/utils/VoiceController';
 import gsap from 'gsap/all';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
+import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Options({
-	props:{},
+	props:{
+		voiceControl: {
+			type: Boolean,
+			default: false
+		}
+	},
 	components:{
 		Button,
 		ParamItem,
+		VoiceGlobalCommandsHelper,
 	},
 	emits:['close']
 })
 export default class PollForm extends Vue {
+
+	public voiceControl!:boolean;
 
 	public loading:boolean = false;
 
@@ -73,6 +108,9 @@ export default class PollForm extends Vue {
 	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
+
+	private tabIndex:number = 0;
+	private voiceActionHandler!:(e:TwitchatEvent)=>void;
 
 	public get answers():string[] {
 		let res = [];
@@ -95,6 +133,22 @@ export default class PollForm extends Vue {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		
+		watch(()=>VoiceController.instance.tempText, ()=> this.onText());
+		watch(()=>VoiceController.instance.finalText, ()=> this.onText(true));
+
+		this.voiceActionHandler = (e:TwitchatEvent) => this.onVoiceAction(e);
+		PublicAPI.instance.addEventListener(VoiceAction.ERASE, this.voiceActionHandler);
+		PublicAPI.instance.addEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
+		PublicAPI.instance.addEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
+		PublicAPI.instance.addEventListener(VoiceAction.NEXT, this.voiceActionHandler);
+	}
+
+	public beforeUnmount():void {
+		PublicAPI.instance.removeEventListener(VoiceAction.ERASE, this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener(VoiceAction.NEXT, this.voiceActionHandler);
 	}
 
 	public async close():Promise<void> {
@@ -121,7 +175,38 @@ export default class PollForm extends Vue {
 			return;
 		}
 		this.loading = false;
-		this.close();
+		this.close(); 
+	}
+
+	public get currentInput():HTMLInputElement {
+		return (this.$el as HTMLDivElement).getElementsByTagName("input")[this.tabIndex];
+	}
+
+	private onText(isFinal:boolean = false):void {
+		console.log("ok");
+		const maxLength = this.currentInput.maxLength;
+		let txt = VoiceController.instance.currentText;
+		if(txt.length > maxLength) {
+			gsap.fromTo(this.currentInput, {x:-2}, {x:2, duration:0.01, clearProps:"x", repeat:20});
+		}
+		if(maxLength) txt = txt.substring(0, maxLength);
+		this.currentInput.value = txt;
+		this.currentInput.dispatchEvent(new Event("input"));
+	}
+
+	private onVoiceAction(e:TwitchatEvent):void {
+		console.log("ON AXCTION ", e.type);
+		switch(e.type) {
+			case VoiceAction.ERASE: this.currentInput.value = ""; break;
+			case VoiceAction.SUBMIT: this.submitPoll(); break;
+			case VoiceAction.PREVIOUS: this.tabIndex --; break;
+			case VoiceAction.NEXT: this.tabIndex ++; break;
+		}
+
+		const inputList = (this.$el as HTMLDivElement).getElementsByTagName("input");
+		if(this.tabIndex < 0) this.tabIndex = 0;
+		if(this.tabIndex > inputList.length-1) this.tabIndex = inputList.length-1;
+		this.currentInput.focus();
 	}
 }
 </script>
@@ -134,6 +219,10 @@ export default class PollForm extends Vue {
 	width: 100%;
 	height: 100%;
 	.modal();
+
+	.voiceHelper {
+		margin: auto;
+	}
 
 	.content {
 		form {
@@ -156,6 +245,22 @@ export default class PollForm extends Vue {
 					border-radius: 5px;
 					text-align: center;
 					background-color: @mainColor_alert;
+				}
+
+				.field {
+					flex-grow: 1;
+					position: relative;
+					input {
+						width: 100%;
+						padding-right: 3em;
+					}
+					.len {
+						font-size: .7em;
+						position: absolute;
+						right: .5em;
+						top: 50%;
+						transform: translateY(-50%);
+					}
 				}
 			}
 		}

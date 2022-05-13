@@ -34,6 +34,8 @@ export default class TwitchatEvent extends Event {
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
 	public static MOD_TOOLS_TOGGLE:TwitchatActionType = "MOD_TOOLS_TOGGLE";
 	public static CENSOR_DELETED_MESSAGES_TOGGLE:TwitchatActionType = "CENSOR_DELETED_MESSAGES_TOGGLE";
+	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
+	public static CREATE_PREDICTION:TwitchatActionType = "CREATE_PREDICTION";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -52,6 +54,7 @@ export type TwitchatEventType =
 	| "POLL"//Done
 	| "PREDICTION"//Done
 	| "MENTION"//Done
+;
 
 export type TwitchatActionType =
 	"GREET_FEED_READ"//Done
@@ -69,4 +72,7 @@ export type TwitchatActionType =
 	| "ACTIVITY_FEED_TOGGLE"//Done
 	| "VIEWERS_COUNT_TOGGLE"//Done
 	| "MOD_TOOLS_TOGGLE"//Done
-	| "CENSOR_DELETED_MESSAGES_TOGGLE";//Done
+	| "CENSOR_DELETED_MESSAGES_TOGGLE"//Done
+	| "CREATE_POLL"//Done
+	| "CREATE_PREDICTION"//Done
+;

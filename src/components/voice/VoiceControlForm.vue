@@ -1,10 +1,10 @@
 <template>
 	<div class="voicecontrolform">
-		<label for="langSelector">Set your language:</label>
+		<label for="langSelector">Select your language:</label>
 		<LangSelector id="langSelector" v-model:lang="lang" class="langSelector" />
 		
 		<Button v-if="!started" title="Start voice bot" class="startBt" @click="startBot()" />
-		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" />
+		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight />
 		
 		<ToggleBlock title="Speak to see the result" :enabled="false" class="block" v-if="started">
 			<div class="temp" v-if="tempText">{{tempText}}</div>
@@ -77,6 +77,7 @@ export default class VoiceControlForm extends Vue {
 
 	.langSelector {
 		width:100%;
+		margin-top: .5em;
 		margin-bottom: 1em;
 	}
 	

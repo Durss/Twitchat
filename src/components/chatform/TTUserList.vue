@@ -118,7 +118,7 @@ export default class TTUserList extends Vue {
 			})
 			const json = await res.json();
 			if(json.success) {
-				const users = json.users as {id:string, date:number, user:TwitchTypes.UserInfo}[];
+				let users = json.users as {id:string, date:number, user:TwitchTypes.UserInfo}[];
 				const ids = users.map(u => u.id);
 				const channels = await TwitchUtils.loadUserInfo(ids);
 				for (let i = 0; i < channels.length; i++) {
@@ -126,6 +126,10 @@ export default class TTUserList extends Vue {
 					const index = users.findIndex(u => u.id == c.id);
 					users[index].user = c;
 				}
+				//Filter out users not returned by tiwtch API (if account banned ? Deleted ?)
+				console.log(users.length);
+				users = users.filter(v => v.user != undefined);
+				console.log(">",users.length);
 				users.sort((a, b) => b.date - a.date);
 				this.users = users;
 			}else{
