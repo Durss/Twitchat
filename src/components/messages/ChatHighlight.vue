@@ -4,6 +4,7 @@
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
+			<div class="info" v-if="info" v-html="info"></div>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 			<div v-if="streamInfo" class="streamInfo">
@@ -49,6 +50,7 @@ export default class ChatHighlight extends Vue {
 	public messageData!:IRCEventDataList.Highlight;
 	public lightMode!:boolean;
 	public messageText:string = '';
+	public info:string = "";
 	public icon:string = "";
 	public filtered:boolean = false;
 	public isRaid:boolean = false;
@@ -79,6 +81,7 @@ export default class ChatHighlight extends Vue {
 
 	public get reason():string {
 		let value:number|"prime" = 0;
+		this.info = "";
 		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|"hype_cooldown_expired"|"community_boost_complete"|null = null;
 		if(this.messageData.tags['msg-id'] == "follow") {
 			type = "follow";
@@ -200,10 +203,11 @@ export default class ChatHighlight extends Vue {
 				}
 				if(this.messageData.reward?.redemption.reward.prompt) {
 					if(store.state.params.filters.showRewardsInfos.value === true) {
-						this.messageText = this.messageData.reward?.redemption.reward.prompt;
-					}else{
-						this.messageText = "";
+						this.info = this.messageData.reward?.redemption.reward.prompt;
 					}
+				}
+				if(this.messageData.reward?.redemption.user_input) {
+					this.messageText += this.messageData.reward?.redemption.user_input;
 				}
 				break;
 			}
@@ -214,6 +218,7 @@ export default class ChatHighlight extends Vue {
 	public async mounted():Promise<void> {
 		let result:string = "";
 		let text = this.messageData.message;
+		console.log("MOUNTEEEEEEEEEEEEEED");
 		if(text) {
 			try {
 				//Allow custom parsing of emotes only if it's a message of ours
@@ -317,12 +322,16 @@ export default class ChatHighlight extends Vue {
 			.reason {
 				font-size: 1em;
 			}
-			.message {
+			.message, .info {
 				margin: 0;
 				margin-top: .5em;
 				display: block;
 				color: rgba(255, 255, 255, .75);
 				line-height: 1.2em;
+			}
+
+			.info {
+				color: @mainColor_warn;
 			}
 		}
 	}

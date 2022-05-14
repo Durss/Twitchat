@@ -212,7 +212,7 @@ export default createStore({
 				showRaids: 					{save:true, type:"toggle", value:true, label:"Show raid alerts", id:108, icon:"raid_purple.svg"},
 				showFollow: 				{save:true, type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
-				showPollPredResults: 		{save:true, type:"toggle", value:true, label:"Show poll, prediction, bingo and raffle results on chat", id:112, icon:"poll_purple.svg", example:"pollPredOnChat.png"},
+				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
 			features: {
 				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},

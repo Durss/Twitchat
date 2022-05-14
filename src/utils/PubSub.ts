@@ -847,6 +847,7 @@ export namespace PubSubTypes {
 			};
 			channel_id: string;
 			redeemed_at: string;
+			user_input?: string;
 			reward: {
 				id: string;
 				channel_id: string;
