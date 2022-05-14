@@ -171,6 +171,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		CommunityBoostInfo,
 	},
 	emits: [
+		"debug",
 		"ad",
 		"poll",
 		"pred",
@@ -421,6 +422,16 @@ export default class ChatForm extends Vue {
 				store.state.tempStoreValue = params[0];
 				this.$emit('TTuserList');
 			}
+			this.message = "";
+		}else
+
+		if(cmd == "/alphatest1") {
+			this.$emit("debug", 1);
+			this.message = "";
+		}else
+
+		if(cmd == "/alphatest2") {
+			this.$emit("debug", 2);
 			this.message = "";
 		}else
 

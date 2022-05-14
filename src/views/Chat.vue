@@ -40,6 +40,7 @@
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
+				@debug="(v:number)=>debug(v)"
 				v-model:showFeed="showFeed" @update:showFeed="(v:boolean) => showFeed = v"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
@@ -128,6 +129,7 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
+import gsap from 'gsap';
 
 @Options({
 	components:{
@@ -340,6 +342,20 @@ export default class Chat extends Vue {
 	public searchMessage(str:string):void {
 		this.currentModal = 'search';
 		this.currentMessageSearch = str;
+	}
+
+	/**
+	 * Temporary debug command
+	 * @param index 
+	 */
+	public debug(index:number):void {
+		let div = (this.$refs.messages as Vue).$el as HTMLDivElement;
+		if(index == 1) {
+			gsap.to(div, {opacity:1, duration:.5});
+		}
+		if(index == 2) {
+			gsap.to(div.getElementsByClassName("holder")[0], {opacity:1, duration:.5});
+		}
 	}
 }
 
