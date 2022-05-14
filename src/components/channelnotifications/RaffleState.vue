@@ -25,7 +25,7 @@
 			@click="pickWinner()"
 			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
 
-		<PostOnChatParam botMessageKey="raffle" class="item " :placeholders="winnerPlaceholders" />
+		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
 		<Button class="item"
 			:icon="require('@/assets/icons/cross_white.svg')"
@@ -172,6 +172,14 @@ export default class RaffleState extends Vue {
 				margin-right: 5px;
 			}
 		}
+		
+
+		&.postChat {
+			width: 70%;
+			margin-top: 10px;
+			font-size: .8em;
+		}
+
 
 		&.winners {
 			display: block;

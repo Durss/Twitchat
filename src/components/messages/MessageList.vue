@@ -811,9 +811,9 @@ type MessageTypes = IRCEventDataList.Highlight
 			position: relative;
 			// display: flex;
 			// flex-direction: row;
-			&:last-child {
-				padding-bottom: 5px;
-			}
+			// &:last-child {
+			// 	padding-bottom: 5px;
+			// }
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
 			}
