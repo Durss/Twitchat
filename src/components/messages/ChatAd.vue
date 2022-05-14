@@ -17,12 +17,15 @@
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
 				<ul>
-					<li><Button aria-label="Open stop stream on raid parameter" small title="try it" @click.stop="showSpecificParam('features.stopStreamOnRaid')" /> New option to automatically <strong>stop OBS stream</strong> after a raid completes</li>
-					<li><Button aria-label="Open user pronouns parameter" small title="try it" @click.stop="showSpecificParam('features.showUserPronouns')" /> New parameter to show viewers <strong>pronouns</strong></li>
-					<li><Button aria-label="Open chat join/leave parameter" small title="try it" @click.stop="showSpecificParam('features.notifyJoinLeave')" /> New parameter to show when users <strong>enter/leave</strong> your chatroom</li>
-					<li><Button aria-label="Open chat poll form" small title="try it" @click.stop="$emit('showModal', 'chatpoll')" /> New "<strong>Chat poll</strong>" feature to create new kind of polls</li>
-					<li><Button aria-label="Open OBS parameters" small title="try it" @click.stop="openParamPage('obs')" /> Create your own follow/sub/cheer/raid/rewards/.. alerts with the new <strong>trigger system</strong> that allows you to control and update your OBS sources adn filters</li>
-					<li>Frankerfacez emotes supported</li>
+					<li><Button aria-label="Open whispers on chat param" small title="try it" @click.stop="showSpecificParam('features.showWhispersOnChat')" /> New option to show <strong>whispers</strong> on chat</li>
+					<li><Button aria-label="Open 7TV param" small title="try it" @click.stop="showSpecificParam('appearance.sevenTVEmotes')" /> <strong>7TV</strong> emotes supported</li>
+					<li>Raffle and bingo can now post a message on chat when they start</li>
+					<li><Button aria-label="Open vertical split param" small title="try it" @click.stop="showSpecificParam('appearance.splitViewVertical')" /> New option to <strong>split</strong> the view <strong>vertically</strong></li>
+					<li><Button aria-label="Open notif filter param" small title="try it" @click.stop="showSpecificParam('filters.showNotifications')" /> New option to remove all notifcations from chat <i>(sub,follow, raid, poll,...)</i></li>
+					<li>Slightly enhancing <strong>accessibility</strong> for people with visual impairment</li>
+					<li><strong>Fixed</strong> : Cutomod message wouldn't disappear properly if chat was paused</li>
+					<li><strong>Fixed</strong> : Channel points OBS trigger wasn't working</li>
+					<li><strong>Woops</strong> : While refactoring the way the custom shoutout message was stored I have made a mistake that probably lost the message you configured, sorry about that 🥺</li>
 				</ul>
 			</div>
 			<div class="cta">
@@ -34,9 +37,9 @@
 			<Button aria-label="Close tips &amp; tricks message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">💡 Tips &amp; tricks 💡</div>
 			<ChatTipAndTrickAd class="content"
-				@showModal="v=> $emit('showModal', v)"
-				@openParam="v=> openParamPage(v)"
-				@openParamItem="v=> showSpecificParam(v)"
+				@showModal="(v:string)=> $emit('showModal', v)"
+				@openParam="(v:string)=> openParamPage(v)"
+				@openParamItem="(v:string)=> showSpecificParam(v)"
 			/>
 		</div>
 
@@ -66,7 +69,6 @@ import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
-import { ParamsContenType } from '../params/Parameters.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Options({
@@ -94,7 +96,7 @@ export default class ChatAd extends Vue {
 		
 	}
 
-	public openParamPage(page:ParamsContenType):void {
+	public openParamPage(page:string):void {
 		console.log("OPEN PARAM", page);
 		store.state.tempStoreValue = "CONTENT:"+page;
 		store.dispatch("showParams", true);

@@ -19,7 +19,7 @@ import Store from './Store';
 
 export default createStore({
 	state: {
-		latestUpdateIndex: 1,
+		latestUpdateIndex: 2,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,

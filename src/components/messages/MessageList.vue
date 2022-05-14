@@ -334,10 +334,9 @@ export default class MessageList extends Vue {
 				}
 			}
 		}
-		let index = this.localMessages.findIndex(v => {
-			return v.tags.id === messageID
-		});
-		
+
+		//Remove deleted message from currently displayed messages
+		let index = this.localMessages.findIndex(v => { return v.tags.id === messageID });
 		if(index > -1) {
 			const m = this.localMessages[index];
 			if(m.type == "message") {
