@@ -173,6 +173,7 @@ export default class Chat extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
+	public get splitViewVertical():boolean { return store.state.params.appearance.splitViewVertical.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
 
 	public get classes():string[] {
@@ -182,6 +183,7 @@ export default class Chat extends Vue {
 			if(store.state.params.appearance.splitViewSwitch.value === true) {
 				res.push("switchCols");
 			}
+			if(this.splitViewVertical) res.push("splitVertical")
 		}
 		return res;
 	}
@@ -382,6 +384,26 @@ export default class Chat extends Vue {
 			}
 		}
 
+		&.splitVertical {
+			.top {
+				flex-direction: column;
+				.leftColumn {
+					width: 100%;
+					max-height: 60%;
+				}
+				.rightColumn {
+					width: 100%;
+					max-height: 40%;
+				}
+			}
+
+			&.switchCols {
+				.top {
+					flex-direction: column-reverse;
+				}
+			}
+		}
+
 		.popin {
 			width: 50vw;
 			left: auto;
@@ -404,7 +426,7 @@ export default class Chat extends Vue {
 		}
 	}
 
-	&.switchCols {
+	&.switchCols:not(.splitVertical) {
 		.top {
 			flex-direction: row-reverse;
 		}

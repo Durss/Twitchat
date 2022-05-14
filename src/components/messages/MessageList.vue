@@ -786,7 +786,7 @@ type MessageTypes = IRCEventDataList.Highlight
 	.ariaMessage {
 		position: absolute;
 		top: 0;
-		transform: translate(0, -200%);
+		transform: translate(0, -10000px);
 		z-index: 100;
 	}
 
