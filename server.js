@@ -626,7 +626,6 @@ const UserDataSchema = {
 		"p:showFollow": {type:"boolean"},
 		"p:showHypeTrain": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
-		"p:showPollPredResults": {type:"boolean"},
 		"p:showRaids": {type:"boolean"},
 		"p:showRewards": {type:"boolean"},
 		"p:showRewardsInfos": {type:"boolean"},

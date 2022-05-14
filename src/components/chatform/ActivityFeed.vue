@@ -41,7 +41,7 @@
 				<ChatNotice
 					class="message"
 					ref="message"
-					v-else-if="m.tags['msg-id'] == 'commercial'"
+					v-else-if="isCommercial(m)"
 					:messageData="m"
 					/>
 
@@ -64,7 +64,7 @@
 <script lang="ts">
 import store from '@/store';
 import Store from '@/store/Store';
-import { ActivityFeedData } from '@/utils/IRCEvent';
+import { ActivityFeedData, IRCEventDataList } from '@/utils/IRCEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -104,6 +104,8 @@ export default class ActivityFeed extends Vue {
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
+	public isCommercial(m:ActivityFeedData):boolean { return m.type == "notice" && m.tags['msg-id'] == 'commercial' }
+
 	public get classes():string[] {
 		const res = ["activityfeed"];
 		if(this.listMode === true) res.push("listMode");
@@ -122,15 +124,15 @@ export default class ActivityFeed extends Vue {
 
 		const result:ActivityFeedData[] = [];
 		
-		const showSubs			= this.filters["sub"] === true;
-		const showFollow		= this.filters["follow"] === true;
-		const showBits			= this.filters["bits"] === true;
-		const showRaids			= this.filters["raid"] === true;
-		const showRewards		= this.filters["rewards"] === true;
-		const showPolls			= this.filters["poll"] === true;
-		const showPredictions	= this.filters["prediction"] === true;
-		const showBingos		= this.filters["bingo"] === true;
-		const showRaffles		= this.filters["raffle"] === true;
+		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
+		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
+		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
+		const showRaids			= this.filters["raid"] === true || this.filters["raid"] === undefined;
+		const showRewards		= this.filters["rewards"] === true || this.filters["rewards"] === undefined;
+		const showPolls			= this.filters["poll"] === true || this.filters["poll"] === undefined;
+		const showPredictions	= this.filters["prediction"] === true || this.filters["prediction"] === undefined;
+		const showBingos		= this.filters["bingo"] === true || this.filters["bingo"] === undefined;
+		const showRaffles		= this.filters["raffle"] === true || this.filters["raffle"] === undefined;
 
 		
 		for (let i = 0; i < list.length; i++) {
@@ -170,6 +172,7 @@ export default class ActivityFeed extends Vue {
 			}else if(m.reward) {
 				type = "reward";
 			}
+			
 			if(type == "sub" && showSubs) result.unshift(m);
 			if(type == "reward" && showRewards) result.unshift(m);
 			if(type == "raid" && showRaids) result.unshift(m);

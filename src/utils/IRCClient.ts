@@ -21,7 +21,7 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	private debugMode:boolean = false && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
@@ -364,6 +364,9 @@ export default class IRCClient extends EventDispatcher {
 			});
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
+				//Ignore rewards with text, they are also sent to PubSub with more info
+				if(tags["custom-reward-id"]) return;
+
 				if(tags["message-type"] == "chat" || tags["message-type"] == "action") {
 					this.addMessage(message, tags, self, undefined, channel);
 				}

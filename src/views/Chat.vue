@@ -442,7 +442,7 @@ export default class Chat extends Vue {
 		top: 0;
 		left: 50%;
 		transform: translateX(-50%);
-		max-height: 35vh;
+		max-height: 50vh;
 		width: 100%;
 		margin: auto;
 	}

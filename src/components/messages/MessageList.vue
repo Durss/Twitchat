@@ -39,7 +39,7 @@
 					/>
 
 				<ChatHighlight
-					v-else-if="m.type == 'highlight'"
+					v-else-if="m.type == 'highlight' && $store.state.params.filters.showNotifications.value"
 					class="message"
 					:messageData="m"
 					lightMode
@@ -50,7 +50,7 @@
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'poll' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'poll' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
 				/>
@@ -58,7 +58,7 @@
 				<ChatPredictionResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'prediction' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
 				/>
@@ -66,7 +66,7 @@
 				<ChatBingoResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'bingo' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'bingo' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
 				/>
@@ -74,7 +74,7 @@
 				<ChatRaffleResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'raffle' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'raffle' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
 				/>
@@ -839,26 +839,26 @@ type MessageTypes = IRCEventDataList.Highlight
 				clip-path: polygon(0 -1000px, 100% -1000px, 100% 0, 0 0);
 				.hoverActions {
 					position: absolute;
-					left: 50%;
+					right: 0%;
 					top: 0;
-					transform:translate(-50%, calc(-100% - .5em));
+					margin: .5em 0;
+					transform:translate(0, calc(-100% - .5em));
 					display: flex;
 					flex-direction: row;
 					align-items: center;
 					justify-content: space-around;
 					flex-wrap: wrap;
 					font-size: var(--messageSize);
-					margin: .5em 0;
 					transition: all 0.2s;
 				}
 	
 				&.slide-enter-active > .hoverActions {
-					transform: translate(-50%, calc(-100% - .5em));
+					transform: translate(0, calc(-100% - .5em));
 				}
 
 				&.slide-enter-from > .hoverActions,
 				&.slide-leave-to > .hoverActions {
-					transform: translate(-50%, 0);
+					transform: translate(0, 0);
 				}
 			}
 		}

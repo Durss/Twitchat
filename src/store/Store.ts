@@ -90,7 +90,10 @@ export default class Store {
 		if(v=="4") {
 			this.migrateSOMessage();
 		}
-		this.set("v", 5);
+		if(v=="5") {
+			Store.remove("p:showPollPredResults");
+		}
+		this.set("v", 6);
 
 		const items = this.getAll();
 		for (const key in items) {
