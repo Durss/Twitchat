@@ -4,7 +4,7 @@
 		<p class="useCase"><strong>Use case examples :</strong> display an overlay when someone writes on your chat for the first time, when someone subs, when a poll completes, ...</p>
 
 		<ParamItem :paramData="event_conf" />
-		<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues.length > 1" />
+		<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1" />
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
 		<Button title="Test action" class="testBt" @click="testAction()" v-if="canTestAction" />
@@ -123,7 +123,7 @@ export default class OBSEventsAction extends Vue {
 	/**
 	 * Gets all the available OBS sources and sort them alphabetically
 	 */
-	private async listSources(refreshVue:boolean = false):Promise<void> {
+	public async listSources(refreshVue:boolean = false):Promise<void> {
 		this.syncing = true;
 		try {
 			this.sources = await OBSWebsocket.instance.getSources();
@@ -171,7 +171,6 @@ export default class OBSEventsAction extends Vue {
 		let subkey = this.subevent_conf.value as string;
 		let data:unknown = this.actionList;
 		if(this.isChatCmd) {
-			// this.action
 			subkey = this.actionCategory.chatCommand;
 			this.actionCategory.actions = this.actionList;
 			data = this.actionCategory;
@@ -232,12 +231,13 @@ export default class OBSEventsAction extends Vue {
 		this.isSublist = isSubSelection;
 		let key = this.event_conf.value as string;
 		let subkey = this.subevent_conf.value as string;
-		if(isSubSelection) {
+		if(isSubSelection && subkey != "0") {
 			key = key+"_"+subkey;
 			if(subkey == "0") {
 				this.resetActionCategory();
 			}
 		}else{
+			this.isSublist = false;
 			this.subevent_conf.value = "0";
 		}
 		

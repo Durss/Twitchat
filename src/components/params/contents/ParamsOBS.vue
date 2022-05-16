@@ -145,7 +145,7 @@ export default class ParamsOBS extends Vue {
 		if(pass != undefined) this.obsPass_conf.value = pass;
 		if(ip != undefined) this.obsIP_conf.value = ip;
 
-		if(port != undefined && pass != undefined) {
+		if(port != undefined || pass != undefined || ip != undefined) {
 			this.connected = OBSWebsocket.instance.connected;
 			this.openConnectForm = !this.connected;
 		}else{
