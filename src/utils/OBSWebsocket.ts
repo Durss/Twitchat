@@ -61,14 +61,14 @@ export default class OBSWebsocket extends EventDispatcher {
 		this.autoReconnect = autoReconnect;
 
 		try {
-			const protocol = document.location.protocol == "http:" || ip == "127.0.0.1" ? "ws://" : "wss://";
-			const portValue = port?.length > 0 ? ":"+port : "";
+			const protocol = ip == "127.0.0.1" ? "ws://" : "wss://";
+			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion:1});
 		}catch(error) {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
 				this.reconnectTimeout = setTimeout(()=> {
-					this.connect(port, pass);
+					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
 			return false;
@@ -80,7 +80,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
 				this.reconnectTimeout = setTimeout(()=> {
-					this.connect(port, pass);
+					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
 		});

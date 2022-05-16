@@ -955,7 +955,7 @@ export default createStore({
 			const port = Store.get("obsPort");
 			const pass = Store.get("obsPass");
 			const ip = Store.get("obsIP");
-			if(port && pass) {
+			if(port != undefined || pass != undefined || ip != undefined) {
 				OBSWebsocket.instance.connect(port, pass, true, ip? ip : "127.0.0.1");
 			}
 			PublicAPI.instance.initialize();
