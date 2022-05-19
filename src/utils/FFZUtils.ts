@@ -58,15 +58,23 @@ export default class FFZUtils {
 		for (let i = 0; i < allEmotes.length; i++) {
 			const e = allEmotes[i];
 			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
+			const matches = [...message.matchAll(new RegExp(name, "gi"))];
 			if(matches && matches.length > 0) {
 				//Current emote has been found
 				//Generate fake emotes data in the expected format:
 				//  ID:start-end,start-end/ID:start-end,start-end
 				fakeTag += "FFZ_"+e.id+":";
 				for (let j = 0; j < matches.length; j++) {
-					const index = (matches[j].index as number);
-					fakeTag += index+"-"+(index+e.name.length);
+					const start = (matches[j].index as number);
+					const end = start+e.name.length-1;
+
+					const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
+					const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
+					//Emote has no space before and after or is not at the start or end of the message
+					//ignore it.
+					if(!prevOK || !nextOK) continue;
+					fakeTag += start+"-"+end;
+
 					if(j < matches.length-1) fakeTag+=",";
 				}
 				if(i < allEmotes.length -1 ) fakeTag +="/"
@@ -83,15 +91,16 @@ export default class FFZUtils {
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):FFZEmote|null {
+		code = code.toLowerCase();
 		for (let i = 0; i < this.globalEmotes.length; i++) {
 			const e = this.globalEmotes[i];
-			if(e.name == code) return e;
+			if(e.name.toLowerCase() == code) return e;
 		}
 		for (const key in this.channelEmotes) {
 			const list = this.channelEmotes[key];
 			for (let i = 0; i < list.length; i++) {
 				const e = list[i];
-				if(e.name == code) return e;
+				if(e.name.toLowerCase() == code) return e;
 			}
 		}
 		return null;
