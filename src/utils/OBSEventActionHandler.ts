@@ -69,10 +69,6 @@ export default class OBSEventActionHandler {
 			if(message.reward) {
 				this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID);
 				return;
-
-			}else if(message.message) {
-				this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
-				return;
 			
 			}else if(message.tags["first-msg"] === true) {
 				this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID);
@@ -86,6 +82,9 @@ export default class OBSEventActionHandler {
 				this.handleBits(message, testMode, this.currentSpoolGUID);
 				return;
 
+			}else if(message.message) {
+				this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
+				return;
 			}
 
 		}else if(message.type == "prediction") {
