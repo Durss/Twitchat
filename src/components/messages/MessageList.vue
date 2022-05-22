@@ -2,7 +2,8 @@
 	<div :class="classes"
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
-	@wheel="onMouseWheel($event)">
+	@wheel="onMouseWheel($event)"
+	@touchmove="onTouchMove($event)">
 		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
@@ -189,6 +190,7 @@ export default class MessageList extends Vue {
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
+	private prevTouchMove!:TouchEvent;
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
@@ -472,6 +474,18 @@ export default class MessageList extends Vue {
 		}
 	}
 
+	public onTouchMove(event:TouchEvent):void {
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const maxScroll = (el.scrollHeight - el.offsetHeight);
+		if(this.prevTouchMove) {
+			const direction = event.touches[0].clientY - this.prevTouchMove.touches[0].clientY;
+			//Pause if dragging up
+			if(direction > 0) this.lockScroll = true;
+			else this.lockScroll = Math.abs(el.scrollTop - maxScroll) != 0;
+		}
+		this.prevTouchMove = event;
+	}
+
 	/**
 	 * Called 60 times/sec to scroll the list and load new messages
 	 * if there are pending ones.
@@ -485,7 +499,7 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - h);
 
 		const messRefs = this.$refs.message as HTMLDivElement[];
-		if(!messRefs) return;
+		if(!messRefs) return;//view not ready yet
 		
 		// const lastMessRef = messRefs[ messRefs.length - 1 ];
 		// const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
