@@ -11,19 +11,20 @@
 	<meta name="description" content="Custom twitch chat with special options so you don't miss any important messages" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	
-	<meta property="og:url" content="https://twitchat.durss.ninja" />
+	<meta property="og:url" content="https://twitchat.fr" />
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="Twitchat" />
 	<meta property="og:description" content="Custom twitch chat with special options so you don't miss any important messages" />
-	<meta property="og:image" content="https://twitchat.durss.ninja/share.png?v=1" />
-	<meta property="og:image" content="https://twitchat.durss.ninja/share_small.png?v=1" />
+	<meta property="og:image" content="https://twitchat.fr/share.png?v=1" />
+	<meta property="og:image" content="https://twitchat.fr/share_small.png?v=1" />
 	<meta property="og:image:type" content="image/png" />
 	<meta property="og:locale" content="fr_FR" />
 	<meta property="og:locale:alternate" content="en_GB" />
 	<meta name="revisit-after" content="30 days">
 	<meta name="robots" content="index, follow">
 	<link rel="author" href="https://www.durss.ninja" />
-	<link rel="canonical" href="https://twitchat.durss.ninja/">
+	<link rel="canonical" href="https://twitchat.fr/">
+	<link rel="manifest" href="manifest.json">
 	<style>
 		body {
 			background-color: #0e0e10;
@@ -37,6 +38,16 @@
 			height: 80px;
 		}
 	</style>
+	<script type="text/javascript">
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('service-worker.js')
+			.then((reg) => {
+				console.log("Service worker registered");
+			}).catch((err) => {
+				console.log("Service worker registration failed:" + err);
+			});
+		}
+	</script>
 </head>
 
 <body>

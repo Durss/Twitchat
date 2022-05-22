@@ -85,9 +85,7 @@ createApp(App)
 })
 .mount('#app')
 
-// (
-// 	async () => {
-// 		const res = await TwitchUtils.validateToken("xxx");
-// 		console.log(res);
-// 	}
-// )()
+window.addEventListener("beforeinstallprompt", (e)=> {
+	e.preventDefault();
+	store.dispatch("ahsInstaller", e);
+});

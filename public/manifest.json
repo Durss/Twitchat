@@ -1,0 +1,15 @@
+{
+	"background_color": "purple",
+	"description": "Full featured chat alternative for Twitch",
+	"display": "fullscreen",
+	"icons": [
+		{
+			"src": "favicon.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		}
+	],
+	"name": "Twitchat",
+	"short_name": "Twitchat",
+	"start_url": "index.html"
+}

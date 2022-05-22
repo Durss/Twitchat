@@ -26,6 +26,7 @@ export default createStore({
 		devmode: false,
 		canSplitView: false,
 		hasChannelPoints: false,
+		ahsInstaller: null as InstallHandler|null,
 		oAuthToken: {} as TwitchTypes.AuthTokenResult|null,
 		alert: "",
 		tooltip: "",
@@ -846,6 +847,10 @@ export default createStore({
 			Store.set("botMessages", state.botMessages);
 		},
 
+		ahsInstaller(state, value:InstallHandler) {
+			state.ahsInstaller = value;
+		},
+
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
 
 	},
@@ -1339,6 +1344,8 @@ export default createStore({
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
+		ahsInstaller({commit}, value:InstallHandler) { commit("ahsInstaller", value); },
+
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
 			if(date === 0) {
@@ -1514,4 +1521,9 @@ export const TwitchatAdTypes = {
 	UPDATES:2,
 	TIP:3,
 	DISCORD:4,
+}
+
+export interface InstallHandler {
+	prompt:()=>void;
+	userChoice:Promise<{outcome:"accepted"}>;
 }

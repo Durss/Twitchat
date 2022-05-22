@@ -3,7 +3,8 @@
 
 		<div class="title">Connected as <strong>{{$store.state.user.login}}</strong></div>
 
-		<Button @click="logout()" :icon="require('@/assets/icons/logout.svg')" bounce title="Logout" highlight class="logoutBt" />
+		<Button class="button" v-if="canInstall" @click="ahs()" title="Add to home screen" :icon="require('@/assets/icons/twitchat.svg')" />
+		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="require('@/assets/icons/logout.svg')" />
 		
 	</div>
 </template>
@@ -32,6 +33,8 @@ export default class ParamsAccount extends Vue {
 	public showObs:boolean = false;
 	public showCredits:boolean = true;
 
+	public get canInstall():boolean { return store.state.ahsInstaller != null || true; }
+
 	public logout():void {
 		Utils.confirm("Logout?", "All your parameters will be lost.").then(()=> {
 			Store.clear();
@@ -43,6 +46,16 @@ export default class ParamsAccount extends Vue {
 	public mounted():void {
 		watch(()=> store.state.params, ()=> this.onParamChanged());
 		this.onParamChanged();
+	}
+
+	public ahs():void {
+		if(!store.state.ahsInstaller) return;
+		// Show the prompt
+		store.state.ahsInstaller.prompt();
+		// // Wait for the user to respond to the prompt
+		// store.state.ahsInstaller.userChoice.then((choiceResult) => {
+		// 	this.canInstall = false;
+		// })
 	}
 
 	private onParamChanged():void {
@@ -68,7 +81,7 @@ export default class ParamsAccount extends Vue {
 
 <style scoped lang="less">
 .paramsaccount{
-	.logoutBt, .feedBt {
+	.button {
 		margin: auto;
 		display: block;
 		margin-bottom: 5px;
