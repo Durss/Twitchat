@@ -13,7 +13,7 @@
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
 					type="link"
-					class="elgatoBt"
+					class="button elgatoBt"
 				/>
 			</li>
 
@@ -72,8 +72,13 @@ export default class ParamsStreamdeck extends Vue {
 			}
 			.button {
 				margin: .5em auto 0 auto;
+				padding-right: 1.5em;
 				display: block;
 				width: min-content;
+			}
+
+			:deep(img) {
+				max-width: 100%;
 			}
 		}
 	}
