@@ -65,7 +65,7 @@
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="$emit('mouseleave', $event)"
-				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
+				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}<i class="translation" v-if="translateUsername"> ({{messageData.tags["username"]}})</i></span>
 		</div>
 		
 		<span>: </span>
@@ -260,13 +260,22 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == "whisper") return false;
 		return this.messageData.answers != undefined || this.messageData.answerTo != undefined;
 	}
+
+	public get translateUsername():boolean {
+		const dname = (this.messageData.tags['display-name'] as string).toLowerCase();
+		const uname = (this.messageData.tags['username'] as string).toLowerCase();
+		//If display name is different from username and at least half of the
+		//display name's chars ar not latin chars, translate it
+		if(uname == "papaya_rnint") console.log(dname.replace(/^[^a-zA-Z0-9]*/gi, "").length);
+		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
+	}
 	
 	/**
 	 * Set login color
 	 */
 	public get loginStyles():StyleValue {
 		const message = this.messageData as IRCEventDataList.Message;
-		let color = 0xffffff;
+		let color = 0xb454ff;
 		if(message.tags.color) {
 			color = parseInt(message.tags.color.replace("#", ""), 16);
 		}
@@ -614,6 +623,10 @@ export default class ChatMessage extends Vue {
 			&:hover {
 				background-color: fade(@mainColor_light, 10%);
 				border-radius: 3px;
+			}
+			.translation {
+				font-weight: normal;
+				font-size: .9em;
 			}
 		}
 	
