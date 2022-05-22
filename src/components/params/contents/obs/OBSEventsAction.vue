@@ -194,7 +194,7 @@ export default class OBSEventsAction extends Vue {
 				//Push current reward ID to the test JSON data
 				if(json.reward) json.reward.redemption.reward.id = this.subevent_conf.value as string;
 			}
-			if(key == OBSTriggerEventTypes.REWARD_REDEEM) {
+			if(key == OBSTriggerEventTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
 				json.message = this.actionCategory.chatCommand;
 			}
