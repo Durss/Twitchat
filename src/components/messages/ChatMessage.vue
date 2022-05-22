@@ -262,6 +262,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get translateUsername():boolean {
+		if(store.state.params.appearance.translateNames.value !== true) return false;
+
 		const dname = (this.messageData.tags['display-name'] as string).toLowerCase();
 		const uname = (this.messageData.tags['username'] as string).toLowerCase();
 		//If display name is different from username and at least half of the
