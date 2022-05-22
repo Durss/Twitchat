@@ -16,13 +16,17 @@
 					ref="userCard"
 					@click="openUser(u)"
 				>
-					<div class="header">
+					<div class="header" v-if="u.user">
 						<img :src="getProfilePicURL(u)" alt="profile" class="avatar">
 						
 						<span class="login">
 							{{u.user.login}}
 							<img src="@/assets/icons/partner.svg" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'">
 						</span>
+					</div>
+					<div class="header" v-else>
+						<img src="@/assets/icons/user_purple.svg" alt="profile" class="avatar">
+						<span class="login">DELETED USER ID {{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
 				</div>
@@ -96,6 +100,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public getProfilePicURL(u:UserData):string {
+		if(!u.user.profile_image_url) return require("@/assets/icons/user.svg");
 		return u.user.profile_image_url.replace("300x300", "70x70");
 	}
 
