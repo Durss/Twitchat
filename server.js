@@ -641,6 +641,7 @@ const UserDataSchema = {
 		"p:splitViewSwitch": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
+		"p:translateNames": {type:"boolean"},
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
