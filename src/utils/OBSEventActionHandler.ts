@@ -48,7 +48,7 @@ export default class OBSEventActionHandler {
 		}
 	}
 	
-	private executeNext(testMode:boolean = false):void{
+	private async executeNext(testMode:boolean = false):Promise<void>{
 		this.currentSpoolGUID = Math.random().toString()
 		const message = this.actionsSpool[0];
 		if(!message) return;
@@ -67,29 +67,35 @@ export default class OBSEventActionHandler {
 			}
 
 			if(message.reward) {
-				this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID);
-				return;
-			
-			}else if(message.tags["first-msg"] === true) {
-				this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID);
-				return;
-
-			}else if(message.firstMessage === true) {
-				this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID);
-				return;
-
-			}else if(message.tags.bits) {
-				this.handleBits(message, testMode, this.currentSpoolGUID);
-				return;
-
-			}else if(message.message) {
-				this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
-				return;
+				if(await this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
+					return;
+				}
+			}
+			if(message.tags["first-msg"] === true) {
+				if(await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}
+			}
+			if(message.firstMessage === true) {
+				if(await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}
+			}
+			if(message.tags.bits) {
+				if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}
+			}
+			if(message.message) {
+				if(await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID)) {
+					return;
+				}
 			}
 
 		}else if(message.type == "prediction") {
-			this.handlePrediction(message, testMode, this.currentSpoolGUID);
-			return;
+			if(await this.handlePrediction(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		
 		}else if(message.type == "poll") {
 			this.handlePoll(message, testMode, this.currentSpoolGUID);
@@ -117,32 +123,31 @@ export default class OBSEventActionHandler {
 		
 	}
 
-	private handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.FIRST_ALL_TIME, message, testMode, guid);
-		
+	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
 	
-	private handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.FIRST_TODAY, message, testMode, guid);
+	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.FIRST_TODAY, message, testMode, guid);
 	}
 	
-	private handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.BITS, message, testMode, guid);
+	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.BITS, message, testMode, guid);
 	}
 	
-	private handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.FOLLOW, message, testMode, guid);
+	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.FOLLOW, message, testMode, guid);
 	}
 	
-	private handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.SUB, message, testMode, guid);
+	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.SUB, message, testMode, guid);
 	}
 	
-	private handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.SUBGIFT, message, testMode, guid);
+	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.SUBGIFT, message, testMode, guid);
 	}
 	
-	private handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:string):void {
+	private async handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:string):Promise<boolean> {
 		let winnerVotes = 0;
 		message.data.choices.forEach(v=>{
 			if(v.votes > winnerVotes) {
@@ -150,38 +155,38 @@ export default class OBSEventActionHandler {
 				message.winner = v.title;
 			}
 		});
-		this.parseSteps(OBSTriggerEventTypes.POLL_RESULT, message, testMode, guid);
+		return this.parseSteps(OBSTriggerEventTypes.POLL_RESULT, message, testMode, guid);
 	}
 	
-	private handlePrediction(message:IRCEventDataList.PredictionResult, testMode:boolean, guid:string):void {
+	private async handlePrediction(message:IRCEventDataList.PredictionResult, testMode:boolean, guid:string):Promise<boolean> {
 		message.data.outcomes.forEach(v=>{
 			if(v.id == message.data.winning_outcome_id) {
 				message.winner = v.title;
 			}
 		});
-		this.parseSteps(OBSTriggerEventTypes.PREDICTION_RESULT, message, testMode, guid);
+		return this.parseSteps(OBSTriggerEventTypes.PREDICTION_RESULT, message, testMode, guid);
 	}
 	
-	private handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:string):void {
+	private async handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:string):Promise<boolean> {
 		message.winner = message.data.winners[0];
-		this.parseSteps(OBSTriggerEventTypes.BINGO_RESULT, message, testMode, guid);
+		return this.parseSteps(OBSTriggerEventTypes.BINGO_RESULT, message, testMode, guid);
 	}
 	
-	private handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:string):void {
+	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:string):Promise<boolean> {
 		message.winner = message.data.winners[0];
-		this.parseSteps(OBSTriggerEventTypes.RAFFLE_RESULT, message, testMode, guid);
+		return this.parseSteps(OBSTriggerEventTypes.RAFFLE_RESULT, message, testMode, guid);
 	}
 	
-	private handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
-		this.parseSteps(OBSTriggerEventTypes.RAID, message, testMode, guid);
+	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+		return this.parseSteps(OBSTriggerEventTypes.RAID, message, testMode, guid);
 	}
 	
-	private handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:string):void {
+	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:string):Promise<boolean> {
 		const cmd = message.message.trim();
-		this.parseSteps(OBSTriggerEventTypes.CHAT_COMMAND+"_"+cmd, message, testMode, guid);
+		return this.parseSteps(OBSTriggerEventTypes.CHAT_COMMAND+"_"+cmd, message, testMode, guid);
 	}
 	
-	private handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:string):void {
+	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
 		if(message.reward) {
 			let id = message.reward.redemption.reward.id;
 			if(id == "TEST_ID") {
@@ -189,8 +194,9 @@ export default class OBSEventActionHandler {
 			}else{
 				id = OBSTriggerEventTypes.REWARD_REDEEM+"_"+id;
 			}
-			this.parseSteps(id, message, testMode, guid);
+			return await this.parseSteps(id, message, testMode, guid);
 		}
+		return false;
 	}
 
 	/**
@@ -199,9 +205,11 @@ export default class OBSEventActionHandler {
 	 * @param eventType 
 	 * @param message 
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:string):Promise<void> {
+	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:string):Promise<boolean> {
 		const steps = store.state.obsEventActions[ eventType ];
-		if(steps) {
+		if(!steps) {
+			return false;
+		}else{
 			let actions:OBSEventActionData[] = [];
 			let canExecute = true;
 
@@ -237,7 +245,7 @@ export default class OBSEventActionHandler {
 			
 			if(canExecute) {
 				for (let i = 0; i < actions.length; i++) {
-					if(guid != this.currentSpoolGUID) return;//Stop there, something asked to override the current exec
+					if(guid != this.currentSpoolGUID) return false;//Stop there, something asked to override the current exec
 					const step = actions[i];
 					if(step.text) {
 						const text = await this.parseText(eventType, message, step.text as string);
@@ -266,6 +274,8 @@ export default class OBSEventActionHandler {
 		if(this.actionsSpool.length > 0) {
 			this.executeNext();
 		}
+
+		return true;
 	}
 
 	/**
