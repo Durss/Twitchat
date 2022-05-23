@@ -874,7 +874,7 @@ export default createStore({
 
 	
 	actions: {
-		async startApp({state, commit}) {
+		async startApp({state, commit}, authenticate:boolean) {
 			const res = await fetch(Config.API_PATH+"/configs");
 			const jsonConfigs = await res.json();
 			TwitchUtils.client_id = jsonConfigs.client_id;
@@ -927,53 +927,6 @@ export default createStore({
 				}
 			}
 			
-			//Init OBS scenes params
-			const obsSceneCommands = Store.get("obsConf_scenes");
-			if(obsSceneCommands) {
-				state.obsSceneCommands = JSON.parse(obsSceneCommands);
-			}
-			
-			//Init OBS sources params
-			const obsEventActions = Store.get("obsConf_sources");
-			if(obsEventActions) {
-				state.obsEventActions = JSON.parse(obsEventActions);
-			}
-			
-			//Init OBS command params
-			const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
-			if(OBSMuteUnmuteCommandss) {
-				state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
-			}
-			
-			//Init OBS permissions
-			const obsPermissions = Store.get("obsConf_permissions");
-			if(obsPermissions) {
-				state.obsPermissions = JSON.parse(obsPermissions);
-			}
-			
-			//Load bot messages
-			const botMessages = Store.get("botMessages");
-			if(botMessages) {
-				//Merge remote and local to avoid losing potential new
-				//default values on local data
-				const localMessages = state.botMessages;
-				const remoteMessages = JSON.parse(botMessages);
-				// JSONPatch.applyPatch(localMessages, remoteMessages);
-				// JSONPatch.applyPatch(remoteMessages, localMessages);
-				for (const k in localMessages) {
-					const key = k as BotMessageField;
-					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-						remoteMessages[key] = localMessages[key];
-					}
-					for (const subkey in localMessages[key]) {
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-						}
-					}
-				}
-				state.botMessages = (remoteMessages as unknown) as IBotMessage;
-			}
-			
 			//Init OBS connection
 			const port = Store.get("obsPort");
 			const pass = Store.get("obsPass");
@@ -983,14 +936,8 @@ export default createStore({
 			}
 			PublicAPI.instance.initialize();
 
-			//Init spotify connection
-			const spotifyAuthToken = Store.get("spotifyAuthToken");
-			if(spotifyAuthToken) {
-				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
-			}
-
 			const token = Store.get("oAuthToken");
-			if(token) {
+			if(token && authenticate) {
 				try {
 					await new Promise((resolve,reject)=> {
 						commit("authenticate", {cb:(success:boolean)=>{
@@ -1025,6 +972,59 @@ export default createStore({
 					// router.push({name: 'login'});
 					state.initComplete = true;
 					return;
+				}
+			
+				//Init OBS scenes params
+				const obsSceneCommands = Store.get("obsConf_scenes");
+				if(obsSceneCommands) {
+					state.obsSceneCommands = JSON.parse(obsSceneCommands);
+				}
+				
+				//Init OBS sources params
+				const obsEventActions = Store.get("obsConf_sources");
+				if(obsEventActions) {
+					state.obsEventActions = JSON.parse(obsEventActions);
+				}
+				
+				//Init OBS command params
+				const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
+				if(OBSMuteUnmuteCommandss) {
+					state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
+				}
+				
+				//Init OBS permissions
+				const obsPermissions = Store.get("obsConf_permissions");
+				if(obsPermissions) {
+					state.obsPermissions = JSON.parse(obsPermissions);
+				}
+				
+				//Load bot messages
+				const botMessages = Store.get("botMessages");
+				if(botMessages) {
+					//Merge remote and local to avoid losing potential new
+					//default values on local data
+					const localMessages = state.botMessages;
+					const remoteMessages = JSON.parse(botMessages);
+					// JSONPatch.applyPatch(localMessages, remoteMessages);
+					// JSONPatch.applyPatch(remoteMessages, localMessages);
+					for (const k in localMessages) {
+						const key = k as BotMessageField;
+						if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
+							remoteMessages[key] = localMessages[key];
+						}
+						for (const subkey in localMessages[key]) {
+							if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
+								remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
+							}
+						}
+					}
+					state.botMessages = (remoteMessages as unknown) as IBotMessage;
+				}
+	
+				//Init spotify connection
+				const spotifyAuthToken = Store.get("spotifyAuthToken");
+				if(spotifyAuthToken) {
+					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 				}
 			}
 

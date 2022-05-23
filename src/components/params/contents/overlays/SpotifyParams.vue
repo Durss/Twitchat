@@ -2,6 +2,8 @@
 	<ToggleBlock :open="open" class="spotifyparams" title="Spotify" icon="spotify">
 		<div>Add the currently playing song on your screen</div>
 
+		<div v-if="error" class="error" @click="error=''">{{error}}</div>
+
 		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
 
 		<div v-if="spotifyConnected">
@@ -30,7 +32,8 @@ import Config from '@/utils/Config';
 })
 export default class SpotifyParams extends Vue {
 
-	public open:boolean = false;
+	public error:string = "";
+	public open:boolean = true;
 	public loading:boolean = false;
 	public authenticating:boolean = false;
 
@@ -51,7 +54,11 @@ export default class SpotifyParams extends Vue {
 			if(!csrf.success) {
 				store.state.alert = csrf.message;
 			}else{
-				await SpotifyHelper.instance.authenticate(store.state.spotifyAuthParams.code);
+				try {
+					await SpotifyHelper.instance.authenticate(store.state.spotifyAuthParams.code);
+				}catch(e:unknown) {
+					this.error = (e as {error:string, error_description:string}).error_description;
+				}
 			}
 
 			this.authenticating = false;
@@ -74,6 +81,19 @@ export default class SpotifyParams extends Vue {
 		display: block;
 		margin:auto;
 		margin-top: 1em;
+	}
+
+	.error {
+			justify-self: center;
+			color: @mainColor_light;
+			display: block;
+			text-align: center;
+			padding: 5px;
+			border-radius: 5px;
+			margin: auto;
+			margin-top: 10px;
+			background-color: @mainColor_alert;
+			cursor: pointer;
 	}
 
 }

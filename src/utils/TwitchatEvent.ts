@@ -17,6 +17,7 @@ export default class TwitchatEvent extends Event {
 	public static POLL:TwitchatEventType = "POLL";
 	public static PREDICTION:TwitchatEventType = "PREDICTION";
 	public static MENTION:TwitchatEventType = "MENTION";
+	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
 
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
 	public static GREET_FEED_READ_ALL:TwitchatActionType = "GREET_FEED_READ_ALL";
@@ -34,6 +35,7 @@ export default class TwitchatEvent extends Event {
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
 	public static MOD_TOOLS_TOGGLE:TwitchatActionType = "MOD_TOOLS_TOGGLE";
 	public static CENSOR_DELETED_MESSAGES_TOGGLE:TwitchatActionType = "CENSOR_DELETED_MESSAGES_TOGGLE";
+	public static GET_CURRENT_TRACK:TwitchatActionType = "GET_CURRENT_TRACK";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -41,32 +43,36 @@ export default class TwitchatEvent extends Event {
 }
 
 export type TwitchatEventType =
-	"MESSAGE_READ"//Done
-	| "MESSAGE_NON_FOLLOWER"//Done
-	| "MESSAGE_FILTERED"//Done
-	| "MESSAGE_DELETED"//Done
-	| "MESSAGE_FIRST"//Done
-	| "MESSAGE_FIRST_ALL_TIME"//Done
-	| "MESSAGE_WHISPER"//Done
-	| "FOLLOW"//Done
-	| "POLL"//Done
-	| "PREDICTION"//Done
-	| "MENTION"//Done
+	"MESSAGE_READ"
+	| "MESSAGE_NON_FOLLOWER"
+	| "MESSAGE_FILTERED"
+	| "MESSAGE_DELETED"
+	| "MESSAGE_FIRST"
+	| "MESSAGE_FIRST_ALL_TIME"
+	| "MESSAGE_WHISPER"
+	| "FOLLOW"
+	| "POLL"
+	| "PREDICTION"
+	| "MENTION"
+	| "CURRENT_TRACK"
+;
 
 export type TwitchatActionType =
-	"GREET_FEED_READ"//Done
-	| "GREET_FEED_READ_ALL"//Done
-	| "CHAT_FEED_READ"//Done
-	| "CHAT_FEED_READ_ALL"//Done
-	| "CHAT_FEED_PAUSE"//Done
-	| "CHAT_FEED_UNPAUSE"//Done
-	| "CHAT_FEED_SCROLL_UP"//Done
-	| "CHAT_FEED_SCROLL_DOWN"//Done
-	| "POLL_TOGGLE"//Done
-	| "PREDICTION_TOGGLE"//Done
-	| "BINGO_TOGGLE"//Done
-	| "RAFFLE_TOGGLE"//Done
-	| "ACTIVITY_FEED_TOGGLE"//Done
-	| "VIEWERS_COUNT_TOGGLE"//Done
-	| "MOD_TOOLS_TOGGLE"//Done
-	| "CENSOR_DELETED_MESSAGES_TOGGLE";//Done
+	"GREET_FEED_READ"
+	| "GREET_FEED_READ_ALL"
+	| "CHAT_FEED_READ"
+	| "CHAT_FEED_READ_ALL"
+	| "CHAT_FEED_PAUSE"
+	| "CHAT_FEED_UNPAUSE"
+	| "CHAT_FEED_SCROLL_UP"
+	| "CHAT_FEED_SCROLL_DOWN"
+	| "POLL_TOGGLE"
+	| "PREDICTION_TOGGLE"
+	| "BINGO_TOGGLE"
+	| "RAFFLE_TOGGLE"
+	| "ACTIVITY_FEED_TOGGLE"
+	| "VIEWERS_COUNT_TOGGLE"
+	| "MOD_TOOLS_TOGGLE"
+	| "CENSOR_DELETED_MESSAGES_TOGGLE"
+	| "GET_CURRENT_TRACK"
+;

@@ -133,7 +133,11 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param data
 	 */
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected) {
+			//Try again
+			setTimeout(()=> this.broadcast(type, data), 1000);
+			return;
+		}
 
 		const eventData = { origin:"twitchat", type, data }
 		this.obs.call("BroadcastCustomEvent", {eventData});

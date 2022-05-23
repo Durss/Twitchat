@@ -50,7 +50,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	
 	if (!store.state.initComplete) {
 		try {
-			await store.dispatch("startApp");
+			await store.dispatch("startApp", needAuth);
 		}catch(error) {
 			console.log(error);
 		}
@@ -76,7 +76,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 		tokenRefreshScheduled = true;
 		scheduleTokenRefresh();
 	}
-	
+
 	next();
 });
 

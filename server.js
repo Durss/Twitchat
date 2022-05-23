@@ -402,7 +402,7 @@ async function spotifyRefreshToken(request, response) {
 		},
 		body: new URLSearchParams({
 			'grant_type': 'refresh_token',
-			'refresh_token': params.refresh_token,
+			'refresh_token': params.token,
 		})
 	}
 	

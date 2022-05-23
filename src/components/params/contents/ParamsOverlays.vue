@@ -53,6 +53,7 @@ export default class ParamsOverlays extends Vue {
 	.infos {
 		font-size: .9em;
 		text-align: center;
+		margin-bottom: 1em;
 	}
 	.form {
 		margin-top: 1em;

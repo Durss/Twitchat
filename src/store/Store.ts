@@ -116,6 +116,7 @@ export default class Store {
 		//Do not save sensitive data to server
 		delete data.obsPass;
 		delete data.oAuthToken;
+		delete data.spotifyAuthToken;
 		//Do not save this to the server to avoid config to be erased
 		//on one of the instances
 		delete data.hideChat;

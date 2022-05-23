@@ -119,6 +119,7 @@ export type TwitchatEventType =
 	| "POLL_END"
 	| "PREDICTION_END"
 	| "MENTION"
+	| "CURRENT_TRACK"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -137,7 +138,8 @@ export type TwitchatActionType =
 	| "ACTIVITY_FEED_TOGGLE"
 	| "VIEWERS_COUNT_TOGGLE"
 	| "MOD_TOOLS_TOGGLE"
-	| "CENSOR_DELETED_MESSAGES_TOGGLE";
+	| "CENSOR_DELETED_MESSAGES_TOGGLE"
+	| "GET_CURRENT_TRACK"
 ```
 
 # Events
@@ -223,15 +225,6 @@ Sent when a user follows the channel
 	user_id: string,
 }
 ```
-## **MENTION**
-Called when a message contains a mention of your nickname
-```typescript
-{
-	display_name: string,
-	username: string,
-	user_id: string,
-}
-```
 ## **POLL**
 Sent when a poll starts, updates (when someone votes) and ends.
 ```typescript
@@ -286,6 +279,26 @@ Sent when a prediction starts, updates (when someone votes) and ends.
 	created_at: string,
 	ended_at: string | undefined,
 	locked_at: string | undefined,
+}
+```
+## **MENTION**
+Called when a message contains a mention of your nickname
+```typescript
+{
+	display_name: string,
+	username: string,
+	user_id: string,
+}
+```
+## **CURRENT_TRACK**
+Sent when a new track is playing on spotify or when playback is stopped
+```typescript
+{
+	trackName:string,
+	artistName:string,
+	trackDuration:number,
+	trackPlaybackPos:number,
+	cover:string,
 }
 ```
 
@@ -399,6 +412,12 @@ Toggle moderation tools' visibility
 ## **CENSOR_DELETED_MESSAGES_TOGGLE**
 Toggle the censorship of the deleted messages\
 If censorship is enabled, deleted messages content is replaced by `<deleted message>`.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **GET_CURRENT_TRACK**
+Request the currently playing spotify track\
 ### JSON param *(optional)*
 ```typescript
 -none-

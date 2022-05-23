@@ -1,6 +1,8 @@
 import store from "@/store";
 import { reactive } from "vue";
 import Config from "./Config";
+import PublicAPI from "./PublicAPI";
+import TwitchatEvent from "./TwitchatEvent";
 
 /**
 * Created : 23/05/2022 
@@ -9,15 +11,11 @@ export default class SpotifyHelper {
 	
 	public isPlaying:boolean = false;
 	public currentTrack!:SpotifyTrack;
-	public trackName:string = "";
-	public artistName:string = "";
-	public trackDuration:number = 0;
-	public trackPlaybackPos:number = 0;
 
 	private static _instance:SpotifyHelper;
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
-	private _endOfTrackTimeout!:number;
+	private _getTrackTimeout!:number;
 	
 	constructor() {
 	
@@ -35,15 +33,18 @@ export default class SpotifyHelper {
 	}
 	
 	public set token(value:SpotifyAuthToken) {
+		console.log("SET TOKEN ", value);
 		if(value == null) {
 			clearTimeout(this._refreshTimeout);
+			clearTimeout(this._getTrackTimeout);
 			return;
 		}
 		this._token = value;
 		if(Date.now() > value.expires_at - 10 * 60 * 1000) {
 			this.refreshToken();
+		}else{
+			this.getCurrentTrack();
 		}
-		this.getCurrentTrack();
 	}
 	
 	
@@ -80,29 +81,42 @@ export default class SpotifyHelper {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
 		const res = await fetch(Config.API_PATH+"/spotify/auth?code="+authCode, {method:"GET"});
 		json = await res.json();
-		store.dispatch("setSpotifyToken", json);
+		if(json.access_token) {
+			store.dispatch("setSpotifyToken", json);
+		}else{
+			throw(json);
+		}
 	}
 
 	/**
 	 * Refresh the current token
 	 */
 	public async refreshToken():Promise<void> {
+		clearTimeout(this._getTrackTimeout);
+		clearTimeout(this._refreshTimeout);
+
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		const res = await fetch(Config.API_PATH+"/spotify/auth?refresh_token="+this._token.refresh_token, {method:"GET"});
+		const res = await fetch(Config.API_PATH+"/spotify/refresh_token?token="+this._token.refresh_token, {method:"GET"});
 		json = await res.json();
-		store.dispatch("setSpotifyToken", json);
-
-		this.getCurrentTrack();
-
-		//Refresh token 10min before it actually expires
-		setTimeout(()=>this.refreshToken(), (this._token.expires_at - Date.now()) - 10 * 60 * 1000);
+		if(json.access_token) {
+			store.dispatch("setSpotifyToken", json);
+	
+			//Refresh token 10min before it actually expires
+			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;
+			if(!isNaN(delay) && delay > 0) {
+				this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
+			}
+		}else{
+			store.state.alert = "[SPOTIFY] token refresh failed"
+		}
 	}
 
 	/**
 	 * Load current track's data
 	 */
 	private async getCurrentTrack():Promise<void> {
-		clearTimeout(this._endOfTrackTimeout);
+		clearTimeout(this._getTrackTimeout);
+
 		const options = {
 			headers:{
 				"Accept":"application/json",
@@ -131,14 +145,24 @@ export default class SpotifyHelper {
 			this.isPlaying = json.is_playing && json.item != null;
 	
 			if(this.isPlaying) {
-				this.trackName = json.item.name;
-				this.artistName = json.item.show? json.item.show.name : json.item.artists[0].name;
-				this.trackDuration = json.item.duration_ms;
-				this.trackPlaybackPos = json.progress_ms;
-				const delay = this.trackDuration - this.trackPlaybackPos;
-				this._endOfTrackTimeout = setTimeout(()=> {
+				let delay = json.item.duration_ms - json.progress_ms;
+				if(isNaN(delay)) delay = 5000;
+				this._getTrackTimeout = setTimeout(()=> {
 					this.getCurrentTrack();
-				}, delay + 1000);
+				}, Math.min(5000, delay + 1000));
+
+				//Broadcast to the overlays
+				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+					trackName: json.item.name,
+					artistName: json.item.show? json.item.show.name : json.item.artists[0].name,
+					trackDuration: json.item.duration_ms,
+					trackPlaybackPos: json.progress_ms,
+					cover: json.item.album.images[0].url,
+				})
+
+			}else{
+				//Broadcast to the overlays
+				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
 			}
 		}
 	}
@@ -168,7 +192,7 @@ export default class SpotifyHelper {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
 	}
 }
 
