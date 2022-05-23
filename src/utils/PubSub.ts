@@ -54,24 +54,28 @@ export default class PubSub extends EventDispatcher{
 			this.pingInterval = setInterval(() => {
 				this.ping();
 			}, 60000*2.5);
+
+			const uid = store.state.user.user_id;
+			const uidTest = IRCClient.instance.debugMode? "43809079" : uid;//Subscribe to someone else's channel point events
 			
 			this.subscribe([
-				"channel-points-channel-v1."+store.state.user.user_id,
-				"chat_moderator_actions."+store.state.user.user_id+"."+store.state.user.user_id,
-				"automod-queue."+store.state.user.user_id+"."+store.state.user.user_id,
-				"user-moderation-notifications."+store.state.user.user_id+"."+store.state.user.user_id,
-				"leaderboard-events-v1.bits-usage-by-channel-v1-"+store.state.user.user_id+"-WEEK",
-				"leaderboard-events-v1.sub-gifts-sent-"+store.state.user.user_id+"-WEEK",
-				"raid."+store.state.user.user_id,
-				"predictions-channel-v1."+store.state.user.user_id,
-				"polls."+store.state.user.user_id,
-				"hype-train-events-v1."+store.state.user.user_id,
-				"following."+store.state.user.user_id,
-				"ads."+store.state.user.user_id,
-				"video-playback-by-id."+store.state.user.user_id,
-				"community-boost-events-v1."+store.state.user.user_id,
-				"ad-property-refresh."+store.state.user.user_id,
-				"whispers."+store.state.user.user_id,
+				"channel-points-channel-v1."+uid,
+				"community-points-channel-v1."+uidTest,
+				"chat_moderator_actions."+uid+"."+uid,
+				"automod-queue."+uid+"."+uid,
+				"user-moderation-notifications."+uid+"."+uid,
+				"leaderboard-events-v1.bits-usage-by-channel-v1-"+uid+"-WEEK",
+				"leaderboard-events-v1.sub-gifts-sent-"+uid+"-WEEK",
+				"raid."+uid,
+				"predictions-channel-v1."+uid,
+				"polls."+uid,
+				"hype-train-events-v1."+uid,
+				"following."+uid,
+				"ads."+uid,
+				"video-playback-by-id."+uid,
+				"community-boost-events-v1."+uid,
+				"ad-property-refresh."+uid,
+				"whispers."+uid,
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,

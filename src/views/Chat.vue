@@ -224,7 +224,7 @@ export default class Chat extends Vue {
 		//Auto opens the bingo status when created
 		watch(() => store.state.bingo, () => {
 			let bingo = store.state.bingo as BingoData;
-			if(bingo?.opened === true) this.setCurrentNotification("bingo");
+			if(bingo) this.setCurrentNotification("bingo");
 		});
 
 		//Auto opens the raffle status when created

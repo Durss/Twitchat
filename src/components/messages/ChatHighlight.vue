@@ -218,7 +218,6 @@ export default class ChatHighlight extends Vue {
 	public async mounted():Promise<void> {
 		let result:string = "";
 		let text = this.messageData.message;
-		console.log("MOUNTEEEEEEEEEEEEEED");
 		if(text) {
 			try {
 				//Allow custom parsing of emotes only if it's a message of ours

@@ -184,8 +184,6 @@ export default class OBSEventsActionEntry extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
-		this.source_conf.listValues.unshift({label:"Select...", value:""});
 		//TODO remove
 		// this.source_conf.value = this.sources.find(v => v.inputKind === 'text_gdiplus_v2')?.sourceName as string;
 		
@@ -193,7 +191,7 @@ export default class OBSEventsActionEntry extends Vue {
 		//Prefill forms
 		this.prefillForm();
 
-		watch(()=>this.sources, ()=> { this.prefillForm(); });
+		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
@@ -230,6 +228,9 @@ export default class OBSEventsActionEntry extends Vue {
 	 * Prefills the form
 	 */
 	private async prefillForm():Promise<void> {
+		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
+		this.source_conf.listValues.unshift({label:"Select...", value:""});
+		
 		this.isMissingObsEntry = false;
 		this.filter_conf.value = ""
 		if(this.action.sourceName != undefined) {

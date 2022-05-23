@@ -3,7 +3,7 @@
 
 		<ParamItem class="parameter" :paramData="enabledParam" ref="paramItem" />
 		
-		<PlaceholderSelector v-if="placeholderTarget && placeholders && enabledParam.value===true"
+		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && placeholders && enabledParam.value===true"
 			:target="placeholderTarget"
 			:placeholders="placeholders"
 			v-model="textParam.value"
@@ -83,6 +83,8 @@ export default class PostOnChatParam extends Vue {
 
 <style scoped lang="less">
 .postonchatparam{
-	
+	.placeholders {
+		margin-top: .5em;
+	}
 }
 </style>

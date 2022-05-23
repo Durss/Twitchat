@@ -68,7 +68,7 @@
 				<Button aria-label="Open current raffle"
 					:icon="require('@/assets/icons/ticket.svg')"
 					bounce
-					v-if="$store.state.raffle.command != null"
+					v-if="$store.state.raffle"
 					data-tooltip="Raffle"
 					@click="$emit('setCurrentNotification', 'raffle')" />
 				</transition>
@@ -77,7 +77,7 @@
 				<Button aria-label="Open current bingo"
 					:icon="require('@/assets/icons/bingo.svg')"
 					bounce
-					v-if="$store.state.bingo.guessNumber != null"
+					v-if="$store.state.bingo"
 					data-tooltip="Bingo"
 					@click="$emit('setCurrentNotification', 'bingo')" />
 				</transition>
