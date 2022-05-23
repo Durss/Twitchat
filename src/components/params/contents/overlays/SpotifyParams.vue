@@ -1,15 +1,19 @@
 <template>
 	<ToggleBlock :open="open" class="spotifyparams" title="Spotify" icon="spotify">
-		<div>Add the currently playing song on your screen</div>
+		<div>Add the currently playing song on your screen and allow control of the playback</div>
 
 		<div v-if="error" class="error" @click="error=''">{{error}}</div>
 
 		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
 
-		<div v-if="spotifyConnected">
-			<div>
+		<div v-if="spotifyConnected" class="content">
+			<div class="row">
 				<label for="spotify_overlay_url">Add this URL as a browser source</label>
 				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+			</div>
+			<div class="row">
+				<div>You can allow your viewers to control playback or add musics to the list from chat commands !</div>
+				<div>Go on <a @click="$emit('setContent', 'obs')">OBS tab</a> and look at the <strong>Twitchat triggers</strong> section</div>
 			</div>
 			<Button v-if="spotifyConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
@@ -33,7 +37,8 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 	components:{
 		Button,
 		ToggleBlock,
-	}
+	},
+	emits:["setContent"]
 })
 export default class SpotifyParams extends Vue {
 
@@ -100,6 +105,14 @@ export default class SpotifyParams extends Vue {
 			margin-top: 10px;
 			background-color: @mainColor_alert;
 			cursor: pointer;
+	}
+
+	.content {
+		.row {
+			margin-top: 1em;
+			display: flex;
+			flex-direction: column;
+		}
 	}
 
 }

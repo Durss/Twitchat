@@ -239,6 +239,6 @@ export default class Utils {
 		params.append("obs_port", port);
 		params.append("obs_pass", pass);
 		params.append("obs_ip", ip);
-		return document.location.origin + router.resolve({name:"overlay", params:{id:"spotify"}}).fullPath + "?" + params.toString();
+		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + "?" + params.toString();
 	}
 }

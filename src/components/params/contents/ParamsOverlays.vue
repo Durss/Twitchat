@@ -5,7 +5,7 @@
 		<p class="infos">The overlays need Twitchat to be running somewhere</p>
 		<!-- <p>If you use Twitchat from an OBS dock, you'll want to open twitchat on one of the above browsers.</p> -->
 		
-		<SpotifyParams v-if="obsConnected" />
+		<SpotifyParams v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!obsConnected">
 			<div>This features needs you to connect with OBS.</div>
@@ -25,7 +25,8 @@ import SpotifyParams from './overlays/SpotifyParams.vue';
 	components:{
 		Button,
 		SpotifyParams,
-	}
+	},
+	emits:["setContent"]
 })
 export default class ParamsOverlays extends Vue {
 	
