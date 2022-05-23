@@ -32,8 +32,7 @@ export default class SpotifyHelper {
 		return SpotifyHelper._instance;
 	}
 	
-	public set token(value:SpotifyAuthToken) {
-		console.log("SET TOKEN ", value);
+	public set token(value:SpotifyAuthToken | null) {
 		if(value == null) {
 			clearTimeout(this._refreshTimeout);
 			clearTimeout(this._getTrackTimeout);
@@ -99,7 +98,8 @@ export default class SpotifyHelper {
 		const res = await fetch(Config.API_PATH+"/spotify/refresh_token?token="+this._token.refresh_token, {method:"GET"});
 		json = await res.json();
 		if(json.access_token) {
-			store.dispatch("setSpotifyToken", json);
+			json.refresh_token = this._token.refresh_token;//Keep refresh token
+			store.dispatch("setSpotifyToken", json);//This computes the expires_at value
 	
 			//Refresh token 10min before it actually expires
 			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;

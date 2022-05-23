@@ -854,11 +854,12 @@ export default createStore({
 
 		setSpotifyAuthResult(state, value:SpotifyAuthResult) { state.spotifyAuthParams = value; },
 		
-		setSpotifyToken(state, value:SpotifyAuthToken) {
+		setSpotifyToken(state, value:SpotifyAuthToken|null) {
 			if(value && !value.expires_at) {
 				value.expires_at = Date.now() + value.expires_in * 1000;
 			}
-			if(!value) {
+			if(!value || !value.refresh_token) {
+				value = null;
 				Store.remove("spotifyAuthToken");
 			}else{
 				Store.set("spotifyAuthToken", value);
