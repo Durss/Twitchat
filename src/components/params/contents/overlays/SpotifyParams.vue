@@ -7,6 +7,10 @@
 		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
 
 		<div v-if="spotifyConnected">
+			<div>
+				<label for="spotify_overlay_url">Add this URL as a browser source</label>
+				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+			</div>
 			<Button v-if="spotifyConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
 
@@ -22,6 +26,7 @@ import SpotifyHelper from '@/utils/SpotifyHelper';
 import Button from '../../../Button.vue';
 import store from '@/store';
 import Config from '@/utils/Config';
+import router from '@/router';
 
 @Options({
 	props:{},
@@ -38,6 +43,9 @@ export default class SpotifyParams extends Vue {
 	public authenticating:boolean = false;
 
 	public get spotifyConnected():boolean { return store.state.spotifyAuthToken != null; }
+	public get overlayUrl():string {
+		return document.location.origin + router.resolve({name:"overlay", params:{id:"spotify"}}).fullPath;
+	}
 
 	public authenticate():void {
 		this.loading = true;
