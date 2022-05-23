@@ -20,13 +20,13 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ToggleBlock from '../../../ToggleBlock.vue';
-import SpotifyHelper from '@/utils/SpotifyHelper';
-import Button from '../../../Button.vue';
 import store from '@/store';
 import Config from '@/utils/Config';
-import router from '@/router';
+import SpotifyHelper from '@/utils/SpotifyHelper';
+import Utils from '@/utils/Utils';
+import { Options, Vue } from 'vue-class-component';
+import Button from '../../../Button.vue';
+import ToggleBlock from '../../../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -43,9 +43,7 @@ export default class SpotifyParams extends Vue {
 	public authenticating:boolean = false;
 
 	public get spotifyConnected():boolean { return store.state.spotifyAuthToken != null; }
-	public get overlayUrl():string {
-		return document.location.origin + router.resolve({name:"overlay", params:{id:"spotify"}}).fullPath;
-	}
+	public get overlayUrl():string { return Utils.getOverlayURL("spotify"); }
 
 	public authenticate():void {
 		this.loading = true;

@@ -678,6 +678,13 @@ export default createStore({
 							FFZUtils.instance.disable();
 						}
 					}
+					if(key=="sevenTVEmotes") {
+						if(v === true) {
+							SevenTVUtils.instance.enable();
+						}else{
+							SevenTVUtils.instance.disable();
+						}
+					}
 				}
 			}
 		},
@@ -932,9 +939,13 @@ export default createStore({
 			}
 			
 			//Init OBS connection
-			const port = Store.get("obsPort");
-			const pass = Store.get("obsPass");
-			const ip = Store.get("obsIP");
+			//If params are specified on URL, use them (used by overlays)
+			let port = Utils.getQueryParameterByName("obs_port");
+			if(!port) port = Store.get("obsPort");
+			let pass = Utils.getQueryParameterByName("obs_pass");
+			if(!pass) pass = Store.get("obsPass");
+			let ip = Utils.getQueryParameterByName("obs_ip");
+			if(!ip) ip = Store.get("obsIP");
 			if(port != undefined || pass != undefined || ip != undefined) {
 				OBSWebsocket.instance.connect(port, pass, true, ip? ip : "127.0.0.1");
 			}

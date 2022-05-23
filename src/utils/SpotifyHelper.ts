@@ -163,6 +163,7 @@ export default class SpotifyHelper {
 			}else{
 				//Broadcast to the overlays
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
+				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
 		}
 	}

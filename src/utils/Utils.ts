@@ -1,3 +1,5 @@
+import router from '@/router';
+import Store from '@/store/Store';
 import { ChatUserstate } from 'tmi.js';
 import store, { PermissionsData } from '../store';
 
@@ -227,5 +229,16 @@ export default class Utils {
 		}
 		this.cachedVars = oLess;
 		return oLess;
+	}
+
+	public static getOverlayURL(id:string):string {
+		const port = Store.get("obsPort");
+		const pass = Store.get("obsPass");
+		const ip = Store.get("obsIP");
+		const params = new URLSearchParams()
+		params.append("obs_port", port);
+		params.append("obs_pass", pass);
+		params.append("obs_ip", ip);
+		return document.location.origin + router.resolve({name:"overlay", params:{id:"spotify"}}).fullPath + "?" + params.toString();
 	}
 }
