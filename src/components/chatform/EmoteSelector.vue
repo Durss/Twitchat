@@ -24,7 +24,7 @@
 		</div>
 
 		<div class="list" v-if="users.length > 0 && !filter">
-			<div v-for="u in users" :key="u.id" class="item">
+			<div v-for="u in users" :key="u.user.id" class="item">
 				<div class="head">
 					<img :src="u.user.profile_image_url" alt="profile pic" class="avatar">
 					<div class="login">{{u.user.display_name}}</div>
