@@ -46,7 +46,23 @@ export default createStore({
 		emotesCache: [] as TwitchTypes.Emote[],
 		trackedUsers: [] as TwitchTypes.TrackedUser[],
 		onlineUsers: [] as string[],
-		raffle: {} as RaffleData,
+		raffle: null as RaffleData | null,
+		chatPoll: null as ChatPollData | null,
+		bingo: null as BingoData | null,
+		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
+		whispersUnreadCount: 0 as number,
+		hypeTrain: {} as HypeTrainStateData,
+		raiding: null as PubSubTypes.RaidInfos|null,
+		realHistorySize: 5000,
+		followingStates: {} as {[key:string]:boolean},
+		userPronouns: {} as {[key:string]:string},
+		playbackState: null as PubSubTypes.PlaybackInfo|null,
+		communityBoostState: null as PubSubTypes.CommunityBoost|null,
+		tempStoreValue: null as unknown,
+		obsSceneCommands: [] as OBSSceneCommand[],
+		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
+		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
+		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -69,22 +85,6 @@ export default createStore({
 				message:"/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 		} as IBotMessage,
-		chatPoll: null as ChatPollData | null,
-		bingo: {} as BingoData,
-		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
-		whispersUnreadCount: 0 as number,
-		hypeTrain: {} as HypeTrainStateData,
-		raiding: null as PubSubTypes.RaidInfos|null,
-		realHistorySize: 5000,
-		followingStates: {} as {[key:string]:boolean},
-		userPronouns: {} as {[key:string]:string},
-		playbackState: null as PubSubTypes.PlaybackInfo|null,
-		communityBoostState: null as PubSubTypes.CommunityBoost|null,
-		tempStoreValue: null as unknown,
-		obsSceneCommands: [] as OBSSceneCommand[],
-		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
-		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
-		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
 		commands: [
 			{
 				id:"updates",
@@ -717,6 +717,8 @@ export default createStore({
 			IRCClient.instance.sendMessage(message);
 		},
 
+		stopRaffle(state) { state.raffle = null; },
+
 		async startBingo(state, payload:BingoConfig) {
 			const min = payload.min as number;
 			const max = payload.max as number;
@@ -729,7 +731,6 @@ export default createStore({
 				guessEmote: payload.guessEmote,
 				numberValue: Math.round(Math.random() * (max-min) + min),
 				emoteValue: Utils.pickRand(emotes),
-				opened: true,
 				winners: [],
 			};
 			state.bingo = data;
@@ -744,6 +745,8 @@ export default createStore({
 			message = message.replace(/\{GOAL\}/gi, goal as string);
 			IRCClient.instance.sendMessage(message);
 		},
+
+		stopBingo(state) { state.bingo = null; },
 
 		closeWhispers(state, userID:string) {
 			const whispers = state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
@@ -1015,8 +1018,8 @@ export default createStore({
 				}
 				
 				//If a raffle is in progress, check if the user can enter
-				const raffle:RaffleData = state.raffle as RaffleData;
-				if(raffle.command && messageData.message?.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
+				const raffle = state.raffle;
+				if(raffle && messageData.message?.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 					//Check if within time frame and max users count isn't reached and that user
 					//hasn't already entered
@@ -1043,13 +1046,13 @@ export default createStore({
 				}
 
 				//If a bingo's in progress, check if the user won it
-				const bingo = state.bingo as BingoData;
-				if(bingo.opened === true && messageData.message && state.bingo.winners.length == 0) {
+				const bingo = state.bingo;
+				if(bingo && messageData.message && bingo.winners.length == 0) {
 					let win = bingo.numberValue && parseInt(messageData.message) == bingo.numberValue;
 					win ||= bingo.emoteValue
 					&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
 					if(win) {
-						state.bingo.winners = [messageData.tags];
+						bingo.winners = [messageData.tags];
 						if(state.botMessages.bingo) {
 							//TMI.js never cease to amaze me.
 							//It doesn't send the message back to the sender if sending
@@ -1064,7 +1067,7 @@ export default createStore({
 								//Post result on chat
 								const payload:IRCEventDataList.BingoResult = {
 									type:"bingo",
-									data:state.bingo,
+									data:state.bingo as BingoData,
 									tags: {
 										id:IRCClient.instance.getFakeGuid(),
 										"tmi-sent-ts": Date.now().toString()
@@ -1312,7 +1315,11 @@ export default createStore({
 
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 
+		stopRaffle({commit}) { commit("stopRaffle"); },
+
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
+
+		stopBingo({commit}) { commit("stopBingo"); },
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
@@ -1474,7 +1481,6 @@ export interface BingoData {
 	numberValue:number;
 	emoteValue:TwitchTypes.Emote;
 	winners:ChatUserstate[];
-	opened:boolean;
 }
 
 export interface ChatPollData {

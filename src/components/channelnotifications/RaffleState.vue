@@ -75,8 +75,8 @@ export default class RaffleState extends Vue {
 	}
 
 	public closeRaffle():void {
-		store.dispatch("startRaffle", {});
-		this.$emit("close")
+		store.dispatch("stopRaffle");
+		this.$emit("close");
 	}
 
 	public openUserCard(user:ChatUserstate):void {
