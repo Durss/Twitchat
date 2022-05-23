@@ -8,6 +8,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import SevenTVUtils from '@/utils/SevenTVUtils';
+import SpotifyHelper, { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
@@ -85,6 +86,8 @@ export default createStore({
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
+		spotifyAuthParams: null as SpotifyAuthResult|null,
+		spotifyAuthToken: null as SpotifyAuthToken|null,
 		commands: [
 			{
 				id:"updates",
@@ -847,8 +850,21 @@ export default createStore({
 			Store.set("botMessages", state.botMessages);
 		},
 
-		ahsInstaller(state, value:InstallHandler) {
-			state.ahsInstaller = value;
+		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
+
+		setSpotifyAuthResult(state, value:SpotifyAuthResult) { state.spotifyAuthParams = value; },
+		
+		setSpotifyToken(state, value:SpotifyAuthToken) {
+			if(value && !value.expires_at) {
+				value.expires_at = Date.now() + value.expires_in * 1000;
+			}
+			if(!value) {
+				Store.remove("spotifyAuthToken");
+			}else{
+				Store.set("spotifyAuthToken", value);
+			}
+			state.spotifyAuthToken = value;
+			SpotifyHelper.instance.token = value;
 		},
 
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
@@ -863,6 +879,7 @@ export default createStore({
 			const jsonConfigs = await res.json();
 			TwitchUtils.client_id = jsonConfigs.client_id;
 			Config.TWITCH_APP_SCOPES = jsonConfigs.scopes;
+			Config.SPOTIFY_CLIENT_ID = jsonConfigs.spotify_client_id;
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
@@ -965,6 +982,12 @@ export default createStore({
 				OBSWebsocket.instance.connect(port, pass, true, ip? ip : "127.0.0.1");
 			}
 			PublicAPI.instance.initialize();
+
+			//Init spotify connection
+			const spotifyAuthToken = Store.get("spotifyAuthToken");
+			if(spotifyAuthToken) {
+				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+			}
 
 			const token = Store.get("oAuthToken");
 			if(token) {
@@ -1345,6 +1368,10 @@ export default createStore({
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
 		ahsInstaller({commit}, value:InstallHandler) { commit("ahsInstaller", value); },
+
+		setSpotifyAuthResult({commit}, value:SpotifyAuthResult) { commit("setSpotifyAuthResult", value); },
+
+		setSpotifyToken({commit}, value:SpotifyAuthToken) { commit("setSpotifyToken", value); },
 
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);

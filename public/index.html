@@ -24,7 +24,7 @@
 	<meta name="robots" content="index, follow">
 	<link rel="author" href="https://www.durss.ninja" />
 	<link rel="canonical" href="https://twitchat.fr/">
-	<link rel="manifest" href="manifest.json">
+	<link rel="manifest" href="/manifest.json">
 	<style>
 		body {
 			background-color: #0e0e10;
@@ -38,16 +38,6 @@
 			height: 80px;
 		}
 	</style>
-	<script type="text/javascript">
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('service-worker.js')
-			.then((reg) => {
-				console.log("Service worker registered");
-			}).catch((err) => {
-				console.log("Service worker registration failed:" + err);
-			});
-		}
-	</script>
 </head>
 
 <body>
@@ -58,6 +48,31 @@
 		<img src="/loader_white.svg" alt="loader" class="loader-init">
 	</div>
 	<!-- built files will be auto injected -->
+
+	<script type="text/javascript">
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/service-worker.js')
+			.then((reg) => {
+				console.log("Service worker registered");
+			}).catch((err) => {
+				console.log("Service worker registration failed:" + err);
+			});
+		}
+
+		//Force transparent background for specifc routes.
+		//This is also done on vue's side but we want it to be active
+		//when vue is loading as well for these routes so we don't have
+		//a black screen showing up.
+		const noBgPaths = ["overlay/*"]
+		const url = document.location.pathname;
+		for (let i = 0; i < noBgPaths.length; i++) {
+			const p = noBgPaths[i];
+			if(new RegExp(p).test(url)) {
+				document.body.style.backgroundColor = "transparent";
+				break;
+			}
+		}
+	</script>
 </body>
 
 </html>

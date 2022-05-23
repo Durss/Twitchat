@@ -7,6 +7,7 @@ import './less/index.less';
 import router from './router';
 import store from './store';
 import { TwitchTypes } from './utils/TwitchUtils';
+import Utils from './utils/Utils';
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -40,6 +41,12 @@ async function scheduleTokenRefresh():Promise<void> {
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
 	const needAuth = to.meta.needAuth;
 	const publicRoute = to.meta.public;
+	const transparent = to.meta.noBG;
+	if(transparent) {
+		document.body.style.backgroundColor = "transparent";
+	}else{
+		document.body.style.backgroundColor = Utils.getLessVars().mainColor_dark as string;
+	}
 	
 	if (!store.state.initComplete) {
 		try {
@@ -60,7 +67,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	}
 	
 	if(!needAuth && publicRoute !== true) {
-		//Already authenticated, reroute to home
+		//Already authenticated, reroute to chat
 		next({name: 'chat'});
 		return;
 	}
@@ -69,6 +76,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 		tokenRefreshScheduled = true;
 		scheduleTokenRefresh();
 	}
+	
 	next();
 });
 

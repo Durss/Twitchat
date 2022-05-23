@@ -50,7 +50,7 @@ http.createServer((request, response) => {
 			//Get client ID
 			if(endpoint == "/api/configs") {
 				response.writeHead(200, {'Content-Type': 'application/json'});
-				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes}));
+				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes, spotify_client_id:credentials.spotify_client_id}));
 				return;
 		
 			//Get/Set user data
@@ -81,6 +81,16 @@ http.createServer((request, response) => {
 			//Get users
 			}else if(endpoint == "/api/users") {
 				getUsers(request, response);
+				return;
+
+			//Get spotify token
+			}else if(endpoint == "/api/spotify/auth") {
+				spotifyAuthenticate(request, response);
+				return;
+
+			//Rrefresh spotify access_token
+			}else if(endpoint == "/api/spotify/refresh_token") {
+				spotifyRefreshToken(request, response);
 				return;
 			
 			//Endpoint not found
@@ -342,6 +352,73 @@ async function getUsers(request, response) {
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify({success:true, users}));
+}
+
+/**
+ * Authenticate a spotify user from its auth_code
+ */
+async function spotifyAuthenticate(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+
+	const options = {
+		method:"POST",
+		headers: {
+			"Authorization": "Basic "+Buffer.from(credentials.spotify_client_id+":"+credentials.spotify_client_secret).toString('base64'),
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		body: new URLSearchParams({
+			'grant_type': 'authorization_code',
+			'code': params.code,
+			'redirect_uri': credentials.spotify_redirect_uri,
+		})
+	}
+	
+	let json;
+	try {
+		let res = await fetch("https://accounts.spotify.com/api/token", options);
+		json = await res.json();
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		console.log(error);
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify(json));
+}
+
+/**
+ * Refreshes a spotify access token
+ */
+async function spotifyRefreshToken(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+
+	const options = {
+		method:"POST",
+		headers: {
+			"Authorization": "Basic "+Buffer.from(credentials.spotify_client_id+":"+credentials.spotify_client_secret).toString('base64'),
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		body: new URLSearchParams({
+			'grant_type': 'refresh_token',
+			'refresh_token': params.refresh_token,
+		})
+	}
+	
+	let json;
+	try {
+		let res = await fetch("https://accounts.spotify.com/api/token", options);
+		json = await res.json();
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		console.log(error);
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify(json));
 }
 
 

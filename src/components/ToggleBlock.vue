@@ -133,7 +133,6 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
-
 	&.closed {
 		.header {
 			border-bottom: none;
@@ -283,7 +282,7 @@ export default class ToggleBlock extends Vue {
 		border-bottom-left-radius: 1em;
 		border-bottom-right-radius: 1em;
 		&>:deep(img) {
-			margin: .5em 0;
+			margin: .5em auto;
 			max-width: 100%;
 		}
 	}

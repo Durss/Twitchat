@@ -11,6 +11,7 @@
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
+				<Button white bounce title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
@@ -25,6 +26,7 @@
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
 				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
+				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
@@ -40,7 +42,7 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | null ;
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'overlays' | 'streamdeck' | null ;
 
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
@@ -56,6 +58,7 @@ import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
+import ParamsOverlays from './contents/ParamsOverlays.vue';
 
 @Options({
 	props:{},
@@ -68,8 +71,9 @@ import ParamItem from './ParamItem.vue';
 		ToggleButton,
 		ParamsAccount,
 		ParamsSponsor,
-		ParamsStreamdeck,
+		ParamsOverlays,
 		OBSEventsAction,
+		ParamsStreamdeck,
 	}
 })
 
@@ -92,6 +96,7 @@ export default class Parameters extends Vue {
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
+			console.log(v);
 			this.content = v.replace("CONTENT:", "") as ParamsContenType;
 			store.state.tempStoreValue = null;
 
@@ -103,7 +108,6 @@ export default class Parameters extends Vue {
 				const paramKey = chunks[1];
 				this.search = store.state.params[cat][paramKey].label;
 			}
-
 		}
 	}
 

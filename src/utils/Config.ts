@@ -8,6 +8,7 @@ export default class Config {
 	public static DISCORD_URL:string = "https://discord.gg/fmqD2xUYvP";
 	public static OBS_WEBSOCKET_INSTALLER:string = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1";
 	public static MAX_PREDICTION_OUTCOMES:number = 10;
+	public static SPOTIFY_CLIENT_ID:string = "";
 
 	public static SERVER_PORT:number = 3018;
 	public static get API_PATH():string {

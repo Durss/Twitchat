@@ -34,13 +34,13 @@ export default class App extends Vue {
 
 	public get classes():string[] {
 		let res = ["app"];
-		if(this.$route.meta.noBG === true) res.push("noBG");
 		if(this.$route.meta.overflow === true) res.push("overflow");
 		res.push("messageSize_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 
-	public mounted():void {}
+	public mounted():void {
+	}
 
 }
 </script>
@@ -54,17 +54,6 @@ export default class App extends Vue {
 
 	&.overflow {
 		overflow: auto;
-	}
-
-	&:not(.noBG) {
-		background-color: @mainColor_dark;
-	}
-
-	.loader {
-		.center();
-		position: absolute;
-		width: 80px;
-		height: 80px;
 	}
 
 	&.messageSize_1 {
