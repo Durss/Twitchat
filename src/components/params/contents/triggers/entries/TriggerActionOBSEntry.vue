@@ -1,139 +1,71 @@
 <template>
-	<ToggleBlock
-	orderable
-	deletable
-	medium
-	:error="isMissingObsEntry"
-	:errorTitle="errorTitle"
-	:open="opened"
-	:title="title" :class="classes"
-	@delete="$emit('delete')"
-	:icon="show_conf.value? 'show' : 'hide'">
-		<form @submit.prevent="onSubmit()">
-			<ParamItem class="item source" :paramData="source_conf" />
-			<ParamItem class="item show" :paramData="show_conf" />
-			<ParamItem class="item text" :paramData="text_conf" v-if="isTextSource" ref="textContent" />
-			<ParamItem class="item url" :paramData="url_conf" v-if="isBrowserSource" ref="textContent" />
-			<ParamItem class="item file" :paramData="media_conf" v-if="isMediaSource" ref="textContent" />
-			<ToggleBlock small class="helper"
-				v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
-				title="Special placeholders dynamically replaced"
-				:open="false"
-			>
-				<ul class="list">
-					<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
-						<strong>&#123;{{h.tag}}&#125;</strong>
-						{{h.desc}}
-					</li>
-				</ul>
-			</ToggleBlock>
-			<ParamItem class="item delay" :paramData="delay_conf" />
-			
-			<Button type="submit"
-				title="Save"
-				v-if="isChange"
-				class="saveBt"
-				:icon="require('@/assets/icons/save.svg')"
-				:disabled="!canSubmit"
-			/>
-		</form>
-	</ToggleBlock>
+	<div :class="classes">
+		<ParamItem class="item source" :paramData="source_conf" />
+		<ParamItem class="item show" :paramData="show_conf" />
+		<ParamItem class="item text" :paramData="text_conf" v-if="isTextSource" ref="textContent" />
+		<ParamItem class="item url" :paramData="url_conf" v-if="isBrowserSource" ref="textContent" />
+		<ParamItem class="item file" :paramData="media_conf" v-if="isMediaSource" ref="textContent" />
+		<ToggleBlock small class="helper"
+			v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
+			title="Special placeholders dynamically replaced"
+			:open="false"
+		>
+			<ul class="list">
+				<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
+					<strong>&#123;{{h.tag}}&#125;</strong>
+					{{h.desc}}
+				</li>
+			</ul>
+		</ToggleBlock>
+	</div>
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { OBSEventActionData, ParameterData, ParameterDataListValue } from '@/store';
-import { OBSEventActionHelpers } from '@/utils/OBSEventActionHandler';
+import { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/store';
 import OBSWebsocket, { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
-import { watch } from '@vue/runtime-core';
+import { TriggerActionHelpers } from '@/utils/TriggerActionHandler';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import ParamItem from '../../ParamItem.vue';
 
 @Options({
 	props:{
 		action:Object,
 		sources:Object,
-		index:Number,
 		event:String,
 	},
 	components:{
-		Button,
 		ParamItem,
 		ToggleBlock,
-	},
-	emits:["delete", "update"]
+	}
 })
-export default class OBSEventsActionEntry extends Vue {
+export default class TriggerActionOBSEntry extends Vue {
 
-	public action!:OBSEventActionData;
+	public action!:TriggerActionObsData;
 	public sources!:OBSSourceItem[];
-	public index!:number;
 	public event!:string;
 
-	public opened:boolean = false;
-	public isMissingObsEntry:boolean = false;
-
-	private filters:OBSFilter[] = [];
 	private showHideValues:ParameterDataListValue[] = [
 		{label:"Hide", value:false},
 		{label:"Show", value:true},
 	];
 	
+	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
 	public source_conf:ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
 	public filter_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
-	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
-	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
 	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
 	public media_conf:ParameterData = { label:"Media file", type:"browse", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
-
-	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return OBSEventActionHelpers; }
-
-	public get errorTitle():string {
-		let res = "ERROR - MISSING OBS SOURCE";
-		res += "<br><span class='subtitle'>";
-		res += this.action.sourceName;
-		res += "</span>";
-		
-		return res;
-	}
+	public isMissingObsEntry:boolean = false;
+	
+	private filters:OBSFilter[] = [];
+	
+	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return TriggerActionHelpers; }
 
 	public get classes():string[] {
-		const res = ["OBSEventsActionEntry"];
+		const res = ["triggeractionobsentry"];
 		if(this.isMissingObsEntry) res.push("missingSource");
-		return res;
-	}
-
-	/**
-	 * Get block's title
-	 */
-	public get title():string {
-		let res = 'Step '+(this.index+1);
-		return res+this.subtitle;
-	}
-
-	/**
-	 * Get block's subtitle
-	 */
-	public get subtitle():string {
-		let res = "";
-		const chunks:string[] = [];
-		if(this.source_conf.value) {
-			let sourceName = this.source_conf.value as string;
-			sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-			chunks.push(sourceName);
-		}
-		if(this.filter_conf.value) {
-			let filterName = this.filter_conf.value as string;
-			filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-			chunks.push(filterName);
-		}
-		if(chunks.length > 0) {
-			res += "<br><span class='subtitle'>";
-			res += chunks.join(" -> ");
-			res += "</span>";
-		}
 		return res;
 	}
 
@@ -163,7 +95,6 @@ export default class OBSEventsActionEntry extends Vue {
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source")
 				&& this.show_conf.value === true;
 	}
-
 	/**
 	 * Can submit form ?
 	 */
@@ -172,42 +103,19 @@ export default class OBSEventsActionEntry extends Vue {
 	public get isChange():boolean {
 		return this.action.sourceName != this.source_conf.value
 		|| this.action.filterName != this.filter_conf.value
-		|| this.action.delay != this.delay_conf.value
 		|| this.action.text != this.text_conf.value
 		|| this.action.url != this.url_conf.value
 		|| this.action.mediaPath != this.media_conf.value
 		|| this.action.show != this.show_conf.value;
 	}
 
-	public async beforeMount():Promise<void> {
-		this.opened = this.action.sourceName == "";
-	}
-
 	public async mounted():Promise<void> {
-		//TODO remove
-		// this.source_conf.value = this.sources.find(v => v.inputKind === 'text_gdiplus_v2')?.sourceName as string;
-		
-
 		//Prefill forms
 		this.prefillForm();
 
 		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
-	}
-
-	/**
-	 * Called when submitting the form
-	 */
-	public onSubmit():void {
-		this.action.sourceName = this.source_conf.value as string;
-		this.action.filterName = this.filter_conf.value as string;
-		this.action.delay = this.delay_conf.value as number;
-		this.action.text = this.text_conf.value as string;
-		this.action.show = this.show_conf.value as boolean;
-		this.action.url = this.url_conf.value as string;
-		this.action.mediaPath = this.media_conf.value as string;
-		this.$emit("update");
 	}
 
 	/**
@@ -248,7 +156,6 @@ export default class OBSEventsActionEntry extends Vue {
 				this.isMissingObsEntry = true;
 			}
 		}
-		if(this.action.delay != undefined) this.delay_conf.value = this.action.delay;
 		if(this.action.text != undefined) this.text_conf.value = this.action.text;
 		if(this.action.show != undefined) this.show_conf.value = this.action.show;
 		if(this.action.url != undefined) this.url_conf.value = this.action.url;
@@ -258,7 +165,6 @@ export default class OBSEventsActionEntry extends Vue {
 		//This allows to hide the "save" button until something is changed
 		if(this.action.sourceName == undefined) this.action.sourceName = this.source_conf.value as string;
 		if(this.action.filterName == undefined) this.action.filterName = this.filter_conf.value as string;
-		if(this.action.delay == undefined) this.action.delay = this.delay_conf.value as number;
 		if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
 		if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
 		if(this.action.url == undefined) this.action.url = this.url_conf.value as string;
@@ -306,78 +212,6 @@ export default class OBSEventsActionEntry extends Vue {
 </script>
 
 <style scoped lang="less">
-.OBSEventsActionEntry{
-	:deep(.header) {
-		.subtitle {
-			font-size: .7em;
-			font-weight: normal;
-			vertical-align: middle;
-			font-style: italic;
-		}
-		&>.icon {
-			height: 1.5em !important;
-			width: unset !important;
-			vertical-align: middle;
-		}
-	}
-
-	&.missingSource {
-		.source {
-			padding: .25em;
-			border-radius: .5em;
-			border: 2px dashed @mainColor_alert;
-			background-color: fade(@mainColor_alert, 35%);
-		}
-	}
-
-	.item:not(:first-of-type) {
-		margin-top: .25em;
-	}
-
-	.delay, .show {
-		:deep(input){
-			width: 90px;
-			flex-grow: unset;
-			min-width: unset;
-		}
-	}
-
-	.url {
-		:deep(input){
-			text-align: left;
-			width: auto;
-			max-width: unset;
-		}
-	}
-
-	.helper {
-		font-size: .8em;
-		padding-left: 2em;
-		.list {
-			list-style-type: none;
-			// padding-left: 1em;
-			li {
-				padding: .25em;
-				cursor: pointer;
-				&:hover {
-					background-color: fade(@mainColor_normal, 10%);
-				}
-				&:not(:last-child) {
-					border-bottom: 1px solid @mainColor_normal;
-				}
-				strong {
-					display: inline-block;
-					min-width: 82px;
-					border-right: 1px solid @mainColor_normal;
-				}
-			}
-		}
-	}
-
-	.saveBt {
-		display: block;
-		margin: auto;
-		margin-top: .5em;
-	}
+.triggeractionobsentry{
 }
 </style>

@@ -80,7 +80,7 @@
 		:open="true"
 		icon="broadcast_purple"
 		title="Twitchat triggers">
-			<OBSEventsAction />
+			<TriggerActionList />
 		</ToggleBlock>
 	</div>
 </template>
@@ -98,8 +98,8 @@ import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSPermissions from './obs/OBSPermissions.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import OBSEventsAction from './obs/OBSEventsAction.vue';
 import OBSFilters from './obs/OBSFilters.vue';
+import TriggerActionList from './triggers/TriggerActionList.vue';
 
 
 @Options({
@@ -110,8 +110,8 @@ import OBSFilters from './obs/OBSFilters.vue';
 		OBSScenes,
 		OBSFilters,
 		ToggleBlock,
-		OBSEventsAction,
 		OBSPermissions,
+		TriggerActionList,
 		OBSAudioSourceForm,
 	},
 	emits:['setContent']

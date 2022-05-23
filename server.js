@@ -470,7 +470,7 @@ const UserDataSchema = {
 				}
 			]
 		},
-		obsConf_sources: {
+		triggers: {
 			type:["object"],
 			additionalProperties: true,
 			patternProperties: {

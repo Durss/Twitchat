@@ -235,7 +235,7 @@ export default class ToggleBlock extends Vue {
 			padding: .5em;
 			border-bottom-left-radius: @radius;
 			border-bottom-right-radius: @radius;
-			background-color: #f2eef8;
+			// background-color: #f2eef8;
 		}
 	}
 

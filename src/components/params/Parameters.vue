@@ -11,8 +11,9 @@
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
-				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
+				<Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
+				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 			</div>
 			<div class="search" v-if="isGenericListContent">
@@ -23,8 +24,9 @@
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
+				<TriggerActionList v-if="content == 'eventsAction'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
+				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
@@ -40,7 +42,7 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | null ;
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | null ;
 
 import store, { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
@@ -48,7 +50,6 @@ import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
-import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsList from './contents/ParamsList.vue';
@@ -56,6 +57,8 @@ import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
+import ParamsTriggers from './contents/ParamsTriggers.vue';
+import TriggerActionList from './contents/triggers/TriggerActionList.vue';
 
 @Options({
 	props:{},
@@ -68,8 +71,9 @@ import ParamItem from './ParamItem.vue';
 		ToggleButton,
 		ParamsAccount,
 		ParamsSponsor,
+		ParamsTriggers,
 		ParamsStreamdeck,
-		OBSEventsAction,
+		TriggerActionList,
 	}
 })
 
