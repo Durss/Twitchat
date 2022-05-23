@@ -24,7 +24,7 @@
 		</div>
 
 		<div class="list" v-if="users.length > 0 && !filter">
-			<div v-for="u in users" :key="u.id" class="item">
+			<div v-for="u in users" :key="u.user.id" class="item">
 				<div class="head">
 					<img :src="u.user.profile_image_url" alt="profile pic" class="avatar">
 					<div class="login">{{u.user.display_name}}</div>
@@ -92,6 +92,8 @@ export default class EmoteSelector extends Vue {
 			const userList = await TwitchUtils.loadUserInfo(users.map(v => v.owner_id));
 			//Sort them by name
 			userList.sort((a, b) => a.display_name > b.display_name?  1 : -1);
+			//Bring self to top
+			userList.sort(a => a.id === store.state.user.user_id?  -1 : 0);
 			//Build a fast access object to know the index of a user from its ID.
 			const uidToIndex:{[key:string]:number} = {};
 			for (let i = 0; i < userList.length; i++) {
