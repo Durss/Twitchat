@@ -675,6 +675,13 @@ export default createStore({
 							FFZUtils.instance.disable();
 						}
 					}
+					if(key=="sevenTVEmotes") {
+						if(v === true) {
+							SevenTVUtils.instance.enable();
+						}else{
+							SevenTVUtils.instance.disable();
+						}
+					}
 				}
 			}
 		},
