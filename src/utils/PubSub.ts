@@ -56,11 +56,8 @@ export default class PubSub extends EventDispatcher{
 			}, 60000*2.5);
 
 			const uid = store.state.user.user_id;
-			const uidTest = IRCClient.instance.debugMode? "43809079" : uid;//Subscribe to someone else's channel point events
-			
-			this.subscribe([
+			const subscriptions = [
 				"channel-points-channel-v1."+uid,
-				"community-points-channel-v1."+uidTest,
 				"chat_moderator_actions."+uid+"."+uid,
 				"automod-queue."+uid+"."+uid,
 				"user-moderation-notifications."+uid+"."+uid,
@@ -79,7 +76,13 @@ export default class PubSub extends EventDispatcher{
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
-			]);
+			];
+			if(IRCClient.instance.debugMode) {
+				//Subscribe to someone else's channel points
+				const uidTest = "43809079";
+				subscriptions.push("community-points-channel-v1."+uidTest)
+			}
+			this.subscribe(subscriptions);
 		};
 		
 		this.socket.onmessage = (event:unknown) => {
