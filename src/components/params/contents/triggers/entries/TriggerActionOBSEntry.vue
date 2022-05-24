@@ -1,10 +1,18 @@
 <template>
-	<div :class="classes">
-		<ParamItem class="item source" :paramData="source_conf" />
-		<ParamItem class="item show" :paramData="show_conf" />
-		<ParamItem class="item text" :paramData="text_conf" v-if="isTextSource" ref="textContent" />
-		<ParamItem class="item url" :paramData="url_conf" v-if="isBrowserSource" ref="textContent" />
-		<ParamItem class="item file" :paramData="media_conf" v-if="isMediaSource" ref="textContent" />
+	<div :class="classes" v-if="!obsConnected">
+		<div class="info">
+			<img src="@/assets/icons/infos.svg" alt="info">
+			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
+		</div>
+	</div>
+
+	<div :class="classes" v-if="obsConnected">
+	{{action}}
+		<ParamItem class="item source" :paramData="source_conf" v-model="action.sourceName" />
+		<ParamItem class="item show" :paramData="show_conf" v-model="action.show" />
+		<ParamItem class="item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
+		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
+		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
 		<ToggleBlock small class="helper"
 			v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
 			title="Special placeholders dynamically replaced"
@@ -38,7 +46,8 @@ import { Options, Vue } from 'vue-class-component';
 	components:{
 		ParamItem,
 		ToggleBlock,
-	}
+	},
+	emits:["setContent"]
 })
 export default class TriggerActionOBSEntry extends Vue {
 
@@ -54,13 +63,15 @@ export default class TriggerActionOBSEntry extends Vue {
 	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
 	public source_conf:ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
 	public filter_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
-	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"timeout_purple.svg" };
+	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
 	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
 	public media_conf:ParameterData = { label:"Media file", type:"browse", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry:boolean = false;
 	
 	private filters:OBSFilter[] = [];
 	
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+
 	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return TriggerActionHelpers; }
 
 	public get classes():string[] {
@@ -94,19 +105,6 @@ export default class TriggerActionOBSEntry extends Vue {
 		if(inputKind === "image_source") this.media_conf.label = "Image file";
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source")
 				&& this.show_conf.value === true;
-	}
-	/**
-	 * Can submit form ?
-	 */
-	public get canSubmit():boolean { return this.source_conf.value != ""; }
-	
-	public get isChange():boolean {
-		return this.action.sourceName != this.source_conf.value
-		|| this.action.filterName != this.filter_conf.value
-		|| this.action.text != this.text_conf.value
-		|| this.action.url != this.url_conf.value
-		|| this.action.mediaPath != this.media_conf.value
-		|| this.action.show != this.show_conf.value;
 	}
 
 	public async mounted():Promise<void> {
@@ -203,8 +201,10 @@ export default class TriggerActionOBSEntry extends Vue {
 		if(this.source_conf.children && this.source_conf.children?.length > 0
 		&& this.filter_conf.value != "") {
 			this.show_conf.label = "Filter visibility";
+			this.action.filterName = this.filter_conf.value as string;
 		}else{
 			this.show_conf.label = "Source visibility";
+			delete this.action.filterName;
 		}
 	}
 
@@ -213,5 +213,47 @@ export default class TriggerActionOBSEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionobsentry{
+	.helper {
+		font-size: .8em;
+		padding-left: 2em;
+		.list {
+			list-style-type: none;
+			// padding-left: 1em;
+			li {
+				padding: .25em;
+				cursor: pointer;
+				&:hover {
+					background-color: fade(@mainColor_normal, 10%);
+				}
+				&:not(:last-child) {
+					border-bottom: 1px solid @mainColor_normal;
+				}
+				strong {
+					display: inline-block;
+					min-width: 82px;
+					border-right: 1px solid @mainColor_normal;
+				}
+			}
+		}
+	}
+
+
+	.info {
+		overflow: hidden;
+		padding: .5em;
+		padding-left: calc(1em + 10px);
+		background-color: @mainColor_light;
+		border-radius: .5em;
+		img {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
+		}
+
+		.label {
+			display: inline;
+			color: @mainColor_warn;
+		}
+	}
 }
 </style>

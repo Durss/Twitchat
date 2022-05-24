@@ -8,20 +8,20 @@
 	:open="opened"
 	:title="title" :class="classes"
 	@delete="$emit('delete')"
+	:icon="icon"
 	>
-	<!-- :icon="show_conf.value? 'show' : 'hide'" -->
 		<form @submit.prevent="onSubmit()">
-			<TriggerActionOBSEntry :action="action" :sources="sources" :event="event" />
+			<div v-if="action.type===''" class="typeSelector">
+				<div class="info">Select the action type to execute</div>
+				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="require('@/assets/icons/whispers_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="require('@/assets/icons/obs_purple.svg')"/>
+			</div>
 
-			<ParamItem class="item delay" :paramData="delay_conf" />
-			
-			<Button type="submit"
-				title="Save"
-				v-if="isChange"
-				class="saveBt"
-				:icon="require('@/assets/icons/save.svg')"
-				:disabled="!canSubmit"
-			/>
+			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
+			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
+
+			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==''" v-model="action.delay" />
+
 		</form>
 	</ToggleBlock>
 </template>
@@ -34,6 +34,7 @@ import { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
+import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 
 @Options({
 	props:{
@@ -47,8 +48,9 @@ import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 		ParamItem,
 		ToggleBlock,
 		TriggerActionOBSEntry,
+		TriggerActionChatEntry,
 	},
-	emits:["delete", "update"]
+	emits:["delete", "update", "setContent"]
 })
 export default class TriggerActionEntry extends Vue {
 
@@ -86,41 +88,47 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	public get title():string {
 		let res = 'Step '+(this.index+1);
+		if(this.action.delay > 0) {
+			res += " <span class='subtitle'>(⏳"+this.action.delay+"s)</span>";
+		}
 		return res+this.subtitle;
+	}
+
+	/**
+	 * Get block's icon
+	 */
+	public get icon():string {
+		if(this.action.type == "obs") {
+			return  this.action.show? 'show' : 'hide'
+		}
+		return "";
 	}
 
 	/**
 	 * Get block's subtitle
 	 */
 	public get subtitle():string {
-		return "TODO"
-		// let res = "";
-		// const chunks:string[] = [];
-		// if(this.source_conf.value) {
-		// 	let sourceName = this.source_conf.value as string;
-		// 	sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		// 	chunks.push(sourceName);
-		// }
-		// if(this.filter_conf.value) {
-		// 	let filterName = this.filter_conf.value as string;
-		// 	filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		// 	chunks.push(filterName);
-		// }
-		// if(chunks.length > 0) {
-		// 	res += "<br><span class='subtitle'>";
-		// 	res += chunks.join(" -> ");
-		// 	res += "</span>";
-		// }
-		// return res;
-	}
-	/**
-	 * Can submit form ?
-	 */
-	public get canSubmit():boolean { return true;} //TODO
-	
-	public get isChange():boolean {
-		return this.action.delay != this.delay_conf.value
-		//TODO
+		let res = "";
+		const chunks:string[] = [];
+		if(this.action.type == "obs") {
+
+			if(this.action.sourceName) {
+				let sourceName = this.action.sourceName;
+				sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				chunks.push(sourceName);
+			}
+			if(this.action.filterName) {
+				let filterName = this.action.filterName;
+				filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				chunks.push(filterName);
+			}
+		}
+		if(chunks.length > 0) {
+			res += "<br><span class='subtitle'>";
+			res += chunks.join(" -> ");
+			res += "</span>";
+		}
+		return res;
 	}
 
 	public async beforeMount():Promise<void> {
@@ -135,7 +143,7 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	public onSubmit():void {
 		//TODO
-		this.action.delay = this.delay_conf.value as number;
+		// this.action.delay = this.delay_conf.value as number;
 		// this.action.sourceName = this.source_conf.value as string;
 		// this.action.filterName = this.filter_conf.value as string;
 		// this.action.text = this.text_conf.value as string;
@@ -143,6 +151,10 @@ export default class TriggerActionEntry extends Vue {
 		// this.action.url = this.url_conf.value as string;
 		// this.action.mediaPath = this.media_conf.value as string;
 		this.$emit("update");
+	}
+
+	public selectActionType(type:'obs'|'chat'):void {
+		this.action.type = type
 	}
 
 }
@@ -172,6 +184,19 @@ export default class TriggerActionEntry extends Vue {
 		}
 	}
 
+	.typeSelector {
+		display: flex;
+		flex-direction: column;
+		.info {
+			align-self: center;
+			font-weight: bold;
+			margin-bottom: .5em;
+		}
+		.button:not(:last-child) {
+			margin-bottom: .25em;
+		}
+	}
+
 	.item:not(:first-of-type) {
 		margin-top: .25em;
 	}
@@ -191,31 +216,6 @@ export default class TriggerActionEntry extends Vue {
 			max-width: unset;
 		}
 	}
-
-	.helper {
-		font-size: .8em;
-		padding-left: 2em;
-		.list {
-			list-style-type: none;
-			// padding-left: 1em;
-			li {
-				padding: .25em;
-				cursor: pointer;
-				&:hover {
-					background-color: fade(@mainColor_normal, 10%);
-				}
-				&:not(:last-child) {
-					border-bottom: 1px solid @mainColor_normal;
-				}
-				strong {
-					display: inline-block;
-					min-width: 82px;
-					border-right: 1px solid @mainColor_normal;
-				}
-			}
-		}
-	}
-
 	.saveBt {
 		display: block;
 		margin: auto;

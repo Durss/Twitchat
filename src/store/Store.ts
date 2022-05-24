@@ -247,7 +247,7 @@ export default class Store {
 					for (const prop in typedList[i]) {
 						//@ts-ignore
 						const v = typedList[i][prop];
-						if(v == "") {
+						if(v === "") {
 							//@ts-ignore
 							delete typedList[i][prop];
 						}

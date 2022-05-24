@@ -7,6 +7,7 @@
 				warn
 				v-if="orderable!==false"
 				@mousedown="$emit('startDrag', $event)"
+				data-tooltip="Drag to sort"
 			/>
 			<img :src="require('@/assets/icons/'+localIcon+'.svg')" :alt="localIcon" class="icon" v-if="localIcon">
 			<h2 v-html="localTitle"></h2>

@@ -1,7 +1,7 @@
 <template>
 	<div class="TriggerAction">
-		<p class="header">Automatically show/hide OBS sources and filters when a specific Twitchat events occurs<br></p>
-		<p class="useCase"><strong>Use case examples :</strong> display an overlay when someone writes on your chat for the first time, when someone subs, when a poll completes, ...</p>
+		<p class="header">Execute custom actions based on twitch events.<br></p>
+		<p class="useCase"><strong>Use case examples :</strong> create chat coommands; control your OBS sources and filters when someone subs, a poll starts, ...</p>
 
 		<ParamItem :paramData="event_conf" />
 		<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1" />
@@ -33,6 +33,7 @@
 					:event="event_conf.value"
 					@delete="deleteAction(element, index)"
 					@update="saveData()"
+					@setContent="(v:string)=>$emit('setContent', v)"
 				/>
 			</template>
 		</draggable>
@@ -76,7 +77,7 @@ import TriggerActionEntry from './TriggerActionEntry.vue';
 		TriggerActionEntry,
 		TriggerActionChatCommandParams,
 	},
-	emits:[]
+	emits:["setContent"]
 })
 export default class TriggerActionList extends Vue {
 	public actionList:TriggerActionTypes[] = [];
@@ -99,14 +100,15 @@ export default class TriggerActionList extends Vue {
 	public get canTestAction():boolean {
 		let canTest = false;
 		for (let i = 0; i < this.actionList.length; i++) {
-			// const a = this.actionList[i];
-			// if(!a.sourceName) break;//TODO
+			const a = this.actionList[i];
+			if(a.type === "") break;
 			canTest = true;
+			break;
 		}
 		return canTest;
 	}
 	
-	public async mounted():Promise<void> {draggable
+	public async mounted():Promise<void> {
 		watch(()=> OBSWebsocket.instance.connected, () => { this.listSources(); });
 		watch(()=> this.event_conf.value, () => { this.onSelectTrigger(); });
 		watch(()=> this.subevent_conf.value, () => { this.onSelectTrigger(true); });
@@ -168,7 +170,7 @@ export default class TriggerActionList extends Vue {
 	public saveData():void {
 		let key = this.event_conf.value as string;
 		let subkey = this.subevent_conf.value as string;
-		let data:unknown = this.actionList;
+		let data:TriggerActionTypes[]|TriggerActionChatCommandData = this.actionList;
 		if(this.isChatCmd) {
 			subkey = this.actionCategory.chatCommand;
 			this.actionCategory.actions = this.actionList as TriggerActionTypes[];

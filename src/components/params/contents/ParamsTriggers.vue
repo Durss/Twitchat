@@ -1,6 +1,6 @@
 <template>
 	<div class="paramstriggers">
-		<TriggerActionList />
+		<TriggerActionList @setContent="(v:string)=>$emit('setContent', v)" />
 	</div>
 </template>
 
