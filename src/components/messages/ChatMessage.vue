@@ -118,7 +118,7 @@ export default class ChatMessage extends Vue {
 
 	public get pronoun():string|null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
-		if(!key) return null;
+		if(!key || typeof key != "string") return null;
 		const hashmap:{[key:string]:string} = {
 			// https://pronouns.alejo.io
 			"aeaer" : "Ae/Aer",
@@ -159,7 +159,7 @@ export default class ChatMessage extends Vue {
 
 	public get pronounLabel(): string | null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
-		if(!key) return null;
+		if(!key || typeof key != "string") return null;
 
 		const hashmap: {[key: string]: string} = {
 			// https://pronoundb.org
