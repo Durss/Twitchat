@@ -1,4 +1,4 @@
-import store, { OBSEventActionData, OBSEventActionDataCategory } from '@/store';
+import store, { TriggerActionTypes, TriggerActionChatCommandData } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket, { OBSTriggerEventTypes } from '@/utils/OBSWebsocket';
 import TwitchUtils from './TwitchUtils';
@@ -7,9 +7,9 @@ import Utils from './Utils';
 /**
 * Created : 22/04/2022 
 */
-export default class OBSEventActionHandler {
+export default class TriggerActionHandler {
 
-	private static _instance:OBSEventActionHandler;
+	private static _instance:TriggerActionHandler;
 
 	private actionsSpool:MessageTypes[] = [];
 	private userCooldowns:{[key:string]:number} = {};
@@ -23,12 +23,12 @@ export default class OBSEventActionHandler {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():OBSEventActionHandler {
-		if(!OBSEventActionHandler._instance) {
-			OBSEventActionHandler._instance = new OBSEventActionHandler();
-			OBSEventActionHandler._instance.initialize();
+	static get instance():TriggerActionHandler {
+		if(!TriggerActionHandler._instance) {
+			TriggerActionHandler._instance = new TriggerActionHandler();
+			TriggerActionHandler._instance.initialize();
 		}
-		return OBSEventActionHandler._instance;
+		return TriggerActionHandler._instance;
 	}
 	
 	
@@ -206,15 +206,15 @@ export default class OBSEventActionHandler {
 	 * @param message 
 	 */
 	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:string):Promise<boolean> {
-		const steps = store.state.obsEventActions[ eventType ];
+		const steps = store.state.triggers[ eventType ];
 		if(!steps) {
 			return false;
 		}else{
-			let actions:OBSEventActionData[] = [];
+			let actions:TriggerActionTypes[] = [];
 			let canExecute = true;
 
 			if(!Array.isArray(steps)) {
-				const data = steps as OBSEventActionDataCategory;
+				const data = steps as TriggerActionChatCommandData;
 				actions = data.actions;
 				const m = message as IRCEventDataList.Message;
 				const uid = m.tags['user-id'];
@@ -247,22 +247,24 @@ export default class OBSEventActionHandler {
 				for (let i = 0; i < actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return false;//Stop there, something asked to override the current exec
 					const step = actions[i];
-					if(step.text) {
-						const text = await this.parseText(eventType, message, step.text as string);
-						await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
-					}
-					if(step.url) {
-						const url = await this.parseText(eventType, message, step.url as string, true);
-						await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
-					}
-					if(step.mediaPath) {
-						await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
-					}
-		
-					if(step.filterName) {
-						OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
-					}else{
-						OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
+					if(step.type == "obs") {
+						if(step.text) {
+							const text = await this.parseText(eventType, message, step.text as string);
+							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+						}
+						if(step.url) {
+							const url = await this.parseText(eventType, message, step.url as string, true);
+							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+						}
+						if(step.mediaPath) {
+							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
+						}
+			
+						if(step.filterName) {
+							OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+						}else{
+							OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
+						}
 					}
 					await Utils.promisedTimeout(step.delay * 1000);
 				}
@@ -284,7 +286,7 @@ export default class OBSEventActionHandler {
 	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode:boolean = false):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-		const helpers = OBSEventActionHelpers[eventType];
+		const helpers = TriggerActionHelpers[eventType];
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
 			const chunks:string[] = h.pointer.split(".");
@@ -352,70 +354,70 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.BingoResult
 | IRCEventDataList.RaffleResult;
 
-export const OBSEventActionHelpers:{[key:string]:{tag:string, desc:string, pointer:string}[]} = {};
+export const TriggerActionHelpers:{[key:string]:{tag:string, desc:string, pointer:string}[]} = {};
 
-OBSEventActionHelpers[OBSTriggerEventTypes.FIRST_ALL_TIME] = [
+TriggerActionHelpers[OBSTriggerEventTypes.FIRST_ALL_TIME] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 	{tag:"MESSAGE", desc:"Message content", pointer:"message"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.FIRST_TODAY] = [
+TriggerActionHelpers[OBSTriggerEventTypes.FIRST_TODAY] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 	{tag:"MESSAGE", desc:"Message content", pointer:"message"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.POLL_RESULT] = [
+TriggerActionHelpers[OBSTriggerEventTypes.POLL_RESULT] = [
 	{tag:"TITLE", desc:"Poll title", pointer:"data.title"},
 	{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
 	// {tag:"PERCENT", desc:"Votes percent of the winning choice", pointer:""},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.PREDICTION_RESULT] = [
+TriggerActionHelpers[OBSTriggerEventTypes.PREDICTION_RESULT] = [
 	{tag:"TITLE", desc:"Prediction title", pointer:"data.title"},
 	{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.BINGO_RESULT] = [
+TriggerActionHelpers[OBSTriggerEventTypes.BINGO_RESULT] = [
 	{tag:"WINNER", desc:"Winner name", pointer:"winner.display-name"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.RAFFLE_RESULT] = [
+TriggerActionHelpers[OBSTriggerEventTypes.RAFFLE_RESULT] = [
 	{tag:"WINNER", desc:"Winner name", pointer:"winner.user.display-name"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.CHAT_COMMAND] = [
+TriggerActionHelpers[OBSTriggerEventTypes.CHAT_COMMAND] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.SUB] = [
+TriggerActionHelpers[OBSTriggerEventTypes.SUB] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 	{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
 	{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.SUBGIFT] = [
+TriggerActionHelpers[OBSTriggerEventTypes.SUBGIFT] = [
 	{tag:"USER", desc:"User name of the sub gifter", pointer:"tags.display-name"},
 	{tag:"RECIPIENT", desc:"Recipient user name", pointer:"recipient"},
 	{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
 	{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.BITS] = [
+TriggerActionHelpers[OBSTriggerEventTypes.BITS] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 	{tag:"BITS", desc:"Number of bits", pointer:"tags.bits"},
 	{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.FOLLOW] = [
+TriggerActionHelpers[OBSTriggerEventTypes.FOLLOW] = [
 	{tag:"USER", desc:"User name of the new follower", pointer:"tags.username"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.RAID] = [
+TriggerActionHelpers[OBSTriggerEventTypes.RAID] = [
 	{tag:"USER", desc:"User name of the new follower", pointer:"username"},
 	{tag:"VIEWERS", desc:"Number of viewers", pointer:"viewers"},
 ];
 
-OBSEventActionHelpers[OBSTriggerEventTypes.REWARD_REDEEM] = [
+TriggerActionHelpers[OBSTriggerEventTypes.REWARD_REDEEM] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 	{tag:"TITLE", desc:"Reward title", pointer:"reward.redemption.reward.title"},
 	{tag:"DESCRIPTION", desc:"Reward description", pointer:"reward.redemption.reward.prompt"},

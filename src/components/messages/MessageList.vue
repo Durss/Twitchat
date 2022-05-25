@@ -82,11 +82,15 @@
 
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
-				<transition name="slide">
+				<!--
+					Transition disabled as it generates MASSIVE call stacks
+					everytime a message is added
+				-->
+				<!-- <transition name="slide"> -->
 					<div class="hoverActionsHolder" v-if="m.type == 'message' && m.showHoverActions && !lightMode">
 						<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 					</div>
-				</transition>
+				<!-- </transition> -->
 			</div>
 		</div>
 

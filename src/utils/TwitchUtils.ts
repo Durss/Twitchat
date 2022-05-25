@@ -147,26 +147,38 @@ export default class TwitchUtils {
 				let fakeTag = "";
 				const emoteList = store.state.emotesCache as TwitchTypes.Emote[];
 				const tagsDone:{[key:string]:boolean} = {};
+				// const start = Date.now();
 				//Parse all available emotes
 				for (let i = 0; i < emoteList.length; i++) {
 					const e = emoteList[i];
 					const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 					if(tagsDone[name]) continue;
 					tagsDone[name] = true;
-					const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
+					// const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
+					const matches = Array.from( message.matchAll(new RegExp(name, "gi")) );
 					if(matches && matches.length > 0) {
-						//Current emote has been found
-						//Generate fake emotes data in the expected format:
-						//  ID:start-end,start-end/ID:start-end,start-end
+						// //Current emote has been found
+						// //Generate fake emotes data in the expected format:
+						// //  ID:start-end,start-end/ID:start-end,start-end
 						if(fakeTag.length > 0) fakeTag += "/";
 						fakeTag += e.id+":";
-						for (let i = 0; i < matches.length; i++) {
-							const index = (matches[i].index as number);
-							fakeTag += index+"-"+(index+e.name.length);
-							if(i < matches.length-1) fakeTag+=",";
+						for (let j = 0; j < matches.length; j++) {
+							const start = (matches[j].index as number);
+							const end = start+e.name.length-1;
+
+							const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
+							const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
+							//Emote has no space before and after or is not at the start or end of the message
+							//ignore it.
+							if(!prevOK || !nextOK) continue;
+							fakeTag += start+"-"+end;
+
+							if(j < matches.length-1) fakeTag+=",";
 						}
 					}
 				}
+				// const end = Date.now();
+				// console.log((end-start)+"ms");
 				if(fakeTag.length > 0) fakeTag +=";";
 				emotes = fakeTag;
 			}

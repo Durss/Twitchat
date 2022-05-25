@@ -3,7 +3,7 @@ import Config from '@/utils/Config';
 import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
-import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
@@ -62,7 +62,7 @@ export default createStore({
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
-		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
+		triggers: {} as {[key:string]:TriggerActionObsData[]|TriggerActionChatCommandData},
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -843,16 +843,16 @@ export default createStore({
 			Store.set("obsConf_permissions", value);
 		},
 
-		setObsEventActions(state, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) {
+		setObsEventActions(state, value:{key:number, data:TriggerActionObsData[]|TriggerActionChatCommandData}) {
 			if(!Array.isArray(value.data)) {
 				//If command has been changed, cleanup the previous one from storage
 				if(value.data.prevKey) {
-					delete state.obsEventActions[value.data.prevKey];
+					delete state.triggers[value.data.prevKey];
 					delete value.data.prevKey;
 				}
 			}
-			state.obsEventActions[value.key] = value.data;
-			Store.set("obsConf_sources", state.obsEventActions);
+			state.triggers[value.key] = value.data;
+			Store.set("triggers", state.triggers);
 		},
 
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
@@ -930,12 +930,6 @@ export default createStore({
 				state.obsSceneCommands = JSON.parse(obsSceneCommands);
 			}
 			
-			//Init OBS sources params
-			const obsEventActions = Store.get("obsConf_sources");
-			if(obsEventActions) {
-				state.obsEventActions = JSON.parse(obsEventActions);
-			}
-			
 			//Init OBS command params
 			const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
 			if(OBSMuteUnmuteCommandss) {
@@ -946,6 +940,12 @@ export default createStore({
 			const obsPermissions = Store.get("obsConf_permissions");
 			if(obsPermissions) {
 				state.obsPermissions = JSON.parse(obsPermissions);
+			}
+			
+			//Init triggers
+			const triggers = Store.get("triggers");
+			if(triggers) {
+				state.triggers = JSON.parse(triggers);
 			}
 			
 			//Load bot messages
@@ -1132,7 +1132,7 @@ export default createStore({
 					}
 				}
 
-				OBSEventActionHandler.instance.onMessage(messageData);
+				TriggerActionHandler.instance.onMessage(messageData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
@@ -1358,7 +1358,7 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:PermissionsData) { commit("setOBSPermissions", value); },
 
-		setObsEventActions({commit}, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) { commit("setObsEventActions", value); },
+		setObsEventActions({commit}, value:{key:number, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setObsEventActions", value); },
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
@@ -1414,23 +1414,38 @@ export interface OBSMuteUnmuteCommands {
 	unmuteCommand:string;
 }
 
-export interface OBSEventActionDataCategory {
+export interface TriggerActionChatCommandData {
 	chatCommand:string;
 	prevKey?:string;
 	permissions:PermissionsData;
 	cooldown:{global:number, user:number};
-	actions:OBSEventActionData[];
+	actions:TriggerActionTypes[];
 }
 
-export interface OBSEventActionData {
+export type TriggerActionTypes =  TriggerActionEmptyData
+								| TriggerActionObsData
+								| TriggerActionChatData
+
+export interface TriggerActionData {
 	id:string;
+	delay:number;
+}
+export interface TriggerActionEmptyData extends TriggerActionData{
+	type:"";
+}
+export interface TriggerActionObsData extends TriggerActionData{
+	type:"obs";
 	sourceName:string;
 	filterName?:string;
 	show:boolean;
 	text?:string;
 	url?:string;
 	mediaPath?:string;
-	delay:number;
+}
+
+export interface TriggerActionChatData extends TriggerActionData{
+	type:"chat";
+	message:string;
 }
 
 export interface ParameterDataListValue {

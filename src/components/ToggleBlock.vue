@@ -7,6 +7,7 @@
 				warn
 				v-if="orderable!==false"
 				@mousedown="$emit('startDrag', $event)"
+				data-tooltip="Drag to sort"
 			/>
 			<img :src="require('@/assets/icons/'+localIcon+'.svg')" :alt="localIcon" class="icon" v-if="localIcon">
 			<h2 v-html="localTitle"></h2>
@@ -235,7 +236,7 @@ export default class ToggleBlock extends Vue {
 			padding: .5em;
 			border-bottom-left-radius: @radius;
 			border-bottom-right-radius: @radius;
-			background-color: #f2eef8;
+			// background-color: #f2eef8;
 		}
 	}
 

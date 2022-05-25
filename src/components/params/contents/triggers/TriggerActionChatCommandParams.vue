@@ -1,7 +1,7 @@
 <template>
 	<ToggleBlock
 	medium
-	class="obseventsactionchatcommandparams"
+	class="TriggerActionchatcommandparams"
 	:open="true"
 	title="Parameters"
 	icon="params">
@@ -19,7 +19,7 @@
 			/>
 		</ToggleBlock>
 
-		<ToggleBlock :open="false" class="row" small title="Limit usage">
+		<ToggleBlock :open="false" class="row" small title="Cooldowns">
 			<ParamItem class="cooldown" :paramData="param_globalCD" />
 			<ParamItem class="cooldown" :paramData="param_userCD" />
 		</ToggleBlock>
@@ -38,12 +38,12 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { OBSEventActionDataCategory, ParameterData } from '@/store';
+import { TriggerActionChatCommandData, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
-import { OBSChatCmdParameters } from './OBSEventsAction.vue';
-import OBSPermissions from './OBSPermissions.vue';
+import { OBSChatCmdParameters } from './TriggerActionList.vue';
+import OBSPermissions from '../obs/OBSPermissions.vue';
 
 @Options({
 	props:{
@@ -57,9 +57,9 @@ import OBSPermissions from './OBSPermissions.vue';
 	},
 	emits:['update'],
 })
-export default class OBSEventsActionChatCommandParams extends Vue {
+export default class TriggerActionChatCommandParams extends Vue {
 
-	public actionData!:OBSEventActionDataCategory;
+	public actionData!:TriggerActionChatCommandData;
 
 	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
 	public param_globalCD:ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
@@ -117,7 +117,7 @@ export default class OBSEventsActionChatCommandParams extends Vue {
 </script>
 
 <style scoped lang="less">
-.obseventsactionchatcommandparams{
+.TriggerActionchatcommandparams{
 	.title {
 		text-align: center;
 	}

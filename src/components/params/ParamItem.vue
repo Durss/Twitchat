@@ -106,18 +106,23 @@ import ToggleButton from '../ToggleButton.vue';
 			type:Boolean,
 			default:false,
 		},
+		modelValue:{
+			type:[String, Number, Boolean, Object, Array],
+			default: null
+		},
 	},
 	components:{
 		Button,
 		ToggleButton,
 	},
-	emits: ["change"]
+	emits: ["change", "update:modelValue"]
 })
 export default class ParamItem extends Vue {
 	
 	public autofocus!:boolean;
 	public childLevel!:number;
 	public paramData!:ParameterData;
+	public modelValue!:string|boolean|number|string[];
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
 	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;
@@ -146,11 +151,16 @@ export default class ParamItem extends Vue {
 	}
 
 	public mounted():void {
+		if(this.modelValue !== null
+		&& this.modelValue !== undefined) {
+			this.paramData.value = this.modelValue;
+		}
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
 				store.dispatch('updateParams');
 			}
 			this.$emit("change");
+			this.$emit("update:modelValue", this.paramData.value);
 			this.buildChildren();
 		});
 		watch(() => this.paramData.children, () => {

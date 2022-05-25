@@ -453,9 +453,12 @@ export default class ChatMessage extends Vue {
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
 			}else{
-				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing perfromances.
-				const customParsing = mess.tags['emotes-raw'] == null && mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				//Allow custom parsing of emotes only if it's a message of ours sent
+				//from twitchat to avoid killing perfromances.
+				//When seending a message, the one received back misses lots of info
+				//like the "id", in this case a custom ID is given that starts
+				//with "00000000"
+				const customParsing = mess.tags.id?.indexOf("00000000") == 0;
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
