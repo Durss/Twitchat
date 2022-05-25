@@ -132,8 +132,16 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.opened = !this.action.type;
-		this.opened = this.action.type == "obs" && !this.action.sourceName;//TODO remove
+		if(this.action.type) {
+			if(this.action.type == "obs"){
+				this.opened = !this.action.sourceName;
+			}else
+			if(this.action.type == "chat"){
+				this.opened = !this.action.message || this.action.message?.length === 0;
+			}
+		}else{
+			this.opened = true;
+		}
 	}
 
 	public async mounted():Promise<void> {
