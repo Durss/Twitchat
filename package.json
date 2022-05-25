@@ -18,7 +18,7 @@
 		"node-static": "^0.7.11",
 		"obs-websocket-js": "^5.0.0-beta.1",
 		"tmi.js": "^1.8.5",
-		"vue": "^3.0.0",
+		"vue": "^3.2.36",
 		"vue-class-component": "^8.0.0-0",
 		"vue-router": "^4.0.0-0",
 		"vuex": "^4.0.0-0"
