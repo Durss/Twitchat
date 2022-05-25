@@ -492,9 +492,9 @@ export default class PubSub extends EventDispatcher{
 		const choices:TwitchTypes.PollChoice[] = [];
 		for (let i = 0; i < localObj.poll.choices.length; i++) {
 			const c = localObj.poll.choices[i];
-			let votes = c.total_voters;
-			if(c.votes.channel_points) votes += c.votes.channel_points;
-			if(c.votes.bits) votes += c.votes.bits;
+			const votes = c.votes.total;
+			// if(c.votes.channel_points) votes += c.votes.channel_points;
+			// if(c.votes.bits) votes += c.votes.bits;
 			choices.push({
 				id: c.choice_id,
 				title: c.title,
