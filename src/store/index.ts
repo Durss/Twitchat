@@ -62,7 +62,7 @@ export default createStore({
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
-		triggers: {} as {[key:string]:TriggerActionObsData[]|TriggerActionChatCommandData},
+		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -843,15 +843,41 @@ export default createStore({
 			Store.set("obsConf_permissions", value);
 		},
 
-		setObsEventActions(state, value:{key:number, data:TriggerActionObsData[]|TriggerActionChatCommandData}) {
-			if(!Array.isArray(value.data)) {
-				//If command has been changed, cleanup the previous one from storage
-				if(value.data.prevKey) {
-					delete state.triggers[value.data.prevKey];
-					delete value.data.prevKey;
-				}
+		setTrigger(state, value:{key:number, data:TriggerActionTypes[]|TriggerActionChatCommandData}) {
+			//remove incomplete entries
+			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
+				return actions.filter(v=> {
+					if(v.type == "") return false;
+					if(v.type == "obs") return v.sourceName?.length > 0;
+					if(v.type == "chat") return v.message?.length > 0;
+					return false;
+				})
+
 			}
-			state.triggers[value.key] = value.data;
+			let remove = false;
+			if(!Array.isArray(value.data)) {
+				if(value.data.chatCommand?.length > 0) {
+					//If command has been changed, cleanup the previous one from storage
+					if(value.data.prevKey) {
+						delete state.triggers[value.data.prevKey];
+						delete value.data.prevKey;
+						console.log("Delete prev key"+value.data.prevKey);
+					}
+					value.data.actions = cleanEmptyActions(value.data.actions);
+					if(value.data.actions.length == 0) remove = true;
+				}else{
+					//Chat command not defined, don't save it
+					return;
+				}
+			}else{
+				value.data = cleanEmptyActions(value.data);
+				if(value.data.length == 0) remove = true;
+			}
+			if(remove) {
+				delete state.triggers[value.key];
+			}else{
+				state.triggers[value.key] = value.data;
+			}
 			Store.set("triggers", state.triggers);
 		},
 
@@ -1358,7 +1384,7 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:PermissionsData) { commit("setOBSPermissions", value); },
 
-		setObsEventActions({commit}, value:{key:number, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setObsEventActions", value); },
+		setTrigger({commit}, value:{key:number, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setTrigger", value); },
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
