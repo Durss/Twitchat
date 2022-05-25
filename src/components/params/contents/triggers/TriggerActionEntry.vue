@@ -151,14 +151,6 @@ export default class TriggerActionEntry extends Vue {
 	 * Called when submitting the form
 	 */
 	public onSubmit():void {
-		//TODO
-		// this.action.delay = this.delay_conf.value as number;
-		// this.action.sourceName = this.source_conf.value as string;
-		// this.action.filterName = this.filter_conf.value as string;
-		// this.action.text = this.text_conf.value as string;
-		// this.action.show = this.show_conf.value as boolean;
-		// this.action.url = this.url_conf.value as string;
-		// this.action.mediaPath = this.media_conf.value as string;
 		this.$emit("update");
 	}
 
