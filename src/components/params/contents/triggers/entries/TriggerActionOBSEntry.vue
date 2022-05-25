@@ -7,7 +7,6 @@
 	</div>
 
 	<div :class="classes" v-if="obsConnected">
-	{{action}}
 		<ParamItem class="item source" :paramData="source_conf" v-model="action.sourceName" />
 		<ParamItem class="item show" :paramData="show_conf" v-model="action.show" />
 		<ParamItem class="item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />

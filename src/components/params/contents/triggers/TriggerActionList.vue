@@ -150,7 +150,9 @@ export default class TriggerActionList extends Vue {
 		this.actionList.push({
 			id:Math.random().toString(),
 			delay:0,
-			type:"",
+			type:"obs",//TODO reset to empty string
+			sourceName:"",
+			show:true,
 		});
 	}
 

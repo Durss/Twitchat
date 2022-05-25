@@ -11,7 +11,7 @@
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
-				<Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
+				<!-- <Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" /> -->
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
