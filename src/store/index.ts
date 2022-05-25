@@ -55,7 +55,7 @@ export default createStore({
 		raiding: null as PubSubTypes.RaidInfos|null,
 		realHistorySize: 5000,
 		followingStates: {} as {[key:string]:boolean},
-		userPronouns: {} as {[key:string]:string},
+		userPronouns: {} as {[key:string]:string|boolean},
 		playbackState: null as PubSubTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
@@ -469,12 +469,16 @@ export default createStore({
 					}
 				}
 				
-				//Check if user is following
+				//Check for user's pronouns
 				if(state.params.features.showUserPronouns.value === true) {
 					if(uid && state.userPronouns[uid] == undefined && textMessage.tags.username) {
 						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchTypes.Pronoun | null) => {
-							if (res !== null)
+							if (res !== null) {
 								state.userPronouns[uid] = res.pronoun_id;
+							}else{
+								state.userPronouns[uid] = false;
+							}
+								
 						}).catch(()=>{/*ignore*/})
 					}
 				}
