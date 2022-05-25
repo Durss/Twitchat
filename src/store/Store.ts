@@ -74,29 +74,39 @@ export default class Store {
 	*******************/
 	private static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
-		const v = this.get("v");
+		let v = this.get("v");
 		if(!v) {
 			this.fixBackslashes();
-			this.set("v", 1);
+			v = "1"
 		}
 		if(v=="1" || v=="2") {
 			this.cleanupOldData();
-			this.set("v", 3);
+			v = "3";
 		}
 		if(v=="3") {
 			this.migrateBotMessages();
-			this.set("v", 4);
+			v = "4";
 		}
 		if(v=="4") {
 			this.migrateSOMessage();
+			v = "5";
 		}
 		if(v=="5") {
 			Store.remove("p:showPollPredResults");
+			v = "6";
 		}
 		if(v=="6") {
 			this.migrateTriggers();
+			v = "7";
 		}
-		this.set("v", 7);
+		if(v=="7") {
+			//Because of my stupid version check, users could skip updates
+			//Trying to fix this here...
+			Store.remove("p:showPollPredResults");
+			v = "8";
+		}
+
+		this.set("v", v);
 
 		const items = this.getAll();
 		for (const key in items) {
