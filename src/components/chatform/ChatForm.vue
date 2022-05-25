@@ -492,11 +492,11 @@ export default class ChatForm extends Vue {
 			}
 			this.autoCompleteSearch = "";
 		}else{
-			const prefix = /\s/gi.test(localMessage.charAt(carretPos-1))? "" : " ";
-			const suffix = /\s/gi.test(localMessage.charAt(carretPos-1+item.length))? "" : " ";
+			const prefix = carretPos == 0 || /\s/gi.test(localMessage.charAt(carretPos))? "" : " ";
+			const suffix = carretPos == localMessage.length || /\s/gi.test(localMessage.charAt(carretPos+1))? "" : " ";
 			const code = prefix + item + suffix;
-			localMessage = localMessage.substring(0, carretPos) + code + localMessage.substring(carretPos);
-			carretPos += code.length;
+			localMessage = localMessage.substring(0, carretPos+1) + code + localMessage.substring(carretPos+1);
+			carretPos += code.length+1;
 		}
 		
 		if(/\{.*?\}/gi.test(item)) {
