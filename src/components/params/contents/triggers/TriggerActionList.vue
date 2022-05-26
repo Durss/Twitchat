@@ -129,7 +129,7 @@ export default class TriggerActionList extends Vue {
 			}else
 			if(a.type == "chat"){
 				//If it's an chat action, it needs at least the message to be defined
-				if(!(a.message?.length > 0)) continue;
+				if(!(a.text?.length > 0)) continue;
 			}
 			canTest = true;
 			break;

@@ -492,7 +492,6 @@ const UserDataSchema = {
 										url: {type:"string", maxLength:1000},
 										mediaPath: {type:"string", maxLength:1000},
 										type: {type:"string", maxLength:50},
-										message: {type:"string", maxLength:500},
 									}
 								}
 							]
@@ -535,7 +534,6 @@ const UserDataSchema = {
 												url: {type:"string", maxLength:1000},
 												mediaPath: {type:"string", maxLength:1000},
 												type: {type:"string", maxLength:50},
-												message: {type:"string", maxLength:500},
 											}
 										},
 									]

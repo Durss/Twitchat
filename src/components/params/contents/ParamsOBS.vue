@@ -69,13 +69,13 @@
 			<OBSFilters />
 		</ToggleBlock> -->
 
-		<ToggleBlock class="block overlay"
+		<!-- <ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="true"
 		icon="broadcast_purple"
 		title="Twitchat triggers">
 			<TriggerActionList />
-		</ToggleBlock>
+		</ToggleBlock> -->
 	</div>
 </template>
 

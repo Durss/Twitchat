@@ -107,6 +107,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		if(this.action.show == undefined) this.action.show = true;
 		//Prefill forms
 		this.prefillForm();
 
@@ -153,19 +154,6 @@ export default class TriggerActionOBSEntry extends Vue {
 				this.isMissingObsEntry = true;
 			}
 		}
-		// if(this.action.text != undefined) this.text_conf.value = this.action.text;
-		// if(this.action.show != undefined) this.show_conf.value = this.action.show;
-		// if(this.action.url != undefined) this.url_conf.value = this.action.url;
-		// if(this.action.mediaPath != undefined) this.media_conf.value = this.action.mediaPath;
-
-		// //Sets current default values to the action.
-		// //This allows to hide the "save" button until something is changed
-		// if(this.action.sourceName == undefined) this.action.sourceName = this.source_conf.value as string;
-		// if(this.action.filterName == undefined) this.action.filterName = this.filter_conf.value as string;
-		// if(this.action.text == undefined) this.action.text = this.text_conf.value as string;
-		// if(this.action.show == undefined) this.action.show = this.show_conf.value as boolean;
-		// if(this.action.url == undefined) this.action.url = this.url_conf.value as string;
-		// if(this.action.mediaPath == undefined) this.action.mediaPath = this.media_conf.value as string;
 	}
 
 	/**

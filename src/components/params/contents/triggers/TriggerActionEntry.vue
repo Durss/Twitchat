@@ -137,7 +137,7 @@ export default class TriggerActionEntry extends Vue {
 				this.opened = !this.action.sourceName;
 			}else
 			if(this.action.type == "chat"){
-				this.opened = !this.action.message || this.action.message?.length === 0;
+				this.opened = !this.action.text || this.action.text?.length === 0;
 			}
 		}else{
 			this.opened = true;
