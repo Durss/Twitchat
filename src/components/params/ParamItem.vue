@@ -161,6 +161,12 @@ export default class ParamItem extends Vue {
 		&& this.modelValue !== undefined) {
 			this.paramData.value = this.modelValue;
 		}
+		watch(()=>this.modelValue, (value:any)=>{
+			if(value !== null
+			&& value !== undefined) {
+				this.paramData.value = value;
+			}
+		});
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
 				store.dispatch('updateParams');

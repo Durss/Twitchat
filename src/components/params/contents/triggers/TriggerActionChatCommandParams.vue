@@ -11,13 +11,8 @@
 		<div v-if="cmdNameConflict" class="cmdNameConflict">A command with this name already exists</div>
 
 		<ToggleBlock :open="false" class="row" small title="Users allowed to use this command">
-			<OBSPermissions
-				v-model:mods="actionData.permissions.mods"
-				v-model:vips="actionData.permissions.vips"
-				v-model:subs="actionData.permissions.subs"
-				v-model:all="actionData.permissions.all"
-				v-model:users="actionData.permissions.users"
-			/>
+		{{actionData.permissions}}
+			<OBSPermissions v-model="actionData.permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock :open="false" class="row" small title="Cooldowns">
@@ -68,7 +63,16 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 	private originalCmd!:string;
 
-	public mounted():void {
+	public beforeMount():void {
+		if(!this.actionData.permissions) {
+			this.actionData.permissions = {
+				mods:true,
+				vips:true,
+				subs:true,
+				all:true,
+				users:"",
+			}
+		}
 		if(!this.actionData.cooldown) {
 			this.actionData.cooldown = {
 				global:0,

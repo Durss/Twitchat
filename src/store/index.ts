@@ -843,7 +843,7 @@ export default createStore({
 			Store.set("obsConf_permissions", value);
 		},
 
-		setTrigger(state, value:{key:number, data:TriggerActionTypes[]|TriggerActionChatCommandData}) {
+		setTrigger(state, value:{key:string, data:TriggerActionTypes[]|TriggerActionChatCommandData}) {
 			//remove incomplete entries
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
@@ -879,6 +879,13 @@ export default createStore({
 				state.triggers[value.key] = value.data;
 			}
 			Store.set("triggers", state.triggers);
+		},
+
+		deleteTrigger(state, key:string) {
+			if(state.triggers[key]) {
+				delete state.triggers[key];
+				Store.set("triggers", state.triggers);
+			}
 		},
 
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
@@ -1384,7 +1391,9 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:PermissionsData) { commit("setOBSPermissions", value); },
 
-		setTrigger({commit}, value:{key:number, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setTrigger", value); },
+		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setTrigger", value); },
+
+		deleteTrigger({commit}, value:string) { commit("deleteTrigger", value); },
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
