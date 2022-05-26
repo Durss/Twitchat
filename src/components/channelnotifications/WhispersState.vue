@@ -26,7 +26,8 @@
 				<Button class="login"
 					@click="selectUser(uid.toString())"
 					:title="'('+u.length+') '+u[0].tags['display-name']"
-					bounce />
+					bounce
+					:data-tooltip="u[0].tags['display-name']" />
 					
 				<Button :icon="require('@/assets/icons/cross_white.svg')"
 					class="deleteBt"

@@ -206,8 +206,9 @@ export default class MessageList extends Vue {
 	}
 
 	public get holderStyles():StyleValue {
+		const padding = this.holderOffsetY == 0? "0" : ".25em";
 		return {
-			transform:"translateY("+this.holderOffsetY+"px)",
+			transform:"translateY(calc("+this.holderOffsetY+"px - "+padding+"))",
 		};
 	}
 
@@ -779,6 +780,7 @@ type MessageTypes = IRCEventDataList.Highlight
 	position: relative;
 	flex-direction: column;
 	max-height: 100%;
+	padding-bottom: 0;
 
 	&.lightMode {
 		padding: 0;
