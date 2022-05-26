@@ -14,7 +14,7 @@ export default class TriggerActionHandler {
 	private actionsSpool:MessageTypes[] = [];
 	private userCooldowns:{[key:string]:number} = {};
 	private globalCooldowns:{[key:string]:number} = {};
-	private currentSpoolGUID:string = "";
+	private currentSpoolGUID:number = 0;
 	
 	constructor() {
 	
@@ -49,7 +49,7 @@ export default class TriggerActionHandler {
 	}
 	
 	private async executeNext(testMode:boolean = false):Promise<void>{
-		this.currentSpoolGUID = Math.random().toString()
+		this.currentSpoolGUID ++;
 		const message = this.actionsSpool[0];
 		if(!message) return;
 
@@ -110,7 +110,7 @@ export default class TriggerActionHandler {
 			return;
 		}
 
-		this.actionsSpool.shift();
+		const s = this.actionsSpool.shift();
 		this.executeNext();
 	}
 
@@ -123,31 +123,31 @@ export default class TriggerActionHandler {
 		
 	}
 
-	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
 	
-	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
 	}
 	
-	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
-	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
-	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
-	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
-	private async handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:string):Promise<boolean> {
+	private async handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:number):Promise<boolean> {
 		let winnerVotes = 0;
 		message.data.choices.forEach(v=>{
 			if(v.votes > winnerVotes) {
@@ -158,7 +158,7 @@ export default class TriggerActionHandler {
 		return this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, guid);
 	}
 	
-	private async handlePrediction(message:IRCEventDataList.PredictionResult, testMode:boolean, guid:string):Promise<boolean> {
+	private async handlePrediction(message:IRCEventDataList.PredictionResult, testMode:boolean, guid:number):Promise<boolean> {
 		message.data.outcomes.forEach(v=>{
 			if(v.id == message.data.winning_outcome_id) {
 				message.winner = v.title;
@@ -167,26 +167,26 @@ export default class TriggerActionHandler {
 		return this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, guid);
 	}
 	
-	private async handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:number):Promise<boolean> {
 		message.winner = message.data.winners[0];
 		return this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, guid);
 	}
 	
-	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:number):Promise<boolean> {
 		message.winner = message.data.winners[0];
 		return this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
 	}
 	
-	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
 	}
 	
-	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
 		const cmd = message.message.trim();
 		return this.parseSteps(TriggerTypes.CHAT_COMMAND+"_"+cmd, message, testMode, guid);
 	}
 	
-	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:string):Promise<boolean> {
+	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.reward) {
 			let id = message.reward.redemption.reward.id;
 			if(id == "TEST_ID") {
@@ -205,7 +205,7 @@ export default class TriggerActionHandler {
 	 * @param eventType 
 	 * @param message 
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:string):Promise<boolean> {
+	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number):Promise<boolean> {
 		const steps = store.state.triggers[ eventType ];
 		if(!steps) {
 			return false;
@@ -245,7 +245,7 @@ export default class TriggerActionHandler {
 			
 			if(canExecute) {
 				for (let i = 0; i < actions.length; i++) {
-					if(guid != this.currentSpoolGUID) return false;//Stop there, something asked to override the current exec
+					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec
 					const step = actions[i];
 					if(step.type == "obs") {
 						if(step.text) {
