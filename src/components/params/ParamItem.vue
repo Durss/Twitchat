@@ -110,6 +110,10 @@ import ToggleButton from '../ToggleButton.vue';
 			type:[String, Number, Boolean, Object, Array],
 			default: null
 		},
+		error:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
@@ -119,6 +123,7 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class ParamItem extends Vue {
 	
+	public error!:boolean;
 	public autofocus!:boolean;
 	public childLevel!:number;
 	public paramData!:ParameterData;
@@ -132,6 +137,7 @@ export default class ParamItem extends Vue {
 
 	public get classes():string[] {
 		const res = ["paramitem"];
+		if(this.error !== false) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
 		res.push("level_"+this.childLevel);
@@ -155,6 +161,12 @@ export default class ParamItem extends Vue {
 		&& this.modelValue !== undefined) {
 			this.paramData.value = this.modelValue;
 		}
+		watch(()=>this.modelValue, (value:any)=>{
+			if(value !== null
+			&& value !== undefined) {
+				this.paramData.value = value;
+			}
+		});
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
 				store.dispatch('updateParams');
@@ -223,6 +235,27 @@ export default class ParamItem extends Vue {
 <style scoped lang="less">
 .paramitem{
 	overflow-y: clip;
+
+	&.error {
+		// color:@mainColor_alert;
+		// font-weight: bold;
+		// background: fade(@mainColor_alert, 30%);
+		// padding: .25em;
+		// border-radius: 1em;
+
+		border-left: .25em solid @mainColor_alert;
+		border-bottom: 1px solid @mainColor_alert;
+		padding-left: .25em;
+
+		input, select, textarea{
+			color:@mainColor_light;
+			background-color: fade(@mainColor_alert, 50%);
+			border-color: @mainColor_alert;
+			&::placeholder {
+				color:fade(@mainColor_light, 50%);
+			}
+		}
+	}
 	
 	&.longText {
 		.content {

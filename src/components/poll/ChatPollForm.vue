@@ -25,16 +25,11 @@
 					</div>
 
 					<!-- <ToggleBlock small title="Permissions" :open="false" class="row permissions">
-						<OBSPermissions
-							v-model:mods="permissions.mods"
-							v-model:vips="permissions.vips"
-							v-model:subs="permissions.subs"
-							v-model:all="permissions.all"
-							v-model:users="permissions.users" />
+						<OBSPermissions v-model="permissions" />
 					</ToggleBlock> -->
 
 					<div class="row">
-						<Button title="Submit" type="submit" :disabled="command.value.length < 1" />
+						<Button title="Submit" type="submit" :disabled="(command.value as string).length < 1" />
 					</div>
 				</form>
 			</div>

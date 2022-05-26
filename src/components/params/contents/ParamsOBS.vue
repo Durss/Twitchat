@@ -42,13 +42,7 @@
 		icon="lock_purple"
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
-			<OBSPermissions class="content" @update="onPermissionChange"
-				v-model:mods="permissions.mods"
-				v-model:vips="permissions.vips"
-				v-model:subs="permissions.subs"
-				v-model:all="permissions.all"
-				v-model:users="permissions.users"
-			/>
+			<OBSPermissions class="content" v-model="permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock class="block mic"
@@ -141,7 +135,6 @@ export default class ParamsOBS extends Vue {
 		const port = Store.get("obsPort");
 		const pass = Store.get("obsPass");
 		const ip = Store.get("obsIP");
-		console.log(port, pass, ip);
 		if(port != undefined) this.obsPort_conf.value = port;
 		if(pass != undefined) this.obsPass_conf.value = pass;
 		if(ip != undefined) this.obsIP_conf.value = ip;
@@ -164,6 +157,7 @@ export default class ParamsOBS extends Vue {
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
+		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
 			if(!this.connected) this.openConnectForm = true;

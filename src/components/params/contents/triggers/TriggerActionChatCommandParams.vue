@@ -7,42 +7,38 @@
 	icon="params">
 
 		<p class="title">Set a chat command that will trigger the actions</p>
-		<ParamItem class="row" :paramData="param_cmd" />
+		<ParamItem class="row" :paramData="param_cmd" @focusout="onUpdateCommand()" :error="cmdNameConflict" />
+		<div v-if="cmdNameConflict" class="cmdNameConflict">A command with this name already exists</div>
 
 		<ToggleBlock :open="false" class="row" small title="Users allowed to use this command">
-			<OBSPermissions
-				v-model:mods="chatCmdParams.mods"
-				v-model:vips="chatCmdParams.vips"
-				v-model:subs="chatCmdParams.subs"
-				v-model:all="chatCmdParams.all"
-				v-model:users="chatCmdParams.users"
-			/>
+		{{actionData.permissions}}
+			<OBSPermissions v-model="actionData.permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock :open="false" class="row" small title="Cooldowns">
-			<ParamItem class="cooldown" :paramData="param_globalCD" />
-			<ParamItem class="cooldown" :paramData="param_userCD" />
+			<ParamItem class="cooldown" :paramData="param_globalCD" v-model="actionData.cooldown.global" />
+			<ParamItem class="cooldown" :paramData="param_userCD" v-model="actionData.cooldown.user" />
 		</ToggleBlock>
 
-		<Button type="submit"
-			title="Save"
+		<!-- <Button type="button"
+			title="Delete"
 			class="saveBt"
 			v-if="isChange"
 			@click="save()"
 			:icon="require('@/assets/icons/save.svg')"
 			:disabled="param_cmd.value === ''"
-		/>
+		/> -->
 	</ToggleBlock>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerActionChatCommandData, ParameterData } from '@/store';
+import store, { ParameterData, TriggerActionChatCommandData } from '@/store';
+import { TriggerTypes } from '@/utils/TriggerActionHandler';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
-import { OBSChatCmdParameters } from './TriggerActionList.vue';
 import OBSPermissions from '../obs/OBSPermissions.vue';
 
 @Options({
@@ -54,63 +50,65 @@ import OBSPermissions from '../obs/OBSPermissions.vue';
 		ParamItem,
 		ToggleBlock,
 		OBSPermissions,
-	},
-	emits:['update'],
+	}
 })
 export default class TriggerActionChatCommandParams extends Vue {
 
 	public actionData!:TriggerActionChatCommandData;
 
+	public cmdNameConflict:boolean = false;
 	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
 	public param_globalCD:ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
 	public param_userCD:ParameterData = { type:"number", value:0, label:"User cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
 
-	public chatCmdParams:OBSChatCmdParameters = {
-		cmd:"",
-		vips:false,
-		subs:false,
-		mods:true,
-		all:false,
-		users:"",
-		userCooldown:0,
-		globalCooldown:0,
-	};
+	private originalCmd!:string;
 
-	/**
-	 * Check if somehting has changed on the form
-	 */
-	public get isChange():boolean {
-		return this.actionData.permissions?.mods != this.chatCmdParams.mods
-		|| this.actionData.permissions?.vips != this.chatCmdParams.vips
-		|| this.actionData.permissions?.subs != this.chatCmdParams.subs
-		|| this.actionData.permissions?.all != this.chatCmdParams.all
-		|| this.actionData.permissions?.users != this.chatCmdParams.users
-		|| this.actionData.cooldown?.user != this.param_userCD.value
-		|| this.actionData.cooldown?.global != this.param_globalCD.value
-		|| this.actionData.chatCommand != this.param_cmd.value;
-	}
-
-	public mounted():void {
+	public beforeMount():void {
+		if(!this.actionData.permissions) {
+			this.actionData.permissions = {
+				mods:true,
+				vips:true,
+				subs:true,
+				all:true,
+				users:"",
+			}
+		}
+		if(!this.actionData.cooldown) {
+			this.actionData.cooldown = {
+				global:0,
+				user:0,
+			}
+		}
 		this.populate();
 		watch(()=> this.actionData, ()=> { this.populate(); }, { deep:true });
 	}
 
 	public populate():void {
-		this.chatCmdParams.mods = this.actionData.permissions?.mods;
-		this.chatCmdParams.vips = this.actionData.permissions?.vips;
-		this.chatCmdParams.subs = this.actionData.permissions?.subs;
-		this.chatCmdParams.all = this.actionData.permissions?.all;
-		this.chatCmdParams.users = this.actionData.permissions?.users;
-		this.param_userCD.value = this.actionData.cooldown?.user;
-		this.param_globalCD.value = this.actionData.cooldown?.global;
-		this.param_cmd.value = this.actionData.chatCommand;
+		this.param_cmd.value = 
+		this.originalCmd = this.actionData.chatCommand;
 	}
 
-	public save():void {
-		this.chatCmdParams.cmd = this.param_cmd.value as string;
-		this.chatCmdParams.userCooldown = this.param_userCD.value as number;
-		this.chatCmdParams.globalCooldown = this.param_globalCD.value as number;
-		this.$emit("update", this.chatCmdParams);
+	public onUpdateCommand():void {
+		this.cmdNameConflict = false;
+		//If command name has been changed
+		if(this.originalCmd != this.param_cmd.value) {
+			//Make sure no other chat command has the same name
+			const triggers = store.state.triggers;
+			for (const k in triggers) {
+				//Is a chat command?
+				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
+					const t = triggers[k] as TriggerActionChatCommandData;
+					if(t.chatCommand == this.param_cmd.value) {
+						this.cmdNameConflict = true;
+						return;
+					}
+				}
+			}
+			this.actionData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.actionData.chatCommand;
+		}
+		//This triggers a save event that will clean the previous key
+		//based on the "prevKey" property value
+		this.actionData.chatCommand = this.param_cmd.value as string;
 	}
 
 }
@@ -120,6 +118,18 @@ export default class TriggerActionChatCommandParams extends Vue {
 .TriggerActionchatcommandparams{
 	.title {
 		text-align: center;
+	}
+
+	.cmdNameConflict {
+		background-color: @mainColor_alert;
+		color: @mainColor_light;
+		text-align: center;
+		margin:auto;
+		display: block;
+		width: 300px;
+		padding: .25em;
+		border-bottom-left-radius: .5em;
+		border-bottom-right-radius: .5em;
 	}
 
 	.row{
