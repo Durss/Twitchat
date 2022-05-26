@@ -1,16 +1,28 @@
 <template>
 	<ToggleBlock
 	orderable
-	deletable
 	medium
 	:error="isError"
 	:errorTitle="errorTitle"
 	:open="opened"
 	:title="title" :class="classes"
-	@delete="$emit('delete')"
 	:icon="icon"
 	>
-		<form @submit.prevent="onSubmit()">
+		<template #actions>
+			<Button small
+				:icon="require('@/assets/icons/copy.svg')"
+				class="toggleAction"
+				@click="$emit('duplicate')"
+				data-tooltip="Duplicate"
+			/>
+			<Button small highlight
+				:icon="require('@/assets/icons/cross_white.svg')"
+				class="toggleAction"
+				@click="$emit('delete')"
+			/>
+		</template>
+
+		<div>
 			<div v-if="action.type===''" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="require('@/assets/icons/whispers_purple.svg')"/>
@@ -22,7 +34,7 @@
 
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==''" v-model="action.delay" />
 
-		</form>
+		</div>
 	</ToggleBlock>
 </template>
 
@@ -50,7 +62,7 @@ import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 		TriggerActionOBSEntry,
 		TriggerActionChatEntry,
 	},
-	emits:["delete", "update", "setContent"]
+	emits:["delete", "setContent", "duplicate"]
 })
 export default class TriggerActionEntry extends Vue {
 
@@ -176,6 +188,13 @@ export default class TriggerActionEntry extends Vue {
 			vertical-align: middle;
 		}
 	}
+
+	.toggleAction {
+		border-radius: 0;
+		padding: .3em;
+		align-self: stretch;
+	}
+
 	&.error {
 		.source {
 			padding: .25em;
