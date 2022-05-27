@@ -65,13 +65,16 @@ export default class PostOnChatParam extends Vue {
 		watch(()=>this.enabledParam.value, ()=> this.saveParams())
 
 		await this.$nextTick();
-		this.saveParams();
+		this.saveParams(false);
 	}
 
-	public async saveParams():Promise<void> {
-		store.dispatch("updateBotMessage", {key:this.botMessageKey,
-											enabled:this.enabledParam.value,
-											message:this.textParam.value});
+	public async saveParams(saveToStore:boolean = true):Promise<void> {
+		//Avoid useless save on mount
+		if(saveToStore){
+			store.dispatch("updateBotMessage", {key:this.botMessageKey,
+												enabled:this.enabledParam.value,
+												message:this.textParam.value});
+		}
 
 		if(this.enabledParam.value) {
 			await this.$nextTick();
