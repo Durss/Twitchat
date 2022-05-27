@@ -42,13 +42,7 @@
 		icon="lock_purple"
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
-			<OBSPermissions class="content" @update="onPermissionChange"
-				v-model:mods="permissions.mods"
-				v-model:vips="permissions.vips"
-				v-model:subs="permissions.subs"
-				v-model:all="permissions.all"
-				v-model:users="permissions.users"
-			/>
+			<OBSPermissions class="content" v-model="permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock class="block mic"
@@ -80,7 +74,7 @@
 		:open="true"
 		icon="broadcast_purple"
 		title="Twitchat triggers">
-			<OBSEventsAction />
+			<TriggerActionList />
 		</ToggleBlock>
 	</div>
 </template>
@@ -98,8 +92,8 @@ import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSPermissions from './obs/OBSPermissions.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import OBSEventsAction from './obs/OBSEventsAction.vue';
 import OBSFilters from './obs/OBSFilters.vue';
+import TriggerActionList from './triggers/TriggerActionList.vue';
 
 
 @Options({
@@ -110,8 +104,8 @@ import OBSFilters from './obs/OBSFilters.vue';
 		OBSScenes,
 		OBSFilters,
 		ToggleBlock,
-		OBSEventsAction,
 		OBSPermissions,
+		TriggerActionList,
 		OBSAudioSourceForm,
 	},
 	emits:['setContent']
@@ -163,6 +157,7 @@ export default class ParamsOBS extends Vue {
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
+		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
 			if(!this.connected) this.openConnectForm = true;

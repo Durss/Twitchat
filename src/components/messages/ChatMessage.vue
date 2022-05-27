@@ -32,7 +32,7 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos">
-			<img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper">
+			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
 			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				src="@/assets/icons/conversation.svg"
@@ -40,7 +40,9 @@
 				@mouseleave="$emit('mouseleave', $event)"
 				@click.stop="$emit('showConversation', $event, messageData)">
 			
-			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" />
+			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" :canDelete="messageData.type != 'whisper'" />
+
+			<span v-if="messageData.type == 'whisper'" class="whisperlabel">whisper</span>
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 
@@ -118,7 +120,7 @@ export default class ChatMessage extends Vue {
 
 	public get pronoun():string|null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
-		if(!key) return null;
+		if(!key || typeof key != "string") return null;
 		const hashmap:{[key:string]:string} = {
 			// https://pronouns.alejo.io
 			"aeaer" : "Ae/Aer",
@@ -159,7 +161,7 @@ export default class ChatMessage extends Vue {
 
 	public get pronounLabel(): string | null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
-		if(!key) return null;
+		if(!key || typeof key != "string") return null;
 
 		const hashmap: {[key: string]: string} = {
 			// https://pronoundb.org
@@ -211,7 +213,10 @@ export default class ChatMessage extends Vue {
 		if(message.type == "whisper") {
 			res.push("whisper");
 		}else{
-			if(message.deleted) res.push("deleted");
+			if(message.deleted) {
+				res.push("deleted");
+				if(store.state.params.filters.censorDeletedMessages.value===true) res.push("censor");
+			}
 			if(message.lowTrust) res.push("lowTrust");
 			if(message.cyphered) res.push("cyphered");
 		}
@@ -224,7 +229,6 @@ export default class ChatMessage extends Vue {
 			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
 			res.push("announcement", color);
 		}
-		if(store.state.params.filters.censorDeletedMessages.value===true) res.push("censor");
 
 		if(!this.lightMode) {
 			if(message.type == "message" && message.hasMention) res.push("mention");
@@ -453,9 +457,12 @@ export default class ChatMessage extends Vue {
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
 			}else{
-				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing perfromances.
-				const customParsing = mess.tags['emotes-raw'] == null && mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				//Allow custom parsing of emotes only if it's a message of ours sent
+				//from twitchat to avoid killing perfromances.
+				//When seending a message, the one received back misses lots of info
+				//like the "id", in this case a custom ID is given that starts
+				//with "00000000"
+				const customParsing = mess.tags.id?.indexOf("00000000") == 0;
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
@@ -772,7 +779,21 @@ export default class ChatMessage extends Vue {
 	}
 
 	&.whisper {
-		background-color: rgba(0, 0, 0, .5);
+		background-color: rgba(0, 0, 0, 1);
+		// border: 1px dashed @mainColor_light;
+		border-radius: .5em;
+		font-style: italic;
+		.infos {
+			.whisperlabel {
+				font-size: .9em;
+				border-radius: 3px;
+				color: @mainColor_dark;
+				background-color: @mainColor_light;
+				padding: 0 .3em;
+				margin-right: 5px;
+				vertical-align: middle;
+			}
+		}
 	}
 
 	&.lowTrust {

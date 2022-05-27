@@ -1,18 +1,20 @@
 <template>
-	<div class="OBSEventsAction">
-		<p class="header">Automatically show/hide OBS sources and filters when a specific Twitchat events occurs<br></p>
-		<p class="useCase"><strong>Use case examples :</strong> display an overlay when someone writes on your chat for the first time, when someone subs, when a poll completes, ...</p>
+	<div class="TriggerAction">
+		<p class="header">Execute custom actions based on twitch events.<br></p>
+		<p class="useCase"><strong>Use case examples :</strong> create chat coommands; control your OBS sources and filters when someone subs, a poll starts, ...</p>
 
 		<ParamItem :paramData="event_conf" />
 		<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1" />
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
-		<Button title="Test action" class="testBt" @click="testAction()" v-if="canTestAction" />
+		<div class="ctas">
+			<Button title="Test trigger" class="cta" v-if="canTestAction" @click="testTrigger()" :icon="require('@/assets/icons/test.svg')" />
+			<Button title="Delete trigger" class="cta" v-if="canTestAction" @click="deleteTrigger()" highlight :icon="require('@/assets/icons/delete.svg')" />
+		</div>
 
-		<OBSEventsActionChatCommandParams class="chatCmdParams"
+		<TriggerActionChatCommandParams class="chatCmdParams"
 			v-if="isChatCmd && actionCategory"
 			:actionData="actionCategory"
-			@update="updatePermissions"
 		/>
 
 		<draggable 
@@ -26,13 +28,14 @@
 		:animation="250"
 		:dragoverBubble="true">
 			<template #item="{element, index}">
-				<OBSEventsActionEntry class="action"
+				<TriggerActionEntry class="action"
 					:action="element"
 					:index="index"
 					:sources="sources"
 					:event="event_conf.value"
 					@delete="deleteAction(element, index)"
 					@update="saveData()"
+					@setContent="(v:string)=>$emit('setContent', v)"
 				/>
 			</template>
 		</draggable>
@@ -53,10 +56,10 @@
 </template>
 
 <script lang="ts">
-import store, { OBSEventActionData, OBSEventActionDataCategory, ParameterData, ParameterDataListValue, PermissionsData } from '@/store';
+import store, { ParameterData, PermissionsData, TriggerActionChatCommandData, TriggerActionObsData, TriggerActionTypes } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
-import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
-import OBSWebsocket, { OBSSourceItem, OBSTriggerEvents, OBSTriggerEventsType, OBSTriggerEventTypes } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { OBSSourceItem } from '@/utils/OBSWebsocket';
+import TriggerActionHandler, { OBSTriggerEvents, TriggerEventTypes, TriggerTypes } from '@/utils/TriggerActionHandler';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -64,8 +67,8 @@ import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ParamItem from '../../ParamItem.vue';
-import OBSEventsActionChatCommandParams from './OBSEventsActionChatCommandParams.vue';
-import OBSEventsActionEntry from './OBSEventsActionEntry.vue';
+import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
+import TriggerActionEntry from './TriggerActionEntry.vue';
 
 @Options({
 	props:{},
@@ -73,46 +76,77 @@ import OBSEventsActionEntry from './OBSEventsActionEntry.vue';
 		draggable,
 		Button,
 		ParamItem,
-		OBSEventsActionEntry,
-		OBSEventsActionChatCommandParams,
+		TriggerActionEntry,
+		TriggerActionChatCommandParams,
 	},
-	emits:[]
+	emits:["setContent"]
 })
-export default class OBSEventsAction extends Vue {
-	public actionList:OBSEventActionData[] = [];
+export default class TriggerActionList extends Vue {
+	public actionList:TriggerActionTypes[] = [];
 	public event_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
 	public subevent_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
 	public sources:OBSSourceItem[] = [];
+	public canSave:boolean = true;
 	public syncing:boolean = false;
 	public isSublist:boolean = false;
 	public showLoading:boolean = false;
 	public rewards:TwitchTypes.Reward[] = [];
-	public actionCategory:OBSEventActionDataCategory = {
+	public actionCategory:TriggerActionChatCommandData = {
 						chatCommand:"",
 						permissions:{mods:true, vips:false, subs:false, all:false, users:""},
 						cooldown:{global:0, user:0},
 						actions:[],
 					};
 
-	public get isChatCmd():boolean { return this.event_conf.value === OBSTriggerEventTypes.CHAT_COMMAND; }
+	public get isChatCmd():boolean { return this.event_conf.value === TriggerTypes.CHAT_COMMAND; }
 
+	public get triggerKey():string {
+		let key = this.event_conf.value as string;
+		let subkey = this.subevent_conf.value as string;
+		if(key === TriggerTypes.CHAT_COMMAND) {
+			subkey = this.actionCategory.chatCommand;
+		}
+		if(subkey != "0" && subkey) key = key+"_"+subkey;
+		return key;
+	}
+
+
+	/**
+	 * Returns if the trigger can be tested.
+	 * A trigger can be tested if it has enough information.
+	 */
 	public get canTestAction():boolean {
 		let canTest = false;
 		for (let i = 0; i < this.actionList.length; i++) {
 			const a = this.actionList[i];
-			if(!a.sourceName) break;
+			if(a.type === "") {
+				//No action type defined
+				continue;
+			}else
+			if(a.type == "obs") {
+				//If it's an OBS action, it needs at least a souce to be defined
+				if(!(a.sourceName?.length > 0)) continue;
+			}else
+			if(a.type == "chat"){
+				//If it's an chat action, it needs at least the message to be defined
+				if(!(a.message?.length > 0)) continue;
+			}
 			canTest = true;
+			break;
 		}
 		return canTest;
 	}
 	
-	public async mounted():Promise<void> {draggable
+	public async mounted():Promise<void> {
 		watch(()=> OBSWebsocket.instance.connected, () => { this.listSources(); });
 		watch(()=> this.event_conf.value, () => { this.onSelectTrigger(); });
-		watch(()=> this.subevent_conf.value, () => { this.onSelectTrigger(true); });
+		watch(()=> this.subevent_conf.value, () => { this.onSelectsubTrigger(); });
+		watch(()=> this.actionList, () => { this.saveData(); }, { deep:true });
+		watch(()=> this.actionCategory, () => { this.saveData(); }, { deep:true });
 		await this.listSources();
 
-		let events:OBSTriggerEventsType[] = [
+		//List all available trigger types
+		let events:TriggerEventTypes[] = [
 			{label:"Select a trigger...", value:"0" },
 		];
 		events = events.concat(OBSTriggerEvents);
@@ -145,104 +179,105 @@ export default class OBSEventsAction extends Vue {
 	 * Adds an action to the lsit
 	 */
 	public addAction():void {
+		this.canSave = false;//Avoid saving data after adding an empty action
 		this.actionList.push({
 			id:Math.random().toString(),
+			delay:0,
+			type:"obs",//TODO reset to empty string
 			sourceName:"",
 			show:true,
-			delay:0,
 		});
+		this.canSave = true;
 	}
 
 	/**
 	 * Called when deleting an action item
 	 */
-	public deleteAction(action:OBSEventActionData, index:number):void {
+	public deleteAction(action:TriggerActionObsData, index:number):void {
 		Utils.confirm("Delete action ?").then(()=> {
 			this.actionList.splice(index, 1);
-			this.saveData();
 		}).catch(()=> {});
 	}
 
 	/**
 	 * Saves the data to storage
 	 */
-	public saveData():void {
-		let key = this.event_conf.value as string;
-		let subkey = this.subevent_conf.value as string;
-		let data:unknown = this.actionList;
+	public async saveData():Promise<void> {
+		if(!this.canSave) return;
+		this.canSave = false;
+
+		let data:TriggerActionTypes[]|TriggerActionChatCommandData = this.actionList;
 		if(this.isChatCmd) {
-			subkey = this.actionCategory.chatCommand;
-			this.actionCategory.actions = this.actionList;
+			this.actionCategory.actions = this.actionList as TriggerActionTypes[];
 			data = this.actionCategory;
 		}
-		if(this.isSublist) key = key+"_"+subkey;
 
-		store.dispatch("setObsEventActions", { key, data})
+		//Save the trigger only if it can be tested which means it
+		//has the minimum necessary data defined
+		if(this.canTestAction) {
+			store.dispatch("setTrigger", { key:this.triggerKey, data});
+		}
+		if(this.isChatCmd) {
+			//Preselects the current subevent
+			this.onSelectTrigger(true);
+		}
+
+		//As we watch for any modifications on "actionCategory" and we
+		//modify it during the save process, we need to freeze the save
+		//process for a frame to avoid a recursive loop.
+		await this.$nextTick();
+		this.canSave = true;
 	}
 
 	/**
 	 * Called to test the actions sequence
 	 */
-	public testAction():void {
+	public testTrigger():void {
 		let key = this.event_conf.value as string;
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
 		const entry = OBSTriggerEvents.find(v=>v.value == key);
 		
 		if(entry?.jsonTest) {
 			const json = entry.jsonTest as IRCEventDataList.Message;
-			if(key == OBSTriggerEventTypes.REWARD_REDEEM) {
+			if(key == TriggerTypes.REWARD_REDEEM) {
 				//Push current reward ID to the test JSON data
 				if(json.reward) json.reward.redemption.reward.id = this.subevent_conf.value as string;
 			}
-			if(key == OBSTriggerEventTypes.CHAT_COMMAND) {
+			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
 				json.message = this.actionCategory.chatCommand;
 			}
-			OBSEventActionHandler.instance.onMessage(json, true);
+			TriggerActionHandler.instance.onMessage(json, true);
 		}
 	}
 
 	/**
-	 * Called when permissions are updated
+	 * Called to delete the actions sequence
 	 */
-	public updatePermissions(params:OBSChatCmdParameters):void {
-		//If command has changed, save the previous key so we can
-		//cleanup the storage from the old one
-		if(!this.actionCategory.prevKey && this.actionCategory.chatCommand != params.cmd) {
-			this.actionCategory.prevKey = OBSTriggerEventTypes.CHAT_COMMAND+"_"+this.actionCategory.chatCommand;
-		}
-		this.actionCategory.chatCommand = params.cmd;
-		this.actionCategory.permissions.mods = params.mods;
-		this.actionCategory.permissions.vips = params.vips;
-		this.actionCategory.permissions.subs = params.subs;
-		this.actionCategory.permissions.all = params.all;
-		this.actionCategory.permissions.users = params.users;
-		this.actionCategory.cooldown.global = params.globalCooldown;
-		this.actionCategory.cooldown.user = params.userCooldown;
-		if(this.actionCategory.actions.length > 0) {
-			this.saveData();
-		}
-	}
-
-	/**
-	 * Called when selecting a trigger and or a sub event
-	 */
-	private async onSelectTrigger(isSubSelection:boolean = false):Promise<void> {
-		this.isSublist = isSubSelection;
-		let key = this.event_conf.value as string;
-		let subkey = this.subevent_conf.value as string;
-		if(isSubSelection && subkey != "0") {
-			key = key+"_"+subkey;
-			if(subkey == "0") {
-				this.resetActionCategory();
+	public deleteTrigger():void {
+		Utils.confirm("Delete trigger ?").then(()=> {
+			//Delete trigger from storage
+			store.dispatch("deleteTrigger", this.triggerKey);
+			//Reset menu selection
+			if(this.isSublist) {
+				this.subevent_conf.value = "0";
+			}else{
+				this.event_conf.value = "0";
 			}
-		}else{
-			this.isSublist = false;
-			this.subevent_conf.value = "0";
-		}
+			this.resetActionCategory();
+		}).catch(()=> {});
+	}
+
+	/**
+	 * Called when selecting a trigger
+	 */
+	private async onSelectTrigger(onlypopulateSublist:boolean = false):Promise<void> {
+		let key = this.event_conf.value as string;
+		this.subevent_conf.value = "0";
+		this.isSublist = false;
 		
 		if(key == "0") {
-			//A selection is missing
+			//No selection, reset everything
 			this.actionList = [];
 			this.resetActionCategory();
 
@@ -253,17 +288,17 @@ export default class OBSEventsAction extends Vue {
 				//flooding the main trigger list. Main trigger elements are stored with
 				//simple keys like "1" where these ones are stored with keys like "1_entryName".
 				this.isSublist = true;
-				this.actionList = [];
 				let defaultTitle:string = "";
 				this.subevent_conf.listValues = [];
+				if(!onlypopulateSublist) this.actionList = [];
 				
-				if(key == OBSTriggerEventTypes.CHAT_COMMAND) {
+				if(key == TriggerTypes.CHAT_COMMAND) {
 					defaultTitle = "+ New command...";
-					const list = store.state.obsEventActions;
+					const triggers = store.state.triggers;
 					//Search for all command triggers
-					const commandList:OBSEventActionDataCategory[] = [];
-					for (const k in list) {
-						if(k.indexOf(key+"_") === 0) commandList.push(list[k] as OBSEventActionDataCategory);
+					const commandList:TriggerActionChatCommandData[] = [];
+					for (const k in triggers) {
+						if(k.indexOf(key+"_") === 0) commandList.push(triggers[k] as TriggerActionChatCommandData);
 					}
 					this.subevent_conf.listValues = commandList.sort((a,b)=> {
 						if(a.chatCommand < b.chatCommand) return -1;
@@ -272,33 +307,60 @@ export default class OBSEventsAction extends Vue {
 					}).map(v=> {
 						return { label:v.chatCommand as string, value:v.chatCommand }
 					});
-					this.resetActionCategory();
-				}else if(key == OBSTriggerEventTypes.REWARD_REDEEM) {
+					const select = commandList.find(v=>v.chatCommand == this.actionCategory.chatCommand);
+					if(select) {
+						this.subevent_conf.value = select.chatCommand;
+					}
+				}else if(key == TriggerTypes.REWARD_REDEEM) {
 					defaultTitle = "Select reward...";
 				}
 				
 				this.subevent_conf.listValues.unshift({ label:defaultTitle, value:"0" });
 
-				//This update will trigger the watcher that will call onSelectTrigger() again
-				//which will then initialize the form
-				this.subevent_conf.value = (this.subevent_conf.listValues as ParameterDataListValue[])[0].value;
-				if(key == OBSTriggerEventTypes.REWARD_REDEEM) {
+				// //This update will trigger the watcher that will call onSelectTrigger() again
+				// //which will then initialize the form
+				// this.subevent_conf.value = (this.subevent_conf.listValues as ParameterDataListValue[])[0].value;
+				if(key == TriggerTypes.REWARD_REDEEM) {
 					this.listRewards();
 				}
+			}else if(store.state.triggers[key]){
+				const trigger = JSON.parse(JSON.stringify(store.state.triggers[key]));//Avoid modifying the original data
+				this.actionList = trigger as TriggerActionObsData[];
 			}else{
-				//Load actions for the selected trigger event or sub event
-				if(this.isChatCmd && this.subevent_conf.value != "0") {
-					this.actionCategory = store.state.obsEventActions[key] as OBSEventActionDataCategory;
-					this.actionList = this.actionCategory.actions;
-				}else{
-					this.actionList = store.state.obsEventActions[key] as OBSEventActionData[];
-				}
-				if(!this.actionList) this.actionList = [];
-				if(this.actionList.length == 0) {
-					this.addAction();
-				}
+				this.actionList = [];
+			}
+			if(!this.isSublist && this.actionList.length == 0) {
+				this.addAction();
 			}
 		}
+	}
+
+	/**
+	 * Called when selecting a sub trigger
+	 */
+	private async onSelectsubTrigger():Promise<void> {
+		this.canSave = false;
+		let key = this.event_conf.value as string;
+		key += "_"+this.subevent_conf.value as string;
+		
+		//Load actions for the selected sub event
+		let json = store.state.triggers[key];
+		if(json) {
+			const trigger = JSON.parse(JSON.stringify(store.state.triggers[key]));//Avoid modifying the original data
+			if(this.isChatCmd && this.subevent_conf.value != "0") {
+				this.actionCategory = trigger as TriggerActionChatCommandData;
+				this.actionList = this.actionCategory.actions;
+			}else{
+				this.actionList = trigger as TriggerActionObsData[];
+			}
+		//Do not reset if the sub event
+		}else if(this.isSublist){
+			this.actionList = [];
+			this.resetActionCategory();
+			this.addAction();
+		}
+		await this.$nextTick();
+		this.canSave = true;
 	}
 
 	/**
@@ -358,7 +420,7 @@ export interface OBSChatCmdParameters extends PermissionsData {
 </script>
 
 <style scoped lang="less">
-.OBSEventsAction{
+.TriggerAction{
 	// font-size: .9em;
 	display: flex;
 	flex-direction: column;
@@ -395,12 +457,14 @@ export interface OBSChatCmdParameters extends PermissionsData {
 	.action {
 		background: linear-gradient(90deg, @mainColor_normal 2px, transparent 1px);
 		background-position: 100% 0;
-		background-repeat: repeat-y;
-		background-size: calc(50% + 1px);
-		margin-top: 1em;
+		background-repeat: no-repeat;
+		background-size: calc(50% + 1px) 1em;
+		padding-top: 1em;
+		&:first-of-type {
+			background: none;
+		}
 
 		&:not(:last-of-type) {
-			padding-bottom: .5em;
 			&::after{
 				content: "";
 				display: block;
@@ -414,10 +478,14 @@ export interface OBSChatCmdParameters extends PermissionsData {
 		}
 	}
 
-	.testBt {
-		display: block;
-		margin: auto;
+	.ctas {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		margin-top: 1em;
+		.cta:not(:first-child) {
+			margin-top: .25em;
+		}
 	}
 
 	.chatCmdParams {

@@ -12,7 +12,7 @@
 			<Button  aria-label="Timeout for 12 hours" @click.stop="timeout(3600*12)" title="12h" small />
 			<Button  aria-label="Timeout for 1 week" @click.stop="timeout(3600*24*7)" title="1w" small />
 		</div>
-		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()">
+		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()" v-if="canDelete">
 	</div>
 </template>
 
@@ -26,7 +26,8 @@ import Button from '../Button.vue';
 
 @Options({
 	props:{
-		messageData:Object
+		messageData:Object,
+		canDelete:Boolean,
 	},
 	components:{
 		Button,
@@ -35,6 +36,8 @@ import Button from '../Button.vue';
 })
 export default class ChatModTools extends Vue {
 	
+	public canDelete!:boolean;
+
 	public messageData!:IRCEventDataList.Message;
 	public showToOptions:boolean = false;
 

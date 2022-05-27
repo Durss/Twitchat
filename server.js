@@ -547,7 +547,7 @@ const UserDataSchema = {
 				}
 			]
 		},
-		obsConf_sources: {
+		triggers: {
 			type:["object"],
 			additionalProperties: true,
 			patternProperties: {
@@ -568,6 +568,8 @@ const UserDataSchema = {
 										text: {type:"string", maxLength:500},
 										url: {type:"string", maxLength:1000},
 										mediaPath: {type:"string", maxLength:1000},
+										type: {type:"string", maxLength:50},
+										message: {type:"string", maxLength:500},
 									}
 								}
 							]
@@ -609,6 +611,8 @@ const UserDataSchema = {
 												text: {type:"string", maxLength:500},
 												url: {type:"string", maxLength:1000},
 												mediaPath: {type:"string", maxLength:1000},
+												type: {type:"string", maxLength:50},
+												message: {type:"string", maxLength:500},
 											}
 										},
 									]

@@ -3,7 +3,7 @@ import Config from '@/utils/Config';
 import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
-import OBSEventActionHandler from '@/utils/OBSEventActionHandler';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
@@ -56,16 +56,16 @@ export default createStore({
 		raiding: null as PubSubTypes.RaidInfos|null,
 		realHistorySize: 5000,
 		followingStates: {} as {[key:string]:boolean},
-		userPronouns: {} as {[key:string]:string},
+		userPronouns: {} as {[key:string]:string|boolean},
 		playbackState: null as PubSubTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
-		obsEventActions: {} as {[key:string]:OBSEventActionData[]|OBSEventActionDataCategory},
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
+		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -472,12 +472,16 @@ export default createStore({
 					}
 				}
 				
-				//Check if user is following
+				//Check for user's pronouns
 				if(state.params.features.showUserPronouns.value === true) {
 					if(uid && state.userPronouns[uid] == undefined && textMessage.tags.username) {
 						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchTypes.Pronoun | null) => {
-							if (res !== null)
+							if (res !== null) {
 								state.userPronouns[uid] = res.pronoun_id;
+							}else{
+								state.userPronouns[uid] = false;
+							}
+								
 						}).catch(()=>{/*ignore*/})
 					}
 				}
@@ -842,16 +846,49 @@ export default createStore({
 			Store.set("obsConf_permissions", value);
 		},
 
-		setObsEventActions(state, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) {
-			if(!Array.isArray(value.data)) {
-				//If command has been changed, cleanup the previous one from storage
-				if(value.data.prevKey) {
-					delete state.obsEventActions[value.data.prevKey];
-					delete value.data.prevKey;
-				}
+		setTrigger(state, value:{key:string, data:TriggerActionTypes[]|TriggerActionChatCommandData}) {
+			//remove incomplete entries
+			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
+				return actions.filter(v=> {
+					if(v.type == "") return false;
+					if(v.type == "obs") return v.sourceName?.length > 0;
+					if(v.type == "chat") return v.message?.length > 0;
+					return false;
+				})
+
 			}
-			state.obsEventActions[value.key] = value.data;
-			Store.set("obsConf_sources", state.obsEventActions);
+			let remove = false;
+			if(!Array.isArray(value.data)) {
+				if(value.data.chatCommand?.length > 0) {
+					//If command has been changed, cleanup the previous one from storage
+					if(value.data.prevKey) {
+						delete state.triggers[value.data.prevKey];
+						delete value.data.prevKey;
+						console.log("Delete prev key"+value.data.prevKey);
+					}
+					value.data.actions = cleanEmptyActions(value.data.actions);
+					if(value.data.actions.length == 0) remove = true;
+				}else{
+					//Chat command not defined, don't save it
+					return;
+				}
+			}else{
+				value.data = cleanEmptyActions(value.data);
+				if(value.data.length == 0) remove = true;
+			}
+			if(remove) {
+				delete state.triggers[value.key];
+			}else{
+				state.triggers[value.key] = value.data;
+			}
+			Store.set("triggers", state.triggers);
+		},
+
+		deleteTrigger(state, key:string) {
+			if(state.triggers[key]) {
+				delete state.triggers[key];
+				Store.set("triggers", state.triggers);
+			}
 		},
 
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
@@ -938,6 +975,53 @@ export default createStore({
 				}
 			}
 			
+			//Init OBS scenes params
+			const obsSceneCommands = Store.get("obsConf_scenes");
+			if(obsSceneCommands) {
+				state.obsSceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS command params
+			const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
+			if(OBSMuteUnmuteCommandss) {
+				state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
+			}
+			
+			//Init OBS permissions
+			const obsPermissions = Store.get("obsConf_permissions");
+			if(obsPermissions) {
+				state.obsPermissions = JSON.parse(obsPermissions);
+			}
+			
+			//Init triggers
+			const triggers = Store.get("triggers");
+			if(triggers) {
+				state.triggers = JSON.parse(triggers);
+			}
+			
+			//Load bot messages
+			const botMessages = Store.get("botMessages");
+			if(botMessages) {
+				//Merge remote and local to avoid losing potential new
+				//default values on local data
+				const localMessages = state.botMessages;
+				const remoteMessages = JSON.parse(botMessages);
+				// JSONPatch.applyPatch(localMessages, remoteMessages);
+				// JSONPatch.applyPatch(remoteMessages, localMessages);
+				for (const k in localMessages) {
+					const key = k as BotMessageField;
+					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
+						remoteMessages[key] = localMessages[key];
+					}
+					for (const subkey in localMessages[key]) {
+						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
+							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
+						}
+					}
+				}
+				state.botMessages = (remoteMessages as unknown) as IBotMessage;
+			}
+			
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)
 			let port = Utils.getQueryParameterByName("obs_port");
@@ -995,12 +1079,6 @@ export default createStore({
 					state.obsSceneCommands = JSON.parse(obsSceneCommands);
 				}
 				
-				//Init OBS sources params
-				const obsEventActions = Store.get("obsConf_sources");
-				if(obsEventActions) {
-					state.obsEventActions = JSON.parse(obsEventActions);
-				}
-				
 				//Init OBS command params
 				const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
 				if(OBSMuteUnmuteCommandss) {
@@ -1011,6 +1089,12 @@ export default createStore({
 				const obsPermissions = Store.get("obsConf_permissions");
 				if(obsPermissions) {
 					state.obsPermissions = JSON.parse(obsPermissions);
+				}
+				
+				//Init triggers
+				const triggers = Store.get("triggers");
+				if(triggers) {
+					state.triggers = JSON.parse(triggers);
 				}
 				
 				//Load bot messages
@@ -1156,7 +1240,7 @@ export default createStore({
 					}
 				}
 
-				OBSEventActionHandler.instance.onMessage(messageData);
+				TriggerActionHandler.instance.onMessage(messageData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
@@ -1382,7 +1466,9 @@ export default createStore({
 
 		setOBSPermissions({commit}, value:PermissionsData) { commit("setOBSPermissions", value); },
 
-		setObsEventActions({commit}, value:{key:number, data:OBSEventActionData[]|OBSEventActionDataCategory}) { commit("setObsEventActions", value); },
+		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setTrigger", value); },
+
+		deleteTrigger({commit}, value:string) { commit("deleteTrigger", value); },
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
@@ -1442,23 +1528,38 @@ export interface OBSMuteUnmuteCommands {
 	unmuteCommand:string;
 }
 
-export interface OBSEventActionDataCategory {
+export interface TriggerActionChatCommandData {
 	chatCommand:string;
 	prevKey?:string;
 	permissions:PermissionsData;
 	cooldown:{global:number, user:number};
-	actions:OBSEventActionData[];
+	actions:TriggerActionTypes[];
 }
 
-export interface OBSEventActionData {
+export type TriggerActionTypes =  TriggerActionEmptyData
+								| TriggerActionObsData
+								| TriggerActionChatData
+
+export interface TriggerActionData {
 	id:string;
+	delay:number;
+}
+export interface TriggerActionEmptyData extends TriggerActionData{
+	type:"";
+}
+export interface TriggerActionObsData extends TriggerActionData{
+	type:"obs";
 	sourceName:string;
 	filterName?:string;
 	show:boolean;
 	text?:string;
 	url?:string;
 	mediaPath?:string;
-	delay:number;
+}
+
+export interface TriggerActionChatData extends TriggerActionData{
+	type:"chat";
+	message:string;
 }
 
 export interface ParameterDataListValue {

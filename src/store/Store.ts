@@ -1,6 +1,6 @@
 import Config from "@/utils/Config";
 import { JsonValue } from "type-fest";
-import store from ".";
+import store, { TriggerActionTypes, TriggerActionChatCommandData } from ".";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -74,26 +74,39 @@ export default class Store {
 	*******************/
 	private static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
-		const v = this.get("v");
+		let v = this.get("v");
 		if(!v) {
 			this.fixBackslashes();
-			this.set("v", 1);
+			v = "1"
 		}
 		if(v=="1" || v=="2") {
 			this.cleanupOldData();
-			this.set("v", 3);
+			v = "3";
 		}
 		if(v=="3") {
 			this.migrateBotMessages();
-			this.set("v", 4);
+			v = "4";
 		}
 		if(v=="4") {
 			this.migrateSOMessage();
+			v = "5";
 		}
 		if(v=="5") {
 			Store.remove("p:showPollPredResults");
+			v = "6";
 		}
-		this.set("v", 6);
+		if(v=="6") {
+			this.migrateTriggers();
+			v = "7";
+		}
+		if(v=="7") {
+			//Because of my stupid version check, users could skip updates
+			//Trying to fix this here...
+			Store.remove("p:showPollPredResults");
+			v = "8";
+		}
+
+		this.set("v", v);
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -220,5 +233,41 @@ export default class Store {
 		// store.state.botMessages.shoutout.message = label;
 		store.dispatch("updateBotMessage", {key:"shoutout", enabled:true, message:label})
 		this.remove("p:shoutoutLabel");
+	}
+
+	/**
+	 * Flags all obs sources as "obs" types and move them to a new key while
+	 * cleaning up uncessary keys.
+	 */
+	private static migrateTriggers():void {
+		const sources = this.get("obsConf_sources");
+		if(sources) {
+			const actions:(TriggerActionTypes[]|TriggerActionChatCommandData)[] = JSON.parse(sources);
+			for (const key in actions) {
+				const a = actions[key];
+				let list = a;
+				//Is chat command trigger ?
+				if(!Array.isArray(a)) {
+					list = (a as TriggerActionChatCommandData).actions;
+				}
+				const typedList = list as TriggerActionTypes[];
+				for (let i = 0; i < typedList.length; i++) {
+					typedList[i].type = "obs";
+
+					//Cleanup unnecessary data
+					for (const prop in typedList[i]) {
+						//@ts-ignore
+						const v = typedList[i][prop];
+						if(v === "") {
+							//@ts-ignore
+							delete typedList[i][prop];
+						}
+					}
+				}
+			}
+			this.set("triggers", actions);
+			this.remove("obsConf_sources");
+			console.log("Triggers migrated");
+		}
 	}
 }

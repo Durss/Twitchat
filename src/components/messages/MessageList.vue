@@ -82,11 +82,15 @@
 
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
-				<transition name="slide">
+				<!--
+					Transition disabled as it generates MASSIVE call stacks
+					everytime a message is added
+				-->
+				<!-- <transition name="slide"> -->
 					<div class="hoverActionsHolder" v-if="m.type == 'message' && m.showHoverActions && !lightMode">
 						<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 					</div>
-				</transition>
+				<!-- </transition> -->
 			</div>
 		</div>
 
@@ -202,8 +206,9 @@ export default class MessageList extends Vue {
 	}
 
 	public get holderStyles():StyleValue {
+		const padding = this.holderOffsetY == 0? "0" : ".25em";
 		return {
-			transform:"translateY("+this.holderOffsetY+"px)",
+			transform:"translateY(calc("+this.holderOffsetY+"px - "+padding+"))",
 		};
 	}
 
@@ -775,6 +780,7 @@ type MessageTypes = IRCEventDataList.Highlight
 	position: relative;
 	flex-direction: column;
 	max-height: 100%;
+	padding-bottom: 0;
 
 	&.lightMode {
 		padding: 0;

@@ -20,7 +20,7 @@
 					<img src="@/assets/icons/infos.svg" alt="info">
 					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
 				</div>
-				<div v-else-if="p.id == 213 && p.value === true && !isOBSConnected" class="info pronouns">
+				<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
 					<p class="label">based on
 						<a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>
 						and
