@@ -1,5 +1,6 @@
 <template>
 	<div class="paramsaccount">
+		<img src="@/assets/icons/user_purple.svg" alt="overlay icon" class="icon">
 
 		<div class="title">Connected as <strong>{{$store.state.user.login}}</strong></div>
 
@@ -81,6 +82,13 @@ export default class ParamsAccount extends Vue {
 
 <style scoped lang="less">
 .paramsaccount{
+	.icon {
+		height: 4em;
+		display: block;
+		margin: auto;
+		margin-bottom: 1em;
+	}
+	
 	.button {
 		margin: auto;
 		display: block;

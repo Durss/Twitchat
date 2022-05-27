@@ -1,5 +1,7 @@
 <template>
 	<div class="paramsobs">
+		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
+
 		<div class="head">
 			<p>Create your own twitch alerts and allow your mods basic control over your OBS</p>
 			<p class="install">In order to work, this needs <strong>OBS v27.2+</strong> and <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
@@ -69,13 +71,13 @@
 			<OBSFilters />
 		</ToggleBlock> -->
 
-		<ToggleBlock class="block overlay"
+		<!-- <ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="true"
 		icon="broadcast_purple"
 		title="Twitchat triggers">
 			<TriggerActionList />
-		</ToggleBlock>
+		</ToggleBlock> -->
 	</div>
 </template>
 
@@ -217,6 +219,12 @@ export default class ParamsOBS extends Vue {
 <style scoped lang="less">
 .paramsobs{
 
+	.icon {
+		height: 4em;
+		display: block;
+		margin: auto;
+		margin-bottom: 1em;
+	}
 	.head {
 		text-align: center;
 		margin-bottom: 20px;

@@ -1,8 +1,5 @@
 <template>
 	<div class="TriggerAction">
-		<p class="header">Execute custom actions based on twitch events.<br></p>
-		<p class="useCase"><strong>Use case examples :</strong> create chat coommands; control your OBS sources and filters when someone subs, a poll starts, ...</p>
-
 		<ParamItem :paramData="event_conf" />
 		<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1" />
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
@@ -129,7 +126,7 @@ export default class TriggerActionList extends Vue {
 			}else
 			if(a.type == "chat"){
 				//If it's an chat action, it needs at least the message to be defined
-				if(!(a.message?.length > 0)) continue;
+				if(!(a.text?.length > 0)) continue;
 			}
 			canTest = true;
 			break;
@@ -183,9 +180,7 @@ export default class TriggerActionList extends Vue {
 		this.actionList.push({
 			id:Math.random().toString(),
 			delay:0,
-			type:"obs",//TODO reset to empty string
-			sourceName:"",
-			show:true,
+			type:"",
 		});
 		this.canSave = true;
 	}
@@ -425,16 +420,6 @@ export interface OBSChatCmdParameters extends PermissionsData {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-
-	.header {
-		text-align: center;
-		margin-bottom: .5em;
-	}
-
-	.useCase {
-		font-size: .8em;
-		margin-bottom: 1em;
-	}
 
 	.sortable-chosen {
 		filter: grayscale() brightness(1.5);

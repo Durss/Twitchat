@@ -42,7 +42,7 @@ export default class ParamsOverlays extends Vue {
 <style scoped lang="less">
 .paramsoverlays{
 	.icon {
-		height: 5em;
+		height: 4em;
 		display: block;
 		margin: auto;
 		margin-bottom: 1em;

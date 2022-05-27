@@ -1,18 +1,20 @@
 <template>
 	<div class="paramsabout">
-		<ToggleBlock class="block" title="Feed me" icon="coin_purple" :open="true">
-			<ParamsSponsor />
-		</ToggleBlock>
 
 		<ToggleBlock class="block" title="Suggestions and issues" icon="idea_purple" :open="true">
 			<p>If you have a feature idea or are experiencing an issue:</p>
-			<Button :icon="require('@/assets/icons/discord.svg')" title="Tell us on Discord" :href="discordURL" target="_blank" type="link" class="discordBt" />
-			<p>I want this tool to be as good as possible, <strong>if anything annoys you when using it, I want to know</strong>!</p>
+			<Button :icon="require('@/assets/icons/discord.svg')" title="Tell me on Discord" :href="discordURL" target="_blank" type="link" class="discordBt" />
+			<p>I want this tool to be as good as possible, <strong>if anything annoys you</strong> when using it, <strong>I want to know</strong>!</p>
+		</ToggleBlock>
+
+		<ToggleBlock class="block" title="Feed me" icon="coin_purple" :open="true">
+			<ParamsSponsor />
 		</ToggleBlock>
 
 		<ToggleBlock class="block" title="Credits" icon="info_purple" :open="true">
 			<p>App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
 			<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p>Check out some of my other works:</p>
 			<p class="socials">
 				<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" data-tooltip="Durss puzzle boxes" alt="puzzle boxes"></a>
 				<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" data-tooltip="Multiblindtest" alt="multi blindtest"></a>

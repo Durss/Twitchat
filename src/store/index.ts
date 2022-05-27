@@ -852,7 +852,7 @@ export default createStore({
 				return actions.filter(v=> {
 					if(v.type == "") return false;
 					if(v.type == "obs") return v.sourceName?.length > 0;
-					if(v.type == "chat") return v.message?.length > 0;
+					if(v.type == "chat") return v.text?.length > 0;
 					return false;
 				})
 
@@ -1539,6 +1539,8 @@ export interface TriggerActionChatCommandData {
 export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionObsData
 								| TriggerActionChatData
+								| TriggerActionSpotifyData
+;
 
 export interface TriggerActionData {
 	id:string;
@@ -1559,7 +1561,12 @@ export interface TriggerActionObsData extends TriggerActionData{
 
 export interface TriggerActionChatData extends TriggerActionData{
 	type:"chat";
-	message:string;
+	text:string;
+}
+
+export interface TriggerActionSpotifyData extends TriggerActionData{
+	type:"spotify";
+	spotifyAction:string;
 }
 
 export interface ParameterDataListValue {

@@ -15,6 +15,7 @@
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="require('@/assets/icons/whispers_purple.svg')"/>
 				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="require('@/assets/icons/obs_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('spotify')" title="Control Spotify" :icon="require('@/assets/icons/spotify_purple.svg')"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
@@ -133,7 +134,6 @@ export default class TriggerActionEntry extends Vue {
 
 	public async beforeMount():Promise<void> {
 		this.opened = !this.action.type;
-		this.opened = this.action.type == "obs" && !this.action.sourceName;//TODO remove
 	}
 
 	public async mounted():Promise<void> {
@@ -143,18 +143,10 @@ export default class TriggerActionEntry extends Vue {
 	 * Called when submitting the form
 	 */
 	public onSubmit():void {
-		//TODO
-		// this.action.delay = this.delay_conf.value as number;
-		// this.action.sourceName = this.source_conf.value as string;
-		// this.action.filterName = this.filter_conf.value as string;
-		// this.action.text = this.text_conf.value as string;
-		// this.action.show = this.show_conf.value as boolean;
-		// this.action.url = this.url_conf.value as string;
-		// this.action.mediaPath = this.media_conf.value as string;
 		this.$emit("update");
 	}
 
-	public selectActionType(type:'obs'|'chat'):void {
+	public selectActionType(type:'obs'|'chat'|'spotify'):void {
 		this.action.type = type
 	}
 

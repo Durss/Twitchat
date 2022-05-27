@@ -1,7 +1,6 @@
 <template>
 	<div class="triggeractionchatentry">
-		{{action.message}}
-		<ParamItem class="item file" :paramData="message_conf" ref="textContent" v-model="action.message" />
+		<ParamItem class="item file" :paramData="message_conf" ref="textContent" v-model="action.text" />
 		<ToggleBlock small class="helper"
 			v-if="helpers[event]?.length > 0"
 			title="Special placeholders dynamically replaced"

@@ -1,5 +1,7 @@
 <template>
 	<div class="paramsstreamdeck">
+		<img src="@/assets/icons/elgato_purple.svg" alt="overlay icon" class="icon">
+
 		<p class="head">A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button</p>
 		
 		<Splitter title="Install steps" />
@@ -52,6 +54,13 @@ export default class ParamsStreamdeck extends Vue {
 
 <style scoped lang="less">
 .paramsstreamdeck{
+
+	.icon {
+		height: 4em;
+		display: block;
+		margin: auto;
+		margin-bottom: 1em;
+	}
 
 	.head {
 		margin-bottom: 1em;
