@@ -168,7 +168,7 @@ export default class TwitchUtils {
 
 							const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
 							const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
-							//Emote has no space before and after or is not at the start or end of the message
+							//Emote has no space before or after or is not at the start or end of the message
 							//ignore it.
 							if(!prevOK || !nextOK) continue;
 							fakeTag += start+"-"+end;
@@ -218,6 +218,7 @@ export default class TwitchUtils {
 					const p = positions[j];
 					const start = parseInt(p.split("-")[0]);
 					const end = parseInt(p.split("-")[1]);
+					if(isNaN(start) || isNaN(end)) continue;
 					emotesList.push({id, start, end});
 				}
 			}
