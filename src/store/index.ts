@@ -62,7 +62,7 @@ export default createStore({
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
-		obsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
+		PermissionsForm: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
 		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
@@ -841,8 +841,8 @@ export default createStore({
 			Store.set("obsConf_muteUnmute", value);
 		},
 
-		setOBSPermissions(state, value:PermissionsData) {
-			state.obsPermissions = value;
+		setPermissionsForm(state, value:PermissionsData) {
+			state.PermissionsForm = value;
 			Store.set("obsConf_permissions", value);
 		},
 
@@ -853,6 +853,7 @@ export default createStore({
 					if(v.type == "") return false;
 					if(v.type == "obs") return v.sourceName?.length > 0;
 					if(v.type == "chat") return v.text?.length > 0;
+					if(v.type == "spotify") return true;
 					return false;
 				})
 
@@ -988,9 +989,9 @@ export default createStore({
 			}
 			
 			//Init OBS permissions
-			const obsPermissions = Store.get("obsConf_permissions");
-			if(obsPermissions) {
-				state.obsPermissions = JSON.parse(obsPermissions);
+			const PermissionsForm = Store.get("obsConf_permissions");
+			if(PermissionsForm) {
+				state.PermissionsForm = JSON.parse(PermissionsForm);
 			}
 			
 			//Init triggers
@@ -1086,9 +1087,9 @@ export default createStore({
 				}
 				
 				//Init OBS permissions
-				const obsPermissions = Store.get("obsConf_permissions");
-				if(obsPermissions) {
-					state.obsPermissions = JSON.parse(obsPermissions);
+				const PermissionsForm = Store.get("obsConf_permissions");
+				if(PermissionsForm) {
+					state.PermissionsForm = JSON.parse(PermissionsForm);
 				}
 				
 				//Init triggers
@@ -1217,7 +1218,7 @@ export default createStore({
 				}
 
 				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
-					if(Utils.checkPermissions(state.obsPermissions, messageData.tags)) {
+					if(Utils.checkPermissions(state.PermissionsForm, messageData.tags)) {
 						const cmd = messageData.message.trim().toLowerCase();
 						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
@@ -1464,7 +1465,7 @@ export default createStore({
 
 		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
 
-		setOBSPermissions({commit}, value:PermissionsData) { commit("setOBSPermissions", value); },
+		setPermissionsForm({commit}, value:PermissionsData) { commit("setPermissionsForm", value); },
 
 		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setTrigger", value); },
 

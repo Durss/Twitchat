@@ -25,7 +25,7 @@
 					</div>
 
 					<!-- <ToggleBlock small title="Permissions" :open="false" class="row permissions">
-						<OBSPermissions v-model="permissions" />
+						<PermissionsForm v-model="permissions" />
 					</ToggleBlock> -->
 
 					<div class="row">
@@ -42,7 +42,7 @@ import store, { ChatPollData, ParameterData } from '@/store';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import OBSPermissions from '../params/contents/obs/OBSPermissions.vue';
+import PermissionsForm from '../params/contents/obs/PermissionsForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
@@ -52,7 +52,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
-		OBSPermissions,
+		PermissionsForm,
 	}
 })
 export default class ChatPollForm extends Vue {

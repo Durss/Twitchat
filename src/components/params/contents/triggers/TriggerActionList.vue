@@ -125,9 +125,12 @@ export default class TriggerActionList extends Vue {
 				if(!(a.sourceName?.length > 0)) continue;
 			}else
 			if(a.type == "chat"){
-				//If it's an chat action, it needs at least the message to be defined
+				//If it's a chat action, it needs at least the message to be defined
 				if(!(a.text?.length > 0)) continue;
 			}
+			// else
+			// if(a.type == "spotify"){
+			// }
 			canTest = true;
 			break;
 		}
@@ -201,6 +204,7 @@ export default class TriggerActionList extends Vue {
 		if(!this.canSave) return;
 		this.canSave = false;
 
+		//Format chat commands
 		let data:TriggerActionTypes[]|TriggerActionChatCommandData = this.actionList;
 		if(this.isChatCmd) {
 			this.actionCategory.actions = this.actionList as TriggerActionTypes[];
@@ -240,7 +244,8 @@ export default class TriggerActionList extends Vue {
 			}
 			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
-				json.message = this.actionCategory.chatCommand;
+				json.message = this.actionCategory.chatCommand + " lorem ipsum";
+				console.log(json.message);
 			}
 			TriggerActionHandler.instance.onMessage(json, true);
 		}

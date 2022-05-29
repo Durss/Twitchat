@@ -44,7 +44,7 @@
 		icon="lock_purple"
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
-			<OBSPermissions class="content" v-model="permissions" />
+			<PermissionsForm class="content" v-model="permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock class="block mic"
@@ -92,7 +92,7 @@ import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
-import OBSPermissions from './obs/OBSPermissions.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
 import OBSFilters from './obs/OBSFilters.vue';
 import TriggerActionList from './triggers/TriggerActionList.vue';
@@ -106,7 +106,7 @@ import TriggerActionList from './triggers/TriggerActionList.vue';
 		OBSScenes,
 		OBSFilters,
 		ToggleBlock,
-		OBSPermissions,
+		PermissionsForm,
 		TriggerActionList,
 		OBSAudioSourceForm,
 	},
@@ -149,7 +149,7 @@ export default class ParamsOBS extends Vue {
 		}
 		
 
-		const storedPermissions = store.state.obsPermissions;
+		const storedPermissions = store.state.PermissionsForm;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
@@ -201,7 +201,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		store.dispatch("setOBSPermissions", this.permissions);
+		store.dispatch("setPermissionsForm", this.permissions);
 	}
 
 	/**

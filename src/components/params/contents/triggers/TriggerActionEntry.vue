@@ -20,6 +20,7 @@
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
 			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
+			<TriggerActionSpotify @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='spotify'" :action="action" :event="event" :sources="sources" />
 
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==''" v-model="action.delay" />
 
@@ -36,6 +37,7 @@ import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
+import TriggerActionSpotify from './entries/TriggerActionSpotify.vue';
 
 @Options({
 	props:{
@@ -48,6 +50,7 @@ import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
+		TriggerActionSpotify,
 		TriggerActionOBSEntry,
 		TriggerActionChatEntry,
 	},

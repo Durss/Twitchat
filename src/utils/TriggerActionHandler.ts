@@ -1,6 +1,11 @@
 import store, { PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import { JsonObject } from 'type-fest';
+import IRCClient from './IRCClient';
+import PublicAPI from './PublicAPI';
+import SpotifyHelper, {SearchTrackItem} from './SpotifyHelper';
+import TwitchatEvent from './TwitchatEvent';
 import TwitchUtils from './TwitchUtils';
 import Utils from './Utils';
 
@@ -70,25 +75,27 @@ export default class TriggerActionHandler {
 				if(await this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
 					return;
 				}
-			}
-			if(message.tags["first-msg"] === true) {
-				if(await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID)) {
-					return;
-				}
-			}
-			if(message.firstMessage === true) {
-				if(await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID)) {
-					return;
-				}
-			}
+			}else 
 			if(message.tags.bits) {
 				if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
 					return;
 				}
-			}
-			if(message.message) {
-				if(await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID)) {
-					return;
+			}else{
+
+				if(message.tags["first-msg"] === true) {
+					if(await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID)) {
+						// return;
+					}
+				}else 
+				if(message.firstMessage === true) {
+					if(await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID)) {
+						// return;
+					}
+				}
+				if(message.message) {
+					if(await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID)) {
+						// return;
+					}
 				}
 			}
 
@@ -182,8 +189,9 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
-		const cmd = message.message.trim();
-		return this.parseSteps(TriggerTypes.CHAT_COMMAND+"_"+cmd, message, testMode, guid);
+		const cmd = message.message.trim().split(" ")[0];
+		message.message = message.message.replace(cmd, "");
+		return this.parseSteps(TriggerTypes.CHAT_COMMAND+"_"+cmd.toLowerCase(), message, testMode, guid);
 	}
 	
 	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
@@ -242,6 +250,7 @@ export default class TriggerActionHandler {
 			if(!steps || actions.length == 0) canExecute = false;
 			// console.log(steps);
 			// console.log(message);
+			// console.log(canExecute);
 			
 			if(canExecute) {
 				for (let i = 0; i < actions.length; i++) {
@@ -266,6 +275,37 @@ export default class TriggerActionHandler {
 							OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
 						}
 					}
+
+					if(step.type == "chat") {
+						const text = await this.parseText(eventType, message, step.text as string);
+						IRCClient.instance.sendMessage(text);
+					}
+
+					if(step.type == "spotify" && message.type == "message") {
+						let track:SearchTrackItem|null = null;
+						if(/open\.spotify\.com\/track\/.*/gi.test(message.message)) {
+							const chunks = message.message.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+							const id = chunks[2];
+							track = await SpotifyHelper.instance.getTrackByID(id);
+						}else{
+							track = await SpotifyHelper.instance.searchTrack(message.message);
+						}
+						if(track) {
+							if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+								const data:MusicMessage = {
+									type:"music",
+									title:track.name,
+									artist:track.artists[0].name,
+									album:track.album.name,
+									cover:track.album.images[0].url,
+									duration:track.duration_ms,
+								};
+								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data);
+								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+							}
+						}
+					}
+
 					await Utils.promisedTimeout(step.delay * 1000);
 				}
 			}
@@ -314,6 +354,7 @@ export default class TriggerActionHandler {
 					//Parse emotes
 					const chunks = TwitchUtils.parseEmotes(m.message as string, m.tags['emotes-raw'], true);
 					let cleanMessage = ""
+					//only keep text chunks to remove emotes
 					for (let i = 0; i < chunks.length; i++) {
 						const v = chunks[i];
 						if(v.type == "text") {
@@ -352,7 +393,8 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.PredictionResult
 | IRCEventDataList.PollResult
 | IRCEventDataList.BingoResult
-| IRCEventDataList.RaffleResult;
+| IRCEventDataList.RaffleResult
+| MusicMessage;
 
 export const TriggerTypes = {
 	FIRST_ALL_TIME:"1",
@@ -368,6 +410,7 @@ export const TriggerTypes = {
 	FOLLOW:"11",
 	RAID:"12",
 	REWARD_REDEEM:"13",
+	TRACK_ADDED_TO_QUEUE:"14",
 }
 
 export const TriggerActionHelpers:{[key:string]:{tag:string, desc:string, pointer:string}[]} = {};
@@ -403,6 +446,7 @@ TriggerActionHelpers[TriggerTypes.RAFFLE_RESULT] = [
 
 TriggerActionHelpers[TriggerTypes.CHAT_COMMAND] = [
 	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+	{tag:"MESSAGE", desc:"Chat message content", pointer:"message"},
 ];
 
 TriggerActionHelpers[TriggerTypes.SUB] = [
@@ -439,6 +483,12 @@ TriggerActionHelpers[TriggerTypes.REWARD_REDEEM] = [
 	{tag:"DESCRIPTION", desc:"Reward description", pointer:"reward.redemption.reward.prompt"},
 	{tag:"COST", desc:"Reward cost", pointer:"reward.redemption.reward.cost"},
 ];
+TriggerActionHelpers[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
+	{tag:"ARTIST", desc:"Artist name", pointer:"artist"},
+	{tag:"TITLE", desc:"Track title", pointer:"title"},
+	{tag:"ALBUM", desc:"Album name", pointer:"album"},
+	{tag:"COVER", desc:"Cover image URL", pointer:"cover"},
+];
 
 export interface TriggerEventTypes {
 	label:string;
@@ -465,4 +515,14 @@ export const OBSTriggerEvents:TriggerEventTypes[] = [
 	{label:"Bits", value:TriggerTypes.BITS, jsonTest:{"type":"highlight","channel":"#durss","tags":{"badge-info":{"subscriber":"1"},"badges":{"subscriber":"0"},"bits":"51275","color":"#9ACD32","display-name":"Durss","emotes":{},"first-msg":false,"flags":null,"id":"2a1279df-d092-4f87-a2bc-a9123d64f39c","mod":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1642379087259","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"","badge-info-raw":"subscriber/1","badges-raw":"subscriber/0","username":"durss","message-type":"chat"},"message":"Here are 51275 bits for you! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100"}},
 	{label:"Follow", value:TriggerTypes.FOLLOW, jsonTest:{"channel":"#durss","tags":{"username":"Durss","user-id":"29961813","tmi-sent-ts":"1644088397887","id":"00000000-0000-0000-0001-000000000000","msg-id":"follow"},"username":"Durss","type":"highlight"}},
 	{label:"Raid", value:TriggerTypes.RAID, jsonTest:{"type":"highlight","channel":"#durss","tags":{"info":"this tags prop is a fake one to make things easier for my code","id":"16423778121330.0751974390273129","tmi-sent-ts":"1642377812133","msg-id":"raid"},"username":"Durss","viewers":727}},
+	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
 ]
+
+export interface MusicMessage extends JsonObject{
+	type:"music",
+	title:string,
+	artist:string,
+	album:string,
+	cover:string,
+	duration:number,
+}

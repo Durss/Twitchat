@@ -11,8 +11,7 @@
 		<div v-if="cmdNameConflict" class="cmdNameConflict">A command with this name already exists</div>
 
 		<ToggleBlock :open="false" class="row" small title="Users allowed to use this command">
-		{{actionData.permissions}}
-			<OBSPermissions v-model="actionData.permissions" />
+			<PermissionsForm v-model="actionData.permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock :open="false" class="row" small title="Cooldowns">
@@ -39,7 +38,7 @@ import { TriggerTypes } from '@/utils/TriggerActionHandler';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
-import OBSPermissions from '../obs/OBSPermissions.vue';
+import PermissionsForm from '../obs/PermissionsForm.vue';
 
 @Options({
 	props:{
@@ -49,7 +48,7 @@ import OBSPermissions from '../obs/OBSPermissions.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
-		OBSPermissions,
+		PermissionsForm,
 	}
 })
 export default class TriggerActionChatCommandParams extends Vue {

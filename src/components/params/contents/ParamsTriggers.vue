@@ -3,7 +3,7 @@
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
 		<p class="header">Execute custom actions based on twitch events.<br></p>
-		<p class="useCase"><strong>Use case examples: </strong>control <u>OBS</u> sources and filters; create <u>chat coommands</u>; control <u>spotify</u></p>
+		<p class="useCase"><strong>Use case examples: </strong>control <u>OBS</u> sources and filters; create <u>chat commands</u>; control <u>spotify</u></p>
 
 		<TriggerActionList @setContent="(v:string)=>$emit('setContent', v)" />
 	</div>

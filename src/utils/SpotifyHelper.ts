@@ -16,6 +16,7 @@ export default class SpotifyHelper {
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
+	private _lastTrackInfo!:SpotifyTrack|null;
 	
 	constructor() {
 	
@@ -112,6 +113,90 @@ export default class SpotifyHelper {
 	}
 
 	/**
+	 * Get a track by its ID
+	 * 
+	 * @returns track info
+	 */
+	public async getTrackByID(id:string):Promise<SearchTrackItem|null> {
+		const options = {
+			headers:{
+				"Accept":"application/json",
+				"Content-Type":"application/json",
+				"Authorization":"Bearer "+this._token.access_token,
+			}
+		}
+		const res = await fetch("https://api.spotify.com/v1/tracks/"+encodeURIComponent(id), options);
+		const json = await res.json();
+		return json;
+	}
+
+	/**
+	 * Adds a track to the queue
+	 * 
+	 * @returns if a track has been found or not
+	 */
+	public async searchTrack(name:string):Promise<SearchTrackItem|null> {
+		const options = {
+			headers:{
+				"Accept":"application/json",
+				"Content-Type":"application/json",
+				"Authorization":"Bearer "+this._token.access_token,
+			}
+		}
+		const res = await fetch("https://api.spotify.com/v1/search?type=track&q="+encodeURIComponent(name), options);
+		if(res.status == 401) {
+			await this.refreshToken();
+			return null;
+		}
+		const json = await res.json();
+		const tracks = json.tracks as SearchTrackResult;
+		if(tracks.items.length == 0) {
+			return null;
+		}else{
+			return tracks.items[0];
+		}
+	}
+
+	/**
+	 * Adds a track to the queue
+	 * 
+	 * @param uri Spotify URI of the track to add. Get one with "searchTrack()" method
+	 * @returns if a track has been added or not
+	 */
+	public async addToQueue(uri:string):Promise<boolean> {
+		const options = {
+			headers:{
+				"Accept":"application/json",
+				"Content-Type":"application/json",
+				"Authorization":"Bearer "+this._token.access_token,
+			},
+			method:"POST",
+		}
+		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
+		if(res.status == 401) {
+			await this.refreshToken();
+			return false;
+		}
+		if(res.status == 204) {
+			return true;
+		}
+		if(res.status == 409) {
+			store.state.alert = "[SPOTIFY] API rate limits exceeded";
+			return false;
+		}
+		return false;
+	}
+
+	
+	
+	/*******************
+	* PRIVATE METHODS *
+	*******************/
+	private initialize():void {
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
+	}
+
+	/**
 	 * Load current track's data
 	 */
 	private async getCurrentTrack():Promise<void> {
@@ -158,11 +243,15 @@ export default class SpotifyHelper {
 					trackDuration: json.item.duration_ms,
 					trackPlaybackPos: json.progress_ms,
 					cover: json.item.album.images[0].url,
-				})
+				});
+				this._lastTrackInfo = this.currentTrack;
 
 			}else{
 				//Broadcast to the overlays
-				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
+				if(this._lastTrackInfo != null) {
+					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
+					this._lastTrackInfo = null;
+				}
 				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
 		}
@@ -185,15 +274,6 @@ export default class SpotifyHelper {
 			return null;
 		}
 		return await res.json();
-	}
-
-	
-	
-	/*******************
-	* PRIVATE METHODS *
-	*******************/
-	private initialize():void {
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
 	}
 }
 
@@ -322,6 +402,36 @@ interface Show {
 	name: string;
 	publisher: string;
 	total_episodes: number;
+	type: string;
+	uri: string;
+}
+
+interface SearchTrackResult {
+	href: string;
+	items: SearchTrackItem[];
+	limit: number;
+	next: string;
+	offset: number;
+	previous?: string;
+	total: number;
+}
+
+export interface SearchTrackItem {
+	album: Album;
+	artists: Artist[];
+	available_markets: string[];
+	disc_number: number;
+	duration_ms: number;
+	explicit: boolean;
+	external_ids: ExternalIds;
+	external_urls: ExternalUrls;
+	href: string;
+	id: string;
+	is_local: boolean;
+	name: string;
+	popularity: number;
+	preview_url: string;
+	track_number: number;
 	type: string;
 	uri: string;
 }

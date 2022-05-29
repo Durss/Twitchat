@@ -18,6 +18,7 @@ export default class TwitchatEvent extends Event {
 	public static PREDICTION:TwitchatEventType = "PREDICTION";
 	public static MENTION:TwitchatEventType = "MENTION";
 	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
+	public static TRACK_ADDED_TO_QUEUE:TwitchatEventType = "TRACK_ADDED_TO_QUEUE";
 
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
 	public static GREET_FEED_READ_ALL:TwitchatActionType = "GREET_FEED_READ_ALL";
@@ -55,6 +56,7 @@ export type TwitchatEventType =
 	| "PREDICTION"
 	| "MENTION"
 	| "CURRENT_TRACK"
+	| "TRACK_ADDED_TO_QUEUE"
 ;
 
 export type TwitchatActionType =

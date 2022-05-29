@@ -120,6 +120,7 @@ export type TwitchatEventType =
 	| "PREDICTION_END"
 	| "MENTION"
 	| "CURRENT_TRACK"
+	| "TRACK_ADDED_TO_QUEUE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -299,6 +300,18 @@ Sent when a new track is playing on spotify or when playback is stopped
 	trackDuration:number,
 	trackPlaybackPos:number,
 	cover:string,
+}
+```
+## **TRACK_ADDED_TO_QUEUE**
+Sent when a new track is added to the queue\
+### JSON param *(optional)*
+```typescript
+{
+	title:string,
+	artist:string,
+	album:string,
+	cover:string,
+	duration:number,
 }
 ```
 

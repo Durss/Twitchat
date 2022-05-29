@@ -2,14 +2,13 @@
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
 		<div class="title">Add overlays to your stream</div>
-		<p class="infos">The overlays need Twitchat to be running somewhere</p>
-		<!-- <p>If you use Twitchat from an OBS dock, you'll want to open twitchat on one of the above browsers.</p> -->
+		<p class="infos">In order to work, the overlays need Twitchat to be running as they will need to comunicate with it</p>
 		
 		<SpotifyParams v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!obsConnected">
 			<div>This features needs you to connect with OBS.</div>
-			<Button class="button" title="Connect to OBS" white @click="$emit('setContent', 'obs')" />
+			<Button class="button" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
 		</div>
 	</div>
 </template>
