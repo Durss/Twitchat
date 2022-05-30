@@ -284,12 +284,13 @@ export default class TriggerActionHandler {
 					if(step.type == "spotify") {
 						if(step.spotifyAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
 							let track:SearchTrackItem|null = null;
-							if(/open\.spotify\.com\/track\/.*/gi.test(message.message)) {
-								const chunks = message.message.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+							const m = message.message.split(" ").splice(1).join(" ");
+							if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
+								const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
 								const id = chunks[2];
 								track = await SpotifyHelper.instance.getTrackByID(id);
 							}else{
-								track = await SpotifyHelper.instance.searchTrack(message.message);
+								track = await SpotifyHelper.instance.searchTrack(m);
 							}
 							if(track) {
 								if(await SpotifyHelper.instance.addToQueue(track.uri)) {

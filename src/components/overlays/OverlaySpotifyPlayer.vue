@@ -97,13 +97,14 @@ export default class OverlaySpotifyPlayer extends Vue {
 <style scoped lang="less">
 .overlayspotifyplayer{
 	.content {
+		@maxHeight: 25vw;
 		display: flex;
 		flex-direction: row;
 		background-color: @mainColor_dark;
-		max-height: 33vw;
+		max-height: @maxHeight;
 		max-width: 100%;
 
-		@coverSize: ~"min(100vh, 33vw)";
+		@coverSize: ~"min(100vh, @{maxHeight})";
 
 		.cover {
 			width: @coverSize;
@@ -111,8 +112,11 @@ export default class OverlaySpotifyPlayer extends Vue {
 		}
 		
 		.infos {
+			@minSize: @maxHeight/4;
+			@fontSize: ~"min(@{minSize}, 50vh)";
+			@infoHeight: calc(@maxHeight/2 - .25em/2);
 			color: @mainColor_light;
-			font-size: ~"min(16.5vw, 50vh)";
+			font-size: @fontSize;
 			flex-shrink: 1;
 			min-width: 0px;//Tell flexbox it's ok to shrink it
 
@@ -120,14 +124,19 @@ export default class OverlaySpotifyPlayer extends Vue {
 				overflow-y: hidden;
 			}
 
+			.artist, .track {
+				padding-right: 10vw;
+				height: @infoHeight;
+				display: flex;
+				align-items: center;
+			}
+
 			.artist {
 				font-weight: bold;
-				padding-right: 10vw;
 			}
 
 			.track {
 				font-size: .8em;
-				padding-right: 10vw;
 			}
 		}
 		.progressbar {

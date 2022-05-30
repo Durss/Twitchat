@@ -2,6 +2,9 @@
 	<ToggleBlock :open="open" class="spotifyparams" title="Spotify" icon="spotify_purple">
 		<div v-if="error" class="error" @click="error=''">{{error}}</div>
 
+		<div v-if="!spotifyConnected && !authenticating" title="Autenticate">
+			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
+		</div>
 		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
 
 		<div v-if="spotifyConnected" class="content">
@@ -9,7 +12,7 @@
 				<label for="spotify_overlay_url">OBS overlay to display current track:</label>
 				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
 				<ToggleBlock small title="CSS customization" :open="false">
-					<div>You can change the appearance of the player by overriding these CSS IDs on OBS</div>
+					<div>You can change the appearance of the player by overriding these CSS IDs on OBS browser source params</div>
 					<ul>
 						<li>#music_cover { ... }</li>
 						<li>#music_title { ... }</li>

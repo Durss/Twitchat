@@ -59,7 +59,7 @@ export default class SpotifyHelper {
 	public async startAuthFlow():Promise<void> {
 		const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
 		const json = await res.json();
-		const scope = ["streaming","user-read-private","user-read-playback-state","app-remote-control","user-modify-playback-state"].join("%20");
+		const scope = ["user-read-currently-playing","user-modify-playback-state"].join("%20");//TODO load scopes from server
 
 		let url = "https://accounts.spotify.com/authorize";
 		url += "?client_id="+Config.SPOTIFY_CLIENT_ID;
@@ -269,10 +269,10 @@ export default class SpotifyHelper {
 	
 			if(this.isPlaying) {
 				let delay = json.item.duration_ms - json.progress_ms;
-				if(isNaN(delay)) delay = 1000;
+				if(isNaN(delay)) delay = 10000;
 				this._getTrackTimeout = setTimeout(()=> {
 					this.getCurrentTrack();
-				}, Math.min(1000, delay + 1000));
+				}, Math.min(10000, delay + 1000));
 
 				//Broadcast to the overlays
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
