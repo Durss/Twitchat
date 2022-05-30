@@ -73,7 +73,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["shakawah"]);
+				channels = channels.concat(["supershigi"]);
 			}
 
 			(async ()=> {
@@ -139,13 +139,12 @@ export default class IRCClient extends EventDispatcher {
 					if(store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
 						if(this.botsLogins.indexOf(user) == -1) {
-							user = "<mark>"+user+"</mark>";
 							this.joinSpool.push(user);
 							clearTimeout(this.joinSpoolTimeout);
 							
 							this.joinSpoolTimeout = setTimeout(() => {
 								const join = this.joinSpool.splice(0, 30);
-								let message = join.join(", ");
+								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
 								if(this.joinSpool.length > 0) {
 									message += " and <mark>"+this.joinSpool.length+"</mark> more...";
 								}else{
@@ -176,13 +175,12 @@ export default class IRCClient extends EventDispatcher {
 				if(store.state.params.features.notifyJoinLeave.value === true) {
 					//Ignore bots
 					if(this.botsLogins.indexOf(user) == -1) {
-						user = "<mark>"+user+"</mark>";
 						this.partSpool.push(user);
 						clearTimeout(this.partSpoolTimeout);
 						
 						this.partSpoolTimeout = setTimeout(() => {
-							const join = this.partSpool.splice(0, 30);
-							let message = join.join(", ");
+							const leave = this.partSpool.splice(0, 30);
+							let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
 							if(this.partSpool.length > 0) {
 								message += " and <mark>"+this.partSpool.length+"</mark> more...";
 							}else{
