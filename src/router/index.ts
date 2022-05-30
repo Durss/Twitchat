@@ -80,6 +80,7 @@ const routes: Array<RouteRecordRaw> = [
 			needAuth:false,
 			public:true,
 			noBG:true,
+			overflow:false,
 		}
 	},
 	{

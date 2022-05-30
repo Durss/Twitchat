@@ -1,10 +1,17 @@
 <template>
 	<div class="overlayspotifyplayer">
 		<div class="content" v-if="isPlaying">
-			<img :src="cover" class="cover">
+			<img :src="cover" class="cover" id="cover">
 			<div class="infos">
-				<div class="artist">{{artist}}</div>
-				<div class="track">{{track}}</div>
+				<Vue3Marquee :duration="duration">
+					<div class="artist" id="artist">{{artist}}</div>
+				</Vue3Marquee>
+				<Vue3Marquee :duration="duration">
+					<div class="track" id="title">{{track}}</div>
+				</Vue3Marquee>
+				<div class="progressbar" id="progressbar">
+					<div class="fill" :style="progressStyles"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -13,11 +20,16 @@
 <script lang="ts">
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import { Vue3Marquee } from 'vue3-marquee'
+import 'vue3-marquee/dist/style.css'
 
 @Options({
 	props:{},
-	components:{}
+	components:{
+		Vue3Marquee,
+	}
 })
 export default class OverlaySpotifyPlayer extends Vue {
 
@@ -25,8 +37,19 @@ export default class OverlaySpotifyPlayer extends Vue {
 	public track:string = "";
 	public cover:string = "";
 	public isPlaying:boolean = false;
+	public progress:number = 0;
 
 	private onTrackHandler!:(e:TwitchatEvent) => void;
+
+	public get duration():number {
+		return Math.max(this.artist.length, this.track.length) /2;
+	}
+
+	public get progressStyles():{[key:string]:string} {
+		return {
+			width: `${this.progress*100}%`,
+		};
+	}
 
 	public mounted():void {
 		this.onTrackHandler = (e:TwitchatEvent) => {
@@ -43,6 +66,19 @@ export default class OverlaySpotifyPlayer extends Vue {
 				this.track = obj.trackName;
 				this.cover = obj.cover;
 				this.isPlaying = true;
+
+				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
+				//There's a slight offset (~3%) between the local progress
+				//and what spotify gives us due to the query execution duration
+				//wich makes the progressbar jump back on every event
+				//This condition avoids reseting the progressbar animation
+				//unless there's a more a than 10% offset
+				if(Math.abs(newProgress - this.progress) > .1 || this.progress == 0) {
+					this.progress = newProgress;
+					const duration = (obj.trackDuration*(1-newProgress))/1000;
+					gsap.killTweensOf(this);
+					gsap.to(this, {duration, progress:1})
+				}
 			}else{
 				this.isPlaying = false;
 			}
@@ -63,26 +99,46 @@ export default class OverlaySpotifyPlayer extends Vue {
 	.content {
 		display: flex;
 		flex-direction: row;
+		background-color: @mainColor_dark;
+		max-height: 33vw;
+		max-width: 100%;
+
+		@coverSize: ~"min(100vh, 33vw)";
 
 		.cover {
-			width: 100vh;
-			max-width: 30vw;
-			margin-right: 10vh;
+			width: @coverSize;
 			object-fit: cover;
 		}
 		
 		.infos {
-			font-size: 30vh;
-			flex-grow: 1;
+			color: @mainColor_light;
+			font-size: ~"min(16.5vw, 50vh)";
+			flex-shrink: 1;
+			min-width: 0px;//Tell flexbox it's ok to shrink it
+
+			:deep(.vue3-marquee) {
+				overflow-y: hidden;
+			}
 
 			.artist {
 				font-weight: bold;
+				padding-right: 10vw;
 			}
 
 			.track {
 				font-size: .8em;
+				padding-right: 10vw;
+			}
+		}
+		.progressbar {
+			height: .25em;
+			max-width: 100%;
+			.fill {
+				background-color: @mainColor_light;
+				height: 100%;
 			}
 		}
 	}
+
 }
 </style>

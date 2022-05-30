@@ -2,7 +2,7 @@
  * Created by Durss
  */
 export default class Config {
-	public static IS_PROD:boolean = document.location.hostname != "localhost";
+	public static IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
 	public static TWITCH_APP_SCOPES:string[] = [];
 	public static TWITCH_API_PATH:string = "https://api.twitch.tv/helix/";
 	public static DISCORD_URL:string = "https://discord.gg/fmqD2xUYvP";

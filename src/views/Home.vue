@@ -142,7 +142,7 @@
 								<li>Easy customizable shoutout command</li>
 								<li>Filter out command messages</li>
 								<li>Autocomplete emotes (:xxx), user names (@xxx) and commands (/xxx)</li>
-								<li>Display BTTV emotes</li>
+								<li>Display BTTV / FFZ / 7TV emotes</li>
 								<li>A public websocket API for developers</li>
 								<li>...</li>
 							</ul>
@@ -263,19 +263,19 @@ export default class Home extends Vue {
 			font-style: italic;
 			opacity: .8;
 
-			&::before {
-				content: "“";
-				font-family: "Nunito";
-				font-size: 2em;
-				vertical-align: middle;
-				margin-right: 10px;
-			}
-			&::after {
-				content: "”";
-				font-family: "Nunito";
-				font-size: 2em;
-				vertical-align: middle;
-			}
+			// &::before {
+			// 	content: "“";
+			// 	font-family: "Nunito";
+			// 	font-size: 2em;
+			// 	vertical-align: middle;
+			// 	margin-right: 10px;
+			// }
+			// &::after {
+			// 	content: "”";
+			// 	font-family: "Nunito";
+			// 	font-size: 2em;
+			// 	vertical-align: middle;
+			// }
 		}
 
 		.features {
@@ -299,6 +299,9 @@ export default class Home extends Vue {
 			}
 
 			:deep(.carousel){
+				.carousel__pagination {
+					flex-wrap: wrap;
+				}
 				.carousel__next,
 				.carousel__prev,
 				.carousel__pagination-button {

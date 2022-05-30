@@ -269,10 +269,10 @@ export default class SpotifyHelper {
 	
 			if(this.isPlaying) {
 				let delay = json.item.duration_ms - json.progress_ms;
-				if(isNaN(delay)) delay = 5000;
+				if(isNaN(delay)) delay = 1000;
 				this._getTrackTimeout = setTimeout(()=> {
 					this.getCurrentTrack();
-				}, Math.min(5000, delay + 1000));
+				}, Math.min(1000, delay + 1000));
 
 				//Broadcast to the overlays
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
