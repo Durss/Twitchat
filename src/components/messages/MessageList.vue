@@ -206,9 +206,9 @@ export default class MessageList extends Vue {
 	}
 
 	public get holderStyles():StyleValue {
-		const padding = this.holderOffsetY == 0? "0" : ".25em";
+		if(this.holderOffsetY == 0) return {};
 		return {
-			transform:"translateY(calc("+this.holderOffsetY+"px - "+padding+"))",
+			transform:"translateY(calc("+this.holderOffsetY+"px - .25em))",
 		};
 	}
 
