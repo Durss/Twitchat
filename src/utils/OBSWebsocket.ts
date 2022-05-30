@@ -1,4 +1,3 @@
-import { PermissionsData } from '@/store';
 import OBSWebSocket from 'obs-websocket-js';
 import { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';

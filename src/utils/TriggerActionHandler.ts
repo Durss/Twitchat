@@ -110,7 +110,7 @@ export default class TriggerActionHandler {
 			return;
 		}
 
-		const s = this.actionsSpool.shift();
+		this.actionsSpool.shift();
 		this.executeNext();
 	}
 

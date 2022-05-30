@@ -56,10 +56,10 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData, ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionObsData, TriggerActionTypes } from '@/store';
+import store, { ParameterData, PermissionsData, TriggerActionChatCommandData, TriggerActionObsData, TriggerActionTypes } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket, { OBSSourceItem } from '@/utils/OBSWebsocket';
-import TriggerActionHandler, { OBSTriggerEvents, TriggerTypes, TriggerEventTypes } from '@/utils/TriggerActionHandler';
+import TriggerActionHandler, { OBSTriggerEvents, TriggerEventTypes, TriggerTypes } from '@/utils/TriggerActionHandler';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';

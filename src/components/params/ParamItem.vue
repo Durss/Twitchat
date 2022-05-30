@@ -161,7 +161,7 @@ export default class ParamItem extends Vue {
 		&& this.modelValue !== undefined) {
 			this.paramData.value = this.modelValue;
 		}
-		watch(()=>this.modelValue, (value:any)=>{
+		watch(()=>this.modelValue, (value: string | number | boolean | string[])=>{
 			if(value !== null
 			&& value !== undefined) {
 				this.paramData.value = value;

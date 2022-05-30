@@ -11,7 +11,6 @@
 
 <script lang="ts">
 import { ParameterData, PermissionsData } from '@/store';
-import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 
