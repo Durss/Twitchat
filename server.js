@@ -50,8 +50,13 @@ http.createServer((request, response) => {
 			//Get client ID
 			if(endpoint == "/api/configs") {
 				response.writeHead(200, {'Content-Type': 'application/json'});
-				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes, spotify_client_id:credentials.spotify_client_id}));
-				return;
+				response.end(JSON.stringify({
+					client_id:credentials.client_id,
+					scopes:credentials.scopes,
+					spotify_scopes:credentials.spotify_scopes,
+					spotify_client_id:credentials.spotify_client_id,
+				}));
+					return;
 		
 			//Get/Set user data
 			}else if(endpoint == "/api/user") {

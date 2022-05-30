@@ -913,6 +913,7 @@ export default createStore({
 			}
 			state.spotifyAuthToken = value;
 			SpotifyHelper.instance.token = value;
+			SpotifyHelper.instance.getCurrentTrack();
 		},
 
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
@@ -927,6 +928,7 @@ export default createStore({
 			const jsonConfigs = await res.json();
 			TwitchUtils.client_id = jsonConfigs.client_id;
 			Config.TWITCH_APP_SCOPES = jsonConfigs.scopes;
+			Config.SPOTIFY_SCOPES  = jsonConfigs.spotify_scopes;
 			Config.SPOTIFY_CLIENT_ID = jsonConfigs.spotify_client_id;
 
 			//Loading parameters from storage and pushing them to the store
@@ -1123,7 +1125,8 @@ export default createStore({
 	
 				//Init spotify connection
 				const spotifyAuthToken = Store.get("spotifyAuthToken");
-				if(spotifyAuthToken) {
+				if(spotifyAuthToken && Config.SPOTIFY_CLIENT_ID != "") {
+					console.log("SET TOKEEEEEEEEEEN");
 					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 				}
 			}

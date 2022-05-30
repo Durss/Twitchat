@@ -41,11 +41,16 @@ export default class SpotifyHelper {
 			return;
 		}
 		this._token = value;
-		if(Date.now() > value.expires_at - 10 * 60 * 1000) {
-			this.refreshToken();
-		}else{
-			this.getCurrentTrack();
+		this._headers = {
+			"Accept":"application/json",
+			"Content-Type":"application/json",
+			"Authorization":"Bearer "+this._token.access_token,
 		}
+		// if(Date.now() > value.expires_at - 10 * 60 * 1000) {
+		// 	this.refreshToken();
+		// }else{
+		// 	this.getCurrentTrack();
+		// }
 	}
 	
 	
@@ -59,7 +64,7 @@ export default class SpotifyHelper {
 	public async startAuthFlow():Promise<void> {
 		const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
 		const json = await res.json();
-		const scope = ["user-read-currently-playing","user-modify-playback-state"].join("%20");//TODO load scopes from server
+		const scope = Config.SPOTIFY_SCOPES.split(" ").join("%20");
 
 		let url = "https://accounts.spotify.com/authorize";
 		url += "?client_id="+Config.SPOTIFY_CLIENT_ID;
@@ -182,6 +187,65 @@ export default class SpotifyHelper {
 	}
 
 	/**
+	 * Get the currently playing track
+	 * This starts a routine that automatically checks for new
+	 * track info.
+	 */
+	public async getCurrentTrack():Promise<void> {
+		clearTimeout(this._getTrackTimeout);
+
+		const options = {
+			headers:this._headers
+		}
+		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
+		if(res.status == 401) {
+			await this.refreshToken();
+			return;
+		}
+		if(res.status == 204) {
+			//No content, nothing is playing
+			return;
+		}
+		
+		let json:SpotifyTrack|null = await res.json();
+		if(json != null) {
+			if(json.currently_playing_type == "episode") {
+				const episode = await this.getEpisodeInfos();
+				if(episode) json = episode;
+			}
+
+			this.currentTrack = json;
+			this.isPlaying = json.is_playing && json.item != null;
+	
+			if(this.isPlaying) {
+				let delay = json.item.duration_ms - json.progress_ms;
+				if(isNaN(delay)) delay = 10000;
+				this._getTrackTimeout = setTimeout(()=> {
+					this.getCurrentTrack();
+				}, Math.min(10000, delay + 1000));
+
+				//Broadcast to the overlays
+				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+					trackName: json.item.name,
+					artistName: json.item.show? json.item.show.name : json.item.artists[0].name,
+					trackDuration: json.item.duration_ms,
+					trackPlaybackPos: json.progress_ms,
+					cover: json.item.album.images[0].url,
+				});
+				this._lastTrackInfo = this.currentTrack;
+
+			}else{
+				//Broadcast to the overlays
+				if(this._lastTrackInfo != null) {
+					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
+					this._lastTrackInfo = null;
+				}
+				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+			}
+		}
+	}
+
+	/**
 	 * Plays next track in queue
 	 * @returns 
 	 */
@@ -237,62 +301,6 @@ export default class SpotifyHelper {
 			return false;
 		}
 		return false;
-	}
-	/**
-	 * Load current track's data
-	 */
-	private async getCurrentTrack():Promise<void> {
-		clearTimeout(this._getTrackTimeout);
-
-		const options = {
-			headers:this._headers
-		}
-		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
-		if(res.status == 401) {
-			await this.refreshToken();
-			return;
-		}
-		if(res.status == 204) {
-			//No content, nothing is playing
-			return;
-		}
-		
-		let json:SpotifyTrack|null = await res.json();
-		if(json != null) {
-			if(json.currently_playing_type == "episode") {
-				const episode = await this.getEpisodeInfos();
-				if(episode) json = episode;
-			}
-
-			this.currentTrack = json;
-			this.isPlaying = json.is_playing && json.item != null;
-	
-			if(this.isPlaying) {
-				let delay = json.item.duration_ms - json.progress_ms;
-				if(isNaN(delay)) delay = 10000;
-				this._getTrackTimeout = setTimeout(()=> {
-					this.getCurrentTrack();
-				}, Math.min(10000, delay + 1000));
-
-				//Broadcast to the overlays
-				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
-					trackName: json.item.name,
-					artistName: json.item.show? json.item.show.name : json.item.artists[0].name,
-					trackDuration: json.item.duration_ms,
-					trackPlaybackPos: json.progress_ms,
-					cover: json.item.album.images[0].url,
-				});
-				this._lastTrackInfo = this.currentTrack;
-
-			}else{
-				//Broadcast to the overlays
-				if(this._lastTrackInfo != null) {
-					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
-					this._lastTrackInfo = null;
-				}
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
-			}
-		}
 	}
 
 	/**
