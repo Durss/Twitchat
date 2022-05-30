@@ -3,7 +3,7 @@
 		<ParamItem class="item file" :paramData="actions_conf" ref="textContent" v-model="action.spotifyAction" />
 		<ParamItem class="item text" :paramData="track_conf" v-model="action.track" v-if="showTrackInput" ref="textContent" />
 		<ToggleBlock small class="helper"
-			v-if="actions_conf.children && actions_conf.children.length > 0 && helpers[event]?.length > 0"
+			v-if="showTrackInput && helpers[event]?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false"
 		>
@@ -51,7 +51,7 @@ export default class TriggerActionSpotify extends Vue {
 			{label:"Select a trigger...", value:"0" },
 		];
 		events = events.concat(MusicTriggerEvents);
-		this.actions_conf.value = events[0].value;
+		this.actions_conf.value = this.action.spotifyAction;
 		this.actions_conf.listValues = events;
 
 	}
