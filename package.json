@@ -3,10 +3,10 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "vue-cli-service serve",
-		"serve": "vue-cli-service serve",
-		"build": "vue-cli-service build",
-		"lint": "vue-cli-service lint"
+		"dev": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+		"serve": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+		"build": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
+		"lint": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
 	},
 	"dependencies": {
 		"ajv": "^6.12.6",
