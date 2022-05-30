@@ -5,7 +5,7 @@
 		<p class="infos">In order to work, the overlays need Twitchat to be running as they will need to comunicate with it</p>
 		
 		<OverlayParamsRaffle class="block" v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsSpotify class="block" v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsSpotify class="block" v-if="obsConnected && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!obsConnected">
 			<div>This features needs you to connect with OBS.</div>
@@ -20,6 +20,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
+import Config from '@/utils/Config';
 
 @Options({
 	props:{},
@@ -33,6 +34,7 @@ import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 export default class ParamsOverlays extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get spotifyConfigured():boolean { return Config.SPOTIFY_CLIENT_ID != ""; }
 
 	public mounted():void {
 

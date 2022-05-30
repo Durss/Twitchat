@@ -90,7 +90,11 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"user:read:follows",
 		"channel:edit:commercial",
 		"channel:read:subscriptions"
-	]
+	],
+	"spotify_client_id": "",
+	"spotify_client_secret": "",
+	"spotify_scopes": "user-read-currently-playing user-modify-playback-state",
+	"spotify_redirect_uri": "http://localhost:8080/spotify/auth"
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
@@ -101,6 +105,7 @@ The `redirect uri` must end with `/oauth`, example :
 ```
 http://localhost:8080/oauth
 ```
+You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
 By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
 

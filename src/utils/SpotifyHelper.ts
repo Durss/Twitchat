@@ -204,6 +204,7 @@ export default class SpotifyHelper {
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
+			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 10000);
 			return;
 		}
 		
@@ -240,7 +241,7 @@ export default class SpotifyHelper {
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
 					this._lastTrackInfo = null;
 				}
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 10000);
 			}
 		}
 	}
