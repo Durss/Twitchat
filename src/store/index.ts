@@ -923,7 +923,7 @@ export default createStore({
 
 	
 	actions: {
-		async startApp({state, commit}, authenticate:boolean) {
+		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
 			const res = await fetch(Config.API_PATH+"/configs");
 			const jsonConfigs = await res.json();
 			TwitchUtils.client_id = jsonConfigs.client_id;
@@ -1037,7 +1037,7 @@ export default createStore({
 			PublicAPI.instance.initialize();
 
 			const token = Store.get("oAuthToken");
-			if(token && authenticate) {
+			if(token && payload.authenticate) {
 				try {
 					await new Promise((resolve,reject)=> {
 						commit("authenticate", {cb:(success:boolean)=>{
@@ -1071,6 +1071,7 @@ export default createStore({
 					// document.location.href = TwitchUtils.oAuthURL;
 					// router.push({name: 'login'});
 					state.initComplete = true;
+					payload.callback();
 					return;
 				}
 			
@@ -1126,6 +1127,7 @@ export default createStore({
 				if(spotifyAuthToken) {
 					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 				}
+				payload.callback();
 			}
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
