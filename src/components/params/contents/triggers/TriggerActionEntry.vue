@@ -6,7 +6,7 @@
 	:errorTitle="errorTitle"
 	:open="opened"
 	:title="title" :class="classes"
-	:icon="icon"
+	:icons="icons"
 	>
 		<template #actions>
 			<Button small
@@ -113,11 +113,12 @@ export default class TriggerActionEntry extends Vue {
 	/**
 	 * Get block's icon
 	 */
-	public get icon():string {
-		if(this.action.type == "obs") {
-			return  this.action.show? 'show' : 'hide'
-		}
-		return "";
+	public get icons():string[] {
+		const icons = [];
+		if(this.action.type == "obs") icons.push( this.action.show? 'show' : 'hide' );
+		if(this.action.type == "spotify") icons.push( 'spotify' );
+		if(this.action.type == "chat") icons.push( 'whispers' );
+		return icons;
 	}
 
 	/**
@@ -179,6 +180,7 @@ export default class TriggerActionEntry extends Vue {
 		}
 		&>.icon {
 			height: 1.5em !important;
+			padding: .15em 0;
 			width: unset !important;
 			vertical-align: middle;
 		}

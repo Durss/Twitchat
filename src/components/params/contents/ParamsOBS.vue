@@ -9,7 +9,7 @@
 
 		<ToggleBlock class="block conf"
 		:open="openConnectForm"
-		icon="info_purple"
+		:icons="['info_purple']"
 		title="OBS credentials">
 			<transition name="fade">
 				<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">Connected with OBS</div>
@@ -41,7 +41,7 @@
 		<ToggleBlock class="block permissions"
 		v-if="connected"
 		:open="false"
-		icon="lock_purple"
+		:icons="['lock_purple']"
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
 			<PermissionsForm class="content" v-model="permissions" />
@@ -50,7 +50,7 @@
 		<ToggleBlock class="block mic"
 		v-if="connected"
 		:open="false"
-		icon="microphone_purple"
+		:icons="['microphone_purple']"
 		title="Control microphone">
 			<OBSAudioSourceForm />
 		</ToggleBlock>
@@ -58,7 +58,7 @@
 		<ToggleBlock class="block scenes"
 		v-if="connected"
 		:open="false"
-		icon="list_purple"
+		:icons="['list_purple']"
 		title="Control scenes">
 			<OBSScenes />
 		</ToggleBlock>
@@ -66,7 +66,7 @@
 		<!-- <ToggleBlock class="block filters"
 		v-if="connected"
 		:open="false"
-		icon="graphicFilters_purple"
+		:icons="['graphicFilters_purple']"
 		title="Control filters">
 			<OBSFilters />
 		</ToggleBlock> -->
@@ -74,7 +74,7 @@
 		<!-- <ToggleBlock class="block overlay"
 		v-if="connected"
 		:open="true"
-		icon="broadcast_purple"
+		:icons="['broadcast_purple']"
 		title="Twitchat triggers">
 			<TriggerActionList />
 		</ToggleBlock> -->

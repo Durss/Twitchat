@@ -9,7 +9,7 @@
 				@mousedown="$emit('startDrag', $event)"
 				data-tooltip="Reorder"
 			/>
-			<img :src="require('@/assets/icons/'+localIcon+'.svg')" :alt="localIcon" class="icon" v-if="localIcon">
+			<img v-for="icon in localIcons" :src="require('@/assets/icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
 			<h2 v-html="localTitle"></h2>
 			<slot name="actions"></slot>
 		</div>
@@ -28,7 +28,7 @@ import Button from './Button.vue';
 @Options({
 	props:{
 		title:String,
-		icon:String,
+		icons:Array,
 		open:{
 			type:Boolean,
 			default:true,
@@ -61,8 +61,8 @@ import Button from './Button.vue';
 })
 export default class ToggleBlock extends Vue {
 
-	public icon!:string
-	public title!:string
+	public icons!:string[];
+	public title!:string;
 	public open!:boolean;
 	public error!:boolean;
 	public small!:boolean;
@@ -86,9 +86,10 @@ export default class ToggleBlock extends Vue {
 		return this.title;
 	}
 
-	public get localIcon():string {
-		if(this.error) return "automod_white";
-		return this.icon;
+	public get localIcons():string[] {
+		const icons = this.icons;
+		if(this.error) icons.push("automod_white");
+		return icons;
 	}
 
 	public beforeMount():void {

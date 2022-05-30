@@ -8,7 +8,7 @@
 			</div>
 			<div class="content">
 				<div class="description">
-					<ToggleBlock icon="infos" small title="Legal concerns" :open="false" class="legal">
+					<ToggleBlock :icons="['infos']" small title="Legal concerns" :open="false" class="legal">
 						<div>Depending on your country's legislation, making your viewers win something while using the "sub" ponderation option or randomly picking a winner amongst your subs might be illegal.</div>
 						<div>You may want to check this out before doing a giveaway.</div>
 					</ToggleBlock>

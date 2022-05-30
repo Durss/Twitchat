@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData, PermissionsData, TriggerActionChatCommandData, TriggerActionObsData, TriggerActionTypes } from '@/store';
+import store, { ParameterData, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket, { OBSSourceItem } from '@/utils/OBSWebsocket';
 import TriggerActionHandler, { OBSTriggerEvents, TriggerEventTypes, TriggerTypes } from '@/utils/TriggerActionHandler';
@@ -191,7 +191,7 @@ export default class TriggerActionList extends Vue {
 	/**
 	 * Called when deleting an action item
 	 */
-	public deleteAction(action:TriggerActionObsData, index:number):void {
+	public deleteAction(action:TriggerActionTypes, index:number):void {
 		Utils.confirm("Delete action ?").then(()=> {
 			this.actionList.splice(index, 1);
 		}).catch(()=> {});
@@ -200,12 +200,13 @@ export default class TriggerActionList extends Vue {
 	/**
 	 * Called when duplicating an action item
 	 */
-	public duplicateAction(action:TriggerActionObsData, index:number):void {
+	public duplicateAction(action:TriggerActionTypes, index:number):void {
 		// Utils.confirm("Delete action ?").then(()=> {
 		// 	this.actionList.splice(index, 1);
 		// }).catch(()=> {});
 
-		const clone = JSON.parse(JSON.stringify(action));
+		const clone:TriggerActionTypes = JSON.parse(JSON.stringify(action));
+		clone.id = Math.random().toString();//Avoid duplicate keys
 		this.actionList.splice(index, 0, clone);
 	}
 
@@ -337,7 +338,7 @@ export default class TriggerActionList extends Vue {
 				}
 			}else if(store.state.triggers[key]){
 				const trigger = JSON.parse(JSON.stringify(store.state.triggers[key]));//Avoid modifying the original data
-				this.actionList = trigger as TriggerActionObsData[];
+				this.actionList = trigger as TriggerActionTypes[];
 			}else{
 				this.actionList = [];
 			}
@@ -363,7 +364,7 @@ export default class TriggerActionList extends Vue {
 				this.actionCategory = trigger as TriggerActionChatCommandData;
 				this.actionList = this.actionCategory.actions;
 			}else{
-				this.actionList = trigger as TriggerActionObsData[];
+				this.actionList = trigger as TriggerActionTypes[];
 			}
 		//Do not reset if the sub event
 		}else if(this.isSublist){

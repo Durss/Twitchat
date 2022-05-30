@@ -4,7 +4,7 @@
 	class="TriggerActionchatcommandparams"
 	:open="true"
 	title="Parameters"
-	icon="params">
+	:icons="['params']">
 
 		<p class="title">Set a chat command that will trigger the actions</p>
 		<ParamItem class="row" :paramData="param_cmd" @focusout="onUpdateCommand()" :error="cmdNameConflict" />

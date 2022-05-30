@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="spotifyparams" title="Spotify" icon="spotify_purple">
+	<ToggleBlock :open="open" class="spotifyparams" title="Spotify" :icons="['spotify_purple']">
 		<div v-if="error" class="error" @click="error=''">{{error}}</div>
 
 		<div v-if="!spotifyConnected && !authenticating" title="Autenticate">

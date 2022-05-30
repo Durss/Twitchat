@@ -6,7 +6,7 @@
 			:percent="progressPercent"
 			:duration="poll.duration*1000 * 60" />
 		
-		<ToggleBlock medium :open="false" :title="entries.length+' entries'" class="row choices" v-if="entries.length > 0" icon="user">
+		<ToggleBlock medium :open="false" :title="entries.length+' entries'" class="row choices" v-if="entries.length > 0" :icons="['user']">
 			<div class="holder">
 				<div class="choice" v-for="(c,index) in poll.choices" :key="c.user['user-id']+'_'+index">
 					<div class="username">{{c.user['display-name']}}</div>
