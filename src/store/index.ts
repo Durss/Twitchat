@@ -1127,7 +1127,6 @@ export default createStore({
 				if(spotifyAuthToken) {
 					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 				}
-				payload.callback();
 			}
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
@@ -1355,6 +1354,7 @@ export default createStore({
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
 			this.dispatch("sendTwitchatAd");
+			payload.callback();
 		},
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
