@@ -4,7 +4,8 @@
 		<div class="title">Add overlays to your stream</div>
 		<p class="infos">In order to work, the overlays need Twitchat to be running as they will need to comunicate with it</p>
 		
-		<SpotifyParams v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsRaffle class="block" v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsSpotify class="block" v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!obsConnected">
 			<div>This features needs you to connect with OBS.</div>
@@ -17,13 +18,15 @@
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
-import SpotifyParams from './overlays/SpotifyParams.vue';
+import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
+import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
-		SpotifyParams,
+		OverlayParamsRaffle,
+		OverlayParamsSpotify,
 	},
 	emits:["setContent"]
 })
@@ -55,9 +58,6 @@ export default class ParamsOverlays extends Vue {
 		text-align: center;
 		margin-bottom: 1em;
 	}
-	.form {
-		margin-top: 1em;
-	}
 	.connectObs {
 		text-align: center;
 		color: @mainColor_light;
@@ -66,6 +66,11 @@ export default class ParamsOverlays extends Vue {
 		border-radius: .5em;
 		margin-top: 1em;
 		.button {
+			margin-top: .5em;
+		}
+	}
+	.block {
+		&:not(:first-of-type) {
 			margin-top: .5em;
 		}
 	}

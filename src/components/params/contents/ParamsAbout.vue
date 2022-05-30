@@ -1,13 +1,13 @@
 <template>
 	<div class="paramsabout">
 
-		<ToggleBlock class="block" title="Suggestions and issues" :icons="['idea_purple']" :open="true">
+		<ToggleBlock class="block" title="Suggestions and issues" :icons="['idea_purple']" :open="false">
 			<p>If you have a feature idea or are experiencing an issue:</p>
 			<Button :icon="require('@/assets/icons/discord.svg')" title="Tell me on Discord" :href="discordURL" target="_blank" type="link" class="discordBt" />
 			<p>I want this tool to be as good as possible, <strong>if anything annoys you</strong> when using it, <strong>I want to know</strong>!</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Feed me" :icons="['coin_purple']" :open="true">
+		<ToggleBlock class="block" title="Feed me" :icons="['coin_purple']" :open="false">
 			<ParamsSponsor />
 		</ToggleBlock>
 

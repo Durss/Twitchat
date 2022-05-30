@@ -1,15 +1,15 @@
 <template>
-	<ToggleBlock :open="open" class="spotifyparams" title="Spotify" :icons="['spotify_purple']">
+	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify_purple']">
 		<div v-if="error" class="error" @click="error=''">{{error}}</div>
 
-		<div v-if="!spotifyConnected && !authenticating" title="Autenticate">
+		<div v-if="!spotifyConnected && !authenticating">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
 		</div>
 		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
 
 		<div v-if="spotifyConnected" class="content">
 			<div class="row">
-				<label for="spotify_overlay_url">OBS overlay to display current track:</label>
+				<label for="spotify_overlay_url">Set this in an OBS browser source to display currently playing spotify track:</label>
 				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
 				<ToggleBlock small title="CSS customization" :open="false">
 					<div>You can change the appearance of the player by overriding these CSS IDs on OBS browser source params</div>
@@ -51,10 +51,10 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 	},
 	emits:["setContent"]
 })
-export default class SpotifyParams extends Vue {
+export default class OverlayParamsSpotify extends Vue {
 
 	public error:string = "";
-	public open:boolean = true;
+	public open:boolean = false;
 	public loading:boolean = false;
 	public authenticating:boolean = false;
 
@@ -97,7 +97,7 @@ export default class SpotifyParams extends Vue {
 </script>
 
 <style scoped lang="less">
-.spotifyparams{
+.OverlayParamsSpotify{
 	
 	.authBt, .loader {
 		display: block;
@@ -106,16 +106,16 @@ export default class SpotifyParams extends Vue {
 	}
 
 	.error {
-			justify-self: center;
-			color: @mainColor_light;
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-			background-color: @mainColor_alert;
-			cursor: pointer;
+		justify-self: center;
+		color: @mainColor_light;
+		display: block;
+		text-align: center;
+		padding: 5px;
+		border-radius: 5px;
+		margin: auto;
+		margin-top: 10px;
+		background-color: @mainColor_alert;
+		cursor: pointer;
 	}
 
 	.content {

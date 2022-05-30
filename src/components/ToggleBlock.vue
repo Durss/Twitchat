@@ -132,6 +132,12 @@ export default class ToggleBlock extends Vue {
 		}
 	}
 
+	&:not(.small):not(.medium){
+		&>.header {
+			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+		}
+	}
+
 	&.small {
 		font-size: .8em;
 		.header {
