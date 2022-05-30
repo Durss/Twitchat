@@ -836,7 +836,7 @@ export default class TwitchUtils {
 	 * 
 	 * @param uid user ID list
 	 */
-	public static async getFollowState(uid:string, channelId?:string):Promise<TwitchTypes.Following> {
+	public static async getFollowState(uid:string, channelId?:string):Promise<boolean> {
 		if(!channelId) channelId = store.state.user.user_id;
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
@@ -847,8 +847,12 @@ export default class TwitchUtils {
 			method:"GET",
 			headers,
 		});
-		const json:{data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
-		return json.data[0];
+		const json:{error:string, data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+		if(json.error) {
+			throw(json.error);
+		}else{
+			return json.data.length > 0;
+		}
 	}
 
 	/**
