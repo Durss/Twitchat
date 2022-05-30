@@ -17,6 +17,7 @@ export default class SpotifyHelper {
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
 	private _lastTrackInfo!:SpotifyTrack|null;
+	private _headers!:{"Accept":string, "Content-Type":string, "Authorization":string};
 	
 	constructor() {
 	
@@ -107,6 +108,11 @@ export default class SpotifyHelper {
 			if(!isNaN(delay) && delay > 0) {
 				this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
 			}
+			this._headers = {
+				"Accept":"application/json",
+				"Content-Type":"application/json",
+				"Authorization":"Bearer "+this._token.access_token,
+			}
 		}else{
 			store.state.alert = "[SPOTIFY] token refresh failed"
 		}
@@ -119,11 +125,7 @@ export default class SpotifyHelper {
 	 */
 	public async getTrackByID(id:string):Promise<SearchTrackItem|null> {
 		const options = {
-			headers:{
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
-			}
+			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/tracks/"+encodeURIComponent(id), options);
 		const json = await res.json();
@@ -137,11 +139,7 @@ export default class SpotifyHelper {
 	 */
 	public async searchTrack(name:string):Promise<SearchTrackItem|null> {
 		const options = {
-			headers:{
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
-			}
+			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/search?type=track&q="+encodeURIComponent(name), options);
 		if(res.status == 401) {
@@ -165,11 +163,7 @@ export default class SpotifyHelper {
 	 */
 	public async addToQueue(uri:string):Promise<boolean> {
 		const options = {
-			headers:{
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
-			},
+			headers:this._headers,
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
@@ -187,6 +181,30 @@ export default class SpotifyHelper {
 		return false;
 	}
 
+	/**
+	 * Plays next track in queue
+	 * @returns 
+	 */
+	public async nextTrack():Promise<boolean> {
+		return this.simpleAction("me/player/next", "POST");
+	}
+
+	/**
+	 * Pause the playback
+	 * @returns 
+	 */
+	public async pause():Promise<boolean> {
+		return this.simpleAction("me/player/pause", "PUT");
+	}
+
+	/**
+	 * Resume/starts the playback
+	 * @returns 
+	 */
+	public async resume():Promise<boolean> {
+		return this.simpleAction("me/player/play", "PUT");
+	}
+
 	
 	
 	/*******************
@@ -197,17 +215,37 @@ export default class SpotifyHelper {
 	}
 
 	/**
+	 * Executes a simplea ction that requires no param
+	 * @param path 
+	 * @returns 
+	 */
+	public async simpleAction(path:string, method:"POST"|"PUT"|"GET"):Promise<boolean> {
+		const options = {
+			headers:this._headers,
+			method,
+		}
+		const res = await fetch("https://api.spotify.com/v1/"+path, options);
+		if(res.status == 401) {
+			await this.refreshToken();
+			return false;
+		}
+		if(res.status == 204) {
+			return true;
+		}
+		if(res.status == 409) {
+			store.state.alert = "[SPOTIFY] API rate limits exceeded";
+			return false;
+		}
+		return false;
+	}
+	/**
 	 * Load current track's data
 	 */
 	private async getCurrentTrack():Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 
 		const options = {
-			headers:{
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
-			}
+			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
 		if(res.status == 401) {
@@ -262,11 +300,7 @@ export default class SpotifyHelper {
 	 */
 	private async getEpisodeInfos():Promise<SpotifyTrack|null> {
 		const options = {
-			headers:{
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
-			}
+			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode", options);
 		if(res.status == 401) {

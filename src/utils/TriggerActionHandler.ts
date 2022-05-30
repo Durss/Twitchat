@@ -189,9 +189,8 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
-		const cmd = message.message.trim().split(" ")[0];
-		message.message = message.message.replace(cmd, "");
-		return this.parseSteps(TriggerTypes.CHAT_COMMAND+"_"+cmd.toLowerCase(), message, testMode, guid);
+		const cmd = message.message.trim().split(" ")[0].toLowerCase();
+		return this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
 	}
 	
 	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
@@ -213,7 +212,8 @@ export default class TriggerActionHandler {
 	 * @param eventType 
 	 * @param message 
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number):Promise<boolean> {
+	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
+		if(subEvent) eventType += "_"+subEvent
 		const steps = store.state.triggers[ eventType ];
 		if(!steps) {
 			return false;
@@ -281,28 +281,42 @@ export default class TriggerActionHandler {
 						IRCClient.instance.sendMessage(text);
 					}
 
-					if(step.type == "spotify" && message.type == "message") {
-						let track:SearchTrackItem|null = null;
-						if(/open\.spotify\.com\/track\/.*/gi.test(message.message)) {
-							const chunks = message.message.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-							const id = chunks[2];
-							track = await SpotifyHelper.instance.getTrackByID(id);
-						}else{
-							track = await SpotifyHelper.instance.searchTrack(message.message);
-						}
-						if(track) {
-							if(await SpotifyHelper.instance.addToQueue(track.uri)) {
-								const data:MusicMessage = {
-									type:"music",
-									title:track.name,
-									artist:track.artists[0].name,
-									album:track.album.name,
-									cover:track.album.images[0].url,
-									duration:track.duration_ms,
-								};
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data);
-								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+					if(step.type == "spotify") {
+						if(step.spotifyAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
+							let track:SearchTrackItem|null = null;
+							if(/open\.spotify\.com\/track\/.*/gi.test(message.message)) {
+								const chunks = message.message.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+								const id = chunks[2];
+								track = await SpotifyHelper.instance.getTrackByID(id);
+							}else{
+								track = await SpotifyHelper.instance.searchTrack(message.message);
 							}
+							if(track) {
+								if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+									const data:MusicMessage = {
+										type:"music",
+										title:track.name,
+										artist:track.artists[0].name,
+										album:track.album.name,
+										cover:track.album.images[0].url,
+										duration:track.duration_ms,
+									};
+									PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data);
+									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+								}
+							}
+						}else
+						
+						if(step.spotifyAction == TriggerMusicTypes.NEXT_TRACK) {
+							SpotifyHelper.instance.nextTrack();
+						}
+						
+						if(step.spotifyAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
+							SpotifyHelper.instance.pause();
+						}
+						
+						if(step.spotifyAction == TriggerMusicTypes.RESUME_PLAYBACK) {
+							SpotifyHelper.instance.resume();
 						}
 					}
 
@@ -526,3 +540,17 @@ export interface MusicMessage extends JsonObject{
 	cover:string,
 	duration:number,
 }
+
+export const TriggerMusicTypes = {
+	ADD_TRACK_TO_QUEUE:"1",
+	NEXT_TRACK:"2",
+	PAUSE_PLAYBACK:"3",
+	RESUME_PLAYBACK:"4",
+}
+
+export const MusicTriggerEvents:TriggerEventTypes[] = [
+	{label:"Add a track to the queue", value:TriggerMusicTypes.ADD_TRACK_TO_QUEUE},
+	{label:"Play next track", value:TriggerMusicTypes.NEXT_TRACK},
+	{label:"Pause playback", value:TriggerMusicTypes.PAUSE_PLAYBACK},
+	{label:"Resume playback", value:TriggerMusicTypes.RESUME_PLAYBACK},
+]

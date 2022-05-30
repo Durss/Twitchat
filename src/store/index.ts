@@ -1570,6 +1570,7 @@ export interface TriggerActionChatData extends TriggerActionData{
 export interface TriggerActionSpotifyData extends TriggerActionData{
 	type:"spotify";
 	spotifyAction:string;
+	track:string;
 }
 
 export interface ParameterDataListValue {
