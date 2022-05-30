@@ -865,7 +865,6 @@ export default createStore({
 					if(value.data.prevKey) {
 						delete state.triggers[value.data.prevKey];
 						delete value.data.prevKey;
-						console.log("Delete prev key"+value.data.prevKey);
 					}
 					value.data.actions = cleanEmptyActions(value.data.actions);
 					if(value.data.actions.length == 0) remove = true;

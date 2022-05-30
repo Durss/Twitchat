@@ -11,12 +11,7 @@
 			/>
 			<img :src="require('@/assets/icons/'+localIcon+'.svg')" :alt="localIcon" class="icon" v-if="localIcon">
 			<h2 v-html="localTitle"></h2>
-			<Button small highlight
-				:icon="require('@/assets/icons/cross_white.svg')"
-				class="deleteBt"
-				v-if="deletable!==false"
-				@click="$emit('delete')"
-			/>
+			<slot name="actions"></slot>
 		</div>
 		<div class="content" v-if="showContent" ref="content">
 			<slot></slot>
@@ -46,10 +41,6 @@ import Button from './Button.vue';
 			type:Boolean,
 			default:false,
 		},
-		deletable:{
-			type:Boolean,
-			default:false,
-		},
 		orderable:{
 			type:Boolean,
 			default:false,
@@ -66,7 +57,7 @@ import Button from './Button.vue';
 	components:{
 		Button,
 	},
-	emits:["delete", "startDrag"],
+	emits:["startDrag"],
 })
 export default class ToggleBlock extends Vue {
 
@@ -76,7 +67,6 @@ export default class ToggleBlock extends Vue {
 	public error!:boolean;
 	public small!:boolean;
 	public medium!:boolean;
-	public deletable!:boolean;
 	public orderable!:boolean;
 	public errorTitle!:string;
 
@@ -86,7 +76,6 @@ export default class ToggleBlock extends Vue {
 		let res = ["toggleblock"];
 		if(!this.showContent)			res.push("closed");
 		if(this.error !== false)		res.push("error");
-		if(this.deletable !== false)	res.push("deletable");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
 		return res;
@@ -218,12 +207,6 @@ export default class ToggleBlock extends Vue {
 				// }
 			}
 
-			.deleteBt {
-				border-radius: 0;
-				padding: .3em;
-				align-self: stretch;
-			}
-
 			.orderBt {
 				border-radius: 0;
 				padding: .3em;
@@ -268,11 +251,6 @@ export default class ToggleBlock extends Vue {
 		}
 		&:hover {
 			background-color: darken(@mainColor_light, 3%);
-		}
-
-		.deleteBt {
-			border-radius: 50%;
-			padding: .3em;
 		}
 	}
 

@@ -107,6 +107,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		if(this.action.show == undefined) this.action.show = true;
 		//Prefill forms
 		this.prefillForm();
 

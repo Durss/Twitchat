@@ -31,14 +31,14 @@
 					:sources="sources"
 					:event="event_conf.value"
 					@delete="deleteAction(element, index)"
-					@update="saveData()"
+					@duplicate="duplicateAction(element, index)"
 					@setContent="(v:string)=>$emit('setContent', v)"
 				/>
 			</template>
 		</draggable>
 
 		<div class="buttons">
-			<Button :icon="require('@/assets/icons/add.svg')" title="Add step"
+			<Button :icon="require('@/assets/icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
 				v-if="event_conf.value != '0'"
@@ -195,6 +195,18 @@ export default class TriggerActionList extends Vue {
 		Utils.confirm("Delete action ?").then(()=> {
 			this.actionList.splice(index, 1);
 		}).catch(()=> {});
+	}
+
+	/**
+	 * Called when duplicating an action item
+	 */
+	public duplicateAction(action:TriggerActionObsData, index:number):void {
+		// Utils.confirm("Delete action ?").then(()=> {
+		// 	this.actionList.splice(index, 1);
+		// }).catch(()=> {});
+
+		const clone = JSON.parse(JSON.stringify(action));
+		this.actionList.splice(index, 0, clone);
 	}
 
 	/**

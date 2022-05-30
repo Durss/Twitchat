@@ -256,6 +256,7 @@ export default class TriggerActionHandler {
 				for (let i = 0; i < actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec
 					const step = actions[i];
+					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
 							const text = await this.parseText(eventType, message, step.text as string);
@@ -274,8 +275,9 @@ export default class TriggerActionHandler {
 						}else{
 							OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
 						}
-					}
-
+					}else
+					
+					//Handle Chat action
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string);
 						IRCClient.instance.sendMessage(text);
