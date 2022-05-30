@@ -1,19 +1,21 @@
 <template>
 	<div class="overlayspotifyplayer">
-		<div class="content" v-if="isPlaying">
-			<img :src="cover" class="cover" id="music_cover">
-			<div class="infos">
-				<Vue3Marquee :duration="duration" class="trackHolder">
-					<div class="track">
-						<div class="artist" id="music_artist">{{artist}}</div>
-						<div class="title" id="music_title">{{track}}</div>
+		<transition name="slide">
+			<div class="content" v-if="isPlaying">
+				<img :src="cover" class="cover" id="music_cover">
+				<div class="infos">
+					<Vue3Marquee :duration="duration" class="trackHolder">
+						<div class="track">
+							<div class="artist" id="music_artist">{{artist}}</div>
+							<div class="title" id="music_title">{{track}}</div>
+						</div>
+					</Vue3Marquee>
+					<div class="progressbar" id="music_progress">
+						<div class="fill" :style="progressStyles"></div>
 					</div>
-				</Vue3Marquee>
-				<div class="progressbar" id="music_progress">
-					<div class="fill" :style="progressStyles"></div>
 				</div>
 			</div>
-		</div>
+		</transition>
 	</div>
 </template>
 
@@ -160,6 +162,19 @@ export default class OverlaySpotifyPlayer extends Vue {
 				height: 100%;
 			}
 		}
+	}
+
+	.slide-enter-active {
+		transition: all 0.5s ease-out;
+	}
+
+	.slide-leave-active {
+		transition: all 0.5s ease-out;
+	}
+	
+	.slide-enter-from,
+	.slide-leave-to {
+		transform: translateX(100%);
 	}
 
 }
