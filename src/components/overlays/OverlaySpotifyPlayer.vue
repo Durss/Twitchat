@@ -3,11 +3,11 @@
 		<div class="content" v-if="isPlaying">
 			<img :src="cover" class="cover" id="music_cover">
 			<div class="infos">
-				<Vue3Marquee :duration="duration">
-					<div class="artist" id="music_artist">{{artist}}</div>
-				</Vue3Marquee>
-				<Vue3Marquee :duration="duration">
-					<div class="track" id="music_title">{{track}}</div>
+				<Vue3Marquee :duration="duration" class="trackHolder">
+					<div class="track">
+						<div class="artist" id="music_artist">{{artist}}</div>
+						<div class="title" id="music_title">{{track}}</div>
+					</div>
 				</Vue3Marquee>
 				<div class="progressbar" id="music_progress">
 					<div class="fill" :style="progressStyles"></div>
@@ -42,7 +42,7 @@ export default class OverlaySpotifyPlayer extends Vue {
 	private onTrackHandler!:(e:TwitchatEvent) => void;
 
 	public get duration():number {
-		return Math.max(this.artist.length, this.track.length) /2;
+		return Math.max(this.artist.length, this.track.length, 20) / 2;
 	}
 
 	public get progressStyles():{[key:string]:string} {
@@ -97,50 +97,63 @@ export default class OverlaySpotifyPlayer extends Vue {
 <style scoped lang="less">
 .overlayspotifyplayer{
 	.content {
-		@maxHeight: 25vw;
+		@maxHeight: ~"min(100vh, 25vw)";
 		display: flex;
 		flex-direction: row;
 		background-color: @mainColor_dark;
 		max-height: @maxHeight;
 		max-width: 100%;
 
-		@coverSize: ~"min(100vh, @{maxHeight})";
-
 		.cover {
-			width: @coverSize;
+			width: @maxHeight;
+			height: @maxHeight;
 			object-fit: cover;
 		}
 		
 		.infos {
-			@minSize: @maxHeight/4;
-			@fontSize: ~"min(@{minSize}, 50vh)";
 			@infoHeight: calc(@maxHeight/2 - .25em/2);
 			color: @mainColor_light;
-			font-size: @fontSize;
-			flex-shrink: 1;
+			@minFontSize: calc(@maxHeight/3);
+			font-size: ~"min(@{minFontSize}, 50vh)";
+			flex: 1;
+			// padding: .25em 0;
 			min-width: 0px;//Tell flexbox it's ok to shrink it
+			display: flex;
+			flex-direction: column;
+			justify-content: stretch;
+			align-items: stretch;
+			justify-items: stretch;
 
 			:deep(.vue3-marquee) {
 				overflow-y: hidden;
-			}
-
-			.artist, .track {
-				padding-right: 10vw;
-				height: @infoHeight;
-				display: flex;
 				align-items: center;
 			}
 
-			.artist {
-				font-weight: bold;
-			}
-
-			.track {
-				font-size: .8em;
+			.trackHolder {
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				.track {
+					display: flex;
+					flex-direction: column;
+					.artist, .track {
+						padding-right: 10vw;
+						display: flex;
+					}
+					.artist {
+						font-weight: bold;
+						align-items: flex-end;
+					}
+					.title {
+						font-size: .8em;
+						align-items: flex-start;
+					}
+				}
 			}
 		}
 		.progressbar {
-			height: .25em;
+			height: .24em;
 			max-width: 100%;
 			.fill {
 				background-color: @mainColor_light;

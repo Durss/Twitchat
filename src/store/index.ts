@@ -1069,8 +1069,6 @@ export default createStore({
 					console.log(error);
 					state.authenticated = false;
 					Store.remove("oAuthToken");
-					// document.location.href = TwitchUtils.oAuthURL;
-					// router.push({name: 'login'});
 					state.initComplete = true;
 					payload.callback();
 					return;
@@ -1126,7 +1124,6 @@ export default createStore({
 				//Init spotify connection
 				const spotifyAuthToken = Store.get("spotifyAuthToken");
 				if(spotifyAuthToken && Config.SPOTIFY_CLIENT_ID != "") {
-					console.log("SET TOKEEEEEEEEEEN");
 					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 				}
 			}
