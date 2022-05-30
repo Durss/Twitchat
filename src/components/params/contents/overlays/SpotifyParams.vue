@@ -8,6 +8,16 @@
 			<div class="row">
 				<label for="spotify_overlay_url">OBS overlay to display current track:</label>
 				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+				<ToggleBlock small title="CSS customization" :open="false">
+					<div>You can change the appearance of the player by overriding these CSS IDs on OBS</div>
+					<ul>
+						<li>#music_cover { ... }</li>
+						<li>#music_title { ... }</li>
+						<li>#music_artist { ... }</li>
+						<li>#music_progress { ... }</li>
+					</ul>
+				</ToggleBlock>
+				
 			</div>
 			<div class="row">
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
@@ -111,6 +121,13 @@ export default class SpotifyParams extends Vue {
 			flex-direction: column;
 			&:not(:first-child) {
 				margin-top: 1em;
+			}
+
+			ul {
+				li {
+					list-style-type: disc;
+					list-style-position: inside;
+				}
 			}
 		}
 	}

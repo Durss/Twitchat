@@ -1,15 +1,15 @@
 <template>
 	<div class="overlayspotifyplayer">
 		<div class="content" v-if="isPlaying">
-			<img :src="cover" class="cover" id="cover">
+			<img :src="cover" class="cover" id="music_cover">
 			<div class="infos">
 				<Vue3Marquee :duration="duration">
-					<div class="artist" id="artist">{{artist}}</div>
+					<div class="artist" id="music_artist">{{artist}}</div>
 				</Vue3Marquee>
 				<Vue3Marquee :duration="duration">
-					<div class="track" id="title">{{track}}</div>
+					<div class="track" id="music_title">{{track}}</div>
 				</Vue3Marquee>
-				<div class="progressbar" id="progressbar">
+				<div class="progressbar" id="music_progress">
 					<div class="fill" :style="progressStyles"></div>
 				</div>
 			</div>
