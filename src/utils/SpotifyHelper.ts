@@ -2,6 +2,7 @@ import store from "@/store";
 import { reactive } from "vue";
 import Config from "./Config";
 import PublicAPI from "./PublicAPI";
+import { MusicMessage } from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -10,13 +11,13 @@ import TwitchatEvent from "./TwitchatEvent";
 export default class SpotifyHelper {
 	
 	public isPlaying:boolean = false;
-	public currentTrack!:SpotifyTrack;
+	public currentTrack!:MusicMessage;
 
 	private static _instance:SpotifyHelper;
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
-	private _lastTrackInfo!:SpotifyTrack|null;
+	private _lastTrackInfo!:MusicMessage|null;
 	private _headers!:{"Accept":string, "Content-Type":string, "Authorization":string};
 	
 	constructor() {
@@ -215,7 +216,15 @@ export default class SpotifyHelper {
 				if(episode) json = episode;
 			}
 
-			this.currentTrack = json;
+			this.currentTrack = {
+				type:"music",
+				title:json.item.name,
+				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
+				album:json.item.album.name,
+				cover:json.item.album.images[0].url,
+				duration:json.item.duration_ms,
+				url:json.item.href,
+			};
 			this.isPlaying = json.is_playing && json.item != null;
 	
 			if(this.isPlaying) {
@@ -227,11 +236,11 @@ export default class SpotifyHelper {
 
 				//Broadcast to the overlays
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
-					trackName: json.item.name,
-					artistName: json.item.show? json.item.show.name : json.item.artists[0].name,
-					trackDuration: json.item.duration_ms,
+					trackName: this.currentTrack.title,
+					artistName: this.currentTrack.artist,
+					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
-					cover: json.item.album.images[0].url,
+					cover: this.currentTrack.cover,
 				});
 				this._lastTrackInfo = this.currentTrack;
 

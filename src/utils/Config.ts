@@ -1,3 +1,5 @@
+import store from "@/store";
+
 /**
  * Created by Durss
  */
@@ -18,5 +20,15 @@ export default class Config {
 		}else{
 			return "/api";
 		}
+	}
+
+	public static get MUSIC_SERVICE_CONFIGURED():boolean {
+		return this.SPOTIFY_CLIENT_ID?.length > 20;
+	}
+
+	public static get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {
+		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
+		if(!store.state.spotifyAuthToken) return false;
+		return store.state.spotifyAuthToken?.expires_at > Date.now();
 	}
 }

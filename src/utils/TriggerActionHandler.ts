@@ -2,6 +2,7 @@ import store, { PermissionsData, TriggerActionChatCommandData, TriggerActionType
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { JsonObject } from 'type-fest';
+import Config from './Config';
 import IRCClient from './IRCClient';
 import PublicAPI from './PublicAPI';
 import SpotifyHelper, {SearchTrackItem} from './SpotifyHelper';
@@ -303,6 +304,7 @@ export default class TriggerActionHandler {
 										album:track.album.name,
 										cover:track.album.images[0].url,
 										duration:track.duration_ms,
+										url:track.external_urls.spotify,
 									};
 									PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data);
 									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
@@ -343,7 +345,7 @@ export default class TriggerActionHandler {
 	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode:boolean = false):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-		const helpers = TriggerActionHelpers[eventType];
+		const helpers = TriggerActionHelpers(eventType);
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
 			const chunks:string[] = h.pointer.split(".");
@@ -380,6 +382,11 @@ export default class TriggerActionHandler {
 					}
 					value = cleanMessage.trim();
 				}
+			}
+
+			//If it's a music placeholder, replace it by the current music info
+			if(h.tag.indexOf("CURRENT_TRACK") == 0) {
+				value = SpotifyHelper.instance.currentTrack[h.pointer];
 			}
 			
 			if(value && eventType === TriggerTypes.BITS && h.tag === "MESSAGE") {
@@ -430,82 +437,99 @@ export const TriggerTypes = {
 	TRACK_ADDED_TO_QUEUE:"14",
 }
 
-export const TriggerActionHelpers:{[key:string]:{tag:string, desc:string, pointer:string}[]} = {};
+export interface ITriggerActionHelper {
+	tag:string;
+	desc:string;
+	pointer:string;
+}
 
-TriggerActionHelpers[TriggerTypes.FIRST_ALL_TIME] = [
-	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"MESSAGE", desc:"Message content", pointer:"message"},
-];
+export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
+	const map:{[key:string]:ITriggerActionHelper[]} = {}
+	map[TriggerTypes.FIRST_ALL_TIME] = [
+		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+		{tag:"MESSAGE", desc:"Message content", pointer:"message"},
+	];
+	
+	map[TriggerTypes.FIRST_TODAY] = [
+		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+		{tag:"MESSAGE", desc:"Message content", pointer:"message"},
+	];
+	
+	map[TriggerTypes.POLL_RESULT] = [
+		{tag:"TITLE", desc:"Poll title", pointer:"data.title"},
+		{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
+		// {tag:"PERCENT", desc:"Votes percent of the winning choice", pointer:""},
+	];
+	
+	map[TriggerTypes.PREDICTION_RESULT] = [
+		{tag:"TITLE", desc:"Prediction title", pointer:"data.title"},
+		{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
+	];
+	
+	map[TriggerTypes.BINGO_RESULT] = [
+		{tag:"WINNER", desc:"Winner name", pointer:"winner.display-name"},
+	];
+	
+	map[TriggerTypes.RAFFLE_RESULT] = [
+		{tag:"WINNER", desc:"Winner name", pointer:"winner.user.display-name"},
+	];
+	
+	map[TriggerTypes.CHAT_COMMAND] = [
+		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+		{tag:"MESSAGE", desc:"Chat message content", pointer:"message"},
+	];
+	
+	map[TriggerTypes.SUB] = [
+		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+		{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
+		{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
+	];
+	
+	map[TriggerTypes.SUBGIFT] = [
+		{tag:"USER", desc:"User name of the sub gifter", pointer:"tags.display-name"},
+		{tag:"RECIPIENT", desc:"Recipient user name", pointer:"recipient"},
+		{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
+		{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
+	];
+	
+	map[TriggerTypes.BITS] = [
+		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+		{tag:"BITS", desc:"Number of bits", pointer:"tags.bits"},
+		{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
+	];
+	
+	map[TriggerTypes.FOLLOW] = [
+		{tag:"USER", desc:"User name of the new follower", pointer:"tags.username"},
+	];
+	
+	map[TriggerTypes.RAID] = [
+		{tag:"USER", desc:"User name of the new follower", pointer:"username"},
+		{tag:"VIEWERS", desc:"Number of viewers", pointer:"viewers"},
+	];
+	
+	map[TriggerTypes.REWARD_REDEEM] = [
+		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
+		{tag:"TITLE", desc:"Reward title", pointer:"reward.redemption.reward.title"},
+		{tag:"DESCRIPTION", desc:"Reward description", pointer:"reward.redemption.reward.prompt"},
+		{tag:"COST", desc:"Reward cost", pointer:"reward.redemption.reward.cost"},
+	];
+	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
+		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"artist"},
+		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"title"},
+		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"album"},
+		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"cover"},
+		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
+	];
+	
+	//If requesting chat command helpers and there is a music
+	//service available, contact the music service helpers
+	if(key == TriggerTypes.CHAT_COMMAND
+	&& Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
+		map[key] = map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
+	}
 
-TriggerActionHelpers[TriggerTypes.FIRST_TODAY] = [
-	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"MESSAGE", desc:"Message content", pointer:"message"},
-];
-
-TriggerActionHelpers[TriggerTypes.POLL_RESULT] = [
-	{tag:"TITLE", desc:"Poll title", pointer:"data.title"},
-	{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
-	// {tag:"PERCENT", desc:"Votes percent of the winning choice", pointer:""},
-];
-
-TriggerActionHelpers[TriggerTypes.PREDICTION_RESULT] = [
-	{tag:"TITLE", desc:"Prediction title", pointer:"data.title"},
-	{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
-];
-
-TriggerActionHelpers[TriggerTypes.BINGO_RESULT] = [
-	{tag:"WINNER", desc:"Winner name", pointer:"winner.display-name"},
-];
-
-TriggerActionHelpers[TriggerTypes.RAFFLE_RESULT] = [
-	{tag:"WINNER", desc:"Winner name", pointer:"winner.user.display-name"},
-];
-
-TriggerActionHelpers[TriggerTypes.CHAT_COMMAND] = [
-	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"MESSAGE", desc:"Chat message content", pointer:"message"},
-];
-
-TriggerActionHelpers[TriggerTypes.SUB] = [
-	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
-	{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
-];
-
-TriggerActionHelpers[TriggerTypes.SUBGIFT] = [
-	{tag:"USER", desc:"User name of the sub gifter", pointer:"tags.display-name"},
-	{tag:"RECIPIENT", desc:"Recipient user name", pointer:"recipient"},
-	{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
-	{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
-];
-
-TriggerActionHelpers[TriggerTypes.BITS] = [
-	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"BITS", desc:"Number of bits", pointer:"tags.bits"},
-	{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
-];
-
-TriggerActionHelpers[TriggerTypes.FOLLOW] = [
-	{tag:"USER", desc:"User name of the new follower", pointer:"tags.username"},
-];
-
-TriggerActionHelpers[TriggerTypes.RAID] = [
-	{tag:"USER", desc:"User name of the new follower", pointer:"username"},
-	{tag:"VIEWERS", desc:"Number of viewers", pointer:"viewers"},
-];
-
-TriggerActionHelpers[TriggerTypes.REWARD_REDEEM] = [
-	{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-	{tag:"TITLE", desc:"Reward title", pointer:"reward.redemption.reward.title"},
-	{tag:"DESCRIPTION", desc:"Reward description", pointer:"reward.redemption.reward.prompt"},
-	{tag:"COST", desc:"Reward cost", pointer:"reward.redemption.reward.cost"},
-];
-TriggerActionHelpers[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
-	{tag:"ARTIST", desc:"Artist name", pointer:"artist"},
-	{tag:"TITLE", desc:"Track title", pointer:"title"},
-	{tag:"ALBUM", desc:"Album name", pointer:"album"},
-	{tag:"COVER", desc:"Cover image URL", pointer:"cover"},
-];
+	return map[key];
+}
 
 export interface TriggerEventTypes {
 	label:string;
@@ -518,7 +542,7 @@ export interface TriggerEventTypes {
 	[paramater: string]: unknown;
 }
 
-export const OBSTriggerEvents:TriggerEventTypes[] = [
+export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Chat command", value:TriggerTypes.CHAT_COMMAND, isCategory:true, jsonTest:{"type":"message","message":"!test","tags":{"badge-info":{"subscriber":"13"},"badges":{"broadcaster":"1","subscriber":"12"},"color":"#9ACD32","display-name":"Durss","emote-sets":"","mod":false,"subscriber":true,"user-type":null,"badge-info-raw":"subscriber/13","badges-raw":"broadcaster/1,subscriber/12","username":"durss","emotes":{},"emotes-raw":null,"message-type":"chat","id":"00000000-0000-0000-0000-000000000004","tmi-sent-ts":"1650938130680"},"channel":"#durss","self":true}},
 	{label:"Channel point reward", value:TriggerTypes.REWARD_REDEEM, isCategory:true, jsonTest:{"reward":{"timestamp":"2022-04-25T22:54:53.897356718Z","redemption":{"user":{"id":"29961813","login":"durss","display_name":"Durss"},"reward":{"id":"TEST_ID","channel_id":"29961813","title":"Text reward","prompt":"This is a reward description","cost":1000},"status":"UNFULFILLED"}},"tags":{"username":"Durss","display-name":"Durss","id":"bdeddedd-6184-4b26-a74e-87a5ff99a1be","user-id":"29961813","tmi-sent-ts":"1650927293897","message-type":"chat","room-id":"29961813"},"type":"highlight"}},
 	{label:"First message of a user all time", value:TriggerTypes.FIRST_ALL_TIME, jsonTest:{"type":"message","message":"This is my first message here !","tags":{"badges":{"premium":"1"},"client-nonce":"004c878edd9adf5b36717d6454db1b7c","color":"#9ACD32","display-name":"Durss","emote-only":true,"emotes":{},"first-msg":true,"flags":null,"id":"c5c54086-d0b5-4809-976a-254f4d206248","mod":false,"room-id":"121652526","subscriber":false,"tmi-sent-ts":"1642377332605","turbo":false,"user-id":"92203285","user-type":null,"emotes-raw":"","badge-info-raw":null,"badges-raw":"premium/1","username":"durss","message-type":"chat"},"channel":"#durss","self":false,}},
@@ -542,6 +566,7 @@ export interface MusicMessage extends JsonObject{
 	album:string,
 	cover:string,
 	duration:number,
+	url:string,
 }
 
 export const TriggerMusicTypes = {
@@ -549,6 +574,7 @@ export const TriggerMusicTypes = {
 	NEXT_TRACK:"2",
 	PAUSE_PLAYBACK:"3",
 	RESUME_PLAYBACK:"4",
+	GET_CURRENT_TRACK:"5",
 }
 
 export const MusicTriggerEvents:TriggerEventTypes[] = [

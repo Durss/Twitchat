@@ -32,7 +32,7 @@
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
 			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
-			<TriggerActionSpotify @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='spotify'" :action="action" :event="event" :sources="sources" />
+			<TriggerActionSpotifyEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='spotify'" :action="action" :event="event" :sources="sources" />
 
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==''" v-model="action.delay" />
 
@@ -49,7 +49,7 @@ import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
-import TriggerActionSpotify from './entries/TriggerActionSpotify.vue';
+import TriggerActionSpotifyEntry from './entries/TriggerActionSpotifyEntry.vue';
 import Config from '@/utils/Config';
 
 @Options({
@@ -63,7 +63,7 @@ import Config from '@/utils/Config';
 		Button,
 		ParamItem,
 		ToggleBlock,
-		TriggerActionSpotify,
+		TriggerActionSpotifyEntry,
 		TriggerActionOBSEntry,
 		TriggerActionChatEntry,
 	},
@@ -78,11 +78,9 @@ export default class TriggerActionEntry extends Vue {
 
 	public opened:boolean = false;
 	public isError:boolean = false;
-	// public isChange:boolean = false;
-	// public canSubmit:boolean = false;
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	
-	public get spotifyConfigured():boolean { return Config.SPOTIFY_CLIENT_ID != ""; }
+	public get spotifyConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";

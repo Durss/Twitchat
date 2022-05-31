@@ -34,7 +34,7 @@ import Config from '@/utils/Config';
 export default class ParamsOverlays extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get spotifyConfigured():boolean { return Config.SPOTIFY_CLIENT_ID != ""; }
+	public get spotifyConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED; }
 
 	public mounted():void {
 

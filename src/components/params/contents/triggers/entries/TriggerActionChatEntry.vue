@@ -2,12 +2,12 @@
 	<div class="triggeractionchatentry">
 		<ParamItem class="item file" :paramData="message_conf" ref="textContent" v-model="action.text" />
 		<ToggleBlock small class="helper"
-			v-if="helpers[event]?.length > 0"
+			v-if="getHelpers(event)?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false"
 		>
 			<ul class="list">
-				<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
+				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
 					<strong>&#123;{{h.tag}}&#125;</strong>
 					{{h.desc}}
 				</li>
@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { ParameterData, TriggerActionChatData } from '@/store';
-import { TriggerActionHelpers } from '@/utils/TriggerActionHandler';
+import { ITriggerActionHelper, TriggerActionHelpers } from '@/utils/TriggerActionHandler';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';
@@ -41,7 +41,7 @@ export default class TriggerActionChatEntry extends Vue {
 	
 	public message_conf:ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
 	
-	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return TriggerActionHelpers; }
+	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 
 	public mounted():void {
 	}

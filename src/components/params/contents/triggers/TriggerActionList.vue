@@ -54,9 +54,10 @@
 
 <script lang="ts">
 import store, { ParameterData, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
+import Config from '@/utils/Config';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket, { OBSSourceItem } from '@/utils/OBSWebsocket';
-import TriggerActionHandler, { OBSTriggerEvents, TriggerEventTypes, TriggerTypes } from '@/utils/TriggerActionHandler';
+import TriggerActionHandler, { TriggerEvents, TriggerEventTypes, TriggerTypes } from '@/utils/TriggerActionHandler';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -149,7 +150,10 @@ export default class TriggerActionList extends Vue {
 		let events:TriggerEventTypes[] = [
 			{label:"Select a trigger...", value:"0" },
 		];
-		events = events.concat(OBSTriggerEvents);
+		events = events.concat(TriggerEvents);
+		if(!Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
+			events = events.filter(v => v.value != TriggerTypes.TRACK_ADDED_TO_QUEUE);
+		}
 		this.event_conf.value = events[0].value;
 		this.event_conf.listValues = events;
 	}
@@ -247,7 +251,7 @@ export default class TriggerActionList extends Vue {
 	public testTrigger():void {
 		let key = this.event_conf.value as string;
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
-		const entry = OBSTriggerEvents.find(v=>v.value == key);
+		const entry = TriggerEvents.find(v=>v.value == key);
 		
 		if(entry?.jsonTest) {
 			const json = entry.jsonTest as IRCEventDataList.Message;
@@ -295,7 +299,7 @@ export default class TriggerActionList extends Vue {
 			this.resetActionCategory();
 
 		}else {
-			const entry = OBSTriggerEvents.find(v=> v.value == key);
+			const entry = TriggerEvents.find(v=> v.value == key);
 			if(entry?.isCategory === true) {
 				//Chat commands and channel point rewards are stored differently to avoid
 				//flooding the main trigger list. Main trigger elements are stored with

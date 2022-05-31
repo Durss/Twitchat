@@ -1535,7 +1535,7 @@ export interface TriggerActionChatCommandData {
 export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionObsData
 								| TriggerActionChatData
-								| TriggerActionSpotifyData
+								| TriggerActionSpotifyEntryData
 ;
 
 export interface TriggerActionData {
@@ -1560,7 +1560,7 @@ export interface TriggerActionChatData extends TriggerActionData{
 	text:string;
 }
 
-export interface TriggerActionSpotifyData extends TriggerActionData{
+export interface TriggerActionSpotifyEntryData extends TriggerActionData{
 	type:"spotify";
 	spotifyAction:string;
 	track:string;

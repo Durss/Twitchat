@@ -6,19 +6,19 @@
 		</div>
 	</div>
 
-	<div :class="classes" v-if="obsConnected">
+	<div :class="classes" v-else>
 		<ParamItem class="item source" :paramData="source_conf" v-model="action.sourceName" />
 		<ParamItem class="item show" :paramData="show_conf" v-model="action.show" />
 		<ParamItem class="item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
 		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
 		<ToggleBlock small class="helper"
-			v-if="(isTextSource || isBrowserSource) && helpers[event]?.length > 0"
+			v-if="(isTextSource || isBrowserSource) && getHelpers(event)?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false"
 		>
 			<ul class="list">
-				<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
+				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
 					<strong>&#123;{{h.tag}}&#125;</strong>
 					{{h.desc}}
 				</li>
@@ -32,7 +32,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/store';
 import OBSWebsocket, { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
-import { TriggerActionHelpers } from '@/utils/TriggerActionHandler';
+import { ITriggerActionHelper, TriggerActionHelpers } from '@/utils/TriggerActionHandler';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
@@ -71,7 +71,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
-	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return TriggerActionHelpers; }
+	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 
 	public get classes():string[] {
 		const res = ["triggeractionobsentry"];
@@ -231,12 +231,12 @@ export default class TriggerActionOBSEntry extends Vue {
 		padding-left: calc(1em + 10px);
 		background-color: @mainColor_light;
 		border-radius: .5em;
+		margin-bottom: .5em;
 		img {
 			height: 1em;
 			margin-right: .5em;
 			vertical-align: middle;
 		}
-
 		.label {
 			display: inline;
 			color: @mainColor_warn;

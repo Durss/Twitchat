@@ -58,7 +58,7 @@ export default class OverlayParamsSpotify extends Vue {
 	public loading:boolean = false;
 	public authenticating:boolean = false;
 
-	public get spotifyConnected():boolean { return store.state.spotifyAuthToken != null; }
+	public get spotifyConnected():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get overlayUrl():string { return Utils.getOverlayURL("spotify"); }
 
 	public authenticate():void {

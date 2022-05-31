@@ -1,14 +1,21 @@
 <template>
-	<div class="triggeractionspotify">
+	<div class="TriggerActionSpotifyEntry" v-if="!spotifyConfigured">
+		<div class="info">
+			<img src="@/assets/icons/infos.svg" alt="info">
+			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'overlays')">Overlays tab</a> on the <strong>Spotify</strong> section</p>
+		</div>
+	</div>
+
+	<div class="TriggerActionSpotifyEntry" v-else>
 		<ParamItem class="item file" :paramData="actions_conf" ref="textContent" v-model="action.spotifyAction" />
 		<ParamItem class="item text" :paramData="track_conf" v-model="action.track" v-if="showTrackInput" ref="textContent" />
 		<ToggleBlock small class="helper"
-			v-if="showTrackInput && helpers[event]?.length > 0"
+			v-if="showTrackInput && getHelpers(event)?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false"
 		>
 			<ul class="list">
-				<li v-for="(h,index) in helpers[event]" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
+				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
 					<strong>&#123;{{h.tag}}&#125;</strong>
 					{{h.desc}}
 				</li>
@@ -18,8 +25,9 @@
 </template>
 
 <script lang="ts">
-import { ParameterData, TriggerActionSpotifyData } from '@/store';
-import { MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypes, TriggerMusicTypes } from '@/utils/TriggerActionHandler';
+import { ParameterData, TriggerActionSpotifyEntryData } from '@/store';
+import Config from '@/utils/Config';
+import { ITriggerActionHelper, MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypes, TriggerMusicTypes } from '@/utils/TriggerActionHandler';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';
@@ -34,16 +42,17 @@ import ParamItem from '../../../ParamItem.vue';
 		ToggleBlock,
 	},
 })
-export default class TriggerActionSpotify extends Vue {
+export default class TriggerActionSpotifyEntry extends Vue {
 
-	public action!:TriggerActionSpotifyData;
+	public action!:TriggerActionSpotifyEntryData;
 	public event!:string;
 
 	public actions_conf:ParameterData = { label:"Action type", type:"list", value:"0", listValues:[], icon:"spotify_purple.svg" };
 	public track_conf:ParameterData = { label:"Track name or URL", type:"text", longText:false, value:"", icon:"music_purple.svg" };
 
-	public get helpers():{[key:string]:{tag:string, desc:string}[]} { return TriggerActionHelpers; }
+	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
+	public get spotifyConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
 	public mounted():void {
 		//List all available trigger types
@@ -51,7 +60,7 @@ export default class TriggerActionSpotify extends Vue {
 			{label:"Select a trigger...", value:"0" },
 		];
 		events = events.concat(MusicTriggerEvents);
-		this.actions_conf.value = this.action.spotifyAction;
+		this.actions_conf.value = this.action.spotifyAction? this.action.spotifyAction : events[0].value;
 		this.actions_conf.listValues = events;
 
 	}
@@ -73,7 +82,7 @@ export default class TriggerActionSpotify extends Vue {
 </script>
 
 <style scoped lang="less">
-.triggeractionspotify{
+.TriggerActionSpotifyEntry{
 	.helper {
 		font-size: .8em;
 		padding-left: 2em;
@@ -95,6 +104,25 @@ export default class TriggerActionSpotify extends Vue {
 					border-right: 1px solid @mainColor_normal;
 				}
 			}
+		}
+	}
+
+
+	.info {
+		overflow: hidden;
+		padding: .5em;
+		padding-left: calc(1em + 10px);
+		background-color: @mainColor_light;
+		border-radius: .5em;
+		margin-bottom: .5em;
+		img {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
+		}
+		.label {
+			display: inline;
+			color: @mainColor_warn;
 		}
 	}
 }
