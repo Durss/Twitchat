@@ -1059,12 +1059,6 @@ export default createStore({
 							//User is probably not an affiliate
 						}
 					})();
-					//This was a way to check if a poll or prediction was active
-					//before switching to pubsub events.
-					// setInterval(()=> {
-					// 	TwitchUtils.getPolls();
-					// 	TwitchUtils.getPredictions();
-					// }, 1*60*1000);
 				}catch(error) {
 					console.log(error);
 					state.authenticated = false;

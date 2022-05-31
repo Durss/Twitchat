@@ -4,7 +4,7 @@
 		
 		<ProgressBar class="progress"
 			:percent="progressPercent"
-			:duration="this.prediction.prediction_window*1000"
+			:duration="prediction.prediction_window*1000"
 			v-if="prediction.status == 'ACTIVE'" />
 		
 		<div class="outcomeTitle" v-if="prediction.status == 'LOCKED'"><span class="arrow">⤺</span> Choose outcome</div>
@@ -77,7 +77,7 @@ export default class PredictionState extends Vue {
 		return Math.round(c.channel_points/Math.max(1,totalVotes) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchTypes.PredictionOutcome):unknown {
+	public getAnswerStyles(c:TwitchTypes.PredictionOutcome):{[key:string]:string} {
 		return {
 			backgroundSize: `${this.getPercent(c)}% 100%`,
 		}
@@ -95,6 +95,9 @@ export default class PredictionState extends Vue {
 
 	private async loadPredictions():Promise<void> {
 		if(this.disposed) return;
+		//TODO if allowing to connect to somone else's chat this would close
+		//the prediction right after opening it as no prediction would
+		//exist on our own channel
 		await TwitchUtils.getPredictions();
 	}
 

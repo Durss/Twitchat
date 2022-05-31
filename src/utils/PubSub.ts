@@ -73,6 +73,13 @@ export default class PubSub extends EventDispatcher{
 				"community-boost-events-v1."+uid,
 				"ad-property-refresh."+uid,
 				"whispers."+uid,
+				"chatrooms-user-v1."+uid,//TO or ban events
+				"ad-property-refresh."+uid,
+				// "user-drop-events."+uid,
+				// "community-points-user-v1."+uid,
+				// "presence."+uid,
+				// "user-properties-update."+uid,
+				// "onsite-notifications."+uid,
 
 				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
@@ -80,7 +87,18 @@ export default class PubSub extends EventDispatcher{
 			if(IRCClient.instance.debugMode) {
 				//Subscribe to someone else's channel points
 				const uidTest = "43809079";
-				subscriptions.push("community-points-channel-v1."+uidTest)
+				subscriptions.push("community-points-channel-v1."+uidTest);//Get channel points rewards
+				// subscriptions.push("predictions-user-v1."+uidTest);//Get prediction event
+				subscriptions.push("channel-ad-poll-update-events."+uidTest);
+				subscriptions.push("predictions-channel-v1."+uidTest);//Get prediction event
+				subscriptions.push("polls."+uidTest);//Get prediction event
+				subscriptions.push("pv-watch-party-events."+uidTest);
+				subscriptions.push("stream-chat-room-v1."+uidTest);//Host events
+				subscriptions.push("stream-change-by-channel."+uidTest);
+				subscriptions.push("broadcast-settings-update."+uidTest);
+				subscriptions.push("radio-events-v1."+uidTest);
+				// subscriptions.push("user-subscribe-events-v1."+uidTest);
+				subscriptions.push("channel-sub-gifts-v1."+uidTest);
 			}
 			this.subscribe(subscriptions);
 		};
