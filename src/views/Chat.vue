@@ -97,6 +97,14 @@
 		<TTUserList class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
+
+		<Teleport to="body">
+			<div class="deezerCTA" v-if="needUserInteraction">
+				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
+				<div class="title">Click</div>
+				<div class="message">Deezer needs you to click here to be able to play music.</div>
+			</div>
+		</Teleport>
 	</div>
 </template>
 
@@ -130,6 +138,8 @@ import PublicAPI from '@/utils/PublicAPI';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import gsap from 'gsap';
+import Config from '@/utils/Config';
+import DeezerHelper from '@/utils/DeezerHelper';
 
 @Options({
 	components:{
@@ -177,6 +187,7 @@ export default class Chat extends Vue {
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get splitViewVertical():boolean { return store.state.params.appearance.splitViewVertical.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
+	public get needUserInteraction():boolean { return Config.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -535,4 +546,31 @@ export default class Chat extends Vue {
 		}
 	}
 }
+</style>
+<style lang="less">
+	.deezerCTA {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		background: rgba(255, 0, 0, .25);
+		transform: translate(-50%, -50%);
+		z-index: 6;
+		pointer-events: none;
+		color: @mainColor_normal;
+		text-align: center;
+		text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+
+		.icon {
+			height: 4em;
+		}
+
+		.title {
+			font-size: 3em;
+			font-weight: bold;
+			margin: .25em 0;
+		}
+		.message {
+			font-size: 1.5em;
+		}
+	}
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="chatad">
+	<div class="chatad" @click.stop="">
 		<div v-if="isSponsor" class="sponsor">
 			<div class="title">🍔 I like food 🍔</div>
 			<div class="content">Are you enjoying <strong>Twitchat</strong> ?<br>
@@ -16,17 +16,49 @@
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
-				<ul>
-					<li><Button aria-label="Open whispers on chat param" small title="try it" @click.stop="showSpecificParam('features.showWhispersOnChat')" /> New option to show <strong>whispers</strong> on chat</li>
-					<li><Button aria-label="Open 7TV param" small title="try it" @click.stop="showSpecificParam('appearance.sevenTVEmotes')" /> <strong>7TV</strong> emotes supported</li>
-					<li>Raffle and bingo can now post a message on chat when they start</li>
-					<li><Button aria-label="Open vertical split param" small title="try it" @click.stop="showSpecificParam('appearance.splitViewVertical')" /> New option to <strong>split</strong> the view <strong>vertically</strong></li>
-					<li><Button aria-label="Open notif filter param" small title="try it" @click.stop="showSpecificParam('filters.showNotifications')" /> New option to remove all notifcations from chat <i>(sub,follow, raid, poll,...)</i></li>
-					<li>Slightly enhancing <strong>accessibility</strong> for people with visual impairment</li>
-					<li><strong>Fixed</strong> : Cutomod message wouldn't disappear properly if chat was paused</li>
-					<li><strong>Fixed</strong> : Channel points OBS trigger wasn't working</li>
-					<li><strong>Woops</strong> : While refactoring the way the custom shoutout message was stored I have made a mistake that probably lost the message you configured, sorry about that 🥺</li>
-				</ul>
+				<ToggleBlock class="block new" title="New features">
+					<ul>
+						<li>
+							<Button aria-label="open overlays params" small title="try it" @click.stop="openParamPage('overlays')" />
+							<strong>Overlays</strong> feature.
+						</li>
+						<li>
+							<Button aria-label="open spotify params" small title="try it" @click.stop="openParamPage('overlays')" />
+							<strong>Spotify</strong> integration with dedicated overlay and possibility to control from chat commands.
+						</li>
+						<li>
+							<Button aria-label="open wheel params" small title="try it" @click.stop="openParamPage('overlays')" />
+							<strong>Wheel overlay</strong> to show an animattion when picking a <strong>raffle</strong> winner.
+						</li>
+						<li>
+							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
+							Trigger actions can now send <strong>messages on your chat</strong>.
+						</li>
+						<li>
+							<Button aria-label="Open translate name param" small title="try it" @click.stop="showSpecificParam('appearance.translateNames')" />
+							Option to <strong>translate</strong> non-latin usernames
+						</li>
+						<li>
+							<Button aria-label="open install params" small title="try it" @click.stop="openParamPage('account')" />
+							You can kind of <strong>install</strong> twitchat on your device from the account section.<i>(possible only after interacting with the page for +30s)</i>
+						</li>
+					</ul>
+				</ToggleBlock>
+				<ToggleBlock class="block other" title="Other updates" :open="false">
+					<ul>
+						<li>You can now <strong>duplicate</strong> a trigger action</li>
+						<li>Better emotes replacement with support for <strong>wide emotes</strong> <i>(BTTV/FFZ/7TV)</i></li>
+						<li>Supporting new predictions with up to 8 outcomes</li>
+					</ul>
+				</ToggleBlock>
+				<ToggleBlock class="block fix" title="Fixes" :open="false">
+					<ul>
+						<li>Poll's votes with bits and channel points were showing wrong vote counts</li>
+						<li><strong>Test trigger</strong> button wasn't working for chat commands</li>
+						<li>Trigger for <strong>bits event</strong> wasn't working</li>
+						<li>Fixing <strong>chat scrolling</strong> on touch devices</li>
+					</ul>
+				</ToggleBlock>
 			</div>
 			<div class="cta">
 				<Button aria-label="Close updates" @click.stop="deleteMessage()" title="OK got it" />
@@ -70,6 +102,7 @@ import Config from '@/utils/Config';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{
@@ -77,6 +110,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 	},
 	components:{
 		Button,
+		ToggleBlock,
 		ChatTipAndTrickAd,
 	},
 	emits:["showModal", "delete", "close", "ariaMessage"]
@@ -137,7 +171,7 @@ export default class ChatAd extends Vue {
 		height: 3em;
 	}
 
-	.title {
+	div>.title {
 		text-align: center;
 		background: @mainColor_normal;
 		color: @mainColor_light;
@@ -167,6 +201,37 @@ export default class ChatAd extends Vue {
 			width: 4em;
 		}
 
+		.block {
+			&.new {
+				:deep(.header){
+					color: @mainColor_light;
+					background-color: @mainColor_warn;
+					&:hover {
+						background-color: lighten(@mainColor_warn, 5%);
+					}
+				}
+			}
+			&.fix {
+				:deep(.header){
+					color: @mainColor_light;
+					background-color: @mainColor_alert;
+					&:hover {
+						background-color: lighten(@mainColor_alert, 5%);
+					}
+				}
+			}
+			&:not(:last-of-type) {
+				margin-bottom: .5em;
+			}
+			:deep(.header){
+					color: @mainColor_light;
+					background-color: @mainColor_normal;
+					&:hover {
+						background-color: lighten(@mainColor_normal, 5%);
+					}
+			}
+		}
+
 		ul {
 			text-align: left;
 			margin-left: 2em;
@@ -174,10 +239,12 @@ export default class ChatAd extends Vue {
 				&:not(:last-child) {
 					margin-bottom:.5em;
 				}
+
 				.button {
 					background: transparent;
 					border: 1px solid @mainColor_normal;
 					padding: .16em .3em;
+					margin-right: .5em;
 					color: @mainColor_normal !important;
 					&:hover {
 						background: fade(@mainColor_normal, 10%);

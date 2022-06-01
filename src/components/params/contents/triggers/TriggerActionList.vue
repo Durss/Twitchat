@@ -130,7 +130,7 @@ export default class TriggerActionList extends Vue {
 				if(!(a.text?.length > 0)) continue;
 			}
 			// else
-			// if(a.type == "spotify"){
+			// if(a.type == "music"){
 			// }
 			canTest = true;
 			break;

@@ -1,9 +1,9 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" title="Wheel" :icons="['ticket_purple']">
-		<div>when doing a raffle, this page will display a wheel that'll animate to show the winner.</div>
+		<div>when doing a raffle, this page will display a wheel that'll animate to pick a winner.</div>
 		<div class="content">
 			<div class="row">
-				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+				<input type="text" v-model="overlayUrl">
 			</div>
 		</div>
 	</ToggleBlock>

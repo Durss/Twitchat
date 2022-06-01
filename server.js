@@ -55,6 +55,9 @@ http.createServer((request, response) => {
 					scopes:credentials.scopes,
 					spotify_scopes:credentials.spotify_scopes,
 					spotify_client_id:credentials.spotify_client_id,
+					deezer_scopes:credentials.deezer_scopes,
+					deezer_client_id:credentials.deezer_client_id,
+					deezer_dev_client_id:credentials.deezer_dev_client_id,
 				}));
 					return;
 		
@@ -97,6 +100,26 @@ http.createServer((request, response) => {
 			}else if(endpoint == "/api/spotify/refresh_token") {
 				spotifyRefreshToken(request, response);
 				return;
+
+			//Get deezer token
+			}else if(endpoint == "/api/deezer/auth") {
+				deezerAuthenticate(request, response);
+				return;
+
+			//Rrefresh deezer access_token
+			// }else if(endpoint == "/api/deezer/search") {
+			// 	const res = await fetch("https://api.deezer.com/search?q=prout", {
+			// 		"headers": {
+			// 			"accept": "*/*",
+			// 		},
+			// 		"body": null,
+			// 		"method": "GET",
+			// 	});
+			// 	const json = await res.json();
+			// 	console.log(json)
+			// 	response.writeHead(200, {'Content-Type': 'application/json'});
+			// 	response.end(JSON.stringify(json));
+			// 	return;
 			
 			//Endpoint not found
 			}else{
@@ -426,6 +449,41 @@ async function spotifyRefreshToken(request, response) {
 	response.end(JSON.stringify(json));
 }
 
+/**
+ * Authenticate a deezer user from its auth_code
+ */
+async function deezerAuthenticate(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+
+	const options = { method:"GET" }
+	let json;
+	try {
+		const appId = params.isProd=="1"? credentials.deezer_client_id : credentials.deezer_dev_client_id;
+		const secret = params.isProd=="1"? credentials.deezer_client_secret : credentials.deezer_dev_client_secret;
+		let url = "https://connect.deezer.com/oauth/access_token.php";
+		url += "?code="+params.code;
+		url += "&secret="+secret;
+		url += "&app_id="+appId;
+		url += "&output=json";
+		let res = await fetch(url, options);
+		json = await res.json();
+		console.log(json);
+
+		if(!json.access_token) throw(json);
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		console.log(error);
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({
+		refresh_token: json.access_token,
+		expires_in: json.expires,
+	}));
+}
+
 
 
 
@@ -574,7 +632,7 @@ const UserDataSchema = {
 										url: {type:"string", maxLength:1000},
 										mediaPath: {type:"string", maxLength:1000},
 										type: {type:"string", maxLength:50},
-										spotifyAction: {type:"string", maxLength:3},
+										musicAction: {type:"string", maxLength:3},
 										track: {type:"string", maxLength:500},
 									}
 								}
@@ -618,7 +676,7 @@ const UserDataSchema = {
 												url: {type:"string", maxLength:1000},
 												mediaPath: {type:"string", maxLength:1000},
 												type: {type:"string", maxLength:50},
-												spotifyAction: {type:"string", maxLength:3},
+												musicAction: {type:"string", maxLength:3},
 												track: {type:"string", maxLength:500},
 											}
 										},

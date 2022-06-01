@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="header" @click="toggle()">
+		<div class="header" @click.stop="toggle()">
 			<Button small
 				:icon="require('@/assets/icons/orderable_white.svg')"
 				class="orderBt"

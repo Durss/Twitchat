@@ -8,6 +8,7 @@ import Overlay from '../views/Overlay.vue'
 import store from '@/store'
 import Utils from '@/utils/Utils'
 import { SpotifyAuthResult } from '@/utils/SpotifyHelper'
+import { DeezerAuthResult } from '@/utils/DeezerHelper'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -65,6 +66,29 @@ const routes: Array<RouteRecordRaw> = [
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
 				store.dispatch("setSpotifyAuthResult", params)
+			}else{
+				store.state.alert = "You refused to grant access to your Spotify account";
+			}
+			return {name:"chat"}
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
+		path: '/deezer/auth',
+		name: 'deezer/auth',
+		redirect:() => {
+			if(!Utils.getQueryParameterByName("error_reason")) {
+				store.state.showParams = true;//Open params
+				store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
+	
+				const params:DeezerAuthResult = {
+					code:Utils.getQueryParameterByName("code") as string,
+				}
+				store.dispatch("setDeezerAuthResult", params)
+			}else{
+				store.state.alert = "You refused to grant access to your Deezer account";
 			}
 			return {name:"chat"}
 		},

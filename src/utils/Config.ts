@@ -12,6 +12,8 @@ export default class Config {
 	public static MAX_PREDICTION_OUTCOMES:number = 10;
 	public static SPOTIFY_CLIENT_ID:string = "";
 	public static SPOTIFY_SCOPES:string = "";
+	public static DEEZER_CLIENT_ID:string = "";
+	public static DEEZER_SCOPES:string = "";
 
 	public static SERVER_PORT:number = 3018;
 	public static get API_PATH():string {
@@ -22,13 +24,14 @@ export default class Config {
 		}
 	}
 
-	public static get MUSIC_SERVICE_CONFIGURED():boolean {
-		return this.SPOTIFY_CLIENT_ID?.length > 20;
-	}
+	public static get MUSIC_SERVICE_CONFIGURED():boolean { return this.SPOTIFY_CONFIGURED || this.DEEZER_CONFIGURED; }
+	public static get SPOTIFY_CONFIGURED():boolean { return this.SPOTIFY_CLIENT_ID?.length > 20; }
+	public static get DEEZER_CONFIGURED():boolean { return this.DEEZER_CLIENT_ID?.length > 5; }
+	public static get SPOTIFY_CONNECTED():boolean { return store.state.spotifyAuthToken? store.state.spotifyAuthToken?.expires_at > Date.now() : false }
+	public static get DEEZER_CONNECTED():boolean { return store.state.deezerConnected === true; }
 
 	public static get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {
 		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
-		if(!store.state.spotifyAuthToken) return false;
-		return store.state.spotifyAuthToken?.expires_at > Date.now();
+		return this.SPOTIFY_CONNECTED || this.DEEZER_CONNECTED;
 	}
 }

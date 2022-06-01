@@ -1,14 +1,15 @@
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
+import DeezerHelper from '@/utils/DeezerHelper';
 import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import SevenTVUtils from '@/utils/SevenTVUtils';
 import SpotifyHelper, { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
@@ -20,7 +21,7 @@ import Store from './Store';
 
 export default createStore({
 	state: {
-		latestUpdateIndex: 2,
+		latestUpdateIndex: 3,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
@@ -65,6 +66,7 @@ export default createStore({
 		PermissionsForm: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
+		deezerConnected: false,
 		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
 		botMessages: {
 			raffleStart: {
@@ -853,7 +855,7 @@ export default createStore({
 					if(v.type == "") return false;
 					if(v.type == "obs") return v.sourceName?.length > 0;
 					if(v.type == "chat") return v.text?.length > 0;
-					if(v.type == "spotify") return true;
+					if(v.type == "music") return true;
 					return false;
 				})
 
@@ -916,6 +918,13 @@ export default createStore({
 			SpotifyHelper.instance.getCurrentTrack();
 		},
 
+		setDeezerConnected(state, value:boolean) {
+			state.deezerConnected = value;
+			if(!value) {
+				DeezerHelper.instance.dispose();
+			}
+		},
+		
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
 
 	},
@@ -930,6 +939,8 @@ export default createStore({
 			Config.TWITCH_APP_SCOPES = jsonConfigs.scopes;
 			Config.SPOTIFY_SCOPES  = jsonConfigs.spotify_scopes;
 			Config.SPOTIFY_CLIENT_ID = jsonConfigs.spotify_client_id;
+			Config.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
+			Config.DEEZER_CLIENT_ID = Config.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
@@ -1472,7 +1483,10 @@ export default createStore({
 
 		setSpotifyAuthResult({commit}, value:SpotifyAuthResult) { commit("setSpotifyAuthResult", value); },
 
+
 		setSpotifyToken({commit}, value:SpotifyAuthToken) { commit("setSpotifyToken", value); },
+
+		setDeezerConnected({commit}, value:boolean) { commit("setDeezerConnected", value); },
 
 		setCommercialEnd({commit}, date:number) {
 			commit("setCommercialEnd", date);
@@ -1535,7 +1549,7 @@ export interface TriggerActionChatCommandData {
 export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionObsData
 								| TriggerActionChatData
-								| TriggerActionSpotifyEntryData
+								| TriggerActionMusicEntryData
 ;
 
 export interface TriggerActionData {
@@ -1560,9 +1574,9 @@ export interface TriggerActionChatData extends TriggerActionData{
 	text:string;
 }
 
-export interface TriggerActionSpotifyEntryData extends TriggerActionData{
-	type:"spotify";
-	spotifyAction:string;
+export interface TriggerActionMusicEntryData extends TriggerActionData{
+	type:"music";
+	musicAction:string;
 	track:string;
 }
 

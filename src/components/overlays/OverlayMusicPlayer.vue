@@ -1,5 +1,5 @@
 <template>
-	<div class="overlayspotifyplayer">
+	<div class="OverlayMusicPlayer">
 		<transition name="slide">
 			<div class="content" v-if="isPlaying">
 				<img :src="cover" class="cover" id="music_cover">
@@ -33,7 +33,7 @@ import 'vue3-marquee/dist/style.css'
 		Vue3Marquee,
 	}
 })
-export default class OverlaySpotifyPlayer extends Vue {
+export default class OverlayMusicPlayer extends Vue {
 
 	public artist:string = "";
 	public track:string = "";
@@ -97,7 +97,7 @@ export default class OverlaySpotifyPlayer extends Vue {
 </script>
 
 <style scoped lang="less">
-.overlayspotifyplayer{
+.OverlayMusicPlayer{
 	.content {
 		@maxHeight: ~"min(100vh, 25vw)";
 		display: flex;

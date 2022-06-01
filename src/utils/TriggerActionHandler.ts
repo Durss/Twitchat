@@ -3,6 +3,7 @@ import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { JsonObject } from 'type-fest';
 import Config from './Config';
+import DeezerHelper from './DeezerHelper';
 import IRCClient from './IRCClient';
 import PublicAPI from './PublicAPI';
 import SpotifyHelper, {SearchTrackItem} from './SpotifyHelper';
@@ -284,27 +285,45 @@ export default class TriggerActionHandler {
 						IRCClient.instance.sendMessage(text);
 					}
 
-					if(step.type == "spotify") {
-						if(step.spotifyAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
-							let track:SearchTrackItem|null = null;
+					if(step.type == "music") {
+						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
 							const m = message.message.split(" ").splice(1).join(" ");
-							if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
-								const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-								const id = chunks[2];
-								track = await SpotifyHelper.instance.getTrackByID(id);
-							}else{
-								track = await SpotifyHelper.instance.searchTrack(m);
-							}
-							if(track) {
-								if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+							if(Config.SPOTIFY_CONNECTED) {
+								let track:SearchTrackItem|null = null;
+								if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
+									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+									const id = chunks[2];
+									track = await SpotifyHelper.instance.getTrackByID(id);
+								}else{
+									track = await SpotifyHelper.instance.searchTrack(m);
+								}
+								if(track) {
+									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+										const data:MusicMessage = {
+											type:"music",
+											title:track.name,
+											artist:track.artists[0].name,
+											album:track.album.name,
+											cover:track.album.images[0].url,
+											duration:track.duration_ms,
+											url:track.external_urls.spotify,
+										};
+										PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data);
+										this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+									}
+								}
+							}else if(Config.DEEZER_CONNECTED) {
+								const track = await DeezerHelper.instance.searchTrack(m);
+								if(track) {
+									DeezerHelper.instance.addToQueue(track);
 									const data:MusicMessage = {
 										type:"music",
-										title:track.name,
-										artist:track.artists[0].name,
-										album:track.album.name,
-										cover:track.album.images[0].url,
-										duration:track.duration_ms,
-										url:track.external_urls.spotify,
+										title:track.title,
+										artist:track.artist.name,
+										album:track.album.title,
+										cover:track.album.cover_medium,
+										duration:track.duration,
+										url:track.link,
 									};
 									PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data);
 									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
@@ -312,16 +331,28 @@ export default class TriggerActionHandler {
 							}
 						}else
 						
-						if(step.spotifyAction == TriggerMusicTypes.NEXT_TRACK) {
-							SpotifyHelper.instance.nextTrack();
+						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
+							if(Config.SPOTIFY_CONNECTED) {
+								SpotifyHelper.instance.nextTrack();
+							}else if(Config.DEEZER_CONNECTED) {
+								DeezerHelper.instance.nextTrack();
+							}
 						}
 						
-						if(step.spotifyAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
-							SpotifyHelper.instance.pause();
+						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
+							if(Config.SPOTIFY_CONNECTED) {
+								SpotifyHelper.instance.pause();
+							}else if(Config.DEEZER_CONNECTED) {
+								DeezerHelper.instance.pause();
+							}
 						}
 						
-						if(step.spotifyAction == TriggerMusicTypes.RESUME_PLAYBACK) {
-							SpotifyHelper.instance.resume();
+						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
+							if(Config.SPOTIFY_CONNECTED) {
+								SpotifyHelper.instance.resume();
+							}else if(Config.DEEZER_CONNECTED) {
+								DeezerHelper.instance.resume();
+							}
 						}
 					}
 
@@ -386,7 +417,13 @@ export default class TriggerActionHandler {
 
 			//If it's a music placeholder, replace it by the current music info
 			if(h.tag.indexOf("CURRENT_TRACK") == 0) {
-				value = SpotifyHelper.instance.currentTrack[h.pointer];
+				if(Config.SPOTIFY_CONNECTED) {
+					value = SpotifyHelper.instance.currentTrack[h.pointer];
+				}else if(Config.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
+					value = DeezerHelper.instance.currentTrack[h.pointer];
+				}else{
+					value = "-none-";
+				}
 			}
 			
 			if(value && eventType === TriggerTypes.BITS && h.tag === "MESSAGE") {

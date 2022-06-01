@@ -18,7 +18,6 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from 'vue3-infinite-list';
 
@@ -94,7 +93,7 @@ export default class OverlaysRaffleWheel extends Vue {
 			list = list.concat(list);
 		}while(list.length < 500);
 		this.itemList = list;
-		const originalItemCount = Math.round(list.length/3);
+		// const originalItemCount = Math.round(list.length/3);
 
 		//Need to wait a little for the component to be mounted.
 		//The put a setTimeout() on the mount method so we can't

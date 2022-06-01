@@ -1,13 +1,13 @@
 <template>
-	<div class="TriggerActionSpotifyEntry" v-if="!spotifyConfigured">
+	<div class="TriggerActionMusicEntry" v-if="!musicServiceConfigured">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'overlays')">Overlays tab</a> on the <strong>Spotify</strong> section</p>
 		</div>
 	</div>
 
-	<div class="TriggerActionSpotifyEntry" v-else>
-		<ParamItem class="item file" :paramData="actions_conf" ref="textContent" v-model="action.spotifyAction" />
+	<div class="TriggerActionMusicEntry" v-else>
+		<ParamItem class="item file" :paramData="actions_conf" ref="textContent" v-model="action.musicAction" />
 		<ParamItem class="item text" :paramData="track_conf" v-model="action.track" v-if="showTrackInput" ref="textContent" />
 		<ToggleBlock small class="helper"
 			v-if="showTrackInput && getHelpers(event)?.length > 0"
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { ParameterData, TriggerActionSpotifyEntryData } from '@/store';
+import { ParameterData, TriggerActionMusicEntryData } from '@/store';
 import Config from '@/utils/Config';
 import { ITriggerActionHelper, MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypes, TriggerMusicTypes } from '@/utils/TriggerActionHandler';
 import { Options, Vue } from 'vue-class-component';
@@ -42,17 +42,17 @@ import ParamItem from '../../../ParamItem.vue';
 		ToggleBlock,
 	},
 })
-export default class TriggerActionSpotifyEntry extends Vue {
+export default class TriggerActionMusicEntry extends Vue {
 
-	public action!:TriggerActionSpotifyEntryData;
+	public action!:TriggerActionMusicEntryData;
 	public event!:string;
 
-	public actions_conf:ParameterData = { label:"Action type", type:"list", value:"0", listValues:[], icon:"spotify_purple.svg" };
+	public actions_conf:ParameterData = { label:"Action type", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:ParameterData = { label:"Track name or URL", type:"text", longText:false, value:"", icon:"music_purple.svg" };
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
-	public get spotifyConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get musicServiceConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
 	public mounted():void {
 		//List all available trigger types
@@ -60,7 +60,7 @@ export default class TriggerActionSpotifyEntry extends Vue {
 			{label:"Select a trigger...", value:"0" },
 		];
 		events = events.concat(MusicTriggerEvents);
-		this.actions_conf.value = this.action.spotifyAction? this.action.spotifyAction : events[0].value;
+		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;
 		this.actions_conf.listValues = events;
 
 	}
@@ -82,7 +82,7 @@ export default class TriggerActionSpotifyEntry extends Vue {
 </script>
 
 <style scoped lang="less">
-.TriggerActionSpotifyEntry{
+.TriggerActionMusicEntry{
 	.helper {
 		font-size: .8em;
 		padding-left: 2em;

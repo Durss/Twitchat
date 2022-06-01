@@ -1,16 +1,15 @@
 <template>
-	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify_purple']">
-		<div v-if="error" class="error" @click="error=''">{{error}}</div>
+	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
 
-		<div v-if="!spotifyConnected && !authenticating">
+		<div v-if="!deezerConnected">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
 		</div>
-		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
+		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" />
 
-		<div v-if="spotifyConnected" class="content">
+		<div v-if="deezerConnected" class="content">
 			<div class="row">
-				<label for="spotify_overlay_url">Set this in an OBS browser source to display currently playing spotify track:</label>
-				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+				<label for="deezer_overlay_url">Set this in an OBS browser source to display currently playing deezer track:</label>
+				<input type="text" id="deezer_overlay_url" v-model="overlayUrl">
 				<ToggleBlock small title="CSS customization" :open="false">
 					<div>You can change the appearance of the player by overriding these CSS IDs on OBS browser source params</div>
 					<ul>
@@ -25,19 +24,17 @@
 			<div class="row">
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
 				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
+				<div class="infos">Deezer API being terribly bad you'll have no other choice to play music than use triggers</div>
 			</div>
-			<Button v-if="spotifyConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
+			<Button v-if="deezerConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
-
-		<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
 
 	</ToggleBlock>
 </template>
 
 <script lang="ts">
 import store from '@/store';
-import Config from '@/utils/Config';
-import SpotifyHelper from '@/utils/SpotifyHelper';
+import DeezerHelper from '@/utils/DeezerHelper';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
@@ -51,53 +48,30 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 	},
 	emits:["setContent"]
 })
-export default class OverlayParamsSpotify extends Vue {
+export default class OverlayParamsDeezer extends Vue {
 
-	public error:string = "";
 	public open:boolean = false;
-	public loading:boolean = false;
-	public authenticating:boolean = false;
 
-	public get spotifyConnected():boolean { return Config.SPOTIFY_CONNECTED; }
+	public get deezerConnected():boolean { return store.state.deezerConnected; }
 	public get overlayUrl():string { return Utils.getOverlayURL("music"); }
 
 	public authenticate():void {
-		this.loading = true;
-		SpotifyHelper.instance.startAuthFlow();
+		DeezerHelper.instance.createPlayer();
 	}
 
 	public async mounted():Promise<void> {
-		if(store.state.spotifyAuthParams) {
-			this.open = true;	
-			this.authenticating = true;
-
-			const csrfRes = await fetch(Config.API_PATH+"/CSRFToken?token="+store.state.spotifyAuthParams.csrf, {method:"POST"});
-			const csrf = await csrfRes.json();
-			if(!csrf.success) {
-				store.state.alert = csrf.message;
-			}else{
-				try {
-					await SpotifyHelper.instance.authenticate(store.state.spotifyAuthParams.code);
-				}catch(e:unknown) {
-					this.error = (e as {error:string, error_description:string}).error_description;
-				}
-			}
-
-			this.authenticating = false;
-			this.loading = false;
-			store.dispatch("setSpotifyAuthResult", null);
-		}
+		console.log(store.state.deezerConnected);
 	}
 
 	public disconnect():void {
-		store.dispatch("setSpotifyToken", null);
+		store.dispatch("setDeezerConnected", false);
 	}
 
 }
 </script>
 
 <style scoped lang="less">
-.OverlayParamsSpotify{
+.OverlayParamsDeezer{
 	
 	.authBt, .loader {
 		display: block;
