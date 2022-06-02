@@ -29,7 +29,7 @@ You should have a `"Create an app"` button, click that.\
 You'll be prompted for a Name and Description for your app. Write anything you want there and submit.\
 \
 On the top left you'll your app info with a `"Show client secret"` button, click it to get the client secret value.
-![image](https://user-images.githubusercontent.com/721001/171719891-a18cacb8-96b3-4a96-8c53-c2b7d4dc440c.png)
+![image](https://user-images.githubusercontent.com/721001/171720174-03a82937-2fbe-407b-9a61-6d221ab0d0b9.png)
 
 \
 Before putting these values on Twitchat there's one more thing to do, click on the `"Edit settings"` button on the top right.\
