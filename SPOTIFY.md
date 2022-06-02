@@ -1,5 +1,5 @@
 # Connect Twitchat with Spotify
-You may want to carefully read all the following to properly understand what you're about to do :)
+You may want to **carefully read all the following** to properly understand what you're about to do :)
 <br><br>
 ## Disclaimer
 The way Twitchat asks you to connect with Spotify is not normal. There should only be a connect button and it should not ask you any credentials.\
@@ -29,11 +29,15 @@ You should have a `"Create an app"` button, click that.\
 You'll be prompted for a Name and Description for your app. Write anything you want there and submit.\
 \
 On the top left you'll your app info with a `"Show client secret"` button, click it to get the client secret value.
+![image](https://user-images.githubusercontent.com/721001/171719891-a18cacb8-96b3-4a96-8c53-c2b7d4dc440c.png)
+
 \
 Before putting these values on Twitchat there's one more thing to do, click on the `"Edit settings"` button on the top right.\
 Scroll to the `"Redirect URIs"` section and add the following URL:\
 ```
 https://twitchat.fr/spotify/auth
 ```
+![image](https://user-images.githubusercontent.com/721001/171720089-c8094ec8-ebbb-4480-aa42-c48652633200.png)
+
 Scroll down to save the change.
 You can now copy/paste the `Client ID` and the `Client Secret` to Twitchat and you should be good to go 🥳
