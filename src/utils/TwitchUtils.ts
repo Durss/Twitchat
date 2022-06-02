@@ -183,10 +183,6 @@ export default class TwitchUtils {
 							const start = (matches[j].index as number);
 							const end = start+e.name.length-1;
 							const range = getProtectedRange(fakeTag);
-							if(e.name == "LUL" || e.name == "durssLUL") {
-								console.log(e.name, fakeTag);
-								console.log(range);
-							}
 
 							if(range[start] === true || range[end] === true) continue;
 							
@@ -194,7 +190,6 @@ export default class TwitchUtils {
 							const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
 							//Emote has no space before or after or is not at the start or end of the message
 							//ignore it.
-							console.log(e.name, prevOK, nextOK);
 							if(!prevOK || !nextOK) continue;
 							emoteCount++;
 							tmpTag += start+"-"+end;
@@ -213,7 +208,6 @@ export default class TwitchUtils {
 				emotes = fakeTag;
 			}
 		}
-		console.log(">",emotes);
 
 		if(!emotes) emotes = "";
 		// ID:start-end,start-end/ID:start-end,start-end
