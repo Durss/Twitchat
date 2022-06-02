@@ -16,7 +16,7 @@
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
-				<ToggleBlock class="block new" title="New features">
+				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
 							<Button aria-label="open overlays params" small title="try it" @click.stop="openParamPage('overlays')" />
@@ -44,16 +44,17 @@
 						</li>
 					</ul>
 				</ToggleBlock>
-				<ToggleBlock class="block other" title="Other updates" :open="false">
+				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
 						<li>You can now <strong>duplicate</strong> a trigger action</li>
 						<li>Better emotes replacement with support for <strong>wide emotes</strong> <i>(BTTV/FFZ/7TV)</i></li>
 						<li>Supporting new predictions with up to 8 outcomes</li>
 					</ul>
 				</ToggleBlock>
-				<ToggleBlock class="block fix" title="Fixes" :open="false">
+				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
-						<li>Poll's votes with bits and channel points were showing wrong vote counts</li>
+						<li>Aonflict between BTTV/FFZ/7TV and official <strong>emotes</strong> could cut message contents</li>
+						<li>Poll's votes with bits and channel points were showing wrong <strong>vote counts</strong></li>
 						<li><strong>Test trigger</strong> button wasn't working for chat commands</li>
 						<li>Trigger for <strong>bits event</strong> wasn't working</li>
 						<li>Fixing <strong>chat scrolling</strong> on touch devices</li>
@@ -206,8 +207,20 @@ export default class ChatAd extends Vue {
 				:deep(.header){
 					color: @mainColor_light;
 					background-color: @mainColor_warn;
+					border-bottom-color: darken(@mainColor_warn, 10%);
 					&:hover {
 						background-color: lighten(@mainColor_warn, 5%);
+					}
+				}
+				:deep(.content){
+					color: @mainColor_warn;
+					background-color: lighten(@mainColor_warn_extralight, 15%);
+				}
+				.button {
+					border-color: @mainColor_warn;
+					color: @mainColor_warn !important;
+					&:hover {
+						background: fade(@mainColor_warn, 10%);
 					}
 				}
 			}
@@ -215,8 +228,20 @@ export default class ChatAd extends Vue {
 				:deep(.header){
 					color: @mainColor_light;
 					background-color: @mainColor_alert;
+					border-bottom-color: darken(@mainColor_alert, 10%);
 					&:hover {
 						background-color: lighten(@mainColor_alert, 5%);
+					}
+				}
+				:deep(.content){
+					color: @mainColor_alert;
+					background-color: lighten(@mainColor_alert_extralight, 5%);
+				}
+				.button {
+					border-color: @mainColor_alert;
+					color: @mainColor_alert !important;
+					&:hover {
+						background: fade(@mainColor_alert, 10%);
 					}
 				}
 			}
