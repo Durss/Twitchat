@@ -130,6 +130,7 @@ export default class Store {
 		delete data.obsPass;
 		delete data.oAuthToken;
 		delete data.spotifyAuthToken;
+		delete data.spotifyAppParams;
 		//Do not save this to the server to avoid config to be erased
 		//on one of the instances
 		delete data.hideChat;

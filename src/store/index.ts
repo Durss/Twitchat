@@ -66,6 +66,7 @@ export default createStore({
 		PermissionsForm: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
+		spotifyAppParams: null as {client:string, secret:string}|null,
 		deezerConnected: false,
 		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
 		botMessages: {
@@ -901,6 +902,11 @@ export default createStore({
 
 		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
 
+		setSpotifyCredentials(state, value:{client:string, secret:string}) {
+			state.spotifyAppParams = value;
+			Store.set("spotifyAppParams", value);
+		},
+
 		setSpotifyAuthResult(state, value:SpotifyAuthResult) { state.spotifyAuthParams = value; },
 		
 		setSpotifyToken(state, value:SpotifyAuthToken|null) {
@@ -1130,6 +1136,12 @@ export default createStore({
 				const spotifyAuthToken = Store.get("spotifyAuthToken");
 				if(spotifyAuthToken && Config.SPOTIFY_CLIENT_ID != "") {
 					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+				}
+	
+				//Init spotify credentials
+				const spotifyAppParams = Store.get("spotifyAppParams");
+				if(spotifyAppParams) {
+					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
 				}
 			}
 
@@ -1481,10 +1493,13 @@ export default createStore({
 
 		ahsInstaller({commit}, value:InstallHandler) { commit("ahsInstaller", value); },
 
+
+		setSpotifyCredentials({commit}, value:{client:string, secret:string}) { commit("setSpotifyCredentials", value); },
+
 		setSpotifyAuthResult({commit}, value:SpotifyAuthResult) { commit("setSpotifyAuthResult", value); },
 
-
 		setSpotifyToken({commit}, value:SpotifyAuthToken) { commit("setSpotifyToken", value); },
+		
 
 		setDeezerConnected({commit}, value:boolean) { commit("setDeezerConnected", value); },
 
@@ -1605,7 +1620,8 @@ export interface ParameterData {
 	storage?:unknown;
 	children?:ParameterData[];
 	accept?:string;
-	save?:boolean;//Save configuration to storage ?
+	fieldName?:string;
+	save?:boolean;//Save configuration to storage on change?
 }
 
 export interface RaffleData {

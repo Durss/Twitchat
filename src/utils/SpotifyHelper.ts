@@ -67,8 +67,10 @@ export default class SpotifyHelper {
 		const json = await res.json();
 		const scope = Config.SPOTIFY_SCOPES.split(" ").join("%20");
 
+		console.log(store.state.spotifyAppParams);
+
 		let url = "https://accounts.spotify.com/authorize";
-		url += "?client_id="+Config.SPOTIFY_CLIENT_ID;
+		url += "?client_id="+this.clientID;
 		url += "&response_type=code";
 		url += "&redirect_uri="+encodeURIComponent( document.location.origin+"/spotify/auth" );
 		url += "&scope=+"+scope;
@@ -86,7 +88,13 @@ export default class SpotifyHelper {
 	 */
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		const res = await fetch(Config.API_PATH+"/spotify/auth?code="+authCode, {method:"GET"});
+		let url = Config.API_PATH+"/spotify/auth";
+		url += "?code="+encodeURIComponent(authCode);
+		if(store.state.spotifyAppParams) {
+			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.client);
+			url += "&clientSecret="+encodeURIComponent(store.state.spotifyAppParams?.secret);
+		}
+		const res = await fetch(url, {method:"GET"});
 		json = await res.json();
 		if(json.access_token) {
 			store.dispatch("setSpotifyToken", json);
@@ -103,7 +111,13 @@ export default class SpotifyHelper {
 		clearTimeout(this._refreshTimeout);
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		const res = await fetch(Config.API_PATH+"/spotify/refresh_token?token="+this._token.refresh_token, {method:"GET"});
+		let url = Config.API_PATH+"/spotify/refresh_token";
+		url += "?token="+encodeURIComponent(this._token.refresh_token);
+		if(store.state.spotifyAppParams) {
+			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.client);
+			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.secret);
+		}
+		const res = await fetch(url, {method:"GET"});
 		json = await res.json();
 		if(json.access_token) {
 			json.refresh_token = this._token.refresh_token;//Keep refresh token
@@ -327,6 +341,15 @@ export default class SpotifyHelper {
 		}
 		return await res.json();
 	}
+
+	private get clientID():string {
+		let clientID = Config.SPOTIFY_CLIENT_ID;
+		if(store.state.spotifyAppParams) {
+			clientID = store.state.spotifyAppParams.client;
+		}
+		return clientID;
+	}
+
 }
 
 export interface SpotifyAuthResult {

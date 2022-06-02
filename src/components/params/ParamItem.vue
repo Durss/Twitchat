@@ -32,8 +32,8 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
+				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -67,7 +67,7 @@
 					class="helpBt"
 				/>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
-				<input type="text" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
+				<input type="text" :name="paramData.fieldName" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
 				<!-- <Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"

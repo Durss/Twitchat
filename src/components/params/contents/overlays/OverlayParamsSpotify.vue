@@ -5,10 +5,19 @@
 		<div v-if="!spotifyConnected && !authenticating">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
 		</div>
-		<div v-if="!spotifyConnected && !authenticating">
-			Sadly <strong>Spotify</strong> refused to allow Twitchat using their API. You still can connect them but this needs you to follow this tutorial
+		<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
+			<div class="info">Sadly, <strong>Spotify</strong> is refusing Twitchat to use their API with unlimited users and extended quotas <i>(necessary)</i>.<br>
+			To use it you'll have to <a href="https://github.com/durss/twitchat/SPOTIFY.md" target="_blank"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:</div>
+			<form>
+				<ParamItem class="item" :paramData="paramClient" autofocus />
+				<ParamItem class="item" :paramData="paramSecret" />
+			</form>
 		</div>
-		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
+		<Button v-if="!spotifyConnected && !authenticating"
+			title="Autenticate"
+			@click="authenticate()"
+			:loading="loading" class="authBt"
+			:disabled="!canConnect" />
 
 		<div v-if="spotifyConnected" class="content">
 			<div class="row">
@@ -38,18 +47,20 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import store, { ParameterData } from '@/store';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import ParamItem from '../../ParamItem.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		ParamItem,
 		ToggleBlock,
 	},
 	emits:["setContent"]
@@ -60,16 +71,30 @@ export default class OverlayParamsSpotify extends Vue {
 	public open:boolean = false;
 	public loading:boolean = false;
 	public authenticating:boolean = false;
+	public paramClient:ParameterData = {label:"Client ID", value:"", type:"text", fieldName:"spotifyClient"};
+	public paramSecret:ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
 
 	public get spotifyConnected():boolean { return Config.SPOTIFY_CONNECTED; }
 	public get overlayUrl():string { return Utils.getOverlayURL("music"); }
+	public get canConnect():boolean {
+		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
+	}
 
 	public authenticate():void {
 		this.loading = true;
+		store.dispatch("setSpotifyCredentials", {
+			client: this.paramClient.value as string,
+			secret: this.paramSecret.value as string,
+		});
 		SpotifyHelper.instance.startAuthFlow();
 	}
 
 	public async mounted():Promise<void> {
+		if(store.state.spotifyAppParams) {
+			this.paramClient.value = store.state.spotifyAppParams.client;
+			this.paramSecret.value = store.state.spotifyAppParams.secret;
+		}
+
 		if(store.state.spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
@@ -135,6 +160,17 @@ export default class OverlayParamsSpotify extends Vue {
 					list-style-position: inside;
 				}
 			}
+		}
+	}
+
+	.spotifasshole {
+		margin-top: .5em;
+		.info {
+			color: @mainColor_alert;
+			font-size: .9em;
+		}
+		form {
+			margin-top: .5em;
 		}
 	}
 

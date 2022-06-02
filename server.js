@@ -387,11 +387,14 @@ async function getUsers(request, response) {
  */
 async function spotifyAuthenticate(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
+	let clientId = params.clientId? params.clientId : credentials.spotify_client_id;
+	let clientSecret = params.clientSecret? params.clientSecret : credentials.spotify_client_secret;
+	console.log(params);
 
 	const options = {
 		method:"POST",
 		headers: {
-			"Authorization": "Basic "+Buffer.from(credentials.spotify_client_id+":"+credentials.spotify_client_secret).toString('base64'),
+			"Authorization": "Basic "+Buffer.from(clientId+":"+clientSecret).toString('base64'),
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 		body: new URLSearchParams({
@@ -421,11 +424,13 @@ async function spotifyAuthenticate(request, response) {
  */
 async function spotifyRefreshToken(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
+	let clientId = params.clientId? params.clientId : credentials.spotify_client_id;
+	let clientSecret = params.clientSecret? params.clientSecret : credentials.spotify_client_secret;
 
 	const options = {
 		method:"POST",
 		headers: {
-			"Authorization": "Basic "+Buffer.from(credentials.spotify_client_id+":"+credentials.spotify_client_secret).toString('base64'),
+			"Authorization": "Basic "+Buffer.from(clientId+":"+clientSecret).toString('base64'),
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 		body: new URLSearchParams({
