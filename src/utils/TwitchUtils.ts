@@ -184,18 +184,35 @@ export default class TwitchUtils {
 			}
 		}
 
+		function getProtectedRange(emotes:string):boolean[] {
+			const protectedRanges:boolean[] = [];
+			if(emotes) {
+				const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
+				if(ranges) {
+					for (let i = 0; i < ranges.length; i++) {
+						const range = ranges[i];
+						for (let j = range[0]; j < range[1]; j++) {
+							protectedRanges[j] = true;
+						}
+					}
+				}
+			}
+			return protectedRanges;
+		}
+
 		if(!emotes) emotes = "";
-		let bttvTag = BTTVUtils.instance.generateEmoteTag(message)
+		// ID:start-end,start-end/ID:start-end,start-end
+		let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
 		if(bttvTag) {
 			if(emotes.length > 0) bttvTag += "/";
 			emotes = bttvTag + emotes;
 		}
-		let ffzTag = FFZUtils.instance.generateEmoteTag(message)
+		let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
 		if(ffzTag) {
 			if(emotes.length > 0) ffzTag += "/";
 			emotes = ffzTag + emotes;
 		}
-		let seventvTag = SevenTVUtils.instance.generateEmoteTag(message)
+		let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
 		if(seventvTag) {
 			if(emotes.length > 0) seventvTag += "/";
 			emotes = seventvTag + emotes;
@@ -204,6 +221,8 @@ export default class TwitchUtils {
 		if(!emotes || emotes.length == 0) {
 			return [{type:"text", value:message}];
 		}
+
+		console.log(emotes);
 
 		const emotesList:{id:string, start:number, end:number}[] = [];
 		//Parse raw emotes data
@@ -837,7 +856,7 @@ export default class TwitchUtils {
 	 * 
 	 * @param uid user ID list
 	 */
-	public static async getFollowState(uid:string, channelId?:string):Promise<TwitchTypes.Following> {
+	public static async getFollowState(uid:string, channelId?:string):Promise<boolean> {
 		if(!channelId) channelId = store.state.user.user_id;
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
@@ -848,8 +867,12 @@ export default class TwitchUtils {
 			method:"GET",
 			headers,
 		});
-		const json:{data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
-		return json.data[0];
+		const json:{error:string, data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+		if(json.error) {
+			throw(json.error);
+		}else{
+			return json.data.length > 0;
+		}
 	}
 
 	/**
