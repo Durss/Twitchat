@@ -1,5 +1,5 @@
 <template>
-	<div class="chatad" @click.stop="">
+	<div class="chatad">
 		<div v-if="isSponsor" class="sponsor">
 			<div class="title">🍔 I like food 🍔</div>
 			<div class="content">Are you enjoying <strong>Twitchat</strong> ?<br>
@@ -16,6 +16,19 @@
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
+<<<<<<< Updated upstream
+				<ul>
+					<li><Button aria-label="Open whispers on chat param" small title="try it" @click.stop="showSpecificParam('features.showWhispersOnChat')" /> New option to show <strong>whispers</strong> on chat</li>
+					<li><Button aria-label="Open 7TV param" small title="try it" @click.stop="showSpecificParam('appearance.sevenTVEmotes')" /> <strong>7TV</strong> emotes supported</li>
+					<li>Raffle and bingo can now post a message on chat when they start</li>
+					<li><Button aria-label="Open vertical split param" small title="try it" @click.stop="showSpecificParam('appearance.splitViewVertical')" /> New option to <strong>split</strong> the view <strong>vertically</strong></li>
+					<li><Button aria-label="Open notif filter param" small title="try it" @click.stop="showSpecificParam('filters.showNotifications')" /> New option to remove all notifcations from chat <i>(sub,follow, raid, poll,...)</i></li>
+					<li>Slightly enhancing <strong>accessibility</strong> for people with visual impairment</li>
+					<li><strong>Fixed</strong> : Cutomod message wouldn't disappear properly if chat was paused</li>
+					<li><strong>Fixed</strong> : Channel points OBS trigger wasn't working</li>
+					<li><strong>Woops</strong> : While refactoring the way the custom shoutout message was stored I have made a mistake that probably lost the message you configured, sorry about that 🥺</li>
+				</ul>
+=======
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
@@ -24,7 +37,7 @@
 						</li>
 						<li>
 							<Button aria-label="open spotify params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<strong>Spotify</strong> integration with dedicated overlay and possibility to control from chat commands.
+							<strong>Spotify</strong> integration with dedicated overlay and possibility to control it from chat commands.
 						</li>
 						<li>
 							<Button aria-label="open wheel params" small title="try it" @click.stop="openParamPage('overlays')" />
@@ -60,6 +73,7 @@
 						<li>Fixing <strong>chat scrolling</strong> on touch devices</li>
 					</ul>
 				</ToggleBlock>
+>>>>>>> Stashed changes
 			</div>
 			<div class="cta">
 				<Button aria-label="Close updates" @click.stop="deleteMessage()" title="OK got it" />
@@ -103,7 +117,6 @@ import Config from '@/utils/Config';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
-import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{
@@ -111,7 +124,6 @@ import ToggleBlock from '../ToggleBlock.vue';
 	},
 	components:{
 		Button,
-		ToggleBlock,
 		ChatTipAndTrickAd,
 	},
 	emits:["showModal", "delete", "close", "ariaMessage"]
@@ -172,7 +184,7 @@ export default class ChatAd extends Vue {
 		height: 3em;
 	}
 
-	div>.title {
+	.title {
 		text-align: center;
 		background: @mainColor_normal;
 		color: @mainColor_light;
@@ -202,61 +214,6 @@ export default class ChatAd extends Vue {
 			width: 4em;
 		}
 
-		.block {
-			&.new {
-				:deep(.header){
-					color: @mainColor_light;
-					background-color: @mainColor_warn;
-					border-bottom-color: darken(@mainColor_warn, 10%);
-					&:hover {
-						background-color: lighten(@mainColor_warn, 5%);
-					}
-				}
-				:deep(.content){
-					color: @mainColor_warn;
-					background-color: lighten(@mainColor_warn_extralight, 15%);
-				}
-				.button {
-					border-color: @mainColor_warn;
-					color: @mainColor_warn !important;
-					&:hover {
-						background: fade(@mainColor_warn, 10%);
-					}
-				}
-			}
-			&.fix {
-				:deep(.header){
-					color: @mainColor_light;
-					background-color: @mainColor_alert;
-					border-bottom-color: darken(@mainColor_alert, 10%);
-					&:hover {
-						background-color: lighten(@mainColor_alert, 5%);
-					}
-				}
-				:deep(.content){
-					color: @mainColor_alert;
-					background-color: lighten(@mainColor_alert_extralight, 5%);
-				}
-				.button {
-					border-color: @mainColor_alert;
-					color: @mainColor_alert !important;
-					&:hover {
-						background: fade(@mainColor_alert, 10%);
-					}
-				}
-			}
-			&:not(:last-of-type) {
-				margin-bottom: .5em;
-			}
-			:deep(.header){
-					color: @mainColor_light;
-					background-color: @mainColor_normal;
-					&:hover {
-						background-color: lighten(@mainColor_normal, 5%);
-					}
-			}
-		}
-
 		ul {
 			text-align: left;
 			margin-left: 2em;
@@ -264,12 +221,10 @@ export default class ChatAd extends Vue {
 				&:not(:last-child) {
 					margin-bottom:.5em;
 				}
-
 				.button {
 					background: transparent;
 					border: 1px solid @mainColor_normal;
 					padding: .16em .3em;
-					margin-right: .5em;
 					color: @mainColor_normal !important;
 					&:hover {
 						background: fade(@mainColor_normal, 10%);

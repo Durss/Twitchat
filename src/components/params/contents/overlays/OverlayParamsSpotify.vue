@@ -5,6 +5,9 @@
 		<div v-if="!spotifyConnected && !authenticating">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
 		</div>
+		<div v-if="!spotifyConnected && !authenticating">
+			Sadly <strong>Spotify</strong> refused to allow Twitchat using their API. You still can connect them but this needs you to follow this tutorial
+		</div>
 		<Button v-if="!spotifyConnected && !authenticating" title="Autenticate" @click="authenticate()" :loading="loading" class="authBt" />
 
 		<div v-if="spotifyConnected" class="content">
