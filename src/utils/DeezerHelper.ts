@@ -1,7 +1,9 @@
 import store from "@/store";
 import { reactive } from "vue";
 import Config from "./Config";
+import PublicAPI from "./PublicAPI";
 import { MusicMessage } from "./TriggerActionHandler";
+import TwitchatEvent from "./TwitchatEvent";
 
 /**
 * Created : 23/05/2022 
@@ -14,11 +16,14 @@ export default class DeezerHelper {
 	private static _instance:DeezerHelper;
 	private _playerHolder!:HTMLDivElement;
 	private _searchPromise!:(value: DeezerTrack | PromiseLike<DeezerTrack>) => void;
+	private _createPromiseSuccess!:() => void;
+	private _createPromiseError!:() => void;
 	private _idToTrack:{[key:string]:MusicMessage} = {};
 	private _forcePlay:boolean = true;
 	private _scriptElement!:HTMLScriptElement;
 	private _initCheckInterval!:number;
 	private _sessionIndex:number = 0;
+	private _playbackPos:number = 0;
 	
 	constructor() {
 	
@@ -40,58 +45,62 @@ export default class DeezerHelper {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public createPlayer():void {
-		const index = ++this._sessionIndex;
-		//@ts-ignore
-		if(window.dzAsyncInit) return;
-		//@ts-ignore
-		window.dzAsyncInit = () => {
-			console.log("DZ ASYNC INIT");
-			DZ.init({
-				appId  : Config.DEEZER_CLIENT_ID,
-				channelUrl : document.location.origin+'/deezer.html',
-				player : {
-					onload: () => {
-						console.log("ON LOAD", index, this._sessionIndex);
-						if(index != this._sessionIndex)	{
-							console.log("Stop init", index, this._sessionIndex);
-							return;
+	public createPlayer():Promise<void> {
+		return new Promise((resolve, reject)=> {
+			this._createPromiseSuccess = resolve;
+			this._createPromiseError = reject;
+			const index = ++this._sessionIndex;
+			//@ts-ignore
+			if(window.dzAsyncInit) return;
+			//@ts-ignore
+			window.dzAsyncInit = () => {
+				console.log("DZ ASYNC INIT");
+				DZ.init({
+					appId  : Config.DEEZER_CLIENT_ID,
+					channelUrl : document.location.origin+'/deezer.html',
+					player : {
+						onload: () => {
+							console.log("ON LOAD", index, this._sessionIndex);
+							if(index != this._sessionIndex)	{
+								console.log("Stop init", index, this._sessionIndex);
+								return;
+							}
+							console.log("ON LOAD > start auth");
+							this.startAuthFlow();
 						}
-						console.log("ON LOAD > start auth");
-						this.startAuthFlow();
 					}
-				}
-			});
-			let readyFlag = false;
-			DZ.ready((sdk_options) => {
-				readyFlag = true;
-				console.log('DZ SDK is ready', sdk_options);
-			});
-			//Because deezer player is dick coded it "sometimes" fails to initialize
-			//This interval is here to refresh the iframe until the ready event is
-			//properly fired.
-			clearInterval(this._initCheckInterval);
-			this._initCheckInterval = setInterval(()=> {
-				if(!readyFlag) {
-					console.log("DZ SDK failed to initialize, try again");
-					const iframe:HTMLIFrameElement = this._playerHolder.getElementsByTagName("iframe")[0];
-					iframe.src += "&1";
-				}else{
-					clearInterval(this._initCheckInterval);
-				}
-			}, 5000);
-		};
-
-		this._scriptElement = document.createElement('script');
-		this._scriptElement.src = 'https://e-cdn-files.dzcdn.net/js/min/dz.js';
-		this._scriptElement.async = true;
-		this._playerHolder = document.createElement("div");
-		this._playerHolder.setAttribute("id", "dz-root");
-		document.body.appendChild( this._playerHolder );
-		this._playerHolder.appendChild(this._scriptElement);
-		this._playerHolder.classList.add("hide");
-		//@ts-ignore
-		window.onDeezerSearchResult = (data:unknown) => this.onSearchResult(data);
+				});
+				let readyFlag = false;
+				DZ.ready((sdk_options) => {
+					readyFlag = true;
+					console.log('DZ SDK is ready', sdk_options);
+				});
+				//Because deezer player is dick coded it "sometimes" fails to initialize
+				//This interval is here to refresh the iframe until the ready event is
+				//properly fired.
+				clearInterval(this._initCheckInterval);
+				this._initCheckInterval = setInterval(()=> {
+					if(!readyFlag) {
+						console.log("DZ SDK failed to initialize, try again");
+						const iframe:HTMLIFrameElement = this._playerHolder.getElementsByTagName("iframe")[0];
+						iframe.src += "&1";
+					}else{
+						clearInterval(this._initCheckInterval);
+					}
+				}, 5000);
+			};
+	
+			this._scriptElement = document.createElement('script');
+			this._scriptElement.src = 'https://e-cdn-files.dzcdn.net/js/min/dz.js';
+			this._scriptElement.async = true;
+			this._playerHolder = document.createElement("div");
+			this._playerHolder.setAttribute("id", "dz-root");
+			document.body.appendChild( this._playerHolder );
+			this._playerHolder.appendChild(this._scriptElement);
+			this._playerHolder.classList.add("hide");
+			//@ts-ignore
+			window.onDeezerSearchResult = (data:unknown) => this.onSearchResult(data);
+		})
 	}
 
 	/**
@@ -101,6 +110,7 @@ export default class DeezerHelper {
 		clearInterval(this._initCheckInterval);
 		console.log("DISPOSE");
 		this._forcePlay = true;
+		this._playbackPos = 0;
 		this.currentTrack = null;
 		this._scriptElement.remove();
 		//@ts-ignore
@@ -168,6 +178,7 @@ export default class DeezerHelper {
 						}
 						this.currentTrack = track;
 					}
+					this.publishTrackEvent();
 				});
 
 				DZ.Event.subscribe('tracklist_changed', () => {
@@ -178,11 +189,18 @@ export default class DeezerHelper {
 						// DZ.player.play();
 					}
 				});
+
+				DZ.Event.subscribe('player_position', (arg) => {
+					// event_listener_append('position', arg[0], arg[1]);
+					this._playbackPos = arg[0];
+				});
 				
 				store.dispatch("setDeezerConnected", true);
+				this._createPromiseSuccess();
 			}else{
 				store.state.alert = "Deezer authentication failed";
 				store.dispatch("setDeezerConnected", false);
+				this._createPromiseError();
 			}
 		}, {perms: Config.DEEZER_SCOPES});
 	}
@@ -279,7 +297,22 @@ export default class DeezerHelper {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>{
+			this.publishTrackEvent();
+		});
+	}
+
+	private publishTrackEvent():void {
+		if(this.currentTrack) {
+			//Broadcast to the overlays
+			PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+				trackName: this.currentTrack.title,
+				artistName: this.currentTrack.artist,
+				trackDuration: this.currentTrack.duration * 1000,
+				trackPlaybackPos: this._playbackPos * 1000,
+				cover: this.currentTrack.cover,
+			});
+		}
 	}
 
 	private onSearchResult(json:{data:DeezerTrack[], next:string, total:number}):void {
@@ -381,6 +414,7 @@ declare namespace DZ {
 			}
 		})=>void): void;
 		(event:'tracklist_changed', callback:()=>void): void;
+		(event:'player_position', callback:(arg:[pos:number, duration:number])=>void): void;
 	}
 
 	const player:{

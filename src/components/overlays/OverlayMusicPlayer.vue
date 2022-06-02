@@ -56,6 +56,7 @@ export default class OverlayMusicPlayer extends Vue {
 	public mounted():void {
 		this.onTrackHandler = (e:TwitchatEvent) => {
 			if(e.data) {
+				const wasPlaying = this.isPlaying;
 				const obj = e.data as 
 							{
 								trackName:string,
@@ -74,12 +75,15 @@ export default class OverlayMusicPlayer extends Vue {
 				//and what spotify gives us due to the query execution duration
 				//wich makes the progressbar jump back on every event
 				//This condition avoids reseting the progressbar animation
-				//unless there's a more a than 10% offset
-				if(Math.abs(newProgress - this.progress) > .1 || this.progress == 0) {
+				//unless there's a more a than 5% offset
+				if(Math.abs(newProgress - this.progress) > .05
+				|| this.progress == 0
+				|| wasPlaying != this.isPlaying) {
 					this.progress = newProgress;
 					const duration = (obj.trackDuration*(1-newProgress))/1000;
+					console.log(duration, newProgress);
 					gsap.killTweensOf(this);
-					gsap.to(this, {duration, progress:1})
+					gsap.to(this, {duration, progress:1, ease:"linear"});
 				}
 			}else{
 				this.isPlaying = false;

@@ -4,7 +4,7 @@
 		<div v-if="!deezerConnected">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
 		</div>
-		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" />
+		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" :loading="authenticating" />
 
 		<div v-if="deezerConnected" class="content">
 			<div class="row">
@@ -51,12 +51,19 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsDeezer extends Vue {
 
 	public open:boolean = false;
+	public authenticating:boolean = false;
 
 	public get deezerConnected():boolean { return store.state.deezerConnected; }
 	public get overlayUrl():string { return Utils.getOverlayURL("music"); }
 
-	public authenticate():void {
-		DeezerHelper.instance.createPlayer();
+	public async authenticate():Promise<void> {
+		this.authenticating = true;
+		try{
+			await DeezerHelper.instance.createPlayer();
+		}catch(error) {
+			//Ignore
+		}
+		this.authenticating = false;
 	}
 
 	public async mounted():Promise<void> {
