@@ -115,7 +115,7 @@ export default class SpotifyHelper {
 		url += "?token="+encodeURIComponent(this._token.refresh_token);
 		if(store.state.spotifyAppParams) {
 			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.client);
-			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.secret);
+			url += "&clientSecret="+encodeURIComponent(store.state.spotifyAppParams?.secret);
 		}
 		const res = await fetch(url, {method:"GET"});
 		json = await res.json();
