@@ -222,8 +222,6 @@ export default class TwitchUtils {
 			return [{type:"text", value:message}];
 		}
 
-		console.log(emotes);
-
 		const emotesList:{id:string, start:number, end:number}[] = [];
 		//Parse raw emotes data
 		const chunks = (emotes as string).split("/");
