@@ -135,6 +135,7 @@ export default class Store {
 		//on one of the instances
 		delete data.hideChat;
 		delete data["p:shoutoutLabel"];
+		delete data.deezerEnabled;
 		
 		this.saveTO = setTimeout(async () => {
 			let json = {

@@ -5,7 +5,7 @@
 		<Confirm />
 		<Alert />
 		<Tooltip />
-		<img src="/loader_white.svg" alt="loader" class="loader-init" v-if="!authenticated">
+		<img src="/loader_white.svg" alt="loader" class="loader-init" v-if="showLoader">
 	</div>
 </template>
 
@@ -28,6 +28,9 @@ import Tooltip from "./views/Tooltip.vue";
 })
 export default class App extends Vue {
 
+	public get showLoader():boolean {
+		return !this.authenticated && this.$route.meta.noBG !== true && store.state.initComplete;
+	}
 	public get authenticated():boolean {
 		return store.state.authenticated || (this.$route.meta.needAuth !== true && store.state.initComplete);
 	}
@@ -51,6 +54,10 @@ export default class App extends Vue {
 	height: 100vh;
 	font-size: 20px;
 	overflow: hidden;
+
+	.loader-init {
+		transform:scale(10);
+	}
 
 	&.overflow {
 		overflow: auto;

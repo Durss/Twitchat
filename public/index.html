@@ -69,6 +69,7 @@
 			const p = noBgPaths[i];
 			if(new RegExp(p).test(url)) {
 				document.body.style.backgroundColor = "transparent";
+				document.getElementsByClassName("loader-init")[0].style.display = "none";
 				break;
 			}
 		}

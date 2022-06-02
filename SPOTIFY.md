@@ -18,7 +18,7 @@ Because of that, the only way for you to connect Twitchat with Spotify is by doi
 These credentials allow Twitchat to do nothing more than what it would if Twitchat was doing things the normal way.\
 But, having these credentials means that I *(Twitchat's developper)* could theorically store them and use them for any other tool.\
 \
-But due to Spotify's limitations, that actually wouldn't be much usefull as it would have the same quota and 25 user max limitations.\
+But due to Spotify's limitations, that actually wouldn't be much usefull as it would have the same quota and 25 users max limitations.\
 But, if you someday want to revoke Twitchat access from your Spotify account, you'll want to `"RESET"` the client secret to make sure Twitchat can't use your credentials anymore.
 \
 \

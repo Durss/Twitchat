@@ -17,6 +17,18 @@ export default class Utils {
 		return a[ Math.floor(Math.random() * a.length) ];
 	}
 
+	/**
+	 * Shuffles an array
+	 * Modifies the original array
+	 */
+	public static shuffle(a: any[]): any[] {
+		for (let i = a.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[a[i], a[j]] = [a[j], a[i]];
+		}
+		return a;
+	}
+
 
 	/**
 	 * Opens up a confirm window so the user can confirm or cancel an action.

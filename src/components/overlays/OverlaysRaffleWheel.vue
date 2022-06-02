@@ -1,8 +1,8 @@
 <template>
 	<div class="overlaysrafflewheel">
 		<InfiniteList class="list" ref="list"
-		v-show="listDisplayed"
 		v-if="listEnabled"
+		:style="listStyles"
 		:data="itemList"
 		:width="'100%'"
 		:height="listHeight"
@@ -18,6 +18,7 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from 'vue3-infinite-list';
 
@@ -44,6 +45,13 @@ export default class OverlaysRaffleWheel extends Vue {
 	private resizeHandler!:()=>void;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
+	private frameIndex:number = 0;
+
+	public get listStyles():{[key:string]:string|number} {
+		return {
+			opacity:this.listDisplayed? 1 : 0,
+		}
+	}
 
 	public async mounted():Promise<void> {
 		this.resizeHandler = async ()=> {
@@ -87,26 +95,25 @@ export default class OverlaysRaffleWheel extends Vue {
 			});
 		}
 
-		// const originalItemCount = list.length;
-		list = list.concat(list);
+		Utils.shuffle(list);
+		//Duplicate items as many times as necessary to have enough
+		//of them for the complete animation
+		const baseList = list.slice();
 		do {
-			list = list.concat(list);
-		}while(list.length < 500);
+			list = list.concat(baseList);
+		}while(list.length < 200);
 		this.itemList = list;
-		// const originalItemCount = Math.round(list.length/3);
 
 		//Need to wait a little for the component to be mounted.
 		//The put a setTimeout() on the mount method so we can't
 		//just wait a frame with $nextTick().
 		setTimeout(()=>{
-			this.scrollOffset = 5 * this.itemSize;
+			this.scrollOffset = 10 * this.itemSize;
 			//Give it a bit of time to actually scroll
-			setTimeout(()=> {
-				this.renderFrame(this.rafID);
+			setTimeout(async ()=> {
 				this.vy = -5;
 				this.vy_eased = this.vy;
-				//Show the list only then, once it had time to render to avoid glitches
-				this.listDisplayed = true;
+				this.renderFrame(this.rafID);
 			}, 100)
 		},100);
 	}
@@ -131,36 +138,59 @@ export default class OverlaysRaffleWheel extends Vue {
 			// const angle = ratio * 45;
 			// const pz = -Math.abs(ratio) * 200;
 			const py = -ratio * 50;
-			const scale = (Math.abs(Math.cos(ratio))) * .75 + .25;
+			const scale = Math.round(((Math.abs(Math.cos(ratio))) * .75 + .25)*2000)/2000;
 			item.style.opacity = ((1-Math.abs(ratio))*.2 + .8).toString();
-			item.style.transform = "scale("+scale+") translateY("+py+"px)"; //translateZ("+pz+"px) rotateX("+angle+"deg)
+			if(this.animStep == 0 && this.frameIndex > 2) {
+				//Open animation
+				let delay = Math.pow(Math.abs(ratio) * 10, 2.8)/1000 + Math.random()*.1;
+				let tween = gsap.from(item, {duration:1, x:"-100%", delay, ease:"quad.inOut"});
+				if(i == items.length-1){
+					tween.eventCallback("onComplete", ()=>{
+						this.animStep = 2;
+					});
+					this.animStep = 1;
+				}
+			}else if(this.animStep > 1 || this.frameIndex <= 2){
+				//Scroll animation
+				item.style.transform = "scale("+scale+") translateY("+py+"px)"; //translateZ("+pz+"px) rotateX("+angle+"deg)
+			}
 			if(scale > biggestItemScale) {
 				biggestItem = item;
 				biggestItemScale = scale;
 			}
 		}
+		this.frameIndex ++;
+		//Show the list after some frame, once it had time to render to avoid glitches
+		this.listDisplayed = this.frameIndex > 3;
+
 		// console.log(offsetY);
 		if(this.prevBiggestItem
 		&& this.prevBiggestItem != biggestItem
 		&& this.prevBiggestItem.classList.contains("selected")) {
 			this.prevBiggestItem.classList.remove("selected");
 		}
-		biggestItem.classList.add("selected");
-		this.prevBiggestItem = biggestItem;
+		if(biggestItem) {
+			biggestItem.classList.add("selected");
+			this.prevBiggestItem = biggestItem;
+		}
 
-		this.scrollOffset += this.vy_eased;
-		if(this.vy < 10 && this.animStep == 0) {
-			this.vy += this.inc;
-		}else{
-			if(this.animStep < 2) {
-				this.animStep = 1;
-				this.vy *= .995;
-			}else if(this.animStep == 2){
-				this.vy *= .95;
-				this.inc *= .95;
+		const slowOffset = Math.min(100, this.itemList.length*2/3) * this.itemSize;
+		if(this.animStep > 1) {
+			this.vy_eased += (this.vy - this.vy_eased) * .1;
+			if(this.vy < 20 && this.animStep == 2) {
+				//Accelerate
+				this.vy += this.inc;
+			}else if(this.scrollOffset > slowOffset){
+				const endY = slowOffset*1.5;
+				const ease = Math.max(.01, (100-Math.min(100,(endY-this.scrollOffset)))/1000);
+				console.log(ease);
+				this.scrollOffset += (endY - this.scrollOffset) * ease;
+				this.animStep = 3;
+			}
+			if(this.animStep == 2){
+				this.scrollOffset += this.vy_eased;
 			}
 		}
-		this.vy_eased += (this.vy - this.vy_eased) * .1;
 	}
 }
 
