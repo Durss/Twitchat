@@ -209,6 +209,23 @@ export default class ChatHighlight extends Vue {
 				if(this.messageData.reward?.redemption.user_input) {
 					this.messageText += this.messageData.reward?.redemption.user_input;
 				}
+				let chunks = TwitchUtils.parseEmotes(this.messageText, "", false, true);
+				let result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/2x$/gi, "3x");//7TV format
+						url = url.replace(/1$/gi, "4");//FFZ format
+						let tt = "<img src='"+url+"' width='112' height='112'><br><center>"+v.label+"</center>";
+						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+					}
+					this.messageText = result;
+				}
 				break;
 			}
 		}
@@ -221,8 +238,9 @@ export default class ChatHighlight extends Vue {
 		if(text) {
 			try {
 				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing performances.
-				const customParsing = this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				//or a reward to avoid killing performances.
+				const customParsing = this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase()
+										|| this.messageData.reward != null;
 				let removeEmotes = !store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
