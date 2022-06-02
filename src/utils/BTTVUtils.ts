@@ -74,19 +74,20 @@ export default class BTTVUtils {
 					if(protectedRanges[start] === true) continue;
 					if(protectedRanges[end] === true) continue;
 
-					emoteCount++;
-
 					const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
 					const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
 					//Emote has no space before and after or is not at the start or end of the message
 					//ignore it.
 					if(!prevOK || !nextOK) continue;
+					emoteCount++;
 					tmpTag += start+"-"+end;
 
 					if(j < matches.length-1) tmpTag+=",";
 				}
-				if(emoteCount) fakeTag += tmpTag;
-				if(i < allEmotes.length -1 ) fakeTag +="/"
+				if(emoteCount) {
+					fakeTag += tmpTag;
+					if(i < allEmotes.length -1 ) fakeTag +="/";
+				}
 			}
 		}
 

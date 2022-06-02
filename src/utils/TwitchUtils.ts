@@ -137,6 +137,23 @@ export default class TwitchUtils {
 	 * Replaces emotes by image tags on the message
 	 */
 	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes:boolean = false, customParsing:boolean = false):TwitchTypes.ParseMessageChunk[] {
+
+		function getProtectedRange(emotes:string):boolean[] {
+			const protectedRanges:boolean[] = [];
+			if(emotes) {
+				const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
+				if(ranges) {
+					for (let i = 0; i < ranges.length; i++) {
+						const range = ranges[i];
+						for (let j = range[0]; j <= range[1]; j++) {
+							protectedRanges[j] = true;
+						}
+					}
+				}
+			}
+			return protectedRanges;
+		}
+
 		if(!emotes || emotes.length == 0) {
 			//Attempt to parse emotes manually.
 			//Darn IRC that doesn't sends back proper emotes tag 
@@ -160,20 +177,33 @@ export default class TwitchUtils {
 						// //Current emote has been found
 						// //Generate fake emotes data in the expected format:
 						// //  ID:start-end,start-end/ID:start-end,start-end
-						if(fakeTag.length > 0) fakeTag += "/";
-						fakeTag += e.id+":";
+						let tmpTag = e.id+":";
+						let emoteCount = 0;
 						for (let j = 0; j < matches.length; j++) {
 							const start = (matches[j].index as number);
 							const end = start+e.name.length-1;
+							const range = getProtectedRange(fakeTag);
+							if(e.name == "LUL" || e.name == "durssLUL") {
+								console.log(e.name, fakeTag);
+								console.log(range);
+							}
 
+							if(range[start] === true || range[end] === true) continue;
+							
 							const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
 							const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
 							//Emote has no space before and after or is not at the start or end of the message
 							//ignore it.
+							console.log(e.name, prevOK, nextOK);
 							if(!prevOK || !nextOK) continue;
-							fakeTag += start+"-"+end;
+							emoteCount++;
+							tmpTag += start+"-"+end;
 
-							if(j < matches.length-1) fakeTag+=",";
+							if(j < matches.length-1) tmpTag+=",";
+						}
+						if(emoteCount > 0) {
+							fakeTag += tmpTag;
+							if(i < emoteList.length -1 ) fakeTag +="/"
 						}
 					}
 				}
@@ -183,22 +213,7 @@ export default class TwitchUtils {
 				emotes = fakeTag;
 			}
 		}
-
-		function getProtectedRange(emotes:string):boolean[] {
-			const protectedRanges:boolean[] = [];
-			if(emotes) {
-				const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
-				if(ranges) {
-					for (let i = 0; i < ranges.length; i++) {
-						const range = ranges[i];
-						for (let j = range[0]; j < range[1]; j++) {
-							protectedRanges[j] = true;
-						}
-					}
-				}
-			}
-			return protectedRanges;
-		}
+		console.log(">",emotes);
 
 		if(!emotes) emotes = "";
 		// ID:start-end,start-end/ID:start-end,start-end
@@ -228,7 +243,7 @@ export default class TwitchUtils {
 		if(chunks.length > 0) {
 			for (let i = 0; i < chunks.length; i++) {
 				const c = chunks[i];
-				if(c.length == 0) continue;
+				if(c.indexOf(":") == -1) continue;
 				const id = c.split(":")[0];
 				const positions = c.split(":")[1].split(",");
 				for (let j = 0; j < positions.length; j++) {
