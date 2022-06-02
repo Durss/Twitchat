@@ -465,6 +465,8 @@ export default class ChatMessage extends Vue {
 				const customParsing = mess.tags.id?.indexOf("00000000") == 0;
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
+				console.log(chunks);
+				
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
 					if(v.type == "text") {
