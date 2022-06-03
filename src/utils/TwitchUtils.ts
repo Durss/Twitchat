@@ -894,16 +894,22 @@ export default class TwitchUtils {
 			'Client-Id': this.client_id,
 			"Content-Type": "application/json",
 		}
-		const res = await fetch(Config.TWITCH_API_PATH+"users/follows?to_id="+channelId, {
-			method:"GET",
-			headers,
-		});
-		const json:{error:string, data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
-		if(json.error) {
-			throw(json.error);
-		}else{
-			return json.data;
-		}
+		let list:TwitchTypes.Following[] = [];
+		let cursor:string|null = null;
+		do {
+			const pCursor = cursor? "&after="+cursor : "";
+			const res = await fetch(Config.TWITCH_API_PATH+"users/follows?first=100&to_id="+channelId+pCursor, {
+				method:"GET",
+				headers,
+			});
+			const json:{data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+			cursor = null;
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null)
+		return list;
 	}
 
 	/**

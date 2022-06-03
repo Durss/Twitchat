@@ -6,7 +6,7 @@
 				<input type="text" v-model="overlayUrl">
 			</div>
 			<div class="row center">
-				<Button @click="testWheel()" title="Test it" :icon="require('@/assets/icons/test.svg')" />
+				<Button :loading="loading" @click="testWheel()" title="Test it" :icon="require('@/assets/icons/test.svg')" />
 			</div>
 		</div>
 	</ToggleBlock>
@@ -33,6 +33,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsRaffle extends Vue {
 
 	public open:boolean = false;
+	public loading:boolean = false;
 	
 	public get overlayUrl():string { return Utils.getOverlayURL("wheel"); }
 
@@ -41,6 +42,7 @@ export default class OverlayParamsRaffle extends Vue {
 	}
 
 	public async testWheel():Promise<void> {
+		this.loading = true;
 		const followers = await TwitchUtils.getFollowers();
 		const items:WheelItem[] = followers.map(v=> {
 			return {label:v.from_name, data:v.from_id}
@@ -50,6 +52,8 @@ export default class OverlayParamsRaffle extends Vue {
 			winner: Utils.pickRand(items).data as string,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.START_WHEEL, data)
+		await Utils.promisedTimeout(100);
+		this.loading = false;
 	}
 
 }

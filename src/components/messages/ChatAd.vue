@@ -20,27 +20,31 @@
 					<ul>
 						<li>
 							<Button aria-label="open overlays params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<strong>Overlays</strong> feature.
+							<span>Twitchat now provides <strong>overlays</strong> for OBS.</span>
 						</li>
 						<li>
 							<Button aria-label="open spotify params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<strong>Spotify</strong> integration with dedicated overlay and possibility to control from chat commands.
+							<span><strong>Spotify</strong> integration with dedicated overlay and possibility to control it via chat commands.</span>
+						</li>
+						<li>
+							<Button aria-label="open spotify params" small title="try it" @click.stop="openParamPage('overlays')" />
+							<span><strong>Deezer</strong> integration with dedicated overlay and possibility to control it via chat commands.</span>
 						</li>
 						<li>
 							<Button aria-label="open wheel params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<strong>Wheel overlay</strong> to show an animattion when picking a <strong>raffle</strong> winner.
+							<span><strong>Wheel overlay</strong> to show an animattion when picking a <strong>raffle</strong> winner.</span>
 						</li>
 						<li>
 							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
-							Trigger actions can now send <strong>messages on your chat</strong>.
+							<span>Trigger actions can now <strong>send messages on your chat</strong>.</span>
 						</li>
 						<li>
 							<Button aria-label="Open translate name param" small title="try it" @click.stop="showSpecificParam('appearance.translateNames')" />
-							Option to <strong>translate</strong> non-latin usernames
+							<span>Option to <strong>translate</strong> non-latin usernames</span>
 						</li>
 						<li>
 							<Button aria-label="open install params" small title="try it" @click.stop="openParamPage('account')" />
-							You can kind of <strong>install</strong> twitchat on your device from the account section.<i>(possible only after interacting with the page for +30s)</i>
+							<span>You can kind of <strong>install</strong> twitchat on your device from the account section.<i>(possible only after interacting with the page for +30s)</i></span>
 						</li>
 					</ul>
 				</ToggleBlock>
