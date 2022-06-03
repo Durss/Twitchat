@@ -27,6 +27,15 @@ export default class PublicAPI extends EventDispatcher {
 		}
 		return PublicAPI._instance;
 	}
+
+	/**
+	 * Get if page is runing on OBS and thus the BrodcastChannel
+	 * API is available
+	 */
+	get localConnexionAvailable():boolean {
+		//@ts-ignore
+		return window.obsstudio != undefined;
+	}
 	
 	
 	
@@ -47,7 +56,7 @@ export default class PublicAPI extends EventDispatcher {
 				if(this._idsDone[data.id] === true) return;
 				this._idsDone[data.id] = true;
 			}
-			this.dispatchEvent(new TwitchatEvent(event.type, event.data));
+			this.dispatchEvent(new TwitchatEvent(event.type, data));
 		}
 		
 		this.listenOBS();
@@ -69,7 +78,6 @@ export default class PublicAPI extends EventDispatcher {
 		}catch(error) {
 			console.error(error);
 		}
-
 		//Broadcast to any OBS Websocket connected client
 		OBSWebsocket.instance.broadcast(type, data);
 	}

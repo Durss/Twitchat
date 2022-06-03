@@ -4,11 +4,11 @@
 		<div class="title">Add overlays to your stream</div>
 		<p class="infos">In order to work, the overlays need Twitchat to be running as they will need to comunicate with it</p>
 		
-		<OverlayParamsRaffle class="block" v-if="obsConnected" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsSpotify class="block" v-if="obsConnected && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsDeezer class="block" v-if="obsConnected && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsSpotify class="block" v-if="exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 
-		<div class="connectObs" v-if="!obsConnected">
+		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<div>This features needs you to connect with OBS.</div>
 			<Button class="button" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
 		</div>
@@ -23,6 +23,7 @@ import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import Config from '@/utils/Config';
 import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
+import PublicAPI from '@/utils/PublicAPI';
 
 @Options({
 	props:{},
@@ -37,6 +38,8 @@ import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
 export default class ParamsOverlays extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get localConnexionAvailable():boolean { return PublicAPI.instance.localConnexionAvailable; }
+	public get exchangeChannelAvailable():boolean { return this.localConnexionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.DEEZER_CONFIGURED; }
 

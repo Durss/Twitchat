@@ -55,7 +55,7 @@ export default class OverlayMusicPlayer extends Vue {
 
 	public mounted():void {
 		this.onTrackHandler = (e:TwitchatEvent) => {
-			if(e.data) {
+			if((e.data as {trackName?:string}).trackName) {
 				const wasPlaying = this.isPlaying;
 				const obj = e.data as 
 							{
