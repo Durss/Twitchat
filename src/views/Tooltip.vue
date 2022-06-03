@@ -25,9 +25,9 @@ import { Options, Vue } from 'vue-class-component';
 export default class Tooltip extends Vue {
 
     public upsideDown:boolean = false;
+    public opened:boolean = false;
     public message:string = "";
 	
-    private opened:boolean = false;
     private position:{x:number, y:number} = {x:0, y:0};
     private mouseMoveHandler!:(e:MouseEvent) => void;
     private mouseUpHandler!:(e:MouseEvent) => void;
