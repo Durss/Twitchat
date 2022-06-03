@@ -53,7 +53,7 @@
 				</ToggleBlock>
 				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
-						<li>Aonflict between BTTV/FFZ/7TV and official <strong>emotes</strong> could cut message contents</li>
+						<li>A conflict between BTTV/FFZ/7TV and official <strong>emotes</strong> was sometimes cutting message contents</li>
 						<li>Poll's votes with bits and channel points were showing wrong <strong>vote counts</strong></li>
 						<li><strong>Test trigger</strong> button wasn't working for chat commands</li>
 						<li>Trigger for <strong>bits event</strong> wasn't working</li>

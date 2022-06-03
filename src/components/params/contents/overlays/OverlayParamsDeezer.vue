@@ -116,5 +116,11 @@ export default class OverlayParamsDeezer extends Vue {
 		}
 	}
 
+	.infos {
+		margin-top: .5em;
+		font-size: .9em;
+		color: @mainColor_alert;
+	}
+
 }
 </style>

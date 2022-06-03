@@ -883,6 +883,30 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets a followers' list
+	 * 
+	 * @param channelId channelId to get followers list
+	 */
+	public static async getFollowers(channelId?:string):Promise<TwitchTypes.Following[]> {
+		if(!channelId) channelId = store.state.user.user_id;
+		const headers = {
+			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
+			'Client-Id': this.client_id,
+			"Content-Type": "application/json",
+		}
+		const res = await fetch(Config.TWITCH_API_PATH+"users/follows?to_id="+channelId, {
+			method:"GET",
+			headers,
+		});
+		const json:{error:string, data:TwitchTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+		if(json.error) {
+			throw(json.error);
+		}else{
+			return json.data;
+		}
+	}
+
+	/**
 	 * Gets a list of the current subscribers to the specified channel
 	 */
 	public static async getSubsList(channelId?:string):Promise<TwitchTypes.Subscriber[]> {

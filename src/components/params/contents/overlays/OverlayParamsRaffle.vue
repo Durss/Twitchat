@@ -5,18 +5,28 @@
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
 			</div>
+			<div class="row center">
+				<Button @click="testWheel()" title="Test it" :icon="require('@/assets/icons/test.svg')" />
+			</div>
 		</div>
 	</ToggleBlock>
 </template>
 
 <script lang="ts">
+import { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
+import { JsonArray } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
+import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 
 @Options({
 	props:{},
 	components:{
+		Button,
 		ToggleBlock,
 	}
 })
@@ -30,6 +40,18 @@ export default class OverlayParamsRaffle extends Vue {
 		
 	}
 
+	public async testWheel():Promise<void> {
+		const followers = await TwitchUtils.getFollowers();
+		const items:WheelItem[] = followers.map(v=> {
+			return {label:v.from_name, data:v.from_id}
+		});
+		const data = {
+			items:((items as unknown) as JsonArray),
+			winner: Utils.pickRand(items).data as string,
+		}
+		PublicAPI.instance.broadcast(TwitchatEvent.START_WHEEL, data)
+	}
+
 }
 </script>
 
@@ -39,6 +61,14 @@ export default class OverlayParamsRaffle extends Vue {
 		.row {
 			display: flex;
 			flex-direction: column;
+
+			&:not(:first-of-type) {
+				margin-top: .5em;
+			}
+
+			&.center {
+				align-items: center;
+			}
 		}
 	}
 }

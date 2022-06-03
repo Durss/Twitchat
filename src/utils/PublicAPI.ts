@@ -12,6 +12,7 @@ export default class PublicAPI extends EventDispatcher {
 	private static _instance:PublicAPI;
 
 	private _bc!:BroadcastChannel;
+	private _idsDone:{[key:string]:boolean} = {};
 	
 	constructor() {
 		super();
@@ -41,6 +42,11 @@ export default class PublicAPI extends EventDispatcher {
 		//If receiving data from another browser tab, broadcast it
 		this._bc.onmessage = (e: MessageEvent<unknown>):void => {
 			const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
+			const data = event.data as {id:string};
+			if(data.id){
+				if(this._idsDone[data.id] === true) return;
+				this._idsDone[data.id] = true;
+			}
 			this.dispatchEvent(new TwitchatEvent(event.type, event.data));
 		}
 		
@@ -54,6 +60,8 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param data 
 	 */
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
+		if(!data) data = {};
+		data.id = Math.random().toString();
 		//Broadcast to other browser's tabs
 		try {
 			if(data) data = JSON.parse(JSON.stringify(data));
@@ -85,6 +93,11 @@ export default class PublicAPI extends EventDispatcher {
 		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
+			const data = e.data as {id:string};
+			if(data.id){
+				if(this._idsDone[data.id] === true) return;
+				this._idsDone[data.id] = true;
+			}
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 	}

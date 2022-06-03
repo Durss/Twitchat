@@ -67,8 +67,6 @@ export default class SpotifyHelper {
 		const json = await res.json();
 		const scope = Config.SPOTIFY_SCOPES.split(" ").join("%20");
 
-		console.log(store.state.spotifyAppParams);
-
 		let url = "https://accounts.spotify.com/authorize";
 		url += "?client_id="+this.clientID;
 		url += "&response_type=code";

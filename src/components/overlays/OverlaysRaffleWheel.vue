@@ -17,6 +17,8 @@
 </template>
 
 <script lang="ts">
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -30,22 +32,24 @@ import InfiniteList from 'vue3-infinite-list';
 })
 export default class OverlaysRaffleWheel extends Vue {
 
-	public itemList:ListItem[] = [];
+	public itemList:WheelItem[] = [];
 	public itemSize:number = 50;
 	public scrollOffset:number = 0;
 	public listHeight:number = 100;
 	public listEnabled:boolean = false;
 	public listDisplayed:boolean = false;
 
-	private inc:number = .1;
-	private vy:number = 0;
-	private vy_eased:number = 0;
 	private rafID:number = 0;
 	private animStep:number = 0;
 	private resizeHandler!:()=>void;
+	private startWheelHandler!:(e:TwitchatEvent)=>void;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
 	private frameIndex:number = 0;
+	private selectedItemIndex:number = 0;
+	private itemsCount:number = 15;
+	private listData:WheelItem[] = [];
+	private winnerData!:string;
 
 	public get listStyles():{[key:string]:string|number} {
 		return {
@@ -58,64 +62,64 @@ export default class OverlaysRaffleWheel extends Vue {
 			if(this.listHeight != document.body.clientHeight) {
 				this.listEnabled = false;
 				this.listDisplayed = false;
-				this.rafID = Math.random();
 				clearTimeout(this.resizeDebounce);
-				this.resizeDebounce = setTimeout(()=>this.populate(), 50);
+				if(this.listData.length > 0) {
+					//Only populate on resize
+					this.resizeDebounce = setTimeout(()=>this.populate(), 50);
+				}
 			}
 		}
 		this.resizeHandler();
 		window.addEventListener("resize", this.resizeHandler);
+
+		this.startWheelHandler = (e:TwitchatEvent)=>this.onStartWheel(e);
+		PublicAPI.instance.addEventListener(TwitchatEvent.START_WHEEL, this.startWheelHandler)
 	}
 
 	public beforeUnmount():void {
 		this.rafID = 0;
 		window.removeEventListener("resize", this.resizeHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.START_WHEEL, this.startWheelHandler)
 	}
 
+	/**
+	 * Populates the list
+	 */
 	private async populate():Promise<void> {
-		await this.$nextTick();
 		this.listHeight = document.body.clientHeight;
-		this.itemSize = this.listHeight / 15;
+		this.itemSize = this.listHeight / this.itemsCount;
+		this.animStep = 0;
+		this.frameIndex = 0;
 		this.scrollOffset = 0;
+		this.selectedItemIndex = 0;
 		this.listEnabled = true;
+		this.rafID ++;
+		this.listDisplayed = false;
 
-		let list = [];
-		let len = 100;
-		let baseColor = Utils.getLessVars().mainColor_dark as string;
-		baseColor = baseColor.replace("rgb", "rgba");
-		baseColor = baseColor.replace(")", ",1)");
-		for (let i = 0; i < len; i++) {
-			const alpha = Math.sin(i/(len*.5) * Math.PI * 2)*.025+.025 + .95;
-			list.push({
-				label:"Entry "+i, 
-				value:i, 
-				// alpha:(i%20)/20 * .05,
-				// alpha:Math.sin(i/(len*.5) * Math.PI * 2)*.025+.025,
-				color:baseColor.replace("1)", alpha.toString()+")"),
-			});
-		}
-
+		let list = this.listData;
 		Utils.shuffle(list);
 		//Duplicate items as many times as necessary to have enough
 		//of them for the complete animation
 		const baseList = list.slice();
+		list = list.concat(baseList);
 		do {
 			list = list.concat(baseList);
 		}while(list.length < 200);
 		this.itemList = list;
 
+		const offset = 150;
+		const sublist = list.slice(offset);
+		this.selectedItemIndex = sublist.findIndex(v=>v.data == this.winnerData) + offset - 1;
+		this.selectedItemIndex -= Math.floor(this.itemsCount /2)
+
+		gsap.killTweensOf(this);
+
 		//Need to wait a little for the component to be mounted.
 		//The put a setTimeout() on the mount method so we can't
 		//just wait a frame with $nextTick().
-		setTimeout(()=>{
-			this.scrollOffset = 10 * this.itemSize;
-			//Give it a bit of time to actually scroll
-			setTimeout(async ()=> {
-				this.vy = -5;
-				this.vy_eased = this.vy;
-				this.renderFrame(this.rafID);
-			}, 100)
-		},100);
+		setTimeout(async ()=> {
+			this.renderFrame(this.rafID);
+		}, 100)
 	}
 
 	private renderFrame(id:number):void {
@@ -147,6 +151,8 @@ export default class OverlaysRaffleWheel extends Vue {
 				if(i == items.length-1){
 					tween.eventCallback("onComplete", ()=>{
 						this.animStep = 2;
+
+						gsap.to(this, {scrollOffset: this.selectedItemIndex*this.itemSize, duration:10, ease:"sine.inOut"});
 					});
 					this.animStep = 1;
 				}
@@ -163,7 +169,6 @@ export default class OverlaysRaffleWheel extends Vue {
 		//Show the list after some frame, once it had time to render to avoid glitches
 		this.listDisplayed = this.frameIndex > 3;
 
-		// console.log(offsetY);
 		if(this.prevBiggestItem
 		&& this.prevBiggestItem != biggestItem
 		&& this.prevBiggestItem.classList.contains("selected")) {
@@ -173,31 +178,19 @@ export default class OverlaysRaffleWheel extends Vue {
 			biggestItem.classList.add("selected");
 			this.prevBiggestItem = biggestItem;
 		}
+	}
 
-		const slowOffset = Math.min(100, this.itemList.length*2/3) * this.itemSize;
-		if(this.animStep > 1) {
-			this.vy_eased += (this.vy - this.vy_eased) * .1;
-			if(this.vy < 20 && this.animStep == 2) {
-				//Accelerate
-				this.vy += this.inc;
-			}else if(this.scrollOffset > slowOffset){
-				const endY = slowOffset*1.5;
-				const ease = Math.max(.01, (100-Math.min(100,(endY-this.scrollOffset)))/1000);
-				console.log(ease);
-				this.scrollOffset += (endY - this.scrollOffset) * ease;
-				this.animStep = 3;
-			}
-			if(this.animStep == 2){
-				this.scrollOffset += this.vy_eased;
-			}
-		}
+	public onStartWheel(e:TwitchatEvent):void {
+		const data = (e.data as unknown) as {items:WheelItem[], winner:string}
+		this.winnerData = data.winner;
+		this.listData = data.items;
+		this.populate();
 	}
 }
 
-interface ListItem {
+export interface WheelItem {
 	label:string;
-	value:number;
-	color:string;
+	data:unknown;
 }
 </script>
 
@@ -208,7 +201,7 @@ interface ListItem {
 	.list {
 		height: 100%;
 		max-width: 700px;
-		// overflow: hidden !important;
+		overflow: hidden !important;
 		:deep(.vue3-infinite-list) {
 			transform-origin: left center;
 			.item {
