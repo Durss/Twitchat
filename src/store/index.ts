@@ -1,3 +1,4 @@
+import { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
@@ -736,6 +737,31 @@ export default createStore({
 
 		stopRaffle(state) { state.raffle = null; },
 
+		onRaffleComplete(state, payload:{publish:boolean, winner:WheelItem}) {
+			state.raffle = null;
+			
+			//Post result on chat
+			if(state.botMessages.raffle.enabled) {
+				let message = state.botMessages.raffle.message;
+				let label = payload.winner.label;
+				
+				if((payload.winner.data as ChatUserstate)['display-name']) {
+					label = (payload.winner.data as ChatUserstate)['display-name'] as string;
+				}
+				if((payload.winner.data as TwitchTypes.Subscriber).user_name) {
+					label = (payload.winner.data as TwitchTypes.Subscriber).user_name;
+				}
+				message = message.replace(/\{USER\}/gi, label);
+				IRCClient.instance.sendMessage(message);
+			}
+
+			if(payload.publish !== false) {
+				//Publish the result on the public API
+				const data = { winner:payload.winner };
+				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, (data as unknown) as JsonObject);
+			}
+		},
+
 		async startBingo(state, payload:BingoConfig) {
 			const min = payload.min as number;
 			const max = payload.max as number;
@@ -1348,6 +1374,11 @@ export default createStore({
 				if(data.tags['followers-only'] != undefined) state.roomStatusParams.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
 				if(data.tags.slow != undefined) state.roomStatusParams.slowMode.value = data.tags.slow != false;
 			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
+				this.dispatch("onRaffleComplete", {publish:false, winner});
+			});
 			
 			state.initComplete = true;
 
@@ -1454,6 +1485,8 @@ export default createStore({
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 
 		stopRaffle({commit}) { commit("stopRaffle"); },
+
+		onRaffleComplete({commit}, payload:{publish:boolean, winner:WheelItem}) { commit("onRaffleComplete", payload); },
 
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
 

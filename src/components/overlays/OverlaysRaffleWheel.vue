@@ -76,10 +76,8 @@ export default class OverlaysRaffleWheel extends Vue {
 		window.addEventListener("resize", this.resizeHandler);
 
 		this.startWheelHandler = (e:TwitchatEvent)=>this.onStartWheel(e);
-		this.wheelPresenceHandler = (e:TwitchatEvent)=>{
-			console.log("Resested presence");
-			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE);
-		}
+		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE); }
+
 		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_START, this.startWheelHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
 		
@@ -92,7 +90,7 @@ export default class OverlaysRaffleWheel extends Vue {
 		//This observer detects when an item is created and scales it to 0
 		//to make sure it's not visible before the renderFrame() sets its
 		//expected scale and position properly
-		this.domObserver = new MutationObserver((list, observer)=>{
+		this.domObserver = new MutationObserver((list)=>{
 			for (let i = 0; i < list.length; i++) {
 				const item = list[i];
 				for (let j = 0; j < item.addedNodes.length; j++) {
@@ -109,10 +107,11 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.domObserver.observe(this.$el, { childList:true, subtree: true });
 
 		//Populate with fake data
-		//*
-		let list = [];
+		/*
+		let list:WheelItem[] = [];
 		for (let i = 0; i < 550000; i++) {
-			list.push({label:"Item"+i, data:i.toString()});
+			let id = i.toString();
+			list.push({id, label:"Item"+i, data:{id}});
 		}
 		this.winnerData = Utils.pickRand(list);
 		this.listData = list;
@@ -150,9 +149,14 @@ export default class OverlaysRaffleWheel extends Vue {
 			//Duplicate items as many times as necessary to have enough
 			//of them for the complete animation
 			const baseList = list.slice();
+			let failSafe = 0;
 			while(list.length < expectedSize){
 				const len = Math.min(baseList.length, expectedSize-list.length);
 				list = list.concat(baseList.slice(0, len));
+				if(++failSafe == 1000000) {
+					console.log("FAIL SAFE 1");
+					break;
+				}
 			}
 		}else{
 			//Only keep necessary items count
@@ -160,11 +164,16 @@ export default class OverlaysRaffleWheel extends Vue {
 			//high volume of data. This is made to handle 100 thousands of items
 			const tmpList = [];
 			const indexPicked:{[key:string]:boolean} = {};
+			let failSafe = 0;
 			while(tmpList.length < expectedSize) {
 				let index = Math.floor(Math.random() * list.length);
 				if(indexPicked[index] !== true) {
 					indexPicked[index] = true;
 					tmpList.push( list[index] );
+				}
+				if(++failSafe == 1000000) {
+					console.log("FAIL SAFE 2");
+					break;
 				}
 			}
 			list = tmpList;
@@ -176,11 +185,17 @@ export default class OverlaysRaffleWheel extends Vue {
 
 		//Add items to end so the animation doesn't break
 		let addedCount = 0;
+		let failSafe = 0;
 		while(addedCount < this.itemsCount) {
-			const item = Utils.pickRand(list);
-			if(item.data != this.winnerData) {
+			const item:WheelItem = Utils.pickRand(list);
+			if(item.id != this.winnerData.id) {
 				list.push(item);
 				addedCount ++;
+			}
+			// console.log(item);
+			if(++failSafe == 1000000) {
+				console.log("FAIL SAFE 3");
+				break;
 			}
 		}
 
@@ -273,7 +288,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	}
 
 	public onStartWheel(e:TwitchatEvent):void {
-		const data = (e.data as unknown) as {items:WheelItem[], winner:WheelItem}
+		const data = (e.data as unknown) as WheelData;
 		this.winnerData = data.winner;
 		this.listData = data.items;
 		this.populate();
@@ -281,8 +296,14 @@ export default class OverlaysRaffleWheel extends Vue {
 }
 
 export interface WheelItem {
+	id:string;
 	label:string;
 	data:unknown;
+}
+
+export interface WheelData {
+	items:WheelItem[];
+	winner:WheelItem;
 }
 </script>
 

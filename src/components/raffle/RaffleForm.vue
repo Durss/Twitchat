@@ -65,6 +65,7 @@
 						:loading="loadingSubs"
 						@click="pickSub()" />
 					</div>
+					{{wheelOverlayExists}}
 				</div>
 
 				<Splitter title="Config" class="splitter" />
@@ -85,20 +86,20 @@
 
 <script lang="ts">
 import store, { ParameterData, RaffleData } from '@/store';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
+import { JsonArray, JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import { WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
 import ParamItem from '../params/ParamItem.vue';
-import Splitter from '../Splitter.vue';
-import PostOnChatParam from '../params/PostOnChatParam.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import IRCClient from '@/utils/IRCClient';
 import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
-import { JsonArray, JsonObject } from "type-fest";
+import PostOnChatParam from '../params/PostOnChatParam.vue';
+import Splitter from '../Splitter.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -133,7 +134,7 @@ export default class RaffleForm extends Vue {
 	
 	private subs:TwitchTypes.Subscriber[] = [];
 	private wheelOverlayPresenceHandler!:()=>void;
-	private wheelOverlayExists:boolean = false;
+	public wheelOverlayExists:boolean = false;
 
 	/**
 	 * Gets subs filtered by the current filters
@@ -214,12 +215,16 @@ export default class RaffleForm extends Vue {
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 		}
 		if(this.wheelOverlayExists){
-			const list = this.subsFiltered.map(v=>{return{label:v.user_name, data:v.user_id}});
-			const data = {
-				items:((list as unknown) as JsonArray),
-				winner: (Utils.pickRand(list) as unknown) as JsonObject,
+			const list:WheelItem[] = this.subsFiltered.map(v=>{return{
+										id:v.user_id,
+										label:v.user_name,
+										data:v
+									}});
+			const data:{items:WheelItem[], winner:WheelItem} = {
+				items: list,
+				winner: Utils.pickRand(list),
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, data);
+			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 			this.loadingSubs = false;
 			
 		}else{
@@ -230,23 +235,23 @@ export default class RaffleForm extends Vue {
 					this.winnerTmp = Utils.pickRand(this.subsFiltered);
 				}
 			}, onComplete:()=>{
+				//Animation complete
 				this.winner = this.winnerTmp;
 				this.winnerTmp = null;
+				//Wait for result holder to be mounted
 				this.$nextTick().then(()=> {
+					//Animate result holder
 					gsap.fromTo(this.$refs.winnerHolder as HTMLDivElement,
 								{scaleX:1.25, scaleY:2},
 								{duration:1, scale:1, ease:"elastic.out(1, 0.5)"});
-	
-					let message = store.state.botMessages.raffle.message;
-					message = message.replace(/\{USER\}/gi, this.winner?.user_name as string);
-					IRCClient.instance.sendMessage(message);
+					
 					if(this.winner) {
-						const data = {winner:{
+						const winner:WheelItem = {
+							id:this.winner.user_id,
 							label:this.winner.user_name,
-							data:this.winner.user_id,
-						}}
-						//Tell twitchat animation completed
-						PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
+							data:this.winner,
+						}
+						store.dispatch("onRaffleComplete", {winner:winner});
 					}
 				})
 			}})

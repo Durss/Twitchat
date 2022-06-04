@@ -45,7 +45,7 @@ export default class OverlayParamsRaffle extends Vue {
 		this.loading = true;
 		const followers = await TwitchUtils.getFollowers(null, 500);
 		const items:WheelItem[] = followers.map(v=> {
-			return {label:v.from_name, data:v.from_id}
+			return {id:v.from_id, label:v.from_name, data:v};
 		});
 		const data = {
 			items:((items as unknown) as JsonArray),
