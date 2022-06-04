@@ -107,7 +107,6 @@ export default class RaidState extends Vue {
 		padding: .55em;
 		background-color: fade(@mainColor_alert, 50%);
 		border-radius: .5em;
-
 	}
 }
 </style>

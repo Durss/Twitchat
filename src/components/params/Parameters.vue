@@ -100,7 +100,6 @@ export default class Parameters extends Vue {
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
-			console.log(v);
 			this.content = v.replace("CONTENT:", "") as ParamsContenType;
 			store.state.tempStoreValue = null;
 

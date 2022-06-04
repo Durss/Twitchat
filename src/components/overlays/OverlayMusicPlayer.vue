@@ -1,16 +1,16 @@
 <template>
-	<div class="OverlayMusicPlayer">
+	<div :class="classes">
 		<transition name="slide">
 			<div class="content" v-if="isPlaying">
 				<img :src="cover" class="cover" id="music_cover">
 				<div class="infos">
-					<Vue3Marquee :duration="duration" class="trackHolder">
+					<Vue3Marquee :duration="duration" class="trackHolder" :clone="true">
 						<div class="track">
 							<div class="artist" id="music_artist">{{artist}}</div>
 							<div class="title" id="music_title">{{track}}</div>
 						</div>
 					</Vue3Marquee>
-					<div class="progressbar" id="music_progress">
+					<div class="progressbar" ref="progressbar" id="music_progress" @click="onSeek($event)">
 						<div class="fill" :style="progressStyles"></div>
 					</div>
 				</div>
@@ -20,21 +20,32 @@
 </template>
 
 <script lang="ts">
+import DeezerHelper from '@/utils/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import gsap from 'gsap';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import { Vue3Marquee } from 'vue3-marquee'
 import 'vue3-marquee/dist/style.css'
 
 @Options({
-	props:{},
+	props:{
+		embed: {
+			type: Boolean,
+			default: false,
+		},
+	},
 	components:{
 		Vue3Marquee,
-	}
+	},
+	emits:["seek"]
 })
 export default class OverlayMusicPlayer extends Vue {
 
+	public embed!:boolean
+	public playbackPos!:number
+	
 	public artist:string = "";
 	public track:string = "";
 	public cover:string = "";
@@ -42,6 +53,12 @@ export default class OverlayMusicPlayer extends Vue {
 	public progress:number = 0;
 
 	private onTrackHandler!:(e:TwitchatEvent) => void;
+
+	public get classes():string[] {
+		let res = ["overlaymusicplayer"];
+		if(this.embed !== false) res.push("embed")
+		return res;
+	}
 
 	public get duration():number {
 		return Math.max(this.artist.length, this.track.length, 20) / 2;
@@ -56,7 +73,6 @@ export default class OverlayMusicPlayer extends Vue {
 	public mounted():void {
 		this.onTrackHandler = (e:TwitchatEvent) => {
 			if((e.data as {trackName?:string}).trackName) {
-				const wasPlaying = this.isPlaying;
 				const obj = e.data as 
 							{
 								trackName:string,
@@ -71,37 +87,96 @@ export default class OverlayMusicPlayer extends Vue {
 				this.isPlaying = true;
 
 				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
-				//There's a slight offset (~3%) between the local progress
-				//and what spotify gives us due to the query execution duration
-				//wich makes the progressbar jump back on every event
-				//This condition avoids reseting the progressbar animation
-				//unless there's a more a than 5% offset
-				if(Math.abs(newProgress - this.progress) > .05
-				|| this.progress == 0
-				|| wasPlaying != this.isPlaying) {
-					this.progress = newProgress;
-					const duration = (obj.trackDuration*(1-newProgress))/1000;
-					console.log(duration, newProgress);
-					gsap.killTweensOf(this);
-					gsap.to(this, {duration, progress:1, ease:"linear"});
-				}
+				this.progress = newProgress;
+				const duration = (obj.trackDuration*(1-newProgress))/1000;
+				gsap.killTweensOf(this);
+				gsap.to(this, {duration, progress:1, ease:"linear"});
 			}else{
 				this.isPlaying = false;
 			}
 		};
 		PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+		if(this.embed) {
+			//Called when track changes
+			watch(()=>DeezerHelper.instance.currentTrack, ()=>this.onTrackChangeLocal());
+			//Called when seeking
+			watch(()=>DeezerHelper.instance.playbackPos, ()=>{
+				if(DeezerHelper.instance.currentTrack) {
+					let trackDuration = DeezerHelper.instance.currentTrack.duration * 1000;
+					const newProgress = ((DeezerHelper.instance.playbackPos*1000)/trackDuration);
+					this.progress = newProgress;
+					const duration = (trackDuration*(1-newProgress))/1000;
+					gsap.killTweensOf(this);
+					gsap.to(this, {duration, progress:1, ease:"linear"});
+				}else{
+					gsap.killTweensOf(this);
+				}
+			});
+			this.onTrackChangeLocal();
+		}
 	}
 
 	public beforeUnmount():void {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
 	}
 
+	public onSeek(e:MouseEvent):void {
+		const bar = this.$refs.progressbar as HTMLDivElement;
+		const bounds = bar.getBoundingClientRect();
+		const percent = e.offsetX/bounds.width;
+		this.$emit("seek", percent);
+	}
+
+	private onTrackChangeLocal():void {
+		const track = DeezerHelper.instance.currentTrack;
+		if(track) {
+			this.artist = track.artist;
+			this.track = track.title;
+			this.cover = track.cover;
+			this.isPlaying = true;
+
+			const newProgress = (DeezerHelper.instance.playbackPos/track.duration);
+			this.progress = newProgress;
+			const duration = track.duration*(1-newProgress);
+			gsap.killTweensOf(this);
+			gsap.to(this, {duration, progress:1, ease:"linear"});
+		}else{
+			this.isPlaying = false;
+		}
+	}
+
 }
 </script>
 
 <style scoped lang="less">
-.OverlayMusicPlayer{
+.overlaymusicplayer{
+	&.embed {
+		.content {
+			width: 100%;
+			height: 100%;
+			max-width: unset;
+			max-height: unset;
+
+			.cover {
+				width: auto;
+				height: 100%;
+			}
+			.infos {
+				height: 100%;
+				font-size: 1em;
+			}
+		}
+
+		.slide-enter-active {
+			transition: unset;
+		}
+
+		.slide-leave-active {
+			transition: unset;
+		}
+	}
+
 	.content {
 		@maxHeight: ~"min(100vh, 25vw)";
 		display: flex;
@@ -117,7 +192,6 @@ export default class OverlayMusicPlayer extends Vue {
 		}
 		
 		.infos {
-			@infoHeight: calc(@maxHeight/2 - .25em/2);
 			color: @mainColor_light;
 			@minFontSize: calc(@maxHeight/3);
 			font-size: ~"min(@{minFontSize}, 50vh)";

@@ -65,7 +65,6 @@
 						:loading="loadingSubs"
 						@click="pickSub()" />
 					</div>
-					{{wheelOverlayExists}}
 				</div>
 
 				<Splitter title="Config" class="splitter" />

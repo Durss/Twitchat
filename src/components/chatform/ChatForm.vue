@@ -111,6 +111,15 @@
 					data-tooltip="Send encrypted<br>messages" />
 				</transition>
 
+				<transition name="blink">
+				<Button aria-label="Open deezer player"
+					:icon="require('@/assets/icons/deezer.svg')"
+					bounce
+					v-if="$store.state.deezerConnected"
+					data-tooltip="Deezer"
+					@click="$emit('setCurrentNotification', 'deezer')" />
+				</transition>
+
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
 					data-tooltip="Viewer count"

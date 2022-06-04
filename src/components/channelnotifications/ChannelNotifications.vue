@@ -9,6 +9,7 @@
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<WhispersState class="content" v-else-if="showWhispers" />
 				<BingoState class="content" v-else-if="showBingo" />
+				<DeezerState class="content" v-else-if="showDeezer" />
 			</transition>
 
 			<transition name="slide">
@@ -50,6 +51,7 @@ import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
+import DeezerState from './DeezerState.vue';
 
 @Options({
 	props:{
@@ -60,6 +62,7 @@ import WhispersState from './WhispersState.vue';
 		PollState,
 		RaidState,
 		BingoState,
+		DeezerState,
 		RaffleState,
 		TrackedUsers,
 		ChatPollState,
@@ -84,6 +87,7 @@ export default class ChannelNotifications extends Vue {
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && store.state.raffle != null; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && store.state.bingo != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
+	public get showDeezer():boolean { return this.currentContent == 'deezer' && store.state.deezerConnected; }
 	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
 
 	public get showClose():boolean {
@@ -93,7 +97,9 @@ export default class ChannelNotifications extends Vue {
 			|| this.showChatPoll
 			|| this.showWhispers
 			|| this.showPrediction
-			|| this.showTrackedUsers;
+			|| this.showTrackedUsers
+			|| this.showDeezer
+		;
 	}
 
 	public get whispersAvailable():boolean {
@@ -103,7 +109,7 @@ export default class ChannelNotifications extends Vue {
 		}
 		return false;
 	}
-
+	
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);

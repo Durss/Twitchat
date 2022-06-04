@@ -196,6 +196,13 @@ export default class SpotifyHelper {
 			store.state.alert = "[SPOTIFY] API rate limits exceeded";
 			return false;
 		}
+		if(res.status == 404) {
+			const json = await res.json();
+			if(json.error) {
+				store.state.alert = "[SPOTIFY] "+json.error.message;
+			}
+			return false;
+		}
 		return false;
 	}
 

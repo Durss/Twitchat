@@ -89,7 +89,13 @@ createApp(App)
 .directive('autofocus', {
 	mounted(el:HTMLDivElement, binding:unknown) {
 		if((binding as {[key:string]:boolean}).value !== false) {
-			el.focus();
+			//Disabling scroll avoids breaking layout when opening
+			//a ChannelNotifications content that has an autofocus element.
+			//In such case, if the focus is given during the opening
+			//transition, it completely breaks the chat layout, adding
+			//lots of space under the chat and activities.
+			//The "preventScroll" flag avoids this.
+			el.focus({preventScroll:true});
 		}
 	}
 })

@@ -488,7 +488,6 @@ export default class ChatMessage extends Vue {
 						url = url.replace(/1$/gi, "4");//FFZ format
 						
 						if(store.state.params.appearance.defaultSize.value >= 6) {
-							console.log("ok");
 							v.value = v.value.replace(/1.0$/gi, "3.0");
 							v.value = v.value.replace(/1x$/gi, "4x");//BTTV format
 							v.value = v.value.replace(/2x$/gi, "4x");//7TV format

@@ -78,6 +78,7 @@ export default class ToggleBlock extends Vue {
 		if(this.error !== false)		res.push("error");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
+		if(this.icons?.length > 0)		res.push("hasIcon");
 		return res;
 	}
 
@@ -156,6 +157,7 @@ export default class ToggleBlock extends Vue {
 				}
 			}
 		}
+
 		&.closed {
 			.header {
 				background-color: transparent;
@@ -164,6 +166,16 @@ export default class ToggleBlock extends Vue {
 				}
 			}
 		}
+
+		&.hasIcon {
+			.header {
+				h2::before {
+					content: "";
+					margin-right: .5em;
+				}
+			}
+		}
+
 		.content {
 			background-color: fade(@mainColor_normal, 10%);
 			padding: 0;

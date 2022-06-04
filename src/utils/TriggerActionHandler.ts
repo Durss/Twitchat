@@ -312,9 +312,11 @@ export default class TriggerActionHandler {
 										this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
 									}
 								}
-							}else if(Config.DEEZER_CONNECTED) {
-								const track = await DeezerHelper.instance.searchTrack(m);
-								if(track) {
+							}
+							if(Config.DEEZER_CONNECTED) {
+								const tracks = await DeezerHelper.instance.searchTracks(m);
+								if(tracks) {
+									const track = tracks[0];
 									DeezerHelper.instance.addToQueue(track);
 									const data:MusicMessage = {
 										type:"music",
@@ -334,7 +336,8 @@ export default class TriggerActionHandler {
 						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
 							if(Config.SPOTIFY_CONNECTED) {
 								SpotifyHelper.instance.nextTrack();
-							}else if(Config.DEEZER_CONNECTED) {
+							}
+							if(Config.DEEZER_CONNECTED) {
 								DeezerHelper.instance.nextTrack();
 							}
 						}
@@ -342,7 +345,8 @@ export default class TriggerActionHandler {
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 							if(Config.SPOTIFY_CONNECTED) {
 								SpotifyHelper.instance.pause();
-							}else if(Config.DEEZER_CONNECTED) {
+							}
+							if(Config.DEEZER_CONNECTED) {
 								DeezerHelper.instance.pause();
 							}
 						}
@@ -350,7 +354,8 @@ export default class TriggerActionHandler {
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 							if(Config.SPOTIFY_CONNECTED) {
 								SpotifyHelper.instance.resume();
-							}else if(Config.DEEZER_CONNECTED) {
+							}
+							if(Config.DEEZER_CONNECTED) {
 								DeezerHelper.instance.resume();
 							}
 						}

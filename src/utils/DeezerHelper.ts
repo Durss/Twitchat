@@ -7,15 +7,20 @@ import TwitchatEvent from "./TwitchatEvent";
 
 /**
 * Created : 23/05/2022 
+TODO : when closing the popin and opening it back the DZ.login() callback is called twice, then 3 times, then 4, ...
 */
 export default class DeezerHelper {
 	
 	public currentTrack:MusicMessage|null = null;
-	public userInteracted:boolean = true;
+	public queue:DeezerQueueItem[] = [];
+	public userInteracted:boolean = false;
+	public currentTrackIndex:number = 0;
+	public playing:boolean = false;
+	public playbackPos:number = 0;
 
 	private static _instance:DeezerHelper;
 	private _playerHolder!:HTMLDivElement;
-	private _searchPromise!:(value: DeezerTrack | PromiseLike<DeezerTrack>) => void;
+	private _searchPromise!:(value: DeezerTrack[] | PromiseLike<DeezerTrack[]>) => void;
 	private _createPromiseSuccess!:() => void;
 	private _createPromiseError!:() => void;
 	private _idToTrack:{[key:string]:MusicMessage} = {};
@@ -23,7 +28,6 @@ export default class DeezerHelper {
 	private _scriptElement!:HTMLScriptElement;
 	private _initCheckInterval!:number;
 	private _sessionIndex:number = 0;
-	private _playbackPos:number = 0;
 	
 	constructor() {
 	
@@ -108,9 +112,8 @@ export default class DeezerHelper {
 	 */
 	public dispose():void {
 		clearInterval(this._initCheckInterval);
-		console.log("DISPOSE");
 		this._forcePlay = true;
-		this._playbackPos = 0;
+		this.playbackPos = 0;
 		this.currentTrack = null;
 		this._scriptElement.remove();
 		//@ts-ignore
@@ -136,27 +139,20 @@ export default class DeezerHelper {
 
 		// document.location.href = url;
 		DZ.login((res)=> {
-			console.log(res);
+			console.log("Login handler");
 			if (res.status == "connected") {
-				if(store.state.deezerConnected)
-				console.log("AUTH COMPLETE");
-				console.log(res.status);
 				this.userInteracted = false;
 				this._playerHolder.classList.remove("hide");
-				console.log("ONLOAD PLAYER");
 				const onFocus = () => {
-					console.log("##on focus");
 					window.focus();
 				};
 				window.addEventListener("mouseenter", onFocus);
 				
 				const onBlur = () => {
-					console.log("##on blur");
 					setTimeout(() => {
 						if(!document.activeElement) return;
 						if (document.activeElement.tagName === "IFRAME") {
 							this.userInteracted = true;
-							console.log("CLICK");
 							this._playerHolder.classList.add("hide");
 							window.removeEventListener("blur", onBlur);
 							window.removeEventListener("mouseenter", onFocus);
@@ -166,13 +162,13 @@ export default class DeezerHelper {
 				window.addEventListener("blur", onBlur);
 
 				DZ.Event.subscribe('current_track', (arg) => {
-					console.log("CURRENT TRACK", arg);
 					const track = this._idToTrack[arg.track.id];
+					this.queue = DZ.player.getTrackList();
+					this.currentTrackIndex = DZ.player.getCurrentIndex();
 					if(track) {
 						if(track != this.currentTrack || this._forcePlay) {
 							if(DZ.player.isPlaying() !== true) {
 								this._forcePlay = false;
-								console.log("Force play");
 								DZ.player.play();
 							}
 						}
@@ -181,18 +177,26 @@ export default class DeezerHelper {
 					this.publishTrackEvent();
 				});
 
-				DZ.Event.subscribe('tracklist_changed', () => {
-					console.log("TRACK LIST CHANGED");
+				DZ.Event.subscribe('tracklist_changed', (...args) => {
+					this.queue = DZ.player.getTrackList();
+					this.currentTrackIndex = DZ.player.getCurrentIndex();
 					if(DZ.player.isPlaying() !== true) {
 						this._forcePlay = true;
-						console.log("Force play 2");
+						// this.queue = 
 						// DZ.player.play();
 					}
 				});
 
 				DZ.Event.subscribe('player_position', (arg) => {
 					// event_listener_append('position', arg[0], arg[1]);
-					this._playbackPos = arg[0];
+					this.playbackPos = arg[0];
+				});
+
+				DZ.Event.subscribe('player_paused', () => { this.playing = false; });
+				DZ.Event.subscribe('player_play', () => { this.playing = true; });
+				DZ.Event.subscribe('track_end', (index:number) => {
+					const ids = this.queue.map(t => parseInt(t.id)).splice(1);
+					DZ.player.playTracks(ids);
 				});
 				
 				store.dispatch("setDeezerConnected", true);
@@ -225,12 +229,12 @@ export default class DeezerHelper {
 	/**
 	 * Adds a track to the queue
 	 * 
-	 * @returns if a track has been found or not
+	 * @returns the tracks matching the search
 	 */
-	public async searchTrack(search:string):Promise<DeezerTrack> {
+	public async searchTracks(search:string, limit:number=50):Promise<DeezerTrack[]> {
 		return new Promise((resolve)=> {
 			const e = document.createElement('script');
-			e.src = 'https://api.deezer.com/search?q=' + search + '&output=jsonp&callback=onDeezerSearchResult';
+			e.src = 'https://api.deezer.com/search?q=' + search + '&output=jsonp&callback=onDeezerSearchResult&limit='+limit;
 			e.async = true;
 			e.onload = ()=> {
 				//Cleanup DOM
@@ -243,20 +247,39 @@ export default class DeezerHelper {
 		});
 	}
 
-	public playTrack(track:DeezerTrack):void {
-		DZ.player.playTracks([track.id]);
+	/**
+	 * Plays a specific track
+	 * @param track 
+	 */
+	public playTrack(track:DeezerTrack|number):void {
+		if(typeof track === "number") {
+			DZ.player.playTracks([track]);
+		}else{
+			DZ.player.playTracks([track.id]);
+		}
+	}
+
+	/**
+	 * Brings a track to the begining of the queue
+	 */
+	public bringQueuedTrackToTop(index:number):void {
+		const ids = this.queue.map(v=>parseInt(v.id));
+		ids.unshift( ids.splice(index, 1)[0] );
+		DZ.player.playTracks(ids);
+		// DZ.player.changeTrackOrder(ids);//Does not updates the queue -_-
 	}
 	
 	/**
 	 * Adds a track to the queue
-	 * 
-	 * @param uri Deezer URI of the track to add. Get one with "searchTrack()" method
+	 * @param track 
 	 */
-	public addToQueue(track:DeezerTrack):void {
+	public addToQueue(track:DeezerTrack|number):void {
+		let id:number = 0;
+		if(typeof track === "number") id = track;
+		else id = track.id;
 		this._forcePlay = true;
-		if(!this.currentTrack) this.currentTrack = this._idToTrack[track.id];
-		console.log("ADD TO QUEUE", track);
-		DZ.player.addToQueue([track.id]);
+		if(!this.currentTrack) this.currentTrack = this._idToTrack[id];
+		DZ.player.addToQueue([id]);
 	}
 
 	/**
@@ -264,7 +287,10 @@ export default class DeezerHelper {
 	 * @returns 
 	 */
 	public nextTrack():void {
-		DZ.player.next();
+		const ids = this.queue.map(t => parseInt(t.id));
+		ids.splice(0, 1);
+		DZ.player.playTracks(ids);
+		// DZ.player.next();
 	}
 
 	/**
@@ -291,6 +317,14 @@ export default class DeezerHelper {
 		DZ.player.play();
 	}
 
+	/**
+	 * Seek the track
+	 * @param percent value between 0 and 100
+	 */
+	public seek(percent:number):void {
+		DZ.player.seek(percent);
+	}
+
 	
 	
 	/*******************
@@ -309,7 +343,7 @@ export default class DeezerHelper {
 				trackName: this.currentTrack.title,
 				artistName: this.currentTrack.artist,
 				trackDuration: this.currentTrack.duration * 1000,
-				trackPlaybackPos: this._playbackPos * 1000,
+				trackPlaybackPos: this.playbackPos * 1000,
 				cover: this.currentTrack.cover,
 			});
 		}
@@ -319,18 +353,20 @@ export default class DeezerHelper {
 		console.log("ON SEARCH RESULT");
 		console.log(json);
 		if (json.data && json.data.length > 0) {
-			const track = json.data[0];
-			const music:MusicMessage =  {
-				type:"music",
-				title:track.title,
-				artist:track.artist.name,
-				album:track.album.title,
-				cover:track.album.cover_medium,
-				duration:track.duration,
-				url:track.link,
-			};
-			this._idToTrack[track.id] = music;
-			this._searchPromise( track );
+			for (let i = 0; i < json.data.length; i++) {
+				const track = json.data[i];
+				const music:MusicMessage =  {
+					type:"music",
+					title:track.title,
+					artist:track.artist.name,
+					album:track.album.title,
+					cover:track.album.cover_medium,
+					duration:track.duration,
+					url:track.link,
+				};
+				this._idToTrack[track.id] = music;
+			}
+			this._searchPromise( json.data );
 		}
 	}
 
@@ -393,38 +429,48 @@ export interface Album {
 	type: string;
 }
 
+export interface DeezerQueueItem {
+	id:string;
+	title:number;
+	duration:number;
+	album:{
+		id:string;
+		title:string;
+	};
+	artist:{
+		id:string;
+		name:string;
+	};
+}
+
 
 declare namespace DZ {
 
 	interface SubscribeFunc {
 		(event:'current_track', callback:(arg:{
 			index:number;
-			track:{
-				id:string;
-				title:number;
-				duration:number;
-				album:{
-					id:string;
-					title:string;
-				};
-				artist:{
-					id:string;
-					name:string;
-				};
-			}
+			track:DeezerQueueItem;
 		})=>void): void;
+		(event:'player_play', callback:()=>void): void;
+		(event:'player_paused', callback:()=>void): void;
+		(event:'player_loaded', callback:()=>void): void;
+		(event:'track_end', callback:(position:number)=>void): void;
 		(event:'tracklist_changed', callback:()=>void): void;
 		(event:'player_position', callback:(arg:[pos:number, duration:number])=>void): void;
 	}
 
 	const player:{
-		playTracks:(id:number[])=>void;
-		addToQueue:(id:number[])=>void;
+		playTracks:(ids:number[])=>void;
+		addToQueue:(ids:number[])=>void;
+		changeTrackOrder:(ids:number[])=>void;
 		next:()=>void;
 		prev:()=>void;
 		play:()=>void;
 		pause:()=>void;
 		isPlaying():boolean;
+		getTrackList():DeezerQueueItem[];
+		getCurrentIndex():number;
+		seek(percent:number):void;
 	};
 
 	const Event:{

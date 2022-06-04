@@ -216,7 +216,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		this.onResize();
-		
 
 		//Auto opens the prediction status if pending for completion
 		watch(() => store.state.currentPrediction, (newValue, prevValue) => {

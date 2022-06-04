@@ -28,7 +28,6 @@
 import store, { BingoData } from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ParamItem from '../params/ParamItem.vue';
 import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 
@@ -36,7 +35,6 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	props:{},
 	components:{
 		Button,
-		ParamItem,
 		PostOnChatParam,
 	}
 })

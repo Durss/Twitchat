@@ -1,9 +1,16 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" title="Wheel" :icons="['ticket_purple']">
-		<div>when doing a raffle, this page will display a wheel that'll animate to pick a winner.</div>
+		<div>When doing a raffle, this page will display a wheel that'll animate to pick a winner.</div>
 		<div class="content">
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
+				<ToggleBlock small title="CSS customization" :open="false">
+					<div>You can change the appearance of the wheel by overriding these CSS values on OBS browser source params</div>
+					<ul>
+						<li>.vue3-infinite-list > .item { ... }</li>
+						<li>.vue3-infinite-list.selected > .item { ... }</li>
+					</ul>
+				</ToggleBlock>
 			</div>
 			<div class="row center">
 				<Button :loading="loading" @click="testWheel()" title="Test it" :icon="require('@/assets/icons/test.svg')" />

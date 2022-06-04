@@ -13,7 +13,7 @@
 				</div>
 				<form  @submit.prevent="submitChatPoll()">
 					<div class="row">
-						<ParamItem :paramData="command" />
+						<ParamItem :paramData="command" autofocus />
 					</div>
 
 					<div class="row">

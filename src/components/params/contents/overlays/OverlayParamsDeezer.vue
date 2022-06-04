@@ -3,6 +3,7 @@
 
 		<div v-if="!deezerConnected">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
+			<div class="infos">Deezer API being terribly bad, chances of having issues are high.<br></div>
 		</div>
 		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" :loading="authenticating" />
 
@@ -24,7 +25,8 @@
 			<div class="row">
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
 				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
-				<div class="infos">Deezer API being terribly bad you'll have no other choice but use triggers to play music. Also you'll have to reconnect every time you start Twitchat</div>
+				<div>Click on the Deezer icon on the bottom right of the screen to add tracks, view the queue, and control the playback !</div>
+				<div class="infos">Deezer API being terribly bad, chances of having issues are high.</div>
 			</div>
 			<Button v-if="deezerConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
@@ -64,10 +66,6 @@ export default class OverlayParamsDeezer extends Vue {
 			//Ignore
 		}
 		this.authenticating = false;
-	}
-
-	public async mounted():Promise<void> {
-		console.log(store.state.deezerConnected);
 	}
 
 	public disconnect():void {

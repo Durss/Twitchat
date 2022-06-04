@@ -11,7 +11,9 @@
 		:scrollOffset="scrollOffset"
 		:overscanCount="0"
 		v-slot="{ item }">
-			<div class="item">{{ item.label }}</div>
+			<div class="item">
+				<span class="label">{{ item.label }}</span>
+			</div>
 		</InfiniteList>
 	</div>
 </template>
@@ -107,7 +109,7 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.domObserver.observe(this.$el, { childList:true, subtree: true });
 
 		//Populate with fake data
-		//*
+		/*
 		let list:WheelItem[] = [];
 		for (let i = 0; i < 550000; i++) {
 			let id = i.toString();
@@ -336,6 +338,13 @@ export interface WheelData {
 				// border: @borderWidth solid @mainColor_dark;
 				border-left: none;
 				margin-right: 15%;
+				.label {
+					text-overflow: ellipsis;
+					overflow: hidden;
+					width: 100%;
+					padding: 0 .5em;
+					text-align: center;
+				}
 			}
 			&.selected {
 				z-index: 1;

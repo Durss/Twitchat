@@ -3,6 +3,7 @@
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
 		<div class="title">Add overlays to your stream</div>
 		<p class="infos">In order to work, the overlays need Twitchat to be running as they will need to comunicate with it</p>
+		<p class="beta">These are beta features that need more testing. If you have any issue with one of them <a :href="discordURL" target="_blank">please let me know on Discord</a></p>
 		
 		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsSpotify class="block" v-if="exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
@@ -42,10 +43,7 @@ export default class ParamsOverlays extends Vue {
 	public get exchangeChannelAvailable():boolean { return this.localConnexionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.DEEZER_CONFIGURED; }
-
-	public mounted():void {
-		console.log(Config.DEEZER_CONFIGURED);
-	}
+	public get discordURL():string { return Config.DISCORD_URL; }
 
 }
 </script>
@@ -66,6 +64,31 @@ export default class ParamsOverlays extends Vue {
 		font-size: .9em;
 		text-align: center;
 		margin-bottom: 1em;
+	}
+
+	.beta {
+		color: white;
+		margin-top: 10px;
+		font-size: .7em;
+		padding: .55em;
+		background-color: fade(@mainColor_warn, 100%);
+		border-radius: .5em;
+		text-align: center;
+		position: relative;
+		padding-left: 2.5em;
+		&::before{
+			content:" ";
+			background-image: url("../../../assets/icons/info.svg");
+			width: 2em;
+			height: 2em;
+			position: absolute;
+			top: 50%;
+			transform: translate(-2.5em, -50%);
+		}
+		a {
+			font-weight: bold;
+			color: white;
+		}
 	}
 	.connectObs {
 		text-align: center;
