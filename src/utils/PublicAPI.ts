@@ -3,6 +3,7 @@ import { watch } from "vue";
 import { EventDispatcher } from "./EventDispatcher";
 import OBSWebsocket from "./OBSWebsocket";
 import TwitchatEvent, { TwitchatActionType, TwitchatEventType } from "./TwitchatEvent";
+import Utils from "./Utils";
 
 /**
 * Created : 14/04/2022 
@@ -70,7 +71,9 @@ export default class PublicAPI extends EventDispatcher {
 	 */
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		if(!data) data = {};
-		data.id = Math.random().toString();
+		data.id = Utils.guid();
+		this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
+
 		//Broadcast to other browser's tabs
 		try {
 			if(data) data = JSON.parse(JSON.stringify(data));
@@ -78,6 +81,7 @@ export default class PublicAPI extends EventDispatcher {
 		}catch(error) {
 			console.error(error);
 		}
+
 		//Broadcast to any OBS Websocket connected client
 		OBSWebsocket.instance.broadcast(type, data);
 	}

@@ -23,6 +23,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from 'vue3-infinite-list';
+import { JsonObject } from "type-fest";
 
 @Options({
 	props:{},
@@ -44,12 +45,13 @@ export default class OverlaysRaffleWheel extends Vue {
 	private animStep:number = 0;
 	private resizeHandler!:()=>void;
 	private startWheelHandler!:(e:TwitchatEvent)=>void;
+	private wheelPresenceHandler!:(e:TwitchatEvent)=>void;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
 	private frameIndex:number = 0;
 	private selectedItemIndex:number = 0;
 	private listData:WheelItem[] = [];
-	private winnerData!:string;
+	private winnerData!:WheelItem;
 	private domObserver!:MutationObserver;
 
 	public get listStyles():{[key:string]:string|number} {
@@ -74,7 +76,12 @@ export default class OverlaysRaffleWheel extends Vue {
 		window.addEventListener("resize", this.resizeHandler);
 
 		this.startWheelHandler = (e:TwitchatEvent)=>this.onStartWheel(e);
-		PublicAPI.instance.addEventListener(TwitchatEvent.START_WHEEL, this.startWheelHandler);
+		this.wheelPresenceHandler = (e:TwitchatEvent)=>{
+			console.log("Resested presence");
+			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE);
+		}
+		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_START, this.startWheelHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
 		
 		//The infinite list component doesn't reuse items, it creates new ones
 		//everytime whe scroll.
@@ -102,20 +109,23 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.domObserver.observe(this.$el, { childList:true, subtree: true });
 
 		//Populate with fake data
-		this.listData = [];
-		for (let i = 0; i < 12; i++) {
-			this.listData.push({label:"Item"+i, data:i.toString()});
+		//*
+		let list = [];
+		for (let i = 0; i < 550000; i++) {
+			list.push({label:"Item"+i, data:i.toString()});
 		}
-		this.winnerData = Utils.pickRand(this.listData).data as string;
-		console.log("Winner", this.winnerData);
+		this.winnerData = Utils.pickRand(list);
+		this.listData = list;
 		this.populate();
+		//*/
 	}
 
 	public beforeUnmount():void {
 		this.rafID = 0;
 		this.domObserver.disconnect();
 		window.removeEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.START_WHEEL, this.startWheelHandler)
+		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_START, this.startWheelHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
 	}
 
 	/**
@@ -134,19 +144,48 @@ export default class OverlaysRaffleWheel extends Vue {
 		const minSize = 200;
 
 		let list = this.listData;
-		Utils.shuffle(list);
-		//Duplicate items as many times as necessary to have enough
-		//of them for the complete animation
-		const baseList = list.slice();
-		do {
-			list = list.concat(baseList);
-		}while(list.length < minSize + this.itemsCount * 2);
-		this.itemList = list;
+		const expectedSize = minSize + this.itemsCount;
+		if(list.length < minSize) {
+			Utils.shuffle(list);
+			//Duplicate items as many times as necessary to have enough
+			//of them for the complete animation
+			const baseList = list.slice();
+			while(list.length < expectedSize){
+				const len = Math.min(baseList.length, expectedSize-list.length);
+				list = list.concat(baseList.slice(0, len));
+			}
+		}else{
+			//Only keep necessary items count
+			//This could be done with way less steps but it wouldn't hold
+			//high volume of data. This is made to handle 100 thousands of items
+			const tmpList = [];
+			const indexPicked:{[key:string]:boolean} = {};
+			while(tmpList.length < expectedSize) {
+				let index = Math.floor(Math.random() * list.length);
+				if(indexPicked[index] !== true) {
+					indexPicked[index] = true;
+					tmpList.push( list[index] );
+				}
+			}
+			list = tmpList;
+		}
 
-		const offset = Math.max(list.length - minSize, list.length - baseList.length);
-		const sublist = list.slice(offset);
-		this.selectedItemIndex = sublist.findIndex(v=>v.data == this.winnerData) + offset + 1;
-		this.selectedItemIndex -= Math.floor(this.itemsCount /2);
+		//Push winner item at the end
+		list.push(this.winnerData);
+		const winnerIndex = list.length;
+
+		//Add items to end so the animation doesn't break
+		let addedCount = 0;
+		while(addedCount < this.itemsCount) {
+			const item = Utils.pickRand(list);
+			if(item.data != this.winnerData) {
+				list.push(item);
+				addedCount ++;
+			}
+		}
+
+		this.itemList = list;
+		this.selectedItemIndex = winnerIndex - Math.floor(this.itemsCount /2);
 
 		gsap.killTweensOf(this);
 
@@ -155,13 +194,11 @@ export default class OverlaysRaffleWheel extends Vue {
 		//its mount method so we can't just wait a render frame
 		//with $nextTick(). Also it sometimes takes forever to
 		//fully mount...
-		await Utils.promisedTimeout(200);
+		await Utils.promisedTimeout(100);
 		const endScroll = (this.selectedItemIndex - minSize) * this.itemSize;
 		this.listDisplayed = true;
 		this.scrollOffset = endScroll;
-		// gsap.to(this, {scrollOffset:endScroll, duration:.5, onComplete:()=>{
-			this.renderFrame(this.rafID);
-		// }})
+		this.renderFrame(this.rafID);
 	}
 
 	private renderFrame(id:number):void {
@@ -196,14 +233,18 @@ export default class OverlaysRaffleWheel extends Vue {
 				//Open animation
 				let delay = Math.pow(Math.abs(ratio) * 10, 2.8)/1000;// + Math.random()*.5;
 				gsap.from(item, {duration:.5, x:"-100%", delay, ease:"quad.inOut"});
-				let tween = gsap.from(item, {duration:2, rotation:(angle*4)+"deg", delay:delay+.2, ease:"elastic.out(1.5,.2)"});
+				let tween = gsap.from(item, {duration:1.5, rotation:(angle*4)+"deg", delay:delay+.2, ease:"elastic.out(1.5,.4)"});
 				if(i == items.length-1){
 					tween.eventCallback("onComplete", ()=>{
 						this.animStep = 2;
 						const endOffset = this.selectedItemIndex*this.itemSize;
 						const duration = (endOffset - this.scrollOffset)*.001;
 						//Scroll down after last item has appeared
-						gsap.to(this, {scrollOffset: endOffset, duration, ease:"sine.inOut"});
+						gsap.to(this, {scrollOffset: endOffset, duration, ease:"sine.inOut", onComplete:()=>{
+							const data = {winner:this.winnerData as unknown} as JsonObject
+							//Tell twitchat animation completed
+							PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
+						}});
 					});
 					this.animStep = 1;
 				}
@@ -232,7 +273,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	}
 
 	public onStartWheel(e:TwitchatEvent):void {
-		const data = (e.data as unknown) as {items:WheelItem[], winner:string}
+		const data = (e.data as unknown) as {items:WheelItem[], winner:WheelItem}
 		this.winnerData = data.winner;
 		this.listData = data.items;
 		this.populate();
@@ -256,7 +297,7 @@ export interface WheelItem {
 		// border-bottom-right-radius: 50%;
 		height: 100%;
 		max-width: 700px;
-		// overflow: hidden !important;
+		overflow: hidden !important;
 		:deep(.vue3-infinite-list) {
 			transform-origin: left center;
 			.item {

@@ -887,7 +887,7 @@ export default class TwitchUtils {
 	 * 
 	 * @param channelId channelId to get followers list
 	 */
-	public static async getFollowers(channelId?:string):Promise<TwitchTypes.Following[]> {
+	public static async getFollowers(channelId?:string|null, maxCount=-1):Promise<TwitchTypes.Following[]> {
 		if(!channelId) channelId = store.state.user.user_id;
 		const headers = {
 			'Authorization': 'Bearer '+(store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token,
@@ -908,7 +908,7 @@ export default class TwitchUtils {
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
 			}
-		}while(cursor != null)
+		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
 		return list;
 	}
 

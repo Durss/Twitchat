@@ -18,7 +18,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { JsonArray } from "type-fest";
+import { JsonArray, JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -43,15 +43,15 @@ export default class OverlayParamsRaffle extends Vue {
 
 	public async testWheel():Promise<void> {
 		this.loading = true;
-		const followers = await TwitchUtils.getFollowers();
+		const followers = await TwitchUtils.getFollowers(null, 500);
 		const items:WheelItem[] = followers.map(v=> {
 			return {label:v.from_name, data:v.from_id}
 		});
 		const data = {
 			items:((items as unknown) as JsonArray),
-			winner: Utils.pickRand(items).data as string,
+			winner: (Utils.pickRand(items) as unknown) as JsonObject,
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.START_WHEEL, data)
+		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, data)
 		await Utils.promisedTimeout(100);
 		this.loading = false;
 	}

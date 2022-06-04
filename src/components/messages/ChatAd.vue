@@ -58,6 +58,7 @@
 				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
 						<li>A conflict between BTTV/FFZ/7TV and official <strong>emotes</strong> was sometimes cutting message contents</li>
+						<li><strong>Stop OBS stream on raid</strong> option was sometimes failing to actually cut the stream</li>
 						<li>Poll's votes with bits and channel points were showing wrong <strong>vote counts</strong></li>
 						<li><strong>Test trigger</strong> button wasn't working for chat commands</li>
 						<li>Trigger for <strong>bits event</strong> wasn't working</li>
