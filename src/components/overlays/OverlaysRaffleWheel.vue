@@ -107,11 +107,11 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.domObserver.observe(this.$el, { childList:true, subtree: true });
 
 		//Populate with fake data
-		/*
+		//*
 		let list:WheelItem[] = [];
 		for (let i = 0; i < 550000; i++) {
 			let id = i.toString();
-			list.push({id, label:"Item"+i, data:{id}});
+			list.push({id, label:"wwwwwwwwwwwwwwwwwwwwwwwww"+i, data:{id}});
 		}
 		this.winnerData = Utils.pickRand(list);
 		this.listData = list;
@@ -143,12 +143,12 @@ export default class OverlaysRaffleWheel extends Vue {
 		const minSize = 200;
 
 		let list = this.listData;
+		const baseList = list.slice();
 		const expectedSize = minSize + this.itemsCount;
 		if(list.length < minSize) {
 			Utils.shuffle(list);
 			//Duplicate items as many times as necessary to have enough
 			//of them for the complete animation
-			const baseList = list.slice();
 			let failSafe = 0;
 			while(list.length < expectedSize){
 				const len = Math.min(baseList.length, expectedSize-list.length);
@@ -188,7 +188,7 @@ export default class OverlaysRaffleWheel extends Vue {
 		let failSafe = 0;
 		while(addedCount < this.itemsCount) {
 			const item:WheelItem = Utils.pickRand(list);
-			if(item.id != this.winnerData.id) {
+			if(item.id != this.winnerData.id || baseList.length < this.itemsCount/2) {
 				list.push(item);
 				addedCount ++;
 			}

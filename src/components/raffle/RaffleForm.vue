@@ -91,7 +91,7 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
-import { JsonArray, JsonObject } from "type-fest";
+import { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import { WheelItem } from '../overlays/OverlaysRaffleWheel.vue';

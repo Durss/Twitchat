@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button aria-label="Open parameters" :icon="require('@/assets/icons/params.svg')" bounce @click="toggleParams()" />
 				<Button aria-label="Open chat commands" :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" />
+				<Button aria-label="Open users list" :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
 				<Button aria-label="Open activity feed" :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
@@ -113,8 +113,8 @@
 
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
-					class="viewCount"
 					data-tooltip="Viewer count"
+					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
 					<p v-if="censoredViewCount">x</p>

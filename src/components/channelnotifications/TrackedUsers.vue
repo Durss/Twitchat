@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="messages" v-if="selectedUser">
-			<ChatMessage v-for="m in selectedUser.messages" :key="m.id"
+			<ChatMessage v-for="(m, index) in selectedUser.messages" :key="index"
 				:messageData="m"
 				:lightMode="true"
 				:disableConversation="true"

@@ -465,7 +465,6 @@ export default class ChatMessage extends Vue {
 				const customParsing = mess.tags.id?.indexOf("00000000") == 0;
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
-				console.log(chunks);
 				
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
@@ -511,8 +510,8 @@ export default class ChatMessage extends Vue {
 			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		}
 
-		const button = "<img src='"+require('@/assets/icons/copy_alert.svg')+"' class='copyBt' data-copy=\"$2\" data-tooltip='Copy'>";
-		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, "$1$2$3"+button);
+		const button = "<img src='"+require('@/assets/icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
+		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		
 		return result;
 	}
@@ -673,6 +672,7 @@ export default class ChatMessage extends Vue {
 		.pronoun {
 			font-size: .8em;
 			border-radius: 3px;
+			color: @mainColor_light;
 			border: 1px solid @mainColor_light;
 			padding: 0 .1em;
 			margin-right: 5px;
@@ -702,7 +702,7 @@ export default class ChatMessage extends Vue {
 		}
 		:deep(.copyBt) {
 			height: 1em;
-			margin-left: .25em;
+			margin-right: .25em;
 			vertical-align: middle;
 			cursor: pointer;
 		}

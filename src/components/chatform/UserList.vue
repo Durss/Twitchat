@@ -2,10 +2,10 @@
 	<div class="userlist">
 		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users</h1>
 		
-		<div class="users braodcaster" v-if="braodcaster.length > 0">
+		<div class="users broadcaster" v-if="broadcaster.length > 0">
 			<div class="title">Broadcaster</div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in braodcaster" :key="u.id">{{u.login}}</a>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
@@ -48,7 +48,7 @@ export default class UserList extends Vue {
 
 	public users:UserItem[] = [];
 
-	public get braodcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
+	public get broadcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
 
 	public get mods():UserItem[] { return this.users.filter(u=>u.mod); }
 
