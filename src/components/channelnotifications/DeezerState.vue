@@ -13,10 +13,17 @@
 		</div>
 
 		<div class="queue" v-if="showQueue">
-			<div v-for="(t, index) in queue" :key="t.id" class="item" @click="playQueueItem(index)">
-				<span class="artist">{{t.artist.name}}</span>
-				<span class="title">{{t.title}}</span>
-				<span class="duration">({{formatDuration(t.duration)}})</span>
+			<div v-for="(t, index) in queue" :key="t.id" class="item">
+				<Button class="deleteBt"
+				small highlight
+				@click="removeTrack(index)"
+				:icon="require('@/assets/icons/cross_white.svg')" />
+				
+				<div class="infos" @click="playQueueItem(index)">
+					<span class="artist">{{t.artist.name}}</span>
+					<span class="title">{{t.title}}</span>
+					<span class="duration">({{formatDuration(t.duration)}})</span>
+				</div>
 			</div>
 		</div>
 		
@@ -120,6 +127,10 @@ export default class DeezerState extends Vue {
 		DeezerHelper.instance.bringQueuedTrackToTop( index );
 	}
 
+	public removeTrack(index:number):void {
+		DeezerHelper.instance.removeTrack( index );
+	}
+
 	public actionPlay():void {
 		DeezerHelper.instance.resume();
 	}
@@ -177,6 +188,7 @@ export default class DeezerState extends Vue {
 	}
 
 	.queue {
+		font-size: .7em;
 		width: 100%;
 		max-width: 300px;
 		margin: auto;
@@ -186,12 +198,12 @@ export default class DeezerState extends Vue {
 		padding: .25em;
 
 		.item {
-			font-size: .7em;
-			cursor: pointer;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			padding-top: .5em;
 			transition: background-color .2s ease;
-            text-indent: -.5em;
-            padding-left: .5em;
-
+	
 			&:hover {
 				background-color: rgba(255, 255, 255, .10);
 			}
@@ -206,19 +218,28 @@ export default class DeezerState extends Vue {
 				padding-bottom: .5em;
 				border-bottom: 1px solid rgba(255, 255, 255, .5);;
 			}
-			&:not(:first-child) {
-				padding-top: .5em;
-			}
-			.artist {
-				font-weight: bold;
+			
+			.deleteBt {
+				width: 1.5em;
+				height: 1.5em;
+				padding: 2px;
 				margin-right: .5em;
 			}
-			.title {
-				margin-right: .5em;
-			}
-			.duration {
-				font-style: italic;
-				font-size: .8em;
+			.infos {
+				cursor: pointer;
+				text-indent: -.5em;
+				padding-left: .5em;
+				.artist {
+					font-weight: bold;
+					margin-right: .5em;
+				}
+				.title {
+					margin-right: .5em;
+				}
+				.duration {
+					font-style: italic;
+					font-size: .8em;
+				}
 			}
 		}
 	}

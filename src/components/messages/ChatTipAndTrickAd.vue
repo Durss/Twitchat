@@ -5,8 +5,7 @@
 			<h1 class="row">Create your own sub alerts</h1>
 			<div class="row">With <strong>Twitchat</strong> you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.</div>
 			<div class="row">Add texts, images, videos, sounds, ... on your OBS scene and let Twitchat control them when a specific event happens. Text sources can be updated by Twitchat with dynamic values like the subscriber's name.</div>
-			<div class="row">Head over the OBS parameters and follow the instructions to try it:</div>
-			<Button title="Try it now" @click.stop="openParam('obs')" />
+			<Button title="Try it now" @click.stop="openParam('triggers')" />
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
@@ -60,6 +59,23 @@
 				type="link"
 			/>
 		</div>
+		
+		<div v-if="tipIndex===7" class="entry">
+			<img src="@/assets/icons/music_purple.svg" alt="music" class="icon">
+			<h1 class="row">Control music</h1>
+			<div class="row"><strong>Twitchat</strong> provides a <strong>Spotify</strong> and <strong>Deezer</strong> integrations.</div>
+			<div class="row">This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.</div>
+			<div class="row">You can create your own song request system.</div>
+			<Button title="Try it now" @click.stop="openParam('overlays')" />
+		</div>
+		
+		<div v-if="tipIndex===8" class="entry">
+			<img src="@/assets/icons/overlay_purple.svg" alt="overlay" class="icon">
+			<h1 class="row">Twitchat overlays</h1>
+			<div class="row"><strong>Twitchat</strong> provides a some <strong>overlays</strong> for your stream.</div>
+			<div class="row">It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner.</div>
+			<Button title="Try it now" @click.stop="openParam('overlays')" />
+		</div>
 	</div>
 </template>
 
@@ -78,7 +94,7 @@ import { ParamsContenType } from '../params/Parameters.vue';
 export default class ChatTipAndTrickAd extends Vue {
 
 	public tipIndex:number = 0;
-	private maxIndex:number = 6;
+	private maxIndex:number = 8;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));

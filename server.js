@@ -389,7 +389,6 @@ async function spotifyAuthenticate(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
 	let clientId = params.clientId? params.clientId : credentials.spotify_client_id;
 	let clientSecret = params.clientSecret? params.clientSecret : credentials.spotify_client_secret;
-	console.log(params);
 
 	const options = {
 		method:"POST",
@@ -472,7 +471,6 @@ async function deezerAuthenticate(request, response) {
 		url += "&output=json";
 		let res = await fetch(url, options);
 		json = await res.json();
-		console.log(json);
 
 		if(!json.access_token) throw(json);
 	}catch(error) {

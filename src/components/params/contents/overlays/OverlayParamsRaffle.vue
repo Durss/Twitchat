@@ -13,7 +13,7 @@
 				</ToggleBlock>
 			</div>
 			<div class="row center">
-				<Button :loading="loading" @click="testWheel()" title="Test it" :icon="require('@/assets/icons/test.svg')" />
+				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="require('@/assets/icons/test.svg')" />
 			</div>
 		</div>
 	</ToggleBlock>

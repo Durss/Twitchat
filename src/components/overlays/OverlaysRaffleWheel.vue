@@ -97,6 +97,7 @@ export default class OverlaysRaffleWheel extends Vue {
 				const item = list[i];
 				for (let j = 0; j < item.addedNodes.length; j++) {
 					const el = item.addedNodes[j] as HTMLDivElement;
+					if(el.nodeName == "#comment") continue;
 					//Only scale list items
 					if(el.classList.contains("vue3-infinite-list")
 					&& this.animStep >= 1) {
@@ -111,9 +112,9 @@ export default class OverlaysRaffleWheel extends Vue {
 		//Populate with fake data
 		/*
 		let list:WheelItem[] = [];
-		for (let i = 0; i < 550000; i++) {
+		for (let i = 0; i < 55; i++) {
 			let id = i.toString();
-			list.push({id, label:"wwwwwwwwwwwwwwwwwwwwwwwww"+i, data:{id}});
+			list.push({id, label:i+"wwwwwwwwwwwwwwwwwwwwwwww", data:{id}});
 		}
 		this.winnerData = Utils.pickRand(list);
 		this.listData = list;
@@ -253,14 +254,12 @@ export default class OverlaysRaffleWheel extends Vue {
 				let tween = gsap.from(item, {duration:1.5, rotation:(angle*4)+"deg", delay:delay+.2, ease:"elastic.out(1.5,.4)"});
 				if(i == items.length-1){
 					tween.eventCallback("onComplete", ()=>{
-						this.animStep = 2;
+						this.animStep ++;
 						const endOffset = this.selectedItemIndex*this.itemSize;
 						const duration = (endOffset - this.scrollOffset)*.001;
 						//Scroll down after last item has appeared
 						gsap.to(this, {scrollOffset: endOffset, duration, ease:"sine.inOut", onComplete:()=>{
-							const data = {winner:this.winnerData as unknown} as JsonObject
-							//Tell twitchat animation completed
-							PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
+							this.onAnimationComplete();
 						}});
 					});
 					this.animStep = 1;
@@ -294,6 +293,22 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.winnerData = data.winner;
 		this.listData = data.items;
 		this.populate();
+	}
+
+	private onAnimationComplete():void {
+		const items = this.$el.querySelectorAll(".vue3-infinite-list");
+		
+		this.rafID ++;
+		gsap.to(items, {x:"-110%", duration:.35, ease:"quad.in", stagger:.035, delay:1, onComplete:()=>{
+			//Reset everything to free up memory
+			this.listDisplayed = false;
+			this.listEnabled = false;
+			this.listData = [];
+		}});
+
+		//Tell twitchat animation completed
+		const data = {winner:this.winnerData as unknown} as JsonObject
+		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
 	}
 }
 

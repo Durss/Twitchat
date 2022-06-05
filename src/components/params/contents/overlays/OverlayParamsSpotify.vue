@@ -7,7 +7,7 @@
 		</div>
 		<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
 			<div class="info">Sadly, <strong>Spotify</strong> is refusing Twitchat to use their API with unlimited users and extended quotas <i>(necessary)</i>.<br>
-			To use it you'll have to <a href="https://github.com/durss/twitchat/SPOTIFY.md" target="_blank"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:</div>
+			To use it you'll have to <a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:</div>
 			<form>
 				<ParamItem class="item" :paramData="paramClient" autofocus />
 				<ParamItem class="item" :paramData="paramSecret" />
