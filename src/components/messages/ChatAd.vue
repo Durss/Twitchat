@@ -46,6 +46,10 @@
 							<Button aria-label="open install params" small title="try it" @click.stop="openParamPage('account')" />
 							<span>You can kind of <strong>install</strong> twitchat on your device from the account section.<i>(possible only after interacting with the page for +30s)</i></span>
 						</li>
+						<li>
+							<Button aria-label="open vertical mode params" small title="try it" @click.stop="showSpecificParam('appearance.splitViewVertical')" />
+							<span>You can now split the screen vertically to better accomodate vertical screens</span>
+						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
