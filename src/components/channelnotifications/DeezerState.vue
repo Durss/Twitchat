@@ -201,7 +201,7 @@ export default class DeezerState extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			padding-top: .5em;
+			padding: .5em 0;
 			transition: background-color .2s ease;
 	
 			&:hover {
@@ -215,12 +215,12 @@ export default class DeezerState extends Vue {
 				}
 			}
 			&:not(:last-child) {
-				padding-bottom: .5em;
 				border-bottom: 1px solid rgba(255, 255, 255, .5);;
 			}
 			
 			.deleteBt {
 				width: 1.5em;
+				min-width: 1.5em;
 				height: 1.5em;
 				padding: 2px;
 				margin-right: .5em;
