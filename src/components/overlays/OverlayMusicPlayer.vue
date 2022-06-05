@@ -223,7 +223,7 @@ export default class OverlayMusicPlayer extends Vue {
 				.track {
 					display: flex;
 					flex-direction: column;
-					.artist, .track {
+					.artist, .title {
 						padding-right: 10vw;
 						display: flex;
 					}
