@@ -38,7 +38,7 @@ export default class VolumeBar extends Vue {
 	}
 
 	public mounted():void {
-		this.mouseUpHandler = (e:MouseEvent) => this.mousePressed = false;
+		this.mouseUpHandler = () => this.mousePressed = false;
 		document.addEventListener("mouseup", this.mouseUpHandler);
 	}
 

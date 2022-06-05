@@ -230,7 +230,7 @@ export default class Button extends Vue {
 		background-color: @mainColor_light;
 
 		&:hover {
-			background-color: @mainColor_normal_extralight;
+			background-color: lighten(@mainColor_normal_extralight, 12%) !important;
 		}
 	}
 

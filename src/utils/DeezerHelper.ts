@@ -177,7 +177,7 @@ export default class DeezerHelper {
 					this.publishTrackEvent();
 				});
 
-				DZ.Event.subscribe('tracklist_changed', (...args) => {
+				DZ.Event.subscribe('tracklist_changed', () => {
 					this.queue = DZ.player.getTrackList();
 					this.currentTrackIndex = DZ.player.getCurrentIndex();
 					if(DZ.player.isPlaying() !== true) {
@@ -194,7 +194,7 @@ export default class DeezerHelper {
 
 				DZ.Event.subscribe('player_paused', () => { this.playing = false; });
 				DZ.Event.subscribe('player_play', () => { this.playing = true; });
-				DZ.Event.subscribe('track_end', (index:number) => {
+				DZ.Event.subscribe('track_end', () => {
 					const ids = this.queue.map(t => parseInt(t.id)).splice(1);
 					DZ.player.playTracks(ids);
 				});

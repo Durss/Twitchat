@@ -4,7 +4,7 @@
 
 		<div class="title">Connected as <strong>{{$store.state.user.login}}</strong></div>
 
-		<Button class="button" v-if="canInstall" @click="ahs()" title="Add to home screen" :icon="require('@/assets/icons/twitchat.svg')" />
+		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="require('@/assets/icons/twitchat.svg')" />
 		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="require('@/assets/icons/logout.svg')" />
 		
 	</div>

@@ -1,12 +1,32 @@
 <template>
 	<div class="TriggerAction">
-		<ParamItem :paramData="event_conf" />
-		<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1" />
+		<!-- <ParamItem :paramData="event_conf" /> -->
+		<div class="menu">
+			<Button class="backBt" v-if="event_conf.value != '0'"
+				white
+				@click="event_conf.value = '0'"
+				:icon="require('@/assets/icons/back_purple.svg')"
+			/>
+			<div class="list">
+				<div v-for="e in event_conf.listValues" :key="(e.value as string)">
+					<Button class="triggerBt"
+					white
+					v-if="event_conf.value == '0' || event_conf.value == e.value"
+					:title="e.label"
+					:icon="getIcon(e)"
+					@click="event_conf.value = e.value" />
+				</div>
+				<ParamItem :paramData="subevent_conf" v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1" />
+			</div>
+		</div>
+
+		<div class="triggerDescription" v-if="event_conf.value != '0'">{{triggerDescription}}</div>
+
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
-		<div class="ctas">
-			<Button title="Test trigger" class="cta" v-if="canTestAction" @click="testTrigger()" :icon="require('@/assets/icons/test.svg')" />
-			<Button title="Delete trigger" class="cta" v-if="canTestAction" @click="deleteTrigger()" highlight :icon="require('@/assets/icons/delete.svg')" />
+		<div class="ctas" v-if="canTestAction">
+			<Button title="Test trigger" class="cta" @click="testTrigger()" :icon="require('@/assets/icons/test.svg')" />
+			<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="require('@/assets/icons/delete.svg')" />
 		</div>
 
 		<TriggerActionChatCommandParams class="chatCmdParams"
@@ -53,7 +73,7 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
+import store, { ParameterData, ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
 import Config from '@/utils/Config';
 import { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket, { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -137,6 +157,41 @@ export default class TriggerActionList extends Vue {
 		}
 		return canTest;
 	}
+
+	public get triggerDescription():string|null {
+		const value = this.event_conf.value as string;
+		const item = this.event_conf.listValues?.find(v => v.value == value) as TriggerEventTypes|null;
+		if(item) {
+			return item.description as string;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets a trigger's icon
+	 */
+	public getIcon(e:ParameterDataListValue):string|null {
+		const map:{[key:string]:string} = {}
+		map[TriggerTypes.FIRST_ALL_TIME] = "firstTime_purple";
+		map[TriggerTypes.FIRST_TODAY] = "firstTime_purple";
+		map[TriggerTypes.POLL_RESULT] = "poll_purple";
+		map[TriggerTypes.PREDICTION_RESULT] = "prediction_purple";
+		map[TriggerTypes.RAFFLE_RESULT] = "ticket_purple";
+		map[TriggerTypes.BINGO_RESULT] = "bingo_purple";
+		map[TriggerTypes.CHAT_COMMAND] = "whispers_purple";
+		map[TriggerTypes.SUB] = "sub_purple";
+		map[TriggerTypes.SUBGIFT] = "gift_purple";
+		map[TriggerTypes.BITS] = "bits_purple";
+		map[TriggerTypes.FOLLOW] = "follow_purple";
+		map[TriggerTypes.RAID] = "raid_purple";
+		map[TriggerTypes.REWARD_REDEEM] = "channelPoints_purple";
+		map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = "music_purple";
+		
+		if(map[e.value as string]) {
+			return require('@/assets/icons/'+map[e.value as string]+".svg");
+		}
+		return null;
+	}
 	
 	public async mounted():Promise<void> {
 		watch(()=> OBSWebsocket.instance.connected, () => { this.listSources(); });
@@ -148,13 +203,13 @@ export default class TriggerActionList extends Vue {
 
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [
-			{label:"Select a trigger...", value:"0" },
+			// {label:"Select a trigger...", value:"0" },
 		];
 		events = events.concat(TriggerEvents);
 		if(!Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
 			events = events.filter(v => v.value != TriggerTypes.TRACK_ADDED_TO_QUEUE);
 		}
-		this.event_conf.value = events[0].value;
+		// this.event_conf.value = events[0].value;
 		this.event_conf.listValues = events;
 	}
 
@@ -443,6 +498,34 @@ export interface OBSChatCmdParameters extends PermissionsData {
 	flex-direction: column;
 	justify-content: center;
 
+	.menu {
+		display: flex;
+		flex-direction: row;
+		.list {
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+			
+			.triggerBt {
+				width: 100%;
+				margin-bottom: 2px;
+				box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+				:deep(.label) {
+					flex-grow: 1;
+				}
+			}
+		}
+	}
+
+	.triggerDescription {
+		font-size: .8em;
+		background-color: @mainColor_light;
+		padding: .5em;
+		border-radius: .5em;
+		text-align: center;
+		margin-top: 1em;
+	}
+
 	.sortable-chosen {
 		filter: grayscale() brightness(1.5);
 	}
@@ -487,12 +570,10 @@ export interface OBSChatCmdParameters extends PermissionsData {
 
 	.ctas {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		align-items: center;
+		justify-content: center;
 		margin-top: 1em;
-		.cta:not(:first-child) {
-			margin-top: .25em;
-		}
 	}
 
 	.chatCmdParams {
