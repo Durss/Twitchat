@@ -10,7 +10,7 @@
 		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
-			<div>This features needs you to connect with OBS.</div>
+			<div>This features needs you to connect with OBS or add Twitchat as an OBS dock.</div>
 			<Button class="button" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
 		</div>
 	</div>

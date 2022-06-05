@@ -5,26 +5,23 @@
 		<OverlayMusicPlayer class="player" v-if="currentTrack" @seek="(percent:number)=>onSeek(percent)" embed />
 
 		<div class="controls" v-if="currentTrack">
+			<Button white small class="bt" @click="showQueue = !showQueue" :icon="require('@/assets/icons/list_purple.svg')" />
 			<Button white small class="bt" @click="actionPlay()" :icon="require('@/assets/icons/play_purple.svg')" v-if="!playing" />
 			<Button white small class="bt" @click="actionPause()" :icon="require('@/assets/icons/pause_purple.svg')" v-if="playing" />
 			<Button white small class="bt" @click="actionNext()" :icon="require('@/assets/icons/next_purple.svg')" />
+			<VolumeBar class="volume" v-model="volume" />
 		</div>
 
-		<ToggleBlock class="queue"
-		:open="false"
-		:icons="['list']"
-		:title="'Queue ('+queue.length+')'"
-		v-if="queue && queue.length > 0"
-		small>
+		<div class="queue" v-if="showQueue">
 			<div v-for="(t, index) in queue" :key="t.id" class="item" @click="playQueueItem(index)">
 				<span class="artist">{{t.artist.name}}</span>
 				<span class="title">{{t.title}}</span>
 				<span class="duration">({{formatDuration(t.duration)}})</span>
 			</div>
-		</ToggleBlock>
+		</div>
 		
 		<div class="form">
-			<input type="text" placeholder="search..." v-model="search">
+			<input type="text" placeholder="search track..." v-model="search">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="searching">
 		</div>
 
@@ -54,21 +51,23 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import OverlayMusicPlayer from '../overlays/OverlayMusicPlayer.vue';
 import ParamItem from '../params/ParamItem.vue';
-import ToggleBlock from '../ToggleBlock.vue';
+import VolumeBar from '../VolumeBar.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		VolumeBar,
 		ParamItem,
-		ToggleBlock,
 		OverlayMusicPlayer,
 	}
 })
 export default class DeezerState extends Vue {
 
+	public volume:number = .8;
 	public search:string = "";
 	public searching:boolean = false;
+	public showQueue:boolean = false;
 	// public search_param:ParameterData = {type:"text", value:"salut", label:"Search track", placeholder:"search..."};
 	public searchResults:DeezerTrack[] = [];
 
@@ -87,7 +86,11 @@ export default class DeezerState extends Vue {
 			this.searchDebounce = setTimeout(()=> {
 				this.searchTrack();
 			}, 500);
-		})
+		});
+
+		watch(()=>this.volume, ()=> {
+			DeezerHelper.instance.setVolume(this.volume * 100);
+		});
 		this.searchTrack();
 	}
 
@@ -162,10 +165,14 @@ export default class DeezerState extends Vue {
 	}
 
 	.controls {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
 		margin:auto;
 		margin-bottom: .5em;
 		.bt {
 			height: 1em;
+			margin-right: .25em;
 		}
 	}
 
@@ -174,9 +181,12 @@ export default class DeezerState extends Vue {
 		max-width: 300px;
 		margin: auto;
 		margin-bottom: .5em;
+		border: 1px solid @mainColor_light;
+		border-radius: .25em;
+		padding: .25em;
 
 		.item {
-			font-size: .8em;
+			font-size: .7em;
 			cursor: pointer;
 			transition: background-color .2s ease;
             text-indent: -.5em;

@@ -52,6 +52,8 @@ export default class OverlayMusicPlayer extends Vue {
 	public isPlaying:boolean = false;
 	public progress:number = 0;
 
+	public get paused():boolean { return !DeezerHelper.instance.playing; }
+
 	private onTrackHandler!:(e:TwitchatEvent) => void;
 
 	public get classes():string[] {
@@ -100,19 +102,10 @@ export default class OverlayMusicPlayer extends Vue {
 		if(this.embed) {
 			//Called when track changes
 			watch(()=>DeezerHelper.instance.currentTrack, ()=>this.onTrackChangeLocal());
+			//Called when play/pause track
+			watch(()=>DeezerHelper.instance.playing, ()=>this.updateEmbedProgress());
 			//Called when seeking
-			watch(()=>DeezerHelper.instance.playbackPos, ()=>{
-				if(DeezerHelper.instance.currentTrack) {
-					let trackDuration = DeezerHelper.instance.currentTrack.duration * 1000;
-					const newProgress = ((DeezerHelper.instance.playbackPos*1000)/trackDuration);
-					this.progress = newProgress;
-					const duration = (trackDuration*(1-newProgress))/1000;
-					gsap.killTweensOf(this);
-					gsap.to(this, {duration, progress:1, ease:"linear"});
-				}else{
-					gsap.killTweensOf(this);
-				}
-			});
+			watch(()=>DeezerHelper.instance.playbackPos, ()=> this.updateEmbedProgress());
 			this.onTrackChangeLocal();
 		}
 	}
@@ -143,6 +136,19 @@ export default class OverlayMusicPlayer extends Vue {
 			gsap.to(this, {duration, progress:1, ease:"linear"});
 		}else{
 			this.isPlaying = false;
+		}
+	}
+
+	private updateEmbedProgress():void {
+		if(DeezerHelper.instance.currentTrack && DeezerHelper.instance.playing) {
+			let trackDuration = DeezerHelper.instance.currentTrack.duration * 1000;
+			const newProgress = ((DeezerHelper.instance.playbackPos*1000)/trackDuration);
+			this.progress = newProgress;
+			const duration = (trackDuration*(1-newProgress))/1000;
+			gsap.killTweensOf(this);
+			gsap.to(this, {duration, progress:1, ease:"linear"});
+		}else{
+			gsap.killTweensOf(this);
 		}
 	}
 

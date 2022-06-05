@@ -3,7 +3,7 @@
 
 		<div v-if="!deezerConnected">
 			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
-			<div class="infos">Deezer API being terribly bad, chances of having issues are high. AudioScheduledSourceNode, you'll have to reconnect again everytime.<br></div>
+			<div class="infos">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime.<br></div>
 		</div>
 		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" :loading="authenticating" />
 
@@ -26,7 +26,7 @@
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
 				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
 				<div>Click on the Deezer icon on the bottom right of the screen to add tracks, view the queue, and control the playback !</div>
-				<div class="infos">Deezer API being terribly bad, chances of having issues are high. AudioScheduledSourceNode, you'll have to reconnect again everytime.</div>
+				<div class="infos">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime.</div>
 			</div>
 			<Button v-if="deezerConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>

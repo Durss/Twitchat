@@ -325,6 +325,14 @@ export default class DeezerHelper {
 		DZ.player.seek(percent);
 	}
 
+	/**
+	 * Seek the volume
+	 * @param percent value between 0 and 100
+	 */
+	public setVolume(percent:number):void {
+		DZ.player.setVolume(percent);
+	}
+
 	
 	
 	/*******************
@@ -471,6 +479,7 @@ declare namespace DZ {
 		getTrackList():DeezerQueueItem[];
 		getCurrentIndex():number;
 		seek(percent:number):void;
+		setVolume(percent:number):void;
 	};
 
 	const Event:{
