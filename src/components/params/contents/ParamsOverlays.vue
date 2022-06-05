@@ -2,7 +2,7 @@
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
 		<div class="title">Add overlays to your stream</div>
-		<p class="infos">In order to work, the overlays need Twitchat to be running as they will need to comunicate with it</p>
+		<p class="infos">In order to work, the overlays need Twitchat to be running.</p>
 		<p class="beta">These are beta features that need more testing. If you have any issue with one of them <a :href="discordURL" target="_blank">please let me know on Discord</a></p>
 		
 		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
