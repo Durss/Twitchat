@@ -51,7 +51,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	if (!store.state.initComplete) {
 		try {
 			await new Promise((resolve) => {
-				store.dispatch("startApp", {authenticate:needAuth, callback:resolve});
+				store.dispatch("startApp", {authenticate:needAuth || to.name == "home", callback:resolve});
 			});
 		}catch(error) {
 			console.log(error);
