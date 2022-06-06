@@ -1,4 +1,5 @@
 import Config from "@/utils/Config";
+import { TriggerTypes } from "@/utils/TriggerActionHandler";
 import { JsonValue } from "type-fest";
 import store, { TriggerActionTypes, TriggerActionChatCommandData } from ".";
 
@@ -104,6 +105,10 @@ export default class Store {
 			//Trying to fix this here...
 			Store.remove("p:showPollPredResults");
 			v = "8";
+		}
+		if(v=="8") {
+			this.fixTriggersCase()
+			v = "9";
 		}
 
 		this.set("v", v);
@@ -269,7 +274,27 @@ export default class Store {
 			}
 			this.set("triggers", actions);
 			this.remove("obsConf_sources");
-			console.log("Triggers migrated");
 		}
+	}
+
+	/**
+	 * Lowercasing all chat command keys so the commands work
+	 * properly no matter how the user writes it.
+	 */
+	private static fixTriggersCase():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers = JSON.parse(txt);
+		for (const key in triggers) {
+			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0) {
+				//Check if it's not full lowercased
+				if(key != key.toLowerCase()) {
+					triggers[key.toLowerCase()] = triggers[key];
+					delete triggers[key];
+				}
+			}
+		}
+		
+		this.set("triggers", triggers);
 	}
 }

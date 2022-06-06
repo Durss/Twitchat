@@ -377,11 +377,11 @@ export default class TriggerActionList extends Vue {
 						if(a.chatCommand > b.chatCommand) return 1;
 						return 0;
 					}).map(v=> {
-						return { label:v.chatCommand as string, value:v.chatCommand }
+						return { label:v.chatCommand as string, value:v.chatCommand.toLowerCase() }
 					});
 					const select = commandList.find(v=>v.chatCommand == this.actionCategory.chatCommand);
 					if(select) {
-						this.subevent_conf.value = select.chatCommand;
+						this.subevent_conf.value = select.chatCommand.toLowerCase();
 					}
 				}else if(key == TriggerTypes.REWARD_REDEEM) {
 					defaultTitle = "Select reward...";
@@ -413,7 +413,7 @@ export default class TriggerActionList extends Vue {
 	private async onSelectsubTrigger():Promise<void> {
 		this.canSave = false;
 		let key = this.event_conf.value as string;
-		key += "_"+this.subevent_conf.value as string;
+		key += "_"+(this.subevent_conf.value as string).toLowerCase();
 		
 		//Load actions for the selected sub event
 		let json = store.state.triggers[key];

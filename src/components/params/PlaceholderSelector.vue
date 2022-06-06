@@ -20,6 +20,7 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		placeholders:Object,
 		target:Object,
+		modelValue:String,
 	},
 	components:{
 		ToggleBlock,

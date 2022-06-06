@@ -10,7 +10,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import SevenTVUtils from '@/utils/SevenTVUtils';
 import SpotifyHelper, { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
-import TriggerActionHandler, { TriggerTypes } from '@/utils/TriggerActionHandler';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
@@ -19,6 +19,8 @@ import { ChatUserstate, UserNoticeState } from 'tmi.js';
 import { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
 import Store from './Store';
+
+//TODO split that giant mess into sub stores
 
 export default createStore({
 	state: {
@@ -388,7 +390,6 @@ export default createStore({
 		
 		async addChatMessage(state, payload:IRCEventData) {
 			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper)[];
-			console.log("ADD CHAT MESSAGE", payload);
 			
 			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper
 			const uid:string|undefined = message?.tags['user-id'];
@@ -907,9 +908,9 @@ export default createStore({
 				if(value.data.length == 0) remove = true;
 			}
 			if(remove) {
-				delete state.triggers[value.key];
+				delete state.triggers[value.key.toLowerCase()];
 			}else{
-				state.triggers[value.key] = value.data;
+				state.triggers[value.key.toLowerCase()] = value.data;
 			}
 			Store.set("triggers", state.triggers);
 		},
@@ -1540,7 +1541,7 @@ export default createStore({
 					TriggerActionHandler.instance.onMessage(message);
 				}
 			}
-
+			
 			//Close the raffle
 			commit("onRaffleComplete", payload);
 		},

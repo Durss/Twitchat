@@ -593,9 +593,8 @@ export default class IRCClient extends EventDispatcher {
 			
 			if(json.type == "highlight") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
-			}else{
-				this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
 			}
+			this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
 
 			await Utils.promisedTimeout(50);
 		}

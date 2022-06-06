@@ -22,6 +22,7 @@ export default class PubSub extends EventDispatcher{
 	private reconnectTimeout!:number;
 	private hypeTrainApproachingTimer!:number;
 	private history:PubSubTypes.SocketMessage[] = [];
+	private raidTimeout!:number;
 	
 	constructor() {
 		super();
@@ -338,7 +339,10 @@ export default class PubSub extends EventDispatcher{
 
 		}else if(data.type == "raid_go_v2") {
 			if(store.state.params.features.stopStreamOnRaid.value === true) {
-				OBSWebsocket.instance.stopStreaming();
+				clearTimeout(this.raidTimeout)
+				this.raidTimeout = setTimeout(() => {
+					OBSWebsocket.instance.stopStreaming();
+				}, 1000);
 			}
 			store.dispatch("setRaiding", null);
 
