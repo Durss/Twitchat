@@ -275,7 +275,11 @@ export default class DeezerHelper {
 	public removeTrack(index:number):void {
 		const ids = this.queue.map(v=>parseInt(v.id));
 		ids.splice(index, 1);
-		DZ.player.playTracks(ids);
+		if(ids.length == 0) {
+			DZ.player.pause();
+		}else{
+			DZ.player.playTracks(ids);
+		}
 	}
 	
 	/**

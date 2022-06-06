@@ -388,6 +388,7 @@ export default createStore({
 		
 		async addChatMessage(state, payload:IRCEventData) {
 			let messages = state.chatMessages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper)[];
+			console.log("ADD CHAT MESSAGE", payload);
 			
 			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper
 			const uid:string|undefined = message?.tags['user-id'];
@@ -1431,21 +1432,28 @@ export default createStore({
 
 		updateParams({commit}) { commit("updateParams"); },
 
-		setPolls({state}, payload:TwitchTypes.Poll[]) {
+		setPolls({state}, payload:{data:TwitchTypes.Poll[], postOnChat?:boolean}) {
 			const list = state.activityFeed as ActivityFeedData[];
-			if(payload[0].status == "COMPLETED" || payload[0].status == "TERMINATED") {
-				if(list.findIndex(v=>v.type == "poll" && v.data.id == payload[0].id) == -1) {
-					const m:IRCEventDataList.PollResult = {
-						tags:{
-							id:IRCClient.instance.getFakeGuid(),
-							"tmi-sent-ts": Date.now().toString()},
-						type:"poll",
-						data:payload[0]
-					};
-					this.dispatch("addChatMessage", m);
+			if(payload.postOnChat === true) {
+				const poll = payload.data[0];
+				if(poll.status == "COMPLETED" || poll.status == "TERMINATED") {
+					if(list.findIndex(v=>v.type == "poll" && v.data.id == poll.id) == -1) {
+						console.log("POST POLL RESULT MESSAGE");
+						const m:IRCEventDataList.PollResult = {
+							tags:{
+								id:IRCClient.instance.getFakeGuid(),
+								"tmi-sent-ts": Date.now().toString()},
+							type:"poll",
+							data:poll
+						};
+						console.log("SET POLL MESSAGE", m);
+						this.dispatch("addChatMessage", m);
+						TriggerActionHandler.instance.onMessage(m);
+					}
 				}
 			}
-			state.currentPoll = payload.find(v => {
+			
+			state.currentPoll = payload.data.find(v => {
 				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
 			}) as  TwitchTypes.Poll;
 		},
@@ -1462,6 +1470,7 @@ export default createStore({
 						data:payload[0]
 					};
 					this.dispatch("addChatMessage", m);
+					TriggerActionHandler.instance.onMessage(m);
 				}
 			}
 			state.currentPrediction = payload.find(v => {

@@ -157,7 +157,7 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:number):Promise<boolean> {
-		let winnerVotes = 0;
+		let winnerVotes = -1;
 		message.data.choices.forEach(v=>{
 			if(v.votes > winnerVotes) {
 				winnerVotes = v.votes;

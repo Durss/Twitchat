@@ -316,13 +316,13 @@ export default class PubSub extends EventDispatcher{
 
 
 
-		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE") {
+		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
 			const localObj = data.data as PubSubTypes.PollData;
 			this.pollEvent(localObj)
 
 
 
-		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_TERMINATE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
+		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
 			TwitchUtils.getPolls();
 
 
@@ -538,8 +538,7 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
-		
-		store.dispatch("setPolls", [poll])
+		store.dispatch("setPolls", {postOnChat:true, data:[poll]})
 	}
 
 	/**

@@ -4,7 +4,7 @@
 		
 		<ProgressBar class="progress"
 			:percent="progressPercent"
-			:duration="this.poll.duration*1000"
+			:duration="poll.duration*1000"
 			v-if="poll.status == 'ACTIVE'" />
 		
 		<div class="choices">
@@ -80,7 +80,7 @@ export default class PollState extends Vue {
 	}
 
 	public mounted():void {
-		this.loadPolls();
+		// this.loadPolls();
 		const ellapsed = new Date().getTime() - new Date(this.poll.started_at).getTime();
 		const duration = this.poll.duration*1000;
 		const timeLeft = duration - ellapsed
@@ -88,10 +88,10 @@ export default class PollState extends Vue {
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 	}
 
-	private async loadPolls():Promise<void> {
-		if(this.disposed) return;
-		await TwitchUtils.getPolls();//This actually automatically refresh the storage
-	}
+	// private async loadPolls():Promise<void> {
+	// 	if(this.disposed) return;
+	// 	await TwitchUtils.getPolls();//This actually automatically refresh the storage
+	// }
 
 	public beforeUnmount():void {
 		this.disposed = true;

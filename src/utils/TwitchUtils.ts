@@ -496,14 +496,14 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
-			store.dispatch("setPolls", json.data);
+			store.dispatch("setPolls", {data:json.data});
 			return json.data;
 		}
 		throw(json);
 	}
 
 	/**
-	 * Get a list of the latest polls
+	 * Get a list of the latest polls and store any active one to the store
 	 */
 	public static async getPolls():Promise<TwitchTypes.Poll[]> {
 		const options = {
@@ -517,7 +517,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.TWITCH_API_PATH+"polls?broadcaster_id="+store.state.user.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			store.dispatch("setPolls", json.data);
+			store.dispatch("setPolls", {data:json.data});
 			return json.data;
 		}
 		throw(json);
@@ -543,7 +543,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			store.dispatch("setPolls", json.data);
+			store.dispatch("setPolls", {data:json.data});
 			return json.data;
 		}
 		throw(json);
