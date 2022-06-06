@@ -10,7 +10,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import PubSub, { PubSubTypes } from '@/utils/PubSub';
 import SevenTVUtils from '@/utils/SevenTVUtils';
 import SpotifyHelper, { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import TriggerActionHandler, { TriggerTypes } from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
@@ -1237,6 +1237,7 @@ export default createStore({
 									},
 								}
 								this.dispatch("addChatMessage", payload);
+								TriggerActionHandler.instance.onMessage(payload);
 							},0);
 						}
 					}
@@ -1486,7 +1487,54 @@ export default createStore({
 
 		stopRaffle({commit}) { commit("stopRaffle"); },
 
-		onRaffleComplete({commit}, payload:{publish:boolean, winner:WheelItem}) { commit("onRaffleComplete", payload); },
+		onRaffleComplete({commit, state}, payload:{publish:boolean, winner:WheelItem}) {
+			if(!state.raffle) {
+				//We end up here when doing a "sub" raffle.
+				//Users are not picked after sending a chat command but from
+				//our sub lists. As the raffle system is mostly made around
+				//chat commands, we need to create fake data to make it look
+				//like it's a classic raffle.
+				const winner:ChatUserstate = {
+					"display-name": payload.winner.label,
+					login: payload.winner.label,
+					id: payload.winner.id,
+				}
+				state.raffle = {
+					command:"__fakerafflecmd__",
+					duration:0,
+					maxUsers:0,
+					created_at:0,
+					users:[{user:winner, score:1}],
+					vipRatio:0,
+					followRatio:0,
+					subRatio:0,
+					subgitRatio:0,
+					winners:[winner],
+				}
+			}
+
+			//Send notification on the activity feed
+			if(state.raffle) {
+				const winner = state.raffle.users.find(v=> v.user.id == payload.winner.id);
+				if(winner) {
+					state.raffle.winners = [winner?.user];
+					//Post result on chat
+					const message:IRCEventDataList.RaffleResult = {
+						type:"raffle",
+						data:state.raffle as RaffleData,
+						tags: {
+							id:IRCClient.instance.getFakeGuid(),
+							"tmi-sent-ts": Date.now().toString()
+						},
+					}
+					this.dispatch("addChatMessage", message);
+					TriggerActionHandler.instance.onMessage(message);
+				}
+			}
+
+			//Close the raffle
+			commit("onRaffleComplete", payload);
+		},
 
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
 

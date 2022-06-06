@@ -25,8 +25,8 @@
 			<div class="row">
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
 				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
-				<div>Click on the Deezer icon on the bottom right of the screen to add tracks, view the queue, and control the playback !</div>
-				<div class="infos">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
+				<div class="infos">Click on the <strong>Deezer icon</strong> <img src="@/assets/icons/deezer_purple.svg" alt="deezer" class="icon"> on the bottom right of the screen to add tracks, view the queue, and control the playback !</div>
+				<div class="warning">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
 			</div>
 			<Button v-if="deezerConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
@@ -77,24 +77,10 @@ export default class OverlayParamsDeezer extends Vue {
 
 <style scoped lang="less">
 .OverlayParamsDeezer{
-	
-	.authBt, .loader {
+	.authBt {
 		display: block;
 		margin:auto;
 		margin-top: 1em;
-	}
-
-	.error {
-		justify-self: center;
-		color: @mainColor_light;
-		display: block;
-		text-align: center;
-		padding: 5px;
-		border-radius: 5px;
-		margin: auto;
-		margin-top: 10px;
-		background-color: @mainColor_alert;
-		cursor: pointer;
 	}
 
 	.content {
@@ -116,8 +102,17 @@ export default class OverlayParamsDeezer extends Vue {
 
 	.infos {
 		margin-top: .5em;
+	}
+
+	.warning {
+		margin-top: .5em;
 		font-size: .9em;
 		color: @mainColor_alert;
+	}
+
+	.icon {
+		height: 1em;
+		vertical-align: middle;
 	}
 
 }

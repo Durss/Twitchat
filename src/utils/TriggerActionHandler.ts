@@ -513,7 +513,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [
-		{tag:"WINNER", desc:"Winner name", pointer:"winner.user.display-name"},
+		{tag:"WINNER", desc:"Winner name", pointer:"winner.display-name"},
 	];
 	
 	map[TriggerTypes.CHAT_COMMAND] = [

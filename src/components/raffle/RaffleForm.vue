@@ -214,6 +214,7 @@ export default class RaffleForm extends Vue {
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 		}
 		if(this.wheelOverlayExists){
+			//A wheel overlay exists, ask it to animate
 			const list:WheelItem[] = this.subsFiltered.map(v=>{return{
 										id:v.user_id,
 										label:v.user_name,
@@ -227,6 +228,7 @@ export default class RaffleForm extends Vue {
 			this.loadingSubs = false;
 			
 		}else{
+			//No wheel overlay exist, create a pick animation here
 			gsap.to(increment, {value:100, ease:"sine.out", duration:5, onUpdate:()=> {
 				let rounded = Math.round(increment.value);
 				if(rounded != prevRounded) {
