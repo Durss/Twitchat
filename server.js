@@ -132,9 +132,12 @@ http.createServer((request, response) => {
 				if (err) {
 					if(request.url.toLowerCase().indexOf("oauth") == -1
 					&& request.url.toLowerCase().indexOf("chat") == -1
+					&& request.url.toLowerCase().indexOf("overlay") == -1
+					&& request.url.toLowerCase().indexOf("spotify") == -1
 					&& request.url.toLowerCase().indexOf("login") == -1) {
+						
 						console.error(
-							"Error serving " + request.url + " - " + err.message
+							"Error serving " + request.headers.host+request.url + " - " + err.message
 						);
 					}
 

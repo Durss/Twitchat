@@ -187,7 +187,6 @@ export default class Store {
 		this.remove("p:subsSize");
 		this.remove("p:subsOnly");
 		this.remove("p:slowMode");
-		this.remove("p:emotesOnly");
 		this.remove("p:ignoreSelf");
 		this.remove("p:hideEmotes");
 		this.remove("tmiToken");

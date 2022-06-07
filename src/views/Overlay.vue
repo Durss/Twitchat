@@ -31,6 +31,6 @@ export default class Overlay extends Vue {
 
 <style scoped lang="less">
 .overlay{
-	
+	height: 100%;
 }
 </style>
