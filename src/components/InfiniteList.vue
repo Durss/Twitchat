@@ -1,6 +1,6 @@
 <template>
 	<div class="infinitelist" @wheel="onWheel($event)">
-		<div v-for="(item, index) in items" :key="index" ref="item" class="ilist-item"
+		<div v-for="(item, index) in items" :key="index" class="list-item"
 		:style="getStyles(index)">
 			<slot
 				:item="item.data"
@@ -124,10 +124,9 @@ interface IListItem {
 <style scoped lang="less">
 .infinitelist{
 	position: relative;
-	.ilist-item {
+	.list-item {
 		width: 100%;
 		position: absolute;
-		// background-color: red;
 	}
 }
 </style>

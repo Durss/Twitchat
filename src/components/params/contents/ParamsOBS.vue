@@ -70,14 +70,6 @@
 		title="Control filters">
 			<OBSFilters />
 		</ToggleBlock> -->
-
-		<!-- <ToggleBlock class="block overlay"
-		v-if="connected"
-		:open="true"
-		:icons="['broadcast_purple']"
-		title="Twitchat triggers">
-			<TriggerActionList />
-		</ToggleBlock> -->
 	</div>
 </template>
 
@@ -95,7 +87,6 @@ import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
 import OBSFilters from './obs/OBSFilters.vue';
-import TriggerActionList from './triggers/TriggerActionList.vue';
 
 
 @Options({
@@ -107,7 +98,6 @@ import TriggerActionList from './triggers/TriggerActionList.vue';
 		OBSFilters,
 		ToggleBlock,
 		PermissionsForm,
-		TriggerActionList,
 		OBSAudioSourceForm,
 	},
 	emits:['setContent']

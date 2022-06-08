@@ -9,6 +9,8 @@
 					<ul>
 						<li>.vue3-infinite-list > .item { ... }</li>
 						<li>.vue3-infinite-list.selected > .item { ... }</li>
+						<li>.wheel-item { ... }</li>
+						<li>.list-item.selected > .wheel-item { ... }</li>
 					</ul>
 				</ToggleBlock>
 			</div>

@@ -177,7 +177,7 @@ export default class Login extends Vue {
 		}
 	}
 
-	private async generateCSRF():Promise<void> {
+	public async generateCSRF():Promise<void> {
 		this.generatingCSRF = true;
 		try {
 			const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});

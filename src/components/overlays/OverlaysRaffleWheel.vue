@@ -1,13 +1,13 @@
 <template>
 	<div class="overlaysrafflewheel">
-		<InfiniteList  class="list"
+		<InfiniteList class="list"
 		v-if="itemList.length > 0"
 		:dataset="itemList"
 		:itemSize="itemSize"
 		:scrollOffset="scrollOffset"
 		:style="listStyles"
 		v-slot="{ item }">
-			<div class="item">
+			<div class="wheel-item">
 				<span class="label">{{ item.label }}</span>
 			</div>
 		</InfiniteList>
@@ -168,7 +168,7 @@ export default class OverlaysRaffleWheel extends Vue {
 		if(id != this.rafID) return;
 		requestAnimationFrame(()=>this.renderFrame(id));
 
-		const items = this.$el.querySelectorAll(".ilist-item");
+		const items = this.$el.querySelectorAll(".list-item");
 		if(items.length == 0) return;
 
 		// if(items.length < this.itemsCount) {
@@ -251,8 +251,8 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.rafID ++;
 		await this.$nextTick();
 
-		const items = [...(this.$el as HTMLDivElement).querySelectorAll(".ilist-item")];
-		const selectedItem = (this.$el as HTMLDivElement).querySelector(".ilist-item.selected") as HTMLDivElement;
+		const items = [...(this.$el as HTMLDivElement).querySelectorAll(".list-item")];
+		const selectedItem = (this.$el as HTMLDivElement).querySelector(".list-item.selected") as HTMLDivElement;
 
 		gsap.set(selectedItem, {scale:"1", rotate:0, x:0, y:0});
 		gsap.from(selectedItem, {scaleY:"2", scaleX:"1.25", rotate:0, x:0, duration:1, delay:.5, immediateRender:false, ease:"elastic.out"});
@@ -269,7 +269,7 @@ export default class OverlaysRaffleWheel extends Vue {
 
 		//Tell twitchat animation completed
 		const data = {winner:this.winnerData as unknown} as JsonObject;
-		// PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
+		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
 	}
 }
 
@@ -297,9 +297,9 @@ export interface WheelData {
 		height: 100%;
 		max-width: 700px;
 		// overflow: hidden !important;
-		:deep(.ilist-item) {
+		:deep(.list-item) {
 			transform-origin: left center;
-			.item {
+			.wheel-item {
 				border-top-right-radius: 2em;
 				border-bottom-right-radius: 2em;
 				font-size: ~"calc(100vh / (@{numberOfItems}*2))";
@@ -309,7 +309,6 @@ export interface WheelData {
 				color: @mainColor_dark;
 				height: 100%;
 				background-color: @mainColor_light;
-				background-color: rgba(0, 0, 0, .2);
 				transition: all .5s;
 				will-change: transform;//Avoid text jittering
 				// border: @borderWidth solid @mainColor_dark;
@@ -326,7 +325,7 @@ export interface WheelData {
 			&.selected {
 				z-index: 1;
 				width: 100%;
-				&>.item {
+				&>.wheel-item {
 					margin-right: 0;
 					background-color: @mainColor_highlight_extralight;
 					@scaleAdd: 50%;

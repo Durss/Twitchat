@@ -25,7 +25,6 @@
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<TriggerActionList v-if="content == 'eventsAction'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
 				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
 				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
@@ -61,7 +60,6 @@ import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
-import TriggerActionList from './contents/triggers/TriggerActionList.vue';
 
 @Options({
 	props:{},
@@ -77,7 +75,6 @@ import TriggerActionList from './contents/triggers/TriggerActionList.vue';
 		ParamsOverlays,
 		ParamsTriggers,
 		ParamsStreamdeck,
-		TriggerActionList,
 	}
 })
 
@@ -149,7 +146,15 @@ export default class Parameters extends Vue {
 
 	public setContent(id:ParamsContenType):void {
 		if(this.search.length == 0) {
-			this.content = id;
+			if(id == this.content) {
+				//Refresh content if already active
+				this.content = null;
+				this.$nextTick().then(()=>{
+					this.content = id;
+				})
+			}else{
+				this.content = id;
+			}
 		}else{
 			//If a search is in progress, fake the prev content to
 			//the one selected and clear the search.
@@ -196,45 +201,55 @@ export default class Parameters extends Vue {
 .parameters{
 	.modal();
 
-	.menu {
-		text-align: center;
-		border-top: 1px solid @mainColor_normal;
-		margin-top: 20px;
-		.button {
-			background: transparent;
-			border: 1px solid @mainColor_normal;
-			border-top: none;
-			border-top-left-radius: 0;
-			border-top-right-radius: 0;
-			transform-origin: top;//So the bouncy effect looks better
-			&.selected {
-				background-color: @mainColor_normal_light;
+	.holder {
+		top: 0;
+		transform: translate(-50%, 0);
+		z-index: 2;
+
+		.menu {
+			text-align: center;
+			border-top: 1px solid @mainColor_normal;
+			margin-top: 20px;
+			.button {
+				background: transparent;
+				border: 1px solid @mainColor_normal;
+				border-top: none;
+				border-top-left-radius: 0;
+				border-top-right-radius: 0;
+				transform-origin: top;//So the bouncy effect looks better
+				&.selected {
+					background-color: @mainColor_normal;
+					&:hover {
+						color: @mainColor_normal;
+						background-color: fade(@mainColor_normal, 15%) !important;
+					}
+				}
 			}
 		}
-	}
 
-	.search{
-		margin:auto;
-		margin-top: 15px;
-		margin-bottom: -10px;
-		z-index: 1;
-	}
+		.search{
+			margin:auto;
+			margin-top: 15px;
+			margin-bottom: -10px;
+			z-index: 1;
+		}
 
-	.searchResult {
-		.noResult {
-			text-align: center;
-			font-style: italic;
+		.searchResult {
+			.noResult {
+				text-align: center;
+				font-style: italic;
+			}
+		}
+
+		.content {
+			//This avoids black space over sticky items inside the content
+			margin-top: 20px;
+			padding-top: 0;
 		}
 	}
 
 	.dimmer {
 		z-index: 1;
-	}
-
-	.holder {
-		top: 0;
-		transform: translate(-50%, 0);
-		z-index: 2;
 	}
 
 }

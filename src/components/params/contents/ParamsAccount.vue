@@ -37,11 +37,8 @@ export default class ParamsAccount extends Vue {
 	public get canInstall():boolean { return store.state.ahsInstaller != null || true; }
 
 	public logout():void {
-		Utils.confirm("Logout?", "All your parameters will be lost.").then(()=> {
-			Store.clear();
-			store.dispatch('logout');
-			this.$router.push({name:'logout'});
-		}).catch(()=> {});
+		store.dispatch('logout');
+		this.$router.push({name:'logout'});
 	}
 
 	public mounted():void {

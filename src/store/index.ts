@@ -967,8 +967,13 @@ export default createStore({
 	
 	actions: {
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
-			const res = await fetch(Config.API_PATH+"/configs");
-			const jsonConfigs = await res.json();
+			let jsonConfigs;
+			try {
+				const res = await fetch(Config.API_PATH+"/configs");
+				jsonConfigs = await res.json();
+			}catch(error) {
+				state.alert = "Unable to contact server :("
+			}
 			TwitchUtils.client_id = jsonConfigs.client_id;
 			Config.TWITCH_APP_SCOPES = jsonConfigs.scopes;
 			Config.SPOTIFY_SCOPES  = jsonConfigs.spotify_scopes;
