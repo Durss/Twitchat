@@ -119,7 +119,7 @@ export default class NewUsers extends Vue {
 
 	public get styles() {
 		return {
-			height: (this.windowHeight*100) + 'vh',
+			"max-height": (this.windowHeight*100) + 'vh',
 		}
 	}
 
