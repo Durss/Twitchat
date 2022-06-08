@@ -129,20 +129,20 @@ export default class Store {
 		clearTimeout(this.saveTO);
 		const access_token = store.state.oAuthToken?.access_token;
 		if(!access_token) return;
-
-		const data = JSON.parse(JSON.stringify(this.rawStore));
-		//Do not save sensitive data to server
-		delete data.obsPass;
-		delete data.oAuthToken;
-		delete data.spotifyAuthToken;
-		delete data.spotifyAppParams;
-		//Do not save this to the server to avoid config to be erased
-		//on one of the instances
-		delete data.hideChat;
-		delete data["p:shoutoutLabel"];
-		delete data.deezerEnabled;
 		
 		this.saveTO = setTimeout(async () => {
+			const data = JSON.parse(JSON.stringify(this.rawStore));
+			//Do not save sensitive data to server
+			delete data.obsPass;
+			delete data.oAuthToken;
+			delete data.spotifyAuthToken;
+			delete data.spotifyAppParams;
+			//Do not save this to the server to avoid config to be erased
+			//on one of the instances
+			delete data.hideChat;
+			delete data["p:shoutoutLabel"];
+			delete data.deezerEnabled;
+
 			let json = {
 				access_token,
 				data:data,

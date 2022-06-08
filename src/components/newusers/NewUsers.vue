@@ -1,5 +1,5 @@
 <template>
-	<div class="newusers" v-show="localMessages.length > 0">
+	<div class="newusers" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
 				:icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
@@ -69,11 +69,13 @@
 				@click.right.prevent="deleteMessage(m, index, true)" />
 		</div>
 		</transition-group>
+		<div class="grip" @mousedown="startDrag()"></div>
 	</div>
 </template>
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
+import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
@@ -102,18 +104,30 @@ export default class NewUsers extends Vue {
 	public indexOffset:number = 0;
 	public autoDeleteAfter:number = 600;
 	public deleteInterval:number = -1;
+	public windowHeight:number = .3;
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 
+	private resizing:boolean = false;
 	private streakMode:boolean = true;
 	private highlightState:{[key:string]:boolean} = {};
 
+	private mouseUpHandler!:(e:MouseEvent)=> void;
+	private mouseMoveHandler!:(e:MouseEvent)=> void;
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
+	public get styles() {
+		return {
+			height: (this.windowHeight*100) + 'vh',
+		}
+	}
+
 	public mounted():void {
 		const storeValue = Store.get("greetScrollDownAuto");
 		if(storeValue == "true") this.scrollDownAuto = true;
+		let height = Store.get("greetHeight")
+		if(height) this.windowHeight = parseFloat(height);
 
 		const autoDeleteStore = Store.get("greetAutoDeleteAfter");
 		if(autoDeleteStore != null) {
@@ -142,10 +156,12 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		// this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
+		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.mouseUpHandler = (e:MouseEvent) => this.resizing = false;
+		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
 		
 		//Listen for shift/Ctr keys to define if deleting in streak or single mode
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
@@ -160,6 +176,8 @@ export default class NewUsers extends Vue {
 
 		document.addEventListener("keydown", this.keyboardEventHandler);
 		document.addEventListener("keyup", this.keyboardEventHandler);
+		document.addEventListener("mouseup", this.mouseUpHandler);
+		document.addEventListener("mousemove", this.mouseMoveHandler);
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
@@ -169,9 +187,29 @@ export default class NewUsers extends Vue {
 		clearInterval(this.deleteInterval);
 		document.removeEventListener("keydown", this.keyboardEventHandler);
 		document.removeEventListener("keyup", this.keyboardEventHandler);
+		document.removeEventListener("mouseup", this.mouseUpHandler);
+		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
+	}
+
+	/**
+	 * Called when starting window resize
+	 */
+	public startDrag():void {
+		this.resizing = true;
+	}
+
+	/**
+	 * Called when the mouse moves
+	 */
+	private onMouseMove(e:MouseEvent):void {
+		if(!this.resizing) return;
+		const py = e.clientY;
+		const bounds = ((this.$el as  HTMLDivElement).parentElement as  HTMLDivElement).getBoundingClientRect();
+		this.windowHeight = (py - bounds.top) / bounds.height;
+		Store.set("greetHeight", this.windowHeight);
 	}
 
 	/**
@@ -389,6 +427,9 @@ export default class NewUsers extends Vue {
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
+	min-height: 120px;
+	max-height: 60vh;
+	z-index: 1;
 
 	.header {
 		padding: 10px 0;
@@ -485,6 +526,15 @@ export default class NewUsers extends Vue {
 				transform: scaleY(0);
 			}
 		}
+	}
+
+	.grip {
+		height: 10px;
+		width: 100%;
+		position: absolute;
+		bottom: -6px;
+		// background-color: fade(red, 50%);
+		cursor: ns-resize;
 	}
 
 }
