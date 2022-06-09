@@ -192,6 +192,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case "reward":{
+				this.messageText = "";
 				const localObj = this.messageData.reward as PubSubTypes.RewardData;
 				res = localObj.redemption.user.display_name;
 				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
@@ -209,6 +210,7 @@ export default class ChatHighlight extends Vue {
 				if(this.messageData.reward?.redemption.user_input) {
 					this.messageText += this.messageData.reward?.redemption.user_input;
 				}
+				console.log(this.messageText);
 				let chunks = TwitchUtils.parseEmotes(this.messageText, "", false, true);
 				let result = "";
 				for (let i = 0; i < chunks.length; i++) {
