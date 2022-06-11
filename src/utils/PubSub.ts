@@ -76,6 +76,7 @@ export default class PubSub extends EventDispatcher{
 				"whispers."+uid,
 				"chatrooms-user-v1."+uid,//TO or ban events
 				"ad-property-refresh."+uid,
+				"stream-chat-room-v1."+uid,//Host events or extension messages
 				// "user-drop-events."+uid,
 				// "community-points-user-v1."+uid,
 				// "presence."+uid,
@@ -313,6 +314,31 @@ export default class PubSub extends EventDispatcher{
 			if(store.state.params.filters.showRewards.value) {
 				const localObj = data.data as  PubSubTypes.RewardData;
 				this.rewardEvent(localObj);
+			}
+
+
+
+		}else if(data.type == "extension_message") {
+			//Manage extension messages
+			const mess = data.data as PubSubTypes.ExtensionMessage;
+			if(mess.content) {
+				const badges:{[key:string]:string} = {};
+				for (let i = 0; i < mess.sender.badges.length; i++) {
+					const b = mess.sender.badges[i];
+					badges[b.id] = b.version;
+				}
+				const tags:IRCTagsExtended = {
+					"username": mess.sender.display_name,
+					"color": mess.sender.chat_color,
+					"display-name": mess.sender.display_name,
+					"id": mess.id,
+					"user-id": mess.sender.extension_client_id,
+					"tmi-sent-ts": new Date(mess.sent_at).getTime().toString(),
+					"message-type": "chat",
+					"room-id": store.state.user.user_id,
+					"badges": badges,
+				};
+				IRCClient.instance.addMessage(mess.content.text, tags, false);
 			}
 
 
@@ -1252,6 +1278,25 @@ export namespace PubSubTypes {
 			last_marked_not_spam: number
 		},
 		whitelisted_until: string
+	}
+
+	export interface ExtensionMessage {
+		id: string;
+		sent_at: string;
+		content: {
+			text: string
+			fragments: string[]
+		},
+		sender: {
+			extension_client_id: string;
+			extension_version: string;
+			display_name:  string;
+			chat_color: string;
+			badges: {
+					id: string;
+					version: string;
+				}[]
+		}
 	}
 }
 
