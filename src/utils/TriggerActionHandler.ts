@@ -60,17 +60,39 @@ export default class TriggerActionHandler {
 		const message = this.actionsSpool[0];
 		if(!message) return;
 
+		// console.log("Execute next", message);
+
 		if((message.type == "message" || message.type == "highlight")) {
 			switch(message.tags["msg-id"]) {
-				case "follow": this.handleFollower(message, testMode, this.currentSpoolGUID); return;
+				case "follow": {
+					if(await this.handleFollower(message, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
 
 				case "sub": 
 				case "resub": 
-				case "giftpaidupgrade": this.handleSub(message, testMode, this.currentSpoolGUID); return;
+				case "giftpaidupgrade": {
+					if(await this.handleSub(message, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
 				
-				case "subgift": this.handleSubgift(message, testMode, this.currentSpoolGUID); return;
+				case "subgift": {
+					if(await this.handleSubgift(message, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
 
-				case "raid": this.handleRaid(message, testMode, this.currentSpoolGUID); return;
+				case "raid": {
+					if(await this.handleRaid(message, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
 			}
 
 			if(message.reward) {
@@ -107,18 +129,22 @@ export default class TriggerActionHandler {
 			}
 		
 		}else if(message.type == "poll") {
-			this.handlePoll(message, testMode, this.currentSpoolGUID);
-			return;
+			if(await this.handlePoll(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		
 		}else if(message.type == "bingo") {
-			this.handleBingo(message, testMode, this.currentSpoolGUID);
-			return;
+			if(await this.handleBingo(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 
 		}else if(message.type == "raffle") {
-			this.handleRaffle(message, testMode, this.currentSpoolGUID);
-			return;
+			if(await this.handleRaffle(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
+		// console.log("Message not matching any trigger", message);
 		this.actionsSpool.shift();
 		this.executeNext();
 	}
@@ -133,27 +159,27 @@ export default class TriggerActionHandler {
 	}
 
 	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
 	
 	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
 	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
 	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
 	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
 	private async handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:number):Promise<boolean> {
@@ -164,7 +190,7 @@ export default class TriggerActionHandler {
 				message.winner = v.title;
 			}
 		});
-		return this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, guid);
 	}
 	
 	private async handlePrediction(message:IRCEventDataList.PredictionResult, testMode:boolean, guid:number):Promise<boolean> {
@@ -173,26 +199,26 @@ export default class TriggerActionHandler {
 				message.winner = v.title;
 			}
 		});
-		return this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, guid);
 	}
 	
 	private async handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:number):Promise<boolean> {
 		message.winner = message.data.winners[0];
-		return this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, guid);
 	}
 	
 	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:number):Promise<boolean> {
 		message.winner = message.data.winners[0];
-		return this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
 	}
 	
 	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		return this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
+		return await this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
 	}
 	
 	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
 		const cmd = message.message.trim().split(" ")[0].toLowerCase();
-		return this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
+		return await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
 	}
 	
 	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
@@ -215,6 +241,8 @@ export default class TriggerActionHandler {
 	 * @param message 
 	 */
 	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
+		// if(message.message == "OKKKKééé") return true;
+		// subEvent = "!test"
 		if(subEvent) eventType += "_"+subEvent
 		const steps = store.state.triggers[ eventType ];
 		if(!steps) {
@@ -255,8 +283,9 @@ export default class TriggerActionHandler {
 			// console.log(canExecute);
 			
 			if(canExecute) {
+				// console.log("Parse steps", actions);
 				for (let i = 0; i < actions.length; i++) {
-					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec
+					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
 					const step = actions[i];
 					//Handle OBS action
 					if(step.type == "obs") {
@@ -273,9 +302,9 @@ export default class TriggerActionHandler {
 						}
 			
 						if(step.filterName) {
-							OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+							await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
 						}else{
-							OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
+							await OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
 						}
 					}else
 					
@@ -361,9 +390,12 @@ export default class TriggerActionHandler {
 						}
 					}
 
-					await Utils.promisedTimeout(step.delay * 1000);
+					if(step.delay > 0){
+						await Utils.promisedTimeout(step.delay * 1000);
+					}
 				}
 			}
+			// console.log("Steps parsed", actions);
 		}
 
 		//Remove item done

@@ -354,7 +354,6 @@ export default class NewUsers extends Vue {
 		const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
 		const prev = (py - bounds.top) / bounds.height;
 		const next = (boundsEl.height - bounds.top) / bounds.height;
-		console.log((prev-next)*100);
 		this.maxHeightPos = boundsEl.height;
 		this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
 
