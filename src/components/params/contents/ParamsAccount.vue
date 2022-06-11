@@ -14,8 +14,6 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import router from '@/router';
 import store, { ParameterCategory, ParameterData } from '@/store';
-import Store from '@/store/Store';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';

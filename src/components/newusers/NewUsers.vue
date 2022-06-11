@@ -75,7 +75,6 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
@@ -117,7 +116,7 @@ export default class NewUsers extends Vue {
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
-	public get styles() {
+	public get styles():{[key:string]:string} {
 		return {
 			"max-height": (this.windowHeight*100) + 'vh',
 		}
@@ -156,11 +155,11 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
+		// this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
-		this.mouseUpHandler = (e:MouseEvent) => this.resizing = false;
+		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
 		
 		//Listen for shift/Ctr keys to define if deleting in streak or single mode
@@ -219,6 +218,12 @@ export default class NewUsers extends Vue {
 		const maxLength = 100;
 		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
 		if(m.type != "message" && m.type != "highlight") return;
+		const login = m.tags.login? m.tags.login : m.tags.username;
+		//Ignore self messages
+		if(login == m.channel.substring(1)) return;
+		//Ignore bot messages
+		if(IRCClient.instance.botsLogins.indexOf(login.toLowerCase()) > -1) return;
+		
 		if(m.firstMessage) this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
 			this.localMessages = this.localMessages.slice(-maxLength);
@@ -535,6 +540,7 @@ export default class NewUsers extends Vue {
 		bottom: -6px;
 		// background-color: fade(red, 50%);
 		cursor: ns-resize;
+		user-select: none;
 	}
 
 }

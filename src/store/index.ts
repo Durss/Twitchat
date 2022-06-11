@@ -580,7 +580,6 @@ export default createStore({
 						//Broadcast to OBS-Ws
 						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
 					}
-					
 				}
 			}
 
@@ -1444,7 +1443,6 @@ export default createStore({
 				const poll = payload.data[0];
 				if(poll.status == "COMPLETED" || poll.status == "TERMINATED") {
 					if(list.findIndex(v=>v.type == "poll" && v.data.id == poll.id) == -1) {
-						console.log("POST POLL RESULT MESSAGE");
 						const m:IRCEventDataList.PollResult = {
 							tags:{
 								id:IRCClient.instance.getFakeGuid(),
@@ -1452,7 +1450,6 @@ export default createStore({
 							type:"poll",
 							data:poll
 						};
-						console.log("SET POLL MESSAGE", m);
 						this.dispatch("addChatMessage", m);
 						TriggerActionHandler.instance.onMessage(m);
 					}

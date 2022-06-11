@@ -94,6 +94,7 @@ export default class Parameters extends Vue {
 
 	public async beforeMount():Promise<void> {
 		const v = store.state.tempStoreValue as string;
+		console.error("test")
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page

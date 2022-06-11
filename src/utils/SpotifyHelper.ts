@@ -229,7 +229,7 @@ export default class SpotifyHelper {
 		}
 		
 		let json:SpotifyTrack|null = await res.json();
-		if(json != null) {
+		if(json?.item) {
 			if(json.currently_playing_type == "episode") {
 				const episode = await this.getEpisodeInfos();
 				if(episode) json = episode;

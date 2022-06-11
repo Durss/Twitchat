@@ -805,6 +805,7 @@ const UserDataSchema = {
 		greetScrollDownAuto: {type:"boolean"},
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
+		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
 	}
 }

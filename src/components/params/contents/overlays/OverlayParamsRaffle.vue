@@ -7,10 +7,8 @@
 				<ToggleBlock small title="CSS customization" :open="false">
 					<div>You can change the appearance of the wheel by overriding these CSS values on OBS browser source params</div>
 					<ul>
-						<li>.vue3-infinite-list > .item { ... }</li>
-						<li>.vue3-infinite-list.selected > .item { ... }</li>
 						<li>.wheel-item { ... }</li>
-						<li>.list-item.selected > .wheel-item { ... }</li>
+						<li>.wheel-item.selected { ... }</li>
 					</ul>
 				</ToggleBlock>
 			</div>

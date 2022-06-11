@@ -141,7 +141,6 @@ export default class ChatAd extends Vue {
 	}
 
 	public openParamPage(page:string):void {
-		console.log("OPEN PARAM", page);
 		store.state.tempStoreValue = "CONTENT:"+page;
 		store.dispatch("showParams", true);
 	}

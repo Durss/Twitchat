@@ -21,7 +21,7 @@ export default class Utils {
 	 * Shuffles an array
 	 * Modifies the original array
 	 */
-	public static shuffle(a: any[]): any[] {
+	public static shuffle<T>(a: T[]): T[] {
 		for (let i = a.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
 			[a[i], a[j]] = [a[j], a[i]];

@@ -82,12 +82,12 @@ export default class OverlaysRaffleWheel extends Vue {
 		// 	list.push({id, label:i+"wwwwwwwwwwwwwwwwwwwwwwww", data:{id}});
 		// }
 		list.push({id:"1", label:"Jujulasurprise", data:{id:"1"}});
-		list.push({id:"2", label:"elodieshare", data:{id:"2"}});
-		list.push({id:"3", label:"AnneSo_Alia", data:{id:"3"}});
-		list.push({id:"4", label:"filanie_couture", data:{id:"4"}});
-		list.push({id:"5", label:"Virtalia", data:{id:"5"}});
-		list.push({id:"6", label:"maounbuntu", data:{id:"6"}});
-		list.push({id:"7", label:"Notablueta", data:{id:"7"}});
+		// list.push({id:"2", label:"elodieshare", data:{id:"2"}});
+		// list.push({id:"3", label:"AnneSo_Alia", data:{id:"3"}});
+		// list.push({id:"4", label:"filanie_couture", data:{id:"4"}});
+		// list.push({id:"5", label:"Virtalia", data:{id:"5"}});
+		// list.push({id:"6", label:"maounbuntu", data:{id:"6"}});
+		// list.push({id:"7", label:"Notablueta", data:{id:"7"}});
 		list.push({id:"8", label:"Hootie_L", data:{id:"8"}});
 		list.push({id:"9", label:"Durss", data:{id:"9"}});
 		this.winnerData = {id:"8", label:"Hootie_L", data:{id:"8"}};
@@ -229,9 +229,11 @@ export default class OverlaysRaffleWheel extends Vue {
 		&& this.prevBiggestItem != biggestItem
 		&& this.prevBiggestItem.classList.contains("selected")) {
 			this.prevBiggestItem.classList.remove("selected");
+			this.prevBiggestItem.getElementsByClassName("wheel-item")[0].classList.remove("selected");
 		}
 		if(biggestItem) {
 			biggestItem.classList.add("selected");
+			biggestItem.getElementsByClassName("wheel-item")[0].classList.add("selected");
 			this.prevBiggestItem = biggestItem;
 		}
 	}

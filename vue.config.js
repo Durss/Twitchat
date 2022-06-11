@@ -1,8 +1,8 @@
-const path = require('path');
-
 module.exports = {
+	// productionSourceMap: true,
 
 	configureWebpack: {
+		// devtool: 'cheap-module-eval-source-map',
 		resolve: {
 			alias: {
 				'@': __dirname + '/src'
@@ -28,6 +28,7 @@ module.exports = {
 	},
 
 	css: {
+		sourceMap:true,
 		loaderOptions: {
 			less: {
 				//Requires proper version of less-loader to work. Tested with 7.0.1
