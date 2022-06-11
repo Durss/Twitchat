@@ -125,7 +125,7 @@ export default class RaffleState extends Vue {
 		if(this.wheelOverlayExists){
 			const list:WheelItem[] = this.raffleData.users.map((v:RaffleVote):WheelItem=>{
 										return {
-											id:winner.user.id as string,
+											id:v.user.id as string,
 											label:v.user['display-name'] as string,
 											data:v.user
 										}
