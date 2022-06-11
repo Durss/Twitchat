@@ -70,6 +70,7 @@
 		</div>
 		</transition-group>
 		<div class="grip" @mousedown="startDrag()"></div>
+		<div class="gripMax" v-if="showMaxHeight" :style="maxHeightStyles">Max height</div>
 	</div>
 </template>
 
@@ -99,11 +100,14 @@ export default class NewUsers extends Vue {
 
 	public overIndex:number = -1;
 	public showList:boolean = true;
+	public showMaxHeight:boolean = false;
 	public scrollDownAuto:boolean = false;
 	public indexOffset:number = 0;
 	public autoDeleteAfter:number = 600;
 	public deleteInterval:number = -1;
 	public windowHeight:number = .3;
+	public maxHeightPos:number = 0;
+	public maxHeightSize:number = 0;
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 
 	private resizing:boolean = false;
@@ -119,6 +123,13 @@ export default class NewUsers extends Vue {
 	public get styles():{[key:string]:string} {
 		return {
 			"max-height": (this.windowHeight*100) + 'vh',
+		}
+	}
+
+	public get maxHeightStyles():{[key:string]:string} {
+		return {
+			top: this.maxHeightPos + 'px',
+			height: this.maxHeightSize + 'px',
 		}
 	}
 
@@ -159,7 +170,7 @@ export default class NewUsers extends Vue {
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
-		this.mouseUpHandler = () => this.resizing = false;
+		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
 		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
 		
 		//Listen for shift/Ctr keys to define if deleting in streak or single mode
@@ -198,17 +209,6 @@ export default class NewUsers extends Vue {
 	 */
 	public startDrag():void {
 		this.resizing = true;
-	}
-
-	/**
-	 * Called when the mouse moves
-	 */
-	private onMouseMove(e:MouseEvent):void {
-		if(!this.resizing) return;
-		const py = e.clientY;
-		const bounds = ((this.$el as  HTMLDivElement).parentElement as  HTMLDivElement).getBoundingClientRect();
-		this.windowHeight = (py - bounds.top) / bounds.height;
-		Store.set("greetHeight", this.windowHeight);
 	}
 
 	/**
@@ -340,6 +340,29 @@ export default class NewUsers extends Vue {
 	}
 
 	/**
+	 * Called when the mouse moves
+	 */
+	private async onMouseMove(e:MouseEvent):Promise<void> {
+		if(!this.resizing) return;
+		const py = e.clientY;
+		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
+		const maxHeight = .6;
+		this.windowHeight = Math.min(maxHeight, (py - bounds.top) / bounds.height);
+		
+		await this.$nextTick();
+
+		const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
+		const prev = (py - bounds.top) / bounds.height;
+		const next = (boundsEl.height - bounds.top) / bounds.height;
+		console.log((prev-next)*100);
+		this.maxHeightPos = boundsEl.height;
+		this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
+
+		this.showMaxHeight = (prev-next)*100 > 2;
+		Store.set("greetHeight", this.windowHeight);
+	}
+
+	/**
 	 * Called when rolling out of an item
 	 */
 	public onMouseOut():void {
@@ -432,7 +455,7 @@ export default class NewUsers extends Vue {
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
-	min-height: 120px;
+	min-height: calc(75px + 1.5em);
 	max-height: 60vh;
 	z-index: 1;
 
@@ -541,6 +564,22 @@ export default class NewUsers extends Vue {
 		// background-color: fade(red, 50%);
 		cursor: ns-resize;
 		user-select: none;
+	}
+
+	.gripMax {
+		width: 100%;
+		position: absolute;
+		top: 0;
+		font-size: 10px;
+		text-transform: uppercase;
+		cursor: ns-resize;
+		user-select: none;
+		color: @mainColor_light;
+		border-bottom: 1px dashed @mainColor_light;
+		background-color: fade(@windowStateColor,20%);
+		display: flex;
+		align-items: flex-end;
+		padding-bottom: 5px;
 	}
 
 }
