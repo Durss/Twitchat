@@ -317,7 +317,7 @@ export default class TwitchUtils {
 			//Parse all the current cheermote matches
 			for (let k = 0; k < matches.length; k++) {
 				const m = matches[k];
-				const bitsCount = parseInt(m.replace(list.prefix, ""));
+				const bitsCount = parseInt(m.toLowerCase().replace(list.prefix.toLowerCase(), ""));
 				let tiers = list.tiers[0];
 				//Search for the lower nearest existing tier with the specified value
 				for (let i = 1; i < list.tiers.length; i++) {
@@ -326,7 +326,6 @@ export default class TwitchUtils {
 						break;
 					}
 				}
-				
 				let img = tiers.images.dark.animated["2"];
 				if(!img) img = tiers.images.dark.static["2"];
 				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), "<img src='"+img+"' class='cheermote'>")
