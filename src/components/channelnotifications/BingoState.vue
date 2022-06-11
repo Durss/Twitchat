@@ -50,7 +50,7 @@ export default class BingoState extends Vue {
 	}
 
 	public closeBingo():void {
-		store.dispatch("startBingo", {});
+		store.dispatch("stopBingo");
 		this.$emit("close");
 	}
 
@@ -114,6 +114,7 @@ export default class BingoState extends Vue {
 
 	.deleteBt {
 		margin-top: 20px;
+		min-height: 2em;
 	}
 
 }
