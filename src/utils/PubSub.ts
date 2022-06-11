@@ -83,7 +83,7 @@ export default class PubSub extends EventDispatcher{
 				// "user-properties-update."+uid,
 				// "onsite-notifications."+uid,
 
-				// "low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
+				"low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
 				// "stream-change-v1."+store.state.user.user_id,
 			];
 			if(IRCClient.instance.debugMode) {

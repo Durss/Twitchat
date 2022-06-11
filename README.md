@@ -22,7 +22,7 @@ Documentation can be found [here](PUBLIC_API.md).
 <br>
 
 # Features
-- [x] Create your own sub/follow/rewards/poll/... alerts with the OBS trigger system that allows to control your OBS sources and filters when an event occurs
+- [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify or Deezer when an event occurs
 - [x] Display the first message of users seperatly so you don't forget to greet them
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
@@ -59,10 +59,10 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Expose an API to control some stuff remotely
 - [x] Stream Deck plugin
 - [x] Chat poll feature: kind of a poll where your viewers decide its options
+- [x] Handles "low trust" feature ([more info](https://help.twitch.tv/s/article/ban-evasion))
 <br>
 
 - [ ] Request scopes on-demand
-- [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
 <br>
 <br>
 <br>

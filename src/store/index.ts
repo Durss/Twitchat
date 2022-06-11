@@ -835,22 +835,27 @@ export default createStore({
 
 		setHypeTrain(state, data:HypeTrainStateData) { state.hypeTrain = data; },
 
-		flagLowTrustMessage(state, data:PubSubTypes.LowTrustMessage) {
+		flagLowTrustMessage(state, payload:{data:PubSubTypes.LowTrustMessage, retryCount?:number}) {
 			//Ignore message if user is "restricted"
-			if(data.low_trust_user.treatment == 'RESTRICTED') return;
+			if(payload.data.low_trust_user.treatment == 'RESTRICTED') return;
 
 			const list = (state.chatMessages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
-				if(m.tags.id == data.message_id) {
+				if(m.tags.id == payload.data.message_id) {
 					list[i].lowTrust = true;
 					return;
 				}
 			}
 
-			//TODO if reaching this point that means the message was not found.
-			//theorically the "low trust" message might arrive before the message itself.
-			//We may want to handle such case.
+			//IF reaching this point, it's most probably because 
+			if(payload.retryCount != 5) {
+				const retryCount = payload.retryCount? payload.retryCount++ : 1;
+				setTimeout(()=>{
+					//@ts-ignore (typings seems wrong, this line is actually correct)
+					this.commit("flagLowTrustMessage", {data:payload.data, retryCount})
+				}, 100);
+			}
 		},
 
 		canSplitView(state, value:boolean) { state.canSplitView = value; },
@@ -1562,7 +1567,7 @@ export default createStore({
 
 		setHypeTrain({commit}, data:HypeTrainStateData) { commit("setHypeTrain", data); },
 
-		flagLowTrustMessage({commit}, data:PubSubTypes.LowTrustMessage) { commit("flagLowTrustMessage", data); },
+		flagLowTrustMessage({commit}, data:PubSubTypes.LowTrustMessage) { commit("flagLowTrustMessage", {data:data}); },
 
 		canSplitView({commit}, value:boolean) { commit("canSplitView", value); },
 
