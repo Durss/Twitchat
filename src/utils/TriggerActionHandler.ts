@@ -454,12 +454,17 @@ export default class TriggerActionHandler {
 
 			//If it's a music placeholder, replace it by the current music info
 			if(h.tag.indexOf("CURRENT_TRACK") == 0) {
-				if(Config.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
-					value = SpotifyHelper.instance.currentTrack[h.pointer];
-				}else if(Config.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
-					value = DeezerHelper.instance.currentTrack[h.pointer];
+				if(message.type == "music") {
+					value = message[h.pointer];
 				}else{
-					value = "-none-";
+
+					if(Config.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
+						value = SpotifyHelper.instance.currentTrack[h.pointer];
+					}else if(Config.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
+						value = DeezerHelper.instance.currentTrack[h.pointer];
+					}else{
+						value = "-none-";
+					}
 				}
 			}
 			
