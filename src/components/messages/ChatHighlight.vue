@@ -356,13 +356,12 @@ export default class ChatHighlight extends Vue {
 	}
 
 	&.tracked {
-		@c1:fade(@mainColor_warn_extralight,5%);
-		@c2:fade(@mainColor_warn_extralight,10%);
-		// background-color: @c1;
-		@s1:5px;
-		@s2:10px;
-		background-image: repeating-linear-gradient(90deg, @c1, @c1 @s1, @c2 @s1, @c2 @s2);
-		border-left: 5px solid @mainColor_warn_extralight;
+		border-image-slice: 1;
+		border-left: .6em solid rgba(255, 255, 255, 1);
+		background-color: rgba(255, 255, 255, .2);
+		.message {
+			color: #fff;
+		}
 	}
 
 	.time {

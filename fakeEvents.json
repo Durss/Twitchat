@@ -219,7 +219,7 @@
     "subscription": {
         "type": "highlight",
         "channel": "#littlebigwhale",
-        "username": "Ednoms",
+        "username": "Durssbot",
         "methods": {
             "prime": true,
             "plan": "Prime",
@@ -234,11 +234,11 @@
                 "premium": "1"
             },
             "color": "#1690F3",
-            "display-name": "Ednoms",
+            "display-name": "Durssbot",
             "emotes": null,
             "flags": null,
             "id": "639779e0-37b0-4e31-9045-2ee8f21f0b34",
-            "login": "ednoms",
+            "login": "Durssbot",
             "mod": false,
             "msg-id": "sub",
             "msg-param-cumulative-months": true,
@@ -249,11 +249,11 @@
             "msg-param-sub-plan-name": "Be a Little Whale !",
             "msg-param-sub-plan": "Prime",
             "msg-param-was-gifted": "false",
-            "room-id": "121652526",
+            "room-id": "29961813",
             "subscriber": true,
-            "system-msg": "Ednoms subscribed with Prime.",
+            "system-msg": "Durssbot subscribed with Prime.",
             "tmi-sent-ts": "1642377377050",
-            "user-id": "69044334",
+            "user-id": "647389082",
             "user-type": null,
             "emotes-raw": null,
             "badge-info-raw": "subscriber/0",
@@ -675,7 +675,6 @@
             "ended_at": "2022-02-17T19:11:30.109908422Z",
             "locked_at": "2022-02-17T19:11:24.804100656Z"
         },
-        "showHoverActions": false,
         "markedAsRead": false
     },
 	"presentation": {
@@ -707,8 +706,7 @@
 		"channel": "#redalicecreations",
 		"self": false,
 		"firstMessage": false,
-		"hasMention": false,
-		"showHoverActions": false
+		"hasMention": false
 	},
 	"commercial":{
 		"type": "notice",

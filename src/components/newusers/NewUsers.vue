@@ -35,40 +35,42 @@
 			</div>
 		</div>
 		
-		<transition-group name="fade"
+		<!-- <transition-group name="fade"
 			v-if="showList"
 			tag="div"
 			ref="messageList"
 			class="messageList"
 			@leave="(el, done)=>leave(el, done)"
-		>
-		<div v-for="(m,index) in localMessages" :key="m.tags.id">
-			<ChatMessage
-				class="message"
-				ref="message"
-				v-if="m.type == 'message'"
-				:messageData="m"
-				:data-index="index"
-				:lightMode="true"
-				:disableConversation="true"
-				@mouseover="onMouseOver($event, index)"
-				@mouseout="onMouseOut()"
-				@click="deleteMessage(m, index)"
-				@click.right.prevent="deleteMessage(m, index, true)" />
+		> -->
+		<div class="messageList" v-if="showList">
+			<div v-for="(m,index) in localMessages" :key="m.tags.id">
+				<ChatMessage
+					class="message"
+					ref="message"
+					v-if="m.type == 'message'"
+					:messageData="m"
+					:data-index="index"
+					:lightMode="true"
+					:disableConversation="true"
+					@mouseover="onMouseOver($event, index)"
+					@mouseout="onMouseOut()"
+					@click="deleteMessage(m, index)"
+					@click.right.prevent="deleteMessage(m, index, true)" />
 
-			<ChatHighlight
-				class="message"
-				ref="message"
-				v-if="m.type == 'highlight'"
-				:messageData="m"
-				:data-index="index"
-				:lightMode="true"
-				@mouseover="onMouseOver($event, index)"
-				@mouseout="onMouseOut()"
-				@click="deleteMessage(m, index)"
-				@click.right.prevent="deleteMessage(m, index, true)" />
+				<ChatHighlight
+					class="message"
+					ref="message"
+					v-if="m.type == 'highlight'"
+					:messageData="m"
+					:data-index="index"
+					:lightMode="true"
+					@mouseover="onMouseOver($event, index)"
+					@mouseout="onMouseOut()"
+					@click="deleteMessage(m, index)"
+					@click.right.prevent="deleteMessage(m, index, true)" />
+			</div>
 		</div>
-		</transition-group>
+		<!-- </transition-group> -->
 		<div class="grip" @mousedown="startDrag()"></div>
 		<div class="gripMax" v-if="showMaxHeight" :style="maxHeightStyles">Max height</div>
 	</div>
@@ -76,6 +78,7 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
+import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
@@ -110,8 +113,10 @@ export default class NewUsers extends Vue {
 	public maxHeightSize:number = 0;
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 
+	private disposed:boolean = false;
 	private resizing:boolean = false;
 	private streakMode:boolean = true;
+	private mouseY:number = 0;
 	private highlightState:{[key:string]:boolean} = {};
 
 	private mouseUpHandler!:(e:MouseEvent)=> void;
@@ -122,7 +127,7 @@ export default class NewUsers extends Vue {
 
 	public get styles():{[key:string]:string} {
 		return {
-			"max-height": (this.windowHeight*100) + 'vh',
+			"max-height": (this.windowHeight*100) + '%',
 		}
 	}
 
@@ -166,7 +171,7 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		// this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
+		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
@@ -191,9 +196,11 @@ export default class NewUsers extends Vue {
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
+		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
+		this.disposed = true;
 		clearInterval(this.deleteInterval);
 		document.removeEventListener("keydown", this.keyboardEventHandler);
 		document.removeEventListener("keyup", this.keyboardEventHandler);
@@ -218,11 +225,14 @@ export default class NewUsers extends Vue {
 		const maxLength = 100;
 		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
 		if(m.type != "message" && m.type != "highlight") return;
-		const login = m.tags.login? m.tags.login : m.tags.username;
+		let login = m.tags.login? m.tags.login : m.tags.username;
+		login = login.toLowerCase();
 		//Ignore self messages
 		if(login == m.channel.substring(1)) return;
 		//Ignore bot messages
-		if(IRCClient.instance.botsLogins.indexOf(login.toLowerCase()) > -1) return;
+		if(IRCClient.instance.botsLogins.indexOf(login) > -1) return;
+		//Ignore hidden users from params
+		if((store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
 		
 		if(m.firstMessage) this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
@@ -265,12 +275,11 @@ export default class NewUsers extends Vue {
 	 * Either removes a streak of messages or one single message
 	 */
 	public deleteMessage(m:IRCEventDataList.Message|IRCEventDataList.Highlight, index:number, singleMode:boolean = false):void {
-		let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
-
 		if(!this.streakMode || singleMode) {
+			let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
+			this.indexOffset = parseInt(el.$el.dataset.index as string);
 			m.firstMessage = false;
 			this.localMessages.splice(index, 1);
-			this.indexOffset = parseInt(el.$el.dataset.index as string);
 		}else{
 			this.indexOffset = 0;
 			this.overIndex = -1;
@@ -343,22 +352,23 @@ export default class NewUsers extends Vue {
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent):Promise<void> {
-		if(!this.resizing) return;
-		const py = e.clientY;
-		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
-		const maxHeight = .6;
-		this.windowHeight = Math.min(maxHeight, (py - bounds.top) / bounds.height);
+		this.mouseY = e.clientY;
+	// 	if(!this.resizing) return;
+	// 	const py = e.clientY;
+	// 	const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
+	// 	const maxHeight = .6;
+	// 	this.windowHeight = Math.min(maxHeight, (py - bounds.top) / bounds.height);
 		
-		await this.$nextTick();
+	// 	await this.$nextTick();
 
-		const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
-		const prev = (py - bounds.top) / bounds.height;
-		const next = (boundsEl.height - bounds.top) / bounds.height;
-		this.maxHeightPos = boundsEl.height;
-		this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
+	// 	const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
+	// 	const prev = (py - bounds.top) / bounds.height;
+	// 	const next = (boundsEl.height - bounds.top) / bounds.height;
+	// 	this.maxHeightPos = boundsEl.height;
+	// 	this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
 
-		this.showMaxHeight = (prev-next)*100 > 2;
-		Store.set("greetHeight", this.windowHeight);
+	// 	this.showMaxHeight = (prev-next)*100 > 2;
+	// 	Store.set("greetHeight", this.windowHeight);
 	}
 
 	/**
@@ -442,6 +452,29 @@ export default class NewUsers extends Vue {
 				}
 			});
 		}
+	}
+
+	private async renderFrame():Promise<void> {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+
+		if(!this.resizing) return;
+
+		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
+		const maxHeight = .8;
+		this.windowHeight = Math.min(maxHeight, (this.mouseY - bounds.top) / bounds.height);
+		
+		await this.$nextTick();
+
+		const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
+		const prev = (this.mouseY - bounds.top) / bounds.height;
+		const next = (boundsEl.height - bounds.top) / bounds.height;
+		this.maxHeightPos = boundsEl.height;
+		this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, this.mouseY - boundsEl.height);
+
+		const percent = prev-next;
+		this.showMaxHeight = percent*100 > 2 && boundsEl.height/bounds.height+.02 < maxHeight;
+		Store.set("greetHeight", this.windowHeight);
 	}
 
 }
@@ -575,7 +608,7 @@ export default class NewUsers extends Vue {
 		user-select: none;
 		color: @mainColor_light;
 		border-bottom: 1px dashed @mainColor_light;
-		background-color: fade(@windowStateColor,20%);
+		background-color: fade(@windowStateColor,60%);
 		display: flex;
 		align-items: flex-end;
 		padding-bottom: 5px;

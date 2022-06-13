@@ -80,16 +80,10 @@
 
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
-				<!--
-					Transition disabled as it generates MASSIVE call stacks
-					everytime a message is added
-				-->
-				<!-- <transition name="slide"> -->
-					<div class="hoverActionsHolder"
-					v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != $store.state.user.user_id">
-						<ChatMessageHoverActions class="hoverActions" :messageData="m" />
-					</div>
-				<!-- </transition> -->
+				<div class="hoverActionsHolder"
+				v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != $store.state.user.user_id">
+					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
+				</div>
 			</div>
 		</div>
 
@@ -184,7 +178,7 @@ export default class MessageList extends Vue {
 	public lockScroll:boolean = false;
 	public conversationPos:number = 0;
 	public scrollAtBottom:boolean = true;
-	public conversationMode:boolean = true;//Used to change title between History/Conversation
+	public conversationMode:boolean = true;//Used to change title between "History"/"Conversation"
 
 	private disposed:boolean = false;
 	private holderOffsetY:number = 0;
@@ -199,6 +193,7 @@ export default class MessageList extends Vue {
 
 	public get classes():string[] {
 		let res = ["messagelist"];
+		res.push("alternateBG");
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll) res.push("lockScroll");
 		return res;
@@ -769,9 +764,6 @@ type MessageTypes = IRCEventDataList.Highlight
 		.holder {
 			padding: 0;
 			overflow: hidden;
-			.message:nth-child(even) {
-				background-color: transparent;
-			}
 		}
 	}
 
@@ -799,15 +791,24 @@ type MessageTypes = IRCEventDataList.Highlight
 		font-size: var(--messageSize);
 	}
 
+	&.alternateBG:not(.lightMode) {
+		.holder {
+			//TODO fix switching even/odd problem when deleting/adding messages and enable this back
+			.subHolder:nth-child(odd) {
+				// background-color: rgba(255, 255, 255, .05);
+				
+				// .message {
+				// 	display: flex;
+				// 	flex-direction: row-reverse;
+				// }
+			}
+		}
+	}
+
 	.holder {
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
-
-		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
-		// .subHolder:nth-child(odd) {
-			// background-color: rgba(255, 255, 255, .05);
-		// }
 		.subHolder {
 			position: relative;
 			// display: flex;
@@ -832,40 +833,20 @@ type MessageTypes = IRCEventDataList.Highlight
 				pointer-events: none;
 			}
 
-			.message {
-				flex-grow: 1;
-			}
-
 			.hoverActionsHolder {
 				position: absolute;
 				visibility: hidden;
+				z-index: 1;
 				top: 0;
-				left: 0;
-				width: 100%;
-				clip-path: polygon(0 -1000px, 100% -1000px, 100% 0, 0 0);
-				.hoverActions {
-					position: absolute;
-					right: 0%;
-					top: 0;
-					margin: .5em 0;
-					transform:translate(0, calc(-100% - .5em));
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					justify-content: space-around;
-					flex-wrap: wrap;
-					font-size: var(--messageSize);
-					transition: all 0.2s;
-				}
-	
-				&.slide-enter-active > .hoverActions {
-					transform: translate(0, calc(-100% - .5em));
-				}
-
-				&.slide-enter-from > .hoverActions,
-				&.slide-leave-to > .hoverActions {
-					transform: translate(0, 0);
-				}
+				right: 0;
+				margin: .5em 0;
+				transform:translate(0, calc(-100% - .5em));
+				display: flex;
+				flex-direction: row;
+				align-items: flex-end;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				font-size: var(--messageSize);
 			}
 		}
 	}

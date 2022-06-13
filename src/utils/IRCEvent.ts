@@ -68,7 +68,6 @@ export namespace IRCEventDataList {
 		answers?:Message[];
 		cyphered?:boolean;
 		markedAsRead?:boolean;
-		showHoverActions?:boolean;
 		lowTrust?:boolean;
 		deleted?:boolean;
 		deletedData?:PubSubTypes.DeletedMessage;

@@ -309,6 +309,11 @@ export default class ChatForm extends Vue {
 			this.message = "";
 			store.dispatch("toggleDevMode");
 		}else
+		
+		if(cmd == "/error") {
+			this.message = "";
+			throw(new Error("Test error"));
+		}else
 
 		if(cmd == "/chatpoll") {
 			//Open chat poll form
