@@ -333,6 +333,7 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.staff) badges.push({label:"Twitch staff", class:"staff"});
 			if(message.tags.badges?.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
 			if(message.tags.badges?.partner) badges.push({label:"Partner", class:"partner"});
+			if(message.tags.badges?.founder) badges.push({label:"Founder", class:"founder"});
 		}
 		return badges;
 	}
@@ -530,7 +531,8 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
-	padding: .25em;
+	@padding: .25em;
+	padding: @padding;
 	margin-bottom: 1px;
 
 	&.highlightSubs { background-color: fade(#9147ff, 7%); }
@@ -538,7 +540,7 @@ export default class ChatMessage extends Vue {
 	&.highlightMods { background-color: fade(#39db00, 7%); }
 	&.highlighted { 
 		.message {
-			padding: 0 .25em;
+			padding: 0 @padding;
 			background-color: @mainColor_normal; color:#fff
 		}
 	}
@@ -578,7 +580,6 @@ export default class ChatMessage extends Vue {
 		.message {
 			color: #fff;
 		}
-
 	}
 
 	.infos {
@@ -592,7 +593,7 @@ export default class ChatMessage extends Vue {
 				margin-right: 5px;
 			}
 
-			.convBt {
+			&.convBt {
 				cursor: pointer;
 				&:hover {
 					opacity: .75;
@@ -623,6 +624,7 @@ export default class ChatMessage extends Vue {
 			&.staff{ background-color: #666666;}
 			&.broadcaster{ background-color: #ff0000;}
 			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
+			&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
 		}
 
 		.login {
