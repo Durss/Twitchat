@@ -7,8 +7,6 @@
 		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
-			@mouseenter="enterMessage(m)"
-			@mouseleave="leaveMessage(m)"
 			@click="toggleMarkRead(m, $event)">
 				<ChatAd class="message"
 					:messageData="m"
@@ -87,7 +85,8 @@
 					everytime a message is added
 				-->
 				<!-- <transition name="slide"> -->
-					<div class="hoverActionsHolder" v-if="m.type == 'message' && m.showHoverActions && !lightMode">
+					<div class="hoverActionsHolder"
+					v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != $store.state.user.user_id">
 						<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 					</div>
 				<!-- </transition> -->
@@ -700,23 +699,6 @@ export default class MessageList extends Vue {
 		}, 0);
 	}
 
-	/**
-	 * Called when hovering a message
-	 */
-	public enterMessage(m:MessageTypes):void {
-		if(m.type != "message") return;
-		if(m.tags['user-id'] && m.tags['user-id'] != store.state.user.user_id) {
-			m.showHoverActions = true;
-		}
-	}
-
-	/**
-	 * Called on a message rollout
-	 */
-	public leaveMessage(m:MessageTypes):void {
-		if(m.type != "message") return;
-		m.showHoverActions = false;
-	}
 
 	/**
 	 * Called on a message is clicked
@@ -835,6 +817,10 @@ type MessageTypes = IRCEventDataList.Highlight
 			// }
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
+
+				.hoverActionsHolder {
+					visibility: visible;
+				}
 			}
 			.markRead {
 				width: 100%;
@@ -852,6 +838,7 @@ type MessageTypes = IRCEventDataList.Highlight
 
 			.hoverActionsHolder {
 				position: absolute;
+				visibility: hidden;
 				top: 0;
 				left: 0;
 				width: 100%;
