@@ -47,7 +47,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterData } from '@/store';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import Utils from '@/utils/Utils';

@@ -3,7 +3,7 @@
 
 		<ToggleBlock class="block" title="Suggestions and issues" :icons="['idea_purple']" :open="false">
 			<p>If you have a feature idea or are experiencing an issue:</p>
-			<Button :icon="require('@/assets/icons/discord.svg')" title="Tell me on Discord" :href="discordURL" target="_blank" type="link" class="discordBt" />
+			<Button :icon="getImage('assets/icons/discord.svg')" title="Tell me on Discord" :href="discordURL" target="_blank" type="link" class="discordBt" />
 			<p>I want this tool to be as good as possible, <strong>if anything annoys you</strong> when using it, <strong>I want to know</strong>!</p>
 		</ToggleBlock>
 
@@ -44,6 +44,8 @@ import Config from '@/utils/Config';
 	}
 })
 export default class ParamsAbout extends Vue {
+	
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get discordURL():string { return Config.DISCORD_URL; }
 

@@ -1,22 +1,14 @@
 module.exports = {
-	root: true,
-	env: {
-		node: true
-	},
-	'extends': [
-		'plugin:vue/vue3-essential',
-		'eslint:recommended',
-		'@vue/typescript/recommended'
+	"root": true,
+	"extends": [
+		"plugin:vue/vue3-essential",
+		"eslint:recommended",
+		"@vue/eslint-config-typescript/recommended"
 	],
-	parserOptions: {
-		ecmaVersion: 2020
+	"env": {
+		"vue/setup-compiler-macros": true
 	},
-	rules: {
-		'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-		'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-		"@typescript-eslint/no-inferrable-types": "off",
-		"@typescript-eslint/no-namespace": "off",
-		"@typescript-eslint/ban-ts-comment": "off",
-		"@typescript-eslint/no-empty-function": "off"
+	"rules": {
+		"@typescript-eslint/ban-ts-comment": "off"
 	}
 }

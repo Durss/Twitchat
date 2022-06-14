@@ -1,40 +1,40 @@
 <template>
 
-	<Button :icon="require('@/assets/icons/poll.svg')"
+	<Button :icon="getImage('assets/icons/poll.svg')"
 		bounce
 		@click="$emit('setCurrentNotification', 'poll')"
 		v-if="$store.state.currentPoll?.id" />
 
-	<Button :icon="require('@/assets/icons/prediction.svg')"
+	<Button :icon="getImage('assets/icons/prediction.svg')"
 		bounce
 		@click="$emit('setCurrentNotification', 'prediction')"
 		v-if="$store.state.currentPrediction?.id" />
 
-	<Button :icon="require('@/assets/icons/magnet.svg')"
+	<Button :icon="getImage('assets/icons/magnet.svg')"
 		bounce
 		v-if="$store.state.trackedUsers.length > 0"
 		data-tooltip="View tracked users"
 		@click="$emit('setCurrentNotification', 'trackedUsers')" />
 
-	<Button :icon="require('@/assets/icons/ticket.svg')"
+	<Button :icon="getImage('assets/icons/ticket.svg')"
 		bounce
 		v-if="$store.state.raffle"
 		data-tooltip="Raffle"
 		@click="$emit('setCurrentNotification', 'raffle')" />
 
-	<Button :icon="require('@/assets/icons/bingo.svg')"
+	<Button :icon="getImage('assets/icons/bingo.svg')"
 		bounce
 		v-if="$store.state.bingo"
 		data-tooltip="Bingo"
 		@click="$emit('setCurrentNotification', 'bingo')" />
 
-	<Button :icon="require('@/assets/icons/whispers.svg')"
+	<Button :icon="getImage('assets/icons/whispers.svg')"
 		bounce
 		v-if="whispersAvailable"
 		data-tooltip="Whispers"
 		@click="$emit('setCurrentNotification', 'whispers')" />
 		
-	<Button :icon="require('@/assets/icons/debug.svg')"
+	<Button :icon="getImage('assets/icons/debug.svg')"
 		bounce
 		@click="$emit('update:showDevMenu',true);"
 		v-if="$store.state.devmode" />
@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -66,6 +66,8 @@ export default class ChatNotificationButtons extends Vue {
 	public showRewards!:boolean;
 	public showDevMenu!:boolean;
 	public showCommands!:boolean;
+	
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get whispersAvailable():boolean {
 		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;

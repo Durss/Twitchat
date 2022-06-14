@@ -5,9 +5,10 @@ import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import FFZUtils from "./FFZUtils";
-import IRCEvent, { IRCEventDataList } from "./IRCEvent";
+import IRCEvent from "./IRCEvent";
+import type { IRCEventDataList } from "./IRCEvent";
 import PublicAPI from "./PublicAPI";
-import { PubSubTypes } from "./PubSub";
+import type { PubSubTypes } from "./PubSub";
 import SevenTVUtils from "./SevenTVUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -142,7 +143,7 @@ export default class IRCClient extends EventDispatcher {
 							this.joinSpool.push(user);
 							clearTimeout(this.joinSpoolTimeout);
 							
-							this.joinSpoolTimeout = setTimeout(() => {
+							this.joinSpoolTimeout = window.setTimeout(() => {
 								const join = this.joinSpool.splice(0, 30);
 								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
 								if(this.joinSpool.length > 0) {
@@ -178,7 +179,7 @@ export default class IRCClient extends EventDispatcher {
 						this.partSpool.push(user);
 						clearTimeout(this.partSpoolTimeout);
 						
-						this.partSpoolTimeout = setTimeout(() => {
+						this.partSpoolTimeout = window.setTimeout(() => {
 							const leave = this.partSpool.splice(0, 30);
 							let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
 							if(this.partSpool.length > 0) {
@@ -270,7 +271,7 @@ export default class IRCClient extends EventDispatcher {
 					//Track the user
 					store.dispatch("trackUser", message);
 					//Untrack the user after 5 minutes
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						store.dispatch("untrackUser", message.tags);
 					}, 5 * 60 * 1000);
 				}
@@ -317,7 +318,7 @@ export default class IRCClient extends EventDispatcher {
 							//That darn TMI parses the "badges" and "badge-info" props right after
 							//dispatching the "raw_message" event. Which fucks up the message display.
 							//Let's wait a frame so the props are parsed and everything works fine! Love it!
-							setTimeout(() => {
+							window.setTimeout(() => {
 								this.addMessage(params[1], tags, params[0] == this.channel);
 							},0)
 						}

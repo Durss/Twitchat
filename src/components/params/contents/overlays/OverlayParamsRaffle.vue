@@ -13,7 +13,7 @@
 				</ToggleBlock>
 			</div>
 			<div class="row center" v-if="wheelOverlayExists">
-				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="require('@/assets/icons/test.svg')" />
+				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="getImage('assets/icons/test.svg')" />
 			</div>
 			<div class="row center" v-if="!wheelOverlayExists">
 				<span class="error">- overlay not configured or hidden -</span>
@@ -26,12 +26,12 @@
 </template>
 
 <script lang="ts">
-import { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
+import type { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { JsonArray, JsonObject } from "type-fest";
+import type { JsonArray, JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -48,6 +48,7 @@ export default class OverlayParamsRaffle extends Vue {
 	public open:boolean = false;
 	public loading:boolean = false;
 	public wheelOverlayExists:boolean = false;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private answerIndex:number = 0;
 	private checkInterval!:number;
@@ -64,11 +65,11 @@ export default class OverlayParamsRaffle extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 
 		//Regularly check if the overlay exists
-		this.checkInterval = setInterval(()=>{
+		this.checkInterval = window.setInterval(()=>{
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 			clearTimeout(this.subcheckTimeout);
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = setTimeout(()=>{
+			this.subcheckTimeout = window.setTimeout(()=>{
 				this.wheelOverlayExists = false;
 			}, 1500);
 		}, 2000);

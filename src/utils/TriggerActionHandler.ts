@@ -1,12 +1,14 @@
-import store, { ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import store  from '@/store';
+import type { ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { JsonObject } from 'type-fest';
+import type { JsonObject } from 'type-fest';
 import Config from './Config';
 import DeezerHelper from './DeezerHelper';
 import IRCClient from './IRCClient';
 import PublicAPI from './PublicAPI';
-import SpotifyHelper, {SearchTrackItem} from './SpotifyHelper';
+import SpotifyHelper from './SpotifyHelper';
+import type {SearchTrackItem} from './SpotifyHelper';
 import TwitchatEvent from './TwitchatEvent';
 import TwitchUtils from './TwitchUtils';
 import Utils from './Utils';
@@ -639,7 +641,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
 ]
 
-export interface MusicMessage extends JsonObject{
+export interface MusicMessage {
 	type:"music",
 	title:string,
 	artist:string,
@@ -647,6 +649,7 @@ export interface MusicMessage extends JsonObject{
 	cover:string,
 	duration:number,
 	url:string,
+    [paramater: string]: any;//This is here to avoid errors on dynamic pointers
 }
 
 export const TriggerMusicTypes = {

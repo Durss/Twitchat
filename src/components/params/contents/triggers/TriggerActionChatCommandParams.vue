@@ -24,7 +24,7 @@
 			class="saveBt"
 			v-if="isChange"
 			@click="save()"
-			:icon="require('@/assets/icons/save.svg')"
+			:icon="getImage('assets/icons/save.svg')"
 			:disabled="param_cmd.value === ''"
 		/> -->
 	</ToggleBlock>
@@ -33,7 +33,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store, { ParameterData, TriggerActionChatCommandData } from '@/store';
+import store  from '@/store';
+import type { ParameterData, TriggerActionChatCommandData } from '@/store';
 import { TriggerTypes } from '@/utils/TriggerActionHandler';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -55,6 +56,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 	public actionData!:TriggerActionChatCommandData;
 
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	public cmdNameConflict:boolean = false;
 	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
 	public param_globalCD:ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };

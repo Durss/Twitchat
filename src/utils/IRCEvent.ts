@@ -1,8 +1,8 @@
-import { BingoData, RaffleData } from '@/store';
+import type { BingoData, RaffleData } from '@/store';
 import { Event } from '@/utils/EventDispatcher';
-import { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from 'tmi.js';
-import { PubSubTypes } from './PubSub';
-import { TwitchTypes } from './TwitchUtils';
+import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from 'tmi.js';
+import type { PubSubTypes } from './PubSub';
+import type { TwitchTypes } from './TwitchUtils';
 
 /**
 * Created : 07/12/2020 

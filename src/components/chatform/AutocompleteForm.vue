@@ -19,14 +19,15 @@
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="user">
 
 			<div class="name">{{i.label}}</div>
-			<div class="infos" v-if="i.infos">{{i.infos}}</div>
+			<div class="infos" v-if="i.type == 'cmd' && i.infos">{{i.infos}}</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store, { CommandData } from '@/store';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import store  from '@/store';
+import type { CommandData } from '@/store';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 

@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create Bingo</span>
-				<Button aria-label="Close bingo form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close bingo form" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -12,8 +12,8 @@
 				</div>
 				<form @submit.prevent="onSubmit()">
 					<div class="tabs">
-						<Button title="Number" bounce :selected="guessNumber" @click="guessNumber = true; guessEmote = false;" :icon="require('@/assets/icons/number.svg')" />
-						<Button title="Emote" bounce :selected="guessEmote" @click="guessNumber = false; guessEmote = true;" :icon="require('@/assets/icons/emote.svg')" />
+						<Button title="Number" bounce :selected="guessNumber" @click="guessNumber = true; guessEmote = false;" :icon="getImage('assets/icons/number.svg')" />
+						<Button title="Emote" bounce :selected="guessEmote" @click="guessNumber = false; guessEmote = true;" :icon="getImage('assets/icons/emote.svg')" />
 					</div>
 					
 					<div class="info" v-if="guessNumber">
@@ -51,15 +51,17 @@
 </template>
 
 <script lang="ts">
-import store, { BingoConfig, ParameterData } from '@/store';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import type { BingoConfig, ParameterData } from '@/store';
+import store from '@/store';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
-import Splitter from '../Splitter.vue';
+import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
+import Splitter from '../Splitter.vue';
 
 @Options({
 	props:{},
@@ -80,6 +82,7 @@ export default class BingoForm extends Vue {
 	public maxValue:ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public async mounted():Promise<void> {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});

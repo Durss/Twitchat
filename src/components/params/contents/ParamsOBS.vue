@@ -27,7 +27,7 @@
 			</ToggleBlock>
 
 			<Button title="Connect" @click="connect()" class="connectBt" v-if="!connected" :loading="loading" />
-			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="require('@/assets/icons/cross_white.svg')" />
+			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="getImage('assets/icons/cross_white.svg')" />
 
 			<transition name="fade">
 				<div v-if="connectError" @click="connectError = false" class="error">
@@ -76,7 +76,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store, { ParameterData, PermissionsData } from '@/store';
+import store  from '@/store';
+import type { ParameterData, PermissionsData } from '@/store';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -120,6 +121,7 @@ export default class ParamsOBS extends Vue {
 		all: false,
 		users: ""
 	}
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
 
@@ -173,7 +175,7 @@ export default class ParamsOBS extends Vue {
 			this.paramUpdate();
 			this.connected = true;
 			this.connectSuccess = true;
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.connectSuccess = false;
 				this.openConnectForm = false;
 			}, 3000);

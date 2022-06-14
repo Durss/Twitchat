@@ -27,13 +27,13 @@
 
 		<div class="actions">
 			<Button class="item"
-				:icon="require('@/assets/icons/chatPoll.svg')"
+				:icon="getImage('assets/icons/chatPoll.svg')"
 				title="Pick a random entry"
 				@click="pickEntry()"
 				:disabled="poll.choices.length === 0" />
 
 			<Button class="item"
-				:icon="require('@/assets/icons/cross_white.svg')"
+				:icon="getImage('assets/icons/cross_white.svg')"
 				title="Close chat poll"
 				highlight
 				@click="closePoll()" />
@@ -42,7 +42,8 @@
 </template>
 
 <script lang="ts">
-import store, { ChatPollData, ChatPollDataChoice } from '@/store';
+import store  from '@/store';
+import type { ChatPollData, ChatPollDataChoice } from '@/store';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -61,6 +62,7 @@ export default class ChatPollState extends Vue {
 
 	public loading:boolean = false;
 	public progressPercent:number = 0;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get poll():ChatPollData { return store.state.chatPoll as ChatPollData; }
 

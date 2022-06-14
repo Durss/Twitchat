@@ -102,7 +102,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">History</h1>
-				<Button class="button" aria-label="close conversation" :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
+				<Button class="button" aria-label="close conversation" :icon="getImage('assets/icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<ChatMessage
@@ -125,14 +125,15 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
+import IRCEvent from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
@@ -179,6 +180,7 @@ export default class MessageList extends Vue {
 	public conversationPos:number = 0;
 	public scrollAtBottom:boolean = true;
 	public conversationMode:boolean = true;//Used to change title between "History"/"Conversation"
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private disposed:boolean = false;
 	private holderOffsetY:number = 0;
@@ -606,7 +608,7 @@ export default class MessageList extends Vue {
 		message = message.replace(/<[^>]*>/gim, "");//Strip HTML tags
 		this.ariaMessage = message;
 		clearTimeout(this.ariaMessageTimeout);
-		this.ariaMessageTimeout = setTimeout(()=> {
+		this.ariaMessageTimeout = window.setTimeout(()=> {
 			this.ariaMessage = "";
 		}, 10000);
 	}
@@ -645,7 +647,7 @@ export default class MessageList extends Vue {
 		if(this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
-		this.openConvTimeout = setTimeout(async ()=> {
+		this.openConvTimeout = window.setTimeout(async ()=> {
 			this.conversationMode = false;
 	
 			let messageList:IRCEventDataList.Message[] = [];
@@ -687,7 +689,7 @@ export default class MessageList extends Vue {
 		if(this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
-		this.closeConvTimeout = setTimeout(()=>{
+		this.closeConvTimeout = window.setTimeout(()=>{
 			this.conversation = [];
 			const mainHolder = this.$refs.messageHolder as HTMLDivElement;
 			gsap.to(mainHolder, {opacity:1, duration:.25});
@@ -796,7 +798,7 @@ type MessageTypes = IRCEventDataList.Highlight
 			//TODO fix switching even/odd problem when deleting/adding messages and enable this back
 			.subHolder:nth-child(odd) {
 				// background-color: rgba(255, 255, 255, .05);
-				
+
 				// .message {
 				// 	display: flex;
 				// 	flex-direction: row-reverse;

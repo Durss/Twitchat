@@ -1,4 +1,4 @@
-import { JsonObject, JsonArray, JsonValue } from 'type-fest';
+import type { JsonObject, JsonArray, JsonValue } from 'type-fest';
 import { Event } from './EventDispatcher';
 
 /**

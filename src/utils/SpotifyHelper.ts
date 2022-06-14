@@ -2,7 +2,7 @@ import store from "@/store";
 import { reactive } from "vue";
 import Config from "./Config";
 import PublicAPI from "./PublicAPI";
-import { MusicMessage } from "./TriggerActionHandler";
+import type { MusicMessage } from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -124,7 +124,7 @@ export default class SpotifyHelper {
 			//Refresh token 10min before it actually expires
 			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;
 			if(!isNaN(delay) && delay > 0) {
-				this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
+				this._refreshTimeout = window.setTimeout(()=>this.refreshToken(), delay);
 			}
 			this._headers = {
 				"Accept":"application/json",
@@ -224,7 +224,7 @@ export default class SpotifyHelper {
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 10000);
+			this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 10000);
 			return;
 		}
 		
@@ -249,7 +249,7 @@ export default class SpotifyHelper {
 			if(this.isPlaying) {
 				let delay = json.item.duration_ms - json.progress_ms;
 				if(isNaN(delay)) delay = 5000;
-				this._getTrackTimeout = setTimeout(()=> {
+				this._getTrackTimeout = window.setTimeout(()=> {
 					this.getCurrentTrack();
 				}, Math.min(5000, delay + 1000));
 
@@ -269,7 +269,7 @@ export default class SpotifyHelper {
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
 					this._lastTrackInfo = null;
 				}
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
 		}
 	}

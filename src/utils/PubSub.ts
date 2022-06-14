@@ -1,14 +1,17 @@
-import store, { HypeTrainStateData } from "@/store";
-import { ChatUserstate } from "tmi.js";
-import { JsonObject } from "type-fest";
+import store  from '@/store';
+import type { HypeTrainStateData } from "@/store";
+import type { ChatUserstate } from "tmi.js";
+import type { JsonObject } from "type-fest";
 import { EventDispatcher } from "./EventDispatcher";
-import IRCClient, { IRCTagsExtended } from "./IRCClient";
-import { IRCEventDataList } from "./IRCEvent";
+import IRCClient from "./IRCClient";
+import type { IRCTagsExtended } from "./IRCClient";
+import type { IRCEventDataList } from "./IRCEvent";
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import PubSubEvent from "./PubSubEvent";
 import TwitchatEvent from "./TwitchatEvent";
-import TwitchUtils, { TwitchTypes } from "./TwitchUtils";
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from "./TwitchUtils";
 import Utils from "./Utils";
 
 /**
@@ -52,7 +55,7 @@ export default class PubSub extends EventDispatcher{
 			//It's required to ping the server at least every 5min
 			//to keep the connection alive
 			clearInterval(this.pingInterval);
-			this.pingInterval = setInterval(() => {
+			this.pingInterval = window.setInterval(() => {
 				this.ping();
 			}, 60000*2.5);
 
@@ -131,7 +134,7 @@ export default class PubSub extends EventDispatcher{
 				// alert('[close] Connection died');
 			}
 			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = setTimeout(()=>{
+			this.reconnectTimeout = window.setTimeout(()=>{
 				this.connect();
 			}, 1000);
 		};
@@ -366,7 +369,7 @@ export default class PubSub extends EventDispatcher{
 		}else if(data.type == "raid_go_v2") {
 			if(store.state.params.features.stopStreamOnRaid.value === true) {
 				clearTimeout(this.raidTimeout)
-				this.raidTimeout = setTimeout(() => {
+				this.raidTimeout = window.setTimeout(() => {
 					OBSWebsocket.instance.stopStreaming();
 				}, 1000);
 			}
@@ -390,7 +393,7 @@ export default class PubSub extends EventDispatcher{
 				},
 			});
 			
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				//Automatically hide the boost after a few seconds
 				store.dispatch("setCommunityBoost", null);
 			}, 30000);
@@ -666,7 +669,7 @@ export default class PubSub extends EventDispatcher{
 		};
 		store.dispatch("setHypeTrain", train);
 		//Hide "hypetrain approaching" notification if expired
-		this.hypeTrainApproachingTimer = setTimeout(()=> {
+		this.hypeTrainApproachingTimer = window.setTimeout(()=> {
 			store.dispatch("setHypeTrain", {});
 		}, train.timeLeft * 1000);
 	}
@@ -737,7 +740,7 @@ export default class PubSub extends EventDispatcher{
 		}
 		store.dispatch("setHypeTrain", storeData);
 		
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			//Hide hype train popin
 			store.dispatch("setHypeTrain", {});
 		}, 20000)

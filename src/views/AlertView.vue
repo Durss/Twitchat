@@ -32,7 +32,7 @@ export default class AlertView extends Vue {
 			this.$el.removeAttribute("style");
 			gsap.killTweensOf(this.$el);
 			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
-			this.timeout = setTimeout(()=> this.close(), this.message.length*80 +2000);
+			this.timeout = window.setTimeout(()=> this.close(), this.message.length*80 +2000);
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
 				this.message = "";

@@ -56,7 +56,7 @@ async function connect(port:string, pass:string):Promise<boolean> {
 	try {
 		await obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 	}catch(error) {
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			//try again later
 			connect(port, pass);
 		}, 5000);

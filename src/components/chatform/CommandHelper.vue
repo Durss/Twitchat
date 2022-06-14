@@ -1,14 +1,14 @@
 <template>
 	<div class="commandhelper">
-		<Button small @click="$emit('poll'); close();" :icon="require('@/assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
-		<Button small @click="$emit('pred'); close();" :icon="require('@/assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
-		<Button small @click="$emit('raffle'); close();" :icon="require('@/assets/icons/ticket.svg')" title="Create raffle" bounce />
-		<Button small @click="$emit('bingo'); close();" :icon="require('@/assets/icons/bingo.svg')" title="Create bingo" bounce />
-		<Button small @click="$emit('chatpoll'); close();" :icon="require('@/assets/icons/chatPoll.svg')" title="Create chat poll" bounce />
-		<Button small @click="$emit('clear'); close();" :icon="require('@/assets/icons/clearChat.svg')" title="Clear chat" bounce />
+		<Button small @click="$emit('poll'); close();" :icon="getImage('assets/icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
+		<Button small @click="$emit('pred'); close();" :icon="getImage('assets/icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
+		<Button small @click="$emit('raffle'); close();" :icon="getImage('assets/icons/ticket.svg')" title="Create raffle" bounce />
+		<Button small @click="$emit('bingo'); close();" :icon="getImage('assets/icons/bingo.svg')" title="Create bingo" bounce />
+		<Button small @click="$emit('chatpoll'); close();" :icon="getImage('assets/icons/chatPoll.svg')" title="Create chat poll" bounce />
+		<Button small @click="$emit('clear'); close();" :icon="getImage('assets/icons/clearChat.svg')" title="Clear chat" bounce />
 
 		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="require('@/assets/icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="getImage('assets/icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
 			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!$store.state.hasChannelPoints" />
 			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!$store.state.hasChannelPoints" />
 			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!$store.state.hasChannelPoints" />
@@ -17,27 +17,28 @@
 		</div>
 
 		<div v-for="(p,key) in params" :key="key">
-			<ParamItem :paramData="p" @change="onChangeParam(key, p)" />
+			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
 		</div>
 		<div class="raid" v-if="$store.state.raiding == null">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
-				<Button aria-label="Start raid" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
+				<Button aria-label="Start raid" type="submit" :icon="getImage('assets/icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding.target_display_name}}</label>
-			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
+			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="getImage('assets/icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterData } from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -61,6 +62,7 @@ export default class CommandHelper extends Vue {
 	public raidUser:string = "";
 	public adCooldown:number = 0;
 	private adCooldownInterval:number = 0;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -88,7 +90,7 @@ export default class CommandHelper extends Vue {
 			this.adCooldown = this.startAdCooldown - Date.now();
 		})
 		this.adCooldown = Math.max(0, this.startAdCooldown - Date.now());
-		this.adCooldownInterval = setInterval(()=>{
+		this.adCooldownInterval = window.setInterval(()=>{
 			this.adCooldown -= 1000;
 			if(this.adCooldown < 0) this.adCooldown = 0;
 		}, 1000);
@@ -106,7 +108,7 @@ export default class CommandHelper extends Vue {
 		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
 	}
 
-	private close():void {
+	public close():void {
 
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);

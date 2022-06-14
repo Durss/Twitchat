@@ -27,7 +27,7 @@
 			<div class="closeBt" v-if="showClose">
 				<Button small white
 					aria-label="Close current content"
-					:icon="require('@/assets/icons/cross.svg')"
+					:icon="getImage('assets/icons/cross.svg')"
 					@click="$emit('close')" />
 			</div>
 		</div>
@@ -35,9 +35,10 @@
 </template>
 
 <script lang="ts">
-import store, { HypeTrainStateData } from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import store from '@/store';
+import type { HypeTrainStateData } from '@/store';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -76,6 +77,7 @@ import DeezerState from './DeezerState.vue';
 export default class ChannelNotifications extends Vue {
 
 	public currentContent!:string;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private clickHandler!:(e:MouseEvent) => void;
 

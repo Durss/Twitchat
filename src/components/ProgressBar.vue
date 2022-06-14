@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

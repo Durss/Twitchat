@@ -12,7 +12,7 @@
 		</div>
 
 		<div v-else-if="isUpdate" class="updates">
-			<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="getImage('assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">🎉 New updates 🎉</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
@@ -76,7 +76,7 @@
 		</div>
 
 		<div v-if="isTip" class="tip">
-			<Button aria-label="Close tips &amp; tricks message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<Button aria-label="Close tips &amp; tricks message" @click.stop="deleteMessage()" :icon="getImage('assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">💡 Tips &amp; tricks 💡</div>
 			<ChatTipAndTrickAd class="content"
 				@showModal="(v:string)=> $emit('showModal', v)"
@@ -86,14 +86,14 @@
 		</div>
 
 		<div v-if="isDiscord" class="discord">
-			<Button aria-label="Close discord message" @click.stop="deleteMessage()" :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" />
+			<Button aria-label="Close discord message" @click.stop="deleteMessage()" :icon="getImage('assets/icons/cross_white.svg')" class="closeBt" />
 			<div class="title">Join us on Discord</div>
 			<div class="content">
 				<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
 				<div>You have a feature suggestion or an issue to report?<br>join us on discord!</div>
 			</div>
 			<div class="cta">
-				<Button :icon="require('@/assets/icons/discord.svg')"
+				<Button :icon="getImage('assets/icons/discord.svg')"
 					title="Join Discord"
 					:href="discordURL"
 					target="_blank"
@@ -106,10 +106,11 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store, { TwitchatAdTypes } from '@/store';
+import store  from '@/store';
+import { TwitchatAdTypes } from '@/store';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import { Options, Vue } from 'vue-class-component';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -128,6 +129,8 @@ import ToggleBlock from '../ToggleBlock.vue';
 export default class ChatAd extends Vue {
 
 	public messageData!:IRCEventDataList.TwitchatAd;
+	
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }

@@ -1,14 +1,14 @@
 <template class="cffdfdf">
 	<div :class="classes">
 		<div class="content">
-			<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+			<img :src="getImage('assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
 			<div v-if="paramData.type == 'toggle'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="getImage('assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+getImage('assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
@@ -17,8 +17,8 @@
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="getImage('assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+getImage('assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
@@ -27,8 +27,8 @@
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="getImage('assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+getImage('assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
@@ -38,8 +38,8 @@
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="getImage('assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+getImage('assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'slider'+key">
@@ -50,8 +50,8 @@
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="getImage('assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+getImage('assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
@@ -62,8 +62,8 @@
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="getImage('assets/icons/help_purple.svg')"
+					:data-tooltip="'<img src='+getImage('assets/img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
@@ -72,7 +72,7 @@
 					class="browseBt"
 					type="file"
 					:accept="paramData.accept?paramData.accept:'*'"
-					:icon="require('@/assets/icons/upload.svg')"
+					:icon="getImage('assets/icons/upload.svg')"
 				/> -->
 			</div>
 		</div>
@@ -87,7 +87,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -131,6 +132,7 @@ export default class ParamItem extends Vue {
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
 	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private file:unknown = {};
 

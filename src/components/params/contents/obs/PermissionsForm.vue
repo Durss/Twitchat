@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { ParameterData, PermissionsData } from '@/store';
+import type { ParameterData, PermissionsData } from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 

@@ -14,7 +14,7 @@
 				<div class="color" v-if="prediction.status != 'LOCKED'"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
-					:icon="require('@/assets/icons/checkmark_white.svg')"
+					:icon="getImage('assets/icons/checkmark_white.svg')"
 					v-if="prediction.status == 'LOCKED'"
 					:loading="loading" />
 				<div class="bar" :style="getAnswerStyles(c)">
@@ -36,7 +36,8 @@
 
 <script lang="ts">
 import store from '@/store';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -54,6 +55,7 @@ export default class PredictionState extends Vue {
 
 	public loading:boolean = false;
 	public progressPercent:number = 0;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	
 	private disposed:boolean = false;
 

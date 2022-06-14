@@ -1,6 +1,6 @@
 <template>
 	<div class="activityfeedfilters">
-		<Button @click="opened = !opened" :icon="require('@/assets/icons/filters.svg')" small />
+		<Button @click="opened = !opened" :icon="getImage('assets/icons/filters.svg')" small />
 		<div class="list" v-if="opened">
 			<div class="row">
 				<label for="AF_subs" @click="showSubs = !showSubs">Subs</label>
@@ -62,6 +62,7 @@ export default class ActivityFeedFilters extends Vue {
 	public modelValue!:{[key:string]:boolean};
 
 	public opened:boolean = false;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public showSubs:boolean = true;
 	public showFollow:boolean = true;

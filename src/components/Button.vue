@@ -27,9 +27,10 @@
 </template>
 
 <script lang="ts">
-import { Ref, watch } from '@vue/runtime-core';
+import type { Ref } from '@vue/runtime-core';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -80,6 +81,7 @@ export default class Button extends Vue {
 	public bounce!:boolean;
 	public accept!:string;
 	public file!:string;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public pInterpolated:number = -1;
 	public checked:boolean = false;
@@ -90,9 +92,9 @@ export default class Button extends Vue {
 
 	public get checkMarkIcon():string {
 		if(this.white !== false) {
-			return require('@/assets/icons/checkmark_white.svg');
+			return this.getImage('assets/icons/checkmark_white.svg');
 		}else{
-			return require('@/assets/icons/checkmark.svg');
+			return this.getImage('assets/icons/checkmark.svg');
 		}
 	}
 

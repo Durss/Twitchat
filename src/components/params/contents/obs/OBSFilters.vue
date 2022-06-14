@@ -18,7 +18,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterData } from '@/store';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -52,7 +53,7 @@ export default class OBSFilters extends Vue {
 		const storedScenes = store.state.obsSceneCommands;
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};
-			const storedScene = storedScenes.find(s => s.scene.sceneName === scene.sceneName);
+			const storedScene = storedScenes.find((s:{scene:{sceneName:string}}) => s.scene.sceneName === scene.sceneName);
 			const value = storedScene? storedScene.command : "";
 			this.sceneParams.push(
 				{ type:"text", value, label:scene.sceneName, storage:scene, placeholder:"!command" }

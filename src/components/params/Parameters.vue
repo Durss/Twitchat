@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Params</span>
-				<Button aria-label="Close parameters" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close parameters" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
@@ -45,7 +45,8 @@
 <script lang="ts">
 export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | null ;
 
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -82,6 +83,7 @@ export default class Parameters extends Vue {
 
 	public content:ParamsContenType = 'features';
 	public prevContent:ParamsContenType = null;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public showMenu:boolean = false;
 	public filteredParams:ParameterData[] = [];

@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';

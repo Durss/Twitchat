@@ -17,10 +17,10 @@
 				white
 				:to="{name:'login'}"
 				class="loginBt"
-				:icon="require('@/assets/icons/twitch.svg')"
+				:icon="getImage('assets/icons/twitch.svg')"
 			/>
 
-			<Button :icon="require('@/assets/icons/discord.svg')"
+			<Button :icon="getImage('assets/icons/discord.svg')"
 				title="Join Discord"
 				:href="discordURL"
 				target="_blank"
@@ -29,7 +29,7 @@
 				big
 			/>
 
-			<Button :icon="require('@/assets/icons/elgato.svg')"
+			<Button :icon="getImage('assets/icons/elgato.svg')"
 				title="Stream Deck™ plugin"
 				href="https://apps.elgato.com/plugins/fr.twitchat"
 				target="_blank"
@@ -192,6 +192,7 @@ export default class Home extends Vue {
 
 	public authenticated:boolean = false;
 	private index:number = 0;
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.DISCORD_URL; }

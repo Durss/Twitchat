@@ -16,7 +16,7 @@
 import store from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

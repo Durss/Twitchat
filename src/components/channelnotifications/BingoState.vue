@@ -17,7 +17,7 @@
 		<PostOnChatParam class="postChat" botMessageKey="bingo" :placeholders="winnerPlaceholders" />
 
 		<Button class="deleteBt"
-			:icon="require('@/assets/icons/cross_white.svg')"
+			:icon="getImage('assets/icons/cross_white.svg')"
 			title="Stop Bingo"
 			highlight
 			@click="closeBingo()" />
@@ -25,10 +25,11 @@
 </template>
 
 <script lang="ts">
-import store, { BingoData } from '@/store';
+import store from '@/store';
+import type { BingoData } from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
+import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Options({
@@ -41,6 +42,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 export default class BingoState extends Vue {
 
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get bingoData():BingoData {
 		return store.state.bingo as BingoData;
