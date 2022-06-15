@@ -18,7 +18,8 @@ export default defineConfig({
 	},
 
 	build: {
-		target: 'es2020'
+		target: 'es2020',
+        sourcemap: true,
 	},
 
 	resolve: {
@@ -30,7 +31,7 @@ export default defineConfig({
 	css: {
 		preprocessorOptions: {
 			less: {
-				//Requires proper version of less-loader to work. Tested with 7.0.1
+				//Requires proper version of less-loader to work. Tested with 8.0.0
 				additionalData: `
 					@import "./src/less/index.less";
 					@import "./src/less/_includes.less";
