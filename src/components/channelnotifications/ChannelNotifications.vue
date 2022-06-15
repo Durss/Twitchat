@@ -27,7 +27,7 @@
 			<div class="closeBt" v-if="showClose">
 				<Button small white
 					aria-label="Close current content"
-					:icon="require('@/assets/icons/cross.svg')"
+					:icon="$image('icons/cross.svg')"
 					@click="$emit('close')" />
 			</div>
 		</div>
@@ -35,9 +35,10 @@
 </template>
 
 <script lang="ts">
-import store, { HypeTrainStateData } from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import store from '@/store';
+import type { HypeTrainStateData } from '@/store';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

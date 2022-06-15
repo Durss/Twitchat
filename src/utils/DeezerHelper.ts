@@ -2,7 +2,7 @@ import store from "@/store";
 import { reactive } from "vue";
 import Config from "./Config";
 import PublicAPI from "./PublicAPI";
-import { MusicMessage } from "./TriggerActionHandler";
+import type { MusicMessage } from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -83,7 +83,7 @@ export default class DeezerHelper {
 				//This interval is here to refresh the iframe until the ready event is
 				//properly fired.
 				clearInterval(this._initCheckInterval);
-				this._initCheckInterval = setInterval(()=> {
+				this._initCheckInterval = window.setInterval(()=> {
 					if(!readyFlag) {
 						console.log("DZ SDK failed to initialize, try again");
 						const iframe:HTMLIFrameElement = this._playerHolder.getElementsByTagName("iframe")[0];
@@ -149,7 +149,7 @@ export default class DeezerHelper {
 				window.addEventListener("mouseenter", onFocus);
 				
 				const onBlur = () => {
-					setTimeout(() => {
+					window.setTimeout(() => {
 						if(!document.activeElement) return;
 						if (document.activeElement.tagName === "IFRAME") {
 							this.userInteracted = true;
@@ -238,7 +238,7 @@ export default class DeezerHelper {
 			e.async = true;
 			e.onload = ()=> {
 				//Cleanup DOM
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					document.body.removeChild(e);
 				}, 1000)
 			}

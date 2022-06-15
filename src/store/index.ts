@@ -1,23 +1,27 @@
-import { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
+import type { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
 import BTTVUtils from '@/utils/BTTVUtils';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
+import IRCEvent from '@/utils/IRCEvent';
+import type{ ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
-import PubSub, { PubSubTypes } from '@/utils/PubSub';
+import PubSub from '@/utils/PubSub';
+import type { PubSubTypes } from '@/utils/PubSub';
 import SevenTVUtils from '@/utils/SevenTVUtils';
-import SpotifyHelper, { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
+import SpotifyHelper from '@/utils/SpotifyHelper';
+import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { ChatUserstate, UserNoticeState } from 'tmi.js';
-import { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import { createStore } from 'vuex';
+import type { ChatUserstate, UserNoticeState } from 'tmi.js';
+import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
+import  { createStore } from 'vuex';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -851,7 +855,7 @@ export default createStore({
 			//IF reaching this point, it's most probably because 
 			if(payload.retryCount != 5) {
 				const retryCount = payload.retryCount? payload.retryCount++ : 1;
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					//@ts-ignore (typings seems wrong, this line is actually correct)
 					this.commit("flagLowTrustMessage", {data:payload.data, retryCount})
 				}, 100);
@@ -1233,7 +1237,7 @@ export default createStore({
 							//it just after receiving a message.
 							//If we didn't wait for a frame, the message would be sent properly
 							//but wouldn't appear on this chat.
-							setTimeout(()=> {
+							window.setTimeout(()=> {
 								let message = state.botMessages.bingo.message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);

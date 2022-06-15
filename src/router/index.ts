@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import Chat from '../views/Chat.vue'
 import Home from '../views/Home.vue'
 import ChatLight from '../views/ChatLight.vue'
@@ -7,8 +8,8 @@ import Logout from '../views/Logout.vue'
 import Overlay from '../views/Overlay.vue'
 import store from '@/store'
 import Utils from '@/utils/Utils'
-import { SpotifyAuthResult } from '@/utils/SpotifyHelper'
-import { DeezerAuthResult } from '@/utils/DeezerHelper'
+import type { SpotifyAuthResult } from '@/utils/SpotifyHelper'
+import type { DeezerAuthResult } from '@/utils/DeezerHelper'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -116,7 +117,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-	history: createWebHistory(process.env.BASE_URL),
+	history: createWebHistory(),
 	routes
 })
 

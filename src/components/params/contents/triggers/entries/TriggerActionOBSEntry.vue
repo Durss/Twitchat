@@ -30,9 +30,11 @@
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/store';
-import OBSWebsocket, { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
-import { ITriggerActionHelper, TriggerActionHelpers } from '@/utils/TriggerActionHandler';
+import type { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/store';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { ITriggerActionHelper } from '@/utils/TriggerActionHandler';
+import { TriggerActionHelpers } from '@/utils/TriggerActionHandler';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 

@@ -39,11 +39,12 @@
 </template>
 
 <script lang="ts">
-import store, { HypeTrainStateData } from '@/store';
+import store  from '@/store';
+import type { HypeTrainStateData } from '@/store';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ProgressBar from '../ProgressBar.vue';
 

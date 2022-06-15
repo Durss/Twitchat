@@ -1,15 +1,17 @@
 {
+	"extends": "@vue/tsconfig/tsconfig.web.json",
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "esnext",
 		"strict": true,
 		"jsx": "preserve",
-		"importHelpers": true,
 		"moduleResolution": "node",
 		"experimentalDecorators": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"useDefineForClassFields": true,
 		"sourceMap": true,
 		"baseUrl": ".",
 		"types": [
@@ -36,5 +38,10 @@
 	],
 	"exclude": [
 		"node_modules"
+	],
+	"references": [
+		{
+			"path": "./tsconfig.vite-config.json"
+		}
 	]
 }

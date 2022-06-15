@@ -20,7 +20,7 @@
 		</div>
 
 		<Button class="item"
-			:icon="require('@/assets/icons/ticket.svg')"
+			:icon="$image('icons/ticket.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
 			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
@@ -28,7 +28,7 @@
 		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
 		<Button class="item"
-			:icon="require('@/assets/icons/cross_white.svg')"
+			:icon="$image('icons/cross_white.svg')"
 			title="Stop Raffle"
 			highlight
 			@click="closeRaffle()" />
@@ -36,17 +36,18 @@
 </template>
 
 <script lang="ts">
-import store, { RaffleData, RaffleVote } from '@/store';
+import type { RaffleData, RaffleVote } from '@/store';
+import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
-import { ChatUserstate } from 'tmi.js';
-import { JsonObject } from "type-fest";
+import type { ChatUserstate } from 'tmi.js';
+import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import { WheelData, WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
-import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
+import type { WheelData, WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
+import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
 

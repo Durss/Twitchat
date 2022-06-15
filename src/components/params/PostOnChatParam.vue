@@ -13,11 +13,13 @@
 </template>
 
 <script lang="ts">
-import store, { BotMessageField, ParameterData } from '@/store';
+import store  from '@/store';
+import type { BotMessageField, ParameterData } from '@/store';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from './ParamItem.vue';
-import PlaceholderSelector, { PlaceholderEntry } from './PlaceholderSelector.vue';
+import PlaceholderSelector from './PlaceholderSelector.vue';
+import type { PlaceholderEntry } from './PlaceholderSelector.vue';
 
 @Options({
 	props:{

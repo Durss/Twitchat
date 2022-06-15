@@ -2,13 +2,13 @@
 	<div :class="classes" @click.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
-		<img :src="require('@/assets/icons/'+icon+'.svg')" alt="notice" class="icon">
+		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 		<span class="message" v-html="text"></span>
 	</div>
 </template>
 
 <script lang="ts">
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 

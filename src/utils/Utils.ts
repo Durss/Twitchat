@@ -1,7 +1,8 @@
 import router from '@/router';
 import Store from '@/store/Store';
-import { ChatUserstate } from 'tmi.js';
-import store, { PermissionsData } from '../store';
+import type { ChatUserstate } from 'tmi.js';
+import store  from '@/store';
+import type { PermissionsData } from '../store';
 
 /**
  * Created by Durss
@@ -115,7 +116,7 @@ export default class Utils {
 
 	public static promisedTimeout(delay: number): Promise<void> {
 		return new Promise(function (resolve) {
-			setTimeout(() => resolve(), delay);
+			window.setTimeout(() => resolve(), delay);
 		})
 	}
 

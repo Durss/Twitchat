@@ -1,6 +1,6 @@
 <template>
 	<div class="activityfeedfilters">
-		<Button @click="opened = !opened" :icon="require('@/assets/icons/filters.svg')" small />
+		<Button @click="opened = !opened" :icon="$image('icons/filters.svg')" small />
 		<div class="list" v-if="opened">
 			<div class="row">
 				<label for="AF_subs" @click="showSubs = !showSubs">Subs</label>

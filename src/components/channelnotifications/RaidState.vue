@@ -7,9 +7,9 @@
 			<span class="timer">({{timeLeft}}s)</span>
 		</div>
 
-		<!-- <Button class="startBt" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
+		<!-- <Button class="startBt" type="button" :icon="$image('icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
 		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry :(</div>
-		<Button class="cancelBt" type="button" :icon="require('@/assets/icons/cross_white.svg')" bounce highlight title="Cancel" @click="cancelRaid()" />
+		<Button class="cancelBt" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" @click="cancelRaid()" />
 
 	</div>
 </template>
@@ -17,7 +17,8 @@
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -39,7 +40,7 @@ export default class RaidState extends Vue {
 
 	public async mounted():Promise<void> {
 		this.timerStart = Date.now();
-		this.timerInterval = setInterval(()=> {
+		this.timerInterval = window.setInterval(()=> {
 			this.updateTimer();
 		}, 250);
 		

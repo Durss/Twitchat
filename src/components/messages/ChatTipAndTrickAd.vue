@@ -52,7 +52,7 @@
 			<h1 class="row">Twitchat API</h1>
 			<div class="row">Did you know Twitchat exposes an API?</div>
 			<div class="row">If you're a developer, you can control and get events from Twitchat.</div>
-			<Button :icon="require('@/assets/icons/github_white.svg')"
+			<Button :icon="$image('icons/github_white.svg')"
 				title="Read documentation"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
 				target="_blank"
@@ -82,7 +82,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import { ParamsContenType } from '../params/Parameters.vue';
+import type { ParamsContenType } from '../params/Parameters.vue';
 
 @Options({
 	props:{},

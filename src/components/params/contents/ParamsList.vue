@@ -33,12 +33,13 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterCategory, ParameterData } from '@/store';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
-import { PlaceholderEntry } from '../PlaceholderSelector.vue';
+import type { PlaceholderEntry } from '../PlaceholderSelector.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 
 @Options({

@@ -10,13 +10,13 @@
 	>
 		<template #actions>
 			<Button small
-				:icon="require('@/assets/icons/copy.svg')"
+				:icon="$image('icons/copy.svg')"
 				class="toggleAction"
 				@click="$emit('duplicate')"
 				data-tooltip="Duplicate"
 			/>
 			<Button small highlight
-				:icon="require('@/assets/icons/cross_white.svg')"
+				:icon="$image('icons/cross_white.svg')"
 				class="toggleAction"
 				@click="$emit('delete')"
 			/>
@@ -25,9 +25,9 @@
 		<div>
 			<div v-if="action.type===''" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
-				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="require('@/assets/icons/whispers_purple.svg')"/>
-				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="require('@/assets/icons/obs_purple.svg')"/>
-				<Button class="button" white @click="selectActionType('music')" title="Control music" :icon="require('@/assets/icons/music_purple.svg')" v-if="musicServiceConfigured"/>
+				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('music')" title="Control music" :icon="$image('icons/music_purple.svg')" v-if="musicServiceConfigured"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
@@ -43,10 +43,10 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { ParameterData, TriggerActionTypes } from '@/store';
-import { OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { ParameterData, TriggerActionTypes } from '@/store';
+import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
-import ParamItem from '../../ParamItem.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';

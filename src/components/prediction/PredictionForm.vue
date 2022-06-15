@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create prediction</span>
-				<Button aria-label="Close prediction form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close prediction form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
@@ -23,7 +23,7 @@
 								v-autofocus="index == 0 && title != ''"
 							>
 							<Button aria-label="Delte outcome option" class="deleteBt" small
-								:icon="require('@/assets/icons/cross.svg')"
+								:icon="$image('icons/cross.svg')"
 								type="button"
 								v-if="answers.length > 2"
 								@click="deleteAnswer(index)"
@@ -44,7 +44,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterData } from '@/store';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';

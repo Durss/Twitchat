@@ -17,10 +17,10 @@
 				white
 				:to="{name:'login'}"
 				class="loginBt"
-				:icon="require('@/assets/icons/twitch.svg')"
+				:icon="$image('icons/twitch.svg')"
 			/>
 
-			<Button :icon="require('@/assets/icons/discord.svg')"
+			<Button :icon="$image('icons/discord.svg')"
 				title="Join Discord"
 				:href="discordURL"
 				target="_blank"
@@ -29,7 +29,7 @@
 				big
 			/>
 
-			<Button :icon="require('@/assets/icons/elgato.svg')"
+			<Button :icon="$image('icons/elgato.svg')"
 				title="Stream Deck™ plugin"
 				href="https://apps.elgato.com/plugins/fr.twitchat"
 				target="_blank"

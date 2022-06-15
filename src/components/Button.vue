@@ -27,9 +27,10 @@
 </template>
 
 <script lang="ts">
-import { Ref, watch } from '@vue/runtime-core';
+import type { Ref } from '@vue/runtime-core';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -69,7 +70,7 @@ export default class Button extends Vue {
 	public type!:string;
 	public target!:string;
 	public to!:unknown;
-	public percent!:Ref<number>;
+	public percent!:number;
 	public white!:boolean;
 	public big!:boolean;
 	public small!:boolean;
@@ -90,9 +91,9 @@ export default class Button extends Vue {
 
 	public get checkMarkIcon():string {
 		if(this.white !== false) {
-			return require('@/assets/icons/checkmark_white.svg');
+			return this.$image('icons/checkmark_white.svg');
 		}else{
-			return require('@/assets/icons/checkmark.svg');
+			return this.$image('icons/checkmark.svg');
 		}
 	}
 
@@ -151,10 +152,10 @@ export default class Button extends Vue {
 			this.checked = val;
 		});
 		
-		watch(() => this.percent, (val:Ref<number>) => {
-			let duration = val.value < this.pInterpolated? 0 : .35;
+		watch(() => this.percent, (val:number) => {
+			let duration = val < this.pInterpolated? 0 : .35;
 			gsap.killTweensOf(this);
-			gsap.to(this, {duration, pInterpolated:val.value, ease:"sine.inout"});
+			gsap.to(this, {duration, pInterpolated:val, ease:"sine.inout"});
 		});
 	}
 

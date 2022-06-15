@@ -11,7 +11,8 @@
 </template>
 
 <script lang="ts">
-import { StyleValue, watch } from 'vue';
+import { watch } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -77,7 +78,7 @@ export default class InfiniteList extends Vue {
 
 	private scheduleRender():void {
 		clearTimeout(this.renderDebounce);
-		this.renderDebounce = setTimeout(()=>{
+		this.renderDebounce = window.setTimeout(()=>{
 			this.renderList();
 		},0)
 	}

@@ -2,14 +2,14 @@
 	<div :class="classes">
 		<div class="header" @click.stop="toggle()">
 			<Button small
-				:icon="require('@/assets/icons/orderable_white.svg')"
+				:icon="$image('icons/orderable_white.svg')"
 				class="orderBt"
 				warn
 				v-if="orderable!==false"
 				@mousedown="$emit('startDrag', $event)"
 				data-tooltip="Reorder"
 			/>
-			<img v-for="icon in localIcons" :src="require('@/assets/icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
+			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
 			<h2 v-html="localTitle"></h2>
 			<slot name="actions"></slot>
 		</div>

@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create Raffle</span>
-				<Button aria-label="Close raffle form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close raffle form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -15,8 +15,8 @@
 				</div>
 				
 				<div class="tabs">
-					<Button title="Chat" bounce :selected="!subMode" @click="subMode = false" :icon="require('@/assets/icons/commands.svg')" />
-					<Button title="Subs" bounce :selected="subMode" @click="subMode = true" :icon="require('@/assets/icons/sub.svg')" />
+					<Button title="Chat" bounce :selected="!subMode" @click="subMode = false" :icon="$image('icons/commands.svg')" />
+					<Button title="Subs" bounce :selected="subMode" @click="subMode = true" :icon="$image('icons/sub.svg')" />
 				</div>
 
 				<form @submit.prevent="onSubmit()" class="form" v-if="!subMode">
@@ -37,7 +37,7 @@
 					</div>
 
 					<div class="row">
-						<Button aria-label="Start raffle" type="submit" title="Start" :icon="require('@/assets/icons/ticket.svg')" />
+						<Button aria-label="Start raffle" type="submit" title="Start" :icon="$image('icons/ticket.svg')" />
 					</div>
 				</form>
 					
@@ -61,7 +61,7 @@
 					<div class="row">
 						<Button type="submit"
 						:title="'Pick a sub <i>('+subsFiltered.length+')</i>'"
-						:icon="require('@/assets/icons/sub.svg')"
+						:icon="$image('icons/sub.svg')"
 						:loading="loadingSubs"
 						@click="pickSub()" />
 					</div>
@@ -84,18 +84,20 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData, RaffleData } from '@/store';
+import store  from '@/store';
+import type { ParameterData, RaffleData } from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
-import { JsonObject } from "type-fest";
+import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import { WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
+import type { WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
 import ParamItem from '../params/ParamItem.vue';
-import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
+import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';

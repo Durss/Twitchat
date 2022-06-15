@@ -25,9 +25,12 @@
 </template>
 
 <script lang="ts">
-import { ParameterData, TriggerActionMusicEntryData } from '@/store';
+import type { ParameterData, TriggerActionMusicEntryData } from '@/store';
 import Config from '@/utils/Config';
-import { ITriggerActionHelper, MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypes, TriggerMusicTypes } from '@/utils/TriggerActionHandler';
+import type { ITriggerActionHelper, TriggerEventTypes } from '@/utils/TriggerActionHandler';
+
+import { TriggerActionHelpers, TriggerMusicTypes, MusicTriggerEvents } from '@/utils/TriggerActionHandler';
+
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';

@@ -103,7 +103,7 @@ export default class Confirm extends Vue {
 		}
 	}
 
-	private answer(confirm:boolean):void {
+	public answer(confirm:boolean = false):void {
 		if(!store.state.confirm.title) return;
 		
 		if(confirm) {

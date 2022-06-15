@@ -25,7 +25,7 @@
 					class="moreInfoBt"
 					v-if="!showPermissions"
 					@click.prevent="showPermissions = !showPermissions"
-					:icon="require('@/assets/icons/help.svg')"
+					:icon="$image('icons/help.svg')"
 				/>
 			</div>
 			
@@ -51,7 +51,7 @@
 				bounce
 				:loading="generatingCSRF"
 				:data-tooltip="generatingCSRF? 'Generating CSRF token...' : ''"
-				:icon="require('@/assets/icons/twitch_white.svg')"
+				:icon="$image('icons/twitch_white.svg')"
 			/>
 
 			<Button title="Try again"
@@ -59,7 +59,7 @@
 				v-if="!authenticating && !oAuthURL"
 				@click="generateCSRF()"
 				:loading="generatingCSRF"
-				:icon="require('@/assets/icons/refresh.svg')"
+				:icon="$image('icons/refresh.svg')"
 			/>
 			
 			<div class="loader" v-if="authenticating">
@@ -135,7 +135,7 @@ export default class Login extends Vue {
 	}
 
 	public get newScopes():string[] {
-		return store.state.newScopeToRequest.map(v => {
+		return store.state.newScopeToRequest.map((v:string) => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});

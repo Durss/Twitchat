@@ -21,7 +21,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from '../InfiniteList.vue';
-import { JsonObject } from "type-fest";
+import type { JsonObject } from "type-fest";
 
 @Options({
 	props:{},
@@ -61,7 +61,7 @@ export default class OverlaysRaffleWheel extends Vue {
 				clearTimeout(this.resizeDebounce);
 				if(this.itemList.length > 0) {
 					//Only populate on resize
-					this.resizeDebounce = setTimeout(()=>this.populate(), 50);
+					this.resizeDebounce = window.setTimeout(()=>this.populate(), 50);
 				}
 			}
 		}

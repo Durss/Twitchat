@@ -21,7 +21,7 @@ export default class CommercialTimer extends Vue {
 
 	public mounted():void {
 		this.refreshTimer();
-		this.interval = setInterval(()=> this.refreshTimer(), 200);
+		this.interval = window.setInterval(()=> this.refreshTimer(), 200);
 	}
 
 	public beforeUnmount():void {

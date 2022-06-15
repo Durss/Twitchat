@@ -1,8 +1,9 @@
 import OBSWebSocket from 'obs-websocket-js';
-import { JsonArray, JsonObject } from 'type-fest';
+import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from './EventDispatcher';
-import TwitchatEvent, { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
+import type { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
+import TwitchatEvent from './TwitchatEvent';
 
 /**
 * Created : 29/03/2022 
@@ -66,7 +67,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		}catch(error) {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = setTimeout(()=> {
+				this.reconnectTimeout = window.setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -78,7 +79,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.connected = false;
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = setTimeout(()=> {
+				this.reconnectTimeout = window.setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -137,7 +138,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		if(!this.connected) {
 			//Try again
-			setTimeout(()=> this.broadcast(type, data), 1000);
+			window.setTimeout(()=> this.broadcast(type, data), 1000);
 			return;
 		}
 

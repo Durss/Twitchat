@@ -2,7 +2,7 @@
 	<div class="newusers" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
-				:icon="require('@/assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
+				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up'+'.svg'))"
 				class="scrollBt"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
 				@click.stop="toggleScroll()" />
@@ -10,7 +10,7 @@
 			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
 
 			<Button aria-label=""
-				:icon="require('@/assets/icons/delete.svg')"
+				:icon="$image('icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
 				@click.stop="clearAll()" />
@@ -81,7 +81,8 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
+import IRCEvent from '@/utils/IRCEvent';
+import type{ IRCEventDataList } from '@/utils/IRCEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
@@ -155,7 +156,7 @@ export default class NewUsers extends Vue {
 		});
 
 		//Automatically deletes messages after the configured delay
-		this.deleteInterval = setInterval(()=> {
+		this.deleteInterval = window.setInterval(()=> {
 			if(this.autoDeleteAfter == -1) return;
 
 			const clearTimeoffset = Date.now() - this.autoDeleteAfter * 1000;
@@ -171,7 +172,9 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hor reload during development
-		this.localMessages = this.localMessages.concat(store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[]).splice(0,50);
+		this.localMessages = this.localMessages.concat(
+			store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
+			.splice(0,50);
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);

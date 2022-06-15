@@ -13,7 +13,7 @@
 
 			<form @submit.prevent="sendWhisper()">
 				<input type="text" placeholder="answer..." class="dark" v-model="whisper">
-				<Button class="submit" type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" :disabled="!whisper" />
+				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
 			</form>
 		</div>
 
@@ -29,7 +29,7 @@
 					bounce
 					:data-tooltip="u[0].tags['display-name']" />
 					
-				<Button :icon="require('@/assets/icons/cross_white.svg')"
+				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
 					@click="deleteWhispers(uid.toString())" />
@@ -41,7 +41,7 @@
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';

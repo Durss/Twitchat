@@ -4,8 +4,8 @@
 
 		<div class="title">Connected as <strong>{{$store.state.user.login}}</strong></div>
 
-		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="require('@/assets/icons/twitchat.svg')" />
-		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="require('@/assets/icons/logout.svg')" />
+		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
+		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
 		
 	</div>
 </template>
@@ -13,7 +13,8 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import router from '@/router';
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterCategory, ParameterData } from '@/store';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';

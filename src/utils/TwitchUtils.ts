@@ -1,11 +1,11 @@
 import router from "@/router";
 import store from "@/store";
-import { Badges, ChatUserstate } from "tmi.js";
+import type { Badges, ChatUserstate } from "tmi.js";
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import FFZUtils from "./FFZUtils";
 import IRCClient from "./IRCClient";
-import { IRCEventDataList } from "./IRCEvent";
+import type { IRCEventDataList } from "./IRCEvent";
 import SevenTVUtils from "./SevenTVUtils";
 import Utils from "./Utils";
 
@@ -492,7 +492,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
 			store.dispatch("setPolls", {data:json.data});
@@ -572,7 +572,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
 			store.dispatch("setPredictions", json.data);

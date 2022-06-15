@@ -18,7 +18,7 @@
 					@click="selectUser(u)"
 					:title="'('+u.messages.length+') '+u.user['display-name']"
 					bounce />
-				<Button :icon="require('@/assets/icons/cross_white.svg')"
+				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
 				@click="untrackUser(u)" />
@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

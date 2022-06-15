@@ -1,7 +1,8 @@
 import Config from "@/utils/Config";
 import { TriggerTypes } from "@/utils/TriggerActionHandler";
-import { JsonValue } from "type-fest";
-import store, { TriggerActionTypes, TriggerActionChatCommandData } from ".";
+import type { JsonValue } from "type-fest";
+import store  from '@/store';
+import type { TriggerActionTypes, TriggerActionChatCommandData } from ".";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -130,7 +131,7 @@ export default class Store {
 		const access_token = store.state.oAuthToken?.access_token;
 		if(!access_token) return;
 		
-		this.saveTO = setTimeout(async () => {
+		this.saveTO = window.setTimeout(async () => {
 			const data = JSON.parse(JSON.stringify(this.rawStore));
 			//Do not save sensitive data to server
 			delete data.obsPass;

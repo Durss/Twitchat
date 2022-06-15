@@ -1,13 +1,13 @@
 <template>
 	<div class="ChatMessageHoverActions">
 		<Button :aria-label="'Track '+messageData.tags.username+' messages'"
-			:icon="require('@/assets/icons/magnet.svg')"
+			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
 			v-if="!isSelf"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
-			:icon="require('@/assets/icons/shoutout.svg')"
+			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
 			v-if="!isSelf"
@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

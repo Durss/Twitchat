@@ -1,12 +1,12 @@
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/all';
 import { createApp } from 'vue';
-import { NavigationGuardNext, RouteLocation } from 'vue-router';
+import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import App from './App.vue';
 import './less/index.less';
 import router from './router';
 import store from './store';
-import { TwitchTypes } from './utils/TwitchUtils';
+import type { TwitchTypes } from './utils/TwitchUtils';
 import Utils from './utils/Utils';
 
 gsap.registerPlugin(ScrollToPlugin);
@@ -24,7 +24,7 @@ async function scheduleTokenRefresh():Promise<void> {
 	if(delay > maxDelay) delay = maxDelay;
 
 	console.log("Refresh token in", delay);
-	setTimeout(()=>{
+	window.setTimeout(()=>{
 		store.dispatch("authenticate", {forceRefresh:true, cb:(success:boolean)=>{
 			if(success) {
 				scheduleTokenRefresh();
@@ -82,10 +82,15 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	next();
 });
 
-createApp(App)
+const image = (path:string):string => {
+	return new URL(`/src/assets/${path}`, import.meta.url).href;
+}
+
+const app = createApp(App)
 .use(store)
 .use(router)
 .provide("$store", store)
+.provide("$image", image)
 .directive('autofocus', {
 	mounted(el:HTMLDivElement, binding:unknown) {
 		if((binding as {[key:string]:boolean}).value !== false) {
@@ -98,8 +103,9 @@ createApp(App)
 			el.focus({preventScroll:true});
 		}
 	}
-})
-.mount('#app')
+});
+app.config.globalProperties.$image = image;
+app.mount('#app')
 
 window.addEventListener("beforeinstallprompt", (e)=> {
 	e.preventDefault();

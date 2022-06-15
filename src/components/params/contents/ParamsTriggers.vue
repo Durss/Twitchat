@@ -10,7 +10,7 @@
 			<Button class="backBt" v-if="event_conf.value != '0'"
 				white
 				@click="event_conf.value = '0'"
-				:icon="require('@/assets/icons/back_purple.svg')"
+				:icon="$image('icons/back_purple.svg')"
 			/>
 			<div class="list">
 				<div v-for="e in event_conf.listValues" :key="(e.value as string)">
@@ -30,8 +30,8 @@
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
 		<div class="ctas" v-if="canTestAction">
-			<Button title="Test trigger" class="cta" @click="testTrigger()" :icon="require('@/assets/icons/test.svg')" />
-			<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="require('@/assets/icons/delete.svg')" />
+			<Button title="Test trigger" class="cta" @click="testTrigger()" :icon="$image('icons/test.svg')" />
+			<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="$image('icons/delete.svg')" />
 		</div>
 
 		<TriggerActionChatCommandParams class="chatCmdParams"
@@ -63,12 +63,12 @@
 		</draggable>
 
 		<div class="buttons">
-			<Button :icon="require('@/assets/icons/add.svg')" title="Add action"
+			<Button :icon="$image('icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
 				v-if="event_conf.value != '0'"
 			/>
-			<Button :icon="require('@/assets/icons/refresh.svg')" title="Resync OBS sources"
+			<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
 				class="addBt"
 				@click="listSources(true)"
 				v-if="event_conf.value != '0'" :loading="syncing"
@@ -78,12 +78,16 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData, ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
+import store  from '@/store';
+import type { ParameterData, ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
 import Config from '@/utils/Config';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import OBSWebsocket, { OBSSourceItem } from '@/utils/OBSWebsocket';
-import TriggerActionHandler, { TriggerEvents, TriggerEventTypes, TriggerTypes } from '@/utils/TriggerActionHandler';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { TriggerEventTypes } from '@/utils/TriggerActionHandler';
+import TriggerActionHandler, { TriggerEvents, TriggerTypes } from '@/utils/TriggerActionHandler';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -193,7 +197,7 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = "music_purple";
 		
 		if(map[e.value as string]) {
-			return require('@/assets/icons/'+map[e.value as string]+".svg");
+			return  this.$image('icons/'+map[e.value as string]+".svg");
 		}
 		return null;
 	}

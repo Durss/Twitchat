@@ -15,9 +15,11 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store, { OBSMuteUnmuteCommands, ParameterData } from '@/store';
+import store  from '@/store';
+import type { OBSMuteUnmuteCommands, ParameterData } from '@/store';
 import Store from '@/store/Store';
-import OBSWebsocket, { OBSAudioSource } from '@/utils/OBSWebsocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSAudioSource } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -63,7 +65,7 @@ export default class OBSAudioSourceForm extends Vue {
 		store.dispatch("setOBSMuteUnmuteCommands", commands);
 	}
 
-	private async listAudioSources(manualCheck:boolean = false):Promise<void> {
+	public async listAudioSources(manualCheck:boolean = false):Promise<void> {
 		const storeConfStr = Store.get("obsConf_muteUnmute");
 		let storeConf!:OBSMuteUnmuteCommands;
 		if(storeConfStr) {

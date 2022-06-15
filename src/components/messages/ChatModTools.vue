@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -69,7 +69,7 @@ export default class ChatModTools extends Vue {
 	}
 
 	public closeToOptions():void {
-		this.closeTimeout = setTimeout(() => {
+		this.closeTimeout = window.setTimeout(() => {
 			const holder = this.$refs.toOptions as HTMLDivElement;
 			gsap.to(holder, {width:0, duration:.2, ease:"sin.inOut",
 			onComplete:()=> {

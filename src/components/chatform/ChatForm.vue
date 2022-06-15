@@ -2,11 +2,11 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<Button aria-label="Open parameters" :icon="require('@/assets/icons/params.svg')" bounce @click="toggleParams()" />
-				<Button aria-label="Open chat commands" :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
-				<Button aria-label="Open activity feed" :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
-				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
+				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
+				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
+				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
+				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
 			<form @submit.prevent="" class="inputForm">
@@ -24,16 +24,16 @@
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
 				<!-- <Button aria-label="send message"
-					@click="sendMessage()" type="button" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
+					@click="sendMessage()" type="button" :icon="$image('icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
 				
 				<Button aria-label="Open emotes list"
-					:icon="require('@/assets/icons/emote.svg')"
+					:icon="$image('icons/emote.svg')"
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
 
 				<transition name="blink">
 				<Button aria-label="Open current poll"
-					:icon="require('@/assets/icons/poll.svg')"
+					:icon="$image('icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
 					v-if="$store.state.currentPoll?.id" />
@@ -41,7 +41,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current chat poll"
-					:icon="require('@/assets/icons/chatPoll.svg')"
+					:icon="$image('icons/chatPoll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'chatpoll')"
 					v-if="$store.state.chatPoll != null" />
@@ -49,7 +49,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current prediction"
-					:icon="require('@/assets/icons/prediction.svg')"
+					:icon="$image('icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
 					v-if="$store.state.currentPrediction?.id" />
@@ -57,7 +57,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open tracked users"
-					:icon="require('@/assets/icons/magnet.svg')"
+					:icon="$image('icons/magnet.svg')"
 					bounce
 					v-if="$store.state.trackedUsers.length > 0"
 					data-tooltip="View tracked users"
@@ -66,7 +66,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current raffle"
-					:icon="require('@/assets/icons/ticket.svg')"
+					:icon="$image('icons/ticket.svg')"
 					bounce
 					v-if="$store.state.raffle"
 					data-tooltip="Raffle"
@@ -75,7 +75,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current bingo"
-					:icon="require('@/assets/icons/bingo.svg')"
+					:icon="$image('icons/bingo.svg')"
 					bounce
 					v-if="$store.state.bingo"
 					data-tooltip="Bingo"
@@ -85,7 +85,7 @@
 				<transition name="blink">
 				<div class="whispers" v-if="whispersAvailable">
 					<Button aria-label="Open whispers"
-						:icon="require('@/assets/icons/whispers.svg')"
+						:icon="$image('icons/whispers.svg')"
 						bounce
 						small
 						data-tooltip="Whispers"
@@ -96,7 +96,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open dev mode options"
-					:icon="require('@/assets/icons/debug.svg')"
+					:icon="$image('icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
 					v-if="$store.state.devmode" />
@@ -104,7 +104,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
-					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
+					:icon="$image('icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
@@ -113,7 +113,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open deezer player"
-					:icon="require('@/assets/icons/deezer.svg')"
+					:icon="$image('icons/deezer.svg')"
 					bounce
 					v-if="$store.state.deezerConnected"
 					data-tooltip="Deezer"
@@ -151,9 +151,11 @@
 </template>
 
 <script lang="ts">
-import store, { BingoConfig, TwitchatAdTypes } from '@/store';
+import store  from '@/store';
+import type { BingoConfig} from '@/store';
+import { TwitchatAdTypes } from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -309,7 +311,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 			store.dispatch("toggleDevMode");
 		}else
-		
+
 		if(cmd == "/error") {
 			this.message = "";
 			throw(new Error("Test error"));
@@ -398,7 +400,7 @@ export default class ChatForm extends Vue {
 					min: 4
 				}
 			});
-			this.spamInterval = setInterval(()=> {
+			this.spamInterval = window.setInterval(()=> {
 				const tags = IRCClient.instance.getFakeTags();
 				tags.username = store.state.user.login;
 				tags["display-name"] = store.state.user.login;

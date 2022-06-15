@@ -24,7 +24,7 @@
 			class="saveBt"
 			v-if="isChange"
 			@click="save()"
-			:icon="require('@/assets/icons/save.svg')"
+			:icon="$image('icons/save.svg')"
 			:disabled="param_cmd.value === ''"
 		/> -->
 	</ToggleBlock>
@@ -33,7 +33,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store, { ParameterData, TriggerActionChatCommandData } from '@/store';
+import store  from '@/store';
+import type { ParameterData, TriggerActionChatCommandData } from '@/store';
 import { TriggerTypes } from '@/utils/TriggerActionHandler';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';

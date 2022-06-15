@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create chat poll</span>
-				<Button aria-label="Close chat poll form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close chat poll form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -38,7 +38,8 @@
 </template>
 
 <script lang="ts">
-import store, { ChatPollData, ParameterData } from '@/store';
+import store  from '@/store';
+import type { ChatPollData, ParameterData } from '@/store';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

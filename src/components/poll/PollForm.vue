@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create poll</span>
-				<Button aria-label="Close poll form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close poll form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
@@ -43,7 +43,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store  from '@/store';
+import type { ParameterData } from '@/store';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';

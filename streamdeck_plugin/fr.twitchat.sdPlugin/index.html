@@ -211,7 +211,7 @@
 				console.log(error);
 				connecting = false;
 				clearTimeout(reconnectTimeout);
-				reconnectTimeout = setTimeout(()=> {
+				reconnectTimeout = window.setTimeout(()=> {
 					obsConnect(context);
 				}, 5000);
 				return false;
@@ -229,7 +229,7 @@
 					//If state has changed, tell the property inspector
 					if(changed) actions.SetGlobalSettings(settingsCache);
 					clearTimeout(reconnectTimeout);
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						obsConnect(context);
 					}, 5000);
 				});
