@@ -2,7 +2,7 @@
 	<div class="newusers" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
-				:icon="getImage('assets/icons/scroll'+(scrollDownAuto? 'Down' : 'Up'+'.svg'))"
+				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up'+'.svg'))"
 				class="scrollBt"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
 				@click.stop="toggleScroll()" />
@@ -10,7 +10,7 @@
 			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
 
 			<Button aria-label=""
-				:icon="getImage('assets/icons/delete.svg')"
+				:icon="$image('icons/delete.svg')"
 				class="clearBt"
 				data-tooltip="Clear all messages"
 				@click.stop="clearAll()" />
@@ -113,7 +113,6 @@ export default class NewUsers extends Vue {
 	public maxHeightPos:number = 0;
 	public maxHeightSize:number = 0;
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private disposed:boolean = false;
 	private resizing:boolean = false;

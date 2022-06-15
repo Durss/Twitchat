@@ -11,6 +11,7 @@
 
 <script lang="ts">
 import UserCard from '@/components/user/UserCard.vue';
+import { inject } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import store from './store';
 import Alert from "./views/AlertView.vue";
@@ -43,6 +44,7 @@ export default class App extends Vue {
 	}
 
 	public mounted():void {
+		inject("$image");
 	}
 
 }

@@ -16,7 +16,7 @@
 		<Button v-if="isRaid"
 			aria-label="Send a shoutout"
 			small 
-			:icon="getImage('assets/icons/shoutout.svg')"
+			:icon="$image('icons/shoutout.svg')"
 			@click.stop="shoutout()"
 			:loading="shoutoutLoading"
 			data-tooltip="Send a shoutout"
@@ -57,7 +57,6 @@ export default class ChatHighlight extends Vue {
 	public isRaid:boolean = false;
 	public shoutoutLoading:boolean = false;
 	public loading:boolean = false;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private pStreamInfo:TwitchTypes.ChannelInfo|null = null;
 
@@ -129,23 +128,23 @@ export default class ChatHighlight extends Vue {
 		let res = "";
 		switch(type) {
 			case "follow":
-				this.icon = this.getImage('assets/icons/follow.svg');
+				this.icon = this.$image('icons/follow.svg');
 				res = "<strong>"+this.messageData.username+"</strong> followed your channel!";
 				break;
 
 			case "hype_cooldown_expired":
-				this.icon = this.getImage('assets/icons/train.svg');
+				this.icon = this.$image('icons/train.svg');
 				res = "Hype train can be started again!";
 				break;
 
 			case "community_boost_complete":
-				this.icon = this.getImage('assets/icons/boost.svg');
+				this.icon = this.$image('icons/boost.svg');
 				res = "Your channel has been boosted to "+this.messageData.viewers+" people";
 				break;
 
 			case "raid":
 				this.isRaid = true;
-				this.icon = this.getImage('assets/icons/raid.svg');
+				this.icon = this.$image('icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
 
 				if(store.state.params.features.raidStreamInfo.value === true) {
@@ -155,16 +154,16 @@ export default class ChatHighlight extends Vue {
 
 			case "bits":
 				res = "<strong>"+this.messageData.tags.username+"</strong> sent <strong>"+value+"</strong> bits";
-				this.icon = this.getImage('assets/icons/bits.svg');
+				this.icon = this.$image('icons/bits.svg');
 				break;
 
 			case "sub":
 				if(value == "prime") {
 					res = "<strong>"+this.messageData.username+"</strong> subscribed with Prime";
-					this.icon = this.getImage('assets/icons/prime.svg');
+					this.icon = this.$image('icons/prime.svg');
 				}else{
 					res = "<strong>"+this.messageData.username+"</strong> subscribed at Tier "+value;
-					this.icon = this.getImage('assets/icons/sub.svg');
+					this.icon = this.$image('icons/sub.svg');
 				}
 
 				if(typeof this.messageData.tags["msg-param-cumulative-months"] === "string") {
@@ -178,7 +177,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case "subgift":
-				this.icon = this.getImage('assets/icons/gift.svg');
+				this.icon = this.$image('icons/gift.svg');
 				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
 					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
 					const recipientsStr = "<strong>"+recipients.join("</strong>, <strong>")+"</strong>";
@@ -189,7 +188,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case "subgiftUpgrade":
-				this.icon = this.getImage('assets/icons/gift.svg');
+				this.icon = this.$image('icons/gift.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is continuing the Gift Sub they got from <strong>"+this.messageData.sender+"</strong>";
 				break;
 

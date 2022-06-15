@@ -20,7 +20,7 @@
 		</div>
 
 		<Button class="item"
-			:icon="getImage('assets/icons/ticket.svg')"
+			:icon="$image('icons/ticket.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
 			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
@@ -28,7 +28,7 @@
 		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
 		<Button class="item"
-			:icon="getImage('assets/icons/cross_white.svg')"
+			:icon="$image('icons/cross_white.svg')"
 			title="Stop Raffle"
 			highlight
 			@click="closeRaffle()" />
@@ -65,7 +65,6 @@ export default class RaffleState extends Vue {
 	public progressPercent:number = 0;
 	public raffleData:RaffleData = store.state.raffle as RaffleData;
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	
 	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists:boolean = false;

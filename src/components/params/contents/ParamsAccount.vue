@@ -4,8 +4,8 @@
 
 		<div class="title">Connected as <strong>{{$store.state.user.login}}</strong></div>
 
-		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="getImage('assets/icons/twitchat.svg')" />
-		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="getImage('assets/icons/logout.svg')" />
+		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
+		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
 		
 	</div>
 </template>
@@ -32,7 +32,6 @@ export default class ParamsAccount extends Vue {
 	public showSuggestions:boolean = false;
 	public showObs:boolean = false;
 	public showCredits:boolean = true;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get canInstall():boolean { return store.state.ahsInstaller != null || true; }
 

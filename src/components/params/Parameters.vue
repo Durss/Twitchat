@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Params</span>
-				<Button aria-label="Close parameters" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
@@ -83,7 +83,6 @@ export default class Parameters extends Vue {
 
 	public content:ParamsContenType = 'features';
 	public prevContent:ParamsContenType = null;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public showMenu:boolean = false;
 	public filteredParams:ParameterData[] = [];

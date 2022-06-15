@@ -10,7 +10,7 @@
 			<li><span class="index">1.</span>This plugin needs <a :href="obswsInstaller" target="_blank">OBS-websocket V5</a> plugin to be installed on OBS</li>
 			
 			<li><span class="index">2.</span> Install Stream Deck™ plugin:
-				<Button :icon="getImage('assets/icons/elgato.svg')"
+				<Button :icon="$image('icons/elgato.svg')"
 					title="Download plugin"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
@@ -47,7 +47,6 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ParamsStreamdeck extends Vue {
 	
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
 

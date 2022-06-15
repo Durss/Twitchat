@@ -27,13 +27,13 @@
 
 		<div class="actions">
 			<Button class="item"
-				:icon="getImage('assets/icons/chatPoll.svg')"
+				:icon="$image('icons/chatPoll.svg')"
 				title="Pick a random entry"
 				@click="pickEntry()"
 				:disabled="poll.choices.length === 0" />
 
 			<Button class="item"
-				:icon="getImage('assets/icons/cross_white.svg')"
+				:icon="$image('icons/cross_white.svg')"
 				title="Close chat poll"
 				highlight
 				@click="closePoll()" />
@@ -62,7 +62,6 @@ export default class ChatPollState extends Vue {
 
 	public loading:boolean = false;
 	public progressPercent:number = 0;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get poll():ChatPollData { return store.state.chatPoll as ChatPollData; }
 

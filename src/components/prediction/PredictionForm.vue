@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create prediction</span>
-				<Button aria-label="Close prediction form" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close prediction form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
@@ -23,7 +23,7 @@
 								v-autofocus="index == 0 && title != ''"
 							>
 							<Button aria-label="Delte outcome option" class="deleteBt" small
-								:icon="getImage('assets/icons/cross.svg')"
+								:icon="$image('icons/cross.svg')"
 								type="button"
 								v-if="answers.length > 2"
 								@click="deleteAnswer(index)"
@@ -70,7 +70,6 @@ export default class PredictionForm extends Vue {
 	public title:string = "";
 	public answers:string[] = ["", ""];
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get canSubmit():boolean {
 		return this.title.length > 1 && this.answers[0].length > 0 && this.answers[1].length > 0;

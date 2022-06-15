@@ -25,7 +25,7 @@
 					class="moreInfoBt"
 					v-if="!showPermissions"
 					@click.prevent="showPermissions = !showPermissions"
-					:icon="getImage('assets/icons/help.svg')"
+					:icon="$image('icons/help.svg')"
 				/>
 			</div>
 			
@@ -51,7 +51,7 @@
 				bounce
 				:loading="generatingCSRF"
 				:data-tooltip="generatingCSRF? 'Generating CSRF token...' : ''"
-				:icon="getImage('assets/icons/twitch_white.svg')"
+				:icon="$image('icons/twitch_white.svg')"
 			/>
 
 			<Button title="Try again"
@@ -59,7 +59,7 @@
 				v-if="!authenticating && !oAuthURL"
 				@click="generateCSRF()"
 				:loading="generatingCSRF"
-				:icon="getImage('assets/icons/refresh.svg')"
+				:icon="$image('icons/refresh.svg')"
 			/>
 			
 			<div class="loader" v-if="authenticating">
@@ -98,7 +98,6 @@ export default class Login extends Vue {
 	public authenticating:boolean = false;
 	public showPermissions:boolean = false;
 	public oAuthURL:string = "";
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	
 	private scopeToInfos:{[key:string]:string} = {
 		"chat:read": "Read your chat",

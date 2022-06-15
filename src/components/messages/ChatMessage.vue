@@ -112,7 +112,6 @@ export default class ChatMessage extends Vue {
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	
 	public firstTime:boolean = false;
 	public automod:PubSubTypes.AutomodData | null = null;
@@ -512,7 +511,7 @@ export default class ChatMessage extends Vue {
 			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		}
 
-		const button = "<img src='"+this.getImage('assets/icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
+		const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
 		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		
 		return result;

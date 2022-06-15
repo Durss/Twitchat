@@ -14,7 +14,7 @@
 				<div class="color" v-if="prediction.status != 'LOCKED'"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
-					:icon="getImage('assets/icons/checkmark_white.svg')"
+					:icon="$image('icons/checkmark_white.svg')"
 					v-if="prediction.status == 'LOCKED'"
 					:loading="loading" />
 				<div class="bar" :style="getAnswerStyles(c)">
@@ -55,7 +55,6 @@ export default class PredictionState extends Vue {
 
 	public loading:boolean = false;
 	public progressPercent:number = 0;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	
 	private disposed:boolean = false;
 

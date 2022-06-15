@@ -82,10 +82,15 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	next();
 });
 
+const image = (path:string):string => {
+	return new URL(`/src/assets/${path}`, import.meta.url).href;
+}
+
 const app = createApp(App)
 .use(store)
 .use(router)
 .provide("$store", store)
+.provide("$image", image)
 .directive('autofocus', {
 	mounted(el:HTMLDivElement, binding:unknown) {
 		if((binding as {[key:string]:boolean}).value !== false) {
@@ -99,6 +104,7 @@ const app = createApp(App)
 		}
 	}
 });
+app.config.globalProperties.$image = image;
 app.mount('#app')
 
 window.addEventListener("beforeinstallprompt", (e)=> {

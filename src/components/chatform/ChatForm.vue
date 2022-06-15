@@ -2,11 +2,11 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<Button aria-label="Open parameters" :icon="getImage('assets/icons/params.svg')" bounce @click="toggleParams()" />
-				<Button aria-label="Open chat commands" :icon="getImage('assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="getImage('assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
-				<Button aria-label="Open activity feed" :icon="getImage('assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
-				<!-- <Button :icon="getImage('assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
+				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
+				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
+				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
+				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
 			<form @submit.prevent="" class="inputForm">
@@ -24,16 +24,16 @@
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
 				<!-- <Button aria-label="send message"
-					@click="sendMessage()" type="button" :icon="getImage('assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
+					@click="sendMessage()" type="button" :icon="$image('icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
 				
 				<Button aria-label="Open emotes list"
-					:icon="getImage('assets/icons/emote.svg')"
+					:icon="$image('icons/emote.svg')"
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
 
 				<transition name="blink">
 				<Button aria-label="Open current poll"
-					:icon="getImage('assets/icons/poll.svg')"
+					:icon="$image('icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
 					v-if="$store.state.currentPoll?.id" />
@@ -41,7 +41,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current chat poll"
-					:icon="getImage('assets/icons/chatPoll.svg')"
+					:icon="$image('icons/chatPoll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'chatpoll')"
 					v-if="$store.state.chatPoll != null" />
@@ -49,7 +49,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current prediction"
-					:icon="getImage('assets/icons/prediction.svg')"
+					:icon="$image('icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
 					v-if="$store.state.currentPrediction?.id" />
@@ -57,7 +57,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open tracked users"
-					:icon="getImage('assets/icons/magnet.svg')"
+					:icon="$image('icons/magnet.svg')"
 					bounce
 					v-if="$store.state.trackedUsers.length > 0"
 					data-tooltip="View tracked users"
@@ -66,7 +66,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current raffle"
-					:icon="getImage('assets/icons/ticket.svg')"
+					:icon="$image('icons/ticket.svg')"
 					bounce
 					v-if="$store.state.raffle"
 					data-tooltip="Raffle"
@@ -75,7 +75,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current bingo"
-					:icon="getImage('assets/icons/bingo.svg')"
+					:icon="$image('icons/bingo.svg')"
 					bounce
 					v-if="$store.state.bingo"
 					data-tooltip="Bingo"
@@ -85,7 +85,7 @@
 				<transition name="blink">
 				<div class="whispers" v-if="whispersAvailable">
 					<Button aria-label="Open whispers"
-						:icon="getImage('assets/icons/whispers.svg')"
+						:icon="$image('icons/whispers.svg')"
 						bounce
 						small
 						data-tooltip="Whispers"
@@ -96,7 +96,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open dev mode options"
-					:icon="getImage('assets/icons/debug.svg')"
+					:icon="$image('icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
 					v-if="$store.state.devmode" />
@@ -104,7 +104,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
-					:icon="getImage('assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
+					:icon="$image('icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
@@ -113,7 +113,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open deezer player"
-					:icon="getImage('assets/icons/deezer.svg')"
+					:icon="$image('icons/deezer.svg')"
 					bounce
 					v-if="$store.state.deezerConnected"
 					data-tooltip="Deezer"
@@ -219,7 +219,6 @@ export default class ChatForm extends Vue {
 	public autoCompleteUsers:boolean = false;
 	public autoCompleteCommands:boolean = false;
 	public spamInterval:number = 0;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);

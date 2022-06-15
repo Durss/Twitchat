@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create chat poll</span>
-				<Button aria-label="Close chat poll form" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close chat poll form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -68,7 +68,6 @@ export default class ChatPollForm extends Vue {
 		all:true,
 		users:"",
 	}
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get example():string {
 		if(this.command.value) return this.command.value as string;

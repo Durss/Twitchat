@@ -3,7 +3,7 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button aria-label="Close users list" small :icon="getImage('assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 
 			<div class="noResult" v-if="!loading && users?.length == 0">no user found :(</div>
 
@@ -55,7 +55,6 @@ export default class TTUserList extends Vue {
 	public users:UserData[] = [];
 	public loading:boolean = true;
 	public token:string = "";
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -102,7 +101,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public getProfilePicURL(u:UserData):string {
-		if(!u.user.profile_image_url) return  this.getImage("assets/icons/user.svg");
+		if(!u.user.profile_image_url) return  this.$image("icons/user.svg");
 		return u.user.profile_image_url.replace("300x300", "70x70");
 	}
 

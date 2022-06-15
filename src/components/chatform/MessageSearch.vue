@@ -3,7 +3,7 @@
 
 		<Button small
 			aria-label="Close search"
-			:icon="getImage('assets/icons/cross_white.svg')"
+			:icon="$image('icons/cross_white.svg')"
 			@click="close()"
 			class="closeBt"
 		/>
@@ -48,7 +48,6 @@ export default class MessageSearch extends Vue {
 
 	public search:string = "";
 	public messages:IRCEventDataList.Message[] = [];
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get classes():string[] {
 		let res = ["messagesearch"];

@@ -1,13 +1,13 @@
 <template>
 	<div class="ChatMessageHoverActions">
 		<Button :aria-label="'Track '+messageData.tags.username+' messages'"
-			:icon="getImage('assets/icons/magnet.svg')"
+			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
 			v-if="!isSelf"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
-			:icon="getImage('assets/icons/shoutout.svg')"
+			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
 			v-if="!isSelf"
@@ -36,7 +36,6 @@ export default class ChatMessageHoverActions extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
 	public shoutoutLoading:boolean = false;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get isSelf():boolean {
 		return this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();

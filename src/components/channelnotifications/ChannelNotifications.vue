@@ -27,7 +27,7 @@
 			<div class="closeBt" v-if="showClose">
 				<Button small white
 					aria-label="Close current content"
-					:icon="getImage('assets/icons/cross.svg')"
+					:icon="$image('icons/cross.svg')"
 					@click="$emit('close')" />
 			</div>
 		</div>
@@ -77,7 +77,6 @@ import DeezerState from './DeezerState.vue';
 export default class ChannelNotifications extends Vue {
 
 	public currentContent!:string;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private clickHandler!:(e:MouseEvent) => void;
 

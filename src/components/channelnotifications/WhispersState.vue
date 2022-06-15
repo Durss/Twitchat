@@ -13,7 +13,7 @@
 
 			<form @submit.prevent="sendWhisper()">
 				<input type="text" placeholder="answer..." class="dark" v-model="whisper">
-				<Button class="submit" type="submit" :icon="getImage('assets/icons/checkmark_white.svg')" :disabled="!whisper" />
+				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
 			</form>
 		</div>
 
@@ -29,7 +29,7 @@
 					bounce
 					:data-tooltip="u[0].tags['display-name']" />
 					
-				<Button :icon="getImage('assets/icons/cross_white.svg')"
+				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
 					@click="deleteWhispers(uid.toString())" />
@@ -59,7 +59,6 @@ export default class WhispersState extends Vue {
 	public error:boolean = false;
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get classes():string[] {
 		let res = ["whispersstate"];

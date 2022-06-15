@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create Raffle</span>
-				<Button aria-label="Close raffle form" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close raffle form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -15,8 +15,8 @@
 				</div>
 				
 				<div class="tabs">
-					<Button title="Chat" bounce :selected="!subMode" @click="subMode = false" :icon="getImage('assets/icons/commands.svg')" />
-					<Button title="Subs" bounce :selected="subMode" @click="subMode = true" :icon="getImage('assets/icons/sub.svg')" />
+					<Button title="Chat" bounce :selected="!subMode" @click="subMode = false" :icon="$image('icons/commands.svg')" />
+					<Button title="Subs" bounce :selected="subMode" @click="subMode = true" :icon="$image('icons/sub.svg')" />
 				</div>
 
 				<form @submit.prevent="onSubmit()" class="form" v-if="!subMode">
@@ -37,7 +37,7 @@
 					</div>
 
 					<div class="row">
-						<Button aria-label="Start raffle" type="submit" title="Start" :icon="getImage('assets/icons/ticket.svg')" />
+						<Button aria-label="Start raffle" type="submit" title="Start" :icon="$image('icons/ticket.svg')" />
 					</div>
 				</form>
 					
@@ -61,7 +61,7 @@
 					<div class="row">
 						<Button type="submit"
 						:title="'Pick a sub <i>('+subsFiltered.length+')</i>'"
-						:icon="getImage('assets/icons/sub.svg')"
+						:icon="$image('icons/sub.svg')"
 						:loading="loadingSubs"
 						@click="pickSub()" />
 					</div>
@@ -132,7 +132,6 @@ export default class RaffleForm extends Vue {
 	public subs_excludeGifted:ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	
 	private subs:TwitchTypes.Subscriber[] = [];
 	private wheelOverlayPresenceHandler!:()=>void;

@@ -10,13 +10,13 @@
 	>
 		<template #actions>
 			<Button small
-				:icon="getImage('assets/icons/copy.svg')"
+				:icon="$image('icons/copy.svg')"
 				class="toggleAction"
 				@click="$emit('duplicate')"
 				data-tooltip="Duplicate"
 			/>
 			<Button small highlight
-				:icon="getImage('assets/icons/cross_white.svg')"
+				:icon="$image('icons/cross_white.svg')"
 				class="toggleAction"
 				@click="$emit('delete')"
 			/>
@@ -25,9 +25,9 @@
 		<div>
 			<div v-if="action.type===''" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
-				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="getImage('assets/icons/whispers_purple.svg')"/>
-				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="getImage('assets/icons/obs_purple.svg')"/>
-				<Button class="button" white @click="selectActionType('music')" title="Control music" :icon="getImage('assets/icons/music_purple.svg')" v-if="musicServiceConfigured"/>
+				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('music')" title="Control music" :icon="$image('icons/music_purple.svg')" v-if="musicServiceConfigured"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
@@ -46,7 +46,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { ParameterData, TriggerActionTypes } from '@/store';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
-import ParamItem from '../../ParamItem.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -76,7 +76,6 @@ export default class TriggerActionEntry extends Vue {
 	public index!:number;
 	public event!:string;
 
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	public opened:boolean = false;
 	public isError:boolean = false;
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };

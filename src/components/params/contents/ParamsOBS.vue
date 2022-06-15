@@ -27,7 +27,7 @@
 			</ToggleBlock>
 
 			<Button title="Connect" @click="connect()" class="connectBt" v-if="!connected" :loading="loading" />
-			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="getImage('assets/icons/cross_white.svg')" />
+			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
 
 			<transition name="fade">
 				<div v-if="connectError" @click="connectError = false" class="error">
@@ -121,7 +121,6 @@ export default class ParamsOBS extends Vue {
 		all: false,
 		users: ""
 	}
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
 

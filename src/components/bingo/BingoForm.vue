@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create Bingo</span>
-				<Button aria-label="Close bingo form" :icon="getImage('assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close bingo form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -12,8 +12,8 @@
 				</div>
 				<form @submit.prevent="onSubmit()">
 					<div class="tabs">
-						<Button title="Number" bounce :selected="guessNumber" @click="guessNumber = true; guessEmote = false;" :icon="getImage('assets/icons/number.svg')" />
-						<Button title="Emote" bounce :selected="guessEmote" @click="guessNumber = false; guessEmote = true;" :icon="getImage('assets/icons/emote.svg')" />
+						<Button title="Number" bounce :selected="guessNumber" @click="guessNumber = true; guessEmote = false;" :icon="$image('icons/number.svg')" />
+						<Button title="Emote" bounce :selected="guessEmote" @click="guessNumber = false; guessEmote = true;" :icon="$image('icons/emote.svg')" />
 					</div>
 					
 					<div class="info" v-if="guessNumber">
@@ -82,7 +82,6 @@ export default class BingoForm extends Vue {
 	public maxValue:ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public async mounted():Promise<void> {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});

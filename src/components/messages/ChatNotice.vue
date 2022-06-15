@@ -2,7 +2,7 @@
 	<div :class="classes" @click.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
-		<img :src="getImage('assets/icons/'+icon+'.svg')" alt="notice" class="icon">
+		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 		<span class="message" v-html="text"></span>
 	</div>
 </template>
@@ -23,7 +23,6 @@ export default class ChatNotice extends Vue {
 	
 	public messageData!:IRCEventDataList.Notice;
 	public icon:string = "infos";
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	/**
 	 * Gets text message with parsed emotes

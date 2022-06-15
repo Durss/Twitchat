@@ -102,7 +102,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">History</h1>
-				<Button class="button" aria-label="close conversation" :icon="getImage('assets/icons/cross_white.svg')" @click="onMouseLeave()" />
+				<Button class="button" aria-label="close conversation" :icon="$image('icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<ChatMessage
@@ -180,7 +180,6 @@ export default class MessageList extends Vue {
 	public conversationPos:number = 0;
 	public scrollAtBottom:boolean = true;
 	public conversationMode:boolean = true;//Used to change title between "History"/"Conversation"
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private disposed:boolean = false;
 	private holderOffsetY:number = 0;

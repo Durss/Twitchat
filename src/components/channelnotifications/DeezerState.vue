@@ -5,10 +5,10 @@
 		<OverlayMusicPlayer class="player" v-if="currentTrack" @seek="(percent:number)=>onSeek(percent)" embed />
 
 		<div class="controls" v-if="currentTrack">
-			<Button white small class="bt" @click="showQueue = !showQueue" :icon="getImage('assets/icons/list_purple.svg')" />
-			<Button white small class="bt" @click="actionPlay()" :icon="getImage('assets/icons/play_purple.svg')" v-if="!playing" />
-			<Button white small class="bt" @click="actionPause()" :icon="getImage('assets/icons/pause_purple.svg')" v-if="playing" />
-			<Button white small class="bt" @click="actionNext()" :icon="getImage('assets/icons/next_purple.svg')" />
+			<Button white small class="bt" @click="showQueue = !showQueue" :icon="$image('icons/list_purple.svg')" />
+			<Button white small class="bt" @click="actionPlay()" :icon="$image('icons/play_purple.svg')" v-if="!playing" />
+			<Button white small class="bt" @click="actionPause()" :icon="$image('icons/pause_purple.svg')" v-if="playing" />
+			<Button white small class="bt" @click="actionNext()" :icon="$image('icons/next_purple.svg')" />
 			<VolumeBar class="volume" v-model="volume" />
 		</div>
 
@@ -17,7 +17,7 @@
 				<Button class="deleteBt"
 				small highlight
 				@click="removeTrack(index)"
-				:icon="getImage('assets/icons/cross_white.svg')" />
+				:icon="$image('icons/cross_white.svg')" />
 				
 				<div class="infos" @click="playQueueItem(index)">
 					<span class="artist">{{t.artist.name}}</span>
@@ -41,8 +41,8 @@
 					<span class="duration">{{formatDuration(t.duration)}}</span>
 				</div>
 				<div class="actions">
-					<Button @click="play(t)" :icon="getImage('assets/icons/play.svg')" small data-tooltip="Play" />
-					<Button @click="addToQueue(t)" :icon="getImage('assets/icons/list.svg')" small data-tooltip="Add to queue" />
+					<Button @click="play(t)" :icon="$image('icons/play.svg')" small data-tooltip="Play" />
+					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small data-tooltip="Add to queue" />
 				</div>
 			</div>
 		</div>
@@ -78,7 +78,6 @@ export default class DeezerState extends Vue {
 	public showQueue:boolean = false;
 	// public search_param:ParameterData = {type:"text", value:"salut", label:"Search track", placeholder:"search..."};
 	public searchResults:DeezerTrack[] = [];
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get currentTrack():MusicMessage|null { return DeezerHelper.instance.currentTrack; }
 	public get queue():DeezerQueueItem[] { return DeezerHelper.instance.queue; }

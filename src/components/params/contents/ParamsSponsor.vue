@@ -7,10 +7,10 @@
 		<img src="@/assets/img/eating.gif" alt="eating" />
 
 		<div class="buttons">
-			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Paypal" :icon="getImage('assets/icons/paypal_white.svg')" />
-			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank" title="Buy me a <i>coffee</i> grenadine" :icon="getImage('assets/icons/coffee_white.svg')" class="coffeeBt" />
-			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Sponsor me on Github" :icon="getImage('assets/icons/github_white.svg')" />
-			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank" title="Subscribe on Twitch" :icon="getImage('assets/icons/twitch_white.svg')" />
+			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Paypal" :icon="$image('icons/paypal_white.svg')" />
+			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank" title="Buy me a <i>coffee</i> grenadine" :icon="$image('icons/coffee_white.svg')" class="coffeeBt" />
+			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Sponsor me on Github" :icon="$image('icons/github_white.svg')" />
+			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank" title="Subscribe on Twitch" :icon="$image('icons/twitch_white.svg')" />
 		</div>
 	</div>
 </template>
@@ -29,7 +29,6 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ParamsSponsor extends Vue {
 	
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 }
 </script>

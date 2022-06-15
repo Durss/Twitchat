@@ -18,7 +18,7 @@
 					@click="selectUser(u)"
 					:title="'('+u.messages.length+') '+u.user['display-name']"
 					bounce />
-				<Button :icon="getImage('assets/icons/cross_white.svg')"
+				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
 					bounce highlight small
 				@click="untrackUser(u)" />
@@ -45,7 +45,6 @@ import ChatMessage from '../messages/ChatMessage.vue';
 export default class TrackedUsers extends Vue {
 
 	public selectedUser:TwitchTypes.TrackedUser | null = null;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	public get classes():string[] {
 		let res = ["trackedusers"];

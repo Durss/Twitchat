@@ -13,7 +13,7 @@
 				</ToggleBlock>
 			</div>
 			<div class="row center" v-if="wheelOverlayExists">
-				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="getImage('assets/icons/test.svg')" />
+				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="$image('icons/test.svg')" />
 			</div>
 			<div class="row center" v-if="!wheelOverlayExists">
 				<span class="error">- overlay not configured or hidden -</span>
@@ -48,7 +48,6 @@ export default class OverlayParamsRaffle extends Vue {
 	public open:boolean = false;
 	public loading:boolean = false;
 	public wheelOverlayExists:boolean = false;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private answerIndex:number = 0;
 	private checkInterval!:number;

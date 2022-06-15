@@ -3,7 +3,7 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button aria-label="Close live users list" small :icon="getImage('assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="Close live users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 
 			<div class="noResult" v-if="!loading && streams?.length == 0">None of the people you follow is streaming :(</div>
 			
@@ -51,7 +51,6 @@ export default class LiveFollowings extends Vue {
 
 	public streams:TwitchTypes.StreamInfo[] = [];
 	public loading:boolean = true;
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }

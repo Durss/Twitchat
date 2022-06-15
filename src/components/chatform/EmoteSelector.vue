@@ -61,7 +61,6 @@ export default class EmoteSelector extends Vue {
 
 	public users:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[] = [];
 	public filter:string = "";
-	public getImage(path:string):string { return new URL(`/src/${path}`, import.meta.url).href; }
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -116,7 +115,7 @@ export default class EmoteSelector extends Vue {
 				id: "0",
 				login: "global",
 				offline_image_url: "",
-				profile_image_url:  this.getImage("assets/icons/emote.svg"),
+				profile_image_url: this.$image("icons/emote.svg"),
 				type: "",
 				view_count: 0,
 			});
