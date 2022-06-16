@@ -82,7 +82,7 @@ import store from '@/store';
 import Store from '@/store/Store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
-import type{ IRCEventDataList } from '@/utils/IRCEvent';
+import type{ IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
@@ -102,22 +102,22 @@ import ChatHighlight from '../messages/ChatHighlight.vue';
 })
 export default class NewUsers extends Vue {
 
-	public overIndex:number = -1;
-	public showList:boolean = true;
-	public showMaxHeight:boolean = false;
-	public scrollDownAuto:boolean = false;
-	public indexOffset:number = 0;
-	public autoDeleteAfter:number = 600;
-	public deleteInterval:number = -1;
-	public windowHeight:number = .3;
-	public maxHeightPos:number = 0;
-	public maxHeightSize:number = 0;
+	public overIndex = -1;
+	public showList = true;
+	public showMaxHeight = false;
+	public scrollDownAuto = false;
+	public indexOffset = 0;
+	public autoDeleteAfter = 600;
+	public deleteInterval = -1;
+	public windowHeight = .3;
+	public maxHeightPos = 0;
+	public maxHeightSize = 0;
 	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
 
-	private disposed:boolean = false;
-	private resizing:boolean = false;
-	private streakMode:boolean = true;
-	private mouseY:number = 0;
+	private disposed = false;
+	private resizing = false;
+	private streakMode = true;
+	private mouseY = 0;
 	private highlightState:{[key:string]:boolean} = {};
 
 	private mouseUpHandler!:(e:MouseEvent)=> void;
@@ -228,6 +228,7 @@ export default class NewUsers extends Vue {
 		const maxLength = 100;
 		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
 		if(m.type != "message" && m.type != "highlight") return;
+		if(m.type == "highlight" && m.viewers) return;//Ignore raids
 		let login = m.tags.login? m.tags.login : m.tags.username;
 		login = login.toLowerCase();
 		//Ignore self messages
@@ -277,7 +278,7 @@ export default class NewUsers extends Vue {
 	 * Called when clicking a message
 	 * Either removes a streak of messages or one single message
 	 */
-	public deleteMessage(m:IRCEventDataList.Message|IRCEventDataList.Highlight, index:number, singleMode:boolean = false):void {
+	public deleteMessage(m:IRCEventDataList.Message|IRCEventDataList.Highlight, index:number, singleMode = false):void {
 		if(!this.streakMode || singleMode) {
 			let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
 			this.indexOffset = parseInt(el.$el.dataset.index as string);
@@ -306,7 +307,7 @@ export default class NewUsers extends Vue {
 		//Store the count of messages to delete so if new messages are added
 		//while confirming the clear, these new messages are kept
 		let deleteCount = this.localMessages.length;
-		Utils.confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
+		this.$confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
 			for (let i = 0; i < deleteCount; i++) {
 				if(this.localMessages[i].firstMessage) {
 					this.localMessages[i].firstMessage = false;

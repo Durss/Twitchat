@@ -43,7 +43,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ParameterData, TriggerActionTypes } from '@/store';
+import type { ParameterData, TriggerActionTypes } from '@/types/TwitchatDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '@/components/params/ParamItem.vue';
@@ -76,11 +76,11 @@ export default class TriggerActionEntry extends Vue {
 	public index!:number;
 	public event!:string;
 
-	public opened:boolean = false;
-	public isError:boolean = false;
+	public opened = false;
+	public isError = false;
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	
-	public get musicServiceConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";

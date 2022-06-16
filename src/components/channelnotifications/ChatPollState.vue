@@ -42,8 +42,8 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ChatPollData, ChatPollDataChoice } from '@/store';
+import store from '@/store';
+import type { ChatPollData, ChatPollDataChoice } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -60,8 +60,8 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatPollState extends Vue {
 
-	public loading:boolean = false;
-	public progressPercent:number = 0;
+	public loading = false;
+	public progressPercent = 0;
 
 	public get poll():ChatPollData { return store.state.chatPoll as ChatPollData; }
 

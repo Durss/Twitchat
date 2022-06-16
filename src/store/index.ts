@@ -1,32 +1,36 @@
-import type { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
+import type { BingoData, RaffleData, TrackedUser } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
+import DeezerHelperEvent from '@/utils/DeezerHelperEvent';
 import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
-import type{ ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEvent';
+import type { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
-import type { PubSubTypes } from '@/utils/PubSub';
+import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import SevenTVUtils from '@/utils/SevenTVUtils';
+import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes';
 import SpotifyHelper from '@/utils/SpotifyHelper';
-import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyHelper';
+import SpotifyHelperEvent from '@/utils/SpotifyHelperEvent';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import  { createStore } from 'vuex';
+import { createStore } from 'vuex';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type TriggerActionChatCommandData, type TriggerActionObsData, type TriggerActionTypes, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
 
-export default createStore({
+const store = createStore({
 	state: {
 		latestUpdateIndex: 3,
 		initComplete: false,
@@ -36,7 +40,6 @@ export default createStore({
 		canSplitView: false,
 		hasChannelPoints: false,
 		ahsInstaller: null as InstallHandler|null,
-		oAuthToken: {} as TwitchTypes.AuthTokenResult|null,
 		alert: "",
 		tooltip: "",
 		userCard: "",
@@ -47,13 +50,13 @@ export default createStore({
 		commercialEnd: 0,//Date.now() + 120000,
 		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper)[],
 		activityFeed: [] as ActivityFeedData[],
-		mods: [] as TwitchTypes.ModeratorUser[],
-		currentPoll: {} as TwitchTypes.Poll,
-		currentPrediction: {} as TwitchTypes.Prediction,
+		mods: [] as TwitchDataTypes.ModeratorUser[],
+		currentPoll: {} as TwitchDataTypes.Poll,
+		currentPrediction: {} as TwitchDataTypes.Prediction,
 		tmiUserState: {} as UserNoticeState,
-		userEmotesCache: {} as {user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[],
-		emotesCache: [] as TwitchTypes.Emote[],
-		trackedUsers: [] as TwitchTypes.TrackedUser[],
+		userEmotesCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
+		emotesCache: [] as TwitchDataTypes.Emote[],
+		trackedUsers: [] as TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: null as RaffleData | null,
 		chatPoll: null as ChatPollData | null,
@@ -61,19 +64,18 @@ export default createStore({
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
 		whispersUnreadCount: 0 as number,
 		hypeTrain: {} as HypeTrainStateData,
-		raiding: null as PubSubTypes.RaidInfos|null,
+		raiding: null as PubSubDataTypes.RaidInfos|null,
 		realHistorySize: 5000,
 		followingStates: {} as {[key:string]:boolean},
 		userPronouns: {} as {[key:string]:string|boolean},
-		playbackState: null as PubSubTypes.PlaybackInfo|null,
-		communityBoostState: null as PubSubTypes.CommunityBoost|null,
+		playbackState: null as PubSubDataTypes.PlaybackInfo|null,
+		communityBoostState: null as PubSubDataTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		PermissionsForm: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
-		spotifyAppParams: null as {client:string, secret:string}|null,
 		deezerConnected: false,
 		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
 		botMessages: {
@@ -254,13 +256,6 @@ export default createStore({
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
 		} as {[key:string]:ParameterData},
-		user: {
-			client_id: "",
-			login: "",
-			scopes: [""],
-			user_id: "",
-			expires_in: 0,
-		},
 		confirm:{
 			title:"",
 			description:"",
@@ -277,15 +272,15 @@ export default createStore({
 			const forceRefresh = payload.forceRefresh;
 			try {
 
-				let json:TwitchTypes.AuthTokenResult;
+				let json:TwitchDataTypes.AuthTokenResult;
 				if(code) {
-					const res = await fetch(Config.API_PATH+"/gettoken?code="+code, {method:"GET"});
+					const res = await fetch(Config.instance.API_PATH+"/gettoken?code="+code, {method:"GET"});
 					json = await res.json();
 				}else {
 					json = JSON.parse(Store.get("oAuthToken"));
 					//Refresh token if going to expire within the next 5 minutes
 					if(json && (forceRefresh || json.expires_at < Date.now() - 60000*5)) {
-						const res = await fetch(Config.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
+						const res = await fetch(Config.instance.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
 						json = await res.json();
 					}
 				}
@@ -294,17 +289,17 @@ export default createStore({
 					return;
 				}
 				const userRes:unknown = await TwitchUtils.validateToken(json.access_token);
-				if(!(userRes as TwitchTypes.Token).expires_in
-				&& (userRes as TwitchTypes.Error).status != 200) throw("invalid token");
+				if(!(userRes as TwitchDataTypes.Token).expires_in
+				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 
-				state.user = userRes as TwitchTypes.Token;
+				UserSession.instance.user = userRes as TwitchDataTypes.Token;
 				//Check if all scopes are allowed
-				for (let i = 0; i < Config.TWITCH_APP_SCOPES.length; i++) {
-					if(state.user.scopes.indexOf(Config.TWITCH_APP_SCOPES[i]) == -1) {
-						console.log("Missing scope:", Config.TWITCH_APP_SCOPES[i]);
+				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
+					if(UserSession.instance.user.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
+						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
 						state.authenticated = false;
-						state.oAuthToken = null;
-						state.newScopeToRequest.push(Config.TWITCH_APP_SCOPES[i]);
+						UserSession.instance.token = null;
+						state.newScopeToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
 					}
 				}
 				if(state.newScopeToRequest.length > 0) {
@@ -314,22 +309,24 @@ export default createStore({
 				if(!json.expires_at) {
 					json.expires_at = Date.now() + json.expires_in*1000;
 				}
-				state.oAuthToken = json;
+				UserSession.instance.token = json;
+				Store.access_token = json.access_token;
 				Store.set("oAuthToken", json, false);
 				
 				if(!state.authenticated) {
 					//Connect if we were not connected before
-					IRCClient.instance.connect(state.user.login, json.access_token);
+					IRCClient.instance.connect(UserSession.instance.user.login, json.access_token);
 					PubSub.instance.connect();
 				}
 				
-				const users = await TwitchUtils.loadUserInfo([state.user.user_id]);
+				const users = await TwitchUtils.loadUserInfo([UserSession.instance.user.user_id]);
+				console.log("INIT USERS", users);
 				state.hasChannelPoints = users[0].broadcaster_type != "";
 
 				state.mods = await TwitchUtils.getModerators();
 
 				state.authenticated = true;
-				state.followingStates[state.user.user_id] = true;
+				state.followingStates[UserSession.instance.user.user_id] = true;
 				if(cb) cb(true);
 			}catch(error) {
 				console.log(error);
@@ -340,10 +337,10 @@ export default createStore({
 			}
 		},
 
-		setUser(state, user) { state.user = user; },
+		setUser(state, user) { UserSession.instance.user = user; },
 
 		logout(state) {
-			state.oAuthToken = null;
+			UserSession.instance.token = null;
 			state.authenticated = false;
 			Store.remove("oAuthToken");
 			IRCClient.instance.disconnect();
@@ -351,7 +348,7 @@ export default createStore({
 
 		confirm(state, payload) { state.confirm = payload; },
 
-		sendTwitchatAd(state, contentID:number = -1) {
+		sendTwitchatAd(state, contentID = -1) {
 			if(contentID == -1) {
 				let possibleAds = [];
 				possibleAds.push(TwitchatAdTypes.SPONSOR);
@@ -376,7 +373,7 @@ export default createStore({
 			const list = state.chatMessages.concat();
 			list .push( {
 				type:"ad",
-				channel:"#"+state.user.login,
+				channel:"#"+UserSession.instance.user.login,
 				markedAsRead:false,
 				contentID,
 				tags:{id:"twitchatAd"+Math.random()}}
@@ -485,7 +482,7 @@ export default createStore({
 				//Check for user's pronouns
 				if(state.params.features.showUserPronouns.value === true) {
 					if(uid && state.userPronouns[uid] == undefined && textMessage.tags.username) {
-						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchTypes.Pronoun | null) => {
+						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchDataTypes.Pronoun | null) => {
 							if (res !== null) {
 								state.userPronouns[uid] = res.pronoun_id;
 							}else{
@@ -578,8 +575,8 @@ export default createStore({
 
 				//Check if the message contains a mention
 				if(textMessage.message && state.params.appearance.highlightMentions.value === true) {
-					textMessage.hasMention = state.user.login != null
-					&& new RegExp("(^| |@)("+state.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
+					textMessage.hasMention = UserSession.instance.user.login != null
+					&& new RegExp("(^| |@)("+UserSession.instance.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
 					if(textMessage.hasMention) {
 						//Broadcast to OBS-Ws
 						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
@@ -610,7 +607,7 @@ export default createStore({
 			state.chatMessages = messages;
 		},
 		
-		delChatMessage(state, data:{messageId:string, deleteData:PubSubTypes.DeletedMessage}) { 
+		delChatMessage(state, data:{messageId:string, deleteData:PubSubDataTypes.DeletedMessage}) { 
 			const keepDeletedMessages = state.params.filters.keepDeletedMessages.value;
 			const list = (state.chatMessages.concat() as (IRCEventDataList.Message | IRCEventDataList.TwitchatAd)[]);
 			for (let i = 0; i < list.length; i++) {
@@ -701,17 +698,23 @@ export default createStore({
 				}
 			}
 		},
+		
+		setCypherKey(state, payload:string) {
+			state.cypherKey = payload;
+			TwitchCypherPlugin.instance.cypherKey = payload;
+			Store.set("cypherKey", payload);
+		},
 
 		setCypherEnabled(state, payload:boolean) { state.cypherEnabled = payload; },
 
 		setUserState(state, payload:UserNoticeState) { state.tmiUserState = payload; },
 
-		setEmotes(state, payload:TwitchTypes.Emote[]) { state.emotesCache = payload; },
+		setEmotes(state, payload:TwitchDataTypes.Emote[]) { state.emotesCache = payload; },
 
-		setUserEmotesCache(state, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { state.userEmotesCache = payload; },
+		setUserEmotesCache(state, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { state.userEmotesCache = payload; },
 
 		trackUser(state, payload:IRCEventDataList.Message) {
-			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
+			const list = state.trackedUsers as TrackedUser[];
 			const index = list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']);
 			if(index == -1) {
 				//Was not tracked, track the user
@@ -723,7 +726,7 @@ export default createStore({
 		},
 
 		untrackUser(state, payload:ChatUserstate) {
-			const list = state.trackedUsers as TwitchTypes.TrackedUser[];
+			const list = state.trackedUsers as TrackedUser[];
 			const index = list.findIndex(v=>v.user['user-id'] == payload['user-id']);
 			if(index != -1) {
 				state.trackedUsers.splice(index, 1);
@@ -753,8 +756,8 @@ export default createStore({
 				if((payload.winner.data as ChatUserstate)['display-name']) {
 					label = (payload.winner.data as ChatUserstate)['display-name'] as string;
 				}
-				if((payload.winner.data as TwitchTypes.Subscriber).user_name) {
-					label = (payload.winner.data as TwitchTypes.Subscriber).user_name;
+				if((payload.winner.data as TwitchDataTypes.Subscriber).user_name) {
+					label = (payload.winner.data as TwitchDataTypes.Subscriber).user_name;
 				}
 				message = message.replace(/\{USER\}/gi, label);
 				IRCClient.instance.sendMessage(message);
@@ -802,7 +805,7 @@ export default createStore({
 			state.whispers = whispers;
 		},
 
-		setRaiding(state, infos:PubSubTypes.RaidInfos) { state.raiding = infos; },
+		setRaiding(state, infos:PubSubDataTypes.RaidInfos) { state.raiding = infos; },
 
 		setViewersList(state, users:string[]) {
 			//Dedupe users
@@ -839,7 +842,7 @@ export default createStore({
 
 		setHypeTrain(state, data:HypeTrainStateData) { state.hypeTrain = data; },
 
-		flagLowTrustMessage(state, payload:{data:PubSubTypes.LowTrustMessage, retryCount?:number}) {
+		flagLowTrustMessage(state, payload:{data:PubSubDataTypes.LowTrustMessage, retryCount?:number}) {
 			//Ignore message if user is "restricted"
 			if(payload.data.low_trust_user.treatment == 'RESTRICTED') return;
 
@@ -866,9 +869,9 @@ export default createStore({
 
 		searchMessages(state, value:string) { state.searchMessages = value; },
 
-		setPlaybackState(state, value:PubSubTypes.PlaybackInfo) { state.playbackState = value; },
+		setPlaybackState(state, value:PubSubDataTypes.PlaybackInfo) { state.playbackState = value; },
 
-		setCommunityBoost(state, value:PubSubTypes.CommunityBoost) { state.communityBoostState = value; },
+		setCommunityBoost(state, value:PubSubDataTypes.CommunityBoost) { state.communityBoostState = value; },
 
 		setOBSSceneCommands(state, value:OBSSceneCommand[]) {
 			state.obsSceneCommands = value;
@@ -921,6 +924,7 @@ export default createStore({
 				state.triggers[value.key.toLowerCase()] = value.data;
 			}
 			Store.set("triggers", state.triggers);
+			TriggerActionHandler.instance.triggers = state.triggers;
 		},
 
 		deleteTrigger(state, key:string) {
@@ -939,8 +943,8 @@ export default createStore({
 		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
 
 		setSpotifyCredentials(state, value:{client:string, secret:string}) {
-			state.spotifyAppParams = value;
 			Store.set("spotifyAppParams", value);
+			SpotifyHelper.instance.setAppParams(value.client, value.secret)
 		},
 
 		setSpotifyAuthResult(state, value:SpotifyAuthResult) { state.spotifyAuthParams = value; },
@@ -955,20 +959,46 @@ export default createStore({
 			}else{
 				Store.set("spotifyAuthToken", value);
 			}
+			console.log("SET TOKEN", value);
 			state.spotifyAuthToken = value;
 			SpotifyHelper.instance.token = value;
-			SpotifyHelper.instance.getCurrentTrack();
+			Config.instance.SPOTIFY_CONNECTED = value? value.expires_at > Date.now() : false;
+			if(value) {
+				SpotifyHelper.instance.getCurrentTrack();
+			}
 		},
 
 		setDeezerConnected(state, value:boolean) {
 			state.deezerConnected = value;
+			Config.instance.DEEZER_CONNECTED = value;
 			if(!value) {
 				DeezerHelper.instance.dispose();
 			}
 		},
 		
 		setCommercialEnd(state, date:number) { state.commercialEnd = date; },
+		
 
+		async shoutout(state, username:string) {
+			username = username.trim().replace(/^@/gi, "");
+			const userInfos = await TwitchUtils.loadUserInfo(undefined, [username]);
+			if(userInfos?.length > 0) {
+				const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
+				let message = state.botMessages.shoutout.message
+				let streamTitle = channelInfo[0].title;
+				let category = channelInfo[0].game_name;
+				if(!streamTitle) streamTitle = "no stream found"
+				if(!category) category = "no stream found"
+				message = message.replace(/\{USER\}/gi, userInfos[0].display_name);
+				message = message.replace(/\{URL\}/gi, "twitch.tv/"+userInfos[0].login);
+				message = message.replace(/\{TITLE\}/gi, streamTitle);
+				message = message.replace(/\{CATEGORY\}/gi, category);
+				await IRCClient.instance.sendMessage(message);
+			}else{
+				//Warn user doesn't exist
+				state.alert = "User "+username+" doesn't exist.";
+			}
+		},
 	},
 
 
@@ -977,17 +1007,17 @@ export default createStore({
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
 			let jsonConfigs;
 			try {
-				const res = await fetch(Config.API_PATH+"/configs");
+				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
 			}catch(error) {
 				state.alert = "Unable to contact server :("
 			}
 			TwitchUtils.client_id = jsonConfigs.client_id;
-			Config.TWITCH_APP_SCOPES = jsonConfigs.scopes;
-			Config.SPOTIFY_SCOPES  = jsonConfigs.spotify_scopes;
-			Config.SPOTIFY_CLIENT_ID = jsonConfigs.spotify_client_id;
-			Config.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
-			Config.DEEZER_CLIENT_ID = Config.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
+			Config.instance.TWITCH_APP_SCOPES = jsonConfigs.scopes;
+			Config.instance.SPOTIFY_SCOPES  = jsonConfigs.spotify_scopes;
+			Config.instance.SPOTIFY_CLIENT_ID = jsonConfigs.spotify_client_id;
+			Config.instance.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
+			Config.instance.DEEZER_CLIENT_ID = Config.instance.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
 
 			//Loading parameters from storage and pushing them to the store
 			const props = Store.getAll();
@@ -1175,20 +1205,20 @@ export default createStore({
 	
 				//Init spotify connection
 				const spotifyAuthToken = Store.get("spotifyAuthToken");
-				if(spotifyAuthToken && Config.SPOTIFY_CLIENT_ID != "") {
+				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
 					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 				}
 	
 				//Init spotify credentials
 				const spotifyAppParams = Store.get("spotifyAppParams");
-				if(spotifyAppParams) {
+				if(spotifyAuthToken && spotifyAppParams) {
 					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
 				}
 			}
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const messageData = event.data as IRCEventDataList.Message;
-				const trackedUser = (state.trackedUsers as TwitchTypes.TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
+				const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
 				
 				if(trackedUser) {
 					if(!trackedUser.messages) trackedUser.messages = [];
@@ -1412,7 +1442,21 @@ export default createStore({
 				}
 			}
 			
-			TwitchCypherPlugin.instance.initialize();
+			const cypherKey = Store.get("cypherKey")
+			TwitchCypherPlugin.instance.initialize(cypherKey);
+			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
+				this.dispatch("setSpotifyToken", e.token);
+			});
+			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
+				state.alert = e.error as string;
+			});
+			DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
+				this.dispatch("setDeezerConnected", true);
+			});
+			DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
+				this.dispatch("setDeezerConnected", false);
+				state.alert = "Deezer authentication failed";
+			});
 
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
@@ -1445,8 +1489,10 @@ export default createStore({
 		delUserMessages({commit}, payload) { commit("delUserMessages", payload); },
 
 		updateParams({commit}) { commit("updateParams"); },
+		
+		setCypherKey({commit}, payload:string) { commit("setCypherKey", payload); },
 
-		setPolls({state}, payload:{data:TwitchTypes.Poll[], postOnChat?:boolean}) {
+		setPolls({state}, payload:{data:TwitchDataTypes.Poll[], postOnChat?:boolean}) {
 			const list = state.activityFeed as ActivityFeedData[];
 			if(payload.postOnChat === true) {
 				const poll = payload.data[0];
@@ -1467,10 +1513,10 @@ export default createStore({
 			
 			state.currentPoll = payload.data.find(v => {
 				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
-			}) as  TwitchTypes.Poll;
+			}) as  TwitchDataTypes.Poll;
 		},
 
-		setPredictions({state}, payload:TwitchTypes.Prediction[]) {
+		setPredictions({state}, payload:TwitchDataTypes.Prediction[]) {
 			const list = state.activityFeed as ActivityFeedData[];
 			if(payload[0].status == "RESOLVED" && new Date(payload[0].ended_at as string).getTime() > Date.now() - 5 * 60 * 1000) {
 				if(list.findIndex(v=>v.type == "prediction" && v.data.id == payload[0].id) == -1) {
@@ -1487,16 +1533,16 @@ export default createStore({
 			}
 			state.currentPrediction = payload.find(v => {
 				return (v.status == "ACTIVE" || v.status == "LOCKED");
-			}) as  TwitchTypes.Prediction;
+			}) as  TwitchDataTypes.Prediction;
 		},
 
 		setCypherEnabled({commit}, payload:boolean) { commit("setCypherEnabled", payload); },
 
 		setUserState({commit}, payload:UserNoticeState) { commit("setUserState", payload); },
 
-		setEmotes({commit}, payload:TwitchTypes.Emote[]) { commit("setEmotes", payload); },
+		setEmotes({commit}, payload:TwitchDataTypes.Emote[]) { commit("setEmotes", payload); },
 
-		setUserEmotesCache({commit}, payload:{user:TwitchTypes.UserInfo, emotes:TwitchTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
+		setUserEmotesCache({commit}, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
 
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
@@ -1563,7 +1609,7 @@ export default createStore({
 
 		closeWhispers({commit}, userID:string) { commit("closeWhispers", userID); },
 
-		setRaiding({commit}, infos:PubSubTypes.RaidInfos) { commit("setRaiding", infos); },
+		setRaiding({commit}, infos:PubSubDataTypes.RaidInfos) { commit("setRaiding", infos); },
 
 		setViewersList({commit}, users:string[]) { commit("setViewersList", users); },
 		
@@ -1571,15 +1617,15 @@ export default createStore({
 
 		setHypeTrain({commit}, data:HypeTrainStateData) { commit("setHypeTrain", data); },
 
-		flagLowTrustMessage({commit}, data:PubSubTypes.LowTrustMessage) { commit("flagLowTrustMessage", {data:data}); },
+		flagLowTrustMessage({commit}, data:PubSubDataTypes.LowTrustMessage) { commit("flagLowTrustMessage", {data:data}); },
 
 		canSplitView({commit}, value:boolean) { commit("canSplitView", value); },
 
 		searchMessages({commit}, value:string) { commit("searchMessages", value); },
 
-		setPlaybackState({commit}, value:PubSubTypes.PlaybackInfo) { commit("setPlaybackState", value); },
+		setPlaybackState({commit}, value:PubSubDataTypes.PlaybackInfo) { commit("setPlaybackState", value); },
 
-		setCommunityBoost({commit}, value:PubSubTypes.CommunityBoost) { commit("setCommunityBoost", value); },
+		setCommunityBoost({commit}, value:PubSubDataTypes.CommunityBoost) { commit("setCommunityBoost", value); },
 
 		setOBSSceneCommands({commit}, value:OBSSceneCommand[]) { commit("setOBSSceneCommands", value); },
 
@@ -1614,198 +1660,12 @@ export default createStore({
 				IRCClient.instance.sendNotice("commercial", "A commercial just started for "+duration+" seconds");
 			}
 		},
+		
+
+		shoutout({commit}, username:string) { commit("shoutout", username); },
 	},
 	modules: {
 	}
 })
 
-export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
-export interface IBotMessage {
-	bingo:BotMessageEntry;
-	raffle:BotMessageEntry;
-	bingoStart:BotMessageEntry;
-	raffleStart:BotMessageEntry;
-	shoutout:BotMessageEntry;
-}
-export interface BotMessageEntry {
-	enabled:boolean;
-	message:string;
-}
-
-export type ParameterCategory = "appearance" | "filters"| "features";
-
-export interface IParameterCategory {
-	appearance:{[key:string]:ParameterData};
-	filters:{[key:string]:ParameterData};
-	features:{[key:string]:ParameterData};
-}
-
-
-export interface OBSSceneCommand {
-	scene:{
-		sceneIndex:number;
-		sceneName:string;
-	}
-	command:string;
-}
-
-export interface OBSMuteUnmuteCommands {
-	audioSourceName:string;
-	muteCommand:string;
-	unmuteCommand:string;
-}
-
-export interface TriggerActionChatCommandData {
-	chatCommand:string;
-	prevKey?:string;
-	permissions:PermissionsData;
-	cooldown:{global:number, user:number};
-	actions:TriggerActionTypes[];
-}
-
-export type TriggerActionTypes =  TriggerActionEmptyData
-								| TriggerActionObsData
-								| TriggerActionChatData
-								| TriggerActionMusicEntryData
-;
-
-export interface TriggerActionData {
-	id:string;
-	delay:number;
-}
-export interface TriggerActionEmptyData extends TriggerActionData{
-	type:"";
-}
-export interface TriggerActionObsData extends TriggerActionData{
-	type:"obs";
-	sourceName:string;
-	filterName?:string;
-	show:boolean;
-	text?:string;
-	url?:string;
-	mediaPath?:string;
-}
-
-export interface TriggerActionChatData extends TriggerActionData{
-	type:"chat";
-	text:string;
-}
-
-export interface TriggerActionMusicEntryData extends TriggerActionData{
-	type:"music";
-	musicAction:string;
-	track:string;
-}
-
-export interface ParameterDataListValue {
-	label:string;
-	value:string | number | boolean;
-	[paramater: string]: unknown;
-}
-
-export interface ParameterData {
-	id?:number;
-	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse";
-	value:boolean|number|string|string[];
-	listValues?:ParameterDataListValue[];
-	longText?:boolean;
-	noInput?:boolean;//Disable input to only keep title (used for shoutout param)
-	label:string;
-	min?:number;
-	max?:number;
-	maxLength?:number;
-	step?:number;
-	icon?:string;
-	placeholder?:string;
-	parent?:number;
-	example?:string;
-	storage?:unknown;
-	children?:ParameterData[];
-	accept?:string;
-	fieldName?:string;
-	save?:boolean;//Save configuration to storage on change?
-}
-
-export interface RaffleData {
-	command:string;
-	duration:number;
-	maxUsers:number;
-	created_at:number;
-	users:RaffleVote[];
-	vipRatio:number;
-	followRatio:number;
-	subRatio:number;
-	subgitRatio:number;
-	winners:ChatUserstate[];
-}
-
-export interface RaffleVote {
-	user:ChatUserstate;
-	score:number;
-}
-
-export interface BingoConfig {
-	guessNumber:boolean;
-	guessEmote:boolean;
-	min:number;
-	max:number;
-}
-
-export interface BingoData {
-	guessNumber:boolean;
-	guessEmote:boolean;
-	numberValue:number;
-	emoteValue:TwitchTypes.Emote;
-	winners:ChatUserstate[];
-}
-
-export interface ChatPollData {
-	command:string;
-	startTime:number;
-	duration:number;
-	allowMultipleAnswers:boolean;
-	choices:ChatPollDataChoice[];
-	winners:ChatPollDataChoice[];
-}
-
-export interface ChatPollDataChoice {
-	user:ChatUserstate;
-	text:string;
-}
-
-export interface HypeTrainStateData {
-	level:number;
-	currentValue:number;
-	goal:number;
-	started_at:number;
-	timeLeft:number;
-	state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
-	is_boost_train:boolean;
-}
-
-export interface CommandData {
-	id:string;
-	cmd:string;
-	details:string;
-	needChannelPoints?:boolean;
-}
-
-export interface PermissionsData {
-	mods:boolean;
-	vips:boolean;
-	subs:boolean;
-	all:boolean;
-	users:string;
-}
-
-export const TwitchatAdTypes = {
-	SPONSOR:1,
-	UPDATES:2,
-	TIP:3,
-	DISCORD:4,
-}
-
-export interface InstallHandler {
-	prompt:()=>void;
-	userChoice:Promise<{outcome:"accepted"}>;
-}
+export default store;

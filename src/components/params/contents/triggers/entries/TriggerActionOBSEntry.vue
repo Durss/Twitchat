@@ -30,13 +30,12 @@
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/store';
+import type { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
-import type { ITriggerActionHelper } from '@/utils/TriggerActionHandler';
-import { TriggerActionHelpers } from '@/utils/TriggerActionHandler';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/TriggerActionData';
 
 @Options({
 	props:{
@@ -67,7 +66,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
 	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
 	public media_conf:ParameterData = { label:"Media file", type:"browse", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
-	public isMissingObsEntry:boolean = false;
+	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];
 	

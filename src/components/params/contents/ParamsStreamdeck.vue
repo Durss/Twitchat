@@ -48,7 +48,7 @@ import { Options, Vue } from 'vue-class-component';
 export default class ParamsStreamdeck extends Vue {
 	
 
-	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
+	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
 }
 </script>

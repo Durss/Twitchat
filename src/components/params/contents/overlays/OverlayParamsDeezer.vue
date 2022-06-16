@@ -37,7 +37,6 @@
 <script lang="ts">
 import store from '@/store';
 import DeezerHelper from '@/utils/DeezerHelper';
-import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -52,11 +51,11 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 })
 export default class OverlayParamsDeezer extends Vue {
 
-	public open:boolean = false;
-	public authenticating:boolean = false;
+	public open = false;
+	public authenticating = false;
 
 	public get deezerConnected():boolean { return store.state.deezerConnected; }
-	public get overlayUrl():string { return Utils.getOverlayURL("music"); }
+	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public async authenticate():Promise<void> {
 		this.authenticating = true;

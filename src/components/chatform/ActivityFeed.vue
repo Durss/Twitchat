@@ -99,7 +99,7 @@ export default class ActivityFeed extends Vue {
 
 	public listMode!:boolean;
 
-	public filterKeys:string = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
+	public filterKeys = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
 	public filters:{[key:string]:boolean} = {};
 	
 	private clickHandler!:(e:MouseEvent) => void;

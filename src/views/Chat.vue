@@ -72,6 +72,7 @@
 			@raffle="currentModal = 'raffle'"
 			@bingo="currentModal = 'bingo'"
 			@liveStreams="currentModal = 'liveStreams'"
+			@streamInfo="currentModal = 'streamInfo'"
 			@ad="startAd"
 			@clear="clearChat()"
 			@close="showCommands = false"
@@ -94,6 +95,7 @@
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+		<StreamInfoForm class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
 		<TTUserList class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
@@ -118,30 +120,29 @@ import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
-import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
+import TTUserList from '@/components/chatform/TTUserList.vue';
 import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
+import Parameters from '@/components/params/Parameters.vue';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
-import store  from '@/store';
-import type { BingoData, RaffleData } from '@/store';
-import IRCClient from '@/utils/IRCClient';
-import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
-import Parameters from '@/components/params/Parameters.vue';
-import TwitchatEvent from '@/utils/TwitchatEvent';
-import PublicAPI from '@/utils/PublicAPI';
-import ChatPollForm from '@/components/poll/ChatPollForm.vue';
-import TTUserList from '@/components/chatform/TTUserList.vue';
-import gsap from 'gsap';
+import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
+import store from '@/store';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { BingoData, RaffleData } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
+import IRCClient from '@/utils/IRCClient';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
+import gsap from 'gsap';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	components:{
@@ -160,10 +161,10 @@ import DeezerHelper from '@/utils/DeezerHelper';
 		ActivityFeed,
 		ChatPollForm,
 		CommandHelper,
-		MessageSearch,
 		EmoteSelector,
 		PredictionForm,
 		LiveFollowings,
+		StreamInfoForm,
 		ChannelNotifications,
 	},
 	props:{
@@ -171,25 +172,25 @@ import DeezerHelper from '@/utils/DeezerHelper';
 })
 export default class Chat extends Vue {
 
-	public showFeed:boolean = false;
-	public showEmotes:boolean = false;
-	public showRewards:boolean = false;
-	public showDevMenu:boolean = false;
-	public showCommands:boolean = false;
-	public showUserList:boolean = false;
-	public showChatUsers:boolean = false;
-	public canStartAd:boolean = true;
-	public startAdCooldown:number = 0;
-	public currentModal:string = "";
-	public currentMessageSearch:string = "";
-	public currentNotificationContent:string = "";
+	public showFeed = false;
+	public showEmotes = false;
+	public showRewards = false;
+	public showDevMenu = false;
+	public showCommands = false;
+	public showUserList = false;
+	public showChatUsers = false;
+	public canStartAd = true;
+	public startAdCooldown = 0;
+	public currentModal = "";
+	public currentMessageSearch = "";
+	public currentNotificationContent = "";
 	
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get splitViewVertical():boolean { return store.state.params.appearance.splitViewVertical.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
-	public get needUserInteraction():boolean { return Config.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
+	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -221,14 +222,14 @@ export default class Chat extends Vue {
 
 		//Auto opens the prediction status if pending for completion
 		watch(() => store.state.currentPrediction, (newValue, prevValue) => {
-			let prediction = store.state.currentPrediction as TwitchTypes.Prediction;
+			let prediction = store.state.currentPrediction as TwitchDataTypes.Prediction;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.status == "LOCKED" || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
 		watch(() => store.state.currentPoll, (newValue, prevValue) => {
-			let poll = store.state.currentPoll as TwitchTypes.Poll;
+			let poll = store.state.currentPoll as TwitchDataTypes.Poll;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && poll.status == "COMPLETED" || isNew) this.setCurrentNotification("poll");
 		});
@@ -309,7 +310,7 @@ export default class Chat extends Vue {
 		if(!this.canStartAd) return;
 
 		if(isNaN(duration)) duration = 30;
-		Utils.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
+		this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 			try {
 				const res = await TwitchUtils.startCommercial(duration);
 				if(res.length > 0) {
@@ -327,7 +328,7 @@ export default class Chat extends Vue {
 				IRCClient.instance.sendNotice("commercial", e.message);
 				// store.state.alert = "An unknown error occured when starting commercial"
 			}
-		}).catch(()=>{});
+		}).catch(()=>{/*ignore*/});
 	}
 
 	public onResize():void {

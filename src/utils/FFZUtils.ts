@@ -5,8 +5,8 @@ export default class FFZUtils {
 
 	private static _instance:FFZUtils;
 
-	private enabled:boolean = false;
-	private emotesLoaded:boolean = false;
+	private enabled = false;
+	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:FFZEmote[] = [];
 	private channelEmotes:{[key:string]:FFZEmote[]} = {};

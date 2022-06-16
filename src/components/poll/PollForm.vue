@@ -43,8 +43,8 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -61,15 +61,15 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class PollForm extends Vue {
 
-	public loading:boolean = false;
+	public loading = false;
 
-	public error:string = "";
-	public title:string = "";
-	public answer1:string = "";
-	public answer2:string = "";
-	public answer3:string = "";
-	public answer4:string = "";
-	public answer5:string = "";
+	public error = "";
+	public title = "";
+	public answer1 = "";
+	public answer2 = "";
+	public answer3 = "";
+	public answer4 = "";
+	public answer5 = "";
 	public extraVotesParam:ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
 	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};

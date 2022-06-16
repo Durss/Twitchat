@@ -78,22 +78,21 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ParameterData, ParameterDataListValue, PermissionsData, TriggerActionChatCommandData, TriggerActionTypes } from '@/store';
+import Button from '@/components/Button.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
+import store from '@/store';
+import type { ParameterData, ParameterDataListValue, TriggerActionChatCommandData, TriggerActionTypes, TriggerEventTypes } from '@/store/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
-import type { TriggerEventTypes } from '@/utils/TriggerActionHandler';
-import TriggerActionHandler, { TriggerEvents, TriggerTypes } from '@/utils/TriggerActionHandler';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import { TriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
-import Button from '@/components/Button.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
 import TriggerActionChatCommandParams from './triggers/TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './triggers/TriggerActionEntry.vue';
 
@@ -113,11 +112,11 @@ export default class ParamsTriggers extends Vue {
 	public event_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
 	public subevent_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
 	public sources:OBSSourceItem[] = [];
-	public canSave:boolean = true;
-	public syncing:boolean = false;
-	public isSublist:boolean = false;
-	public showLoading:boolean = false;
-	public rewards:TwitchTypes.Reward[] = [];
+	public canSave = true;
+	public syncing = false;
+	public isSublist = false;
+	public showLoading = false;
+	public rewards:TwitchDataTypes.Reward[] = [];
 	public actionCategory:TriggerActionChatCommandData = {
 						chatCommand:"",
 						permissions:{mods:true, vips:false, subs:false, all:false, users:""},
@@ -215,7 +214,7 @@ export default class ParamsTriggers extends Vue {
 			// {label:"Select a trigger...", value:"0" },
 		];
 		events = events.concat(TriggerEvents);
-		if(!Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
+		if(!Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
 			events = events.filter(v => v.value != TriggerTypes.TRACK_ADDED_TO_QUEUE);
 		}
 		// this.event_conf.value = events[0].value;
@@ -225,7 +224,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Gets all the available OBS sources and sort them alphabetically
 	 */
-	public async listSources(refreshVue:boolean = false):Promise<void> {
+	public async listSources(refreshVue = false):Promise<void> {
 		this.syncing = true;
 		try {
 			this.sources = await OBSWebsocket.instance.getSources();
@@ -260,7 +259,7 @@ export default class ParamsTriggers extends Vue {
 	 * Called when deleting an action item
 	 */
 	public deleteAction(action:TriggerActionTypes, index:number):void {
-		Utils.confirm("Delete action ?").then(()=> {
+		this.$confirm("Delete action ?").then(()=> {
 			this.actionList.splice(index, 1);
 		}).catch(()=> {});
 	}
@@ -269,7 +268,7 @@ export default class ParamsTriggers extends Vue {
 	 * Called when duplicating an action item
 	 */
 	public duplicateAction(action:TriggerActionTypes, index:number):void {
-		// Utils.confirm("Delete action ?").then(()=> {
+		// this.$confirm("Delete action ?").then(()=> {
 		// 	this.actionList.splice(index, 1);
 		// }).catch(()=> {});
 
@@ -336,7 +335,7 @@ export default class ParamsTriggers extends Vue {
 	 * Called to delete the actions sequence
 	 */
 	public deleteTrigger():void {
-		Utils.confirm("Delete trigger ?").then(()=> {
+		this.$confirm("Delete trigger ?").then(()=> {
 			//Delete trigger from storage
 			store.dispatch("deleteTrigger", this.triggerKey);
 			//Reset menu selection
@@ -352,7 +351,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Called when selecting a trigger
 	 */
-	private async onSelectTrigger(onlypopulateSublist:boolean = false):Promise<void> {
+	private async onSelectTrigger(onlypopulateSublist = false):Promise<void> {
 		let key = this.event_conf.value as string;
 		this.subevent_conf.value = "0";
 		this.isSublist = false;
@@ -369,7 +368,7 @@ export default class ParamsTriggers extends Vue {
 				//flooding the main trigger list. Main trigger elements are stored with
 				//simple keys like "1" where these ones are stored with keys like "1_entryName".
 				this.isSublist = true;
-				let defaultTitle:string = "";
+				let defaultTitle = "";
 				this.subevent_conf.listValues = [];
 				if(!onlypopulateSublist) this.actionList = [];
 				
@@ -491,13 +490,6 @@ export default class ParamsTriggers extends Vue {
 		}
 	}
 }
-
-export interface OBSChatCmdParameters extends PermissionsData {
-	cmd:string;
-	userCooldown:number;
-	globalCooldown:number;
-}
-
 </script>
 
 <style scoped lang="less">

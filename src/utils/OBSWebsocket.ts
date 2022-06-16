@@ -12,11 +12,11 @@ export default class OBSWebsocket extends EventDispatcher {
 
 	private static _instance:OBSWebsocket;
 
-	public connected:boolean = false;
+	public connected = false;
 	
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
-	private autoReconnect:boolean = false;
+	private autoReconnect = false;
 	
 	constructor() {
 		super();
@@ -56,7 +56,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param autoReconnect 
 	 * @returns 
 	 */
-	public async connect(port:string, pass:string, autoReconnect:boolean = true, ip:string = "127.0.0.1"):Promise<boolean> {
+	public async connect(port:string, pass:string, autoReconnect = true, ip = "127.0.0.1"):Promise<boolean> {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
 
@@ -288,7 +288,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName 
 	 * @returns 
 	 */
-	public async getSourceOnCurrentScene(sourceName:string, sceneName:string = ""):Promise<{scene:string, source:OBSSourceItem}|null> {
+	public async getSourceOnCurrentScene(sourceName:string, sceneName = ""):Promise<{scene:string, source:OBSSourceItem}|null> {
 		if(!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;

@@ -9,6 +9,8 @@ module.exports = {
 		"vue/setup-compiler-macros": true
 	},
 	"rules": {
-		"@typescript-eslint/ban-ts-comment": "off"
+		"@typescript-eslint/ban-ts-comment": "off",
+		"@typescript-eslint/no-empty-function": "off",
+		"@typescript-eslint/no-namespace": "off"
 	}
 }

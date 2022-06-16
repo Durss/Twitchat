@@ -22,8 +22,8 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class CommunityBoostInfo extends Vue {
 
-	public interpolatedPercent:number = 0;
-	public interpolatedProgress:number = 0;
+	public interpolatedPercent = 0;
+	public interpolatedProgress = 0;
 	
 	public get roundProgressPercent():number { return Math.floor(this.interpolatedPercent); }
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }

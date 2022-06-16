@@ -29,8 +29,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
+import type { TrackedUser } from '@/utils/CommonDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -44,19 +43,19 @@ import ChatMessage from '../messages/ChatMessage.vue';
 })
 export default class TrackedUsers extends Vue {
 
-	public selectedUser:TwitchTypes.TrackedUser | null = null;
+	public selectedUser:TrackedUser | null = null;
 
 	public get classes():string[] {
 		let res = ["trackedusers"];
 		return res;
 	}
 
-	public selectUser(user:TwitchTypes.TrackedUser):void {
+	public selectUser(user:TrackedUser):void {
 		this.selectedUser = user;
 	}
 
-	public untrackUser(user:TwitchTypes.TrackedUser):void {
-		Utils.confirm("Untrack user?", "The history of this user will be lost.")
+	public untrackUser(user:TrackedUser):void {
+		this.$confirm("Untrack user?", "The history of this user will be lost.")
 		.then(()=> {
 			store.dispatch('untrackUser', user.user);
 			this.selectedUser = null;

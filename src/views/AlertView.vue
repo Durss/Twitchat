@@ -13,7 +13,7 @@ import { watch } from '@vue/runtime-core';
 @Options({})
 export default class AlertView extends Vue {
 
-	public message:string = "";
+	public message = "";
 	public timeout!:number;
 
 	public mounted():void {

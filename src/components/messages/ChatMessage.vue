@@ -81,10 +81,10 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
-import type { PubSubTypes } from '@/utils/PubSub';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -92,6 +92,7 @@ import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from './ChatModTools.vue';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	components:{
@@ -113,11 +114,11 @@ export default class ChatMessage extends Vue {
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
 	
-	public firstTime:boolean = false;
-	public automod:PubSubTypes.AutomodData | null = null;
-	public text:string = "";
-	public automodReasons:string = "";
-	public badges:TwitchTypes.Badge[] = [];
+	public firstTime = false;
+	public automod:PubSubDataTypes.AutomodData | null = null;
+	public text = "";
+	public automodReasons = "";
+	public badges:TwitchDataTypes.Badge[] = [];
 
 	public get pronoun():string|null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
@@ -247,11 +248,11 @@ export default class ChatMessage extends Vue {
 		if(this.lightMode) return false;
 		if(store.state.params.features.showModTools.value === false) return false;
 		const message = this.messageData as IRCEventDataList.Message;
-		return (store.state.mods as TwitchTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+		return (store.state.mods as TwitchDataTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
 			||
 		(
-			message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase()//TODO set actual channel id not the user id
-			&& message.tags.username?.toLowerCase() != store.state.user.login.toLowerCase()
+			message.channel.replace(/^#/gi, "").toLowerCase() == UserSession.instance.user.login.toLowerCase()//TODO set actual channel id not the user id
+			&& message.tags.username?.toLowerCase() != UserSession.instance.user.login.toLowerCase()
 		);
 	}
 
@@ -302,8 +303,8 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Get badges images
 	 */
-	public get filteredBadges():TwitchTypes.Badge[] {
-		let res:TwitchTypes.Badge[] = [];
+	public get filteredBadges():TwitchDataTypes.Badge[] {
+		let res:TwitchDataTypes.Badge[] = [];
 		if(store.state.params.appearance.showBadges.value
 		&& !store.state.params.appearance.minimalistBadges.value) {
 			try {
@@ -448,7 +449,7 @@ export default class ChatMessage extends Vue {
 	public parseText():string {
 		let result:string;
 		const doHighlight = store.state.params.appearance.highlightMentions.value;
-		const highlightLogin = store.state.user.login;
+		const highlightLogin = UserSession.instance.user.login;
 		const mess = this.messageData;
 		let text = mess.type == "whisper"? mess.params[1] : mess.message;
 		if(!text) return "";

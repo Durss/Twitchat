@@ -26,12 +26,12 @@ import { Options, Vue } from 'vue-class-component';
 	}
 })
 export default class Confirm extends Vue {
-	public title:string = "";
-	public description:string = "";
-	public yesLabel:string = "";
-	public noLabel:string = "";
-	public hidden:boolean = true;
-	public submitPressed:boolean = false;
+	public title = "";
+	public description = "";
+	public yesLabel = "";
+	public noLabel = "";
+	public hidden = true;
+	public submitPressed = false;
 
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
@@ -103,7 +103,7 @@ export default class Confirm extends Vue {
 		}
 	}
 
-	public answer(confirm:boolean = false):void {
+	public answer(confirm = false):void {
 		if(!store.state.confirm.title) return;
 		
 		if(confirm) {
@@ -120,8 +120,8 @@ export default class Confirm extends Vue {
 			description:"",
 			yesLabel:"",
 			noLabel:"",
-			confirmCallback : () => {},
-			cancelCallback : () => {}
+			confirmCallback : () => { /*ignore*/ },
+			cancelCallback : () =>  { /*ignore*/ }
 		}
 		store.dispatch("confirm", confirmData);
 	}

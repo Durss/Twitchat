@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import type { RaffleData, RaffleVote } from '@/store';
+import type { PlaceholderEntry, WheelData, WheelItem } from '@/types/TwitchatDataTypes';
 import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -46,10 +46,9 @@ import type { ChatUserstate } from 'tmi.js';
 import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import type { WheelData, WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
-import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
+import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
 
 @Options({
 	props:{},
@@ -62,12 +61,12 @@ import ProgressBar from '../ProgressBar.vue';
 })
 export default class RaffleState extends Vue {
 
-	public progressPercent:number = 0;
+	public progressPercent = 0;
 	public raffleData:RaffleData = store.state.raffle as RaffleData;
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
-	private wheelOverlayExists:boolean = false;
+	private wheelOverlayExists = false;
 
 	public mounted():void {
 		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();

@@ -6,6 +6,7 @@
 		<Button small @click="$emit('bingo'); close();" :icon="$image('icons/bingo.svg')" title="Create bingo" bounce />
 		<Button small @click="$emit('chatpoll'); close();" :icon="$image('icons/chatPoll.svg')" title="Create chat poll" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="$image('icons/clearChat.svg')" title="Clear chat" bounce />
+		<Button small @click="$emit('streamInfo'); close();" :icon="$image('icons/info.svg')" title="Stream info" bounce />
 
 		<div class="commercial">
 			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
@@ -35,10 +36,10 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -54,14 +55,25 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:["close","poll","pred","clear","raffle","bingo","liveStreams","ad","chatpoll"]
+	emits:[
+		"ad",
+		"poll",
+		"pred",
+		"clear",
+		"bingo",
+		"close",
+		"raffle",
+		"chatpoll",
+		"streamInfo",
+		"liveStreams",
+	]
 })
 export default class CommandHelper extends Vue {
 	
 	public startAdCooldown!:number;
-	public raidUser:string = "";
-	public adCooldown:number = 0;
-	private adCooldownInterval:number = 0;
+	public raidUser = "";
+	public adCooldown = 0;
+	private adCooldownInterval = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -74,8 +86,9 @@ export default class CommandHelper extends Vue {
 		return store.state.currentPrediction?.id == undefined && store.state.hasChannelPoints === true;
 	}
 	public get canCreatePoll():boolean {
+		console.log(store.state.hasChannelPoints);
 		if(!store.state.hasChannelPoints) return false;
-		const poll = store.state.currentPoll as TwitchTypes.Poll;
+		const poll = store.state.currentPoll as TwitchDataTypes.Poll;
 		return poll == undefined || poll.status != "ACTIVE";
 	}
 
@@ -133,7 +146,7 @@ export default class CommandHelper extends Vue {
 		//with enter key
 		await Utils.promisedTimeout(100);
 		
-		Utils.confirm("Raid ?", "Are you sure you want to raid " + this.raidUser + " ?").then(async () => {
+		this.$confirm("Raid ?", "Are you sure you want to raid " + this.raidUser + " ?").then(async () => {
 			IRCClient.instance.sendMessage("/raid "+this.raidUser);
 			this.raidUser = "";
 		}).catch(()=> { });

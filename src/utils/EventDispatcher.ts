@@ -31,7 +31,7 @@ export class EventDispatcher {
 	}
 
 	public hasEventListener(type:string, listener:(e:Event)=>void):boolean {
-		let exists:boolean = false;
+		let exists = false;
 		for (let i = 0; i < this._listeners.length; i++) {
 			if (this._listeners[i].type === type && this._listeners[i].listener === listener) {
 				exists = true;

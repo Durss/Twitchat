@@ -41,7 +41,7 @@
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -56,7 +56,7 @@ import Button from '../Button.vue';
 })
 export default class WhispersState extends Vue {
 
-	public error:boolean = false;
+	public error = false;
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
 

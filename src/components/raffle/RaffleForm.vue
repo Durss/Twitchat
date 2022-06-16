@@ -84,23 +84,23 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ParameterData, RaffleData } from '@/store';
+import store from '@/store';
+import type { ParameterData, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import type { WheelItem } from '../overlays/OverlaysRaffleWheel.vue';
 import ParamItem from '../params/ParamItem.vue';
-import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import type { RaffleData } from '@/utils/CommonDataTypes';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	props:{},
@@ -114,11 +114,11 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class RaffleForm extends Vue {
 
-	public loadingSubs:boolean = false;
-	public winner:TwitchTypes.Subscriber|null = null;
-	public winnerTmp:TwitchTypes.Subscriber|null = null;
+	public loadingSubs = false;
+	public winner:TwitchDataTypes.Subscriber|null = null;
+	public winnerTmp:TwitchDataTypes.Subscriber|null = null;
 
-	public subMode:boolean = false;
+	public subMode = false;
 	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
@@ -133,18 +133,18 @@ export default class RaffleForm extends Vue {
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
-	private subs:TwitchTypes.Subscriber[] = [];
+	private subs:TwitchDataTypes.Subscriber[] = [];
 	private wheelOverlayPresenceHandler!:()=>void;
-	public wheelOverlayExists:boolean = false;
+	public wheelOverlayExists = false;
 
 	/**
 	 * Gets subs filtered by the current filters
 	 */
-	public get subsFiltered():TwitchTypes.Subscriber[] {
+	public get subsFiltered():TwitchDataTypes.Subscriber[] {
 		return this.subs.filter(v => {
 			if(this.subs_includeGifters.value == true && this.subs.find(v2=> v2.gifter_id == v.user_id)) return true;
 			if(this.subs_excludeGifted.value == true && v.is_gift) return false;
-			if(v.user_id == store.state.user.user_id) return false;
+			if(v.user_id == UserSession.instance.user.user_id) return false;
 			return true;
 		})
 	}

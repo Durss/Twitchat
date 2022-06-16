@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import type { WheelItem } from '@/components/overlays/OverlaysRaffleWheel.vue';
+import type { WheelItem } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -45,16 +45,16 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 })
 export default class OverlayParamsRaffle extends Vue {
 
-	public open:boolean = false;
-	public loading:boolean = false;
-	public wheelOverlayExists:boolean = false;
+	public open = false;
+	public loading = false;
+	public wheelOverlayExists = false;
 
-	private answerIndex:number = 0;
+	private answerIndex = 0;
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
 	private wheelOverlayPresenceHandler!:()=>void;
 	
-	public get overlayUrl():string { return Utils.getOverlayURL("wheel"); }
+	public get overlayUrl():string { return this.$overlayURL("wheel"); }
 
 	public mounted():void {
 		this.wheelOverlayPresenceHandler = ()=> {

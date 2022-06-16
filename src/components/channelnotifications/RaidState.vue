@@ -18,7 +18,7 @@
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -31,11 +31,11 @@ import Button from '../Button.vue';
 })
 export default class RaidState extends Vue {
 
-	public timeLeft:string = "";
-	public user:TwitchTypes.UserInfo|null = null;
+	public timeLeft = "";
+	public user:TwitchDataTypes.UserInfo|null = null;
 
-	private timerDuration:number = 90000;
-	private timerStart:number = 0;
+	private timerDuration = 90000;
+	private timerStart = 0;
 	private timerInterval!:number;
 
 	public async mounted():Promise<void> {

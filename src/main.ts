@@ -6,7 +6,9 @@ import App from './App.vue';
 import './less/index.less';
 import router from './router';
 import store from './store';
-import type { TwitchTypes } from './utils/TwitchUtils';
+import Store from './store/Store';
+import StoreProxy from './utils/StoreProxy';
+import UserSession from './utils/UserSession';
 import Utils from './utils/Utils';
 
 gsap.registerPlugin(ScrollToPlugin);
@@ -17,7 +19,9 @@ let tokenRefreshScheduled = false;
  * Refreshes the oauth token when necessary
  */
 async function scheduleTokenRefresh():Promise<void> {
-	const expire = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).expires_in;
+	if(!UserSession.instance.token) return;
+
+	const expire = UserSession.instance.token.expires_in;
 	let delay = Math.max(0,expire*1000 - 60000 * 5);
 	//Refresh at least every 1h
 	const maxDelay = 1000 * 60 * 60;
@@ -82,8 +86,55 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	next();
 });
 
+/**
+ * Include an image from the asset folder
+ */
 const image = (path:string):string => {
 	return new URL(`/src/assets/${path}`, import.meta.url).href;
+}
+
+/**
+ * Opens up a confirm window so the user can confirm or cancel an action.
+ */
+const confirm = <T>(title: string,
+	description?: string,
+	data?: T,
+	yesLabel?:string,
+	noLabel?:string): Promise<T|undefined> => {
+	const prom = <Promise<T|undefined>>new Promise((resolve, reject) => {
+		const confirmData = {
+			title,
+			description,
+			yesLabel,
+			noLabel,
+			confirmCallback : () => {
+				resolve(data);
+			},
+			cancelCallback : () => {
+				reject(data);
+			}
+		}
+		store.dispatch("confirm", confirmData);
+	});
+	return prom;
+}
+
+StoreProxy.store = store;
+
+/**
+ * Gets an overlay's URL
+ * @param id overlay ID
+ * @returns 
+ */
+const overlayURL = (id:string):string => {
+	const port = Store.get("obsPort");
+	const pass = Store.get("obsPass");
+	const ip = Store.get("obsIP");
+	const params = new URLSearchParams()
+	params.append("obs_port", port);
+	params.append("obs_pass", pass);
+	params.append("obs_ip", ip);
+	return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + "?" + params.toString();
 }
 
 const app = createApp(App)
@@ -91,6 +142,8 @@ const app = createApp(App)
 .use(router)
 .provide("$store", store)
 .provide("$image", image)
+.provide("$confirm", confirm)
+.provide("$overlayURL", overlayURL)
 .directive('autofocus', {
 	mounted(el:HTMLDivElement, binding:unknown) {
 		if((binding as {[key:string]:boolean}).value !== false) {
@@ -105,6 +158,8 @@ const app = createApp(App)
 	}
 });
 app.config.globalProperties.$image = image;
+app.config.globalProperties.$confirm = confirm;
+app.config.globalProperties.$overlayURL = overlayURL;
 app.mount('#app')
 
 window.addEventListener("beforeinstallprompt", (e)=> {

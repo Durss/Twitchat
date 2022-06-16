@@ -18,8 +18,7 @@
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
-import Utils from '@/utils/Utils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -39,12 +38,12 @@ export default class ChatModTools extends Vue {
 	public canDelete!:boolean;
 
 	public messageData!:IRCEventDataList.Message;
-	public showToOptions:boolean = false;
+	public showToOptions = false;
 
-	private closeTimeout:number = 0;
+	private closeTimeout = 0;
 
 	public ban():void {
-		Utils.confirm("Ban "+this.messageData.tags['display-name'], "Are you sure you want to ban this user ?")
+		this.$confirm("Ban "+this.messageData.tags['display-name'], "Are you sure you want to ban this user ?")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
 			IRCClient.instance.sendMessage(`/ban ${this.messageData.tags['display-name']}`);

@@ -34,7 +34,8 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -107,9 +108,9 @@ export default class UserList extends Vue {
 			res.push({
 				login:userName,
 				id:userNameLow,
-				broadcaster:userNameLow == store.state.user.login.toLowerCase(),
+				broadcaster:userNameLow == UserSession.instance.user.login.toLowerCase(),
 				vip:false,
-				mod:(store.state.mods as TwitchTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
+				mod:(store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,
 			});
 		}

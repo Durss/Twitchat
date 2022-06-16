@@ -1,8 +1,5 @@
-import router from '@/router';
-import Store from '@/store/Store';
 import type { ChatUserstate } from 'tmi.js';
-import store  from '@/store';
-import type { PermissionsData } from '../store';
+import type { PermissionsData } from '@/types/TwitchatDataTypes';
 
 /**
  * Created by Durss
@@ -38,33 +35,6 @@ export default class Utils {
 	public static guid():string {
 		return  ([1e7].toString()+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
 		(parseInt(c) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> parseInt(c) / 4).toString(16));
-	}
-
-	/**
-	 * Opens up a confirm window so the user can confirm or cancel an action.
-	 */
-	public static confirm<T>(title: string,
-		description?: string,
-		data?: T,
-		yesLabel?:string,
-		noLabel?:string): Promise<T|undefined> {
-		const prom = <Promise<T|undefined>>new Promise((resolve, reject) => {
-			const confirmData = {
-				title,
-				description,
-				yesLabel,
-				noLabel,
-				confirmCallback : () => {
-					resolve(data);
-				},
-				cancelCallback : () => {
-					reject(data);
-				}
-			}
-			store.dispatch("confirm", confirmData);
-		});
-		prom.catch(():void => {/*ignore*/ });//Avoid uncaugh error if not catched externally
-		return prom;
 	}
 
 
@@ -120,7 +90,7 @@ export default class Utils {
 		})
 	}
 
-	public static toDigits(num:number, digits:number = 2):string {
+	public static toDigits(num:number, digits = 2):string {
 		let res = num.toString();
 		while(res.length < digits) res = "0"+res;
 		return res;
@@ -131,7 +101,7 @@ export default class Utils {
 	 * @param text 
 	 * @returns 
 	 */
-	public static parseURLs(text:string, target:string = "_blank"):string {
+	public static parseURLs(text:string, target = "_blank"):string {
 		let res = text.replace(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi, "<a href='$1' target='"+target+"'>$1</a>");
 		res = res.replace(/href='(?!https?)(\/\/)?(.*?)'/gi, "href='https://$2'");
 		// res = res.replace(/(\.|,)$/gi, "");
@@ -206,17 +176,17 @@ export default class Utils {
 	* 	{myLessVariable:123}
 	*/
 	private static cachedVars:{[key:string]:string|number}|null = null;
-	public static getLessVars(id:string = "lessVars", parseNumbers: boolean = true): {[key:string]:string|number} {
+	public static getLessVars(id = "lessVars", parseNumbers = true): {[key:string]:string|number} {
 		if(this.cachedVars) return this.cachedVars;
 
 		const bNumbers:boolean = parseNumbers === undefined ? true : parseNumbers;
 		const oLess:{[key:string]:string|number} = {}
-		const rgId:RegExp = /#[\w-]+/
-		const rgKey:RegExp = /\.([\w-]+)/
-		const rgUnit:RegExp = /[a-z]+$/
+		const rgId = /#[\w-]+/
+		const rgKey = /\.([\w-]+)/
+		const rgUnit = /[a-z]+$/
 		const aUnits:string[] = 'em,ex,ch,rem,vw,vh,vmin,cm,mm,in,pt,pc,px,deg,grad,rad,turn,s,ms,Hz,kHz,dpi,dpcm,dppx'.split(',')
-		const rgValue:RegExp = /:\s?(.*)\s?;\s?\}/
-		const rgStr:RegExp = /^'([^']+)'$/
+		const rgValue = /:\s?(.*)\s?;\s?\}/
+		const rgStr = /^'([^']+)'$/
 		const sId:string = '#' + id
 		const oStyles = document.styleSheets;
 		for (let i = 0, l = oStyles.length; i < l; i++) {
@@ -251,16 +221,5 @@ export default class Utils {
 		}
 		this.cachedVars = oLess;
 		return oLess;
-	}
-
-	public static getOverlayURL(id:string):string {
-		const port = Store.get("obsPort");
-		const pass = Store.get("obsPass");
-		const ip = Store.get("obsIP");
-		const params = new URLSearchParams()
-		params.append("obs_port", port);
-		params.append("obs_pass", pass);
-		params.append("obs_ip", ip);
-		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + "?" + params.toString();
 	}
 }

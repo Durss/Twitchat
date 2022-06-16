@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -44,16 +44,16 @@ import ToggleButton from '../ToggleButton.vue';
  */
 export default class RewardsList extends Vue {
 
-	public rewards:TwitchTypes.Reward[] = [];
+	public rewards:TwitchDataTypes.Reward[] = [];
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public getRewardIcon(r:TwitchTypes.Reward):string {
+	public getRewardIcon(r:TwitchDataTypes.Reward):string {
 		if(r.image?.url_2x) return r.image.url_1x;
 		return r.default_image.url_1x;
 	}
 
-	public getRewardClasses(r:TwitchTypes.Reward):string[] {
+	public getRewardClasses(r:TwitchDataTypes.Reward):string[] {
 		const res = ["item"];
 		if(!r.is_enabled) res.push("disabled");
 		return res;

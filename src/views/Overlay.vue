@@ -20,7 +20,7 @@ import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue'
 })
 export default class Overlay extends Vue {
 
-	public overlay:string = "";
+	public overlay = "";
 
 	public mounted():void {
 		this.overlay = router.currentRoute.value.params.id as string;

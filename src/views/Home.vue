@@ -190,11 +190,11 @@ import Config from '@/utils/Config';
 })
 export default class Home extends Vue {
 
-	public authenticated:boolean = false;
-	private index:number = 0;
+	public authenticated = false;
+	private index = 0;
 
 	public get nextIndex():number { return this.index ++; }
-	public get discordURL():string { return Config.DISCORD_URL; }
+	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	// public get loginPath():string { return router.resolve({name:'login'}).href; }
 

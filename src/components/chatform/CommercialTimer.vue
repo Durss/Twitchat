@@ -15,7 +15,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class CommercialTimer extends Vue {
 
-	public timeLeft:number = 0;
+	public timeLeft = 0;
 
 	private interval!:number;
 

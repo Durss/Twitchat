@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, PermissionsData } from '@/store';
+import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 

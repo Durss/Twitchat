@@ -13,13 +13,12 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { BotMessageField, ParameterData } from '@/store';
+import store from '@/store';
+import type { BotMessageField, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from './ParamItem.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
-import type { PlaceholderEntry } from './PlaceholderSelector.vue';
 
 @Options({
 	props:{
@@ -70,7 +69,7 @@ export default class PostOnChatParam extends Vue {
 		this.saveParams(false);
 	}
 
-	public async saveParams(saveToStore:boolean = true):Promise<void> {
+	public async saveParams(saveToStore = true):Promise<void> {
 		//Avoid useless save on mount
 		if(saveToStore){
 			store.dispatch("updateBotMessage", {key:this.botMessageKey,

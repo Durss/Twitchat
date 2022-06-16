@@ -41,9 +41,9 @@ export default class ParamsOverlays extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnexionAvailable():boolean { return PublicAPI.instance.localConnexionAvailable; }
 	public get exchangeChannelAvailable():boolean { return this.localConnexionAvailable || this.obsConnected; }
-	public get spotifyConfigured():boolean { return Config.SPOTIFY_CONFIGURED; }
-	public get deezerConfigured():boolean { return Config.DEEZER_CONFIGURED; }
-	public get discordURL():string { return Config.DISCORD_URL; }
+	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
+	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
+	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 }
 </script>

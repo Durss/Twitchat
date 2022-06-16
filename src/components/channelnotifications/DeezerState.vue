@@ -72,10 +72,10 @@ import VolumeBar from '../VolumeBar.vue';
 })
 export default class DeezerState extends Vue {
 
-	public volume:number = .8;
-	public search:string = "";
-	public searching:boolean = false;
-	public showQueue:boolean = false;
+	public volume = .8;
+	public search = "";
+	public searching = false;
+	public showQueue = false;
 	// public search_param:ParameterData = {type:"text", value:"salut", label:"Search track", placeholder:"search..."};
 	public searchResults:DeezerTrack[] = [];
 

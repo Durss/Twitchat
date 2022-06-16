@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { CommandData } from '@/store';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import store from '@/store';
+import type { CommandData } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 
@@ -52,7 +52,7 @@ export default class AutocompleteForm extends Vue {
 	public users!:boolean;
 	public commands!:boolean;
 
-	public selectedIndex:number = 0;
+	public selectedIndex = 0;
 	public filteredItems:ListItem[] = [];
 
 	public getClasses(index:number, item:ListItem):string[] {
@@ -150,7 +150,7 @@ export default class AutocompleteForm extends Vue {
 			if(this.emotes) {
 				const emotes = store.state.emotesCache;
 				for (let j = 0; j < emotes.length; j++) {
-					const e = emotes[j] as TwitchTypes.Emote;
+					const e = emotes[j] as TwitchDataTypes.Emote;
 					if(e.name.toLowerCase().indexOf(s) > -1) {
 						res.push({
 							type:"emote",
@@ -200,7 +200,7 @@ interface EmoteItem {
 	type:"emote";
 	id:string;
 	label:string;
-	emote:TwitchTypes.Emote;
+	emote:TwitchDataTypes.Emote;
 }
 
 interface CommandItem {

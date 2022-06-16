@@ -1,17 +1,19 @@
-import store  from '@/store';
-import type { HypeTrainStateData } from "@/store";
+import type { HypeTrainStateData } from "@/types/TwitchatDataTypes";
+import TwitchUtils from '@/utils/TwitchUtils';
 import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
+import type { TwitchDataTypes } from '../types/TwitchDataTypes';
 import { EventDispatcher } from "./EventDispatcher";
-import IRCClient from "./IRCClient";
 import type { IRCTagsExtended } from "./IRCClient";
-import type { IRCEventDataList } from "./IRCEvent";
+import IRCClient from "./IRCClient";
+import type { IRCEventDataList } from './IRCEventDataTypes';
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
+import type { PubSubDataTypes } from './PubSubDataTypes';
 import PubSubEvent from "./PubSubEvent";
+import StoreProxy from "./StoreProxy";
 import TwitchatEvent from "./TwitchatEvent";
-import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from "./TwitchUtils";
+import UserSession from './UserSession';
 import Utils from "./Utils";
 
 /**
@@ -24,7 +26,7 @@ export default class PubSub extends EventDispatcher{
 	private pingInterval!:number;
 	private reconnectTimeout!:number;
 	private hypeTrainApproachingTimer!:number;
-	private history:PubSubTypes.SocketMessage[] = [];
+	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
 	
 	constructor() {
@@ -41,13 +43,16 @@ export default class PubSub extends EventDispatcher{
 		return PubSub._instance;
 	}
 
-	public get eventsHistory():PubSubTypes.SocketMessage[] { return this.history; }
+	public get eventsHistory():PubSubDataTypes.SocketMessage[] { return this.history; }
 	
 	
 	
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	public initialize():void {
+	}
+
 	public connect():void {
 		this.socket = new WebSocket("wss://pubsub-edge.twitch.tv");
 
@@ -59,7 +64,7 @@ export default class PubSub extends EventDispatcher{
 				this.ping();
 			}, 60000*2.5);
 
-			const uid = store.state.user.user_id;
+			const uid = UserSession.instance.user.user_id;
 			const subscriptions = [
 				"channel-points-channel-v1."+uid,
 				"chat_moderator_actions."+uid+"."+uid,
@@ -86,8 +91,8 @@ export default class PubSub extends EventDispatcher{
 				// "user-properties-update."+uid,
 				// "onsite-notifications."+uid,
 
-				"low-trust-users."+store.state.user.user_id+"."+store.state.user.user_id,
-				// "stream-change-v1."+store.state.user.user_id,
+				"low-trust-users."+UserSession.instance.user.user_id+"."+UserSession.instance.user.user_id,
+				// "stream-change-v1."+UserSession.instance.user.user_id,
 			];
 			if(IRCClient.instance.debugMode) {
 				//Subscribe to someone else's channel points
@@ -111,12 +116,12 @@ export default class PubSub extends EventDispatcher{
 		this.socket.onmessage = (event:unknown) => {
 			// alert(`[message] Data received from server: ${event.data}`);
 			const e = event as {data:string};
-			const message = JSON.parse(e.data) as PubSubTypes.SocketMessage;
+			const message = JSON.parse(e.data) as PubSubDataTypes.SocketMessage;
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
-				if(store.state.devmode) {
+				if(StoreProxy.store.state.devmode) {
 					//Ignore viewers count to avoid massive logs
-					if(message.data.topic != "video-playback-by-id."+store.state.user.user_id) {
+					if(message.data.topic != "video-playback-by-id."+UserSession.instance.user.user_id) {
 						this.history.push(message);
 					}
 				}
@@ -219,7 +224,7 @@ export default class PubSub extends EventDispatcher{
 		this.socket.send(JSON.stringify(json));
 	}
 
-	private nonce(length:number = 18):string {
+	private nonce(length = 18):string {
 		let text = "";
 		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		for(let i = 0; i < length; i++) {
@@ -229,7 +234,7 @@ export default class PubSub extends EventDispatcher{
 	}
 
 	private subscribe(topics:string[]):void {
-		const access_token = (store.state.oAuthToken as TwitchTypes.AuthTokenResult).access_token;
+		const access_token = UserSession.instance.token?.access_token;
 		const json = {
 			"type": "LISTEN",
 			"nonce": this.nonce(),
@@ -241,58 +246,58 @@ export default class PubSub extends EventDispatcher{
 		this.send(json);
 	}
 
-	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubTypes.RaidInfos}, topic?:string):void {
-		if(topic == "following."+store.state.user.user_id) {
-			const localObj = (data as unknown) as PubSubTypes.Following;
+	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubDataTypes.RaidInfos}, topic?:string):void {
+		if(topic == "following."+UserSession.instance.user.user_id) {
+			const localObj = (data as unknown) as PubSubDataTypes.Following;
 			this.followingEvent(localObj);
 
 
 
-		}else if(topic == "video-playback-by-id."+store.state.user.user_id) {
-			const localObj = (data as unknown) as PubSubTypes.PlaybackInfo;
+		}else if(topic == "video-playback-by-id."+UserSession.instance.user.user_id) {
+			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
-				store.dispatch("setPlaybackState", localObj);
+				StoreProxy.store.dispatch("setPlaybackState", localObj);
 			}else 
 			if(localObj.type == "stream-down") {
-				store.dispatch("setPlaybackState", null);
+				StoreProxy.store.dispatch("setPlaybackState", null);
 			}
 
 
 
 		}else if(data.type == "thread") {
 			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
-			this.whisperRead(data.data as PubSubTypes.WhisperRead);
+			this.whisperRead(data.data as PubSubDataTypes.WhisperRead);
 
 
 
 		}else if(data.type == "hype-train-approaching") {
-			this.hypeTrainApproaching(data.data as  PubSubTypes.HypeTrainApproaching);
+			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
 
 
 
 		}else if(data.type == "hype-train-start") {
-			this.hypeTrainStart(data.data as  PubSubTypes.HypeTrainStart);
+			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart);
 
 
 
 		}else if(data.type == "hype-train-progression") {
-			this.hypeTrainProgress(data.data as  PubSubTypes.HypeTrainProgress);
+			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress);
 
 
 
 		}else if(data.type == "hype-train-level-up") {
-			this.hypeTrainLevelUp(data.data as  PubSubTypes.HypeTrainLevelUp);
+			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp);
 
 
 
 		}else if(data.type == "hype-train-end") {
-			this.hypeTrainEnd(data.data as  PubSubTypes.HypeTrainEnd);
+			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd);
 
 
 
 		}else if(data.type == "hype-train-cooldown-expiration") {
 			IRCClient.instance.sendHighlight({
-				channel: store.state.user.login,
+				channel: UserSession.instance.user.login,
 				type:"highlight",
 				tags:{
 					"tmi-sent-ts":Date.now().toString(),
@@ -303,19 +308,19 @@ export default class PubSub extends EventDispatcher{
 
 
 		}else if(data.type == "automod_caught_message") {
-			this.automodEvent(data.data as  PubSubTypes.AutomodData);
+			this.automodEvent(data.data as  PubSubDataTypes.AutomodData);
 
 
 
 		}else if(data.type == "low_trust_user_new_message") {
-			this.lowTrustMessage(data.data as  PubSubTypes.LowTrustMessage);
+			this.lowTrustMessage(data.data as  PubSubDataTypes.LowTrustMessage);
 
 
 
 		}else if(data.type == "reward-redeemed") {
 			//Manage rewards
-			if(store.state.params.filters.showRewards.value) {
-				const localObj = data.data as  PubSubTypes.RewardData;
+			if(StoreProxy.store.state.params.filters.showRewards.value) {
+				const localObj = data.data as  PubSubDataTypes.RewardData;
 				this.rewardEvent(localObj);
 			}
 
@@ -323,7 +328,7 @@ export default class PubSub extends EventDispatcher{
 
 		}else if(data.type == "extension_message") {
 			//Manage extension messages
-			const mess = data.data as PubSubTypes.ExtensionMessage;
+			const mess = data.data as PubSubDataTypes.ExtensionMessage;
 			if(mess.content) {
 				const badges:{[key:string]:string} = {};
 				for (let i = 0; i < mess.sender.badges.length; i++) {
@@ -338,7 +343,7 @@ export default class PubSub extends EventDispatcher{
 					"user-id": mess.sender.extension_client_id,
 					"tmi-sent-ts": new Date(mess.sent_at).getTime().toString(),
 					"message-type": "chat",
-					"room-id": store.state.user.user_id,
+					"room-id": UserSession.instance.user.user_id,
 					"badges": badges,
 				};
 				IRCClient.instance.addMessage(mess.content.text, tags, false);
@@ -347,7 +352,7 @@ export default class PubSub extends EventDispatcher{
 
 
 		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
-			const localObj = data.data as PubSubTypes.PollData;
+			const localObj = data.data as PubSubDataTypes.PollData;
 			this.pollEvent(localObj)
 
 
@@ -358,33 +363,33 @@ export default class PubSub extends EventDispatcher{
 
 
 		}else if(data.type == "event-created" || data.type == "event-updated") {
-			const localObj = data.data as PubSubTypes.PredictionData;
+			const localObj = data.data as PubSubDataTypes.PredictionData;
 			this.predictionEvent(localObj);
 
 
 
 		}else if(data.type == "raid_update_v2") {
-			store.dispatch("setRaiding", data.raid);
+			StoreProxy.store.dispatch("setRaiding", data.raid);
 
 		}else if(data.type == "raid_go_v2") {
-			if(store.state.params.features.stopStreamOnRaid.value === true) {
+			if(StoreProxy.store.state.params.features.stopStreamOnRaid.value === true) {
 				clearTimeout(this.raidTimeout)
 				this.raidTimeout = window.setTimeout(() => {
 					OBSWebsocket.instance.stopStreaming();
 				}, 1000);
 			}
-			store.dispatch("setRaiding", null);
+			StoreProxy.store.dispatch("setRaiding", null);
 
 
 
 		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression") {
-			store.dispatch("setCommunityBoost", data.data as PubSubTypes.CommunityBoost);
+			StoreProxy.store.dispatch("setCommunityBoost", data.data as PubSubDataTypes.CommunityBoost);
 			
 		}else if(data.type == "community-boost-end") {
-			const boost = data.data as PubSubTypes.CommunityBoost;
-			store.dispatch("setCommunityBoost", boost);
+			const boost = data.data as PubSubDataTypes.CommunityBoost;
+			StoreProxy.store.dispatch("setCommunityBoost", boost);
 			IRCClient.instance.sendHighlight({
-				channel: store.state.user.login,
+				channel: UserSession.instance.user.login,
 				viewers: boost.total_goal_progress? boost.total_goal_progress : boost.boost_orders[0].GoalProgress,
 				type:"highlight",
 				tags:{
@@ -395,14 +400,14 @@ export default class PubSub extends EventDispatcher{
 			
 			window.setTimeout(()=> {
 				//Automatically hide the boost after a few seconds
-				store.dispatch("setCommunityBoost", null);
+				StoreProxy.store.dispatch("setCommunityBoost", null);
 			}, 30000);
 			
 
 			
 		}else if(data.type == "moderation_action") {
 			//Manage moderation actions
-			const localObj = data.data as PubSubTypes.ModerationData;
+			const localObj = data.data as PubSubDataTypes.ModerationData;
 			switch(localObj.moderation_action) {
 				case "clear": {
 					IRCClient.instance.sendNotice("usage_clear", "Chat cleared by "+localObj.created_by);
@@ -430,10 +435,10 @@ export default class PubSub extends EventDispatcher{
 					break;
 				}
 				case "raid": {
-					const infos:PubSubTypes.RaidInfos = {
+					const infos:PubSubDataTypes.RaidInfos = {
 						id: IRCClient.instance.getFakeGuid(),
-						creator_id: store.state.user.user_id,
-						source_id: store.state.user.user_id,
+						creator_id: UserSession.instance.user.user_id,
+						source_id: UserSession.instance.user.user_id,
 						target_id: "",
 						target_login: localObj.args? localObj.args[0] : "",
 						target_display_name: localObj.args? localObj.args[0] : "",
@@ -442,11 +447,11 @@ export default class PubSub extends EventDispatcher{
 						force_raid_now_seconds: 90,
 						viewer_count: 0,
 					};
-					store.dispatch("setRaiding", infos);
+					StoreProxy.store.dispatch("setRaiding", infos);
 					break;
 				}
 				case "unraid": {
-					store.dispatch("setRaiding", null);
+					StoreProxy.store.dispatch("setRaiding", null);
 					break;
 				}
 				case "delete": {
@@ -454,7 +459,7 @@ export default class PubSub extends EventDispatcher{
 						messageId:localObj.args? localObj.args[2] : "",
 						deleteData:localObj,
 					}
-					store.dispatch("delChatMessage", data);
+					StoreProxy.store.dispatch("delChatMessage", data);
 					break;
 				}
 				default:
@@ -468,7 +473,7 @@ export default class PubSub extends EventDispatcher{
 	 * Called when a message is held by automod
 	 * @param localObj
 	 */
-	private automodEvent(localObj:PubSubTypes.AutomodData):void {
+	private automodEvent(localObj:PubSubDataTypes.AutomodData):void {
 		if(localObj.status == "PENDING") {
 			const tags:IRCTagsExtended = {
 				"username":localObj.message.sender.login,
@@ -497,7 +502,7 @@ export default class PubSub extends EventDispatcher{
 		}else 
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
 			this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, localObj.message.id));
-			store.dispatch("delChatMessage", {messageId:localObj.message.id});
+			StoreProxy.store.dispatch("delChatMessage", {messageId:localObj.message.id});
 		}
 	}
 
@@ -506,14 +511,14 @@ export default class PubSub extends EventDispatcher{
 	 * 
 	 * @param localObj
 	 */
-	private lowTrustMessage(localObj:PubSubTypes.LowTrustMessage):void {
-		store.dispatch("flagLowTrustMessage", localObj);
+	private lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):void {
+		StoreProxy.store.dispatch("flagLowTrustMessage", localObj);
 	}
 
 	/**
 	 * Called when a user redeems a reward
 	 */
-	private rewardEvent(localObj:PubSubTypes.RewardData):void {
+	private rewardEvent(localObj:PubSubDataTypes.RewardData):void {
 		const tags:IRCTagsExtended = {
 			"username":localObj.redemption.user.display_name,
 			"display-name": localObj.redemption.user.display_name,
@@ -537,9 +542,9 @@ export default class PubSub extends EventDispatcher{
 	 * Called when a poll event occurs (create/update/close)
 	 * @param localObj
 	 */
-	private pollEvent(localObj:PubSubTypes.PollData):void {
+	private pollEvent(localObj:PubSubDataTypes.PollData):void {
 		//convert data to API style format
-		const choices:TwitchTypes.PollChoice[] = [];
+		const choices:TwitchDataTypes.PollChoice[] = [];
 		for (let i = 0; i < localObj.poll.choices.length; i++) {
 			const c = localObj.poll.choices[i];
 			const votes = c.votes.total;
@@ -553,11 +558,11 @@ export default class PubSub extends EventDispatcher{
 				bits_votes: c.votes.bits,
 			})
 		}
-		const poll:TwitchTypes.Poll = {
+		const poll:TwitchDataTypes.Poll = {
 			id: localObj.poll.poll_id,
 			broadcaster_id: localObj.poll.owned_by,
-			broadcaster_name: store.state.user.login,
-			broadcaster_login: store.state.user.login,
+			broadcaster_name: UserSession.instance.user.login,
+			broadcaster_login: UserSession.instance.user.login,
 			title: localObj.poll.title,
 			choices: choices,
 			bits_voting_enabled: localObj.poll.settings.bits_votes.is_enabled,
@@ -571,19 +576,19 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
-		store.dispatch("setPolls", {postOnChat:true, data:[poll]})
+		StoreProxy.store.dispatch("setPolls", {postOnChat:true, data:[poll]})
 	}
 
 	/**
 	 * Called when a prediction event occurs (create/update/close)
 	 */
-	private predictionEvent(localObj:PubSubTypes.PredictionData):void {
+	private predictionEvent(localObj:PubSubDataTypes.PredictionData):void {
 	
 		// convert data to API style format
-		const outcomes:TwitchTypes.PredictionOutcome[] = [];
+		const outcomes:TwitchDataTypes.PredictionOutcome[] = [];
 		for (let i = 0; i < localObj.event.outcomes.length; i++) {
 			const c = localObj.event.outcomes[i];
-			const top_predictors:TwitchTypes.PredictionPredictor[] = [];
+			const top_predictors:TwitchDataTypes.PredictionPredictor[] = [];
 			for (let j = 0; j < c.top_predictors.length; j++) {
 				const p = c.top_predictors[j];
 				top_predictors.push({
@@ -606,7 +611,7 @@ export default class PubSub extends EventDispatcher{
 		if(localObj.event.status == "RESOLVE_PENDING") {
 			localObj.event.status = "LOCKED";
 		}
-		const prediction:TwitchTypes.Prediction = {
+		const prediction:TwitchDataTypes.Prediction = {
 			id: localObj.event.id,
 			broadcaster_id: localObj.event.created_by.user_id,
 			broadcaster_name: localObj.event.created_by.user_display_name,
@@ -622,13 +627,13 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
-		store.dispatch("setPredictions", [prediction])
+		StoreProxy.store.dispatch("setPredictions", [prediction])
 	}
 
 	/**
 	 * Called when having a new follower
 	 */
-	private followingEvent(data:PubSubTypes.Following):void {
+	private followingEvent(data:PubSubDataTypes.Following):void {
 		const message:IRCEventDataList.Highlight = {
 			channel: IRCClient.instance.channel,
 			tags:{
@@ -656,7 +661,7 @@ export default class PubSub extends EventDispatcher{
 	 * Called when a hype train approaches
 	 * @param data 
 	 */
-	private hypeTrainApproaching(data:PubSubTypes.HypeTrainApproaching):void {
+	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching):void {
 		const key = Object.keys(data.events_remaining_durations)[0];
 		const train:HypeTrainStateData = {
 			level:1,
@@ -667,10 +672,10 @@ export default class PubSub extends EventDispatcher{
 			state: "APPROACHING",
 			is_boost_train:data.is_boost_train,
 		};
-		store.dispatch("setHypeTrain", train);
+		StoreProxy.store.dispatch("setHypeTrain", train);
 		//Hide "hypetrain approaching" notification if expired
 		this.hypeTrainApproachingTimer = window.setTimeout(()=> {
-			store.dispatch("setHypeTrain", {});
+			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, train.timeLeft * 1000);
 	}
 
@@ -678,7 +683,7 @@ export default class PubSub extends EventDispatcher{
 	 * Called when a hype train starts
 	 * @param data 
 	 */
-	private hypeTrainStart(data:PubSubTypes.HypeTrainStart):void {
+	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart):void {
 		clearTimeout(this.hypeTrainApproachingTimer);
 		const train:HypeTrainStateData = {
 			level:data.progress.level.value,
@@ -689,617 +694,69 @@ export default class PubSub extends EventDispatcher{
 			state: "START",
 			is_boost_train:data.is_boost_train,
 		};
-		store.dispatch("setHypeTrain", train);
+		StoreProxy.store.dispatch("setHypeTrain", train);
 	}
 	
 	/**
 	 * Called when a hype train is progressing (new sub/bits)
 	 * @param data 
 	 */
-	private hypeTrainProgress(data:PubSubTypes.HypeTrainProgress):void {
+	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress):void {
 		const train:HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			started_at:(store.state.hypeTrain as HypeTrainStateData).started_at,
+			started_at:(StoreProxy.store.state.hypeTrain as HypeTrainStateData).started_at,
 			timeLeft:data.progress.remaining_seconds,
 			state: "PROGRESSING",
 			is_boost_train:data.is_boost_train,
 		};
-		store.dispatch("setHypeTrain", train);
+		StoreProxy.store.dispatch("setHypeTrain", train);
 	}
 	
 	/**
 	 * Called when a hype train levels up
 	 * @param data 
 	 */
-	private hypeTrainLevelUp(data:PubSubTypes.HypeTrainLevelUp):void {
+	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp):void {
 		const train:HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			started_at:(store.state.hypeTrain as HypeTrainStateData).started_at,
+			started_at:(StoreProxy.store.state.hypeTrain as HypeTrainStateData).started_at,
 			timeLeft:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
 		};
-		store.dispatch("setHypeTrain", train);
+		StoreProxy.store.dispatch("setHypeTrain", train);
 	}
 	
 	/**
 	 * Called when a hype train completes or expires
 	 * @param data 
 	 */
-	private hypeTrainEnd(data:PubSubTypes.HypeTrainEnd):void {
-		const storeData:HypeTrainStateData = store.state.hypeTrain as HypeTrainStateData;
+	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd):void {
+		const storeData:HypeTrainStateData = StoreProxy.store.state.hypeTrain as HypeTrainStateData;
 		if(data.ending_reason == "COMPLETED") {
 			storeData.state = "COMPLETED";
 		}
 		if(data.ending_reason == "EXPIRE") {
 			storeData.state = "EXPIRE";
 		}
-		store.dispatch("setHypeTrain", storeData);
+		StoreProxy.store.dispatch("setHypeTrain", storeData);
 		
 		window.setTimeout(()=> {
 			//Hide hype train popin
-			store.dispatch("setHypeTrain", {});
+			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, 20000)
 	}
 	
 	/**
 	 * Called when whispers are read
 	 */
-	private whisperRead(data:PubSubTypes.WhisperRead):void {
+	private whisperRead(data:PubSubDataTypes.WhisperRead):void {
 		data;//
-		// store.dispatch("closeWhispers", data.id.split("_")[1]);
-	}
-}
-
-export namespace PubSubTypes {
-
-	export interface SocketMessage {
-		type: string;
-		data: {
-			message: string;
-			topic: string;
-		}
-	}
-
-	export interface Following {
-		display_name: string;
-		username: string;
-		user_id:string;
-	}
-
-	export interface PlaybackInfo {
-		type: string;
-		server_time: number;
-		viewers: number;
-	}
-
-	export interface AutomodData {
-		content_classification: {
-			category: string;
-			level: number;
-		};
-		message: {
-			content: {
-				text: string;
-				fragments: {
-					text: string;
-					emoticon: {
-						emoticonID: string,
-						emoticonSetID: string
-					},
-					automod: {
-						topics: {[key:string]: string},
-					};
-				}[];
-			};
-			id: string;
-			sender: {
-				user_id: string;
-				login: string;
-				display_name: string;
-				chat_color: string;
-			};
-			sent_at: string;
-		};
-		reason_code: string;
-		resolver_id: string;
-		resolver_login: string;
-		status: string;
-	}
-	
-	export interface ModerationData {
-		type: string;
-		moderation_action: string;
-		args?: string[];
-		created_by: string;
-		created_by_user_id: string;
-		created_at: string;
-		msg_id: string;
-		target_user_id: string;
-		target_user_login: string;
-		from_automod: boolean;
-	}
-
-	export interface PollData {
-		poll:{
-			poll_id: string;
-			owned_by: string;
-			created_by: string;
-			title: string;
-			started_at: string;
-			ended_at?: string;
-			ended_by?: string;
-			duration_seconds: number;
-			settings: {
-				multi_choice: {is_enabled: boolean;};
-				subscriber_only: {is_enabled: boolean;};
-				subscriber_multiplier: {is_enabled: boolean;};
-				bits_votes: {
-					is_enabled: boolean;
-					cost: number;
-				};
-				channel_points_votes: {
-					is_enabled: boolean;
-					cost: number;
-				};
-			};
-			status: string;
-			choices: {
-				choice_id: string;
-				title: string;
-				votes: {
-					total: number;
-					bits: number;
-					channel_points: number;
-					base: number;
-				};
-				tokens: {
-					bits: number;
-					channel_points: number;
-				};
-				total_voters: number;
-			}[];
-			votes: {
-				total: number;
-				bits: number;
-				channel_points: number;
-				base: number;
-			};
-			tokens: {
-				bits: number;
-				channel_points: number;
-			};
-			total_voters: number;
-			remaining_duration_milliseconds: number;
-			top_contributor?: {
-				user_id: string,
-				display_name: string,
-			};
-			top_bits_contributor?: {
-				user_id: string,
-				display_name: string,
-				bits_contributed: number
-			};
-			top_channel_points_contributor?: {
-				user_id: string,
-				display_name: string,
-				channel_points_contributed: number
-			};
-		}
-	}
-
-	export interface RewardData {
-		timestamp: string;
-		redemption: {
-			id: string;
-			user: {
-				id: string;
-				login: string;
-				display_name: string;
-			};
-			channel_id: string;
-			redeemed_at: string;
-			user_input?: string;
-			reward: {
-				id: string;
-				channel_id: string;
-				title: string;
-				prompt: string;
-				cost: number;
-				is_user_input_required: boolean;
-				is_sub_only: boolean;
-				image: Image;
-				default_image: DefaultImage;
-				background_color: string;
-				is_enabled: boolean;
-				is_paused: boolean;
-				is_in_stock: boolean;
-				max_per_stream: MaxPerStream;
-				should_redemptions_skip_request_queue: boolean;
-				template_id?: unknown;
-				updated_for_indicator_at: string;
-				max_per_user_per_stream: MaxPerUserPerStream;
-				global_cooldown: GlobalCooldown;
-				redemptions_redeemed_current_stream?: unknown;
-				cooldown_expires_at?: unknown;
-			};
-			status: string;
-		};
-	}
-
-	export interface PredictionData {
-		timestamp: string;
-		event: {
-			id: string;
-			channel_id: string;
-			created_at: string;
-			created_by: {
-				type: string;
-				user_id: string;
-				user_display_name: string;
-				extension_client_id?: string;
-			};
-			ended_at?: string;
-			ended_by?: string;
-			locked_at?: string;
-			locked_by?: string;
-			outcomes: {
-				id: string;
-				color: string;
-				title: string;
-				total_points: number;
-				total_users: number;
-				top_predictors: {
-					id: string,
-					event_id: string,
-					outcome_id: string,
-					channel_id: string,
-					points: number,
-					predicted_at: string,
-					updated_at: string,
-					user_id: string,
-					result: {
-						type: "WIN"|"LOSE",
-						points_won: number,
-						is_acknowledged: boolean,
-					},
-					user_display_name: string
-				}[];
-				badge: {
-					version: string;
-					set_id: string;
-				};
-			}[];
-			prediction_window_seconds: number;
-			status: "RESOLVE_PENDING" | "RESOLVED" | "LOCKED" | "ACTIVE";
-			title: string;
-			winning_outcome_id?: string;
-		};
-	}
-
-	interface Image {
-		url_1x: string;
-		url_2x: string;
-		url_4x: string;
-	}
-
-	interface DefaultImage {
-		url_1x: string;
-		url_2x: string;
-		url_4x: string;
-	}
-
-	interface MaxPerStream {
-		is_enabled: boolean;
-		max_per_stream: number;
-	}
-
-	interface MaxPerUserPerStream {
-		is_enabled: boolean;
-		max_per_user_per_stream: number;
-	}
-
-	interface GlobalCooldown {
-		is_enabled: boolean;
-		global_cooldown_seconds: number;
-	}
-
-	export interface HypeTrainApproaching {
-        channel_id: string;
-        goal: number;
-        events_remaining_durations:{[key:string]:number};
-        level_one_rewards: {
-			type: string;
-			id: string;
-			group_id: string;
-			reward_level: number;
-			set_id: string;
-			token: string;
-		}[];
-        creator_color: string;
-        participants: string[];
-        approaching_hype_train_id: string;
-        is_boost_train: boolean;
-	}
-
-	export interface HypeTrainStart {
-		channel_id: string;
-		id: string;
-		started_at: number;
-		expires_at: number;
-		updated_at: number;
-		ended_at?: number;
-		ending_reason?: string;
-		config: {
-			channel_id: string;
-			is_enabled: boolean;
-			is_whitelisted: boolean;
-			kickoff: {
-				num_of_events: number;
-				min_points: number;
-				duration: number;
-			};
-			cooldown_duration: number;
-			level_duration: number;
-			difficulty: string;
-			reward_end_date?: number;
-			participation_conversion_rates: {
-				"BITS.CHEER": number;
-				"BITS.EXTENSION": number;
-				"BITS.POLL": number;
-				"SUBS.TIER_1_GIFTED_SUB": number;
-				"SUBS.TIER_1_SUB": number;
-				"SUBS.TIER_2_GIFTED_SUB": number;
-				"SUBS.TIER_2_SUB": number;
-				"SUBS.TIER_3_GIFTED_SUB": number;
-				"SUBS.TIER_3_SUB": number;
-			};
-			notification_thresholds: {
-				"BITS.CHEER": number;
-				"BITS.EXTENSION": number;
-				"BITS.POLL": number;
-				"SUBS.TIER_1_GIFTED_SUB": number;
-				"SUBS.TIER_1_SUB": number;
-				"SUBS.TIER_2_GIFTED_SUB": number;
-				"SUBS.TIER_2_SUB": number;
-				"SUBS.TIER_3_GIFTED_SUB": number;
-				"SUBS.TIER_3_SUB": number;
-			};
-			difficulty_settings: {
-				MEDIUM: {
-					value: number;
-					goal: number;
-					rewards: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						set_id: string;
-						token: string;
-					}[];
-				}[];
-			};
-			conductor_rewards: {
-				BITS: {
-					
-					CURRENT: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-					FORMER: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-				};
-				SUBS: {
-					CURRENT: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-					FORMER: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-				};
-			};
-			callout_emote_id: string;
-			callout_emote_token: string;
-			theme_color: string;
-			has_conductor_badges: boolean;
-		};
-		participations: {
-			"SUBS.TIER_1_GIFTED_SUB": number;
-			"SUBS.TIER_1_SUB": number;
-			"SUBS.TIER_3_SUB": number;
-		};
-		conductors: unknown;
-		progress: HypeProgressInfo;
-		is_boost_train:boolean;
-	}
-
-	export interface HypeTrainProgress {
-		user_id: string;
-		user_login: string;
-		user_display_name: string;
-		sequence_id: number;
-		action: string;
-		source: string;
-		quantity: number;
-		progress: HypeProgressInfo;
-		is_boost_train:boolean;
-	}
-
-	export interface HypeTrainConductorUpdate {
-		source: string;
-		user: {
-			id: string;
-			login: string;
-			display_name: string;
-			profile_image_url: string;
-		};
-		participations: {
-			"BITS.CHEER": number;
-			"SUBS.TIER_1_SUB": number;
-		};
-	}
-
-	export interface HypeTrainLevelUp {
-		time_to_expire: number;
-		progress: HypeProgressInfo;
-		is_boost_train:boolean;
-	}
-	
-	export interface HypeTrainEnd {
-		ended_at: number;
-		ending_reason: "COMPLETED" | "EXPIRE";
-		is_boost_train:boolean;
-	}
-	
-	interface HypeProgressInfo {
-		level: {
-			value: number;
-			goal: number;
-			rewards: {
-				type: string;
-				id: string;
-				group_id: string;
-				reward_level: number;
-				set_id: string;
-				token: string;
-			}[]
-		};
-		value: number;
-		goal: number;
-		total: number;
-		remaining_seconds: number;
-		is_boost_train:boolean;
-	}
-
-	export interface LowTrustMessage {
-		low_trust_user: LowTrustUser;
-		message_content: {
-			text: string;
-			fragments: {
-				text: string;
-			}[];
-		};
-		message_id: string;
-		sent_at: Date;
-	}
-
-	interface LowTrustUser {
-		id: string;
-		low_trust_id: string;
-		channel_id: string;
-		sender: {
-			user_id: string;
-			login: string;
-			display_name: string;
-			chat_color: string;
-			badges: {
-				id: string;
-				version: string;
-			}[];
-		};
-		evaluated_at: Date;
-		updated_at: Date;
-		ban_evasion_evaluation: "UNLIKELY_EVADER" | string;
-		treatment: "RESTRICTED" | "ACTIVE_MONITORING";
-		updated_by: {
-			id: string;
-			login: string;
-			display_name: string;
-		};
-	}
-
-	export interface RaidInfos {
-		id: string;
-		creator_id: string;
-		source_id: string;
-		target_id: string;
-		target_login: string;
-		target_display_name: string;
-		target_profile_image: string;
-		transition_jitter_seconds: number;
-		force_raid_now_seconds: number;
-		viewer_count: number;
-	}
-
-	export interface CommunityBoost {
-        channel_id: string;
-		total_goal_target:number;
-		total_goal_progress?:number;
-		ending_reason:"ORDER_STATE_FULFILLED";
-        boost_orders: {
-			ID: string;
-			State: "ORDER_STATE_DELIVERING" | "DELIVERING_ORDER" | "ORDER_STATE_FULFILLED";
-			GoalProgress: number;
-			GoalTarget: number;
-		}[];
-	}
-
-	export interface DeletedMessage {
-		type: string;
-		moderation_action: string;
-		args: string[];
-		created_by: string;
-		created_by_user_id: string;
-		created_at: string;
-		msg_id: string;
-		target_user_id: string;
-		target_user_login: string;
-		from_automod: boolean;
-	}
-
-	export interface WhisperRead {
-		id: string,//receiverID_senderID
-		last_read: number,//index of the last message read
-		archived: boolean,
-		muted: boolean,
-		spam_info: {
-			likelihood: string,
-			last_marked_not_spam: number
-		},
-		whitelisted_until: string
-	}
-
-	export interface ExtensionMessage {
-		id: string;
-		sent_at: string;
-		content: {
-			text: string
-			fragments: string[]
-		},
-		sender: {
-			extension_client_id: string;
-			extension_version: string;
-			display_name:  string;
-			chat_color: string;
-			badges: {
-					id: string;
-					version: string;
-				}[]
-		}
+		// StoreProxy.store.dispatch("closeWhispers", data.id.split("_")[1]);
 	}
 }
 

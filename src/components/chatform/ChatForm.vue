@@ -151,13 +151,13 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { BingoConfig} from '@/store';
-import { TwitchatAdTypes } from '@/store';
+import store from '@/store';
+import { TwitchatAdTypes, type BingoConfig } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
@@ -210,15 +210,15 @@ export default class ChatForm extends Vue {
 	public showCommands!:boolean;
 	public showRewards!:boolean;
 
-	public message:string = "";
-	public error:boolean = false;
-	public sendingMessage:boolean = false;
-	public censoredViewCount:boolean = false;
-	public autoCompleteSearch:string = "";
-	public autoCompleteEmotes:boolean = false;
-	public autoCompleteUsers:boolean = false;
-	public autoCompleteCommands:boolean = false;
-	public spamInterval:number = 0;
+	public message = "";
+	public error = false;
+	public sendingMessage = false;
+	public censoredViewCount = false;
+	public autoCompleteSearch = "";
+	public autoCompleteEmotes = false;
+	public autoCompleteUsers = false;
+	public autoCompleteCommands = false;
+	public spamInterval = 0;
 
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
@@ -296,7 +296,7 @@ export default class ChatForm extends Vue {
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
 
-		let hash:string = "";
+		let hash = "";
 		try {
 			const encoder = new TextEncoder();
 			const data = encoder.encode(cmd);
@@ -371,7 +371,7 @@ export default class ChatForm extends Vue {
 			this.sendingMessage = true;
 			this.message = "...";
 			//Make a shoutout
-			await TwitchUtils.shoutout(params[0]);
+			await store.dispatch("shoutout",params[0]);
 			this.sendingMessage = false;
 			this.message = "";
 		}else
@@ -383,7 +383,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/cypherkey") {
 			//Secret feature
-			TwitchCypherPlugin.instance.cypherKey = params[0];
+			store.dispatch("setCypherKey", params[0]);
 			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
 		}else
@@ -402,9 +402,9 @@ export default class ChatForm extends Vue {
 			});
 			this.spamInterval = window.setInterval(()=> {
 				const tags = IRCClient.instance.getFakeTags();
-				tags.username = store.state.user.login;
-				tags["display-name"] = store.state.user.login;
-				tags["user-id"] = store.state.user.user_id;
+				tags.username = UserSession.instance.user.login;
+				tags["display-name"] = UserSession.instance.user.login;
+				tags["user-id"] = UserSession.instance.user.user_id;
 				tags.id = IRCClient.instance.getFakeGuid();
 				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
 			}, 250);

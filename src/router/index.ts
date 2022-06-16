@@ -8,8 +8,8 @@ import Logout from '../views/Logout.vue'
 import Overlay from '../views/Overlay.vue'
 import store from '@/store'
 import Utils from '@/utils/Utils'
-import type { SpotifyAuthResult } from '@/utils/SpotifyHelper'
 import type { DeezerAuthResult } from '@/utils/DeezerHelper'
+import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
 
 const routes: Array<RouteRecordRaw> = [
 	{

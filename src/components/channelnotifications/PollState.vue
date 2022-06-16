@@ -25,9 +25,8 @@
 
 <script lang="ts">
 import store from '@/store';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -42,16 +41,16 @@ import ProgressBar from '../ProgressBar.vue';
 })
 export default class PollState extends Vue {
 
-	public loading:boolean = false;
-	public progressPercent:number = 0;
+	public loading = false;
+	public progressPercent = 0;
 
-	private disposed:boolean = false;
+	private disposed = false;
 
-	public get poll():TwitchTypes.Poll {
-		return store.state.currentPoll as TwitchTypes.Poll;
+	public get poll():TwitchDataTypes.Poll {
+		return store.state.currentPoll as TwitchDataTypes.Poll;
 	}
 
-	public getPercent(c:TwitchTypes.PollChoice):number {
+	public getPercent(c:TwitchDataTypes.PollChoice):number {
 		let totalVotes = 0;
 		if(this.poll) {
 			for (let i = 0; i < this.poll.choices.length; i++) {
@@ -61,13 +60,13 @@ export default class PollState extends Vue {
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchTypes.PollChoice):{[key:string]:string} {
+	public getAnswerStyles(c:TwitchDataTypes.PollChoice):{[key:string]:string} {
 		let res:{[key:string]:string} = {};
 		res.backgroundSize = `${this.getPercent(c)}% 100%`;
 		return res;
 	}
 
-	public getAnswerClasses(c:TwitchTypes.PollChoice):string[] {
+	public getAnswerClasses(c:TwitchDataTypes.PollChoice):string[] {
 		let res:string[] = ["choice"];
 		
 		if(this.poll.status != "ACTIVE") {
@@ -100,7 +99,7 @@ export default class PollState extends Vue {
 
 	public endPoll():void {
 		this.loading = true;
-		Utils.confirm("End Poll", "Are you sure you want to end this poll now?")
+		this.$confirm("End Poll", "Are you sure you want to end this poll now?")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPoll(this.poll.id);

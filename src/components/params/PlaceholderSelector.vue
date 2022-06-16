@@ -14,6 +14,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import type { PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -44,11 +45,6 @@ export default class PlaceholderSelector extends Vue {
 		const text = this.target.value.substring(0, carretPos) + tag + this.target.value.substring(carretPos);
 		this.$emit("update:modelValue", text);
 	}
-}
-
-export interface PlaceholderEntry {
-	tag:string;
-	desc:string;
 }
 </script>
 

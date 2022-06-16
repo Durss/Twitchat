@@ -27,7 +27,6 @@
 </template>
 
 <script lang="ts">
-import type { Ref } from '@vue/runtime-core';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
@@ -82,8 +81,8 @@ export default class Button extends Vue {
 	public accept!:string;
 	public file!:string;
 
-	public pInterpolated:number = -1;
-	public checked:boolean = false;
+	public pInterpolated = -1;
+	public checked = false;
 
 	public get isIconSVG():boolean {
 		return this.parsedIcon.indexOf("<") != -1;

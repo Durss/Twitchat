@@ -46,7 +46,7 @@ import Config from '@/utils/Config';
 export default class ParamsAbout extends Vue {
 	
 
-	public get discordURL():string { return Config.DISCORD_URL; }
+	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 }
 </script>

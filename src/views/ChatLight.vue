@@ -21,7 +21,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatLight extends Vue {
 
-	public maxSize:number = 50;
+	public maxSize = 50;
 
 	public mounted():void {
 		IRCClient.instance.connect(this.$route.params.login as string);

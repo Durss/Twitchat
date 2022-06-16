@@ -6,8 +6,8 @@ export default class BTTVUtils {
 
 	private static _instance:BTTVUtils;
 
-	private enabled:boolean = false;
-	private emotesLoaded:boolean = false;
+	private enabled = false;
+	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:BTTVEmote[] = [];
 	private channelEmotes:{[key:string]:BTTVEmote[]} = {};

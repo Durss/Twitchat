@@ -24,9 +24,9 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Tooltip extends Vue {
 
-    public upsideDown:boolean = false;
-    public opened:boolean = false;
-    public message:string = "";
+    public upsideDown = false;
+    public opened = false;
+    public message = "";
 	
     private position:{x:number, y:number} = {x:0, y:0};
     private mouseMoveHandler!:(e:MouseEvent) => void;
@@ -120,7 +120,7 @@ export default class Tooltip extends Vue {
 	 * Moves the tooltip
 	 * @param e
 	 */
-	private onMouseMove(e:MouseEvent, checkTarget:boolean = true):void {
+	private onMouseMove(e:MouseEvent, checkTarget = true):void {
 		this.lastMouseEvent = e;
 		if(checkTarget) {
 			let target:HTMLDivElement = e.target as HTMLDivElement;

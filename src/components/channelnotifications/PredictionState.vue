@@ -36,9 +36,8 @@
 
 <script lang="ts">
 import store from '@/store';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -53,13 +52,13 @@ import ProgressBar from '../ProgressBar.vue';
 })
 export default class PredictionState extends Vue {
 
-	public loading:boolean = false;
-	public progressPercent:number = 0;
+	public loading = false;
+	public progressPercent = 0;
 	
-	private disposed:boolean = false;
+	private disposed = false;
 
-	public get prediction():TwitchTypes.Prediction {
-		return store.state.currentPrediction as TwitchTypes.Prediction;
+	public get prediction():TwitchDataTypes.Prediction {
+		return store.state.currentPrediction as TwitchDataTypes.Prediction;
 	}
 
 	public get classes():string[] {
@@ -68,7 +67,7 @@ export default class PredictionState extends Vue {
 		return res;
 	}
 
-	public getPercent(c:TwitchTypes.PredictionOutcome):number {
+	public getPercent(c:TwitchDataTypes.PredictionOutcome):number {
 		let totalVotes = 0;
 		if(this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
@@ -78,7 +77,7 @@ export default class PredictionState extends Vue {
 		return Math.round(c.channel_points/Math.max(1,totalVotes) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchTypes.PredictionOutcome):{[key:string]:string} {
+	public getAnswerStyles(c:TwitchDataTypes.PredictionOutcome):{[key:string]:string} {
 		return {
 			backgroundSize: `${this.getPercent(c)}% 100%`,
 		}
@@ -107,9 +106,9 @@ export default class PredictionState extends Vue {
 		this.disposed = true;
 	}
 
-	public setOutcome(c:TwitchTypes.PredictionOutcome):void {
+	public setOutcome(c:TwitchDataTypes.PredictionOutcome):void {
 		this.loading = true;
-		Utils.confirm("\""+c.title+"\" wins?", "Do you confirm this outcome?")
+		this.$confirm("\""+c.title+"\" wins?", "Do you confirm this outcome?")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.id, c.id);
@@ -125,7 +124,7 @@ export default class PredictionState extends Vue {
 
 	public deletePrediction():void {
 		this.loading = true;
-		Utils.confirm("Delete Prediction", "Are you sure you want to delete this prediction ? Users will be refund.")
+		this.$confirm("Delete Prediction", "Are you sure you want to delete this prediction ? Users will be refund.")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.id, "", true);

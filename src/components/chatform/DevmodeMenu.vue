@@ -49,7 +49,7 @@ import Button from '../Button.vue';
 export default class DevmodeMenu extends Vue {
 
 	public pubsubHistoryLink:string|null = null;
-	public generatingHistory:boolean = false;
+	public generatingHistory = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	

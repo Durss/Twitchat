@@ -45,8 +45,8 @@
 <script lang="ts">
 export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | null ;
 
-import store  from '@/store';
-import type { ParameterCategory, ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -84,10 +84,10 @@ export default class Parameters extends Vue {
 	public content:ParamsContenType = 'features';
 	public prevContent:ParamsContenType = null;
 
-	public showMenu:boolean = false;
+	public showMenu = false;
 	public filteredParams:ParameterData[] = [];
 
-	public search:string = "";
+	public search = "";
 
 	public get isGenericListContent():boolean {
 		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;

@@ -93,8 +93,8 @@ import type { ParamsContenType } from '../params/Parameters.vue';
 })
 export default class ChatTipAndTrickAd extends Vue {
 
-	public tipIndex:number = 0;
-	private maxIndex:number = 8;
+	public tipIndex = 0;
+	private maxIndex = 8;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));

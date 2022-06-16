@@ -33,13 +33,12 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ParameterCategory, ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterCategory, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
-import type { PlaceholderEntry } from '../PlaceholderSelector.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 
 @Options({

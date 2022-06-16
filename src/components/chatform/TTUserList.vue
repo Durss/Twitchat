@@ -39,7 +39,7 @@
 import store from '@/store';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -53,8 +53,8 @@ import Button from '../Button.vue';
 export default class TTUserList extends Vue {
 
 	public users:UserData[] = [];
-	public loading:boolean = true;
-	public token:string = "";
+	public loading = true;
+	public token = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -116,7 +116,7 @@ export default class TTUserList extends Vue {
 	private async updateList():Promise<void> {
 		let res;
 		try {
-			res = await fetch(Config.API_PATH+"/users?token=" + this.token, {
+			res = await fetch(Config.instance.API_PATH+"/users?token=" + this.token, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -124,7 +124,7 @@ export default class TTUserList extends Vue {
 			})
 			const json = await res.json();
 			if(json.success) {
-				const users = json.users as {id:string, date:number, user:TwitchTypes.UserInfo}[];
+				const users = json.users as {id:string, date:number, user:TwitchDataTypes.UserInfo}[];
 				const ids = users.map(u => u.id);
 				const channels = await TwitchUtils.loadUserInfo(ids);
 				for (let i = 0; i < channels.length; i++) {
@@ -146,7 +146,7 @@ export default class TTUserList extends Vue {
 	}
 }
 
-interface UserData {id:string, date:number, user:TwitchTypes.UserInfo}
+interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 </script>
 
 <style scoped lang="less">

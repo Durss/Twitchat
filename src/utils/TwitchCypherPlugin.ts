@@ -1,6 +1,3 @@
-import store from "@/store";
-import Store from "@/store/Store";
-
 /**
 * Created : 19/01/2022 
 */
@@ -13,8 +10,8 @@ export default class TwitchCypherPlugin {
     private base64_to_buf = (b64:string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
     private enc = new TextEncoder();
     private dec = new TextDecoder();
-    private chars:string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/=";
-    private charsReplacements:string = "‒–—―ꟷ‖⸗ⱶ⌠⌡─ꞁ│┌┐└┘├┤┬┴┼═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╨╧╩╪╫╬▬ɭƖſ∏¦|[]¯‗∟≡₸";
+    private chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/=";
+    private charsReplacements = "‒–—―ꟷ‖⸗ⱶ⌠⌡─ꞁ│┌┐└┘├┤┬┴┼═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╨╧╩╪╫╬▬ɭƖſ∏¦|[]¯‗∟≡₸";
 	private regMatch!:RegExp;
 	
 	constructor() {
@@ -32,8 +29,6 @@ export default class TwitchCypherPlugin {
 
 	public set cypherKey(value:string) {
 		this._cypherKey = value;
-		store.state.cypherKey = value;
-		Store.set("cypherKey", value);
 	}
 	
 	
@@ -44,15 +39,13 @@ export default class TwitchCypherPlugin {
 	/**
 	 * Initializes the plugin
 	 */
-	public initialize():void {
+	public initialize(key:string):void {
 		let safeChars = this.charsReplacements;
 		safeChars = safeChars.replace(/\[/gi, "\\[");
 		safeChars = safeChars.replace(/\]/gi, "\\]");
 		this.regMatch = new RegExp("["+safeChars+"]", "g");
-		const key = Store.get("cypherKey");
 		if(key){
 			this._cypherKey = key;
-			store.state.cypherKey = key;
 		}
 	}
 

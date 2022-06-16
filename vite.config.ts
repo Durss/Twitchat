@@ -12,6 +12,7 @@ export default defineConfig({
 	plugins: [vue()],
 
 	optimizeDeps: {
+		// exclude: ['tmi.js'],
 		esbuildOptions: {
 			target: 'es2020'
 		}
@@ -19,7 +20,7 @@ export default defineConfig({
 
 	build: {
 		target: 'es2020',
-        sourcemap: true,
+        // sourcemap: true,
 	},
 
 	resolve: {

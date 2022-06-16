@@ -1,22 +1,23 @@
-import store from "@/store";
+import type { MusicMessage } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import Config from "./Config";
+import DeezerHelperEvent from "./DeezerHelperEvent";
+import { EventDispatcher } from "./EventDispatcher";
 import PublicAPI from "./PublicAPI";
-import type { MusicMessage } from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
 * Created : 23/05/2022 
 TODO : when closing the popin and opening it back the DZ.login() callback is called twice, then 3 times, then 4, ...
 */
-export default class DeezerHelper {
+export default class DeezerHelper extends EventDispatcher{
 	
 	public currentTrack:MusicMessage|null = null;
 	public queue:DeezerQueueItem[] = [];
-	public userInteracted:boolean = false;
-	public currentTrackIndex:number = 0;
-	public playing:boolean = false;
-	public playbackPos:number = 0;
+	public userInteracted = false;
+	public currentTrackIndex = 0;
+	public playing = false;
+	public playbackPos = 0;
 
 	private static _instance:DeezerHelper;
 	private _playerHolder!:HTMLDivElement;
@@ -24,13 +25,13 @@ export default class DeezerHelper {
 	private _createPromiseSuccess!:() => void;
 	private _createPromiseError!:() => void;
 	private _idToTrack:{[key:string]:MusicMessage} = {};
-	private _forcePlay:boolean = true;
+	private _forcePlay = true;
 	private _scriptElement!:HTMLScriptElement;
 	private _initCheckInterval!:number;
-	private _sessionIndex:number = 0;
+	private _sessionIndex = 0;
 	
 	constructor() {
-	
+		super();
 	}
 	
 	/********************
@@ -60,7 +61,7 @@ export default class DeezerHelper {
 			window.dzAsyncInit = () => {
 				console.log("DZ ASYNC INIT");
 				DZ.init({
-					appId  : Config.DEEZER_CLIENT_ID,
+					appId  : Config.instance.DEEZER_CLIENT_ID,
 					channelUrl : document.location.origin+'/deezer.html',
 					player : {
 						onload: () => {
@@ -133,9 +134,9 @@ export default class DeezerHelper {
 	public async startAuthFlow():Promise<void> {
 		console.log("START AUTH FLOW");
 		// let url = "https://connect.deezer.com/oauth/auth.php";
-		// url += "?app_id="+Config.DEEZER_CLIENT_ID;
+		// url += "?app_id="+Config.instance.DEEZER_CLIENT_ID;
 		// url += "&redirect_uri="+encodeURIComponent( document.location.origin+"/deezer/auth" );
-		// url += "&perms="+Config.DEEZER_SCOPES;
+		// url += "&perms="+Config.instance.DEEZER_SCOPES;
 
 		// document.location.href = url;
 		DZ.login((res)=> {
@@ -199,14 +200,13 @@ export default class DeezerHelper {
 					DZ.player.playTracks(ids);
 				});
 				
-				store.dispatch("setDeezerConnected", true);
+				this.dispatchEvent(new DeezerHelperEvent(DeezerHelperEvent.CONNECTED));
 				this._createPromiseSuccess();
 			}else{
-				store.state.alert = "Deezer authentication failed";
-				store.dispatch("setDeezerConnected", false);
+				this.dispatchEvent(new DeezerHelperEvent(DeezerHelperEvent.CONNECT_ERROR));
 				this._createPromiseError();
 			}
-		}, {perms: Config.DEEZER_SCOPES});
+		}, {perms: Config.instance.DEEZER_SCOPES});
 	}
 
 	/**
@@ -215,23 +215,24 @@ export default class DeezerHelper {
 	 * 
 	 * @param authCode 
 	 */
-	public async authenticate(authCode:string):Promise<void> {
-		let json:DeezerAuthToken = {} as DeezerAuthToken;
-		const res = await fetch(Config.API_PATH+"/deezer/auth?code="+authCode+"&isProd="+(Config.IS_PROD?"1":"0"), {method:"GET"});
-		json = await res.json();
-		if(json.access_token) {
-			store.dispatch("setDeezerToken", json);
-		}else{
-			throw(json);
-		}
-	}
+	// public async authenticate(authCode:string):Promise<void> {
+	// 	let json:DeezerAuthToken = {} as DeezerAuthToken;
+	// 	const res = await fetch(Config.instance.API_PATH+"/deezer/auth?code="+authCode+"&isProd="+(Config.instance.IS_PROD?"1":"0"), {method:"GET"});
+	// 	json = await res.json();
+	// 	if(json.access_token) {
+	// 		//store.dispatch("setDeezerToken", json);
+	//		this.dispatchEvent(new DeezerHelperEvent(DeezerHelperEvent.CONNECTED, json));
+	// 	}else{
+	// 		throw(json);
+	// 	}
+	// }
 
 	/**
 	 * Adds a track to the queue
 	 * 
 	 * @returns the tracks matching the search
 	 */
-	public async searchTracks(search:string, limit:number=50):Promise<DeezerTrack[]> {
+	public async searchTracks(search:string, limit=50):Promise<DeezerTrack[]> {
 		return new Promise((resolve)=> {
 			const e = document.createElement('script');
 			e.src = 'https://api.deezer.com/search?q=' + search + '&output=jsonp&callback=onDeezerSearchResult&limit='+limit;
@@ -287,7 +288,7 @@ export default class DeezerHelper {
 	 * @param track 
 	 */
 	public addToQueue(track:DeezerTrack|number):void {
-		let id:number = 0;
+		let id = 0;
 		if(typeof track === "number") id = track;
 		else id = track.id;
 		this._forcePlay = true;

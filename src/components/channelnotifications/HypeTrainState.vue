@@ -39,8 +39,8 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { HypeTrainStateData } from '@/store';
+import store from '@/store';
+import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
@@ -58,8 +58,8 @@ export default class HypeTrainState extends Vue {
 
 	// state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 
-	public timerPercent:number = 0;
-	public progressPercent:number = 0;
+	public timerPercent = 0;
+	public progressPercent = 0;
 
 	public get boostMode():boolean {
 		return this.trainData.is_boost_train;

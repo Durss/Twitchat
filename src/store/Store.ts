@@ -1,18 +1,19 @@
 import Config from "@/utils/Config";
-import { TriggerTypes } from "@/utils/TriggerActionHandler";
 import type { JsonValue } from "type-fest";
-import store  from '@/store';
-import type { TriggerActionTypes, TriggerActionChatCommandData } from ".";
+import type { TriggerActionChatCommandData, TriggerActionTypes } from "../types/TwitchatDataTypes";
+import { TriggerTypes } from "@/utils/TriggerActionData";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
  * Created : 18/10/2020 
  */
 export default class Store {
+	
+	public static access_token:string;
 
 	private static store:Storage;
-	private static dataPrefix:string = "twitchat_";
-	private static saveTO:number = -1;
+	private static dataPrefix = "twitchat_";
+	private static saveTO = -1;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
 	private static propToSavableState:{[key:string]:boolean} = {};
 	
@@ -43,7 +44,7 @@ export default class Store {
 		return props;
 	}
 
-	public static set(key:string, value:JsonValue|unknown, save:boolean = true):void {
+	public static set(key:string, value:JsonValue|unknown, save = true):void {
 		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
 		if(value == undefined) return;
@@ -128,8 +129,7 @@ export default class Store {
 
 	private static save():void {
 		clearTimeout(this.saveTO);
-		const access_token = store.state.oAuthToken?.access_token;
-		if(!access_token) return;
+		if(!this.access_token) return;
 		
 		this.saveTO = window.setTimeout(async () => {
 			const data = JSON.parse(JSON.stringify(this.rawStore));
@@ -145,10 +145,10 @@ export default class Store {
 			delete data.deezerEnabled;
 
 			let json = {
-				access_token,
+				access_token:this.access_token,
 				data:data,
 			};
-			const res = await fetch(Config.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
+			const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
 			json = await res.json();
 		}, 1000);
 	}
@@ -237,8 +237,7 @@ export default class Store {
 		label = label.replace("$TITLE", "{TITLE}");
 		label = label.replace("$URL", "{URL}");
 		label = label.replace("$CATEGORY", "{CATEGORY}");
-		// store.state.botMessages.shoutout.message = label;
-		store.dispatch("updateBotMessage", {key:"shoutout", enabled:true, message:label})
+		// store.dispatch("updateBotMessage", {key:"shoutout", enabled:true, message:label})
 		this.remove("p:shoutoutLabel");
 	}
 

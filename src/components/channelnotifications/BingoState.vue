@@ -26,10 +26,10 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { BingoData } from '@/store';
+import type { PlaceholderEntry } from '@/types/TwitchatDataTypes';
+import type { BingoData } from '@/utils/CommonDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Options({

@@ -27,14 +27,15 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
-import type { PubSubTypes } from '@/utils/PubSub';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import type { TrackedUser } from '@/utils/CommonDataTypes';
 
 @Options({
 	props:{
@@ -50,17 +51,17 @@ export default class ChatHighlight extends Vue {
 	
 	public messageData!:IRCEventDataList.Highlight;
 	public lightMode!:boolean;
-	public messageText:string = '';
-	public info:string = "";
-	public icon:string = "";
-	public filtered:boolean = false;
-	public isRaid:boolean = false;
-	public shoutoutLoading:boolean = false;
-	public loading:boolean = false;
+	public messageText = '';
+	public info = "";
+	public icon = "";
+	public filtered = false;
+	public isRaid = false;
+	public shoutoutLoading = false;
+	public loading = false;
 
-	private pStreamInfo:TwitchTypes.ChannelInfo|null = null;
+	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
-	public get streamInfo():TwitchTypes.ChannelInfo|null {
+	public get streamInfo():TwitchDataTypes.ChannelInfo|null {
 		if(store.state.params.features.raidStreamInfo.value === true) {
 			return this.pStreamInfo;
 		}
@@ -70,7 +71,7 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
-		if(store.state.trackedUsers.findIndex((v: TwitchTypes.TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
+		if(store.state.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
 
@@ -194,7 +195,7 @@ export default class ChatHighlight extends Vue {
 
 			case "reward":{
 				this.messageText = "";
-				const localObj = this.messageData.reward as PubSubTypes.RewardData;
+				const localObj = this.messageData.reward as PubSubDataTypes.RewardData;
 				res = localObj.redemption.user.display_name;
 				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
 				res += " <span class='small'>("+localObj.redemption.reward.cost+" pts)</span>";
@@ -236,7 +237,7 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		let result:string = "";
+		let result = "";
 		let text = this.messageData.message;
 		if(text) {
 			try {
@@ -287,7 +288,7 @@ export default class ChatHighlight extends Vue {
 		this.shoutoutLoading = true;
 		if(this.messageData.viewers != undefined) {
 			try {
-				await TwitchUtils.shoutout(this.messageData.username as string);
+				await store.dispatch("shoutout", this.messageData.username as string);
 			}catch(error) {
 				store.state.alert = "Shoutout failed :(";
 				console.log(error);

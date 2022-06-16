@@ -41,7 +41,7 @@ import { Options, Vue } from 'vue-class-component';
 	}
 })
 export default class Logout extends Vue {
-	public showDetails:boolean = false;
+	public showDetails = false;
 }
 </script>
 

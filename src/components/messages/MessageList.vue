@@ -81,7 +81,7 @@
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
-				v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != $store.state.user.user_id">
+				v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != userId">
 					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 				</div>
 			</div>
@@ -126,11 +126,12 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import type { StyleValue } from 'vue';
@@ -174,17 +175,17 @@ export default class MessageList extends Vue {
 	public localMessages:MessageTypes[] = [];
 	public pendingMessages:MessageTypes[] = [];
 	public conversation:MessageTypes[] = [];
-	public ariaMessage:string = "";
-	public ariaMessageTimeout:number = -1;
-	public lockScroll:boolean = false;
-	public conversationPos:number = 0;
-	public scrollAtBottom:boolean = true;
-	public conversationMode:boolean = true;//Used to change title between "History"/"Conversation"
+	public ariaMessage = "";
+	public ariaMessageTimeout = -1;
+	public lockScroll = false;
+	public conversationPos = 0;
+	public scrollAtBottom = true;
+	public conversationMode = true;//Used to change title between "History"/"Conversation"
 
-	private disposed:boolean = false;
-	private holderOffsetY:number = 0;
+	private disposed = false;
+	private holderOffsetY = 0;
 	private prevMarkedReadItem:MessageTypes | null = null;
-	private virtualScrollY:number = -1;
+	private virtualScrollY = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
@@ -210,6 +211,8 @@ export default class MessageList extends Vue {
 	public get conversationStyles():StyleValue {
 		return { top: this.conversationPos+"px" }
 	}
+
+	public get userId():string { return UserSession.instance.user.user_id }
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
@@ -553,7 +556,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Get the next pending message and display it to the list
 	 */
-	private showNextPendingMessage(wheelOrigin:boolean = false):void {
+	private showNextPendingMessage(wheelOrigin = false):void {
 		if(this.pendingMessages.length == 0) return;
 		
 		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
@@ -570,7 +573,7 @@ export default class MessageList extends Vue {
 	 * Will scroll so the previous message is on the bottom of the list
 	 * so the new message displays smoothly from the bottom of the screen
 	 */
-	private async scrollToPrevMessage(wheelOrigin:boolean = false):Promise<void> {
+	private async scrollToPrevMessage(wheelOrigin = false):Promise<void> {
 		await this.$nextTick();
 		const el = this.$refs.messageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);

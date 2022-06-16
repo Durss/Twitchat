@@ -46,11 +46,11 @@ export default class OverlayMusicPlayer extends Vue {
 	public embed!:boolean
 	public playbackPos!:number
 	
-	public artist:string = "";
-	public track:string = "";
-	public cover:string = "";
-	public isPlaying:boolean = false;
-	public progress:number = 0;
+	public artist = "";
+	public track = "";
+	public cover = "";
+	public isPlaying = false;
+	public progress = 0;
 
 	public get paused():boolean { return !DeezerHelper.instance.playing; }
 

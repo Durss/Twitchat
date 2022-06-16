@@ -76,8 +76,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store  from '@/store';
-import type { ParameterData, PermissionsData } from '@/store';
+import store from '@/store';
+import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -105,12 +105,12 @@ import OBSFilters from './obs/OBSFilters.vue';
 })
 export default class ParamsOBS extends Vue {
 
-	public loading:boolean = false;
-	public connected:boolean = false;
-	public connectError:boolean = false;
-	public connectSuccess:boolean = false;
-	public showPermissions:boolean = false;
-	public openConnectForm:boolean = false;
+	public loading = false;
+	public connected = false;
+	public connectError = false;
+	public connectSuccess = false;
+	public showPermissions = false;
+	public openConnectForm = false;
 	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
 	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
@@ -122,7 +122,7 @@ export default class ParamsOBS extends Vue {
 		users: ""
 	}
 
-	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
+	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
 	public mounted():void {
 		const port = Store.get("obsPort");

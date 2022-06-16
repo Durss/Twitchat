@@ -17,9 +17,8 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, TriggerActionChatData } from '@/store';
-import type { ITriggerActionHelper} from '@/utils/TriggerActionHandler';
-import { TriggerActionHelpers } from '@/utils/TriggerActionHandler';
+import type { ParameterData, TriggerActionChatData } from '@/types/TwitchatDataTypes';
+import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';

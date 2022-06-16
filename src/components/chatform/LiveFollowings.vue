@@ -35,7 +35,7 @@
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -49,8 +49,8 @@ import Button from '../Button.vue';
 })
 export default class LiveFollowings extends Vue {
 
-	public streams:TwitchTypes.StreamInfo[] = [];
-	public loading:boolean = true;
+	public streams:TwitchDataTypes.StreamInfo[] = [];
+	public loading = true;
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }
@@ -90,7 +90,7 @@ export default class LiveFollowings extends Vue {
 		return Utils.formatDuration(ellapsed);
 	}
 
-	public getProfilePicURL(s:TwitchTypes.StreamInfo):string {
+	public getProfilePicURL(s:TwitchDataTypes.StreamInfo):string {
 		return s.user_info.profile_image_url.replace("300x300", "70x70");
 	}
 
@@ -115,8 +115,8 @@ export default class LiveFollowings extends Vue {
 		}
 	}
 
-	public raid(s:TwitchTypes.StreamInfo):void {
-		Utils.confirm("Raid ?", "Are you sure you want to raid " + s.user_login + " ?").then(async () => {
+	public raid(s:TwitchDataTypes.StreamInfo):void {
+		this.$confirm("Raid ?", "Are you sure you want to raid " + s.user_login + " ?").then(async () => {
 			IRCClient.instance.sendMessage("/raid "+s.user_login);
 			this.close();
 		}).catch(()=> { });

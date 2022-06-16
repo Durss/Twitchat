@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 

@@ -51,17 +51,16 @@
 </template>
 
 <script lang="ts">
-import type { BingoConfig, ParameterData } from '@/store';
 import store from '@/store';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
-import type { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import Splitter from '../Splitter.vue';
+import type { BingoConfig, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -70,14 +69,14 @@ import Splitter from '../Splitter.vue';
 		ParamItem,
 		Splitter,
 		PostOnChatParam,
-	}
+	},
+	emits:["close"]
 })
 export default class BingoForm extends Vue {
 
-	public globalEmotes:TwitchTypes.Emote[] = [];
-	public guessNumber:boolean = true;
-	public guessEmote:boolean = false;
-	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:true, type:"toggle"};
+	public globalEmotes:TwitchDataTypes.Emote[] = [];
+	public guessNumber = true;
+	public guessEmote = false;
 	public minValue:ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
 	public maxValue:ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];

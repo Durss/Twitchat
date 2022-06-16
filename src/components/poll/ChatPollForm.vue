@@ -38,8 +38,8 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ChatPollData, ParameterData } from '@/store';
+import store from '@/store';
+import type { ChatPollData, ParameterData } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

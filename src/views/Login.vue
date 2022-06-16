@@ -94,10 +94,10 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Login extends Vue {
 
-	public generatingCSRF:boolean = false;
-	public authenticating:boolean = false;
-	public showPermissions:boolean = false;
-	public oAuthURL:string = "";
+	public generatingCSRF = false;
+	public authenticating = false;
+	public showPermissions = false;
+	public oAuthURL = "";
 	
 	private scopeToInfos:{[key:string]:string} = {
 		"chat:read": "Read your chat",
@@ -128,7 +128,7 @@ export default class Login extends Vue {
 	}
 
 	public get permissions():string[] {
-		return Config.TWITCH_APP_SCOPES.map(v => {
+		return Config.instance.TWITCH_APP_SCOPES.map(v => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});
@@ -150,7 +150,7 @@ export default class Login extends Vue {
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const csrfRes = await fetch(Config.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
+				const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
 					store.state.alert = csrf.message;
@@ -180,7 +180,7 @@ export default class Login extends Vue {
 	public async generateCSRF():Promise<void> {
 		this.generatingCSRF = true;
 		try {
-			const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
+			const res = await fetch(Config.instance.API_PATH+"/CSRFToken", {method:"GET"});
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {

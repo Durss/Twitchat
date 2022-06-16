@@ -61,17 +61,17 @@ export default class ActivityFeedFilters extends Vue {
 	
 	public modelValue!:{[key:string]:boolean};
 
-	public opened:boolean = false;
+	public opened = false;
 
-	public showSubs:boolean = true;
-	public showFollow:boolean = true;
-	public showBits:boolean = true;
-	public showRaids:boolean = true;
-	public showRewards:boolean = true;
-	public showPolls:boolean = true;
-	public showPredictions:boolean = true;
-	public showBingos:boolean = true;
-	public showRaffles:boolean = true;
+	public showSubs = true;
+	public showFollow = true;
+	public showBits = true;
+	public showRaids = true;
+	public showRewards = true;
+	public showPolls = true;
+	public showPredictions = true;
+	public showBingos = true;
+	public showRaffles = true;
 
 	private clickHandler!:(e:MouseEvent) => void;
 

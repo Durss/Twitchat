@@ -28,7 +28,7 @@ export default class VolumeBar extends Vue {
 
 	public modelValue!:number;
 
-	public mousePressed:boolean = false;
+	public mousePressed = false;
 	public mouseUpHandler!:(e:MouseEvent) => void;
 
 	public get fillStyles():{[key:string]:string} {
@@ -46,7 +46,7 @@ export default class VolumeBar extends Vue {
 		document.removeEventListener("mouseup", this.mouseUpHandler);
 	}
 
-	public onSeek(e:MouseEvent, force:boolean = false):void {
+	public onSeek(e:MouseEvent, force = false):void {
 		if(!this.mousePressed && !force) return;
 		const bar = this.$refs.holder as HTMLDivElement;
 		const bounds = bar.getBoundingClientRect();

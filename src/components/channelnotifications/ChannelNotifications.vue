@@ -36,9 +36,6 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { HypeTrainStateData } from '@/store';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -53,6 +50,9 @@ import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
 import DeezerState from './DeezerState.vue';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -82,9 +82,9 @@ export default class ChannelNotifications extends Vue {
 
 	public get showRaid():boolean { return store.state.raiding != null; }
 	public get showHypeTrain():boolean { return store.state.params.filters.showHypeTrain.value as boolean && (store.state.hypeTrain as HypeTrainStateData).level != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchTypes.Poll)?.id != null; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
 	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && store.state.chatPoll != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchTypes.Prediction)?.id != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && store.state.raffle != null; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && store.state.bingo != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }

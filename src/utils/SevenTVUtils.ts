@@ -6,8 +6,8 @@ export default class SevenTVUtils {
 
 	private static _instance:SevenTVUtils;
 
-	private enabled:boolean = false;
-	private emotesLoaded:boolean = false;
+	private enabled = false;
+	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:SevenTVEmote[] = [];
 	private channelEmotes:{[key:string]:SevenTVEmote[]} = {};

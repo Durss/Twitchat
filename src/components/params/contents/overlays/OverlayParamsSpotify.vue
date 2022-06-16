@@ -47,11 +47,11 @@
 </template>
 
 <script lang="ts">
-import store  from '@/store';
-import type { ParameterData } from '@/store';
+import store from '@/store';
+import Store from '@/store/Store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
-import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -68,15 +68,15 @@ import ParamItem from '../../ParamItem.vue';
 })
 export default class OverlayParamsSpotify extends Vue {
 
-	public error:string = "";
-	public open:boolean = false;
-	public loading:boolean = false;
-	public authenticating:boolean = false;
+	public error = "";
+	public open = false;
+	public loading = false;
+	public authenticating = false;
 	public paramClient:ParameterData = {label:"Client ID", value:"", type:"text", fieldName:"spotifyClient"};
 	public paramSecret:ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
 
-	public get spotifyConnected():boolean { return Config.SPOTIFY_CONNECTED; }
-	public get overlayUrl():string { return Utils.getOverlayURL("music"); }
+	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
+	public get overlayUrl():string { return this.$overlayURL("music"); }
 	public get canConnect():boolean {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
 	}
@@ -91,16 +91,18 @@ export default class OverlayParamsSpotify extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(store.state.spotifyAppParams) {
-			this.paramClient.value = store.state.spotifyAppParams.client;
-			this.paramSecret.value = store.state.spotifyAppParams.secret;
+		const spotifyAppParams = Store.get("spotifyAppParams");
+		if(spotifyAppParams) {
+			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);
+			this.paramClient.value = p.client;
+			this.paramSecret.value = p.secret;
 		}
 
 		if(store.state.spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
 
-			const csrfRes = await fetch(Config.API_PATH+"/CSRFToken?token="+store.state.spotifyAuthParams.csrf, {method:"POST"});
+			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+store.state.spotifyAuthParams.csrf, {method:"POST"});
 			const csrf = await csrfRes.json();
 			if(!csrf.success) {
 				store.state.alert = csrf.message;

@@ -70,7 +70,7 @@ export default class ToggleBlock extends Vue {
 	public orderable!:boolean;
 	public errorTitle!:string;
 
-	public showContent:boolean = false;
+	public showContent = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];

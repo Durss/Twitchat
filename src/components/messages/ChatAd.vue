@@ -106,14 +106,14 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store  from '@/store';
-import { TwitchatAdTypes } from '@/store';
+import store from '@/store';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
-import type { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -136,7 +136,7 @@ export default class ChatAd extends Vue {
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	
-	public get discordURL():string { return Config.DISCORD_URL; }
+	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	public mounted():void {
 		

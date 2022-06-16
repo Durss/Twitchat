@@ -25,12 +25,9 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, TriggerActionMusicEntryData } from '@/store';
+import type { ParameterData, TriggerActionMusicEntryData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import type { ITriggerActionHelper, TriggerEventTypes } from '@/utils/TriggerActionHandler';
-
-import { TriggerActionHelpers, TriggerMusicTypes, MusicTriggerEvents } from '@/utils/TriggerActionHandler';
-
+import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes, type ITriggerActionHelper } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';
@@ -55,7 +52,7 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
-	public get musicServiceConfigured():boolean { return Config.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
 	public mounted():void {
 		//List all available trigger types

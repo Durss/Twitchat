@@ -30,8 +30,8 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEvent';
-import type { TwitchTypes } from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 
@@ -44,7 +44,7 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatPredictionResult extends Vue {
 	public predictionData!:IRCEventDataList.PredictionResult;
 
-	public get prediction():TwitchTypes.Prediction {
+	public get prediction():TwitchDataTypes.Prediction {
 		return this.predictionData.data;
 	}
 
@@ -53,14 +53,14 @@ export default class ChatPredictionResult extends Vue {
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
-	public getOutcomeClasses(o:TwitchTypes.PredictionOutcome):string[] {
+	public getOutcomeClasses(o:TwitchDataTypes.PredictionOutcome):string[] {
 		const res = ["outcome"];
 		if(this.prediction.winning_outcome_id === o.id) res.push("winner");
 		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
 
-	public getOutcomePercent(o:TwitchTypes.PredictionOutcome):number {
+	public getOutcomePercent(o:TwitchDataTypes.PredictionOutcome):number {
 		let totalVotes = 0;
 		if(this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
@@ -70,7 +70,7 @@ export default class ChatPredictionResult extends Vue {
 		return Math.round(o.channel_points/Math.max(1,totalVotes) * 100);
 	}
 
-	public getOutcomeStyles(o:TwitchTypes.PredictionOutcome):{[key:string]:string} {
+	public getOutcomeStyles(o:TwitchDataTypes.PredictionOutcome):{[key:string]:string} {
 		const percent = this.getOutcomePercent(o);
 		return {
 			backgroundSize: `${percent}% 100%`,

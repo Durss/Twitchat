@@ -1,16 +1,18 @@
-import store from "@/store";
+import type { MusicMessage } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import Config from "./Config";
+import { EventDispatcher } from "./EventDispatcher";
 import PublicAPI from "./PublicAPI";
-import type { MusicMessage } from "./TriggerActionHandler";
+import type { SearchTrackItem, SpotifyTrack, SearchTrackResult, SpotifyAuthToken } from "./SpotifyDataTypes";
+import SpotifyHelperEvent from "./SpotifyHelperEvent";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
 * Created : 23/05/2022 
 */
-export default class SpotifyHelper {
+export default class SpotifyHelper extends EventDispatcher {
 	
-	public isPlaying:boolean = false;
+	public isPlaying = false;
 	public currentTrack!:MusicMessage;
 
 	private static _instance:SpotifyHelper;
@@ -19,9 +21,11 @@ export default class SpotifyHelper {
 	private _getTrackTimeout!:number;
 	private _lastTrackInfo!:MusicMessage|null;
 	private _headers!:{"Accept":string, "Content-Type":string, "Authorization":string};
-	
+	private _clientID = "";
+	private _clientSecret = "";
+
 	constructor() {
-	
+		super();
 	}
 	
 	/********************
@@ -59,13 +63,17 @@ export default class SpotifyHelper {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	public setAppParams(clientID:string, clientSecret:string):void {
+		this._clientID = clientID;
+		this._clientSecret = clientSecret;
+	}
 	/**
 	 * Starts the aut flow
 	 */
 	public async startAuthFlow():Promise<void> {
-		const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
+		const res = await fetch(Config.instance.API_PATH+"/CSRFToken", {method:"GET"});
 		const json = await res.json();
-		const scope = Config.SPOTIFY_SCOPES.split(" ").join("%20");
+		const scope = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
 
 		let url = "https://accounts.spotify.com/authorize";
 		url += "?client_id="+this.clientID;
@@ -86,16 +94,16 @@ export default class SpotifyHelper {
 	 */
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = Config.API_PATH+"/spotify/auth";
+		let url = Config.instance.API_PATH+"/spotify/auth";
 		url += "?code="+encodeURIComponent(authCode);
-		if(store.state.spotifyAppParams) {
-			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.client);
-			url += "&clientSecret="+encodeURIComponent(store.state.spotifyAppParams?.secret);
+		if(this.clientID && this._clientSecret) {
+			url += "&clientId="+encodeURIComponent(this.clientID);
+			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
 		}
 		const res = await fetch(url, {method:"GET"});
 		json = await res.json();
 		if(json.access_token) {
-			store.dispatch("setSpotifyToken", json);
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
 		}else{
 			throw(json);
 		}
@@ -109,17 +117,17 @@ export default class SpotifyHelper {
 		clearTimeout(this._refreshTimeout);
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = Config.API_PATH+"/spotify/refresh_token";
+		let url = Config.instance.API_PATH+"/spotify/refresh_token";
 		url += "?token="+encodeURIComponent(this._token.refresh_token);
-		if(store.state.spotifyAppParams) {
-			url += "&clientId="+encodeURIComponent(store.state.spotifyAppParams?.client);
-			url += "&clientSecret="+encodeURIComponent(store.state.spotifyAppParams?.secret);
+		if(this.clientID && this._clientSecret) {
+			url += "&clientId="+encodeURIComponent(this.clientID);
+			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
 		}
 		const res = await fetch(url, {method:"GET"});
 		json = await res.json();
 		if(json.access_token) {
 			json.refresh_token = this._token.refresh_token;//Keep refresh token
-			store.dispatch("setSpotifyToken", json);//This computes the expires_at value
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));//This computes the expires_at value
 	
 			//Refresh token 10min before it actually expires
 			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;
@@ -132,7 +140,7 @@ export default class SpotifyHelper {
 				"Authorization":"Bearer "+this._token.access_token,
 			}
 		}else{
-			store.state.alert = "[SPOTIFY] token refresh failed"
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] token refresh failed"));
 		}
 	}
 
@@ -193,13 +201,13 @@ export default class SpotifyHelper {
 			return true;
 		}
 		if(res.status == 409) {
-			store.state.alert = "[SPOTIFY] API rate limits exceeded";
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] API rate limits exceeded"));
 			return false;
 		}
 		if(res.status == 404) {
 			const json = await res.json();
 			if(json.error) {
-				store.state.alert = "[SPOTIFY] "+json.error.message;
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
 			}
 			return false;
 		}
@@ -326,7 +334,7 @@ export default class SpotifyHelper {
 			return true;
 		}
 		if(res.status == 409) {
-			store.state.alert = "[SPOTIFY] API rate limits exceeded";
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] API rate limits exceeded"));
 			return false;
 		}
 		return false;
@@ -348,170 +356,11 @@ export default class SpotifyHelper {
 	}
 
 	private get clientID():string {
-		let clientID = Config.SPOTIFY_CLIENT_ID;
-		if(store.state.spotifyAppParams) {
-			clientID = store.state.spotifyAppParams.client;
+		let clientID = Config.instance.SPOTIFY_CLIENT_ID;
+		if(this._clientID) {
+			clientID = this._clientID;
 		}
 		return clientID;
 	}
 
-}
-
-export interface SpotifyAuthResult {
-	code:string;
-	csrf:string;
-}
-
-export interface SpotifyAuthToken {
-	access_token:string;
-	token_type:string;//Bearer
-	scope:string;
-	expires_at:number;//In seconds
-	expires_in:number;//In seconds
-	refresh_token:string;
-}
-
-export interface SpotifyTrack {
-	timestamp: number;
-	context?: {
-		external_urls:ExternalUrls[];
-	};
-	progress_ms: number;
-	item: Item;
-	currently_playing_type: "track"|"episode";
-	actions: Actions;
-	is_playing: boolean;
-
-}
-
-interface ExternalUrls {
-	spotify: string;
-}
-
-interface Artist {
-	external_urls: ExternalUrls;
-	href: string;
-	id: string;
-	name: string;
-	type: string;
-	uri: string;
-}
-
-interface Image {
-	height: number;
-	url: string;
-	width: number;
-}
-
-interface Album {
-	album_type: string;
-	artists: Artist[];
-	available_markets: string[];
-	external_urls: ExternalUrls;
-	href: string;
-	id: string;
-	images: Image[];
-	name: string;
-	release_date: string;
-	release_date_precision: string;
-	total_tracks: number;
-	type: string;
-	uri: string;
-}
-
-interface ExternalIds {
-	isrc: string;
-}
-
-interface Item {
-	album: Album;
-	artists: Artist[];
-	available_markets: string[];
-	disc_number: number;
-	duration_ms: number;
-	explicit: boolean;
-	external_ids: ExternalIds;
-	external_urls: ExternalUrls;
-	href: string;
-	id: string;
-	is_local: boolean;
-	name: string;
-	popularity: number;
-	preview_url: string;
-	track_number: number;
-	type: string;
-	uri: string;
-	show: Show;
-	audio_preview_url: string;
-	description: string;
-	html_description: string;
-	images: Image[];
-	is_externally_hosted: boolean;
-	is_playable: boolean;
-	language: string;
-	languages: string[];
-	release_date: string;
-	release_date_precision: string;
-}
-
-interface Disallows {
-	resuming: boolean;
-	skipping_prev: boolean;
-	toggling_repeat_context: boolean;
-	toggling_repeat_track: boolean;
-	toggling_shuffle: boolean;
-}
-
-interface Actions {
-	disallows: Disallows;
-}
-
-interface Show {
-	available_markets: string[];
-	copyrights: string[];
-	description: string;
-	explicit: boolean;
-	external_urls: ExternalUrls;
-	href: string;
-	html_description: string;
-	id: string;
-	images: Image[];
-	is_externally_hosted: boolean;
-	languages: string[];
-	media_type: string;
-	name: string;
-	publisher: string;
-	total_episodes: number;
-	type: string;
-	uri: string;
-}
-
-interface SearchTrackResult {
-	href: string;
-	items: SearchTrackItem[];
-	limit: number;
-	next: string;
-	offset: number;
-	previous?: string;
-	total: number;
-}
-
-export interface SearchTrackItem {
-	album: Album;
-	artists: Artist[];
-	available_markets: string[];
-	disc_number: number;
-	duration_ms: number;
-	explicit: boolean;
-	external_ids: ExternalIds;
-	external_urls: ExternalUrls;
-	href: string;
-	id: string;
-	is_local: boolean;
-	name: string;
-	popularity: number;
-	preview_url: string;
-	track_number: number;
-	type: string;
-	uri: string;
 }
