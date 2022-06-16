@@ -795,19 +795,19 @@ type MessageTypes = IRCEventDataList.Highlight
 		font-size: var(--messageSize);
 	}
 
-	&.alternateBG:not(.lightMode) {
-		.holder {
+	// &.alternateBG:not(.lightMode) {
+		// .holder {
 			//TODO fix switching even/odd problem when deleting/adding messages and enable this back
-			.subHolder:nth-child(odd) {
+			// .subHolder:nth-child(odd) {
 				// background-color: rgba(255, 255, 255, .05);
 
 				// .message {
 				// 	display: flex;
 				// 	flex-direction: row-reverse;
 				// }
-			}
-		}
-	}
+			// }
+		// }
+	// }
 
 	.holder {
 		overflow-y: auto;

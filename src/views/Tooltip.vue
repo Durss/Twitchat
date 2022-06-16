@@ -217,12 +217,4 @@ export default class Tooltip extends Vue {
 		}
 	}
 }
-
-//Hide on mobile
-@media only screen and (max-width: 500px) {
-	.tooltip{
-		//Actuallly, on OBS the page is so small it would think it's mobile...
-		// display: none;
-	}
-}
 </style>

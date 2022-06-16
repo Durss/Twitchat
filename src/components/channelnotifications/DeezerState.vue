@@ -52,7 +52,6 @@
 <script lang="ts">
 import DeezerHelper from '@/utils/DeezerHelper';
 import type { DeezerQueueItem, DeezerTrack } from '@/utils/DeezerHelper';
-import type { MusicMessage } from '@/utils/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -60,6 +59,7 @@ import Button from '../Button.vue';
 import OverlayMusicPlayer from '../overlays/OverlayMusicPlayer.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VolumeBar from '../VolumeBar.vue';
+import type { MusicMessage } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},

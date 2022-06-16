@@ -81,7 +81,6 @@
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import store from '@/store';
-import type { ParameterData, ParameterDataListValue, TriggerActionChatCommandData, TriggerActionTypes, TriggerEventTypes } from '@/store/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -95,6 +94,7 @@ import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
 import TriggerActionChatCommandParams from './triggers/TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './triggers/TriggerActionEntry.vue';
+import type { ParameterData, ParameterDataListValue, TriggerActionChatCommandData, TriggerActionTypes, TriggerEventTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},

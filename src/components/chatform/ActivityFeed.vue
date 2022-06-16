@@ -64,7 +64,7 @@
 <script lang="ts">
 import store from '@/store';
 import Store from '@/store/Store';
-import type { ActivityFeedData } from '@/utils/IRCEvent';
+import type { ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
