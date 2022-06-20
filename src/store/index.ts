@@ -16,6 +16,7 @@ import SevenTVUtils from '@/utils/SevenTVUtils';
 import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import SpotifyHelperEvent from '@/utils/SpotifyHelperEvent';
+import { TriggerTypes } from '@/utils/TriggerActionData';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
@@ -25,7 +26,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type TriggerActionChatCommandData, type TriggerActionObsData, type TriggerActionTypes, type WheelItem, type StreamInfoPreset } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type TriggerData, type TriggerActionObsData, type TriggerActionTypes, type WheelItem, type StreamInfoPreset } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -77,7 +78,7 @@ const store = createStore({
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
 		deezerConnected: false,
-		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
+		triggers: {} as {[key:string]:TriggerData},
 		streamInfoPreset: [] as StreamInfoPreset[],
 		botMessages: {
 			raffleStart: {
@@ -87,6 +88,10 @@ const store = createStore({
 			raffle: {
 				enabled:true,
 				message:"/announce 🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
+			},
+			raffleJoin: {
+				enabled:true,
+				message:"VoteYea @{USER} you entered the raffle.",
 			},
 			bingoStart: {
 				enabled:true,
@@ -111,6 +116,16 @@ const store = createStore({
 				id:"tip",
 				cmd:"/tip",
 				details:"Get a tip about Twitchat",
+			},
+			{
+				id:"timer",
+				cmd:"/timer",
+				details:"Start a timer",
+			},
+			{
+				id:"timer",
+				cmd:"/countdown {seconds}",
+				details:"Start a countdown",
 			},
 			{
 				id:"search",
@@ -321,6 +336,7 @@ const store = createStore({
 				}
 				
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.user.user_id]);
+				console.log("INIT USER", users);
 				state.hasChannelPoints = users[0].broadcaster_type != "";
 
 				state.mods = await TwitchUtils.getModerators();
@@ -888,7 +904,9 @@ const store = createStore({
 			Store.set("obsConf_permissions", value);
 		},
 
-		setTrigger(state, value:{key:string, data:TriggerActionTypes[]|TriggerActionChatCommandData}) {
+		setTrigger(state, value:{key:string, data:TriggerData}) {
+			value.key = value.key.toLowerCase();
+
 			//remove incomplete entries
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
@@ -901,27 +919,28 @@ const store = createStore({
 
 			}
 			let remove = false;
-			if(!Array.isArray(value.data)) {
-				if(value.data.chatCommand?.length > 0) {
+			//Chat command specifics
+			if(value.key.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
+				if(value.data.chatCommand) {
 					//If command has been changed, cleanup the previous one from storage
 					if(value.data.prevKey) {
 						delete state.triggers[value.data.prevKey];
 						delete value.data.prevKey;
 					}
-					value.data.actions = cleanEmptyActions(value.data.actions);
 					if(value.data.actions.length == 0) remove = true;
 				}else{
 					//Chat command not defined, don't save it
+					delete state.triggers[value.key];
 					return;
 				}
 			}else{
-				value.data = cleanEmptyActions(value.data);
-				if(value.data.length == 0) remove = true;
+				if(value.data.actions.length == 0) remove = true;
 			}
 			if(remove) {
-				delete state.triggers[value.key.toLowerCase()];
+				delete state.triggers[value.key];
 			}else{
-				state.triggers[value.key.toLowerCase()] = value.data;
+				value.data.actions = cleanEmptyActions(value.data.actions);
+				state.triggers[value.key] = value.data;
 			}
 			Store.set("triggers", state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
@@ -1108,6 +1127,7 @@ const store = createStore({
 			const triggers = Store.get("triggers");
 			if(triggers) {
 				state.triggers = JSON.parse(triggers);
+				TriggerActionHandler.instance.triggers = state.triggers;
 			}
 			
 			//Load bot messages
@@ -1277,6 +1297,12 @@ const store = createStore({
 							if(state.followingStates[uid] === true) score += raffle.followRatio;
 						}
 						raffle.users.push( { score, user } );
+						
+						if(state.botMessages.raffleJoin.enabled) {
+							let message = state.botMessages.raffleJoin.message;
+							message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
+							IRCClient.instance.sendMessage(message);
+						}
 					}
 				}
 
@@ -1662,7 +1688,7 @@ const store = createStore({
 
 		setPermissionsForm({commit}, value:PermissionsData) { commit("setPermissionsForm", value); },
 
-		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerActionChatCommandData}) { commit("setTrigger", value); },
+		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerData}) { commit("setTrigger", value); },
 
 		deleteTrigger({commit}, value:string) { commit("deleteTrigger", value); },
 

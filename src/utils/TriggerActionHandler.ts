@@ -1,4 +1,4 @@
-import type { MusicMessage, TriggerActionChatCommandData, TriggerActionTypes } from "@/types/TwitchatDataTypes";
+import type { MusicMessage, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -25,7 +25,7 @@ export default class TriggerActionHandler {
 	private globalCooldowns:{[key:string]:number} = {};
 	private currentSpoolGUID = 0;
 
-	public triggers:{[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData} = {};
+	public triggers:{[key:string]:TriggerData} = {};
 	
 	constructor() {
 	
@@ -238,21 +238,21 @@ export default class TriggerActionHandler {
 	 * 
 	 * @param eventType 
 	 * @param message 
+	 * 
+	 * @returns true if the trigger was executed
 	 */
 	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
-		// if(message.message == "OKKKKééé") return true;
-		// subEvent = "!test"
 		if(subEvent) eventType += "_"+subEvent
-		const steps = this.triggers[ eventType ];
-		if(!steps) {
+		const trigger = this.triggers[ eventType ];
+		
+		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;
 		}else{
-			let actions:TriggerActionTypes[] = [];
+			const data = trigger as TriggerData;
+			if(!data.enabled) return false;
 			let canExecute = true;
 
-			if(!Array.isArray(steps)) {
-				const data = steps as TriggerActionChatCommandData;
-				actions = data.actions;
+			if(data.permissions && data.cooldown) {
 				const m = message as IRCEventDataList.Message;
 				const uid = m.tags['user-id'];
 				const key = eventType+"_"+uid;
@@ -269,23 +269,20 @@ export default class TriggerActionHandler {
 					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
 					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
 				}
-
-			}else{
-				actions = steps;
 			}
 
 			if(testMode) canExecute = true;
 			
-			if(!steps || actions.length == 0) canExecute = false;
+			if(!trigger || data.actions.length == 0) canExecute = false;
 			// console.log(steps);
 			// console.log(message);
 			// console.log(canExecute);
 			
 			if(canExecute) {
 				// console.log("Parse steps", actions);
-				for (let i = 0; i < actions.length; i++) {
+				for (let i = 0; i < data.actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
-					const step = actions[i];
+					const step = data.actions[i];
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {

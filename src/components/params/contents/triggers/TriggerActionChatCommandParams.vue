@@ -34,7 +34,7 @@
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import store from '@/store';
-import type { ParameterData, TriggerActionChatCommandData } from '@/types/TwitchatDataTypes';
+import type { ParameterData, TriggerData } from '@/types/TwitchatDataTypes';
 import { TriggerTypes } from '@/utils/TriggerActionData';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -54,7 +54,7 @@ import PermissionsForm from '../obs/PermissionsForm.vue';
 })
 export default class TriggerActionChatCommandParams extends Vue {
 
-	public actionData!:TriggerActionChatCommandData;
+	public actionData!:TriggerData;
 
 	public cmdNameConflict = false;
 	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
@@ -97,7 +97,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 			for (const k in triggers) {
 				//Is a chat command?
 				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
-					const t = triggers[k] as TriggerActionChatCommandData;
+					const t = triggers[k] as TriggerData;
 					if(t.chatCommand == this.param_cmd.value) {
 						this.cmdNameConflict = true;
 						return;

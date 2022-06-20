@@ -3,8 +3,9 @@ import type { ChatUserstate } from "tmi.js";
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
 export interface IBotMessage {
 	bingo:BotMessageEntry;
-	raffle:BotMessageEntry;
 	bingoStart:BotMessageEntry;
+	raffle:BotMessageEntry;
+	raffleJoin:BotMessageEntry;
 	raffleStart:BotMessageEntry;
 	shoutout:BotMessageEntry;
 }
@@ -36,11 +37,12 @@ export interface OBSMuteUnmuteCommands {
 	unmuteCommand:string;
 }
 
-export interface TriggerActionChatCommandData {
-	chatCommand:string;
+export interface TriggerData {
+	enabled:boolean;
+	chatCommand?:string;
 	prevKey?:string;
-	permissions:PermissionsData;
-	cooldown:{global:number, user:number};
+	permissions?:PermissionsData;
+	cooldown?:{global:number, user:number};
 	actions:TriggerActionTypes[];
 }
 
@@ -56,10 +58,6 @@ export interface TriggerEventTypes extends ParameterDataListValue {
 	description?:string,
 	isCategory?:boolean,
 	jsonTest?:unknown,
-	command?:string,
-	permissions?:PermissionsData,
-	cooldown?:{global:number, user:number},
-	[paramater: string]: unknown;
 }
 
 export interface TriggerActionData {
@@ -92,14 +90,14 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 
 export interface ParameterDataListValue {
 	label:string;
-	value:string | number | boolean;
+	value:string | number | boolean | undefined;
 	[paramater: string]: unknown;
 }
 
 export interface ParameterData {
 	id?:number;
 	type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse";
-	value:boolean|number|string|string[];
+	value:boolean|number|string|string[]|undefined;
 	listValues?:ParameterDataListValue[];
 	longText?:boolean;
 	noInput?:boolean;//Disable input to only keep title (used for shoutout param)

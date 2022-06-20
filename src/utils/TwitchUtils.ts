@@ -878,9 +878,18 @@ export default class TwitchUtils {
 			};
 		}
 
-		let pronoun = await getPronounAlejo();
+		let pronoun:TwitchDataTypes.Pronoun | null = null;
+		try {
+			pronoun = await getPronounAlejo();
+		}catch(error) {
+			/*ignore*/
+		}
 		if (pronoun == null) {
-			pronoun = await getPronounPronounDb();
+			try {
+				pronoun = await getPronounPronounDb();
+			}catch(error) {
+				/*ignore*/
+			}
 		}
 
 		return pronoun;

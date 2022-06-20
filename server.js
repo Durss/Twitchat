@@ -621,10 +621,31 @@ const UserDataSchema = {
 			additionalProperties: true,
 			patternProperties: {
 				".*": {
-					oneOf:[
-						{
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						chatCommand: {type:"string", maxLength:100},
+						permissions: {
+							type:"object",
+							properties: {
+								mods: {type:"boolean"},
+								vips: {type:"boolean"},
+								subs: {type:"boolean"},
+								all: {type:"boolean"},
+								users: {type:"string", maxLength:1000},
+							}
+						},
+						cooldown: {
+							type:"object",
+							properties: {
+								global: {type:"number", minimum:0, maximum:60*60*12},
+								user: {type:"number", minimum:0, maximum:60*60*12},
+							}
+						},
+						actions:{
 							type:"array",
-							items:[
+							items: [
 								{
 									type: "object",
 									additionalProperties: false,
@@ -632,7 +653,7 @@ const UserDataSchema = {
 										id: {type:"string", maxLength:100},
 										sourceName: {type:"string", maxLength:100},
 										show: {type:"boolean"},
-										delay: {type:"number", minimum:0, maximum:999999999},
+										delay: {type:"number"},
 										filterName: {type:"string", maxLength:100},
 										text: {type:"string", maxLength:500},
 										url: {type:"string", maxLength:1000},
@@ -641,56 +662,10 @@ const UserDataSchema = {
 										musicAction: {type:"string", maxLength:3},
 										track: {type:"string", maxLength:500},
 									}
-								}
+								},
 							]
-						},
-						{
-							type: "object",
-							additionalProperties: false,
-							properties: {
-								chatCommand: {type:"string", maxLength:100},
-								permissions: {
-									type:"object",
-									properties: {
-										mods: {type:"boolean"},
-										vips: {type:"boolean"},
-										subs: {type:"boolean"},
-										all: {type:"boolean"},
-										users: {type:"string", maxLength:1000},
-									}
-								},
-								cooldown: {
-									type:"object",
-									properties: {
-										global: {type:"number", minimum:0, maximum:60*60*12},
-										user: {type:"number", minimum:0, maximum:60*60*12},
-									}
-								},
-								actions:{
-									type:"array",
-									items: [
-										{
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												id: {type:"string", maxLength:100},
-												sourceName: {type:"string", maxLength:100},
-												show: {type:"boolean"},
-												delay: {type:"number"},
-												filterName: {type:"string", maxLength:100},
-												text: {type:"string", maxLength:500},
-												url: {type:"string", maxLength:1000},
-												mediaPath: {type:"string", maxLength:1000},
-												type: {type:"string", maxLength:50},
-												musicAction: {type:"string", maxLength:3},
-												track: {type:"string", maxLength:500},
-											}
-										},
-									]
-								}
-							}
 						}
-					]
+					}
 				},
 			}
 		},

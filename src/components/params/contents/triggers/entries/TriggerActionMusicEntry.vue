@@ -7,15 +7,30 @@
 	</div>
 
 	<div class="TriggerActionMusicEntry" v-else>
-		<ParamItem class="item file" :paramData="actions_conf" ref="textContent" v-model="action.musicAction" />
-		<ParamItem class="item text" :paramData="track_conf" v-model="action.track" v-if="showTrackInput" ref="textContent" />
+		<ParamItem class="item file" :paramData="actions_conf" v-model="action.musicAction" />
+
+		<ParamItem class="item text" :paramData="track_conf" v-model="action.track" v-if="showTrackInput" ref="textContentTrack" />
 		<ToggleBlock small class="helper"
 			v-if="showTrackInput && getHelpers(event)?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false"
 		>
 			<ul class="list">
-				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
+				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h, 'textContentTrack')" data-tooltip="Insert">
+					<strong>&#123;{{h.tag}}&#125;</strong>
+					{{h.desc}}
+				</li>
+			</ul>
+		</ToggleBlock>
+
+		<ParamItem class="item text" :paramData="confirmSongRequest_conf" v-if="showTrackInput" ref="textContentConfirm" />
+		<ToggleBlock small class="helper"
+			v-if="showTrackInput && getHelpers(event)?.length > 0"
+			title="Special placeholders dynamically replaced"
+			:open="false"
+		>
+			<ul class="list">
+				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h, 'textContentConfirm')" data-tooltip="Insert">
 					<strong>&#123;{{h.tag}}&#125;</strong>
 					{{h.desc}}
 				</li>
@@ -49,6 +64,7 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	public actions_conf:ParameterData = { label:"Action type", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:ParameterData = { label:"Track name or URL", type:"text", longText:false, value:"", icon:"music_purple.svg" };
+	public confirmSongRequest_conf:ParameterData = { label:"Confirmation", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
@@ -68,15 +84,19 @@ export default class TriggerActionMusicEntry extends Vue {
 	/**
 	 * Add a token on the text
 	 */
-	public insert(h:{tag:string, desc:string}):void {
+	public insert(h:{tag:string, desc:string}, target:string):void {
 		const tag = "{"+h.tag+"}";
-		const holder = this.$refs.textContent as ParamItem;
-		const input = (holder.$el as HTMLDivElement).getElementsByTagName("input")[0];
+		const holder = (this.$refs[target] as ParamItem).$el as HTMLDivElement;
+		console.log(holder);
+		let input:HTMLInputElement|HTMLTextAreaElement = holder.getElementsByTagName("input")[0];
+		if(!input) {
+			input = holder.getElementsByTagName("textarea")[0];
+		}
 		let carretPos = input.selectionStart as number | 0;
 		if(!carretPos) carretPos = 0;
 		//Insert tag
 		input.value = input.value.substring(0, carretPos) + tag + input.value.substring(carretPos);
-		this.track_conf.value = input.value;
+		input.dispatchEvent(new Event("input"));//Tell vue the input's value changed
 	}
 }
 </script>
@@ -107,6 +127,9 @@ export default class TriggerActionMusicEntry extends Vue {
 		}
 	}
 
+	.item:not(:first-child) {
+		margin-top: .5em;
+	}
 
 	.info {
 		overflow: hidden;

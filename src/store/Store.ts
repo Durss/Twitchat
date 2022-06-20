@@ -1,6 +1,6 @@
 import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
-import type { TriggerActionChatCommandData, TriggerActionTypes } from "../types/TwitchatDataTypes";
+import type { TriggerData, TriggerActionTypes } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
 
 /**
@@ -109,8 +109,12 @@ export default class Store {
 			v = "8";
 		}
 		if(v=="8") {
-			this.fixTriggersCase()
+			this.fixTriggersCase();
 			v = "9";
+		}
+		if(v=="9") {
+			this.migrateTriggers2();
+			v = "10";
 		}
 
 		this.set("v", v);
@@ -248,13 +252,13 @@ export default class Store {
 	private static migrateTriggers():void {
 		const sources = this.get("obsConf_sources");
 		if(sources) {
-			const actions:(TriggerActionTypes[]|TriggerActionChatCommandData)[] = JSON.parse(sources);
+			const actions:(TriggerActionTypes[]|TriggerData)[] = JSON.parse(sources);
 			for (const key in actions) {
 				const a = actions[key];
 				let list = a;
 				//Is chat command trigger ?
 				if(!Array.isArray(a)) {
-					list = (a as TriggerActionChatCommandData).actions;
+					list = (a as TriggerData).actions;
 				}
 				const typedList = list as TriggerActionTypes[];
 				for (let i = 0; i < typedList.length; i++) {
@@ -290,6 +294,27 @@ export default class Store {
 				if(key != key.toLowerCase()) {
 					triggers[key.toLowerCase()] = triggers[key];
 					delete triggers[key];
+				}
+			}
+		}
+		
+		this.set("triggers", triggers);
+	}
+
+	/**
+	 * Encapsulate simple triggers (not chat commands) inside a new object
+	 */
+	private static migrateTriggers2():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers = JSON.parse(txt);
+		for (const key in triggers) {
+			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0) {
+				triggers[key].enabled = true;
+			}else{
+				triggers[key] = {
+					enabled:true,
+					actions:triggers[key]
 				}
 			}
 		}

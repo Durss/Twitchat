@@ -11,6 +11,7 @@
 
 <script lang="ts">
 import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 
@@ -42,6 +43,13 @@ export default class OBSPermissions extends Vue {
 	}
 
 	public mounted():void {
+		watch(()=>this.param_all.value, ()=>{
+			if(this.param_all.value === true) {
+				this.modelValue.mods = true;
+				this.modelValue.vips = true;
+				this.modelValue.subs = true;
+			}
+		});
 	}
 
 }
