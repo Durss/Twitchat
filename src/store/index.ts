@@ -56,7 +56,6 @@ const store = createStore({
 		currentPrediction: {} as TwitchDataTypes.Prediction,
 		tmiUserState: {} as UserNoticeState,
 		userEmotesCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
-		emotesCache: [] as TwitchDataTypes.Emote[],
 		trackedUsers: [] as TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: null as RaffleData | null,
@@ -123,8 +122,8 @@ const store = createStore({
 				details:"Start a timer",
 			},
 			{
-				id:"timer",
-				cmd:"/countdown {seconds}",
+				id:"countdown",
+				cmd:"/countdown {(hh:)(mm:)ss}",
 				details:"Start a countdown",
 			},
 			{
@@ -725,7 +724,7 @@ const store = createStore({
 
 		setUserState(state, payload:UserNoticeState) { state.tmiUserState = payload; },
 
-		setEmotes(state, payload:TwitchDataTypes.Emote[]) { state.emotesCache = payload; },
+		setEmotes(state, payload:TwitchDataTypes.Emote[]) { UserSession.instance.emotesCache = payload; },
 
 		setUserEmotesCache(state, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { state.userEmotesCache = payload; },
 
