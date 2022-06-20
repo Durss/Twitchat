@@ -94,6 +94,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"DESCRIPTION", desc:"Reward description", pointer:"reward.redemption.reward.prompt"},
 		{tag:"COST", desc:"Reward cost", pointer:"reward.redemption.reward.cost"},
 	];
+	
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
 		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"artist"},
 		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"title"},

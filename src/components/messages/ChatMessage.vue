@@ -490,13 +490,13 @@ export default class ChatMessage extends Vue {
 						url = url.replace(/2x$/gi, "3x");//7TV format
 						url = url.replace(/1$/gi, "4");//FFZ format
 						
-						if(store.state.params.appearance.defaultSize.value >= 6) {
+						if(store.state.params.appearance.defaultSize.value as number >= 6) {
 							v.value = v.value.replace(/1.0$/gi, "3.0");
 							v.value = v.value.replace(/1x$/gi, "4x");//BTTV format
 							v.value = v.value.replace(/2x$/gi, "4x");//7TV format
 							v.value = v.value.replace(/1$/gi, "4");//FFZ format
 						}else
-						if(store.state.params.appearance.defaultSize.value >= 3) {
+						if(store.state.params.appearance.defaultSize.value as number >= 3) {
 							v.value = v.value.replace(/1.0$/gi, "2.0");
 							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
 							v.value = v.value.replace(/1$/gi, "2");//FFZ format

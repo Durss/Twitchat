@@ -14,7 +14,7 @@
 			<PermissionsForm v-model="actionData.permissions" />
 		</ToggleBlock>
 
-		<ToggleBlock :open="false" class="row" small title="Cooldowns">
+		<ToggleBlock :open="false" class="row" small title="Cooldowns" v-if="actionData.cooldown">
 			<ParamItem class="cooldown" :paramData="param_globalCD" v-model="actionData.cooldown.global" />
 			<ParamItem class="cooldown" :paramData="param_userCD" v-model="actionData.cooldown.user" />
 		</ToggleBlock>
@@ -85,7 +85,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 	public populate():void {
 		this.param_cmd.value = 
-		this.originalCmd = this.actionData.chatCommand;
+		this.originalCmd = this.actionData.chatCommand as string;
 	}
 
 	public onUpdateCommand():void {
