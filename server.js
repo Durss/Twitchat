@@ -661,6 +661,7 @@ const UserDataSchema = {
 										type: {type:"string", maxLength:50},
 										musicAction: {type:"string", maxLength:3},
 										track: {type:"string", maxLength:500},
+										confirmMessage: {type:"string", maxLength:500},
 									}
 								},
 							]
@@ -674,6 +675,14 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				raffleStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				raffleJoin: {
 					type:"object",
 					additionalProperties: false,
 					properties: {

@@ -86,6 +86,7 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";
 	musicAction:string;
 	track:string;
+	confirmMessage:string;
 }
 
 export interface ParameterDataListValue {

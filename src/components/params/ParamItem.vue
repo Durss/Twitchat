@@ -227,8 +227,8 @@ export default class ParamItem extends Vue {
 	}
 
 	public clampValue():void {
-		if(this.paramData.max != undefined && this.paramData.value > this.paramData.max) this.paramData.value = this.paramData.max;
-		if(this.paramData.min != undefined && this.paramData.value < this.paramData.min) this.paramData.value = this.paramData.min;
+		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
+		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
 	}
 }
 </script>
@@ -342,6 +342,7 @@ export default class ParamItem extends Vue {
 		textarea {
 			// max-width: 100%;
 			resize: vertical;
+			margin-top: .25em;
 		}
 
 		.browse {

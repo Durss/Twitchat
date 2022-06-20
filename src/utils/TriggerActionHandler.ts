@@ -313,6 +313,16 @@ export default class TriggerActionHandler {
 					if(step.type == "music") {
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
 							const m = message.message.split(" ").splice(1).join(" ");
+							const data:MusicMessage = {
+								type:"music",
+								title:"",
+								artist:"",
+								album:"",
+								cover:"",
+								duration:0,
+								url:"",
+								tags:message.tags,
+							};
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
@@ -324,17 +334,12 @@ export default class TriggerActionHandler {
 								}
 								if(track) {
 									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
-										const data:MusicMessage = {
-											type:"music",
-											title:track.name,
-											artist:track.artists[0].name,
-											album:track.album.name,
-											cover:track.album.images[0].url,
-											duration:track.duration_ms,
-											url:track.external_urls.spotify,
-										};
-										PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data as JsonObject);
-										this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+										data.title = track.name;
+										data.artist = track.artists[0].name;
+										data.album = track.album.name;
+										data.cover = track.album.images[0].url;
+										data.duration = track.duration_ms;
+										data.url = track.external_urls.spotify;
 									}
 								}
 							}
@@ -343,17 +348,20 @@ export default class TriggerActionHandler {
 								if(tracks) {
 									const track = tracks[0];
 									DeezerHelper.instance.addToQueue(track);
-									const data:MusicMessage = {
-										type:"music",
-										title:track.title,
-										artist:track.artist.name,
-										album:track.album.title,
-										cover:track.album.cover_medium,
-										duration:track.duration,
-										url:track.link,
-									};
-									PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data as JsonObject);
-									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+									data.title = track.title;
+									data.artist = track.artist.name;
+									data.album = track.album.title;
+									data.cover = track.album.cover_medium;
+									data.duration = track.duration;
+									data.url = track.link;
+								}
+							}
+							if(data.title) {
+								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data as JsonObject);
+								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+								if(step.confirmMessage) {
+									const chatMessage = await this.parseText(eventType, data, step.confirmMessage);
+									IRCClient.instance.sendMessage(chatMessage);
 								}
 							}
 						}else

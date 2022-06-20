@@ -23,7 +23,7 @@
 			</ul>
 		</ToggleBlock>
 
-		<ParamItem class="item text" :paramData="confirmSongRequest_conf" v-if="showTrackInput" ref="textContentConfirm" />
+		<ParamItem class="item text" :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" v-if="showTrackInput" ref="textContentConfirm" />
 		<ToggleBlock small class="helper"
 			v-if="showTrackInput && getHelpers(event)?.length > 0"
 			title="Special placeholders dynamically replaced"
@@ -63,8 +63,8 @@ export default class TriggerActionMusicEntry extends Vue {
 	public event!:string;
 
 	public actions_conf:ParameterData = { label:"Action type", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
-	public track_conf:ParameterData = { label:"Track name or URL", type:"text", longText:false, value:"", icon:"music_purple.svg" };
-	public confirmSongRequest_conf:ParameterData = { label:"Confirmation", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
+	public track_conf:ParameterData = { label:"Track name or URL", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
+	public confirmSongRequest_conf:ParameterData = { label:"Send confirmation message", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
