@@ -22,7 +22,7 @@
 						@click="event_conf.value = e.value"
 					/>
 
-					<ToggleButton small class="toggle"
+					<ToggleButton class="toggle"
 						v-model="e.enabled"
 						@change="onToggleEnable(e)"
 						v-if="(event_conf.value == e.value || event_conf.value == '0') && canToggle(e)"
@@ -40,7 +40,7 @@
 						@click="subevent_conf.value = e.value"
 					/>
 
-					<ToggleButton v-model="e.enabled" @change="onToggleEnable(e)" small class="toggle"
+					<ToggleButton v-model="e.enabled" @change="onToggleEnable(e)" class="toggle"
 						v-if="(subevent_conf.value == e.value || subevent_conf.value == '0') && canToggle(e)"
 					/>
 				</div>
@@ -48,14 +48,30 @@
 			</div>
 		</div>
 
-		<div class="triggerDescription" v-if="event_conf.value != '0'">{{triggerDescription}}</div>
+		<div class="triggerDescription" v-if="event_conf.value != '0'">
+			<div>{{triggerDescription}}</div>
+
+			<div class="ctas">
+				<Button :icon="$image('icons/add.svg')" title="Add action"
+					class="cta addBt"
+					@click="addAction()"
+					v-if="event_conf.value != '0'"
+				/>
+				<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
+					class="cta resyncBt"
+					@click="listSources(true)"
+					data-tooltip="If you changed something<br>on OBS, click this to see it<br>listed on OBS actions"
+					v-if="event_conf.value != '0'" :loading="syncing"
+				/>
+			</div>
+
+			<div class="ctas" v-if="canTestAction">
+				<Button title="Test trigger" class="cta" @click="testTrigger()" :icon="$image('icons/test.svg')" />
+				<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="$image('icons/delete.svg')" />
+			</div>
+		</div>
 
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
-
-		<div class="ctas" v-if="canTestAction">
-			<Button title="Test trigger" class="cta" @click="testTrigger()" :icon="$image('icons/test.svg')" />
-			<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="$image('icons/delete.svg')" />
-		</div>
 
 		<TriggerActionChatCommandParams class="chatCmdParams"
 			v-if="isChatCmd && triggerData"
@@ -85,7 +101,7 @@
 			</template>
 		</draggable>
 
-		<div class="buttons">
+		<!-- <div class="buttons">
 			<Button :icon="$image('icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
@@ -96,7 +112,7 @@
 				@click="listSources(true)"
 				v-if="event_conf.value != '0'" :loading="syncing"
 			/>
-		</div>
+		</div> -->
 	</div>
 </template>
 
@@ -624,7 +640,7 @@ export default class ParamsTriggers extends Vue {
 				:deep(.cost) {
 					font-size: .8em;
 					font-style: italic;
-					padding-right: 40px;
+					padding-right: 50px;
 				}
 
 				&.subItem.hasIcon {
@@ -700,6 +716,10 @@ export default class ParamsTriggers extends Vue {
 		align-items: center;
 		justify-content: center;
 		margin-top: 1em;
+		flex-wrap: wrap;
+		.cta:not(:last-child) {
+			margin-right: 1em;
+		}
 	}
 
 	.chatCmdParams {

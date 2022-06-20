@@ -108,7 +108,7 @@ export default class UserList extends Vue {
 			res.push({
 				login:userName,
 				id:userNameLow,
-				broadcaster:userNameLow == UserSession.instance.user.login.toLowerCase(),
+				broadcaster:userNameLow == UserSession.instance.authToken.login.toLowerCase(),
 				vip:false,
 				mod:(store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,

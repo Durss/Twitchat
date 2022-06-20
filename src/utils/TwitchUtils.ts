@@ -24,7 +24,7 @@ export default class TwitchUtils {
 
 	private static get headers():{[key:string]:string} {
 		return {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
+			'Authorization': 'Bearer '+UserSession.instance.authResult?.access_token,
 			'Client-Id': this.client_id,
 			'Content-Type': "application/json",
 		};
@@ -357,7 +357,7 @@ export default class TwitchUtils {
 			const param = "broadcaster_id";
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
-			const access_token = UserSession.instance.token?.access_token;
+			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			channels = channels.concat(json.data);
@@ -383,7 +383,7 @@ export default class TwitchUtils {
 			const param = ids ? "id" : "login";
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"users?"+params;
-			const access_token = UserSession.instance.token?.access_token;
+			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, {headers:this.headers});
 			const json = await result.json();
 			users = users.concat(json.data);
@@ -409,7 +409,7 @@ export default class TwitchUtils {
 			const param = ids ? "user_id" : "user_login";
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"streams?first=1&"+params;
-			const access_token = UserSession.instance.token?.access_token;
+			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			streams = streams.concat(json.data);
@@ -425,7 +425,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: this.headers,
 			body: JSON.stringify({
-				user_id:UserSession.instance.user.user_id,
+				user_id:UserSession.instance.authToken.user_id,
 				msg_id:messageId,
 				action:accept? "ALLOW" : "DENY",
 			})
@@ -444,7 +444,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+UserSession.instance.user.user_id, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		this.cheermoteCache[uid] = json.data;
 		return json.data;
@@ -458,7 +458,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: this.headers,
 			body: JSON.stringify({
-				broadcaster_id:UserSession.instance.user.user_id,
+				broadcaster_id:UserSession.instance.authToken.user_id,
 				title:question,
 				choices:answers.map(v => {return {title:v}}),
 				duration,
@@ -488,7 +488,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.user.user_id, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			StoreProxy.store.dispatch("setPolls", {data:json.data});
@@ -507,7 +507,7 @@ export default class TwitchUtils {
 			body: JSON.stringify({
 				id:pollId,
 				status:"TERMINATED",
-				broadcaster_id:UserSession.instance.user.user_id,
+				broadcaster_id:UserSession.instance.authToken.user_id,
 			})
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
@@ -530,7 +530,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: this.headers,
 			body: JSON.stringify({
-				broadcaster_id:UserSession.instance.user.user_id,
+				broadcaster_id:UserSession.instance.authToken.user_id,
 				title:question,
 				outcomes:answers.map(v => {return {title:v}}),
 				prediction_window:duration,
@@ -556,7 +556,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.user.user_id, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			StoreProxy.store.dispatch("setPredictions", json.data);
@@ -576,7 +576,7 @@ export default class TwitchUtils {
 				id:pollId,
 				status:cancel? "CANCELED" : "RESOLVED",
 				winning_outcome_id:winId,
-				broadcaster_id:UserSession.instance.user.user_id,
+				broadcaster_id:UserSession.instance.authToken.user_id,
 			})
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
@@ -596,7 +596,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"hypetrain/events?broadcaster_id="+UserSession.instance.user.user_id, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"hypetrain/events?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			return json.data;
@@ -655,7 +655,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		let rewards:TwitchDataTypes.Reward[] = [];
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+UserSession.instance.user.user_id, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			rewards = json.data;
@@ -675,7 +675,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		let redemptions:TwitchDataTypes.RewardRedemption[] = [];
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions?broadcaster_id="+UserSession.instance.user.user_id, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			redemptions = json.data;
@@ -691,7 +691,7 @@ export default class TwitchUtils {
 	 * @returns
 	 */
 	public static async setRewardEnabled(id:string, enabled:boolean):Promise<void> {
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+UserSession.instance.user.user_id+"&id="+id, {
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+UserSession.instance.authToken.user_id+"&id="+id, {
 			method:"PATCH",
 			headers:this.headers,
 			// body:JSON.stringify({is_enabled:!enabled}),
@@ -708,7 +708,7 @@ export default class TwitchUtils {
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+UserSession.instance.user.user_id+pCursor, {
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+UserSession.instance.authToken.user_id+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -731,7 +731,7 @@ export default class TwitchUtils {
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"streams/followed?first=100&user_id="+UserSession.instance.user.user_id+pCursor, {
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"streams/followed?first=100&user_id="+UserSession.instance.authToken.user_id+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -764,7 +764,7 @@ export default class TwitchUtils {
 	 * @param uid user ID list
 	 */
 	public static async getFollowState(uid:string, channelId?:string):Promise<boolean> {
-		if(!channelId) channelId = UserSession.instance.user.user_id;
+		if(!channelId) channelId = UserSession.instance.authToken.user_id;
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?to_id="+channelId+"&from_id="+uid, {
 			method:"GET",
 			headers:this.headers,
@@ -783,7 +783,7 @@ export default class TwitchUtils {
 	 * @param channelId channelId to get followers list
 	 */
 	public static async getFollowers(channelId?:string|null, maxCount=-1):Promise<TwitchDataTypes.Following[]> {
-		if(!channelId) channelId = UserSession.instance.user.user_id;
+		if(!channelId) channelId = UserSession.instance.authToken.user_id;
 		let list:TwitchDataTypes.Following[] = [];
 		let cursor:string|null = null;
 		do {
@@ -806,12 +806,12 @@ export default class TwitchUtils {
 	 * Gets a list of the current subscribers to the specified channel
 	 */
 	public static async getSubsList(channelId?:string):Promise<TwitchDataTypes.Subscriber[]> {
-		if(!channelId) channelId = UserSession.instance.user.user_id;
+		if(!channelId) channelId = UserSession.instance.authToken.user_id;
 		let list:TwitchDataTypes.Subscriber[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+UserSession.instance.user.user_id+pCursor, {
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+UserSession.instance.authToken.user_id+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -838,7 +838,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channels/commercial?broadcaster_id="+UserSession.instance.user.user_id+"&length="+duration, options);
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"channels/commercial?broadcaster_id="+UserSession.instance.authToken.user_id+"&length="+duration, options);
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
@@ -1008,7 +1008,7 @@ export default class TwitchUtils {
 			headers: this.headers
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
-		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
 		const res = await fetch(url.href, options);
 		const json = await res.json();
 		if(json.error) {
@@ -1033,7 +1033,7 @@ export default class TwitchUtils {
 			})
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
-		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
 			return true;
@@ -1051,7 +1051,7 @@ export default class TwitchUtils {
 			headers: this.headers
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
-		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
 		const res = await fetch(url.href, options);
 		const json = await res.json();
 		if(json.error) {
@@ -1073,7 +1073,7 @@ export default class TwitchUtils {
 			})
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
-		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
 			return true;

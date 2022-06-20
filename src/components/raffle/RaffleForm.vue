@@ -149,7 +149,7 @@ export default class RaffleForm extends Vue {
 		return this.subs.filter(v => {
 			if(this.subs_includeGifters.value == true && this.subs.find(v2=> v2.gifter_id == v.user_id)) return true;
 			if(this.subs_excludeGifted.value == true && v.is_gift) return false;
-			if(v.user_id == UserSession.instance.user.user_id) return false;
+			if(v.user_id == UserSession.instance.authToken.user_id) return false;
 			return true;
 		})
 	}

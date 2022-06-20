@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsaccount">
-		<img src="@/assets/icons/user_purple.svg" alt="overlay icon" class="icon">
+		<img :src="userPP" alt="profile pic" class="profilePic">
 
 		<div class="title">Connected as <strong>{{userName}}</strong></div>
 
@@ -35,7 +35,14 @@ export default class ParamsAccount extends Vue {
 	public showCredits = true;
 
 	public get canInstall():boolean { return store.state.ahsInstaller != null || true; }
-	public get userName():string { return UserSession.instance.user.login; }
+	public get userName():string { return UserSession.instance.authToken.login; }
+	public get userPP():string {
+		let pp:string|undefined = UserSession.instance.user?.profile_image_url;
+		if(!pp) {
+			pp = this.$image("icons/user_purple.svg");
+		}
+		return pp;
+	}
 
 	public logout():void {
 		store.dispatch('logout');
@@ -43,6 +50,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public mounted():void {
+		console.log(UserSession.instance.authToken);
 		watch(()=> store.state.params, ()=> this.onParamChanged());
 		this.onParamChanged();
 	}
@@ -58,7 +66,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	private onParamChanged():void {
-		let path = router.resolve({name:'chatLight', params:{login:UserSession.instance.user.login}}).href;
+		let path = router.resolve({name:'chatLight', params:{login:UserSession.instance.authToken.login}}).href;
 		//eslint-disable-next-line
 		const params:any = {};
 		for (const cat in store.state.params) {
@@ -71,7 +79,7 @@ export default class ParamsAccount extends Vue {
 				}
 			}
 		}
-		params.access_token = UserSession.instance.token;
+		params.access_token = UserSession.instance.authResult;
 		this.obsOverlayURL = document.location.origin+path+"?params="+btoa(JSON.stringify(params));
 	}
 
@@ -80,11 +88,13 @@ export default class ParamsAccount extends Vue {
 
 <style scoped lang="less">
 .paramsaccount{
-	.icon {
+	.profilePic {
 		height: 4em;
+		width: 4em;
 		display: block;
 		margin: auto;
 		margin-bottom: 1em;
+		border-radius: 50%;
 	}
 	
 	.button {

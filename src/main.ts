@@ -19,9 +19,9 @@ let tokenRefreshScheduled = false;
  * Refreshes the oauth token when necessary
  */
 async function scheduleTokenRefresh():Promise<void> {
-	if(!UserSession.instance.token) return;
+	if(!UserSession.instance.authResult) return;
 
-	const expire = UserSession.instance.token.expires_in;
+	const expire = UserSession.instance.authResult.expires_in;
 	let delay = Math.max(0,expire*1000 - 60000 * 5);
 	//Refresh at least every 1h
 	const maxDelay = 1000 * 60 * 60;

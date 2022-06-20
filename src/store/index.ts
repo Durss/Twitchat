@@ -307,13 +307,13 @@ const store = createStore({
 				if(!(userRes as TwitchDataTypes.Token).expires_in
 				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 
-				UserSession.instance.user = userRes as TwitchDataTypes.Token;
+				UserSession.instance.authToken = userRes as TwitchDataTypes.Token;
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
-					if(UserSession.instance.user.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
+					if(UserSession.instance.authToken.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
 						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
 						state.authenticated = false;
-						UserSession.instance.token = null;
+						UserSession.instance.authResult = null;
 						state.newScopeToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
 					}
 				}
@@ -324,24 +324,28 @@ const store = createStore({
 				if(!json.expires_at) {
 					json.expires_at = Date.now() + json.expires_in*1000;
 				}
-				UserSession.instance.token = json;
+				UserSession.instance.authResult = json;
 				Store.access_token = json.access_token;
 				Store.set("oAuthToken", json, false);
 				
 				if(!state.authenticated) {
 					//Connect if we were not connected before
-					IRCClient.instance.connect(UserSession.instance.user.login, json.access_token);
+					IRCClient.instance.connect(UserSession.instance.authToken.login, json.access_token);
 					PubSub.instance.connect();
 				}
 				
-				const users = await TwitchUtils.loadUserInfo([UserSession.instance.user.user_id]);
+				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
 				console.log("INIT USER", users);
-				state.hasChannelPoints = users[0].broadcaster_type != "";
+				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
+				if(currentUser) {
+					state.hasChannelPoints = currentUser.broadcaster_type != "";
+					UserSession.instance.user = currentUser;
+				}
 
 				state.mods = await TwitchUtils.getModerators();
 
 				state.authenticated = true;
-				state.followingStates[UserSession.instance.user.user_id] = true;
+				state.followingStates[UserSession.instance.authToken.user_id] = true;
 				if(cb) cb(true);
 			}catch(error) {
 				console.log(error);
@@ -352,10 +356,8 @@ const store = createStore({
 			}
 		},
 
-		setUser(state, user) { UserSession.instance.user = user; },
-
 		logout(state) {
-			UserSession.instance.token = null;
+			UserSession.instance.authResult = null;
 			state.authenticated = false;
 			Store.remove("oAuthToken");
 			IRCClient.instance.disconnect();
@@ -388,7 +390,7 @@ const store = createStore({
 			const list = state.chatMessages.concat();
 			list .push( {
 				type:"ad",
-				channel:"#"+UserSession.instance.user.login,
+				channel:"#"+UserSession.instance.authToken.login,
 				markedAsRead:false,
 				contentID,
 				tags:{id:"twitchatAd"+Math.random()}}
@@ -590,8 +592,8 @@ const store = createStore({
 
 				//Check if the message contains a mention
 				if(textMessage.message && state.params.appearance.highlightMentions.value === true) {
-					textMessage.hasMention = UserSession.instance.user.login != null
-					&& new RegExp("(^| |@)("+UserSession.instance.user.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
+					textMessage.hasMention = UserSession.instance.authToken.login != null
+					&& new RegExp("(^| |@)("+UserSession.instance.authToken.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
 					if(textMessage.hasMention) {
 						//Broadcast to OBS-Ws
 						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
@@ -1523,8 +1525,6 @@ const store = createStore({
 		sendTwitchatAd({commit}, contentID?:number) { commit("sendTwitchatAd", contentID); },
 
 		authenticate({ commit }, payload) { commit("authenticate", payload); },
-
-		setUser({ commit }, user) { commit("setUser", user); },
 
 		logout({ commit }) { commit("logout"); },
 

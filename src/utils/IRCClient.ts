@@ -400,7 +400,7 @@ export default class IRCClient extends EventDispatcher {
 			const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
 			tags.username = this.login;
 			tags["display-name"] = this.login;
-			tags["user-id"] = UserSession.instance.user.user_id;
+			tags["user-id"] = UserSession.instance.authToken.user_id;
 			tags.id = this.getFakeGuid();
 			this.addMessage(message, tags, true, undefined, this.channel);
 		}
@@ -469,7 +469,7 @@ export default class IRCClient extends EventDispatcher {
 		if(login == this.login) {
 			this.selfTags = JSON.parse(JSON.stringify(tags));
 			//Darn IRC doesn't send back the user ID when message is sent from this client
-			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.user.user_id;
+			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
 		}
 
 		if(message == "!logJSON") {
@@ -522,7 +522,7 @@ export default class IRCClient extends EventDispatcher {
 			return;
 		}
 		//Ignore self if requested
-		if(StoreProxy.store.state.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.user.user_id) {
+		if(StoreProxy.store.state.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}

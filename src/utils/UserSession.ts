@@ -9,15 +9,16 @@ export default class UserSession {
 
 	private static _instance:UserSession;
 
-	public token:TwitchDataTypes.AuthTokenResult|null = null;
+	public authResult:TwitchDataTypes.AuthTokenResult|null = null;
 	public emotesCache:TwitchDataTypes.Emote[]|null = null;
-	public user = {
+	public user:TwitchDataTypes.UserInfo| null = null;
+	public authToken = {
 		client_id: "",
 		login: "",
 		scopes: [""],
 		user_id: "",
 		expires_in: 0,
-	};
+	} as TwitchDataTypes.Token;
 	
 	constructor() {
 	

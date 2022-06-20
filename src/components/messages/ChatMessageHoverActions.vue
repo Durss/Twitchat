@@ -38,7 +38,7 @@ export default class ChatMessageHoverActions extends Vue {
 	public shoutoutLoading = false;
 
 	public get isSelf():boolean {
-		return this.messageData.tags.username?.toLowerCase() == UserSession.instance.user.login.toLowerCase();
+		return this.messageData.tags.username?.toLowerCase() == UserSession.instance.authToken.login.toLowerCase();
 	}
 
 	public trackUser():void {

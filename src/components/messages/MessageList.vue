@@ -212,7 +212,7 @@ export default class MessageList extends Vue {
 		return { top: this.conversationPos+"px" }
 	}
 
-	public get userId():string { return UserSession.instance.user.user_id }
+	public get userId():string { return UserSession.instance.authToken.user_id }
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);

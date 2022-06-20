@@ -188,7 +188,8 @@ export default class Tooltip extends Vue {
 		background-color: @mainColor_highlight;
 		// max-width: 300px;
 		text-align: center;
-		font-size: 14px;
+		font-size: .65em;
+		line-height: 1.2em;
 
 		.tip {
 			border-left: 6px solid transparent;

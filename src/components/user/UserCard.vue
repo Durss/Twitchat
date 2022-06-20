@@ -23,10 +23,10 @@ export default class UserCard extends Vue {
 			if(this.username == null) return;
 
 			let url = "https://www.twitch.tv/"+this.username;
-			if(UserSession.instance.user.login) {
+			if(UserSession.instance.authToken.login) {
 				let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 				width=350,height=500,left=100,top=100`;
-				url ="https://www.twitch.tv/popout/"+UserSession.instance.user.login+"/viewercard/"+this.username;
+				url ="https://www.twitch.tv/popout/"+UserSession.instance.authToken.login+"/viewercard/"+this.username;
 				window.open(url, 'profilePage', params);
 				store.dispatch("openUserCard", null);//Reset so we can open the same card again
 			}else{
