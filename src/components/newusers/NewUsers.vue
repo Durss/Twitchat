@@ -128,8 +128,9 @@ export default class NewUsers extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get styles():{[key:string]:string} {
+		if(!this.showList) return {"min-height":"unset"};
 		return {
-			"max-height": (this.windowHeight*100) + '%',
+			"min-height": (this.windowHeight*100) + '%',
 		}
 	}
 
