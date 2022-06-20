@@ -544,4 +544,16 @@ export namespace PubSubDataTypes {
 				}[]
 		}
 	}
+
+	export interface StreamInfo {
+		channel_id: string;
+		type: string;
+		channel: string;
+		old_status: string;
+		status: string;
+		old_game: string;
+		game: string;
+		old_game_id: string;
+		game_id: string;
+	}
 }

@@ -85,6 +85,7 @@ export default class PubSub extends EventDispatcher{
 				"chatrooms-user-v1."+uid,//TO or ban events
 				"ad-property-refresh."+uid,
 				"stream-chat-room-v1."+uid,//Host events or extension messages
+				"broadcast-settings-update."+uid,//Stream info update
 				// "user-drop-events."+uid,
 				// "community-points-user-v1."+uid,
 				// "presence."+uid,
@@ -105,7 +106,6 @@ export default class PubSub extends EventDispatcher{
 				subscriptions.push("pv-watch-party-events."+uidTest);
 				subscriptions.push("stream-chat-room-v1."+uidTest);//Host events
 				subscriptions.push("stream-change-by-channel."+uidTest);
-				subscriptions.push("broadcast-settings-update."+uidTest);
 				subscriptions.push("radio-events-v1."+uidTest);
 				// subscriptions.push("user-subscribe-events-v1."+uidTest);
 				subscriptions.push("channel-sub-gifts-v1."+uidTest);
@@ -261,6 +261,11 @@ export default class PubSub extends EventDispatcher{
 			if(localObj.type == "stream-down") {
 				StoreProxy.store.dispatch("setPlaybackState", null);
 			}
+
+
+
+		}else if(data.type == "broadcast_settings_update") {
+			this.streamInfoUpdate(data as PubSubDataTypes.StreamInfo);
 
 
 
@@ -757,6 +762,13 @@ export default class PubSub extends EventDispatcher{
 	private whisperRead(data:PubSubDataTypes.WhisperRead):void {
 		data;//
 		// StoreProxy.store.dispatch("closeWhispers", data.id.split("_")[1]);
+	}
+	
+	/**
+	 * Called when whispers are read
+	 */
+	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo):void {
+		IRCClient.instance.sendNotice("broadcast_settings_update", "Stream info updated to <mark>\""+data.status+"\"</mark> in category <mark>\""+data.game+"\"</mark>");
 	}
 }
 

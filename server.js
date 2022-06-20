@@ -747,6 +747,7 @@ const UserDataSchema = {
 					type:"object",
 					additionalProperties: false,
 					properties:{
+						name:{type:"string", maxLength:50},
 						id:{type:"string", maxLength:10},
 						title:{type:"string", maxLength:200},
 						categoryID:{type:"string", maxLength:10},
