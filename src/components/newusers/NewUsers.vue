@@ -130,7 +130,8 @@ export default class NewUsers extends Vue {
 	public get styles():{[key:string]:string} {
 		if(!this.showList) return {"min-height":"unset"};
 		return {
-			"min-height": (this.windowHeight*100) + '%',
+			"height": (this.windowHeight*100) + '%',
+			"min-height": "max(calc(75px + 1.5em), "+(this.windowHeight*100) + "%)",
 		}
 	}
 

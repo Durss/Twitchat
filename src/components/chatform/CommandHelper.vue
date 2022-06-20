@@ -86,7 +86,6 @@ export default class CommandHelper extends Vue {
 		return store.state.currentPrediction?.id == undefined && store.state.hasChannelPoints === true;
 	}
 	public get canCreatePoll():boolean {
-		console.log(store.state.hasChannelPoints);
 		if(!store.state.hasChannelPoints) return false;
 		const poll = store.state.currentPoll as TwitchDataTypes.Poll;
 		return poll == undefined || poll.status != "ACTIVE";

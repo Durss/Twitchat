@@ -78,6 +78,10 @@
 					:placeholders="winnerPlaceholders"
 					title="Post raffle winner on chat"
 				/>
+				<PostOnChatParam class="chatParam" botMessageKey="raffleJoin"
+					:placeholders="joinPlaceholders"
+					title="Confirm when joining the raffle"
+				/>
 			</div>
 		</div>
 	</div>
@@ -132,6 +136,7 @@ export default class RaffleForm extends Vue {
 	public subs_excludeGifted:ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public joinPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private wheelOverlayPresenceHandler!:()=>void;

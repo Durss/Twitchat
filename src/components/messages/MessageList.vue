@@ -886,6 +886,9 @@ type MessageTypes = IRCEventDataList.Highlight
 		mask-image: url(../../assets/chatPlaceholder.png);
 		mask-repeat: no-repeat;
 		mask-size: cover;
+		-webkit-mask-image: url(../../assets/chatPlaceholder.png);
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-size: cover;
 		.gradient {
 			width: 100%;
 			height: 513px;

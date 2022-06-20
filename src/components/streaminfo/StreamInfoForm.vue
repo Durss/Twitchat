@@ -72,7 +72,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_title:ParameterData = {label:"Stream title", value:"", type:"text", placeholder:"title...", maxLength:140};
+	public param_title:ParameterData = {label:"Title", value:"", type:"text", placeholder:"title...", maxLength:140};
 	public param_savePreset:ParameterData = {label:"Save to presets", value:false, type:"toggle"};
 	public param_namePreset:ParameterData = {label:"Preset name", value:"", type:"text", placeholder:"name...", maxLength:50};
 
