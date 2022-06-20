@@ -10,7 +10,7 @@
 <br>
 <br>
 
-Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.
+Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) to control some features and receive some events.
 
 # Table of content
 * [Prerequisites](#prerequisites)
@@ -22,7 +22,7 @@ Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsp
 
 
 # Prerequisites
-This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) V5 to be installed and running!\
+This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) V5 to be installed and running!\
 \
 After installing OBS-Websocket, start OBS, you may want set a password on `Tools -> obs-websocket Settings`.\
 \
@@ -121,6 +121,9 @@ export type TwitchatEventType =
 	| "MENTION"
 	| "CURRENT_TRACK"
 	| "TRACK_ADDED_TO_QUEUE"
+	| "RAFFLE_COMPLETE"
+	| "COUNTDOWN_COMPLETE"
+	| "WHEEL_OVERLAY_PRESENCE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -313,6 +316,52 @@ Sent when a new track is added to the queue\
 	cover:string,
 	duration:number,
 }
+```
+## **RAFFLE_COMPLETE**
+Sent when a raffle completes
+### JSON param *(optional)*
+```typescript
+{
+	winner:{
+		id:string;
+		label:string;
+		//Data when doing a chat raffle
+		data:{
+			user:Object;//IRC user data
+			score:number;//Ponderation score if any
+		};
+		//Data when doing a raffle amongst our subs
+		data:{
+			broadcaster_id: string;
+			broadcaster_login: string;
+			broadcaster_name: string;
+			gifter_id: string;
+			gifter_login: string;
+			gifter_name: string;
+			is_gift: boolean;
+			tier: string;
+			plan_name: string;
+			user_id: string;
+			user_name: string;
+			user_login: string;
+		};
+	},
+}
+```
+## **COUNTDOWN_COMPLETE**
+Sent when a countdown completes
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+	duration:number,//Duration in ms
+}
+```
+## **WHEEL_OVERLAY_PRESENCE**
+Sent when a wheel overlay advertises its presence
+### JSON param *(optional)*
+```typescript
+-none-
 ```
 
 # Actions
