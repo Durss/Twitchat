@@ -740,7 +740,7 @@ const UserDataSchema = {
 				},
 			}
 		},
-		"streamInfoPreset":{
+		"streamInfoPresets":{
 			type:"array",
 			items:[
 				{
