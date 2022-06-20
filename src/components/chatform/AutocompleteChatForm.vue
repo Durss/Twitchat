@@ -1,5 +1,5 @@
 <template>
-	<div class="AutocompleteForm">
+	<div class="AutocompleteChatForm">
 		<div
 		v-for="(i, index) in filteredItems"
 		:key="i.id"
@@ -45,7 +45,7 @@ import { Options, Vue } from 'vue-class-component';
  * This component is used to select an emote by typing ":xxx" on the
  * message field.
  */
-export default class AutocompleteForm extends Vue {
+export default class AutocompleteChatForm extends Vue {
 	
 	public search!:string;
 	public emotes!:boolean;
@@ -213,7 +213,7 @@ interface CommandItem {
 </script>
 
 <style scoped lang="less">
-.AutocompleteForm{
+.AutocompleteChatForm{
 	padding: 10px;
 	background-color: @mainColor_dark;
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);

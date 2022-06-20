@@ -25,7 +25,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type TriggerActionChatCommandData, type TriggerActionObsData, type TriggerActionTypes, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type TriggerActionChatCommandData, type TriggerActionObsData, type TriggerActionTypes, type WheelItem, type StreamInfoPreset } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -78,6 +78,7 @@ const store = createStore({
 		spotifyAuthToken: null as SpotifyAuthToken|null,
 		deezerConnected: false,
 		triggers: {} as {[key:string]:TriggerActionTypes[]|TriggerActionChatCommandData},
+		streamInfoPreset: [] as StreamInfoPreset[],
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -320,7 +321,6 @@ const store = createStore({
 				}
 				
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.user.user_id]);
-				console.log("INIT USERS", users);
 				state.hasChannelPoints = users[0].broadcaster_type != "";
 
 				state.mods = await TwitchUtils.getModerators();
@@ -999,6 +999,27 @@ const store = createStore({
 				state.alert = "User "+username+" doesn't exist.";
 			}
 		},
+
+		saveStreamInfoPreset(state, preset:StreamInfoPreset) {
+			const index = state.streamInfoPreset.findIndex(v=> v.id == preset.id);
+			if(index > -1) {
+				//update existing preset
+				state.streamInfoPreset[index] = preset;
+			}else{
+				//add new preset
+				state.streamInfoPreset.push(preset);
+			}
+			Store.set("streamInfoPresets", state.streamInfoPreset);
+		},
+
+		deleteStreamInfoPreset(state, preset:StreamInfoPreset) {
+			const index = state.streamInfoPreset.findIndex(v=> v.id == preset.id);
+			if(index > -1) {
+				//update existing preset
+				state.streamInfoPreset.splice(index, 1);
+			}
+			Store.set("streamInfoPresets", state.streamInfoPreset);
+		},
 	},
 
 
@@ -1178,6 +1199,12 @@ const store = createStore({
 				const triggers = Store.get("triggers");
 				if(triggers) {
 					state.triggers = JSON.parse(triggers);
+				}
+				
+				//Init stream info presets
+				const presets = Store.get("streamInfoPresets");
+				if(presets) {
+					state.streamInfoPreset = JSON.parse(presets);
 				}
 				
 				//Load bot messages
@@ -1458,6 +1485,8 @@ const store = createStore({
 				state.alert = "Deezer authentication failed";
 			});
 
+			TwitchUtils.searchTag("");//Preload tags to build local cache
+
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
 			this.dispatch("sendTwitchatAd");
@@ -1663,6 +1692,10 @@ const store = createStore({
 		
 
 		shoutout({commit}, username:string) { commit("shoutout", username); },
+
+		saveStreamInfoPreset({commit}, preset:StreamInfoPreset) { commit("saveStreamInfoPreset", preset); },
+		
+		deleteStreamInfoPreset({commit}, preset:StreamInfoPreset) { commit("deleteStreamInfoPreset", preset); },
 	},
 	modules: {
 	}

@@ -137,7 +137,7 @@
 
 			</form>
 
-			<AutocompleteForm class="contentWindows emotesLive"
+			<AutocompleteChatForm class="contentWindows emotesLive"
 				v-if="openAutoComplete"
 				:search="autoCompleteSearch"
 				:emotes="autoCompleteEmotes"
@@ -163,7 +163,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
-import AutocompleteForm from './AutocompleteForm.vue';
+import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 
@@ -178,7 +178,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		Button,
 		ParamItem,
 		CommercialTimer,
-		AutocompleteForm,
+		AutocompleteChatForm,
 		CommunityBoostInfo,
 	},
 	emits: [

@@ -80,6 +80,7 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import Store from '@/store/Store';
+import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
 import type{ IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -171,10 +172,12 @@ export default class NewUsers extends Vue {
 
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
-		//a hor reload during development
-		this.localMessages = this.localMessages.concat(
-			store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
-			.splice(0,50);
+		//a hot reload during development
+		if(!Config.instance.IS_PROD) {
+			this.localMessages = this.localMessages.concat(
+				store.state.chatMessages.filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
+				.splice(0,50);
+		}
 
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
@@ -293,10 +296,6 @@ export default class NewUsers extends Vue {
 				messages[0].firstMessage = false;
 				messages.splice(0, 1);
 			}
-
-			let el = (this.$refs.messageList as Vue).$el;
-			gsap.killTweensOf(el);
-			gsap.to(el, {duration: .25, scrollTo: 0});
 		}
 	}
 

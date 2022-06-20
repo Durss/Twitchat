@@ -740,6 +740,24 @@ const UserDataSchema = {
 				},
 			}
 		},
+		"streamInfoPreset":{
+			type:"array",
+			items:[
+				{
+					type:"object",
+					additionalProperties: false,
+					properties:{
+						id:{type:"string", maxLength:10},
+						title:{type:"string", maxLength:200},
+						categoryID:{type:"string", maxLength:10},
+						tagIDs:{
+							type:"array",
+							items:[{type:"string", maxLength:50}],
+						},
+					}
+				}
+			]
+		},
 		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},

@@ -203,3 +203,11 @@ export interface PlaceholderEntry {
 	tag:string;
 	desc:string;
 }
+
+export interface StreamInfoPreset {
+	id: string;
+	name: string;
+	title: string;
+	categoryID?: string;
+	tagIDs?: string[];
+}

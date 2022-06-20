@@ -75,7 +75,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["fibertooth", "julienbelhumeur"]);
+				channels = channels.concat(["lydia__am"]);
 			}
 
 			(async ()=> {
@@ -148,7 +148,7 @@ export default class IRCClient extends EventDispatcher {
 								const join = this.joinSpool.splice(0, 30);
 								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
 								if(this.joinSpool.length > 0) {
-									message += " and <mark>"+this.joinSpool.length+"</mark> more...";
+									message += " and <mark>"+this.joinSpool.length+"</mark> more";
 								}else{
 									message = message.replace(/,([^,]*)$/, " and$1");
 								}
@@ -184,12 +184,11 @@ export default class IRCClient extends EventDispatcher {
 							const leave = this.partSpool.splice(0, 30);
 							let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
 							if(this.partSpool.length > 0) {
-								message += " and <mark>"+this.partSpool.length+"</mark> more...";
+								message += " and <mark>"+this.partSpool.length+"</mark> more";
 							}else{
 								message = message.replace(/,([^,]*)$/, " and$1");
 							}
 							message += " left the chat room";
-							message = message.replace(/,([^,]*)$/, " and$1");
 							this.sendNotice("offline", message, channel);
 							this.partSpool = [];
 						}, 1000);

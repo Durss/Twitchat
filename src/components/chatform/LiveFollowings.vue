@@ -227,8 +227,17 @@ export default class LiveFollowings extends Vue {
 					flex-grow: 1;
 					transition: all .2s;
 					.title {
-						font-weight: bold;
-						font-size: 1.1em;
+						font-size: 1em;
+					}
+					.game {
+						font-size: .8em;
+						margin-top: .5em;
+						background-color: fade(@mainColor_normal, 15%);
+						align-self: center;
+						padding: .25em .5em;
+						width: auto;
+						border-radius: 1em;
+						text-align: center;
 					}
 				}
 	
@@ -262,6 +271,7 @@ export default class LiveFollowings extends Vue {
 					img {
 						width: 40px;
 						vertical-align: middle;
+						margin-right: .5em;
 					}
 				}
 			}

@@ -12,7 +12,8 @@
 
 			<div v-if="!authenticating && newScopes.length > 0" class="newScopes">
 				<img src="@/assets/icons/update.svg" alt="update" class="icon">
-				<div class="title">An update needs these new permissions</div>
+				<div class="title" v-if="newScopes.length > 1">An update needs these new permissions</div>
+				<div class="title" v-else>An update needs this new permission</div>
 				<ul>
 					<li v-for="p in newScopes" :key="p">{{p}}</li>
 				</ul>

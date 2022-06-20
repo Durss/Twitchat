@@ -19,6 +19,17 @@ export default class TwitchUtils {
 	public static emoteCache:TwitchDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
 
+	private static tagsLoadingPromise:((value: TwitchDataTypes.StreamTag[] | PromiseLike<TwitchDataTypes.StreamTag[]>) => void) | null;
+	private static tagsCache:TwitchDataTypes.StreamTag[] = [];
+
+	private static get headers():{[key:string]:string} {
+		return {
+			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
+			'Client-Id': this.client_id,
+			'Content-Type': "application/json",
+		};
+	}
+
 	public static getOAuthURL(csrfToken:string):string {
 		const redirect = encodeURIComponent( document.location.origin+"/oauth" );
 		const scopes = encodeURIComponent( Config.instance.TWITCH_APP_SCOPES.join(" ") );
@@ -347,13 +358,7 @@ export default class TwitchUtils {
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
 			const access_token = UserSession.instance.token?.access_token;
-			const result = await fetch(url, {
-				headers:{
-					"Client-ID": this.client_id,
-					"Authorization": "Bearer "+access_token,
-					"Content-Type": "application/json",
-				}
-			});
+			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			channels = channels.concat(json.data);
 		}
@@ -379,13 +384,7 @@ export default class TwitchUtils {
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"users?"+params;
 			const access_token = UserSession.instance.token?.access_token;
-			const result = await fetch(url, {
-				headers:{
-					"Client-ID": this.client_id,
-					"Authorization": "Bearer "+access_token,
-					"Content-Type": "application/json",
-				}
-			});
+			const result = await fetch(url, {headers:this.headers});
 			const json = await result.json();
 			users = users.concat(json.data);
 		}
@@ -411,13 +410,7 @@ export default class TwitchUtils {
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"streams?first=1&"+params;
 			const access_token = UserSession.instance.token?.access_token;
-			const result = await fetch(url, {
-				headers:{
-					"Client-ID": this.client_id,
-					"Authorization": "Bearer "+access_token,
-					"Content-Type": "application/json",
-				}
-			});
+			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			streams = streams.concat(json.data);
 		}
@@ -430,11 +423,7 @@ export default class TwitchUtils {
 	public static async modMessage(accept:boolean, messageId:string):Promise<boolean> {
 		const options = {
 			method:"POST",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				user_id:UserSession.instance.user.user_id,
 				msg_id:messageId,
@@ -453,11 +442,7 @@ export default class TwitchUtils {
 		
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+UserSession.instance.user.user_id, options);
 		const json = await res.json();
@@ -471,11 +456,7 @@ export default class TwitchUtils {
 	public static async createPoll(question:string, answers:string[], duration:number, bitsPerVote = 0, pointsPerVote = 0):Promise<TwitchDataTypes.Poll[]> {
 		const options = {
 			method:"POST",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				broadcaster_id:UserSession.instance.user.user_id,
 				title:question,
@@ -505,11 +486,7 @@ export default class TwitchUtils {
 	public static async getPolls():Promise<TwitchDataTypes.Poll[]> {
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.user.user_id, options);
 		const json = await res.json();
@@ -526,11 +503,7 @@ export default class TwitchUtils {
 	public static async endPoll(pollId:string):Promise<TwitchDataTypes.Poll[]> {
 		const options = {
 			method:"PATCH",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				id:pollId,
 				status:"TERMINATED",
@@ -555,11 +528,7 @@ export default class TwitchUtils {
 	public static async createPrediction(question:string, answers:string[], duration:number):Promise<TwitchDataTypes.Prediction[]> {
 		const options = {
 			method:"POST",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				broadcaster_id:UserSession.instance.user.user_id,
 				title:question,
@@ -585,11 +554,7 @@ export default class TwitchUtils {
 	public static async getPredictions():Promise<TwitchDataTypes.Prediction[]> {
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.user.user_id, options);
 		const json = await res.json();
@@ -606,11 +571,7 @@ export default class TwitchUtils {
 	public static async endPrediction(pollId:string, winId:string, cancel = false):Promise<TwitchDataTypes.Prediction[]> {
 		const options = {
 			method:"PATCH",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				id:pollId,
 				status:cancel? "CANCELED" : "RESOLVED",
@@ -633,11 +594,7 @@ export default class TwitchUtils {
 	public static async getHypeTrains():Promise<TwitchDataTypes.HypeTrain[]> {
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"hypetrain/events?broadcaster_id="+UserSession.instance.user.user_id, options);
 		const json = await res.json();
@@ -664,11 +621,7 @@ export default class TwitchUtils {
 		if(this.emoteCache.length > 0) return this.emoteCache;
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		let emotes:TwitchDataTypes.Emote[] = [];
 		do {
@@ -699,11 +652,7 @@ export default class TwitchUtils {
 		if(this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache;
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		let rewards:TwitchDataTypes.Reward[] = [];
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+UserSession.instance.user.user_id, options);
@@ -723,11 +672,7 @@ export default class TwitchUtils {
 	public static async loadRedemptions():Promise<TwitchDataTypes.RewardRedemption[]> {
 		const options = {
 			method:"GET",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		let redemptions:TwitchDataTypes.RewardRedemption[] = [];
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions?broadcaster_id="+UserSession.instance.user.user_id, options);
@@ -746,14 +691,9 @@ export default class TwitchUtils {
 	 * @returns
 	 */
 	public static async setRewardEnabled(id:string, enabled:boolean):Promise<void> {
-		const headers = {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-			'Client-Id': this.client_id,
-			"Content-Type": "application/json",
-		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+UserSession.instance.user.user_id+"&id="+id, {
 			method:"PATCH",
-			headers,
+			headers:this.headers,
 			// body:JSON.stringify({is_enabled:!enabled}),
 			body:JSON.stringify({is_paused:!enabled}),
 		})
@@ -764,18 +704,13 @@ export default class TwitchUtils {
 	 * Get the moderators list of a channel
 	 */
 	public static async getModerators():Promise<TwitchDataTypes.ModeratorUser[]> {
-		const headers = {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-			'Client-Id': this.client_id,
-			"Content-Type": "application/json",
-		}
 		let list:TwitchDataTypes.ModeratorUser[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
 			const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+UserSession.instance.user.user_id+pCursor, {
 				method:"GET",
-				headers,
+				headers:this.headers,
 			});
 			const json:{data:TwitchDataTypes.ModeratorUser[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
@@ -792,18 +727,13 @@ export default class TwitchUtils {
 	 * Get all the active streams that the current user is following
 	 */
 	public static async getActiveFollowedStreams():Promise<TwitchDataTypes.StreamInfo[]> {
-		const headers = {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-			'Client-Id': this.client_id,
-			"Content-Type": "application/json",
-		}
 		let list:TwitchDataTypes.StreamInfo[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
 			const res = await fetch(Config.instance.TWITCH_API_PATH+"streams/followed?first=100&user_id="+UserSession.instance.user.user_id+pCursor, {
 				method:"GET",
-				headers,
+				headers:this.headers,
 			});
 			const json:{data:TwitchDataTypes.StreamInfo[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
@@ -835,14 +765,9 @@ export default class TwitchUtils {
 	 */
 	public static async getFollowState(uid:string, channelId?:string):Promise<boolean> {
 		if(!channelId) channelId = UserSession.instance.user.user_id;
-		const headers = {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-			'Client-Id': this.client_id,
-			"Content-Type": "application/json",
-		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?to_id="+channelId+"&from_id="+uid, {
 			method:"GET",
-			headers,
+			headers:this.headers,
 		});
 		const json:{error:string, data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
 		if(json.error) {
@@ -859,18 +784,13 @@ export default class TwitchUtils {
 	 */
 	public static async getFollowers(channelId?:string|null, maxCount=-1):Promise<TwitchDataTypes.Following[]> {
 		if(!channelId) channelId = UserSession.instance.user.user_id;
-		const headers = {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-			'Client-Id': this.client_id,
-			"Content-Type": "application/json",
-		}
 		let list:TwitchDataTypes.Following[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
 			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first=100&to_id="+channelId+pCursor, {
 				method:"GET",
-				headers,
+				headers:this.headers,
 			});
 			const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
@@ -887,18 +807,13 @@ export default class TwitchUtils {
 	 */
 	public static async getSubsList(channelId?:string):Promise<TwitchDataTypes.Subscriber[]> {
 		if(!channelId) channelId = UserSession.instance.user.user_id;
-		const headers = {
-			'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-			'Client-Id': this.client_id,
-			"Content-Type": "application/json",
-		}
 		let list:TwitchDataTypes.Subscriber[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
 			const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+UserSession.instance.user.user_id+pCursor, {
 				method:"GET",
-				headers,
+				headers:this.headers,
 			});
 			const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
@@ -921,11 +836,7 @@ export default class TwitchUtils {
 		// }
 		const options = {
 			method:"POST",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"channels/commercial?broadcaster_id="+UserSession.instance.user.user_id+"&length="+duration, options);
 		const json = await res.json();
@@ -982,19 +893,183 @@ export default class TwitchUtils {
 	 */
 	public static async searchCategory(search:string):Promise<TwitchDataTypes.StreamCategory[]> {
 		const options = {
-			method:"POST",
-			headers: {
-				'Authorization': 'Bearer '+UserSession.instance.token?.access_token,
-				'Client-Id': this.client_id,
-				'Content-Type': "application/json",
-			},
+			method:"GET",
+			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"search/categories?first=50&query="+encodeURIComponent(search), options);
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
 		}else{
+			return json.data;
+		}
+	}
+
+	/**
+	 * Get a category's details
+	 * 
+	 * @param id category ID
+	 */
+	public static async getCategoryByID(id:string):Promise<TwitchDataTypes.StreamCategory> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"games?id="+encodeURIComponent(id), options);
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
 			return json.data[0];
+		}
+	}
+
+	/**
+	 * Search for a stream tag
+	 * 
+	 * @param search search term
+	 */
+	public static async searchTag(search:string):Promise<TwitchDataTypes.StreamTag[]> {
+		return new Promise(async (resolve, reject)=> {
+
+			search = search.toLowerCase();
+			
+			//If tags list is already loing, wait for it to avoid multiple
+			//parallel loading.
+			if(this.tagsLoadingPromise) return this.tagsLoadingPromise;
+			
+			//Tags aren't loaded yet, load them all
+			if(this.tagsCache.length == 0){
+				this.tagsLoadingPromise = resolve;
+	
+				const options = {
+					method:"GET",
+					headers: this.headers,
+				}
+		
+				let list:TwitchDataTypes.StreamTag[] = [];
+				let cursor:string|null = null;
+				do {
+					const pCursor = cursor? "&after="+cursor : "";
+					const res = await fetch(Config.instance.TWITCH_API_PATH+"tags/streams?first=100&"+pCursor, options);
+					const json:{data:TwitchDataTypes.StreamTag[], pagination?:{cursor?:string}} = await res.json();
+					list = list.concat(json.data);
+					cursor = null;
+					if(json.pagination?.cursor) {
+						cursor = json.pagination.cursor;
+					}
+				}while(cursor != null);
+				
+				list = list.filter(v => !v.is_auto);
+				this.tagsCache = list;
+			}
+	
+			
+			//@ts-ignore
+			let userLang:string = navigator.language || navigator.userLanguage; 
+			userLang = userLang.toLowerCase();
+			if(userLang.indexOf("-") == -1) {
+				userLang += "-"+userLang;
+			}
+	
+			const result:TwitchDataTypes.StreamTag[] = [];
+			for (let i = 0; i < this.tagsCache.length; i++) {
+				const t = this.tagsCache[i];
+				if(t.localization_names["en-us"].toLowerCase().indexOf(search) > -1) {
+					result.push(t);
+	
+				}else if(userLang != 'en-us'
+				&& t.localization_names[userLang]?.toLowerCase().indexOf(search) > -1) {
+					result.push(t);
+				}
+			}
+
+			this.tagsLoadingPromise = null;
+	
+			resolve(result);
+		})
+	}
+
+	/**
+	 * Get current stream's infos
+	 */
+	public static async getStreamInfos():Promise<TwitchDataTypes.ChannelInfo> {
+		const options = {
+			method:"GET",
+			headers: this.headers
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
+		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		const res = await fetch(url.href, options);
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
+			return json.data[0];
+		}
+	}
+
+	/**
+	 * Update stream's title and game
+	 */
+	public static async setStreamInfos(title:string, categoryID:string):Promise<boolean> {
+		const options = {
+			method:"PATCH",
+			headers: this.headers,
+			body: JSON.stringify({
+				title,
+				game_id:categoryID,
+				// delay:"0",
+				// broadcaster_language:"en",
+			})
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
+		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Get channel's tags
+	 */
+	public static async getStreamTags():Promise<TwitchDataTypes.StreamTag[]> {
+		const options = {
+			method:"GET",
+			headers: this.headers
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
+		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		const res = await fetch(url.href, options);
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
+			return (json.data as TwitchDataTypes.StreamTag[]).filter(v => !v.is_auto);
+		}
+	}
+
+	/**
+	 * Update channel's tags
+	 */
+	public static async setStreamTags(tagIDs:string[]):Promise<boolean> {
+		const options = {
+			method:"PUT",
+			headers: this.headers,
+			body: JSON.stringify({
+				tag_ids:tagIDs,
+			})
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
+		url.searchParams.append("broadcaster_id", UserSession.instance.user.user_id);
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
 		}
 	}
 }

@@ -324,4 +324,11 @@ export namespace TwitchDataTypes {
 		name:string;
 		box_art_url:string;
 	}
+
+	export interface StreamTag {
+        tag_id: string;
+        is_auto: boolean;
+        localization_names: {[key:string]:string};
+        localization_descriptions: {[key:string]:string};
+	}
 }
