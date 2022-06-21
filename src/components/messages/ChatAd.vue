@@ -19,54 +19,57 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<Button aria-label="open overlays params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span>Twitchat now provides <strong>overlays</strong> for OBS.</span>
+							<Button aria-label="open stream infos params" small title="try it" @click.stop="openModal('streamInfo')" />
+							<span>Edit your <strong>stream infos</strong> and create presets.</span>
 						</li>
 						<li>
-							<Button aria-label="open spotify params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span><strong>Spotify</strong> integration with dedicated overlay and possibility to control it via chat commands.</span>
+							<span>New <span class="cmd">/countdown</span> command to start a countdown of a custom duration</span>
 						</li>
 						<li>
-							<Button aria-label="open spotify params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span><strong>Deezer</strong> integration with dedicated overlay and possibility to control it via chat commands.</span>
+							<span>New <span class="cmd">/timerStart</span> command to time anything you want</span>
 						</li>
 						<li>
-							<Button aria-label="open wheel params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span><strong>Wheel overlay</strong> to show an animattion when picking a <strong>raffle</strong> winner.</span>
+							<Button aria-label="open timer overlay params" small title="try it" @click.stop="openParamPage('overlays')" />
+							<span>New timer and countdown <strong>overlay</strong></span>
 						</li>
 						<li>
 							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
-							<span>Trigger actions can now <strong>send messages on your chat</strong>.</span>
+							<span>New timer and countdown <strong>triggers</strong></span>
 						</li>
 						<li>
-							<Button aria-label="Open translate name param" small title="try it" @click.stop="showSpecificParam('appearance.translateNames')" />
-							<span>Option to <strong>translate</strong> non-latin usernames</span>
+							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
+							<span>New stream info update <strong>trigger</strong></span>
 						</li>
 						<li>
-							<Button aria-label="open install params" small title="try it" @click.stop="openParamPage('account')" />
-							<span>You can kind of <strong>install</strong> twitchat on your device from the account section.<i>(possible only after interacting with the page for +30s)</i></span>
+							<span>You can now easily <strong>enable or disable triggers</strong></span>
 						</li>
 						<li>
-							<Button aria-label="open vertical mode params" small title="try it" @click.stop="showSpecificParam('appearance.splitViewVertical')" />
-							<span>You can now split the screen vertically to better accomodate vertical screens</span>
+							<span>Raffle can now send confirmation message when a viewer enters</span>
+						</li>
+						<li>
+							<span>Raffle timer can be displayed on your stream with the new overlay</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
-						<li>You can now <strong>duplicate</strong> a trigger action</li>
-						<li>Better emotes replacement with support for <strong>wide emotes</strong> <i>(BTTV/FFZ/7TV)</i></li>
-						<li>Supporting new predictions with up to 8 outcomes</li>
+						<li>
+							<Button aria-label="open about section" small title="open" @click.stop="openParamPage('about')" />
+							<span>Twitchat API documentation added to about section</span>
+						</li>
+						<li>You can now resize the <strong>Greet them</strong> section as you wish</li>
+						<li><strong>Founders badge</strong> now displayed in the mini-badges</li>
+						<li>First load size of the app reduced by 50%</li>
+						<li>When changing the stream info a chat notification will be displayed</li>
+						<li>Improved message list performance</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
-						<li>A conflict between BTTV/FFZ/7TV and official <strong>emotes</strong> was sometimes cutting message contents</li>
-						<li><strong>Stop OBS stream on raid</strong> option was sometimes failing to actually cut the stream</li>
-						<li>Poll's votes with bits and channel points were showing wrong <strong>vote counts</strong></li>
-						<li><strong>Test trigger</strong> button wasn't working for chat commands</li>
-						<li>Trigger for <strong>bits event</strong> wasn't working</li>
-						<li>Fixing <strong>chat scrolling</strong> on touch devices</li>
+						<li>Triggers could get stuck which was blocking chat commands execution</li>
+						<li>Closing a bingo wasn't possible</li>
+						<li>Raffle, Bingo, Prediction and Poll triggers weren't fully implemented <i>(woops :3)</i></li>
+						<li>2min timeout was doing a 30min timeout</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -152,6 +155,8 @@ export default class ChatAd extends Vue {
 		store.dispatch("showParams", true);
 	}
 
+	public openModal(modal:string):void { this.$emit("showModal", modal); }
+
 	public deleteMessage():void {
 		if(this.isUpdate) {
 			Store.set("updateIndex", store.state.latestUpdateIndex);
@@ -233,6 +238,10 @@ export default class ChatAd extends Vue {
 						background: fade(@mainColor_warn, 10%);
 					}
 				}
+
+				.cmd {
+					background-color: fade(@mainColor_warn, 15%);
+				}
 			}
 			&.fix {
 				:deep(.header){
@@ -254,6 +263,10 @@ export default class ChatAd extends Vue {
 						background: fade(@mainColor_alert, 10%);
 					}
 				}
+
+				.cmd {
+					background-color: fade(@mainColor_alert, 15%);
+				}
 			}
 			&:not(:last-of-type) {
 				margin-bottom: .5em;
@@ -264,6 +277,13 @@ export default class ChatAd extends Vue {
 					&:hover {
 						background-color: lighten(@mainColor_normal, 5%);
 					}
+			}
+
+			.cmd {
+				background-color: fade(@mainColor_normal, 15%);
+				border-radius: .5em;
+				padding: 0 .5em;
+				font-family: 'Courier New', Courier, monospace;
 			}
 		}
 

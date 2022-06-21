@@ -62,8 +62,8 @@ export default class TriggerActionMusicEntry extends Vue {
 	public action!:TriggerActionMusicEntryData;
 	public event!:string;
 
-	public actions_conf:ParameterData = { label:"Action type", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
-	public track_conf:ParameterData = { label:"Track name or URL", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
+	public actions_conf:ParameterData = { label:"Action", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
+	public track_conf:ParameterData = { label:"Track (name or URL)", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
 	public confirmSongRequest_conf:ParameterData = { label:"Send confirmation message", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }

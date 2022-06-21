@@ -810,6 +810,7 @@ const UserDataSchema = {
 		devmode: {type:"boolean"},
 		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
+		raffle_showCountdownOverlay: {type:"boolean"},
 	}
 }
 

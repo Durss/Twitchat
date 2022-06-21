@@ -276,7 +276,7 @@ export default class ParamItem extends Vue {
 			width: 100%;
 		}
 	}
-
+	
 	.content {
 		display: flex;
 		flex-direction: row;
@@ -284,6 +284,9 @@ export default class ParamItem extends Vue {
 
 		&:hover {
 			background-color: fade(@mainColor_normal, 10%);
+		}
+		input, select, textarea {
+			width: 100%;
 		}
 
 		.icon {
@@ -357,6 +360,10 @@ export default class ParamItem extends Vue {
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
+		}
+
+		input, select, textarea {
+			width: 100%;
 		}
 	}
 

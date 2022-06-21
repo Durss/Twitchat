@@ -243,7 +243,7 @@ export default class TriggerActionHandler {
 	private async handleTimer(message:IRCEventDataList.TimerResult, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
 		//Create placeholder pointers
-		message.duration = Utils.formatDuration(message.data.duration);
+		message.duration = Utils.formatDuration(message.data.duration as number);
 		message.duration_ms = message.data.duration;
 		return await this.parseSteps(type, message, testMode, guid);
 	}

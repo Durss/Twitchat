@@ -159,6 +159,7 @@ export default class AutoCompleteForm extends Vue {
 		}
 		.input {
 			position: relative;
+			width: 100%;
 			.loader {
 				height: 1em;
 				width: 1em;
@@ -166,6 +167,10 @@ export default class AutoCompleteForm extends Vue {
 				left: 5px;
 				top: 50%;
 				transform: translateY(-50%);
+			}
+			
+			input {
+				width: 100%;
 			}
 		}
 	}

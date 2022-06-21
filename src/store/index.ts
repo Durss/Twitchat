@@ -33,7 +33,7 @@ import Store from './Store';
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 3,
+		latestUpdateIndex: 4,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
@@ -1109,7 +1109,7 @@ const store = createStore({
 			if(state.countdown) {
 				clearTimeout(state.countdown.timeoutRef);
 			}
-			
+
 			const message:IRCEventDataList.CountdownResult = {
 				type:"countdown",
 				started:true,

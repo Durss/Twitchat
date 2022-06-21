@@ -136,6 +136,7 @@ export default class ChatTipAndTrickAd extends Vue {
 			padding: 0 .5em;
 			font-family: 'Courier New', Courier, monospace;
 		}
+		
 		.button {
 			display: block;
 			margin: auto;
