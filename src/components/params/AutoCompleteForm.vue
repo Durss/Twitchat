@@ -139,10 +139,6 @@ export default class AutoCompleteForm extends Vue {
 					return v[this.idKey] == item[this.idKey]
 				}) == -1;
 			});
-			if(data.length > 0) {
-				//@ts-ignore
-				console.log("test", data[0][this.idKey]);
-			}
 		}
 		data = data.slice(0, this.maxAutocompleteItems);
 		this.items = data;

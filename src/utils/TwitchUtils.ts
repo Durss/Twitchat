@@ -22,6 +22,10 @@ export default class TwitchUtils {
 	private static tagsLoadingPromise:((value: TwitchDataTypes.StreamTag[] | PromiseLike<TwitchDataTypes.StreamTag[]>) => void) | null;
 	private static tagsCache:TwitchDataTypes.StreamTag[] = [];
 
+	public static get allTags():TwitchDataTypes.StreamTag[] {
+		return this.tagsCache.concat();
+	}
+
 	private static get headers():{[key:string]:string} {
 		return {
 			'Authorization': 'Bearer '+UserSession.instance.authResult?.access_token,

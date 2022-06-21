@@ -185,8 +185,12 @@ export default class StreamInfoForm extends Vue {
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
 				this.categories = [game];
 			}
-			const tags = await TwitchUtils.getStreamTags();
-			this.tags = tags;
+			const tags = await TwitchUtils.allTags;
+			if(p.tagIDs) {
+				this.tags = tags.filter(t => p.tagIDs && p.tagIDs.indexOf(t.tag_id) > -1);
+			}else{
+				this.tags = [];
+			}
 		}catch(error) {
 			store.state.alert = "Error loading current stream info";
 		}
