@@ -67,12 +67,7 @@ export default class TTUserList extends Vue {
 
 	public formatDate(u:UserData):string {
 		const d = new Date(u.date);
-		Utils.formatDuration
-		return Utils.toDigits(d.getDate())+ "/"
-				+ Utils.toDigits(d.getMonth() + 1) + "/"
-				+ d.getFullYear() + " "
-				+ Utils.toDigits(d.getHours()) + "h"
-				+ Utils.toDigits(d.getMinutes());
+		return Utils.formatDate(d);
 	}
 
 	public beforeMount():void {

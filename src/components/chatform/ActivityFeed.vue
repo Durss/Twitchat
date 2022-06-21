@@ -56,6 +56,12 @@
 					ref="message"
 					v-else-if="m.type == 'raffle'"
 					:raffleData="m" />
+
+				<ChatCountdownResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'countdown'"
+					:countdownData="m" />
 			</div>
 		</div>
 	</div>
@@ -76,6 +82,7 @@ import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
+import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
 
 @Options({
 	props:{
@@ -91,8 +98,9 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
-		ChatPredictionResult,
+		ChatCountdownResult,
 		ActivityFeedFilters,
+		ChatPredictionResult,
 	}
 })
 export default class ActivityFeed extends Vue {
@@ -119,6 +127,7 @@ export default class ActivityFeed extends Vue {
 		|| v.type == "prediction"
 		|| v.type == "bingo"
 		|| v.type == "raffle"
+		|| v.type == "countdown"
 		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message")
 		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
 
@@ -142,7 +151,7 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|null = null;
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = null;
 			if(m.type == "poll") {
 				type = "poll";
 			}else if(m.type == "prediction") {
@@ -151,10 +160,8 @@ export default class ActivityFeed extends Vue {
 				type = "bingo";
 			}else if(m.type == "raffle") {
 				type = "raffle";
-			}else if(m.tags['msg-id'] == "follow") {
-				type = "follow";
-			}else if(m.tags['msg-id'] == "raid") {
-				type = "raid";
+			}else if(m.type == "countdown") {
+				type = "countdown";
 			}else if(m.type == "notice") {
 				if(m.tags['msg-id'] == "commercial") {
 					type = "commercial";
@@ -171,6 +178,10 @@ export default class ActivityFeed extends Vue {
 				type = "sub";
 			}else if(m.reward) {
 				type = "reward";
+			}else if(m.tags['msg-id'] == "follow") {
+				type = "follow";
+			}else if(m.tags['msg-id'] == "raid") {
+				type = "raid";
 			}
 			
 			if(type == "sub" && showSubs) result.unshift(m);
@@ -183,6 +194,7 @@ export default class ActivityFeed extends Vue {
 			if(type == "bingo" && showBingos) result.unshift(m);
 			if(type == "raffle" && showRaffles) result.unshift(m);
 			if(type == "commercial") result.unshift(m);
+			if(type == "countdown") result.unshift(m);
 		}
 		
 		// if(this.listMode) {

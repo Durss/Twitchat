@@ -210,3 +210,14 @@ export interface StreamInfoPreset {
 	categoryID?: string;
 	tagIDs?: string[];
 }
+
+export interface CountdownData {
+	start:number;
+	duration:number;
+	timeoutRef:number;
+}
+
+export interface TimerData {
+	startAt:number;
+	duration:number;
+}

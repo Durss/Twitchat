@@ -18,7 +18,7 @@ export default class Config {
 	public TWITCH_APP_SCOPES:string[] = [];
 	public TWITCH_API_PATH = "https://api.twitch.tv/helix/";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
-	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1";
+	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1/tag/5.0.0-beta1";
 	public MAX_PREDICTION_OUTCOMES = 10;
 	public SPOTIFY_CLIENT_ID = "";
 	public SPOTIFY_SCOPES = "";

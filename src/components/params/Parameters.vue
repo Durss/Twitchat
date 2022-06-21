@@ -13,9 +13,9 @@
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button white bounce title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
 				<Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
-				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
+				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
 			<div class="search" v-if="isGenericListContent">
 				<input type="text" placeholder="Search a parameter..." v-model="search">

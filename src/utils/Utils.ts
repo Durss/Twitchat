@@ -108,6 +108,12 @@ export default class Utils {
 		return res;
 	}
 
+	/**
+	 * Format a duration
+	 * 
+	 * @param millis 
+	 * @returns 
+	 */
 	public static formatDuration(millis: number): string {
 		let res = this.secondsToInputValue(millis);
 		const days = Math.floor(millis / (24 * 3600*1000));
@@ -115,6 +121,20 @@ export default class Utils {
 			res = days+"j "+res;
 		}
 		return res;
+	}
+
+	/**
+	 * Formats a date
+	 * 
+	 * @param date 
+	 * @returns 
+	 */
+	public static formatDate(date:Date):string {
+		return Utils.toDigits(date.getDate())+ "/"
+				+ Utils.toDigits(date.getMonth() + 1) + "/"
+				+ date.getFullYear() + " "
+				+ Utils.toDigits(date.getHours()) + "h"
+				+ Utils.toDigits(date.getMinutes());
 	}
 
 	/**

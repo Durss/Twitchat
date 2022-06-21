@@ -50,7 +50,6 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public mounted():void {
-		console.log(UserSession.instance.authToken);
 		watch(()=> store.state.params, ()=> this.onParamChanged());
 		this.onParamChanged();
 	}

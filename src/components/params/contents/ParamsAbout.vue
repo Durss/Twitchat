@@ -7,7 +7,13 @@
 			<p>I want this tool to be as good as possible, <strong>if anything annoys you</strong> when using it, <strong>I want to know</strong>!</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Feed me" :icons="['coin_purple']" :open="false">
+		<ToggleBlock class="block" title="Twitchat API" :icons="['api_purple']" :open="false">
+			<p>If you're a developper you can interface with Twitchat.</p>
+			<p>Twitchat API uses OBS-Websocket as a communication channel.</p>
+			<Button :icon="$image('icons/github_white.svg')" title="Read documentation" :href="apiURL" target="_blank" type="link" class="discordBt" />
+		</ToggleBlock>
+
+		<ToggleBlock class="block" title="Send me money" :icons="['coin_purple']" :open="false">
 			<ParamsSponsor />
 		</ToggleBlock>
 
@@ -25,6 +31,7 @@
 				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" data-tooltip="Twitch" alt="twitch"></a>
 			</p>
 		</ToggleBlock>
+
 	</div>
 </template>
 
@@ -47,6 +54,7 @@ export default class ParamsAbout extends Vue {
 	
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	public get apiURL():string { return "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"; }
 
 }
 </script>

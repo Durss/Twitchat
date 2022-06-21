@@ -23,6 +23,7 @@
 					/>
 
 					<ToggleButton class="toggle"
+						:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
 						v-model="e.enabled"
 						@change="onToggleEnable(e)"
 						v-if="(event_conf.value == e.value || event_conf.value == '0') && canToggle(e)"
@@ -40,7 +41,10 @@
 						@click="subevent_conf.value = e.value"
 					/>
 
-					<ToggleButton v-model="e.enabled" @change="onToggleEnable(e)" class="toggle"
+					<ToggleButton class="toggle"
+						:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
+						v-model="e.enabled"
+						@change="onToggleEnable(e)"
 						v-if="(subevent_conf.value == e.value || subevent_conf.value == '0') && canToggle(e)"
 					/>
 				</div>
@@ -247,6 +251,10 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.RAID] = "raid_purple";
 		map[TriggerTypes.REWARD_REDEEM] = "channelPoints_purple";
 		map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = "music_purple";
+		map[TriggerTypes.TIMER_START] = "timer_purple";
+		map[TriggerTypes.TIMER_STOP] = "timer_purple";
+		map[TriggerTypes.COUNTDOWN_START] = "countdown_purple";
+		map[TriggerTypes.COUNTDOWN_STOP] = "countdown_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");
@@ -618,7 +626,7 @@ export default class ParamsTriggers extends Vue {
 					position: absolute;
 					right: .5em;
 					top: 50%;
-					transform: translateY(-50%);
+					transform: translateY(calc(-50% - 2px));
 					z-index: 1;
 				}
 			}

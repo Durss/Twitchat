@@ -133,6 +133,8 @@
 
 				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
 
+				<TimerCountDownInfo v-if="$store.state.countdown || $store.state.timerStart > 0" />
+
 				<CommercialTimer v-if="isCommercial" />
 
 			</form>
@@ -166,6 +168,7 @@ import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
+import TimerCountDownInfo from './TimerCountDownInfo.vue';
 
 @Options({
 	props:{
@@ -178,8 +181,9 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		Button,
 		ParamItem,
 		CommercialTimer,
-		AutocompleteChatForm,
+		TimerCountDownInfo,
 		CommunityBoostInfo,
+		AutocompleteChatForm,
 	},
 	emits: [
 		"debug",
@@ -251,6 +255,7 @@ export default class ChatForm extends Vue {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
+			let isCmd = /^\s*\//.test(newVal);
 			
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
@@ -264,8 +269,8 @@ export default class ChatForm extends Vue {
 				currentChar == "@" || 
 				(currentChar == "/" && carretPos == 1) || 
 				(i == 0 && this.autoCompleteSearch)) {
-					this.autoCompleteUsers = currentChar == "@";
-					this.autoCompleteEmotes = currentChar == ":";
+					this.autoCompleteUsers = currentChar == "@" && !isCmd;
+					this.autoCompleteEmotes = currentChar == ":" && !isCmd;
 					this.autoCompleteCommands = currentChar == "/";
 					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
@@ -381,13 +386,6 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/cypherkey") {
-			//Secret feature
-			store.dispatch("setCypherKey", params[0]);
-			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
-			this.message = "";
-		}else
-
 		if(cmd == "/spam" && store.state.devmode) {
 			clearInterval(this.spamInterval);
 			const lorem = new LoremIpsum({
@@ -402,9 +400,9 @@ export default class ChatForm extends Vue {
 			});
 			this.spamInterval = window.setInterval(()=> {
 				const tags = IRCClient.instance.getFakeTags();
-				tags.username = UserSession.instance.user.login;
-				tags["display-name"] = UserSession.instance.user.login;
-				tags["user-id"] = UserSession.instance.user.user_id;
+				tags.username = UserSession.instance.authToken.login;
+				tags["display-name"] = UserSession.instance.authToken.login;
+				tags["user-id"] = UserSession.instance.authToken.user_id;
 				tags.id = IRCClient.instance.getFakeGuid();
 				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
 			}, 250);
@@ -448,6 +446,36 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/alphatest2") {
 			this.$emit("debug", 2);
+			this.message = "";
+		}else
+
+		if(cmd == "/timerstart") {
+			store.dispatch("startTimer");
+			this.message = "";
+		}else
+
+		if(cmd == "/timerstop") {
+			store.dispatch("stopTimer");
+			this.message = "";
+		}else
+
+		if(cmd == "/countdown") {
+			const chunks = params[0].split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+			let duration = 0;
+			for(let i = 0; i < chunks.length; i++) {
+				let value = parseInt(chunks[i]);
+				let coeff = chunks.length - i;
+				if(coeff > 1) coeff = Math.pow(60, coeff-1);
+				duration += value * coeff;
+			}
+			store.dispatch("startCountdown", duration * 1000);
+			this.message = "";
+		}else
+
+		if(cmd == "/cypherkey") {
+			//Secret feature
+			store.dispatch("setCypherKey", params[0]);
+			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
 		}else
 

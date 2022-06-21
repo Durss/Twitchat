@@ -16,6 +16,10 @@ export const TriggerTypes = {
 	RAID:"12",
 	REWARD_REDEEM:"13",
 	TRACK_ADDED_TO_QUEUE:"14",
+	TIMER_START:"15",
+	TIMER_STOP:"16",
+	COUNTDOWN_START:"17",
+	COUNTDOWN_STOP:"18",
 }
 
 export interface ITriggerActionHelper {
@@ -103,6 +107,20 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
 	];
 	
+	map[TriggerTypes.TIMER_START] = 
+	map[TriggerTypes.TIMER_STOP] = [
+		{tag:"DURATION", desc:"Timer's final duration formated", pointer:"duration"},
+		{tag:"DURATION_MS", desc:"Timer's final duration in milliseconds", pointer:"duration_ms"},
+	];
+
+	map[TriggerTypes.COUNTDOWN_START] = 
+	map[TriggerTypes.COUNTDOWN_STOP] = [
+		{tag:"START_AT", desc:"Start date fromated", pointer:"start"},
+		{tag:"START_AT_MS", desc:"Start date in milliseconds", pointer:"start_ms"},
+		{tag:"DURATION", desc:"Countdown's duration formated", pointer:"duration"},
+		{tag:"DURATION_MS", desc:"Countdown's duration in milliseconds", pointer:"duration_ms"},
+	];
+	
 	//If requesting chat command helpers and there is a music
 	//service available, contact the music service helpers
 	if(key == TriggerTypes.CHAT_COMMAND
@@ -128,6 +146,10 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Follow", value:TriggerTypes.FOLLOW, description:"Execute an action when someone follows the channel", jsonTest:{"channel":"#durss","tags":{"username":"Durss","user-id":"29961813","tmi-sent-ts":"1644088397887","id":"00000000-0000-0000-0001-000000000000","msg-id":"follow"},"username":"Durss","type":"highlight"}},
 	{label:"Raid", value:TriggerTypes.RAID, description:"Execute an action when someone raids the channel", jsonTest:{"type":"highlight","channel":"#durss","tags":{"info":"this tags prop is a fake one to make things easier for my code","id":"16423778121330.0751974390273129","tmi-sent-ts":"1642377812133","msg-id":"raid"},"username":"Durss","viewers":727}},
 	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
+	{label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started"},
+	{label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped"},
+	{label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started"},
+	{label:"Countdown stop", value:TriggerTypes.COUNTDOWN_STOP, description:"Execute an action when a countdown completes"},
 ]
 
 export const TriggerMusicTypes = {

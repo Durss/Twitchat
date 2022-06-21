@@ -1,7 +1,7 @@
 <template>
 	<div class="communityboostinfo" data-tooltip="Channel boosted">
 		<div class="col">
-			<img src="@/assets/icons/boost.svg" alt="boost"> {{roundProgressPercent}}%
+			<img src="@/assets/icons/boost.svg" alt="boost">{{roundProgressPercent}}%
 		</div>
 		<div class="col count">
 			<p>{{roundProgressValue}}</p>
@@ -72,6 +72,7 @@ export default class CommunityBoostInfo extends Vue {
 	padding: 5px;
 	border-radius: 5px;
 	background-color: darken(#00f0f0, 20%);
+	font-family: 'Azeret';
 	img {
 		height: .9em;
 		margin-right: 2px;

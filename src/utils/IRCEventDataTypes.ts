@@ -2,6 +2,7 @@ import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, 
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData } from "./CommonDataTypes";
+import type { CountdownData, TimerData } from "@/types/TwitchatDataTypes";
 
 export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.PollResult
@@ -10,6 +11,7 @@ export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.RaffleResult
 	| IRCEventDataList.Message
 	| IRCEventDataList.Commercial
+	| IRCEventDataList.CountdownResult
 	;
 export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.Timeout
@@ -26,6 +28,7 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.BingoResult
 	| IRCEventDataList.RaffleResult
 	| IRCEventDataList.Commercial
+	| IRCEventDataList.CountdownResult
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -194,6 +197,21 @@ export namespace IRCEventDataList {
 		type: "raffle";
 		data: RaffleData;
 		tags: { id: string, "tmi-sent-ts": string };
+		[paramater: string]: unknown;
+	}
+
+	export interface CountdownResult {
+		type: "countdown";
+		started:boolean;
+		data: CountdownData;
+		tags: { id: string, "tmi-sent-ts": string };
+		[paramater: string]: unknown;
+	}
+
+	export interface TimerResult {
+		type: "timer";
+		started:boolean;
+		data: TimerData;
 		[paramater: string]: unknown;
 	}
 

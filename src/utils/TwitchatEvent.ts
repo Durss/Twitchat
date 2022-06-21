@@ -21,6 +21,10 @@ export default class TwitchatEvent extends Event {
 	public static TRACK_ADDED_TO_QUEUE:TwitchatEventType = "TRACK_ADDED_TO_QUEUE";
 	public static WHEEL_OVERLAY_PRESENCE:TwitchatEventType = "WHEEL_OVERLAY_PRESENCE";
 	public static RAFFLE_COMPLETE:TwitchatEventType = "RAFFLE_COMPLETE";
+	public static COUNTDOWN_START:TwitchatEventType = "COUNTDOWN_START";
+	public static COUNTDOWN_COMPLETE:TwitchatEventType = "COUNTDOWN_COMPLETE";
+	public static TIMER_START:TwitchatEventType = "TIMER_START";
+	public static TIMER_STOP:TwitchatEventType = "TIMER_STOP";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -62,8 +66,12 @@ export type TwitchatEventType =
 	| "MENTION"
 	| "CURRENT_TRACK"
 	| "TRACK_ADDED_TO_QUEUE"
-	| "RAFFLE_COMPLETE"
 	| "WHEEL_OVERLAY_PRESENCE"
+	| "RAFFLE_COMPLETE"
+	| "COUNTDOWN_START"
+	| "COUNTDOWN_COMPLETE"
+	| "TIMER_START"
+	| "TIMER_STOP"
 ;
 
 export type TwitchatActionType =

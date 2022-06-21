@@ -31,15 +31,23 @@ Once done, go on Twitchat, open the parameters and on the OBS panel specify the 
 OBS will act as a bridge to transmit Twitchat messages to any connected client.
 
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
 Bellow is a typescript example to use the API via `OBS-Websocket-js`.\
-The example refers to `TwitchatActionType` and `TwitchatEventType`. You can find their [signatures here](#available-events-and-actions).
-
-
-## OBS-websocket
+The example refers to `TwitchatActionType` and `TwitchatEventType`.\
+You can find their [signatures here](#available-events-and-actions).
+<br></br>
 
 ```typescript
 import OBSWebSocket from 'obs-websocket-js';
@@ -123,6 +131,9 @@ export type TwitchatEventType =
 	| "TRACK_ADDED_TO_QUEUE"
 	| "RAFFLE_COMPLETE"
 	| "COUNTDOWN_COMPLETE"
+	| "COUNTDOWN_START"
+	| "TIMER_START"
+	| "TIMER_STOP"
 	| "WHEEL_OVERLAY_PRESENCE"
 
 //Actions you can request to Twitchat
@@ -145,6 +156,16 @@ export type TwitchatActionType =
 	| "CENSOR_DELETED_MESSAGES_TOGGLE"
 	| "GET_CURRENT_TRACK"
 ```
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 
 # Events
 List of the events fired by Twitchat you can listen to and the JSON data sent in parameters.
@@ -348,6 +369,15 @@ Sent when a raffle completes
 	},
 }
 ```
+## **COUNTDOWN_START**
+Sent when a countdown start
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+	duration:number,//Duration in ms
+}
+```
 ## **COUNTDOWN_COMPLETE**
 Sent when a countdown completes
 ### JSON param *(optional)*
@@ -357,12 +387,38 @@ Sent when a countdown completes
 	duration:number,//Duration in ms
 }
 ```
+## **TIMER_START**
+Sent when a timer is started
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+}
+```
+## **TIMER_STOP**
+Sent when stoping a timer
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+	stopAt:number,//Timestamp in ms
+}
+```
 ## **WHEEL_OVERLAY_PRESENCE**
 Sent when a wheel overlay advertises its presence
 ### JSON param *(optional)*
 ```typescript
 -none-
 ```
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 # Actions
 List of actions you can request Twitchat to perform.\

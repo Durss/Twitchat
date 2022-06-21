@@ -145,6 +145,16 @@ export default class TriggerActionHandler {
 			if(await this.handleRaffle(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
+			
+		}else if(message.type == "countdown") {
+			if(await this.handleCountdown(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "timer") {
+			if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
 		// console.log("Message not matching any trigger", message);
@@ -209,6 +219,24 @@ export default class TriggerActionHandler {
 	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:number):Promise<boolean> {
 		message.winner = message.data.winners[0];
 		return await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
+	}
+	
+	private async handleCountdown(message:IRCEventDataList.CountdownResult, testMode:boolean, guid:number):Promise<boolean> {
+		const type = message.started? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
+		//Create placeholder pointers
+		message.start = Utils.formatDate(new Date(message.data.start));
+		message.start_ms = message.data.start;
+		message.duration = Utils.formatDuration(message.data.duration);
+		message.duration_ms = message.data.duration;
+		return await this.parseSteps(type, message, testMode, guid);
+	}
+	
+	private async handleTimer(message:IRCEventDataList.TimerResult, testMode:boolean, guid:number):Promise<boolean> {
+		const type = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
+		//Create placeholder pointers
+		message.duration = Utils.formatDuration(message.data.duration);
+		message.duration_ms = message.data.duration;
+		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
 	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
@@ -499,4 +527,6 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.PollResult
 | IRCEventDataList.BingoResult
 | IRCEventDataList.RaffleResult
+| IRCEventDataList.CountdownResult
+| IRCEventDataList.TimerResult
 | MusicMessage;

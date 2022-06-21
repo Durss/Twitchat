@@ -26,7 +26,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type TriggerData, type TriggerActionObsData, type TriggerActionTypes, type WheelItem, type StreamInfoPreset } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -79,6 +79,8 @@ const store = createStore({
 		deezerConnected: false,
 		triggers: {} as {[key:string]:TriggerData},
 		streamInfoPreset: [] as StreamInfoPreset[],
+		timerStart: 0,
+		countdown: null as CountdownData|null,
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -117,9 +119,14 @@ const store = createStore({
 				details:"Get a tip about Twitchat",
 			},
 			{
-				id:"timer",
-				cmd:"/timer",
+				id:"timerStart",
+				cmd:"/timerStart",
 				details:"Start a timer",
+			},
+			{
+				id:"timerStop",
+				cmd:"/timerStop",
+				details:"Stops the timer",
 			},
 			{
 				id:"countdown",
@@ -606,11 +613,13 @@ const store = createStore({
 			//If it's a text message and it's the all-time first message
 			if(message.tags['first-msg'] === true)	PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 
+			//Push some messages to activity feed
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
 			|| payload.type == "prediction"
 			|| payload.type == "bingo"
 			|| payload.type == "raffle"
+			|| payload.type == "countdown"
 			|| (
 				state.params.features.keepHighlightMyMessages.value === true
 				&& payload.type == "message"
@@ -979,7 +988,6 @@ const store = createStore({
 			}else{
 				Store.set("spotifyAuthToken", value);
 			}
-			console.log("SET TOKEN", value);
 			state.spotifyAuthToken = value;
 			SpotifyHelper.instance.token = value;
 			Config.instance.SPOTIFY_CONNECTED = value? value.expires_at > Date.now() : false;
@@ -1040,6 +1048,77 @@ const store = createStore({
 			}
 			Store.set("streamInfoPresets", state.streamInfoPreset);
 		},
+
+		startTimer(state) {
+			state.timerStart = Date.now();
+			const data = { startAt:state.countdown?.start };
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, (data as unknown) as JsonObject);
+
+			const message:IRCEventDataList.TimerResult = {
+				type:"timer",
+				started:true,
+				data:{
+					startAt:Date.now(),
+					duration:Date.now() - state.timerStart,
+				},
+			};
+			TriggerActionHandler.instance.onMessage(message);
+		},
+
+		stopTimer(state) {
+			const data = { startAt:state.countdown?.start, stopAt:Date.now() };
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, (data as unknown) as JsonObject);
+
+			const message:IRCEventDataList.TimerResult = {
+				type:"timer",
+				started:false,
+				data:{
+					startAt:Date.now(),
+					duration:Date.now() - state.timerStart,
+				},
+			};
+			TriggerActionHandler.instance.onMessage(message);
+
+			state.timerStart = -1;
+		},
+
+		startCountdown(state, payload:{timeout:number, duration:number}) {
+			state.countdown = {
+				timeoutRef:payload.timeout,
+				start:Date.now(),
+				duration:payload.duration,
+			};
+
+			const message:IRCEventDataList.CountdownResult = {
+				type:"countdown",
+				started:true,
+				data:state.countdown as CountdownData,
+				tags: {
+					id:IRCClient.instance.getFakeGuid(),
+					"tmi-sent-ts": Date.now().toString()
+				},
+			};
+			TriggerActionHandler.instance.onMessage(message);
+		},
+
+		stopCountdown(state) {
+			const message:IRCEventDataList.CountdownResult = {
+				type:"countdown",
+				started:true,
+				data:state.countdown as CountdownData,
+				tags: {
+					id:IRCClient.instance.getFakeGuid(),
+					"tmi-sent-ts": Date.now().toString()
+				},
+			};
+			TriggerActionHandler.instance.onMessage(message);
+
+			const data = { startAt:state.countdown?.start, duration:state.countdown?.duration };
+			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
+
+			state.countdown = null;
+		}
+		
 	},
 
 
@@ -1721,6 +1800,34 @@ const store = createStore({
 		saveStreamInfoPreset({commit}, preset:StreamInfoPreset) { commit("saveStreamInfoPreset", preset); },
 		
 		deleteStreamInfoPreset({commit}, preset:StreamInfoPreset) { commit("deleteStreamInfoPreset", preset); },
+		
+		startTimer({commit}) { commit("startTimer"); },
+		
+		stopTimer({commit}) { commit("stopTimer"); },
+		
+		startCountdown({commit, state}, duration:number) {
+			let timeout = setTimeout(()=> {
+				const message:IRCEventDataList.CountdownResult = {
+					type:"countdown",
+					started:false,
+					data:state.countdown as CountdownData,
+					tags: {
+						id:IRCClient.instance.getFakeGuid(),
+						"tmi-sent-ts": Date.now().toString()
+					},
+				};
+				
+				this.dispatch("addChatMessage", message);
+				this.commit("stopCountdown");
+			}, Math.max(duration, 1000));
+			
+			const data = { startAt:state.countdown?.start, duration:state.countdown?.duration };
+			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, (data as unknown) as JsonObject);
+
+			commit("startCountdown", {duration, timeout});
+		},
+		
+		stopCountdown({commit}) { commit("stopCountdown"); },
 	},
 	modules: {
 	}

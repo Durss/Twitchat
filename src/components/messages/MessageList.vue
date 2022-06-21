@@ -78,6 +78,14 @@
 					:raffleData="m"
 				/>
 
+				<ChatCountdownResult
+					class="message"
+					:ref="'message_'+m.tags.id"
+					v-else-if="m.type == 'countdown' && $store.state.params.filters.showNotifications.value"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					:countdownData="m"
+				/>
+
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
@@ -145,6 +153,7 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatCountdownResult from './ChatCountdownResult.vue';
 
 @Options({
 	components:{
@@ -156,6 +165,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		ChatCountdownResult,
 		ChatPredictionResult,
 		ChatMessageHoverActions,
 	},
@@ -752,7 +762,9 @@ type MessageTypes = IRCEventDataList.Highlight
 				|  IRCEventDataList.Message
 				|  IRCEventDataList.Commercial
 				|  IRCEventDataList.TwitchatAd
-				|  IRCEventDataList.Whisper;
+				|  IRCEventDataList.Whisper
+				|  IRCEventDataList.CountdownResult
+;
 </script>
 
 <style scoped lang="less">
