@@ -53,7 +53,7 @@
 		</div>
 
 		<div class="triggerDescription" v-if="event_conf.value != '0'">
-			<div>{{triggerDescription}}</div>
+			<div v-html="triggerDescription"></div>
 
 			<div class="ctas">
 				<Button :icon="$image('icons/add.svg')" title="Add action"

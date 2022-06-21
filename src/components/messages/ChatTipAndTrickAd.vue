@@ -76,10 +76,19 @@
 			<div class="row">It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner.</div>
 			<Button title="Try it now" @click.stop="openParam('overlays')" />
 		</div>
+		
+		<div v-if="tipIndex===9" class="entry">
+			<img src="@/assets/icons/countdown_purple.svg" alt="timer" class="icon">
+			<h1 class="row">Timer and Countdown</h1>
+			<div class="row">You can start a timer or a coutdown with dedicated commands <span class="cmd">/timerStart</span> and <span class="cmd">/countdown</span>.</div>
+			<Button :icon="$image('icons/timer.svg')" title="Try timer" @click.stop="startTimer()" />
+			<Button :icon="$image('icons/countdown.svg')" title="Try 10min countdown" @click.stop="startCountdown()" />
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import store from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import type { ParamsContenType } from '../params/Parameters.vue';
@@ -94,7 +103,7 @@ import type { ParamsContenType } from '../params/Parameters.vue';
 export default class ChatTipAndTrickAd extends Vue {
 
 	public tipIndex = 0;
-	private maxIndex = 8;
+	private maxIndex = 9;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
@@ -103,6 +112,8 @@ export default class ChatTipAndTrickAd extends Vue {
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 	public openParam(modal:ParamsContenType):void { this.$emit("openParam", modal); }
 	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
+	public startTimer():void { store.dispatch("startTimer"); }
+	public startCountdown():void { store.dispatch("startCountdown", 10 * 60 * 1000); }
 
 }
 </script>
@@ -117,6 +128,20 @@ export default class ChatTipAndTrickAd extends Vue {
 		}
 		.row:not(:last-child) {
 			margin-bottom: .5em;
+		}
+
+		.cmd {
+			background-color: fade(@mainColor_normal, 15%);
+			border-radius: .5em;
+			padding: 0 .5em;
+			font-family: 'Courier New', Courier, monospace;
+		}
+		.button {
+			display: block;
+			margin: auto;
+			&:not(:first-of-type) {
+				margin-top: .5em;
+			}
 		}
 	}
 }
