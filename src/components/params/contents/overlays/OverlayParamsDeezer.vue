@@ -91,6 +91,7 @@ export default class OverlayParamsDeezer extends Vue {
 			}
 
 			ul {
+				margin-top: .5em;
 				li {
 					list-style-type: disc;
 					list-style-position: inside;

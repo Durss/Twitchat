@@ -33,6 +33,10 @@ export default class UserSession {
 		}
 		return UserSession._instance;
 	}
+
+	public get hasChannelPoints():boolean {
+		return this.user?.broadcaster_type != "";
+	}
 	
 	
 	

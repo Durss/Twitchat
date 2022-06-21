@@ -25,6 +25,7 @@ export default class TwitchatEvent extends Event {
 	public static COUNTDOWN_COMPLETE:TwitchatEventType = "COUNTDOWN_COMPLETE";
 	public static TIMER_START:TwitchatEventType = "TIMER_START";
 	public static TIMER_STOP:TwitchatEventType = "TIMER_STOP";
+	public static TIMER_OVERLAY_PRESENCE:TwitchatEventType = "TIMER_OVERLAY_PRESENCE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -46,6 +47,8 @@ export default class TwitchatEvent extends Event {
 	public static GET_CURRENT_TRACK:TwitchatActionType = "GET_CURRENT_TRACK";
 	public static WHEEL_OVERLAY_START:TwitchatActionType = "WHEEL_OVERLAY_START";
 	public static GET_WHEEL_OVERLAY_PRESENCE:TwitchatActionType = "GET_WHEEL_OVERLAY_PRESENCE";
+	public static GET_TIMER_OVERLAY_PRESENCE:TwitchatActionType = "GET_TIMER_OVERLAY_PRESENCE";
+	public static GET_CURRENT_TIMERS:TwitchatActionType = "GET_CURRENT_TIMERS";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -72,6 +75,7 @@ export type TwitchatEventType =
 	| "COUNTDOWN_COMPLETE"
 	| "TIMER_START"
 	| "TIMER_STOP"
+	| "TIMER_OVERLAY_PRESENCE"
 ;
 
 export type TwitchatActionType =
@@ -94,4 +98,6 @@ export type TwitchatActionType =
 	| "GET_CURRENT_TRACK"
 	| "GET_WHEEL_OVERLAY_PRESENCE"
 	| "WHEEL_OVERLAY_START"
+	| "GET_CURRENT_TIMERS"
+	| "GET_TIMER_OVERLAY_PRESENCE"
 ;

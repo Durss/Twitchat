@@ -2,6 +2,7 @@
 	<div class="overlay">
 		<OverlaysRaffleWheel v-if="overlay=='wheel'" />
 		<OverlayMusicPlayer v-if="overlay=='music'" />
+		<OverlayTimer v-if="overlay=='timer'" />
 	</div>
 </template>
 
@@ -10,12 +11,14 @@ import router from '@/router';
 import { Options, Vue } from 'vue-class-component';
 import OverlayMusicPlayer from '../components/overlays/OverlayMusicPlayer.vue';
 import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue';
+import OverlayTimer from '../components/overlays/OverlayTimer.vue';
 
 @Options({
 	props:{},
 	components:{
-		OverlaysRaffleWheel,
+		OverlayTimer,
 		OverlayMusicPlayer,
+		OverlaysRaffleWheel,
 	}
 })
 export default class Overlay extends Vue {

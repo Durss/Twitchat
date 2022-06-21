@@ -82,16 +82,16 @@
 			<h1 class="row">Timer and Countdown</h1>
 			<div class="row">You can start a timer or a coutdown with dedicated commands <span class="cmd">/timerStart</span> and <span class="cmd">/countdown</span>.</div>
 			<Button :icon="$image('icons/timer.svg')" title="Try timer" @click.stop="startTimer()" />
-			<Button :icon="$image('icons/countdown.svg')" title="Try 10min countdown" @click.stop="startCountdown()" />
+			<Button :icon="$image('icons/countdown.svg')" title="Try 2min countdown" @click.stop="startCountdown()" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import store from '@/store';
+import type { ParamsContenType } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import type { ParamsContenType } from '../params/Parameters.vue';
 
 @Options({
 	props:{},
@@ -113,7 +113,7 @@ export default class ChatTipAndTrickAd extends Vue {
 	public openParam(modal:ParamsContenType):void { this.$emit("openParam", modal); }
 	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
 	public startTimer():void { store.dispatch("startTimer"); }
-	public startCountdown():void { store.dispatch("startCountdown", 10 * 60 * 1000); }
+	public startCountdown():void { store.dispatch("startCountdown", 2 * 60 * 1000); }
 
 }
 </script>

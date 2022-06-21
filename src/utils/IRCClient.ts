@@ -30,9 +30,9 @@ export default class IRCClient extends EventDispatcher {
 	private partSpool:string[] = [];
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
-	private fakeEvents:boolean = true && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
+	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;
@@ -75,7 +75,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["copainduweb"]);
+				channels = channels.concat(["aqtuc"]);
 			}
 
 			(async ()=> {
@@ -297,6 +297,11 @@ export default class IRCClient extends EventDispatcher {
 				this.connected = false;
 				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
+
+				//Check 5s later if we are still disconnected and manually try to reconnect
+				setTimeout(()=> {
+					if(!this.connected) this.client.connect();
+				}, 5000)
 			});
 
 			this.client.on("clearchat", ()=> {
@@ -393,6 +398,8 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public sendMessage(message:string):Promise<unknown> {
+		if(!this.connected) return Promise.resolve();
+		
 		//Workaround to a weird behavior of TMI/IRC.
 		//If the message starts by a "\" it's properly sent on all
 		//connected clients, but the sender never receives it.
@@ -409,6 +416,8 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public async whisper(whisperSource:IRCEventDataList.Whisper, message:string):Promise<void> {
+		if(!this.connected) return Promise.resolve();
+
 		const data:IRCEventDataList.Whisper = {
 			type:"whisper",
 			channel:IRCClient.instance.channel,

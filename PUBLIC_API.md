@@ -134,6 +134,7 @@ export type TwitchatEventType =
 	| "COUNTDOWN_START"
 	| "TIMER_START"
 	| "TIMER_STOP"
+	| "TIMER_OVERLAY_PRESENCE"
 	| "WHEEL_OVERLAY_PRESENCE"
 
 //Actions you can request to Twitchat
@@ -155,6 +156,10 @@ export type TwitchatActionType =
 	| "MOD_TOOLS_TOGGLE"
 	| "CENSOR_DELETED_MESSAGES_TOGGLE"
 	| "GET_CURRENT_TRACK"
+	| "WHEEL_OVERLAY_START"
+	| "GET_WHEEL_OVERLAY_PRESENCE"
+	| "GET_CURRENT_TIMERS"
+	| "GET_TIMER_OVERLAY_PRESENCE"
 ```
 <br>
 <br>
@@ -404,6 +409,12 @@ Sent when stoping a timer
 	stopAt:number,//Timestamp in ms
 }
 ```
+## **TIMER_OVERLAY_PRESENCE**
+Sent when a timer overlay advertises its presence
+### JSON param *(optional)*
+```typescript
+-none-
+```
 ## **WHEEL_OVERLAY_PRESENCE**
 Sent when a wheel overlay advertises its presence
 ### JSON param *(optional)*
@@ -536,6 +547,48 @@ If censorship is enabled, deleted messages content is replaced by `<deleted mess
 ```
 ## **GET_CURRENT_TRACK**
 Request the currently playing spotify track\
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **WHEEL_OVERLAY_START**
+Start a wheel animation.
+### JSON param *(optional)*
+`items` contains the list of wheel items to display on the wheel. There must be between 1 and an infinity of items.
+`winner` param is the entry of the list the wheel should stop to.
+```typescript
+{
+	items:[
+		{
+			id:string;
+			label:string;
+			data:winner;
+		},
+		...
+	],
+	winner: {
+		id:string;
+		label:string;
+		data:winner;
+	},
+}
+```
+## **GET_WHEEL_OVERLAY_PRESENCE**
+Ask of a wheel overlay exists.
+If it does you'll receive the `WHEEL_OVERLAY_PRESENCE` event.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **GET_CURRENT_TIMERS**
+Request current timer / countdown
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **GET_TIMER_OVERLAY_PRESENCE**
+Ask of a timer overlay exists.
+If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
 -none-

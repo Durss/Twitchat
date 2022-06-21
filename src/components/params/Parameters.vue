@@ -43,10 +43,8 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | null ;
-
 import store from '@/store';
-import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
+import type { ParameterCategory, ParameterData, ParamsContenType } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';

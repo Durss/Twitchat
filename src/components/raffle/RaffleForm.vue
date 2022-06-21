@@ -67,21 +67,27 @@
 					</div>
 				</div>
 
-				<Splitter title="Config" class="splitter" />
-
-				<PostOnChatParam class="chatParam" botMessageKey="raffleStart"
-					v-if="!subMode"
-					:placeholders="startPlaceholders"
-					title="Announce raffle start on chat"
-				/>
-				<PostOnChatParam class="chatParam" botMessageKey="raffle"
-					:placeholders="winnerPlaceholders"
-					title="Post raffle winner on chat"
-				/>
-				<PostOnChatParam class="chatParam" botMessageKey="raffleJoin"
-					:placeholders="joinPlaceholders"
-					title="Confirm when joining the raffle"
-				/>
+				<ToggleBlock title="Configs" class="configs" :open="false" small>
+					<ParamItem class="chatParam" :paramData="showCountdownOverlay" v-if="!subMode" />
+					<div class="details" v-if="showCountdownOverlay.value === true && !subMode">
+						<a @click="openParam('overlays')">Configure a timer overlay</a>
+						on your OBS to display the remaining time on your stream
+					</div>
+	
+					<PostOnChatParam class="chatParam" botMessageKey="raffleStart"
+						v-if="!subMode"
+						:placeholders="startPlaceholders"
+						title="Announce raffle start on chat"
+					/>
+					<PostOnChatParam class="chatParam" botMessageKey="raffle"
+						:placeholders="winnerPlaceholders"
+						title="Post raffle winner on chat"
+					/>
+					<PostOnChatParam class="chatParam" botMessageKey="raffleJoin"
+						:placeholders="joinPlaceholders"
+						title="Confirm when joining the raffle"
+					/>
+				</ToggleBlock>
 			</div>
 		</div>
 	</div>
@@ -89,7 +95,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { ParameterData, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
+import type { ParameterData, ParamsContenType, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -101,16 +107,16 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import type { RaffleData } from '@/utils/CommonDataTypes';
 import UserSession from '@/utils/UserSession';
+import Store from '@/store/Store';
+import { watch } from 'vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
-		Splitter,
 		ParamItem,
 		ToggleBlock,
 		PostOnChatParam,
@@ -123,6 +129,7 @@ export default class RaffleForm extends Vue {
 	public winnerTmp:TwitchDataTypes.Subscriber|null = null;
 
 	public subMode = false;
+
 	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
@@ -134,6 +141,8 @@ export default class RaffleForm extends Vue {
 	public ponderateVotes_follower:ParameterData = {label:"Follower", value:0, type:"number", min:0, max:100, icon:"follow_purple.svg"};
 	public subs_includeGifters:ParameterData = {label:"Include sub gifters (user not sub but that subgifted someone else)", value:true, type:"toggle", icon:"gift_purple.svg"};
 	public subs_excludeGifted:ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
+	public showCountdownOverlay:ParameterData = {label:"Show overlay countdown", value:false, type:"toggle", icon:"countdown_purple.svg"};
+
 	public startPlaceholders:PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	public joinPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
@@ -155,12 +164,17 @@ export default class RaffleForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.showCountdownOverlay.value = Store.get("raffle_showCountdownOverlay") === "true";
 		this.maxUsersToggle.children = [this.maxUsers];
 		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		
+		watch(()=>this.showCountdownOverlay.value, ()=>{
+			Store.set("raffle_showCountdownOverlay", this.showCountdownOverlay.value)
+		})
+
 		this.loadingSubs = true;
 		this.subs = await TwitchUtils.getSubsList();
 		this.loadingSubs = false;
@@ -203,6 +217,9 @@ export default class RaffleForm extends Vue {
 			subgitRatio: this.ponderateVotes_subgift.value as number,
 			winners: [],
 		};
+		if(this.showCountdownOverlay.value) {
+			store.dispatch("startCountdown", payload.duration * 1000 * 60);
+		}
 		store.dispatch("startRaffle", payload);
 		this.close();
 	}
@@ -264,6 +281,10 @@ export default class RaffleForm extends Vue {
 				})
 			}})
 		}
+	}
+	public openParam(page:ParamsContenType):void {
+		store.state.tempStoreValue = "CONTENT:"+page;
+		store.dispatch("showParams", true);
 	}
 	
 }
@@ -387,12 +408,17 @@ export default class RaffleForm extends Vue {
 			}
 		}
 
-		.splitter {
+		.details {
+			font-size: .8em;
+			margin-left: 2em;
+		}
+
+		.configs {
 			margin: 1em 0;
 		}
 
 		.chatParam {
-			margin-bottom: 1em;
+			margin-top: .5em;
 		}
 	}
 }

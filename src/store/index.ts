@@ -1051,8 +1051,8 @@ const store = createStore({
 
 		startTimer(state) {
 			state.timerStart = Date.now();
-			const data = { startAt:state.countdown?.start };
-			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, (data as unknown) as JsonObject);
+			const data = { startAt:state.timerStart };
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, data);
 
 			const message:IRCEventDataList.TimerResult = {
 				type:"timer",
@@ -1066,8 +1066,8 @@ const store = createStore({
 		},
 
 		stopTimer(state) {
-			const data = { startAt:state.countdown?.start, stopAt:Date.now() };
-			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, (data as unknown) as JsonObject);
+			const data = { startAt:state.timerStart, stopAt:Date.now() };
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, data);
 
 			const message:IRCEventDataList.TimerResult = {
 				type:"timer",
@@ -1083,9 +1083,13 @@ const store = createStore({
 		},
 
 		startCountdown(state, payload:{timeout:number, duration:number}) {
+			if(state.countdown) {
+				clearTimeout(state.countdown.timeoutRef);
+			}
+
 			state.countdown = {
 				timeoutRef:payload.timeout,
-				start:Date.now(),
+				startAt:Date.now(),
 				duration:payload.duration,
 			};
 
@@ -1102,6 +1106,10 @@ const store = createStore({
 		},
 
 		stopCountdown(state) {
+			if(state.countdown) {
+				clearTimeout(state.countdown.timeoutRef);
+			}
+			
 			const message:IRCEventDataList.CountdownResult = {
 				type:"countdown",
 				started:true,
@@ -1113,7 +1121,7 @@ const store = createStore({
 			};
 			TriggerActionHandler.instance.onMessage(message);
 
-			const data = { startAt:state.countdown?.start, duration:state.countdown?.duration };
+			const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
 
 			state.countdown = null;
@@ -1262,8 +1270,11 @@ const store = createStore({
 					//Use an anonymous method to avoid locking loading
 					(async () => {
 						try {
-							await TwitchUtils.getPolls();
-							await TwitchUtils.getPredictions();
+							TwitchUtils.searchTag("");//Preload tags to build local cache
+							if(store.state.hasChannelPoints) {
+								await TwitchUtils.getPolls();
+								await TwitchUtils.getPredictions();
+							}
 						}catch(e) {
 							//User is probably not an affiliate
 						}
@@ -1553,11 +1564,6 @@ const store = createStore({
 				if(data.tags['followers-only'] != undefined) state.roomStatusParams.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
 				if(data.tags.slow != undefined) state.roomStatusParams.slowMode.value = data.tags.slow != false;
 			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
-				this.dispatch("onRaffleComplete", {publish:false, winner});
-			});
 			
 			state.initComplete = true;
 
@@ -1591,7 +1597,21 @@ const store = createStore({
 				state.alert = "Deezer authentication failed";
 			});
 
-			TwitchUtils.searchTag("");//Preload tags to build local cache
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
+				if(state.timerStart > 0) {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:state.timerStart });
+				}
+				
+				if(state.countdown) {
+					const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+				}
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
+				this.dispatch("onRaffleComplete", {publish:false, winner});
+			});
 
 			const devmode = Store.get("devmode") === "true";
 			this.dispatch("toggleDevMode", devmode);
@@ -1691,7 +1711,7 @@ const store = createStore({
 			if(!state.raffle) {
 				//We end up here when doing a "sub" raffle.
 				//Users are not picked after sending a chat command but from
-				//our sub lists. As the raffle system is mostly made around
+				//our subs lists. As the raffle system is mostly made around
 				//chat commands, we need to create fake data to make it look
 				//like it's a classic raffle.
 				const winner:ChatUserstate = {
@@ -1820,11 +1840,11 @@ const store = createStore({
 				this.dispatch("addChatMessage", message);
 				this.commit("stopCountdown");
 			}, Math.max(duration, 1000));
-			
-			const data = { startAt:state.countdown?.start, duration:state.countdown?.duration };
-			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, (data as unknown) as JsonObject);
 
 			commit("startCountdown", {duration, timeout});
+			
+			const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
+			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
 		},
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },

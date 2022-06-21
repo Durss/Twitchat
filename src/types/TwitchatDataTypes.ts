@@ -1,5 +1,7 @@
 import type { ChatUserstate } from "tmi.js";
 
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | null ;
+
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
 export interface IBotMessage {
 	bingo:BotMessageEntry;
@@ -218,12 +220,12 @@ export interface StreamInfoPreset {
 }
 
 export interface CountdownData {
-	start:number;
+	startAt:number;
 	duration:number;
 	timeoutRef:number;
 }
 
 export interface TimerData {
 	startAt:number;
-	duration:number;
+	duration?:number;
 }

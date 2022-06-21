@@ -8,6 +8,7 @@
 		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsSpotify class="block" v-if="exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsTimer class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<div>This features needs you to connect with OBS or add Twitchat as an OBS dock.</div>
@@ -25,12 +26,14 @@ import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import Config from '@/utils/Config';
 import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
 import PublicAPI from '@/utils/PublicAPI';
+import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		OverlayParamsRaffle,
+		OverlayParamsTimer,
 		OverlayParamsDeezer,
 		OverlayParamsSpotify,
 	},

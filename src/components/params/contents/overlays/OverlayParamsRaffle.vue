@@ -49,7 +49,6 @@ export default class OverlayParamsRaffle extends Vue {
 	public loading = false;
 	public wheelOverlayExists = false;
 
-	private answerIndex = 0;
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
 	private wheelOverlayPresenceHandler!:()=>void;
@@ -121,6 +120,14 @@ export default class OverlayParamsRaffle extends Vue {
 			.error {
 				color:@mainColor_alert;
 				font-style: italic;
+			}
+
+			ul {
+				margin-top: .5em;
+				li {
+					list-style-type: disc;
+					list-style-position: inside;
+				}
 			}
 		}
 	}

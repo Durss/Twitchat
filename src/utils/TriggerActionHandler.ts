@@ -229,8 +229,8 @@ export default class TriggerActionHandler {
 	private async handleCountdown(message:IRCEventDataList.CountdownResult, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.started? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
 		//Create placeholder pointers
-		message.start = Utils.formatDate(new Date(message.data.start));
-		message.start_ms = message.data.start;
+		message.start = Utils.formatDate(new Date(message.data.startAt));
+		message.start_ms = message.data.startAt;
 		message.duration = Utils.formatDuration(message.data.duration);
 		message.duration_ms = message.data.duration;
 		return await this.parseSteps(type, message, testMode, guid);

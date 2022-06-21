@@ -3,7 +3,7 @@
 		<div class="timer" v-if="$store.state.timerStart > 0"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
-			<img src="@/assets/icons/timer.svg" alt="boost">
+			<img src="@/assets/icons/timer.svg" alt="timer">
 			<div v-if="!hoverTimer">{{timer}}</div>
 			<div v-if="hoverTimer" @click="stopTimer()">STOP</div>
 		</div>
@@ -11,7 +11,7 @@
 		<div class="countdown" v-if="$store.state.countdown"
 		@mouseenter="hoverCountdown = true"
 		@mouseleave="hoverCountdown = false">
-			<img src="@/assets/icons/countdown.svg" alt="boost">
+			<img src="@/assets/icons/countdown.svg" alt="countdown">
 			<div v-if="!hoverCountdown">{{countdown}}</div>
 			<div v-if="hoverCountdown" @click="stopCountdown()">STOP</div>
 		</div>
@@ -52,7 +52,7 @@ export default class TimerCountDownInfo extends Vue {
 
 	public computeValues():void {
 		if(store.state.countdown) {
-			const ellapsed = Date.now() - store.state.countdown.start;
+			const ellapsed = Date.now() - store.state.countdown.startAt;
 			const remaining = Math.ceil((store.state.countdown.duration - ellapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
