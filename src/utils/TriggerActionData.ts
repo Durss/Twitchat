@@ -15,6 +15,7 @@ export const TriggerTypes = {
 	FOLLOW:"11",
 	RAID:"12",
 	REWARD_REDEEM:"13",
+	STREAM_INFO_UPDATE:"19",
 	TRACK_ADDED_TO_QUEUE:"14",
 	TIMER_START:"15",
 	TIMER_STOP:"16",
@@ -107,6 +108,11 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
 	];
 	
+	map[TriggerTypes.STREAM_INFO_UPDATE] = [
+		{tag:"TITLE", desc:"Stream title", pointer:"title"},
+		{tag:"CATEGORY", desc:"Stream category", pointer:"category"},
+	];
+	
 	map[TriggerTypes.TIMER_START] = 
 	map[TriggerTypes.TIMER_STOP] = [
 		{tag:"DURATION", desc:"Timer's final duration formated", pointer:"duration"},
@@ -145,6 +151,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Bits", value:TriggerTypes.BITS, description:"Execute an action when someone sends bits", jsonTest:{"type":"highlight","channel":"#durss","tags":{"badge-info":{"subscriber":"1"},"badges":{"subscriber":"0"},"bits":"51275","color":"#9ACD32","display-name":"Durss","emotes":{},"first-msg":false,"flags":null,"id":"2a1279df-d092-4f87-a2bc-a9123d64f39c","mod":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1642379087259","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"","badge-info-raw":"subscriber/1","badges-raw":"subscriber/0","username":"durss","message-type":"chat"},"message":"Here are 51275 bits for you! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100"}},
 	{label:"Follow", value:TriggerTypes.FOLLOW, description:"Execute an action when someone follows the channel", jsonTest:{"channel":"#durss","tags":{"username":"Durss","user-id":"29961813","tmi-sent-ts":"1644088397887","id":"00000000-0000-0000-0001-000000000000","msg-id":"follow"},"username":"Durss","type":"highlight"}},
 	{label:"Raid", value:TriggerTypes.RAID, description:"Execute an action when someone raids the channel", jsonTest:{"type":"highlight","channel":"#durss","tags":{"info":"this tags prop is a fake one to make things easier for my code","id":"16423778121330.0751974390273129","tmi-sent-ts":"1642377812133","msg-id":"raid"},"username":"Durss","viewers":727}},
+	{label:"Stream info update", value:TriggerTypes.STREAM_INFO_UPDATE, description:"Execute an action when the stream info are updated"},
 	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
 	{label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started"},
 	{label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped"},

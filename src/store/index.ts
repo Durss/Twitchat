@@ -1810,7 +1810,7 @@ const store = createStore({
 				const message:IRCEventDataList.CountdownResult = {
 					type:"countdown",
 					started:false,
-					data:state.countdown as CountdownData,
+					data:JSON.parse(JSON.stringify(state.countdown)) as CountdownData,
 					tags: {
 						id:IRCClient.instance.getFakeGuid(),
 						"tmi-sent-ts": Date.now().toString()

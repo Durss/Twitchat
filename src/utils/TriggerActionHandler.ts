@@ -1,4 +1,4 @@
-import type { MusicMessage, TriggerData } from "@/types/TwitchatDataTypes";
+import type { MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -151,6 +151,11 @@ export default class TriggerActionHandler {
 				return;
 			}
 
+		}else if(message.type == "streamInfoUpdate") {
+			if(await this.handleStreamInfoUpdate(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
 		}else if(message.type == "timer") {
 			if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
 				return;
@@ -229,6 +234,10 @@ export default class TriggerActionHandler {
 		message.duration = Utils.formatDuration(message.data.duration);
 		message.duration_ms = message.data.duration;
 		return await this.parseSteps(type, message, testMode, guid);
+	}
+	
+	private async handleStreamInfoUpdate(message:StreamInfoUpdate, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, guid);
 	}
 	
 	private async handleTimer(message:IRCEventDataList.TimerResult, testMode:boolean, guid:number):Promise<boolean> {
@@ -529,4 +538,6 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.RaffleResult
 | IRCEventDataList.CountdownResult
 | IRCEventDataList.TimerResult
-| MusicMessage;
+| MusicMessage
+| StreamInfoUpdate
+;

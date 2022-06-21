@@ -198,6 +198,12 @@ export interface MusicMessage {
     [paramater: string]: unknown;//This is here to avoid lint errors on dynamic pointers
 }
 
+export interface StreamInfoUpdate {
+	type:"streamInfoUpdate",
+	title:string,
+	category:string,
+}
+
 export interface PlaceholderEntry {
 	tag:string;
 	desc:string;

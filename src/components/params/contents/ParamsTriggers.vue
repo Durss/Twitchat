@@ -255,6 +255,7 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.TIMER_STOP] = "timer_purple";
 		map[TriggerTypes.COUNTDOWN_START] = "countdown_purple";
 		map[TriggerTypes.COUNTDOWN_STOP] = "countdown_purple";
+		map[TriggerTypes.STREAM_INFO_UPDATE] = "info_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");

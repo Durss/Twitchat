@@ -1,4 +1,4 @@
-import type { HypeTrainStateData } from "@/types/TwitchatDataTypes";
+import type { HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
@@ -12,6 +12,7 @@ import PublicAPI from "./PublicAPI";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import PubSubEvent from "./PubSubEvent";
 import StoreProxy from "./StoreProxy";
+import TriggerActionHandler from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 import UserSession from './UserSession';
 import Utils from "./Utils";
@@ -769,6 +770,12 @@ export default class PubSub extends EventDispatcher{
 	 */
 	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo):void {
 		IRCClient.instance.sendNotice("broadcast_settings_update", "Stream info updated to <mark>\""+data.status+"\"</mark> in category <mark>\""+data.game+"\"</mark>");
+		const message:StreamInfoUpdate = {
+			type: "streamInfoUpdate",
+			title:data.status,
+			category:data.game,
+		}
+		TriggerActionHandler.instance.onMessage(message);
 	}
 }
 
