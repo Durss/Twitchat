@@ -20,6 +20,15 @@
 				:icon="$image('icons/twitch.svg')"
 			/>
 
+			<Button :icon="$image('icons/elgato.svg')"
+				title="Stream Deck™ plugin"
+				href="https://apps.elgato.com/plugins/fr.twitchat"
+				target="_blank"
+				type="link"
+				class="elgatoBt"
+				big
+			/>
+
 			<Button :icon="$image('icons/discord.svg')"
 				title="Join Discord"
 				:href="discordURL"
@@ -29,13 +38,11 @@
 				big
 			/>
 
-			<Button :icon="$image('icons/elgato.svg')"
-				title="Stream Deck™ plugin"
-				href="https://apps.elgato.com/plugins/fr.twitchat"
-				target="_blank"
-				type="link"
-				class="elgatoBt"
+			<Button :icon="$image('icons/coin.svg')"
 				big
+				title="Help me 🥰"
+				:to="{name:'sponsor'}"
+				class="sponsorBt"
 			/>
 			
 			<div class="features">
@@ -170,12 +177,11 @@ import Button from '@/components/Button.vue';
 import store from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import Chat from './Chat.vue';
-import 'vue3-carousel/dist/carousel.css';
-
+import Config from '@/utils/Config';
 //@typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
-import Config from '@/utils/Config';
+import 'vue3-carousel/dist/carousel.css';
 
 @Options({
 	props:{},
@@ -239,8 +245,8 @@ export default class Home extends Vue {
 			}
 		}
 
-		.discordBt, .elgatoBt {
-			margin: 1em auto 0 auto;
+		.discordBt, .elgatoBt, .sponsorBt {
+			margin: .5em auto 0 auto;
 			border-radius: 50px;
 			font-weight: bold;
 			display: block;
@@ -255,6 +261,10 @@ export default class Home extends Vue {
 
 			&.elgatoBt {
 				background-color: hsl(232, 81%, 40%);
+			}
+
+			&.sponsorBt {
+				background-color: @mainColor_warn;
 			}
 		}
 

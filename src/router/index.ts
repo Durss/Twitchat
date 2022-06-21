@@ -4,6 +4,7 @@ import Chat from '../views/Chat.vue'
 import Home from '../views/Home.vue'
 import ChatLight from '../views/ChatLight.vue'
 import Login from '../views/Login.vue'
+import Sponsor from '../views/Sponsor.vue'
 import Logout from '../views/Logout.vue'
 import Overlay from '../views/Overlay.vue'
 import store from '@/store'
@@ -16,6 +17,15 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/',
 		name: 'home',
 		component: Home,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
+		path: '/sponsor',
+		name: 'sponsor',
+		component: Sponsor,
 		meta: {
 			overflow:true,
 			needAuth:false,
