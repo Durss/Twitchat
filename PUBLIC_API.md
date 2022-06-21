@@ -564,7 +564,7 @@ Start a wheel animation.
 			label:string;
 			data:winner;
 		},
-		...
+		//...
 	],
 	winner: {
 		id:string;
@@ -581,13 +581,14 @@ If it does you'll receive the `WHEEL_OVERLAY_PRESENCE` event.
 -none-
 ```
 ## **GET_CURRENT_TIMERS**
-Request current timer / countdown
+Request current timer / countdown values
+If it does you'll receive the `TIMER_START` nor `COUNTDOWN_START` event.
 ### JSON param *(optional)*
 ```typescript
 -none-
 ```
 ## **GET_TIMER_OVERLAY_PRESENCE**
-Ask of a timer overlay exists.
+Ask if a timer overlay exists.\
 If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
