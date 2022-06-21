@@ -30,9 +30,9 @@ export default class IRCClient extends EventDispatcher {
 	private partSpool:string[] = [];
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
-	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
+	private fakeEvents:boolean = true && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
-	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;

@@ -269,8 +269,8 @@ export default class ChatForm extends Vue {
 				currentChar == "@" || 
 				(currentChar == "/" && carretPos == 1) || 
 				(i == 0 && this.autoCompleteSearch)) {
-					this.autoCompleteUsers = currentChar == "@" && !isCmd;
-					this.autoCompleteEmotes = currentChar == ":" && !isCmd;
+					this.autoCompleteUsers = currentChar == "@";
+					this.autoCompleteEmotes = currentChar == ":" && !isCmd;//Avoid autocompleting emotes in /countdown cmd
 					this.autoCompleteCommands = currentChar == "/";
 					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;

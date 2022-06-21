@@ -6,7 +6,7 @@
 		data-tooltip="Timeout">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
 			<Button  aria-label="Timeout for 10 seconds" @click.stop="timeout(10)" title="10s" small />
-			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeout(1800)" title="2m" small />
+			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeout(120)" title="2m" small />
 			<Button  aria-label="Timeout for 30 minutes" @click.stop="timeout(1800)" title="30m" small />
 			<Button  aria-label="Timeout for 1 hour" @click.stop="timeout(3600)" title="1h" small />
 			<Button  aria-label="Timeout for 12 hours" @click.stop="timeout(3600*12)" title="12h" small />
