@@ -4,17 +4,19 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Params</span>
-				<Button aria-label="Close parameters" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
+				<Button white bounce title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
+				<Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
-				<Button white bounce title="Voice bot" @click="setContent('voicebot')" :selected="content == 'voicebot'" />
-				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
+				<Button white bounce title="Voice bot" @click="setContent('voice')" :selected="content == 'voice'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
+				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
 			<div class="search" v-if="isGenericListContent">
 				<input type="text" placeholder="Search a parameter..." v-model="search">
@@ -24,9 +26,10 @@
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<OBSEventsAction v-if="content == 'eventsAction'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
-				<ParamsVoiceBot v-if="content == 'voicebot'" @setContent="setContent" />
+				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
+				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
+				<ParamsVoiceBot v-if="content == 'voice'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
@@ -42,15 +45,13 @@
 </template>
 
 <script lang="ts">
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'voicebot' | null ;
-
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterCategory, ParameterData, ParamsContenType } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
-import OBSEventsAction from './contents/obs/OBSEventsAction.vue';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsList from './contents/ParamsList.vue';
@@ -58,6 +59,8 @@ import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
+import ParamsOverlays from './contents/ParamsOverlays.vue';
+import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 
 @Options({
@@ -71,9 +74,10 @@ import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 		ToggleButton,
 		ParamsAccount,
 		ParamsSponsor,
+		ParamsOverlays,
+		ParamsTriggers,
 		ParamsVoiceBot,
 		ParamsStreamdeck,
-		OBSEventsAction,
 	}
 })
 
@@ -82,10 +86,10 @@ export default class Parameters extends Vue {
 	public content:ParamsContenType = 'features';
 	public prevContent:ParamsContenType = null;
 
-	public showMenu:boolean = false;
+	public showMenu = false;
 	public filteredParams:ParameterData[] = [];
 
-	public search:string = "";
+	public search = "";
 
 	public get isGenericListContent():boolean {
 		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;
@@ -107,7 +111,6 @@ export default class Parameters extends Vue {
 				const paramKey = chunks[1];
 				this.search = store.state.params[cat][paramKey].label;
 			}
-
 		}
 	}
 
@@ -146,7 +149,15 @@ export default class Parameters extends Vue {
 
 	public setContent(id:ParamsContenType):void {
 		if(this.search.length == 0) {
-			this.content = id;
+			if(id == this.content) {
+				//Refresh content if already active
+				this.content = null;
+				this.$nextTick().then(()=>{
+					this.content = id;
+				})
+			}else{
+				this.content = id;
+			}
 		}else{
 			//If a search is in progress, fake the prev content to
 			//the one selected and clear the search.
@@ -193,45 +204,55 @@ export default class Parameters extends Vue {
 .parameters{
 	.modal();
 
-	.menu {
-		text-align: center;
-		border-top: 1px solid @mainColor_normal;
-		margin-top: 20px;
-		.button {
-			background: transparent;
-			border: 1px solid @mainColor_normal;
-			border-top: none;
-			border-top-left-radius: 0;
-			border-top-right-radius: 0;
-			transform-origin: top;//So the bouncy effect looks better
-			&.selected {
-				background-color: @mainColor_normal_light;
+	.holder {
+		top: 0;
+		transform: translate(-50%, 0);
+		z-index: 2;
+
+		.menu {
+			text-align: center;
+			border-top: 1px solid @mainColor_normal;
+			margin-top: 20px;
+			.button {
+				background: transparent;
+				border: 1px solid @mainColor_normal;
+				border-top: none;
+				border-top-left-radius: 0;
+				border-top-right-radius: 0;
+				transform-origin: top;//So the bouncy effect looks better
+				&.selected {
+					background-color: @mainColor_normal;
+					&:hover {
+						color: @mainColor_normal;
+						background-color: fade(@mainColor_normal, 15%) !important;
+					}
+				}
 			}
 		}
-	}
 
-	.search{
-		margin:auto;
-		margin-top: 15px;
-		margin-bottom: -10px;
-		z-index: 1;
-	}
+		.search{
+			margin:auto;
+			margin-top: 15px;
+			margin-bottom: -10px;
+			z-index: 1;
+		}
 
-	.searchResult {
-		.noResult {
-			text-align: center;
-			font-style: italic;
+		.searchResult {
+			.noResult {
+				text-align: center;
+				font-style: italic;
+			}
+		}
+
+		.content {
+			//This avoids black space over sticky items inside the content
+			margin-top: 20px;
+			padding-top: 0;
 		}
 	}
 
 	.dimmer {
 		z-index: 1;
-	}
-
-	.holder {
-		top: 0;
-		transform: translate(-50%, 0);
-		z-index: 2;
 	}
 
 }

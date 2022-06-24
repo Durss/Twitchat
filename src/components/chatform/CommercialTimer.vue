@@ -15,13 +15,13 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class CommercialTimer extends Vue {
 
-	public timeLeft:number = 0;
+	public timeLeft = 0;
 
 	private interval!:number;
 
 	public mounted():void {
 		this.refreshTimer();
-		this.interval = setInterval(()=> this.refreshTimer(), 200);
+		this.interval = window.setInterval(()=> this.refreshTimer(), 200);
 	}
 
 	public beforeUnmount():void {

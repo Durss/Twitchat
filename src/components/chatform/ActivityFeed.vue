@@ -41,7 +41,7 @@
 				<ChatNotice
 					class="message"
 					ref="message"
-					v-else-if="m.tags['msg-id'] == 'commercial'"
+					v-else-if="isCommercial(m)"
 					:messageData="m"
 					/>
 
@@ -56,6 +56,12 @@
 					ref="message"
 					v-else-if="m.type == 'raffle'"
 					:raffleData="m" />
+
+				<ChatCountdownResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'countdown'"
+					:countdownData="m" />
 			</div>
 		</div>
 	</div>
@@ -64,7 +70,7 @@
 <script lang="ts">
 import store from '@/store';
 import Store from '@/store/Store';
-import { ActivityFeedData } from '@/utils/IRCEvent';
+import type { ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -76,6 +82,7 @@ import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
+import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
 
 @Options({
 	props:{
@@ -91,18 +98,21 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
-		ChatPredictionResult,
+		ChatCountdownResult,
 		ActivityFeedFilters,
+		ChatPredictionResult,
 	}
 })
 export default class ActivityFeed extends Vue {
 
 	public listMode!:boolean;
 
-	public filterKeys:string = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
+	public filterKeys = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
 	public filters:{[key:string]:boolean} = {};
 	
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public isCommercial(m:ActivityFeedData):boolean { return m.type == "notice" && m.tags['msg-id'] == 'commercial' }
 
 	public get classes():string[] {
 		const res = ["activityfeed"];
@@ -117,20 +127,21 @@ export default class ActivityFeed extends Vue {
 		|| v.type == "prediction"
 		|| v.type == "bingo"
 		|| v.type == "raffle"
+		|| v.type == "countdown"
 		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message")
 		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
 
 		const result:ActivityFeedData[] = [];
 		
-		const showSubs			= this.filters["sub"] === true;
-		const showFollow		= this.filters["follow"] === true;
-		const showBits			= this.filters["bits"] === true;
-		const showRaids			= this.filters["raid"] === true;
-		const showRewards		= this.filters["rewards"] === true;
-		const showPolls			= this.filters["poll"] === true;
-		const showPredictions	= this.filters["prediction"] === true;
-		const showBingos		= this.filters["bingo"] === true;
-		const showRaffles		= this.filters["raffle"] === true;
+		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
+		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
+		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
+		const showRaids			= this.filters["raid"] === true || this.filters["raid"] === undefined;
+		const showRewards		= this.filters["rewards"] === true || this.filters["rewards"] === undefined;
+		const showPolls			= this.filters["poll"] === true || this.filters["poll"] === undefined;
+		const showPredictions	= this.filters["prediction"] === true || this.filters["prediction"] === undefined;
+		const showBingos		= this.filters["bingo"] === true || this.filters["bingo"] === undefined;
+		const showRaffles		= this.filters["raffle"] === true || this.filters["raffle"] === undefined;
 
 		
 		for (let i = 0; i < list.length; i++) {
@@ -140,7 +151,7 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|null = null;
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = null;
 			if(m.type == "poll") {
 				type = "poll";
 			}else if(m.type == "prediction") {
@@ -149,10 +160,8 @@ export default class ActivityFeed extends Vue {
 				type = "bingo";
 			}else if(m.type == "raffle") {
 				type = "raffle";
-			}else if(m.tags['msg-id'] == "follow") {
-				type = "follow";
-			}else if(m.tags['msg-id'] == "raid") {
-				type = "raid";
+			}else if(m.type == "countdown") {
+				type = "countdown";
 			}else if(m.type == "notice") {
 				if(m.tags['msg-id'] == "commercial") {
 					type = "commercial";
@@ -169,7 +178,12 @@ export default class ActivityFeed extends Vue {
 				type = "sub";
 			}else if(m.reward) {
 				type = "reward";
+			}else if(m.tags['msg-id'] == "follow") {
+				type = "follow";
+			}else if(m.tags['msg-id'] == "raid") {
+				type = "raid";
 			}
+			
 			if(type == "sub" && showSubs) result.unshift(m);
 			if(type == "reward" && showRewards) result.unshift(m);
 			if(type == "raid" && showRaids) result.unshift(m);
@@ -180,6 +194,7 @@ export default class ActivityFeed extends Vue {
 			if(type == "bingo" && showBingos) result.unshift(m);
 			if(type == "raffle" && showRaffles) result.unshift(m);
 			if(type == "commercial") result.unshift(m);
+			if(type == "countdown") result.unshift(m);
 		}
 		
 		// if(this.listMode) {
@@ -251,7 +266,7 @@ export default class ActivityFeed extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref) {
+		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {

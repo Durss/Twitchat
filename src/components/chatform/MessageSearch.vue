@@ -3,7 +3,7 @@
 
 		<Button small
 			aria-label="Close search"
-			:icon="require('@/assets/icons/cross_white.svg')"
+			:icon="$image('icons/cross_white.svg')"
 			@click="close()"
 			class="closeBt"
 		/>
@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -46,7 +46,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 })
 export default class MessageSearch extends Vue {
 
-	public search:string = "";
+	public search = "";
 	public messages:IRCEventDataList.Message[] = [];
 
 	public get classes():string[] {

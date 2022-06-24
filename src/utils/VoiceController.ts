@@ -1,8 +1,8 @@
-import SpeechRecognition from "@/ISpeechRecognition";
+import type SpeechRecognition from "@/ISpeechRecognition";
 import store from "@/store";
 import { reactive, watch } from "vue";
 import PublicAPI from "./PublicAPI";
-import TwitchatEvent, { TwitchatActionType } from "./TwitchatEvent";
+import TwitchatEvent, { type TwitchatActionType } from "./TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**
@@ -176,11 +176,11 @@ export default class VoiceController {
 		if(!action.id) return;
 		
 		switch(action.id) {
-			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}); return;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}); return;
-			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}); return;
-			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}); return;
+			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}, true); return;
+			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}, true); return;
+			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}, true); return;
 		}
-		PublicAPI.instance.broadcast(action.id as TwitchatActionType);
+		PublicAPI.instance.broadcast(action.id as TwitchatActionType, undefined, true);
 	}
 }

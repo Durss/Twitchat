@@ -3,7 +3,7 @@
 
 		<ParamItem class="parameter" :paramData="enabledParam" ref="paramItem" />
 		
-		<PlaceholderSelector v-if="placeholderTarget && placeholders && enabledParam.value===true"
+		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && placeholders && enabledParam.value===true"
 			:target="placeholderTarget"
 			:placeholders="placeholders"
 			v-model="textParam.value"
@@ -13,11 +13,12 @@
 </template>
 
 <script lang="ts">
-import store, { BotMessageField, ParameterData } from '@/store';
+import store from '@/store';
+import type { BotMessageField, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from './ParamItem.vue';
-import PlaceholderSelector, { PlaceholderEntry } from './PlaceholderSelector.vue';
+import PlaceholderSelector from './PlaceholderSelector.vue';
 
 @Options({
 	props:{
@@ -65,13 +66,16 @@ export default class PostOnChatParam extends Vue {
 		watch(()=>this.enabledParam.value, ()=> this.saveParams())
 
 		await this.$nextTick();
-		this.saveParams();
+		this.saveParams(false);
 	}
 
-	public async saveParams():Promise<void> {
-		store.dispatch("updateBotMessage", {key:this.botMessageKey,
-											enabled:this.enabledParam.value,
-											message:this.textParam.value});
+	public async saveParams(saveToStore = true):Promise<void> {
+		//Avoid useless save on mount
+		if(saveToStore){
+			store.dispatch("updateBotMessage", {key:this.botMessageKey,
+												enabled:this.enabledParam.value,
+												message:this.textParam.value});
+		}
 
 		if(this.enabledParam.value) {
 			await this.$nextTick();
@@ -83,6 +87,8 @@ export default class PostOnChatParam extends Vue {
 
 <style scoped lang="less">
 .postonchatparam{
-	
+	.placeholders {
+		margin-top: .5em;
+	}
 }
 </style>

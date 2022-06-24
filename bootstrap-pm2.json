@@ -1,20 +1,28 @@
 {
-  "script": "./server.js",
-  "name": "Twitchat",
-  "env": {},
-  "merge_logs": true,
-  "vizion": true,
-  "autorestart": true,
-  "instance_var": "NODE_APP_INSTANCE",
-  "pmx": true,
-  "detached":true,
-  "automation": true,
-  "treekill": true,
-  "username": "root",
-  "windowsHide": true,
-  "kill_retry_time": 100,
-  "write": true,
-  "ignore_watch" : ["node_modules", "public", "src", "userData"],
-  "watch": ["."],
-  "exec_mode": "fork"
+	"script": "./server.js",
+	"name": "Twitchat",
+	"env": {},
+	"merge_logs": true,
+	"vizion": true,
+	"autorestart": true,
+	"instance_var": "NODE_APP_INSTANCE",
+	"pmx": true,
+	"detached": true,
+	"automation": true,
+	"treekill": true,
+	"username": "root",
+	"windowsHide": true,
+	"kill_retry_time": 100,
+	"write": true,
+	"ignore_watch": [
+		"node_modules",
+		"public",
+		"src",
+		"userData",
+		".git"
+	],
+	"watch": [
+		"."
+	],
+	"exec_mode": "fork"
 }

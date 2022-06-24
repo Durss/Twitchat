@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create poll</span>
-				<Button aria-label="Close poll form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close poll form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			
 			<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
@@ -64,9 +64,9 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
+import store from '@/store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import VoiceAction from '@/utils/VoiceAction';
 import VoiceController from '@/utils/VoiceController';
@@ -76,6 +76,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
+import type TwitchatEvent from '@/utils/TwitchatEvent';
 
 @Options({
 	props:{
@@ -97,13 +98,13 @@ export default class PollForm extends Vue {
 
 	public loading:boolean = false;
 
-	public error:string = "";
-	public title:string = "";
-	public answer1:string = "";
-	public answer2:string = "";
-	public answer3:string = "";
-	public answer4:string = "";
-	public answer5:string = "";
+	public error = "";
+	public title = "";
+	public answer1 = "";
+	public answer2 = "";
+	public answer3 = "";
+	public answer4 = "";
+	public answer5 = "";
 	public extraVotesParam:ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
 	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};

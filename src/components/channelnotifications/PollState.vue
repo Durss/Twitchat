@@ -4,7 +4,7 @@
 		
 		<ProgressBar class="progress"
 			:percent="progressPercent"
-			:duration="this.poll.duration*1000"
+			:duration="poll.duration*1000"
 			v-if="poll.status == 'ACTIVE'" />
 		
 		<div class="choices">
@@ -25,8 +25,8 @@
 
 <script lang="ts">
 import store from '@/store';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -41,16 +41,16 @@ import ProgressBar from '../ProgressBar.vue';
 })
 export default class PollState extends Vue {
 
-	public loading:boolean = false;
-	public progressPercent:number = 0;
+	public loading = false;
+	public progressPercent = 0;
 
-	private disposed:boolean = false;
+	private disposed = false;
 
-	public get poll():TwitchTypes.Poll {
-		return store.state.currentPoll as TwitchTypes.Poll;
+	public get poll():TwitchDataTypes.Poll {
+		return store.state.currentPoll as TwitchDataTypes.Poll;
 	}
 
-	public getPercent(c:TwitchTypes.PollChoice):number {
+	public getPercent(c:TwitchDataTypes.PollChoice):number {
 		let totalVotes = 0;
 		if(this.poll) {
 			for (let i = 0; i < this.poll.choices.length; i++) {
@@ -60,13 +60,13 @@ export default class PollState extends Vue {
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchTypes.PollChoice):{[key:string]:string} {
+	public getAnswerStyles(c:TwitchDataTypes.PollChoice):{[key:string]:string} {
 		let res:{[key:string]:string} = {};
 		res.backgroundSize = `${this.getPercent(c)}% 100%`;
 		return res;
 	}
 
-	public getAnswerClasses(c:TwitchTypes.PollChoice):string[] {
+	public getAnswerClasses(c:TwitchDataTypes.PollChoice):string[] {
 		let res:string[] = ["choice"];
 		
 		if(this.poll.status != "ACTIVE") {
@@ -80,7 +80,7 @@ export default class PollState extends Vue {
 	}
 
 	public mounted():void {
-		this.loadPolls();
+		// this.loadPolls();
 		const ellapsed = new Date().getTime() - new Date(this.poll.started_at).getTime();
 		const duration = this.poll.duration*1000;
 		const timeLeft = duration - ellapsed
@@ -88,10 +88,10 @@ export default class PollState extends Vue {
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 	}
 
-	private async loadPolls():Promise<void> {
-		if(this.disposed) return;
-		await TwitchUtils.getPolls();//This actually automatically refresh the storage
-	}
+	// private async loadPolls():Promise<void> {
+	// 	if(this.disposed) return;
+	// 	await TwitchUtils.getPolls();//This actually automatically refresh the storage
+	// }
 
 	public beforeUnmount():void {
 		this.disposed = true;
@@ -99,7 +99,7 @@ export default class PollState extends Vue {
 
 	public endPoll():void {
 		this.loading = true;
-		Utils.confirm("End Poll", "Are you sure you want to end this poll now?")
+		this.$confirm("End Poll", "Are you sure you want to end this poll now?")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPoll(this.poll.id);

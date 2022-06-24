@@ -1,7 +1,7 @@
 <template>
 	<div class="voicetriggerlist">
 
-		<Button :icon="require('@/assets/icons/add.svg')" title="Add action" class="addBt"
+		<Button :icon="$image('icons/add.svg')" title="Add action" class="addBt"
 			@click="addAction()"
 			v-if="getActionIDs().length > 0"
 		/>
@@ -22,7 +22,7 @@
 				label="label"
 				placeholder="Select an action..."
 				v-model="a.id"
-				:reduce="(option:{label:string, value:string}) => option.value"
+				:reduce="reduceSelectData"
 				:options="getActionIDs(a)"
 				:appendToBody="true"
 			></vue-select>
@@ -30,7 +30,7 @@
 			<label :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
 			<textarea :id="'text'+index" v-model="a.sentences" rows="5" maxlength="1000"></textarea>
 			
-			<Button @click="deleteAction(a.id)" :icon="require('@/assets/icons/cross_white.svg')" highlight title="Delete" class="saveBt" />
+			<Button @click="deleteAction(a.id)" :icon="$image('icons/cross_white.svg')" highlight title="Delete" class="saveBt" />
 		</ToggleBlock>
 	</div>
 </template>
@@ -40,7 +40,6 @@ import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
-import gsap from 'gsap/all';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -62,6 +61,8 @@ export default class VoiceTriggerList extends Vue {
 	public openStates:{[id:string]:boolean} = {};
 
 	private triggerHandler!:(e:TwitchatEvent)=>void;
+
+	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
 	public mounted():void {
 		this.actions = JSON.parse(JSON.stringify(store.state.voiceActions));
@@ -219,12 +220,12 @@ export default class VoiceTriggerList extends Vue {
 			margin-top: .5em;
 		}
 
-		&.global {
-		border: 1px solid @mainColor_highlight;
-			:deep(.header) {
-				background-color: @mainColor_highlight;
-			}
-		}
+		// &.global {
+		// 	border: 1px solid @mainColor_highlight;
+		// 	:deep(.header) {
+		// 		background-color: @mainColor_highlight;
+		// 	}
+		// }
 		
 		:deep(.content) {
 			display: flex;

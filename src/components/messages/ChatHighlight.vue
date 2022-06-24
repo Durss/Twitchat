@@ -4,6 +4,7 @@
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
+			<div class="info" v-if="info" v-html="info"></div>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 			<div v-if="streamInfo" class="streamInfo">
@@ -15,7 +16,7 @@
 		<Button v-if="isRaid"
 			aria-label="Send a shoutout"
 			small 
-			:icon="require('@/assets/icons/shoutout.svg')"
+			:icon="$image('icons/shoutout.svg')"
 			@click.stop="shoutout()"
 			:loading="shoutoutLoading"
 			data-tooltip="Send a shoutout"
@@ -26,13 +27,15 @@
 
 <script lang="ts">
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import { PubSubTypes } from '@/utils/PubSub';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import type { TrackedUser } from '@/utils/CommonDataTypes';
 
 @Options({
 	props:{
@@ -48,16 +51,17 @@ export default class ChatHighlight extends Vue {
 	
 	public messageData!:IRCEventDataList.Highlight;
 	public lightMode!:boolean;
-	public messageText:string = '';
-	public icon:string = "";
-	public filtered:boolean = false;
-	public isRaid:boolean = false;
-	public shoutoutLoading:boolean = false;
-	public loading:boolean = false;
+	public messageText = '';
+	public info = "";
+	public icon = "";
+	public filtered = false;
+	public isRaid = false;
+	public shoutoutLoading = false;
+	public loading = false;
 
-	private pStreamInfo:TwitchTypes.ChannelInfo|null = null;
+	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
-	public get streamInfo():TwitchTypes.ChannelInfo|null {
+	public get streamInfo():TwitchDataTypes.ChannelInfo|null {
 		if(store.state.params.features.raidStreamInfo.value === true) {
 			return this.pStreamInfo;
 		}
@@ -67,7 +71,7 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
-		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
+		if(store.state.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
 
@@ -79,6 +83,7 @@ export default class ChatHighlight extends Vue {
 
 	public get reason():string {
 		let value:number|"prime" = 0;
+		this.info = "";
 		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|"hype_cooldown_expired"|"community_boost_complete"|null = null;
 		if(this.messageData.tags['msg-id'] == "follow") {
 			type = "follow";
@@ -124,23 +129,23 @@ export default class ChatHighlight extends Vue {
 		let res = "";
 		switch(type) {
 			case "follow":
-				this.icon = require('@/assets/icons/follow.svg');
+				this.icon = this.$image('icons/follow.svg');
 				res = "<strong>"+this.messageData.username+"</strong> followed your channel!";
 				break;
 
 			case "hype_cooldown_expired":
-				this.icon = require('@/assets/icons/train.svg');
+				this.icon = this.$image('icons/train.svg');
 				res = "Hype train can be started again!";
 				break;
 
 			case "community_boost_complete":
-				this.icon = require('@/assets/icons/boost.svg');
+				this.icon = this.$image('icons/boost.svg');
 				res = "Your channel has been boosted to "+this.messageData.viewers+" people";
 				break;
 
 			case "raid":
 				this.isRaid = true;
-				this.icon = require('@/assets/icons/raid.svg');
+				this.icon = this.$image('icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
 
 				if(store.state.params.features.raidStreamInfo.value === true) {
@@ -150,16 +155,16 @@ export default class ChatHighlight extends Vue {
 
 			case "bits":
 				res = "<strong>"+this.messageData.tags.username+"</strong> sent <strong>"+value+"</strong> bits";
-				this.icon = require('@/assets/icons/bits.svg');
+				this.icon = this.$image('icons/bits.svg');
 				break;
 
 			case "sub":
 				if(value == "prime") {
 					res = "<strong>"+this.messageData.username+"</strong> subscribed with Prime";
-					this.icon = require('@/assets/icons/prime.svg');
+					this.icon = this.$image('icons/prime.svg');
 				}else{
 					res = "<strong>"+this.messageData.username+"</strong> subscribed at Tier "+value;
-					this.icon = require('@/assets/icons/sub.svg');
+					this.icon = this.$image('icons/sub.svg');
 				}
 
 				if(typeof this.messageData.tags["msg-param-cumulative-months"] === "string") {
@@ -173,7 +178,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case "subgift":
-				this.icon = require('@/assets/icons/gift.svg');
+				this.icon = this.$image('icons/gift.svg');
 				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
 					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
 					const recipientsStr = "<strong>"+recipients.join("</strong>, <strong>")+"</strong>";
@@ -184,12 +189,13 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case "subgiftUpgrade":
-				this.icon = require('@/assets/icons/gift.svg');
+				this.icon = this.$image('icons/gift.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is continuing the Gift Sub they got from <strong>"+this.messageData.sender+"</strong>";
 				break;
 
 			case "reward":{
-				const localObj = this.messageData.reward as PubSubTypes.RewardData;
+				this.messageText = "";
+				const localObj = this.messageData.reward as PubSubDataTypes.RewardData;
 				res = localObj.redemption.user.display_name;
 				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
 				res += " <span class='small'>("+localObj.redemption.reward.cost+" pts)</span>";
@@ -200,10 +206,29 @@ export default class ChatHighlight extends Vue {
 				}
 				if(this.messageData.reward?.redemption.reward.prompt) {
 					if(store.state.params.filters.showRewardsInfos.value === true) {
-						this.messageText = this.messageData.reward?.redemption.reward.prompt;
-					}else{
-						this.messageText = "";
+						this.info = this.messageData.reward?.redemption.reward.prompt;
 					}
+				}
+				if(this.messageData.reward?.redemption.user_input) {
+					this.messageText += this.messageData.reward?.redemption.user_input;
+				}
+				
+				let chunks = TwitchUtils.parseEmotes(this.messageText, "", false, true);
+				let result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/2x$/gi, "3x");//7TV format
+						url = url.replace(/1$/gi, "4");//FFZ format
+						let tt = "<img src='"+url+"' width='112' height='112'><br><center>"+v.label+"</center>";
+						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+					}
+					this.messageText = result;
 				}
 				break;
 			}
@@ -212,13 +237,14 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		let result:string = "";
+		let result = "";
 		let text = this.messageData.message;
 		if(text) {
 			try {
 				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing performances.
-				const customParsing = this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				//or a reward to avoid killing performances.
+				const customParsing = this.messageData.tags.id?.indexOf("00000000") == 0
+										|| this.messageData.reward != null;
 				let removeEmotes = !store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
@@ -262,7 +288,7 @@ export default class ChatHighlight extends Vue {
 		this.shoutoutLoading = true;
 		if(this.messageData.viewers != undefined) {
 			try {
-				await TwitchUtils.shoutout(this.messageData.username as string);
+				await store.dispatch("shoutout", this.messageData.username as string);
 			}catch(error) {
 				store.state.alert = "Shoutout failed :(";
 				console.log(error);
@@ -317,24 +343,27 @@ export default class ChatHighlight extends Vue {
 			.reason {
 				font-size: 1em;
 			}
-			.message {
+			.message, .info {
 				margin: 0;
 				margin-top: .5em;
 				display: block;
 				color: rgba(255, 255, 255, .75);
 				line-height: 1.2em;
 			}
+
+			.info {
+				color: @mainColor_warn;
+			}
 		}
 	}
 
 	&.tracked {
-		@c1:fade(@mainColor_warn_extralight,5%);
-		@c2:fade(@mainColor_warn_extralight,10%);
-		// background-color: @c1;
-		@s1:5px;
-		@s2:10px;
-		background-image: repeating-linear-gradient(90deg, @c1, @c1 @s1, @c2 @s1, @c2 @s2);
-		border-left: 5px solid @mainColor_warn_extralight;
+		border-image-slice: 1;
+		border-left: .6em solid rgba(255, 255, 255, 1);
+		background-color: rgba(255, 255, 255, .2);
+		.message {
+			color: #fff;
+		}
 	}
 
 	.time {

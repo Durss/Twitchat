@@ -13,7 +13,7 @@ import { watch } from '@vue/runtime-core';
 @Options({})
 export default class AlertView extends Vue {
 
-	public message:string = "";
+	public message = "";
 	public timeout!:number;
 
 	public mounted():void {
@@ -32,7 +32,7 @@ export default class AlertView extends Vue {
 			this.$el.removeAttribute("style");
 			gsap.killTweensOf(this.$el);
 			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
-			this.timeout = setTimeout(()=> this.close(), this.message.length*80 +2000);
+			this.timeout = window.setTimeout(()=> this.close(), this.message.length*80 +2000);
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
 				this.message = "";
@@ -57,7 +57,7 @@ export default class AlertView extends Vue {
 	width: 100%;
 	position: fixed;
 	overflow: hidden;
-	z-index: 1;
+	z-index: 2;
 	position: fixed;
 	top: 0;
 	left: 0;

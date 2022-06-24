@@ -18,7 +18,6 @@
 </template>
 
 <script lang="ts">
-import { ParameterData } from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../components/params/ParamItem.vue';
 import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
@@ -27,6 +26,7 @@ import Config from '@/utils/Config';
 import ToggleBlock from '../components/ToggleBlock.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -49,7 +49,7 @@ export default class VoiceControl extends Vue {
 	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
 	public get connected():boolean { return OBSWebsocket.instance.connected; }
 
-	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; }
+	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public mounted():void {
 		

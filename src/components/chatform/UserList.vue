@@ -2,31 +2,31 @@
 	<div class="userlist">
 		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users</h1>
 		
-		<div class="users braodcaster" v-if="braodcaster.length > 0">
+		<div class="users broadcaster" v-if="broadcaster.length > 0">
 			<div class="title">Broadcaster</div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in braodcaster" :key="u.id" v-html="u.login"></a>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users mods" v-if="mods.length > 0">
 			<div class="title">Moderators</div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id" v-html="u.login"></a>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users vips" v-if="vips.length > 0">
 			<div class="title">VIPs</div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id" v-html="u.login"></a>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 
 		<div class="users simple" v-if="simple.length > 0">
 			<div class="title">Users</div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id" v-html="u.login"></a>
+				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 	</div>
@@ -34,7 +34,8 @@
 
 <script lang="ts">
 import store from '@/store';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -48,7 +49,7 @@ export default class UserList extends Vue {
 
 	public users:UserItem[] = [];
 
-	public get braodcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
+	public get broadcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
 
 	public get mods():UserItem[] { return this.users.filter(u=>u.mod); }
 
@@ -90,7 +91,7 @@ export default class UserList extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref) {
+		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
@@ -107,9 +108,9 @@ export default class UserList extends Vue {
 			res.push({
 				login:userName,
 				id:userNameLow,
-				broadcaster:userNameLow == store.state.user.login.toLowerCase(),
+				broadcaster:userNameLow == UserSession.instance.authToken.login.toLowerCase(),
 				vip:false,
-				mod:(store.state.mods as TwitchTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
+				mod:(store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,
 			});
 		}

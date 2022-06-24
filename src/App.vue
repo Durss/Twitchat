@@ -5,7 +5,7 @@
 		<Confirm />
 		<Alert />
 		<Tooltip />
-		<img src="/loader_white.svg" alt="loader" class="loader-init" v-if="!authenticated">
+		<img src="/loader_white.svg" alt="loader" class="loader-init" v-if="showLoader">
 	</div>
 </template>
 
@@ -28,19 +28,37 @@ import Tooltip from "./views/Tooltip.vue";
 })
 export default class App extends Vue {
 
+	private resizeHandler!:() => void;
+
+	public get showLoader():boolean {
+		return !this.authenticated && this.$route.meta.noBG !== true && store.state.initComplete;
+	}
 	public get authenticated():boolean {
 		return store.state.authenticated || (this.$route.meta.needAuth !== true && store.state.initComplete);
 	}
 
 	public get classes():string[] {
 		let res = ["app"];
-		if(this.$route.meta.noBG === true) res.push("noBG");
 		if(this.$route.meta.overflow === true) res.push("overflow");
 		res.push("messageSize_"+store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 
-	public mounted():void {}
+	public mounted():void {
+		this.resizeHandler = ()=> this.onWindowResize();
+		window.addEventListener("resize", this.resizeHandler);
+		this.onWindowResize();
+	}
+
+	public beforeUnmount():void {
+		window.removeEventListener("resize", this.resizeHandler);
+	}
+
+	private onWindowResize():void {
+		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
+		//Here we calculate the actual page height and set it as a CSS var.
+		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
+	}
 
 }
 </script>
@@ -48,23 +66,16 @@ export default class App extends Vue {
 <style scoped lang="less">
 .app{
 	width: 100%;
-	height: 100vh;
+	height: var(--vh);
 	font-size: 20px;
 	overflow: hidden;
 
+	.loader-init {
+		transform:scale(10);
+	}
+
 	&.overflow {
 		overflow: auto;
-	}
-
-	&:not(.noBG) {
-		background-color: @mainColor_dark;
-	}
-
-	.loader {
-		.center();
-		position: absolute;
-		width: 80px;
-		height: 80px;
 	}
 
 	&.messageSize_1 {

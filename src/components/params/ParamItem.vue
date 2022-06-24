@@ -1,14 +1,14 @@
 <template class="cffdfdf">
 	<div :class="classes">
 		<div class="content">
-			<img :src="require('@/assets/icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
 			<div v-if="paramData.type == 'toggle'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="$image('icons/help_purple.svg')"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
@@ -17,8 +17,8 @@
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="$image('icons/help_purple.svg')"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
@@ -27,19 +27,19 @@
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="$image('icons/help_purple.svg')"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288">
+				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="$image('icons/help_purple.svg')"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'slider'+key">
@@ -50,8 +50,8 @@
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="$image('icons/help_purple.svg')"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
@@ -62,17 +62,17 @@
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
 				<Button v-if="paramData.example"
-					:icon="require('@/assets/icons/help_purple.svg')"
-					:data-tooltip="'<img src='+require('@/assets/img/param_examples/'+paramData.example)+'>'"
+					:icon="$image('icons/help_purple.svg')"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
-				<input type="text" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
+				<input type="text" :name="paramData.fieldName" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
 				<!-- <Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
 					:accept="paramData.accept?paramData.accept:'*'"
-					:icon="require('@/assets/icons/upload.svg')"
+					:icon="$image('icons/upload.svg')"
 				/> -->
 			</div>
 		</div>
@@ -87,7 +87,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -106,18 +107,28 @@ import ToggleButton from '../ToggleButton.vue';
 			type:Boolean,
 			default:false,
 		},
+		modelValue:{
+			type:[String, Number, Boolean, Object, Array],
+			default: null
+		},
+		error:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
 		ToggleButton,
 	},
-	emits: ["change"]
+	emits: ["change", "update:modelValue"]
 })
 export default class ParamItem extends Vue {
 	
+	public error!:boolean;
 	public autofocus!:boolean;
 	public childLevel!:number;
 	public paramData!:ParameterData;
+	public modelValue!:string|boolean|number|string[];
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
 	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;
@@ -127,6 +138,7 @@ export default class ParamItem extends Vue {
 
 	public get classes():string[] {
 		const res = ["paramitem"];
+		if(this.error !== false) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
 		res.push("level_"+this.childLevel);
@@ -146,11 +158,22 @@ export default class ParamItem extends Vue {
 	}
 
 	public mounted():void {
+		if(this.modelValue !== null
+		&& this.modelValue !== undefined) {
+			this.paramData.value = this.modelValue;
+		}
+		watch(()=>this.modelValue, (value:string | number | boolean | string[])=>{
+			if(value !== null
+			&& value !== undefined) {
+				this.paramData.value = value;
+			}
+		});
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
 				store.dispatch('updateParams');
 			}
 			this.$emit("change");
+			this.$emit("update:modelValue", this.paramData.value);
 			this.buildChildren();
 		});
 		watch(() => this.paramData.children, () => {
@@ -204,8 +227,8 @@ export default class ParamItem extends Vue {
 	}
 
 	public clampValue():void {
-		if(this.paramData.max != undefined && this.paramData.value > this.paramData.max) this.paramData.value = this.paramData.max;
-		if(this.paramData.min != undefined && this.paramData.value < this.paramData.min) this.paramData.value = this.paramData.min;
+		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
+		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
 	}
 }
 </script>
@@ -213,6 +236,27 @@ export default class ParamItem extends Vue {
 <style scoped lang="less">
 .paramitem{
 	overflow-y: clip;
+
+	&.error {
+		// color:@mainColor_alert;
+		// font-weight: bold;
+		// background: fade(@mainColor_alert, 30%);
+		// padding: .25em;
+		// border-radius: 1em;
+
+		border-left: .25em solid @mainColor_alert;
+		border-bottom: 1px solid @mainColor_alert;
+		padding-left: .25em;
+
+		input, select, textarea{
+			color:@mainColor_light;
+			background-color: fade(@mainColor_alert, 50%);
+			border-color: @mainColor_alert;
+			&::placeholder {
+				color:fade(@mainColor_light, 50%);
+			}
+		}
+	}
 	
 	&.longText {
 		.content {
@@ -232,7 +276,7 @@ export default class ParamItem extends Vue {
 			width: 100%;
 		}
 	}
-
+	
 	.content {
 		display: flex;
 		flex-direction: row;
@@ -240,6 +284,9 @@ export default class ParamItem extends Vue {
 
 		&:hover {
 			background-color: fade(@mainColor_normal, 10%);
+		}
+		input, select, textarea {
+			width: 100%;
 		}
 
 		.icon {
@@ -298,6 +345,7 @@ export default class ParamItem extends Vue {
 		textarea {
 			// max-width: 100%;
 			resize: vertical;
+			margin-top: .25em;
 		}
 
 		.browse {
@@ -312,6 +360,10 @@ export default class ParamItem extends Vue {
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
+		}
+
+		input, select, textarea {
+			width: 100%;
 		}
 	}
 

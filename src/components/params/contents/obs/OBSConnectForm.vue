@@ -16,7 +16,7 @@
 		</ToggleBlock>
 
 		<Button title="Connect" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
-		<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="require('@/assets/icons/cross_white.svg')" />
+		<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
 
 		<transition name="fade">
 			<div v-if="connectError" @click="connectError = false" class="error">
@@ -28,7 +28,6 @@
 </template>
 
 <script lang="ts">
-import { ParameterData } from '@/store';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -37,6 +36,7 @@ import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import Button from '../../../Button.vue';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -57,7 +57,7 @@ export default class OBSConnectForm extends Vue {
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
 	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
 
-	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; }
+	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public mounted():void {
 		const port = Store.get("obsPort");

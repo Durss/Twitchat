@@ -3,7 +3,7 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button aria-label="Close live users list" small :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="Close live users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 
 			<div class="noResult" v-if="!loading && streams?.length == 0">None of the people you follow is streaming :(</div>
 			
@@ -34,7 +34,8 @@
 <script lang="ts">
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
@@ -48,8 +49,8 @@ import Button from '../Button.vue';
 })
 export default class LiveFollowings extends Vue {
 
-	public streams:TwitchTypes.StreamInfo[] = [];
-	public loading:boolean = true;
+	public streams:TwitchDataTypes.StreamInfo[] = [];
+	public loading = true;
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }
@@ -75,7 +76,7 @@ export default class LiveFollowings extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref) {
+		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
@@ -89,7 +90,7 @@ export default class LiveFollowings extends Vue {
 		return Utils.formatDuration(ellapsed);
 	}
 
-	public getProfilePicURL(s:TwitchTypes.StreamInfo):string {
+	public getProfilePicURL(s:TwitchDataTypes.StreamInfo):string {
 		return s.user_info.profile_image_url.replace("300x300", "70x70");
 	}
 
@@ -114,8 +115,8 @@ export default class LiveFollowings extends Vue {
 		}
 	}
 
-	public raid(s:TwitchTypes.StreamInfo):void {
-		Utils.confirm("Raid ?", "Are you sure you want to raid " + s.user_login + " ?").then(async () => {
+	public raid(s:TwitchDataTypes.StreamInfo):void {
+		this.$confirm("Raid ?", "Are you sure you want to raid " + s.user_login + " ?").then(async () => {
 			IRCClient.instance.sendMessage("/raid "+s.user_login);
 			this.close();
 		}).catch(()=> { });
@@ -226,8 +227,17 @@ export default class LiveFollowings extends Vue {
 					flex-grow: 1;
 					transition: all .2s;
 					.title {
-						font-weight: bold;
-						font-size: 1.1em;
+						font-size: 1em;
+					}
+					.game {
+						font-size: .8em;
+						margin-top: .5em;
+						background-color: fade(@mainColor_normal, 15%);
+						align-self: center;
+						padding: .25em .5em;
+						width: auto;
+						border-radius: 1em;
+						text-align: center;
 					}
 				}
 	
@@ -261,6 +271,7 @@ export default class LiveFollowings extends Vue {
 					img {
 						width: 40px;
 						vertical-align: middle;
+						margin-right: .5em;
 					}
 				}
 			}

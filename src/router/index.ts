@@ -1,10 +1,17 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import VoiceControl from '../views/VoiceControl.vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import Chat from '../views/Chat.vue'
 import Home from '../views/Home.vue'
 import ChatLight from '../views/ChatLight.vue'
 import Login from '../views/Login.vue'
+import Sponsor from '../views/Sponsor.vue'
 import Logout from '../views/Logout.vue'
-import VoiceControl from '../views/VoiceControl.vue'
+import Overlay from '../views/Overlay.vue'
+import store from '@/store'
+import Utils from '@/utils/Utils'
+import type { DeezerAuthResult } from '@/utils/DeezerHelper'
+import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -17,9 +24,21 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/sponsor',
+		name: 'sponsor',
+		component: Sponsor,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
 		path: '/chat',
 		name: 'chat',
 		component: Chat,
+		meta: {
+			needAuth:true,
+		}
 	},
 	{
 		path: '/chat/:login',
@@ -27,6 +46,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: ChatLight,
 		meta: {
 			needAuth:false,
+			public:true,
 			noBG:true,
 		}
 	},
@@ -54,6 +74,60 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/spotify/auth',
+		name: 'spotify/auth',
+		redirect:() => {
+			if(!Utils.getQueryParameterByName("error")) {
+				store.state.showParams = true;//Open params
+				store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
+	
+				const params:SpotifyAuthResult = {
+					code:Utils.getQueryParameterByName("code") as string,
+					csrf:Utils.getQueryParameterByName("state") as string,
+				}
+				store.dispatch("setSpotifyAuthResult", params)
+			}else{
+				store.state.alert = "You refused to grant access to your Spotify account";
+			}
+			return {name:"chat"}
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
+		path: '/deezer/auth',
+		name: 'deezer/auth',
+		redirect:() => {
+			if(!Utils.getQueryParameterByName("error_reason")) {
+				store.state.showParams = true;//Open params
+				store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
+	
+				const params:DeezerAuthResult = {
+					code:Utils.getQueryParameterByName("code") as string,
+				}
+				store.dispatch("setDeezerAuthResult", params)
+			}else{
+				store.state.alert = "You refused to grant access to your Deezer account";
+			}
+			return {name:"chat"}
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
+		path: '/overlay/:id(.*)',
+		name: 'overlay',
+		component: Overlay,
+		meta: {
+			needAuth:false,
+			public:true,
+			noBG:true,
+			overflow:false,
+		}
+	},
+	{
 		path: "/:path(.*)",
 		redirect:() => {
 			return {name:"home"}
@@ -62,7 +136,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-	history: createWebHistory(process.env.BASE_URL),
+	history: createWebHistory(),
 	routes
 })
 

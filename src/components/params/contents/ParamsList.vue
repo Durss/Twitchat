@@ -20,7 +20,7 @@
 					<img src="@/assets/icons/infos.svg" alt="info">
 					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
 				</div>
-				<div v-else-if="p.id == 213 && p.value === true && !isOBSConnected" class="info pronouns">
+				<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
 					<p class="label">based on
 						<a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>
 						and
@@ -33,12 +33,12 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterCategory, ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterCategory, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
-import { PlaceholderEntry } from '../PlaceholderSelector.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 
 @Options({

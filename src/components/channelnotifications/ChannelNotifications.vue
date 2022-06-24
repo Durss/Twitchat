@@ -9,6 +9,7 @@
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<WhispersState class="content" v-else-if="showWhispers" />
 				<BingoState class="content" v-else-if="showBingo" />
+				<DeezerState class="content" v-else-if="showDeezer" />
 			</transition>
 
 			<transition name="slide">
@@ -24,9 +25,9 @@
 			</transition>
 
 			<div class="closeBt" v-if="showClose">
-				<Button small
+				<Button small white
 					aria-label="Close current content"
-					:icon="require('@/assets/icons/cross_white.svg')"
+					:icon="$image('icons/cross.svg')"
 					@click="$emit('close')" />
 			</div>
 		</div>
@@ -34,9 +35,7 @@
 </template>
 
 <script lang="ts">
-import store, { BingoData, HypeTrainStateData, RaffleData } from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import store from '@/store';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -50,6 +49,10 @@ import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
+import DeezerState from './DeezerState.vue';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -60,6 +63,7 @@ import WhispersState from './WhispersState.vue';
 		PollState,
 		RaidState,
 		BingoState,
+		DeezerState,
 		RaffleState,
 		TrackedUsers,
 		ChatPollState,
@@ -78,12 +82,13 @@ export default class ChannelNotifications extends Vue {
 
 	public get showRaid():boolean { return store.state.raiding != null; }
 	public get showHypeTrain():boolean { return store.state.params.filters.showHypeTrain.value as boolean && (store.state.hypeTrain as HypeTrainStateData).level != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchTypes.Poll)?.id != null; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
 	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && store.state.chatPoll != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchTypes.Prediction)?.id != null; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && (store.state.raffle as RaffleData).command != null; }
-	public get showBingo():boolean { return this.currentContent == 'bingo' && (store.state.bingo as BingoData)?.guessNumber != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && store.state.raffle != null; }
+	public get showBingo():boolean { return this.currentContent == 'bingo' && store.state.bingo != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
+	public get showDeezer():boolean { return this.currentContent == 'deezer' && store.state.deezerConnected; }
 	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
 
 	public get showClose():boolean {
@@ -93,7 +98,9 @@ export default class ChannelNotifications extends Vue {
 			|| this.showChatPoll
 			|| this.showWhispers
 			|| this.showPrediction
-			|| this.showTrackedUsers;
+			|| this.showTrackedUsers
+			|| this.showDeezer
+		;
 	}
 
 	public get whispersAvailable():boolean {
@@ -103,7 +110,7 @@ export default class ChannelNotifications extends Vue {
 		}
 		return false;
 	}
-
+	
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -121,7 +128,7 @@ export default class ChannelNotifications extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$refs.content as HTMLDivElement;
-		while(target != document.body && target != ref) {
+		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
@@ -160,14 +167,9 @@ export default class ChannelNotifications extends Vue {
 		.closeBt {
 			position: absolute;
 			top:10px;
-			left:50%;
-			transform: translate(-50%, -100%);
+			right:10px;
 			z-index: 1;
 			pointer-events:all;
-			background-color: @windowStateColor;
-			padding: 10px;
-			border-top-left-radius: 20px;
-			border-top-right-radius: 20px;
 		}
 
 		.slide-enter-active {

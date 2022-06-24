@@ -3,13 +3,13 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{raffleData.data.winners[0].user["display-name"]}}</strong> won the raffle
+			<strong>{{raffleData.data.winners[0]["display-name"]}}</strong> won the raffle
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 

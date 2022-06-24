@@ -1,16 +1,19 @@
 import Config from "@/utils/Config";
-import { JsonValue } from "type-fest";
-import store from ".";
+import type { JsonValue } from "type-fest";
+import type { TriggerData, TriggerActionTypes } from "../types/TwitchatDataTypes";
+import { TriggerTypes } from "@/utils/TriggerActionData";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
  * Created : 18/10/2020 
  */
 export default class Store {
+	
+	public static access_token:string;
 
 	private static store:Storage;
-	private static dataPrefix:string = "twitchat_";
-	private static saveTO:number = -1;
+	private static dataPrefix = "twitchat_";
+	private static saveTO = -1;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
 	private static propToSavableState:{[key:string]:boolean} = {};
 	
@@ -41,7 +44,7 @@ export default class Store {
 		return props;
 	}
 
-	public static set(key:string, value:JsonValue|unknown, save:boolean = true):void {
+	public static set(key:string, value:JsonValue|unknown, save = true):void {
 		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
 		if(value == undefined) return;
@@ -74,23 +77,47 @@ export default class Store {
 	*******************/
 	private static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
-		const v = this.get("v");
+		let v = this.get("v");
 		if(!v) {
 			this.fixBackslashes();
-			this.set("v", 1);
+			v = "1"
 		}
 		if(v=="1" || v=="2") {
 			this.cleanupOldData();
-			this.set("v", 3);
+			v = "3";
 		}
 		if(v=="3") {
 			this.migrateBotMessages();
-			this.set("v", 4);
+			v = "4";
 		}
 		if(v=="4") {
 			this.migrateSOMessage();
+			v = "5";
 		}
-		this.set("v", 5);
+		if(v=="5") {
+			Store.remove("p:showPollPredResults");
+			v = "6";
+		}
+		if(v=="6") {
+			this.migrateTriggers();
+			v = "7";
+		}
+		if(v=="7") {
+			//Because of my stupid version check, users could skip updates
+			//Trying to fix this here...
+			Store.remove("p:showPollPredResults");
+			v = "8";
+		}
+		if(v=="8") {
+			this.fixTriggersCase();
+			v = "9";
+		}
+		if(v=="9") {
+			this.migrateTriggers2();
+			v = "10";
+		}
+
+		this.set("v", v);
 
 		const items = this.getAll();
 		for (const key in items) {
@@ -106,24 +133,27 @@ export default class Store {
 
 	private static save():void {
 		clearTimeout(this.saveTO);
-		const access_token = store.state.oAuthToken?.access_token;
-		if(!access_token) return;
-
-		const data = JSON.parse(JSON.stringify(this.rawStore));
-		//Do not save sensitive data to server
-		delete data.obsPass;
-		delete data.oAuthToken;
-		//Do not save this to the server to avoid config to be erased
-		//on one of the instances
-		delete data.hideChat;
-		delete data["p:shoutoutLabel"];
+		if(!this.access_token) return;
 		
-		this.saveTO = setTimeout(async () => {
+		this.saveTO = window.setTimeout(async () => {
+			const data = JSON.parse(JSON.stringify(this.rawStore));
+			//Do not save sensitive data to server
+			delete data.obsPass;
+			delete data.oAuthToken;
+			delete data.spotifyAuthToken;
+			delete data.spotifyAppParams;
+			//Do not save this to the server to avoid config to be erased
+			//on one of the instances
+			delete data.hideChat;
+			delete data["p:shoutoutLabel"];
+			delete data.deezerEnabled;
+			delete data.redirect;
+
 			let json = {
-				access_token,
+				access_token:this.access_token,
 				data:data,
 			};
-			const res = await fetch(Config.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
+			const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
 			json = await res.json();
 		}, 1000);
 	}
@@ -163,7 +193,6 @@ export default class Store {
 		this.remove("p:subsSize");
 		this.remove("p:subsOnly");
 		this.remove("p:slowMode");
-		this.remove("p:emotesOnly");
 		this.remove("p:ignoreSelf");
 		this.remove("p:hideEmotes");
 		this.remove("tmiToken");
@@ -213,8 +242,84 @@ export default class Store {
 		label = label.replace("$TITLE", "{TITLE}");
 		label = label.replace("$URL", "{URL}");
 		label = label.replace("$CATEGORY", "{CATEGORY}");
-		// store.state.botMessages.shoutout.message = label;
-		store.dispatch("updateBotMessage", {key:"shoutout", enabled:true, message:label})
+		// store.dispatch("updateBotMessage", {key:"shoutout", enabled:true, message:label})
 		this.remove("p:shoutoutLabel");
+	}
+
+	/**
+	 * Flags all obs sources as "obs" types and move them to a new key while
+	 * cleaning up uncessary keys.
+	 */
+	private static migrateTriggers():void {
+		const sources = this.get("obsConf_sources");
+		if(sources) {
+			const actions:(TriggerActionTypes[]|TriggerData)[] = JSON.parse(sources);
+			for (const key in actions) {
+				const a = actions[key];
+				let list = a;
+				//Is chat command trigger ?
+				if(!Array.isArray(a)) {
+					list = (a as TriggerData).actions;
+				}
+				const typedList = list as TriggerActionTypes[];
+				for (let i = 0; i < typedList.length; i++) {
+					typedList[i].type = "obs";
+
+					//Cleanup unnecessary data
+					for (const prop in typedList[i]) {
+						//@ts-ignore
+						const v = typedList[i][prop];
+						if(v === "") {
+							//@ts-ignore
+							delete typedList[i][prop];
+						}
+					}
+				}
+			}
+			this.set("triggers", actions);
+			this.remove("obsConf_sources");
+		}
+	}
+
+	/**
+	 * Lowercasing all chat command keys so the commands work
+	 * properly no matter how the user writes it.
+	 */
+	private static fixTriggersCase():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers = JSON.parse(txt);
+		for (const key in triggers) {
+			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0) {
+				//Check if it's not full lowercased
+				if(key != key.toLowerCase()) {
+					triggers[key.toLowerCase()] = triggers[key];
+					delete triggers[key];
+				}
+			}
+		}
+		
+		this.set("triggers", triggers);
+	}
+
+	/**
+	 * Encapsulate simple triggers (not chat commands) inside a new object
+	 */
+	private static migrateTriggers2():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers = JSON.parse(txt);
+		for (const key in triggers) {
+			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0) {
+				triggers[key].enabled = true;
+			}else{
+				triggers[key] = {
+					enabled:true,
+					actions:triggers[key]
+				}
+			}
+		}
+		
+		this.set("triggers", triggers);
 	}
 }

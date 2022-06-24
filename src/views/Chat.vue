@@ -40,6 +40,7 @@
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
+				@debug="(v:number)=>debug(v)"
 				v-model:showFeed="showFeed" @update:showFeed="(v:boolean) => showFeed = v"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
@@ -71,6 +72,7 @@
 			@raffle="currentModal = 'raffle'"
 			@bingo="currentModal = 'bingo'"
 			@liveStreams="currentModal = 'liveStreams'"
+			@streamInfo="currentModal = 'streamInfo'"
 			@ad="startAd"
 			@clear="clearChat()"
 			@close="showCommands = false"
@@ -93,9 +95,18 @@
 		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
 		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+		<StreamInfoForm class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
 		<TTUserList class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
+
+		<Teleport to="body">
+			<div class="deezerCTA" v-if="needUserInteraction">
+				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
+				<div class="title">Click</div>
+				<div class="message">Deezer needs you to click here to be able to play music.</div>
+			</div>
+		</Teleport>
 	</div>
 </template>
 
@@ -109,25 +120,29 @@ import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
-import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
+import TTUserList from '@/components/chatform/TTUserList.vue';
 import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import NewUsers from '@/components/newusers/NewUsers.vue';
+import Parameters from '@/components/params/Parameters.vue';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
-import store, { BingoData, RaffleData } from '@/store';
+import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
+import store from '@/store';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { BingoData, RaffleData } from '@/utils/CommonDataTypes';
+import Config from '@/utils/Config';
+import DeezerHelper from '@/utils/DeezerHelper';
 import IRCClient from '@/utils/IRCClient';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
-import Parameters from '@/components/params/Parameters.vue';
-import TwitchatEvent from '@/utils/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
-import ChatPollForm from '@/components/poll/ChatPollForm.vue';
-import TTUserList from '@/components/chatform/TTUserList.vue';
+import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
+import { watch } from '@vue/runtime-core';
+import gsap from 'gsap';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	components:{
@@ -146,10 +161,10 @@ import TTUserList from '@/components/chatform/TTUserList.vue';
 		ActivityFeed,
 		ChatPollForm,
 		CommandHelper,
-		MessageSearch,
 		EmoteSelector,
 		PredictionForm,
 		LiveFollowings,
+		StreamInfoForm,
 		ChannelNotifications,
 	},
 	props:{
@@ -174,7 +189,9 @@ export default class Chat extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
 	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
+	public get splitViewVertical():boolean { return store.state.params.appearance.splitViewVertical.value as boolean && store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
+	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -183,6 +200,7 @@ export default class Chat extends Vue {
 			if(store.state.params.appearance.splitViewSwitch.value === true) {
 				res.push("switchCols");
 			}
+			if(this.splitViewVertical) res.push("splitVertical")
 		}
 		return res;
 	}
@@ -204,18 +222,17 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		this.onResize();
-		
 
 		//Auto opens the prediction status if pending for completion
 		watch(() => store.state.currentPrediction, (newValue, prevValue) => {
-			let prediction = store.state.currentPrediction as TwitchTypes.Prediction;
+			let prediction = store.state.currentPrediction as TwitchDataTypes.Prediction;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.status == "LOCKED" || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
 		watch(() => store.state.currentPoll, (newValue, prevValue) => {
-			let poll = store.state.currentPoll as TwitchTypes.Poll;
+			let poll = store.state.currentPoll as TwitchDataTypes.Poll;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && poll.status == "COMPLETED" || isNew) this.setCurrentNotification("poll");
 		});
@@ -223,7 +240,7 @@ export default class Chat extends Vue {
 		//Auto opens the bingo status when created
 		watch(() => store.state.bingo, () => {
 			let bingo = store.state.bingo as BingoData;
-			if(bingo?.opened === true) this.setCurrentNotification("bingo");
+			if(bingo) this.setCurrentNotification("bingo");
 		});
 
 		//Auto opens the raffle status when created
@@ -312,13 +329,13 @@ export default class Chat extends Vue {
 		if(!this.canStartAd) return;
 
 		if(isNaN(duration)) duration = 30;
-		Utils.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
+		this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 			try {
 				const res = await TwitchUtils.startCommercial(duration);
 				if(res.length > 0) {
 					this.canStartAd = false;
 					this.startAdCooldown = Date.now() + res.retry_after * 1000;
-					setTimeout(()=>{
+					window.setTimeout(()=>{
 						this.canStartAd = true;
 						this.startAdCooldown = 0;
 					}, this.startAdCooldown);
@@ -330,7 +347,7 @@ export default class Chat extends Vue {
 				IRCClient.instance.sendNotice("commercial", e.message);
 				// store.state.alert = "An unknown error occured when starting commercial"
 			}
-		}).catch(()=>{});
+		}).catch(()=>{/*ignore*/});
 	}
 
 	public onResize():void {
@@ -358,6 +375,20 @@ export default class Chat extends Vue {
 		this.currentModal = 'search';
 		this.currentMessageSearch = str;
 	}
+
+	/**
+	 * Temporary debug command
+	 * @param index 
+	 */
+	public debug(index:number):void {
+		let div = (this.$refs.messages as Vue).$el as HTMLDivElement;
+		if(index == 1) {
+			gsap.to(div, {opacity:1, duration:.5});
+		}
+		if(index == 2) {
+			gsap.to(div.getElementsByClassName("holder")[0], {opacity:1, duration:.5});
+		}
+	}
 }
 
 </script>
@@ -384,6 +415,7 @@ export default class Chat extends Vue {
 				width: calc(50% - 1px);
 				display: flex;
 				flex-direction: column;
+				flex-grow: 1;
 	
 				.newUsers {
 					right: 0;
@@ -397,6 +429,26 @@ export default class Chat extends Vue {
 				.activityFeed {
 					width: 100%;
 					min-height: 0;//Shit hack to make overflow behave properly
+				}
+			}
+		}
+
+		&.splitVertical {
+			.top {
+				flex-direction: column;
+				.leftColumn {
+					width: 100%;
+					max-height: 60%;
+				}
+				.rightColumn {
+					width: 100%;
+					max-height: 40%;
+				}
+			}
+
+			&.switchCols {
+				.top {
+					flex-direction: column-reverse;
 				}
 			}
 		}
@@ -423,7 +475,7 @@ export default class Chat extends Vue {
 		}
 	}
 
-	&.switchCols {
+	&.switchCols:not(.splitVertical) {
 		.top {
 			flex-direction: row-reverse;
 		}
@@ -461,7 +513,6 @@ export default class Chat extends Vue {
 		top: 0;
 		left: 50%;
 		transform: translateX(-50%);
-		max-height: 35vh;
 		width: 100%;
 		margin: auto;
 	}
@@ -494,7 +545,7 @@ export default class Chat extends Vue {
 	.popin {
 		margin-left: auto;
 		z-index: 1;
-		height: calc(100% - 40px);///40 => footer height
+		height: 100%;//calc(100% - 40px);///40 => footer height
 		:deep(.holder) {
 			max-height: 100% !important;
 		}
@@ -516,4 +567,31 @@ export default class Chat extends Vue {
 		}
 	}
 }
+</style>
+<style lang="less">
+	.deezerCTA {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		background: rgba(255, 0, 0, .25);
+		transform: translate(-50%, -50%);
+		z-index: 6;
+		pointer-events: none;
+		color: @mainColor_normal;
+		text-align: center;
+		text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+
+		.icon {
+			height: 4em;
+		}
+
+		.title {
+			font-size: 3em;
+			font-weight: bold;
+			margin: .25em 0;
+		}
+		.message {
+			font-size: 1.5em;
+		}
+	}
 </style>

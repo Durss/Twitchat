@@ -50,8 +50,16 @@ http.createServer((request, response) => {
 			//Get client ID
 			if(endpoint == "/api/configs") {
 				response.writeHead(200, {'Content-Type': 'application/json'});
-				response.end(JSON.stringify({client_id:credentials.client_id, scopes:credentials.scopes}));
-				return;
+				response.end(JSON.stringify({
+					client_id:credentials.client_id,
+					scopes:credentials.scopes,
+					spotify_scopes:credentials.spotify_scopes,
+					spotify_client_id:credentials.spotify_client_id,
+					deezer_scopes:credentials.deezer_scopes,
+					deezer_client_id:credentials.deezer_client_id,
+					deezer_dev_client_id:credentials.deezer_dev_client_id,
+				}));
+					return;
 		
 			//Get/Set user data
 			}else if(endpoint == "/api/user") {
@@ -82,6 +90,36 @@ http.createServer((request, response) => {
 			}else if(endpoint == "/api/users") {
 				getUsers(request, response);
 				return;
+
+			//Get spotify token
+			}else if(endpoint == "/api/spotify/auth") {
+				spotifyAuthenticate(request, response);
+				return;
+
+			//Rrefresh spotify access_token
+			}else if(endpoint == "/api/spotify/refresh_token") {
+				spotifyRefreshToken(request, response);
+				return;
+
+			//Get deezer token
+			}else if(endpoint == "/api/deezer/auth") {
+				deezerAuthenticate(request, response);
+				return;
+
+			//Rrefresh deezer access_token
+			// }else if(endpoint == "/api/deezer/search") {
+			// 	const res = await fetch("https://api.deezer.com/search?q=prout", {
+			// 		"headers": {
+			// 			"accept": "*/*",
+			// 		},
+			// 		"body": null,
+			// 		"method": "GET",
+			// 	});
+			// 	const json = await res.json();
+			// 	console.log(json)
+			// 	response.writeHead(200, {'Content-Type': 'application/json'});
+			// 	response.end(JSON.stringify(json));
+			// 	return;
 			
 			//Endpoint not found
 			}else{
@@ -94,9 +132,15 @@ http.createServer((request, response) => {
 				if (err) {
 					if(request.url.toLowerCase().indexOf("oauth") == -1
 					&& request.url.toLowerCase().indexOf("chat") == -1
+					&& request.url.toLowerCase().indexOf("overlay") == -1
+					&& request.url.toLowerCase().indexOf("spotify") == -1
+					&& request.url.toLowerCase().indexOf("deezer") == -1
+					&& request.url.toLowerCase().indexOf("sponsor") == -1
+					&& request.url.toLowerCase().indexOf("logout") == -1
 					&& request.url.toLowerCase().indexOf("login") == -1) {
+						
 						console.error(
-							"Error serving " + request.url + " - " + err.message
+							"Error serving " + request.headers.host+request.url + " - " + err.message
 						);
 					}
 
@@ -344,6 +388,111 @@ async function getUsers(request, response) {
 	response.end(JSON.stringify({success:true, users}));
 }
 
+/**
+ * Authenticate a spotify user from its auth_code
+ */
+async function spotifyAuthenticate(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+	let clientId = params.clientId? params.clientId : credentials.spotify_client_id;
+	let clientSecret = params.clientSecret? params.clientSecret : credentials.spotify_client_secret;
+
+	const options = {
+		method:"POST",
+		headers: {
+			"Authorization": "Basic "+Buffer.from(clientId+":"+clientSecret).toString('base64'),
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		body: new URLSearchParams({
+			'grant_type': 'authorization_code',
+			'code': params.code,
+			'redirect_uri': credentials.spotify_redirect_uri,
+		})
+	}
+	
+	let json;
+	try {
+		let res = await fetch("https://accounts.spotify.com/api/token", options);
+		json = await res.json();
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		console.log(error);
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify(json));
+}
+
+/**
+ * Refreshes a spotify access token
+ */
+async function spotifyRefreshToken(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+	let clientId = params.clientId? params.clientId : credentials.spotify_client_id;
+	let clientSecret = params.clientSecret? params.clientSecret : credentials.spotify_client_secret;
+
+	const options = {
+		method:"POST",
+		headers: {
+			"Authorization": "Basic "+Buffer.from(clientId+":"+clientSecret).toString('base64'),
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		body: new URLSearchParams({
+			'grant_type': 'refresh_token',
+			'refresh_token': params.token,
+		})
+	}
+	
+	let json;
+	try {
+		let res = await fetch("https://accounts.spotify.com/api/token", options);
+		json = await res.json();
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		console.log(error);
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify(json));
+}
+
+/**
+ * Authenticate a deezer user from its auth_code
+ */
+async function deezerAuthenticate(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+
+	const options = { method:"GET" }
+	let json;
+	try {
+		const appId = params.isProd=="1"? credentials.deezer_client_id : credentials.deezer_dev_client_id;
+		const secret = params.isProd=="1"? credentials.deezer_client_secret : credentials.deezer_dev_client_secret;
+		let url = "https://connect.deezer.com/oauth/access_token.php";
+		url += "?code="+params.code;
+		url += "&secret="+secret;
+		url += "&app_id="+appId;
+		url += "&output=json";
+		let res = await fetch(url, options);
+		json = await res.json();
+
+		if(!json.access_token) throw(json);
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:'error', success:false}));
+		console.log(error);
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({
+		refresh_token: json.access_token,
+		expires_in: json.expires,
+	}));
+}
+
 
 
 
@@ -470,15 +619,36 @@ const UserDataSchema = {
 				}
 			]
 		},
-		obsConf_sources: {
+		triggers: {
 			type:["object"],
 			additionalProperties: true,
 			patternProperties: {
 				".*": {
-					oneOf:[
-						{
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						chatCommand: {type:"string", maxLength:100},
+						permissions: {
+							type:"object",
+							properties: {
+								mods: {type:"boolean"},
+								vips: {type:"boolean"},
+								subs: {type:"boolean"},
+								all: {type:"boolean"},
+								users: {type:"string", maxLength:1000},
+							}
+						},
+						cooldown: {
+							type:"object",
+							properties: {
+								global: {type:"number", minimum:0, maximum:60*60*12},
+								user: {type:"number", minimum:0, maximum:60*60*12},
+							}
+						},
+						actions:{
 							type:"array",
-							items:[
+							items: [
 								{
 									type: "object",
 									additionalProperties: false,
@@ -486,59 +656,20 @@ const UserDataSchema = {
 										id: {type:"string", maxLength:100},
 										sourceName: {type:"string", maxLength:100},
 										show: {type:"boolean"},
-										delay: {type:"number", minimum:0, maximum:999999999},
+										delay: {type:"number"},
 										filterName: {type:"string", maxLength:100},
 										text: {type:"string", maxLength:500},
 										url: {type:"string", maxLength:1000},
 										mediaPath: {type:"string", maxLength:1000},
+										type: {type:"string", maxLength:50},
+										musicAction: {type:"string", maxLength:3},
+										track: {type:"string", maxLength:500},
+										confirmMessage: {type:"string", maxLength:500},
 									}
-								}
+								},
 							]
-						},
-						{
-							type: "object",
-							additionalProperties: false,
-							properties: {
-								chatCommand: {type:"string", maxLength:100},
-								permissions: {
-									type:"object",
-									properties: {
-										mods: {type:"boolean"},
-										vips: {type:"boolean"},
-										subs: {type:"boolean"},
-										all: {type:"boolean"},
-										users: {type:"string", maxLength:1000},
-									}
-								},
-								cooldown: {
-									type:"object",
-									properties: {
-										global: {type:"number", minimum:0, maximum:60*60*12},
-										user: {type:"number", minimum:0, maximum:60*60*12},
-									}
-								},
-								actions:{
-									type:"array",
-									items: [
-										{
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												id: {type:"string", maxLength:100},
-												sourceName: {type:"string", maxLength:100},
-												show: {type:"boolean"},
-												delay: {type:"number"},
-												filterName: {type:"string", maxLength:100},
-												text: {type:"string", maxLength:500},
-												url: {type:"string", maxLength:1000},
-												mediaPath: {type:"string", maxLength:1000},
-											}
-										},
-									]
-								}
-							}
 						}
-					]
+					}
 				},
 			}
 		},
@@ -547,6 +678,14 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				raffleStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
+				raffleJoin: {
 					type:"object",
 					additionalProperties: false,
 					properties: {
@@ -602,6 +741,25 @@ const UserDataSchema = {
 			]
 		},
 		voiceLang: {type:"string"},
+		"streamInfoPresets":{
+			type:"array",
+			items:[
+				{
+					type:"object",
+					additionalProperties: false,
+					properties:{
+						name:{type:"string", maxLength:50},
+						id:{type:"string", maxLength:10},
+						title:{type:"string", maxLength:200},
+						categoryID:{type:"string", maxLength:10},
+						tagIDs:{
+							type:"array",
+							items:[{type:"string", maxLength:50}],
+						},
+					}
+				}
+			]
+		},
 		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
@@ -641,7 +799,9 @@ const UserDataSchema = {
 		"p:showFollow": {type:"boolean"},
 		"p:showHypeTrain": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
-		"p:showPollPredResults": {type:"boolean"},
+		"p:splitViewVertical": {type:"boolean"},
+		"p:showWhispersOnChat": {type:"boolean"},
+		"p:showNotifications": {type:"boolean"},
 		"p:showRaids": {type:"boolean"},
 		"p:showRewards": {type:"boolean"},
 		"p:showRewardsInfos": {type:"boolean"},
@@ -654,6 +814,7 @@ const UserDataSchema = {
 		"p:splitViewSwitch": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
+		"p:translateNames": {type:"boolean"},
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -665,7 +826,9 @@ const UserDataSchema = {
 		greetScrollDownAuto: {type:"boolean"},
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
+		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
+		raffle_showCountdownOverlay: {type:"boolean"},
 	}
 }
 

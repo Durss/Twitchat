@@ -1,21 +1,17 @@
 <template>
 	<div :class="classes">
-		<div class="header" @click="toggle()">
+		<div class="header" @click.stop="toggle()">
 			<Button small
-				:icon="require('@/assets/icons/orderable_white.svg')"
+				:icon="$image('icons/orderable_white.svg')"
 				class="orderBt"
 				warn
 				v-if="orderable!==false"
 				@mousedown="$emit('startDrag', $event)"
+				data-tooltip="Reorder"
 			/>
-			<img :src="require('@/assets/icons/'+localIcon+'.svg')" :alt="localIcon" class="icon" v-if="localIcon">
+			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
 			<h2 v-html="localTitle"></h2>
-			<Button small highlight
-				:icon="require('@/assets/icons/cross_white.svg')"
-				class="deleteBt"
-				v-if="deletable!==false"
-				@click="$emit('delete')"
-			/>
+			<slot name="actions"></slot>
 		</div>
 		<div class="content" v-if="showContent" ref="content">
 			<slot></slot>
@@ -32,7 +28,7 @@ import Button from './Button.vue';
 @Options({
 	props:{
 		title:String,
-		icon:String,
+		icons:Array,
 		open:{
 			type:Boolean,
 			default:true,
@@ -42,10 +38,6 @@ import Button from './Button.vue';
 			default:false,
 		},
 		small:{
-			type:Boolean,
-			default:false,
-		},
-		deletable:{
 			type:Boolean,
 			default:false,
 		},
@@ -65,29 +57,28 @@ import Button from './Button.vue';
 	components:{
 		Button,
 	},
-	emits:["delete", "startDrag"],
+	emits:["startDrag"],
 })
 export default class ToggleBlock extends Vue {
 
-	public icon!:string
-	public title!:string
+	public icons!:string[];
+	public title!:string;
 	public open!:boolean;
 	public error!:boolean;
 	public small!:boolean;
 	public medium!:boolean;
-	public deletable!:boolean;
 	public orderable!:boolean;
 	public errorTitle!:string;
 
-	public showContent:boolean = false;
+	public showContent = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
 		if(!this.showContent)			res.push("closed");
 		if(this.error !== false)		res.push("error");
-		if(this.deletable !== false)	res.push("deletable");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
+		if(this.icons?.length > 0)		res.push("hasIcon");
 		return res;
 	}
 
@@ -96,9 +87,10 @@ export default class ToggleBlock extends Vue {
 		return this.title;
 	}
 
-	public get localIcon():string {
-		if(this.error) return "automod_white";
-		return this.icon;
+	public get localIcons():string[] {
+		const icons = this.icons;
+		if(this.error) icons.push("automod_white");
+		return icons;
 	}
 
 	public beforeMount():void {
@@ -133,12 +125,17 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
-
 	&.closed {
 		.header {
 			border-bottom: none;
 			border-bottom-left-radius: 1em;
 			border-bottom-right-radius: 1em;
+		}
+	}
+
+	&:not(.small):not(.medium){
+		&>.header {
+			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 		}
 	}
 
@@ -160,6 +157,7 @@ export default class ToggleBlock extends Vue {
 				}
 			}
 		}
+
 		&.closed {
 			.header {
 				background-color: transparent;
@@ -168,6 +166,16 @@ export default class ToggleBlock extends Vue {
 				}
 			}
 		}
+
+		&.hasIcon {
+			.header {
+				h2::before {
+					content: "";
+					margin-right: .5em;
+				}
+			}
+		}
+
 		.content {
 			background-color: fade(@mainColor_normal, 10%);
 			padding: 0;
@@ -218,12 +226,6 @@ export default class ToggleBlock extends Vue {
 				// }
 			}
 
-			.deleteBt {
-				border-radius: 0;
-				padding: .3em;
-				align-self: stretch;
-			}
-
 			.orderBt {
 				border-radius: 0;
 				padding: .3em;
@@ -235,7 +237,7 @@ export default class ToggleBlock extends Vue {
 			padding: .5em;
 			border-bottom-left-radius: @radius;
 			border-bottom-right-radius: @radius;
-			background-color: #f2eef8;
+			// background-color: #f2eef8;
 		}
 	}
 
@@ -269,11 +271,6 @@ export default class ToggleBlock extends Vue {
 		&:hover {
 			background-color: darken(@mainColor_light, 3%);
 		}
-
-		.deleteBt {
-			border-radius: 50%;
-			padding: .3em;
-		}
 	}
 
 	.content {
@@ -283,7 +280,7 @@ export default class ToggleBlock extends Vue {
 		border-bottom-left-radius: 1em;
 		border-bottom-right-radius: 1em;
 		&>:deep(img) {
-			margin: .5em 0;
+			margin: .5em auto;
 			max-width: 100%;
 		}
 	}

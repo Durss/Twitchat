@@ -3,7 +3,7 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button aria-label="Close users list" small :icon="require('@/assets/icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 
 			<div class="noResult" v-if="!loading && users?.length == 0">no user found :(</div>
 
@@ -16,13 +16,17 @@
 					ref="userCard"
 					@click="openUser(u)"
 				>
-					<div class="header">
+					<div class="header" v-if="u.user">
 						<img :src="getProfilePicURL(u)" alt="profile" class="avatar">
 						
 						<span class="login">
 							{{u.user.login}}
 							<img src="@/assets/icons/partner.svg" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'">
 						</span>
+					</div>
+					<div class="header" v-else>
+						<img src="@/assets/icons/user_purple.svg" alt="profile" class="avatar">
+						<span class="login">DELETED USER ID {{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
 				</div>
@@ -34,7 +38,8 @@
 <script lang="ts">
 import store from '@/store';
 import Config from '@/utils/Config';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -48,8 +53,8 @@ import Button from '../Button.vue';
 export default class TTUserList extends Vue {
 
 	public users:UserData[] = [];
-	public loading:boolean = true;
-	public token:string = "";
+	public loading = true;
+	public token = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -62,12 +67,7 @@ export default class TTUserList extends Vue {
 
 	public formatDate(u:UserData):string {
 		const d = new Date(u.date);
-		Utils.formatDuration
-		return Utils.toDigits(d.getDate())+ "/"
-				+ Utils.toDigits(d.getMonth() + 1) + "/"
-				+ d.getFullYear() + " "
-				+ Utils.toDigits(d.getHours()) + "h"
-				+ Utils.toDigits(d.getMinutes());
+		return Utils.formatDate(d);
 	}
 
 	public beforeMount():void {
@@ -87,7 +87,7 @@ export default class TTUserList extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref) {
+		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
@@ -96,6 +96,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public getProfilePicURL(u:UserData):string {
+		if(!u.user.profile_image_url) return  this.$image("icons/user.svg");
 		return u.user.profile_image_url.replace("300x300", "70x70");
 	}
 
@@ -110,7 +111,7 @@ export default class TTUserList extends Vue {
 	private async updateList():Promise<void> {
 		let res;
 		try {
-			res = await fetch(Config.API_PATH+"/users?token=" + this.token, {
+			res = await fetch(Config.instance.API_PATH+"/users?token=" + this.token, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -118,7 +119,7 @@ export default class TTUserList extends Vue {
 			})
 			const json = await res.json();
 			if(json.success) {
-				let users = json.users as {id:string, date:number, user:TwitchTypes.UserInfo}[];
+				const users = json.users as {id:string, date:number, user:TwitchDataTypes.UserInfo}[];
 				const ids = users.map(u => u.id);
 				const channels = await TwitchUtils.loadUserInfo(ids);
 				for (let i = 0; i < channels.length; i++) {
@@ -126,10 +127,6 @@ export default class TTUserList extends Vue {
 					const index = users.findIndex(u => u.id == c.id);
 					users[index].user = c;
 				}
-				//Filter out users not returned by tiwtch API (if account banned ? Deleted ?)
-				console.log(users.length);
-				users = users.filter(v => v.user != undefined);
-				console.log(">",users.length);
 				users.sort((a, b) => b.date - a.date);
 				this.users = users;
 			}else{
@@ -144,7 +141,7 @@ export default class TTUserList extends Vue {
 	}
 }
 
-interface UserData {id:string, date:number, user:TwitchTypes.UserInfo}
+interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 </script>
 
 <style scoped lang="less">

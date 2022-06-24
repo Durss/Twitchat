@@ -20,15 +20,15 @@
 		</div>
 
 		<Button class="item"
-			:icon="require('@/assets/icons/ticket.svg')"
+			:icon="$image('icons/ticket.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
 			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
 
-		<PostOnChatParam botMessageKey="raffle" class="item " :placeholders="winnerPlaceholders" />
+		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
 		<Button class="item"
-			:icon="require('@/assets/icons/cross_white.svg')"
+			:icon="$image('icons/cross_white.svg')"
 			title="Stop Raffle"
 			highlight
 			@click="closeRaffle()" />
@@ -36,24 +36,24 @@
 </template>
 
 <script lang="ts">
-import store, { RaffleData, RaffleVote } from '@/store';
-import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { PlaceholderEntry, WheelData, WheelItem } from '@/types/TwitchatDataTypes';
+import store from '@/store';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
-import { ChatUserstate } from 'tmi.js';
+import type { ChatUserstate } from 'tmi.js';
+import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ParamItem from '../params/ParamItem.vue';
-import { PlaceholderEntry } from '../params/PlaceholderSelector.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
+import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
 
 @Options({
 	props:{},
 	components:{
 		Button,
-		ParamItem,
 		ProgressBar,
 		PostOnChatParam,
 	},
@@ -61,29 +61,39 @@ import ProgressBar from '../ProgressBar.vue';
 })
 export default class RaffleState extends Vue {
 
-	public progressPercent:number = 0;
+	public progressPercent = 0;
 	public raffleData:RaffleData = store.state.raffle as RaffleData;
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	
+	private wheelOverlayPresenceHandler!:()=>void;
+	private wheelOverlayExists = false;
 
 	public mounted():void {
-
 		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();
 		const duration = this.raffleData.duration*60000;
 		const timeLeft = duration - ellapsed;
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
+
+		this.wheelOverlayPresenceHandler = ()=> { this.wheelOverlayExists = true; };
+
+		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		
+		//Check if wheel's overlay exists
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 	}
 
 	public closeRaffle():void {
-		store.dispatch("startRaffle", {});
-		this.$emit("close")
+		store.dispatch("stopRaffle");
+		this.$emit("close");
+		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 	}
 
 	public openUserCard(user:ChatUserstate):void {
 		store.dispatch("openUserCard", user.username);
 	}
 
-	public pickWinner():void {
+	public async pickWinner():Promise<void> {
 		let winner:RaffleVote;
 		
 		const list = [];
@@ -99,26 +109,48 @@ export default class RaffleState extends Vue {
 			}
 		}
 		
+		//Pick a winner that has not already be picked
 		do{
 			winner = Utils.pickRand(list);
 		}while(this.raffleData.winners.find(w => w.user['user-id'] == winner.user['user-id']));
-
 		this.raffleData.winners.push( winner );
-
-		//Post result on chat
-		const payload:IRCEventDataList.RaffleResult = {
-			type:"raffle",
-			data:this.raffleData,
-			tags: {
-				id:IRCClient.instance.getFakeGuid(),
-				"tmi-sent-ts": Date.now().toString()
-			},
-		}
-		store.dispatch("addChatMessage", payload);
 		
-		if(store.state.botMessages.raffle.enabled) {
-			IRCClient.instance.sendMessage(store.state.botMessages.raffle.message.replace(/\{USER\}/gi, winner.user['display-name'] as string));
+		//Ask if a wheel overlay exists
+		if(PublicAPI.instance.localConnexionAvailable) {
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 		}
+
+		//A wheel overlay exists, send it data and wait for it to complete
+		if(this.wheelOverlayExists){
+			const list:WheelItem[] = this.raffleData.users.map((v:RaffleVote):WheelItem=>{
+										return {
+											id:v.user.id as string,
+											label:v.user['display-name'] as string,
+											data:v.user
+										}
+									});
+			const data:WheelData = {
+				items:list,
+				winner: {
+					id:winner.user.id as string,
+					label:winner.user['display-name'] as string,
+					data:winner,
+				},
+			}
+			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
+
+		}else{
+
+			//no wheel overlay found, just announce the winner
+			const winnerData:WheelItem = {
+				id:winner.user.id as string,
+				label:winner.user['display-name'] as string,
+				data:winner,
+			}
+			store.dispatch("onRaffleComplete", {winner:winnerData});
+		}
+
 	}
 
 }
@@ -172,6 +204,14 @@ export default class RaffleState extends Vue {
 				margin-right: 5px;
 			}
 		}
+		
+
+		&.postChat {
+			width: 70%;
+			margin-top: 10px;
+			font-size: .8em;
+		}
+
 
 		&.winners {
 			display: block;

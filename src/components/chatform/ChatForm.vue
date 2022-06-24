@@ -2,11 +2,11 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<Button aria-label="Open parameters" :icon="require('@/assets/icons/params.svg')" bounce @click="toggleParams()" />
-				<Button aria-label="Open chat commands" :icon="require('@/assets/icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="require('@/assets/icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" />
-				<Button aria-label="Open activity feed" :icon="require('@/assets/icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
-				<!-- <Button :icon="require('@/assets/icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
+				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
+				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
+				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
+				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
 			<form @submit.prevent="" class="inputForm">
@@ -24,16 +24,16 @@
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
 				<!-- <Button aria-label="send message"
-					@click="sendMessage()" type="button" :icon="require('@/assets/icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
+					@click="sendMessage()" type="button" :icon="$image('icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
 				
 				<Button aria-label="Open emotes list"
-					:icon="require('@/assets/icons/emote.svg')"
+					:icon="$image('icons/emote.svg')"
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
 
 				<transition name="blink">
 				<Button aria-label="Open current poll"
-					:icon="require('@/assets/icons/poll.svg')"
+					:icon="$image('icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
 					v-if="$store.state.currentPoll?.id" />
@@ -41,7 +41,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current chat poll"
-					:icon="require('@/assets/icons/chatPoll.svg')"
+					:icon="$image('icons/chatPoll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'chatpoll')"
 					v-if="$store.state.chatPoll != null" />
@@ -49,7 +49,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current prediction"
-					:icon="require('@/assets/icons/prediction.svg')"
+					:icon="$image('icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
 					v-if="$store.state.currentPrediction?.id" />
@@ -57,7 +57,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open tracked users"
-					:icon="require('@/assets/icons/magnet.svg')"
+					:icon="$image('icons/magnet.svg')"
 					bounce
 					v-if="$store.state.trackedUsers.length > 0"
 					data-tooltip="View tracked users"
@@ -66,18 +66,18 @@
 
 				<transition name="blink">
 				<Button aria-label="Open current raffle"
-					:icon="require('@/assets/icons/ticket.svg')"
+					:icon="$image('icons/ticket.svg')"
 					bounce
-					v-if="$store.state.raffle.command != null"
+					v-if="$store.state.raffle"
 					data-tooltip="Raffle"
 					@click="$emit('setCurrentNotification', 'raffle')" />
 				</transition>
 
 				<transition name="blink">
 				<Button aria-label="Open current bingo"
-					:icon="require('@/assets/icons/bingo.svg')"
+					:icon="$image('icons/bingo.svg')"
 					bounce
-					v-if="$store.state.bingo.guessNumber != null"
+					v-if="$store.state.bingo"
 					data-tooltip="Bingo"
 					@click="$emit('setCurrentNotification', 'bingo')" />
 				</transition>
@@ -85,7 +85,7 @@
 				<transition name="blink">
 				<div class="whispers" v-if="whispersAvailable">
 					<Button aria-label="Open whispers"
-						:icon="require('@/assets/icons/whispers.svg')"
+						:icon="$image('icons/whispers.svg')"
 						bounce
 						small
 						data-tooltip="Whispers"
@@ -96,7 +96,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Open dev mode options"
-					:icon="require('@/assets/icons/debug.svg')"
+					:icon="$image('icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
 					v-if="$store.state.devmode" />
@@ -104,17 +104,26 @@
 
 				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
-					:icon="require('@/assets/icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
+					:icon="$image('icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
 					data-tooltip="Send encrypted<br>messages" />
 				</transition>
 
+				<transition name="blink">
+				<Button aria-label="Open deezer player"
+					:icon="$image('icons/deezer.svg')"
+					bounce
+					v-if="$store.state.deezerConnected"
+					data-tooltip="Deezer"
+					@click="$emit('setCurrentNotification', 'deezer')" />
+				</transition>
+
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
-					class="viewCount"
 					data-tooltip="Viewer count"
+					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
 					<p v-if="censoredViewCount">x</p>
@@ -124,11 +133,13 @@
 
 				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
 
+				<TimerCountDownInfo v-if="$store.state.countdown || $store.state.timerStart > 0" />
+
 				<CommercialTimer v-if="isCommercial" />
 
 			</form>
 
-			<AutocompleteForm class="contentWindows emotesLive"
+			<AutocompleteChatForm class="contentWindows emotesLive"
 				v-if="openAutoComplete"
 				:search="autoCompleteSearch"
 				:emotes="autoCompleteEmotes"
@@ -142,19 +153,22 @@
 </template>
 
 <script lang="ts">
-import store, { BingoConfig, TwitchatAdTypes } from '@/store';
+import store from '@/store';
+import { TwitchatAdTypes, type BingoConfig } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
-import AutocompleteForm from './AutocompleteForm.vue';
+import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
+import TimerCountDownInfo from './TimerCountDownInfo.vue';
 
 @Options({
 	props:{
@@ -167,10 +181,12 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 		Button,
 		ParamItem,
 		CommercialTimer,
-		AutocompleteForm,
+		TimerCountDownInfo,
 		CommunityBoostInfo,
+		AutocompleteChatForm,
 	},
 	emits: [
+		"debug",
 		"ad",
 		"poll",
 		"pred",
@@ -198,15 +214,15 @@ export default class ChatForm extends Vue {
 	public showCommands!:boolean;
 	public showRewards!:boolean;
 
-	public message:string = "";
-	public error:boolean = false;
-	public sendingMessage:boolean = false;
-	public censoredViewCount:boolean = false;
-	public autoCompleteSearch:string = "";
-	public autoCompleteEmotes:boolean = false;
-	public autoCompleteUsers:boolean = false;
-	public autoCompleteCommands:boolean = false;
-	public spamInterval:number = 0;
+	public message = "";
+	public error = false;
+	public sendingMessage = false;
+	public censoredViewCount = false;
+	public autoCompleteSearch = "";
+	public autoCompleteEmotes = false;
+	public autoCompleteUsers = false;
+	public autoCompleteCommands = false;
+	public spamInterval = 0;
 
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
@@ -239,6 +255,7 @@ export default class ChatForm extends Vue {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
+			let isCmd = /^\s*\//.test(newVal);
 			
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
@@ -253,7 +270,7 @@ export default class ChatForm extends Vue {
 				(currentChar == "/" && carretPos == 1) || 
 				(i == 0 && this.autoCompleteSearch)) {
 					this.autoCompleteUsers = currentChar == "@";
-					this.autoCompleteEmotes = currentChar == ":";
+					this.autoCompleteEmotes = currentChar == ":" && !isCmd;//Avoid autocompleting emotes in /countdown cmd
 					this.autoCompleteCommands = currentChar == "/";
 					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
@@ -284,7 +301,7 @@ export default class ChatForm extends Vue {
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
 
-		let hash:string = "";
+		let hash = "";
 		try {
 			const encoder = new TextEncoder();
 			const data = encoder.encode(cmd);
@@ -298,6 +315,11 @@ export default class ChatForm extends Vue {
 		if(cmd == "/devmode") {
 			this.message = "";
 			store.dispatch("toggleDevMode");
+		}else
+
+		if(cmd == "/error") {
+			this.message = "";
+			throw(new Error("Test error"));
 		}else
 
 		if(cmd == "/chatpoll") {
@@ -354,20 +376,13 @@ export default class ChatForm extends Vue {
 			this.sendingMessage = true;
 			this.message = "...";
 			//Make a shoutout
-			await TwitchUtils.shoutout(params[0]);
+			await store.dispatch("shoutout",params[0]);
 			this.sendingMessage = false;
 			this.message = "";
 		}else
 
 		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
 			this.$emit("liveStreams");
-			this.message = "";
-		}else
-
-		if(cmd == "/cypherkey") {
-			//Secret feature
-			TwitchCypherPlugin.instance.cypherKey = params[0];
-			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
 		}else
 
@@ -383,11 +398,13 @@ export default class ChatForm extends Vue {
 					min: 4
 				}
 			});
-			this.spamInterval = setInterval(()=> {
+			this.spamInterval = window.setInterval(()=> {
 				const tags = IRCClient.instance.getFakeTags();
-				tags.username = store.state.user.login;
-				tags["display-name"] = store.state.user.login;
-				tags["user-id"] = store.state.user.user_id;
+				const id = Math.round(Math.random()*1000);
+				tags.username = "FakeUser"+id;//UserSession.instance.authToken.login;
+				tags["display-name"] = tags.username;
+				tags["user-id"] = id.toString();//UserSession.instance.authToken.user_id;
+				tags.color = "#"+(id*id*id*id*id).toString().substring(0,8);
 				tags.id = IRCClient.instance.getFakeGuid();
 				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
 			}, 250);
@@ -421,6 +438,46 @@ export default class ChatForm extends Vue {
 				store.state.tempStoreValue = params[0];
 				this.$emit('TTuserList');
 			}
+			this.message = "";
+		}else
+
+		if(cmd == "/alphatest1") {
+			this.$emit("debug", 1);
+			this.message = "";
+		}else
+
+		if(cmd == "/alphatest2") {
+			this.$emit("debug", 2);
+			this.message = "";
+		}else
+
+		if(cmd == "/timerstart") {
+			store.dispatch("startTimer");
+			this.message = "";
+		}else
+
+		if(cmd == "/timerstop") {
+			store.dispatch("stopTimer");
+			this.message = "";
+		}else
+
+		if(cmd == "/countdown") {
+			const chunks = params[0].split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+			let duration = 0;
+			for(let i = 0; i < chunks.length; i++) {
+				let value = parseInt(chunks[i]);
+				let coeff = chunks.length - i;
+				if(coeff > 1) coeff = Math.pow(60, coeff-1);
+				duration += value * coeff;
+			}
+			store.dispatch("startCountdown", duration * 1000);
+			this.message = "";
+		}else
+
+		if(cmd == "/cypherkey") {
+			//Secret feature
+			store.dispatch("setCypherKey", params[0]);
+			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
 		}else
 
@@ -481,11 +538,11 @@ export default class ChatForm extends Vue {
 			}
 			this.autoCompleteSearch = "";
 		}else{
-			const prefix = /\s/gi.test(localMessage.charAt(carretPos-1))? "" : " ";
-			const suffix = /\s/gi.test(localMessage.charAt(carretPos-1+item.length))? "" : " ";
+			const prefix = carretPos == 0 || /\s/gi.test(localMessage.charAt(carretPos))? "" : " ";
+			const suffix = carretPos == localMessage.length || /\s/gi.test(localMessage.charAt(carretPos+1))? "" : " ";
 			const code = prefix + item + suffix;
-			localMessage = localMessage.substring(0, carretPos) + code + localMessage.substring(carretPos);
-			carretPos += code.length;
+			localMessage = localMessage.substring(0, carretPos+1) + code + localMessage.substring(carretPos+1);
+			carretPos += code.length+1;
 		}
 		
 		if(/\{.*?\}/gi.test(item)) {

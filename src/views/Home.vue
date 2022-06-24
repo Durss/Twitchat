@@ -17,10 +17,19 @@
 				white
 				:to="{name:'login'}"
 				class="loginBt"
-				:icon="require('@/assets/icons/twitch.svg')"
+				:icon="$image('icons/twitch.svg')"
 			/>
 
-			<Button :icon="require('@/assets/icons/discord.svg')"
+			<Button :icon="$image('icons/elgato.svg')"
+				title="Stream Deck™ plugin"
+				href="https://apps.elgato.com/plugins/fr.twitchat"
+				target="_blank"
+				type="link"
+				class="elgatoBt"
+				big
+			/>
+
+			<Button :icon="$image('icons/discord.svg')"
 				title="Join Discord"
 				:href="discordURL"
 				target="_blank"
@@ -29,13 +38,11 @@
 				big
 			/>
 
-			<Button :icon="require('@/assets/icons/elgato.svg')"
-				title="Stream Deck™ plugin"
-				href="https://apps.elgato.com/plugins/fr.twitchat"
-				target="_blank"
-				type="link"
-				class="elgatoBt"
+			<Button :icon="$image('icons/coin.svg')"
 				big
+				title="Help me 🥰"
+				:to="{name:'sponsor'}"
+				class="sponsorBt"
 			/>
 			
 			<div class="features">
@@ -142,7 +149,7 @@
 								<li>Easy customizable shoutout command</li>
 								<li>Filter out command messages</li>
 								<li>Autocomplete emotes (:xxx), user names (@xxx) and commands (/xxx)</li>
-								<li>Display BTTV emotes</li>
+								<li>Display BTTV / FFZ / 7TV emotes</li>
 								<li>A public websocket API for developers</li>
 								<li>...</li>
 							</ul>
@@ -170,12 +177,11 @@ import Button from '@/components/Button.vue';
 import store from '@/store';
 import { Options, Vue } from 'vue-class-component';
 import Chat from './Chat.vue';
-import 'vue3-carousel/dist/carousel.css';
-
+import Config from '@/utils/Config';
 //@typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
-import Config from '@/utils/Config';
+import 'vue3-carousel/dist/carousel.css';
 
 @Options({
 	props:{},
@@ -190,11 +196,11 @@ import Config from '@/utils/Config';
 })
 export default class Home extends Vue {
 
-	public authenticated:boolean = false;
-	private index:number = 0;
+	public authenticated = false;
+	private index = 0;
 
 	public get nextIndex():number { return this.index ++; }
-	public get discordURL():string { return Config.DISCORD_URL; }
+	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	// public get loginPath():string { return router.resolve({name:'login'}).href; }
 
@@ -239,8 +245,8 @@ export default class Home extends Vue {
 			}
 		}
 
-		.discordBt, .elgatoBt {
-			margin: 1em auto 0 auto;
+		.discordBt, .elgatoBt, .sponsorBt {
+			margin: .5em auto 0 auto;
 			border-radius: 50px;
 			font-weight: bold;
 			display: block;
@@ -256,6 +262,10 @@ export default class Home extends Vue {
 			&.elgatoBt {
 				background-color: hsl(232, 81%, 40%);
 			}
+
+			&.sponsorBt {
+				background-color: @mainColor_warn;
+			}
 		}
 
 		&>.description {
@@ -263,19 +273,19 @@ export default class Home extends Vue {
 			font-style: italic;
 			opacity: .8;
 
-			&::before {
-				content: "“";
-				font-family: "Nunito";
-				font-size: 2em;
-				vertical-align: middle;
-				margin-right: 10px;
-			}
-			&::after {
-				content: "”";
-				font-family: "Nunito";
-				font-size: 2em;
-				vertical-align: middle;
-			}
+			// &::before {
+			// 	content: "“";
+			// 	font-family: "Nunito";
+			// 	font-size: 2em;
+			// 	vertical-align: middle;
+			// 	margin-right: 10px;
+			// }
+			// &::after {
+			// 	content: "”";
+			// 	font-family: "Nunito";
+			// 	font-size: 2em;
+			// 	vertical-align: middle;
+			// }
 		}
 
 		.features {
@@ -299,6 +309,9 @@ export default class Home extends Vue {
 			}
 
 			:deep(.carousel){
+				.carousel__pagination {
+					flex-wrap: wrap;
+				}
 				.carousel__next,
 				.carousel__prev,
 				.carousel__pagination-button {

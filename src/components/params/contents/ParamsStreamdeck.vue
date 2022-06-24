@@ -1,5 +1,7 @@
 <template>
 	<div class="paramsstreamdeck">
+		<img src="@/assets/icons/elgato_purple.svg" alt="overlay icon" class="icon">
+
 		<p class="head">A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button</p>
 		
 		<Splitter title="Install steps" />
@@ -8,12 +10,12 @@
 			<li><span class="index">1.</span>This plugin needs <a :href="obswsInstaller" target="_blank">OBS-websocket V5</a> plugin to be installed on OBS</li>
 			
 			<li><span class="index">2.</span> Install Stream Deck™ plugin:
-				<Button :icon="require('@/assets/icons/elgato.svg')"
+				<Button :icon="$image('icons/elgato.svg')"
 					title="Download plugin"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
 					type="link"
-					class="elgatoBt"
+					class="button elgatoBt"
 				/>
 			</li>
 
@@ -44,14 +46,22 @@ import { Options, Vue } from 'vue-class-component';
 	emits:["setContent"]
 })
 export default class ParamsStreamdeck extends Vue {
+	
 
-	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; } 
+	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
 }
 </script>
 
 <style scoped lang="less">
 .paramsstreamdeck{
+
+	.icon {
+		height: 4em;
+		display: block;
+		margin: auto;
+		margin-bottom: 1em;
+	}
 
 	.head {
 		margin-bottom: 1em;
@@ -72,8 +82,13 @@ export default class ParamsStreamdeck extends Vue {
 			}
 			.button {
 				margin: .5em auto 0 auto;
+				padding-right: 1.5em;
 				display: block;
 				width: min-content;
+			}
+
+			:deep(img) {
+				max-width: 100%;
 			}
 		}
 	}

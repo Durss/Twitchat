@@ -16,7 +16,7 @@
 import store from '@/store';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -24,10 +24,10 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Tooltip extends Vue {
 
-    public upsideDown:boolean = false;
-    public message:string = "";
+    public upsideDown = false;
+    public opened = false;
+    public message = "";
 	
-    private opened:boolean = false;
     private position:{x:number, y:number} = {x:0, y:0};
     private mouseMoveHandler!:(e:MouseEvent) => void;
     private mouseUpHandler!:(e:MouseEvent) => void;
@@ -120,7 +120,7 @@ export default class Tooltip extends Vue {
 	 * Moves the tooltip
 	 * @param e
 	 */
-	private onMouseMove(e:MouseEvent, checkTarget:boolean = true):void {
+	private onMouseMove(e:MouseEvent, checkTarget = true):void {
 		this.lastMouseEvent = e;
 		if(checkTarget) {
 			let target:HTMLDivElement = e.target as HTMLDivElement;
@@ -188,7 +188,8 @@ export default class Tooltip extends Vue {
 		background-color: @mainColor_highlight;
 		// max-width: 300px;
 		text-align: center;
-		font-size: 14px;
+		font-size: .65em;
+		line-height: 1.2em;
 
 		.tip {
 			border-left: 6px solid transparent;
@@ -215,14 +216,6 @@ export default class Tooltip extends Vue {
 				transform: translate(-50%, 0);
 			}
 		}
-	}
-}
-
-//Hide on mobile
-@media only screen and (max-width: 500px) {
-	.tooltip{
-		//Actuallly, on OBS the page is so small it would think it's mobile...
-		// display: none;
 	}
 }
 </style>

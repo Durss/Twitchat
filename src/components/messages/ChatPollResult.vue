@@ -22,8 +22,8 @@
 </template>
 
 <script lang="ts">
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 
@@ -37,7 +37,7 @@ export default class ChatPollResult extends Vue {
 
 	public pollData!:IRCEventDataList.PollResult;
 
-	public get poll():TwitchTypes.Poll {
+	public get poll():TwitchDataTypes.Poll {
 		return this.pollData.data;
 	}
 
@@ -46,7 +46,7 @@ export default class ChatPollResult extends Vue {
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
-	public getChoiceStyles(o:TwitchTypes.PollChoice):{[key:string]:string} {
+	public getChoiceStyles(o:TwitchDataTypes.PollChoice):{[key:string]:string} {
 		let totalVotes = 0;
 		if(this.poll) {
 			for (let i = 0; i < this.poll.choices.length; i++) {

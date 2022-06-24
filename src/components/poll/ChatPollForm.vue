@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create chat poll</span>
-				<Button aria-label="Close chat poll form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close chat poll form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
@@ -13,7 +13,7 @@
 				</div>
 				<form  @submit.prevent="submitChatPoll()">
 					<div class="row">
-						<ParamItem :paramData="command" />
+						<ParamItem :paramData="command" autofocus />
 					</div>
 
 					<div class="row">
@@ -25,16 +25,11 @@
 					</div>
 
 					<!-- <ToggleBlock small title="Permissions" :open="false" class="row permissions">
-						<OBSPermissions
-							v-model:mods="permissions.mods"
-							v-model:vips="permissions.vips"
-							v-model:subs="permissions.subs"
-							v-model:all="permissions.all"
-							v-model:users="permissions.users" />
+						<PermissionsForm v-model="permissions" />
 					</ToggleBlock> -->
 
 					<div class="row">
-						<Button title="Submit" type="submit" :disabled="command.value.length < 1" />
+						<Button title="Submit" type="submit" :disabled="(command.value as string).length < 1" />
 					</div>
 				</form>
 			</div>
@@ -43,11 +38,12 @@
 </template>
 
 <script lang="ts">
-import store, { ChatPollData, ParameterData } from '@/store';
+import store from '@/store';
+import type { ChatPollData, ParameterData } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import OBSPermissions from '../params/contents/obs/OBSPermissions.vue';
+import PermissionsForm from '../params/contents/obs/PermissionsForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
@@ -57,7 +53,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
-		OBSPermissions,
+		PermissionsForm,
 	}
 })
 export default class ChatPollForm extends Vue {

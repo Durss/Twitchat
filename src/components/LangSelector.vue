@@ -53,6 +53,7 @@ export default class LangSelector extends Vue {
 	}
 	
 	public get subLanguages():{label:string, value:(string[])}[] {
+		if(!this.langLocal) return [];
 		const lang = Languages.find(v=>v[0]==this.langLocal.label);
 		if(!lang) return [];
 		const sublangs = lang.slice(1) as string[][];

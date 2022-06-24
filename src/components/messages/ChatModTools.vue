@@ -6,27 +6,27 @@
 		data-tooltip="Timeout">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
 			<Button  aria-label="Timeout for 10 seconds" @click.stop="timeout(10)" title="10s" small />
-			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeout(1800)" title="2m" small />
+			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeout(120)" title="2m" small />
 			<Button  aria-label="Timeout for 30 minutes" @click.stop="timeout(1800)" title="30m" small />
 			<Button  aria-label="Timeout for 1 hour" @click.stop="timeout(3600)" title="1h" small />
 			<Button  aria-label="Timeout for 12 hours" @click.stop="timeout(3600*12)" title="12h" small />
 			<Button  aria-label="Timeout for 1 week" @click.stop="timeout(3600*24*7)" title="1w" small />
 		</div>
-		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()">
+		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()" v-if="canDelete">
 	</div>
 </template>
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import Utils from '@/utils/Utils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
 @Options({
 	props:{
-		messageData:Object
+		messageData:Object,
+		canDelete:Boolean,
 	},
 	components:{
 		Button,
@@ -35,13 +35,15 @@ import Button from '../Button.vue';
 })
 export default class ChatModTools extends Vue {
 	
-	public messageData!:IRCEventDataList.Message;
-	public showToOptions:boolean = false;
+	public canDelete!:boolean;
 
-	private closeTimeout:number = 0;
+	public messageData!:IRCEventDataList.Message;
+	public showToOptions = false;
+
+	private closeTimeout = 0;
 
 	public ban():void {
-		Utils.confirm("Ban "+this.messageData.tags['display-name'], "Are you sure you want to ban this user ?")
+		this.$confirm("Ban "+this.messageData.tags['display-name'], "Are you sure you want to ban this user ?")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
 			IRCClient.instance.sendMessage(`/ban ${this.messageData.tags['display-name']}`);
@@ -66,7 +68,7 @@ export default class ChatModTools extends Vue {
 	}
 
 	public closeToOptions():void {
-		this.closeTimeout = setTimeout(() => {
+		this.closeTimeout = window.setTimeout(() => {
 			const holder = this.$refs.toOptions as HTMLDivElement;
 			if(!holder) return;
 			gsap.to(holder, {width:0, duration:.2, ease:"sin.inOut",

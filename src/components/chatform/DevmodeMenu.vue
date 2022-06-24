@@ -2,31 +2,31 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<Button small title="Commercial" @click="simulateEvent('commercial')" :icon="require('@/assets/icons/coin.svg')" />
-			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="require('@/assets/icons/firstTime.svg')" />
-			<Button small title="Presentation" @click="simulateEvent('presentation')" :icon="require('@/assets/icons/firstTime.svg')" />
-			<Button small title="Raid" @click="simulateEvent('raided')" :icon="require('@/assets/icons/raid.svg')" />
-			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="require('@/assets/icons/bits.svg')" />
-			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button small title="ReSub" @click="simulateEvent('resub')" :icon="require('@/assets/icons/sub.svg')" />
-			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="require('@/assets/icons/gift.svg')" />
-			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="require('@/assets/icons/gift.svg')" />
-			<Button small title="Subgift x20" @click="simulateEvent('subgiftx20')" :icon="require('@/assets/icons/gift.svg')" />
-			<Button small title="Follow" @click="simulateEvent('following')" :icon="require('@/assets/icons/follow.svg')" />
-			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="require('@/assets/icons/channelPoints.svg')" />
-			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="require('@/assets/icons/train.svg')" />
-			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="require('@/assets/icons/train.svg')" />
-			<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="require('@/assets/icons/boost.svg')" />
-			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="require('@/assets/icons/ban.svg')" />
-			<Button small title="Automod" @click="simulateEvent('automod')" :icon="require('@/assets/icons/automod_white.svg')" />
-			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="require('@/assets/icons/poll.svg')" />
-			<Button small title="Prediction result" @click="simulateEvent('predictionResult')" :icon="require('@/assets/icons/prediction.svg')" />
-			<Button small title="Host" @click="simulateEvent('host')" :icon="require('@/assets/icons/raid.svg')" />
-			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="require('@/assets/icons/emote.svg')" />
-			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="require('@/assets/icons/shield.svg')" />
-			<Button small title="OBS-WS broadcast test" @click="obsWSBroadcast()" :icon="require('@/assets/icons/notification.svg')" />
-			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="require('@/assets/icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
-			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="require('@/assets/icons/download.svg')" v-if="pubsubHistoryLink"/>
+			<Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" />
+			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="$image('icons/firstTime.svg')" />
+			<Button small title="Presentation" @click="simulateEvent('presentation')" :icon="$image('icons/firstTime.svg')" />
+			<Button small title="Raid" @click="simulateEvent('raided')" :icon="$image('icons/raid.svg')" />
+			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />
+			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />
+			<Button small title="ReSub" @click="simulateEvent('resub')" :icon="$image('icons/sub.svg')" />
+			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="$image('icons/gift.svg')" />
+			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
+			<Button small title="Subgift x20" @click="simulateEvent('subgiftx20')" :icon="$image('icons/gift.svg')" />
+			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
+			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
+			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="$image('icons/train.svg')" />
+			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="$image('icons/train.svg')" />
+			<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="$image('icons/boost.svg')" />
+			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="$image('icons/ban.svg')" />
+			<Button small title="Automod" @click="simulateEvent('automod')" :icon="$image('icons/automod_white.svg')" />
+			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="$image('icons/poll.svg')" />
+			<Button small title="Prediction result" @click="simulateEvent('predictionResult')" :icon="$image('icons/prediction.svg')" />
+			<Button small title="Host" @click="simulateEvent('host')" :icon="$image('icons/raid.svg')" />
+			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="$image('icons/emote.svg')" />
+			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="$image('icons/shield.svg')" />
+			<Button small title="OBS-WS broadcast test" @click="obsWSBroadcast()" :icon="$image('icons/notification.svg')" />
+			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
+			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>
 	</div>
 </template>
@@ -49,7 +49,7 @@ import Button from '../Button.vue';
 export default class DevmodeMenu extends Vue {
 
 	public pubsubHistoryLink:string|null = null;
-	public generatingHistory:boolean = false;
+	public generatingHistory = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -84,7 +84,7 @@ export default class DevmodeMenu extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref) {
+		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {

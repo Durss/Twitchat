@@ -1,5 +1,5 @@
 <template>
-	<div class="AutocompleteForm">
+	<div class="AutocompleteChatForm">
 		<div
 		v-for="(i, index) in filteredItems"
 		:key="i.id"
@@ -19,14 +19,16 @@
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="user">
 
 			<div class="name">{{i.label}}</div>
-			<div class="infos" v-if="i.infos">{{i.infos}}</div>
+			<div class="infos" v-if="i.type == 'cmd' && i.infos">{{i.infos}}</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store, { CommandData } from '@/store';
-import { TwitchTypes } from '@/utils/TwitchUtils';
+import store from '@/store';
+import type { CommandData } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 
@@ -44,14 +46,14 @@ import { Options, Vue } from 'vue-class-component';
  * This component is used to select an emote by typing ":xxx" on the
  * message field.
  */
-export default class AutocompleteForm extends Vue {
+export default class AutocompleteChatForm extends Vue {
 	
 	public search!:string;
 	public emotes!:boolean;
 	public users!:boolean;
 	public commands!:boolean;
 
-	public selectedIndex:number = 0;
+	public selectedIndex = 0;
 	public filteredItems:ListItem[] = [];
 
 	public getClasses(index:number, item:ListItem):string[] {
@@ -147,16 +149,18 @@ export default class AutocompleteForm extends Vue {
 			}
 
 			if(this.emotes) {
-				const emotes = store.state.emotesCache;
-				for (let j = 0; j < emotes.length; j++) {
-					const e = emotes[j] as TwitchTypes.Emote;
-					if(e.name.toLowerCase().indexOf(s) > -1) {
-						res.push({
-							type:"emote",
-							label:e.name,
-							emote:e,
-							id:e.id,
-						});
+				const emotes = UserSession.instance.emotesCache;
+				if(emotes) {
+					for (let j = 0; j < emotes.length; j++) {
+						const e = emotes[j] as TwitchDataTypes.Emote;
+						if(e.name.toLowerCase().indexOf(s) > -1) {
+							res.push({
+								type:"emote",
+								label:e.name,
+								emote:e,
+								id:e.id,
+							});
+						}
 					}
 				}
 			}
@@ -199,7 +203,7 @@ interface EmoteItem {
 	type:"emote";
 	id:string;
 	label:string;
-	emote:TwitchTypes.Emote;
+	emote:TwitchDataTypes.Emote;
 }
 
 interface CommandItem {
@@ -212,7 +216,7 @@ interface CommandItem {
 </script>
 
 <style scoped lang="less">
-.AutocompleteForm{
+.AutocompleteChatForm{
 	padding: 10px;
 	background-color: @mainColor_dark;
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);

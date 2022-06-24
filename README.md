@@ -22,7 +22,7 @@ Documentation can be found [here](PUBLIC_API.md).
 <br>
 
 # Features
-- [x] Create your own sub/follow/rewards/poll/... alerts with the OBS trigger system that allows to control your OBS sources and filters when an event occurs
+- [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify or Deezer when an event occurs
 - [x] Display the first message of users seperatly so you don't forget to greet them
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
@@ -59,10 +59,10 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Expose an API to control some stuff remotely
 - [x] Stream Deck plugin
 - [x] Chat poll feature: kind of a poll where your viewers decide its options
+- [x] Handles "low trust" feature ([more info](https://help.twitch.tv/s/article/ban-evasion))
 <br>
 
 - [ ] Request scopes on-demand
-- [ ] Handle new "low trust" feature *(Done but no available scope to actually receive the messages)*.
 <br>
 <br>
 <br>
@@ -90,7 +90,11 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"user:read:follows",
 		"channel:edit:commercial",
 		"channel:read:subscriptions"
-	]
+	],
+	"spotify_client_id": "",
+	"spotify_client_secret": "",
+	"spotify_scopes": "user-read-currently-playing user-modify-playback-state",
+	"spotify_redirect_uri": "http://localhost:8080/spotify/auth"
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
@@ -101,6 +105,7 @@ The `redirect uri` must end with `/oauth`, example :
 ```
 http://localhost:8080/oauth
 ```
+You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
 By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
 

@@ -1,13 +1,13 @@
 <template>
 	<div class="ChatMessageHoverActions">
 		<Button :aria-label="'Track '+messageData.tags.username+' messages'"
-			:icon="require('@/assets/icons/magnet.svg')"
+			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
 			v-if="!isSelf"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
-			:icon="require('@/assets/icons/shoutout.svg')"
+			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
 			v-if="!isSelf"
@@ -18,8 +18,8 @@
 
 <script lang="ts">
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -35,10 +35,10 @@ import Button from '../Button.vue';
 export default class ChatMessageHoverActions extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
-	public shoutoutLoading:boolean = false;
+	public shoutoutLoading = false;
 
 	public get isSelf():boolean {
-		return this.messageData.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+		return this.messageData.tags.username?.toLowerCase() == UserSession.instance.authToken.login.toLowerCase();
 	}
 
 	public trackUser():void {
@@ -48,7 +48,7 @@ export default class ChatMessageHoverActions extends Vue {
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await TwitchUtils.shoutout(this.messageData.tags['display-name'] as string);
+			await store.dispatch("shoutout", this.messageData.tags['display-name'] as string);
 		}catch(error) {
 			store.state.alert = "Shoutout failed :(";
 			console.log(error);
@@ -64,7 +64,7 @@ export default class ChatMessageHoverActions extends Vue {
 	padding: 2px;
 	border-top-left-radius: .5em;
 	border-top-right-radius: .5em;
-	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
+	// box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 
 	.button {
 		width: 1.5em;

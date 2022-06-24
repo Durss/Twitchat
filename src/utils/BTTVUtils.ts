@@ -6,8 +6,8 @@ export default class BTTVUtils {
 
 	private static _instance:BTTVUtils;
 
-	private enabled:boolean = false;
-	private emotesLoaded:boolean = false;
+	private enabled = false;
+	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:BTTVEmote[] = [];
 	private channelEmotes:{[key:string]:BTTVEmote[]} = {};
@@ -45,7 +45,7 @@ export default class BTTVUtils {
 	 * @param message 
 	 * @returns string
 	 */
-	public generateEmoteTag(message:string):string {
+	public generateEmoteTag(message:string, protectedRanges:boolean[]):string {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
@@ -59,18 +59,35 @@ export default class BTTVUtils {
 		for (let i = 0; i < allEmotes.length; i++) {
 			const e = allEmotes[i];
 			const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
+			const matches = [...message.matchAll(new RegExp(name, "gi"))];
 			if(matches && matches.length > 0) {
 				//Current emote has been found
 				//Generate fake emotes data in the expected format:
 				//  ID:start-end,start-end/ID:start-end,start-end
-				fakeTag += "BTTV_"+e.id+":";
+				// fakeTag += "BTTV_"+e.id+":";
+				let tmpTag = "BTTV_"+e.id+":";
+				let emoteCount = 0;
 				for (let j = 0; j < matches.length; j++) {
-					const index = (matches[j].index as number);
-					fakeTag += index+"-"+(index+e.code.length);
-					if(j < matches.length-1) fakeTag+=",";
+					const start = (matches[j].index as number);
+					const end = start+e.code.length-1;
+
+					if(protectedRanges[start] === true) continue;
+					if(protectedRanges[end] === true) continue;
+
+					const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
+					const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
+					//Emote has no space before and after or is not at the start or end of the message
+					//ignore it.
+					if(!prevOK || !nextOK) continue;
+					emoteCount++;
+					tmpTag += start+"-"+end;
+
+					if(j < matches.length-1) tmpTag+=",";
 				}
-				if(i < allEmotes.length -1 ) fakeTag +="/"
+				if(emoteCount) {
+					fakeTag += tmpTag;
+					if(i < allEmotes.length -1 ) fakeTag +="/";
+				}
 			}
 		}
 
@@ -84,15 +101,16 @@ export default class BTTVUtils {
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):BTTVEmote|null {
+		code = code.toLowerCase();
 		for (let i = 0; i < this.globalEmotes.length; i++) {
 			const e = this.globalEmotes[i];
-			if(e.code == code) return e;
+			if(e.code.toLowerCase() == code) return e;
 		}
 		for (const key in this.channelEmotes) {
 			const list = this.channelEmotes[key];
 			for (let i = 0; i < list.length; i++) {
 				const e = list[i];
-				if(e.code == code) return e;
+				if(e.code.toLowerCase() == code) return e;
 			}
 		}
 		return null;

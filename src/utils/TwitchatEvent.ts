@@ -1,11 +1,11 @@
-import { JsonObject, JsonArray, JsonValue } from 'type-fest';
+import type { JsonObject, JsonArray, JsonValue } from 'type-fest';
 import { Event } from './EventDispatcher';
 
 /**
 * Created : 14/04/2022 
 */
 export default class TwitchatEvent extends Event {
-	
+	//Events
 	public static MESSAGE_READ:TwitchatEventType = "MESSAGE_READ";
 	public static MESSAGE_NON_FOLLOWER:TwitchatEventType = "MESSAGE_NON_FOLLOWER";
 	public static MESSAGE_FILTERED:TwitchatEventType = "MESSAGE_FILTERED";
@@ -17,7 +17,19 @@ export default class TwitchatEvent extends Event {
 	public static POLL:TwitchatEventType = "POLL";
 	public static PREDICTION:TwitchatEventType = "PREDICTION";
 	public static MENTION:TwitchatEventType = "MENTION";
+	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
+	public static TRACK_ADDED_TO_QUEUE:TwitchatEventType = "TRACK_ADDED_TO_QUEUE";
+	public static WHEEL_OVERLAY_PRESENCE:TwitchatEventType = "WHEEL_OVERLAY_PRESENCE";
+	public static RAFFLE_COMPLETE:TwitchatEventType = "RAFFLE_COMPLETE";
+	public static COUNTDOWN_START:TwitchatEventType = "COUNTDOWN_START";
+	public static COUNTDOWN_COMPLETE:TwitchatEventType = "COUNTDOWN_COMPLETE";
+	public static TIMER_START:TwitchatEventType = "TIMER_START";
+	public static TIMER_STOP:TwitchatEventType = "TIMER_STOP";
+	public static TIMER_OVERLAY_PRESENCE:TwitchatEventType = "TIMER_OVERLAY_PRESENCE";
+	public static CREATE_POLL:TwitchatEventType = "CREATE_POLL";
+	public static CREATE_PREDICTION:TwitchatEventType = "CREATE_PREDICTION";
 
+	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
 	public static GREET_FEED_READ_ALL:TwitchatActionType = "GREET_FEED_READ_ALL";
 	public static CHAT_FEED_READ:TwitchatActionType = "CHAT_FEED_READ";
@@ -34,8 +46,11 @@ export default class TwitchatEvent extends Event {
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
 	public static MOD_TOOLS_TOGGLE:TwitchatActionType = "MOD_TOOLS_TOGGLE";
 	public static CENSOR_DELETED_MESSAGES_TOGGLE:TwitchatActionType = "CENSOR_DELETED_MESSAGES_TOGGLE";
-	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
-	public static CREATE_PREDICTION:TwitchatActionType = "CREATE_PREDICTION";
+	public static GET_CURRENT_TRACK:TwitchatActionType = "GET_CURRENT_TRACK";
+	public static WHEEL_OVERLAY_START:TwitchatActionType = "WHEEL_OVERLAY_START";
+	public static GET_WHEEL_OVERLAY_PRESENCE:TwitchatActionType = "GET_WHEEL_OVERLAY_PRESENCE";
+	public static GET_TIMER_OVERLAY_PRESENCE:TwitchatActionType = "GET_TIMER_OVERLAY_PRESENCE";
+	public static GET_CURRENT_TIMERS:TwitchatActionType = "GET_CURRENT_TIMERS";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -43,36 +58,50 @@ export default class TwitchatEvent extends Event {
 }
 
 export type TwitchatEventType =
-	"MESSAGE_READ"//Done
-	| "MESSAGE_NON_FOLLOWER"//Done
-	| "MESSAGE_FILTERED"//Done
-	| "MESSAGE_DELETED"//Done
-	| "MESSAGE_FIRST"//Done
-	| "MESSAGE_FIRST_ALL_TIME"//Done
-	| "MESSAGE_WHISPER"//Done
-	| "FOLLOW"//Done
-	| "POLL"//Done
-	| "PREDICTION"//Done
-	| "MENTION"//Done
+	"MESSAGE_READ"
+	| "MESSAGE_NON_FOLLOWER"
+	| "MESSAGE_FILTERED"
+	| "MESSAGE_DELETED"
+	| "MESSAGE_FIRST"
+	| "MESSAGE_FIRST_ALL_TIME"
+	| "MESSAGE_WHISPER"
+	| "FOLLOW"
+	| "POLL"
+	| "PREDICTION"
+	| "MENTION"
+	| "CURRENT_TRACK"
+	| "TRACK_ADDED_TO_QUEUE"
+	| "WHEEL_OVERLAY_PRESENCE"
+	| "RAFFLE_COMPLETE"
+	| "COUNTDOWN_START"
+	| "COUNTDOWN_COMPLETE"
+	| "TIMER_START"
+	| "TIMER_STOP"
+	| "TIMER_OVERLAY_PRESENCE"
+	| "CREATE_POLL"
+	| "CREATE_PREDICTION"
 ;
 
 export type TwitchatActionType =
-	"GREET_FEED_READ"//Done
-	| "GREET_FEED_READ_ALL"//Done
-	| "CHAT_FEED_READ"//Done
-	| "CHAT_FEED_READ_ALL"//Done
-	| "CHAT_FEED_PAUSE"//Done
-	| "CHAT_FEED_UNPAUSE"//Done
-	| "CHAT_FEED_SCROLL_UP"//Done
-	| "CHAT_FEED_SCROLL_DOWN"//Done
-	| "POLL_TOGGLE"//Done
-	| "PREDICTION_TOGGLE"//Done
-	| "BINGO_TOGGLE"//Done
-	| "RAFFLE_TOGGLE"//Done
-	| "ACTIVITY_FEED_TOGGLE"//Done
-	| "VIEWERS_COUNT_TOGGLE"//Done
-	| "MOD_TOOLS_TOGGLE"//Done
-	| "CENSOR_DELETED_MESSAGES_TOGGLE"//Done
-	| "CREATE_POLL"//Done
-	| "CREATE_PREDICTION"//Done
+	"GREET_FEED_READ"
+	| "GREET_FEED_READ_ALL"
+	| "CHAT_FEED_READ"
+	| "CHAT_FEED_READ_ALL"
+	| "CHAT_FEED_PAUSE"
+	| "CHAT_FEED_UNPAUSE"
+	| "CHAT_FEED_SCROLL_UP"
+	| "CHAT_FEED_SCROLL_DOWN"
+	| "POLL_TOGGLE"
+	| "PREDICTION_TOGGLE"
+	| "BINGO_TOGGLE"
+	| "RAFFLE_TOGGLE"
+	| "ACTIVITY_FEED_TOGGLE"
+	| "VIEWERS_COUNT_TOGGLE"
+	| "MOD_TOOLS_TOGGLE"
+	| "CENSOR_DELETED_MESSAGES_TOGGLE"
+	| "GET_CURRENT_TRACK"
+	| "GET_WHEEL_OVERLAY_PRESENCE"
+	| "WHEEL_OVERLAY_START"
+	| "GET_CURRENT_TIMERS"
+	| "GET_TIMER_OVERLAY_PRESENCE"
 ;

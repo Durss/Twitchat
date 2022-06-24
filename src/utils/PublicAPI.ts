@@ -1,8 +1,10 @@
-import { JsonArray, JsonObject, JsonValue } from "type-fest";
+import type { JsonArray, JsonObject, JsonValue } from "type-fest";
 import { watch } from "vue";
 import { EventDispatcher } from "./EventDispatcher";
 import OBSWebsocket from "./OBSWebsocket";
-import TwitchatEvent, { TwitchatActionType, TwitchatEventType } from "./TwitchatEvent";
+import TwitchatEvent from "./TwitchatEvent";
+import type { TwitchatActionType, TwitchatEventType } from "./TwitchatEvent";
+import Utils from "./Utils";
 
 /**
 * Created : 14/04/2022 
@@ -12,6 +14,7 @@ export default class PublicAPI extends EventDispatcher {
 	private static _instance:PublicAPI;
 
 	private _bc!:BroadcastChannel;
+	private _idsDone:{[key:string]:boolean} = {};
 	
 	constructor() {
 		super();
@@ -25,6 +28,15 @@ export default class PublicAPI extends EventDispatcher {
 			PublicAPI._instance = new PublicAPI();
 		}
 		return PublicAPI._instance;
+	}
+
+	/**
+	 * Get if page is runing on OBS and thus the BrodcastChannel
+	 * API is available
+	 */
+	get localConnexionAvailable():boolean {
+		//@ts-ignore
+		return window.obsstudio != undefined;
 	}
 	
 	
@@ -41,7 +53,12 @@ export default class PublicAPI extends EventDispatcher {
 		//If receiving data from another browser tab, broadcast it
 		this._bc.onmessage = (e: MessageEvent<unknown>):void => {
 			const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
-			this.dispatchEvent(new TwitchatEvent(event.type, event.data));
+			const data = event.data as {id:string};
+			if(data.id){
+				if(this._idsDone[data.id] === true) return;
+				this._idsDone[data.id] = true;
+			}
+			this.dispatchEvent(new TwitchatEvent(event.type, data));
 		}
 		
 		this.listenOBS();
@@ -53,7 +70,11 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param type 
 	 * @param data 
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false):Promise<void> {
+		if(!data) data = {};
+		data.id = Utils.guid();
+		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
+
 		//Broadcast to other browser's tabs
 		try {
 			if(data) data = JSON.parse(JSON.stringify(data));
@@ -85,6 +106,11 @@ export default class PublicAPI extends EventDispatcher {
 		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
+			const data = e.data as {id:string};
+			if(data.id){
+				if(this._idsDone[data.id] === true) return;
+				this._idsDone[data.id] = true;
+			}
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 	}

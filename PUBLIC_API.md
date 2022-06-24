@@ -10,7 +10,7 @@
 <br>
 <br>
 
-Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) to control some features and receive some events.
+Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) to control some features and receive some events.
 
 # Table of content
 * [Prerequisites](#prerequisites)
@@ -22,7 +22,7 @@ Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsp
 
 
 # Prerequisites
-This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases) V5 to be installed and running!\
+This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) V5 to be installed and running!\
 \
 After installing OBS-Websocket, start OBS, you may want set a password on `Tools -> obs-websocket Settings`.\
 \
@@ -31,15 +31,23 @@ Once done, go on Twitchat, open the parameters and on the OBS panel specify the 
 OBS will act as a bridge to transmit Twitchat messages to any connected client.
 
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
 Bellow is a typescript example to use the API via `OBS-Websocket-js`.\
-The example refers to `TwitchatActionType` and `TwitchatEventType`. You can find their [signatures here](#available-events-and-actions).
-
-
-## OBS-websocket
+The example refers to `TwitchatActionType` and `TwitchatEventType`.\
+You can find their [signatures here](#available-events-and-actions).
+<br></br>
 
 ```typescript
 import OBSWebSocket from 'obs-websocket-js';
@@ -56,7 +64,7 @@ async function connect(port:string, pass:string):Promise<boolean> {
 	try {
 		await obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 	}catch(error) {
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			//try again later
 			connect(port, pass);
 		}, 5000);
@@ -119,6 +127,15 @@ export type TwitchatEventType =
 	| "POLL_END"
 	| "PREDICTION_END"
 	| "MENTION"
+	| "CURRENT_TRACK"
+	| "TRACK_ADDED_TO_QUEUE"
+	| "RAFFLE_COMPLETE"
+	| "COUNTDOWN_COMPLETE"
+	| "COUNTDOWN_START"
+	| "TIMER_START"
+	| "TIMER_STOP"
+	| "TIMER_OVERLAY_PRESENCE"
+	| "WHEEL_OVERLAY_PRESENCE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -137,8 +154,23 @@ export type TwitchatActionType =
 	| "ACTIVITY_FEED_TOGGLE"
 	| "VIEWERS_COUNT_TOGGLE"
 	| "MOD_TOOLS_TOGGLE"
-	| "CENSOR_DELETED_MESSAGES_TOGGLE";
+	| "CENSOR_DELETED_MESSAGES_TOGGLE"
+	| "GET_CURRENT_TRACK"
+	| "WHEEL_OVERLAY_START"
+	| "GET_WHEEL_OVERLAY_PRESENCE"
+	| "GET_CURRENT_TIMERS"
+	| "GET_TIMER_OVERLAY_PRESENCE"
 ```
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 
 # Events
 List of the events fired by Twitchat you can listen to and the JSON data sent in parameters.
@@ -223,15 +255,6 @@ Sent when a user follows the channel
 	user_id: string,
 }
 ```
-## **MENTION**
-Called when a message contains a mention of your nickname
-```typescript
-{
-	display_name: string,
-	username: string,
-	user_id: string,
-}
-```
 ## **POLL**
 Sent when a poll starts, updates (when someone votes) and ends.
 ```typescript
@@ -288,6 +311,125 @@ Sent when a prediction starts, updates (when someone votes) and ends.
 	locked_at: string | undefined,
 }
 ```
+## **MENTION**
+Called when a message contains a mention of your nickname
+```typescript
+{
+	display_name: string,
+	username: string,
+	user_id: string,
+}
+```
+## **CURRENT_TRACK**
+Sent when a new track is playing on spotify or when playback is stopped
+```typescript
+{
+	trackName:string,
+	artistName:string,
+	trackDuration:number,
+	trackPlaybackPos:number,
+	cover:string,
+}
+```
+## **TRACK_ADDED_TO_QUEUE**
+Sent when a new track is added to the queue\
+### JSON param *(optional)*
+```typescript
+{
+	title:string,
+	artist:string,
+	album:string,
+	cover:string,
+	duration:number,
+}
+```
+## **RAFFLE_COMPLETE**
+Sent when a raffle completes
+### JSON param *(optional)*
+```typescript
+{
+	winner:{
+		id:string;
+		label:string;
+		//Data when doing a chat raffle
+		data:{
+			user:Object;//IRC user data
+			score:number;//Ponderation score if any
+		};
+		//Data when doing a raffle amongst our subs
+		data:{
+			broadcaster_id: string;
+			broadcaster_login: string;
+			broadcaster_name: string;
+			gifter_id: string;
+			gifter_login: string;
+			gifter_name: string;
+			is_gift: boolean;
+			tier: string;
+			plan_name: string;
+			user_id: string;
+			user_name: string;
+			user_login: string;
+		};
+	},
+}
+```
+## **COUNTDOWN_START**
+Sent when a countdown start
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+	duration:number,//Duration in ms
+}
+```
+## **COUNTDOWN_COMPLETE**
+Sent when a countdown completes
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+	duration:number,//Duration in ms
+}
+```
+## **TIMER_START**
+Sent when a timer is started
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+}
+```
+## **TIMER_STOP**
+Sent when stoping a timer
+### JSON param *(optional)*
+```typescript
+{
+	startAt:number,//Timestamp in ms
+	stopAt:number,//Timestamp in ms
+}
+```
+## **TIMER_OVERLAY_PRESENCE**
+Sent when a timer overlay advertises its presence
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **WHEEL_OVERLAY_PRESENCE**
+Sent when a wheel overlay advertises its presence
+### JSON param *(optional)*
+```typescript
+-none-
+```
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 # Actions
 List of actions you can request Twitchat to perform.\
@@ -399,6 +541,55 @@ Toggle moderation tools' visibility
 ## **CENSOR_DELETED_MESSAGES_TOGGLE**
 Toggle the censorship of the deleted messages\
 If censorship is enabled, deleted messages content is replaced by `<deleted message>`.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **GET_CURRENT_TRACK**
+Request the currently playing spotify track\
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **WHEEL_OVERLAY_START**
+Start a wheel animation.
+### JSON param *(optional)*
+`items` contains the list of wheel items to display on the wheel. There must be between 1 and an infinity of items.\
+`winner` param is the entry of the list the wheel should stop to.
+```typescript
+{
+	items:[
+		{
+			id:string;
+			label:string;
+			data:winner;
+		},
+		//...
+	],
+	winner: {
+		id:string;
+		label:string;
+		data:winner;
+	},
+}
+```
+## **GET_WHEEL_OVERLAY_PRESENCE**
+Ask of a wheel overlay exists.\
+If it does you'll receive the `WHEEL_OVERLAY_PRESENCE` event.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **GET_CURRENT_TIMERS**
+Request current timer / countdown values\
+If it does you'll receive the `TIMER_START` nor `COUNTDOWN_START` event.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **GET_TIMER_OVERLAY_PRESENCE**
+Ask if a timer overlay exists.\
+If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
 -none-

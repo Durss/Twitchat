@@ -5,25 +5,26 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0">
-	<link rel="icon" type="image/png" sizes="32x32" href="<%= BASE_URL %>favicon.png?v=1">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=1">
 	<title>Twitchat</title>
 	<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0' name='viewport' />
 	<meta name="description" content="Custom twitch chat with special options so you don't miss any important messages" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	
-	<meta property="og:url" content="https://twitchat.durss.ninja" />
+	<meta property="og:url" content="https://twitchat.fr" />
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="Twitchat" />
 	<meta property="og:description" content="Custom twitch chat with special options so you don't miss any important messages" />
-	<meta property="og:image" content="https://twitchat.durss.ninja/share.png?v=1" />
-	<meta property="og:image" content="https://twitchat.durss.ninja/share_small.png?v=1" />
+	<meta property="og:image" content="https://twitchat.fr/share.png?v=1" />
+	<meta property="og:image" content="https://twitchat.fr/share_small.png?v=1" />
 	<meta property="og:image:type" content="image/png" />
 	<meta property="og:locale" content="fr_FR" />
 	<meta property="og:locale:alternate" content="en_GB" />
 	<meta name="revisit-after" content="30 days">
 	<meta name="robots" content="index, follow">
 	<link rel="author" href="https://www.durss.ninja" />
-	<link rel="canonical" href="https://twitchat.durss.ninja/">
+	<link rel="canonical" href="https://twitchat.fr/">
+	<link rel="manifest" href="/manifest.json">
 	<style>
 		body {
 			background-color: #0e0e10;
@@ -47,6 +48,33 @@
 		<img src="/loader_white.svg" alt="loader" class="loader-init">
 	</div>
 	<!-- built files will be auto injected -->
+
+	<script type="text/javascript">
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/service-worker.js')
+			.then((reg) => {
+				console.log("Service worker registered");
+			}).catch((err) => {
+				console.log("Service worker registration failed:" + err);
+			});
+		}
+
+		//Force transparent background for specifc routes.
+		//This is also done on vue's side but we want it to be active
+		//when vue is loading as well for these routes so we don't have
+		//a black screen showing up.
+		const noBgPaths = ["overlay/*"]
+		const url = document.location.pathname;
+		for (let i = 0; i < noBgPaths.length; i++) {
+			const p = noBgPaths[i];
+			if(new RegExp(p).test(url)) {
+				document.body.style.backgroundColor = "transparent";
+				document.getElementsByClassName("loader-init")[0].style.display = "none";
+				break;
+			}
+		}
+	</script>
+	<script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>

@@ -12,7 +12,8 @@
 
 			<div v-if="!authenticating && newScopes.length > 0" class="newScopes">
 				<img src="@/assets/icons/update.svg" alt="update" class="icon">
-				<div class="title">An update needs these new permissions</div>
+				<div class="title" v-if="newScopes.length > 1">An update needs these new permissions</div>
+				<div class="title" v-else>An update needs this new permission</div>
 				<ul>
 					<li v-for="p in newScopes" :key="p">{{p}}</li>
 				</ul>
@@ -25,7 +26,7 @@
 					class="moreInfoBt"
 					v-if="!showPermissions"
 					@click.prevent="showPermissions = !showPermissions"
-					:icon="require('@/assets/icons/help.svg')"
+					:icon="$image('icons/help.svg')"
 				/>
 			</div>
 			
@@ -51,7 +52,7 @@
 				bounce
 				:loading="generatingCSRF"
 				:data-tooltip="generatingCSRF? 'Generating CSRF token...' : ''"
-				:icon="require('@/assets/icons/twitch_white.svg')"
+				:icon="$image('icons/twitch_white.svg')"
 			/>
 
 			<Button title="Try again"
@@ -59,7 +60,7 @@
 				v-if="!authenticating && !oAuthURL"
 				@click="generateCSRF()"
 				:loading="generatingCSRF"
-				:icon="require('@/assets/icons/refresh.svg')"
+				:icon="$image('icons/refresh.svg')"
 			/>
 			
 			<div class="loader" v-if="authenticating">
@@ -96,10 +97,10 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Login extends Vue {
 
-	public generatingCSRF:boolean = false;
-	public authenticating:boolean = false;
-	public showPermissions:boolean = false;
-	public oAuthURL:string = "";
+	public generatingCSRF = false;
+	public authenticating = false;
+	public showPermissions = false;
+	public oAuthURL = "";
 	
 	private scopeToInfos:{[key:string]:string} = {
 		"chat:read": "Read your chat",
@@ -130,14 +131,14 @@ export default class Login extends Vue {
 	}
 
 	public get permissions():string[] {
-		return Config.TWITCH_APP_SCOPES.map(v => {
+		return Config.instance.TWITCH_APP_SCOPES.map(v => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});
 	}
 
 	public get newScopes():string[] {
-		return store.state.newScopeToRequest.map(v => {
+		return store.state.newScopeToRequest.map((v:string) => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});
@@ -157,7 +158,7 @@ export default class Login extends Vue {
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const csrfRes = await fetch(Config.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
+				const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
 					store.state.alert = csrf.message;
@@ -193,7 +194,7 @@ export default class Login extends Vue {
 	public async generateCSRF():Promise<void> {
 		this.generatingCSRF = true;
 		try {
-			const res = await fetch(Config.API_PATH+"/CSRFToken", {method:"GET"});
+			const res = await fetch(Config.instance.API_PATH+"/CSRFToken", {method:"GET"});
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {

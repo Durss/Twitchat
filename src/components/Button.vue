@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts">
-import { Ref, watch } from '@vue/runtime-core';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -69,7 +69,7 @@ export default class Button extends Vue {
 	public type!:string;
 	public target!:string;
 	public to!:unknown;
-	public percent!:Ref<number>;
+	public percent!:number;
 	public white!:boolean;
 	public big!:boolean;
 	public small!:boolean;
@@ -81,8 +81,8 @@ export default class Button extends Vue {
 	public accept!:string;
 	public file!:string;
 
-	public pInterpolated:number = -1;
-	public checked:boolean = false;
+	public pInterpolated = -1;
+	public checked = false;
 
 	public get isIconSVG():boolean {
 		return this.parsedIcon.indexOf("<") != -1;
@@ -90,9 +90,9 @@ export default class Button extends Vue {
 
 	public get checkMarkIcon():string {
 		if(this.white !== false) {
-			return require('@/assets/icons/checkmark_white.svg');
+			return this.$image('icons/checkmark_white.svg');
 		}else{
-			return require('@/assets/icons/checkmark.svg');
+			return this.$image('icons/checkmark.svg');
 		}
 	}
 
@@ -151,10 +151,10 @@ export default class Button extends Vue {
 			this.checked = val;
 		});
 		
-		watch(() => this.percent, (val:Ref<number>) => {
-			let duration = val.value < this.pInterpolated? 0 : .35;
+		watch(() => this.percent, (val:number) => {
+			let duration = val < this.pInterpolated? 0 : .35;
 			gsap.killTweensOf(this);
-			gsap.to(this, {duration, pInterpolated:val.value, ease:"sine.inout"});
+			gsap.to(this, {duration, pInterpolated:val, ease:"sine.inout"});
 		});
 	}
 
@@ -230,7 +230,7 @@ export default class Button extends Vue {
 		background-color: @mainColor_light;
 
 		&:hover {
-			background-color: @mainColor_normal_extralight;
+			background-color: lighten(@mainColor_normal_extralight, 12%) !important;
 		}
 	}
 

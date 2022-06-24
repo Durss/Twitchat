@@ -1,10 +1,14 @@
-import { ComponentCustomProperties } from 'vue'
-import { Store } from 'vuex'
-import { State } from "@/store/index";
+import type { Store } from 'vuex'
 
 declare module '@vue/runtime-core' {
-	// provide typings for `$store`
 	interface ComponentCustomProperties {
-		$store: Store<State>
+		$store: Store<any>,
+		$image: (path:string) => string,
+		$overlayURL: (id:string) => string,
+		$confirm: <T>(title: string,
+			description?: string,
+			data?: T,
+			yesLabel?:string,
+			noLabel?:string) => Promise<T|undefined>,
 	}
 }

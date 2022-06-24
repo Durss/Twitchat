@@ -1,36 +1,56 @@
 <template>
 	<div class="paramsobs">
+		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
+
 		<div class="head">
 			<p>Create your own twitch alerts and allow your mods basic control over your OBS</p>
 			<p class="install">In order to work, this needs <strong>OBS v27.2+</strong> and <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
 		</div>
 
 		<ToggleBlock class="block conf"
-		:open="!connected"
-		icon="info_purple"
+		:open="openConnectForm"
+		:icons="['info_purple']"
 		title="OBS credentials">
-			<OBSConnectForm />
+			<transition name="fade">
+				<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">Connected with OBS</div>
+			</transition>
+			<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
+			<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
+			<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
+			
+			<ToggleBlock class="info" small :open="false" title="Where can i find these values?" v-if="!connected">
+				After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
+				<br>
+				<br>This window will open with the credentials:
+				<br><span class="warn">You'll probably want to leave the IP to <strong>127.0.0.1</strong>!</span>
+				<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
+			</ToggleBlock>
+
+			<Button title="Connect" @click="connect()" class="connectBt" v-if="!connected" :loading="loading" />
+			<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
+
+			<transition name="fade">
+				<div v-if="connectError" @click="connectError = false" class="error">
+					<div>Unable to connect with OBS. Double check the port and password and make sure you installed <a :href="obswsInstaller" target="_blank">OBS-websocket plugin (v5)</a></div>
+					<div v-if="obsIP_conf.value != '127.0.0.1'">You may want to set the IP to <strong>127.0.0.1</strong> instead of what OBS shows you</div>
+				</div>
+			</transition>
+
 		</ToggleBlock>
 
 		<ToggleBlock class="block permissions"
 		v-if="connected"
 		:open="false"
-		icon="lock_purple"
+		:icons="['lock_purple']"
 		title="Permissions">
 			<p class="info">Users allowed to use the chat commands</p>
-			<OBSPermissions class="content" @update="onPermissionChange"
-				v-model:mods="permissions.mods"
-				v-model:vips="permissions.vips"
-				v-model:subs="permissions.subs"
-				v-model:all="permissions.all"
-				v-model:users="permissions.users"
-			/>
+			<PermissionsForm class="content" v-model="permissions" />
 		</ToggleBlock>
 
 		<ToggleBlock class="block mic"
 		v-if="connected"
 		:open="false"
-		icon="microphone_purple"
+		:icons="['microphone_purple']"
 		title="Control microphone">
 			<OBSAudioSourceForm />
 		</ToggleBlock>
@@ -38,7 +58,7 @@
 		<ToggleBlock class="block scenes"
 		v-if="connected"
 		:open="false"
-		icon="list_purple"
+		:icons="['list_purple']"
 		title="Control scenes">
 			<OBSScenes />
 		</ToggleBlock>
@@ -46,35 +66,28 @@
 		<!-- <ToggleBlock class="block filters"
 		v-if="connected"
 		:open="false"
-		icon="graphicFilters_purple"
+		:icons="['graphicFilters_purple']"
 		title="Control filters">
 			<OBSFilters />
 		</ToggleBlock> -->
-
-		<ToggleBlock class="block overlay"
-		v-if="connected"
-		:open="true"
-		icon="broadcast_purple"
-		title="Twitchat triggers">
-			<OBSEventsAction />
-		</ToggleBlock>
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store, { PermissionsData } from '@/store';
+import store from '@/store';
+import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
+import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
-import OBSConnectForm from './obs/OBSConnectForm.vue';
-import OBSEventsAction from './obs/OBSEventsAction.vue';
-import OBSFilters from './obs/OBSFilters.vue';
-import OBSPermissions from './obs/OBSPermissions.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
+import OBSFilters from './obs/OBSFilters.vue';
 
 
 @Options({
@@ -85,16 +98,22 @@ import OBSScenes from './obs/OBSScenes.vue';
 		OBSScenes,
 		OBSFilters,
 		ToggleBlock,
-		OBSPermissions,
-		OBSConnectForm,
-		OBSEventsAction,
+		PermissionsForm,
 		OBSAudioSourceForm,
 	},
 	emits:['setContent']
 })
 export default class ParamsOBS extends Vue {
 
-	public showPermissions:boolean = false;
+	public loading = false;
+	public connected = false;
+	public connectError = false;
+	public connectSuccess = false;
+	public showPermissions = false;
+	public openConnectForm = false;
+	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
+	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
+	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 	public permissions:PermissionsData = {
 		mods: false,
 		vips: false,
@@ -103,29 +122,100 @@ export default class ParamsOBS extends Vue {
 		users: ""
 	}
 
-	public get obswsInstaller():string { return Config.OBS_WEBSOCKET_INSTALLER; }
-	public get connected():boolean { return OBSWebsocket.instance.connected; }
+	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
 	public mounted():void {
-		const storedPermissions = store.state.obsPermissions;
+		const port = Store.get("obsPort");
+		const pass = Store.get("obsPass");
+		const ip = Store.get("obsIP");
+		if(port != undefined) this.obsPort_conf.value = port;
+		if(pass != undefined) this.obsPass_conf.value = pass;
+		if(ip != undefined) this.obsIP_conf.value = ip;
+
+		if(port != undefined || pass != undefined || ip != undefined) {
+			this.connected = OBSWebsocket.instance.connected;
+			this.openConnectForm = !this.connected;
+		}else{
+			this.openConnectForm = true;
+		}
+		
+
+		const storedPermissions = store.state.PermissionsForm;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
 		this.permissions.all = storedPermissions.all;
 		this.permissions.users = storedPermissions.users;
+
+		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
+		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
+		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
+		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
+		watch(()=> OBSWebsocket.instance.connected, () => { 
+			this.connected = OBSWebsocket.instance.connected;
+			if(!this.connected) this.openConnectForm = true;
+		});
+	}
+
+	/**
+	 * Connect to OBS websocket
+	 */
+	public async connect():Promise<void> {
+		this.loading = true;
+		this.connectSuccess = false;
+		this.connectError = false;
+		const connected = await OBSWebsocket.instance.connect(
+							(this.obsPort_conf.value as number).toString(),
+							this.obsPass_conf.value as string,
+							false,
+							this.obsIP_conf.value as string
+						);
+		if(connected) {
+			this.paramUpdate();
+			this.connected = true;
+			this.connectSuccess = true;
+			window.setTimeout(()=> {
+				this.connectSuccess = false;
+				this.openConnectForm = false;
+			}, 3000);
+		}else{
+			this.connectError = true;
+		}
+		this.loading = false;
+	}
+
+	public async disconnect():Promise<void> {
+		OBSWebsocket.instance.disconnect();
 	}
 
 	/**
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		store.dispatch("setOBSPermissions", this.permissions);
+		store.dispatch("setPermissionsForm", this.permissions);
+	}
+
+	/**
+	 * Called when changing OBS credentials
+	 */
+	private paramUpdate():void {
+		this.connected = false;
+		Store.set("obsPort", this.obsPort_conf.value);
+		Store.set("obsPass", this.obsPass_conf.value);
+		Store.set("obsIP", this.obsIP_conf.value);
 	}
 }
 </script>
 
 <style scoped lang="less">
 .paramsobs{
+
+	.icon {
+		height: 4em;
+		display: block;
+		margin: auto;
+		margin-bottom: 1em;
+	}
 	.head {
 		text-align: center;
 		margin-bottom: 20px;
@@ -133,6 +223,12 @@ export default class ParamsOBS extends Vue {
 		.install {
 			font-size: .8em;
 		}
+	}
+
+	.loader {
+		display: block;
+		margin: auto;
+		margin-top: 10px;
 	}
 
 	.block:not(:first-of-type) {
@@ -143,7 +239,10 @@ export default class ParamsOBS extends Vue {
 		.info {
 			margin-bottom: 1em;
 		}
-		
+		.warn {
+			font-style: italic;
+			color: @mainColor_alert;
+		}
 		&.permissions {
 			.info {
 				text-align: center;
@@ -152,6 +251,71 @@ export default class ParamsOBS extends Vue {
 			.content {
 				width: 300px;
 			}
+		}
+	}
+
+	.conf {
+		display: flex;
+		flex-direction: column;
+		
+		.info {
+			margin-bottom: 1em;
+		}
+
+		.connectBt {
+			display: block;
+			margin: auto;
+		}
+
+		.error, .success {
+			justify-self: center;
+			color: @mainColor_light;
+			display: block;
+			text-align: center;
+			padding: 5px;
+			border-radius: 5px;
+			margin: auto;
+			margin-top: 10px;
+
+			&.error {
+				background-color: @mainColor_alert;
+			}
+
+			&.success {
+				background-color: #1c941c;
+				margin-top: 0px;
+				margin-bottom: 10px;
+			}
+			
+			a {
+				color: @mainColor_light;
+			}
+
+			div:not(:last-child) {
+				margin-bottom: 1em;
+			}
+			:deep(strong) {
+				background-color: @mainColor_light;
+				color: @mainColor_alert;
+				padding: 0 0.25em;
+				border-radius: 0.25em;
+			}
+		}
+	
+		/* Enter and leave animations can use different */
+		/* durations and timing functions.              */
+		.fade-enter-active {
+			transition: all 0.2s;
+		}
+
+		.fade-leave-active {
+			transition: all 0.2s;
+		}
+
+		.fade-enter-from,
+		.fade-leave-to {
+			opacity: 0;
+			transform: translateY(-10px);
 		}
 	}
 

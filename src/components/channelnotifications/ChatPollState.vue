@@ -6,7 +6,7 @@
 			:percent="progressPercent"
 			:duration="poll.duration*1000 * 60" />
 		
-		<ToggleBlock medium :open="false" :title="entries.length+' entries'" class="row choices" v-if="entries.length > 0" icon="user">
+		<ToggleBlock medium :open="false" :title="entries.length+' entries'" class="row choices" v-if="entries.length > 0" :icons="['user']">
 			<div class="holder">
 				<div class="choice" v-for="(c,index) in poll.choices" :key="c.user['user-id']+'_'+index">
 					<div class="username">{{c.user['display-name']}}</div>
@@ -27,13 +27,13 @@
 
 		<div class="actions">
 			<Button class="item"
-				:icon="require('@/assets/icons/chatPoll.svg')"
+				:icon="$image('icons/chatPoll.svg')"
 				title="Pick a random entry"
 				@click="pickEntry()"
 				:disabled="poll.choices.length === 0" />
 
 			<Button class="item"
-				:icon="require('@/assets/icons/cross_white.svg')"
+				:icon="$image('icons/cross_white.svg')"
 				title="Close chat poll"
 				highlight
 				@click="closePoll()" />
@@ -42,7 +42,8 @@
 </template>
 
 <script lang="ts">
-import store, { ChatPollData, ChatPollDataChoice } from '@/store';
+import store from '@/store';
+import type { ChatPollData, ChatPollDataChoice } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap/all';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -59,8 +60,8 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatPollState extends Vue {
 
-	public loading:boolean = false;
-	public progressPercent:number = 0;
+	public loading = false;
+	public progressPercent = 0;
 
 	public get poll():ChatPollData { return store.state.chatPoll as ChatPollData; }
 

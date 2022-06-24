@@ -5,7 +5,7 @@ import { Event } from '@/utils/EventDispatcher';
 */
 export default class PubSubEvent extends Event {
 
-	public static DELETE_MESSAGE:string = "DELETE_MESSAGE";
+	public static DELETE_MESSAGE = "DELETE_MESSAGE";
 	
 	constructor(type:string, public data?:string) {
 		super(type);

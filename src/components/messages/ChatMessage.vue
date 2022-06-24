@@ -32,7 +32,7 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos">
-			<img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper">
+			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
 			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				src="@/assets/icons/conversation.svg"
@@ -40,7 +40,9 @@
 				@mouseleave="$emit('mouseleave', $event)"
 				@click.stop="$emit('showConversation', $event, messageData)">
 			
-			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" />
+			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" :canDelete="messageData.type != 'whisper'" />
+
+			<span v-if="messageData.type == 'whisper'" class="whisperlabel">whisper</span>
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 
@@ -65,7 +67,7 @@
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="$emit('mouseleave', $event)"
-				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}</span>
+				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}<i class="translation" v-if="translateUsername"> ({{messageData.tags["username"]}})</i></span>
 		</div>
 		
 		<span>: </span>
@@ -79,16 +81,18 @@
 
 <script lang="ts">
 import store from '@/store';
-import { IRCEventDataList } from '@/utils/IRCEvent';
-import { PubSubTypes } from '@/utils/PubSub';
-import TwitchUtils, { TwitchTypes } from '@/utils/TwitchUtils';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from './ChatModTools.vue';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	components:{
@@ -110,15 +114,15 @@ export default class ChatMessage extends Vue {
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
 	
-	public firstTime:boolean = false;
-	public automod:PubSubTypes.AutomodData | null = null;
-	public text:string = "";
-	public automodReasons:string = "";
-	public badges:TwitchTypes.Badge[] = [];
+	public firstTime = false;
+	public automod:PubSubDataTypes.AutomodData | null = null;
+	public text = "";
+	public automodReasons = "";
+	public badges:TwitchDataTypes.Badge[] = [];
 
 	public get pronoun():string|null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
-		if(!key) return null;
+		if(!key || typeof key != "string") return null;
 		const hashmap:{[key:string]:string} = {
 			// https://pronouns.alejo.io
 			"aeaer" : "Ae/Aer",
@@ -159,7 +163,7 @@ export default class ChatMessage extends Vue {
 
 	public get pronounLabel(): string | null {
 		const key = store.state.userPronouns[this.messageData.tags['user-id'] as string];
-		if(!key) return null;
+		if(!key || typeof key != "string") return null;
 
 		const hashmap: {[key: string]: string} = {
 			// https://pronoundb.org
@@ -211,7 +215,10 @@ export default class ChatMessage extends Vue {
 		if(message.type == "whisper") {
 			res.push("whisper");
 		}else{
-			if(message.deleted) res.push("deleted");
+			if(message.deleted) {
+				res.push("deleted");
+				if(store.state.params.filters.censorDeletedMessages.value===true) res.push("censor");
+			}
 			if(message.lowTrust) res.push("lowTrust");
 			if(message.cyphered) res.push("cyphered");
 		}
@@ -224,7 +231,6 @@ export default class ChatMessage extends Vue {
 			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
 			res.push("announcement", color);
 		}
-		if(store.state.params.filters.censorDeletedMessages.value===true) res.push("censor");
 
 		if(!this.lightMode) {
 			if(message.type == "message" && message.hasMention) res.push("mention");
@@ -242,11 +248,11 @@ export default class ChatMessage extends Vue {
 		if(this.lightMode) return false;
 		if(store.state.params.features.showModTools.value === false) return false;
 		const message = this.messageData as IRCEventDataList.Message;
-		return (store.state.mods as TwitchTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+		return (store.state.mods as TwitchDataTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
 			||
 		(
-			message.channel.replace(/^#/gi, "").toLowerCase() == store.state.user.login.toLowerCase()//TODO set actual channel id not the user id
-			&& message.tags.username?.toLowerCase() != store.state.user.login.toLowerCase()
+			message.channel.replace(/^#/gi, "").toLowerCase() == UserSession.instance.authToken.login.toLowerCase()//TODO set actual channel id not the user id
+			&& message.tags.username?.toLowerCase() != UserSession.instance.authToken.login.toLowerCase()
 		);
 	}
 
@@ -260,13 +266,24 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == "whisper") return false;
 		return this.messageData.answers != undefined || this.messageData.answerTo != undefined;
 	}
+
+	public get translateUsername():boolean {
+		if(store.state.params.appearance.translateNames.value !== true) return false;
+
+		const dname = (this.messageData.tags['display-name'] as string).toLowerCase();
+		const uname = (this.messageData.tags['username'] as string).toLowerCase();
+		//If display name is different from username and at least half of the
+		//display name's chars ar not latin chars, translate it
+		if(uname == "papaya_rnint") console.log(dname.replace(/^[^a-zA-Z0-9]*/gi, "").length);
+		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
+	}
 	
 	/**
 	 * Set login color
 	 */
 	public get loginStyles():StyleValue {
 		const message = this.messageData as IRCEventDataList.Message;
-		let color = 0xffffff;
+		let color = 0xb454ff;
 		if(message.tags.color) {
 			color = parseInt(message.tags.color.replace("#", ""), 16);
 		}
@@ -286,8 +303,8 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Get badges images
 	 */
-	public get filteredBadges():TwitchTypes.Badge[] {
-		let res:TwitchTypes.Badge[] = [];
+	public get filteredBadges():TwitchDataTypes.Badge[] {
+		let res:TwitchDataTypes.Badge[] = [];
 		if(store.state.params.appearance.showBadges.value
 		&& !store.state.params.appearance.minimalistBadges.value) {
 			try {
@@ -318,6 +335,7 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.staff) badges.push({label:"Twitch staff", class:"staff"});
 			if(message.tags.badges?.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
 			if(message.tags.badges?.partner) badges.push({label:"Partner", class:"partner"});
+			if(message.tags.badges?.founder) badges.push({label:"Founder", class:"founder"});
 		}
 		return badges;
 	}
@@ -431,7 +449,7 @@ export default class ChatMessage extends Vue {
 	public parseText():string {
 		let result:string;
 		const doHighlight = store.state.params.appearance.highlightMentions.value;
-		const highlightLogin = store.state.user.login;
+		const highlightLogin = UserSession.instance.authToken.login;
 		const mess = this.messageData;
 		let text = mess.type == "whisper"? mess.params[1] : mess.message;
 		if(!text) return "";
@@ -442,11 +460,15 @@ export default class ChatMessage extends Vue {
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
 			}else{
-				//Allow custom parsing of emotes only if it's a message of ours
-				//to avoid killing perfromances.
-				const customParsing = mess.tags['emotes-raw'] == null && mess.tags.username?.toLowerCase() == store.state.user.login.toLowerCase();
+				//Allow custom parsing of emotes only if it's a message of ours sent
+				//from twitchat to avoid killing perfromances.
+				//When seending a message, the one received back misses lots of info
+				//like the "id", in this case a custom ID is given that starts
+				//with "00000000"
+				const customParsing = mess.tags.id?.indexOf("00000000") == 0;
 				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
+				
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
 					if(v.type == "text") {
@@ -468,14 +490,13 @@ export default class ChatMessage extends Vue {
 						url = url.replace(/2x$/gi, "3x");//7TV format
 						url = url.replace(/1$/gi, "4");//FFZ format
 						
-						if(store.state.params.appearance.defaultSize.value >= 6) {
-							console.log("ok");
+						if(store.state.params.appearance.defaultSize.value as number >= 6) {
 							v.value = v.value.replace(/1.0$/gi, "3.0");
 							v.value = v.value.replace(/1x$/gi, "4x");//BTTV format
 							v.value = v.value.replace(/2x$/gi, "4x");//7TV format
 							v.value = v.value.replace(/1$/gi, "4");//FFZ format
 						}else
-						if(store.state.params.appearance.defaultSize.value >= 3) {
+						if(store.state.params.appearance.defaultSize.value as number >= 3) {
 							v.value = v.value.replace(/1.0$/gi, "2.0");
 							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
 							v.value = v.value.replace(/1$/gi, "2");//FFZ format
@@ -491,8 +512,8 @@ export default class ChatMessage extends Vue {
 			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		}
 
-		const button = "<img src='"+require('@/assets/icons/copy_alert.svg')+"' class='copyBt' data-copy=\"$2\" data-tooltip='Copy'>";
-		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, "$1$2$3"+button);
+		const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
+		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		
 		return result;
 	}
@@ -512,7 +533,8 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
-	padding: .25em;
+	@padding: .25em;
+	padding: @padding;
 	margin-bottom: 1px;
 
 	&.highlightSubs { background-color: fade(#9147ff, 7%); }
@@ -520,7 +542,7 @@ export default class ChatMessage extends Vue {
 	&.highlightMods { background-color: fade(#39db00, 7%); }
 	&.highlighted { 
 		.message {
-			padding: 0 .25em;
+			padding: 0 @padding;
 			background-color: @mainColor_normal; color:#fff
 		}
 	}
@@ -560,7 +582,6 @@ export default class ChatMessage extends Vue {
 		.message {
 			color: #fff;
 		}
-
 	}
 
 	.infos {
@@ -574,7 +595,7 @@ export default class ChatMessage extends Vue {
 				margin-right: 5px;
 			}
 
-			.convBt {
+			&.convBt {
 				cursor: pointer;
 				&:hover {
 					opacity: .75;
@@ -605,6 +626,7 @@ export default class ChatMessage extends Vue {
 			&.staff{ background-color: #666666;}
 			&.broadcaster{ background-color: #ff0000;}
 			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
+			&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
 		}
 
 		.login {
@@ -614,6 +636,10 @@ export default class ChatMessage extends Vue {
 			&:hover {
 				background-color: fade(@mainColor_light, 10%);
 				border-radius: 3px;
+			}
+			.translation {
+				font-weight: normal;
+				font-size: .9em;
 			}
 		}
 	
@@ -649,6 +675,7 @@ export default class ChatMessage extends Vue {
 		.pronoun {
 			font-size: .8em;
 			border-radius: 3px;
+			color: @mainColor_light;
 			border: 1px solid @mainColor_light;
 			padding: 0 .1em;
 			margin-right: 5px;
@@ -660,7 +687,7 @@ export default class ChatMessage extends Vue {
 		color: #d1d1d1;
 		// position: relative;
 		:deep( .emote ) {
-			width: 2em;
+			// width: 2em;
 			height: 2em;
 			vertical-align: middle;
 			object-fit: contain;
@@ -678,7 +705,7 @@ export default class ChatMessage extends Vue {
 		}
 		:deep(.copyBt) {
 			height: 1em;
-			margin-left: .25em;
+			margin-right: .25em;
 			vertical-align: middle;
 			cursor: pointer;
 		}
@@ -757,7 +784,21 @@ export default class ChatMessage extends Vue {
 	}
 
 	&.whisper {
-		background-color: rgba(0, 0, 0, .5);
+		background-color: rgba(0, 0, 0, 1);
+		// border: 1px dashed @mainColor_light;
+		border-radius: .5em;
+		font-style: italic;
+		.infos {
+			.whisperlabel {
+				font-size: .9em;
+				border-radius: 3px;
+				color: @mainColor_dark;
+				background-color: @mainColor_light;
+				padding: 0 .3em;
+				margin-right: 5px;
+				vertical-align: middle;
+			}
+		}
 	}
 
 	&.lowTrust {

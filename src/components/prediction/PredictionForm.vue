@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Create prediction</span>
-				<Button aria-label="Close prediction form" :icon="require('@/assets/icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close prediction form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<form  @submit.prevent="submitPoll()">
@@ -23,7 +23,7 @@
 								v-autofocus="index == 0 && title != ''"
 							>
 							<Button aria-label="Delte outcome option" class="deleteBt" small
-								:icon="require('@/assets/icons/cross.svg')"
+								:icon="$image('icons/cross.svg')"
 								type="button"
 								v-if="answers.length > 2"
 								@click="deleteAnswer(index)"
@@ -44,7 +44,8 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -63,10 +64,10 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class PredictionForm extends Vue {
 
-	public loading:boolean = false;
+	public loading = false;
 
-	public error:string = "";
-	public title:string = "";
+	public error = "";
+	public title = "";
 	public answers:string[] = ["", ""];
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
 
@@ -106,7 +107,7 @@ export default class PredictionForm extends Vue {
 			for (let i = 0; i < this.answers.length; i++) {
 				if(this.answers[i].length === 0) emptyCount++;
 			}
-			if(emptyCount == 0 && this.answers.length < Config.MAX_PREDICTION_OUTCOMES) {
+			if(emptyCount == 0 && this.answers.length < Config.instance.MAX_PREDICTION_OUTCOMES) {
 				this.answers.push("");
 			}else if(emptyCount > 1 && this.answers.length > 2) {
 				while(emptyCount > 1) {

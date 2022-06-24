@@ -1,16 +1,18 @@
-import store from "@/store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import FFZUtils from "./FFZUtils";
-import IRCEvent, { IRCEventDataList } from "./IRCEvent";
+import IRCEvent from "./IRCEvent";
+import type { IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
-import { PubSubTypes } from "./PubSub";
+import type { PubSubDataTypes } from "./PubSubDataTypes";
 import SevenTVUtils from "./SevenTVUtils";
+import StoreProxy from "./StoreProxy";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
+import UserSession from "./UserSession";
 import Utils from "./Utils";
 
 /**
@@ -21,22 +23,23 @@ export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
 	private login!:string;
-	private debugMode:boolean = true && !Config.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	private fakeEvents:boolean = false && !Config.IS_PROD;//Enable to send fake events and test different displays
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	private selfTags!:tmi.ChatUserstate;
 	private joinSpool:string[] = [];
 	private partSpool:string[] = [];
-	private joinSpoolTimeout:number = -1;
-	private partSpoolTimeout:number = -1;
+	private joinSpoolTimeout = -1;
+	private partSpoolTimeout = -1;
+	private reconnectTimeout = -1;
+	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
+	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;
-	public connected:boolean = false;
+	public connected = false;
 	public botsLogins:string[] = [];
-	public increment:number = 0;
+	public increment = 0;
 	public onlineUsers:string[] = [];
 	
 	constructor() {
@@ -64,16 +67,15 @@ export default class IRCClient extends EventDispatcher {
 	* PUBLIC METHODS *
 	******************/
 	public connect(login:string, token?:string):Promise<void> {
-		if(this.connected) return Promise.resolve();
+		if(this.client) return Promise.resolve();
 
-		this.connected = true;
 		return new Promise((resolve, reject) => {
 			this.login = login;
 			this.token = token;
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["gunselsenol", "angledroit"]);
+				channels = channels.concat(["littlebigwhale"]);
 			}
 
 			(async ()=> {
@@ -121,6 +123,7 @@ export default class IRCClient extends EventDispatcher {
 					},
 				});
 			}else{
+				//Anonymous authentication
 				this.client = new tmi.Client({
 					channels:channels.concat(),
 				});
@@ -136,18 +139,17 @@ export default class IRCClient extends EventDispatcher {
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
 					this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
 				}else{
-					if(store.state.params.features.notifyJoinLeave.value === true) {
+					if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
 						if(this.botsLogins.indexOf(user) == -1) {
-							user = "<mark>"+user+"</mark>";
 							this.joinSpool.push(user);
 							clearTimeout(this.joinSpoolTimeout);
 							
-							this.joinSpoolTimeout = setTimeout(() => {
+							this.joinSpoolTimeout = window.setTimeout(() => {
 								const join = this.joinSpool.splice(0, 30);
-								let message = join.join(", ");
+								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
 								if(this.joinSpool.length > 0) {
-									message += " and <mark>"+this.joinSpool.length+"</mark> more...";
+									message += " and <mark>"+this.joinSpool.length+"</mark> more";
 								}else{
 									message = message.replace(/,([^,]*)$/, " and$1");
 								}
@@ -164,7 +166,7 @@ export default class IRCClient extends EventDispatcher {
 				
 				this.onlineUsers.push(user);
 				this.onlineUsers.sort();
-				store.dispatch("setViewersList", this.onlineUsers);
+				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 			});
 			
 			this.client.on("part", (channel:string, user:string) => {
@@ -173,29 +175,27 @@ export default class IRCClient extends EventDispatcher {
 				if(index > -1) {
 					this.onlineUsers.splice(index, 1);
 				}
-				if(store.state.params.features.notifyJoinLeave.value === true) {
+				if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
 					//Ignore bots
 					if(this.botsLogins.indexOf(user) == -1) {
-						user = "<mark>"+user+"</mark>";
 						this.partSpool.push(user);
 						clearTimeout(this.partSpoolTimeout);
 						
-						this.partSpoolTimeout = setTimeout(() => {
-							const join = this.partSpool.splice(0, 30);
-							let message = join.join(", ");
+						this.partSpoolTimeout = window.setTimeout(() => {
+							const leave = this.partSpool.splice(0, 30);
+							let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
 							if(this.partSpool.length > 0) {
-								message += " and <mark>"+this.partSpool.length+"</mark> more...";
+								message += " and <mark>"+this.partSpool.length+"</mark> more";
 							}else{
 								message = message.replace(/,([^,]*)$/, " and$1");
 							}
 							message += " left the chat room";
-							message = message.replace(/,([^,]*)$/, " and$1");
 							this.sendNotice("offline", message, channel);
 							this.partSpool = [];
 						}, 1000);
 					}
 				}
-				store.dispatch("setViewersList", this.onlineUsers);
+				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 			});
 
 			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {
@@ -255,7 +255,7 @@ export default class IRCClient extends EventDispatcher {
 				this.sendHighlight({type:"highlight", channel, tags, username, viewers});
 				
 				//If "highlight raider's messages for 5min" option is enabled
-				if(store.state.params.features.raidHighlightUser.value == true) {
+				if(StoreProxy.store.state.params.features.raidHighlightUser.value == true) {
 					//Get user ID as the user tracking feature needs it
 					const user = (await TwitchUtils.loadUserInfo(undefined, [username]))[0];
 					const message:IRCEventDataList.Message = {
@@ -270,10 +270,10 @@ export default class IRCClient extends EventDispatcher {
 					message.tags["display-name"] = user.display_name;
 					message.tags["user-id"] = user.id;
 					//Track the user
-					store.dispatch("trackUser", message);
+					StoreProxy.store.dispatch("trackUser", message);
 					//Untrack the user after 5 minutes
-					setTimeout(()=> {
-						store.dispatch("untrackUser", message.tags);
+					window.setTimeout(()=> {
+						StoreProxy.store.dispatch("untrackUser", message.tags);
 					}, 5 * 60 * 1000);
 				}
 			});
@@ -291,13 +291,20 @@ export default class IRCClient extends EventDispatcher {
 			});
 
 			this.client.on("disconnected", ()=> {
-				console.log("IRCClient :: Diconnected");
+				console.log("IRCClient :: Disconnected");
 				if(!this.connected) {
 					reject();
+					return;
 				}
 				this.connected = false;
 				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
+				
+				clearTimeout(this.reconnectTimeout);
+				//Check 5s later if we are still disconnected and manually try to reconnect
+				this.reconnectTimeout = setTimeout(()=> {
+					if(!this.connected) this.client.connect();
+				}, 5000)
 			});
 
 			this.client.on("clearchat", ()=> {
@@ -319,7 +326,7 @@ export default class IRCClient extends EventDispatcher {
 							//That darn TMI parses the "badges" and "badge-info" props right after
 							//dispatching the "raw_message" event. Which fucks up the message display.
 							//Let's wait a frame so the props are parsed and everything works fine! Love it!
-							setTimeout(() => {
+							window.setTimeout(() => {
 								this.addMessage(params[1], tags, params[0] == this.channel);
 							},0)
 						}
@@ -337,7 +344,7 @@ export default class IRCClient extends EventDispatcher {
 					}
 					case "USERSTATE": {
 						// console.log(data);
-						store.dispatch("setUserState", data as tmi.UserNoticeState);
+						StoreProxy.store.dispatch("setUserState", data as tmi.UserNoticeState);
 						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
 						break;
 					}
@@ -345,7 +352,6 @@ export default class IRCClient extends EventDispatcher {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
 					case "NOTICE": {
-						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 						
 						if(!message) {
@@ -364,6 +370,9 @@ export default class IRCClient extends EventDispatcher {
 			});
 	
 			this.client.on('message', (channel:string, tags:tmi.ChatUserstate, message:string, self:boolean) => {
+				//Ignore rewards with text, they are also sent to PubSub with more info
+				if(tags["custom-reward-id"]) return;
+
 				if(tags["message-type"] == "chat" || tags["message-type"] == "action") {
 					this.addMessage(message, tags, self, undefined, channel);
 				}
@@ -385,12 +394,14 @@ export default class IRCClient extends EventDispatcher {
 			await this.client.deletemessage(this.channel, id);
 		}catch(error) {
 			if(error === "bad_delete_message_error") {
-				store.state.alert = "Cannot delete broadcaster or moderator's message !";
+				StoreProxy.store.state.alert = "Cannot delete broadcaster or moderator's message !";
 			}
 		}
 	}
 
 	public sendMessage(message:string):Promise<unknown> {
+		if(!this.connected) return Promise.resolve();
+		
 		//Workaround to a weird behavior of TMI/IRC.
 		//If the message starts by a "\" it's properly sent on all
 		//connected clients, but the sender never receives it.
@@ -398,7 +409,7 @@ export default class IRCClient extends EventDispatcher {
 			const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
 			tags.username = this.login;
 			tags["display-name"] = this.login;
-			tags["user-id"] = store.state.user.user_id;
+			tags["user-id"] = UserSession.instance.authToken.user_id;
 			tags.id = this.getFakeGuid();
 			this.addMessage(message, tags, true, undefined, this.channel);
 		}
@@ -407,6 +418,8 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public async whisper(whisperSource:IRCEventDataList.Whisper, message:string):Promise<void> {
+		if(!this.connected) return Promise.resolve();
+
 		const data:IRCEventDataList.Whisper = {
 			type:"whisper",
 			channel:IRCClient.instance.channel,
@@ -461,13 +474,13 @@ export default class IRCClient extends EventDispatcher {
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
 	}
 
-	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubTypes.AutomodData, channel?:string):void {
+	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubDataTypes.AutomodData, channel?:string):void {
 		const login = tags.username as string;
 
 		if(login == this.login) {
 			this.selfTags = JSON.parse(JSON.stringify(tags));
 			//Darn IRC doesn't send back the user ID when message is sent from this client
-			if(!tags["user-id"]) tags["user-id"] = store.state.user.user_id;
+			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
 		}
 
 		if(message == "!logJSON") {
@@ -515,28 +528,28 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		//Ignore /me messages if requested
-		if(store.state.params.filters.showSlashMe.value === false && tags["message-type"] == "action") {
+		if(StoreProxy.store.state.params.filters.showSlashMe.value === false && tags["message-type"] == "action") {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 			return;
 		}
 		//Ignore self if requested
-		if(store.state.params.filters.showSelf.value === false && tags["user-id"] == store.state.user.user_id) {
+		if(StoreProxy.store.state.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}
 		//Ignore bot messages if requested
-		if(store.state.params.filters.showBots.value === false && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+		if(StoreProxy.store.state.params.filters.showBots.value === false && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}
 		//Ignore custom users
-		if((store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+		if((StoreProxy.store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 			return;
 		}
 		//Ignore commands
-		if(store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
-			const blocked = store.state.params.filters.blockedCommands.value as string;
+		if(StoreProxy.store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
+			const blocked = StoreProxy.store.state.params.filters.blockedCommands.value as string;
 			if(blocked.length > 0) {
 				//Ignore all commands
 				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
@@ -558,7 +571,7 @@ export default class IRCClient extends EventDispatcher {
 		if(index == -1) {
 			this.onlineUsers.push(loginLower);
 			this.onlineUsers.sort();
-			store.dispatch("setViewersList", this.onlineUsers);
+			StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));
@@ -569,7 +582,7 @@ export default class IRCClient extends EventDispatcher {
 	 * @param code
 	 */
 	public async sendFakeEvent(code?:string):Promise<void> {
-		const fakeEventsRes = await fetch(Config.API_PATH+"/fakeevents");
+		const fakeEventsRes = await fetch(Config.instance.API_PATH+"/fakeevents");
 		const fakeEventsJSON = await fakeEventsRes.json();
 		for (const key in fakeEventsJSON) {
 			if(code && key != code) continue;
@@ -592,9 +605,8 @@ export default class IRCClient extends EventDispatcher {
 			
 			if(json.type == "highlight") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
-			}else{
-				this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
 			}
+			this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
 
 			await Utils.promisedTimeout(50);
 		}
@@ -619,14 +631,4 @@ export default class IRCClient extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-}
-
-//adding props missing from typings
-export interface IRCTagsExtended extends tmi.ChatUserstate {
-	"first-msg"?:boolean;
-	"reply-parent-display-name"?:string;
-	"reply-parent-msg-body"?:string;
-	"reply-parent-msg-id"?:string;
-	"reply-parent-user-id"?:string;
-	"reply-parent-user-login"?:string;
 }

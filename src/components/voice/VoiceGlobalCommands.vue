@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts">
-import store, { ParameterData } from '@/store';
+import store from '@/store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
 import VoiceAction from '@/utils/VoiceAction';
-import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -67,7 +67,6 @@ export default class VoiceGlobalCommands extends Vue {
 			})
 			
 		}
-		console.log(data);
 		this.$emit("update:modelValue", data);
 	}
 

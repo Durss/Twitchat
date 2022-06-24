@@ -2,12 +2,11 @@
 	<div :class="classes"
 	@mouseenter="onHoverList()"
 	@mouseleave="onLeaveList()"
-	@wheel="onMouseWheel($event)">
+	@wheel="onMouseWheel($event)"
+	@touchmove="onTouchMove($event)">
 		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
-			@mouseenter="enterMessage(m)"
-			@mouseleave="leaveMessage(m)"
 			@click="toggleMarkRead(m, $event)">
 				<ChatAd class="message"
 					:messageData="m"
@@ -39,7 +38,7 @@
 					/>
 
 				<ChatHighlight
-					v-else-if="m.type == 'highlight'"
+					v-else-if="m.type == 'highlight' && $store.state.params.filters.showNotifications.value"
 					class="message"
 					:messageData="m"
 					lightMode
@@ -50,7 +49,7 @@
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'poll' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'poll' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
 				/>
@@ -58,7 +57,7 @@
 				<ChatPredictionResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'prediction' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'prediction' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
 				/>
@@ -66,7 +65,7 @@
 				<ChatBingoResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'bingo' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'bingo' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
 				/>
@@ -74,18 +73,25 @@
 				<ChatRaffleResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'raffle' && $store.state.params.filters.showPollPredResults.value"
+					v-else-if="m.type == 'raffle' && $store.state.params.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
 				/>
 
+				<ChatCountdownResult
+					class="message"
+					:ref="'message_'+m.tags.id"
+					v-else-if="m.type == 'countdown' && $store.state.params.filters.showNotifications.value"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					:countdownData="m"
+				/>
+
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
-				<transition name="slide">
-					<div class="hoverActionsHolder" v-if="m.type == 'message' && m.showHoverActions && !lightMode">
-						<ChatMessageHoverActions class="hoverActions" :messageData="m" />
-					</div>
-				</transition>
+				<div class="hoverActionsHolder"
+				v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != userId">
+					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
+				</div>
 			</div>
 		</div>
 
@@ -104,7 +110,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">History</h1>
-				<Button class="button" aria-label="close conversation" :icon="require('@/assets/icons/cross_white.svg')" @click="onMouseLeave()" />
+				<Button class="button" aria-label="close conversation" :icon="$image('icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<ChatMessage
@@ -127,14 +133,16 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
-import IRCEvent, { IRCEventDataList } from '@/utils/IRCEvent';
+import IRCEvent from '@/utils/IRCEvent';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap/all';
-import { StyleValue } from 'vue';
+import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
@@ -145,6 +153,7 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatCountdownResult from './ChatCountdownResult.vue';
 
 @Options({
 	components:{
@@ -156,6 +165,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		ChatCountdownResult,
 		ChatPredictionResult,
 		ChatMessageHoverActions,
 	},
@@ -175,39 +185,44 @@ export default class MessageList extends Vue {
 	public localMessages:MessageTypes[] = [];
 	public pendingMessages:MessageTypes[] = [];
 	public conversation:MessageTypes[] = [];
-	public ariaMessage:string = "";
-	public ariaMessageTimeout:number = -1;
-	public lockScroll:boolean = false;
-	public conversationPos:number = 0;
-	public scrollAtBottom:boolean = true;
-	public conversationMode:boolean = true;//Used to change title between History/Conversation
+	public ariaMessage = "";
+	public ariaMessageTimeout = -1;
+	public lockScroll = false;
+	public conversationPos = 0;
+	public scrollAtBottom = true;
+	public conversationMode = true;//Used to change title between "History"/"Conversation"
 
-	private disposed:boolean = false;
-	private holderOffsetY:number = 0;
+	private disposed = false;
+	private holderOffsetY = 0;
 	private prevMarkedReadItem:MessageTypes | null = null;
-	private virtualScrollY:number = -1;
+	private virtualScrollY = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
+	private prevTouchMove!:TouchEvent;
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get classes():string[] {
 		let res = ["messagelist"];
+		res.push("alternateBG");
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll) res.push("lockScroll");
 		return res;
 	}
 
 	public get holderStyles():StyleValue {
+		if(this.holderOffsetY == 0) return {};
 		return {
-			transform:"translateY("+this.holderOffsetY+"px)",
+			transform:"translateY(calc("+this.holderOffsetY+"px - .25em))",
 		};
 	}
 
 	public get conversationStyles():StyleValue {
 		return { top: this.conversationPos+"px" }
 	}
+
+	public get userId():string { return UserSession.instance.authToken.user_id }
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
@@ -334,10 +349,9 @@ export default class MessageList extends Vue {
 				}
 			}
 		}
-		let index = this.localMessages.findIndex(v => {
-			return v.tags.id === messageID
-		});
-		
+
+		//Remove deleted message from currently displayed messages
+		let index = this.localMessages.findIndex(v => { return v.tags.id === messageID });
 		if(index > -1) {
 			const m = this.localMessages[index];
 			if(m.type == "message") {
@@ -473,6 +487,18 @@ export default class MessageList extends Vue {
 		}
 	}
 
+	public onTouchMove(event:TouchEvent):void {
+		const el = this.$refs.messageHolder as HTMLDivElement;
+		const maxScroll = (el.scrollHeight - el.offsetHeight);
+		if(this.prevTouchMove) {
+			const direction = event.touches[0].clientY - this.prevTouchMove.touches[0].clientY;
+			//Pause if dragging up
+			if(direction > 0) this.lockScroll = true;
+			else this.lockScroll = Math.abs(el.scrollTop - maxScroll) != 0;
+		}
+		this.prevTouchMove = event;
+	}
+
 	/**
 	 * Called 60 times/sec to scroll the list and load new messages
 	 * if there are pending ones.
@@ -486,7 +512,7 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - h);
 
 		const messRefs = this.$refs.message as HTMLDivElement[];
-		if(!messRefs) return;
+		if(!messRefs) return;//view not ready yet
 		
 		// const lastMessRef = messRefs[ messRefs.length - 1 ];
 		// const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
@@ -540,7 +566,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Get the next pending message and display it to the list
 	 */
-	private showNextPendingMessage(wheelOrigin:boolean = false):void {
+	private showNextPendingMessage(wheelOrigin = false):void {
 		if(this.pendingMessages.length == 0) return;
 		
 		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
@@ -557,7 +583,7 @@ export default class MessageList extends Vue {
 	 * Will scroll so the previous message is on the bottom of the list
 	 * so the new message displays smoothly from the bottom of the screen
 	 */
-	private async scrollToPrevMessage(wheelOrigin:boolean = false):Promise<void> {
+	private async scrollToPrevMessage(wheelOrigin = false):Promise<void> {
 		await this.$nextTick();
 		const el = this.$refs.messageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -594,7 +620,7 @@ export default class MessageList extends Vue {
 		message = message.replace(/<[^>]*>/gim, "");//Strip HTML tags
 		this.ariaMessage = message;
 		clearTimeout(this.ariaMessageTimeout);
-		this.ariaMessageTimeout = setTimeout(()=> {
+		this.ariaMessageTimeout = window.setTimeout(()=> {
 			this.ariaMessage = "";
 		}, 10000);
 	}
@@ -633,7 +659,7 @@ export default class MessageList extends Vue {
 		if(this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
-		this.openConvTimeout = setTimeout(async ()=> {
+		this.openConvTimeout = window.setTimeout(async ()=> {
 			this.conversationMode = false;
 	
 			let messageList:IRCEventDataList.Message[] = [];
@@ -675,30 +701,13 @@ export default class MessageList extends Vue {
 		if(this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
-		this.closeConvTimeout = setTimeout(()=>{
+		this.closeConvTimeout = window.setTimeout(()=>{
 			this.conversation = [];
 			const mainHolder = this.$refs.messageHolder as HTMLDivElement;
 			gsap.to(mainHolder, {opacity:1, duration:.25});
 		}, 0);
 	}
 
-	/**
-	 * Called when hovering a message
-	 */
-	public enterMessage(m:MessageTypes):void {
-		if(m.type != "message") return;
-		if(m.tags['user-id'] && m.tags['user-id'] != store.state.user.user_id) {
-			m.showHoverActions = true;
-		}
-	}
-
-	/**
-	 * Called on a message rollout
-	 */
-	public leaveMessage(m:MessageTypes):void {
-		if(m.type != "message") return;
-		m.showHoverActions = false;
-	}
 
 	/**
 	 * Called on a message is clicked
@@ -753,7 +762,9 @@ type MessageTypes = IRCEventDataList.Highlight
 				|  IRCEventDataList.Message
 				|  IRCEventDataList.Commercial
 				|  IRCEventDataList.TwitchatAd
-				|  IRCEventDataList.Whisper;
+				|  IRCEventDataList.Whisper
+				|  IRCEventDataList.CountdownResult
+;
 </script>
 
 <style scoped lang="less">
@@ -762,15 +773,13 @@ type MessageTypes = IRCEventDataList.Highlight
 	position: relative;
 	flex-direction: column;
 	max-height: 100%;
+	padding-bottom: 0;
 
 	&.lightMode {
 		padding: 0;
 		.holder {
 			padding: 0;
 			overflow: hidden;
-			.message:nth-child(even) {
-				background-color: transparent;
-			}
 		}
 	}
 
@@ -786,7 +795,7 @@ type MessageTypes = IRCEventDataList.Highlight
 	.ariaMessage {
 		position: absolute;
 		top: 0;
-		transform: translate(0, -200%);
+		transform: translate(0, -10000px);
 		z-index: 100;
 	}
 
@@ -798,24 +807,37 @@ type MessageTypes = IRCEventDataList.Highlight
 		font-size: var(--messageSize);
 	}
 
+	// &.alternateBG:not(.lightMode) {
+		// .holder {
+			//TODO fix switching even/odd problem when deleting/adding messages and enable this back
+			// .subHolder:nth-child(odd) {
+				// background-color: rgba(255, 255, 255, .05);
+
+				// .message {
+				// 	display: flex;
+				// 	flex-direction: row-reverse;
+				// }
+			// }
+		// }
+	// }
+
 	.holder {
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
-
-		//TODO fix switching even/odd problem when deleting/adding messages and enable this back
-		// .subHolder:nth-child(odd) {
-			// background-color: rgba(255, 255, 255, .05);
-		// }
 		.subHolder {
 			position: relative;
 			// display: flex;
 			// flex-direction: row;
-			&:last-child {
-				padding-bottom: 5px;
-			}
+			// &:last-child {
+			// 	padding-bottom: 5px;
+			// }
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
+
+				.hoverActionsHolder {
+					visibility: visible;
+				}
 			}
 			.markRead {
 				width: 100%;
@@ -827,39 +849,20 @@ type MessageTypes = IRCEventDataList.Highlight
 				pointer-events: none;
 			}
 
-			.message {
-				flex-grow: 1;
-			}
-
 			.hoverActionsHolder {
 				position: absolute;
+				visibility: hidden;
+				z-index: 1;
 				top: 0;
-				left: 0;
-				width: 100%;
-				clip-path: polygon(0 -1000px, 100% -1000px, 100% 0, 0 0);
-				.hoverActions {
-					position: absolute;
-					left: 50%;
-					top: 0;
-					transform:translate(-50%, calc(-100% - .5em));
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					justify-content: space-around;
-					flex-wrap: wrap;
-					font-size: var(--messageSize);
-					margin: .5em 0;
-					transition: all 0.2s;
-				}
-	
-				&.slide-enter-active > .hoverActions {
-					transform: translate(-50%, calc(-100% - .5em));
-				}
-
-				&.slide-enter-from > .hoverActions,
-				&.slide-leave-to > .hoverActions {
-					transform: translate(-50%, 0);
-				}
+				right: 0;
+				margin: .5em 0;
+				transform:translate(0, calc(-100% - .5em));
+				display: flex;
+				flex-direction: row;
+				align-items: flex-end;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				font-size: var(--messageSize);
 			}
 		}
 	}
@@ -895,6 +898,9 @@ type MessageTypes = IRCEventDataList.Highlight
 		mask-image: url(../../assets/chatPlaceholder.png);
 		mask-repeat: no-repeat;
 		mask-size: cover;
+		-webkit-mask-image: url(../../assets/chatPlaceholder.png);
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-size: cover;
 		.gradient {
 			width: 100%;
 			height: 513px;
