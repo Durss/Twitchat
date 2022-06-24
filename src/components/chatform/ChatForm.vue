@@ -400,9 +400,11 @@ export default class ChatForm extends Vue {
 			});
 			this.spamInterval = window.setInterval(()=> {
 				const tags = IRCClient.instance.getFakeTags();
-				tags.username = UserSession.instance.authToken.login;
-				tags["display-name"] = UserSession.instance.authToken.login;
-				tags["user-id"] = UserSession.instance.authToken.user_id;
+				const id = Math.round(Math.random()*1000);
+				tags.username = "FakeUser"+id;//UserSession.instance.authToken.login;
+				tags["display-name"] = tags.username;
+				tags["user-id"] = id.toString();//UserSession.instance.authToken.user_id;
+				tags.color = "#"+(id*id*id*id*id).toString().substring(0,8);
 				tags.id = IRCClient.instance.getFakeGuid();
 				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
 			}, 250);

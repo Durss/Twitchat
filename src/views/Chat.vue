@@ -396,6 +396,7 @@ export default class Chat extends Vue {
 				width: calc(50% - 1px);
 				display: flex;
 				flex-direction: column;
+				flex-grow: 1;
 	
 				.newUsers {
 					right: 0;
@@ -525,7 +526,7 @@ export default class Chat extends Vue {
 	.popin {
 		margin-left: auto;
 		z-index: 1;
-		height: calc(100% - 40px);///40 => footer height
+		height: 100%;//calc(100% - 40px);///40 => footer height
 		:deep(.holder) {
 			max-height: 100% !important;
 		}

@@ -43,6 +43,14 @@ export default class App extends Vue {
 	}
 
 	public mounted():void {
+		window.addEventListener('resize', () => this.onWindowResize)
+		this.onWindowResize();
+	}
+
+	private onWindowResize():void { 
+		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
+		//Here we calculate the actual page height and set it as a CSS var.
+		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
 	}
 
 }
@@ -51,7 +59,7 @@ export default class App extends Vue {
 <style scoped lang="less">
 .app{
 	width: 100%;
-	height: 100vh;
+	height: var(--vh);
 	font-size: 20px;
 	overflow: hidden;
 

@@ -134,6 +134,9 @@ http.createServer((request, response) => {
 					&& request.url.toLowerCase().indexOf("chat") == -1
 					&& request.url.toLowerCase().indexOf("overlay") == -1
 					&& request.url.toLowerCase().indexOf("spotify") == -1
+					&& request.url.toLowerCase().indexOf("deezer") == -1
+					&& request.url.toLowerCase().indexOf("sponsor") == -1
+					&& request.url.toLowerCase().indexOf("logout") == -1
 					&& request.url.toLowerCase().indexOf("login") == -1) {
 						
 						console.error(

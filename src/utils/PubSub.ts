@@ -4,7 +4,6 @@ import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
 import type { TwitchDataTypes } from '../types/TwitchDataTypes';
 import { EventDispatcher } from "./EventDispatcher";
-import type { IRCTagsExtended } from "./IRCClient";
 import IRCClient from "./IRCClient";
 import type { IRCEventDataList } from './IRCEventDataTypes';
 import OBSWebsocket from "./OBSWebsocket";
@@ -341,7 +340,7 @@ export default class PubSub extends EventDispatcher{
 					const b = mess.sender.badges[i];
 					badges[b.id] = b.version;
 				}
-				const tags:IRCTagsExtended = {
+				const tags:PubSubDataTypes.IRCTagsExtended = {
 					"username": mess.sender.display_name,
 					"color": mess.sender.chat_color,
 					"display-name": mess.sender.display_name,
@@ -481,7 +480,7 @@ export default class PubSub extends EventDispatcher{
 	 */
 	private automodEvent(localObj:PubSubDataTypes.AutomodData):void {
 		if(localObj.status == "PENDING") {
-			const tags:IRCTagsExtended = {
+			const tags:PubSubDataTypes.IRCTagsExtended = {
 				"username":localObj.message.sender.login,
 				"color": localObj.message.sender.chat_color,
 				"display-name": localObj.message.sender.display_name,
@@ -525,7 +524,7 @@ export default class PubSub extends EventDispatcher{
 	 * Called when a user redeems a reward
 	 */
 	private rewardEvent(localObj:PubSubDataTypes.RewardData):void {
-		const tags:IRCTagsExtended = {
+		const tags:PubSubDataTypes.IRCTagsExtended = {
 			"username":localObj.redemption.user.display_name,
 			"display-name": localObj.redemption.user.display_name,
 			"id": localObj.redemption.id,

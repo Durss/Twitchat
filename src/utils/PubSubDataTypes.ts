@@ -1,3 +1,5 @@
+import type {ChatUserstate} from "tmi.js";
+
 export namespace PubSubDataTypes {
 
 	export interface SocketMessage {
@@ -555,5 +557,15 @@ export namespace PubSubDataTypes {
 		game: string;
 		old_game_id: string;
 		game_id: string;
+	}
+
+	//adding props missing from typings
+	export interface IRCTagsExtended extends ChatUserstate {
+		"first-msg"?:boolean;
+		"reply-parent-display-name"?:string;
+		"reply-parent-msg-body"?:string;
+		"reply-parent-msg-id"?:string;
+		"reply-parent-user-id"?:string;
+		"reply-parent-user-login"?:string;
 	}
 }

@@ -409,7 +409,6 @@ export default class NewUsers extends Vue {
 
 	private scrollTo():void {
 		let el = this.$refs.messageList as HTMLDivElement;
-		console.log(el, el.scrollHeight);
 		if(el && this.scrollDownAuto) {
 			el.scrollTop = el.scrollHeight;
 		}

@@ -30,9 +30,10 @@ export default class IRCClient extends EventDispatcher {
 	private partSpool:string[] = [];
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
+	private reconnectTimeout = -1;
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;
@@ -66,16 +67,15 @@ export default class IRCClient extends EventDispatcher {
 	* PUBLIC METHODS *
 	******************/
 	public connect(login:string, token?:string):Promise<void> {
-		if(this.connected) return Promise.resolve();
+		if(this.client) return Promise.resolve();
 
-		this.connected = true;
 		return new Promise((resolve, reject) => {
 			this.login = login;
 			this.token = token;
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["aqtuc"]);
+				channels = channels.concat(["littlebigwhale"]);
 			}
 
 			(async ()=> {
@@ -123,6 +123,7 @@ export default class IRCClient extends EventDispatcher {
 					},
 				});
 			}else{
+				//Anonymous authentication
 				this.client = new tmi.Client({
 					channels:channels.concat(),
 				});
@@ -290,16 +291,18 @@ export default class IRCClient extends EventDispatcher {
 			});
 
 			this.client.on("disconnected", ()=> {
-				console.log("IRCClient :: Diconnected");
+				console.log("IRCClient :: Disconnected");
 				if(!this.connected) {
 					reject();
+					return;
 				}
 				this.connected = false;
 				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
-
+				
+				clearTimeout(this.reconnectTimeout);
 				//Check 5s later if we are still disconnected and manually try to reconnect
-				setTimeout(()=> {
+				this.reconnectTimeout = setTimeout(()=> {
 					if(!this.connected) this.client.connect();
 				}, 5000)
 			});
@@ -349,7 +352,6 @@ export default class IRCClient extends EventDispatcher {
 					//Using this instead of the "notice" event from TMI as it's not
 					//fired for many notices whereas here we get them all
 					case "NOTICE": {
-						/* eslint-disable-next-line */
 						let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 						
 						if(!message) {
@@ -629,14 +631,4 @@ export default class IRCClient extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-}
-
-//adding props missing from typings
-export interface IRCTagsExtended extends tmi.ChatUserstate {
-	"first-msg"?:boolean;
-	"reply-parent-display-name"?:string;
-	"reply-parent-msg-body"?:string;
-	"reply-parent-msg-id"?:string;
-	"reply-parent-user-id"?:string;
-	"reply-parent-user-login"?:string;
 }
