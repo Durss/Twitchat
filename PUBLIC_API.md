@@ -554,7 +554,7 @@ Request the currently playing spotify track\
 ## **WHEEL_OVERLAY_START**
 Start a wheel animation.
 ### JSON param *(optional)*
-`items` contains the list of wheel items to display on the wheel. There must be between 1 and an infinity of items.
+`items` contains the list of wheel items to display on the wheel. There must be between 1 and an infinity of items.\
 `winner` param is the entry of the list the wheel should stop to.
 ```typescript
 {
@@ -564,7 +564,7 @@ Start a wheel animation.
 			label:string;
 			data:winner;
 		},
-		...
+		//...
 	],
 	winner: {
 		id:string;
@@ -574,20 +574,21 @@ Start a wheel animation.
 }
 ```
 ## **GET_WHEEL_OVERLAY_PRESENCE**
-Ask of a wheel overlay exists.
+Ask of a wheel overlay exists.\
 If it does you'll receive the `WHEEL_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
 -none-
 ```
 ## **GET_CURRENT_TIMERS**
-Request current timer / countdown
+Request current timer / countdown values\
+If it does you'll receive the `TIMER_START` nor `COUNTDOWN_START` event.
 ### JSON param *(optional)*
 ```typescript
 -none-
 ```
 ## **GET_TIMER_OVERLAY_PRESENCE**
-Ask of a timer overlay exists.
+Ask if a timer overlay exists.\
 If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
