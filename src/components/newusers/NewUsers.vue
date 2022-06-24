@@ -71,7 +71,7 @@
 			</div>
 		</div>
 		<!-- </transition-group> -->
-		<div class="grip" @mousedown="startDrag()"></div>
+		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
 		<div class="gripMax" v-if="showMaxHeight" :style="maxHeightStyles">Max height</div>
 	</div>
 </template>
@@ -121,8 +121,8 @@ export default class NewUsers extends Vue {
 	private mouseY = 0;
 	private highlightState:{[key:string]:boolean} = {};
 
-	private mouseUpHandler!:(e:MouseEvent)=> void;
-	private mouseMoveHandler!:(e:MouseEvent)=> void;
+	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
+	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private keyboardEventHandler!:(e:KeyboardEvent) => void;
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
@@ -184,7 +184,7 @@ export default class NewUsers extends Vue {
 		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
-		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
+		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		
 		//Listen for shift/Ctr keys to define if deleting in streak or single mode
 		this.keyboardEventHandler = (e:KeyboardEvent) => {
@@ -200,7 +200,9 @@ export default class NewUsers extends Vue {
 		document.addEventListener("keydown", this.keyboardEventHandler);
 		document.addEventListener("keyup", this.keyboardEventHandler);
 		document.addEventListener("mouseup", this.mouseUpHandler);
+		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
+		document.addEventListener("touchmove", this.mouseMoveHandler);
 		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
@@ -356,8 +358,12 @@ export default class NewUsers extends Vue {
 	/**
 	 * Called when the mouse moves
 	 */
-	private async onMouseMove(e:MouseEvent):Promise<void> {
-		this.mouseY = e.clientY;
+	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
+		if(e.type == "mousemove") {
+			this.mouseY = (e as MouseEvent).clientY;
+		}else{
+			this.mouseY = (e as TouchEvent).touches[0].clientY;
+		}
 	// 	if(!this.resizing) return;
 	// 	const py = e.clientY;
 	// 	const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
@@ -465,6 +471,7 @@ export default class NewUsers extends Vue {
 
 		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
 		const maxHeight = .8;
+		console.log(this.mouseY, bounds.top, bounds.height);
 		this.windowHeight = Math.min(maxHeight, (this.mouseY - bounds.top) / bounds.height);
 		
 		await this.$nextTick();

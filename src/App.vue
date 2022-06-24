@@ -28,6 +28,8 @@ import Tooltip from "./views/Tooltip.vue";
 })
 export default class App extends Vue {
 
+	private resizeHandler!:() => void;
+
 	public get showLoader():boolean {
 		return !this.authenticated && this.$route.meta.noBG !== true && store.state.initComplete;
 	}
@@ -43,11 +45,16 @@ export default class App extends Vue {
 	}
 
 	public mounted():void {
-		window.addEventListener('resize', () => this.onWindowResize)
+		this.resizeHandler = ()=> this.onWindowResize();
+		window.addEventListener("resize", this.resizeHandler);
 		this.onWindowResize();
 	}
 
-	private onWindowResize():void { 
+	public beforeUnmount():void {
+		window.removeEventListener("resize", this.resizeHandler);
+	}
+
+	private onWindowResize():void {
 		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
 		//Here we calculate the actual page height and set it as a CSS var.
 		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
