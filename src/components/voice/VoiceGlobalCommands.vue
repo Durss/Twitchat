@@ -1,6 +1,9 @@
 <template>
-	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" medium :open="false">
-		<div class="head">These voice commands are used to navigate through the interface for some specific actions like poll or prediction creation.</div>
+	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" medium :open="open">
+		<div class="head">
+			These voice commands are used to navigate through the interface
+			for some specific actions like poll or prediction creation.
+		</div>
 		<ParamItem v-for="(i,index) in items"
 			:key="itemsID[index]"
 			:paramData="i"
@@ -18,7 +21,12 @@ import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
-	props:{},
+	props:{
+		open:{
+			type:Boolean,
+			default:false,
+		},
+	},
 	components:{
 		ParamItem,
 		ToggleBlock,
@@ -27,8 +35,11 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class VoiceGlobalCommands extends Vue {
 
+	public open!:boolean;
+
 	public items:ParameterData[] = [];
 	public itemsID:string[] = [];
+	
 
 	public mounted():void {
 		// const actions = store.state.voiceActions;
@@ -77,6 +88,9 @@ export default class VoiceGlobalCommands extends Vue {
 .voiceglobalcommands{
 	.head {
 		margin-bottom: 1em;
+	}
+	:deep(label) {
+		width:130px;
 	}
 }
 </style>

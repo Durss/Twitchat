@@ -5,6 +5,13 @@ import type { TwitchatActionType } from "./TwitchatEvent";
 */
 export default class VoiceAction {
 
+	public static START_BOT:string = "START_BOT";
+	public static START_BOT_DESCRIPTION:string = "Start listen";
+	public static START_BOT_IS_GLOBAL:boolean = true;
+	public static STOP_BOT:string = "STOP_BOT";
+	public static STOP_BOT_DESCRIPTION:string = "Stop listen";
+	public static STOP_BOT_IS_GLOBAL:boolean = true;
+
 	public static ERASE:string = "ERASE";
 	public static ERASE_DESCRIPTION:string = "Erase";
 	public static ERASE_IS_GLOBAL:boolean = true;

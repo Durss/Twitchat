@@ -32,7 +32,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 			const a = actions[i];
 			//@ts-ignore
 			const isGlobal = VoiceAction[a+"_IS_GLOBAL"] === true;
-			if(!isGlobal) continue;
+			if(!isGlobal) continue;//Ignore non global commands
 
 			//@ts-ignore
 			const id:string = VoiceAction[a];

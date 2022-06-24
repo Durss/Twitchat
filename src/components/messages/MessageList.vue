@@ -403,14 +403,14 @@ export default class MessageList extends Vue {
 			case TwitchatEvent.CHAT_FEED_SCROLL_UP:{
 				this.lockScroll = true;
 				const el = this.$refs.messageHolder as HTMLDivElement;
-				gsap.to(el, {scrollTop:el.scrollTop - scrollBy, duration: .15, ease: "power1.inOut"});
+				gsap.to(el, {scrollTop:el.scrollTop - scrollBy, duration: .5, ease: "power1.inOut"});
 				break;
 			}
 			case TwitchatEvent.CHAT_FEED_SCROLL_DOWN:{
 				const el = this.$refs.messageHolder as HTMLDivElement;
 				const vScroll = el.scrollTop + scrollBy;
 				const unPause = vScroll >= el.scrollHeight - el.offsetHeight;
-				gsap.to(el, {scrollTop:vScroll, duration: .15, ease: "power1.inOut", onComplete:()=>{
+				gsap.to(el, {scrollTop:vScroll, duration: .5, ease: "power1.inOut", onComplete:()=>{
 					if(unPause) this.unPause();
 				}});
 				break;

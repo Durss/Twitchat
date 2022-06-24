@@ -6,13 +6,13 @@
 			v-if="getActionIDs().length > 0"
 		/>
 
-		<VoiceGlobalCommands class="action global" v-model="globalCommands" />
+		<VoiceGlobalCommands class="action global" v-model="globalCommands" :open="actions.length == 0" />
 		
 		<ToggleBlock v-for="(a,index) in actions"
 			medium
 			:open="isOpen(a.id)"
 			:title="getLabelFromID(a.id)"
-			:icon="getIconFromID(a.id)"
+			:icons="[getIconFromID(a.id)]"
 			:key="a.id"
 			:ref="a.id"
 			class="action"
@@ -189,7 +189,11 @@ export default class VoiceTriggerList extends Vue {
 		const el = this.$refs[e.type] as Vue[] | undefined;
 		if(el && el.length > 0 && el[0].$el != null) {
 			const div = (el[0].$el as HTMLDivElement).getElementsByClassName("header")[0];
-			gsap.fromTo(div, {paddingTop:"1em", paddingBottom:"1em", filter:"brightness(3)"}, {paddingTop:".25em", paddingBottom:".25em", filter:"brightness(1)", duration:1});
+			console.log(div);
+			gsap.fromTo(div,
+				{paddingTop:"1em", paddingBottom:"1em", filter:"brightness(3)"},
+				{paddingTop:".25em", paddingBottom:".25em", filter:"brightness(1)", duration:1}
+			);
 		}
 	}
 
@@ -220,12 +224,12 @@ export default class VoiceTriggerList extends Vue {
 			margin-top: .5em;
 		}
 
-		// &.global {
-		// 	border: 1px solid @mainColor_highlight;
-		// 	:deep(.header) {
-		// 		background-color: @mainColor_highlight;
-		// 	}
-		// }
+		&.global {
+			border: 1px solid darken(@mainColor_normal, 20%);
+			:deep(.header) {
+				background-color: darken(@mainColor_normal, 20%);
+			}
+		}
 		
 		:deep(.content) {
 			display: flex;

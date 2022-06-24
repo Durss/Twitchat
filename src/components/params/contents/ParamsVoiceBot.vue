@@ -2,7 +2,7 @@
 	<div class="paramsvoicebot">
 		<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
 		<div class="title">Control <strong>Twitchat</strong> with your voice</div>
-		<p class="infos">This only works on Google Chrome, Microsoft Edge or Safari. This does <strong>NOT</strong> work on an OBS dock.</p>
+		<p class="infos">This only works on Google Chrome, Microsoft Edge or Safari. This does <strong>NOT</strong> work from an OBS dock.</p>
 		<!-- <p>If you use Twitchat from an OBS dock, you'll want to open twitchat on one of the above browsers.</p> -->
 		
 		<VoiceControlForm v-if="obsConnected" class="form" />
