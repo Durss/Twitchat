@@ -2,7 +2,7 @@
 	<div class="newusers" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
-				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up'+'.svg'))"
+				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
 				class="scrollBt"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
 				@click.stop="toggleScroll()" />
@@ -42,7 +42,7 @@
 			class="messageList"
 			@leave="(el, done)=>leave(el, done)"
 		> -->
-		<div class="messageList" v-if="showList">
+		<div class="messageList" v-if="showList" ref="messageList">
 			<div v-for="(m,index) in localMessages" :key="m.tags.id">
 				<ChatMessage
 					class="message"
@@ -408,11 +408,10 @@ export default class NewUsers extends Vue {
 	}
 
 	private scrollTo():void {
-		let el = this.$refs.messageList as Vue;
-		if(el) {
-			if(this.scrollDownAuto) {
-				el.$el.scrollTop = el.$el.scrollHeight;
-			}
+		let el = this.$refs.messageList as HTMLDivElement;
+		console.log(el, el.scrollHeight);
+		if(el && this.scrollDownAuto) {
+			el.scrollTop = el.scrollHeight;
 		}
 	}
 
