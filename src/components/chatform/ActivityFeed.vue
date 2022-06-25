@@ -72,7 +72,7 @@ import store from '@/store';
 import Store from '@/store/Store';
 import type { ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import ChatBingoResult from '../messages/ChatBingoResult.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';

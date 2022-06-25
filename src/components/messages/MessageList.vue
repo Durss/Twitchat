@@ -141,7 +141,7 @@ import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

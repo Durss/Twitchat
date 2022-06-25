@@ -17,7 +17,7 @@ import Button from '@/components/Button.vue';
 import store from '@/store';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

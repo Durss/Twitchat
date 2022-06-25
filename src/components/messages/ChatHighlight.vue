@@ -32,7 +32,7 @@ import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import type { TrackedUser } from '@/utils/CommonDataTypes';

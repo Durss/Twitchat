@@ -36,7 +36,7 @@ import IRCClient from '@/utils/IRCClient';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 

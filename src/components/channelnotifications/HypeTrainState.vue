@@ -43,7 +43,7 @@ import store from '@/store';
 import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ProgressBar from '../ProgressBar.vue';

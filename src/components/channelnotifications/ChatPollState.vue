@@ -44,7 +44,7 @@
 <script lang="ts">
 import store from '@/store';
 import type { ChatPollData, ChatPollDataChoice } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ProgressBar from '../ProgressBar.vue';

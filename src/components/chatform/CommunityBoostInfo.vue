@@ -13,7 +13,7 @@
 <script lang="ts">
 import store from '@/store';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

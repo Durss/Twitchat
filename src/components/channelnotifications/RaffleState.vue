@@ -41,7 +41,7 @@ import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import type { ChatUserstate } from 'tmi.js';
 import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
@@ -84,9 +84,14 @@ export default class RaffleState extends Vue {
 	}
 
 	public closeRaffle():void {
-		store.dispatch("stopRaffle");
-		this.$emit("close");
-		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		this.$confirm("Close raffle", "All raffle entries will be lost")
+		.then(async ()=> {
+			store.dispatch("stopRaffle");
+			this.$emit("close");
+			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		}).catch(()=> {
+			//ignore
+		});
 	}
 
 	public openUserCard(user:ChatUserstate):void {
