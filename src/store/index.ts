@@ -763,17 +763,20 @@ const store = createStore({
 
 		startRaffle(state, payload:RaffleData) {
 			state.raffle = payload;
-		
-			let message = state.botMessages.raffleStart.message;
-			message = message.replace(/\{CMD\}/gi, payload.command);
-			IRCClient.instance.sendMessage(message);
+			
+			if(state.botMessages.raffleStart.enabled) {
+				let message = state.botMessages.raffleStart.message;
+				message = message.replace(/\{CMD\}/gi, payload.command);
+				IRCClient.instance.sendMessage(message);
+			}
 		},
 
 		stopRaffle(state) { state.raffle = null; },
 
 		onRaffleComplete(state, payload:{publish:boolean, winner:WheelItem}) {
-			state.raffle = null;
-			
+			// state.raffle = null;
+			if(!state.raffle) return;
+
 			//Post result on chat
 			if(state.botMessages.raffle.enabled) {
 				let message = state.botMessages.raffle.message;
@@ -812,15 +815,17 @@ const store = createStore({
 			};
 			state.bingo = data;
 			
-			let message = state.botMessages.bingoStart.message;
-			let goal = "Find ";
-			if(payload.guessEmote) {
-				goal += " one of the global Twitch emotes";
-			}else{
-				goal += " a number between "+min+" and "+max+" included";
+			if(state.botMessages.bingoStart.enabled) {
+				let message = state.botMessages.bingoStart.message;
+				let goal = "Find ";
+				if(payload.guessEmote) {
+					goal += " one of the global Twitch emotes";
+				}else{
+					goal += " a number between "+min+" and "+max+" included";
+				}
+				message = message.replace(/\{GOAL\}/gi, goal as string);
+				IRCClient.instance.sendMessage(message);
 			}
-			message = message.replace(/\{GOAL\}/gi, goal as string);
-			IRCClient.instance.sendMessage(message);
 		},
 
 		stopBingo(state) { state.bingo = null; },
@@ -1405,7 +1410,7 @@ const store = createStore({
 					&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
 					if(win) {
 						bingo.winners = [messageData.tags];
-						if(state.botMessages.bingo) {
+						if(state.botMessages.bingo.enabled) {
 							//TMI.js never cease to amaze me.
 							//It doesn't send the message back to the sender if sending
 							//it just after receiving a message.
@@ -1729,27 +1734,25 @@ const store = createStore({
 					followRatio:0,
 					subRatio:0,
 					subgitRatio:0,
-					winners:[winner],
+					winners:[],
 				}
 			}
 
 			//Send notification on the activity feed
-			if(state.raffle) {
-				const winner = state.raffle.users.find(v=> v.user.id == payload.winner.id);
-				if(winner) {
-					state.raffle.winners = [winner?.user];
-					//Post result on chat
-					const message:IRCEventDataList.RaffleResult = {
-						type:"raffle",
-						data:state.raffle as RaffleData,
-						tags: {
-							id:IRCClient.instance.getFakeGuid(),
-							"tmi-sent-ts": Date.now().toString()
-						},
-					}
-					this.dispatch("addChatMessage", message);
-					TriggerActionHandler.instance.onMessage(message);
+			const winner = state.raffle.users.find(v=> v.user.id == payload.winner.id);
+			if(winner) {
+				if(!state.raffle.winners) state.raffle.winners = [];
+				state.raffle.winners.push(winner.user);
+				//Post result on chat
+				const message:IRCEventDataList.RaffleResult = {
+					type:"raffle",
+					data:state.raffle as RaffleData,
+					tags: {
+						id:IRCClient.instance.getFakeGuid(),
+						"tmi-sent-ts": Date.now().toString()
+					},
 				}
+				TriggerActionHandler.instance.onMessage(message);
 			}
 			
 			//Close the raffle
