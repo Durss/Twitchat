@@ -14,12 +14,12 @@ export default defineConfig({
 	optimizeDeps: {
 		// exclude: ['tmi.js'],
 		esbuildOptions: {
-			target: 'es2020'
+			target: 'es2015'
 		}
 	},
 
 	build: {
-		target: 'es2020',
+		target: 'es2015',
         sourcemap: true,
 	},
 

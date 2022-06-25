@@ -90,7 +90,7 @@
 import store from '@/store';
 import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';

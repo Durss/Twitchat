@@ -66,8 +66,8 @@ export default class OverlayTimer extends Vue {
 			this.timerData = (e.data as unknown) as TimerData;
 			this.computeValues();
 		}else{
-			this.countdownData = null;
-			this.countdown = "";
+			this.timerData = null;
+			this.timer = "";
 		}
 	}
 

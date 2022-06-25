@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from './Button.vue';
 

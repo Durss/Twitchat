@@ -37,7 +37,7 @@ import store from '@/store';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

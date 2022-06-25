@@ -15,7 +15,7 @@
 		<div class="item winners" v-if="raffleData.winners.length > 0">
 			<span class="title">Winners <span class="count">({{raffleData.winners.length}})</span> :</span>
 			<div class="users">
-				<span v-for="w in raffleData.winners" :key="w['user-id']" @click="openUserCard(w)">{{w.user['display-name']}}</span>
+				<span v-for="w in raffleData.winners" :key="w['user-id']" @click="openUserCard(w)">{{w['display-name']}}</span>
 			</div>
 		</div>
 
@@ -41,7 +41,7 @@ import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import type { ChatUserstate } from 'tmi.js';
 import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
@@ -84,9 +84,14 @@ export default class RaffleState extends Vue {
 	}
 
 	public closeRaffle():void {
-		store.dispatch("stopRaffle");
-		this.$emit("close");
-		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		this.$confirm("Close raffle", "All raffle entries will be lost")
+		.then(async ()=> {
+			store.dispatch("stopRaffle");
+			this.$emit("close");
+			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		}).catch(()=> {
+			//ignore
+		});
 	}
 
 	public openUserCard(user:ChatUserstate):void {
@@ -112,8 +117,7 @@ export default class RaffleState extends Vue {
 		//Pick a winner that has not already be picked
 		do{
 			winner = Utils.pickRand(list);
-		}while(this.raffleData.winners.find(w => w.user['user-id'] == winner.user['user-id']));
-		this.raffleData.winners.push( winner );
+		}while(this.raffleData.winners.find(w => w['user-id'] == winner.user['user-id']));
 		
 		//Ask if a wheel overlay exists
 		if(PublicAPI.instance.localConnexionAvailable) {

@@ -386,7 +386,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/spam" && store.state.devmode) {
+		if(cmd == "/spam") {
 			clearInterval(this.spamInterval);
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: {
@@ -398,6 +398,7 @@ export default class ChatForm extends Vue {
 					min: 4
 				}
 			});
+			
 			this.spamInterval = window.setInterval(()=> {
 				const tags = IRCClient.instance.getFakeTags();
 				const id = Math.round(Math.random()*1000);
@@ -406,12 +407,13 @@ export default class ChatForm extends Vue {
 				tags["user-id"] = id.toString();//UserSession.instance.authToken.user_id;
 				tags.color = "#"+(id*id*id*id*id).toString().substring(0,8);
 				tags.id = IRCClient.instance.getFakeGuid();
-				IRCClient.instance.addMessage(lorem.generateSentences(Math.round(Math.random()*3) + 1), tags, false)
+				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*3) + 1)
+				IRCClient.instance.addMessage(message, tags, false)
 			}, 250);
 			this.message = "";
 		}else
 
-		if(cmd == "/unspam" && store.state.devmode) {
+		if(cmd == "/spamstop") {
 			clearInterval(this.spamInterval);
 			this.message = "";
 		}else

@@ -40,7 +40,7 @@
 <script lang="ts">
 import store from '@/store';
 import type { ChatPollData, ParameterData } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PermissionsForm from '../params/contents/obs/PermissionsForm.vue';

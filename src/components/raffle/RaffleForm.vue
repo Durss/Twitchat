@@ -84,6 +84,7 @@
 						title="Post raffle winner on chat"
 					/>
 					<PostOnChatParam class="chatParam" botMessageKey="raffleJoin"
+						v-if="!subMode"
 						:placeholders="joinPlaceholders"
 						title="Confirm when joining the raffle"
 					/>
@@ -101,7 +102,7 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

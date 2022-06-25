@@ -88,7 +88,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap/all';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';
@@ -123,7 +123,6 @@ export default class NewUsers extends Vue {
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
-	private keyboardEventHandler!:(e:KeyboardEvent) => void;
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
@@ -186,19 +185,6 @@ export default class NewUsers extends Vue {
 		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		
-		//Listen for shift/Ctr keys to define if deleting in streak or single mode
-		this.keyboardEventHandler = (e:KeyboardEvent) => {
-			if(e.key != "Control" && e.key != "Shift") return;
-
-			if(e.type == "keyup" && !this.streakMode) {
-				this.streakMode = true;
-			}else if(e.type == "keydown") {
-				this.streakMode = false;
-			}
-		};
-
-		document.addEventListener("keydown", this.keyboardEventHandler);
-		document.addEventListener("keyup", this.keyboardEventHandler);
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
@@ -212,8 +198,6 @@ export default class NewUsers extends Vue {
 	public beforeUnmount():void {
 		this.disposed = true;
 		clearInterval(this.deleteInterval);
-		document.removeEventListener("keydown", this.keyboardEventHandler);
-		document.removeEventListener("keyup", this.keyboardEventHandler);
 		document.removeEventListener("mouseup", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
@@ -471,7 +455,6 @@ export default class NewUsers extends Vue {
 
 		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
 		const maxHeight = .8;
-		console.log(this.mouseY, bounds.top, bounds.height);
 		this.windowHeight = Math.min(maxHeight, (this.mouseY - bounds.top) / bounds.height);
 		
 		await this.$nextTick();
