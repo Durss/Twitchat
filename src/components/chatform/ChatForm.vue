@@ -295,7 +295,7 @@ export default class ChatForm extends Vue {
 	
 	public async sendMessage():Promise<void> {
 		if(this.message.length == 0) return;
-		if(this.autoCompleteSearch.length > 0) return;
+		if(this.openAutoComplete) return;
 
 
 		const params = this.message.split(" ");
