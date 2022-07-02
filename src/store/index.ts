@@ -23,6 +23,7 @@ import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
+import TTSUtils from '@/utils/TTSUtils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
@@ -270,6 +271,18 @@ const store = createStore({
 				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
 				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
+			} as {[key:string]:ParameterData},
+			tts: {
+				speakMessages:	 			{save:true, type:"toggle", value:false, label:"Enable text to speech", id:400},
+				volume: 					{save:true, type:"slider", value:1, label:"Volume", id:401, parent:400, min:0, max:1, step:0.1},
+				rate: 						{save:true, type:"slider", value:1, label:"Speed", id:402, parent:400, min:0.1, max:10, step:0.1},
+				pitch: 						{save:true, type:"slider", value:1, label:"Pitch", id:403, parent:400, min:0, max:2, step:0.1},
+				voice:						{save:true, type:"list", value:'Microsoft Hortense - French (France)', listValues:TTSUtils.instance.getVoices()?.map(x => { return {label:x.name, value:x.name} }), label:"voice", id:404, parent:400},
+				separator:					{save:true, type:"text", value:'says', label:"separator", id:405, parent:400},
+				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0 = unlimited)", id:406, parent:400, min:0, max:2000, step:10},
+				overflow: 					{save:true, type:"slider", value:60, label:"Overflow (seconds)", id:407, parent:400, min:1, max:120, step:1},
+				removeURL:		 			{save:true, type:"toggle", value:true, label:"Remove URL", id:408, parent:400},
+				replaceURL:		 			{save:true, type:"text", value:'url', label:"Replace by", id:409, parent:408},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
@@ -628,6 +641,10 @@ const store = createStore({
 			|| (payload as IRCEventDataList.Commercial).tags["msg-id"] === "commercial") {
 				state.activityFeed.push(payload as ActivityFeedData);
 			}
+
+			if(state.params.tts.speakMessages.value && messageStr) {
+				TTSUtils.instance.speakText(message.tags['display-name'], messageStr);
+			}	
 
 			messages.push( message );
 			state.chatMessages = messages;

@@ -14,6 +14,7 @@
 				<Button white bounce title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
 				<Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
 				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
+				<Button white bounce title="TTS" @click="setContent('tts')" :selected="content == 'tts'" />
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
@@ -88,7 +89,7 @@ export default class Parameters extends Vue {
 	public search = "";
 
 	public get isGenericListContent():boolean {
-		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;
+		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.content == "tts" || this.search.length>0;
 	}
 
 	public async beforeMount():Promise<void> {

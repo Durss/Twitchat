@@ -16,9 +16,9 @@ const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 let credentialToken = null;
 let credentialToken_invalidation_date = 0;
 
-console.log("=============");
-console.log("Server stated");
-console.log("=============");
+console.log("==============");
+console.log("Server started");
+console.log("==============");
 
 if(!fs.existsSync(userDataFolder)) {
 	fs.mkdirSync(userDataFolder);

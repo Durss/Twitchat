@@ -1,6 +1,6 @@
 import type { ChatUserstate } from "tmi.js";
 
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | null ;
+export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | 'tts' | null ;
 
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
 export interface IBotMessage {
@@ -16,12 +16,13 @@ export interface BotMessageEntry {
 	message:string;
 }
 
-export type ParameterCategory = "appearance" | "filters"| "features";
+export type ParameterCategory = "appearance" | "filters"| "features"| "tts";
 
 export interface IParameterCategory {
 	appearance:{[key:string]:ParameterData};
 	filters:{[key:string]:ParameterData};
 	features:{[key:string]:ParameterData};
+	tts:{[key:string]:ParameterData};
 }
 
 
