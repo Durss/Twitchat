@@ -816,11 +816,13 @@ const UserDataSchema = {
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		emergencyParams: {
+			slowMode:{type:"boolean"},
 			emotesOnly:{type:"boolean"},
 			subOnly:{type:"boolean"},
 			followOnly:{type:"boolean"},
 			noTriggers:{type:"boolean"},
 			followOnlyDuration:{type:"number"},
+			slowModeDuration:{type:"number"},
 			toUsers:{type:"string"},
 			obsScene:{type:"string"},
 			obsSources:{
