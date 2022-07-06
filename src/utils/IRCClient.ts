@@ -30,10 +30,10 @@ export default class IRCClient extends EventDispatcher {
 	private partSpool:string[] = [];
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
-	private reconnectTimeout = -1;
+	private reconnectInterval = -1;
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
-	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;
@@ -300,10 +300,11 @@ export default class IRCClient extends EventDispatcher {
 				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
 				
-				clearTimeout(this.reconnectTimeout);
+				clearInterval(this.reconnectInterval);
 				//Check 5s later if we are still disconnected and manually try to reconnect
-				this.reconnectTimeout = setTimeout(()=> {
+				this.reconnectInterval = setInterval(()=> {
 					if(!this.connected) this.client.connect();
+					else clearInterval(this.reconnectInterval);
 				}, 5000)
 			});
 
