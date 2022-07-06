@@ -257,9 +257,11 @@ export interface TimerData {
 export interface EmergencyParams {
 	emotesOnly:boolean;
 	subOnly:boolean;
+	slowMode:boolean;
 	followOnly:boolean;
 	noTriggers:boolean;
 	followOnlyDuration:number;
+	slowModeDuration:number;
 	toUsers:string;
 	obsScene:string;
 	obsSources:string[];

@@ -63,6 +63,7 @@ export default class ParamsEmergency extends Vue {
 	public param_autoTo:ParameterData = {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
 	public param_noTrigger:ParameterData = {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
 	public param_followersOnlyDuration:ParameterData = { type:"number", value:30, label:"Must follow your channel for (minutes)"};
+	public param_slowModeDuration:ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
 	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:ParameterDataListValue|null = null;
@@ -90,8 +91,10 @@ export default class ParamsEmergency extends Vue {
 			noTriggers:this.channelParams?.noTrigger.value === true,
 			emotesOnly:this.channelParams?.emotesOnly.value === true,
 			subOnly:this.channelParams?.subsOnly.value === true,
+			slowMode:this.channelParams?.slowMode.value === true,
 			followOnly:this.channelParams?.followersOnly.value === true,
 			followOnlyDuration:this.param_followersOnlyDuration.value as number,
+			slowModeDuration:this.param_slowModeDuration.value as number,
 			toUsers:this.param_autoTo.value as string,
 			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
@@ -101,9 +104,9 @@ export default class ParamsEmergency extends Vue {
 	public async beforeMount():Promise<void> {
 		let params = JSON.parse(JSON.stringify(store.state.roomStatusParams));
 		params.followersOnly.children = [this.param_followersOnlyDuration]
+		params.slowMode.children = [this.param_slowModeDuration]
 		params["noTrigger"] = this.param_noTrigger,
 		params["autoTO"] = this.param_autoTo,
-		delete params.slowMode;
 		this.channelParams = params;
 		if(this.channelParams) {
 			//Prefill forms from storage
@@ -111,8 +114,10 @@ export default class ParamsEmergency extends Vue {
 			this.channelParams.noTrigger.value = store.state.emergencyParams.noTriggers;
 			this.channelParams.emotesOnly.value = store.state.emergencyParams.emotesOnly;
 			this.channelParams.subsOnly.value = store.state.emergencyParams.subOnly;
+			this.channelParams.slowMode.value = store.state.emergencyParams.slowMode;
 			this.channelParams.followersOnly.value = store.state.emergencyParams.followOnly;
 			this.param_followersOnlyDuration.value = store.state.emergencyParams.followOnlyDuration;
+			this.param_slowModeDuration.value = store.state.emergencyParams.slowModeDuration;
 		}
 
 		await this.listOBSScenes();

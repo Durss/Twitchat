@@ -275,9 +275,9 @@ const store = createStore({
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
-			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
+			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
 		} as IRoomStatusCategory,
 		confirm:{
@@ -293,7 +293,9 @@ const store = createStore({
 			subOnly:false,
 			followOnly:false,
 			noTriggers:false,
+			slowMode:false,
 			followOnlyDuration:3600,
+			slowModeDuration:10,
 			toUsers:"",
 			obsScene:"",
 			obsSources:[],
@@ -1173,51 +1175,53 @@ const store = createStore({
 			TriggerActionHandler.instance.onMessage(message);
 			IRCClient.instance.sendNotice("emergencyMode", "Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>");
 
-			// if(enable) {
-			// 	//ENABLE EMERGENCY MODE
-			// 	if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonly(channel);
-			// 	if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribers(channel);
-			// 	if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonly(channel, state.emergencyParams.followOnlyDuration);
-			// 	if(state.emergencyParams.toUsers) {
-			// 		const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-			// 		for (let i = 0; i < users.length; i++) {
-			// 			const u = users[i];
-			// 			if(u.length > 2) {
-			// 				IRCClient.instance.client.timeout(channel, u, 600);
-			// 			}
-			// 		}
-			// 	}
-			// 	if(state.emergencyParams.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
-			// 	if(state.emergencyParams.obsScene) OBSWebsocket.instance.setCurrentScene(state.emergencyParams.obsScene);
-			// 	if(state.emergencyParams.obsSources) {
-			// 		for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
-			// 			const s = state.emergencyParams.obsSources[i];
-			// 			OBSWebsocket.instance.setSourceState(s, false);
-			// 		}
-			// 	}
-			// }else{
-			// 	//DISABLE EMERGENCY MODE
-			// 	//Unset all changes
-			// 	if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonlyoff(channel);
-			// 	if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribersoff(channel);
-			// 	if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonlyoff(channel);
-			// 	if(state.emergencyParams.toUsers) {
-			// 		const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-			// 		for (let i = 0; i < users.length; i++) {
-			// 			const u = users[i];
-			// 			if(u.length > 2) {
-			// 				IRCClient.instance.client.unban(channel, u);
-			// 			}
-			// 		}
-			// 	}
-			// 	if(state.emergencyParams.obsSources) {
-			// 		for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
-			// 			const s = state.emergencyParams.obsSources[i];
-			// 			OBSWebsocket.instance.setSourceState(s, true);
-			// 		}
-			// 	}
-			// 	TriggerActionHandler.instance.emergencyMode = false;
-			// }
+			if(enable) {
+				//ENABLE EMERGENCY MODE
+				if(state.emergencyParams.slowMode) IRCClient.instance.client.slow(channel, 10);
+				if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonly(channel);
+				if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribers(channel);
+				if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonly(channel, state.emergencyParams.followOnlyDuration);
+				if(state.emergencyParams.toUsers) {
+					const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					for (let i = 0; i < users.length; i++) {
+						const u = users[i];
+						if(u.length > 2) {
+							IRCClient.instance.client.timeout(channel, u, 600);
+						}
+					}
+				}
+				if(state.emergencyParams.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
+				if(state.emergencyParams.obsScene) OBSWebsocket.instance.setCurrentScene(state.emergencyParams.obsScene);
+				if(state.emergencyParams.obsSources) {
+					for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
+						const s = state.emergencyParams.obsSources[i];
+						OBSWebsocket.instance.setSourceState(s, false);
+					}
+				}
+			}else{
+				//DISABLE EMERGENCY MODE
+				//Unset all changes
+				if(state.emergencyParams.slowMode) IRCClient.instance.client.slowoff(channel);
+				if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonlyoff(channel);
+				if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribersoff(channel);
+				if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonlyoff(channel);
+				if(state.emergencyParams.toUsers) {
+					const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					for (let i = 0; i < users.length; i++) {
+						const u = users[i];
+						if(u.length > 2) {
+							IRCClient.instance.client.unban(channel, u);
+						}
+					}
+				}
+				if(state.emergencyParams.obsSources) {
+					for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
+						const s = state.emergencyParams.obsSources[i];
+						OBSWebsocket.instance.setSourceState(s, true);
+					}
+				}
+				TriggerActionHandler.instance.emergencyMode = false;
+			}
 
 			//Broadcast to any connected peers
 			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
