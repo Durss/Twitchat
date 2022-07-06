@@ -20,12 +20,17 @@
 					<img src="@/assets/icons/infos.svg" alt="info">
 					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
 				</div>
+				
 				<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
 					<p class="label">based on
 						<a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>
 						and
 						<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
 					</p>
+				</div>
+
+				<div v-else-if="p.id == 215 && p.value === true" class="info emergency">
+					<Button title="Configure emergency actions" @click="$emit('setContent', 'emergency')" />
 				</div>
 			</transition>
 		</div>
@@ -40,12 +45,14 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
+import Button from '../../Button.vue';
 
 @Options({
 	props:{
 		category:String,
 	},
 	components:{
+		Button,
 		ParamItem,
 		PostOnChatParam,
 	},
@@ -136,6 +143,10 @@ export default class ParamsList extends Vue {
 			.label {
 				font-size: .8em;
 			}
+		}
+
+		&.emergency {
+			text-align: center;
 		}
 	}
 }

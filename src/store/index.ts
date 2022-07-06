@@ -26,7 +26,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParams, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -40,6 +40,7 @@ const store = createStore({
 		devmode: false,
 		canSplitView: false,
 		hasChannelPoints: false,
+		emergencyModeEnabled: false,
 		ahsInstaller: null as InstallHandler|null,
 		alert: "",
 		tooltip: "",
@@ -255,6 +256,7 @@ const store = createStore({
 				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
 			features: {
+				emergencyButton: 			{save:true, type:"toggle", value:false, label:"Emergency button", id:215, icon:"emergency_purple.svg"},
 				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
 				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
 				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
@@ -277,7 +279,7 @@ const store = createStore({
 			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
-		} as {[key:string]:ParameterData},
+		} as IRoomStatusCategory,
 		confirm:{
 			title:"",
 			description:"",
@@ -286,7 +288,31 @@ const store = createStore({
 			yesLabel:"",
 			noLabel:"",
 		},
+		emergencyParams: {
+			emotesOnly:false,
+			subOnly:false,
+			followOnly:false,
+			noTriggers:false,
+			followOnlyDuration:3600,
+			toUsers:"",
+			obsScene:"",
+			obsSources:[],
+		} as EmergencyParams,
 	},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	mutations: {
 		async authenticate(state, payload) {
 			const code = payload.code;
@@ -1130,9 +1156,86 @@ const store = createStore({
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
 
 			state.countdown = null;
-		}
+		},
+
+		setEmergencyParams(state, params:EmergencyParams) {
+			state.emergencyParams = params;
+			Store.set("emergencyParams", params);
+		},
+
+		setEmergencyMode(state, enable:boolean) {
+			let channel = IRCClient.instance.channel;
+			state.emergencyModeEnabled = enable;
+			const message:EmergencyModeInfo = {
+				type: "emergencyMode",
+				enabled: enable,
+			}
+			TriggerActionHandler.instance.onMessage(message);
+			IRCClient.instance.sendNotice("emergencyMode", "Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>");
+
+			// if(enable) {
+			// 	//ENABLE EMERGENCY MODE
+			// 	if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonly(channel);
+			// 	if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribers(channel);
+			// 	if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonly(channel, state.emergencyParams.followOnlyDuration);
+			// 	if(state.emergencyParams.toUsers) {
+			// 		const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+			// 		for (let i = 0; i < users.length; i++) {
+			// 			const u = users[i];
+			// 			if(u.length > 2) {
+			// 				IRCClient.instance.client.timeout(channel, u, 600);
+			// 			}
+			// 		}
+			// 	}
+			// 	if(state.emergencyParams.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
+			// 	if(state.emergencyParams.obsScene) OBSWebsocket.instance.setCurrentScene(state.emergencyParams.obsScene);
+			// 	if(state.emergencyParams.obsSources) {
+			// 		for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
+			// 			const s = state.emergencyParams.obsSources[i];
+			// 			OBSWebsocket.instance.setSourceState(s, false);
+			// 		}
+			// 	}
+			// }else{
+			// 	//DISABLE EMERGENCY MODE
+			// 	//Unset all changes
+			// 	if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonlyoff(channel);
+			// 	if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribersoff(channel);
+			// 	if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonlyoff(channel);
+			// 	if(state.emergencyParams.toUsers) {
+			// 		const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+			// 		for (let i = 0; i < users.length; i++) {
+			// 			const u = users[i];
+			// 			if(u.length > 2) {
+			// 				IRCClient.instance.client.unban(channel, u);
+			// 			}
+			// 		}
+			// 	}
+			// 	if(state.emergencyParams.obsSources) {
+			// 		for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
+			// 			const s = state.emergencyParams.obsSources[i];
+			// 			OBSWebsocket.instance.setSourceState(s, true);
+			// 		}
+			// 	}
+			// 	TriggerActionHandler.instance.emergencyMode = false;
+			// }
+
+			//Broadcast to any connected peers
+			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
+		},
 		
 	},
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	
@@ -1214,6 +1317,12 @@ const store = createStore({
 			const PermissionsForm = Store.get("obsConf_permissions");
 			if(PermissionsForm) {
 				state.PermissionsForm = JSON.parse(PermissionsForm);
+			}
+			
+			//Init emergency actions
+			const emergency = Store.get("emergencyParams");
+			if(emergency) {
+				state.emergencyParams = JSON.parse(emergency);
 			}
 			
 			//Init triggers
@@ -1573,7 +1682,7 @@ const store = createStore({
 			state.initComplete = true;
 
 			//Makes sure all parameters have a unique ID !
-			const uniqueIdsCheck:{[key:number]:boolean} = {};
+			let uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in state.params) {
 				const values = state.params[cat as ParameterCategory];
 				for (const key in values) {
@@ -1584,6 +1693,18 @@ const store = createStore({
 					}
 					uniqueIdsCheck[p.id as number] = true;
 				}
+			}
+			
+			//Make sure all triggers have a unique ID !
+			uniqueIdsCheck = {};
+			for (const key in TriggerTypes) {
+				//@ts-ignore
+				const v = TriggerTypes[key];
+				if(uniqueIdsCheck[v] === true) {
+					state.alert = "Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"";
+					break;
+				}
+				uniqueIdsCheck[v] = true;
 			}
 			
 			const cypherKey = Store.get("cypherKey")
@@ -1616,6 +1737,11 @@ const store = createStore({
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
 				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
 				this.dispatch("onRaffleComplete", {publish:false, winner});
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+				const enable = (e.data as unknown) as {enabled:boolean};
+				this.dispatch("setEmergencyMode", enable);
 			});
 
 			const devmode = Store.get("devmode") === "true";
@@ -1851,6 +1977,10 @@ const store = createStore({
 		},
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },
+		
+		setEmergencyParams({commit}, params:EmergencyParams) { commit("setEmergencyParams", params); },
+		
+		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
 	},
 	modules: {
 	}

@@ -800,6 +800,7 @@ const UserDataSchema = {
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
 		"p:translateNames": {type:"boolean"},
+		"p:emergencyButton": {type:"boolean"},
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -814,6 +815,19 @@ const UserDataSchema = {
 		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		emergencyParams: {
+			emotesOnly:{type:"boolean"},
+			subOnly:{type:"boolean"},
+			followOnly:{type:"boolean"},
+			noTriggers:{type:"boolean"},
+			followOnlyDuration:{type:"number"},
+			toUsers:{type:"string"},
+			obsScene:{type:"string"},
+			obsSources:{
+				type:"array",
+				items:[{type:"string", maxLength:100}],
+			},
+		},
 	}
 }
 

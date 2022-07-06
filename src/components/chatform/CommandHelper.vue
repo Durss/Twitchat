@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { IRoomStatusCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
@@ -77,7 +77,7 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():{[key:string]:ParameterData} { return store.state.roomStatusParams; }
+	public get params():IRoomStatusCategory { return store.state.roomStatusParams; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}

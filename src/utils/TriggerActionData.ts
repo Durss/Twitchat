@@ -21,6 +21,8 @@ export const TriggerTypes = {
 	TIMER_STOP:"16",
 	COUNTDOWN_START:"17",
 	COUNTDOWN_STOP:"18",
+	EMERGENCY_MODE_START:"20",
+	EMERGENCY_MODE_STOP:"21",
 }
 
 export interface ITriggerActionHelper {
@@ -126,7 +128,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"DURATION", desc:"Countdown's duration formated", pointer:"duration"},
 		{tag:"DURATION_MS", desc:"Countdown's duration in milliseconds", pointer:"duration_ms"},
 	];
-	
+
 	//If requesting chat command helpers and there is a music
 	//service available, contact the music service helpers
 	if(key == TriggerTypes.CHAT_COMMAND
@@ -157,6 +159,8 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <strong>/timerStop</strong>"},
 	{label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <strong>/countdown</strong>"},
 	{label:"Countdown stop", value:TriggerTypes.COUNTDOWN_STOP, description:"Execute an action when a countdown completes or is stoped"},
+	{label:"Emergency start", value:TriggerTypes.EMERGENCY_MODE_START, description:"Execute an action when enabling the emergency mode"},
+	{label:"Emergency stop", value:TriggerTypes.EMERGENCY_MODE_STOP, description:"Execute an action when stopping the emergency mode"},
 ]
 
 export const TriggerMusicTypes = {

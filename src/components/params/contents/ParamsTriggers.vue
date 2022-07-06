@@ -256,6 +256,8 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.COUNTDOWN_START] = "countdown_purple";
 		map[TriggerTypes.COUNTDOWN_STOP] = "countdown_purple";
 		map[TriggerTypes.STREAM_INFO_UPDATE] = "info_purple";
+		map[TriggerTypes.EMERGENCY_MODE_START] = "emergency_purple";
+		map[TriggerTypes.EMERGENCY_MODE_STOP] = "emergency_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");
@@ -298,7 +300,7 @@ export default class ParamsTriggers extends Vue {
 		//Define select states
 		events.forEach(v=>{
 			const enabled = store.state.triggers[v.value]?.enabled;
-			v.enabled = enabled;
+			v.enabled = enabled !== false;
 		})
 		// this.event_conf.value = events[0].value;
 		this.event_conf.listValues = events;
@@ -492,13 +494,8 @@ export default class ParamsTriggers extends Vue {
 					if(select) {
 						this.subevent_conf.value = select.chatCommand?.toLowerCase();
 					}
-					// this.subevent_conf.listValues.unshift({ label:"Create new command", value:"0", icon:this.$image('icons/add_purple.svg'), noToggle:true });
 				}
-				
 
-				// //This update will trigger the watcher that will call onSelectTrigger() again
-				// //which will then initialize the form
-				// this.subevent_conf.value = (this.subevent_conf.listValues as ParameterDataListValue[])[0].value;
 				if(key == TriggerTypes.REWARD_REDEEM) {
 					this.listRewards();
 				}
@@ -510,11 +507,12 @@ export default class ParamsTriggers extends Vue {
 			}
 			if(!this.isSublist && this.actionList.length == 0) {
 				this.addAction();
+				// store.state.triggers[this.triggerKey].enabled = true;
 			}
 		}
 	}
 
-	/**TriggerData
+	/**
 	 * Called when selecting a sub trigger
 	 */
 	private async onSelectsubTrigger():Promise<void> {

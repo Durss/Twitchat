@@ -7,7 +7,7 @@
 				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
-				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
+				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'emergency'" />
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
@@ -28,6 +28,7 @@
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
 				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
 				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
+				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
@@ -59,6 +60,7 @@ import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
+import ParamsEmergency from './contents/ParamsEmergency.vue';
 
 @Options({
 	props:{},
@@ -73,6 +75,7 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 		ParamsSponsor,
 		ParamsOverlays,
 		ParamsTriggers,
+		ParamsEmergency,
 		ParamsStreamdeck,
 	}
 })
@@ -87,8 +90,15 @@ export default class Parameters extends Vue {
 
 	public search = "";
 
+	/**
+	 * If true, will display a search field at the top of the view to
+	 * search params by their labels
+	 */
 	public get isGenericListContent():boolean {
-		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;
+		return this.content == "features"
+			|| this.content == "appearance"
+			|| this.content == "filters"
+			|| this.search.length>0;
 	}
 
 	public async beforeMount():Promise<void> {

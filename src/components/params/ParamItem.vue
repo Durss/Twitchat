@@ -326,6 +326,15 @@ export default class ParamItem extends Vue {
 				margin-right: 20px;
 				cursor: pointer;
 			}
+
+			&.number {
+				label {
+					flex: 2 1;
+				}
+				input {
+					flex: 1 1;
+				}
+			}
 		}
 
 		:deep(.small) {

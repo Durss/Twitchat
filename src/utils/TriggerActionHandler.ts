@@ -1,4 +1,4 @@
-import type { MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -26,6 +26,7 @@ export default class TriggerActionHandler {
 	private currentSpoolGUID = 0;
 
 	public triggers:{[key:string]:TriggerData} = {};
+	public emergencyMode:boolean = false;
 	
 	constructor() {
 	
@@ -156,6 +157,11 @@ export default class TriggerActionHandler {
 				return;
 			}
 
+		}else if(message.type == "emergencyMode") {
+			if(await this.handleEmergencyMode(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
 		}else if(message.type == "timer") {
 			if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
 				return;
@@ -181,18 +187,22 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
 	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
 	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
 	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
@@ -240,6 +250,11 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, guid);
 	}
 	
+	private async handleEmergencyMode(message:EmergencyModeUpdate, testMode:boolean, guid:number):Promise<boolean> {
+		const type = message.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
+		return await this.parseSteps(type, message, testMode, guid);
+	}
+	
 	private async handleTimer(message:IRCEventDataList.TimerResult, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
 		//Create placeholder pointers
@@ -249,6 +264,7 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
 	}
 	
@@ -455,6 +471,8 @@ export default class TriggerActionHandler {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
+		if(!helpers) return res;
+		
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
 			const chunks:string[] = h.pointer.split(".");
@@ -540,4 +558,5 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.TimerResult
 | MusicMessage
 | StreamInfoUpdate
+| EmergencyModeUpdate
 ;

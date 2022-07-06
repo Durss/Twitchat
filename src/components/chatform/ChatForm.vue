@@ -120,6 +120,15 @@
 					@click="$emit('setCurrentNotification', 'deezer')" />
 				</transition>
 
+				<transition name="blink">
+				<Button small highlight class="emergency" aria-label="emergency button"
+					:icon="$image('icons/emergency.svg')"
+					bounce
+					v-if="emergencyButtonEnabled"
+					:data-tooltip="$store.state.emergencyModeEnabled? 'Stop emergency mode' : 'Start emergency'"
+					@click="enableEmergencyMode()" />
+				</transition>
+
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
 					data-tooltip="Viewer count"
@@ -224,6 +233,10 @@ export default class ChatForm extends Vue {
 	public autoCompleteCommands = false;
 	public spamInterval = 0;
 
+	public get emergencyButtonEnabled():boolean {
+		return store.state.params.features.emergencyButton.value === true;
+	}
+
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
 	}
@@ -239,6 +252,7 @@ export default class ChatForm extends Vue {
 	public get classes():string[] {
 		let res = ["chatform"];
 		if(store.state.cypherEnabled) res.push("cypherMode");
+		if(store.state.emergencyModeEnabled) res.push("emergencyMode");
 		return res;
 	}
 
@@ -512,6 +526,16 @@ export default class ChatForm extends Vue {
 		store.dispatch("setCypherEnabled", !store.state.cypherEnabled);
 	}
 
+	public enableEmergencyMode():void {
+		if(!store.state.emergencyModeEnabled) {
+			this.$confirm("Enable emergency mode ?").then(()=>{
+				store.dispatch("setEmergencyMode", true);
+			}).catch(()=>{});
+		}else{
+			store.dispatch("setEmergencyMode", false);
+		}
+	}
+
 	/**
 	 * Called when selecting an emote/user/cmd from the emote selector
 	 * or the auto complete selector
@@ -616,6 +640,11 @@ export default class ChatForm extends Vue {
 			background-image: repeating-linear-gradient(-45deg, #00000020, #00000020 20px, #ffffff10 20px, #ffffff10 40px);
 		}
 	}
+	&.emergencyMode {
+		.holder {
+			background-color: @mainColor_alert;
+		}
+	}
 
 	.holder {
 		position: absolute;
@@ -686,7 +715,7 @@ export default class ChatForm extends Vue {
 				}
 			}
 
-			.button {
+			.button:not(.emergency) {
 				.clearButton() !important;
 				border-radius: 50%;
 				&:hover {

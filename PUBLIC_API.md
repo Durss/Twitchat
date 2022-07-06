@@ -136,6 +136,7 @@ export type TwitchatEventType =
 	| "TIMER_STOP"
 	| "TIMER_OVERLAY_PRESENCE"
 	| "WHEEL_OVERLAY_PRESENCE"
+	| "EMERGENCY_MODE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -160,6 +161,7 @@ export type TwitchatActionType =
 	| "GET_WHEEL_OVERLAY_PRESENCE"
 	| "GET_CURRENT_TIMERS"
 	| "GET_TIMER_OVERLAY_PRESENCE"
+	| "SET_EMERGENCY_MODE"
 ```
 <br>
 <br>
@@ -421,6 +423,14 @@ Sent when a wheel overlay advertises its presence
 ```typescript
 -none-
 ```
+## **EMERGENCY_MODE**
+Sent when the emergency mode is started or stopped
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
 <br>
 <br>
 <br>
@@ -593,4 +603,12 @@ If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
 -none-
+```
+## **SET_EMERGENCY_MODE**
+Starts or stops the emergency mode.
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
 ```

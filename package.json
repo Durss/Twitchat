@@ -9,6 +9,7 @@
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
 	},
 	"dependencies": {
+		"@popperjs/core": "^2.11.5",
 		"ajv": "^6.12.6",
 		"core-js": "^3.8.3",
 		"fast-json-patch": "^3.1.1",
@@ -22,6 +23,7 @@
 		"@types/gsap": "^3.0.0",
 		"@types/node": "^16.11.25",
 		"@types/tmi.js": "^1.8.1",
+		"@types/vue-select": "^3.16.0",
 		"@typescript-eslint/eslint-plugin": "^5.4.0",
 		"@typescript-eslint/parser": "^5.4.0",
 		"@vitejs/plugin-vue": "^2.3.3",
@@ -43,6 +45,7 @@
 		"vue": "^3.2.36",
 		"vue-class-component": "^8.0.0-0",
 		"vue-router": "^4.0.12",
+		"vue-select": "^4.0.0-beta.3",
 		"vue-tsc": "^0.34.7",
 		"vue3-carousel": "^0.1.36",
 		"vue3-marquee": "^3.0.7",

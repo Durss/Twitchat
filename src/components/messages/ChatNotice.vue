@@ -44,6 +44,7 @@ export default class ChatNotice extends Vue {
 	public get classes():string[] {
 		let res = ["chatnotice"];
 		if(this.messageData.tags["msg-id"] == "offline") res.push("alert");
+		if(this.messageData.tags["msg-id"] == "emergencyMode") res.push("emergency");
 		return res;
 	}
 
@@ -57,6 +58,7 @@ export default class ChatNotice extends Vue {
 		switch(this.messageData.tags["msg-id"]) {
 			case "online": this.icon = "enter"; break;
 			case "offline": this.icon = "leave"; break;
+			case "emergencyMode": this.icon = "emergency"; break;
 		}
 		this.$emit("ariaMessage", this.text);
 	}
@@ -85,6 +87,19 @@ export default class ChatNotice extends Vue {
 		:deep(mark) {
 			margin: 0 .2em;
 			color: lighten(@mainColor_warn, 15%);
+		}
+	}
+
+	&.emergency {
+		padding: .5em;
+		border-radius: .5em;
+		background-color: @mainColor_alert;
+		.message {
+			color: @mainColor_light;
+			opacity: 1;
+			:deep(mark) {
+				color: inherit;
+			}
 		}
 	}
 
