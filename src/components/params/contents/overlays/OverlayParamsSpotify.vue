@@ -94,6 +94,7 @@ export default class OverlayParamsSpotify extends Vue {
 		const spotifyAppParams = Store.get("spotifyAppParams");
 		if(spotifyAppParams) {
 			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);
+			SpotifyHelper.instance.setAppParams(p.client, p.secret);
 			this.paramClient.value = p.client;
 			this.paramSecret.value = p.secret;
 		}
