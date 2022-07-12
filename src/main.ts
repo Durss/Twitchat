@@ -132,10 +132,12 @@ const overlayURL = (id:string):string => {
 	const pass = Store.get("obsPass");
 	const ip = Store.get("obsIP");
 	const params = new URLSearchParams()
-	params.append("obs_port", port);
-	params.append("obs_pass", pass);
-	params.append("obs_ip", ip);
-	return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + "?" + params.toString();
+	if(port) params.append("obs_port", port);
+	if(pass) params.append("obs_pass", pass);
+	if(ip) params.append("obs_ip", ip);
+	let suffix = params.toString()
+	if(suffix) suffix = "?" + suffix;
+	return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
 }
 
 /**

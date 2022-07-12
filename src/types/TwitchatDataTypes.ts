@@ -255,6 +255,8 @@ export interface TimerData {
 }
 
 export interface EmergencyParams {
+	chatCmd:string;
+	chatCmdPerms:PermissionsData;
 	emotesOnly:boolean;
 	subOnly:boolean;
 	slowMode:boolean;

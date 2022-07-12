@@ -140,7 +140,7 @@ export default class ParamsOBS extends Vue {
 		}
 		
 
-		const storedPermissions = store.state.PermissionsForm;
+		const storedPermissions = store.state.obsCommandsPermissions;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
@@ -192,7 +192,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		store.dispatch("setPermissionsForm", this.permissions);
+		store.dispatch("setObsCommandsPermissions", this.permissions);
 	}
 
 	/**

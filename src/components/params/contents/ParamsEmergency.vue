@@ -4,9 +4,23 @@
 		
 		<p class="header">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
 
+		<Splitter class="item splitter" title="Chat command" />
+		<div class="item label">
+			<p>Allow your mods to trigger the emergency mode from a chat command</p>
+		</div>
+		<div>
+			<ParamItem class="item" :paramData="param_chatCommand" />
+			<ToggleBlock title="Allowed users" :open="false" small class="item">
+				<PermissionsForm v-model="chatCommandPerms" />
+			</ToggleBlock>
+		</div>
+
+		<Splitter class="item splitter" title="Chat params" />
 		<div v-for="(p,key) in channelParams" :key="key">
 			<ParamItem class="item" :paramData="p" />
 		</div>
+
+		<Splitter class="item splitter" title="OBS params" />
 
 		<div class="item" v-if="!obsConnected">
 			<div class="info">
@@ -14,6 +28,7 @@
 				<p class="label"><a @click="$emit('setContent', 'obs')">Connect with OBS</a> to control scene and sources</p>
 			</div>
 		</div>
+		
 		<div v-else>
 			<div class="item label">
 				<img src="@/assets/icons/list_purple.svg" alt="scene icon" class="icon">
@@ -45,20 +60,27 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { EmergencyParams, ParameterData, ParameterDataListValue } from '@/types/TwitchatDataTypes';
+import type { EmergencyParams, ParameterData, ParameterDataListValue, PermissionsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
+import ToggleBlock from '../../ToggleBlock.vue';
+import Splitter from '../../Splitter.vue';
 
 @Options({
 	props:{},
 	components:{
+		Splitter,
 		ParamItem,
+		ToggleBlock,
+		PermissionsForm,
 	}
 })
 export default class ParamsEmergency extends Vue {
 
+	public param_chatCommand:ParameterData = {type:"text", label:"Chat command", value:"!emergency"};
 	public param_obsScene:ParameterData = {type:"list", label:"Switch to scene", value:""};
 	public param_autoTo:ParameterData = {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
 	public param_noTrigger:ParameterData = {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
@@ -75,6 +97,13 @@ export default class ParamsEmergency extends Vue {
 		autoTO:ParameterData;
 		noTrigger:ParameterData;
 	}|null = null;
+	public chatCommandPerms:PermissionsData = {
+		mods:true,
+		vips:false,
+		subs:false,
+		all:false,
+		users:"",
+	};
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	
@@ -88,6 +117,8 @@ export default class ParamsEmergency extends Vue {
 	
 	public get finalData():EmergencyParams {
 		return {
+			chatCmd:this.param_chatCommand.value as string,
+			chatCmdPerms:this.chatCommandPerms,
 			noTriggers:this.channelParams?.noTrigger.value === true,
 			emotesOnly:this.channelParams?.emotesOnly.value === true,
 			subOnly:this.channelParams?.subsOnly.value === true,
@@ -118,6 +149,12 @@ export default class ParamsEmergency extends Vue {
 			this.channelParams.followersOnly.value = store.state.emergencyParams.followOnly;
 			this.param_followersOnlyDuration.value = store.state.emergencyParams.followOnlyDuration;
 			this.param_slowModeDuration.value = store.state.emergencyParams.slowModeDuration;
+			if(store.state.emergencyParams.chatCmd) {
+				this.param_chatCommand.value = store.state.emergencyParams.chatCmd;
+			}
+			if(store.state.emergencyParams.chatCmdPerms) {
+				this.chatCommandPerms = store.state.emergencyParams.chatCmdPerms;
+			}
 		}
 
 		await this.listOBSScenes();
@@ -125,7 +162,7 @@ export default class ParamsEmergency extends Vue {
 
 		watch(()=>this.finalData, ()=> {
 			store.dispatch("setEmergencyParams", this.finalData);
-		});
+		}, {deep:true});
 		
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.listOBSScenes();
@@ -229,6 +266,7 @@ export default class ParamsEmergency extends Vue {
 			}
 			.icon {
 				width: 1.2em;
+				max-height: 1.2em;
 				margin-right: .5em;
 				margin-bottom: 2px;
 				display: inline;
@@ -237,6 +275,10 @@ export default class ParamsEmergency extends Vue {
 			p {
 				display: inline;
 			}
+		}
+
+		&.splitter {
+			margin-top: 1em;
 		}
 	}
 

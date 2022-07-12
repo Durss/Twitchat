@@ -74,7 +74,7 @@ const store = createStore({
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
-		PermissionsForm: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
+		obsCommandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
 		deezerConnected: false,
@@ -299,6 +299,14 @@ const store = createStore({
 			toUsers:"",
 			obsScene:"",
 			obsSources:[],
+			chatCmd:"",
+			chatCmdPerms:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
 		} as EmergencyParams,
 	},
 
@@ -942,8 +950,8 @@ const store = createStore({
 			Store.set("obsConf_muteUnmute", value);
 		},
 
-		setPermissionsForm(state, value:PermissionsData) {
-			state.PermissionsForm = value;
+		setObsCommandsPermissions(state, value:PermissionsData) {
+			state.obsCommandsPermissions = value;
 			Store.set("obsConf_permissions", value);
 		},
 
@@ -1312,15 +1320,15 @@ const store = createStore({
 			}
 			
 			//Init OBS command params
-			const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
-			if(OBSMuteUnmuteCommandss) {
-				state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
+			const obsMuteUnmuteCommands = Store.get("obsConf_muteUnmute");
+			if(obsMuteUnmuteCommands) {
+				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
 			}
 			
 			//Init OBS permissions
-			const PermissionsForm = Store.get("obsConf_permissions");
-			if(PermissionsForm) {
-				state.PermissionsForm = JSON.parse(PermissionsForm);
+			const obsCommandsPermissions = Store.get("obsConf_permissions");
+			if(obsCommandsPermissions) {
+				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
 			}
 			
 			//Init emergency actions
@@ -1334,6 +1342,12 @@ const store = createStore({
 			if(triggers) {
 				state.triggers = JSON.parse(triggers);
 				TriggerActionHandler.instance.triggers = state.triggers;
+			}
+				
+			//Init stream info presets
+			const presets = Store.get("streamInfoPresets");
+			if(presets) {
+				state.streamInfoPreset = JSON.parse(presets);
 			}
 			
 			//Load bot messages
@@ -1357,6 +1371,18 @@ const store = createStore({
 					}
 				}
 				state.botMessages = (remoteMessages as unknown) as IBotMessage;
+			}
+	
+			//Init spotify connection
+			const spotifyAuthToken = Store.get("spotifyAuthToken");
+			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
+				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+			}
+
+			//Init spotify credentials
+			const spotifyAppParams = Store.get("spotifyAppParams");
+			if(spotifyAuthToken && spotifyAppParams) {
+				this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
 			}
 			
 			//Init OBS connection
@@ -1404,71 +1430,6 @@ const store = createStore({
 					state.initComplete = true;
 					payload.callback();
 					return;
-				}
-			
-				//Init OBS scenes params
-				const obsSceneCommands = Store.get("obsConf_scenes");
-				if(obsSceneCommands) {
-					state.obsSceneCommands = JSON.parse(obsSceneCommands);
-				}
-				
-				//Init OBS command params
-				const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
-				if(OBSMuteUnmuteCommandss) {
-					state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
-				}
-				
-				//Init OBS permissions
-				const PermissionsForm = Store.get("obsConf_permissions");
-				if(PermissionsForm) {
-					state.PermissionsForm = JSON.parse(PermissionsForm);
-				}
-				
-				//Init triggers
-				const triggers = Store.get("triggers");
-				if(triggers) {
-					state.triggers = JSON.parse(triggers);
-				}
-				
-				//Init stream info presets
-				const presets = Store.get("streamInfoPresets");
-				if(presets) {
-					state.streamInfoPreset = JSON.parse(presets);
-				}
-				
-				//Load bot messages
-				const botMessages = Store.get("botMessages");
-				if(botMessages) {
-					//Merge remote and local to avoid losing potential new
-					//default values on local data
-					const localMessages = state.botMessages;
-					const remoteMessages = JSON.parse(botMessages);
-					// JSONPatch.applyPatch(localMessages, remoteMessages);
-					// JSONPatch.applyPatch(remoteMessages, localMessages);
-					for (const k in localMessages) {
-						const key = k as BotMessageField;
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-							remoteMessages[key] = localMessages[key];
-						}
-						for (const subkey in localMessages[key]) {
-							if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-								remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-							}
-						}
-					}
-					state.botMessages = (remoteMessages as unknown) as IBotMessage;
-				}
-	
-				//Init spotify connection
-				const spotifyAuthToken = Store.get("spotifyAuthToken");
-				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
-				}
-	
-				//Init spotify credentials
-				const spotifyAppParams = Store.get("spotifyAppParams");
-				if(spotifyAuthToken && spotifyAppParams) {
-					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
 				}
 			}
 
@@ -1568,10 +1529,10 @@ const store = createStore({
 					}
 				}
 
+				//check if it's a command to control OBS scene
 				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
-					if(Utils.checkPermissions(state.PermissionsForm, messageData.tags)) {
+					if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
 						const cmd = messageData.message.trim().toLowerCase();
-						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
 							const scene = state.obsSceneCommands[i];
 							if(scene.command.trim().toLowerCase() == cmd) {
@@ -1588,6 +1549,16 @@ const store = createStore({
 							if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
 								OBSWebsocket.instance.setMuteState(audioSourceName, false);
 							}
+						}
+					}
+				}
+
+				//check if its a command to start the emergency mode
+				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+					if(Utils.checkPermissions(state.emergencyParams.chatCmdPerms, messageData.tags)) {
+						const cmd = messageData.message.trim().toLowerCase();
+						if(cmd===state.emergencyParams.chatCmd) {
+							commit("setEmergencyMode", true);
 						}
 					}
 				}
@@ -1917,7 +1888,7 @@ const store = createStore({
 
 		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
 
-		setPermissionsForm({commit}, value:PermissionsData) { commit("setPermissionsForm", value); },
+		setObsCommandsPermissions({commit}, value:PermissionsData) { commit("setObsCommandsPermissions", value); },
 
 		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerData}) { commit("setTrigger", value); },
 
