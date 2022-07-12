@@ -42,8 +42,8 @@ import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 export default class ParamsOverlays extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get localConnexionAvailable():boolean { return PublicAPI.instance.localConnexionAvailable; }
-	public get exchangeChannelAvailable():boolean { return this.localConnexionAvailable || this.obsConnected; }
+	public get localConnectionAvailable():boolean { return PublicAPI.instance.localConnectionAvailable; }
+	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }

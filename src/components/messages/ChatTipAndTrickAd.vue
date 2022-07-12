@@ -84,6 +84,14 @@
 			<Button :icon="$image('icons/timer.svg')" title="Try timer" @click.stop="startTimer()" />
 			<Button :icon="$image('icons/countdown.svg')" title="Try 2min countdown" @click.stop="startCountdown()" />
 		</div>
+		
+		<div v-if="tipIndex===10" class="entry">
+			<img src="@/assets/icons/obs_purple.svg" alt="obs dock" class="icon">
+			<h1 class="row">OBS Dock</h1>
+			<div class="row">Did you know you can add Twitchat as an <strong>OBS Dock</strong>?</div>
+			<div class="row">On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong></div>
+			<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
+		</div>
 	</div>
 </template>
 
@@ -102,8 +110,8 @@ import Button from '../Button.vue';
 })
 export default class ChatTipAndTrickAd extends Vue {
 
-	public tipIndex = 0;
-	private maxIndex = 9;
+	public tipIndex = 10;
+	private maxIndex = 10;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));

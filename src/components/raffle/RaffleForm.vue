@@ -232,7 +232,7 @@ export default class RaffleForm extends Vue {
 		this.winner = null;
 		let increment = {value:0};
 		let prevRounded = increment.value;
-		if(PublicAPI.instance.localConnexionAvailable) {
+		if(PublicAPI.instance.localConnectionAvailable) {
 			this.loadingSubs = true;
 			//Ask if the wheel overlay exists
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);

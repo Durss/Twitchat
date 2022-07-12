@@ -120,7 +120,7 @@ export default class RaffleState extends Vue {
 		}while(this.raffleData.winners.find(w => w['user-id'] == winner.user['user-id']));
 		
 		//Ask if a wheel overlay exists
-		if(PublicAPI.instance.localConnexionAvailable) {
+		if(PublicAPI.instance.localConnectionAvailable) {
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 		}
