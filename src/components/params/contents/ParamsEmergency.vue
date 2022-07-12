@@ -32,7 +32,7 @@
 				<p>Select OBS sources to hide <i>(ex: streamelements alerts)</i></p>
 			</div>
 			<vue-select class="sourceSelector" label="sourceName"
-				placeholder="Select a source..."
+				placeholder="Select one or more sources..."
 				v-model="selectedOBSSources"
 				:options="obsSources_filtered"
 				:calculate-position="$placeDropdown"
