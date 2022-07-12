@@ -84,8 +84,8 @@ export default class OverlayParamsSpotify extends Vue {
 	public authenticate():void {
 		this.loading = true;
 		store.dispatch("setSpotifyCredentials", {
-			client: this.paramClient.value as string,
-			secret: this.paramSecret.value as string,
+			client: (this.paramClient.value as string).trim(),
+			secret: (this.paramSecret.value as string).trim(),
 		});
 		SpotifyHelper.instance.startAuthFlow();
 	}
