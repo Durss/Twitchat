@@ -336,6 +336,7 @@ export default class ChatMessage extends Vue {
 			if(message.tags.badges?.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
 			if(message.tags.badges?.partner) badges.push({label:"Partner", class:"partner"});
 			if(message.tags.badges?.founder) badges.push({label:"Founder", class:"founder"});
+			if(message.tags.badges?.ambassador) badges.push({label:"Ambassador", class:"ambassador"});
 		}
 		return badges;
 	}
@@ -627,6 +628,7 @@ export default class ChatMessage extends Vue {
 			&.broadcaster{ background-color: #ff0000;}
 			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
 			&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
+			&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
 		}
 
 		.login {
