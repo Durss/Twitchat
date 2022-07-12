@@ -25,6 +25,7 @@ export default class IRCClient extends EventDispatcher {
 	private login!:string;
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
+	private userToColor:{[key:string]:string} = {};
 	private selfTags!:tmi.ChatUserstate;
 	private joinSpool:string[] = [];
 	private partSpool:string[] = [];
@@ -33,7 +34,7 @@ export default class IRCClient extends EventDispatcher {
 	private reconnectInterval = -1;
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
 	public token!:string|undefined;
 	public channel!:string;
@@ -503,6 +504,32 @@ export default class IRCClient extends EventDispatcher {
 		//data for the broadcaster's messages...
 		if(!tags.id) tags.id = this.getFakeGuid();
 		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
+		
+		if(!tags.color) {
+			let color = this.userToColor[login];
+			if(!color) {
+				color = Utils.pickRand([
+					"#ff0000",
+					"#0000ff",
+					"#008000",
+					"#b22222",
+					"#ff7f50",
+					"#9acd32",
+					"#ff4500",
+					"#2e8b57",
+					"#daa520",
+					"#d2691e",
+					"#5f9ea0",
+					"#1e90ff",
+					"#ff69b4",
+					"#8a2be2",
+					"#00ff7f"
+				]);
+				this.userToColor[login]	= color;
+				console.log("Pick a color for " + login + ": " + color, tags);
+			}
+			tags.color = color;
+		}
 
 		if(this.uidsDone[tags['user-id'] as string] !== true) {
 			if(!automod) data.firstMessage = true;
