@@ -801,6 +801,7 @@ const UserDataSchema = {
 		"p:userHistoryEnabled": {type:"boolean"},
 		"p:translateNames": {type:"boolean"},
 		"p:emergencyButton": {type:"boolean"},
+		"p:spoilersEnabled": {type:"boolean"},
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -819,6 +820,18 @@ const UserDataSchema = {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				chatCmd:{type:"string", maxLength:100},
+				chatCmdPerms:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
 				slowMode:{type:"boolean"},
 				emotesOnly:{type:"boolean"},
 				subOnly:{type:"boolean"},
