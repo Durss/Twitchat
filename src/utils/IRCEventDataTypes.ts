@@ -29,6 +29,7 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.RaffleResult
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
+	| IRCEventDataList.JoinList
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -205,6 +206,12 @@ export namespace IRCEventDataList {
 		started:boolean;
 		data: CountdownData;
 		tags: { id: string, "tmi-sent-ts": string };
+		[paramater: string]: unknown;
+	}
+
+	export interface JoinList {
+		type: "join";
+		users:string[];
 		[paramater: string]: unknown;
 	}
 

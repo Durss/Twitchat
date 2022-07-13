@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
 				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="onlineUsersTooltip" />
 				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
@@ -239,6 +239,22 @@ export default class ChatForm extends Vue {
 
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
+	}
+
+	public get onlineUsersTooltip():string {
+		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+store.state.onlineUsers.length.toString();
+
+		if(store.state.params.appearance.highlightNonFollowers.value === true) {
+			let followCount = 0;
+			const followState = store.state.followingStatesByNames;
+			for (let i = 0; i < store.state.onlineUsers.length; i++) {
+				const u = store.state.onlineUsers[i];
+				if(followState[u.toLowerCase()] === true) followCount ++;
+			}
+			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount.toString();
+			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(store.state.onlineUsers.length - followCount).toString();
+		}
+		return res;
 	}
 
 	public get whispersAvailable():boolean {

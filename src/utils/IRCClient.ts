@@ -19,7 +19,6 @@ import Utils from "./Utils";
 * Created : 19/01/2021 
 */
 export default class IRCClient extends EventDispatcher {
-
 	
 	private static _instance:IRCClient;
 	private login!:string;
@@ -76,7 +75,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["littlebigwhale"]);
+				channels = channels.concat(["shakawah"]);
 			}
 
 			(async ()=> {
@@ -91,9 +90,9 @@ export default class IRCClient extends EventDispatcher {
 					//Load user specific badges infos
 					await TwitchUtils.loadUserBadges(uids[i]);
 					await TwitchUtils.loadCheermoteList(uids[i]);
-					await BTTVUtils.instance.addChannel(uids[i]);
-					await FFZUtils.instance.addChannel(uids[i]);
-					await SevenTVUtils.instance.addChannel(uids[i]);
+					BTTVUtils.instance.addChannel(uids[i]);
+					FFZUtils.instance.addChannel(uids[i]);
+					SevenTVUtils.instance.addChannel(uids[i]);
 				}
 
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
@@ -147,6 +146,7 @@ export default class IRCClient extends EventDispatcher {
 							clearTimeout(this.joinSpoolTimeout);
 							
 							this.joinSpoolTimeout = window.setTimeout(() => {
+								const spoolBackup = this.joinSpool.concat();
 								const join = this.joinSpool.splice(0, 30);
 								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
 								if(this.joinSpool.length > 0) {
@@ -156,6 +156,11 @@ export default class IRCClient extends EventDispatcher {
 								}
 								message += " joined the chat room";
 								this.sendNotice("online", message, channel);
+								const data:IRCEventDataList.JoinList = {
+									type:"join",
+									users:spoolBackup,
+								}
+								this.dispatchEvent(new IRCEvent(IRCEvent.JOIN, data));
 								this.joinSpool = [];
 							}, 1000);
 						}
@@ -526,7 +531,6 @@ export default class IRCClient extends EventDispatcher {
 					"#00ff7f"
 				]);
 				this.userToColor[login]	= color;
-				console.log("Pick a color for " + login + ": " + color, tags);
 			}
 			tags.color = color;
 		}

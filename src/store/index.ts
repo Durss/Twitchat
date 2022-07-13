@@ -68,6 +68,7 @@ const store = createStore({
 		raiding: null as PubSubDataTypes.RaidInfos|null,
 		realHistorySize: 5000,
 		followingStates: {} as {[key:string]:boolean},
+		followingStatesByNames: {} as {[key:string]:boolean},
 		userPronouns: {} as {[key:string]:string|boolean},
 		playbackState: null as PubSubDataTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubDataTypes.CommunityBoost|null,
@@ -389,6 +390,7 @@ const store = createStore({
 
 				state.authenticated = true;
 				state.followingStates[UserSession.instance.authToken.user_id] = true;
+				state.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
 			}catch(error) {
 				console.log(error);
@@ -528,6 +530,7 @@ const store = createStore({
 					if(uid && state.followingStates[uid] == undefined) {
 						TwitchUtils.getFollowState(uid, textMessage.tags['room-id']).then((res:boolean) => {
 							state.followingStates[uid] = res;
+							state.followingStatesByNames[message.tags.username?.toLowerCase()] = res;
 						}).catch(()=>{/*ignore*/})
 					}
 				}
@@ -536,6 +539,7 @@ const store = createStore({
 				if(payload.type == "highlight") {
 					if(payload.tags['msg-id'] == "follow") {
 						state.followingStates[payload.tags['user-id'] as string] = true;
+						state.followingStatesByNames[message.tags.username?.toLowerCase()] = true;
 					}
 				}
 				
@@ -1394,7 +1398,7 @@ const store = createStore({
 			let ip = Utils.getQueryParameterByName("obs_ip");
 			if(!ip) ip = Store.get("obsIP");
 			if(port != undefined || pass != undefined || ip != undefined) {
-				OBSWebsocket.instance.connect(port, pass, true, ip? ip : "127.0.0.1");
+				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 			PublicAPI.instance.initialize();
 
@@ -1463,6 +1467,7 @@ const store = createStore({
 							if(uid && state.followingStates[uid] == undefined) {
 								const res = await TwitchUtils.getFollowState(uid, user['room-id'])
 								state.followingStates[uid] = res != undefined;
+								state.followingStatesByNames[(user.username ?? user['display-name'] as string)?.toLowerCase()] = res;
 							}
 							if(state.followingStates[uid] === true) score += raffle.followRatio;
 						}
@@ -1581,6 +1586,27 @@ const store = createStore({
 					SevenTVUtils.instance.enable();
 				}else{
 					SevenTVUtils.instance.disable();
+				}
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
+				const users = (event.data as IRCEventDataList.JoinList).users;
+				//If non followers highlight option is enabled, get gollow state of
+				//all the users that joined
+				if(state.params.appearance.highlightNonFollowers.value === true) {
+					console.log("USERS JOINED", users);
+					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
+					console.log(usersFull);
+					for (let i = 0; i < usersFull.length; i++) {
+						const uid = usersFull[i].id;
+						if(uid && state.followingStates[uid] == undefined) {
+							try {
+								const follows:boolean = await TwitchUtils.getFollowState(uid, UserSession.instance.user?.id);
+								state.followingStates[uid] = follows;
+								state.followingStatesByNames[usersFull[i].login.toLowerCase()] = follows;
+							}catch(error) {/*ignore*/}
+						}
+					}
 				}
 			});
 
