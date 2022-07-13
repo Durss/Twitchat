@@ -232,8 +232,10 @@ export default class ChatMessage extends Vue {
 			res.push("announcement", color);
 		}
 		
-		let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
-		if(text.indexOf("||") == 0) res.push("spoiler");
+		if(store.state.params.features.spoilersEnabled.value === true) {
+			let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
+			if(text.indexOf("||") == 0) res.push("spoiler");
+		}
 
 		if(!this.lightMode) {
 			if(message.type == "message" && message.hasMention) res.push("mention");
