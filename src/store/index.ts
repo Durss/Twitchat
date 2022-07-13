@@ -258,6 +258,7 @@ const store = createStore({
 			} as {[key:string]:ParameterData},
 			features: {
 				emergencyButton: 			{save:true, type:"toggle", value:false, label:"Emergency button", id:215, icon:"emergency_purple.svg"},
+				spoilersEnabled: 			{save:true, type:"toggle", value:true, label:"Enable spoiler tag", id:216, icon:"show_purple.svg"},
 				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
 				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
 				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
@@ -1594,9 +1595,7 @@ const store = createStore({
 				//If non followers highlight option is enabled, get gollow state of
 				//all the users that joined
 				if(state.params.appearance.highlightNonFollowers.value === true) {
-					console.log("USERS JOINED", users);
 					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
-					console.log(usersFull);
 					for (let i = 0; i < usersFull.length; i++) {
 						const uid = usersFull[i].id;
 						if(uid && state.followingStates[uid] == undefined) {

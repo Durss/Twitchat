@@ -226,11 +226,14 @@ export default class ChatMessage extends Vue {
 		if(message.tags['message-type'] == "action") res.push("slashMe");
 		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
 		if(store.state.trackedUsers.findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1
-			&& !this.lightMode) res.push("tracked");
+		&& !this.lightMode) res.push("tracked");
 		if(this.isAnnouncement) {
 			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
 			res.push("announcement", color);
 		}
+		
+		let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
+		if(text.indexOf("||") == 0) res.push("spoiler");
 
 		if(!this.lightMode) {
 			if(message.type == "message" && message.hasMention) res.push("mention");
@@ -582,6 +585,19 @@ export default class ChatMessage extends Vue {
 		background-color: rgba(255, 255, 255, .2);
 		.message {
 			color: #fff;
+		}
+	}
+
+	&.spoiler {
+		.message {
+			color: @mainColor_dark_light;
+			background-color: @mainColor_dark_light;
+		}
+		&:hover {
+			.message {
+				color:unset;
+				background-color: transparent;
+			}
 		}
 	}
 

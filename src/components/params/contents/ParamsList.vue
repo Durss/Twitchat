@@ -23,7 +23,7 @@
 				
 				<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
 					<p class="label">based on
-						<a href='https://pronouns.alejo.io' target='_blank'>https://pronouns.alejo.io</a>
+						<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
 						and
 						<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
 					</p>
@@ -31,6 +31,10 @@
 
 				<div v-else-if="p.id == 215 && p.value === true" class="info emergency">
 					<Button title="Configure emergency actions" @click="$emit('setContent', 'emergency')" />
+				</div>
+
+				<div v-else-if="p.id == 216 && p.value === true" class="info spoiler">
+					<p class="label">Messages starting by <strong>||</strong> will be masked by default and revealed on hover</p>
 				</div>
 			</transition>
 		</div>
@@ -131,6 +135,12 @@ export default class ParamsList extends Vue {
 
 		.label {
 			display: inline;
+			strong {
+				padding: .25em .5em;
+				border-radius: .5em;
+				font-size: .8em;
+				background: fade(@mainColor_normal, 15%);
+			}
 		}
 
 		&.obsConnect {
@@ -139,7 +149,7 @@ export default class ParamsList extends Vue {
 			}
 		}
 
-		&.pronouns {
+		&.pronouns, &.spoiler {
 			.label {
 				font-size: .8em;
 			}
