@@ -6,10 +6,10 @@
 		<p class="beta">These are beta features that need more testing. If you have any issue with one of them <a :href="discordURL" target="_blank">please let me know on Discord</a></p>
 		
 		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsSpotify class="block" v-if="exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsTimer class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsHighlight class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsSpotify class="block" v-if="exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<div>This features needs you to connect with OBS or add Twitchat as an OBS dock.</div>

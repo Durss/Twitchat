@@ -60,7 +60,7 @@
 				</div>
 			</div>
 
-			<div class="row center" v-if="overlayExists">
+			<div class="row center">
 				<div>To clear the currently highlighted message click this button on the chat bar</div>
 				<img src="@/assets/img/clearHighlightedMessage.png" alt="example">
 			</div>
@@ -243,7 +243,7 @@ export default class OverlayParamsHighlight extends Vue {
 					list-style-position: inside;
 				}
 			}
-			
+
 			img {
 				margin-top: .5em;
 			}
