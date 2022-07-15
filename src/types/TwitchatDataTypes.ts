@@ -43,6 +43,11 @@ export interface IParameterCategory {
 	features:{[key:string]:ParameterData};
 }
 
+export type AccountParamsCategory = "syncDataWithServer";
+export interface IAccountParamsCategory {
+	syncDataWithServer:ParameterData;
+}
+
 
 export interface OBSSceneCommand {
 	scene:{
@@ -137,6 +142,7 @@ export interface ParameterData {
 	accept?:string;//File types for browse inputs
 	fieldName?:string;
 	save?:boolean;//Save configuration to storage on change?
+	tooltip?:string;//Tooltip displayed on hover
 }
 
 export interface BingoConfig {

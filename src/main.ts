@@ -128,9 +128,9 @@ const confirm = <T>(title: string,
  * @returns 
  */
 const overlayURL = (id:string):string => {
-	const port = Store.get("obsPort");
-	const pass = Store.get("obsPass");
-	const ip = Store.get("obsIP");
+	const port = Store.get(Store.OBS_PORT);
+	const pass = Store.get(Store.OBS_PASS);
+	const ip = Store.get(Store.OBS_IP);
 	const params = new URLSearchParams()
 	if(port) params.append("obs_port", port);
 	if(pass) params.append("obs_pass", pass);
@@ -151,6 +151,7 @@ const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width
 
 
 StoreProxy.store = store;
+Store.init();
 
 const app = createApp(App)
 .use(store)

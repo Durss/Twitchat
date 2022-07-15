@@ -159,7 +159,7 @@ export default class ChatAd extends Vue {
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			Store.set("updateIndex", store.state.latestUpdateIndex);
+			Store.set(Store.UPDATE_INDEX, store.state.latestUpdateIndex);
 		}
 		store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");

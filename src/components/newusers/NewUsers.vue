@@ -142,19 +142,19 @@ export default class NewUsers extends Vue {
 	}
 
 	public mounted():void {
-		const storeValue = Store.get("greetScrollDownAuto");
+		const storeValue = Store.get(Store.GREET_AUTO_SCROLL_DOWN);
 		if(storeValue == "true") this.scrollDownAuto = true;
-		let height = Store.get("greetHeight")
+		let height = Store.get(Store.GREET_AUTO_HEIGHT)
 		if(height) this.windowHeight = parseFloat(height);
 
-		const autoDeleteStore = Store.get("greetAutoDeleteAfter");
+		const autoDeleteStore = Store.get(Store.GREET_AUTO_DELETE_AFTER);
 		if(autoDeleteStore != null) {
 			this.autoDeleteAfter = parseInt(autoDeleteStore);
 		}
 
 		watch(()=>this.autoDeleteAfter, ()=>{
 			//Save new "auto delete after" value when changed
-			Store.set("greetAutoDeleteAfter", this.autoDeleteAfter);
+			Store.set(Store.GREET_AUTO_DELETE_AFTER, this.autoDeleteAfter);
 		});
 
 		//Automatically deletes messages after the configured delay
@@ -363,7 +363,7 @@ export default class NewUsers extends Vue {
 	// 	this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
 
 	// 	this.showMaxHeight = (prev-next)*100 > 2;
-	// 	Store.set("greetHeight", this.windowHeight);
+	// 	Store.set(Store.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 
 	/**
@@ -391,7 +391,7 @@ export default class NewUsers extends Vue {
 
 	public toggleScroll():void {
 		this.scrollDownAuto = !this.scrollDownAuto;
-		Store.set("greetScrollDownAuto", this.scrollDownAuto);
+		Store.set(Store.GREET_AUTO_SCROLL_DOWN, this.scrollDownAuto);
 		if(this.scrollDownAuto) {
 			this.scrollTo();
 		}
@@ -467,7 +467,7 @@ export default class NewUsers extends Vue {
 
 		const percent = prev-next;
 		this.showMaxHeight = percent*100 > 2 && boundsEl.height/bounds.height+.02 < maxHeight;
-		Store.set("greetHeight", this.windowHeight);
+		Store.set(Store.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 
 }

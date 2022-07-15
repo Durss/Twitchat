@@ -4,6 +4,8 @@
 
 		<div class="title">Connected as <strong>{{userName}}</strong></div>
 
+		<ParamItem class="param" :paramData="$store.state.accountParams.syncDataWithServer" v-model="syncEnabled" />
+
 		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
 		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
 		
@@ -14,16 +16,19 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import router from '@/router';
 import store from '@/store';
+import Store from '@/store/Store';
 import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
+import ParamItem from '../ParamItem.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		ParamItem,
 		ToggleBlock,
 	}
 })
@@ -33,6 +38,7 @@ export default class ParamsAccount extends Vue {
 	public showSuggestions = false;
 	public showObs = false;
 	public showCredits = true;
+	public syncEnabled = false;
 
 	public get canInstall():boolean { return store.state.ahsInstaller != null || true; }
 	public get userName():string { return UserSession.instance.authToken.login; }
@@ -50,7 +56,9 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public mounted():void {
+		this.syncEnabled = Store.get(Store.SYNC_DATA_TO_SERVER) == "true";
 		watch(()=> store.state.params, ()=> this.onParamChanged());
+		watch(()=> this.syncEnabled, ()=> Store.set(Store.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
 		this.onParamChanged();
 	}
 
@@ -105,6 +113,12 @@ export default class ParamsAccount extends Vue {
 	.title {
 		text-align: center;
 		margin-bottom: 1em;
+	}
+
+	.param {
+		margin: auto;
+		margin-bottom: 1em;
+		width: 300px;
 	}
 
 	.splitter {

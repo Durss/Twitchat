@@ -32,6 +32,7 @@ http.createServer((request, response) => {
     });
 
 	request.addListener('end', async () => {
+		// console.log("CALL", request.method, request.url);
 		if(request.method == "HEAD") {
 			response.end();
 			return;
@@ -168,7 +169,7 @@ function setHeaders(request, response) {
 	if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
 		//Set CORS headers if host is found on the redirect URI
 		response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
-		response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
+		response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN,Authorization');
 		response.setHeader('Access-Control-Allow-Origin', "*");
 	}
 }
@@ -277,17 +278,10 @@ async function refreshToken(request, response) {
  * Get/set a user's data
  */
 async function userData(request, response, body) {
-	try {
-		body = JSON.parse(body);
-	}catch(error) {
-		response.writeHead(500, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({message:"Invalid body data", success:false}));
-	}
-	const access_token = body.access_token;
 	let userInfo = {};
 
 	//Check access token validity
-	const headers = { "Authorization":"Bearer "+access_token };
+	const headers = { "Authorization": request.headers.authorization };
 	const options = {
 		method: "GET",
 		headers: headers,
@@ -301,45 +295,69 @@ async function userData(request, response, body) {
 		return;
 	}
 
-	//avoid saving private data to server
-	delete body.data.obsPass;
-	delete body.data.oAuthToken;
-	//Do not save this to the server to avoid config to be erased
-	//on one of the instances
-	delete body.data.hideChat;
-	
-	// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
-
-	//Test data format
-	try {
-		const clone = JSON.parse(JSON.stringify(body.data));
-		// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
-
-		//schemaValidator() is supposed to tell if the format is valid or not.
-		//Because we enabled "removeAdditional" option, no error will be thrown
-		//if a field is not in the schema. Instead it will simply remove it.
-		//V9+ of the lib is supposed to allow us to retrieve the removed props,
-		//but it doesn't yet. As a workaround we use JSONPatch that compares
-		//the JSON before and after validation.
-		//This is not the most efficient way to do this, but we have no much
-		//other choice for now.
-		schemaValidator(body.data);
-		const diff = JsonPatch.compare(clone, body.data, false);
-		if(diff?.length > 0) {
-			console.log("Invalid format, some data has been removed from "+userInfo.login+"'s data");
-			console.log(diff);
-			fs.writeFileSync(userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+	//Get users' data
+	const userFilePath = userDataFolder + userInfo.user_id+".json";
+	if(request.method == "GET") {
+		if(!fs.existsSync(userFilePath)) {
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false}));
+		}else{
+			const data = fs.readFileSync(userFilePath, {encoding:"utf8"});
+			response.writeHead(200, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:true, data:JSON.parse(data)}));
 		}
-		fs.writeFileSync(userDataFolder+userInfo.user_id+".json", JSON.stringify(body.data), "utf8");
-		response.writeHead(200, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({success:true}));
-	}catch(error){
-		console.log(error);
-		const message = schemaValidator.errors;
-		console.log(message);
-		response.writeHead(500, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({message, success:false}));
+	
+	//Update users' data
+	}else if(request.method == "POST") {
+		try {
+			body = JSON.parse(body);
+		}catch(error) {
+			response.writeHead(500, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({message:"Invalid body data", success:false}));
+			return;
+		}
+
+		//avoid saving private data to server
+		delete body.obsPass;
+		delete body.oAuthToken;
+		//Do not save this to the server to avoid config to be erased
+		//on one of the instances
+		delete body["p:hideChat"];
+		
+		// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
+	
+		//Test data format
+		try {
+			const clone = JSON.parse(JSON.stringify(body));
+			// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
+	
+			//schemaValidator() is supposed to tell if the format is valid or not.
+			//Because we enabled "removeAdditional" option, no error will be thrown
+			//if a field is not in the schema. Instead it will simply remove it.
+			//V9+ of the lib is supposed to allow us to retrieve the removed props,
+			//but it doesn't yet. As a workaround we use JSONPatch that compares
+			//the JSON before and after validation.
+			//This is not the most efficient way to do this, but we have no much
+			//other choice for now.
+			schemaValidator(body);
+			const diff = JsonPatch.compare(clone, body, false);
+			if(diff?.length > 0) {
+				console.log("Invalid format, some data has been removed from "+userInfo.login+"'s data");
+				console.log(diff);
+				fs.writeFileSync(userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+			}
+			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
+			response.writeHead(200, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:true}));
+		}catch(error){
+			console.log(error);
+			const message = schemaValidator.errors;
+			console.log(message);
+			response.writeHead(500, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({message, success:false}));
+		}
 	}
+
 }
 
 /**
@@ -758,7 +776,6 @@ const UserDataSchema = {
 		"p:firstMessage": {type:"boolean"},
 		"p:firstTimeMessage": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
-		"p:hideChat": {type:"boolean"},
 		"p:hideUsers": {type:"string"},
 		"p:highlightMentions": {type:"boolean"},
 		"p:highlightMods": {type:"boolean"},

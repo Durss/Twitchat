@@ -1,5 +1,5 @@
 <template class="cffdfdf">
-	<div :class="classes">
+	<div :class="classes" :data-tooltip="paramData.tooltip">
 		<div class="content">
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 

@@ -205,7 +205,7 @@ export default class ActivityFeed extends Vue {
 	}
 
 	public beforeMount():void {
-		const f = Store.get("activityFeedFilters");
+		const f = Store.get(Store.ACTIVITY_FEED_FILTERS);
 		let json:{[key:string]:boolean} = {};
 		try {
 			json = JSON.parse(f);
@@ -232,7 +232,7 @@ export default class ActivityFeed extends Vue {
 	public async mounted():Promise<void> {
 
 		watch(()=>this.filters, ()=> {
-			Store.set("activityFeedFilters", this.filters);
+			Store.set(Store.ACTIVITY_FEED_FILTERS, this.filters);
 		});
 
 		await this.$nextTick();
