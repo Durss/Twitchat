@@ -8,6 +8,7 @@ import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
+import StoreProxy from "./StoreProxy";
 import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes } from "./TriggerActionData";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -187,22 +188,22 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode) return true;
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
 	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode) return true;
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
 	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode) return true;
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
 	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode) return true;
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
