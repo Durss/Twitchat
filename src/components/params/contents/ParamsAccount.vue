@@ -4,6 +4,8 @@
 
 		<div class="title">Connected as <strong>{{userName}}</strong></div>
 
+		<ParamItem class="param" :paramData="$store.state.accountParams.syncDataWithServer" />
+
 		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
 		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
 		
@@ -19,11 +21,13 @@ import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
+import ParamItem from '../ParamItem.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		ParamItem,
 		ToggleBlock,
 	}
 })
@@ -105,6 +109,12 @@ export default class ParamsAccount extends Vue {
 	.title {
 		text-align: center;
 		margin-bottom: 1em;
+	}
+
+	.param {
+		margin: auto;
+		margin-bottom: 1em;
+		width: 300px;
 	}
 
 	.splitter {

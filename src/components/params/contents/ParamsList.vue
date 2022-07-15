@@ -1,16 +1,17 @@
 <template>
 	<div class="paramslist">
 		<div class="row" v-for="(p) in params" :key="p.id">
+
+			<ParamItem :paramData="p" save />
+
 			<!-- Special case for shoutout label -->
-			<PostOnChatParam v-if="p.id==14"
+			<PostOnChatParam class="row" v-if="p.id==6"
 				icon="shoutout_purple.svg"
 				botMessageKey="shoutout"
 				:noToggle="true"
-				:title="p.label"
+				title="Shoutout message"
 				:placeholders="soPlaceholders"
 			/>
-
-			<ParamItem v-else :paramData="p" save />
 			
 			<transition
 				@enter="onShowItem"

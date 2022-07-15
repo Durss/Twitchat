@@ -125,9 +125,9 @@ export default class ParamsOBS extends Vue {
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
 	public mounted():void {
-		const port = Store.get("obsPort");
-		const pass = Store.get("obsPass");
-		const ip = Store.get("obsIP");
+		const port = Store.get(Store.OBS_PORT);
+		const pass = Store.get(Store.OBS_PASS);
+		const ip = Store.get(Store.OBS_IP);
 		if(port != undefined) this.obsPort_conf.value = port;
 		if(pass != undefined) this.obsPass_conf.value = pass;
 		if(ip != undefined) this.obsIP_conf.value = ip;
@@ -200,9 +200,9 @@ export default class ParamsOBS extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		Store.set("obsPort", this.obsPort_conf.value);
-		Store.set("obsPass", this.obsPass_conf.value);
-		Store.set("obsIP", this.obsIP_conf.value);
+		Store.set(Store.OBS_PORT, this.obsPort_conf.value);
+		Store.set(Store.OBS_PASS, this.obsPass_conf.value);
+		Store.set(Store.OBS_IP, this.obsIP_conf.value);
 	}
 }
 </script>

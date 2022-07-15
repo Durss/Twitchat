@@ -100,6 +100,8 @@
 		
 		<Parameters v-if="$store.state.showParams" />
 
+		<DataServerSyncModal v-if="showStorageModal" />
+
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
 				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
@@ -132,6 +134,7 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import store from '@/store';
+import Store from '@/store/Store';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { BingoData, RaffleData } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -143,6 +146,7 @@ import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 
 @Options({
 	components:{
@@ -165,6 +169,7 @@ import { Options, Vue } from 'vue-class-component';
 		PredictionForm,
 		LiveFollowings,
 		StreamInfoForm,
+		DataServerSyncModal,
 		ChannelNotifications,
 	},
 	props:{
@@ -179,6 +184,7 @@ export default class Chat extends Vue {
 	public showCommands = false;
 	public showUserList = false;
 	public showChatUsers = false;
+	public showStorageModal = false;
 	public canStartAd = true;
 	public startAdCooldown = 0;
 	public currentModal = "";
@@ -207,6 +213,7 @@ export default class Chat extends Vue {
 	private resizeHandler!:(e:Event) => void;
 
 	public mounted():void {
+		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
 		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		window.addEventListener("resize", this.resizeHandler);

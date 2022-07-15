@@ -66,7 +66,7 @@ export default class OBSAudioSourceForm extends Vue {
 	}
 
 	public async listAudioSources(manualCheck = false):Promise<void> {
-		const storeConfStr = Store.get("obsConf_muteUnmute");
+		const storeConfStr = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
 		let storeConf!:OBSMuteUnmuteCommands;
 		if(storeConfStr) {
 			storeConf = JSON.parse(storeConfStr);

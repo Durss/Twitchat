@@ -26,7 +26,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParams, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParams, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -233,7 +233,6 @@ const store = createStore({
 				showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
-				shoutoutLabel: 				{save:true, type:"text", value:"", label:"Shoutout message", id:14, icon:"shoutout_purple.svg", longText:true},
 				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:7, step:1, id:12},
 			} as {[key:string]:ParameterData},
@@ -282,6 +281,9 @@ const store = createStore({
 			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
 		} as IRoomStatusCategory,
+		accountParams: {
+			syncDataWithServer: { type:"toggle", value:false, label:"Sync parameters to server", id:401 },
+		} as IAccountParamsCategory,
 		confirm:{
 			title:"",
 			description:"",
@@ -337,7 +339,7 @@ const store = createStore({
 					const res = await fetch(Config.instance.API_PATH+"/gettoken?code="+code, {method:"GET"});
 					json = await res.json();
 				}else {
-					json = JSON.parse(Store.get("oAuthToken"));
+					json = JSON.parse(Store.get(Store.TWITCH_AUTH_TOKEN));
 					//Refresh token if going to expire within the next 5 minutes
 					if(json && (forceRefresh || json.expires_at < Date.now() - 60000*5)) {
 						const res = await fetch(Config.instance.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
@@ -371,7 +373,7 @@ const store = createStore({
 				}
 				UserSession.instance.authResult = json;
 				Store.access_token = json.access_token;
-				Store.set("oAuthToken", json, false);
+				Store.set(Store.TWITCH_AUTH_TOKEN, json, false);
 				
 				if(!state.authenticated) {
 					//Connect if we were not connected before
@@ -380,7 +382,6 @@ const store = createStore({
 				}
 				
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
-				console.log("INIT USER", users);
 				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
 				if(currentUser) {
 					state.hasChannelPoints = currentUser.broadcaster_type != "";
@@ -418,7 +419,7 @@ const store = createStore({
 				possibleAds.push(TwitchatAdTypes.TIP);
 				possibleAds.push(TwitchatAdTypes.DISCORD);
 
-				const lastUpdateRead = parseInt(Store.get("updateIndex"));
+				const lastUpdateRead = parseInt(Store.get(Store.UPDATE_INDEX));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
 					possibleAds = [TwitchatAdTypes.UPDATES];
 				}else{
@@ -769,7 +770,7 @@ const store = createStore({
 		setCypherKey(state, payload:string) {
 			state.cypherKey = payload;
 			TwitchCypherPlugin.instance.cypherKey = payload;
-			Store.set("cypherKey", payload);
+			Store.set(Store.CYPHER_KEY, payload);
 		},
 
 		setCypherEnabled(state, payload:boolean) { state.cypherEnabled = payload; },
@@ -904,8 +905,8 @@ const store = createStore({
 			}else{
 				state.devmode = !state.devmode;
 			}
-			if(state.devmode != JSON.parse(Store.get("devmode"))) {
-				Store.set("devmode", state.devmode);
+			if(state.devmode != JSON.parse(Store.get(Store.DEVMODE))) {
+				Store.set(Store.DEVMODE, state.devmode);
 			}
 			if(notify) {
 				IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
@@ -947,17 +948,17 @@ const store = createStore({
 
 		setOBSSceneCommands(state, value:OBSSceneCommand[]) {
 			state.obsSceneCommands = value;
-			Store.set("obsConf_scenes", value);
+			Store.set(Store.OBS_CONF_SCENES, value);
 		},
 
 		setOBSMuteUnmuteCommands(state, value:OBSMuteUnmuteCommands) {
 			state.obsMuteUnmuteCommands = value;
-			Store.set("obsConf_muteUnmute", value);
+			Store.set(Store.OBS_CONF_MUTE_UNMUTE, value);
 		},
 
 		setObsCommandsPermissions(state, value:PermissionsData) {
 			state.obsCommandsPermissions = value;
-			Store.set("obsConf_permissions", value);
+			Store.set(Store.OBS_CONF_PERMISSIONS, value);
 		},
 
 		setTrigger(state, value:{key:string, data:TriggerData}) {
@@ -998,27 +999,27 @@ const store = createStore({
 				value.data.actions = cleanEmptyActions(value.data.actions);
 				state.triggers[value.key] = value.data;
 			}
-			Store.set("triggers", state.triggers);
+			Store.set(Store.TRIGGERS, state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
 		},
 
 		deleteTrigger(state, key:string) {
 			if(state.triggers[key]) {
 				delete state.triggers[key];
-				Store.set("triggers", state.triggers);
+				Store.set(Store.TRIGGERS, state.triggers);
 			}
 		},
 
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
 			state.botMessages[value.key].enabled = value.enabled;
 			state.botMessages[value.key].message = value.message;
-			Store.set("botMessages", state.botMessages);
+			Store.set(Store.BOT_MESSAGES, state.botMessages);
 		},
 
 		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
 
 		setSpotifyCredentials(state, value:{client:string, secret:string}) {
-			Store.set("spotifyAppParams", value);
+			Store.set(Store.SPOTIFY_APP_PARAMS, value);
 			SpotifyHelper.instance.setAppParams(value.client, value.secret)
 		},
 
@@ -1032,7 +1033,7 @@ const store = createStore({
 				value = null;
 				Store.remove("spotifyAuthToken");
 			}else{
-				Store.set("spotifyAuthToken", value);
+				Store.set(Store.SPOTIFY_AUTH_TOKEN, value);
 			}
 			state.spotifyAuthToken = value;
 			SpotifyHelper.instance.token = value;
@@ -1083,7 +1084,7 @@ const store = createStore({
 				//add new preset
 				state.streamInfoPreset.push(preset);
 			}
-			Store.set("streamInfoPresets", state.streamInfoPreset);
+			Store.set(Store.STREAM_INFO_PRESETS, state.streamInfoPreset);
 		},
 
 		deleteStreamInfoPreset(state, preset:StreamInfoPreset) {
@@ -1092,7 +1093,7 @@ const store = createStore({
 				//update existing preset
 				state.streamInfoPreset.splice(index, 1);
 			}
-			Store.set("streamInfoPresets", state.streamInfoPreset);
+			Store.set(Store.STREAM_INFO_PRESETS, state.streamInfoPreset);
 		},
 
 		startTimer(state) {
@@ -1175,7 +1176,7 @@ const store = createStore({
 
 		setEmergencyParams(state, params:EmergencyParams) {
 			state.emergencyParams = params;
-			Store.set("emergencyParams", params);
+			Store.set(Store.EMERGENCY_PARAMS, params);
 		},
 
 		setEmergencyMode(state, enable:boolean) {
@@ -1312,51 +1313,51 @@ const store = createStore({
 							}
 						}
 					}
-					Store.set("oAuthToken", json.access_token, false);
+					Store.set(Store.TWITCH_AUTH_TOKEN, json.access_token, false);
 				}catch(error){
 					//ignore
 				}
 			}
 			
 			//Init OBS scenes params
-			const obsSceneCommands = Store.get("obsConf_scenes");
+			const obsSceneCommands = Store.get(Store.OBS_CONF_SCENES);
 			if(obsSceneCommands) {
 				state.obsSceneCommands = JSON.parse(obsSceneCommands);
 			}
 			
 			//Init OBS command params
-			const obsMuteUnmuteCommands = Store.get("obsConf_muteUnmute");
+			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
 			if(obsMuteUnmuteCommands) {
 				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
 			}
 			
 			//Init OBS permissions
-			const obsCommandsPermissions = Store.get("obsConf_permissions");
+			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
 				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
 			}
 			
 			//Init emergency actions
-			const emergency = Store.get("emergencyParams");
+			const emergency = Store.get(Store.EMERGENCY_PARAMS);
 			if(emergency) {
 				state.emergencyParams = JSON.parse(emergency);
 			}
 			
 			//Init triggers
-			const triggers = Store.get("triggers");
+			const triggers = Store.get(Store.TRIGGERS);
 			if(triggers) {
 				state.triggers = JSON.parse(triggers);
 				TriggerActionHandler.instance.triggers = state.triggers;
 			}
 				
 			//Init stream info presets
-			const presets = Store.get("streamInfoPresets");
+			const presets = Store.get(Store.STREAM_INFO_PRESETS);
 			if(presets) {
 				state.streamInfoPreset = JSON.parse(presets);
 			}
 			
 			//Load bot messages
-			const botMessages = Store.get("botMessages");
+			const botMessages = Store.get(Store.BOT_MESSAGES);
 			if(botMessages) {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
@@ -1379,13 +1380,13 @@ const store = createStore({
 			}
 	
 			//Init spotify connection
-			const spotifyAuthToken = Store.get("spotifyAuthToken");
+			const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
 			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
 				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
 			}
 
 			//Init spotify credentials
-			const spotifyAppParams = Store.get("spotifyAppParams");
+			const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
 			if(spotifyAuthToken && spotifyAppParams) {
 				this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
 			}
@@ -1393,17 +1394,17 @@ const store = createStore({
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)
 			let port = Utils.getQueryParameterByName("obs_port");
-			if(!port) port = Store.get("obsPort");
+			if(!port) port = Store.get(Store.OBS_PORT);
 			let pass = Utils.getQueryParameterByName("obs_pass");
-			if(!pass) pass = Store.get("obsPass");
+			if(!pass) pass = Store.get(Store.OBS_PASS);
 			let ip = Utils.getQueryParameterByName("obs_ip");
-			if(!ip) ip = Store.get("obsIP");
+			if(!ip) ip = Store.get(Store.OBS_IP);
 			if(port != undefined || pass != undefined || ip != undefined) {
 				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 			PublicAPI.instance.initialize();
 
-			const token = Store.get("oAuthToken");
+			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
 			if(token && payload.authenticate) {
 				try {
 					await new Promise((resolve,reject)=> {
@@ -1707,7 +1708,7 @@ const store = createStore({
 				uniqueIdsCheck[v] = true;
 			}
 			
-			const cypherKey = Store.get("cypherKey")
+			const cypherKey = Store.get(Store.CYPHER_KEY)
 			TwitchCypherPlugin.instance.initialize(cypherKey);
 			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
 				this.dispatch("setSpotifyToken", e.token);
@@ -1744,7 +1745,7 @@ const store = createStore({
 				this.dispatch("setEmergencyMode", enable);
 			});
 
-			const devmode = Store.get("devmode") === "true";
+			const devmode = Store.get(Store.DEVMODE) === "true";
 			this.dispatch("toggleDevMode", devmode);
 			this.dispatch("sendTwitchatAd");
 			payload.callback();

@@ -11,9 +11,34 @@ export default class Store {
 	
 	public static access_token:string;
 
+	public static UPDATE_INDEX:string = "updateIndex";
+	public static ACTIVITY_FEED_FILTERS:string = "activityFeedFilters";
+	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
+	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";
+	public static GREET_AUTO_HEIGHT:string = "greetHeight";
+	public static OBS_PORT:string = "obsPort";
+	public static OBS_PASS:string = "obsPass";
+	public static OBS_IP:string = "obsIp";
+	public static OBS_CONF_SCENES:string = "obsConf_scenes";
+	public static OBS_CONF_MUTE_UNMUTE:string = "obsConf_muteUnmute";
+	public static OBS_CONF_PERMISSIONS:string = "obsConf_permissions";
+	public static TRIGGERS:string = "triggers";
+	public static BOT_MESSAGES:string = "botMessages";
+	public static RAFFLE_OVERLAY_COUNTDOWN:string = "raffle_showCountdownOverlay";
+	public static CYPHER_KEY:string = "cypherKey";
+	public static DEVMODE:string = "devmode";
+	public static SPOTIFY_APP_PARAMS:string = "spotifyAppParams";
+	public static SPOTIFY_AUTH_TOKEN:string = "spotifyAuthToken";
+	public static STREAM_INFO_PRESETS:string = "streamInfoPresets";
+	public static EMERGENCY_PARAMS:string = "emergencyParams";
+	public static TWITCH_AUTH_TOKEN:string = "oAuthToken";
+	public static SYNC_DATA_TO_SERVER:string = "syncToserver";
+
 	private static store:Storage;
-	private static dataPrefix = "twitchat_";
-	private static saveTO = -1;
+	private static dataPrefix:string = "twitchat_";
+	private static saveTO:number = -1;
+	private static dataImported:boolean = false;
+	private static syncToServer:boolean = false;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
 	private static propToSavableState:{[key:string]:boolean} = {};
 	
@@ -27,11 +52,49 @@ export default class Store {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Load user's data from the server
+	 * @returns if user has data or not
+	 */
+	public static async loadRemoteData(importToLS:boolean = true):Promise<boolean> {
+		if(!this.store) this.init();
+
+		try {
+			let headers = {
+				'Authorization': 'Bearer '+this.access_token,
+			};
+			const res = await fetch(Config.instance.API_PATH+"/user", {method:"GET", headers});
+			if(importToLS) {
+				//Import data to local storage.
+				const json = await res.json();
+				for (const key in json) {
+					const value = json[key];
+					const str = typeof value == "string"? value : JSON.stringify(value);
+					this.store.setItem(this.dataPrefix + key, str);
+				}
+				this.rawStore = json;
+				this.dataImported = true;
+			}
+			return res.status != 404;
+		}catch(error) {
+			return false;
+		}
+	}
+
+	/**
+	 * Get a value
+	 * @param key 
+	 * @returns 
+	 */
 	public static get(key:string):string {
 		if(!this.store) this.init();
 		return this.store.getItem(this.dataPrefix + key) as string;
 	}
 
+	/**
+	 * Get all values
+	 * @returns 
+	 */
 	public static getAll():{[key:string]:string|null} {
 		if(!this.store) this.init();
 		const props:{[key:string]:string|null} = {};
@@ -44,6 +107,14 @@ export default class Store {
 		return props;
 	}
 
+	/**
+	 * Set a value
+	 * 
+	 * @param key 
+	 * @param value 
+	 * @param save 	schedule a save to the server
+	 * @returns 
+	 */
 	public static set(key:string, value:JsonValue|unknown, save = true):void {
 		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
@@ -54,12 +125,21 @@ export default class Store {
 		if(save) this.save();
 	}
 
+	/**
+	 * Remove a value
+	 * 
+	 * @param key 
+	 */
 	public static remove(key:string):void {
 		if(!this.store) this.init();
+		delete this.rawStore[key];
 		this.store.removeItem(this.dataPrefix + key);
 		this.save();
 	}
 
+	/**
+	 * Clear all values
+	 */
 	public static clear():void {
 		if(!this.store) this.init();
 		//Remove only the data with the proper prefix
@@ -68,6 +148,7 @@ export default class Store {
 			if(!key || key.indexOf(this.dataPrefix) == -1) continue;
 			this.store.removeItem(key);
 		}
+		this.rawStore = {};
 	}
 	
 	
@@ -75,6 +156,10 @@ export default class Store {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	/**
+	 * Initialize the storage.
+	 * Migrates data if necessary
+	 */
 	private static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
 		let v = this.get("v");
@@ -131,9 +216,15 @@ export default class Store {
 		this.save();
 	}
 
+	/**
+	 * Save user's data server side
+	 * @returns 
+	 */
 	private static save():void {
 		clearTimeout(this.saveTO);
+		if(!this.syncToServer) return;//User want to only save data locally
 		if(!this.access_token) return;
+		if(!this.dataImported) return;//Don't export anything before importing data first
 		
 		this.saveTO = window.setTimeout(async () => {
 			const data = JSON.parse(JSON.stringify(this.rawStore));
@@ -148,14 +239,21 @@ export default class Store {
 			delete data["p:shoutoutLabel"];
 			delete data.deezerEnabled;
 
-			let json = {
-				access_token:this.access_token,
-				data:data,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", body:JSON.stringify(json)});
-			json = await res.json();
+			let headers = {
+				'Authorization': 'Bearer '+this.access_token,
+			}
+			const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
+			// const json = await res.json();
 		}, 1000);
 	}
+
+
+
+	/**********************************
+	 **** DATA MIGRATION UTILITIES ****
+	 **********************************/
+
+
 
 	/**
 	 * Temporary fix after making a mistake.
@@ -210,18 +308,20 @@ export default class Store {
 		const bingo_message =this.get("bingo_message");
 		const bingo_messageEnabled =this.get("bingo_messageEnabled");
 
-		const botMessages = {
-			raffle: {
-				enabled:raffle_message,
-				message:raffle_messageEnabled,
-			},
-			bingo: {
-				enabled:bingo_message,
-				message:bingo_messageEnabled,
+		if(raffle_message) {
+			const botMessages = {
+				raffle: {
+					enabled:raffle_message,
+					message:raffle_messageEnabled,
+				},
+				bingo: {
+					enabled:bingo_message,
+					message:bingo_messageEnabled,
+				}
 			}
+			//Save new data format
+			this.set("botMessages", botMessages);
 		}
-		//Save new data format
-		this.set("botMessages", botMessages);
 		
 		//Cleanup old data
 		this.remove("raffle_message");
