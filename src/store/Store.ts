@@ -10,7 +10,9 @@ import { TriggerTypes } from "@/utils/TriggerActionData";
 export default class Store {
 	
 	public static access_token:string;
+	public static syncToServer:boolean = false;
 
+	public static DATA_VERSION:string = "v";
 	public static UPDATE_INDEX:string = "updateIndex";
 	public static ACTIVITY_FEED_FILTERS:string = "activityFeedFilters";
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
@@ -38,7 +40,6 @@ export default class Store {
 	private static dataPrefix:string = "twitchat_";
 	private static saveTO:number = -1;
 	private static dataImported:boolean = false;
-	private static syncToServer:boolean = false;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
 	private static propToSavableState:{[key:string]:boolean} = {};
 	
@@ -52,6 +53,67 @@ export default class Store {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Initialize the storage.
+	 * Migrates data if necessary
+	 */
+	public static init():void {
+		this.store = localStorage? localStorage : sessionStorage;
+		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) == "true";
+		let v = this.get(this.DATA_VERSION);
+		if(!v) {
+			this.fixBackslashes();
+			v = "1"
+		}
+		if(v=="1" || v=="2") {
+			this.cleanupOldData();
+			v = "3";
+		}
+		if(v=="3") {
+			this.migrateBotMessages();
+			v = "4";
+		}
+		if(v=="4") {
+			this.migrateSOMessage();
+			v = "5";
+		}
+		if(v=="5") {
+			Store.remove("p:showPollPredResults");
+			v = "6";
+		}
+		if(v=="6") {
+			this.migrateTriggers();
+			v = "7";
+		}
+		if(v=="7") {
+			//Because of my stupid version check, users could skip updates
+			//Trying to fix this here...
+			Store.remove("p:showPollPredResults");
+			v = "8";
+		}
+		if(v=="8") {
+			this.fixTriggersCase();
+			v = "9";
+		}
+		if(v=="9") {
+			this.migrateTriggers2();
+			v = "10";
+		}
+
+		this.set(this.DATA_VERSION, v);
+
+		const items = this.getAll();
+		for (const key in items) {
+			try{
+				items[key] = JSON.parse(items[key] as string);
+			}catch(error) {
+				//parsing failed, that's because it's a simple string, just keep it
+			}
+		}
+		this.rawStore = items;
+		this.save();
+	}
+
 	/**
 	 * Load user's data from the server
 	 * @returns if user has data or not
@@ -67,18 +129,59 @@ export default class Store {
 			if(importToLS) {
 				//Import data to local storage.
 				const json = await res.json();
-				for (const key in json) {
-					const value = json[key];
-					const str = typeof value == "string"? value : JSON.stringify(value);
-					this.store.setItem(this.dataPrefix + key, str);
+				if(json.success === true) {
+					for (const key in json.data) {
+						const value = json.data[key];
+						const str = typeof value == "string"? value : JSON.stringify(value);
+						this.store.setItem(this.dataPrefix + key, str);
+					}
+					this.rawStore = json.data;
+					this.dataImported = true;
 				}
-				this.rawStore = json;
-				this.dataImported = true;
 			}
 			return res.status != 404;
 		}catch(error) {
 			return false;
 		}
+	}
+
+	/**
+	 * Save user's data server side
+	 * @returns 
+	 */
+	public static async save(force:boolean = false):Promise<void> {
+		clearTimeout(this.saveTO);
+		if(!force) {
+			if(!this.syncToServer) return;//User want to only save data locally
+			if(!this.access_token) return;
+			if(!this.dataImported) return;//Don't export anything before importing data first
+		}
+		
+		return new Promise((resolve) => {
+			this.saveTO = window.setTimeout(async () => {
+				const data = JSON.parse(JSON.stringify(this.rawStore));
+				//Do not save sensitive data to server
+				delete data[this.OBS_PASS];
+				delete data[this.TWITCH_AUTH_TOKEN];
+				delete data[this.SPOTIFY_AUTH_TOKEN];
+				delete data[this.SPOTIFY_APP_PARAMS];
+				//Do not save this to the server to avoid config to be erased
+				//on one of the instances
+				delete data["p:hideChat"];
+				delete data["p:shoutoutLabel"];
+				delete data[this.SYNC_DATA_TO_SERVER];
+	
+				let headers = {
+					'Authorization': 'Bearer '+this.access_token,
+				}
+				const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
+				// const json = await res.json();
+				//If we forced upload, consider data has been imported as they are
+				//the same on local and remote. This will allow later automatic saves
+				if(force) this.dataImported = true;
+				resolve();
+			}, force? 0 : 1000);
+		})
 	}
 
 	/**
@@ -116,6 +219,8 @@ export default class Store {
 	 * @returns 
 	 */
 	public static set(key:string, value:JsonValue|unknown, save = true):void {
+		if(key == this.SYNC_DATA_TO_SERVER) this.syncToServer = value as boolean;
+
 		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
 		if(value == undefined) return;
@@ -156,96 +261,6 @@ export default class Store {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-	/**
-	 * Initialize the storage.
-	 * Migrates data if necessary
-	 */
-	private static init():void {
-		this.store = localStorage? localStorage : sessionStorage;
-		let v = this.get("v");
-		if(!v) {
-			this.fixBackslashes();
-			v = "1"
-		}
-		if(v=="1" || v=="2") {
-			this.cleanupOldData();
-			v = "3";
-		}
-		if(v=="3") {
-			this.migrateBotMessages();
-			v = "4";
-		}
-		if(v=="4") {
-			this.migrateSOMessage();
-			v = "5";
-		}
-		if(v=="5") {
-			Store.remove("p:showPollPredResults");
-			v = "6";
-		}
-		if(v=="6") {
-			this.migrateTriggers();
-			v = "7";
-		}
-		if(v=="7") {
-			//Because of my stupid version check, users could skip updates
-			//Trying to fix this here...
-			Store.remove("p:showPollPredResults");
-			v = "8";
-		}
-		if(v=="8") {
-			this.fixTriggersCase();
-			v = "9";
-		}
-		if(v=="9") {
-			this.migrateTriggers2();
-			v = "10";
-		}
-
-		this.set("v", v);
-
-		const items = this.getAll();
-		for (const key in items) {
-			try{
-				items[key] = JSON.parse(items[key] as string);
-			}catch(error) {
-				//parsing failed, that's because it's a simple string, just keep it
-			}
-		}
-		this.rawStore = items;
-		this.save();
-	}
-
-	/**
-	 * Save user's data server side
-	 * @returns 
-	 */
-	private static save():void {
-		clearTimeout(this.saveTO);
-		if(!this.syncToServer) return;//User want to only save data locally
-		if(!this.access_token) return;
-		if(!this.dataImported) return;//Don't export anything before importing data first
-		
-		this.saveTO = window.setTimeout(async () => {
-			const data = JSON.parse(JSON.stringify(this.rawStore));
-			//Do not save sensitive data to server
-			delete data.obsPass;
-			delete data.oAuthToken;
-			delete data.spotifyAuthToken;
-			delete data.spotifyAppParams;
-			//Do not save this to the server to avoid config to be erased
-			//on one of the instances
-			delete data.hideChat;
-			delete data["p:shoutoutLabel"];
-			delete data.deezerEnabled;
-
-			let headers = {
-				'Authorization': 'Bearer '+this.access_token,
-			}
-			const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
-			// const json = await res.json();
-		}, 1000);
-	}
 
 
 

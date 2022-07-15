@@ -100,7 +100,7 @@
 		
 		<Parameters v-if="$store.state.showParams" />
 
-		<DataServerSyncModal v-if="showStorageModal" />
+		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">

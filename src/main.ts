@@ -151,6 +151,7 @@ const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width
 
 
 StoreProxy.store = store;
+Store.init();
 
 const app = createApp(App)
 .use(store)

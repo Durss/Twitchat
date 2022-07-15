@@ -2,7 +2,7 @@
 	<div class="login">
 		<div class="head">
 			<img class="icon" src="@/assets/logo.svg" alt="twitch">
-			<div class="beta">beta</div>
+			<!-- <div class="beta">beta</div> -->
 		</div>
 
 		<div class="content">

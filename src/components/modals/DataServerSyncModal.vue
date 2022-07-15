@@ -23,15 +23,15 @@
 
 					<ToggleBlock class="details" title="Cons" :open="false" :icons="['cons_purple']">
 						<ul>
-							<li>If you use Twitchat on 2 computers and you don't want them to have the same parameters, <strong>do not</strong> enable this option on one of them</li>
+							<li>If you use Twitchat on 2 places and you don't want them to have the same parameters, <strong>do not</strong> enable this option on one of them</li>
 						</ul>
 					</ToggleBlock>
 
 					<div class="ctas">
-						<ParamItem class="param" :paramData="sync_params" />
+						<ParamItem class="param" :paramData="sync_param" />
+						<Button title="Submit" @click="submit()" :loading="uploading" />
 						<!-- <Button big title="🗄️ Save data on Twitchat server" />
 						<Button big title="🍪 Keep data on my cookies" highlight /> -->
-						<Button title="Submit" />
 					</div>
 					
 					<p class="info">Personnal and sensitive data will never be saved on the server</p>
@@ -58,30 +58,47 @@ import store from '@/store';
 		Button,
 		ParamItem,
 		ToggleBlock,
-	}
+	},
+	emits:['close'],
 })
 export default class DataServerSyncModal extends Vue {
 
 	public isNewUser:boolean = true;
 	public loading:boolean = true;
-	public sync_params:ParameterData = JSON.parse(JSON.stringify(store.state.accountParams.syncDataWithServer));
+	public uploading:boolean = false;
+	public sync_param:ParameterData = JSON.parse(JSON.stringify(store.state.accountParams.syncDataWithServer));
+	public upload_param:ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
 
 	public async mounted():Promise<void> {
-		// const data = await res.json();
-		this.sync_params.children = [
-			{ type:"toggle", value:true, label:"Export current data", tooltip:"Do you want to overwrite<br>remote data with current data?" },
-		]
-
+		gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 
 		this.isNewUser = !await Store.loadRemoteData(false);
+		if(!this.isNewUser) {
+			this.sync_param.children = [this.upload_param];
+		}
 		this.loading = false;
 	}
 
 	public close():void {
+		gsap.to(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 		gsap.to(this.$refs.holder as HTMLDivElement, {scaleX:0, ease:"elastic.out", duration:1});
-		gsap.to(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
+		gsap.to(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1, onComplete:()=>{
+			this.$emit('close');
+		}});
+	}
+
+	public async submit():Promise<void> {
+		this.uploading = true;
+		if(this.upload_param.value === true) {
+			await Store.save(true);
+		}
+		await Store.loadRemoteData(true);
+		Store.set(Store.SYNC_DATA_TO_SERVER, this.sync_param.value);
+		store.dispatch("loadDataFromStorage");
+		this.close();
+		this.uploading = false;
 	}
 
 }
@@ -147,9 +164,13 @@ export default class DataServerSyncModal extends Vue {
 				flex-direction: column;
 				align-items: center;
 				margin: 2em 0;
+				border: 1px solid @mainColor_normal;
+				padding: 1em;
+				border-radius: 1em;
+				font-size: 1.2em;
 
 				.param {
-					width: 300px;
+					// width: 300px;
 				}
 
 				button:not(:first-child) {

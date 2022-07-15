@@ -1273,30 +1273,48 @@ const store = createStore({
 			Config.instance.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
 			Config.instance.DEEZER_CLIENT_ID = Config.instance.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
 
-			//Loading parameters from storage and pushing them to the store
-			const props = Store.getAll();
-			for (const cat in state.params) {
-				const c = cat as ParameterCategory;
-				for (const key in props) {
-					const k = key.replace(/^p:/gi, "");
-					if(props[key] == null) continue;
-					if(/^p:/gi.test(key) && k in state.params[c]) {
-						const v:string = props[key] as string;
-						/* eslint-disable-next-line */
-						const pointer = state.params[c][k as ParameterCategory];
-						if(typeof pointer.value === 'boolean') {
-							pointer.value = (v == "true");
+			//Authenticate user
+			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
+			if(token && payload.authenticate) {
+				try {
+					await new Promise((resolve,reject)=> {
+						commit("authenticate", {cb:(success:boolean)=>{
+							if(success) {
+								resolve(null);
+							}else{
+								reject();
+							}
+						}});
+					});
+
+					//Use an anonymous method to avoid blocking loading while
+					//all twitch tags are loading
+					(async () => {
+						try {
+							TwitchUtils.searchTag("");//Preload tags to build local cache
+							if(store.state.hasChannelPoints) {
+								await TwitchUtils.getPolls();
+								await TwitchUtils.getPredictions();
+							}
+						}catch(e) {
+							//User is probably not an affiliate
 						}
-						if(typeof pointer.value === 'string') {
-							pointer.value = v;
-						}
-						if(typeof pointer.value === 'number') {
-							pointer.value = parseFloat(v);
-						}
-					}
+					})();
+				}catch(error) {
+					console.log(error);
+					state.authenticated = false;
+					Store.remove("oAuthToken");
+					state.initComplete = true;
+					payload.callback();
+					return;
 				}
 			}
 
+			if(Store.syncToServer === true) {
+				await Store.loadRemoteData();
+			}
+
+			//Overwrite store data from URL
 			const queryParams = Utils.getQueryParameterByName("params");
 			if(queryParams) {
 				//eslint-disable-next-line
@@ -1318,126 +1336,11 @@ const store = createStore({
 					//ignore
 				}
 			}
-			
-			//Init OBS scenes params
-			const obsSceneCommands = Store.get(Store.OBS_CONF_SCENES);
-			if(obsSceneCommands) {
-				state.obsSceneCommands = JSON.parse(obsSceneCommands);
-			}
-			
-			//Init OBS command params
-			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
-			if(obsMuteUnmuteCommands) {
-				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
-			}
-			
-			//Init OBS permissions
-			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
-			if(obsCommandsPermissions) {
-				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
-			}
-			
-			//Init emergency actions
-			const emergency = Store.get(Store.EMERGENCY_PARAMS);
-			if(emergency) {
-				state.emergencyParams = JSON.parse(emergency);
-			}
-			
-			//Init triggers
-			const triggers = Store.get(Store.TRIGGERS);
-			if(triggers) {
-				state.triggers = JSON.parse(triggers);
-				TriggerActionHandler.instance.triggers = state.triggers;
-			}
-				
-			//Init stream info presets
-			const presets = Store.get(Store.STREAM_INFO_PRESETS);
-			if(presets) {
-				state.streamInfoPreset = JSON.parse(presets);
-			}
-			
-			//Load bot messages
-			const botMessages = Store.get(Store.BOT_MESSAGES);
-			if(botMessages) {
-				//Merge remote and local to avoid losing potential new
-				//default values on local data
-				const localMessages = state.botMessages;
-				const remoteMessages = JSON.parse(botMessages);
-				// JSONPatch.applyPatch(localMessages, remoteMessages);
-				// JSONPatch.applyPatch(remoteMessages, localMessages);
-				for (const k in localMessages) {
-					const key = k as BotMessageField;
-					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-						remoteMessages[key] = localMessages[key];
-					}
-					for (const subkey in localMessages[key]) {
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-						}
-					}
-				}
-				state.botMessages = (remoteMessages as unknown) as IBotMessage;
-			}
-	
-			//Init spotify connection
-			const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
-			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
-			}
 
-			//Init spotify credentials
-			const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
-			if(spotifyAuthToken && spotifyAppParams) {
-				this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
-			}
-			
-			//Init OBS connection
-			//If params are specified on URL, use them (used by overlays)
-			let port = Utils.getQueryParameterByName("obs_port");
-			if(!port) port = Store.get(Store.OBS_PORT);
-			let pass = Utils.getQueryParameterByName("obs_pass");
-			if(!pass) pass = Store.get(Store.OBS_PASS);
-			let ip = Utils.getQueryParameterByName("obs_ip");
-			if(!ip) ip = Store.get(Store.OBS_IP);
-			if(port != undefined || pass != undefined || ip != undefined) {
-				OBSWebsocket.instance.connect(port, pass, true, ip);
-			}
+			//TODO load all data here 
+			this.dispatch("loadDataFromStorage");
+
 			PublicAPI.instance.initialize();
-
-			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
-			if(token && payload.authenticate) {
-				try {
-					await new Promise((resolve,reject)=> {
-						commit("authenticate", {cb:(success:boolean)=>{
-							if(success) {
-								resolve(null);
-							}else{
-								reject();
-							}
-						}});
-					});
-
-					//Use an anonymous method to avoid locking loading
-					(async () => {
-						try {
-							TwitchUtils.searchTag("");//Preload tags to build local cache
-							if(store.state.hasChannelPoints) {
-								await TwitchUtils.getPolls();
-								await TwitchUtils.getPredictions();
-							}
-						}catch(e) {
-							//User is probably not an affiliate
-						}
-					})();
-				}catch(error) {
-					console.log(error);
-					state.authenticated = false;
-					Store.remove("oAuthToken");
-					state.initComplete = true;
-					payload.callback();
-					return;
-				}
-			}
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const messageData = event.data as IRCEventDataList.Message;
@@ -1749,6 +1652,116 @@ const store = createStore({
 			this.dispatch("toggleDevMode", devmode);
 			this.dispatch("sendTwitchatAd");
 			payload.callback();
+		},
+		
+		loadDataFromStorage({state}) {
+			//Loading parameters from local storage and pushing them to current store
+			const props = Store.getAll();
+			for (const cat in state.params) {
+				const c = cat as ParameterCategory;
+				for (const key in props) {
+					const k = key.replace(/^p:/gi, "");
+					if(props[key] == null) continue;
+					if(/^p:/gi.test(key) && k in state.params[c]) {
+						const v:string = props[key] as string;
+						/* eslint-disable-next-line */
+						const pointer = state.params[c][k as ParameterCategory];
+						if(typeof pointer.value === 'boolean') {
+							pointer.value = (v == "true");
+						}
+						if(typeof pointer.value === 'string') {
+							pointer.value = v;
+						}
+						if(typeof pointer.value === 'number') {
+							pointer.value = parseFloat(v);
+						}
+					}
+				}
+			}
+
+			//Init OBS scenes params
+			const obsSceneCommands = Store.get(Store.OBS_CONF_SCENES);
+			if(obsSceneCommands) {
+				state.obsSceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS command params
+			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
+			if(obsMuteUnmuteCommands) {
+				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
+			}
+			
+			//Init OBS permissions
+			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
+			if(obsCommandsPermissions) {
+				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
+			}
+			
+			//Init emergency actions
+			const emergency = Store.get(Store.EMERGENCY_PARAMS);
+			if(emergency) {
+				state.emergencyParams = JSON.parse(emergency);
+			}
+			
+			//Init triggers
+			const triggers = Store.get(Store.TRIGGERS);
+			if(triggers) {
+				state.triggers = JSON.parse(triggers);
+				TriggerActionHandler.instance.triggers = state.triggers;
+			}
+				
+			//Init stream info presets
+			const presets = Store.get(Store.STREAM_INFO_PRESETS);
+			if(presets) {
+				state.streamInfoPreset = JSON.parse(presets);
+			}
+			
+			//Load bot messages
+			const botMessages = Store.get(Store.BOT_MESSAGES);
+			if(botMessages) {
+				//Merge remote and local to avoid losing potential new
+				//default values on local data
+				const localMessages = state.botMessages;
+				const remoteMessages = JSON.parse(botMessages);
+				// JSONPatch.applyPatch(localMessages, remoteMessages);
+				// JSONPatch.applyPatch(remoteMessages, localMessages);
+				for (const k in localMessages) {
+					const key = k as BotMessageField;
+					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
+						remoteMessages[key] = localMessages[key];
+					}
+					for (const subkey in localMessages[key]) {
+						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
+							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
+						}
+					}
+				}
+				state.botMessages = (remoteMessages as unknown) as IBotMessage;
+			}
+	
+			//Init spotify connection
+			const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
+			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
+				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+			}
+
+			//Init spotify credentials
+			const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
+			if(spotifyAuthToken && spotifyAppParams) {
+				this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+			}
+			
+			//Init OBS connection
+			//If params are specified on URL, use them (used by overlays)
+			let port = Utils.getQueryParameterByName("obs_port");
+			if(!port) port = Store.get(Store.OBS_PORT);
+			let pass = Utils.getQueryParameterByName("obs_pass");
+			if(!pass) pass = Store.get(Store.OBS_PASS);
+			let ip = Utils.getQueryParameterByName("obs_ip");
+			if(!ip) ip = Store.get(Store.OBS_IP);
+			if(port != undefined || pass != undefined || ip != undefined) {
+				OBSWebsocket.instance.connect(port, pass, true, ip);
+			}
 		},
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
