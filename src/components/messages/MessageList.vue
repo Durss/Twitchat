@@ -89,7 +89,7 @@
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
-				v-if="!lightMode && m.type == 'message' && m.tags['user-id'] && m.tags['user-id'] != userId">
+				v-if="!lightMode && m.type == 'message'">
 					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 				</div>
 			</div>
@@ -221,8 +221,6 @@ export default class MessageList extends Vue {
 	public get conversationStyles():StyleValue {
 		return { top: this.conversationPos+"px" }
 	}
-
-	public get userId():string { return UserSession.instance.authToken.user_id }
 
 	public async mounted():Promise<void> {
 		this.localMessages = store.state.chatMessages.concat().slice(-this.max);

@@ -260,7 +260,7 @@ export interface TimerData {
 	duration?:number;
 }
 
-export interface EmergencyParams {
+export interface EmergencyParamsData {
 	chatCmd:string;
 	chatCmdPerms:PermissionsData;
 	emotesOnly:boolean;
@@ -273,4 +273,8 @@ export interface EmergencyParams {
 	toUsers:string;
 	obsScene:string;
 	obsSources:string[];
+}
+
+export interface ChatHighlightOverlayData {
+	position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
 }

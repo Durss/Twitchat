@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import store from '@/store';
-import type { EmergencyParams, ParameterData, ParameterDataListValue, PermissionsData } from '@/types/TwitchatDataTypes';
+import type { EmergencyParamsData, ParameterData, ParameterDataListValue, PermissionsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -115,7 +115,7 @@ export default class ParamsEmergency extends Vue {
 		return sources;
 	}
 	
-	public get finalData():EmergencyParams {
+	public get finalData():EmergencyParamsData {
 		return {
 			chatCmd:this.param_chatCommand.value as string,
 			chatCmdPerms:this.chatCommandPerms,

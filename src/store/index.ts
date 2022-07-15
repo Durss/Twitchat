@@ -26,7 +26,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParams, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem, type ChatHighlightOverlayData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -225,11 +225,11 @@ const store = createStore({
 				highlightNonFollowers: 		{save:true, type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
 				highlightMentions: 			{save:true, type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
 				translateNames:				{save:true, type:"toggle", value:true, label:"Translate user names", id:22, icon:"translate_purple.svg", example:"translate.png"},
-				showEmotes: 				{save:true, type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
 				showViewersCount: 			{save:true, type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
-				bttvEmotes: 				{save:true, type:"toggle", value:false, label:"Show BTTV emotes", id:3, icon:"emote_purple.svg"},
-				ffzEmotes: 					{save:true, type:"toggle", value:false, label:"Show FFZ emotes", id:19, icon:"emote_purple.svg"},
-				sevenTVEmotes: 				{save:true, type:"toggle", value:false, label:"Show 7TV emotes", id:20, icon:"emote_purple.svg"},
+				showEmotes: 				{save:true, type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
+				bttvEmotes: 				{save:true, type:"toggle", value:false, label:"Show BTTV emotes", id:3, icon:"emote_purple.svg", parent:2},
+				ffzEmotes: 					{save:true, type:"toggle", value:false, label:"Show FFZ emotes", id:19, icon:"emote_purple.svg", parent:2},
+				sevenTVEmotes: 				{save:true, type:"toggle", value:false, label:"Show 7TV emotes", id:20, icon:"emote_purple.svg", parent:2},
 				showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
@@ -311,7 +311,11 @@ const store = createStore({
 				all:false,
 				users:""
 			},
-		} as EmergencyParams,
+		} as EmergencyParamsData,
+		isChatMessageHighlighted: false,
+		chatHighlightOverlayParams: {
+			position:"bl",
+		} as ChatHighlightOverlayData,
 	},
 
 
@@ -1174,9 +1178,49 @@ const store = createStore({
 			state.countdown = null;
 		},
 
-		setEmergencyParams(state, params:EmergencyParams) {
+		setEmergencyParams(state, params:EmergencyParamsData) {
 			state.emergencyParams = params;
 			Store.set(Store.EMERGENCY_PARAMS, params);
+		},
+
+		setChatHighlightOverlayParams(state, params:ChatHighlightOverlayData) {
+			state.chatHighlightOverlayParams = params;
+			Store.set(Store.CHAT_HIGHLIGHT_PARAMS, params);
+		},
+
+		
+		async highlightChatMessageOverlay(state, payload:IRCEventDataList.Message|null) {
+			let data:unknown = null;
+			if(payload) {
+				let [user] = await TwitchUtils.loadUserInfo([payload.tags['user-id'] as string]);
+				//Allow custom parsing of emotes only if it's a message of ours sent
+				//from twitchat to avoid killing performances.
+				//When seending a message, the one received back misses lots of info
+				//like the "id", in this case a custom ID is given that starts
+				//with "00000000"
+				const customParsing = payload.tags.id?.indexOf("00000000") == 0;
+				const chunks = TwitchUtils.parseEmotes(payload.message, payload.tags['emotes-raw'], false, customParsing);
+				let result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+					{}	let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/2x$/gi, "3x");//7TV format
+						url = url.replace(/1$/gi, "4");//FFZ format
+						result += "<img src='"+url+"' class='emote'>";
+					}
+				}
+				data = {message:result, user, params:state.chatHighlightOverlayParams};
+				state.isChatMessageHighlighted = true;
+			}else{
+				state.isChatMessageHighlighted = false;
+			}
+			
+			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
 		},
 
 		setEmergencyMode(state, enable:boolean) {
@@ -1310,7 +1354,7 @@ const store = createStore({
 				}
 			}
 
-			if(Store.syncToServer === true) {
+			if(Store.syncToServer === true && state.authenticated) {
 				await Store.loadRemoteData();
 			}
 
@@ -1647,6 +1691,10 @@ const store = createStore({
 				const enable = (e.data as unknown) as {enabled:boolean};
 				this.dispatch("setEmergencyMode", enable);
 			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+			});
 
 			const devmode = Store.get(Store.DEVMODE) === "true";
 			this.dispatch("toggleDevMode", devmode);
@@ -1701,6 +1749,12 @@ const store = createStore({
 			const emergency = Store.get(Store.EMERGENCY_PARAMS);
 			if(emergency) {
 				state.emergencyParams = JSON.parse(emergency);
+			}
+			
+			//Init chat highlight params
+			const chatHighlight = Store.get(Store.CHAT_HIGHLIGHT_PARAMS);
+			if(chatHighlight) {
+				state.chatHighlightOverlayParams = JSON.parse(chatHighlight);
 			}
 			
 			//Init triggers
@@ -1992,7 +2046,11 @@ const store = createStore({
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },
 		
-		setEmergencyParams({commit}, params:EmergencyParams) { commit("setEmergencyParams", params); },
+		setEmergencyParams({commit}, params:EmergencyParamsData) { commit("setEmergencyParams", params); },
+		
+		setChatHighlightOverlayParams({commit}, params:ChatHighlightOverlayData) { commit("setChatHighlightOverlayParams", params); },
+		
+		highlightChatMessageOverlay({commit}, payload:IRCEventDataList.Message|null) { commit("highlightChatMessageOverlay", payload); },
 		
 		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
 	},

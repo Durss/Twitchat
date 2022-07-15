@@ -38,7 +38,7 @@
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
 				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
 			</div>
-			<Button v-if="spotifyConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
+			<Button title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
 
 		<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">

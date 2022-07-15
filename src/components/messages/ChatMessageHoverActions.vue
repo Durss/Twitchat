@@ -4,14 +4,20 @@
 			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
-			v-if="!isSelf"
+			v-if="!isBroadcaster"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
 			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
-			v-if="!isSelf"
+			v-if="!isBroadcaster"
 			:loading="shoutoutLoading"
+			/>
+		<Button :aria-label="'Shoutout '+messageData.tags.username"
+			:icon="$image('icons/highlight.svg')"
+			data-tooltip="Highlight on stream"
+			@click="chatHighlight()"
+			:loading="highlightLoading"
 			/>
 	</div>
 </template>
@@ -19,7 +25,12 @@
 <script lang="ts">
 import store from '@/store';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
+import type { JsonObject } from 'type-fest';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -36,10 +47,9 @@ export default class ChatMessageHoverActions extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
 	public shoutoutLoading = false;
+	public highlightLoading = false;
 
-	public get isSelf():boolean {
-		return this.messageData.tags.username?.toLowerCase() == UserSession.instance.authToken.login.toLowerCase();
-	}
+	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id }
 
 	public trackUser():void {
 		store.dispatch("trackUser", this.messageData);
@@ -54,6 +64,13 @@ export default class ChatMessageHoverActions extends Vue {
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
+	}
+
+	public async chatHighlight():Promise<void> {
+		this.highlightLoading = true;
+		store.dispatch("highlightChatMessageOverlay", this.messageData);
+		await Utils.promisedTimeout(1000);
+		this.highlightLoading = false;
 	}
 }
 </script>

@@ -864,6 +864,13 @@ const UserDataSchema = {
 				},
 			}
 		},
+		chatHighlightParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				position:{type:"string", maxLength:2},
+			}
+		},
 	}
 }
 

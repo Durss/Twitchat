@@ -104,7 +104,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
-					:icon="$image('icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
+					:icon="$image('icons/'+($store.state.cypherEnabled? 'lock.svg' : 'unlock.svg'))"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
@@ -118,6 +118,15 @@
 					v-if="$store.state.deezerConnected"
 					data-tooltip="Deezer"
 					@click="$emit('setCurrentNotification', 'deezer')" />
+				</transition>
+
+				<transition name="blink">
+				<Button small highlight class="chatHighlight" aria-label="chatHighlight button"
+					:icon="$image('icons/highlight_del.svg?v=1')"
+					bounce
+					v-if="chatHighlightEnabled"
+					data-tooltip="Remove currently<br>highlihted message"
+					@click="removeChatHighlight()" />
 				</transition>
 
 				<transition name="blink">
@@ -235,6 +244,10 @@ export default class ChatForm extends Vue {
 
 	public get emergencyButtonEnabled():boolean {
 		return store.state.params.features.emergencyButton.value === true;
+	}
+
+	public get chatHighlightEnabled():boolean {
+		return store.state.isChatMessageHighlighted;
 	}
 
 	public get openAutoComplete():boolean {
@@ -542,6 +555,9 @@ export default class ChatForm extends Vue {
 		store.dispatch("setCypherEnabled", !store.state.cypherEnabled);
 	}
 
+	/**
+	 * Start the mergency mode
+	 */
 	public enableEmergencyMode():void {
 		if(!store.state.emergencyModeEnabled) {
 			this.$confirm("Enable emergency mode ?").then(()=>{
@@ -550,6 +566,13 @@ export default class ChatForm extends Vue {
 		}else{
 			store.dispatch("setEmergencyMode", false);
 		}
+	}
+
+	/**
+	 * Remove the currently highlighted message
+	 */
+	public removeChatHighlight():void {
+		store.dispatch("highlightChatMessageOverlay", null);
 	}
 
 	/**
