@@ -10,6 +10,11 @@
 			<p>Welcome on this channel <strong>{{messageData.tags["display-name"]}}</strong></p>
 		</div>
 
+		<div v-if="isReturning" class="header">
+			<img src="@/assets/icons/returning.svg" alt="new" class="icon">
+			<p><strong>{{messageData.tags["display-name"]}}</strong> is returning after +30 days</p>
+		</div>
+
 		<div v-if="automod" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
@@ -185,6 +190,11 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData as IRCEventDataList.Message;
 		return message.tags["msg-id"] == "user-intro";
 	}
+
+	public get isReturning():boolean {
+		const message = this.messageData as IRCEventDataList.Message;
+		return message.tags["returning-chatter"] == true;
+	}
 	
 	public get showNofollow():boolean{
 		if(store.state.params.appearance.highlightNonFollowers.value === true) {
@@ -211,7 +221,7 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData;
 
 		if(this.automod) res.push("automod");
-		if(this.firstTime || this.isPresentation) res.push("firstTimeOnChannel");
+		if(this.firstTime || this.isPresentation || this.isReturning) res.push("firstTimeOnChannel");
 		if(message.type == "whisper") {
 			res.push("whisper");
 		}else{
@@ -293,7 +303,7 @@ export default class ChatMessage extends Vue {
 			color = parseInt(message.tags.color.replace("#", ""), 16);
 		}
 		const hsl = Utils.rgb2hsl(color);
-		const minL = this.isPresentation || this.isAnnouncement || this.firstTime? .75 : .65;
+		const minL = this.isPresentation || this.isAnnouncement || this.firstTime || this.isReturning? .75 : .65;
 		if(hsl.l < minL) {
 			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
 		}
