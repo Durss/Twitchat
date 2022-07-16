@@ -31,10 +31,7 @@ export default class App extends Vue {
 	private resizeHandler!:() => void;
 
 	public get showLoader():boolean {
-		return !this.authenticated && this.$route.meta.noBG !== true && store.state.initComplete;
-	}
-	public get authenticated():boolean {
-		return store.state.authenticated || (this.$route.meta.needAuth !== true && store.state.initComplete);
+		return !store.state.initComplete;
 	}
 
 	public get classes():string[] {
@@ -69,10 +66,6 @@ export default class App extends Vue {
 	height: var(--vh);
 	font-size: 20px;
 	overflow: hidden;
-
-	.loader-init {
-		transform:scale(10);
-	}
 
 	&.overflow {
 		overflow: auto;

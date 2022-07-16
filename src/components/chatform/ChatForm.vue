@@ -472,7 +472,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/tip") {
-			store.dispatch("sendTwitchatAd", TwitchatAdTypes.TIP);
+			store.dispatch("sendTwitchatAd", TwitchatAdTypes.TIP_AND_TRICK);
 			this.message = "";
 		}else
 
@@ -760,6 +760,9 @@ export default class ChatForm extends Vue {
 				&:hover {
 					background-color: fade(@mainColor_light, 20%) !important;
 				}
+			}
+			.button.emergency {
+				margin-left: .5em;
 			}
 
 			.blink-enter-active {

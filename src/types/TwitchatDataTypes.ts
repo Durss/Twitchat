@@ -195,7 +195,7 @@ export interface PermissionsData {
 export const TwitchatAdTypes = {
 	SPONSOR:1,
 	UPDATES:2,
-	TIP:3,
+	TIP_AND_TRICK:3,
 	DISCORD:4,
 }
 

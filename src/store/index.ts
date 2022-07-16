@@ -420,11 +420,17 @@ const store = createStore({
 			if(contentID == -1) {
 				let possibleAds = [];
 				possibleAds.push(TwitchatAdTypes.SPONSOR);
-				possibleAds.push(TwitchatAdTypes.TIP);
+				//Give more chances to hae anything but the "sponsor" ad
+				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatAdTypes.DISCORD);
+				possibleAds.push(TwitchatAdTypes.DISCORD);
 				possibleAds.push(TwitchatAdTypes.DISCORD);
 
 				const lastUpdateRead = parseInt(Store.get(Store.UPDATE_INDEX));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
+					//Force last updates if any not read
 					possibleAds = [TwitchatAdTypes.UPDATES];
 				}else{
 					//Add 2 empty slots for every content type available

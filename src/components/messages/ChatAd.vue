@@ -3,8 +3,8 @@
 		<div v-if="isSponsor" class="sponsor">
 			<div class="title">🍔 I like food 🍔</div>
 			<div class="content">Are you enjoying <strong>Twitchat</strong> ?<br>
-			It took me a lot of time and efforts to create.<br>
-			Twitchat is free, but if you can afford it, any tip would really <strong>make my day brighter</strong>!</div>
+			It took <strong>months</strong> of my life to create.<br>
+			Twitchat is free, but <strong>if you can afford it</strong>, any tip would really make my day brighter!</div>
 			<div class="cta">
 				<img @click.stop="openParamPage('sponsor')" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 				<Button aria-label="Open tip options" @click.stop="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
@@ -136,7 +136,7 @@ export default class ChatAd extends Vue {
 
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
-	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP; }
+	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }

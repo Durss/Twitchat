@@ -2,8 +2,8 @@
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
 		<div class="title">Add overlays to your stream</div>
-		<p class="infos">In order to work, the overlays need Twitchat to be running.</p>
-		<p class="beta">These are beta features that need more testing. If you have any issue with one of them <a :href="discordURL" target="_blank">please let me know on Discord</a></p>
+		<!-- <p class="infos">In order to work, the overlays need Twitchat to be running.</p> -->
+		<p class="beta" v-if="exchangeChannelAvailable">These are beta features that need more testing. If you have any issue with one of them <a :href="discordURL" target="_blank">please let me know on Discord</a></p>
 		
 		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsTimer class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
@@ -12,8 +12,15 @@
 		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
-			<div>This features needs you to connect with OBS or add Twitchat as an OBS dock.</div>
-			<Button class="button" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
+			<div>These features need you to</div>
+			<Button class="button" :icon="$image('icons/obs_purple.svg')" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
+			<div class="or">or</div>
+			<Button class="button" :icon="$image('icons/twitchat_purple.svg')" title="Dock Twitchat on OBS" white @click="showDockTutorial = true" v-if="!showDockTutorial" />
+			<Button class="button" :icon="$image('icons/cross.svg')" title="Close" white @click="showDockTutorial = false" v-if="showDockTutorial" />
+			<div v-if="showDockTutorial" class="dockTuto">
+				<div class="row">On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way</div>
+				<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
+			</div>
 		</div>
 	</div>
 </template>
@@ -43,6 +50,8 @@ import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
 	emits:["setContent"]
 })
 export default class ParamsOverlays extends Vue {
+
+	public showDockTutorial:boolean = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return PublicAPI.instance.localConnectionAvailable; }
@@ -105,6 +114,19 @@ export default class ParamsOverlays extends Vue {
 		margin-top: 1em;
 		.button {
 			margin-top: .5em;
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.or {
+			margin-top: .5em;
+		}
+		.dockTuto {
+			margin-top: 1em;
+			img {
+				margin-top: .5em;
+				max-width: 100%;
+			}
 		}
 	}
 	.block {
