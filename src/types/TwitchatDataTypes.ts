@@ -1,4 +1,5 @@
 import type { ChatUserstate } from "tmi.js";
+import type { TwitchDataTypes } from "./TwitchDataTypes";
 
 export type ParamsContenType = 'appearance'
 							| 'filters'
@@ -273,6 +274,13 @@ export interface EmergencyParamsData {
 	toUsers:string;
 	obsScene:string;
 	obsSources:string[];
+}
+
+export interface ChatHighlightInfo {
+	type:"chatOverlayHighlight",
+	message?:string,
+	user?:TwitchDataTypes.UserInfo,
+	params?:ChatHighlightOverlayData,
 }
 
 export interface ChatHighlightOverlayData {

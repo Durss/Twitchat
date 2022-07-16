@@ -23,6 +23,7 @@ export const TriggerTypes = {
 	COUNTDOWN_STOP:"18",
 	EMERGENCY_MODE_START:"20",
 	EMERGENCY_MODE_STOP:"21",
+	HIGHLIGHT_CHAT_MESSAGE:"22",
 }
 
 export interface ITriggerActionHelper {
@@ -128,6 +129,12 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"DURATION", desc:"Countdown's duration formated", pointer:"duration"},
 		{tag:"DURATION_MS", desc:"Countdown's duration in milliseconds", pointer:"duration_ms"},
 	];
+	
+	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [
+		{tag:"AVATAR", desc:"User's avatar", pointer:"user.profile_image_url"},
+		{tag:"USER", desc:"User's name", pointer:"user.display_name"},
+		{tag:"MESSAGE", desc:"Message without emotes", pointer:"message"},
+	];
 
 	//If requesting chat command helpers and there is a music
 	//service available, contact the music service helpers
@@ -161,6 +168,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Countdown stop", value:TriggerTypes.COUNTDOWN_STOP, description:"Execute an action when a countdown completes or is stoped"},
 	{label:"Emergency start", value:TriggerTypes.EMERGENCY_MODE_START, description:"Execute an action when enabling the emergency mode"},
 	{label:"Emergency stop", value:TriggerTypes.EMERGENCY_MODE_STOP, description:"Execute an action when stopping the emergency mode"},
+	{label:"Highlight message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", jsonTest:{"type":"chatOverlayHighlight","message":"This is a test message for the chat highlight feature !","user":{"id":"29961813","login":"durss","display_name":"Durss","type":"","broadcaster_type":"affiliate","description":"Blablabla","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/c43305dd-d577-4369-b60b-df0a4acdb7d8-channel_offline_image-1920x1080.jpeg","view_count":15289,"created_at":"2012-04-21T23:01:18Z"},"id":"d97d6594-6cc4-4400-b4f4-e3b688263fa2","params":{"position":"bl"}}},
 ]
 
 export const TriggerMusicTypes = {

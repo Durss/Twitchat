@@ -13,7 +13,7 @@
 		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
 		<ToggleBlock small class="helper"
-			v-if="(isTextSource || isBrowserSource) && getHelpers(event)?.length > 0"
+			v-if="(isTextSource || isBrowserSource || isMediaSource) && getHelpers(event)?.length > 0"
 			title="Special placeholders dynamically replaced"
 			:open="false"
 		>

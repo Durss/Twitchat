@@ -1,4 +1,4 @@
-import type { EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -39,6 +39,7 @@ export default class TriggerActionHandler {
 	static get instance():TriggerActionHandler {
 		if(!TriggerActionHandler._instance) {
 			TriggerActionHandler._instance = new TriggerActionHandler();
+			TriggerActionHandler._instance.initialize();
 		}
 		return TriggerActionHandler._instance;
 	}
@@ -167,6 +168,11 @@ export default class TriggerActionHandler {
 			if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
+
+		}else if(message.type == "chatOverlayHighlight") {
+			if(await this.handleHighlightOverlay(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
 		// console.log("Message not matching any trigger", message);
@@ -179,6 +185,14 @@ export default class TriggerActionHandler {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	private initialize():void {
+		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+			const data = (e.data as unknown) as ChatHighlightInfo;
+			data.type = "chatOverlayHighlight";
+			this.onMessage(data, false)
+		});
+	}
+
 	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
@@ -262,6 +276,10 @@ export default class TriggerActionHandler {
 		message.duration = Utils.formatDuration(message.data.duration as number);
 		message.duration_ms = message.data.duration;
 		return await this.parseSteps(type, message, testMode, guid);
+	}
+	
+	private async handleHighlightOverlay(message:ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
 	}
 	
 	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
@@ -348,13 +366,20 @@ export default class TriggerActionHandler {
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
-							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
+							const url = await this.parseText(eventType, message, step.mediaPath as string);
+							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 						}
 			
 						if(step.filterName) {
 							await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
 						}else{
-							await OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
+							let show = step.show;
+							//If requesting to hide the highlighted message, force source to hide
+							if(eventType == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
+							&& message.type == "chatOverlayHighlight" && (!message.message || message.message.length===0)) {
+								show = false;
+							}
+							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
 						}
 					}else
 					
@@ -497,7 +522,7 @@ export default class TriggerActionHandler {
 
 			if(h.tag === "MESSAGE") {
 				const m = message as IRCEventDataList.Highlight;
-				if(m.message) {
+				if(m.message && m.tags) {
 					//Parse emotes
 					const chunks = TwitchUtils.parseEmotes(m.message as string, m.tags['emotes-raw'], true);
 					let cleanMessage = ""
@@ -509,6 +534,8 @@ export default class TriggerActionHandler {
 						}
 					}
 					value = cleanMessage.trim();
+				}else{
+					value = m.message;
 				}
 			}
 
@@ -560,4 +587,5 @@ type MessageTypes = IRCEventDataList.Message
 | MusicMessage
 | StreamInfoUpdate
 | EmergencyModeUpdate
+| ChatHighlightInfo
 ;

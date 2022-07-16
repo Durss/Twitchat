@@ -26,7 +26,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem, type ChatHighlightOverlayData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem, type ChatHighlightOverlayData, type ChatHighlightInfo } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -1216,8 +1216,15 @@ const store = createStore({
 				}
 				data = {message:result, user, params:state.chatHighlightOverlayParams};
 				state.isChatMessageHighlighted = true;
+
+				const clonedData:ChatHighlightInfo = JSON.parse(JSON.stringify(data));
+				clonedData.type = "chatOverlayHighlight";
+				TriggerActionHandler.instance.onMessage(clonedData);
 			}else{
 				state.isChatMessageHighlighted = false;
+
+				const clonedData:ChatHighlightInfo = {type: "chatOverlayHighlight"};
+				TriggerActionHandler.instance.onMessage(clonedData);
 			}
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
