@@ -13,6 +13,7 @@ export type ParamsContenType = 'appearance'
 							| 'triggers'
 							| 'overlays'
 							| 'emergency'
+							| 'spoiler'
 							| null ;
 
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
@@ -285,4 +286,8 @@ export interface ChatHighlightInfo {
 
 export interface ChatHighlightOverlayData {
 	position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+}
+
+export interface SpoilerParamsData {
+	permissions:PermissionsData;
 }

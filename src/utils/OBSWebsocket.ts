@@ -4,6 +4,7 @@ import { reactive } from 'vue';
 import { EventDispatcher } from './EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
 import TwitchatEvent from './TwitchatEvent';
+import Utils from './Utils';
 
 /**
 * Created : 29/03/2022 
@@ -233,7 +234,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setCurrentScene(name:string):Promise<void> {
 		if(!this.connected) return;
 		
-		return await this.obs.call("SetCurrentProgramScene", {sceneName:name});
+		await this.obs.call("SetCurrentProgramScene", {sceneName:name});
 	}
 
 	/**
@@ -242,10 +243,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param text 
 	 */
-	public setTextSourceContent(sourceName:string, text:string):void {
+	public async setTextSourceContent(sourceName:string, text:string):Promise<void> {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
 	}
 
 	/**
@@ -255,11 +256,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param filterName 
 	 * @param visible 
 	 */
-	public setFilterState(sourceName:string, filterName:string, visible:boolean):void {
+	public async setFilterState(sourceName:string, filterName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
 		
 		//@ts-ignore ("SetSourceFilterEnabled" not yet defined on obs-websocket-js)
-		this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
+		await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
+		await Utils.promisedTimeout(20);
 	}
 
 	/**
@@ -270,14 +272,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
-
+		
+		//FIXME if the requested source is on multiple scenes, this will only toggle one of them
 		const item = await this.getSourceOnCurrentScene(sourceName);
 		if(item) {
-			this.obs.call("SetSceneItemEnabled", {
+			await this.obs.call("SetSceneItemEnabled", {
 				sceneName:item.scene,
 				sceneItemId:item.source.sceneItemId,
 				sceneItemEnabled:visible
 			});
+			await Utils.promisedTimeout(20);
 		}
 	}
 
@@ -321,7 +325,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
 		if(!this.connected) return;
 		
-		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
+		await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
 	}
 
 	/**
@@ -330,10 +334,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param url 
 	 */
-	public setBrowserSourceURL(sourceName:string, url:string):void {
+	public async setBrowserSourceURL(sourceName:string, url:string):Promise<void> {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
 	}
 
 	/**
@@ -342,10 +346,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param url 
 	 */
-	public setMediaSourceURL(sourceName:string, url:string):void {
+	public async setMediaSourceURL(sourceName:string, url:string):Promise<void> {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
 	}
 	
 	

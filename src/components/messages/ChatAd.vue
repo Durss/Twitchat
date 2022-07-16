@@ -19,57 +19,46 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<Button aria-label="open stream infos params" small title="try it" @click.stop="openModal('streamInfo')" />
-							<span>Edit your <strong>stream infos</strong> and create presets.</span>
+							<Button aria-label="open emergency params" small title="try it" @click.stop="showSpecificParam('features.emergencyButton')" />
+							<span>You can now better <strong>protect yourself from doxxing</strong> thanks to a new <strong>Emergency button</strong></span>
 						</li>
 						<li>
-							<span>New <span class="cmd">/countdown</span> command to start a countdown of a custom duration</span>
+							<Button aria-label="open spoiler param" small title="try it" @click.stop="showSpecificParam('features.spoilersEnabled')" />
+							<span>Protect yourself from <strong>spoilers</strong> by allowing your viewers to hide the content of their messages from you</span>
 						</li>
 						<li>
-							<span>New <span class="cmd">/timerStart</span> command to time anything you want</span>
+							<Button aria-label="open spoiler param" small title="try it" @click.stop="openParamPage('overlays')" />
+							<span>A new overlay allows you to <strong>highlight any chat message</strong> on your stream. <a href="https://www.youtube.com/watch?v=x9RCqbRm6A8" target="_blank"><strong>See demo</strong></a></span>
 						</li>
 						<li>
-							<Button aria-label="open timer overlay params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span>New timer and countdown <strong>overlay</strong></span>
+							<Button aria-label="open sync param" small title="edit" @click.stop="openParamPage('account')" />
+							<span>Your data are now synced between multiple browsers and computers. <strong>PLEASE let me know if you have any data loss issue!</strong></span>
 						</li>
 						<li>
-							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
-							<span>New timer and countdown <strong>triggers</strong></span>
+							<span>Handling the new beta Twitch feature "<strong>returning chatter</strong>". A user's message will be highlighted if s·he hasn't wrote on your chat for +30 days</span>
 						</li>
 						<li>
-							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
-							<span>New stream info update <strong>trigger</strong></span>
-						</li>
-						<li>
-							<span>You can now easily <strong>enable or disable triggers</strong></span>
-						</li>
-						<li>
-							<span>Raffle can now send confirmation message when a viewer enters</span>
-						</li>
-						<li>
-							<span>Raffle timer can be displayed on your stream with the new overlay</span>
+							<span><strong>New triggers</strong> related to emergency and chat highlight features availabled</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
 						<li>
-							<Button aria-label="open about section" small title="open" @click.stop="openParamPage('about')" />
-							<span>Twitchat API documentation added to about section</span>
+							<Button aria-label="open no follow param" small title="open no follow" @click.stop="showSpecificParam('appearance.highlightNonFollowers')" />
+							<span>If "no follow" feature is enabled, hovering , hovering the users button on the chat bar will show you how many of them are following or not</span>
 						</li>
-						<li>You can now resize the <strong>Greet them</strong> section as you wish</li>
-						<li><strong>Founders badge</strong> now displayed in the mini-badges</li>
-						<li>First load size of the app reduced by 50%</li>
-						<li>When changing the stream info a chat notification will be displayed</li>
-						<li>Improved message list performance</li>
+						<li>You can now pick multiple winners from a raffle</li>
+						<li>Minibadge now shows Twitch Ambassadors</li>
+						<li>Users that have not defined any specific color will be given a random one <i>(instead of always purple until now)</i></li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
-						<li>Triggers could get stuck which was blocking chat commands execution</li>
-						<li>Closing a bingo wasn't possible</li>
-						<li>Raffle, Bingo, Prediction and Poll triggers weren't fully implemented <i>(woops :3)</i></li>
-						<li>2min timeout was doing a 30min timeout</li>
+						<li>Spotify authentication could fail and prevent you from completing overlay's configuration.</li>
+						<li>It was not possible to send a message ending with @ or : followed by only one char.</li>
+						<li>When splitting screen vertically the top elements <i>(greet them + activity feed)</i> weren't filling up the space until items were added.</li>
+						<li>Auto scrolldown of the "greet them" section was broken</li>
 					</ul>
 				</ToggleBlock>
 			</div>

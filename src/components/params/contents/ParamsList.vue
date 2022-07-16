@@ -35,7 +35,7 @@
 				</div>
 
 				<div v-else-if="p.id == 216 && p.value === true" class="info spoiler">
-					<p class="label">Messages starting by <strong>||</strong> will be masked by default and revealed on hover</p>
+					<Button title="Configure" @click="$emit('setContent', 'spoiler')" />
 				</div>
 			</transition>
 		</div>
@@ -167,7 +167,7 @@ export default class ParamsList extends Vue {
 			}
 		}
 
-		&.emergency {
+		&.emergency, &.spoiler {
 			text-align: center;
 		}
 	}

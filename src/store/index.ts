@@ -26,14 +26,14 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem, type ChatHighlightOverlayData, type ChatHighlightInfo } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem, type ChatHighlightOverlayData, type ChatHighlightInfo, type SpoilerParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 4,
+		latestUpdateIndex: 5,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
@@ -312,6 +312,15 @@ const store = createStore({
 				users:""
 			},
 		} as EmergencyParamsData,
+		spoilerParams: {
+			permissions:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as SpoilerParamsData,
 		isChatMessageHighlighted: false,
 		chatHighlightOverlayParams: {
 			position:"bl",
@@ -1188,12 +1197,16 @@ const store = createStore({
 			state.emergencyParams = params;
 			Store.set(Store.EMERGENCY_PARAMS, params);
 		},
-
+		
 		setChatHighlightOverlayParams(state, params:ChatHighlightOverlayData) {
 			state.chatHighlightOverlayParams = params;
 			Store.set(Store.CHAT_HIGHLIGHT_PARAMS, params);
 		},
-
+		
+		setSpoilerParams(state, params:SpoilerParamsData) {
+			state.spoilerParams = params;
+			Store.set(Store.SPOILER_PARAMS, params);
+		},
 		
 		async highlightChatMessageOverlay(state, payload:IRCEventDataList.Message|null) {
 			let data:unknown = null;
@@ -1394,7 +1407,6 @@ const store = createStore({
 				}
 			}
 
-			//TODO load all data here 
 			this.dispatch("loadDataFromStorage");
 
 			PublicAPI.instance.initialize();
@@ -1496,8 +1508,8 @@ const store = createStore({
 					}
 				}
 
-				//check if it's a command to control OBS scene
 				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+					//check if it's a command to control OBS scene
 					if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
 						const cmd = messageData.message.trim().toLowerCase();
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
@@ -1518,14 +1530,27 @@ const store = createStore({
 							}
 						}
 					}
-				}
-
-				//check if its a command to start the emergency mode
-				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+					
+					//check if its a command to start the emergency mode
 					if(Utils.checkPermissions(state.emergencyParams.chatCmdPerms, messageData.tags)) {
 						const cmd = messageData.message.trim().toLowerCase();
 						if(cmd===state.emergencyParams.chatCmd) {
 							commit("setEmergencyMode", true);
+						}
+					}
+
+					//check if its a spoiler request
+					if(messageData.tags["reply-parent-msg-id"] && Utils.checkPermissions(state.spoilerParams.permissions, messageData.tags)) {
+						const cmd = messageData.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
+						if(cmd.indexOf("!spoiler") === 0) {
+							//Search for original message the user answered to
+							for (let i = 0; i < state.chatMessages.length; i++) {
+								const c = state.chatMessages[i] as IRCEventDataList.Message;
+								if(c.tags.id === messageData.tags["reply-parent-msg-id"]) {
+									c.message = "|| "+c.message;
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -1762,6 +1787,12 @@ const store = createStore({
 			const emergency = Store.get(Store.EMERGENCY_PARAMS);
 			if(emergency) {
 				state.emergencyParams = JSON.parse(emergency);
+			}
+			
+			//Init spoiler actions
+			const spoiler = Store.get(Store.SPOILER_PARAMS);
+			if(spoiler) {
+				state.spoilerParams = JSON.parse(spoiler);
 			}
 			
 			//Init chat highlight params
@@ -2064,6 +2095,8 @@ const store = createStore({
 		setChatHighlightOverlayParams({commit}, params:ChatHighlightOverlayData) { commit("setChatHighlightOverlayParams", params); },
 		
 		highlightChatMessageOverlay({commit}, payload:IRCEventDataList.Message|null) { commit("highlightChatMessageOverlay", payload); },
+		
+		setSpoilerParams({commit}, params:SpoilerParamsData) { commit("setSpoilerParams", params); },
 		
 		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
 	},

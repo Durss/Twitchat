@@ -29,6 +29,7 @@
 				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
 				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
 				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
+				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
@@ -61,6 +62,7 @@ import ParamItem from './ParamItem.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
+import ParamsSpoiler from './contents/ParamsSpoiler.vue';
 
 @Options({
 	props:{},
@@ -71,6 +73,7 @@ import ParamsEmergency from './contents/ParamsEmergency.vue';
 		ParamsList,
 		ParamsAbout,
 		ToggleButton,
+		ParamsSpoiler,
 		ParamsAccount,
 		ParamsSponsor,
 		ParamsOverlays,
@@ -107,7 +110,6 @@ export default class Parameters extends Vue {
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
 			this.content = v.replace("CONTENT:", "") as ParamsContenType;
-			store.state.tempStoreValue = null;
 
 		}else if(v.indexOf("SEARCH:") === 0) {
 			//Prefilled search
@@ -118,6 +120,7 @@ export default class Parameters extends Vue {
 				this.search = store.state.params[cat][paramKey].label;
 			}
 		}
+		store.state.tempStoreValue = null;
 	}
 
 	public async mounted():Promise<void> {
@@ -153,6 +156,7 @@ export default class Parameters extends Vue {
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 			this.showMenu = false;
+			this.filteredParams = [];
 			store.dispatch("showParams", false);
 		}});
 	}

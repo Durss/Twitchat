@@ -379,6 +379,7 @@ export default class TriggerActionHandler {
 							&& message.type == "chatOverlayHighlight" && (!message.message || message.message.length===0)) {
 								show = false;
 							}
+							console.log("SHOW?", show, step.sourceName);
 							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
 						}
 					}else

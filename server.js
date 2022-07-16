@@ -864,6 +864,23 @@ const UserDataSchema = {
 				},
 			}
 		},
+		spoilerParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				permissions:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
+			}
+		},
 		chatHighlightParams: {
 			type:"object",
 			additionalProperties: false,
