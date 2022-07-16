@@ -20,7 +20,7 @@ export default class Store {
 	public static GREET_AUTO_HEIGHT:string = "greetHeight";
 	public static OBS_PORT:string = "obsPort";
 	public static OBS_PASS:string = "obsPass";
-	public static OBS_IP:string = "obsIp";
+	public static OBS_IP:string = "obsIP";
 	public static OBS_CONF_SCENES:string = "obsConf_scenes";
 	public static OBS_CONF_MUTE_UNMUTE:string = "obsConf_muteUnmute";
 	public static OBS_CONF_PERMISSIONS:string = "obsConf_permissions";
