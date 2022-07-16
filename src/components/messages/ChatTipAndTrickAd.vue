@@ -92,6 +92,17 @@
 			<div class="row">On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong></div>
 			<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
 		</div>
+		
+		<div v-if="tipIndex===11" class="entry">
+			<img src="@/assets/icons/highlight_purple.svg" alt="chat highlight" class="icon">
+			<h1 class="row">Highlight chat message</h1>
+			<div class="row">You want to show a viewer's message on your stream?</div>
+			<div class="row">You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on the button shown bellow</div>
+			<img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen">
+			<Button class="row" title="Configure overlay" @click.stop="openParam('overlays')" :icon="$image('icons/overlay.svg')" />
+			<div class="row">OR</div>
+			<Button class="row" title="Configure trigger" @click.stop="openParam('triggers')" :icon="$image('icons/broadcast.svg')" />
+		</div>
 	</div>
 </template>
 
@@ -110,8 +121,8 @@ import Button from '../Button.vue';
 })
 export default class ChatTipAndTrickAd extends Vue {
 
-	public tipIndex = 10;
-	private maxIndex = 10;
+	public tipIndex = 11;
+	private maxIndex = this.tipIndex;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
@@ -151,6 +162,10 @@ export default class ChatTipAndTrickAd extends Vue {
 			&:not(:first-of-type) {
 				margin-top: .5em;
 			}
+		}
+		
+		img {
+			max-width: 100%;
 		}
 	}
 }
