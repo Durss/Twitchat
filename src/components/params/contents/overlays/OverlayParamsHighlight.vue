@@ -72,6 +72,10 @@
 			<div class="row center" v-if="!overlayExists">
 				<span class="error">- overlay not configured or hidden -</span>
 			</div>
+			
+			<div class="row footer">
+				<div>Check out <a href="https://featured.chat" target="_blank">featured.chat</a> for a dedicated tool doing this with much more options</div>
+			</div>
 		</div>
 
 	</ToggleBlock>
@@ -234,6 +238,11 @@ export default class OverlayParamsHighlight extends Vue {
 						}
 					}
 				}
+			}
+
+			&.footer {
+				font-size: .8em;
+				font-style: italic;
 			}
 
 			ul {
