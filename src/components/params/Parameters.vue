@@ -21,7 +21,7 @@
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
 			<div class="content">
-				<ParamsList v-if="content && isGenericListContent" :category="content" @setContent="setContent" />
+				<ParamsList v-if="(content && isGenericListContent) || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" @setContent="setContent" />
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
@@ -33,10 +33,10 @@
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
-					<ParamItem v-for="d in filteredParams"
+					<!-- <ParamItem v-for="d in filteredParams"
 						:key="d.id"
 						:paramData="d"
-					/>
+					/> -->
 				</div>
 			</div>
 		</div>
@@ -121,6 +121,10 @@ export default class Parameters extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		watch(() => this.content, () => {
+			if(this.content) this.filteredParams = [];
+		});
+
 		watch(() => this.search, (value:string) => {
 			if(value.length == 0) {
 				this.content = this.prevContent;

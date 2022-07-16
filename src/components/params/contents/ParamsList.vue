@@ -55,6 +55,7 @@ import Button from '../../Button.vue';
 @Options({
 	props:{
 		category:String,
+		filteredParams:Object,
 	},
 	components:{
 		Button,
@@ -66,6 +67,7 @@ import Button from '../../Button.vue';
 export default class ParamsList extends Vue {
 
 	public category!:ParameterCategory;
+	public filteredParams!:ParameterData[];
 
 	public get isOBSConnected():boolean {
 		return OBSWebsocket.instance.connected;
@@ -93,11 +95,20 @@ export default class ParamsList extends Vue {
 	}
 
 	public get params():{[key:string]:ParameterData} {
-		if(!this.category) return {};
 		let res:{[key:string]:ParameterData} = {};
-		for (const key in store.state.params[this.category]) {
-			if(store.state.params[this.category][key].parent) continue;
-			res[key] = (store.state.params[this.category] as {[key:string]:ParameterData})[key] as ParameterData;
+		if(this.filteredParams?.length > 0) {
+			for (let i = 0; i < this.filteredParams.length; i++) {
+				const p = this.filteredParams[i];
+				res[(p.id as number)?.toString()] = p;
+			}
+
+		}else{
+			if(!this.category) return {};
+
+			for (const key in store.state.params[this.category]) {
+				if(store.state.params[this.category][key].parent) continue;
+				res[key] = (store.state.params[this.category] as {[key:string]:ParameterData})[key] as ParameterData;
+			}
 		}
 		return res;
 	}
