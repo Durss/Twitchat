@@ -24,7 +24,7 @@
 						</li>
 						<li>
 							<Button aria-label="open spoiler param" small title="try it" @click.stop="showSpecificParam('features.spoilersEnabled')" />
-							<span>Protect yourself from <strong>spoilers</strong> by allowing your viewers to hide the content of their messages from you</span>
+							<span>Protect yourself from <strong>spoilers</strong> by allowing your viewers to hide the content of their messages from you. You can allow your mods to mark a message as spoiler instead of deleting it.</span>
 						</li>
 						<li>
 							<Button aria-label="open spoiler param" small title="try it" @click.stop="openParamPage('overlays')" />
@@ -38,7 +38,7 @@
 							<span>Handling the new beta Twitch feature "<strong>returning chatter</strong>". A user's message will be highlighted if s·he hasn't wrote on your chat for +30 days</span>
 						</li>
 						<li>
-							<span><strong>New triggers</strong> related to emergency and chat highlight features availabled</span>
+							<span><strong>New triggers</strong> related to emergency and chat highlight features available</span>
 						</li>
 					</ul>
 				</ToggleBlock>
@@ -46,10 +46,13 @@
 					<ul>
 						<li>
 							<Button aria-label="open no follow param" small title="open no follow" @click.stop="showSpecificParam('appearance.highlightNonFollowers')" />
-							<span>If "no follow" feature is enabled, hovering , hovering the users button on the chat bar will show you how many of them are following or not</span>
+							<span>If "no follow" feature is enabled, hovering the users button on the chat bar will show you how many of them are following or not</span>
 						</li>
 						<li>You can now pick multiple winners from a raffle</li>
-						<li>Minibadge now shows Twitch Ambassadors</li>
+						<li>
+							<Button aria-label="open minibadge param" small title="mini badges" @click.stop="showSpecificParam('appearance.minimalistBadges')" />
+							<span>Added mini badge for Twitch Ambassadors</span>
+						</li>
 						<li>Users that have not defined any specific color will be given a random one <i>(instead of always purple until now)</i></li>
 					</ul>
 				</ToggleBlock>
