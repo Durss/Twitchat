@@ -2,6 +2,8 @@
 	<ToggleBlock :open="false" class="overlayparamshighlight" title="Message highlight" :icons="['highlight_purple']">
 		<div>If you add this overlay on OBS you'll be able to display any chat message on your stream like this:</div>
 		
+		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		
 		<div class="content">
 			<div class="row">
 				<label for="spotify_overlay_url">Set this in an OBS browser source to display the highlighted message:</label>
@@ -256,6 +258,12 @@ export default class OverlayParamsHighlight extends Vue {
 			img {
 				margin-top: .5em;
 			}
+		}
+
+		iframe {
+			margin-top: .5em;
+			width: 100%;
+			aspect-ratio: 16 / 9;
 		}
 	}
 }
