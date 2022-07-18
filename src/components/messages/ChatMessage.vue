@@ -611,6 +611,9 @@ export default class ChatMessage extends Vue {
 				background-color: transparent;
 			}
 		}
+		&:not(:hover):deep(.emote) {
+			opacity: 0;
+		}
 	}
 
 	.infos {
