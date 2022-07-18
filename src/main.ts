@@ -1,3 +1,4 @@
+import { createPopper } from '@popperjs/core';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/all';
 import { createApp } from 'vue';
@@ -10,37 +11,9 @@ import router from './router';
 import store from './store';
 import Store from './store/Store';
 import StoreProxy from './utils/StoreProxy';
-import UserSession from './utils/UserSession';
 import Utils from './utils/Utils';
-import { createPopper } from '@popperjs/core';
 
 gsap.registerPlugin(ScrollToPlugin);
-
-let tokenRefreshScheduled = false;
-
-/**
- * Refreshes the oauth token when necessary
- */
-async function scheduleTokenRefresh():Promise<void> {
-	if(!UserSession.instance.authResult) return;
-
-	const expire = UserSession.instance.authResult.expires_in;
-	let delay = Math.max(0,expire*1000 - 60000 * 5);
-	//Refresh at least every 1h
-	const maxDelay = 1000 * 60 * 60;
-	if(delay > maxDelay) delay = maxDelay;
-
-	console.log("Refresh token in", delay);
-	window.setTimeout(()=>{
-		store.dispatch("authenticate", {forceRefresh:true, cb:(success:boolean)=>{
-			if(success) {
-				scheduleTokenRefresh();
-			}else{
-				router.push({name: 'login'});
-			}
-		}});
-	}, delay);
-}
 
 /**
  * Add route guards for login
@@ -79,11 +52,6 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 		//Already authenticated, reroute to chat
 		next({name: 'chat'});
 		return;
-	}
-
-	if(needAuth && !tokenRefreshScheduled) {
-		tokenRefreshScheduled = true;
-		scheduleTokenRefresh();
 	}
 
 	next();

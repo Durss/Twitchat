@@ -7,7 +7,7 @@
 				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
-				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'emergency'" />
+				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'emergency' || content == 'spoiler'" />
 				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />

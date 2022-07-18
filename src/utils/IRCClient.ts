@@ -31,6 +31,7 @@ export default class IRCClient extends EventDispatcher {
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
 	private reconnectInterval = -1;
+	private refreshingToken = false;
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
 	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
@@ -137,7 +138,10 @@ export default class IRCClient extends EventDispatcher {
 					console.log("IRCClient :: Connection succeed");
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
-					this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
+					if(!this.refreshingToken) {
+						this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
+					}
+					this.refreshingToken = false;
 				}else{
 					if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
@@ -303,15 +307,17 @@ export default class IRCClient extends EventDispatcher {
 					return;
 				}
 				this.connected = false;
-				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
+				if(!this.refreshingToken) {
+					this.sendNotice("offline", "You have been disconnected from the chat :(");
+				}
 				
-				clearInterval(this.reconnectInterval);
-				//Check 5s later if we are still disconnected and manually try to reconnect
-				this.reconnectInterval = setInterval(()=> {
-					if(!this.connected) this.client.connect();
-					else clearInterval(this.reconnectInterval);
-				}, 5000)
+				// clearInterval(this.reconnectInterval);
+				// //Check 5s later if we are still disconnected and manually try to reconnect
+				// this.reconnectInterval = setInterval(()=> {
+				// 	if(!this.connected) this.client.connect();
+				// 	else clearInterval(this.reconnectInterval);
+				// }, 5000)
 			});
 
 			this.client.on("clearchat", ()=> {
@@ -366,7 +372,9 @@ export default class IRCClient extends EventDispatcher {
 								message = "You cannot delete this message.";
 							}
 							if(msgid.indexOf("authentication failed") > -1) {
-								message = "Authentication failed. Trying again...";
+								console.log(data);
+								message = "Authentication failed. Refreshing token and trying again...";
+								this.dispatchEvent(new IRCEvent(IRCEvent.REFRESH_TOKEN));
 							}
 						}
 						this.sendNotice(msgid as tmi.MsgID, message);
@@ -389,6 +397,15 @@ export default class IRCClient extends EventDispatcher {
 		});
 	}
 
+	public async updateToken(token:string):Promise<void> {
+		this.token = token;
+		const params = this.client.getOptions();
+		if(params.identity) params.identity.password = token;
+		this.refreshingToken = true;
+		await this.client.disconnect();
+		await this.client.connect();
+	}
+
 	public disconnect():void {
 		if(this.client) {
 			this.client.disconnect();
@@ -408,6 +425,11 @@ export default class IRCClient extends EventDispatcher {
 
 	public sendMessage(message:string):Promise<unknown> {
 		if(!this.connected) return Promise.resolve();
+
+		if(message == "/disconnect") {
+			this.client.disconnect();
+			return Promise.resolve();
+		}
 		
 		//Workaround to a weird behavior of TMI/IRC.
 		//If the message starts by a "\" it's properly sent on all

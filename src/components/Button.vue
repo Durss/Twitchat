@@ -210,6 +210,7 @@ export default class Button extends Vue {
 	border-radius: @border_radius;
 	will-change: transform;
 	text-decoration: none;
+	min-height: calc(1em + 10px);
 
 	&:hover {
 		color: @mainColor_light;
@@ -397,6 +398,7 @@ export default class Button extends Vue {
 	&.big {
 		padding: 20px;
 		font-size: 1.25em;
+		min-height: calc(1.25em + 40px);
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
@@ -413,6 +415,7 @@ export default class Button extends Vue {
 		padding: 4px;
 		border-radius: 5px;
 		font-size: .85em;
+		min-height: calc(.85em + 8px);
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
@@ -474,9 +477,11 @@ export default class Button extends Vue {
 		&.noTitle.big, &.big {
 			padding: 12px;
 			font-size: 1.2em;
+			min-height: calc(1.2em + 12px);
 		}
 		&:not(.big) {
 			font-size: .85em;
+			min-height: calc(.85em + 12px);
 		}
 	}
 }

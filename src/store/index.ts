@@ -1,3 +1,4 @@
+import router from '@/router';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import type { BingoData, RaffleData, TrackedUser } from '@/utils/CommonDataTypes';
@@ -34,6 +35,7 @@ import Store from './Store';
 const store = createStore({
 	state: {
 		latestUpdateIndex: 5,
+		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
@@ -367,6 +369,7 @@ const store = createStore({
 				if(!(userRes as TwitchDataTypes.Token).expires_in
 				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 
+				UserSession.instance.access_token = json.access_token;
 				UserSession.instance.authToken = userRes as TwitchDataTypes.Token;
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
@@ -388,10 +391,8 @@ const store = createStore({
 				Store.access_token = json.access_token;
 				Store.set(Store.TWITCH_AUTH_TOKEN, json, false);
 				
-				if(!state.authenticated) {
-					//Connect if we were not connected before
-					IRCClient.instance.connect(UserSession.instance.authToken.login, json.access_token);
-					PubSub.instance.connect();
+				if(state.authenticated) {
+					IRCClient.instance.updateToken(json.access_token);
 				}
 				
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
@@ -407,12 +408,26 @@ const store = createStore({
 				state.followingStates[UserSession.instance.authToken.user_id] = true;
 				state.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
+
+
+				const expire = json.expires_in;
+				let delay = Math.max(0,expire*1000 - 60000 * 5);
+				//Refresh at least every 3h
+				const maxDelay = 1000 * 60 * 60 * 3;
+				if(delay > maxDelay) delay = maxDelay;
+			
+				console.log("Refresh token in", delay);
+				clearTimeout(state.refreshTokenTO);
+				state.refreshTokenTO = window.setTimeout(()=>{
+					store.dispatch("authenticate", {forceRefresh:true});
+				}, delay);
 			}catch(error) {
 				console.log(error);
 				state.authenticated = false;
 				Store.remove("oAuthToken");
 				state.alert = "Authentication failed";
 				if(cb) cb(false);
+				router.push({name: 'login'});//Redirect to login if connection failed
 			}
 		},
 
@@ -533,7 +548,7 @@ const store = createStore({
 						const messageStr = mess.type == "whisper"? mess.params[1] : mess.message;
 						if(mess.type == "message"
 						&& uid == mess.tags['user-id']
-						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//i > len-20 more or less says "if message is still visible on screen"
+						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
 						&& textMessage.message == messageStr) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
 							mess.occurrenceCount ++;
@@ -1637,7 +1652,8 @@ const store = createStore({
 					state.whispers = whispers;
 					state.whispersUnreadCount ++;
 
-					if(state.params.features.showWhispersOnChat.value === true) {
+					if(state.params.features.showWhispersOnChat.value === true
+					&& data.raw != "") {//Don't show whispers we sent to someone, on the chat
 						data.type = "whisper";
 						data.channel = IRCClient.instance.channel;
 						data.tags['tmi-sent-ts'] = Date.now().toString();
@@ -1663,6 +1679,10 @@ const store = createStore({
 				if(data.tags['subs-only'] != undefined) state.roomStatusParams.subsOnly.value = data.tags['subs-only'] != false;
 				if(data.tags['followers-only'] != undefined) state.roomStatusParams.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
 				if(data.tags.slow != undefined) state.roomStatusParams.slowMode.value = data.tags.slow != false;
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.REFRESH_TOKEN, (event:IRCEvent) => {
+				commit("authenticate");
 			});
 			
 			state.initComplete = true;
@@ -1733,6 +1753,10 @@ const store = createStore({
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
 			});
+	
+			//Connect if we were not connected before
+			IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
+			PubSub.instance.connect();
 
 			const devmode = Store.get(Store.DEVMODE) === "true";
 			this.dispatch("toggleDevMode", devmode);

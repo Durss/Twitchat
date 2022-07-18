@@ -166,7 +166,10 @@ http.createServer((request, response) => {
 
 
 function setHeaders(request, response) {
-	if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
+	if(request.headers.host
+	&& (credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1
+		|| request.headers.host.indexOf("192.168") > -1)
+	) {
 		//Set CORS headers if host is found on the redirect URI
 		response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
 		response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN,Authorization');

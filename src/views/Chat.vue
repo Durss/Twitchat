@@ -298,9 +298,9 @@ export default class Chat extends Vue {
 
 		if(notif) {
 			if(this.currentNotificationContent == notif) {
-				this.currentNotificationContent = "";
+				this.setCurrentNotification("");
 			}else{
-				this.currentNotificationContent = notif;
+				this.setCurrentNotification(notif);
 			}
 		}
 
