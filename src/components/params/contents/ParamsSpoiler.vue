@@ -4,10 +4,10 @@
 		
 		<p class="header">Messages starting by <mark>||</mark> will be masked by default and revealed on hover</p>
 
-		<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <strong>!spoiler</strong> command</div>
+		<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <mark>!spoiler</mark> command</div>
 		<PermissionsForm class="item" v-model="chatCommandPerms" />
 		
-		<div class="item">How to spoil somone else's message:</div>
+		<div class="item">How to spoil someone else's message:</div>
 		<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
 
 		<div class="item disclaimer">
@@ -85,6 +85,7 @@ export default class ParamsSpoiler extends Vue {
 	}
 
 	mark {
+		font-weight: bold;
 		padding: .25em .5em;
 		border-radius: .5em;
 		font-size: .8em;
