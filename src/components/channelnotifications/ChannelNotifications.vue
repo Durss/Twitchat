@@ -85,7 +85,7 @@ export default class ChannelNotifications extends Vue {
 	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
 	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && store.state.chatPoll != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && store.state.raffle != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && store.state.raffle != null && store.state.raffle.command != "__fakerafflecmd__"; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && store.state.bingo != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
 	public get showDeezer():boolean { return this.currentContent == 'deezer' && store.state.deezerConnected; }
