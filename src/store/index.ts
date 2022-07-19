@@ -362,6 +362,7 @@ const store = createStore({
 					}
 				}
 				if(!json) {
+					console.log("No JSON :(", json);
 					if(cb) cb(false);
 					return;
 				}
@@ -391,24 +392,22 @@ const store = createStore({
 				Store.access_token = json.access_token;
 				Store.set(Store.TWITCH_AUTH_TOKEN, json, false);
 				
-				if(state.authenticated) {
-					IRCClient.instance.updateToken(json.access_token);
-				}
-				
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
 				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
 				if(currentUser) {
 					state.hasChannelPoints = currentUser.broadcaster_type != "";
 					UserSession.instance.user = currentUser;
 				}
-
-				state.mods = await TwitchUtils.getModerators();
-
+				
+				if(state.authenticated) {
+					//If we were authenticated, simply update the token on IRC
+					IRCClient.instance.updateToken(json.access_token);
+				}
 				state.authenticated = true;
+				state.mods = await TwitchUtils.getModerators();
 				state.followingStates[UserSession.instance.authToken.user_id] = true;
 				state.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
-
 
 				const expire = json.expires_in;
 				let delay = Math.max(0,expire*1000 - 60000 * 5);
@@ -421,6 +420,9 @@ const store = createStore({
 				state.refreshTokenTO = window.setTimeout(()=>{
 					store.dispatch("authenticate", {forceRefresh:true});
 				}, delay);
+				
+				IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
+				PubSub.instance.connect();
 			}catch(error) {
 				console.log(error);
 				state.authenticated = false;
@@ -1349,7 +1351,9 @@ const store = createStore({
 				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
 			}catch(error) {
-				state.alert = "Unable to contact server :("
+				state.alert = "Unable to contact server :(";
+				state.initComplete = true;
+				return;
 			}
 			TwitchUtils.client_id = jsonConfigs.client_id;
 			Config.instance.TWITCH_APP_SCOPES = jsonConfigs.scopes;
@@ -1358,46 +1362,30 @@ const store = createStore({
 			Config.instance.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
 			Config.instance.DEEZER_CLIENT_ID = Config.instance.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
 
-			//Authenticate user
-			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
-			if(token && payload.authenticate) {
-				try {
-					await new Promise((resolve,reject)=> {
-						commit("authenticate", {cb:(success:boolean)=>{
-							if(success) {
-								resolve(null);
-							}else{
-								reject();
-							}
-						}});
-					});
-
-					//Use an anonymous method to avoid blocking loading while
-					//all twitch tags are loading
-					(async () => {
-						try {
-							TwitchUtils.searchTag("");//Preload tags to build local cache
-							if(store.state.hasChannelPoints) {
-								await TwitchUtils.getPolls();
-								await TwitchUtils.getPredictions();
-							}
-						}catch(e) {
-							//User is probably not an affiliate
-						}
-					})();
-				}catch(error) {
-					console.log(error);
-					state.authenticated = false;
-					Store.remove("oAuthToken");
-					state.initComplete = true;
-					payload.callback();
-					return;
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
+				if(state.timerStart > 0) {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:state.timerStart });
 				}
-			}
+				
+				if(state.countdown) {
+					const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+				}
+			});
 
-			if(Store.syncToServer === true && state.authenticated) {
-				await Store.loadRemoteData();
-			}
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
+				this.dispatch("onRaffleComplete", {publish:false, winner});
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+				const enable = (e.data as unknown) as {enabled:boolean};
+				this.dispatch("setEmergencyMode", enable);
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+			});
 
 			//Overwrite store data from URL
 			const queryParams = Utils.getQueryParameterByName("params");
@@ -1421,10 +1409,6 @@ const store = createStore({
 					//ignore
 				}
 			}
-
-			this.dispatch("loadDataFromStorage");
-
-			PublicAPI.instance.initialize();
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const messageData = event.data as IRCEventDataList.Message;
@@ -1728,35 +1712,51 @@ const store = createStore({
 				this.dispatch("setDeezerConnected", false);
 				state.alert = "Deezer authentication failed";
 			});
+			PublicAPI.instance.initialize();
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				if(state.timerStart > 0) {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:state.timerStart });
-				}
-				
-				if(state.countdown) {
-					const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
-				}
-			});
+			//Authenticate user
+			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
+			if(token && payload.authenticate) {
+				try {
+					await new Promise((resolve,reject)=> {
+						commit("authenticate", {cb:(success:boolean)=>{
+							console.log("Auth done", success);
+							if(success) {
+								resolve(null);
+							}else{
+								reject();
+							}
+						}});
+					});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
-				this.dispatch("onRaffleComplete", {publish:false, winner});
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
-				const enable = (e.data as unknown) as {enabled:boolean};
-				this.dispatch("setEmergencyMode", enable);
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
-				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
-			});
-	
-			//Connect if we were not connected before
-			IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
-			PubSub.instance.connect();
+					//Use an anonymous method to avoid blocking loading while
+					//all twitch tags are loading
+					(async () => {
+						try {
+							TwitchUtils.searchTag("");//Preload tags to build local cache
+							if(store.state.hasChannelPoints) {
+								await TwitchUtils.getPolls();
+								await TwitchUtils.getPredictions();
+							}
+						}catch(e) {
+							//User is probably not an affiliate
+						}
+					})();
+				}catch(error) {
+					console.log(error);
+					state.authenticated = false;
+					Store.remove("oAuthToken");
+					state.initComplete = true;
+					payload.callback();
+					return;
+				}
+			}
+
+			if(Store.syncToServer === true) {
+				await Store.loadRemoteData();
+			}
+
+			this.dispatch("loadDataFromStorage");
 
 			const devmode = Store.get(Store.DEVMODE) === "true";
 			this.dispatch("toggleDevMode", devmode);
