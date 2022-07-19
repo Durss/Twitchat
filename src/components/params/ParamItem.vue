@@ -87,8 +87,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -170,7 +170,7 @@ export default class ParamItem extends Vue {
 		});
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
-				store.dispatch('updateParams');
+				StoreProxy.store.dispatch('updateParams');
 			}
 			this.$emit("change");
 			this.$emit("update:modelValue", this.paramData.value);
@@ -200,7 +200,7 @@ export default class ParamItem extends Vue {
 			}
 			return;
 		}
-		const list = store.state.params;
+		const list = StoreProxy.store.state.params;
 		let children:ParameterData[] = [];
 		for (const key in list) {
 			const params = list[key as ParameterCategory];
