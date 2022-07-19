@@ -1,5 +1,6 @@
 import router from '@/router';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import type { BingoData, RaffleData, TrackedUser } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -27,7 +28,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem, type ChatHighlightOverlayData, type ChatHighlightInfo, type SpoilerParamsData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -52,7 +53,7 @@ const store = createStore({
 		newScopeToRequest: [] as string[],
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
-		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper)[],
+		chatMessages: [] as ChatMessageTypes[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchDataTypes.ModeratorUser[],
 		currentPoll: {} as TwitchDataTypes.Poll,
@@ -402,6 +403,9 @@ const store = createStore({
 				if(state.authenticated) {
 					//If we were authenticated, simply update the token on IRC
 					IRCClient.instance.updateToken(json.access_token);
+				}else{
+					IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
+					PubSub.instance.connect();
 				}
 				state.authenticated = true;
 				state.mods = await TwitchUtils.getModerators();
@@ -421,8 +425,6 @@ const store = createStore({
 					store.dispatch("authenticate", {forceRefresh:true});
 				}, delay);
 				
-				IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
-				PubSub.instance.connect();
 			}catch(error) {
 				console.log(error);
 				state.authenticated = false;
@@ -1749,7 +1751,7 @@ const store = createStore({
 				}
 			}
 
-			if(Store.syncToServer === true) {
+			if(Store.syncToServer === true && state.authenticated) {
 				await Store.loadRemoteData();
 			}
 

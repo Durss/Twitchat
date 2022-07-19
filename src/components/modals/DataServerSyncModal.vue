@@ -50,7 +50,7 @@ import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import type { ParameterData } from '@/types/TwitchatDataTypes';
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -66,7 +66,7 @@ export default class DataServerSyncModal extends Vue {
 	public isNewUser:boolean = true;
 	public loading:boolean = true;
 	public uploading:boolean = false;
-	public sync_param:ParameterData = JSON.parse(JSON.stringify(store.state.accountParams.syncDataWithServer));
+	public sync_param:ParameterData = JSON.parse(JSON.stringify(StoreProxy.store.state.accountParams.syncDataWithServer));
 	public upload_param:ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
 
 	public async mounted():Promise<void> {
@@ -96,7 +96,7 @@ export default class DataServerSyncModal extends Vue {
 		}
 		await Store.loadRemoteData(true);
 		Store.set(Store.SYNC_DATA_TO_SERVER, this.sync_param.value);
-		store.dispatch("loadDataFromStorage");
+		StoreProxy.store.dispatch("loadDataFromStorage");
 		this.close();
 		this.uploading = false;
 	}

@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -29,25 +29,25 @@ export default class CommunityBoostInfo extends Vue {
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
 
 	public get progress():number {
-		if(!store.state.communityBoostState) return 0;
-		if(store.state.communityBoostState.total_goal_progress != undefined) {
-			return store.state.communityBoostState.total_goal_progress;
+		if(!StoreProxy.store.state.communityBoostState) return 0;
+		if(StoreProxy.store.state.communityBoostState.total_goal_progress != undefined) {
+			return StoreProxy.store.state.communityBoostState.total_goal_progress;
 		}
-		const order = store.state.communityBoostState.boost_orders[0];
+		const order = StoreProxy.store.state.communityBoostState.boost_orders[0];
 		return order.GoalProgress;
 	}
 
 	public get target():number {
-		if(!store.state.communityBoostState) return 0;
-		if(store.state.communityBoostState.total_goal_target != undefined) {
-			return store.state.communityBoostState.total_goal_target;
+		if(!StoreProxy.store.state.communityBoostState) return 0;
+		if(StoreProxy.store.state.communityBoostState.total_goal_target != undefined) {
+			return StoreProxy.store.state.communityBoostState.total_goal_target;
 		}
-		const order = store.state.communityBoostState.boost_orders[0];
+		const order = StoreProxy.store.state.communityBoostState.boost_orders[0];
 		return order.GoalTarget;
 	}
 
 	public get percent():number {
-		if(!store.state.communityBoostState) return 0;
+		if(!StoreProxy.store.state.communityBoostState) return 0;
 		return Math.round(this.progress/this.target * 100);
 	}
 

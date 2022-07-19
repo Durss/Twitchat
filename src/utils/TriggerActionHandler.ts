@@ -316,6 +316,7 @@ export default class TriggerActionHandler {
 	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		const trigger = this.triggers[ eventType ];
+		// console.log("PARSE STEPS", eventType, trigger);
 		
 		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;
@@ -358,14 +359,17 @@ export default class TriggerActionHandler {
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
+							// console.log("TEXT");
 							const text = await this.parseText(eventType, message, step.text as string);
 							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 						}
 						if(step.url) {
+							// console.log("URL");
 							const url = await this.parseText(eventType, message, step.url as string, true);
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
+							// console.log("MEDIA");
 							const url = await this.parseText(eventType, message, step.mediaPath as string);
 							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 						}
@@ -374,12 +378,12 @@ export default class TriggerActionHandler {
 							await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
 						}else{
 							let show = step.show;
-							//If requesting to hide the highlighted message, force source to hide
+							//If requesting to show an highlighted message but the message
+							//is empty, force source to hide
 							if(eventType == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
 							&& message.type == "chatOverlayHighlight" && (!message.message || message.message.length===0)) {
 								show = false;
 							}
-							console.log("SHOW?", show, step.sourceName);
 							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
 						}
 					}else
@@ -388,7 +392,7 @@ export default class TriggerActionHandler {
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string);
 						IRCClient.instance.sendMessage(text);
-					}
+					}else
 
 					if(step.type == "music") {
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {

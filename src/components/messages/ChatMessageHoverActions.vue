@@ -23,14 +23,10 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
+import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import type { JsonObject } from 'type-fest';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -52,15 +48,15 @@ export default class ChatMessageHoverActions extends Vue {
 	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id }
 
 	public trackUser():void {
-		store.dispatch("trackUser", this.messageData);
+		StoreProxy.store.dispatch("trackUser", this.messageData);
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await store.dispatch("shoutout", this.messageData.tags['display-name'] as string);
+			await StoreProxy.store.dispatch("shoutout", this.messageData.tags['display-name'] as string);
 		}catch(error) {
-			store.state.alert = "Shoutout failed :(";
+			StoreProxy.store.state.alert = "Shoutout failed :(";
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
@@ -68,7 +64,7 @@ export default class ChatMessageHoverActions extends Vue {
 
 	public async chatHighlight():Promise<void> {
 		this.highlightLoading = true;
-		store.dispatch("highlightChatMessageOverlay", this.messageData);
+		StoreProxy.store.dispatch("highlightChatMessageOverlay", this.messageData);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
 	}

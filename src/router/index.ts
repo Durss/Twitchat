@@ -1,4 +1,3 @@
-import type { DeezerAuthResult } from '@/utils/DeezerHelper'
 import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
 import StoreProxy from '@/utils/StoreProxy'
 import Utils from '@/utils/Utils'
@@ -79,27 +78,6 @@ const routes: Array<RouteRecordRaw> = [
 				StoreProxy.store.dispatch("setSpotifyAuthResult", params)
 			}else{
 				StoreProxy.store.state.alert = "You refused to grant access to your Spotify account";
-			}
-			return {name:"chat"}
-		},
-		meta: {
-			needAuth:true,
-		}
-	},
-	{
-		path: '/deezer/auth',
-		name: 'deezer/auth',
-		redirect:() => {
-			if(!Utils.getQueryParameterByName("error_reason")) {
-				StoreProxy.store.state.showParams = true;//Open params
-				StoreProxy.store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
-	
-				const params:DeezerAuthResult = {
-					code:Utils.getQueryParameterByName("code") as string,
-				}
-				StoreProxy.store.dispatch("setDeezerAuthResult", params)
-			}else{
-				StoreProxy.store.state.alert = "You refused to grant access to your Deezer account";
 			}
 			return {name:"chat"}
 		},

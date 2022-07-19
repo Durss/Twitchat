@@ -1,12 +1,12 @@
 <template>
 	<div class="overlaytimer">
 		<div class="timer" v-if="timer" id="timer">
-			<img id="timer_icon" src="@/assets/icons/timer.svg" alt="timer">
+			<img id="timer_icon" src="@/assets/icons/timer_purple.svg" alt="timer">
 			<div id="timer_label">{{timer}}</div>
 		</div>
 
 		<div class="countdown" v-if="countdown" id="countdown">
-			<img id="countdown_icon" src="@/assets/icons/countdown.svg" alt="countdown">
+			<img id="countdown_icon" src="@/assets/icons/countdown_purple.svg" alt="countdown">
 			<div id="countdown_label">{{countdown}}</div>
 		</div>
 	</div>
@@ -17,6 +17,7 @@ import type { CountdownData, TimerData } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -65,9 +66,13 @@ export default class OverlayTimer extends Vue {
 		if(e.type == TwitchatEvent.TIMER_START) {
 			this.timerData = (e.data as unknown) as TimerData;
 			this.computeValues();
+			await this.$nextTick();
+			gsap.from("#timer", {duration:.7, y:"-100%"});
 		}else{
-			this.timerData = null;
-			this.timer = "";
+			gsap.to("#timer", {duration:.7, y:"-100%", onComplete:()=> {
+				this.timerData = null;
+				this.timer = "";
+			}});
 		}
 	}
 
@@ -75,9 +80,13 @@ export default class OverlayTimer extends Vue {
 		if(e.type == TwitchatEvent.COUNTDOWN_START) {
 			this.countdownData = (e.data as unknown) as CountdownData;
 			this.computeValues();
+			await this.$nextTick();
+			gsap.from("#countdown", {duration:.7, y:"-100%"});
 		}else{
-			this.countdownData = null;
-			this.countdown = "";
+			gsap.to("#countdown", {duration:.7, y:"-100%", onComplete:()=>{
+				this.countdownData = null;
+				this.countdown = "";
+			}});
 		}
 	}
 
@@ -103,32 +112,31 @@ export default class OverlayTimer extends Vue {
 <style scoped lang="less">
 .overlaytimer{
 	display: flex;
-	flex-direction: column;
-	align-items: center;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
 	
 	.timer, .countdown {
-		cursor: pointer;
-		display: flex;
+		@margin: .5em;
+		display: inline-flex;
 		flex-direction: row;
 		align-items: center;
-		white-space: nowrap;
-		color: @mainColor_light;
-		margin-left: 5px;
-		font-size: 4em;
-		padding: .25em;
-		border-radius: 1em;
-		background-color: fade(@mainColor_dark, 50%);
+		font-size: 2em;
+		background-color: darken(@mainColor_light, 10%);
+		padding: .5em;
+		border-bottom-left-radius: 1em;
+		border-bottom-right-radius: 1em;
+		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		font-family: 'Roboto';
-
-		&:not(:first-child) {
-			margin-top: .5em;
-		}
 
 		img {
 			height: 1em;
 			width: 1em;
 			object-fit: contain;
 			margin-right: .25em;
+		}
+		&:not(:first-child) {
+			margin-left: 1em;
 		}
 	}
 }

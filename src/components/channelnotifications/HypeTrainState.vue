@@ -39,8 +39,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -80,7 +80,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public get trainData():HypeTrainStateData {
-		return store.state.hypeTrain as HypeTrainStateData;
+		return StoreProxy.store.state.hypeTrain as HypeTrainStateData;
 	}
 
 	public get duration():string {
@@ -108,7 +108,7 @@ export default class HypeTrainState extends Vue {
 
 	public mounted():void {
 		this.dataChange();
-		watch(()=>store.state.hypeTrain, ()=>this.dataChange());
+		watch(()=>StoreProxy.store.state.hypeTrain, ()=>this.dataChange());
 	}
 
 	public dataChange():void {

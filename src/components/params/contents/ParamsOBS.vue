@@ -76,18 +76,18 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store from '@/store';
-import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import Store from '@/store/Store';
+import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
-import OBSScenes from './obs/OBSScenes.vue';
 import OBSFilters from './obs/OBSFilters.vue';
+import OBSScenes from './obs/OBSScenes.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
 
 
 @Options({
@@ -139,8 +139,7 @@ export default class ParamsOBS extends Vue {
 			this.openConnectForm = true;
 		}
 		
-
-		const storedPermissions = store.state.obsCommandsPermissions;
+		const storedPermissions = StoreProxy.store.state.obsCommandsPermissions;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
@@ -192,7 +191,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		store.dispatch("setObsCommandsPermissions", this.permissions);
+		StoreProxy.store.dispatch("setObsCommandsPermissions", this.permissions);
 	}
 
 	/**

@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { CommandData } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -135,7 +135,7 @@ export default class AutocompleteChatForm extends Vue {
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			if(this.users) {
-				const users = store.state.onlineUsers as string[];
+				const users = StoreProxy.store.state.onlineUsers as string[];
 				for (let j = 0; j < users.length; j++) {
 					const userName = users[j];
 					if(userName.toLowerCase().indexOf(s) == 0) {
@@ -166,11 +166,11 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			if(this.commands) {
-				const cmds = store.state.commands;
+				const cmds = StoreProxy.store.state.commands;
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
-						if(e.needChannelPoints === true && !store.state.hasChannelPoints) continue;
+						if(e.needChannelPoints === true && !StoreProxy.store.state.hasChannelPoints) continue;
 						res.push({
 							type:"cmd",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),

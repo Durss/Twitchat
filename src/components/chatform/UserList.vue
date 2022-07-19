@@ -33,8 +33,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -63,7 +63,7 @@ export default class UserList extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.updateList();
-		watch(() => store.state.onlineUsers, () => {
+		watch(() => StoreProxy.store.state.onlineUsers, () => {
 			this.updateList();
 		}, { deep: true });
 		this.open();
@@ -101,7 +101,7 @@ export default class UserList extends Vue {
 
 	private updateList():void {
 		let res:UserItem[] = [];
-		const users = store.state.onlineUsers as string[];
+		const users = StoreProxy.store.state.onlineUsers as string[];
 		for (let j = 0; j < users.length; j++) {
 			const userName = users[j];
 			const userNameLow = userName?.toLowerCase();
@@ -110,7 +110,7 @@ export default class UserList extends Vue {
 				id:userNameLow,
 				broadcaster:userNameLow == UserSession.instance.authToken.login.toLowerCase(),
 				vip:false,
-				mod:(store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
+				mod:(StoreProxy.store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,
 			});
 		}

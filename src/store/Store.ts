@@ -36,7 +36,8 @@ export default class Store {
 	public static SPOILER_PARAMS:string = "spoilerParams";
 	public static CHAT_HIGHLIGHT_PARAMS:string = "chatHighlightParams";
 	public static TWITCH_AUTH_TOKEN:string = "oAuthToken";
-	public static SYNC_DATA_TO_SERVER:string = "syncToserver";
+	public static SYNC_DATA_TO_SERVER:string = "syncToserver";//GG for the failed camel case -_-
+	public static GREET_HISTORY:string = "greetHistory";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -171,6 +172,7 @@ export default class Store {
 				//on one of the instances
 				delete data["p:hideChat"];
 				delete data["p:shoutoutLabel"];
+				delete data[this.GREET_HISTORY];
 				delete data[this.SYNC_DATA_TO_SERVER];
 	
 				let headers = {

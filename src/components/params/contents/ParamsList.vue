@@ -43,14 +43,14 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterCategory, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
-import Button from '../../Button.vue';
 
 @Options({
 	props:{
@@ -105,9 +105,9 @@ export default class ParamsList extends Vue {
 		}else{
 			if(!this.category) return {};
 
-			for (const key in store.state.params[this.category]) {
-				if(store.state.params[this.category][key].parent) continue;
-				res[key] = (store.state.params[this.category] as {[key:string]:ParameterData})[key] as ParameterData;
+			for (const key in StoreProxy.store.state.params[this.category]) {
+				if(StoreProxy.store.state.params[this.category][key].parent) continue;
+				res[key] = (StoreProxy.store.state.params[this.category] as {[key:string]:ParameterData})[key] as ParameterData;
 			}
 		}
 		return res;

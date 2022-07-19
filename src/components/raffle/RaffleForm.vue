@@ -113,6 +113,7 @@ import type { RaffleData } from '@/utils/CommonDataTypes';
 import UserSession from '@/utils/UserSession';
 import Store from '@/store/Store';
 import { watch } from 'vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -219,9 +220,9 @@ export default class RaffleForm extends Vue {
 			winners: [],
 		};
 		if(this.showCountdownOverlay.value) {
-			store.dispatch("startCountdown", payload.duration * 1000 * 60);
+			StoreProxy.store.dispatch("startCountdown", payload.duration * 1000 * 60);
 		}
-		store.dispatch("startRaffle", payload);
+		StoreProxy.store.dispatch("startRaffle", payload);
 		this.close();
 	}
 
@@ -277,15 +278,15 @@ export default class RaffleForm extends Vue {
 							label:this.winner.user_name,
 							data:this.winner,
 						}
-						store.dispatch("onRaffleComplete", {winner:winner});
+						StoreProxy.store.dispatch("onRaffleComplete", {winner:winner});
 					}
 				})
 			}})
 		}
 	}
 	public openParam(page:ParamsContenType):void {
-		store.state.tempStoreValue = "CONTENT:"+page;
-		store.dispatch("showParams", true);
+		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
+		StoreProxy.store.dispatch("showParams", true);
 	}
 	
 }

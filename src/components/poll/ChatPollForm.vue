@@ -149,6 +149,7 @@ export default class ChatPollForm extends Vue {
 				}
 				:deep(input) {
 					width: 100px;
+					max-width: 100px;
 					text-align: center;
 				}
 			}

@@ -4,6 +4,8 @@ import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData } from "./CommonDataTypes";
 import type { CountdownData, TimerData } from "@/types/TwitchatDataTypes";
 
+export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
+
 export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.PollResult
 	| IRCEventDataList.PredictionResult

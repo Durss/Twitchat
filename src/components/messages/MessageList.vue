@@ -131,7 +131,6 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -139,7 +138,6 @@ import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
@@ -154,6 +152,7 @@ import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	components:{
@@ -223,20 +222,20 @@ export default class MessageList extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.localMessages = store.state.chatMessages.concat().slice(-this.max);
+		this.localMessages = StoreProxy.store.state.chatMessages.concat().slice(-this.max);
 		for (let i = 0; i < this.localMessages.length; i++) {
 			this.idDisplayed[this.localMessages[i].tags.id as string] = true;
 		}
 		
-		watch(() => store.state.chatMessages, async (value) => {
+		watch(() => StoreProxy.store.state.chatMessages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
-				for (let i = 0; i < store.state.chatMessages.length; i++) {
-					const m = store.state.chatMessages[i] as IRCEventDataList.Message;
+				for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
+					const m = StoreProxy.store.state.chatMessages[i] as IRCEventDataList.Message;
 					if(this.idDisplayed[m.tags.id as string] !== true) {
 						this.idDisplayed[m.tags.id as string] = true;
 						this.pendingMessages.push(m);
@@ -254,7 +253,7 @@ export default class MessageList extends Vue {
 			this.scrollToPrevMessage();
 		});
 
-		watch(()=>store.state.params.appearance.defaultSize.value, async ()=> {
+		watch(()=>StoreProxy.store.state.params.appearance.defaultSize.value, async ()=> {
 			await this.$nextTick();
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -291,7 +290,7 @@ export default class MessageList extends Vue {
 	}
 
 	public async onHoverList():Promise<void> {
-		if(this.lightMode || !store.state.params.features.lockAutoScroll.value) return;
+		if(this.lightMode || !StoreProxy.store.state.params.features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
 
@@ -332,7 +331,7 @@ export default class MessageList extends Vue {
 			const data = e.data as IRCEventDataList.MessageDeleted;
 			messageID = data.tags['target-msg-id'] as string;
 		}
-		const keepDeletedMessages = store.state.params.filters.keepDeletedMessages.value;
+		const keepDeletedMessages = StoreProxy.store.state.params.filters.keepDeletedMessages.value;
 
 		if(this.pendingMessages.length > 0) {
 			let index = this.pendingMessages.findIndex(v => v.tags.id === messageID);
@@ -661,8 +660,8 @@ export default class MessageList extends Vue {
 			this.conversationMode = false;
 	
 			let messageList:IRCEventDataList.Message[] = [];
-			for (let i = 0; i < store.state.chatMessages.length; i++) {
-				const mess = store.state.chatMessages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
+			for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
+				const mess = StoreProxy.store.state.chatMessages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
 				if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
 					messageList.push(mess);
 					if(messageList.length > 100) break;//Limit to 100 for perf reasons
@@ -715,7 +714,7 @@ export default class MessageList extends Vue {
 			const target = event.target as HTMLElement;
 			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
 		}
-		if(store.state.params.features.markAsRead.value !== true) return;
+		if(StoreProxy.store.state.params.features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {
 			this.prevMarkedReadItem.markedAsRead = false;

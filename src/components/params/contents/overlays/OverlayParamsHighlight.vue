@@ -84,9 +84,9 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ChatHighlightOverlayData } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import UserSession from '@/utils/UserSession';
 import { LoremIpsum } from 'lorem-ipsum';
@@ -105,7 +105,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsHighlight extends Vue {
 	
 	public overlayExists = false;
-	public placement = store.state.chatHighlightOverlayParams.position;
+	public placement = StoreProxy.store.state.chatHighlightOverlayParams.position;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
@@ -134,7 +134,7 @@ export default class OverlayParamsHighlight extends Vue {
 			const data:ChatHighlightOverlayData = {
 				position:this.placement,
 			}
-			store.dispatch("setChatHighlightOverlayParams", data);
+			StoreProxy.store.dispatch("setChatHighlightOverlayParams", data);
 		})
 	}
 
@@ -179,7 +179,7 @@ export default class OverlayParamsHighlight extends Vue {
 			"channel": "#"+UserSession.instance.user?.login,
 			"self": false,
 		};
-		store.dispatch("highlightChatMessageOverlay", message);
+		StoreProxy.store.dispatch("highlightChatMessageOverlay", message);
 	}
 
 }

@@ -45,7 +45,7 @@
 		<strong>We're sorry but Twitchat cannot work without JavaScript enabled. Please enable it to continue.</strong>
 	</noscript>
 	<div id="app">
-		<img src="/loader_white.svg" alt="loader" class="loader-init">
+		<img src="/loader_white.svg" alt="loader" class="loader-init" id="static-loader">
 	</div>
 	<!-- built files will be auto injected -->
 
@@ -69,7 +69,8 @@
 			const p = noBgPaths[i];
 			if(new RegExp(p).test(url)) {
 				document.body.style.backgroundColor = "transparent";
-				document.getElementsByClassName("loader-init")[0].style.display = "none";
+				console.log("ok");
+				document.getElementById("static-loader").style.display = "none";
 				break;
 			}
 		}

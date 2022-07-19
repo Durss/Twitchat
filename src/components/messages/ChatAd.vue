@@ -109,6 +109,7 @@ import { Options, Vue } from 'vue-class-component';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -138,22 +139,22 @@ export default class ChatAd extends Vue {
 	}
 
 	public openParamPage(page:string):void {
-		store.state.tempStoreValue = "CONTENT:"+page;
-		store.dispatch("showParams", true);
+		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
+		StoreProxy.store.dispatch("showParams", true);
 	}
 
 	public showSpecificParam(id:string):void {
-		store.state.tempStoreValue = "SEARCH:"+id;
-		store.dispatch("showParams", true);
+		StoreProxy.store.state.tempStoreValue = "SEARCH:"+id;
+		StoreProxy.store.dispatch("showParams", true);
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			Store.set(Store.UPDATE_INDEX, store.state.latestUpdateIndex);
+			Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
 		}
-		store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
+		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
 	}
 

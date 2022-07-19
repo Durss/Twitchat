@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Params</span>
+				<h1 class="title">Params</h1>
 				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="menu">
@@ -45,7 +45,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterCategory, ParameterData, ParamsContenType } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -63,6 +62,7 @@ import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -105,7 +105,7 @@ export default class Parameters extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		const v = store.state.tempStoreValue as string;
+		const v = StoreProxy.store.state.tempStoreValue as string;
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
@@ -117,10 +117,10 @@ export default class Parameters extends Vue {
 			if(chunks.length == 2) {
 				const cat = chunks[0] as ParameterCategory;
 				const paramKey = chunks[1];
-				this.search = store.state.params[cat][paramKey].label;
+				this.search = StoreProxy.store.state.params[cat][paramKey].label;
 			}
 		}
-		store.state.tempStoreValue = null;
+		StoreProxy.store.state.tempStoreValue = null;
 	}
 
 	public async mounted():Promise<void> {
@@ -157,7 +157,7 @@ export default class Parameters extends Vue {
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 			this.showMenu = false;
 			this.filteredParams = [];
-			store.dispatch("showParams", false);
+			StoreProxy.store.dispatch("showParams", false);
 		}});
 	}
 
@@ -187,8 +187,8 @@ export default class Parameters extends Vue {
 		this.filteredParams = [];
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
-		for (const categoryID in store.state.params) {
-			const category = store.state.params[categoryID as ParameterCategory] as {[ley:string]:ParameterData};
+		for (const categoryID in StoreProxy.store.state.params) {
+			const category = StoreProxy.store.state.params[categoryID as ParameterCategory] as {[ley:string]:ParameterData};
 			for (const prop in category) {
 				const data:ParameterData = category[prop];
 				

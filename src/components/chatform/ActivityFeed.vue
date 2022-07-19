@@ -68,7 +68,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import Store from '@/store/Store';
 import type { ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
@@ -83,6 +82,7 @@ import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -121,7 +121,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():ActivityFeedData[] {
-		const list = (store.state.activityFeed as ActivityFeedData[])
+		const list = (StoreProxy.store.state.activityFeed as ActivityFeedData[])
 		.filter(v => v.type == "highlight"
 		|| v.type == "poll"
 		|| v.type == "prediction"

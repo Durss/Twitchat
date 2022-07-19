@@ -39,9 +39,9 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -66,9 +66,9 @@ export default class WhispersState extends Vue {
 	}
 
 	public mounted():void {
-		store.state.whispersUnreadCount = 0;
-		watch(() => store.state.whispers, () => {
-			store.state.whispersUnreadCount = 0;
+		StoreProxy.store.state.whispersUnreadCount = 0;
+		watch(() => StoreProxy.store.state.whispers, () => {
+			StoreProxy.store.state.whispersUnreadCount = 0;
 		}, {deep:true})
 	}
 
@@ -112,7 +112,7 @@ export default class WhispersState extends Vue {
 		if(!this.whisper) return;
 
 		this.error = false;
-		const whispers = store.state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
+		const whispers = StoreProxy.store.state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 		const src = whispers[this.selectedUser as string][0];
 		
 		try {
@@ -125,7 +125,7 @@ export default class WhispersState extends Vue {
 	}
 
 	public deleteWhispers(user:string):void {
-		store.dispatch("closeWhispers", user);
+		StoreProxy.store.dispatch("closeWhispers", user);
 		this.selectedUser = null;
 	}
 

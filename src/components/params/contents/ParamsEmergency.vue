@@ -59,15 +59,15 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { EmergencyParamsData, ParameterData, ParameterDataListValue, PermissionsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import Splitter from '../../Splitter.vue';
+import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
-import ToggleBlock from '../../ToggleBlock.vue';
-import Splitter from '../../Splitter.vue';
 
 @Options({
 	props:{},
@@ -133,7 +133,7 @@ export default class ParamsEmergency extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		let params = JSON.parse(JSON.stringify(store.state.roomStatusParams));
+		let params = JSON.parse(JSON.stringify(StoreProxy.store.state.roomStatusParams));
 		params.followersOnly.children = [this.param_followersOnlyDuration]
 		params.slowMode.children = [this.param_slowModeDuration]
 		params["noTrigger"] = this.param_noTrigger,
@@ -141,19 +141,19 @@ export default class ParamsEmergency extends Vue {
 		this.channelParams = params;
 		if(this.channelParams) {
 			//Prefill forms from storage
-			this.channelParams.autoTO.value = store.state.emergencyParams.toUsers;
-			this.channelParams.noTrigger.value = store.state.emergencyParams.noTriggers;
-			this.channelParams.emotesOnly.value = store.state.emergencyParams.emotesOnly;
-			this.channelParams.subsOnly.value = store.state.emergencyParams.subOnly;
-			this.channelParams.slowMode.value = store.state.emergencyParams.slowMode;
-			this.channelParams.followersOnly.value = store.state.emergencyParams.followOnly;
-			this.param_followersOnlyDuration.value = store.state.emergencyParams.followOnlyDuration;
-			this.param_slowModeDuration.value = store.state.emergencyParams.slowModeDuration;
-			if(store.state.emergencyParams.chatCmd) {
-				this.param_chatCommand.value = store.state.emergencyParams.chatCmd;
+			this.channelParams.autoTO.value = StoreProxy.store.state.emergencyParams.toUsers;
+			this.channelParams.noTrigger.value = StoreProxy.store.state.emergencyParams.noTriggers;
+			this.channelParams.emotesOnly.value = StoreProxy.store.state.emergencyParams.emotesOnly;
+			this.channelParams.subsOnly.value = StoreProxy.store.state.emergencyParams.subOnly;
+			this.channelParams.slowMode.value = StoreProxy.store.state.emergencyParams.slowMode;
+			this.channelParams.followersOnly.value = StoreProxy.store.state.emergencyParams.followOnly;
+			this.param_followersOnlyDuration.value = StoreProxy.store.state.emergencyParams.followOnlyDuration;
+			this.param_slowModeDuration.value = StoreProxy.store.state.emergencyParams.slowModeDuration;
+			if(StoreProxy.store.state.emergencyParams.chatCmd) {
+				this.param_chatCommand.value = StoreProxy.store.state.emergencyParams.chatCmd;
 			}
-			if(store.state.emergencyParams.chatCmdPerms) {
-				this.chatCommandPerms = store.state.emergencyParams.chatCmdPerms;
+			if(StoreProxy.store.state.emergencyParams.chatCmdPerms) {
+				this.chatCommandPerms = StoreProxy.store.state.emergencyParams.chatCmdPerms;
 			}
 		}
 
@@ -161,7 +161,7 @@ export default class ParamsEmergency extends Vue {
 		await this.listOBSSources();
 
 		watch(()=>this.finalData, ()=> {
-			store.dispatch("setEmergencyParams", this.finalData);
+			StoreProxy.store.dispatch("setEmergencyParams", this.finalData);
 		}, {deep:true});
 		
 		watch(()=> OBSWebsocket.instance.connected, () => { 
@@ -190,7 +190,7 @@ export default class ParamsEmergency extends Vue {
 
 		this.param_obsScene.listValues = list;
 		//Prefill form from storage
-		this.selectedOBSScene = list.find(v=>v.value == store.state.emergencyParams.obsScene) ?? null;
+		this.selectedOBSScene = list.find(v=>v.value == StoreProxy.store.state.emergencyParams.obsScene) ?? null;
 	}
 
 	/**
@@ -212,7 +212,7 @@ export default class ParamsEmergency extends Vue {
 		const list = [];
 		for (let i = 0; i < this.obsSources.length; i++) {
 			const el = this.obsSources[i];
-			if(store.state.emergencyParams.obsSources.findIndex(v => v === el.sourceName) > -1) {
+			if((StoreProxy.store.state.emergencyParams.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
 				list.push(el);
 			}
 		}

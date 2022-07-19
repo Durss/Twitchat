@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { PermissionsData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import PermissionsForm from './obs/PermissionsForm.vue';
@@ -51,12 +51,12 @@ export default class ParamsSpoiler extends Vue {
 	};
 
 	public mounted():void {
-		if(store.state.spoilerParams.permissions) {
-			this.chatCommandPerms = store.state.spoilerParams.permissions;
+		if(StoreProxy.store.state.spoilerParams.permissions) {
+			this.chatCommandPerms = StoreProxy.store.state.spoilerParams.permissions;
 		}
 
 		watch(()=>this.chatCommandPerms, ()=> {
-			store.dispatch("setSpoilerParams", {
+			StoreProxy.store.dispatch("setSpoilerParams", {
 				permissions:this.chatCommandPerms
 			});
 		}, {deep:true})

@@ -35,7 +35,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -53,6 +52,7 @@ import DeezerState from './DeezerState.vue';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -80,15 +80,15 @@ export default class ChannelNotifications extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get showRaid():boolean { return store.state.raiding != null; }
-	public get showHypeTrain():boolean { return store.state.params.filters.showHypeTrain.value as boolean && (store.state.hypeTrain as HypeTrainStateData).level != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && (store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
-	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && store.state.chatPoll != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && (store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && store.state.raffle != null && store.state.raffle.command != "__fakerafflecmd__"; }
-	public get showBingo():boolean { return this.currentContent == 'bingo' && store.state.bingo != null; }
+	public get showRaid():boolean { return StoreProxy.store.state.raiding != null; }
+	public get showHypeTrain():boolean { return StoreProxy.store.state.params.filters.showHypeTrain.value as boolean && (StoreProxy.store.state.hypeTrain as HypeTrainStateData).level != undefined; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && (StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
+	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && StoreProxy.store.state.chatPoll != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && (StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && StoreProxy.store.state.raffle != null && StoreProxy.store.state.raffle.command != "__fakerafflecmd__"; }
+	public get showBingo():boolean { return this.currentContent == 'bingo' && StoreProxy.store.state.bingo != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
-	public get showDeezer():boolean { return this.currentContent == 'deezer' && store.state.deezerConnected; }
+	public get showDeezer():boolean { return this.currentContent == 'deezer' && StoreProxy.store.state.deezerConnected; }
 	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
 
 	public get showClose():boolean {
@@ -104,8 +104,8 @@ export default class ChannelNotifications extends Vue {
 	}
 
 	public get whispersAvailable():boolean {
-		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
-		for (const key in store.state.whispers) {
+		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = StoreProxy.store.state.whispers;
+		for (const key in StoreProxy.store.state.whispers) {
 			if (whispers[key].length > 0) return true;
 		}
 		return false;
