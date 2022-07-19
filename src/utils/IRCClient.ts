@@ -1,3 +1,4 @@
+import Store from "@/store/Store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
@@ -21,6 +22,14 @@ import Utils from "./Utils";
 export default class IRCClient extends EventDispatcher {
 	
 	private static _instance:IRCClient;
+	public client!:tmi.Client;
+	public channel!:string;
+	public connected = false;
+	public botsLogins:string[] = [];
+	public onlineUsers:string[] = [];
+	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	
+	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	private login!:string;
 	private uidsDone:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
@@ -28,19 +37,11 @@ export default class IRCClient extends EventDispatcher {
 	private selfTags!:tmi.ChatUserstate;
 	private joinSpool:string[] = [];
 	private partSpool:string[] = [];
+	private greetHistory:{d:number,uid:string}[] = [];
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
 	private refreshingToken = false;
-	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
-	
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
-	public client!:tmi.Client;
-	public token!:string|undefined;
-	public channel!:string;
-	public connected = false;
-	public botsLogins:string[] = [];
-	public increment = 0;
-	public onlineUsers:string[] = [];
+	private increment = 0;
 	
 	constructor() {
 		super();
@@ -71,7 +72,6 @@ export default class IRCClient extends EventDispatcher {
 
 		return new Promise((resolve, reject) => {
 			this.login = login;
-			this.token = token;
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
@@ -122,6 +122,23 @@ export default class IRCClient extends EventDispatcher {
 						password: "oauth:"+token
 					},
 				});
+				
+				//Preload previous "greet them" history from the last 8 hours
+				const expired_before = Date.now() - (1000 * 60 * 60 * 8);//Expire after 8 hours
+				let historyStr = Store.get(Store.GREET_HISTORY);
+				let prevGreetHistory:{d:number,uid:string}[] = [];
+				this.greetHistory = [];
+				if(historyStr) {
+					try { prevGreetHistory = JSON.parse(historyStr); }catch(error){ /*ignore*/ }
+				}
+				for (let i = 0; i < prevGreetHistory.length; i++) {
+					const e = prevGreetHistory[i];
+					if(e.d >= expired_before) {
+						this.uidsDone[e.uid] = true;
+						this.greetHistory.push(e);
+					}
+				}
+				Store.set(Store.GREET_HISTORY, this.greetHistory);
 			}else{
 				//Anonymous authentication
 				this.client = new tmi.Client({
@@ -390,7 +407,6 @@ export default class IRCClient extends EventDispatcher {
 	}
 
 	public async updateToken(token:string):Promise<void> {
-		this.token = token;
 		const params = this.client.getOptions();
 		if(params.identity) params.identity.password = token;
 		this.refreshingToken = true;
@@ -489,7 +505,9 @@ export default class IRCClient extends EventDispatcher {
 		if(key && this.uidsDone[key] !== true) {
 			data.firstMessage = true;
 			this.uidsDone[key] = true;
+			this.greetHistory.push({d:Date.now(), uid:key});
 		}
+		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
@@ -550,11 +568,15 @@ export default class IRCClient extends EventDispatcher {
 			tags.color = color;
 		}
 
-		if(this.uidsDone[tags['user-id'] as string] !== true) {
+		let uid = tags['user-id'] as string;
+		if(this.uidsDone[uid] !== true) {
 			if(!automod) data.firstMessage = true;
-			this.uidsDone[tags['user-id'] as string] = true;
+			this.greetHistory.push({d:Date.now(), uid});
+			this.uidsDone[uid] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
+		
+		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		//This line avoids an edge case issue.
 		//If the current TMI client sends messages super fast (some ms between each message),

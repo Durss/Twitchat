@@ -86,6 +86,7 @@
 
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
@@ -235,7 +236,7 @@ export default class ChatMessage extends Vue {
 		if(this.showNofollow) res.push("noFollow");
 		if(message.tags['message-type'] == "action") res.push("slashMe");
 		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
-		if(StoreProxy.store.state.trackedUsers.findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1
+		if((StoreProxy.store.state.trackedUsers as TrackedUser[]).findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1
 		&& !this.lightMode) res.push("tracked");
 		if(this.isAnnouncement) {
 			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";

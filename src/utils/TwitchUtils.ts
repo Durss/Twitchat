@@ -413,7 +413,6 @@ export default class TwitchUtils {
 			const param = ids ? "user_id" : "user_login";
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"streams?first=1&"+params;
-			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			streams = streams.concat(json.data);
