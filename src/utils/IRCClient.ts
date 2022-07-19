@@ -30,7 +30,6 @@ export default class IRCClient extends EventDispatcher {
 	private partSpool:string[] = [];
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
-	private reconnectInterval = -1;
 	private refreshingToken = false;
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	
@@ -311,13 +310,6 @@ export default class IRCClient extends EventDispatcher {
 				if(!this.refreshingToken) {
 					this.sendNotice("offline", "You have been disconnected from the chat :(");
 				}
-				
-				// clearInterval(this.reconnectInterval);
-				// //Check 5s later if we are still disconnected and manually try to reconnect
-				// this.reconnectInterval = setInterval(()=> {
-				// 	if(!this.connected) this.client.connect();
-				// 	else clearInterval(this.reconnectInterval);
-				// }, 5000)
 			});
 
 			this.client.on("clearchat", ()=> {
@@ -431,9 +423,9 @@ export default class IRCClient extends EventDispatcher {
 			return Promise.resolve();
 		}
 		
-		//Workaround to a weird behavior of TMI/IRC.
+		//Workaround to a weird behavior of TMI.js.
 		//If the message starts by a "\" it's properly sent on all
-		//connected clients, but the sender never receives it.
+		//connected clients, but never sent back to the sender.
 		if(message.indexOf("\\") === 0) {
 			const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
 			tags.username = this.login;
@@ -507,9 +499,10 @@ export default class IRCClient extends EventDispatcher {
 		const login = tags.username as string;
 
 		if(login == this.login) {
-			this.selfTags = JSON.parse(JSON.stringify(tags));
+			if(!this.selfTags) this.selfTags = JSON.parse(JSON.stringify(tags));
 			//Darn IRC doesn't send back the user ID when message is sent from this client
 			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
+			tags.id = this.getFakeGuid();
 		}
 
 		if(message == "!logJSON") {
