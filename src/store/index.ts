@@ -1720,7 +1720,6 @@ const store = createStore({
 				try {
 					await new Promise((resolve,reject)=> {
 						commit("authenticate", {cb:(success:boolean)=>{
-							console.log("Auth done", success);
 							if(success) {
 								resolve(null);
 							}else{
