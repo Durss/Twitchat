@@ -1,10 +1,15 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
 
-		<div v-if="!deezerConnected">
-			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
-			<div class="infos">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
+		<div v-if="!deezerConnected">Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.</div>
+		
+		<div class="player">
+			<div class="label">Example</div>
+			<OverlayMusicPlayer v-if="currentTrack" :staticTrackData="currentTrack" embed />
 		</div>
+		
+		<div v-if="!deezerConnected" class="infos">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
+	
 		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" :loading="authenticating" />
 
 		<div v-if="deezerConnected" class="content">
@@ -35,17 +40,20 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import type { MusicMessage } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ToggleBlock,
+		OverlayMusicPlayer,
 	},
 	emits:["setContent"]
 })
@@ -53,8 +61,9 @@ export default class OverlayParamsDeezer extends Vue {
 
 	public open = false;
 	public authenticating = false;
+	public currentTrack:MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
-	public get deezerConnected():boolean { return store.state.deezerConnected; }
+	public get deezerConnected():boolean { return StoreProxy.store.state.deezerConnected; }
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public async authenticate():Promise<void> {
@@ -68,7 +77,7 @@ export default class OverlayParamsDeezer extends Vue {
 	}
 
 	public disconnect():void {
-		store.dispatch("setDeezerConnected", false);
+		StoreProxy.store.dispatch("setDeezerConnected", false);
 	}
 
 }
@@ -113,6 +122,29 @@ export default class OverlayParamsDeezer extends Vue {
 	.icon {
 		height: 1em;
 		vertical-align: middle;
+	}
+
+	.player {
+		border: 1px dashed @mainColor_normal;
+		background: fade(@mainColor_normal, 15%);
+		border-radius: .25em;
+		overflow: hidden;
+		display: inline-block;
+		left: auto;
+		right: auto;
+		padding: .5em;
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
+
+		.label {
+			text-align: center;
+			margin-bottom: .5em;
+		}
+
+		:deep(.overlaymusicplayer) {
+			margin: 0;
+		}
 	}
 
 }

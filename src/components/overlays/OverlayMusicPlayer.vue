@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts">
+import type { MusicMessage } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -35,6 +36,7 @@ import 'vue3-marquee/dist/style.css'
 			type: Boolean,
 			default: false,
 		},
+		staticTrackData: Object,
 	},
 	components:{
 		Vue3Marquee,
@@ -43,8 +45,9 @@ import 'vue3-marquee/dist/style.css'
 })
 export default class OverlayMusicPlayer extends Vue {
 
-	public embed!:boolean
-	public playbackPos!:number
+	public embed!:boolean;
+	public playbackPos!:number;
+	public staticTrackData!:MusicMessage;
 	
 	public artist = "";
 	public track = "";
@@ -97,8 +100,14 @@ export default class OverlayMusicPlayer extends Vue {
 				this.isPlaying = false;
 			}
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+		
+		if(!this.staticTrackData) {
+			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+		}else{
+			this.onTrackChangeLocal();
+			this.progress = 50
+		}
 		if(this.embed) {
 			//Called when track changes
 			watch(()=>DeezerHelper.instance.currentTrack, ()=>this.onTrackChangeLocal());
@@ -122,14 +131,14 @@ export default class OverlayMusicPlayer extends Vue {
 	}
 
 	private onTrackChangeLocal():void {
-		const track = DeezerHelper.instance.currentTrack;
+		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
 		if(track) {
 			this.artist = track.artist;
 			this.track = track.title;
 			this.cover = track.cover;
 			this.isPlaying = true;
 
-			const newProgress = (DeezerHelper.instance.playbackPos/track.duration);
+			const newProgress = ((this.staticTrackData? 600 : DeezerHelper.instance.playbackPos)/track.duration);
 			this.progress = newProgress;
 			const duration = track.duration*(1-newProgress);
 			gsap.killTweensOf(this);
@@ -158,6 +167,13 @@ export default class OverlayMusicPlayer extends Vue {
 <style scoped lang="less">
 .overlaymusicplayer{
 	&.embed {
+		width: 100%;
+		max-width: 300px;
+		aspect-ratio: 300 / 54;
+		margin: auto;
+		margin-top: .5em;
+		margin-bottom: .5em;
+
 		.content {
 			width: 100%;
 			height: 100%;

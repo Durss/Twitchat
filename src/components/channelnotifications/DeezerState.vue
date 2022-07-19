@@ -169,11 +169,7 @@ export default class DeezerState extends Vue {
 	}
 
 	.player {
-		width: 100%;
-		max-width: 300px;
-		height: 3em;
-		margin: auto;
-		margin-bottom: .5em;
+		margin-top: 0;
 	}
 
 	.controls {
