@@ -99,6 +99,8 @@ export default class OverlayParamsSpotify extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
+		
 		const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
 		if(spotifyAppParams) {
 			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);

@@ -66,6 +66,10 @@ export default class OverlayParamsDeezer extends Vue {
 	public get deezerConnected():boolean { return StoreProxy.store.state.deezerConnected; }
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
+	public mounted():void {
+		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
+	}
+
 	public async authenticate():Promise<void> {
 		this.authenticating = true;
 		try{
