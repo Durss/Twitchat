@@ -1668,8 +1668,6 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.REFRESH_TOKEN, (event:IRCEvent) => {
 				commit("authenticate");
 			});
-			
-			state.initComplete = true;
 
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
@@ -1760,6 +1758,9 @@ const store = createStore({
 			const devmode = Store.get(Store.DEVMODE) === "true";
 			this.dispatch("toggleDevMode", devmode);
 			this.dispatch("sendTwitchatAd");
+			
+			state.initComplete = true;
+			
 			payload.callback();
 		},
 		
