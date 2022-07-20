@@ -9,6 +9,7 @@
 		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
 		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
 		
+		<div class="version">v {{appVersion}}</div>
 	</div>
 </template>
 
@@ -49,6 +50,7 @@ export default class ParamsAccount extends Vue {
 		}
 		return pp;
 	}
+	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public logout():void {
 		StoreProxy.store.dispatch('logout');
@@ -152,6 +154,13 @@ export default class ParamsAccount extends Vue {
 		.discordBt {
 			margin: .5em 0;
 		}
+	}
+
+	.version {
+		font-style: italic;
+		text-align: center;
+		font-size: .8em;
+		margin-top: 2em;
 	}
 }
 </style>

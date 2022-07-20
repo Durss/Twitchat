@@ -531,6 +531,12 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
+		}else
+		
+		if(cmd == "/version") {
+			//Secret feature
+			IRCClient.instance.sendNotice("version", "Twitchat version "+import.meta.env.PACKAGE_VERSION);
+			this.message = "";
 
 		}else{
 			//Send message
