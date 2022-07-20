@@ -109,6 +109,9 @@
 				<div class="message">Deezer needs you to click here to be able to play music.</div>
 			</div>
 		</Teleport>
+
+		<ChatAlertMessage />
+		<div class="blinkLayer" ref="blinkLayer" v-if="showBlinkLayer" @click="showBlinkLayer=false"></div>
 	</div>
 </template>
 
@@ -134,6 +137,7 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import Store from '@/store/Store';
+import type { AlertParamsData } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { BingoData, RaffleData } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -147,6 +151,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
+import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 
 @Options({
 	components:{
@@ -169,6 +174,7 @@ import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 		PredictionForm,
 		LiveFollowings,
 		StreamInfoForm,
+		ChatAlertMessage,
 		DataServerSyncModal,
 		ChannelNotifications,
 	},
@@ -185,6 +191,7 @@ export default class Chat extends Vue {
 	public showUserList = false;
 	public showChatUsers = false;
 	public showStorageModal = false;
+	public showBlinkLayer = false;
 	public canStartAd = true;
 	public startAdCooldown = 0;
 	public currentModal = "";
@@ -251,6 +258,31 @@ export default class Chat extends Vue {
 		watch(() => StoreProxy.store.state.raffle, () => {
 			let raffle = StoreProxy.store.state.raffle as RaffleData;
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
+		});
+
+		//Handle chat alert feature
+		watch(() => StoreProxy.store.state.chatAlert, async (value:string) => {
+			if(value != null) {
+				const params = StoreProxy.store.state.chatAlertParams as AlertParamsData;
+				gsap.killTweensOf(this.$el);
+				if(params.shake) {
+					gsap.fromTo(this.$el, {x:-20}, {duration:0.01, x:20, clearProps:"x", repeat:60});
+					gsap.fromTo(this.$el, {y:-20}, {duration:0.02, y:20, clearProps:"y", repeat:30})
+				}
+				if(params.blink) {
+					this.showBlinkLayer = true;
+					await this.$nextTick();
+					const layer = this.$refs.blinkLayer as HTMLDivElement;
+					gsap.killTweensOf(layer);
+					gsap.fromTo(layer, {opacity:0}, {duration:0.17, opacity:1, clearProps:"opacity", repeat:3,
+						onComplete:()=>{
+							this.showBlinkLayer = false;
+						}});
+				}
+				if(params.sound) {
+					new Audio(this.$image("sounds/wizz.mp3")).play();
+				}
+			}
 		});
 	}
 
@@ -553,6 +585,16 @@ export default class Chat extends Vue {
 			max-height: 80vh;
 			width: 100%;
 		}
+	}
+
+	.blinkLayer {
+		width: 100vw;
+		height: 100vh;
+		background-color: fade(#c00, 70%);
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 2;
 	}
 }
 </style>

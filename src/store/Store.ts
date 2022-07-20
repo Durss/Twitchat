@@ -33,6 +33,7 @@ export default class Store {
 	public static SPOTIFY_AUTH_TOKEN:string = "spotifyAuthToken";
 	public static STREAM_INFO_PRESETS:string = "streamInfoPresets";
 	public static EMERGENCY_PARAMS:string = "emergencyParams";
+	public static ALERT_PARAMS:string = "chatAlertParams";
 	public static SPOILER_PARAMS:string = "spoilerParams";
 	public static CHAT_HIGHLIGHT_PARAMS:string = "chatHighlightParams";
 	public static TWITCH_AUTH_TOKEN:string = "oAuthToken";

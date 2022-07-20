@@ -14,6 +14,7 @@ export type ParamsContenType = 'appearance'
 							| 'overlays'
 							| 'emergency'
 							| 'spoiler'
+							| 'alert'
 							| null ;
 
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
@@ -290,4 +291,12 @@ export interface ChatHighlightOverlayData {
 
 export interface SpoilerParamsData {
 	permissions:PermissionsData;
+}
+export interface AlertParamsData {
+	chatCmd:string;
+	permissions:PermissionsData;
+	blink:boolean;
+	shake:boolean;
+	sound:boolean;
+	message:boolean;
 }

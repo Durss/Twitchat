@@ -134,7 +134,7 @@ export default class Button extends Vue {
 		if(this.small !== false) list.push("small");
 		if(this.highlight !== false) list.push("highlight");
 		if(this.selected !== false) list.push("selected");
-		if(this.loading !== false) list.push("disabled");
+		if(this.loading !== false) list.push("disabled", "loading");
 		if(this.disabled !== false) list.push("disabled");
 		if(this.type == "checkbox") list.push("checkbox");
 		return list;
@@ -242,6 +242,10 @@ export default class Button extends Vue {
 			color: fade(#000, 25%);
 			background-color: fade(@mainColor_dark_extralight, 50%);
 		}
+	}
+
+	&.loading {
+		cursor: wait;
 	}
 
 	&>*:not(.browse) {

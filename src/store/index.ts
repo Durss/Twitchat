@@ -28,7 +28,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -215,7 +215,28 @@ const store = createStore({
 				details:"Unban a user",
 			}
 		] as CommandData[],
+
 		params: {
+			features: {
+				emergencyButton: 			{save:true, type:"toggle", value:false, label:"Emergency button", id:215, icon:"emergency_purple.svg"},
+				spoilersEnabled: 			{save:true, type:"toggle", value:true, label:"Enable spoiler tag", id:216, icon:"show_purple.svg"},
+				alertMode: 					{save:true, type:"toggle", value:true, label:"Enable alert mode", id:217, icon:"alert_purple.svg"},
+				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
+				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
+				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
+				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
+				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
+				markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
+				lockAutoScroll: 			{save:true, type:"toggle", value:false, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
+				showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
+				raidStreamInfo: 			{save:true, type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
+				raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
+				groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
+				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
+				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
+				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
+				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
+			} as {[key:string]:ParameterData},
 			appearance: {
 				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
@@ -257,36 +278,20 @@ const store = createStore({
 				showFollow: 				{save:true, type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
 				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
-			} as {[key:string]:ParameterData},
-			features: {
-				emergencyButton: 			{save:true, type:"toggle", value:false, label:"Emergency button", id:215, icon:"emergency_purple.svg"},
-				spoilersEnabled: 			{save:true, type:"toggle", value:true, label:"Enable spoiler tag", id:216, icon:"show_purple.svg"},
-				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
-				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
-				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
-				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
-				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
-				markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
-				lockAutoScroll: 			{save:true, type:"toggle", value:false, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
-				showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
-				raidStreamInfo: 			{save:true, type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
-				raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
-				groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
-				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
-				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
-				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
+
 		roomStatusParams: {
 			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
 			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
 		} as IRoomStatusCategory,
+
 		accountParams: {
 			syncDataWithServer: { type:"toggle", value:false, label:"Sync parameters to server", id:401 },
 		} as IAccountParamsCategory,
+
 		confirm:{
 			title:"",
 			description:"",
@@ -295,6 +300,7 @@ const store = createStore({
 			yesLabel:"",
 			noLabel:"",
 		},
+
 		emergencyParams: {
 			emotesOnly:false,
 			subOnly:false,
@@ -315,6 +321,7 @@ const store = createStore({
 				users:""
 			},
 		} as EmergencyParamsData,
+
 		spoilerParams: {
 			permissions:{
 				mods:true,
@@ -324,10 +331,27 @@ const store = createStore({
 				users:""
 			},
 		} as SpoilerParamsData,
+
 		isChatMessageHighlighted: false,
 		chatHighlightOverlayParams: {
 			position:"bl",
 		} as ChatHighlightOverlayData,
+		
+		chatAlertParams: {
+			chatCmd:"!alert",
+			message:true,
+			shake:true,
+			sound:true,
+			blink:false,
+			permissions:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as AlertParamsData,
+		chatAlert:null as IRCEventDataList.Message|IRCEventDataList.Whisper|null,
 	},
 
 
@@ -1216,6 +1240,11 @@ const store = createStore({
 			state.emergencyParams = params;
 			Store.set(Store.EMERGENCY_PARAMS, params);
 		},
+
+		setAlertParams(state, params:AlertParamsData) {
+			state.chatAlertParams = params;
+			Store.set(Store.ALERT_PARAMS, params);
+		},
 		
 		setChatHighlightOverlayParams(state, params:ChatHighlightOverlayData) {
 			state.chatHighlightOverlayParams = params;
@@ -1329,6 +1358,12 @@ const store = createStore({
 			//Broadcast to any connected peers
 			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
 		},
+
+		async executeChatAlert(state, message:IRCEventDataList.Message|IRCEventDataList.Whisper) {
+			state.chatAlert = message;
+			await Utils.promisedTimeout(50);
+			state.chatAlert = null;
+		},
 		
 	},
 
@@ -1423,7 +1458,7 @@ const store = createStore({
 				
 				//If a raffle is in progress, check if the user can enter
 				const raffle = state.raffle;
-				if(raffle && messageData.message?.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
+				if(raffle && messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 					//Check if within time frame and max users count isn't reached and that user
 					//hasn't already entered
@@ -1535,7 +1570,7 @@ const store = createStore({
 					//check if its a command to start the emergency mode
 					if(Utils.checkPermissions(state.emergencyParams.chatCmdPerms, messageData.tags)) {
 						const cmd = messageData.message.trim().toLowerCase();
-						if(cmd===state.emergencyParams.chatCmd) {
+						if(cmd===state.emergencyParams.chatCmd.trim()) {
 							commit("setEmergencyMode", true);
 						}
 					}
@@ -1552,6 +1587,13 @@ const store = createStore({
 									break;
 								}
 							}
+						}
+					}
+
+					//check if its a chat alert command
+					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)) {
+						if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
+							commit("executeChatAlert", messageData);
 						}
 					}
 				}
@@ -1813,6 +1855,12 @@ const store = createStore({
 			const emergency = Store.get(Store.EMERGENCY_PARAMS);
 			if(emergency) {
 				state.emergencyParams = JSON.parse(emergency);
+			}
+			
+			//Init alert actions
+			const alert = Store.get(Store.ALERT_PARAMS);
+			if(alert) {
+				state.chatAlertParams = JSON.parse(alert);
 			}
 			
 			//Init spoiler actions
@@ -2118,6 +2166,8 @@ const store = createStore({
 		
 		setEmergencyParams({commit}, params:EmergencyParamsData) { commit("setEmergencyParams", params); },
 		
+		setAlertParams({commit}, params:AlertParamsData) { commit("setAlertParams", params); },
+		
 		setChatHighlightOverlayParams({commit}, params:ChatHighlightOverlayData) { commit("setChatHighlightOverlayParams", params); },
 		
 		highlightChatMessageOverlay({commit}, payload:IRCEventDataList.Message|null) { commit("highlightChatMessageOverlay", payload); },
@@ -2125,6 +2175,8 @@ const store = createStore({
 		setSpoilerParams({commit}, params:SpoilerParamsData) { commit("setSpoilerParams", params); },
 		
 		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
+
+		executeChatAlert({commit}, message:IRCEventDataList.Message|IRCEventDataList.Whisper) { commit("executeChatAlert", message); },
 	},
 	modules: {
 	}

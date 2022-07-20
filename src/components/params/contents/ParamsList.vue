@@ -30,12 +30,16 @@
 					</p>
 				</div>
 
-				<div v-else-if="p.id == 215 && p.value === true" class="info emergency">
-					<Button title="Configure emergency actions" @click="$emit('setContent', 'emergency')" />
+				<div v-else-if="p.id == 215 && p.value === true" class="info config">
+					<Button white small title="Configure" @click="$emit('setContent', 'emergency')" />
 				</div>
 
-				<div v-else-if="p.id == 216 && p.value === true" class="info spoiler">
-					<Button title="Configure" @click="$emit('setContent', 'spoiler')" />
+				<div v-else-if="p.id == 216 && p.value === true" class="info config">
+					<Button white small title="Configure" @click="$emit('setContent', 'spoiler')" />
+				</div>
+
+				<div v-else-if="p.id == 217 && p.value === true" class="info config">
+					<Button white small title="Configure" @click="$emit('setContent', 'alert')" />
 				</div>
 			</transition>
 		</div>
@@ -167,8 +171,15 @@ export default class ParamsList extends Vue {
 			}
 		}
 
-		&.emergency, &.spoiler {
-			text-align: center;
+		&.config {
+			// text-align: center;
+			margin-top: -8px;
+			.button {
+				border: 1px solid @mainColor_normal;
+				border-top: none;
+				border-top-left-radius: 0;
+				border-top-right-radius: 0;
+			}
 		}
 	}
 }
