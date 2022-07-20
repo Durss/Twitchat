@@ -231,6 +231,7 @@ export default class Parameters extends Vue {
 			padding: 1em;
 			display: flex;
 			flex-direction: column;
+			flex-grow: 1;
 			.button:not(:first-child) {
 				margin-top: 10px;
 			}
