@@ -28,7 +28,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -1590,10 +1590,19 @@ const store = createStore({
 						}
 					}
 
-					//check if its a chat alert command
+					//check if it's a chat alert command
 					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)) {
 						if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
-							commit("executeChatAlert", messageData);
+							let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
+							//Remove command from message to make later things easier
+							const cmd = state.chatAlertParams.chatCmd as string;
+							mess.message = mess.message.replace(new RegExp("^"+cmd+" ?", "i"), "");
+							commit("executeChatAlert", mess);
+							let trigger:ChatAlertInfo = {
+								type:"chatAlert",
+								message:mess,
+							}
+							TriggerActionHandler.instance.onMessage(trigger);
 						}
 					}
 				}

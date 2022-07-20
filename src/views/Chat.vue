@@ -266,8 +266,8 @@ export default class Chat extends Vue {
 				const params = StoreProxy.store.state.chatAlertParams as AlertParamsData;
 				gsap.killTweensOf(this.$el);
 				if(params.shake) {
-					gsap.fromTo(this.$el, {x:-20}, {duration:0.01, x:20, clearProps:"x", repeat:60});
-					gsap.fromTo(this.$el, {y:-20}, {duration:0.02, y:20, clearProps:"y", repeat:30})
+					gsap.fromTo(this.$el, {x:-10}, {duration:0.01, x:10, clearProps:"x", repeat:60});
+					gsap.fromTo(this.$el, {y:-10}, {duration:0.02, y:10, clearProps:"y", repeat:30})
 				}
 				if(params.blink) {
 					this.showBlinkLayer = true;

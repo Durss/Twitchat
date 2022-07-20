@@ -6,6 +6,10 @@ import type { ChatUserstate } from "tmi.js";
  * But to avoid circular imports i've exported them on a separate file.
  * Otherwise we would have a circular dependency between these files:
  * src\utils\IRCEventDataTypes.ts <===> src\types\TwitchDataTypes.ts
+ * 
+ * The only way to solve these circular import on types would be to have
+ * all the types on one single file. But that would be a mess, i'm
+ * trying to avoid that...
  */
 
 export interface BingoData {

@@ -1,4 +1,4 @@
-import type { ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -173,6 +173,11 @@ export default class TriggerActionHandler {
 			if(await this.handleHighlightOverlay(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
+		
+		}else if(message.type == "chatAlert") {
+			if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
 		// console.log("Message not matching any trigger", message);
@@ -282,6 +287,10 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
 	}
 	
+	private async handleChatAlert(message:ChatAlertInfo, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, guid);
+	}
+	
 	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
@@ -316,7 +325,7 @@ export default class TriggerActionHandler {
 	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		const trigger = this.triggers[ eventType ];
-		// console.log("PARSE STEPS", eventType, trigger);
+		// console.log("PARSE STEPS", eventType, trigger, message);
 		
 		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;
@@ -516,6 +525,7 @@ export default class TriggerActionHandler {
 				console.warn("Unable to find pointer for helper", h);
 				value = "";
 			}
+			// console.log("Pointer:", h.pointer, "_ value:", value);
 			
 			if(h.tag === "SUB_TIER") {
 				if(!isNaN(value as number) && (value as number) > 0) {
@@ -526,7 +536,7 @@ export default class TriggerActionHandler {
 			}
 
 			if(h.tag === "MESSAGE") {
-				const m = message as IRCEventDataList.Highlight;
+				const m = message as IRCEventDataList.Message;
 				if(m.message && m.tags) {
 					//Parse emotes
 					const chunks = TwitchUtils.parseEmotes(m.message as string, m.tags['emotes-raw'], true);
@@ -593,4 +603,5 @@ type MessageTypes = IRCEventDataList.Message
 | StreamInfoUpdate
 | EmergencyModeUpdate
 | ChatHighlightInfo
+| ChatAlertInfo
 ;

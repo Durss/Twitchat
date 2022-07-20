@@ -256,6 +256,7 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.EMERGENCY_MODE_START] = "emergency_purple";
 		map[TriggerTypes.EMERGENCY_MODE_STOP] = "emergency_purple";
 		map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = "highlight_purple";
+		map[TriggerTypes.CHAT_ALERT] = "alert_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");

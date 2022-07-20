@@ -45,8 +45,7 @@ export default class ChatAlertMessage extends Vue {
 						result += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
-				const cmd = StoreProxy.store.state.chatAlertParams.chatCmd as string;
-				this.message = result.replace(new RegExp("^"+cmd+" ?", "i"), "");
+				this.message = result;
 				this.user = message.tags.username as string;
 			}
 		})
@@ -82,6 +81,7 @@ export default class ChatAlertMessage extends Vue {
 		overflow: hidden;
 		text-align: center;
 		padding: 1em;
+		word-break: break-word;
 		:deep(.emote) {
 			height: 1em;
 		}
