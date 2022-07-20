@@ -837,6 +837,7 @@ const UserDataSchema = {
 		"p:translateNames": {type:"boolean"},
 		"p:emergencyButton": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
+		"p:alertMode": {type:"boolean"},
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -904,6 +905,29 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				position:{type:"string", maxLength:2},
+			}
+		},
+		
+		chatAlertParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				chatCmd:{type:"string", maxLength:100},
+				message: {type:"boolean"},
+				shake: {type:"boolean"},
+				sound: {type:"boolean"},
+				blink: {type:"boolean"},
+				permissions:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
 			}
 		},
 	}
