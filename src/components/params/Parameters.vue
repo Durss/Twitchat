@@ -7,18 +7,6 @@
 				<h1 class="title">Parameters</h1>
 				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce />
 			</div>
-			<div class="menu">
-				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
-				<Button white bounce title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
-				<Button white bounce title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
-				<Button white bounce title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
-				<Button white bounce title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
-				<Button white bounce title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
-				<Button white bounce title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
-				<Button white bounce title="Voice bot" @click="setContent('voice')" :selected="content == 'voice'" />
-				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
-				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
-			</div>
 
 			<div class="search" v-if="content == null">
 			<!-- <div class="search" v-if="isGenericListContent"> -->
@@ -33,6 +21,7 @@
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
+				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice bot" @click="setContent('voice')" :selected="content == 'voice'" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 
