@@ -168,17 +168,16 @@ export default class Parameters extends Vue {
 	}
 
 	public setContent(id:ParamsContenType):void {
-		if(this.search.length == 0) {
-			if(id == this.content) {
-				//Refresh content if already active
-				this.content = null;
-				this.$nextTick().then(()=>{
-					this.content = id;
-				})
-			}else{
+		if(id == this.content) {
+			//Refresh content if already active
+			this.content = null;
+			this.$nextTick().then(()=>{
 				this.content = id;
-			}
+			})
 		}else{
+			this.content = id;
+		}
+		if(id == null && this.search.length > 0) {
 			this.search = "";
 		}
 	}
