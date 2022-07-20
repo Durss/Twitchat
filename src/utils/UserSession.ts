@@ -12,6 +12,7 @@ export default class UserSession {
 	public authResult:TwitchDataTypes.AuthTokenResult|null = null;
 	public emotesCache:TwitchDataTypes.Emote[]|null = null;
 	public user:TwitchDataTypes.UserInfo| null = null;
+	public access_token:string|null = null;
 	public authToken = {
 		client_id: "",
 		login: "",

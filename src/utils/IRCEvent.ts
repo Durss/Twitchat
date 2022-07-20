@@ -20,6 +20,8 @@ export default class IRCEvent extends Event {
 	public static AUTOMOD = "AUTOMOD";
 	public static ROOMSTATE = "ROOMSTATE";
 	public static WHISPER = "WHISPER";
+	public static JOIN = "JOIN";
+	public static REFRESH_TOKEN = "REFRESH_TOKEN";
 	
 	constructor(type:string, public data?:IRCEventData) {
 		super(type);

@@ -3,10 +3,16 @@
 		<div v-if="error" class="error" @click="error=''">{{error}}</div>
 
 		<div v-if="!spotifyConnected && !authenticating">
-			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.
+			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback from chat.
 		</div>
+		
+		<div class="player">
+			<div class="label">Example</div>
+			<OverlayMusicPlayer v-if="currentTrack" :staticTrackData="currentTrack" embed />
+		</div>
+
 		<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
-			<div class="info">Sadly, <strong>Spotify</strong> is refusing Twitchat to use their API with unlimited users and extended quotas <i>(necessary)</i>.<br>
+			<div class="info">Sadly, <strong>Spotify</strong> is refusing Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.<br>
 			To use it you'll have to <a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:</div>
 			<form>
 				<ParamItem class="item" :paramData="paramClient" autofocus />
@@ -38,7 +44,7 @@
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
 				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
 			</div>
-			<Button v-if="spotifyConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
+			<Button title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
 
 		<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
@@ -47,15 +53,15 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import Store from '@/store/Store';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { MusicMessage, ParameterData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
+import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 
 @Options({
 	props:{},
@@ -63,6 +69,7 @@ import ParamItem from '../../ParamItem.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
+		OverlayMusicPlayer,
 	},
 	emits:["setContent"]
 })
@@ -74,6 +81,7 @@ export default class OverlayParamsSpotify extends Vue {
 	public authenticating = false;
 	public paramClient:ParameterData = {label:"Client ID", value:"", type:"text", fieldName:"spotifyClient"};
 	public paramSecret:ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
+	public currentTrack:MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get overlayUrl():string { return this.$overlayURL("music"); }
@@ -83,32 +91,35 @@ export default class OverlayParamsSpotify extends Vue {
 
 	public authenticate():void {
 		this.loading = true;
-		store.dispatch("setSpotifyCredentials", {
-			client: this.paramClient.value as string,
-			secret: this.paramSecret.value as string,
+		this.$store.dispatch("setSpotifyCredentials", {
+			client: (this.paramClient.value as string).trim(),
+			secret: (this.paramSecret.value as string).trim(),
 		});
 		SpotifyHelper.instance.startAuthFlow();
 	}
 
 	public async mounted():Promise<void> {
-		const spotifyAppParams = Store.get("spotifyAppParams");
+		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
+		
+		const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
 		if(spotifyAppParams) {
 			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);
+			SpotifyHelper.instance.setAppParams(p.client, p.secret);
 			this.paramClient.value = p.client;
 			this.paramSecret.value = p.secret;
 		}
 
-		if(store.state.spotifyAuthParams) {
+		if(this.$store.state.spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
 
-			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+store.state.spotifyAuthParams.csrf, {method:"POST"});
+			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+this.$store.state.spotifyAuthParams.csrf, {method:"POST"});
 			const csrf = await csrfRes.json();
 			if(!csrf.success) {
-				store.state.alert = csrf.message;
+				this.$store.state.alert = csrf.message;
 			}else{
 				try {
-					await SpotifyHelper.instance.authenticate(store.state.spotifyAuthParams.code);
+					await SpotifyHelper.instance.authenticate(this.$store.state.spotifyAuthParams.code);
 				}catch(e:unknown) {
 					this.error = (e as {error:string, error_description:string}).error_description;
 				}
@@ -116,12 +127,12 @@ export default class OverlayParamsSpotify extends Vue {
 
 			this.authenticating = false;
 			this.loading = false;
-			store.dispatch("setSpotifyAuthResult", null);
+			this.$store.dispatch("setSpotifyAuthResult", null);
 		}
 	}
 
 	public disconnect():void {
-		store.dispatch("setSpotifyToken", null);
+		this.$store.dispatch("setSpotifyToken", null);
 	}
 
 }
@@ -178,5 +189,27 @@ export default class OverlayParamsSpotify extends Vue {
 		}
 	}
 
+	.player {
+		border: 1px dashed @mainColor_normal;
+		background: fade(@mainColor_normal, 15%);
+		border-radius: .25em;
+		overflow: hidden;
+		display: inline-block;
+		left: auto;
+		right: auto;
+		padding: .5em;
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
+
+		.label {
+			text-align: center;
+			margin-bottom: .5em;
+		}
+
+		:deep(.overlaymusicplayer) {
+			margin: 0;
+		}
+	}
 }
 </style>

@@ -3,13 +3,13 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Create chat poll</span>
+				<span class="title">Suggestion poll</span>
 				<Button aria-label="Close chat poll form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
-					<p>Let your viewers decide the poll's entries by entering a command followed by their entry and randomly pick one of them.</p>
-					<p class="example">Ex: <span>{{example}} user entry</span></p>
+					<p>Get suggestions from your audience.</p>
+					<p class="example">Ex: <span>{{example}} <strong>user's suggestion</strong></span></p>
 				</div>
 				<form  @submit.prevent="submitChatPoll()">
 					<div class="row">
@@ -29,7 +29,7 @@
 					</ToggleBlock> -->
 
 					<div class="row">
-						<Button title="Submit" type="submit" :disabled="(command.value as string).length < 1" />
+						<Button title="Submit" type="submit" />
 					</div>
 				</form>
 			</div>
@@ -38,8 +38,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ChatPollData, ParameterData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -58,9 +58,9 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatPollForm extends Vue {
 	
-	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!poll", maxLength:31};
+	public command:ParameterData = {type:"text", value:"!sugg", label:"Command", placeholder:"!sugg", maxLength:31};
 	public duration:ParameterData = {label:"Poll duration (minutes)", value:2, type:"number", min:1, max:30};
-	public multiAnswers:ParameterData = {label:"User can submit multiple entries", value:false, type:"toggle"};
+	public multiAnswers:ParameterData = {label:"Users can submit multiple entries", value:false, type:"toggle"};
 	public permissions = {
 		mods:true,
 		vips:true,
@@ -71,7 +71,7 @@ export default class ChatPollForm extends Vue {
 
 	public get example():string {
 		if(this.command.value) return this.command.value as string;
-		return "!poll";
+		return "!sugg";
 	}
 
 	public async mounted():Promise<void> {
@@ -97,7 +97,7 @@ export default class ChatPollForm extends Vue {
 			choices:[],
 			winners:[],
 		}
-		store.dispatch("setChatPoll", data);
+		StoreProxy.store.dispatch("setChatPoll", data);
 		this.close();
 	}
 }
@@ -149,6 +149,7 @@ export default class ChatPollForm extends Vue {
 				}
 				:deep(input) {
 					width: 100px;
+					max-width: 100px;
 					text-align: center;
 				}
 			}

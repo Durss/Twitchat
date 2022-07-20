@@ -1,3 +1,4 @@
+import Store from "@/store/Store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
@@ -19,28 +20,28 @@ import Utils from "./Utils";
 * Created : 19/01/2021 
 */
 export default class IRCClient extends EventDispatcher {
-
 	
 	private static _instance:IRCClient;
-	private login!:string;
-	private uidsDone:{[key:string]:boolean} = {};
-	private idToExample:{[key:string]:unknown} = {};
-	private selfTags!:tmi.ChatUserstate;
-	private joinSpool:string[] = [];
-	private partSpool:string[] = [];
-	private joinSpoolTimeout = -1;
-	private partSpoolTimeout = -1;
-	private reconnectTimeout = -1;
-	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
-	
-	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	public client!:tmi.Client;
-	public token!:string|undefined;
 	public channel!:string;
 	public connected = false;
 	public botsLogins:string[] = [];
-	public increment = 0;
 	public onlineUsers:string[] = [];
+	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	
+	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
+	private login!:string;
+	private uidsDone:{[key:string]:boolean} = {};
+	private idToExample:{[key:string]:unknown} = {};
+	private userToColor:{[key:string]:string} = {};
+	private selfTags!:tmi.ChatUserstate;
+	private joinSpool:string[] = [];
+	private partSpool:string[] = [];
+	private greetHistory:{d:number,uid:string}[] = [];
+	private joinSpoolTimeout = -1;
+	private partSpoolTimeout = -1;
+	private refreshingToken = false;
+	private increment = 0;
 	
 	constructor() {
 		super();
@@ -71,11 +72,10 @@ export default class IRCClient extends EventDispatcher {
 
 		return new Promise((resolve, reject) => {
 			this.login = login;
-			this.token = token;
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["littlebigwhale"]);
+				channels = channels.concat(["shakawah"]);
 			}
 
 			(async ()=> {
@@ -90,9 +90,9 @@ export default class IRCClient extends EventDispatcher {
 					//Load user specific badges infos
 					await TwitchUtils.loadUserBadges(uids[i]);
 					await TwitchUtils.loadCheermoteList(uids[i]);
-					await BTTVUtils.instance.addChannel(uids[i]);
-					await FFZUtils.instance.addChannel(uids[i]);
-					await SevenTVUtils.instance.addChannel(uids[i]);
+					BTTVUtils.instance.addChannel(uids[i]);
+					FFZUtils.instance.addChannel(uids[i]);
+					SevenTVUtils.instance.addChannel(uids[i]);
 				}
 
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
@@ -122,6 +122,23 @@ export default class IRCClient extends EventDispatcher {
 						password: "oauth:"+token
 					},
 				});
+				
+				//Preload previous "greet them" history from the last 8 hours
+				const expired_before = Date.now() - (1000 * 60 * 60 * 8);//Expire after 8 hours
+				let historyStr = Store.get(Store.GREET_HISTORY);
+				let prevGreetHistory:{d:number,uid:string}[] = [];
+				this.greetHistory = [];
+				if(historyStr) {
+					try { prevGreetHistory = JSON.parse(historyStr); }catch(error){ /*ignore*/ }
+				}
+				for (let i = 0; i < prevGreetHistory.length; i++) {
+					const e = prevGreetHistory[i];
+					if(e.d >= expired_before) {
+						this.uidsDone[e.uid] = true;
+						this.greetHistory.push(e);
+					}
+				}
+				Store.set(Store.GREET_HISTORY, this.greetHistory);
 			}else{
 				//Anonymous authentication
 				this.client = new tmi.Client({
@@ -137,7 +154,10 @@ export default class IRCClient extends EventDispatcher {
 					console.log("IRCClient :: Connection succeed");
 					resolve();
 					this.dispatchEvent(new IRCEvent(IRCEvent.CONNECTED));
-					this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
+					if(!this.refreshingToken) {
+						this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
+					}
+					this.refreshingToken = false;
 				}else{
 					if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
@@ -146,6 +166,7 @@ export default class IRCClient extends EventDispatcher {
 							clearTimeout(this.joinSpoolTimeout);
 							
 							this.joinSpoolTimeout = window.setTimeout(() => {
+								const spoolBackup = this.joinSpool.concat();
 								const join = this.joinSpool.splice(0, 30);
 								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
 								if(this.joinSpool.length > 0) {
@@ -155,6 +176,11 @@ export default class IRCClient extends EventDispatcher {
 								}
 								message += " joined the chat room";
 								this.sendNotice("online", message, channel);
+								const data:IRCEventDataList.JoinList = {
+									type:"join",
+									users:spoolBackup,
+								}
+								this.dispatchEvent(new IRCEvent(IRCEvent.JOIN, data));
 								this.joinSpool = [];
 							}, 1000);
 						}
@@ -297,14 +323,10 @@ export default class IRCClient extends EventDispatcher {
 					return;
 				}
 				this.connected = false;
-				this.sendNotice("offline", "You have been disconnected from the chat :(");
 				this.dispatchEvent(new IRCEvent(IRCEvent.DISCONNECTED));
-				
-				clearTimeout(this.reconnectTimeout);
-				//Check 5s later if we are still disconnected and manually try to reconnect
-				this.reconnectTimeout = setTimeout(()=> {
-					if(!this.connected) this.client.connect();
-				}, 5000)
+				if(!this.refreshingToken) {
+					this.sendNotice("offline", "You have been disconnected from the chat :(");
+				}
 			});
 
 			this.client.on("clearchat", ()=> {
@@ -359,7 +381,9 @@ export default class IRCClient extends EventDispatcher {
 								message = "You cannot delete this message.";
 							}
 							if(msgid.indexOf("authentication failed") > -1) {
-								message = "Authentication failed. Trying again...";
+								console.log(data);
+								message = "Authentication failed. Refreshing token and trying again...";
+								this.dispatchEvent(new IRCEvent(IRCEvent.REFRESH_TOKEN));
 							}
 						}
 						this.sendNotice(msgid as tmi.MsgID, message);
@@ -382,6 +406,14 @@ export default class IRCClient extends EventDispatcher {
 		});
 	}
 
+	public async updateToken(token:string):Promise<void> {
+		const params = this.client.getOptions();
+		if(params.identity) params.identity.password = token;
+		this.refreshingToken = true;
+		await this.client.disconnect();
+		await this.client.connect();
+	}
+
 	public disconnect():void {
 		if(this.client) {
 			this.client.disconnect();
@@ -401,10 +433,15 @@ export default class IRCClient extends EventDispatcher {
 
 	public sendMessage(message:string):Promise<unknown> {
 		if(!this.connected) return Promise.resolve();
+
+		if(message == "/disconnect") {
+			this.client.disconnect();
+			return Promise.resolve();
+		}
 		
-		//Workaround to a weird behavior of TMI/IRC.
+		//Workaround to a weird behavior of TMI.js.
 		//If the message starts by a "\" it's properly sent on all
-		//connected clients, but the sender never receives it.
+		//connected clients, but never sent back to the sender.
 		if(message.indexOf("\\") === 0) {
 			const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
 			tags.username = this.login;
@@ -468,7 +505,9 @@ export default class IRCClient extends EventDispatcher {
 		if(key && this.uidsDone[key] !== true) {
 			data.firstMessage = true;
 			this.uidsDone[key] = true;
+			this.greetHistory.push({d:Date.now(), uid:key});
 		}
+		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
@@ -478,9 +517,10 @@ export default class IRCClient extends EventDispatcher {
 		const login = tags.username as string;
 
 		if(login == this.login) {
-			this.selfTags = JSON.parse(JSON.stringify(tags));
+			if(!this.selfTags) this.selfTags = JSON.parse(JSON.stringify(tags));
 			//Darn IRC doesn't send back the user ID when message is sent from this client
 			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
+			tags.id = this.getFakeGuid();
 		}
 
 		if(message == "!logJSON") {
@@ -502,12 +542,41 @@ export default class IRCClient extends EventDispatcher {
 		//data for the broadcaster's messages...
 		if(!tags.id) tags.id = this.getFakeGuid();
 		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
+		
+		if(!tags.color) {
+			let color = this.userToColor[login];
+			if(!color) {
+				color = Utils.pickRand([
+					"#ff0000",
+					"#0000ff",
+					"#008000",
+					"#b22222",
+					"#ff7f50",
+					"#9acd32",
+					"#ff4500",
+					"#2e8b57",
+					"#daa520",
+					"#d2691e",
+					"#5f9ea0",
+					"#1e90ff",
+					"#ff69b4",
+					"#8a2be2",
+					"#00ff7f"
+				]);
+				this.userToColor[login]	= color;
+			}
+			tags.color = color;
+		}
 
-		if(this.uidsDone[tags['user-id'] as string] !== true) {
+		let uid = tags['user-id'] as string;
+		if(this.uidsDone[uid] !== true) {
 			if(!automod) data.firstMessage = true;
-			this.uidsDone[tags['user-id'] as string] = true;
+			this.greetHistory.push({d:Date.now(), uid});
+			this.uidsDone[uid] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
+		
+		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		//This line avoids an edge case issue.
 		//If the current TMI client sends messages super fast (some ms between each message),

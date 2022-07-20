@@ -6,6 +6,9 @@
 	<br>
 	<br>
 	- <a href="https://twitchat.fr" target="_blank">twitchat.fr</a> -
+	<br>
+	- <a href="https://discord.gg/fmqD2xUYvP1" target="_blank">Join discord</a> -
+	
 </div>
 <br>
 <br>

@@ -5,10 +5,10 @@
 </template>
 
 <script lang="ts">
-import gsap from 'gsap';
-import store from '@/store';
-import { Options, Vue } from 'vue-class-component';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
+import gsap from 'gsap';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({})
 export default class AlertView extends Vue {
@@ -18,14 +18,14 @@ export default class AlertView extends Vue {
 
 	public mounted():void {
 		this.onWatchAlert();
-		watch(() => store.state.alert, () => {
+		watch(() => StoreProxy.store.state.alert, () => {
 			this.onWatchAlert();
 		});
 	}
 
 	// @Watch("$store.state.alert")
 	public async onWatchAlert():Promise<void> {
-		let mess = store.state.alert;
+		let mess = StoreProxy.store.state.alert;
 		if(mess && mess.length > 0) {
 			this.message = mess;
 			await this.$nextTick();
@@ -42,7 +42,7 @@ export default class AlertView extends Vue {
 
 	public close():void {
 		clearTimeout(this.timeout);
-		store.state.alert = "";
+		StoreProxy.store.state.alert = "";
 	}
 }
 </script>

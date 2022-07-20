@@ -37,7 +37,6 @@
 
 <script lang="ts">
 import type { PlaceholderEntry, WheelData, WheelItem } from '@/types/TwitchatDataTypes';
-import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
@@ -49,6 +48,7 @@ import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
 import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -62,7 +62,7 @@ import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
 export default class RaffleState extends Vue {
 
 	public progressPercent = 0;
-	public raffleData:RaffleData = store.state.raffle as RaffleData;
+	public raffleData:RaffleData = StoreProxy.store.state.raffle as RaffleData;
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
@@ -86,7 +86,7 @@ export default class RaffleState extends Vue {
 	public closeRaffle():void {
 		this.$confirm("Close raffle", "All raffle entries will be lost")
 		.then(async ()=> {
-			store.dispatch("stopRaffle");
+			StoreProxy.store.dispatch("stopRaffle");
 			this.$emit("close");
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 		}).catch(()=> {
@@ -95,7 +95,7 @@ export default class RaffleState extends Vue {
 	}
 
 	public openUserCard(user:ChatUserstate):void {
-		store.dispatch("openUserCard", user.username);
+		StoreProxy.store.dispatch("openUserCard", user.username);
 	}
 
 	public async pickWinner():Promise<void> {
@@ -120,7 +120,7 @@ export default class RaffleState extends Vue {
 		}while(this.raffleData.winners.find(w => w['user-id'] == winner.user['user-id']));
 		
 		//Ask if a wheel overlay exists
-		if(PublicAPI.instance.localConnexionAvailable) {
+		if(PublicAPI.instance.localConnectionAvailable) {
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 		}
@@ -152,7 +152,7 @@ export default class RaffleState extends Vue {
 				label:winner.user['display-name'] as string,
 				data:winner,
 			}
-			store.dispatch("onRaffleComplete", {winner:winnerData});
+			StoreProxy.store.dispatch("onRaffleComplete", {winner:winnerData});
 		}
 
 	}

@@ -64,9 +64,8 @@
 </template>
 
 <script lang="ts">
-import PublicAPI from '@/utils/PublicAPI';
-import store from '@/store';
 import type { ParameterData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import VoiceAction from '@/utils/VoiceAction';
 import VoiceController from '@/utils/VoiceController';
@@ -77,6 +76,7 @@ import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import type TwitchatEvent from '@/utils/TwitchatEvent';
+import PublicAPI from '@/utils/PublicAPI';
 
 @Options({
 	props:{
@@ -124,9 +124,9 @@ export default class PollForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		if(store.state.tempStoreValue) {
-			this.title = store.state.tempStoreValue as string;
-			store.state.tempStoreValue = null;
+		if(StoreProxy.store.state.tempStoreValue) {
+			this.title = StoreProxy.store.state.tempStoreValue as string;
+			StoreProxy.store.state.tempStoreValue = null;
 		}
 	}
 

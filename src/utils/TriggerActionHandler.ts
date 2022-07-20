@@ -1,4 +1,4 @@
-import type { MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -8,6 +8,7 @@ import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
+import StoreProxy from "./StoreProxy";
 import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes } from "./TriggerActionData";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -26,6 +27,7 @@ export default class TriggerActionHandler {
 	private currentSpoolGUID = 0;
 
 	public triggers:{[key:string]:TriggerData} = {};
+	public emergencyMode:boolean = false;
 	
 	constructor() {
 	
@@ -37,6 +39,7 @@ export default class TriggerActionHandler {
 	static get instance():TriggerActionHandler {
 		if(!TriggerActionHandler._instance) {
 			TriggerActionHandler._instance = new TriggerActionHandler();
+			TriggerActionHandler._instance.initialize();
 		}
 		return TriggerActionHandler._instance;
 	}
@@ -156,8 +159,23 @@ export default class TriggerActionHandler {
 				return;
 			}
 
+		}else if(message.type == "emergencyMode") {
+			if(await this.handleEmergencyMode(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
 		}else if(message.type == "timer") {
 			if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "chatOverlayHighlight") {
+			if(await this.handleHighlightOverlay(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+		
+		}else if(message.type == "chatAlert") {
+			if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
 		}
@@ -172,6 +190,14 @@ export default class TriggerActionHandler {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	private initialize():void {
+		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+			const data = (e.data as unknown) as ChatHighlightInfo;
+			data.type = "chatOverlayHighlight";
+			this.onMessage(data, false)
+		});
+	}
+
 	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
@@ -181,18 +207,22 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
 	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
 	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
 	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
@@ -240,6 +270,11 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, guid);
 	}
 	
+	private async handleEmergencyMode(message:EmergencyModeUpdate, testMode:boolean, guid:number):Promise<boolean> {
+		const type = message.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
+		return await this.parseSteps(type, message, testMode, guid);
+	}
+	
 	private async handleTimer(message:IRCEventDataList.TimerResult, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
 		//Create placeholder pointers
@@ -248,7 +283,16 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
+	private async handleHighlightOverlay(message:ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
+	}
+	
+	private async handleChatAlert(message:ChatAlertInfo, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, guid);
+	}
+	
 	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
 	}
 	
@@ -281,6 +325,7 @@ export default class TriggerActionHandler {
 	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		const trigger = this.triggers[ eventType ];
+		// console.log("PARSE STEPS", eventType, trigger, message);
 		
 		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;
@@ -323,21 +368,32 @@ export default class TriggerActionHandler {
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
+							// console.log("TEXT");
 							const text = await this.parseText(eventType, message, step.text as string);
 							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 						}
 						if(step.url) {
+							// console.log("URL");
 							const url = await this.parseText(eventType, message, step.url as string, true);
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
-							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, step.mediaPath);
+							// console.log("MEDIA");
+							const url = await this.parseText(eventType, message, step.mediaPath as string);
+							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 						}
 			
 						if(step.filterName) {
 							await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
 						}else{
-							await OBSWebsocket.instance.setSourceState(step.sourceName, step.show);
+							let show = step.show;
+							//If requesting to show an highlighted message but the message
+							//is empty, force source to hide
+							if(eventType == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
+							&& message.type == "chatOverlayHighlight" && (!message.message || message.message.length===0)) {
+								show = false;
+							}
+							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
 						}
 					}else
 					
@@ -345,7 +401,7 @@ export default class TriggerActionHandler {
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string);
 						IRCClient.instance.sendMessage(text);
-					}
+					}else
 
 					if(step.type == "music") {
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
@@ -455,6 +511,8 @@ export default class TriggerActionHandler {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
+		if(!helpers) return res;
+		
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
 			const chunks:string[] = h.pointer.split(".");
@@ -467,6 +525,7 @@ export default class TriggerActionHandler {
 				console.warn("Unable to find pointer for helper", h);
 				value = "";
 			}
+			// console.log("Pointer:", h.pointer, "_ value:", value);
 			
 			if(h.tag === "SUB_TIER") {
 				if(!isNaN(value as number) && (value as number) > 0) {
@@ -477,8 +536,8 @@ export default class TriggerActionHandler {
 			}
 
 			if(h.tag === "MESSAGE") {
-				const m = message as IRCEventDataList.Highlight;
-				if(m.message) {
+				const m = message as IRCEventDataList.Message;
+				if(m.message && m.tags) {
 					//Parse emotes
 					const chunks = TwitchUtils.parseEmotes(m.message as string, m.tags['emotes-raw'], true);
 					let cleanMessage = ""
@@ -490,6 +549,8 @@ export default class TriggerActionHandler {
 						}
 					}
 					value = cleanMessage.trim();
+				}else{
+					value = m.message;
 				}
 			}
 
@@ -540,4 +601,7 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.TimerResult
 | MusicMessage
 | StreamInfoUpdate
+| EmergencyModeUpdate
+| ChatHighlightInfo
+| ChatAlertInfo
 ;

@@ -61,7 +61,6 @@ export default class ParamsSponsor extends Vue {
 
 		.button {
 			margin-bottom: .5em;
-			padding: .5em;
 			border-radius: 3em;
 		}
 

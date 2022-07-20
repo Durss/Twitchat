@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -29,10 +29,10 @@ export default class CommercialTimer extends Vue {
 	}
 
 	public refreshTimer():void {
-		this.timeLeft = Math.round((store.state.commercialEnd - Date.now())/1000);
+		this.timeLeft = Math.round((StoreProxy.store.state.commercialEnd - Date.now())/1000);
 		if(this.timeLeft < 0) {
 			this.timeLeft = 0;
-			store.dispatch("setCommercialEnd", 0);
+			StoreProxy.store.dispatch("setCommercialEnd", 0);
 		}
 	}
 

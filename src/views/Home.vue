@@ -174,13 +174,13 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store from '@/store';
+import Config from '@/utils/Config';
 import { Options, Vue } from 'vue-class-component';
 import Chat from './Chat.vue';
-import Config from '@/utils/Config';
+import StoreProxy from '@/utils/StoreProxy';
 //@typescript-eslint/ban-ts-comment
 //@ts-ignore
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
+import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
 
 @Options({
@@ -205,7 +205,7 @@ export default class Home extends Vue {
 	// public get loginPath():string { return router.resolve({name:'login'}).href; }
 
 	public mounted():void {
-		this.authenticated = store.state.authenticated;
+		this.authenticated = StoreProxy.store.state.authenticated;
 	}
 }
 </script>

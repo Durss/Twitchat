@@ -1,6 +1,22 @@
 import type { ChatUserstate } from "tmi.js";
+import type { TwitchDataTypes } from "./TwitchDataTypes";
 
-export type ParamsContenType = 'appearance' | 'filters' | 'account' | 'about' | 'features' | 'obs' | 'eventsAction' | 'sponsor' | 'streamdeck' | 'triggers' | 'overlays' | 'voice' | null ;
+export type ParamsContenType = 'appearance'
+							| 'filters'
+							| 'account'
+							| 'about'
+							| 'features'
+							| 'obs'
+							| 'eventsAction'
+							| 'sponsor'
+							| 'streamdeck'
+							| 'triggers'
+							| 'overlays'
+							| 'emergency'
+							| 'spoiler'
+							| 'alert'
+							| 'voice'
+							| null ;
 
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
 export interface IBotMessage {
@@ -16,12 +32,24 @@ export interface BotMessageEntry {
 	message:string;
 }
 
-export type ParameterCategory = "appearance" | "filters"| "features";
+export type RoomStatusCategory = "emotesOnly"|"followersOnly"|"subsOnly"|"slowMode";
+export interface IRoomStatusCategory {
+	emotesOnly:ParameterData;
+	followersOnly:ParameterData;
+	subsOnly:ParameterData;
+	slowMode:ParameterData;
+}
 
+export type ParameterCategory = "appearance" | "filters"| "features";
 export interface IParameterCategory {
 	appearance:{[key:string]:ParameterData};
 	filters:{[key:string]:ParameterData};
 	features:{[key:string]:ParameterData};
+}
+
+export type AccountParamsCategory = "syncDataWithServer";
+export interface IAccountParamsCategory {
+	syncDataWithServer:ParameterData;
 }
 
 
@@ -105,19 +133,20 @@ export interface ParameterData {
 	longText?:boolean;
 	noInput?:boolean;//Disable input to only keep title (used for shoutout param)
 	label:string;
-	min?:number;
-	max?:number;
+	min?:number;//min numeric value
+	max?:number;//max numeric value
 	maxLength?:number;
-	step?:number;
+	step?:number;//For numerci values
 	icon?:string;
 	placeholder?:string;
 	parent?:number;
-	example?:string;
-	storage?:unknown;
+	example?:string;//Displays an icon with a tooltip containing the specified image example
+	storage?:unknown;//Just a field to allow storage of random data if necessary
 	children?:ParameterData[];
-	accept?:string;
+	accept?:string;//File types for browse inputs
 	fieldName?:string;
 	save?:boolean;//Save configuration to storage on change?
+	tooltip?:string;//Tooltip displayed on hover
 }
 
 export interface BingoConfig {
@@ -169,7 +198,7 @@ export interface PermissionsData {
 export const TwitchatAdTypes = {
 	SPONSOR:1,
 	UPDATES:2,
-	TIP:3,
+	TIP_AND_TRICK:3,
 	DISCORD:4,
 }
 
@@ -206,6 +235,11 @@ export interface StreamInfoUpdate {
 	category:string,
 }
 
+export interface EmergencyModeInfo {
+	type:"emergencyMode",
+	enabled:boolean,
+}
+
 export interface PlaceholderEntry {
 	tag:string;
 	desc:string;
@@ -228,4 +262,47 @@ export interface CountdownData {
 export interface TimerData {
 	startAt:number;
 	duration?:number;
+}
+
+export interface EmergencyParamsData {
+	chatCmd:string;
+	chatCmdPerms:PermissionsData;
+	emotesOnly:boolean;
+	subOnly:boolean;
+	slowMode:boolean;
+	followOnly:boolean;
+	noTriggers:boolean;
+	followOnlyDuration:number;
+	slowModeDuration:number;
+	toUsers:string;
+	obsScene:string;
+	obsSources:string[];
+}
+
+export interface ChatHighlightInfo {
+	type:"chatOverlayHighlight",
+	message?:string,
+	user?:TwitchDataTypes.UserInfo,
+	params?:ChatHighlightOverlayData,
+}
+
+export interface ChatHighlightOverlayData {
+	position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+}
+
+export interface SpoilerParamsData {
+	permissions:PermissionsData;
+}
+export interface AlertParamsData {
+	chatCmd:string;
+	permissions:PermissionsData;
+	blink:boolean;
+	shake:boolean;
+	sound:boolean;
+	message:boolean;
+}
+
+export interface ChatAlertInfo {
+	type:"chatAlert",
+	message:unknown,//The proper type should be IRCEventDataList.Message; but to avoid circular imports i've set it to unknown -_-
 }

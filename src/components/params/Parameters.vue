@@ -3,8 +3,9 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Params</span>
-				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Back to menu" :icon="$image('icons/back_white.svg')" @click="setContent(null)" class="close" bounce v-if="content != null" />
+				<h1 class="title">Parameters</h1>
+				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce />
 			</div>
 			<div class="menu">
 				<Button white bounce title="Features" @click="setContent('features')" :selected="content == 'features'" />
@@ -18,50 +19,72 @@
 				<Button white bounce title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 				<Button white bounce title="Account" @click="setContent('account')" :selected="content == 'account'" />
 			</div>
-			<div class="search" v-if="isGenericListContent">
+
+			<div class="search" v-if="content == null">
+			<!-- <div class="search" v-if="isGenericListContent"> -->
 				<input type="text" placeholder="Search a parameter..." v-model="search">
 			</div>
-			<div class="content">
-				<ParamsList v-if="content && isGenericListContent" :category="content" @setContent="setContent" />
-				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
+			
+			<div class="menu" v-if="content == null && !search">
+				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'emergency' || content == 'spoiler'" />
+				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
+				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
+				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
+				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
+				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
+				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
+				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent('account')" :selected="content == 'account'" />
+				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
+
+				<div class="version">v {{appVersion}}</div>
+			</div>
+			
+			<div class="content" v-if="content != null || search">
+				<ParamsList v-if="(content && isGenericListContent) || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
+				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
+				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
+				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
+				<ParamsAlert v-if="content == 'alert'" @setContent="setContent" />
+				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
 				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
 				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
 				<ParamsVoiceBot v-if="content == 'voice'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
+
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
-					<ParamItem v-for="d in filteredParams"
-						:key="d.id"
-						:paramData="d"
-					/>
 				</div>
+		
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterCategory, ParameterData, ParamsContenType } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
-import ParamsAbout from './contents/ParamsAbout.vue';
-import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamItem from './ParamItem.vue';
+import ParamsAbout from './contents/ParamsAbout.vue';
+import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
+import ParamsEmergency from './contents/ParamsEmergency.vue';
+import ParamsSpoiler from './contents/ParamsSpoiler.vue';
+import StoreProxy from '@/utils/StoreProxy';
+import ParamsAlert from './contents/ParamsAlert.vue';
 
 @Options({
 	props:{},
@@ -71,37 +94,47 @@ import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 		ParamsOBS,
 		ParamsList,
 		ParamsAbout,
+		ParamsAlert,
 		ToggleButton,
+		ParamsSpoiler,
 		ParamsAccount,
 		ParamsSponsor,
 		ParamsOverlays,
 		ParamsTriggers,
 		ParamsVoiceBot,
+		ParamsEmergency,
 		ParamsStreamdeck,
 	}
 })
 
 export default class Parameters extends Vue {
 
-	public content:ParamsContenType = 'features';
-	public prevContent:ParamsContenType = null;
+	public content:ParamsContenType = null;
 
 	public showMenu = false;
 	public filteredParams:ParameterData[] = [];
 
 	public search = "";
 
+	/**
+	 * If true, will display a search field at the top of the view to
+	 * search params by their labels
+	 */
 	public get isGenericListContent():boolean {
-		return this.content == "features" || this.content == "appearance" || this.content == "filters" || this.search.length>0;
+		return this.content == "features"
+			|| this.content == "appearance"
+			|| this.content == "filters"
+			|| this.search.length>0;
 	}
 
+	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+
 	public async beforeMount():Promise<void> {
-		const v = store.state.tempStoreValue as string;
+		const v = StoreProxy.store.state.tempStoreValue as string;
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
 			this.content = v.replace("CONTENT:", "") as ParamsContenType;
-			store.state.tempStoreValue = null;
 
 		}else if(v.indexOf("SEARCH:") === 0) {
 			//Prefilled search
@@ -109,18 +142,18 @@ export default class Parameters extends Vue {
 			if(chunks.length == 2) {
 				const cat = chunks[0] as ParameterCategory;
 				const paramKey = chunks[1];
-				this.search = store.state.params[cat][paramKey].label;
+				this.search = StoreProxy.store.state.params[cat][paramKey].label;
 			}
 		}
+		StoreProxy.store.state.tempStoreValue = null;
 	}
 
 	public async mounted():Promise<void> {
+		watch(() => this.content, () => {
+			if(this.content) this.filteredParams = [];
+		});
+
 		watch(() => this.search, (value:string) => {
-			if(value.length == 0) {
-				this.content = this.prevContent;
-				return;
-			}
-			if(this.content) this.prevContent = this.content;
 			this.content = null;
 			this.filterParams(this.search);
 		});
@@ -143,28 +176,22 @@ export default class Parameters extends Vue {
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 			this.showMenu = false;
-			store.dispatch("showParams", false);
+			this.filteredParams = [];
+			StoreProxy.store.dispatch("showParams", false);
 		}});
 	}
 
 	public setContent(id:ParamsContenType):void {
-		if(this.search.length == 0) {
-			if(id == this.content) {
-				//Refresh content if already active
-				this.content = null;
-				this.$nextTick().then(()=>{
-					this.content = id;
-				})
-			}else{
+		if(id == this.content) {
+			//Refresh content if already active
+			this.content = null;
+			this.$nextTick().then(()=>{
 				this.content = id;
-			}
+			})
 		}else{
-			//If a search is in progress, fake the prev content to
-			//the one selected and clear the search.
-			//Clearing the search will trigger a watcher that will
-			//set the content to the one that was selected before
-			//starting the search.
-			this.prevContent = id;
+			this.content = id;
+		}
+		if(id == null && this.search.length > 0) {
 			this.search = "";
 		}
 	}
@@ -173,8 +200,8 @@ export default class Parameters extends Vue {
 		this.filteredParams = [];
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
-		for (const categoryID in store.state.params) {
-			const category = store.state.params[categoryID as ParameterCategory] as {[ley:string]:ParameterData};
+		for (const categoryID in StoreProxy.store.state.params) {
+			const category = StoreProxy.store.state.params[categoryID as ParameterCategory] as {[ley:string]:ParameterData};
 			for (const prop in category) {
 				const data:ParameterData = category[prop];
 				
@@ -209,32 +236,35 @@ export default class Parameters extends Vue {
 		transform: translate(-50%, 0);
 		z-index: 2;
 
+		.head {
+			border-bottom: 1px solid @mainColor_normal;
+			padding-bottom: .5em;
+		}
+
 		.menu {
-			text-align: center;
-			border-top: 1px solid @mainColor_normal;
-			margin-top: 20px;
-			.button {
-				background: transparent;
-				border: 1px solid @mainColor_normal;
-				border-top: none;
-				border-top-left-radius: 0;
-				border-top-right-radius: 0;
-				transform-origin: top;//So the bouncy effect looks better
-				&.selected {
-					background-color: @mainColor_normal;
-					&:hover {
-						color: @mainColor_normal;
-						background-color: fade(@mainColor_normal, 15%) !important;
-					}
-				}
+			padding: 1em;
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+			.button:not(:first-child) {
+				margin-top: 10px;
+			}
+
+			.version {
+				font-style: italic;
+				text-align: center;
+				font-size: .8em;
+				margin-top: 1em;
 			}
 		}
 
 		.search{
 			margin:auto;
-			margin-top: 15px;
-			margin-bottom: -10px;
+			margin-top: 1em;
 			z-index: 1;
+			input {
+				text-align: center;
+			}
 		}
 
 		.searchResult {
@@ -246,8 +276,7 @@ export default class Parameters extends Vue {
 
 		.content {
 			//This avoids black space over sticky items inside the content
-			margin-top: 20px;
-			padding-top: 0;
+			padding: 20px;
 		}
 	}
 

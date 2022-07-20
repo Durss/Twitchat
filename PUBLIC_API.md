@@ -136,6 +136,8 @@ export type TwitchatEventType =
 	| "TIMER_STOP"
 	| "TIMER_OVERLAY_PRESENCE"
 	| "WHEEL_OVERLAY_PRESENCE"
+	| "EMERGENCY_MODE"
+	| "CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -160,6 +162,9 @@ export type TwitchatActionType =
 	| "GET_WHEEL_OVERLAY_PRESENCE"
 	| "GET_CURRENT_TIMERS"
 	| "GET_TIMER_OVERLAY_PRESENCE"
+	| "SET_EMERGENCY_MODE"
+	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
+	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
 ```
 <br>
 <br>
@@ -421,6 +426,22 @@ Sent when a wheel overlay advertises its presence
 ```typescript
 -none-
 ```
+## **EMERGENCY_MODE**
+Sent when the emergency mode is started or stopped
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
+## **CHAT_HIGHLIGHT_OVERLAY_PRESENCE**
+Sent when a chat highlight overlay advertises its presence
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
 <br>
 <br>
 <br>
@@ -593,4 +614,41 @@ If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
 -none-
+```
+## **SET_EMERGENCY_MODE**
+Starts or stops the emergency mode.
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
+## **GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE**
+Ask if a chat highlight overlay exists.\
+If it does you'll receive the `CHAT_HIGHLIGHT_OVERLAY_PRESENCE` event.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE**
+Sent when requesting to highlight a message on a trigger/overlay
+Send no data to hide the current message
+```typescript
+{
+	message: string;//Message with emotes parsed as HTML tags
+	user:{
+		id: string;
+		login: string;
+		display_name: string;
+		type: string;
+		broadcaster_type: string;
+		description: string;
+		profile_image_url: string;
+		offline_image_url: string;
+		created_at: string;
+	},
+	params:{
+		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	}
+}
 ```

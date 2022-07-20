@@ -56,9 +56,9 @@ import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { StreamInfoPreset } from '@/types/TwitchatDataTypes';
-import store from '@/store';
 import Utils from '@/utils/Utils';
 import ToggleBlock from '../ToggleBlock.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -84,7 +84,7 @@ export default class StreamInfoForm extends Vue {
 	public presetEditing:StreamInfoPreset|null = null;
 
 	public get presets():StreamInfoPreset[] {
-		return store.state.streamInfoPreset;
+		return StoreProxy.store.state.streamInfoPreset;
 	}
 
 	public async mounted():Promise<void> {
@@ -107,7 +107,7 @@ export default class StreamInfoForm extends Vue {
 			const tags = await TwitchUtils.getStreamTags();
 			this.tags = tags;
 		}catch(error) {
-			store.state.alert = "Error loading current stream info";
+			StoreProxy.store.state.alert = "Error loading current stream info";
 		}
 
 		this.loading = false;
@@ -148,7 +148,7 @@ export default class StreamInfoForm extends Vue {
 			if(this.categories.length >0) preset.categoryID = this.categories[0].id
 			if(this.tags.length >0) preset.tagIDs = this.tags.map(t => t.tag_id);
 			if(this.presetEditing) preset.id = this.presetEditing.id;
-			store.dispatch("saveStreamInfoPreset", preset)
+			StoreProxy.store.dispatch("saveStreamInfoPreset", preset)
 		}
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
@@ -156,7 +156,7 @@ export default class StreamInfoForm extends Vue {
 				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id));
 				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id);
 			}catch(error) {
-				store.state.alert = "Error updating stream info";
+				StoreProxy.store.state.alert = "Error updating stream info";
 			}
 		}else {
 			this.presetEditing = null;
@@ -171,7 +171,7 @@ export default class StreamInfoForm extends Vue {
 	}
 
 	public async deletePreset(p:StreamInfoPreset):Promise<void> {
-		store.dispatch("deleteStreamInfoPreset", p);
+		StoreProxy.store.dispatch("deleteStreamInfoPreset", p);
 	}
 
 	public async editPreset(p:StreamInfoPreset):Promise<void> {
@@ -194,7 +194,7 @@ export default class StreamInfoForm extends Vue {
 				this.tags = [];
 			}
 		}catch(error) {
-			store.state.alert = "Error loading current stream info";
+			StoreProxy.store.state.alert = "Error loading current stream info";
 		}
 
 		this.loading = false;
@@ -206,7 +206,7 @@ export default class StreamInfoForm extends Vue {
 			await TwitchUtils.setStreamTags(p.tagIDs as string[]);
 			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string);
 		}catch(error) {
-			store.state.alert = "Error updating stream info";
+			StoreProxy.store.state.alert = "Error updating stream info";
 		}
 		this.saving = false;
 	}

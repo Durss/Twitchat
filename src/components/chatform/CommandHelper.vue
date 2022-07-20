@@ -4,7 +4,7 @@
 		<Button small @click="$emit('pred'); close();" :icon="$image('icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
 		<Button small @click="$emit('raffle'); close();" :icon="$image('icons/ticket.svg')" title="Create raffle" bounce />
 		<Button small @click="$emit('bingo'); close();" :icon="$image('icons/bingo.svg')" title="Create bingo" bounce />
-		<Button small @click="$emit('chatpoll'); close();" :icon="$image('icons/chatPoll.svg')" title="Create chat poll" bounce />
+		<Button small @click="$emit('chatpoll'); close();" :icon="$image('icons/chatPoll.svg')" title="Suggestion poll" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="$image('icons/clearChat.svg')" title="Clear chat" bounce />
 		<Button small @click="$emit('streamInfo'); close();" :icon="$image('icons/info.svg')" title="Stream info" bounce />
 
@@ -36,8 +36,7 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { IRoomStatusCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
@@ -46,6 +45,7 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -77,17 +77,17 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():{[key:string]:ParameterData} { return store.state.roomStatusParams; }
+	public get params():IRoomStatusCategory { return StoreProxy.store.state.roomStatusParams; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
 
 	public get canCreatePrediction():boolean {
-		return store.state.currentPrediction?.id == undefined && store.state.hasChannelPoints === true;
+		return StoreProxy.store.state.currentPrediction?.id == undefined && StoreProxy.store.state.hasChannelPoints === true;
 	}
 	public get canCreatePoll():boolean {
-		if(!store.state.hasChannelPoints) return false;
-		const poll = store.state.currentPoll as TwitchDataTypes.Poll;
+		if(!StoreProxy.store.state.hasChannelPoints) return false;
+		const poll = StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
 		return poll == undefined || poll.status != "ACTIVE";
 	}
 

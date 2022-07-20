@@ -15,13 +15,13 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -44,8 +44,8 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(store.state.raiding?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [store.state.raiding?.target_login as string]))[0];
+		if(StoreProxy.store.state.raiding?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [StoreProxy.store.state.raiding?.target_login as string]))[0];
 		}
 	}
 
@@ -56,7 +56,7 @@ export default class RaidState extends Vue {
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
 		if(seconds <= 0) {
-			store.dispatch("setRaiding", "");
+			StoreProxy.store.dispatch("setRaiding", "");
 			return;
 		}
 		this.timeLeft = Utils.formatDuration(seconds);

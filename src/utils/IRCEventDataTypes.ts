@@ -4,6 +4,8 @@ import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData } from "./CommonDataTypes";
 import type { CountdownData, TimerData } from "@/types/TwitchatDataTypes";
 
+export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
+
 export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.PollResult
 	| IRCEventDataList.PredictionResult
@@ -29,6 +31,7 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.RaffleResult
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
+	| IRCEventDataList.JoinList
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -205,6 +208,12 @@ export namespace IRCEventDataList {
 		started:boolean;
 		data: CountdownData;
 		tags: { id: string, "tmi-sent-ts": string };
+		[paramater: string]: unknown;
+	}
+
+	export interface JoinList {
+		type: "join";
+		users:string[];
 		[paramater: string]: unknown;
 	}
 

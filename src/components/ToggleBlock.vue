@@ -156,6 +156,10 @@ export default class ToggleBlock extends Vue {
 					margin-right: .25em;
 				}
 			}
+			.icon {
+				height: 1em;
+				width: 1em;
+			}
 		}
 
 		&.closed {
