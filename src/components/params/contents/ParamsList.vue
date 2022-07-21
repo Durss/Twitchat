@@ -139,13 +139,13 @@ export default class ParamsList extends Vue {
 	}
 
 	public onShowItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.from(el, {height:0, duration:.2, ease:"sine.out", onComplete:()=>{
+		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
 			done();
 		}});
 	}
 
 	public onHideItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.to(el, {height:0, duration:.2, ease:"sine.out", onComplete:()=>{
+		gsap.to(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
 			done();
 		}});
 	}
@@ -207,11 +207,14 @@ export default class ParamsList extends Vue {
 		&.config {
 			// text-align: center;
 			margin-top: -8px;
+
 			.button {
 				border: 1px solid @mainColor_normal;
 				border-top: none;
 				border-top-left-radius: 0;
 				border-top-right-radius: 0;
+				position: relative;
+				overflow: visible;
 			}
 		}
 	}
