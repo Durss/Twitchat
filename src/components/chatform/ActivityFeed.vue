@@ -9,9 +9,9 @@
 		<ActivityFeedFilters v-model="filters" class="filters" />
 		
 		<div
-        v-if="messages.length > 0"
-        class="messageList"
-        :class="{ 'messageListReverseOrder': $store.state.params.appearance.reverseActivityFeed.value }">
+				v-if="messages.length > 0"
+				class="messageList"
+				:class="{ 'messageListReverseOrder': $store.state.params.appearance.reverseActivityFeed.value }">
 			<div v-for="(m,index) in messages" :key="m.tags.id">
 				<ChatMessage
 					class="message"
@@ -308,10 +308,10 @@ export default class ActivityFeed extends Vue {
 			justify-self: flex-end;
 		}
 
-    .messageListReverseOrder {
-      display:flex;
-      flex-direction: column-reverse;
-    }
+		.messageListReverseOrder {
+			display:flex;
+			flex-direction: column-reverse;
+		}
 
 		.activityfeed {
 			width: 100%;
