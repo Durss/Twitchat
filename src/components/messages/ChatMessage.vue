@@ -80,6 +80,24 @@
 			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
+		
+		<br v-if="clipInfo">
+		<div v-if="clipInfo" class="clip" @click.stop="openClip()">
+			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
+			<div class="infos">
+				<div class="title">{{clipInfo.title}}</div>
+				<div class="subtitle">Created by {{clipInfo.creator_name}}</div>
+				<div class="subtitle">Channel: {{clipInfo.broadcaster_name}}</div>
+				<div class="subtitle">Duration: {{clipInfo.duration}}s</div>
+				<div class="subtitle">Views: {{clipInfo.view_count}}s</div>
+			</div>
+			<Button class="highlightBt" :aria-label="'Highlight message'" small
+				:icon="$image('icons/highlight.svg')"
+				data-tooltip="Show on stream<br><i>(needs overlay)</i>"
+				@click.stop="clipHighlight()"
+				:loading="clipHighlightLoading"
+			/>
+		</div>
 	</div>
 
 </template>
@@ -88,13 +106,16 @@
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -125,6 +146,8 @@ export default class ChatMessage extends Vue {
 	public text = "";
 	public automodReasons = "";
 	public badges:TwitchDataTypes.Badge[] = [];
+	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
+	public clipHighlightLoading:boolean = false;
 
 	public get pronoun():string|null {
 		const key = StoreProxy.store.state.userPronouns[this.messageData.tags['user-id'] as string];
@@ -167,6 +190,9 @@ export default class ChatMessage extends Vue {
 		return res? res : key;
 	}
 
+	/**
+	 * Get users' pronouns
+	 */
 	public get pronounLabel(): string | null {
 		const key = StoreProxy.store.state.userPronouns[this.messageData.tags['user-id'] as string];
 		if(!key || typeof key != "string") return null;
@@ -205,6 +231,9 @@ export default class ChatMessage extends Vue {
 		return false
 	}
 
+	/**
+	 * Get replacement text if message has been deleted
+	 */
 	public get deletedMessage():string {
 		if(this.messageData.type != "message") return "";
 
@@ -278,11 +307,18 @@ export default class ChatMessage extends Vue {
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
+	/**
+	 * Is this message part of a conversation?
+	 */
 	public get isConversation():boolean {
 		if(this.messageData.type == "whisper") return false;
 		return this.messageData.answers != undefined || this.messageData.answerTo != undefined;
 	}
 
+	/**
+	 * Returns the login instead of the display name if the display name contains
+	 * mostly non-latin chars
+	 */
 	public get translateUsername():boolean {
 		if(StoreProxy.store.state.params.appearance.translateNames.value !== true) return false;
 
@@ -357,6 +393,9 @@ export default class ChatMessage extends Vue {
 		return badges;
 	}
 
+	/**
+	 * Open a users' card
+	 */
 	public openUserCard():void {
 		if(this.lightMode) return;
 		const message = this.messageData as IRCEventDataList.Message;
@@ -398,7 +437,7 @@ export default class ChatMessage extends Vue {
 		const mess = this.messageData as IRCEventDataList.Message;
 		
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'] === true && !this.lightMode && !this.isPresentation;
+		this.firstTime = mess.tags['first-msg'] === true && !this.isPresentation;
 
 		//Manage automod content
 		if(!this.lightMode && mess.automod) {
@@ -436,7 +475,31 @@ export default class ChatMessage extends Vue {
 			}
 			this.automodReasons = textReasons.join(", ");
 		}
-		this.text = this.parseText();
+
+		let clipId = "";
+		let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
+		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
+			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/i);
+			clipId = matches? matches[1] : "";
+			if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/, "");
+		}else
+		if(/clips\.twitch\.tv\//gi.test(text)) {
+			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/i);
+			clipId = matches? matches[1] : "";
+			if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/, "");
+		}
+		
+		if(clipId != "") {
+			//Do it asynchronously to not block the rendering
+			(async()=> {
+				let clip = await TwitchUtils.getClipById(clipId);
+				if(clip) {
+					this.clipInfo = clip;
+				}
+			})()
+		}
+
+		this.text = this.parseText(text);
 		this.$emit("ariaMessage", this.text);
 
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
@@ -463,12 +526,11 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Gets text message with parsed emotes
 	 */
-	public parseText():string {
+	public parseText(text:string):string {
 		let result:string;
 		const doHighlight = StoreProxy.store.state.params.appearance.highlightMentions.value;
 		const highlightLogin = UserSession.instance.authToken.login;
 		const mess = this.messageData;
-		let text = mess.type == "whisper"? mess.params[1] : mess.message;
 		if(!text) return "";
 		try {
 			let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
@@ -535,15 +597,43 @@ export default class ChatMessage extends Vue {
 		return result;
 	}
 
+	/**
+	 * Called when message is clicked.
+	 */
 	public clickMessage(e:MouseEvent):void {
 		const t = e.target as HTMLElement;
 		if(t.dataset.copy) {
+			//If clicked on a "copy" button (on links), copy to clipboard and
+			//stop event's propagation to avoid marking message as read
 			Utils.copyToClipboard(t.dataset.copy);
 			e.stopPropagation();
 			gsap.fromTo(t, {scale:1.5, filter:"brightness(2)"}, {scale:1, filter:"brightness(1)", duration:0.2});
+
 		}else if(t.tagName == "A") {
+			//If clicked on a link, stop event's propagation to avoid marking message as read
 			e.stopPropagation();
 		}
+	}
+
+	/**
+	 * Open a clip on a new tab
+	 */
+	public openClip():void {
+		window.open(this.clipInfo?.url, "_blank");
+	}
+
+	/**
+	 * Send a clip to the overlay
+	 */
+	public async clipHighlight():Promise<void> {
+		this.clipHighlightLoading = true;
+		const data = {
+			clip:this.clipInfo,
+			params:StoreProxy.store.state.chatHighlightOverlayParams,
+		}
+		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+		await Utils.promisedTimeout(2000);
+		this.clipHighlightLoading = false;
 	}
 }
 </script>
@@ -749,6 +839,48 @@ export default class ChatMessage extends Vue {
 		}
 	}
 
+	.clip {
+		align-self: center;
+		display: inline-flex;
+		flex-direction: row;
+		align-items: center;
+		border: 1px solid @mainColor_light;
+		background-color: fade(@mainColor_light, 10%);
+		border-radius: .5em;
+		overflow: hidden;
+		margin: auto;
+		cursor: pointer;
+			position: relative;
+
+		&:hover {
+			background-color: fade(@mainColor_light, 20%);
+		}
+
+		img {
+			width: 5em;
+			height: 5em;
+			object-fit: cover;
+		}
+		.highlightBt {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		.infos {
+			padding: 0 .5em;
+			.title {
+				font-weight: bold;
+				margin-bottom: .25em;
+			}
+			.subtitle {
+				font-size: .8em;
+				color: fade(@mainColor_light, 70%);
+			}
+		}
+	}
+
 	&.firstTimeOnChannel {
 		color: #fff;
 		background-color: rgba(255, 255, 255, .15) !important;
@@ -905,5 +1037,6 @@ export default class ChatMessage extends Vue {
 			border-image-source: linear-gradient(#ffb31a,#e0e000);
 		}
 	}
+	
 }
 </style>

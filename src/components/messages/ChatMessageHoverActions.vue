@@ -13,9 +13,9 @@
 			v-if="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
-		<Button :aria-label="'Shoutout '+messageData.tags.username"
+		<Button :aria-label="'Highlight message'"
 			:icon="$image('icons/highlight.svg')"
-			data-tooltip="Highlight on stream"
+			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
 			@click="chatHighlight()"
 			:loading="highlightLoading"
 			/>

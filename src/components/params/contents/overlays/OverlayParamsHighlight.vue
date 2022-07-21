@@ -1,6 +1,6 @@
 }<template>
 	<ToggleBlock :open="false" class="overlayparamshighlight" title="Message highlight" :icons="['highlight_purple']">
-		<div>If you add this overlay on OBS you'll be able to display any chat message on your stream like this:</div>
+		<div>If you add this overlay on OBS you'll be able to display any chat message and clips on your stream like this:</div>
 		
 		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		
@@ -16,6 +16,10 @@
 						<li>#highlight_infos { ... }</li>
 						<li>#highlight_login { ... }</li>
 						<li>#highlight_message { ... }</li>
+						<br>
+						<li>#clip_holder { ... }</li>
+						<li>#clip_player { ... }</li>
+						<li>#clip_progressbar { ... }</li>
 					</ul>
 				</ToggleBlock>
 			</div>

@@ -25,13 +25,16 @@ Documentation can be found [here](PUBLIC_API.md).
 <br>
 
 # Features
+- [x] Enable an emergency button with custom actions to prevent from follow bots and doxxing
 - [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify or Deezer when an event occurs
 - [x] Display the first message of users seperatly so you don't forget to greet them
+- [x] Send any message from your chat to your stream with a single click
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss her/his messages
-- [x] Create a raffle with the viewers and pick random winners
+- [x] Create a raffle and pick random winners. An overlay is available to display a wheel that selects a winner.
 - [x] Create a bingo in which users have to find a number or an emoji
+- [x] Ask your viewers for suggestions with a dedicated command
 - [x] See if a user is not following the channel
 - [x] Display received whispers and answer them
 - [x] Filter some messages *(bots, commands, self, /me, etc...)*
@@ -48,7 +51,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
 - [x] Emote selector 
-- [x] BTTV and FFZ emotes supported
+- [x] BTTV, FFZ and 7TV emotes supported
 - [x] Message autocomplete nickname via "@", emotes via ":", commands via "/" or all via TAB key
 - [x] Allow to search on all messages via command `/search`
 - [x] Split view in half with chat on left and notifications/activity feed, new viewers, etc.. on the right
@@ -63,9 +66,13 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Stream Deck plugin
 - [x] Chat poll feature: kind of a poll where your viewers decide its options
 - [x] Handles "low trust" feature ([more info](https://help.twitch.tv/s/article/ban-evasion))
+- [x] Custom spoiler feature so viewers can hide message contents to the streamer
+- [x] Alert command to make Twitchat shake, blink, emit sound and display a message over everything else
+- [x] Edit your stream's info from Twitchat with possibility to create pressets
+- [x] Create a timer or a countdown with a simple command and show it on your stream
+- [x] Control spotify or deezer from chat commands *(create your own song request system)* and show currently playing track on your stream
+- [x] And many other things....
 <br>
-
-- [ ] Request scopes on-demand
 <br>
 <br>
 <br>
@@ -92,7 +99,9 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"whispers:edit",
 		"user:read:follows",
 		"channel:edit:commercial",
-		"channel:read:subscriptions"
+		"channel:read:subscriptions",
+		"user:manage:blocked_users",
+		"moderator:manage:banned_users"
 	],
 	"spotify_client_id": "",
 	"spotify_client_secret": "",

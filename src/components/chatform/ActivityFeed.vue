@@ -132,7 +132,7 @@ export default class ActivityFeed extends Vue {
 		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
 
 		const result:ActivityFeedData[] = [];
-		
+
 		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
 		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
 		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
@@ -151,7 +151,7 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = null;
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = null;
 			if(m.type == "poll") {
 				type = "poll";
 			}else if(m.type == "prediction") {
@@ -182,24 +182,28 @@ export default class ActivityFeed extends Vue {
 				type = "follow";
 			}else if(m.tags['msg-id'] == "raid") {
 				type = "raid";
+			}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
+				type = "cooldown";
 			}
 			
 			if(type == "sub" && showSubs) result.unshift(m);
-			if(type == "reward" && showRewards) result.unshift(m);
-			if(type == "raid" && showRaids) result.unshift(m);
-			if(type == "bits" && showBits) result.unshift(m);
-			if(type == "follow" && showFollow) result.unshift(m);
-			if(type == "poll" && showPolls) result.unshift(m);
-			if(type == "prediction" && showPredictions) result.unshift(m);
-			if(type == "bingo" && showBingos) result.unshift(m);
-			if(type == "raffle" && showRaffles) result.unshift(m);
-			if(type == "commercial") result.unshift(m);
-			if(type == "countdown") result.unshift(m);
+			else if(type == "reward" && showRewards) result.unshift(m);
+			else if(type == "raid" && showRaids) result.unshift(m);
+			else if(type == "bits" && showBits) result.unshift(m);
+			else if(type == "follow" && showFollow) result.unshift(m);
+			else if(type == "poll" && showPolls) result.unshift(m);
+			else if(type == "prediction" && showPredictions) result.unshift(m);
+			else if(type == "bingo" && showBingos) result.unshift(m);
+			else if(type == "raffle" && showRaffles) result.unshift(m);
+			else if(type == "commercial") result.unshift(m);
+			else if(type == "countdown") result.unshift(m);
+			else if(type == "cooldown") result.unshift(m);
 		}
 		
 		// if(this.listMode) {
 		// 	result.reverse();
 		// }
+		
 
 		return result;
 	}

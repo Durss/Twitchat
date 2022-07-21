@@ -2,13 +2,11 @@
 	<div class="raidstate">
 		<img v-if="user" :src="user.profile_image_url" alt="avatar" class="avatar">
 		<div>
-			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
-			Raiding <strong>{{$store.state.raiding.target_display_name}}</strong> with <strong>{{$store.state.raiding.viewer_count}}</strong> viewers
-			<span class="timer">({{timeLeft}}s)</span>
+			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">Raiding <strong>{{$store.state.raiding.target_display_name}}</strong> with <strong>{{$store.state.raiding.viewer_count}}</strong> viewers<span class="timer">({{timeLeft}}s)</span>
 		</div>
 
 		<!-- <Button class="startBt" type="button" :icon="$image('icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
-		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry :(</div>
+		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry you'll have to wait {{timeLeft}}s :(</div>
 		<Button class="cancelBt" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" @click="cancelRaid()" />
 
 	</div>
@@ -85,6 +83,7 @@ export default class RaidState extends Vue {
 	.icon {
 		height: 25px;
 		vertical-align: middle;
+		margin-right: .5em;
 	}
 
 	.timer {
