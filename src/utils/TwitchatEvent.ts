@@ -54,6 +54,7 @@ export default class TwitchatEvent extends Event {
 	public static SET_EMERGENCY_MODE:TwitchatActionType = "SET_EMERGENCY_MODE";
 	public static GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatActionType = "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 	public static SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE:TwitchatActionType = "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE";
+	public static SHOW_CLIP:TwitchatActionType = "SHOW_CLIP";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -110,4 +111,5 @@ export type TwitchatActionType =
 	| "SET_EMERGENCY_MODE"
 	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
+	| "SHOW_CLIP"
 ;

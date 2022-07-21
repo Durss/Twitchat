@@ -1084,4 +1084,22 @@ export default class TwitchUtils {
 			return false;
 		}
 	}
+	/**
+	 * Get a clip by its ID
+	 */
+	public static async getClipById(clipId:string):Promise<TwitchDataTypes.ClipInfo|null> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"clips");
+		url.searchParams.append("id", clipId);
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			const json = await res.json();
+			return json.data[0];
+		}else{
+			return null;
+		}
+	}
 }

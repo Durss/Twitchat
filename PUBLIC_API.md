@@ -165,6 +165,7 @@ export type TwitchatActionType =
 	| "SET_EMERGENCY_MODE"
 	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
+	| "SHOW_CLIP"
 ```
 <br>
 <br>
@@ -631,7 +632,7 @@ If it does you'll receive the `CHAT_HIGHLIGHT_OVERLAY_PRESENCE` event.
 -none-
 ```
 ## **SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE**
-Sent when requesting to highlight a message on a trigger/overlay
+Send a chat message on the "chat highlight" overlay
 Send no data to hide the current message
 ```typescript
 {
@@ -646,6 +647,33 @@ Send no data to hide the current message
 		profile_image_url: string;
 		offline_image_url: string;
 		created_at: string;
+	},
+	params:{
+		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	}
+}
+```
+## **SHOW_CLIP**
+Send a clip to be displayed on the chat highlight overlay
+```typescript
+//This is the same JSON as the one sent by the Twitch API
+{
+	clip:{
+		broadcaster_id: string;
+		broadcaster_name: string;
+		created_at: string;
+		creator_id: string;
+		creator_name: string;
+		duration: number;
+		embed_url: string;
+		game_id: string;
+		id: string;
+		language: string;
+		thumbnail_url: string;
+		title: string;
+		url: string;
+		video_id: string;
+		view_count: number;
 	},
 	params:{
 		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";

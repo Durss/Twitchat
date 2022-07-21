@@ -4,7 +4,7 @@ export namespace TwitchDataTypes {
 		user_login: string;
 		user_name: string;
 	}
-	
+
 	export interface Token {
 		client_id: string;
 		login: string;
@@ -12,56 +12,56 @@ export namespace TwitchDataTypes {
 		user_id: string;
 		expires_in: number;
 	}
-	
+
 	export interface Error {
 		status: number;
 		message: string;
 	}
 
 	export interface StreamInfo {
-		id:            string;
-		user_id:       string;
-		user_login:    string;
-		user_name:     string;
-		game_id:       string;
-		game_name:     string;
-		type:          string;
-		title:         string;
-		viewer_count:  number;
-		started_at:    string;
-		language:      string;
+		id: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		game_id: string;
+		game_name: string;
+		type: string;
+		title: string;
+		viewer_count: number;
+		started_at: string;
+		language: string;
 		thumbnail_url: string;
-		tag_ids:       string[];
+		tag_ids: string[];
 		//Custom tag
-		user_info:     UserInfo;
+		user_info: UserInfo;
 	}
 
 	export interface ChannelInfo {
-		broadcaster_id:        string;
-		broadcaster_login:     string;
-		broadcaster_name:      string;
-		broadcaster_language:  string;
-		game_id:               string;
-		game_name:             string;
-		title:                 string;
-		delay:                 number;
+		broadcaster_id: string;
+		broadcaster_login: string;
+		broadcaster_name: string;
+		broadcaster_language: string;
+		game_id: string;
+		game_name: string;
+		title: string;
+		delay: number;
 	}
 
 	export interface UserInfo {
-		id:                string;
-		login:             string;
-		display_name:      string;
-		type:              string;
-		broadcaster_type:  string;
-		description:       string;
+		id: string;
+		login: string;
+		display_name: string;
+		type: string;
+		broadcaster_type: string;
+		description: string;
 		profile_image_url: string;
 		offline_image_url: string;
-		view_count:        number;
-		created_at:        string;
+		view_count: number;
+		created_at: string;
 	}
 
 	export interface BadgesSet {
-		versions: {[key:string]:Badge};
+		versions: { [key: string]: Badge };
 	}
 
 	export interface Badge {
@@ -195,11 +195,11 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface PredictionPredictor {
-		id:string;
-		name:string;
-		login:string;
-		channel_points_used:number;
-		channel_points_won:number;
+		id: string;
+		name: string;
+		login: string;
+		channel_points_used: number;
+		channel_points_won: number;
 	}
 
 	export interface Emote {
@@ -218,10 +218,10 @@ export namespace TwitchDataTypes {
 		theme_mode: "light" | "dark";
 	}
 	export interface ParseMessageChunk {
-		type:"text"|"emote";
-		emote?:string;
-		label?:string;
-		value:string;
+		type: "text" | "emote";
+		emote?: string;
+		label?: string;
+		value: string;
 	}
 
 	export interface Reward {
@@ -282,7 +282,7 @@ export namespace TwitchDataTypes {
 			cost: number;
 		};
 	}
-	
+
 	export interface Following {
 		from_id: string;
 		from_login: string;
@@ -291,44 +291,62 @@ export namespace TwitchDataTypes {
 		to_name: string;
 		followed_at: string;
 	}
-	
+
 	export interface Commercial {
 		length: number;
 		message: string;
 		retry_after: number;
 	}
 
-    export interface Subscriber {
-        broadcaster_id: string;
-        broadcaster_login: string;
-        broadcaster_name: string;
-        gifter_id: string;
-        gifter_login: string;
-        gifter_name: string;
-        is_gift: boolean;
-        tier: string;
-        plan_name: string;
-        user_id: string;
-        user_name: string;
-        user_login: string;
-    }
+	export interface Subscriber {
+		broadcaster_id: string;
+		broadcaster_login: string;
+		broadcaster_name: string;
+		gifter_id: string;
+		gifter_login: string;
+		gifter_name: string;
+		is_gift: boolean;
+		tier: string;
+		plan_name: string;
+		user_id: string;
+		user_name: string;
+		user_login: string;
+	}
 
 	export interface Pronoun {
-		id:string;
-		login:string;
-		pronoun_id:string
+		id: string;
+		login: string;
+		pronoun_id: string
 	}
 
 	export interface StreamCategory {
-		id:string;
-		name:string;
-		box_art_url:string;
+		id: string;
+		name: string;
+		box_art_url: string;
 	}
 
 	export interface StreamTag {
-        tag_id: string;
-        is_auto: boolean;
-        localization_names: {[key:string]:string};
-        localization_descriptions: {[key:string]:string};
+		tag_id: string;
+		is_auto: boolean;
+		localization_names: { [key: string]: string };
+		localization_descriptions: { [key: string]: string };
+	}
+
+	export interface ClipInfo {
+		broadcaster_id: string;
+		broadcaster_name: string;
+		created_at: string;
+		creator_id: string;
+		creator_name: string;
+		duration: number;
+		embed_url: string;
+		game_id: string;
+		id: string;
+		language: string;
+		thumbnail_url: string;
+		title: string;
+		url: string;
+		video_id: string;
+		view_count: number;
 	}
 }

@@ -107,6 +107,11 @@ http.createServer((request, response) => {
 				deezerAuthenticate(request, response);
 				return;
 
+			//Get deezer token
+			}else if(endpoint == "/api/clip") {
+				twitchClip(request, response);
+				return;
+
 			//Rrefresh deezer access_token
 			// }else if(endpoint == "/api/deezer/search") {
 			// 	const res = await fetch("https://api.deezer.com/search?q=prout", {
@@ -514,51 +519,27 @@ async function deezerAuthenticate(request, response) {
 	}));
 }
 
-
-
-
 /**
- * Generates a credential token.
- * 
- * @param client_id 
- * @param client_secret 
- * @param scope 
+ * Just a proxy to load a twitch clip player source page
+ * [EDIT] actually not used as the actual video is loaded asynchronously
+ *        after a GQL query. To get it we would have to create a headless
+ *        browser, load the page, wait for the video to load, and get its URL.
+ *        No way i do this on my small server :D
+ * @param {*} request 
+ * @param {*} response 
  * @returns 
  */
-async function getClientCredentialToken() {
-	//Invalidate token if expiration date is passed
-	if(Date.now() > credentialToken_invalidation_date) credentialToken = null;
-	//Avoid generating a new token if one already exists
-	if(credentialToken) return Promise.resolve(credentialToken);
+async function twitchClip(request, response) {
+	const params = UrlParser.parse(request.url, true).query;
+	const id = params.id;
+	const res = await fetch("https://clips.twitch.tv/"+id);
+	const html = await res.text();
 
-	//Generate a new token
-	let headers = {};
-	var options = {
-		method: "POST",
-		headers: headers,
-	};
-	let url = "https://id.twitch.tv/oauth2/token?";
-	url += "client_id="+credentials.client_id;
-	url += "&client_secret="+credentials.client_secret;
-	url += "&grant_type=client_credentials";
-	url += "&scope="+credentials.scopes.join("+");
-
-	try {
-		const result = await fetch(url, options);
-		if(result.status == 200) {
-			let json = await result.json();
-			credentialToken = json.access_token;
-			credentialToken_invalidation_date = Date.now() + json.expires_in - 1000;
-			return json.access_token;
-		}else{
-			console.error("Token generation failed");
-			console.log(await result.text());
-			return null;
-		}
-	}catch(error) {
-		return null;
-	}
+	response.writeHead(200, {'Content-Type': 'text/html'});
+	response.end(html);
 }
+
+
 
 /**
  * Data schema to make sure people don't send random or invalid data to the server
