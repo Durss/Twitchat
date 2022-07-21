@@ -2,6 +2,7 @@ import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
 import type { TriggerData, TriggerActionTypes } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
+import StoreProxy from "@/utils/StoreProxy";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -33,6 +34,7 @@ export default class Store {
 	public static SPOTIFY_AUTH_TOKEN:string = "spotifyAuthToken";
 	public static STREAM_INFO_PRESETS:string = "streamInfoPresets";
 	public static EMERGENCY_PARAMS:string = "emergencyParams";
+	public static EMERGENCY_FOLLOWERS:string = "emergencyFollowers";
 	public static ALERT_PARAMS:string = "chatAlertParams";
 	public static SPOILER_PARAMS:string = "spoilerParams";
 	public static CHAT_HIGHLIGHT_PARAMS:string = "chatHighlightParams";
@@ -180,6 +182,12 @@ export default class Store {
 					'Authorization': 'Bearer '+this.access_token,
 				}
 				const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
+				if(res.status === 500) {
+					StoreProxy.store.dispatch("refreshAuthToken", ()=> {
+						//Try again
+						setTimeout(()=> { this.save(true); }, 2000);
+					});
+				}
 				// const json = await res.json();
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves

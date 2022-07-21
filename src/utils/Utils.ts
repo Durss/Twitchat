@@ -127,14 +127,22 @@ export default class Utils {
 	 * Formats a date
 	 * 
 	 * @param date 
+	 * @param addTime 
 	 * @returns 
 	 */
-	public static formatDate(date:Date):string {
-		return Utils.toDigits(date.getDate())+ "/"
+	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
+		let res = "";
+		if(!noDate) {
+			res = Utils.toDigits(date.getDate())+ "/"
 				+ Utils.toDigits(date.getMonth() + 1) + "/"
-				+ date.getFullYear() + " "
-				+ Utils.toDigits(date.getHours()) + "h"
+				+ date.getFullYear()
+		}
+		if(addTime) {
+			if(!noDate) res  += " "
+			res += Utils.toDigits(date.getHours()) + "h"
 				+ Utils.toDigits(date.getMinutes());
+		}
+		return res;
 	}
 
 	/**

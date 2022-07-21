@@ -126,6 +126,7 @@ export namespace IRCEventDataList {
 		//custom data
 		firstMessage?: boolean;
 		markedAsRead?: boolean;
+		followBlocked?: boolean;
 		type: "highlight";
 		subgiftAdditionalRecipents?: string[];
 	}

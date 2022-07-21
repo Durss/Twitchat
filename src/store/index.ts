@@ -28,7 +28,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -320,7 +320,12 @@ const store = createStore({
 				all:false,
 				users:""
 			},
+			autoBlockFollows:false,
+			autoUnblockFollows:false,
 		} as EmergencyParamsData,
+
+		//Stores all the people that followed during an emergency
+		emergencyFollows: [] as EmergencyFollowerData[],
 
 		spoilerParams: {
 			permissions:{
@@ -438,12 +443,12 @@ const store = createStore({
 				if(cb) cb(true);
 
 				const expire = json.expires_in;
-				let delay = Math.max(0,expire*1000 - 60000 * 5);
+				let delay = Math.max(0,expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
 				//Refresh at least every 3h
 				const maxDelay = 1000 * 60 * 60 * 3;
 				if(delay > maxDelay) delay = maxDelay;
 			
-				console.log("Refresh token in", delay);
+				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(state.refreshTokenTO);
 				state.refreshTokenTO = window.setTimeout(()=>{
 					store.dispatch("authenticate", {forceRefresh:true});
@@ -1364,6 +1369,16 @@ const store = createStore({
 			await Utils.promisedTimeout(50);
 			state.chatAlert = null;
 		},
+
+		async addEmergencyFollower(state, payload:EmergencyFollowerData) {
+			state.emergencyFollows.push(payload);
+			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
+		},
+
+		async clearEmergencyFollows(state) {
+			state.emergencyFollows.splice(0)
+			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
+		},
 		
 	},
 
@@ -1382,6 +1397,8 @@ const store = createStore({
 
 	
 	actions: {
+		refreshAuthToken({commit}, payload:()=>boolean) { commit("authenticate", {cb:payload, forceRefresh:true}); },
+
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
 			let jsonConfigs;
 			try {
@@ -1719,7 +1736,7 @@ const store = createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.REFRESH_TOKEN, (event:IRCEvent) => {
-				commit("authenticate");
+				commit("authenticate", {});
 			});
 
 			//Makes sure all parameters have a unique ID !
@@ -1942,6 +1959,12 @@ const store = createStore({
 			if(!ip) ip = Store.get(Store.OBS_IP);
 			if(port != undefined || pass != undefined || ip != undefined) {
 				OBSWebsocket.instance.connect(port, pass, true, ip);
+			}
+
+			//Init emergency followers
+			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
+			if(emergencyFollows) {
+				state.emergencyFollows = JSON.parse(emergencyFollows);
 			}
 		},
 		
@@ -2186,6 +2209,10 @@ const store = createStore({
 		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
 
 		executeChatAlert({commit}, message:IRCEventDataList.Message|IRCEventDataList.Whisper) { commit("executeChatAlert", message); },
+
+		addEmergencyFollower({commit}, payload:EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
+		
+		clearEmergencyFollows({commit}) { commit("clearEmergencyFollows"); },
 	},
 	modules: {
 	}

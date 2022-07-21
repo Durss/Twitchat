@@ -2,12 +2,11 @@
 	<div class="paramsemergency">
 		<img src="@/assets/icons/emergency_purple.svg" alt="emergency icon" class="icon">
 		
-		<p class="header">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
+		<p class="header">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior</p>
+		<p class="header small">Start an emergency with the <img src="@/assets/icons/emergency.svg" class="btExample"> button on the chat bar <i>(see bottom right of screen)</i> or with a chat command</p>
 
 		<Splitter class="item splitter" title="Chat command" />
-		<div class="item label">
-			<p>Allow your mods to trigger the emergency mode from a chat command</p>
-		</div>
+		<div class="item label">Allow your mods to trigger the emergency mode from a chat command</div>
 		<div>
 			<ParamItem class="item" :paramData="param_chatCommand" />
 			<ToggleBlock title="Allowed users" :open="false" small class="item">
@@ -20,8 +19,21 @@
 			<ParamItem class="item" :paramData="p" />
 		</div>
 
-		<Splitter class="item splitter" title="OBS params" />
+		<Splitter class="item splitter" title="Followbots" />
+		<div class="item label">If you enable this, any new follower will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i> during an emergency</div>
+		<ParamItem class="item" :paramData="param_autoBlockFollowing" />
+		<div class="item infos">
+			<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
+			<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all blocked users</a> on Twitch.</p>
+			<transition
+				@enter="onShowItem"
+				@leave="onHideItem"
+			>
+				<div v-if="param_autoBlockFollowing.value === true" class="togglable"><strong>You'll want to tell you viewers not to follow until the emergency is disabled.</strong></div>
+			</transition>
+		</div>
 
+		<Splitter class="item splitter" title="OBS params" />
 		<div class="item" v-if="!obsConnected">
 			<div class="info">
 				<img src="@/assets/icons/infos.svg" alt="info">
@@ -62,6 +74,7 @@
 import type { EmergencyParamsData, ParameterData, ParameterDataListValue, PermissionsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
+import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
@@ -86,6 +99,8 @@ export default class ParamsEmergency extends Vue {
 	public param_noTrigger:ParameterData = {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
 	public param_followersOnlyDuration:ParameterData = { type:"number", value:30, label:"Must follow your channel for (minutes)"};
 	public param_slowModeDuration:ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
+	public param_autoBlockFollowing:ParameterData = { type:"toggle", value:false, label:"Block follows", icon:"unfollow_purple.svg"};
+	public param_autoUnblockFollowing:ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:ParameterDataListValue|null = null;
@@ -129,6 +144,8 @@ export default class ParamsEmergency extends Vue {
 			toUsers:this.param_autoTo.value as string,
 			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
+			autoBlockFollows:this.param_autoBlockFollowing.value === true,
+			autoUnblockFollows:this.param_autoUnblockFollowing.value === true,
 		};
 	}
 
@@ -139,6 +156,7 @@ export default class ParamsEmergency extends Vue {
 		params["noTrigger"] = this.param_noTrigger,
 		params["autoTO"] = this.param_autoTo,
 		this.channelParams = params;
+		this.param_autoBlockFollowing.children = [this.param_autoUnblockFollowing];
 		if(this.channelParams) {
 			//Prefill forms from storage
 			this.channelParams.autoTO.value = StoreProxy.store.state.emergencyParams.toUsers;
@@ -149,12 +167,19 @@ export default class ParamsEmergency extends Vue {
 			this.channelParams.followersOnly.value = StoreProxy.store.state.emergencyParams.followOnly;
 			this.param_followersOnlyDuration.value = StoreProxy.store.state.emergencyParams.followOnlyDuration;
 			this.param_slowModeDuration.value = StoreProxy.store.state.emergencyParams.slowModeDuration;
-			if(StoreProxy.store.state.emergencyParams.chatCmd) {
-				this.param_chatCommand.value = StoreProxy.store.state.emergencyParams.chatCmd;
-			}
-			if(StoreProxy.store.state.emergencyParams.chatCmdPerms) {
-				this.chatCommandPerms = StoreProxy.store.state.emergencyParams.chatCmdPerms;
-			}
+		}
+		if(StoreProxy.store.state.emergencyParams.chatCmd) {
+			this.param_chatCommand.value = StoreProxy.store.state.emergencyParams.chatCmd;
+		}
+		if(StoreProxy.store.state.emergencyParams.chatCmdPerms) {
+			this.chatCommandPerms = StoreProxy.store.state.emergencyParams.chatCmdPerms;
+		}
+		
+		if(StoreProxy.store.state.emergencyParams.autoBlockFollows != undefined) {
+			this.param_autoBlockFollowing.value = StoreProxy.store.state.emergencyParams.autoBlockFollows;
+		}
+		if(StoreProxy.store.state.emergencyParams.autoUnblockFollows != undefined) {
+			this.param_autoUnblockFollowing.value = StoreProxy.store.state.emergencyParams.autoUnblockFollows;
 		}
 
 		await this.listOBSScenes();
@@ -168,6 +193,23 @@ export default class ParamsEmergency extends Vue {
 			this.listOBSScenes();
 			this.listOBSSources();
 		});
+	}
+
+	public onShowItem(el:HTMLDivElement, done:()=>void):void {
+		gsap.killTweensOf(el);
+		//Delay the opening so the animation occurs after the child's animation.
+		//this way the user has more chances to see it appear than if all the
+		//animations occured at the same time
+		gsap.from(el, {height:0, duration:.2, ease:"sine.out", delay:.5, onComplete:()=>{
+			done();
+		}});
+	}
+
+	public onHideItem(el:HTMLDivElement, done:()=>void):void {
+		gsap.killTweensOf(el);
+		gsap.to(el, {height:0, duration:.2, ease:"sine.out", onComplete:()=>{
+			done();
+		}});
 	}
 
 	/**
@@ -238,6 +280,16 @@ export default class ParamsEmergency extends Vue {
 	.header {
 		text-align: center;
 		margin-bottom: .5em;
+		&.small {
+			font-size: .8em;
+			.btExample {
+				height: 1.25em;
+				padding: .25em;
+				border-radius: .25em;
+				background-color: @mainColor_alert;
+				vertical-align: middle;
+			}
+		}
 	}
 	
 	.info {
@@ -280,6 +332,20 @@ export default class ParamsEmergency extends Vue {
 		&.splitter {
 			margin-top: 1em;
 		}
+
+		&.infos {
+			font-size: .8em;
+			background-color:  @mainColor_light;
+			padding: .5em;
+			border-radius: .5em;
+			// margin-top: 0;
+			// overflow: hidden;
+			// padding-left: calc(1em + 10px);
+
+			.togglable {
+				overflow: hidden;
+			}
+		}
 	}
 
 	.sourceSelector {
@@ -292,6 +358,14 @@ export default class ParamsEmergency extends Vue {
 				fill: @mainColor_light;
 			}
 		}
+	}
+
+	mark {
+		font-weight: bold;
+		padding: .25em .5em;
+		border-radius: .5em;
+		font-size: .8em;
+		background: fade(@mainColor_normal, 15%);
 	}
 	
 }
