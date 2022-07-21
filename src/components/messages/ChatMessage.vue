@@ -437,7 +437,7 @@ export default class ChatMessage extends Vue {
 		const mess = this.messageData as IRCEventDataList.Message;
 		
 		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'] === true && !this.lightMode && !this.isPresentation;
+		this.firstTime = mess.tags['first-msg'] === true && !this.isPresentation;
 
 		//Manage automod content
 		if(!this.lightMode && mess.automod) {
