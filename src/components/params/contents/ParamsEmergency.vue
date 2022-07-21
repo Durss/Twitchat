@@ -100,7 +100,7 @@ export default class ParamsEmergency extends Vue {
 	public param_followersOnlyDuration:ParameterData = { type:"number", value:30, label:"Must follow your channel for (minutes)"};
 	public param_slowModeDuration:ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
 	public param_autoBlockFollowing:ParameterData = { type:"toggle", value:false, label:"Block follows", icon:"unfollow_purple.svg"};
-	public param_autoUnblockFollowing:ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg"};
+	public param_autoUnblockFollowing:ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg", tooltip:"Check this if you just want<br>to remove users's follow<br>without restricting her/him<br>access to your channel"};
 	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:ParameterDataListValue|null = null;
