@@ -1,5 +1,6 @@
 <template>
 	<div class="paramslist">
+		<h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1>
 		<div class="row" v-for="(p) in params" :key="p.id">
 
 			<ParamItem :paramData="p" save />
@@ -73,6 +74,26 @@ export default class ParamsList extends Vue {
 	public category!:ParameterCategory;
 	public filteredParams!:ParameterData[];
 
+	public get title():string {
+		switch(this.category) {
+			case 'features': return "Features";
+			case 'appearance': return "Appearance";
+			case 'filters': return "Filters";
+		}
+		return ""
+	}
+
+	public get icon():string {
+		let code = "";
+		switch(this.category) {
+			case 'features': code = "params_purple"; break;
+			case 'appearance': code = "show_purple"; break;
+			case 'filters': code = "filters_purple"; break;
+		}
+		if(!code) return "";
+		return this.$image("icons/"+code+".svg");
+	}
+
 	public get isOBSConnected():boolean {
 		return OBSWebsocket.instance.connected;
 	}
@@ -134,7 +155,19 @@ export default class ParamsList extends Vue {
 
 <style scoped lang="less">
 .paramslist{
-	.row:not(:first-child) {
+	h1 {
+		text-align: center;
+		margin-bottom: 20px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		.icon {
+			height: 1.25em;
+			margin-right: .5em;
+		}
+	}
+	.row:not(:first-of-type) {
 		margin-top: 10px;
 	}
 	.row:not(:last-child) {
