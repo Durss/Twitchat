@@ -232,8 +232,11 @@ export default class Parameters extends Vue {
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
-			.button:not(:first-child) {
-				margin-top: 10px;
+			.button {
+				box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+				&:not(:first-child) {
+					margin-top: 10px;
+				}
 			}
 
 			.version {
