@@ -1113,6 +1113,27 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Unbans a user
+	 */
+	public static async unbanUser(uid:string):Promise<boolean> {
+		const options = {
+			method:"DELETE",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("user_id", uid);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
 	 * Blocks a user
 	 */
 	public static async blockUser(uid:string, reason?:"spam" | "harassment" | "other"):Promise<boolean> {

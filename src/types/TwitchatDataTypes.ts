@@ -286,6 +286,7 @@ export interface EmergencyFollowerData {
 	date:number;
 	blocked:boolean;
 	unblocked:boolean;
+	banned?:boolean;
 }
 
 export interface ChatHighlightInfo {

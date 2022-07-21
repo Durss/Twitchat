@@ -20,16 +20,16 @@
 		</div>
 
 		<Splitter class="item splitter" title="Followbots" />
-		<div class="item label">If you enable this, any new follower will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i> during an emergency</div>
+		<div class="item label">If you enable this, any new follower occuring during an emergency will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i></div>
 		<ParamItem class="item" :paramData="param_autoBlockFollowing" />
 		<div class="item infos">
 			<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
-			<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all blocked users</a> on Twitch.</p>
+			<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all your blocked users</a> on Twitch.</p>
 			<transition
 				@enter="onShowItem"
 				@leave="onHideItem"
 			>
-				<div v-if="param_autoBlockFollowing.value === true" class="togglable"><strong>You'll want to tell you viewers not to follow until the emergency is disabled.</strong></div>
+				<div v-if="param_autoBlockFollowing.value === true" class="togglable"><strong>You'll want to tell you viewers not to follow your channel during an emergency.</strong></div>
 			</transition>
 		</div>
 
@@ -55,8 +55,8 @@
 			></vue-select>
 			
 			<div class="item label">
-				<img src="@/assets/icons/hide_purple.svg" alt="sources icon" class="icon">
-				<p>Select OBS sources to hide <i>(ex: streamelements alerts)</i></p>
+				<img src="@/assets/icons/show_purple.svg" alt="sources icon" class="icon">
+				<p>Select OBS sources to hide<br><i>(ex: streamelements alerts)</i></p>
 			</div>
 			<vue-select class="sourceSelector" label="sourceName"
 				placeholder="Select one or more sources..."

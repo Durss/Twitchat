@@ -14,13 +14,15 @@
 							<div class="infos">
 								<span class="date">{{ formatDate(follower.date) }}</span>
 								<a class="name" data-tooltip="Open profile" :href="'https://twitch.tv/'+follower.login" target="_blank">{{ follower.login }}</a>
+								<img class="icon" data-tooltip="User has<br>been banned" v-if="follower.banned" src="@/assets/icons/ban_purple.svg" alt="banned">
 								<img class="icon" data-tooltip="User has<br>been blocked" v-if="follower.blocked" src="@/assets/icons/block_purple.svg" alt="blocked">
 								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.unblocked" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
 							</div>
 							<div class="ctas">
 								<Button class="cardBt" small data-tooltip="Open viewer card" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
-								<Button small @click="ban(follower)" data-tooltip="Permaban user" highlight :icon="$image('icons/ban.svg')" />
-								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.unblocked" :icon="$image('icons/block.svg')" />
+								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.banned !== true" highlight :icon="$image('icons/ban.svg')" />
+								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.banned === true" :icon="$image('icons/unban.svg')" />
+								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.unblocked" highlight :icon="$image('icons/block.svg')" />
 								<Button small @click="unblock(follower)" data-tooltip="Unblock user" v-if="follower.blocked && !follower.unblocked" :icon="$image('icons/unblock.svg')" />
 							</div>
 						</li>
@@ -66,7 +68,13 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 		
 	public async ban(follower:EmergencyFollowerData):Promise<void> {
+		follower.banned = true;
 		await TwitchUtils.banUser(follower.uid, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
+	}
+		
+	public async unban(follower:EmergencyFollowerData):Promise<void> {
+		delete follower.banned;
+		await TwitchUtils.unbanUser(follower.uid);
 	}
 	
 	public async block(follower:EmergencyFollowerData):Promise<void> {
