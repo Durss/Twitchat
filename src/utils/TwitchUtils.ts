@@ -361,7 +361,6 @@ export default class TwitchUtils {
 			const param = "broadcaster_id";
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
-			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			channels = channels.concat(json.data);
@@ -1082,6 +1081,24 @@ export default class TwitchUtils {
 			return true;
 		}else{
 			return false;
+		}
+	}
+	/**
+	 * Get a clip by its ID
+	 */
+	public static async getClipById(clipId:string):Promise<TwitchDataTypes.ClipInfo|null> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"clips");
+		url.searchParams.append("id", clipId);
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			const json = await res.json();
+			return json.data[0];
+		}else{
+			return null;
 		}
 	}
 }

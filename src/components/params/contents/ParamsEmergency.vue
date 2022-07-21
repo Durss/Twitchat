@@ -278,7 +278,7 @@ export default class ParamsEmergency extends Vue {
 		}
 
 		&.splitter {
-			margin-top: 1em;
+			margin-top: 2em;
 		}
 	}
 

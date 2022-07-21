@@ -4,7 +4,7 @@
 		<Button small @click="$emit('pred'); close();" :icon="$image('icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
 		<Button small @click="$emit('raffle'); close();" :icon="$image('icons/ticket.svg')" title="Create raffle" bounce />
 		<Button small @click="$emit('bingo'); close();" :icon="$image('icons/bingo.svg')" title="Create bingo" bounce />
-		<Button small @click="$emit('chatpoll'); close();" :icon="$image('icons/chatPoll.svg')" title="Suggestion poll" bounce />
+		<Button small @click="$emit('chatpoll'); close();" :icon="$image('icons/chatPoll.svg')" title="Chat suggestions" bounce />
 		<Button small @click="$emit('clear'); close();" :icon="$image('icons/clearChat.svg')" title="Clear chat" bounce />
 		<Button small @click="$emit('streamInfo'); close();" :icon="$image('icons/info.svg')" title="Stream info" bounce />
 

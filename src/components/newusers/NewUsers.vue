@@ -221,6 +221,7 @@ export default class NewUsers extends Vue {
 		if(m.type != "message" && m.type != "highlight") return;
 		if(m.type == "highlight" && m.viewers) return;//Ignore raids
 		let login = m.tags.login? m.tags.login : m.tags.username;
+		if(!login) return;
 		login = login.toLowerCase();
 		//Ignore self messages
 		if(login == m.channel.substring(1)) return;
