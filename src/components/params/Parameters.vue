@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button aria-label="Back to menu" :icon="$image('icons/back_white.svg')" @click="setContent(null)" class="close" bounce v-if="content != null" />
+				<Button aria-label="Back to menu" :icon="$image('icons/back_white.svg')" @click="back()" class="close" bounce v-if="content != null" />
 				<h1 class="title">Parameters</h1>
 				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce />
 			</div>
@@ -95,12 +95,12 @@ import ParamsAlert from './contents/ParamsAlert.vue';
 
 export default class Parameters extends Vue {
 
-	public content:ParamsContenType = null;
-
+	public search = "";
 	public showMenu = false;
 	public filteredParams:ParameterData[] = [];
+	public content:ParamsContenType = null;
 
-	public search = "";
+	private prevContent:ParamsContenType = null;
 
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -167,7 +167,13 @@ export default class Parameters extends Vue {
 		}});
 	}
 
+	public back():void {
+		this.content = this.prevContent;
+		this.prevContent = null;
+	}
+
 	public setContent(id:ParamsContenType):void {
+		this.prevContent = this.content;
 		if(id == this.content) {
 			//Refresh content if already active
 			this.content = null;
