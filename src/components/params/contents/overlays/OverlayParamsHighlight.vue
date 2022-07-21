@@ -16,6 +16,10 @@
 						<li>#highlight_infos { ... }</li>
 						<li>#highlight_login { ... }</li>
 						<li>#highlight_message { ... }</li>
+						<br>
+						<li>#clip_holder { ... }</li>
+						<li>#clip_player { ... }</li>
+						<li>#clip_progressbar { ... }</li>
 					</ul>
 				</ToggleBlock>
 			</div>

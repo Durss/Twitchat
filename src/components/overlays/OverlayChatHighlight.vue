@@ -11,13 +11,14 @@
 		</div>
 		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-if="clipData" v-show="!loadingClip">
 			<iframe
+				id="clip_player"
 				:src="clipData.embed_url+'&autoplay=true&parent=twitchat.fr&parent=localhost'"
 				width="990"
 				height="557"
 				allowfullscreen
 				:onload="onIFrameLoaded">
 			</iframe>
-			<div class="clipProgress" :style="clipStyles"></div>
+			<div class="clipProgress" id="clip_progressbar" :style="clipStyles"></div>
 		</div>
 	</div>
 </template>
@@ -121,6 +122,7 @@ export default class OverlayChatHighlight extends Vue {
 		this.params = data.params;
 		this.clipData = null;
 		this.loadingClip = true;
+		this.clipPercent = 0;
 
 		if(this.message && this.params && this.user) {
 			await this.$nextTick();
@@ -159,6 +161,7 @@ export default class OverlayChatHighlight extends Vue {
 		this.params = data.params;
 		this.message = "";
 		this.user = null;
+		this.clipPercent = 0;
 		// const res = await fetch(Config.instance.API_PATH+"/clip?id=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC", {method:"GET"});
 		// const html = await res.text();
 		// await this.$nextTick();
@@ -196,6 +199,7 @@ export default class OverlayChatHighlight extends Vue {
 		this.params = null;
 		this.clipData = null;
 		this.loadingClip = true;
+		this.clipPercent = 0;
 		await this.$nextTick();
 	}
 
@@ -339,10 +343,12 @@ export default class OverlayChatHighlight extends Vue {
 		justify-content: flex-start;
 		align-items: flex-start;
 		width: 100%;
+		max-width: 50%;
 		aspect-ratio: 16/9;
 
 		video, iframe {
 			width: 100%;
+			height: 100%;
 			// aspect-ratio: 16/9;
 		}
 
