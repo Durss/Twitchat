@@ -259,6 +259,7 @@ const store = createStore({
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:7, step:1, id:12},
+				reverseActivityFeed: 		{save:true, type:"toggle", value:false, label:"Reverse activity feed (newest activities on bottom)", id:23, icon:"scrollUp_purple.svg"},
 			} as {[key:string]:ParameterData},
 			filters: {
 				showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
