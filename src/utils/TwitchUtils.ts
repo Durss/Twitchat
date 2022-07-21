@@ -361,7 +361,6 @@ export default class TwitchUtils {
 			const param = "broadcaster_id";
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
-			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			channels = channels.concat(json.data);
