@@ -219,7 +219,7 @@ export default class Chat extends Vue {
 
 	private resizeHandler!:(e:Event) => void;
 
-	public mounted():void {
+	public beforeMount():void {
 		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
 		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
