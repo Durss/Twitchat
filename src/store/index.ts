@@ -187,6 +187,30 @@ const store = createStore({
 				needChannelPoints:false,
 			},
 			{
+				id:"announceblue",
+				cmd:"/announceblue {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"announcegreen",
+				cmd:"/announcegreen {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"announceorange",
+				cmd:"/announceorange {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"announcepurple",
+				cmd:"/announcepurple {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
 				id:"commercial",
 				cmd:"/commercial {duration}",
 				details:"Starts an ad. Duration: 30, 60, 90, 120, 150 or 180",

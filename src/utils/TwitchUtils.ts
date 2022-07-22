@@ -1128,4 +1128,24 @@ export default class TwitchUtils {
 		}while(cursor != null)
 		return list;
 	}
+
+	/**
+	 * Sends an announcement
+	 */
+	public static async sendAnnouncement(message:string, color:"blue"|"green"|"orange"|"purple"|"primary" = "primary"):Promise<boolean> {
+		const options = {
+			method:"POST",
+			headers: this.headers,
+			body: JSON.stringify({ message, color }),
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/announcements");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
 }

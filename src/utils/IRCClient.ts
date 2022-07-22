@@ -446,20 +446,29 @@ export default class IRCClient extends EventDispatcher {
 			this.client.disconnect();
 			return Promise.resolve();
 		}
-		
-		//Workaround to a weird behavior of TMI.js.
-		//If the message starts by a "\" it's properly sent on all
-		//connected clients, but never sent back to the sender.
-		if(message.indexOf("\\") === 0) {
-			const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
-			tags.username = this.login;
-			tags["display-name"] = this.login;
-			tags["user-id"] = UserSession.instance.authToken.user_id;
-			tags.id = this.getFakeGuid();
-			this.addMessage(message, tags, true, undefined, this.channel);
+
+		//If sending an announcement
+		if(message.toLowerCase().indexOf("/announce") === 0) {
+			const cmd = message.substring(0, message.indexOf(" "));
+			const color = cmd.replace("/announce", "").trim() as "blue"|"green"|"orange"|"purple"|"primary";
+			return TwitchUtils.sendAnnouncement(message.replace(cmd, ""), color);
+
+		}else{
+			
+			//Workaround to a weird behavior of TMI.js.
+			//If the message starts by a "\" it's properly sent on all
+			//connected clients, but never sent back to the sender.
+			if(message.indexOf("\\") === 0) {
+				const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
+				tags.username = this.login;
+				tags["display-name"] = this.login;
+				tags["user-id"] = UserSession.instance.authToken.user_id;
+				tags.id = this.getFakeGuid();
+				this.addMessage(message, tags, true, undefined, this.channel);
+			}
+			
+			return this.client.say(this.login, message);
 		}
-		
-		return this.client.say(this.login, message);
 	}
 
 	public async whisper(whisperSource:IRCEventDataList.Whisper, message:string):Promise<void> {

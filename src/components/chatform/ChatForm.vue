@@ -517,7 +517,7 @@ export default class ChatForm extends Vue {
 			StoreProxy.store.dispatch("startCountdown", duration * 1000);
 			this.message = "";
 		}else
-
+		
 		if(cmd == "/cypherkey") {
 			//Secret feature
 			StoreProxy.store.dispatch("setCypherKey", params[0]);

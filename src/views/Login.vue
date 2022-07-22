@@ -120,6 +120,7 @@ export default class Login extends Vue {
 		"moderator:manage:banned_users": "Manage banned users",
 		"moderator:read:blocked_terms": "Read blocked terms",
 		"moderator:manage:blocked_terms": "Manage blocked terms",
+		"moderator:manage:announcements": "Use /announce chat command",
 		"user:read:blocked_users": "Read blocked users",
 		"user:manage:blocked_users": "Manage blocked users",
 		"user:read:follows": "List your followings",
@@ -246,6 +247,13 @@ export default class Login extends Vue {
 			.icon {
 				height: 2em;
 				margin-bottom: .25em;
+			}
+			ul {
+				width: fit-content;
+				max-width: 90%;
+				li {
+					font-size: .8em;
+				}
 			}
 		}
 
