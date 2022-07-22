@@ -97,8 +97,11 @@
 			<img src="@/assets/icons/highlight_purple.svg" alt="chat highlight" class="icon">
 			<h1 class="row">Highlight chat message</h1>
 			<div class="row">You want to show a viewer's message on your stream?</div>
-			<div class="row">You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on the button shown bellow</div>
-			<img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen">
+			<div class="row">You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button</div>
+			
+			<!-- <img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen"> -->
+			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 			<Button class="row" title="Configure overlay" @click.stop="openParam('overlays')" :icon="$image('icons/overlay.svg')" />
 			<div class="row">OR</div>
 			<Button class="row" title="Configure trigger" @click.stop="openParam('triggers')" :icon="$image('icons/broadcast.svg')" />
@@ -166,6 +169,10 @@ export default class ChatTipAndTrickAd extends Vue {
 		
 		img {
 			max-width: 100%;
+		}
+		iframe {
+			width: 80%;
+			aspect-ratio: 16/9;
 		}
 	}
 }
