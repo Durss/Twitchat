@@ -106,7 +106,7 @@ export default class Store {
 		}
 		if(v=="10") {
 			this.migrateEmergency();
-			// v = "11";
+			v = "11";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -454,7 +454,7 @@ export default class Store {
 	private static migrateEmergency():void {
 		const value = this.get("p:emergencyButton");
 		console.log(value);
-		StoreProxy.store.state.emergencyParams.enabled = value;
+		StoreProxy.store.state.emergencyParams.enabled = value === "true";
 		this.remove("p:emergencyButton");
 		this.set(this.EMERGENCY_PARAMS, StoreProxy.store.state.emergencyParams);
 	}

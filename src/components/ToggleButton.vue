@@ -40,8 +40,8 @@ export default class ToggleButton extends Vue {
 
 <style scoped lang="less">
 .togglebutton{
-	@size: 1.4em;
-	@width: 2.25em;
+	@size: 1em;
+	@width: 2em;
 	width: @width;
 	min-width: @width;
 	height: @size;
