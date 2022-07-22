@@ -141,7 +141,7 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	public mounted():void {
+	public beforeMount():void {
 		const storeValue = Store.get(Store.GREET_AUTO_SCROLL_DOWN);
 		if(storeValue == "true") this.scrollDownAuto = true;
 		let height = Store.get(Store.GREET_AUTO_HEIGHT)
@@ -158,7 +158,7 @@ export default class NewUsers extends Vue {
 		});
 
 		//Automatically deletes messages after the configured delay
-		this.deleteInterval = window.setInterval(()=> {
+		this.deleteInterval = setInterval(()=> {
 			if(this.autoDeleteAfter == -1) return;
 
 			const clearTimeoffset = Date.now() - this.autoDeleteAfter * 1000;
@@ -218,8 +218,10 @@ export default class NewUsers extends Vue {
 	private async onMessage(e:IRCEvent):Promise<void> {
 		const maxLength = 100;
 		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
+		
 		if(m.type != "message" && m.type != "highlight") return;
 		if(m.type == "highlight" && m.viewers) return;//Ignore raids
+		if(m.blockedUser === true) return;//Ignore blocked users
 		let login = m.tags.login? m.tags.login : m.tags.username;
 		if(!login) return;
 		login = login.toLowerCase();

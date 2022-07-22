@@ -1083,6 +1083,7 @@ export default class TwitchUtils {
 			return false;
 		}
 	}
+
 	/**
 	 * Get a clip by its ID
 	 */
@@ -1100,5 +1101,31 @@ export default class TwitchUtils {
 		}else{
 			return null;
 		}
+	}
+
+	/**
+	 * Get list of blocked users
+	 */
+	public static async getBlockedUsers():Promise<TwitchDataTypes.BlockedUser[]> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		let list:TwitchDataTypes.BlockedUser[] = [];
+		let cursor:string|null = null;
+		do {
+			let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+			url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+			url.searchParams.append("first", "100");
+			if(cursor) url.searchParams.append("after", cursor);
+			const res = await fetch(url.href, options);
+			const json:{data:TwitchDataTypes.BlockedUser[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+			cursor = null;
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null)
+		return list;
 	}
 }

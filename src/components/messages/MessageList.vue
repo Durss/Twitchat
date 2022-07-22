@@ -89,7 +89,7 @@
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
-				v-if="!lightMode && m.type == 'message'">
+				v-if="!lightMode && !m.blockedUser && m.type == 'message'">
 					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 				</div>
 			</div>
@@ -447,7 +447,7 @@ export default class MessageList extends Vue {
 
 		for (let i = 0; i < this.localMessages.length; i++) {
 			const m = this.localMessages[i];
-			if(m.type != "message" || m.automod || m.deleted) {
+			if(m.type != "message" || m.automod || m.deleted || (this.lightMode && m.blockedUser)) {
 				this.localMessages.splice(i, 1);
 				i--;
 			}

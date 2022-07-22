@@ -38,6 +38,7 @@ export default class IRCClient extends EventDispatcher {
 	private joinSpool:string[] = [];
 	private partSpool:string[] = [];
 	private greetHistory:{d:number,uid:string}[] = [];
+	private blockedUsers:{[key:string]:boolean} = {};
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
 	private refreshingToken = false;
@@ -75,7 +76,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["shakawah"]);
+				channels = channels.concat(["samueletienne"]);
 			}
 
 			(async ()=> {
@@ -84,6 +85,13 @@ export default class IRCClient extends EventDispatcher {
 				const users = await TwitchUtils.loadUserInfo(undefined, channels);
 				const uids = users.map(user => user.id);
 				
+				//Get list of all blocked users and build a hashmap out of it
+				const blockedUsers = await TwitchUtils.getBlockedUsers();
+				this.blockedUsers = {};
+				for (let i = 0; i < blockedUsers.length; i++) {
+					const u = blockedUsers[i];
+					this.blockedUsers[u.user_id] = true;
+				}
 				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
 				for (let i = 0; i < uids.length; i++) {
@@ -516,18 +524,16 @@ export default class IRCClient extends EventDispatcher {
 	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubDataTypes.AutomodData, channel?:string):void {
 		const login = tags.username as string;
 
+		if(message == "!logJSON") console.log(this.idToExample);
+
 		if(login == this.login) {
 			if(!this.selfTags) this.selfTags = JSON.parse(JSON.stringify(tags));
-			//Darn IRC doesn't send back the user ID when message is sent from this client
+			//Darn TMI doesn't send back the user ID when message is sent from this client
 			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
 			tags.id = this.getFakeGuid();
 		}
 
-		if(message == "!logJSON") {
-			console.log(this.idToExample);
-		}
-
-		//Add message
+		//Create message structure
 		let data:IRCEventDataList.Message = {
 												type:"message",
 												message,
@@ -543,31 +549,17 @@ export default class IRCClient extends EventDispatcher {
 		if(!tags.id) tags.id = this.getFakeGuid();
 		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
 		
+		//User has no color giver her/him a random one
 		if(!tags.color) {
 			let color = this.userToColor[login];
 			if(!color) {
-				color = Utils.pickRand([
-					"#ff0000",
-					"#0000ff",
-					"#008000",
-					"#b22222",
-					"#ff7f50",
-					"#9acd32",
-					"#ff4500",
-					"#2e8b57",
-					"#daa520",
-					"#d2691e",
-					"#5f9ea0",
-					"#1e90ff",
-					"#ff69b4",
-					"#8a2be2",
-					"#00ff7f"
-				]);
+				color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 				this.userToColor[login]	= color;
 			}
 			tags.color = color;
 		}
 
+		//Check if it's the first message of a user for today
 		let uid = tags['user-id'] as string;
 		if(this.uidsDone[uid] !== true) {
 			if(!automod) data.firstMessage = true;
@@ -641,6 +633,11 @@ export default class IRCClient extends EventDispatcher {
 			this.onlineUsers.push(loginLower);
 			this.onlineUsers.sort();
 			StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
+		}
+
+		//If user is part of the block list, flag the message
+		if(this.blockedUsers[data.tags["user-id"] as string] === true) {
+			data.blockedUser = true;
 		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, data));

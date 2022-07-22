@@ -36,7 +36,7 @@
 
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 
-		<div class="infos">
+		<div class="infos" v-if="messageData.blockedUser !== true">
 			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
 			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
@@ -75,14 +75,16 @@
 				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}<i class="translation" v-if="translateUsername"> ({{messageData.tags["username"]}})</i></span>
 		</div>
 		
-		<span>: </span>
-		<span class="message">
+		<span v-if="messageData.blockedUser !== true">: </span>
+		<span class="message" v-if="messageData.blockedUser !== true">
 			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
+
+		<div v-if="messageData.blockedUser === true" class="blockedMessage" @click.stop="messageData.blockedUser = false">This message has been sent by a blocked user. Click to reveal.</div>
 		
-		<br v-if="clipInfo">
-		<div v-if="clipInfo" class="clip" @click.stop="openClip()">
+		<br v-if="clipInfo && messageData.blockedUser !== true">
+		<div v-if="clipInfo && messageData.blockedUser !== true" class="clip" @click.stop="openClip()">
 			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
 			<div class="infos">
 				<div class="title">{{clipInfo.title}}</div>
@@ -250,6 +252,7 @@ export default class ChatMessage extends Vue {
 		let res = ["chatmessage"];
 		const message = this.messageData;
 
+		if(this.messageData.blockedUser) res.push("blockedUser");
 		if(this.automod) res.push("automod");
 		if(this.firstTime || this.isPresentation || this.isReturning) res.push("firstTimeOnChannel");
 		if(message.type == "whisper") {
@@ -877,6 +880,19 @@ export default class ChatMessage extends Vue {
 			.subtitle {
 				font-size: .8em;
 				color: fade(@mainColor_light, 70%);
+			}
+		}
+	}
+
+	&.blockedUser {
+		cursor: pointer;
+		.blockedMessage {
+			color: @mainColor_alert;
+			font-style: italic;
+		}
+		&:hover {
+			.blockedMessage {
+				color: lighten(@mainColor_alert, 20%);
 			}
 		}
 	}
