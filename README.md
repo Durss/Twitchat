@@ -100,8 +100,10 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"user:read:follows",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
+		"user:read:blocked_users",
 		"user:manage:blocked_users",
-		"moderator:manage:banned_users"
+		"moderator:manage:banned_users",
+		"moderator:manage:announcements"
 	],
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
