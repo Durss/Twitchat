@@ -385,6 +385,7 @@ export default class ChatHighlight extends Vue {
 		border-radius: .5em;
 		color: @mainColor_light;
 		background-color: @mainColor_alert;
+		white-space: nowrap;
 		img {
 			height: 1em;
 			vertical-align: middle;

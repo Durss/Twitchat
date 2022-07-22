@@ -20,7 +20,7 @@
 			<ParamItem class="item" :paramData="p" />
 		</div>
 
-		<Splitter class="item splitter" title="Followbots" />
+		<Splitter class="item splitter" title="Followbot raid" />
 		<div class="item label">If you enable this, any new follower occuring during an emergency will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i></div>
 		<ParamItem class="item" :paramData="param_autoBlockFollowing" />
 		<div class="item infos">

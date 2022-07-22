@@ -1,5 +1,6 @@
 import type { EmergencyFollowerData, HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
 import TwitchUtils from '@/utils/TwitchUtils';
+import { LoremIpsum } from "lorem-ipsum";
 import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
 import type { TwitchDataTypes } from '../types/TwitchDataTypes';
@@ -207,7 +208,25 @@ export default class PubSub extends EventDispatcher{
 		}
 		IRCClient.instance.addMessage(m.data.message_content.fragments[0].text, tags, false);
 		this.parseEvent(m);
+	}
 
+	public async simulateFollowbotRaid():Promise<void> {
+		const lorem = new LoremIpsum({
+			wordsPerSentence: {
+				max: 16,
+				min: 4
+			}
+		});
+		for (let i = 0; i < 50; i++) {
+			const id = Math.round(Math.random()*1000);
+			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+			this.followingEvent({
+				display_name: login,
+				username: login,
+				user_id:id.toString(),
+			})
+			await Utils.promisedTimeout(Math.random()*300);
+		}
 	}
 	
 	

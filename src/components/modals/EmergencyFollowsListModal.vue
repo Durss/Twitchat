@@ -29,6 +29,7 @@
 					</ul>
 				</div>
 				<div class="ctas">
+					<Button @click="copyList()" title="Copy CSV list to clipboard" :icon="$image('icons/copy.svg')" />
 					<Button @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
 					<Button highlight @click="clearList()" title="Finish & clear list" :icon="$image('icons/checkmark_white.svg')" />
 				</div>
@@ -102,6 +103,21 @@ export default class EmergencyFollowsListModal extends Vue {
 		this.$confirm("Review later?", "You'll be asked again next time you start Twitchat").then(()=>{
 			this.$emit("close");
 		}).catch(()=>{/*ignore*/});
+	}
+
+	public copyList():void {
+		let csv = "Date,User ID, Login, Blocked, Unblocked, Banned\n";
+		const len = this.followers.length;
+		for (let i = 0; i < len; i++) {
+			csv += this.followers[i].date;
+			csv += "," + this.followers[i].uid;
+			csv += "," + this.followers[i].login;
+			csv += "," + (this.followers[i].blocked? 1 : 0);
+			csv += "," + (this.followers[i].unblocked? 1 : 0);
+			csv += "," + (this.followers[i].banned? 1 : 0);
+			if(i < len -1) csv += "\n";
+		}
+		Utils.copyToClipboard(csv);
 	}
 
 }
