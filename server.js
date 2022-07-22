@@ -846,6 +846,19 @@ const UserDataSchema = {
 					type:"array",
 					items:[{type:"string", maxLength:100}],
 				},
+				autoBlockFollows:{type:"boolean"},
+				autoUnblockFollows:{type:"boolean"},
+			}
+		},
+		emergencyFollowers: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				uid:{type:"string", maxLength:50},
+				login:{type:"string", maxLength:50},
+				date:{type:"number"},
+				blocked:{type:"boolean"},
+				unblocked:{type:"boolean"},
 			}
 		},
 		spoilerParams: {

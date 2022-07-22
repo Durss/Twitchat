@@ -128,6 +128,7 @@ export namespace IRCEventDataList {
 		firstMessage?: boolean;
 		markedAsRead?: boolean;
 		blockedUser?: boolean;
+		followBlocked?: boolean;
 		type: "highlight";
 		subgiftAdditionalRecipents?: string[];
 	}

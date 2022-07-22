@@ -1085,6 +1085,93 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Bans a user
+	 */
+	public static async banUser(uid:string, duration?:number, reason?:string):Promise<boolean> {
+		const body:{[key:string]:string|number} = {
+			user_id:uid,
+		};
+		if(duration) body.duration = duration;
+		if(reason) body.reason = reason;
+		
+		const options = {
+			method:"POST",
+			headers: this.headers,
+			body: JSON.stringify({data:body}),
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Unbans a user
+	 */
+	public static async unbanUser(uid:string):Promise<boolean> {
+		const options = {
+			method:"DELETE",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("user_id", uid);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Blocks a user
+	 */
+	public static async blockUser(uid:string, reason?:"spam" | "harassment" | "other"):Promise<boolean> {
+		const options = {
+			method:"PUT",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+		url.searchParams.append("target_user_id", uid);
+		if(reason) url.searchParams.append("reason", reason);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Unblocks a user
+	 */
+	public static async unblockUser(uid:string):Promise<boolean> {
+		const options = {
+			method:"DELETE",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+		url.searchParams.append("target_user_id", uid);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	/**
 	 * Get a clip by its ID
 	 */
 	public static async getClipById(clipId:string):Promise<TwitchDataTypes.ClipInfo|null> {

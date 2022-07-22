@@ -1,4 +1,4 @@
-import type { HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
+import type { EmergencyFollowerData, HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
@@ -261,6 +261,11 @@ export default class PubSub extends EventDispatcher{
 			if(localObj.type == "stream-down") {
 				StoreProxy.store.dispatch("setPlaybackState", null);
 			}
+
+
+
+		}else if(data.type == "whisper_sent") {
+			//TODO sent when sending a whisper from twitch interface, could be nice to handle to rebuild the full conversation on twitchat
 
 
 
@@ -651,6 +656,35 @@ export default class PubSub extends EventDispatcher{
 			"type": "highlight",
 		};
 
+		//If emergency mode is enabled and we asked to automatically block
+		//any new followser during that time, do it
+		if(StoreProxy.store.state.emergencyModeEnabled === true) {
+			const followData:EmergencyFollowerData = {
+				uid:data.user_id,
+				login:data.display_name,
+				date:Date.now(),
+				blocked:false,
+				unblocked:false,
+			}
+			if(StoreProxy.store.state.emergencyParams.autoBlockFollows === true){
+				message.followBlocked = true;
+				(async()=> {
+					let res = await TwitchUtils.blockUser(data.user_id, "spam");
+					followData.blocked = res;
+					//Unblock the user right away if requested
+					if(StoreProxy.store.state.emergencyParams.autoUnblockFollows === true) {
+						res = await TwitchUtils.unblockUser(data.user_id);
+						followData.unblocked = res;
+						StoreProxy.store.dispatch("addEmergencyFollower", followData);
+					}else{
+						StoreProxy.store.dispatch("addEmergencyFollower", followData);
+					}
+				})();
+			}else{
+				StoreProxy.store.dispatch("addEmergencyFollower", followData);
+			}
+		}
+
 		//Broadcast to OBS-ws
 		const wsMessage = {
 			display_name: data.display_name,
@@ -658,6 +692,8 @@ export default class PubSub extends EventDispatcher{
 			user_id: data.user_id,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+
+		console.log(message);
 		
 		IRCClient.instance.sendHighlight(message);
 	}
