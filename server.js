@@ -822,6 +822,7 @@ const UserDataSchema = {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				enabled:{type:"boolean"},
 				chatCmd:{type:"string", maxLength:100},
 				chatCmdPerms:{
 					type:"object",
