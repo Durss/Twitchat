@@ -35,7 +35,7 @@ import Store from './Store';
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 5,
+		latestUpdateIndex: 6,
 		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,

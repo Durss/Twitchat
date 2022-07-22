@@ -817,6 +817,7 @@ const UserDataSchema = {
 		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		emergencyParams: {
 			type:"object",
 			additionalProperties: false,
