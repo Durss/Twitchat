@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/obs_purple.svg" alt="elgato" class="icon">
 			<h1 class="row">Create your own alerts</h1>
 			<div class="row">With <strong>Twitchat</strong> you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.</div>
-			<div class="row">Add texts, images, videos, sounds, ... on your OBS scene and let Twitchat control them when a specific event happens. Text sources can be updated by Twitchat with dynamic values like the subscriber's name.</div>
+			<div class="row">Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name.</div>
 			<Button title="Try it now" @click.stop="openParam('triggers')" />
 		</div>
 		
