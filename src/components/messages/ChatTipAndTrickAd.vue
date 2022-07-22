@@ -107,8 +107,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParamsContenType } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -131,8 +131,8 @@ export default class ChatTipAndTrickAd extends Vue {
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 	public openParam(modal:ParamsContenType):void { this.$emit("openParam", modal); }
 	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
-	public startTimer():void { store.dispatch("startTimer"); }
-	public startCountdown():void { store.dispatch("startCountdown", 2 * 60 * 1000); }
+	public startTimer():void { StoreProxy.store.dispatch("startTimer"); }
+	public startCountdown():void { StoreProxy.store.dispatch("startCountdown", 2 * 60 * 1000); }
 
 }
 </script>

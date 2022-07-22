@@ -95,25 +95,24 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import Store from '@/store/Store';
 import type { ParameterData, ParamsContenType, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { RaffleData } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import type { JsonObject } from "type-fest";
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import type { RaffleData } from '@/utils/CommonDataTypes';
-import UserSession from '@/utils/UserSession';
-import Store from '@/store/Store';
-import { watch } from 'vue';
-import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},

@@ -36,14 +36,13 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
-import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import Config from '@/utils/Config';
+import StoreProxy from '@/utils/StoreProxy';
+import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},

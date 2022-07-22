@@ -101,15 +101,14 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store from '@/store';
 import Store from '@/store/Store';
+import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import { Options, Vue } from 'vue-class-component';
-import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import { Options, Vue } from 'vue-class-component';
+import ToggleBlock from '../ToggleBlock.vue';
+import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Options({
 	props:{

@@ -44,7 +44,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';

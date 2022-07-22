@@ -51,16 +51,16 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
-import TwitchUtils from '@/utils/TwitchUtils';
+import type { BingoConfig, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
+import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import Splitter from '../Splitter.vue';
-import type { BingoConfig, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -115,7 +115,7 @@ export default class BingoForm extends Vue {
 			min,
 			max,
 		};
-		store.dispatch("startBingo", payload);
+		StoreProxy.store.dispatch("startBingo", payload);
 		this.close();
 	}
 
