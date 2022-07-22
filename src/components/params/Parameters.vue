@@ -11,7 +11,7 @@
 
 			<div class="search" v-if="content == null">
 			<!-- <div class="search" v-if="isGenericListContent"> -->
-				<input type="text" placeholder="Search a parameter..." v-model="search">
+				<input type="text" placeholder="Search a parameter..." v-model="search" v-autofocus>
 			</div>
 			
 			<div class="menu" v-if="content == null && !search">
