@@ -1135,7 +1135,7 @@ export default class TwitchUtils {
 	/**
 	 * Blocks a user
 	 */
-	public static async blockUser(uid:string, reason?:"spam" | "harassment" | "other"):Promise<boolean> {
+	public static async blockUser(uid:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
 		const options = {
 			method:"PUT",
 			headers: this.headers,
@@ -1148,14 +1148,26 @@ export default class TwitchUtils {
 		if(res.status == 204) {
 			return true;
 		}else{
-			return false;
+			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
+				let dateLimit = parseInt(res.headers.get("Ratelimit-Reset") as string);
+				if(isNaN(dateLimit)) dateLimit = Date.now() + 1;
+				dateLimit *= 1000;
+				
+				let delay = dateLimit - Date.now();
+				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
+				
+				await Utils.promisedTimeout(delay)
+				return this.blockUser(uid, reason, ++recursiveIndex);
+			}else{
+				return false;
+			}
 		}
 	}
 
 	/**
 	 * Unblocks a user
 	 */
-	public static async unblockUser(uid:string):Promise<boolean> {
+	public static async unblockUser(uid:string, recursiveIndex:number = 0):Promise<boolean> {
 		const options = {
 			method:"DELETE",
 			headers: this.headers,
@@ -1167,7 +1179,19 @@ export default class TwitchUtils {
 		if(res.status == 204) {
 			return true;
 		}else{
-			return false;
+			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
+				let dateLimit = parseInt(res.headers.get("Ratelimit-Reset") as string);
+				if(isNaN(dateLimit)) dateLimit = Date.now() + 1;
+				dateLimit *= 1000;
+				
+				let delay = dateLimit - Date.now();
+				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
+				
+				await Utils.promisedTimeout(delay)
+				return this.unblockUser(uid, ++recursiveIndex);
+			}else{
+				return false;
+			}
 		}
 	}
 	
