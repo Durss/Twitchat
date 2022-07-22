@@ -237,6 +237,16 @@ const store = createStore({
 				id:"unban",
 				cmd:"/unban {user}",
 				details:"Unban a user",
+			},
+			{
+				id:"block",
+				cmd:"/block {user}",
+				details:"Block a user",
+			},
+			{
+				id:"Unblock",
+				cmd:"/unblock {user}",
+				details:"Unblock a user",
 			}
 		] as CommandData[],
 

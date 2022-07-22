@@ -517,6 +517,22 @@ export default class ChatForm extends Vue {
 			StoreProxy.store.dispatch("startCountdown", duration * 1000);
 			this.message = "";
 		}else
+
+		if(cmd == "/block") {
+			this.message = "";
+			let res = await TwitchUtils.blockUser(params[0]);
+			if(res === true) {
+				await IRCClient.instance.sendNotice("block", "User <mark>"+params[0]+"</mark> block");
+			}
+		}else
+
+		if(cmd == "/unblock") {
+			this.message = "";
+			let res = await TwitchUtils.unblockUser(params[0]);
+			if(res === true) {
+				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> unblocked");
+			}
+		}else
 		
 		if(cmd == "/cypherkey") {
 			//Secret feature
@@ -544,8 +560,8 @@ export default class ChatForm extends Vue {
 				if(StoreProxy.store.state.cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
-				await IRCClient.instance.sendMessage(this.message);
 				this.message = "";
+				await IRCClient.instance.sendMessage(this.message);
 			}catch(error) {
 				console.log(error);
 				this.error = true;

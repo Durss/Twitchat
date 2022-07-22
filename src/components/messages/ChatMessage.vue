@@ -484,12 +484,12 @@ export default class ChatMessage extends Vue {
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/i);
 			clipId = matches? matches[1] : "";
-			if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/, "");
+			// if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/, "");
 		}else
 		if(/clips\.twitch\.tv\//gi.test(text)) {
 			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/i);
 			clipId = matches? matches[1] : "";
-			if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/, "");
+			// if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/, "");
 		}
 		
 		if(clipId != "") {
