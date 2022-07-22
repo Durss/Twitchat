@@ -109,7 +109,7 @@ const store = createStore({
 			},
 			shoutout: {
 				enabled:true,
-				message:"/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
+				message:"/announce Go checkout {USER} {URL} . Her/His last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 		} as IBotMessage,
 		commands: [
