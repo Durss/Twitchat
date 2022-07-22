@@ -2,6 +2,7 @@ import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
 import type { TriggerData, TriggerActionTypes } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
+import StoreProxy from "@/utils/StoreProxy";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -103,6 +104,10 @@ export default class Store {
 			this.migrateTriggers2();
 			v = "10";
 		}
+		if(v=="10") {
+			this.migrateEmergency();
+			// v = "11";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -141,6 +146,7 @@ export default class Store {
 					}
 					this.rawStore = json.data;
 					this.dataImported = true;
+					this.init();//Migrate remote data if necessary
 				}
 			}
 			return res.status != 404;
@@ -440,5 +446,16 @@ export default class Store {
 		}
 		
 		this.set("triggers", triggers);
+	}
+
+	/**
+	 * Migrate emergency button from global params to dedicated param
+	 */
+	private static migrateEmergency():void {
+		const value = this.get("p:emergencyButton");
+		console.log(value);
+		StoreProxy.store.state.emergencyParams.enabled = value;
+		this.remove("p:emergencyButton");
+		this.set(this.EMERGENCY_PARAMS, StoreProxy.store.state.emergencyParams);
 	}
 }

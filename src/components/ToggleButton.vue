@@ -40,11 +40,12 @@ export default class ToggleButton extends Vue {
 
 <style scoped lang="less">
 .togglebutton{
-	@size: 25px;
-	width: 40px;
-	min-width: 40px;
+	@size: 1.4em;
+	@width: 2.25em;
+	width: @width;
+	min-width: @width;
 	height: @size;
-	border-radius: 30px;
+	border-radius: 1em;
 	border: 1px solid fade(@mainColor_normal, 50%);
 	position: relative;
 	cursor: pointer;
@@ -61,8 +62,8 @@ export default class ToggleButton extends Vue {
 		width: 30px;
 		min-width: 30px;
 		.circle {
-			width: @size - 4px;
-			height: @size - 4px;
+			width: calc(@size - 4px);
+			height: calc(@size - 4px);
 		}
 	}
 
@@ -88,7 +89,7 @@ export default class ToggleButton extends Vue {
 		background-color: @mainColor_normal;
 		.circle {
 			background-color: #ffffff;
-			left: 16px;
+			left: calc(@width - @size + 1px);
 		}
 	}
 
@@ -98,8 +99,8 @@ export default class ToggleButton extends Vue {
 		top: 1px;
 		left: 1px;
 		background-color: fade(@mainColor_normal, 50%);
-		width: @size - 4px;
-		height: @size - 4px;
+		width: calc(@size - 4px);
+		height: calc(@size - 4px);
 		border-radius: 50%;
 	}
 }

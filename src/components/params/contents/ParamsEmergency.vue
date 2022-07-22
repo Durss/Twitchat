@@ -3,6 +3,7 @@
 		<img src="@/assets/icons/emergency_purple.svg" alt="emergency icon" class="icon">
 		
 		<p class="header">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
+		<ParamItem class="item enableBt" :paramData="param_enable" />
 
 		<Splitter class="item splitter" title="Chat command" />
 		<div class="item label">
@@ -80,6 +81,7 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 })
 export default class ParamsEmergency extends Vue {
 
+	public param_enable:ParameterData = {type:"toggle", label:"Enabled", value:false};
 	public param_chatCommand:ParameterData = {type:"text", label:"Chat command", value:"!emergency"};
 	public param_obsScene:ParameterData = {type:"list", label:"Switch to scene", value:""};
 	public param_autoTo:ParameterData = {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
@@ -117,6 +119,7 @@ export default class ParamsEmergency extends Vue {
 	
 	public get finalData():EmergencyParamsData {
 		return {
+			enabled:this.param_enable.value as boolean,
 			chatCmd:this.param_chatCommand.value as string,
 			chatCmdPerms:this.chatCommandPerms,
 			noTriggers:this.channelParams?.noTrigger.value === true,
@@ -139,6 +142,7 @@ export default class ParamsEmergency extends Vue {
 		params["noTrigger"] = this.param_noTrigger,
 		params["autoTO"] = this.param_autoTo,
 		this.channelParams = params;
+		this.param_enable.value = StoreProxy.store.state.emergencyParams.enabled;
 		if(this.channelParams) {
 			//Prefill forms from storage
 			this.channelParams.autoTO.value = StoreProxy.store.state.emergencyParams.toUsers;
@@ -279,6 +283,14 @@ export default class ParamsEmergency extends Vue {
 
 		&.splitter {
 			margin-top: 2em;
+		}
+
+		&.enableBt {
+			max-width: 200px;
+			margin: auto;
+			border: 1px solid @mainColor_normal;
+			border-radius: 1em;
+			padding: .5em 1em !important;
 		}
 	}
 

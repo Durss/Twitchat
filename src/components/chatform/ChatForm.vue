@@ -242,7 +242,7 @@ export default class ChatForm extends Vue {
 	public spamInterval = 0;
 
 	public get emergencyButtonEnabled():boolean {
-		return StoreProxy.store.state.params.features.emergencyButton.value === true;
+		return StoreProxy.store.state.emergencyParams.enabled === true;
 	}
 
 	public get chatHighlightEnabled():boolean {

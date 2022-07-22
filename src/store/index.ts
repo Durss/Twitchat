@@ -242,7 +242,6 @@ const store = createStore({
 
 		params: {
 			features: {
-				emergencyButton: 			{save:true, type:"toggle", value:false, label:"Emergency button", id:215, icon:"emergency_purple.svg"},
 				spoilersEnabled: 			{save:true, type:"toggle", value:true, label:"Enable spoiler tag", id:216, icon:"show_purple.svg"},
 				alertMode: 					{save:true, type:"toggle", value:true, label:"Enable alert mode", id:217, icon:"alert_purple.svg"},
 				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
@@ -326,12 +325,13 @@ const store = createStore({
 		},
 
 		emergencyParams: {
+			enabled:false,
 			emotesOnly:false,
 			subOnly:false,
 			followOnly:false,
 			noTriggers:false,
 			slowMode:false,
-			followOnlyDuration:3600,
+			followOnlyDuration:60,
 			slowModeDuration:10,
 			toUsers:"",
 			obsScene:"",

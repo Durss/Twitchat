@@ -801,7 +801,6 @@ const UserDataSchema = {
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
 		"p:translateNames": {type:"boolean"},
-		"p:emergencyButton": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
 		v: {type:"integer"},
