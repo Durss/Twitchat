@@ -234,7 +234,12 @@ export default class MessageList extends Vue {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
-				for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
+				const len = StoreProxy.store.state.chatMessages.length;
+				//There should be no need to read more than 100 new messages at a time
+				//Unless the chat is ultra spammy in which case we wouldn't notice
+				//messages are missing from the list anyway...
+				let i = Math.max(0, len - 100);
+				for (; i < len; i++) {
 					const m = StoreProxy.store.state.chatMessages[i] as IRCEventDataList.Message;
 					if(this.idDisplayed[m.tags.id as string] !== true) {
 						this.idDisplayed[m.tags.id as string] = true;
