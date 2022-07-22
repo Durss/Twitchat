@@ -448,8 +448,8 @@ export default class IRCClient extends EventDispatcher {
 		}
 
 		//If sending an announcement
-		if(message.toLowerCase().indexOf("/announce") === 0) {
-			const cmd = message.substring(0, message.indexOf(" "));
+		if(message.trim().toLowerCase().indexOf("/announce") === 0) {
+			const cmd = message.trim().substring(0, message.indexOf(" "));
 			const color = cmd.replace("/announce", "").trim() as "blue"|"green"|"orange"|"purple"|"primary";
 			return TwitchUtils.sendAnnouncement(message.replace(cmd, ""), color);
 

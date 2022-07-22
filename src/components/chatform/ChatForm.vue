@@ -518,19 +518,34 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/unblock2") {
+			this.message = "";
+			await TwitchUtils.unblockUser(params[0]);
+		}else
+
 		if(cmd == "/block") {
 			this.message = "";
-			let res = await TwitchUtils.blockUser(params[0]);
-			if(res === true) {
-				await IRCClient.instance.sendNotice("block", "User <mark>"+params[0]+"</mark> block");
+			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
+			if(users.length == 0) {
+				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> not found...");
+			}else{
+				let res = await TwitchUtils.blockUser(users[0].id);
+				if(res === true) {
+					await IRCClient.instance.sendNotice("block", "User <mark>"+params[0]+"</mark> blocked");
+				}
 			}
 		}else
 
 		if(cmd == "/unblock") {
 			this.message = "";
-			let res = await TwitchUtils.unblockUser(params[0]);
-			if(res === true) {
-				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> unblocked");
+			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
+			if(users.length == 0) {
+				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> not found...");
+			}else{
+				let res = await TwitchUtils.unblockUser(users[0].id);
+				if(res === true) {
+					await IRCClient.instance.sendNotice("unblock", "User <mark>"+users[0].id+"</mark> unblocked");
+				}
 			}
 		}else
 		
@@ -560,8 +575,9 @@ export default class ChatForm extends Vue {
 				if(StoreProxy.store.state.cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
+				let mess = this.message;
 				this.message = "";
-				await IRCClient.instance.sendMessage(this.message);
+				await IRCClient.instance.sendMessage(mess);
 			}catch(error) {
 				console.log(error);
 				this.error = true;
