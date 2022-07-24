@@ -1,7 +1,7 @@
 import type SpeechRecognition from "@/ISpeechRecognition";
-import store from "@/store";
 import { reactive, watch } from "vue";
 import PublicAPI from "./PublicAPI";
+import StoreProxy from "./StoreProxy";
 import TwitchatEvent, { type TwitchatActionType } from "./TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
@@ -148,7 +148,7 @@ export default class VoiceController {
 			}
 		});
 
-		watch(()=>store.state.voiceActions, ()=> {
+		watch(()=>StoreProxy.store.state.voiceActions, ()=> {
 			this.buildHashmap();
 		}, {deep:true})
 
@@ -156,7 +156,7 @@ export default class VoiceController {
 	}
 
 	private buildHashmap():void {
-		const actions = store.state.voiceActions;
+		const actions:VoiceAction[] = StoreProxy.store.state.voiceActions;
 		this.hashmap = {};
 
 		for (let i = 0; i < actions.length; i++) {

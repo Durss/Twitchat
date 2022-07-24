@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 import VoiceAction from '@/utils/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
 
@@ -24,7 +24,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 	public actions:{label:string, action:VoiceAction}[] = [];
 
 	public mounted():void {
-		// const actions = store.state.voiceActions;
+		// const actions = StoreProxy.store.state.voiceActions;
 		const actions = Object.keys(VoiceAction);
 
 		//Search for global labels
@@ -36,7 +36,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 
 			//@ts-ignore
 			const id:string = VoiceAction[a];
-			const action = store.state.voiceActions.find(v=> v.id == id);
+			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action) {
 				this.actions.push({
 					action,

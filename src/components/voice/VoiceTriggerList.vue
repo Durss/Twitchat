@@ -6,9 +6,10 @@
 			v-if="getActionIDs().length > 0"
 		/>
 
-		<VoiceGlobalCommands class="action global" v-model="globalCommands" :open="actions.length == 0" />
+		<VoiceGlobalCommands class="action global" v-model="globalCommands" v-model:complete="globalCommandsOK" :open="actions.length == 0" />
 		
 		<ToggleBlock v-for="(a,index) in actions"
+			v-if="globalCommandsOK"
 			medium
 			:open="isOpen(a.id)"
 			:title="getLabelFromID(a.id)"
@@ -36,8 +37,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
 import { watch } from 'vue';
@@ -59,13 +60,14 @@ export default class VoiceTriggerList extends Vue {
 	public actions:VoiceAction[] = [];
 	public globalCommands:VoiceAction[] = [];
 	public openStates:{[id:string]:boolean} = {};
-
+	public globalCommandsOK:boolean = false;
+	
 	private triggerHandler!:(e:TwitchatEvent)=>void;
 
 	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
 	public mounted():void {
-		this.actions = JSON.parse(JSON.stringify(store.state.voiceActions));
+		this.actions = JSON.parse(JSON.stringify(StoreProxy.store.state.voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
@@ -201,7 +203,7 @@ export default class VoiceTriggerList extends Vue {
 		let list:VoiceAction[] = [];
 		list = list.concat(this.actions);
 		list = list.concat(this.globalCommands);
-		store.dispatch("setVoiceActions", list);
+		StoreProxy.store.dispatch("setVoiceActions", list);
 	}
 
 }

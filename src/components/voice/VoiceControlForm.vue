@@ -3,7 +3,7 @@
 		<label for="langSelector">Select your language:</label>
 		<LangSelector id="langSelector" v-model:lang="lang" class="langSelector" />
 		
-		<Button v-if="!started" title="Start voice bot" class="startBt" @click="startBot()" />
+		<Button v-if="!started && lang" title="Start voice bot" class="startBt" @click="startBot()" />
 		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight />
 		
 		<ToggleBlock title="Speak to see the result" :enabled="false" class="block" v-if="started">
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 import VoiceController from '@/utils/VoiceController';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -47,7 +47,7 @@ export default class VoiceControlForm extends Vue {
 		//@ts-ignore
 		if(!userLang) userLang = navigator.userLanguage; 
 		if(userLang.length == 2) userLang = userLang + "-" + userLang.toUpperCase();
-		if(store.state.voiceLang) userLang = store.state.voiceLang;
+		if(StoreProxy.store.state.voiceLang) userLang = StoreProxy.store.state.voiceLang;
 		this.lang = userLang;
 
 		watch(()=>this.lang, ()=> this.updateLang());
@@ -64,7 +64,7 @@ export default class VoiceControlForm extends Vue {
 
 	private updateLang():void {
 		VoiceController.instance.lang = this.lang;
-		store.dispatch("setVoiceLang", this.lang);
+		StoreProxy.store.dispatch("setVoiceLang", this.lang);
 	}
 
 }

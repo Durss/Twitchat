@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import VoiceAction from '@/utils/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../params/ParamItem.vue';
@@ -42,7 +42,7 @@ export default class VoiceGlobalCommands extends Vue {
 	
 
 	public mounted():void {
-		// const actions = store.state.voiceActions;
+		// const actions = StoreProxy.store.state.voiceActions;
 		const actions = Object.keys(VoiceAction);
 
 		//Search for global labels
@@ -55,7 +55,7 @@ export default class VoiceGlobalCommands extends Vue {
 			//@ts-ignore
 			const id:string = VoiceAction[a];
 			let text = "";
-			const action = store.state.voiceActions.find(v=> v.id == id);
+			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action?.sentences) text = action.sentences;
 
 			this.items.push({

@@ -4,7 +4,6 @@
 		placeholder="Select language..."
 		:options="languages"
 		:appendToBody="true"
-		@option:selected="onChange(true)"
 		>
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[1][0])" mode="rounded" class="flag" />
@@ -16,7 +15,6 @@
 		placeholder="Select country..."
 		:options="subLanguages"
 		:appendToBody="true"
-		@option:selected="onChange()"
 		>
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[0])" mode="rounded" class="flag" />
@@ -28,6 +26,7 @@
 
 <script lang="ts">
 import { Languages } from '@/Languages';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
@@ -80,6 +79,9 @@ export default class LangSelector extends Vue {
 				}
 			}
 		}
+
+		watch(()=>this.langLocal, ()=> { this.onChange(true); });
+		watch(()=>this.sublangLocal, ()=> { this.onChange(); });
 	}
 
 	/**
@@ -87,10 +89,18 @@ export default class LangSelector extends Vue {
 	 * @param resetSubList 
 	 */
 	public onChange(resetSubList:boolean = false):void {
-		if(resetSubList) {
+		console.log("ON CHANGE");
+		if(resetSubList && this.subLanguages.length > 0) {
 			this.sublangLocal.label = this.subLanguages[0].label;
 			this.sublangLocal.value = this.subLanguages[0].value;
+		}else{
+			this.sublangLocal.label = "";
+			this.sublangLocal.value = [];
 		}
+		
+		if(!this.langLocal) {
+			this.$emit("update:lang", "");
+		}else
 		if(!this.sublangLocal.label) {
 			this.$emit("update:lang", this.langLocal.value[1][0]);
 		}else{

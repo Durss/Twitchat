@@ -9,7 +9,7 @@
 
 		<div class="connectObs" v-if="!obsConnected">
 			<div>This features needs you to connect with OBS.</div>
-			<Button class="button" title="Connect to OBS" white @click="$emit('setContent', 'obs')" />
+			<Button class="button" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
 		</div>
 	</div>
 </template>
