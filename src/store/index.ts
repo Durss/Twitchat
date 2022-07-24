@@ -1642,7 +1642,8 @@ const store = createStore({
 					}
 
 					//check if it's a chat alert command
-					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)) {
+					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)
+					&& state.params.features.alertMode.value === true) {
 						if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 							let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
 							//Remove command from message to make later things easier
