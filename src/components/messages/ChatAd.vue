@@ -19,49 +19,57 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<Button aria-label="open emergency params" small title="try it" @click.stop="showSpecificParam('features.emergencyButton')" />
-							<span>You can now better <strong>protect yourself from doxxing</strong> thanks to a new <strong>Emergency button</strong></span>
+							<Button aria-label="open emergency params" small title="try it" @click.stop="openParamPage('emergency')" />
+							<span>Protect yourself from <strong>followbot raids</strong> with the new option of the Emergency button</span>
 						</li>
 						<li>
-							<Button aria-label="open spoiler param" small title="try it" @click.stop="showSpecificParam('features.spoilersEnabled')" />
-							<span>Protect yourself from <strong>spoilers</strong> by allowing your viewers to hide the content of their messages from you. You can allow your mods to mark a message as spoiler instead of deleting it.</span>
+							<Button aria-label="open alert param" small title="try it" @click.stop="openParamPage('alert')" />
+							<span>Let your mods scream at you to make sure you read them with the new <strong>alert feature</strong> under <mark>Parameters =&gt features</mark>.</span>
 						</li>
 						<li>
-							<Button aria-label="open spoiler param" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span>A new overlay allows you to <strong>highlight any chat message</strong> on your stream. <a href="https://www.youtube.com/watch?v=x9RCqbRm6A8" target="_blank"><strong>See demo</strong></a></span>
+							<span>Content of message sent by users you <strong>blocked</strong> is now hidden. Click to reveal.</span>
 						</li>
 						<li>
-							<Button aria-label="open sync param" small title="edit" @click.stop="openParamPage('account')" />
-							<span>Your data are now synced between multiple browsers and computers. <strong>PLEASE let me know if you have any data loss issue!</strong></span>
+							<span>If sending a <strong>clip</strong>'s link, it's <strong>preview</strong> will be displayed</span>
 						</li>
 						<li>
-							<span>Handling the new beta Twitch feature "<strong>returning chatter</strong>". A user's message will be highlighted if s·he hasn't wrote on your chat for +30 days</span>
+							<span>The "Message Highlight" overlay can now play a clip with a single click on a dedicated button of the clip's preview</span>
 						</li>
 						<li>
-							<span><strong>New triggers</strong> related to emergency and chat highlight features available</span>
+							<span>Colored <mark>/announce</mark> commands available</span>
+						</li>
+						<li>
+							<span><mark>/block</mark> and <mark>/unblock</mark> commands available</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
 						<li>
-							<Button aria-label="open no follow param" small title="open no follow" @click.stop="showSpecificParam('appearance.highlightNonFollowers')" />
-							<span>If "no follow" feature is enabled, hovering the users button on the chat bar will show you how many of them are following or not</span>
+							<span>You won't loose the Greet them history if you reload twitchat during your stream. It will show a user again only after 8h.</span>
 						</li>
-						<li>You can now pick multiple winners from a raffle</li>
 						<li>
-							<Button aria-label="open minibadge param" small title="mini badges" @click.stop="showSpecificParam('appearance.minimalistBadges')" />
-							<span>Added mini badge for Twitch Ambassadors</span>
+							<span>Get your current Twitchat version on the bottom of the parameters or with the <mark>/version</mark> command</span>
 						</li>
-						<li>Users that have not defined any specific color will be given a random one <i>(instead of always purple until now)</i></li>
+						<li>
+							<Button aria-label="open chat suggestions feature" small title="open" @click.stop="openModal('chatpoll')" />
+							<span><mark>Chat poll</mark> feature has been renamed to <mark>Chat suggestions</mark> for the sake of clarity</span>
+						</li>
+						<li>
+							<span>Parameters menu has been reviewed with a full page menu instead of the huge stack of tabs at the top</span>
+						</li>
+						<li>
+							<span>Timer and Countdown overlay is a little less ugly</span>
+						</li>
+						<li>
+							<Button aria-label="open chat suggestions feature" small title="open" @click.stop="openParamPage('overlays')" />
+							<span>Spotify and Deezer overlay parameters now shows an example of what the player looks like</span>
+						</li>
 					</ul>
 				</ToggleBlock>
-				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
+				<ToggleBlock class="block fix" title="Fixes" :open="true" :icons="['fix']">
 					<ul>
-						<li>Spotify authentication could fail and prevent you from completing overlay's configuration.</li>
-						<li>It was not possible to send a message ending with @ or : followed by only one char.</li>
-						<li>When splitting screen vertically the top elements <i>(greet them + activity feed)</i> weren't filling up the space until items were added.</li>
-						<li>Auto scrolldown of the "greet them" section was broken</li>
+						<li>Chat connexion was lost after few hours without succeeding to reconnect forcing you to reload the page. This should be fixed now.</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -101,15 +109,14 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store from '@/store';
 import Store from '@/store/Store';
+import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import { Options, Vue } from 'vue-class-component';
-import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import { Options, Vue } from 'vue-class-component';
+import ToggleBlock from '../ToggleBlock.vue';
+import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Options({
 	props:{
@@ -235,6 +242,10 @@ export default class ChatAd extends Vue {
 				.cmd {
 					background-color: fade(@mainColor_warn, 15%);
 				}
+				mark {
+					border: 1px dashed darken(@mainColor_warn_light, 10%);
+					background-color: fade(@mainColor_warn_extralight, 50%);
+				}
 			}
 			&.fix {
 				:deep(.header){
@@ -299,6 +310,12 @@ export default class ChatAd extends Vue {
 					}
 				}
 			}
+		}
+		mark {
+			border: 1px dashed fade(#000, 20);
+			background-color: fade(#000, 5);
+			border-radius: .5em;
+			padding: 0 .25em;
 		}
 	}
 

@@ -2,6 +2,7 @@ import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
 import type { TriggerData, TriggerActionTypes } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
+import StoreProxy from "@/utils/StoreProxy";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -33,6 +34,7 @@ export default class Store {
 	public static SPOTIFY_AUTH_TOKEN:string = "spotifyAuthToken";
 	public static STREAM_INFO_PRESETS:string = "streamInfoPresets";
 	public static EMERGENCY_PARAMS:string = "emergencyParams";
+	public static EMERGENCY_FOLLOWERS:string = "emergencyFollowers";
 	public static ALERT_PARAMS:string = "chatAlertParams";
 	public static SPOILER_PARAMS:string = "spoilerParams";
 	public static CHAT_HIGHLIGHT_PARAMS:string = "chatHighlightParams";
@@ -103,6 +105,10 @@ export default class Store {
 			this.migrateTriggers2();
 			v = "10";
 		}
+		if(v=="10") {
+			this.migrateEmergency();
+			v = "11";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -141,6 +147,7 @@ export default class Store {
 					}
 					this.rawStore = json.data;
 					this.dataImported = true;
+					this.init();//Migrate remote data if necessary
 				}
 			}
 			return res.status != 404;
@@ -182,12 +189,18 @@ export default class Store {
 					'Authorization': 'Bearer '+this.access_token,
 				}
 				const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
+				if(res.status === 500) {
+					StoreProxy.store.dispatch("refreshAuthToken", ()=> {
+						//Try again
+						setTimeout(()=> { this.save(true); }, 2000);
+					});
+				}
 				// const json = await res.json();
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves
 				if(force) this.dataImported = true;
 				resolve();
-			}, force? 0 : 1000);
+			}, force? 0 : 1500);
 		})
 	}
 
@@ -227,7 +240,7 @@ export default class Store {
 	 */
 	public static set(key:string, value:JsonValue|unknown, save = true):void {
 		if(key == this.SYNC_DATA_TO_SERVER) this.syncToServer = value as boolean;
-
+		
 		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
 		if(value == undefined) return;
@@ -442,5 +455,16 @@ export default class Store {
 		}
 		
 		this.set("triggers", triggers);
+	}
+
+	/**
+	 * Migrate emergency button from global params to dedicated param
+	 */
+	private static migrateEmergency():void {
+		const value = this.get("p:emergencyButton");
+		StoreProxy.store.state.emergencyParams.enabled = value === "true";
+		this.remove("obsIp");
+		this.remove("p:emergencyButton");
+		this.set(this.EMERGENCY_PARAMS, StoreProxy.store.state.emergencyParams);
 	}
 }

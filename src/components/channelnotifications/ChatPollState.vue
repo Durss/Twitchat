@@ -42,7 +42,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ChatPollData, ChatPollDataChoice } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';

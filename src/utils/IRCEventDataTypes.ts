@@ -47,6 +47,7 @@ export namespace IRCEventDataList {
 		answers?: Message[];
 		cyphered?: boolean;
 		markedAsRead?: boolean;
+		blockedUser?: boolean;
 		lowTrust?: boolean;
 		deleted?: boolean;
 		deletedData?: PubSubDataTypes.DeletedMessage;
@@ -126,6 +127,8 @@ export namespace IRCEventDataList {
 		//custom data
 		firstMessage?: boolean;
 		markedAsRead?: boolean;
+		blockedUser?: boolean;
+		followBlocked?: boolean;
 		type: "highlight";
 		subgiftAdditionalRecipents?: string[];
 	}
@@ -173,6 +176,7 @@ export namespace IRCEventDataList {
 		isAnswer?: boolean;
 		occurrenceCount?: number;
 		highlightWord?: string;
+		blockedUser?: boolean;
 	}
 
 	export interface PollResult {

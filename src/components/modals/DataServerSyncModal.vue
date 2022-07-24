@@ -124,7 +124,6 @@ export default class DataServerSyncModal extends Vue {
 		}
 
 		.content {
-			//This avoids black space over sticky items inside the content
 			margin-top: 20px;
 			padding-top: 0;
 

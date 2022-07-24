@@ -206,7 +206,7 @@ export default class ParamsList extends Vue {
 
 		&.config {
 			// text-align: center;
-			margin-top: -8px;
+			// margin-top: -8px;
 
 			.button {
 				border: 1px solid @mainColor_normal;

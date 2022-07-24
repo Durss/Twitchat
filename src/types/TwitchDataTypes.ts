@@ -349,4 +349,10 @@ export namespace TwitchDataTypes {
 		video_id: string;
 		view_count: number;
 	}
+
+	export interface BlockedUser {
+		user_id:string;
+		user_login:string;
+		display_name:string;
+	}
 }

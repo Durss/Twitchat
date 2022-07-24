@@ -265,6 +265,7 @@ export interface TimerData {
 }
 
 export interface EmergencyParamsData {
+	enabled:boolean;
 	chatCmd:string;
 	chatCmdPerms:PermissionsData;
 	emotesOnly:boolean;
@@ -272,11 +273,22 @@ export interface EmergencyParamsData {
 	slowMode:boolean;
 	followOnly:boolean;
 	noTriggers:boolean;
+	autoBlockFollows:boolean;
+	autoUnblockFollows:boolean;
 	followOnlyDuration:number;
 	slowModeDuration:number;
 	toUsers:string;
 	obsScene:string;
 	obsSources:string[];
+}
+
+export interface EmergencyFollowerData {
+	uid:string;
+	login:string;
+	date:number;
+	blocked:boolean;
+	unblocked:boolean;
+	banned?:boolean;
 }
 
 export interface ChatHighlightInfo {

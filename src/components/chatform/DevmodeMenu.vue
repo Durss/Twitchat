@@ -26,6 +26,7 @@
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="$image('icons/emote.svg')" />
 			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="$image('icons/shield.svg')" />
 			<Button small title="OBS-WS broadcast test" @click="obsWSBroadcast()" :icon="$image('icons/notification.svg')" />
+			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>
@@ -124,6 +125,10 @@ export default class DevmodeMenu extends Vue {
 
 	public obsWSBroadcast():void {
 		PublicAPI.instance.broadcast("ACTIVITY_FEED_TOGGLE");
+	}
+
+	public simulateFollowbotRaid():void {
+		PubSub.instance.simulateFollowbotRaid();
 	}
 
 }

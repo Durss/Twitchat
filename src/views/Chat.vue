@@ -101,6 +101,7 @@
 		<Parameters v-if="$store.state.showParams" />
 
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
+		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -152,6 +153,7 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
+import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 
 @Options({
 	components:{
@@ -177,6 +179,7 @@ import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 		ChatAlertMessage,
 		DataServerSyncModal,
 		ChannelNotifications,
+		EmergencyFollowsListModal,
 	},
 	props:{
 	},
@@ -194,6 +197,7 @@ export default class Chat extends Vue {
 	public showBlinkLayer:boolean = false;
 	public canStartAd:boolean = true;
 	public voiceControl:boolean = false;
+	public forceEmergencyFollowClose = false;
 	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentMessageSearch = "";
@@ -205,6 +209,7 @@ export default class Chat extends Vue {
 	public get splitViewVertical():boolean { return StoreProxy.store.state.params.appearance.splitViewVertical.value as boolean && StoreProxy.store.state.canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return StoreProxy.store.state.params.appearance.hideChat.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
+	public get showEmergencyFollows():boolean { return StoreProxy.store.state.emergencyFollows.length > 0 && !StoreProxy.store.state.emergencyModeEnabled; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -220,7 +225,7 @@ export default class Chat extends Vue {
 
 	private resizeHandler!:(e:Event) => void;
 
-	public mounted():void {
+	public beforeMount():void {
 		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
 		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);

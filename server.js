@@ -816,7 +816,6 @@ const UserDataSchema = {
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
 		"p:translateNames": {type:"boolean"},
-		"p:emergencyButton": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
 		v: {type:"integer"},
@@ -833,10 +832,12 @@ const UserDataSchema = {
 		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		emergencyParams: {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				enabled:{type:"boolean"},
 				chatCmd:{type:"string", maxLength:100},
 				chatCmdPerms:{
 					type:"object",
@@ -862,6 +863,19 @@ const UserDataSchema = {
 					type:"array",
 					items:[{type:"string", maxLength:100}],
 				},
+				autoBlockFollows:{type:"boolean"},
+				autoUnblockFollows:{type:"boolean"},
+			}
+		},
+		emergencyFollowers: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				uid:{type:"string", maxLength:50},
+				login:{type:"string", maxLength:50},
+				date:{type:"number"},
+				blocked:{type:"boolean"},
+				unblocked:{type:"boolean"},
 			}
 		},
 		spoilerParams: {

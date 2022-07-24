@@ -2,6 +2,11 @@
 	<div :class="classes" v-show="!filtered" @click.ctrl.stop.capture="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
+
+		<div v-if="messageData.followBlocked" class="blocked">
+			<img src="@/assets/icons/emergency.svg" alt="emergency"> blocked
+		</div>
+		
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
 			<div class="info" v-if="info" v-html="info"></div>
@@ -71,6 +76,7 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
+		if(this.messageData.followBlocked) res.push("followBlocked");
 		if(StoreProxy.store.state.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
@@ -363,6 +369,26 @@ export default class ChatHighlight extends Vue {
 		background-color: rgba(255, 255, 255, .2);
 		.message {
 			color: #fff;
+		}
+	}
+
+	// &.followBlocked {
+		// text-decoration: line-through;
+		// color: @mainColor_alert;
+		// background-color: fade(@mainColor_alert, 50%);
+	// }
+
+	.blocked {
+		display: inline;
+		padding: .25em .5em;
+		margin-right: .5em;
+		border-radius: .5em;
+		color: @mainColor_light;
+		background-color: @mainColor_alert;
+		white-space: nowrap;
+		img {
+			height: 1em;
+			vertical-align: middle;
 		}
 	}
 
