@@ -17,6 +17,7 @@ export default class VoiceController {
 	public finalText:string = "";
 	public started:boolean = false;
 
+	private lastTriggerKey:string = "";
 	private ignoreResult:boolean = false;
 	private timeoutNoAnswer:number = -1;
 	private recognition!:SpeechRecognition;
@@ -72,7 +73,7 @@ export default class VoiceController {
 			for (let i = event.resultIndex; i < event.results.length; ++i) {
 				if(event.results[i].isFinal) {
 					texts.push(event.results[i][0].transcript);
-					this.finalText = texts[0];
+					this.finalText = texts[0].replace(this.lastTriggerKey, "");
 				}else{
 					this.tempText += event.results[i][0].transcript;
 				}
@@ -82,6 +83,8 @@ export default class VoiceController {
 			for (const key in this.hashmap) {
 				const index = this.tempText.substring(Math.max(0,this.carretIndex)).indexOf(key);
 				if(index > -1) {
+					this.lastTriggerKey = key;
+					this.tempText = this.tempText.replace(this.lastTriggerKey, "");
 					this.triggerAction(this.hashmap[key]);
 					this.carretIndex += index + key.length;
 				}

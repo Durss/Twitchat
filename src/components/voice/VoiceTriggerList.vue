@@ -3,10 +3,14 @@
 
 		<Button :icon="$image('icons/add.svg')" title="Add action" class="addBt"
 			@click="addAction()"
-			v-if="getActionIDs().length > 0"
+			v-if="getActionIDs().length > 0 && globalCommandsOK"
 		/>
 
-		<VoiceGlobalCommands class="action global" v-model="globalCommands" v-model:complete="globalCommandsOK" :open="actions.length == 0" />
+		<VoiceGlobalCommands class="action global"
+			v-model="globalCommands"
+			v-model:complete="globalCommandsOK"
+			:open="!globalCommandsOK || actions.length == 0"
+		/>
 		
 		<ToggleBlock v-for="(a,index) in actions"
 			v-if="globalCommandsOK"
@@ -48,7 +52,8 @@ import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 
 @Options({
-	props:{},
+	props:{
+	},
 	components:{
 		Button,
 		ToggleBlock,

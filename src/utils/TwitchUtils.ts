@@ -1230,6 +1230,7 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
 			const res = await fetch(url.href, options);
+			if(res.status != 200) return [];//AS i managed to corrupt my twitch data, i need this to avoid errors everytime
 			const json:{data:TwitchDataTypes.BlockedUser[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
 			cursor = null;

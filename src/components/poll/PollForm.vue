@@ -135,7 +135,7 @@ export default class PollForm extends Vue {
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		
-		watch(()=>VoiceController.instance.tempText, ()=> this.onText());
+		// watch(()=>VoiceController.instance.tempText, ()=> this.onText());
 		watch(()=>VoiceController.instance.finalText, ()=> this.onText(true));
 
 		this.voiceActionHandler = (e:TwitchatEvent) => this.onVoiceAction(e);
@@ -190,24 +190,32 @@ export default class PollForm extends Vue {
 		if(txt.length > maxLength) {
 			gsap.fromTo(this.currentInput, {x:-2}, {x:2, duration:0.01, clearProps:"x", repeat:20});
 		}
+		txt = this.currentInput.value + txt;
 		if(maxLength) txt = txt.substring(0, maxLength);
 		this.currentInput.value = txt;
 		this.currentInput.dispatchEvent(new Event("input"));
 	}
 
 	private onVoiceAction(e:TwitchatEvent):void {
-		console.log("ON AXCTION ", e.type);
+		console.log("ON ACTION ", e.type);
+		const inputList = (this.$el as HTMLDivElement).getElementsByTagName("input");
+		const activeEl = document.activeElement;
+		for (let i = 0; i < inputList.length; i++) {
+			const e = inputList[i];
+			if(e === activeEl) this.tabIndex = i;
+		}
+		
 		switch(e.type) {
 			case VoiceAction.ERASE: this.currentInput.value = ""; break;
 			case VoiceAction.SUBMIT: this.submitPoll(); break;
 			case VoiceAction.PREVIOUS: this.tabIndex --; break;
 			case VoiceAction.NEXT: this.tabIndex ++; break;
 		}
-
-		const inputList = (this.$el as HTMLDivElement).getElementsByTagName("input");
 		if(this.tabIndex < 0) this.tabIndex = 0;
 		if(this.tabIndex > inputList.length-1) this.tabIndex = inputList.length-1;
+		// if(this.currentInput) this.currentInput.classList.toggle(".voiceFocus");
 		this.currentInput.focus();
+		// this.currentInput.classList.toggle(".voiceFocus");
 	}
 }
 </script>
@@ -265,6 +273,9 @@ export default class PollForm extends Vue {
 				}
 			}
 		}
+	}
+	.voiceFocus {
+		border: 2px solid @mainColor_normal;
 	}
 }
 </style>

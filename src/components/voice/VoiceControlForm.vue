@@ -26,7 +26,8 @@ import ToggleBlock from '../ToggleBlock.vue';
 import VoiceTriggerList from './VoiceTriggerList.vue';
 
 @Options({
-	props:{},
+	props:{
+	},
 	components:{
 		Button,
 		ToggleBlock,

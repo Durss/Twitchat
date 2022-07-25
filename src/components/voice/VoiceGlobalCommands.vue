@@ -1,8 +1,7 @@
 <template>
 	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" medium :open="open">
 		<div class="head">
-			These voice commands are used to navigate through the interface
-			for some specific actions like poll or prediction creation.
+			These are the things you'll have to say to perform some actions like navigating through menus.
 		</div>
 		<ParamItem v-for="(i,index) in items"
 			:key="itemsID[index]"
@@ -31,7 +30,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		ParamItem,
 		ToggleBlock,
 	},
-	emits:["update:modelValue"]
+	emits:["update:modelValue", "update:complete"]
 })
 export default class VoiceGlobalCommands extends Vue {
 
@@ -70,15 +69,19 @@ export default class VoiceGlobalCommands extends Vue {
 
 	public updateCommands():void {
 		const data:VoiceAction[] = [];
+		let allDone = true;
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i];
 			data.push({
 				id:this.itemsID[i],
 				sentences:item.value as string,
 			})
+
+			allDone &&= item.value != "";
 			
 		}
 		this.$emit("update:modelValue", data);
+		this.$emit("update:complete", allDone);
 	}
 
 }

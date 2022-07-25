@@ -5,24 +5,24 @@ import type { TwitchatActionType } from "./TwitchatEvent";
 */
 export default class VoiceAction {
 
-	public static START_BOT:string = "START_BOT";
-	public static START_BOT_DESCRIPTION:string = "Start listen";
-	public static START_BOT_IS_GLOBAL:boolean = true;
-	public static STOP_BOT:string = "STOP_BOT";
-	public static STOP_BOT_DESCRIPTION:string = "Stop listen";
-	public static STOP_BOT_IS_GLOBAL:boolean = true;
+	// public static START_BOT:string = "START_BOT";
+	// public static START_BOT_DESCRIPTION:string = "Start listen";
+	// public static START_BOT_IS_GLOBAL:boolean = true;
+	// public static STOP_BOT:string = "STOP_BOT";
+	// public static STOP_BOT_DESCRIPTION:string = "Stop listen";
+	// public static STOP_BOT_IS_GLOBAL:boolean = true;
 
 	public static ERASE:string = "ERASE";
 	public static ERASE_DESCRIPTION:string = "Erase";
 	public static ERASE_IS_GLOBAL:boolean = true;
-	public static SUBMIT:string = "SUBMIT";
-	public static SUBMIT_DESCRIPTION:string = "Submit";
-	public static SUBMIT_IS_GLOBAL:boolean = true;
 	public static NEXT:string = "NEXT";
 	public static NEXT_DESCRIPTION:string = "Next";
 	public static NEXT_IS_GLOBAL:boolean = true;
 	public static PREVIOUS:string = "PREVIOUS";
 	public static PREVIOUS_DESCRIPTION:string = "Previous";
+	public static SUBMIT:string = "SUBMIT";
+	public static SUBMIT_DESCRIPTION:string = "Submit";
+	public static SUBMIT_IS_GLOBAL:boolean = true;
 	public static PREVIOUS_IS_GLOBAL:boolean = true;
 
 	public static CREATE_POLL:string = "CREATE_POLL";

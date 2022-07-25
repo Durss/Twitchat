@@ -87,6 +87,8 @@
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
 
+		<VoiceTranscript class="contentWindows tts" v-if="splitView" />
+
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
 
 		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
@@ -154,6 +156,7 @@ import { Options, Vue } from 'vue-class-component';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
+import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 
 @Options({
 	components:{
@@ -176,6 +179,7 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 		PredictionForm,
 		LiveFollowings,
 		StreamInfoForm,
+		VoiceTranscript,
 		ChatAlertMessage,
 		DataServerSyncModal,
 		ChannelNotifications,
@@ -511,10 +515,10 @@ export default class Chat extends Vue {
 				max-width: 50vw;
 				margin: auto;
 			}
-
-			&.streams {
-				width: 50%;
-				height: 100%;
+			&.tts {
+				left: auto;
+				right:0;
+				max-width: 50vw;
 			}
 		}
 	}
