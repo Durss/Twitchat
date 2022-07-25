@@ -151,7 +151,7 @@
 					:icon="$image('icons/microphone'+(voiceBotStarted? '_recording' : '')+'.svg')"
 					bounce
 					v-if="voiceBotConfigured"
-					:data-tooltip="$store.state.emergencyModeEnabled? 'Stop voice bot' : 'Start voice bot'"
+					:data-tooltip="voiceBotStarted? 'Stop voice bot' : 'Start voice bot'"
 					@click="toggleVoiceBot()" />
 				</transition>
 
