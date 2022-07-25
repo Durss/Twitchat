@@ -198,6 +198,7 @@ export default class PollForm extends Vue {
 
 	private onVoiceAction(e:TwitchatEvent):void {
 		console.log("ON ACTION ", e.type);
+		if(this.currentInput) this.currentInput.classList.remove("voiceFocus");
 		const inputList = (this.$el as HTMLDivElement).getElementsByTagName("input");
 		const activeEl = document.activeElement;
 		for (let i = 0; i < inputList.length; i++) {
@@ -206,16 +207,19 @@ export default class PollForm extends Vue {
 		}
 		
 		switch(e.type) {
-			case VoiceAction.ERASE: this.currentInput.value = ""; break;
+			case VoiceAction.ERASE: {
+				this.currentInput.value = "";
+				this.currentInput.dispatchEvent(new Event("input"));
+				break;
+			}
 			case VoiceAction.SUBMIT: this.submitPoll(); break;
 			case VoiceAction.PREVIOUS: this.tabIndex --; break;
 			case VoiceAction.NEXT: this.tabIndex ++; break;
 		}
 		if(this.tabIndex < 0) this.tabIndex = 0;
 		if(this.tabIndex > inputList.length-1) this.tabIndex = inputList.length-1;
-		// if(this.currentInput) this.currentInput.classList.toggle(".voiceFocus");
 		this.currentInput.focus();
-		// this.currentInput.classList.toggle(".voiceFocus");
+		this.currentInput.classList.add("voiceFocus");
 	}
 }
 </script>
@@ -262,6 +266,11 @@ export default class PollForm extends Vue {
 					input {
 						width: 100%;
 						padding-right: 3em;
+						&.voiceFocus {
+							// border: 2px solid @mainColor_normal;
+							outline: 1px solid @mainColor_normal;
+							// background-color: @mainColor_highlight_extralight;
+						}
 					}
 					.len {
 						font-size: .7em;
