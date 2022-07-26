@@ -807,7 +807,7 @@ const UserDataSchema = {
 		"p:voice": {type:"string"},
 		"p:spokenPattern": {type:"string"},
 		"p:maxLength": {type:"integer", minimum:0, maximum:2000},
-		"p:overflow": {type:"integer", minimum:1, maximum:120},
+		"p:timeout": {type:"integer", minimum:0, maximum:300},
 		"p:removeURL": {type:"boolean"},
 		"p:replaceURL": {type:"string"},
 		v: {type:"integer"},

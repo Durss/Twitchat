@@ -279,8 +279,8 @@ const store = createStore({
 				pitch: 						{save:true, type:"slider", value:1, label:"Pitch", id:403, parent:400, min:0, max:2, step:0.1},
 				voice:						{save:true, type:"list", value:'Microsoft Hortense - French (France)', listValues:TTSUtils.instance.getVoices()?.map(x => { return {label:x.name, value:x.name} }), label:"voice", id:404, parent:400},
 				spokenPattern:				{save:true, type:"text", value:'$USER says $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE)", id:405, parent:400},
-				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0 = unlimited)", id:406, parent:400, min:0, max:2000, step:10},
-				overflow: 					{save:true, type:"slider", value:60, label:"Overflow (seconds)", id:407, parent:400, min:1, max:120, step:1},
+				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0=unlimited)", id:406, parent:400, min:0, max:2000, step:10},
+				timeout: 					{save:true, type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", id:407, parent:400, min:0, max:300, step:10},
 				removeURL:		 			{save:true, type:"toggle", value:true, label:"Remove URL", id:408, parent:400},
 				replaceURL:		 			{save:true, type:"text", value:'url', label:"Replace by", id:409, parent:408},
 			} as {[key:string]:ParameterData}
@@ -737,6 +737,9 @@ const store = createStore({
 						}else{
 							SevenTVUtils.instance.disable();
 						}
+					}
+					if(key=="speakMessages") {
+						TTSUtils.instance.enable(v as boolean);
 					}
 				}
 			}
@@ -1516,6 +1519,8 @@ const store = createStore({
 					SevenTVUtils.instance.disable();
 				}
 			});
+
+			TTSUtils.instance.enable(state.params.tts.speakMessages.value as boolean);
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
