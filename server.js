@@ -378,7 +378,6 @@ async function userData(request, response, body) {
  */
 async function getChatters(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
-	console.log(params);
 	const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+params.channel.toLowerCase()+"/chatters", {method:"GET"});
 	let chatters = [];
 	if(chattersRes.status === 200) {
