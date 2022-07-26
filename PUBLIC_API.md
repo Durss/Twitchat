@@ -656,8 +656,8 @@ Send no data to hide the current message
 ## **SHOW_CLIP**
 Send a clip to be displayed on the chat highlight overlay
 ```typescript
-//This is the same JSON as the one sent by the Twitch API
 {
+	//This is the same JSON as the one sent by the Twitch API
 	clip:{
 		broadcaster_id: string;
 		broadcaster_name: string;
