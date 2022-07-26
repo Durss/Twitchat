@@ -24,7 +24,8 @@ export default class ChatAlertMessage extends Vue {
 
 	public mounted():void {
 		watch(() => StoreProxy.store.state.chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper) => {
-			if(message && StoreProxy.store.state.chatAlertParams.message === true) {
+			if(message && StoreProxy.store.state.chatAlertParams.message === true
+			&& StoreProxy.store.state.params.features.alertMode.value === true) {
 				let text = message.type == "whisper"? message.params[1] : message.message;
 				//Allow custom parsing of emotes only if it's a message of ours
 				const customParsing = message.tags.id?.indexOf("00000000") == 0;

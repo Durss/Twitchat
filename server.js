@@ -66,6 +66,11 @@ http.createServer((request, response) => {
 			}else if(endpoint == "/api/user") {
 				userData(request, response, body);
 				return;
+		
+			//Get current chatters
+			}else if(endpoint == "/api/chatters") {
+				getChatters(request, response, body);
+				return;
 			
 			//Generate token from auth code
 			}else if(endpoint == "/api/gettoken") {
@@ -365,6 +370,21 @@ async function userData(request, response, body) {
 			response.end(JSON.stringify({message, success:false}));
 		}
 	}
+
+}
+
+/**
+ * Get user's chatters
+ */
+async function getChatters(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+	const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+params.channel.toLowerCase()+"/chatters", {method:"GET"});
+	let chatters = [];
+	if(chattersRes.status === 200) {
+		chatters = await chattersRes.json();
+	}
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify(chatters));
 
 }
 

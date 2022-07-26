@@ -279,6 +279,8 @@ export default class Chat extends Vue {
 		//Handle chat alert feature
 		watch(() => StoreProxy.store.state.chatAlert, async (value:string) => {
 			if(value != null) {
+				if(StoreProxy.store.state.params.features.alertMode.value !== true) return;
+				
 				const params = StoreProxy.store.state.chatAlertParams as AlertParamsData;
 				gsap.killTweensOf(this.$el);
 				if(params.shake) {
