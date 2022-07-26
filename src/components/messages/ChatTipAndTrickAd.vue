@@ -12,7 +12,7 @@
 			<img src="@/assets/icons/elgato_purple.svg" alt="elgato" class="icon">
 			<h1 class="row">Stream Deck™ plugin</h1>
 			<div class="row"><strong>Twitchat</strong> can be controlled from your Stream Deck™.</div>
-			<div class="row">You can pause the chat, scroll it, mark message as read, open poll/prediction/bingo/raffle state and much more with the push of a button.</div>
+			<div class="row">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button.</div>
 			<Button title="Try it now" @click.stop="openParam('streamdeck')" />
 		</div>
 		

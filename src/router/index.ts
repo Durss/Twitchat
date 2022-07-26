@@ -14,6 +14,15 @@ import Sponsor from '../views/Sponsor.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
+		alias: '/chat',
+		name: 'chat',
+		component: Chat,
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
+		path: '/home',
 		name: 'home',
 		component: Home,
 		meta: {
@@ -31,20 +40,11 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		path: '/chat',
-		name: 'chat',
-		component: Chat,
-		meta: {
-			needAuth:true,
-		}
-	},
-	{
 		path: '/chat/:login',
 		name: 'chatLight',
 		component: ChatLight,
 		meta: {
 			needAuth:false,
-			public:true,
 			noBG:true,
 		}
 	},

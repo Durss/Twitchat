@@ -1830,27 +1830,27 @@ const store = createStore({
 				}
 				uniqueIdsCheck[v] = true;
 			}
-			
-			const cypherKey = Store.get(Store.CYPHER_KEY)
-			TwitchCypherPlugin.instance.initialize(cypherKey);
-			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
-				this.dispatch("setSpotifyToken", e.token);
-			});
-			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
-				state.alert = e.error as string;
-			});
-			DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
-				this.dispatch("setDeezerConnected", true);
-			});
-			DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
-				this.dispatch("setDeezerConnected", false);
-				state.alert = "Deezer authentication failed";
-			});
-			PublicAPI.instance.initialize();
 
 			//Authenticate user
 			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
 			if(token && payload.authenticate) {
+				const cypherKey = Store.get(Store.CYPHER_KEY)
+				TwitchCypherPlugin.instance.initialize(cypherKey);
+				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
+					this.dispatch("setSpotifyToken", e.token);
+				});
+				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
+					state.alert = e.error as string;
+				});
+				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
+					this.dispatch("setDeezerConnected", true);
+				});
+				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
+					this.dispatch("setDeezerConnected", false);
+					state.alert = "Deezer authentication failed";
+				});
+				PublicAPI.instance.initialize();
+
 				try {
 					await new Promise((resolve,reject)=> {
 						commit("authenticate", {cb:(success:boolean)=>{
@@ -1883,17 +1883,17 @@ const store = createStore({
 					payload.callback();
 					return;
 				}
+
+				if(Store.syncToServer === true && state.authenticated) {
+					await Store.loadRemoteData();
+				}
+	
+				this.dispatch("loadDataFromStorage");
+	
+				const devmode = Store.get(Store.DEVMODE) === "true";
+				this.dispatch("toggleDevMode", devmode);
+				this.dispatch("sendTwitchatAd");
 			}
-
-			if(Store.syncToServer === true && state.authenticated) {
-				await Store.loadRemoteData();
-			}
-
-			this.dispatch("loadDataFromStorage");
-
-			const devmode = Store.get(Store.DEVMODE) === "true";
-			this.dispatch("toggleDevMode", devmode);
-			this.dispatch("sendTwitchatAd");
 			
 			state.initComplete = true;
 			
