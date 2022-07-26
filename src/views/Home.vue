@@ -300,7 +300,7 @@ export default class Home extends Vue {
 		}
 	}
 
-	.description {
+	&>.description {
 		margin: 2em auto;
 		font-style: italic;
 		opacity: .8;
@@ -330,7 +330,7 @@ export default class Home extends Vue {
 
 	.splitter {
 		font-size: 2em;
-		margin-top: 5vw;
+		margin: 5vw auto;
 		:deep(.line) {
 			background-color: @mainColor_light;
 		}
