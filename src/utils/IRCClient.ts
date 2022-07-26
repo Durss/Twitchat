@@ -27,11 +27,11 @@ export default class IRCClient extends EventDispatcher {
 	public connected = false;
 	public botsLogins:string[] = [];
 	public onlineUsers:string[] = [];
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	private login!:string;
-	private uidsDone:{[key:string]:boolean} = {};
+	private uidsGreeted:{[key:string]:boolean} = {};
 	private idToExample:{[key:string]:unknown} = {};
 	private userToColor:{[key:string]:string} = {};
 	private selfTags!:tmi.ChatUserstate;
@@ -76,22 +76,24 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["samueletienne"]);
+				channels = channels.concat(["fakhear"]);
 			}
 
 			(async ()=> {
 				//Get user IDs from logins to then load their badges
-
 				const users = await TwitchUtils.loadUserInfo(undefined, channels);
 				const uids = users.map(user => user.id);
 				
 				//Get list of all blocked users and build a hashmap out of it
-				const blockedUsers = await TwitchUtils.getBlockedUsers();
-				this.blockedUsers = {};
-				for (let i = 0; i < blockedUsers.length; i++) {
-					const u = blockedUsers[i];
-					this.blockedUsers[u.user_id] = true;
-				}
+				try {
+					const blockedUsers = await TwitchUtils.getBlockedUsers();
+					this.blockedUsers = {};
+					for (let i = 0; i < blockedUsers.length; i++) {
+						const u = blockedUsers[i];
+						this.blockedUsers[u.user_id] = true;
+					}
+				}catch(error) {/*ignore*/}
+
 				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
 				for (let i = 0; i < uids.length; i++) {
@@ -101,6 +103,28 @@ export default class IRCClient extends EventDispatcher {
 					BTTVUtils.instance.addChannel(uids[i]);
 					FFZUtils.instance.addChannel(uids[i]);
 					SevenTVUtils.instance.addChannel(uids[i]);
+
+					//Get current user's list
+					const chattersRes = await fetch(Config.instance.API_PATH+"/chatters?channel="+channels[i]);
+					if(chattersRes.status == 200) {
+						const list: {chatters:{[key:string]:string[]}, chatter_count:number} = await chattersRes.json();
+						for (const key in list.chatters) {
+							const sublist = list.chatters[key];
+							for (let i = 0; i < sublist.length; i++) {
+								const u = sublist[i];
+								if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
+									this.joinSpool.push(u);
+									this.userJoin(u, channels[i]);
+								}
+
+								const index = this.onlineUsers.indexOf(u);
+								if(index > -1) break;
+								this.onlineUsers.push(u);
+							}
+						}
+						this.onlineUsers.sort();
+						StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
+					}
 				}
 
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
@@ -142,7 +166,7 @@ export default class IRCClient extends EventDispatcher {
 				for (let i = 0; i < prevGreetHistory.length; i++) {
 					const e = prevGreetHistory[i];
 					if(e.d >= expired_before) {
-						this.uidsDone[e.uid] = true;
+						this.uidsGreeted[e.uid] = true;
 						this.greetHistory.push(e);
 					}
 				}
@@ -170,27 +194,7 @@ export default class IRCClient extends EventDispatcher {
 					if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
 						//Ignore bots
 						if(this.botsLogins.indexOf(user) == -1) {
-							this.joinSpool.push(user);
-							clearTimeout(this.joinSpoolTimeout);
-							
-							this.joinSpoolTimeout = window.setTimeout(() => {
-								const spoolBackup = this.joinSpool.concat();
-								const join = this.joinSpool.splice(0, 30);
-								let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
-								if(this.joinSpool.length > 0) {
-									message += " and <mark>"+this.joinSpool.length+"</mark> more";
-								}else{
-									message = message.replace(/,([^,]*)$/, " and$1");
-								}
-								message += " joined the chat room";
-								this.sendNotice("online", message, channel);
-								const data:IRCEventDataList.JoinList = {
-									type:"join",
-									users:spoolBackup,
-								}
-								this.dispatchEvent(new IRCEvent(IRCEvent.JOIN, data));
-								this.joinSpool = [];
-							}, 1000);
+							this.userJoin(user, channel);
 						}
 					}
 				}
@@ -519,9 +523,9 @@ export default class IRCClient extends EventDispatcher {
 		if(!data.tags.id) data.tags.id = this.getFakeGuid();
 
 		const key = data.tags['user-id'] as string;
-		if(key && this.uidsDone[key] !== true) {
+		if(key && this.uidsGreeted[key] !== true) {
 			data.firstMessage = true;
-			this.uidsDone[key] = true;
+			this.uidsGreeted[key] = true;
 			this.greetHistory.push({d:Date.now(), uid:key});
 		}
 		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
@@ -570,10 +574,10 @@ export default class IRCClient extends EventDispatcher {
 
 		//Check if it's the first message of a user for today
 		let uid = tags['user-id'] as string;
-		if(this.uidsDone[uid] !== true) {
+		if(this.uidsGreeted[uid] !== true) {
 			if(!automod) data.firstMessage = true;
 			this.greetHistory.push({d:Date.now(), uid});
-			this.uidsDone[uid] = true;
+			this.uidsGreeted[uid] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
 		}
 		
@@ -706,4 +710,28 @@ export default class IRCClient extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+
+	private userJoin(user:string, channel:string):void {
+		this.joinSpool.push(user);
+		clearTimeout(this.joinSpoolTimeout);
+		
+		this.joinSpoolTimeout = window.setTimeout(() => {
+			const spoolBackup = this.joinSpool.concat();
+			const join = this.joinSpool.splice(0, 30);
+			let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
+			if(this.joinSpool.length > 0) {
+				message += " and <mark>"+this.joinSpool.length+"</mark> more";
+			}else{
+				message = message.replace(/,([^,]*)$/, " and$1");
+			}
+			message += " joined the chat room";
+			this.sendNotice("online", message, channel);
+			const data:IRCEventDataList.JoinList = {
+				type:"join",
+				users:spoolBackup,
+			}
+			this.dispatchEvent(new IRCEvent(IRCEvent.JOIN, data));
+			this.joinSpool = [];
+		}, 1000);
+	}
 }
