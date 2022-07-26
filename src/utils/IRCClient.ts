@@ -527,8 +527,8 @@ export default class IRCClient extends EventDispatcher {
 			data.firstMessage = true;
 			this.uidsGreeted[key] = true;
 			this.greetHistory.push({d:Date.now(), uid:key});
+			Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
 		}
-		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
@@ -579,9 +579,9 @@ export default class IRCClient extends EventDispatcher {
 			this.greetHistory.push({d:Date.now(), uid});
 			this.uidsGreeted[uid] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
+			Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
 		}
 		
-		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		//This line avoids an edge case issue.
 		//If the current TMI client sends messages super fast (some ms between each message),
