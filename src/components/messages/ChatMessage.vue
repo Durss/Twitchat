@@ -91,7 +91,7 @@
 				<div class="subtitle">Created by {{clipInfo.creator_name}}</div>
 				<div class="subtitle">Channel: {{clipInfo.broadcaster_name}}</div>
 				<div class="subtitle">Duration: {{clipInfo.duration}}s</div>
-				<div class="subtitle">Views: {{clipInfo.view_count}}s</div>
+				<div class="subtitle">Views: {{clipInfo.view_count}}</div>
 			</div>
 			<Button class="highlightBt" :aria-label="'Highlight message'" small
 				:icon="$image('icons/highlight.svg')"

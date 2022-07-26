@@ -160,7 +160,7 @@ export default class Store {
 	 * Save user's data server side
 	 * @returns 
 	 */
-	public static async save(force:boolean = false):Promise<void> {
+	public static async save(force:boolean = false, delay:number = 1500):Promise<void> {
 		clearTimeout(this.saveTO);
 		if(!force) {
 			if(!this.syncToServer) return;//User want to only save data locally
@@ -198,7 +198,7 @@ export default class Store {
 				//the same on local and remote. This will allow later automatic saves
 				if(force) this.dataImported = true;
 				resolve();
-			}, force? 0 : 1500);
+			}, force? 0 : delay);
 		})
 	}
 
@@ -236,7 +236,7 @@ export default class Store {
 	 * @param save 	schedule a save to the server
 	 * @returns 
 	 */
-	public static set(key:string, value:JsonValue|unknown, save = true):void {
+	public static set(key:string, value:JsonValue|unknown, save = true, saveDelay:number = 1500):void {
 		if(key == this.SYNC_DATA_TO_SERVER) this.syncToServer = value as boolean;
 		
 		this.propToSavableState[key] = save;
@@ -245,7 +245,7 @@ export default class Store {
 		this.rawStore[key] = value;
 		const str = typeof value == "string"? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
-		if(save) this.save();
+		if(save) this.save(false, saveDelay);
 	}
 
 	/**
