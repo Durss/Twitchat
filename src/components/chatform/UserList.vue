@@ -186,6 +186,7 @@ interface UserItem {
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 			margin-left: 10px;
+			
 
 			.user {
 				display: inline-block;
