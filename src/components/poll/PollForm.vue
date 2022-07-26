@@ -136,13 +136,14 @@ export default class PollForm extends Vue {
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		
 		// watch(()=>VoiceController.instance.tempText, ()=> this.onText());
-		watch(()=>VoiceController.instance.finalText, ()=> this.onText(true));
+		// watch(()=>VoiceController.instance.finalText, ()=> this.onText(true));
 
 		this.voiceActionHandler = (e:TwitchatEvent) => this.onVoiceAction(e);
 		PublicAPI.instance.addEventListener(VoiceAction.ERASE, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.NEXT, this.voiceActionHandler);
+		PublicAPI.instance.addEventListener(VoiceAction.TEXT_UPDATE, this.voiceActionHandler);
 	}
 
 	public beforeUnmount():void {
@@ -150,6 +151,7 @@ export default class PollForm extends Vue {
 		PublicAPI.instance.removeEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
 		PublicAPI.instance.removeEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
 		PublicAPI.instance.removeEventListener(VoiceAction.NEXT, this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener(VoiceAction.TEXT_UPDATE, this.voiceActionHandler);
 	}
 
 	public async close():Promise<void> {
@@ -183,22 +185,20 @@ export default class PollForm extends Vue {
 		return (this.$el as HTMLDivElement).getElementsByTagName("input")[this.tabIndex];
 	}
 
-	private onText(isFinal:boolean = false):void {
-		console.log("ok");
+	private onText(text:string = ""):void {
 		const maxLength = this.currentInput.maxLength;
-		let txt = VoiceController.instance.currentText;
-		if(txt.length > maxLength) {
+		// let text = VoiceController.instance.currentText;
+		if(text.length > maxLength) {
 			gsap.fromTo(this.currentInput, {x:-2}, {x:2, duration:0.01, clearProps:"x", repeat:20});
 		}
-		txt = this.currentInput.value + txt;
-		if(maxLength) txt = txt.substring(0, maxLength);
-		this.currentInput.value = txt;
+		// text = this.currentInput.value + text;
+		if(maxLength) text = text.substring(0, maxLength);
+		this.currentInput.value = text;
 		this.currentInput.dispatchEvent(new Event("input"));
 	}
 
 	private onVoiceAction(e:TwitchatEvent):void {
 		console.log("ON ACTION ", e.type);
-		if(this.currentInput) this.currentInput.classList.remove("voiceFocus");
 		const inputList = (this.$el as HTMLDivElement).getElementsByTagName("input");
 		const activeEl = document.activeElement;
 		for (let i = 0; i < inputList.length; i++) {
@@ -206,6 +206,7 @@ export default class PollForm extends Vue {
 			if(e === activeEl) this.tabIndex = i;
 		}
 		
+		const prevTabIndex = this.tabIndex;
 		switch(e.type) {
 			case VoiceAction.ERASE: {
 				this.currentInput.value = "";
@@ -215,11 +216,15 @@ export default class PollForm extends Vue {
 			case VoiceAction.SUBMIT: this.submitPoll(); break;
 			case VoiceAction.PREVIOUS: this.tabIndex --; break;
 			case VoiceAction.NEXT: this.tabIndex ++; break;
+			case VoiceAction.TEXT_UPDATE: this.onText((e.data as {text:string}).text as string); return;
 		}
+		if(this.tabIndex != prevTabIndex && this.currentInput) this.currentInput.classList.remove("voiceFocus");
 		if(this.tabIndex < 0) this.tabIndex = 0;
 		if(this.tabIndex > inputList.length-1) this.tabIndex = inputList.length-1;
-		this.currentInput.focus();
-		this.currentInput.classList.add("voiceFocus");
+		if(this.tabIndex != prevTabIndex) {
+			this.currentInput.focus();
+			this.currentInput.classList.add("voiceFocus");
+		}
 	}
 }
 </script>
