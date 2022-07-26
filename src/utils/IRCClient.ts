@@ -170,7 +170,7 @@ export default class IRCClient extends EventDispatcher {
 						this.greetHistory.push(e);
 					}
 				}
-				Store.set(Store.GREET_HISTORY, this.greetHistory);
+				Store.set(Store.GREET_HISTORY, this.greetHistory, true, 30000);//Avoid spamming server
 			}else{
 				//Anonymous authentication
 				this.client = new tmi.Client({
