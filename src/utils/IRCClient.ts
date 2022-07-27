@@ -170,7 +170,6 @@ export default class IRCClient extends EventDispatcher {
 					this.refreshingToken = false;
 
 					//Get current user's list for all connected channels
-					console.log(channels);
 					for (let i = 0; i < channels.length; i++) {
 						const chattersRes = await fetch(Config.instance.API_PATH+"/chatters?channel="+channels[i]);
 						if(chattersRes.status == 200) {
@@ -191,7 +190,7 @@ export default class IRCClient extends EventDispatcher {
 							StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 						}
 					}
-				}else if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
+				}else {
 					//Ignore bots
 					if(this.botsLogins.indexOf(user) == -1) {
 						this.userJoin(user, channel);
@@ -695,6 +694,8 @@ export default class IRCClient extends EventDispatcher {
 	*******************/
 
 	private userJoin(user:string, channel:string):void {
+		if(this.onlineUsers.indexOf(user) > -1) return;
+		
 		this.joinSpool.push(user);
 		clearTimeout(this.joinSpoolTimeout);
 		
