@@ -24,15 +24,6 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		path: '/home',
-		name: 'home',
-		component: Home,
-		meta: {
-			overflow:true,
-			needAuth:false,
-		}
-	},
-	{
 		path: '/chat',
 		name: 'chat',
 		component: Chat,
