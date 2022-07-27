@@ -281,12 +281,19 @@
 			<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
 			<p class="note">Twitchat is NOT affiliated with <a href="https://twitch.tv" target="_blank">Twitch</a> by any means</p>
 		</div>
+
+		<div class="floatingLetters">
+			<img v-for="i of 40"
+			ref="letter"
+			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../components/Splitter.vue';
@@ -301,9 +308,11 @@ import Splitter from '../components/Splitter.vue';
 export default class Home extends Vue {
 
 	private index = 0;
+	private disposed = false;
 
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
 
 	public async mounted():Promise<void> {
 		const divs = this.$el.getElementsByClassName("transition");
@@ -323,7 +332,6 @@ export default class Home extends Vue {
 			}
 		}
 
-		const holder = this.$refs.atf as HTMLDivElement;
 		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
@@ -334,6 +342,11 @@ export default class Home extends Vue {
 							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
 		}
 
+		this.moveLetters();
+	}
+
+	public beforeUnmount():void {
+		this.disposed = true;
 	}
 
 	public toggleVideo(event:PointerEvent):void {
@@ -354,7 +367,7 @@ export default class Home extends Vue {
 				gsap.to(e.target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
 				gsap.to(e.target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
 				const screen = e.target.getElementsByClassName("screen")[0];
-console.log("ooooooooook",screen);
+
 				if(screen) {
 					gsap.to(screen, {duration:1.5, opacity:1, y:0, ease:"back.out(2)"});
 				}
@@ -366,6 +379,31 @@ console.log("ooooooooook",screen);
 					});
 				}
 			}
+		}
+	}
+
+	private moveLetters():void {
+		if(this.disposed) return
+		requestAnimationFrame(()=> this.moveLetters());
+
+		const letters = this.$refs.letter as HTMLImageElement[];
+		for (let i = 0; i < letters.length; i++) {
+			const l = letters[i];
+			const pageH = this.$el.offsetHeight;
+			let py = parseFloat(l.style.top);
+			if(isNaN(py)) {
+				py = -Math.random()*pageH;
+				console.log(this.$el.offsetHeight, py);
+				l.style.left = (Math.random()*document.body.offsetWidth)+"px";
+				l.style.opacity = (Math.random()*.1 + .025).toString();
+				l.style.transform = "scale("+(Math.random()*3 + .5)+") rotate("+(Math.random()*360)+"deg)";
+			}
+			if(py < - pageH - 200) py = 200;
+			l.style.top = (py - i*.1)+"px";
+			let r = parseFloat(l.style.transform.replace(/.*rotate\(([0-9.]+)deg\).*/gi, "$1"));
+			if(i %2 == 0) r += .01 * i;
+			else  r -= .01 * i;
+			l.style.transform = l.style.transform.replace(/[0-9.]+deg/gi, r+"deg")
 		}
 	}
 }
@@ -383,6 +421,8 @@ console.log("ooooooooook",screen);
 	background-position: top center;
 	margin: auto;
 	padding-bottom: 2em;
+	position: relative;
+	overflow: hidden;
 
 	.aboveTheFold {
 		height: 100vh;
@@ -390,6 +430,8 @@ console.log("ooooooooook",screen);
 		flex-direction: column;
 		justify-content: space-between;
 		padding: 4em 0;
+		position: relative;
+		z-index: 1;
 
 		.logo {
 			width: 80vw;
@@ -656,6 +698,15 @@ console.log("ooooooooook",screen);
 			margin-top: .5em;
 			font-size: .9em;
 			opacity: .8;
+		}
+	}
+
+	.floatingLetters {
+		z-index: 0;
+		position: absolute;
+		img {
+			position: absolute;
+			height: 2em;
 		}
 	}
 }
