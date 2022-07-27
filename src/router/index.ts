@@ -18,7 +18,8 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'home',
 		component: Home,
 		meta: {
-			needAuth:true,
+			overflow:true,
+			needAuth:false,
 		}
 	},
 	{
@@ -28,6 +29,14 @@ const routes: Array<RouteRecordRaw> = [
 		meta: {
 			overflow:true,
 			needAuth:false,
+		}
+	},
+	{
+		path: '/chat',
+		name: 'chat',
+		component: Chat,
+		meta: {
+			needAuth:true,
 		}
 	},
 	{

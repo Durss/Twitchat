@@ -320,11 +320,11 @@ export default class ChatForm extends Vue {
 			}
 		});
 
-		try {
-			await TwitchUtils.loadRewards();
-		}catch(e) {
-			//User is probably not an affiliate
-		}
+		// try {
+		// 	await TwitchUtils.loadRewards();
+		// }catch(e) {
+		// 	//User is probably not an affiliate
+		// }
 	}
 
 	public beforeUnmount():void {
