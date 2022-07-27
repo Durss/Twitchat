@@ -1700,6 +1700,7 @@ const store = createStore({
 				//If non followers highlight option is enabled, get follow state of
 				//all the users that joined
 				if(state.params.appearance.highlightNonFollowers.value === true) {
+					console.log("LOAD STATES", data);
 					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
 					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
 					for (let i = 0; i < usersFull.length; i++) {

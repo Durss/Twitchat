@@ -170,14 +170,15 @@ export default class IRCClient extends EventDispatcher {
 					this.refreshingToken = false;
 
 					//Get current user's list for all connected channels
+					console.log(channels);
 					for (let i = 0; i < channels.length; i++) {
 						const chattersRes = await fetch(Config.instance.API_PATH+"/chatters?channel="+channels[i]);
 						if(chattersRes.status == 200) {
 							const list: {chatters:{[key:string]:string[]}, chatter_count:number} = await chattersRes.json();
 							for (const key in list.chatters) {
 								const sublist = list.chatters[key];
-								for (let i = 0; i < sublist.length; i++) {
-									const u = sublist[i];
+								for (let j = 0; j < sublist.length; j++) {
+									const u = sublist[j];
 									const index = this.onlineUsers.indexOf(u);
 									if(index > -1) break;
 									if(this.botsLogins.indexOf(u) == -1) {
