@@ -691,15 +691,8 @@ console.log("ooooooooook",screen);
 						right: 0;
 						transform: unset !important;
 					}
-				}
-
-				&:hover {
-					.content {
-						.screen {
-							&.clickToPlay:before {
-								transform: translate(-50%, -50%) !important;
-							}
-						}
+					&.clickToPlay:before {
+						transform: translate(-50%, -50%) !important;
 					}
 				}
 			}
