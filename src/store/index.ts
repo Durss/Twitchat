@@ -430,9 +430,9 @@ const store = createStore({
 					if(cb) cb(false);
 					return;
 				}
-				const userRes:unknown = await TwitchUtils.validateToken(json.access_token);
-				if(!(userRes as TwitchDataTypes.Token).expires_in
-				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
+				const userRes = await TwitchUtils.validateToken(json.access_token);
+				if(isNaN((userRes as TwitchDataTypes.Token).expires_in)
+				|| (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 
 				UserSession.instance.access_token = json.access_token;
 				UserSession.instance.authToken = userRes as TwitchDataTypes.Token;
@@ -450,7 +450,7 @@ const store = createStore({
 					return;
 				}
 				if(!json.expires_at) {
-					json.expires_at = Date.now() + json.expires_in*1000;
+					json.expires_at = Date.now() + UserSession.instance.authToken.expires_in*1000;
 				}
 				UserSession.instance.authResult = json;
 				Store.access_token = json.access_token;
@@ -476,8 +476,8 @@ const store = createStore({
 				state.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
 
-				const expire = json.expires_in;
-				let delay = Math.max(0,expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
+				const expire = UserSession.instance.authToken.expires_in;
+				let delay = Math.max(0, expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
 				//Refresh at least every 3h
 				const maxDelay = 1000 * 60 * 60 * 3;
 				if(delay > maxDelay) delay = maxDelay;
