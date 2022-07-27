@@ -266,7 +266,7 @@ const store = createStore({
 				raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"raidHighlight.svg", example:"raidHighlightUser.png"},
 				groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
 				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
-				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
+				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user joins/leaves the chat", id:211, icon:"notification_purple.svg"},
 				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData},
@@ -1681,21 +1681,56 @@ const store = createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
-				const users = (event.data as IRCEventDataList.JoinList).users;
-				//If non followers highlight option is enabled, get gollow state of
+				const data = event.data as IRCEventDataList.JoinList;
+				const users = data.users;
+
+				if(state.params.features.notifyJoinLeave.value === true) {
+					const usersClone = users.concat();
+					const join = usersClone.splice(0, 30);
+					let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
+					if(usersClone.length > 0) {
+						message += " and <mark>"+usersClone.length+"</mark> more";
+					}else{
+						message = message.replace(/,([^,]*)$/, " and$1");
+					}
+					message += " joined the chat room";
+					IRCClient.instance.sendNotice("online", message, data.channel);
+				}
+
+				//If non followers highlight option is enabled, get follow state of
 				//all the users that joined
 				if(state.params.appearance.highlightNonFollowers.value === true) {
+					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
 					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
 					for (let i = 0; i < usersFull.length; i++) {
 						const uid = usersFull[i].id;
 						if(uid && state.followingStates[uid] == undefined) {
 							try {
-								const follows:boolean = await TwitchUtils.getFollowState(uid, UserSession.instance.user?.id);
+								const follows:boolean = await TwitchUtils.getFollowState(uid, channelInfos[0].id);
 								state.followingStates[uid] = follows;
 								state.followingStatesByNames[usersFull[i].login.toLowerCase()] = follows;
-							}catch(error) {/*ignore*/}
+							}catch(error) {
+								/*ignore*/
+								console.log("error checking follow state", error)
+							}
 						}
 					}
+				}
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.LEAVE, async (event:IRCEvent) => {
+				if(state.params.features.notifyJoinLeave.value === true) {
+					const data = event.data as IRCEventDataList.LeaveList;
+					const users = data.users;
+					const leave = users.splice(0, 30);
+					let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
+					if(users.length > 0) {
+						message += " and <mark>"+users.length+"</mark> more";
+					}else{
+						message = message.replace(/,([^,]*)$/, " and$1");
+					}
+					message += " left the chat room";
+					IRCClient.instance.sendNotice("offline", message, data.channel);
 				}
 			});
 

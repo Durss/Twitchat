@@ -32,6 +32,7 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
 	| IRCEventDataList.JoinList
+	| IRCEventDataList.LeaveList
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -218,6 +219,13 @@ export namespace IRCEventDataList {
 	export interface JoinList {
 		type: "join";
 		users:string[];
+		channel:string;
+		[paramater: string]: unknown;
+	}
+	export interface LeaveList {
+		type: "leave";
+		users:string[];
+		channel:string;
 		[paramater: string]: unknown;
 	}
 
