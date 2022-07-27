@@ -613,6 +613,11 @@ export default class ParamsTriggers extends Vue {
 		z-index: 1;
 		background-color: #eee;
 		padding-bottom: 1em;
+
+		.backBt {
+			min-width: 30px;
+		}
+
 		.list {
 			display: flex;
 			flex-direction: column;

@@ -27,6 +27,7 @@
 						target="_blank"
 						type="link"
 						class="elgatoBt"
+						ref="streamDeckBt"
 					/>
 			
 					<Button :icon="$image('icons/discord.svg')"
@@ -35,12 +36,14 @@
 						target="_blank"
 						type="link"
 						class="discordBt"
+						ref="discordBt"
 					/>
 			
 					<Button :icon="$image('icons/coin.svg')"
 						title="Feed me 🥰"
 						:to="{name:'sponsor'}"
 						class="sponsorBt"
+						ref="sponsorBt"
 					/>
 				</div>
 			</div>
@@ -222,9 +225,9 @@
 			<section class="transition">
 				<div class="content">
 					<div class="screen">
-						<img loading="lazy" src="@/assets/img/homepage/bingo.gif" alt="bingo">
+						<video loading="lazy" src="@/assets/img/homepage/triggers.mp4" alt="triggers" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
 					</div>
-					<img src="@/assets/icons/overlay.svg" alt="alerts" class="icon">
+					<img src="@/assets/icons/notification.svg" alt="alerts" class="icon">
 					<div class="infos">
 						<h2>Create your own alerts</h2>
 						<div class="description">Twitchat provides a <strong>Trigger</strong> system to control OBS and send messages on chat based on many events like a sub, cheers, a poll result, channel points rewards, ...</div>
@@ -250,23 +253,25 @@
 			<div class="splitter"></div>
 
 			<div class="more transition">
-				<img src="@/assets/icons/params.svg" alt="bingo" class="icon">
-				<div class="infos">
-					<h2>Twitchat also allows you to</h2>
-					<div class="description">
-						<ul>
-							<li>Receive whispers on chat and respond to them</li>
-							<li>See users not following you</li>
-							<li>Display your viewers' pronouns</li>
-							<li>Display BTTV, FFZ and 7TV emotes</li>
-							<li>Hide messages sent from your bots</li>
-							<li>See who's live amongst your followings to raid them</li>
-							<li>Send a shoutout with a simple click</li>
-							<li>Automatically see last stream info of a raider</li>
-							<li>Control your OBS</li>
-							<li>Know when users enter/leave your chat</li>
-							<li>And much more...</li>
-						</ul>
+				<div class="content">
+					<img src="@/assets/icons/params.svg" alt="bingo" class="icon">
+					<div class="infos">
+						<h2>Twitchat also allows you to</h2>
+						<div class="description">
+							<ul>
+								<li>Receive whispers on chat and respond to them</li>
+								<li>See users not following you</li>
+								<li>Display your viewers' pronouns</li>
+								<li>Display BTTV, FFZ and 7TV emotes</li>
+								<li>Hide messages sent from your bots</li>
+								<li>See who's live amongst your followings to raid them</li>
+								<li>Send a shoutout with a simple click</li>
+								<li>Automatically see last stream info of a raider</li>
+								<li>Control your OBS</li>
+								<li>Know when users enter/leave your chat</li>
+								<li>And much more...</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -300,27 +305,33 @@ export default class Home extends Vue {
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
-	public mounted():void {
+	public async mounted():Promise<void> {
 		const divs = this.$el.getElementsByClassName("transition");
 		let options = {
 			root: document.body,
 			rootMargin: '0px',
-			threshold: .5
+			threshold: .35
 		};
 
 		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
 
 		for(let i = 0; i < divs.length; i++) {
 			observer.observe(divs[i]);
+			const icon = (divs[i] as HTMLDivElement).querySelector(".content>.icon");
+			if(icon) {
+				gsap.set(icon, {scale:0});
+			}
 		}
 
 		const holder = this.$refs.atf as HTMLDivElement;
-		const refs = ["logo","description","loginBt","ctas","featuresTitle"];
+		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
+		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;
 			if((el as Vue).$el) el = (el as Vue).$el;
+			const delay = i*.1+.5;
 			gsap.fromTo(el, {opacity:0, y:-20, scale:.85}, 
-							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay:i*.05+.5});
+							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
 		}
 
 	}
@@ -339,8 +350,15 @@ export default class Home extends Vue {
 			const target = e.target as HTMLElement;
 			if(e.isIntersecting && !target.dataset["done"]) {
 				target.dataset["done"] = "1";
-				gsap.to(e.target, {duration:1, opacity:1, y:0});
-				gsap.from(e.target.getElementsByClassName("icon")[0], {duration:1, scale:0, ease:"back.out(2)"});
+				
+				gsap.to(e.target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
+				gsap.to(e.target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
+				const screen = e.target.getElementsByClassName("screen")[0];
+console.log("ooooooooook",screen);
+				if(screen) {
+					gsap.to(screen, {duration:1.5, opacity:1, y:0, ease:"back.out(2)"});
+				}
+
 				const video = e.target.getElementsByTagName("video")[0];
 				if(video) {
 					video.play().catch(()=>{
@@ -421,7 +439,8 @@ export default class Home extends Vue {
 
 		.splitter {
 			font-size: 2em;
-			// margin: 10vw auto;
+			display: block;
+			margin: 0 auto;
 			font-weight: bold;
 			img {
 				margin-top: .5em;
@@ -431,21 +450,26 @@ export default class Home extends Vue {
 	}
 
 	.transition {
-		opacity: 0;
-		transform: translateY(-100px);
+		.content {
+			.screen, .infos {
+				opacity: 0;
+				transform: translateY(-100px);
+			}
+		}
 	}
 
 	.sectionsHolder {
 		background: linear-gradient(90deg, fade(@mainColor_light, 100%) 2px, transparent 1px);
 		background-position: 100% 0;
 		background-repeat: no-repeat;
-		background-size: calc(50% + 1px) 100%;
+		background-size: calc(50% + 1px) calc(100% - 500px);//500px => more or lesse the .more{} holder's size. Avoids seeing the line behind the text on display transition
 		.splitter {
-			width: .5em;
-			height: .5em;
+			width: 2em;
+			height: 2em;
 			margin: auto;
 			background-color: #fff;
 			border-radius: 50%;
+			border: .5em solid @mainColor_dark;
 		}
 	}
 
@@ -507,6 +531,7 @@ export default class Home extends Vue {
 				max-width: 42%;
 				perspective: 1000px;
 				position: relative;
+				z-index: 1;
 
 				&.clickToPlay:before {
 					content: "";
@@ -550,6 +575,7 @@ export default class Home extends Vue {
 				flex-grow: 1;
 				text-align: center;
 				font-size: 3vw;
+				z-index: 1;
 				// padding-left: calc(30vw + 1em);
 				h2 {
 					margin-bottom: .5em;
@@ -630,6 +656,77 @@ export default class Home extends Vue {
 			margin-top: .5em;
 			font-size: .9em;
 			opacity: .8;
+		}
+	}
+}
+
+@media only screen and (max-width: 900px) {
+	.home {
+		.sectionsHolder {
+			section, section:nth-of-type(odd) {
+				.content {
+					flex-direction: column-reverse;
+					background-color: @mainColor_dark;
+					max-width: calc(100% - 1em);
+				}
+				.infos {
+					background-color: @mainColor_dark;
+					font-size: max(1.75em, 5vw);
+					width: 100%;
+					max-width: 100%;
+					margin-bottom: 1em;
+				}
+				.icon {
+					order: 3;
+					width: 6em;
+					height: 6em;
+					padding: 1em 0;
+				}
+				.screen {
+					width: 80%;
+					max-width: 80%;
+					img, video {
+						position: relative;
+						left: 0;
+						right: 0;
+						transform: unset !important;
+					}
+				}
+
+				&:hover {
+					.content {
+						.screen {
+							&.clickToPlay:before {
+								transform: translate(-50%, -50%) !important;
+							}
+						}
+					}
+				}
+			}
+		}
+		.more {
+			max-width: calc(100% - 1em);
+			margin-left:auto;
+			margin-right:auto;
+			.icon {
+				order: 3;
+				width: 6em;
+				height: 6em;
+				padding: 1em 0;
+			}
+			.infos {
+				font-size: max(1.75em, 5vw);
+
+				h2 {
+					font-size: 1em;
+				}
+				ul {
+					font-size: .5em;
+					max-width: 80%;
+					margin-left: 3em;
+					width: fit-content;
+				}
+			}
 		}
 	}
 }
