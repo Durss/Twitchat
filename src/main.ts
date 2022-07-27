@@ -22,7 +22,6 @@ gsap.registerPlugin(ScrollToPlugin);
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
 	const needAuth = to.meta.needAuth;
-	const publicRoute = to.meta.public;
 	const transparent = to.meta.noBG;
 	if(transparent) {
 		document.body.style.backgroundColor = "transparent";
@@ -33,7 +32,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	if (!store.state.initComplete) {
 		try {
 			await new Promise((resolve) => {
-				store.dispatch("startApp", {authenticate:needAuth || to.name == "home", callback:resolve});
+				store.dispatch("startApp", {authenticate:needAuth, callback:resolve});
 			});
 		}catch(error) {
 			console.log(error);
@@ -44,16 +43,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 		//Not authenticated, reroute to login
 		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
 			next({name: 'login', params: {redirect: to.name?.toString()}});
-		}else{
-			next();
 		}
-		return;
-	}
-	
-	if(!needAuth && publicRoute !== true) {
-		//Already authenticated, reroute to chat
-		next({name: 'chat'});
-		return;
 	}
 
 	next();

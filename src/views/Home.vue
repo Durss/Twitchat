@@ -1,173 +1,291 @@
 <template>
 	<div class="home">
-		
-		<Chat v-if="authenticated" />
-
-		<div v-if="!authenticated" class="offline">
-			<div class="logo">
+		<div class="aboveTheFold">
+			<div class="logo" ref="logo">
 				<img src="@/assets/logo.svg" alt="Twitchat">
+				<p class="small">Made with 💘 by <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
 			</div>
+
+			<div class="middle">
+				<div class="description" ref="description">
+					<p><b>Twitchat</b> is a full featured, free and open source chat alternative for streamers</p>
+				</div>
+				
+				<Button title="Log in with Twitch"
+					white
+					big
+					ref="loginBt"
+					:to="{name:'login'}"
+					class="loginBt"
+					:icon="$image('icons/twitch.svg')"
+				/>
+		
+				<div class="ctas" ref="ctas">
+					<Button :icon="$image('icons/elgato.svg')"
+						title="Stream Deck™ plugin"
+						href="https://apps.elgato.com/plugins/fr.twitchat"
+						target="_blank"
+						type="link"
+						class="elgatoBt"
+						ref="streamDeckBt"
+					/>
 			
-			<div class="description">
-				<b>Twitchat</b> is a full featured chat alternative for streamers
+					<Button :icon="$image('icons/discord.svg')"
+						title="Join Discord"
+						:href="discordURL"
+						target="_blank"
+						type="link"
+						class="discordBt"
+						ref="discordBt"
+					/>
+			
+					<Button :icon="$image('icons/coin.svg')"
+						title="Feed me 🥰"
+						:to="{name:'sponsor'}"
+						class="sponsorBt"
+						ref="sponsorBt"
+					/>
+				</div>
 			</div>
-			
-			<Button title="Try-it now"
-				big
-				white
-				:to="{name:'login'}"
-				class="loginBt"
-				:icon="$image('icons/twitch.svg')"
-			/>
+	
+			<div class="splitter" ref="featuresTitle">Features<br><img src="@/assets/img/homepage/scrollDown.svg" alt="scroll down"></div>
+			<!-- <Splitter class="splitter" title="Checkout some features"></Splitter> -->
+		</div>
 
-			<Button :icon="$image('icons/elgato.svg')"
-				title="Stream Deck™ plugin"
-				href="https://apps.elgato.com/plugins/fr.twitchat"
-				target="_blank"
-				type="link"
-				class="elgatoBt"
-				big
-			/>
+		<div class="sectionsHolder">
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<!-- <img src="@/assets/img/homepage/emergency.gif" alt="emergency"> -->
+						<video loading="lazy" src="@/assets/img/homepage/emergency.mp4" alt="emergency" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/emergency.svg" alt="emergency" class="icon">
+					<div class="infos">
+						<h2>Emergency button</h2>
+						<div class="description">Protect yourself from doxxing, hate raids and follow bot raids with the simple click of a configurable button</div>
+					</div>
+				</div>
+			</section>
 
-			<Button :icon="$image('icons/discord.svg')"
-				title="Join Discord"
-				:href="discordURL"
-				target="_blank"
-				type="link"
-				class="discordBt"
-				big
-			/>
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<video loading="lazy" src="@/assets/img/homepage/alert.mp4" alt="alert" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/alert.svg" alt="emergency" class="icon">
+					<div class="infos">
+						<h2>Alert command</h2>
+						<div class="description">Let your moderator get your attention with a configurable alert command</div>
+					</div>
+				</div>
+			</section>
 
-			<Button :icon="$image('icons/coin.svg')"
-				big
-				title="Help me 🥰"
-				:to="{name:'sponsor'}"
-				class="sponsorBt"
-			/>
-			
-			<div class="features">
-				<!-- <dir class="title">Features</dir> -->
-				<Carousel :items-to-show="1" :wrapAround="true" :autoplay="10000" :pauseAutoplayOnHover="true">
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/hand.svg" alt="hand" class="icon">Greet your viewers</div>
-						<div class="description">
-							Afraid to forget greeting a viewer?
-							<br><strong>Twitchat remembers the first message</strong> of every viewer so you don't forget to greet them.
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/spoiler.png" alt="spoiler">
+					</div>
+					<img src="@/assets/icons/show.svg" alt="emergency" class="icon">
+					<div class="infos">
+						<h2>Spoiler command</h2>
+						<div class="description">Messages starting with <mark>||</mark> will be shown as spoilers.
+						<br>Your mods will be able to set another users' message as spoiler by responding to it with the <mark>!spoiler</mark> command
 						</div>
-						<img src="@/assets/img/example_greet.jpg" alt="greet">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/checkmark_white.svg" alt="check" class="icon">Read mark</div>
-						<div class="description">Stop scrolling for hours for the message you stopped reading at, just click it and <strong>instantly see where you stopped reading your chat</strong></div>
-						<img src="@/assets/img/example_mark_read.jpg" alt="poll">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/conversation.svg" alt="conversation" class="icon"> Follow conversations</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/streamdeck.png" alt="stream deck">
+					</div>
+					<img src="@/assets/icons/elgato.svg" alt="hand" class="icon">
+					<div class="infos">
+						<h2>Stream Deck™</h2>
+						<div class="description">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/greet.png" alt="greet">
+					</div>
+					<img src="@/assets/icons/hand.svg" alt="hand" class="icon">
+					<div class="infos">
+						<h2>Greet your viewers</h2>
+						<div class="description"><strong>Twitchat remembers the first message</strong> of every viewer so you don't forget to greet them</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/readMark.gif" alt="read mark">
+					</div>
+					<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="icon">
+					<div class="infos">
+						<h2>Read mark</h2>
+						<div class="description">Click any message so you remember where you stopped reading at</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/conversation.gif" alt="conversation">
+					</div>
+					<img src="@/assets/icons/conversation.svg" alt="conversation" class="icon">
+					<div class="infos">
+						<h2>Conversations</h2>
+						<div class="description">Follow conversation between viewers with the simple click of a button</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/search.png" alt="search">
+					</div>
+					<img src="@/assets/icons/search.svg" alt="search" class="icon">
+					<div class="infos">
+						<h2>Search messages</h2>
+						<div class="description">Quickly search for messages containing any word with the <mark>/search</mark> command</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/minibadges.png" alt="minified badges">
+					</div>
+					<img src="@/assets/icons/prime.svg" alt="badge" class="icon">
+					<div class="infos">
+						<h2>Minified badges</h2>
+						<div class="description">Free some space by replacing twitch badges by their minifed version</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/raffle.gif" alt="raffle">
+					</div>
+					<img src="@/assets/icons/ticket.svg" alt="raffle" class="icon">
+					<div class="infos">
+						<h2>Create a Raffle</h2>
+						<div class="description">Twitchat allows you to <strong>start a raffle</strong> and pick one or multiple random winners</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/bingo.gif" alt="bingo">
+					</div>
+					<img src="@/assets/icons/bingo.svg" alt="bingo" class="icon">
+					<div class="infos">
+						<h2>Create a Bingo</h2>
+						<div class="description">Twitchat allows you to <strong>start a bingo</strong>.
+						<br>Your viewers will have to guess a number or a twitch emote</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<video loading="lazy" src="@/assets/img/homepage/triggers.mp4" alt="triggers" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/notification.svg" alt="alerts" class="icon">
+					<div class="infos">
+						<h2>Create your own alerts</h2>
+						<div class="description">Twitchat provides a <strong>Trigger</strong> system to control OBS and send messages on chat based on many events like a sub, cheers, a poll result, channel points rewards, ...</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/musicPlayer.png" alt="music">
+					</div>
+					<img src="@/assets/icons/music.svg" alt="alerts" class="icon">
+					<div class="infos">
+						<h2>Spotify & Deezer</h2>
+						<div class="description">Connect Twitchat with Spotify or Deezer to display the current track on your stream or allow your viewers to add tracks to the queue</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+
+			<div class="more transition">
+				<div class="content">
+					<img src="@/assets/icons/params.svg" alt="bingo" class="icon">
+					<div class="infos">
+						<h2>Twitchat also allows you to</h2>
 						<div class="description">
-							Following conversations between viewers can be pretty challenging.
-							<br>With a simple click on an button you can <strong>open up a conversation history</strong>.
-						</div>
-						<img src="@/assets/img/example_conversation.jpg" alt="poll">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/search.svg" alt="search" class="icon"> Search messages</div>
-						<div class="description">Search messages containing any word.</div>
-						<img src="@/assets/img/example_search.jpg" alt="poll">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/vip.svg" alt="vip" class="icon"> Mini badges</div>
-						<div class="description">
-							Badges sometimes makes reading harder.
-							<br>You can replace them by <strong>minified versions</strong> to free some space
-						</div>
-						<img src="@/assets/img/example_minibadges.png" alt="badges">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/ticket.svg" alt="raffle" class="icon"> Raffle</div>
-						<div class="description">
-							Twitchat allows you to <strong>start a raffle</strong> and pick a random winner.
-						</div>
-						<img src="@/assets/img/example_raffle.png" alt="raffle">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/bingo.svg" alt="bingo" class="icon"> Bingo</div>
-						<div class="description">
-							Twitchat allows you to <strong>start a bingo</strong>.
-							<br>Your viewers will have to guess a number or a twitch emote
-						</div>
-						<img src="@/assets/img/example_bingo.png" alt="raffle">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/unfollow_white.svg" alt="raffle" class="icon"> Non followers</div>
-						<div class="description">
-							See if a user is following your channel or not
-						</div>
-						<img src="@/assets/img/example_nofollow.jpg" alt="not follwing">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/split.svg" alt="poll" class="icon"> Split view</div>
-						<div class="description">
-							You can split the view in half to give more space to your chat.
-							<br>The right column will display all the alerts, greetings, notifications, search results, etc...
-						</div>
-						<img src="@/assets/img/example_splitview.jpg" alt="splitView">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/whispers.svg" alt="whisper" class="icon"> Whispers</div>
-						<div class="description">
-							Opening twitch to read a whisper and answer it can be pretty annoying.
-							<br>Twitchat can <strong>receive whispers</strong> and answer them whithout leaving Twitchat.
-						</div>
-						<img src="@/assets/img/example_whisper.jpg" alt="splitwhisper">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/poll.svg" alt="poll" class="icon"> Manage polls</div>
-						<div class="description">Create polls, see their progress live and <strong>never miss their result</strong> sent on chat and stored on the activity feed.</div>
-						<img src="@/assets/img/example_poll.jpg" alt="poll">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/prediction.svg" alt="prediction" class="icon"> Manage predictions</div>
-						<div class="description">Create predictions, see their progress live and <strong>never miss their result</strong> sent on chat and stored on the activity feed.</div>
-						<img src="@/assets/img/example_prediction.jpg" alt="prediction">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/elgato.svg" alt="elgato" class="icon"> Control with your streamdeck</div>
-						<div class="description">Perform some quick actions from yourstreamdeck Streamdeck.<br><strong>Pause/unpause</strong> chat, remove clear entries from the <strong>greet them</strong> section, <strong>mark as read</strong> some or all chat messages, <strong>scroll</strong> the chat, open/close <strong>prediction/poll/bingo/raffle</strong> state, and more.</div>
-						<img src="@/assets/img/example_streamdeck.png" alt="streamdeck">
-					</Slide>
-					<Slide :key="nextIndex" class="slide">
-						<div class="head"><img src="@/assets/icons/stars.svg" alt="prediction" class="icon"> And much more</div>
-						<div class="description">
-							<b>Twitchat has many more features, including native ones:</b>
 							<ul>
-								<li>Follow, cheers, rewards and raid alerts</li>
-								<li>Automod accept/reject flow</li>
-								<li>Ban, timeout, delete message</li>
-								<li>Hype train progress status</li>
-								<li>Highlight subs/vips/Mods messages</li>
-								<li>Highlight messages mentioning you</li>
-								<li>Easy customizable shoutout command</li>
-								<li>Filter out command messages</li>
-								<li>Autocomplete emotes (:xxx), user names (@xxx) and commands (/xxx)</li>
-								<li>Display BTTV / FFZ / 7TV emotes</li>
-								<li>A public websocket API for developers</li>
-								<li>...</li>
+								<li>Receive whispers on chat and respond to them</li>
+								<li>See users not following you</li>
+								<li>Display your viewers' pronouns</li>
+								<li>Display BTTV, FFZ and 7TV emotes</li>
+								<li>Hide messages sent from your bots</li>
+								<li>See who's live amongst your followings to raid them</li>
+								<li>Send a shoutout with a simple click</li>
+								<li>Automatically see last stream info of a raider</li>
+								<li>Control your OBS</li>
+								<li>Know when users enter/leave your chat</li>
+								<li>And much more...</li>
 							</ul>
-							<b>Get a more complete list <a href="https://github.com/Durss/Twitchat#readme" target="_blank">on this page</a></b>
 						</div>
-					</Slide>
-					<template #addons>
-						<Navigation />
-						<Pagination />
-					</template>
-				</Carousel>
+					</div>
+				</div>
 			</div>
+		</div>
 
-			<div class="footer">
-				<p>Made with 💘 by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
-				<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
-				<p class="note">Twitchat is NOT affiliated with <a href="https://twitch.tv" target="_blank">Twitch</a> by any means</p>
-			</div>
+		<div class="footer">
+			<p>Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p class="note">Twitchat is NOT affiliated with <a href="https://twitch.tv" target="_blank">Twitch</a> by any means</p>
+		</div>
+
+		<div class="floatingLetters">
+			<img v-for="i of 40"
+			ref="letter"
+			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
 	</div>
 </template>
@@ -175,219 +293,483 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
-import Chat from './Chat.vue';
-import StoreProxy from '@/utils/StoreProxy';
-//@typescript-eslint/ban-ts-comment
-//@ts-ignore
-import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
-import 'vue3-carousel/dist/carousel.css';
+import Splitter from '../components/Splitter.vue';
 
 @Options({
 	props:{},
 	components:{
-		Chat,
 		Button,
-		Carousel,
-		Slide,
-		Pagination,
-		Navigation,
+		Splitter,
 	}
 })
 export default class Home extends Vue {
 
-	public authenticated = false;
 	private index = 0;
+	private disposed = false;
 
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
 
-	// public get loginPath():string { return router.resolve({name:'login'}).href; }
+	public async mounted():Promise<void> {
+		const divs = this.$el.getElementsByClassName("transition");
+		let options = {
+			root: document.body,
+			rootMargin: '0px',
+			threshold: .35
+		};
 
-	public mounted():void {
-		this.authenticated = StoreProxy.store.state.authenticated;
+		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
+
+		for(let i = 0; i < divs.length; i++) {
+			observer.observe(divs[i]);
+			const icon = (divs[i] as HTMLDivElement).querySelector(".content>.icon");
+			if(icon) {
+				gsap.set(icon, {scale:0});
+			}
+		}
+
+		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
+		await this.$nextTick();
+		for (let i = 0; i < refs.length; i++) {
+			let el = this.$refs[refs[i]] as HTMLElement | Vue;
+			if((el as Vue).$el) el = (el as Vue).$el;
+			const delay = i*.1+.5;
+			gsap.fromTo(el, {opacity:0, y:-20, scale:.85}, 
+							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
+		}
+
+		this.moveLetters();
+	}
+
+	public beforeUnmount():void {
+		this.disposed = true;
+	}
+
+	public toggleVideo(event:PointerEvent):void {
+		const video = event.target as HTMLVideoElement;
+		if(video.paused) video.play();
+		else video.pause();
+		video.classList.toggle("playing");
+		(video.parentElement as HTMLDivElement).classList.remove("clickToPlay");
+	}
+
+	private showItem(entries: IntersectionObserverEntry[], observer: IntersectionObserver):void {
+		for (let i = 0; i < entries.length; i++) {
+			const e = entries[i];
+			const target = e.target as HTMLElement;
+			if(e.isIntersecting && !target.dataset["done"]) {
+				target.dataset["done"] = "1";
+				
+				gsap.to(e.target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
+				gsap.to(e.target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
+				const screen = e.target.getElementsByClassName("screen")[0];
+
+				if(screen) {
+					gsap.to(screen, {duration:1.5, opacity:1, y:0, ease:"back.out(2)"});
+				}
+
+				const video = e.target.getElementsByTagName("video")[0];
+				if(video) {
+					video.play().catch(()=>{
+						(video.parentElement as HTMLDivElement).classList.add("clickToPlay");
+					});
+				}
+			}
+		}
+	}
+
+	private moveLetters():void {
+		if(this.disposed) return
+		requestAnimationFrame(()=> this.moveLetters());
+
+		const letters = this.$refs.letter as HTMLImageElement[];
+		for (let i = 0; i < letters.length; i++) {
+			const l = letters[i];
+			const pageH = this.$el.offsetHeight;
+			let py = parseFloat(l.style.top);
+			if(isNaN(py)) {
+				py = -Math.random()*pageH;
+				l.style.left = (Math.random()*document.body.offsetWidth)+"px";
+				l.style.opacity = (Math.random()*.1 + .025).toString();
+				l.style.transform = "scale("+(Math.random()*3 + .5)+") rotate("+(Math.random()*360)+"deg)";
+			}
+			if(py < - pageH - 200) py = 200;
+			l.style.top = (py - i*.1)+"px";
+			let r = parseFloat(l.style.transform.replace(/.*rotate\(([0-9.]+)deg\).*/gi, "$1"));
+			if(i %2 == 0) r += .01 * i;
+			else  r -= .01 * i;
+			l.style.transform = l.style.transform.replace(/[0-9.]+deg/gi, r+"deg")
+		}
 	}
 }
 </script>
 
 <style scoped lang="less">
 .home{
-	height: 100%;
+	text-align: center;
+	color: @mainColor_light;
+	min-height: 100%;
+	// background-image: url("../assets/img/homepage.jpg");
+	background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, @mainColor_dark 100%);
+	background-size: 100% 100vh;
+	background-repeat: no-repeat;
+	background-position: top center;
+	margin: auto;
+	padding-bottom: 2em;
+	position: relative;
+	overflow: hidden;
 
-	.offline {
-		text-align: center;
-		color: @mainColor_light;
-		min-height: 100%;
-		// background-image: url("../assets/img/homepage.jpg");
-		background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, @mainColor_dark 100%);
-		background-size: contain;
-		background-repeat: no-repeat;
-		background-position: center center;
-		margin: auto;
-		padding: 2em 5px;
+	.aboveTheFold {
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 4em 0;
+		position: relative;
+		z-index: 1;
 
 		.logo {
 			width: 80vw;
 			max-width: 400px;
-			margin: auto;
+			margin: 0 auto;
 			img {
 				filter: drop-shadow(0 10px 20px fade(#000000, 50%));
 			}
-		}
-
-		.loginBt {
-			margin: 0;
-			border-radius: 50px;
-			font-weight: bold;
-			padding:15px;
-			:deep(.label){
-				font-size: 20px;
+			.small {
+				margin-top: 1em;
+				font-size: .8em;
+				opacity: .7;
+				font-style: italic;
 			}
 		}
 
-		.discordBt, .elgatoBt, .sponsorBt {
-			margin: .5em auto 0 auto;
-			border-radius: 50px;
-			font-weight: bold;
+		.middle {
+			.description {
+				margin: auto;
+				margin-bottom: 2em;
+				font-style: italic;
+				opacity: .8;
+				font-size: min(2em, 7vw);
+				width: 90%;
+				max-width: 800px;
+			}
+	
+			.loginBt {
+				margin-bottom: 1em;
+				border-radius: 100px;
+				font-weight: bold;
+			}
+	
+			.ctas {
+				// margin-top: calc(1em - .25em);
+				// margin-bottom: 1em;
+				.button:not(:first-child) {
+					margin-left: .5em;
+					margin-top: .5em;
+				}
+				.button {
+					border-radius: 100px;
+				}
+			}
+		}
+
+
+		.splitter {
+			font-size: 2em;
 			display: block;
-			width: min-content;
-			padding:15px 20px;
-			:deep(.label){
-				font-size: 20px;
-			}
-			:deep(.icon) {
-				vertical-align:middle;
-			}
-
-			&.elgatoBt {
-				background-color: hsl(232, 81%, 40%);
-			}
-
-			&.sponsorBt {
-				background-color: @mainColor_warn;
+			margin: 0 auto;
+			font-weight: bold;
+			img {
+				margin-top: .5em;
+				width: 1em;
 			}
 		}
+	}
 
-		&>.description {
-			margin: 2em 0;
-			font-style: italic;
-			opacity: .8;
+	.transition {
+		.content {
+			.screen, .infos {
+				opacity: 0;
+				transform: translateY(-100px);
+			}
+		}
+	}
 
-			// &::before {
-			// 	content: "“";
-			// 	font-family: "Nunito";
-			// 	font-size: 2em;
-			// 	vertical-align: middle;
-			// 	margin-right: 10px;
-			// }
-			// &::after {
-			// 	content: "”";
-			// 	font-family: "Nunito";
-			// 	font-size: 2em;
-			// 	vertical-align: middle;
-			// }
+	.sectionsHolder {
+		background: linear-gradient(90deg, fade(@mainColor_light, 100%) 2px, transparent 1px);
+		background-position: 100% 0;
+		background-repeat: no-repeat;
+		background-size: calc(50% + 1px) calc(100% - 500px);//500px => more or lesse the .more{} holder's size. Avoids seeing the line behind the text on display transition
+		.splitter {
+			width: 2em;
+			height: 2em;
+			margin: auto;
+			background-color: #fff;
+			border-radius: 50%;
+			border: .5em solid @mainColor_dark;
+		}
+	}
+
+	section {
+		padding: 10vw 0;
+		min-width: 100%;
+		margin-bottom: 5vw;
+		&:not(:first-of-type) {
+			margin-top: 5vw;
 		}
 
-		.features {
-			widows: 90%;
-			max-width: 600px;
-			margin: 2em auto;
-			// background-color: rgba(255, 255, 255, .2);
-			background-color: fade(@mainColor_normal, 50%);
-			background: linear-gradient(0deg, rgba(145,71,255,.7) 0%, rgba(145,71,255,.0) 100%);
-			// border: 1px solid fade(@mainColor_normal, 30%);
-			border-radius: 20px;
-			padding: 20px;
-			// padding-top: 30px;
-			box-shadow: 0px 0px 50px 0 rgba(0,0,0,.5);
+		&:nth-of-type(odd) {
+			.content {
+				flex-direction: row-reverse;
 
-			.title {
-				font-size: 1.5em;
-				padding: 0;
-				margin: 0;
-				margin-bottom: 20px;
-			}
-
-			:deep(.carousel){
-				.carousel__pagination {
-					flex-wrap: wrap;
-				}
-				.carousel__next,
-				.carousel__prev,
-				.carousel__pagination-button {
-					background-color: lighten(@mainColor_normal, 5%);
-					box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
-				}
-				.carousel__pagination-button--active {
-					background-color: @mainColor_alert;
-				}
-
-				.carousel__slide {
-					align-self: flex-start;
-				}
-			}
-
-			.slide {
-				display: flex;
-				flex-direction: column;
-				
-				.head {
-					font-size: 1.5em;
-					font-weight: bold;
-					margin-bottom: 20px;
-
-					.icon {
-						height: 1em;
-						width: 1em;
-						object-fit: contain;
-						margin-right: 10px;
-						vertical-align: middle;
+				.screen {
+					&.clickToPlay:before {
+						transform: rotateY(-20deg) translate(-40%, -50%)
+					}
+					img, video {
+						transform: rotateY(-20deg) translate(-50%, -50%) scale(1);
+						transform-origin: right center;
 					}
 				}
+			}
+		}
+
+		&:hover {
+			.content {
+				.screen {
+
+					&.clickToPlay:before {
+						transform: rotateY(0) translate(-50%, -50%)
+					}
+
+					img, video{
+						transform: rotateY(0) translate(-50%, -50%) translateX(0);
+					}
+
+					&::after {
+						width: 100%;
+						margin-bottom: -1em;
+					}
+				}
+			}
+		}
+
+		.content {
+			display: flex;
+			flex-direction: row;
+			max-width: 70vw;
+			margin: auto;
+			color: @mainColor_light;
+			align-items: center;
+			position: relative;
+	
+			.screen {
+				width: 42%;
+				max-width: 42%;
+				perspective: 1000px;
+				position: relative;
+				z-index: 1;
+
+				&.clickToPlay:before {
+					content: "";
+					pointer-events: none;
+					z-index: 1;
+					background-image: url("../assets/img/homepage/clickToPlay.png");
+					background-size: 100% 100%;
+					width: 5em;
+					height: 5em;
+					min-width: 5em;
+					min-height: 5em;
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transition: all .5s;
+					transform: rotateY(20deg) translate(-70%, -50%)
+				}
+
+				&.clickToPlay {
+					video {
+						filter: brightness(30%);
+					}
+				}
+
+				img, video {
+					width: 100%;
+					max-width: 500px;
+					border-radius: .5em;
+					border: 2px solid white;
+					transform: rotateY(20deg) translate(-50%, -50%) scale(.9);
+					transform-origin: left center;
+					// max-width: 500px;
+					transition: all .5s;
+					position: absolute;
+				}
+			}
+	
+			.infos {
+				width: 42%;
+				max-width: 42%;
+				flex-grow: 1;
+				text-align: center;
+				font-size: 3vw;
+				z-index: 1;
+				// padding-left: calc(30vw + 1em);
+				h2 {
+					margin-bottom: .5em;
+				}
+
 				.description {
-					margin-bottom: 20px;
-					font-size: .8em;
-					line-height: 1.5em;
-					strong {
-						color: lighten(@mainColor_warn, 10%);
-					}
-					ul {
-						margin:auto;
-						margin-top: 20px;
-						width: 90%;
-						max-width: 400px;
-						li {
-							text-align: left;
-							// list-style-type: none;
-							// list-style-position: inside;
-							padding-left: 0;
-							margin-left: 10px;
-							margin-bottom: 10px;
-						}
+					font-size: .5em;
+					
+					mark {
+						background-color: @mainColor_normal;
+						border: 1px dashed @mainColor_normal_extralight;
+						font-size: .8em;
+						border-radius: .5em;
+						padding: 0 .25em;
 					}
 				}
-				
-				&>img {
-					filter: drop-shadow(0 0 10px #000000);
-					max-width: calc(100% - 60px);
-					height: 100%;
-					object-fit: contain;
+			}
+
+			.icon {
+				width: 6%;
+				flex-grow: 1;
+				height: 7em;
+				padding: 1em 3%;
+				display: block;
+				background-color: @mainColor_dark;
+			}
+
+			&.noPic {
+				.infos {
+					flex-grow: 2;
+					width: auto;
+					max-width: unset;
+				}
+			}
+		}
+
+		video {
+			cursor:  url("../assets/img/homepage/play.png"), default;
+			&.playing {
+				cursor:  url("../assets/img/homepage/pause.png"), default;
+			}
+		}
+	}
+
+	.more {
+		margin-top: 10vw;
+		background-color: @mainColor_dark;
+		.icon {
+			height: 6em;
+			padding-top: 1em;
+			margin-bottom: 1em;
+		}
+		.infos {
+			h2 {
+				font-size: 3vw;
+				margin-bottom: .5em;
+			}
+
+			ul {
+				text-align: left;
+				max-width: 500px;
+				margin: auto;
+				li {
+					margin-bottom: .5em;
 				}
 			}
 		}
 	}
 
 	.footer {
-		margin-top: 50px;
+		margin-top: 5em;
 		text-align: center;
 		font-size: .8em;
-		margin-bottom: 10px;
+		padding-bottom: 2em;
 
 		.note {
 			font-style: italic;
 			margin-top: .5em;
 			font-size: .9em;
 			opacity: .8;
+		}
+	}
+
+	.floatingLetters {
+		z-index: 0;
+		position: absolute;
+		img {
+			position: absolute;
+			height: 2em;
+		}
+	}
+}
+
+@media only screen and (max-width: 900px) {
+	.home {
+		.sectionsHolder {
+			section, section:nth-of-type(odd) {
+				.content {
+					flex-direction: column-reverse;
+					background-color: @mainColor_dark;
+					max-width: calc(100% - 1em);
+				}
+				.infos {
+					background-color: @mainColor_dark;
+					font-size: max(1.75em, 5vw);
+					width: 100%;
+					max-width: 100%;
+					margin-bottom: 1em;
+				}
+				.icon {
+					order: 3;
+					width: 6em;
+					height: 6em;
+					padding: 1em 0;
+				}
+				.screen {
+					width: 80%;
+					max-width: 80%;
+					img, video {
+						position: relative;
+						left: 0;
+						right: 0;
+						transform: unset !important;
+					}
+					&.clickToPlay:before {
+						transform: translate(-50%, -50%) !important;
+					}
+				}
+			}
+		}
+		.more {
+			max-width: calc(100% - 1em);
+			margin-left:auto;
+			margin-right:auto;
+			.icon {
+				order: 3;
+				width: 6em;
+				height: 6em;
+				padding: 1em 0;
+			}
+			.infos {
+				font-size: max(1.75em, 5vw);
+
+				h2 {
+					font-size: 1em;
+				}
+				ul {
+					font-size: .5em;
+					max-width: 80%;
+					margin-left: 3em;
+					width: fit-content;
+				}
+			}
 		}
 	}
 }

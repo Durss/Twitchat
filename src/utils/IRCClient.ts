@@ -27,7 +27,7 @@ export default class IRCClient extends EventDispatcher {
 	public connected = false;
 	public botsLogins:string[] = [];
 	public onlineUsers:string[] = [];
-	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	private login!:string;
@@ -103,28 +103,6 @@ export default class IRCClient extends EventDispatcher {
 					BTTVUtils.instance.addChannel(uids[i]);
 					FFZUtils.instance.addChannel(uids[i]);
 					SevenTVUtils.instance.addChannel(uids[i]);
-
-					//Get current user's list
-					const chattersRes = await fetch(Config.instance.API_PATH+"/chatters?channel="+channels[i]);
-					if(chattersRes.status == 200) {
-						const list: {chatters:{[key:string]:string[]}, chatter_count:number} = await chattersRes.json();
-						for (const key in list.chatters) {
-							const sublist = list.chatters[key];
-							for (let i = 0; i < sublist.length; i++) {
-								const u = sublist[i];
-								if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-									this.joinSpool.push(u);
-									this.userJoin(u, channels[i]);
-								}
-
-								const index = this.onlineUsers.indexOf(u);
-								if(index > -1) break;
-								this.onlineUsers.push(u);
-							}
-						}
-						this.onlineUsers.sort();
-						StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
-					}
 				}
 
 				this.dispatchEvent(new IRCEvent(IRCEvent.BADGES_LOADED));
@@ -179,9 +157,9 @@ export default class IRCClient extends EventDispatcher {
 				this.connected = true;
 			}
 			
-			this.client.on("join", (channel:string, user:string) => {
+			this.client.on("join", async(channel:string, user:string) => {
 				user = user.toLowerCase();
-				if(user == this.login.toLowerCase()) {
+				if(user == this.login.toLowerCase() && !this.connected) {
 					this.connected = true;
 					console.log("IRCClient :: Connection succeed");
 					resolve();
@@ -190,12 +168,32 @@ export default class IRCClient extends EventDispatcher {
 						this.sendNotice("online", "Welcome to the chat room "+channel+"!", channel);
 					}
 					this.refreshingToken = false;
-				}else{
-					if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-						//Ignore bots
-						if(this.botsLogins.indexOf(user) == -1) {
-							this.userJoin(user, channel);
+
+					//Get current user's list for all connected channels
+					for (let i = 0; i < channels.length; i++) {
+						const chattersRes = await fetch(Config.instance.API_PATH+"/chatters?channel="+channels[i]);
+						if(chattersRes.status == 200) {
+							const list: {chatters:{[key:string]:string[]}, chatter_count:number} = await chattersRes.json();
+							for (const key in list.chatters) {
+								const sublist = list.chatters[key];
+								for (let j = 0; j < sublist.length; j++) {
+									const u = sublist[j];
+									const index = this.onlineUsers.indexOf(u);
+									if(index > -1) break;
+									if(this.botsLogins.indexOf(u) == -1) {
+										this.userJoin(u, channels[i]);
+									}
+									this.onlineUsers.push(u);
+								}
+							}
+							this.onlineUsers.sort();
+							StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 						}
+					}
+				}else {
+					//Ignore bots
+					if(this.botsLogins.indexOf(user) == -1) {
+						this.userJoin(user, channel);
 					}
 				}
 
@@ -213,25 +211,9 @@ export default class IRCClient extends EventDispatcher {
 				if(index > -1) {
 					this.onlineUsers.splice(index, 1);
 				}
-				if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-					//Ignore bots
-					if(this.botsLogins.indexOf(user) == -1) {
-						this.partSpool.push(user);
-						clearTimeout(this.partSpoolTimeout);
-						
-						this.partSpoolTimeout = window.setTimeout(() => {
-							const leave = this.partSpool.splice(0, 30);
-							let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
-							if(this.partSpool.length > 0) {
-								message += " and <mark>"+this.partSpool.length+"</mark> more";
-							}else{
-								message = message.replace(/,([^,]*)$/, " and$1");
-							}
-							message += " left the chat room";
-							this.sendNotice("offline", message, channel);
-							this.partSpool = [];
-						}, 1000);
-					}
+				//Ignore bots
+				if(this.botsLogins.indexOf(user) == -1) {
+					this.userLeave(user, channel);
 				}
 				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 			});
@@ -712,26 +694,34 @@ export default class IRCClient extends EventDispatcher {
 	*******************/
 
 	private userJoin(user:string, channel:string):void {
+		if(this.onlineUsers.indexOf(user) > -1) return;
+		
 		this.joinSpool.push(user);
 		clearTimeout(this.joinSpoolTimeout);
 		
 		this.joinSpoolTimeout = window.setTimeout(() => {
-			const spoolBackup = this.joinSpool.concat();
-			const join = this.joinSpool.splice(0, 30);
-			let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
-			if(this.joinSpool.length > 0) {
-				message += " and <mark>"+this.joinSpool.length+"</mark> more";
-			}else{
-				message = message.replace(/,([^,]*)$/, " and$1");
-			}
-			message += " joined the chat room";
-			this.sendNotice("online", message, channel);
 			const data:IRCEventDataList.JoinList = {
 				type:"join",
-				users:spoolBackup,
+				channel,
+				users:this.joinSpool,
 			}
 			this.dispatchEvent(new IRCEvent(IRCEvent.JOIN, data));
 			this.joinSpool = [];
+		}, 1000);
+	}
+
+	private userLeave(user:string, channel:string):void {
+		this.partSpool.push(user);
+		clearTimeout(this.partSpoolTimeout);
+		
+		this.partSpoolTimeout = window.setTimeout(() => {
+			const data:IRCEventDataList.LeaveList = {
+				type:"leave",
+				channel,
+				users:this.partSpool,
+			}
+			this.dispatchEvent(new IRCEvent(IRCEvent.LEAVE, data));
+			this.partSpool = [];
 		}, 1000);
 	}
 }

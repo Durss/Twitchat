@@ -15,6 +15,7 @@ import VoiceControl from '@/views/VoiceControl.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
+		alias: '/home',
 		name: 'home',
 		component: Home,
 		meta: {
@@ -23,9 +24,9 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		path: '/sponsor',
-		name: 'sponsor',
-		component: Sponsor,
+		path: '/home',
+		name: 'home',
+		component: Home,
 		meta: {
 			overflow:true,
 			needAuth:false,
@@ -40,12 +41,20 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/sponsor',
+		name: 'sponsor',
+		component: Sponsor,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
 		path: '/chat/:login',
 		name: 'chatLight',
 		component: ChatLight,
 		meta: {
 			needAuth:false,
-			public:true,
 			noBG:true,
 		}
 	},

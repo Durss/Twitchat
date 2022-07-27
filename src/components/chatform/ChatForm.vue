@@ -347,11 +347,11 @@ export default class ChatForm extends Vue {
 			}
 		});
 
-		try {
-			await TwitchUtils.loadRewards();
-		}catch(e) {
-			//User is probably not an affiliate
-		}
+		// try {
+		// 	await TwitchUtils.loadRewards();
+		// }catch(e) {
+		// 	//User is probably not an affiliate
+		// }
 	}
 
 	public beforeUnmount():void {
@@ -463,8 +463,8 @@ export default class ChatForm extends Vue {
 					min: 4
 				},
 				wordsPerSentence: {
-					max: 16,
-					min: 4
+					max: 8,
+					min: 2
 				}
 			});
 			
@@ -475,8 +475,17 @@ export default class ChatForm extends Vue {
 				tags["display-name"] = tags.username;
 				tags["user-id"] = id.toString();//UserSession.instance.authToken.user_id;
 				tags.color = "#"+(id*id*id*id*id).toString().substring(0,8);
-				tags.id = IRCClient.instance.getFakeGuid();
-				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*3) + 1)
+				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*2) + 1);
+				if(StoreProxy.store.state.chatMessages.length > 0 && Math.random() < .5) {
+					for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
+						const m = StoreProxy.store.state.chatMessages[i];
+						if(m.type == "message") {
+							console.log("Answer to", m);
+							tags["reply-parent-msg-id"] = m.tags.id;
+							break;
+						}
+					}
+				}
 				IRCClient.instance.addMessage(message, tags, false)
 			}, 250);
 			this.message = "";

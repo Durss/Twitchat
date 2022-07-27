@@ -823,7 +823,6 @@ export default class ChatMessage extends Vue {
 			word-break: break-all;
 		}
 		:deep(.highlightedWord) {
-			font-size: 1.2em;
 			font-weight: bold;
 			color: @mainColor_dark;
 			padding: 0 3px;

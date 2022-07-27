@@ -34,17 +34,17 @@
 					</div>
 				</form>
 
-				<Splitter title="Config" class="splitter" />
-
-				<PostOnChatParam botMessageKey="bingoStart"
-					:placeholderEnabled="false"
-					title="Announce bingo start on chat"
-					:placeholders="startPlaceholders"
-				/>
-				<PostOnChatParam botMessageKey="bingo"
-					title="Post bingo winner on chat"
-					:placeholders="winnerPlaceholders"
-				/>
+				<ToggleBlock title="Configs" class="configs" :open="false" small>
+					<PostOnChatParam botMessageKey="bingoStart"
+						:placeholderEnabled="false"
+						title="Announce bingo start on chat"
+						:placeholders="startPlaceholders"
+					/>
+					<PostOnChatParam botMessageKey="bingo"
+						title="Post bingo winner on chat"
+						:placeholders="winnerPlaceholders"
+					/>
+				</ToggleBlock>
 			</div>
 		</div>
 	</div>
@@ -60,14 +60,14 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import Splitter from '../Splitter.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ParamItem,
-		Splitter,
+		ToggleBlock,
 		PostOnChatParam,
 	},
 	emits:["close"]
@@ -191,7 +191,7 @@ export default class BingoForm extends Vue {
 			}
 		}
 
-		.splitter {
+		.configs {
 			margin: 1em 0;
 		}
 	}
