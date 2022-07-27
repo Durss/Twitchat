@@ -431,8 +431,9 @@ const store = createStore({
 					return;
 				}
 				const userRes = await TwitchUtils.validateToken(json.access_token);
+				const status = (userRes as TwitchDataTypes.Error).status;
 				if(isNaN((userRes as TwitchDataTypes.Token).expires_in)
-				|| (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
+				&& status != 200) throw("invalid token");
 
 				UserSession.instance.access_token = json.access_token;
 				UserSession.instance.authToken = userRes as TwitchDataTypes.Token;
