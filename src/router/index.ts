@@ -14,9 +14,9 @@ import Sponsor from '../views/Sponsor.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		alias: '/chat',
-		name: 'chat',
-		component: Chat,
+		alias: '/home',
+		name: 'home',
+		component: Home,
 		meta: {
 			needAuth:true,
 		}
