@@ -393,7 +393,6 @@ export default class Home extends Vue {
 			let py = parseFloat(l.style.top);
 			if(isNaN(py)) {
 				py = -Math.random()*pageH;
-				console.log(this.$el.offsetHeight, py);
 				l.style.left = (Math.random()*document.body.offsetWidth)+"px";
 				l.style.opacity = (Math.random()*.1 + .025).toString();
 				l.style.transform = "scale("+(Math.random()*3 + .5)+") rotate("+(Math.random()*360)+"deg)";
