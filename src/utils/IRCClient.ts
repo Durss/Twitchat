@@ -180,10 +180,8 @@ export default class IRCClient extends EventDispatcher {
 									const u = sublist[i];
 									const index = this.onlineUsers.indexOf(u);
 									if(index > -1) break;
-									if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-										if(this.botsLogins.indexOf(u) == -1) {
-											this.userJoin(u, channels[i]);
-										}
+									if(this.botsLogins.indexOf(u) == -1) {
+										this.userJoin(u, channels[i]);
 									}
 									this.onlineUsers.push(u);
 								}
@@ -213,11 +211,9 @@ export default class IRCClient extends EventDispatcher {
 				if(index > -1) {
 					this.onlineUsers.splice(index, 1);
 				}
-				if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-					//Ignore bots
-					if(this.botsLogins.indexOf(user) == -1) {
-						this.userLeave(user, channel);
-					}
+				//Ignore bots
+				if(this.botsLogins.indexOf(user) == -1) {
+					this.userLeave(user, channel);
 				}
 				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 			});
