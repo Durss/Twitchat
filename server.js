@@ -378,7 +378,6 @@ async function userData(request, response, body) {
  */
 async function getChatters(request, response) {
 	let params = UrlParser.parse(request.url, true).query;
-	console.log(params);
 	const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+params.channel.toLowerCase()+"/chatters", {method:"GET"});
 	let chatters = [];
 	if(chattersRes.status === 200) {
@@ -838,10 +837,12 @@ const UserDataSchema = {
 		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		emergencyParams: {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				enabled:{type:"boolean"},
 				chatCmd:{type:"string", maxLength:100},
 				chatCmdPerms:{
 					type:"object",

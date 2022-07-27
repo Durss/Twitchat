@@ -176,14 +176,12 @@ export default class IRCClient extends EventDispatcher {
 							const list: {chatters:{[key:string]:string[]}, chatter_count:number} = await chattersRes.json();
 							for (const key in list.chatters) {
 								const sublist = list.chatters[key];
-								for (let i = 0; i < sublist.length; i++) {
-									const u = sublist[i];
+								for (let j = 0; j < sublist.length; j++) {
+									const u = sublist[j];
 									const index = this.onlineUsers.indexOf(u);
 									if(index > -1) break;
-									if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-										if(this.botsLogins.indexOf(u) == -1) {
-											this.userJoin(u, channels[i]);
-										}
+									if(this.botsLogins.indexOf(u) == -1) {
+										this.userJoin(u, channels[i]);
 									}
 									this.onlineUsers.push(u);
 								}
@@ -192,7 +190,7 @@ export default class IRCClient extends EventDispatcher {
 							StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 						}
 					}
-				}else if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
+				}else {
 					//Ignore bots
 					if(this.botsLogins.indexOf(user) == -1) {
 						this.userJoin(user, channel);
@@ -213,11 +211,9 @@ export default class IRCClient extends EventDispatcher {
 				if(index > -1) {
 					this.onlineUsers.splice(index, 1);
 				}
-				if(StoreProxy.store.state.params.features.notifyJoinLeave.value === true) {
-					//Ignore bots
-					if(this.botsLogins.indexOf(user) == -1) {
-						this.userLeave(user, channel);
-					}
+				//Ignore bots
+				if(this.botsLogins.indexOf(user) == -1) {
+					this.userLeave(user, channel);
 				}
 				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
 			});
@@ -513,8 +509,8 @@ export default class IRCClient extends EventDispatcher {
 			data.firstMessage = true;
 			this.uidsGreeted[key] = true;
 			this.greetHistory.push({d:Date.now(), uid:key});
+			Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
 		}
-		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
@@ -565,9 +561,9 @@ export default class IRCClient extends EventDispatcher {
 			this.greetHistory.push({d:Date.now(), uid});
 			this.uidsGreeted[uid] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
+			Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
 		}
 		
-		Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000));//Keep only the last 2000 greetings
 		
 		//This line avoids an edge case issue.
 		//If the current TMI client sends messages super fast (some ms between each message),
@@ -698,6 +694,8 @@ export default class IRCClient extends EventDispatcher {
 	*******************/
 
 	private userJoin(user:string, channel:string):void {
+		if(this.onlineUsers.indexOf(user) > -1) return;
+		
 		this.joinSpool.push(user);
 		clearTimeout(this.joinSpoolTimeout);
 		

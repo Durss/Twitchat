@@ -35,7 +35,7 @@ import Store from './Store';
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 5,
+		latestUpdateIndex: 6,
 		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
@@ -1642,7 +1642,8 @@ const store = createStore({
 					}
 
 					//check if it's a chat alert command
-					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)) {
+					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)
+					&& state.params.features.alertMode.value === true) {
 						if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 							let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
 							//Remove command from message to make later things easier
@@ -1683,20 +1684,23 @@ const store = createStore({
 				const data = event.data as IRCEventDataList.JoinList;
 				const users = data.users;
 
-				const usersClone = users.concat();
-				const join = usersClone.splice(0, 30);
-				let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
-				if(usersClone.length > 0) {
-					message += " and <mark>"+usersClone.length+"</mark> more";
-				}else{
-					message = message.replace(/,([^,]*)$/, " and$1");
+				if(state.params.features.notifyJoinLeave.value === true) {
+					const usersClone = users.concat();
+					const join = usersClone.splice(0, 30);
+					let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
+					if(usersClone.length > 0) {
+						message += " and <mark>"+usersClone.length+"</mark> more";
+					}else{
+						message = message.replace(/,([^,]*)$/, " and$1");
+					}
+					message += " joined the chat room";
+					IRCClient.instance.sendNotice("online", message, data.channel);
 				}
-				message += " joined the chat room";
-				IRCClient.instance.sendNotice("online", message, data.channel);
 
-				//If non followers highlight option is enabled, get gollow state of
+				//If non followers highlight option is enabled, get follow state of
 				//all the users that joined
 				if(state.params.appearance.highlightNonFollowers.value === true) {
+					console.log("LOAD STATES", data);
 					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
 					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
 					for (let i = 0; i < usersFull.length; i++) {
@@ -1716,18 +1720,19 @@ const store = createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.LEAVE, async (event:IRCEvent) => {
-				const data = event.data as IRCEventDataList.LeaveList;
-				const users = data.users;
-
-				const leave = users.splice(0, 30);
-				let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
-				if(users.length > 0) {
-					message += " and <mark>"+users.length+"</mark> more";
-				}else{
-					message = message.replace(/,([^,]*)$/, " and$1");
+				if(state.params.features.notifyJoinLeave.value === true) {
+					const data = event.data as IRCEventDataList.LeaveList;
+					const users = data.users;
+					const leave = users.splice(0, 30);
+					let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
+					if(users.length > 0) {
+						message += " and <mark>"+users.length+"</mark> more";
+					}else{
+						message = message.replace(/,([^,]*)$/, " and$1");
+					}
+					message += " left the chat room";
+					IRCClient.instance.sendNotice("offline", message, data.channel);
 				}
-				message += " left the chat room";
-				IRCClient.instance.sendNotice("offline", message, data.channel);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
