@@ -169,7 +169,7 @@ export default class Store {
 		}
 		
 		return new Promise((resolve) => {
-			this.saveTO = window.setTimeout(async () => {
+			this.saveTO = setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
 				//Do not save sensitive data to server
 				delete data[this.OBS_PASS];

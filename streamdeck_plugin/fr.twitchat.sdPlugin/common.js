@@ -73,7 +73,7 @@ const loadLocalization = (lang, pathPrefix, cb) => {
 
 var Utils = {
     sleep: function (milliseconds) {
-        return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
     },
     isUndefined: function (value) {
         return typeof value === 'undefined';
@@ -235,7 +235,7 @@ Utils.debounce = function (func, wait = 100) {
     let timeout;
     return function (...args) {
         clearTimeout(timeout);
-        timeout = window.setTimeout(() => {
+        timeout = setTimeout(() => {
             func.apply(this, args);
         }, wait);
     };

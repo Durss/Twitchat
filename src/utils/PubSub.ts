@@ -140,7 +140,7 @@ export default class PubSub extends EventDispatcher{
 				// alert('[close] Connection died');
 			}
 			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = window.setTimeout(()=>{
+			this.reconnectTimeout = setTimeout(()=>{
 				this.connect();
 			}, 1000);
 		};
@@ -403,7 +403,7 @@ export default class PubSub extends EventDispatcher{
 		}else if(data.type == "raid_go_v2") {
 			if(StoreProxy.store.state.params.features.stopStreamOnRaid.value === true) {
 				clearTimeout(this.raidTimeout)
-				this.raidTimeout = window.setTimeout(() => {
+				this.raidTimeout = setTimeout(() => {
 					OBSWebsocket.instance.stopStreaming();
 				}, 1000);
 			}
@@ -427,7 +427,7 @@ export default class PubSub extends EventDispatcher{
 				},
 			});
 			
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				//Automatically hide the boost after a few seconds
 				StoreProxy.store.dispatch("setCommunityBoost", null);
 			}, 30000);
@@ -734,7 +734,7 @@ export default class PubSub extends EventDispatcher{
 		};
 		StoreProxy.store.dispatch("setHypeTrain", train);
 		//Hide "hypetrain approaching" notification if expired
-		this.hypeTrainApproachingTimer = window.setTimeout(()=> {
+		this.hypeTrainApproachingTimer = setTimeout(()=> {
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, train.timeLeft * 1000);
 	}
@@ -805,7 +805,7 @@ export default class PubSub extends EventDispatcher{
 		}
 		StoreProxy.store.dispatch("setHypeTrain", storeData);
 		
-		window.setTimeout(()=> {
+		setTimeout(()=> {
 			//Hide hype train popin
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, 20000)

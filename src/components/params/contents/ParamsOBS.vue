@@ -173,7 +173,7 @@ export default class ParamsOBS extends Vue {
 			this.paramUpdate();
 			this.connected = true;
 			this.connectSuccess = true;
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				this.connectSuccess = false;
 				this.openConnectForm = false;
 			}, 3000);

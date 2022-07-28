@@ -91,7 +91,7 @@ export default class DeezerState extends Vue {
 		watch(()=> this.search, ()=> {
 			this.searching = true;
 			clearTimeout(this.searchDebounce);
-			this.searchDebounce = window.setTimeout(()=> {
+			this.searchDebounce = setTimeout(()=> {
 				this.searchTrack();
 			}, 500);
 		});

@@ -362,7 +362,7 @@ export default class Chat extends Vue {
 				if(res.length > 0) {
 					this.canStartAd = false;
 					this.startAdCooldown = Date.now() + res.retry_after * 1000;
-					window.setTimeout(()=>{
+					setTimeout(()=>{
 						this.canStartAd = true;
 						this.startAdCooldown = 0;
 					}, this.startAdCooldown);

@@ -150,7 +150,7 @@ export default class DeezerHelper extends EventDispatcher{
 				window.addEventListener("mouseenter", onFocus);
 				
 				const onBlur = () => {
-					window.setTimeout(() => {
+					setTimeout(() => {
 						if(!document.activeElement) return;
 						if (document.activeElement.tagName === "IFRAME") {
 							this.userInteracted = true;
@@ -239,7 +239,7 @@ export default class DeezerHelper extends EventDispatcher{
 			e.async = true;
 			e.onload = ()=> {
 				//Cleanup DOM
-				window.setTimeout(()=> {
+				setTimeout(()=> {
 					document.body.removeChild(e);
 				}, 1000)
 			}

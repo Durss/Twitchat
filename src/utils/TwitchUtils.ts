@@ -473,7 +473,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
 			StoreProxy.store.dispatch("setPolls", {data:json.data});
@@ -541,7 +541,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
 			StoreProxy.store.dispatch("setPredictions", json.data);

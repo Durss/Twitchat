@@ -485,7 +485,7 @@ const store = createStore({
 			
 				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(state.refreshTokenTO);
-				state.refreshTokenTO = window.setTimeout(()=>{
+				state.refreshTokenTO = setTimeout(()=>{
 					store.dispatch("authenticate", {forceRefresh:true});
 				}, delay);
 				
@@ -1033,7 +1033,7 @@ const store = createStore({
 			//IF reaching this point, it's most probably because 
 			if(payload.retryCount != 5) {
 				const retryCount = payload.retryCount? payload.retryCount++ : 1;
-				window.setTimeout(()=>{
+				setTimeout(()=>{
 					//@ts-ignore (typings seems wrong, this line is actually correct)
 					this.commit("flagLowTrustMessage", {data:payload.data, retryCount})
 				}, 100);
@@ -1558,7 +1558,7 @@ const store = createStore({
 							//it just after receiving a message.
 							//If we didn't wait for a frame, the message would be sent properly
 							//but wouldn't appear on this chat.
-							window.setTimeout(()=> {
+							setTimeout(()=> {
 								let message = state.botMessages.bingo.message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);
