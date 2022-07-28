@@ -1840,6 +1840,7 @@ const store = createStore({
 
 			//Authenticate user
 			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
+			let authenticated = false;
 			if(token && payload.authenticate) {
 				const cypherKey = Store.get(Store.CYPHER_KEY)
 				TwitchCypherPlugin.instance.initialize(cypherKey);
@@ -1894,19 +1895,20 @@ const store = createStore({
 					await Store.loadRemoteData();
 				}
 	
-				this.dispatch("loadDataFromStorage");
-	
 				const devmode = Store.get(Store.DEVMODE) === "true";
 				this.dispatch("toggleDevMode", devmode);
 				this.dispatch("sendTwitchatAd");
+				authenticated = true;
 			}
+	
+			this.dispatch("loadDataFromStorage", authenticated);
 			
 			state.initComplete = true;
 			
 			payload.callback();
 		},
 		
-		loadDataFromStorage({state}) {
+		loadDataFromStorage({state}, authenticated) {
 			//Loading parameters from local storage and pushing them to current store
 			const props = Store.getAll();
 			for (const cat in state.params) {
@@ -1985,6 +1987,12 @@ const store = createStore({
 			if(presets) {
 				state.streamInfoPreset = JSON.parse(presets);
 			}
+
+			//Init emergency followers
+			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
+			if(emergencyFollows) {
+				state.emergencyFollows = JSON.parse(emergencyFollows);
+			}
 			
 			//Load bot messages
 			const botMessages = Store.get(Store.BOT_MESSAGES);
@@ -2008,17 +2016,19 @@ const store = createStore({
 				}
 				state.botMessages = (remoteMessages as unknown) as IBotMessage;
 			}
-	
-			//Init spotify connection
-			const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
-			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
-			}
 
-			//Init spotify credentials
-			const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
-			if(spotifyAuthToken && spotifyAppParams) {
-				this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+			if(authenticated) {
+				//Init spotify connection
+				const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
+				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
+					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+				}
+
+				//Init spotify credentials
+				const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
+				if(spotifyAuthToken && spotifyAppParams) {
+					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+				}
 			}
 			
 			//Init OBS connection
@@ -2031,12 +2041,6 @@ const store = createStore({
 			if(!ip) ip = Store.get(Store.OBS_IP);
 			if(port != undefined || pass != undefined || ip != undefined) {
 				OBSWebsocket.instance.connect(port, pass, true, ip);
-			}
-
-			//Init emergency followers
-			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
-			if(emergencyFollows) {
-				state.emergencyFollows = JSON.parse(emergencyFollows);
 			}
 		},
 		
