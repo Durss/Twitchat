@@ -228,6 +228,7 @@ export default class SpotifyHelper extends EventDispatcher {
 		let res!:Response;
 		try {
 			res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
+			if(res.status > 401) throw("error");
 		}catch(error) {
 			//API crashed, try again 5s later
 			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
