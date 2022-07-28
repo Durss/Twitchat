@@ -489,7 +489,7 @@ const store = createStore({
 			
 				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(state.refreshTokenTO);
-				state.refreshTokenTO = window.setTimeout(()=>{
+				state.refreshTokenTO = setTimeout(()=>{
 					store.dispatch("authenticate", {forceRefresh:true});
 				}, delay);
 				
@@ -1037,7 +1037,7 @@ const store = createStore({
 			//IF reaching this point, it's most probably because 
 			if(payload.retryCount != 5) {
 				const retryCount = payload.retryCount? payload.retryCount++ : 1;
-				window.setTimeout(()=>{
+				setTimeout(()=>{
 					//@ts-ignore (typings seems wrong, this line is actually correct)
 					this.commit("flagLowTrustMessage", {data:payload.data, retryCount})
 				}, 100);
@@ -1489,6 +1489,7 @@ const store = createStore({
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
 			});
+			PublicAPI.instance.initialize();
 
 			//Overwrite store data from URL
 			const queryParams = Utils.getQueryParameterByName("params");
@@ -1571,7 +1572,7 @@ const store = createStore({
 							//it just after receiving a message.
 							//If we didn't wait for a frame, the message would be sent properly
 							//but wouldn't appear on this chat.
-							window.setTimeout(()=> {
+							setTimeout(()=> {
 								let message = state.botMessages.bingo.message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);
@@ -1853,6 +1854,7 @@ const store = createStore({
 
 			//Authenticate user
 			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
+			let authenticated = false;
 			if(token && payload.authenticate) {
 				const cypherKey = Store.get(Store.CYPHER_KEY)
 				TwitchCypherPlugin.instance.initialize(cypherKey);
@@ -1869,7 +1871,6 @@ const store = createStore({
 					this.dispatch("setDeezerConnected", false);
 					state.alert = "Deezer authentication failed";
 				});
-				PublicAPI.instance.initialize();
 
 				try {
 					await new Promise((resolve,reject)=> {
@@ -1908,19 +1909,20 @@ const store = createStore({
 					await Store.loadRemoteData();
 				}
 	
-				this.dispatch("loadDataFromStorage");
-	
 				const devmode = Store.get(Store.DEVMODE) === "true";
 				this.dispatch("toggleDevMode", devmode);
 				this.dispatch("sendTwitchatAd");
+				authenticated = true;
 			}
+	
+			this.dispatch("loadDataFromStorage", authenticated);
 			
 			state.initComplete = true;
 			
 			payload.callback();
 		},
 		
-		loadDataFromStorage({state}) {
+		loadDataFromStorage({state}, authenticated) {
 			//Loading parameters from local storage and pushing them to current store
 			const props = Store.getAll();
 			for (const cat in state.params) {
@@ -1999,6 +2001,12 @@ const store = createStore({
 			if(presets) {
 				state.streamInfoPreset = JSON.parse(presets);
 			}
+
+			//Init emergency followers
+			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
+			if(emergencyFollows) {
+				state.emergencyFollows = JSON.parse(emergencyFollows);
+			}
 			
 			//Init OBS permissions
 			const voiceActions = Store.get("voiceActions");
@@ -2035,17 +2043,19 @@ const store = createStore({
 				}
 				state.botMessages = (remoteMessages as unknown) as IBotMessage;
 			}
-	
-			//Init spotify connection
-			const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
-			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-				this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
-			}
 
-			//Init spotify credentials
-			const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
-			if(spotifyAuthToken && spotifyAppParams) {
-				this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+			if(authenticated) {
+				//Init spotify connection
+				const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
+				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
+					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+				}
+
+				//Init spotify credentials
+				const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
+				if(spotifyAuthToken && spotifyAppParams) {
+					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+				}
 			}
 			
 			//Init OBS connection
@@ -2058,12 +2068,6 @@ const store = createStore({
 			if(!ip) ip = Store.get(Store.OBS_IP);
 			if(port != undefined || pass != undefined || ip != undefined) {
 				OBSWebsocket.instance.connect(port, pass, true, ip);
-			}
-
-			//Init emergency followers
-			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
-			if(emergencyFollows) {
-				state.emergencyFollows = JSON.parse(emergencyFollows);
 			}
 		},
 		

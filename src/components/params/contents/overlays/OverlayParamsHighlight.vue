@@ -129,7 +129,7 @@ export default class OverlayParamsHighlight extends Vue {
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
 			clearTimeout(this.subcheckTimeout);
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = window.setTimeout(()=>{
+			this.subcheckTimeout = setTimeout(()=>{
 				this.overlayExists = false;
 			}, 1500);
 		}, 2000);

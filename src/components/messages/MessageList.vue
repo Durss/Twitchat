@@ -622,7 +622,7 @@ export default class MessageList extends Vue {
 		message = message.replace(/<[^>]*>/gim, "");//Strip HTML tags
 		this.ariaMessage = message;
 		clearTimeout(this.ariaMessageTimeout);
-		this.ariaMessageTimeout = window.setTimeout(()=> {
+		this.ariaMessageTimeout = setTimeout(()=> {
 			this.ariaMessage = "";
 		}, 10000);
 	}
@@ -661,7 +661,7 @@ export default class MessageList extends Vue {
 		if(this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
-		this.openConvTimeout = window.setTimeout(async ()=> {
+		this.openConvTimeout = setTimeout(async ()=> {
 			this.conversationMode = false;
 	
 			let messageList:IRCEventDataList.Message[] = [];
@@ -703,7 +703,7 @@ export default class MessageList extends Vue {
 		if(this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
-		this.closeConvTimeout = window.setTimeout(()=>{
+		this.closeConvTimeout = setTimeout(()=>{
 			this.conversation = [];
 			const mainHolder = this.$refs.messageHolder as HTMLDivElement;
 			gsap.to(mainHolder, {opacity:1, duration:.25});

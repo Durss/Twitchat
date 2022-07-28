@@ -1,17 +1,19 @@
 <template>
 	<div :class="classes">
 		<transition name="slide">
-			<div class="content" v-if="isPlaying">
+			<div class="content" v-if="isPlaying" id="music_holder">
 				<img :src="cover" class="cover" id="music_cover">
 				<div class="infos">
-					<Vue3Marquee :duration="duration" class="trackHolder" :clone="true">
-						<div class="track">
-							<div class="artist" id="music_artist">{{artist}}</div>
-							<div class="title" id="music_title">{{track}}</div>
-						</div>
-					</Vue3Marquee>
+					<div id="music_infos" class="trackHolder">
+						<Vue3Marquee :duration="duration" :clone="true">
+							<div class="track">
+								<div class="artist" id="music_artist">{{artist}}</div>
+								<div class="title" id="music_title">{{track}}</div>
+							</div>
+						</Vue3Marquee>
+					</div>
 					<div class="progressbar" ref="progressbar" id="music_progress" @click="onSeek($event)">
-						<div class="fill" :style="progressStyles"></div>
+						<div class="fill" id="music_progress_fill" :style="progressStyles"></div>
 					</div>
 				</div>
 			</div>
@@ -238,17 +240,18 @@ export default class OverlayMusicPlayer extends Vue {
 				justify-content: center;
 				.track {
 					display: flex;
-					flex-direction: column;
+					flex-direction: column-reverse;
 					.artist, .title {
 						padding-right: 10vw;
 						display: flex;
 					}
 					.artist {
 						font-weight: bold;
+						font-size: .8em;
 						align-items: flex-end;
 					}
 					.title {
-						font-size: .8em;
+						font-weight: bold;
 						align-items: flex-start;
 					}
 				}

@@ -78,7 +78,7 @@ export default class InfiniteList extends Vue {
 
 	private scheduleRender():void {
 		clearTimeout(this.renderDebounce);
-		this.renderDebounce = window.setTimeout(()=>{
+		this.renderDebounce = setTimeout(()=>{
 			this.renderList();
 		},0)
 	}

@@ -292,7 +292,7 @@ export default class IRCClient extends EventDispatcher {
 					//Track the user
 					StoreProxy.store.dispatch("trackUser", message);
 					//Untrack the user after 5 minutes
-					window.setTimeout(()=> {
+					setTimeout(()=> {
 						StoreProxy.store.dispatch("untrackUser", message.tags);
 					}, 5 * 60 * 1000);
 				}
@@ -342,7 +342,7 @@ export default class IRCClient extends EventDispatcher {
 							//That darn TMI parses the "badges" and "badge-info" props right after
 							//dispatching the "raw_message" event. Which fucks up the message display.
 							//Let's wait a frame so the props are parsed and everything works fine! Love it!
-							window.setTimeout(() => {
+							setTimeout(() => {
 								this.addMessage(params[1], tags, params[0] == this.channel);
 							},0)
 						}
@@ -699,7 +699,7 @@ export default class IRCClient extends EventDispatcher {
 		this.joinSpool.push(user);
 		clearTimeout(this.joinSpoolTimeout);
 		
-		this.joinSpoolTimeout = window.setTimeout(() => {
+		this.joinSpoolTimeout = setTimeout(() => {
 			const data:IRCEventDataList.JoinList = {
 				type:"join",
 				channel,
@@ -714,7 +714,7 @@ export default class IRCClient extends EventDispatcher {
 		this.partSpool.push(user);
 		clearTimeout(this.partSpoolTimeout);
 		
-		this.partSpoolTimeout = window.setTimeout(() => {
+		this.partSpoolTimeout = setTimeout(() => {
 			const data:IRCEventDataList.LeaveList = {
 				type:"leave",
 				channel,

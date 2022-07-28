@@ -32,10 +32,13 @@
 				<ToggleBlock small title="CSS customization" :open="false">
 					<div>You can change the appearance of the player by overriding these CSS IDs on OBS browser source params</div>
 					<ul>
+						<li>#music_holder { ... }</li>
 						<li>#music_cover { ... }</li>
+						<li>#music_infos { ... }</li>
 						<li>#music_title { ... }</li>
 						<li>#music_artist { ... }</li>
 						<li>#music_progress { ... }</li>
+						<li>#music_progress_fill { ... }</li>
 					</ul>
 				</ToggleBlock>
 				

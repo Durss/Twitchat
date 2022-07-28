@@ -69,7 +69,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		}catch(error) {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = window.setTimeout(()=> {
+				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -81,7 +81,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.connected = false;
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = window.setTimeout(()=> {
+				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -140,7 +140,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		if(!this.connected) {
 			//Try again
-			window.setTimeout(()=> this.broadcast(type, data), 1000);
+			setTimeout(()=> this.broadcast(type, data), 1000);
 			return;
 		}
 
