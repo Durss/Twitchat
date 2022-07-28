@@ -4,12 +4,14 @@
 			<div class="content" v-if="isPlaying" id="music_holder">
 				<img :src="cover" class="cover" id="music_cover">
 				<div class="infos">
-					<Vue3Marquee :duration="duration" class="trackHolder" :clone="true">
-						<div class="track" id="music_infos">
-							<div class="artist" id="music_artist">{{artist}}</div>
-							<div class="title" id="music_title">{{track}}</div>
-						</div>
-					</Vue3Marquee>
+					<div id="music_infos" class="trackHolder">
+						<Vue3Marquee :duration="duration" :clone="true">
+							<div class="track">
+								<div class="artist" id="music_artist">{{artist}}</div>
+								<div class="title" id="music_title">{{track}}</div>
+							</div>
+						</Vue3Marquee>
+					</div>
 					<div class="progressbar" ref="progressbar" id="music_progress" @click="onSeek($event)">
 						<div class="fill" id="music_progress_fill" :style="progressStyles"></div>
 					</div>
