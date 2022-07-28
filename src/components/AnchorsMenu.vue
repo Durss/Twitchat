@@ -161,4 +161,18 @@ export default class AnchorsMenu extends Vue {
 		}
 	}
 }
+@media only screen and (max-width: 900px) {
+	.anchorsmenu{
+		padding-left: 0;
+		.item {
+
+			button {
+				.label {
+					display: none;
+				}
+			}
+		}
+	}
+
+}
 </style>

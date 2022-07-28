@@ -691,7 +691,7 @@ export default class Home extends Vue {
 				max-width: 42%;
 				flex-grow: 1;
 				text-align: center;
-				font-size: 3vw;
+				font-size: min(2em, 3vw);
 				z-index: 1;
 				// padding-left: calc(30vw + 1em);
 				h2 {
@@ -699,7 +699,7 @@ export default class Home extends Vue {
 				}
 
 				.description {
-					font-size: .5em;
+					font-size: .6em;
 					
 					mark {
 						background-color: @mainColor_normal;
@@ -790,7 +790,21 @@ export default class Home extends Vue {
 
 @media only screen and (max-width: 900px) {
 	.home {
+
+		.aboveTheFold {
+			.middle {
+				.description {
+					width: calc(100% - 2.5em);
+				}
+				.ctas {
+					margin: auto;
+					width: calc(100% - 4em);
+				}
+			}
+		}
 		.sectionsHolder {
+			width: calc(100% - 4em);
+			margin: auto;
 			section, section:nth-of-type(odd) {
 				.content {
 					flex-direction: column-reverse;
@@ -800,7 +814,7 @@ export default class Home extends Vue {
 					padding-bottom: 1em;
 				}
 				.infos {
-					font-size: max(1.75em, 5vw);
+					font-size: max(1.8em, 5vw);
 					width: 100%;
 					max-width: 100%;
 					margin-bottom: 1em;
