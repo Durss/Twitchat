@@ -31,7 +31,7 @@
 				</div>
 
 				<!-- Sublist -->
-				<div v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 1"
+				<div v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 0"
 				v-for="e in subevent_conf.listValues" :key="(e.value as string)" class="item">
 					<Button :class="getSubListClasses(e)"
 						white
