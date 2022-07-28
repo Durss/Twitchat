@@ -299,7 +299,7 @@
 			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
 		
-		<AnchorsMenu :items="anchors" @select="onSelectAnchor" />
+		<AnchorsMenu :items="anchors" @select="onSelectAnchor" openAnimaton :openDelay="1" />
 	</div>
 </template>
 

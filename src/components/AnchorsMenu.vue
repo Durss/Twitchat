@@ -3,7 +3,8 @@
 		<div v-for="(a, i) in items" :key="i" :class="getClasses(a)"
 		@mouseenter="mouseEnter"
 		@mouseleave="mouseLeave"
-		@click="selectItem(a)">
+		@click="selectItem(a)"
+		ref="item">
 			<button>
 				<img :src="a.icon" class="icon">
 				<div class="label">{{a.label}}</div>
@@ -23,6 +24,14 @@ import { Options, Vue } from 'vue-class-component';
 		items:{
 			type:Array,
 			default:[],
+		},
+		openAnimaton:{
+			type:Boolean,
+			default:false,
+		},
+		openDelay:{
+			type:Number,
+			default:0,
 		}
 	},
 	components:{},
@@ -31,6 +40,8 @@ import { Options, Vue } from 'vue-class-component';
 export default class AnchorsMenu extends Vue {
 
 	public items!:AnchorData[];
+	public openAnimaton!:boolean;
+	public openDelay!:number;
 
 	public getClasses(a:AnchorData):string[] {
 		let res = ["item"];
@@ -47,6 +58,10 @@ export default class AnchorsMenu extends Vue {
 	private resetRender():void{
 		const labels = (this.$el as HTMLDivElement).querySelectorAll(".label");
 		gsap.set(labels, {padding:0, margin:0, width:0});
+		if(this.openAnimaton !== false) {
+			const delay = this.openDelay ?? 0;
+			gsap.from(this.$refs.item as HTMLDivElement[], {duration:.3, x:-50, stagger:0.035, ease:"back.out(3)", delay});
+		}
 	}
 
 	public mouseEnter(event:MouseEvent):void {
@@ -99,7 +114,7 @@ export default class AnchorsMenu extends Vue {
 		min-width: @size;
 		height: @size;
 		cursor: pointer;
-		transition: all .25s;
+		transition: margin .25s, height .25s, min-width .25s;
 	
 		button {
 			margin: 0;
