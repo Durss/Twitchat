@@ -317,3 +317,10 @@ export interface ChatAlertInfo {
 	type:"chatAlert",
 	message:unknown,//The proper type should be IRCEventDataList.Message; but to avoid circular imports i've set it to unknown -_-
 }
+
+export interface AnchorData {
+	label:string;
+	icon:string;
+	div:HTMLElement;
+	selected:boolean;
+}

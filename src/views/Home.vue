@@ -1,5 +1,6 @@
 <template>
 	<div class="home">
+		<div class="gradient"></div>
 		<div class="aboveTheFold">
 			<div class="logo" ref="logo">
 				<img src="@/assets/logo.svg" alt="Twitchat">
@@ -18,6 +19,16 @@
 					:to="{name:'login'}"
 					class="loginBt"
 					:icon="$image('icons/twitch.svg')"
+					v-if="!hasAuthToken"
+				/>
+				<Button title="Open Twitchat"
+					white
+					big
+					ref="loginBt"
+					class="loginBt"
+					:icon="$image('icons/twitch.svg')"
+					@click="redirectToChat()"
+					v-if="hasAuthToken"
 				/>
 		
 				<div class="ctas" ref="ctas">
@@ -48,7 +59,7 @@
 				</div>
 			</div>
 	
-			<div class="splitter" ref="featuresTitle">Features<br><img src="@/assets/img/homepage/scrollDown.svg" alt="scroll down"></div>
+			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0])">Features<br><img src="@/assets/img/homepage/scrollDown.svg" alt="scroll down"></div>
 			<!-- <Splitter class="splitter" title="Checkout some features"></Splitter> -->
 		</div>
 
@@ -287,29 +298,39 @@
 			ref="letter"
 			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
+		
+		<AnchorsMenu :items="anchors" @select="onSelectAnchor" />
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import router from '@/router';
+import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
+import type {AnchorData} from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../components/Splitter.vue';
+import AnchorsMenu from '../components/AnchorsMenu.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		Splitter,
+		AnchorsMenu,
 	}
 })
 export default class Home extends Vue {
 
+	public anchors:AnchorData[] = [];
+
 	private index = 0;
 	private disposed = false;
 
+	public get hasAuthToken():boolean { return Store.get(Store.TWITCH_AUTH_TOKEN) != null; }
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
@@ -324,13 +345,18 @@ export default class Home extends Vue {
 
 		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
 
+		let anchors:AnchorData[] = [];
 		for(let i = 0; i < divs.length; i++) {
-			observer.observe(divs[i]);
-			const icon = (divs[i] as HTMLDivElement).querySelector(".content>.icon");
+			const div = divs[i] as HTMLDivElement
+			observer.observe(div);
+			const icon = div.querySelector(".content>.icon") as HTMLImageElement;
 			if(icon) {
 				gsap.set(icon, {scale:0});
 			}
+			const label = div.querySelector("h2")?.innerText ?? "";
+			anchors.push({div, label, icon:icon.src, selected:false});
 		}
+		this.anchors = anchors;
 
 		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
 		await this.$nextTick();
@@ -357,26 +383,40 @@ export default class Home extends Vue {
 		(video.parentElement as HTMLDivElement).classList.remove("clickToPlay");
 	}
 
+	public redirectToChat():void {
+		let url = document.location.origin;
+		url += router.resolve({name:"chat"}).href;
+		window.location.href = url;
+	}
+
+	public onSelectAnchor(data:AnchorData):void {
+		const offsetY = (window.innerHeight - data.div.getBoundingClientRect().height) / 2;
+		const scrollable = (this.$el as HTMLDivElement).parentNode;
+		gsap.to(scrollable, {duration: 1, scrollTo: {y:data.div, offsetY}, ease:"sine.inOut"});
+	}
+
 	private showItem(entries: IntersectionObserverEntry[], observer: IntersectionObserver):void {
 		for (let i = 0; i < entries.length; i++) {
 			const e = entries[i];
 			const target = e.target as HTMLElement;
-			if(e.isIntersecting && !target.dataset["done"]) {
-				target.dataset["done"] = "1";
-				
-				gsap.to(e.target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
-				gsap.to(e.target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
-				const screen = e.target.getElementsByClassName("screen")[0];
-
-				if(screen) {
-					gsap.to(screen, {duration:1.5, opacity:1, y:0, ease:"back.out(2)"});
-				}
-
-				const video = e.target.getElementsByTagName("video")[0];
-				if(video) {
-					video.play().catch(()=>{
-						(video.parentElement as HTMLDivElement).classList.add("clickToPlay");
-					});
+			if(e.isIntersecting) {
+				if(!target.dataset["done"]) {
+					target.dataset["done"] = "1";
+					
+					gsap.to(target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
+					gsap.to(target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
+					const screen = target.getElementsByClassName("screen")[0];
+	
+					if(screen) {
+						gsap.to(screen, {duration:1.5, opacity:1, y:0, ease:"back.out(2)"});
+					}
+	
+					const video = target.getElementsByTagName("video")[0];
+					if(video) {
+						video.play().catch(()=>{
+							(video.parentElement as HTMLDivElement).classList.add("clickToPlay");
+						});
+					}
 				}
 			}
 		}
@@ -385,6 +425,22 @@ export default class Home extends Vue {
 	private moveLetters():void {
 		if(this.disposed) return
 		requestAnimationFrame(()=> this.moveLetters());
+
+		const center = window.innerHeight / 2;
+		let closestPosToCenter = 99999999;
+		let closestToCenter:AnchorData|null = null;
+		for (let i = 0; i < this.anchors.length; i++) {
+			const a = this.anchors[i];
+			const bounds = a.div.getBoundingClientRect();
+			const py = bounds.top + bounds.height * .5;
+			const dist = Math.abs(py - center);
+			if(dist < closestPosToCenter && dist < center) {
+				closestPosToCenter = dist;
+				closestToCenter = a;
+			}
+			a.selected = false;
+		}
+		if(closestToCenter) closestToCenter.selected = true;
 
 		const letters = this.$refs.letter as HTMLImageElement[];
 		for (let i = 0; i < letters.length; i++) {
@@ -413,15 +469,23 @@ export default class Home extends Vue {
 	text-align: center;
 	color: @mainColor_light;
 	min-height: 100%;
-	// background-image: url("../assets/img/homepage.jpg");
-	background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, @mainColor_dark 100%);
-	background-size: 100% 100vh;
-	background-repeat: no-repeat;
-	background-position: top center;
+	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
 	padding-bottom: 2em;
 	position: relative;
 	overflow: hidden;
+
+	.gradient {
+		background: linear-gradient(180deg, fade(darken(@mainColor_normal, 10%), 50%) 0%, fade(@mainColor_normal, 0%) 100%);
+		background-size: 100% 100vh;
+		background-repeat: no-repeat;
+		background-position: top center;
+		width: 100%;
+		height: 100vh;
+		position: absolute;
+		top:0;
+		left:0;
+	}
 
 	.aboveTheFold {
 		height: 100vh;
@@ -483,9 +547,20 @@ export default class Home extends Vue {
 			display: block;
 			margin: 0 auto;
 			font-weight: bold;
+			cursor: pointer;
+			position: relative;
+			padding-bottom: 1em;
 			img {
 				margin-top: .5em;
 				width: 1em;
+				transform: translate(-50%);
+				position: absolute;
+				transition: all .5s ease-in-out;
+			}
+			&:hover {
+				img {
+					margin-top: .75em;
+				}
 			}
 		}
 	}
@@ -500,10 +575,11 @@ export default class Home extends Vue {
 	}
 
 	.sectionsHolder {
+		//draw middle line
 		background: linear-gradient(90deg, fade(@mainColor_light, 100%) 2px, transparent 1px);
 		background-position: 100% 0;
 		background-repeat: no-repeat;
-		background-size: calc(50% + 1px) calc(100% - 500px);//500px => more or lesse the .more{} holder's size. Avoids seeing the line behind the text on display transition
+		background-size: calc(50% + 1px) calc(100% - 500px);//500px => more or less the .more{} holder's size. Avoids seeing the line behind the text on display transition
 		.splitter {
 			width: 2em;
 			height: 2em;
@@ -641,6 +717,7 @@ export default class Home extends Vue {
 				height: 7em;
 				padding: 1em 3%;
 				display: block;
+				background-image: url("../assets/img/homepage/grain.png");
 				background-color: @mainColor_dark;
 			}
 
@@ -663,6 +740,7 @@ export default class Home extends Vue {
 
 	.more {
 		margin-top: 10vw;
+		background-image: url("../assets/img/homepage/grain.png");
 		background-color: @mainColor_dark;
 		.icon {
 			height: 6em;
@@ -716,11 +794,12 @@ export default class Home extends Vue {
 			section, section:nth-of-type(odd) {
 				.content {
 					flex-direction: column-reverse;
+					background-image: url("../assets/img/homepage/grain.png");
 					background-color: @mainColor_dark;
 					max-width: calc(100% - 1em);
+					padding-bottom: 1em;
 				}
 				.infos {
-					background-color: @mainColor_dark;
 					font-size: max(1.75em, 5vw);
 					width: 100%;
 					max-width: 100%;

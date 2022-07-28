@@ -41,6 +41,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 		//Not authenticated, reroute to login
 		if(needAuth === true) {
 			next({name: 'login'});
+			return;
 		}
 	}
 

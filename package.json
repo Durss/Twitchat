@@ -53,7 +53,6 @@
 		"vue-router": "^4.0.12",
 		"vue-select": "^4.0.0-beta.3",
 		"vue-tsc": "^0.34.7",
-		"vue3-carousel": "^0.1.36",
 		"vue3-marquee": "^3.0.7",
 		"vuedraggable": "^4.1.0",
 		"vuex": "^4.0.2"
