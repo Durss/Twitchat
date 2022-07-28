@@ -1475,6 +1475,7 @@ const store = createStore({
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
 			});
+			PublicAPI.instance.initialize();
 
 			//Overwrite store data from URL
 			const queryParams = Utils.getQueryParameterByName("params");
@@ -1855,7 +1856,6 @@ const store = createStore({
 					this.dispatch("setDeezerConnected", false);
 					state.alert = "Deezer authentication failed";
 				});
-				PublicAPI.instance.initialize();
 
 				try {
 					await new Promise((resolve,reject)=> {
