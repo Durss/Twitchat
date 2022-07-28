@@ -40,7 +40,6 @@ export default class VoiceTranscript extends Vue {
 			}else if(this.show){
 				gsap.killTweensOf(this.$el);
 				const delay = VoiceController.instance.finalText.length * .025;
-				console.log(delay);
 				gsap.to(this.$el, {delay, duration:.25, height:0, paddingTop:0, paddingBottom:0, clearProps:"all", onComplete:()=>{
 					this.show = false;
 				}});

@@ -72,23 +72,23 @@ export default class VoiceController {
 
 			const texts = [];
 			this.tempText = "";
+			let tempText_loc = "";
 			for (let i = event.resultIndex; i < event.results.length; ++i) {
 				if(event.results[i].isFinal) {
 					texts.push(event.results[i][0].transcript);
 					this.finalText = texts[0].replace(this.lastTriggerKey, "");
 				}else{
-					this.tempText += event.results[i][0].transcript;
+					tempText_loc += event.results[i][0].transcript;
 				}
 			}
 
-			this.tempText = this.tempText.toLowerCase();
-			const txt = this.tempText.substring(Math.max(0,this.carretIndex));
+			tempText_loc = tempText_loc.toLowerCase().substring(Math.max(0,this.carretIndex));
 			let isTriggerFound = false;
 			for (const key in this.hashmap) {
-				const index = txt.indexOf(key);
+				const index = tempText_loc.indexOf(key);
 				if(index > -1) {
 					this.lastTriggerKey = key;
-					this.tempText = this.tempText.replace(this.lastTriggerKey, "");
+					tempText_loc = tempText_loc.replace(key, "");
 					this.triggerAction(this.hashmap[key]);
 					this.carretIndex += index + key.length;
 					isTriggerFound = true;
@@ -98,12 +98,14 @@ export default class VoiceController {
 			//Reset carret after temp text is cleared.
 			//Edge is turbo slow to fire the onspeechend event.
 			//This condition is a workaround for that issue.
-			if(this.tempText?.length == 0) {
+			if(tempText_loc?.length == 0) {
 				this.carretIndex = -1;
-			}else 
-			if(!isTriggerFound){
-				this.triggerAction(this.textUpdateAction, {text:txt});
 			}
+
+			tempText_loc = tempText_loc.trim();
+			this.triggerAction(this.textUpdateAction, {text:tempText_loc});
+
+			this.tempText = tempText_loc;
 		}
 		
 		this.recognition.onend = () => {
@@ -183,6 +185,7 @@ export default class VoiceController {
 				}
 			}) 
 		}
+		console.log(this.hashmap);
 	}
 
 	private triggerAction(action:VoiceAction, data?:JsonObject):void {
