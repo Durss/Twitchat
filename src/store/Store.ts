@@ -41,6 +41,7 @@ export default class Store {
 	public static TWITCH_AUTH_TOKEN:string = "oAuthToken";
 	public static SYNC_DATA_TO_SERVER:string = "syncToserver";//GG for the failed camel case -_-
 	public static GREET_HISTORY:string = "greetHistory";
+	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

@@ -930,6 +930,20 @@ const UserDataSchema = {
 				},
 			}
 		},
+		
+		musicPlayerParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				autoHide: {type:"boolean"},
+				erase: {type:"boolean"},
+				showCover: {type:"boolean"},
+				showArtist: {type:"boolean"},
+				showTitle: {type:"boolean"},
+				showProgressbar: {type:"boolean"},
+				openFromLeft: {type:"boolean"},
+			}
+		},
 	}
 }
 

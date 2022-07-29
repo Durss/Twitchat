@@ -57,8 +57,8 @@ export default class AnchorsMenu extends Vue {
 
 	private resetRender():void{
 		const labels = (this.$el as HTMLDivElement).querySelectorAll(".label");
-		gsap.set(labels, {padding:0, margin:0, width:0});
-		if(this.openAnimaton !== false) {
+		if(labels.length > 0) gsap.set(labels, {padding:0, margin:0, width:0});
+		if(this.openAnimaton !== false && this.$refs.item) {
 			const delay = this.openDelay ?? 0;
 			gsap.from(this.$refs.item as HTMLDivElement[], {duration:.3, x:-50, stagger:0.035, ease:"back.out(3)", delay});
 		}

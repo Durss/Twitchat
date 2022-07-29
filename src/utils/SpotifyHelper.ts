@@ -5,6 +5,7 @@ import { EventDispatcher } from "./EventDispatcher";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem, SpotifyTrack, SearchTrackResult, SpotifyAuthToken } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
+import StoreProxy from "./StoreProxy";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -276,13 +277,16 @@ export default class SpotifyHelper extends EventDispatcher {
 					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
 					cover: this.currentTrack.cover,
+					params: StoreProxy.store.state.musicPlayerParams,
 				});
 				this._lastTrackInfo = this.currentTrack;
 
 			}else{
 				//Broadcast to the overlays
 				if(this._lastTrackInfo != null) {
-					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
+					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+						params: StoreProxy.store.state.musicPlayerParams,
+					});
 					this._lastTrackInfo = null;
 				}
 				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);

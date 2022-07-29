@@ -28,7 +28,7 @@ import Utils from '@/utils/Utils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -391,6 +391,17 @@ const store = createStore({
 			},
 		} as AlertParamsData,
 		chatAlert:null as IRCEventDataList.Message|IRCEventDataList.Whisper|null,
+		
+		musicPlayerParams: {
+			autoHide:false,
+			erase:true,
+			showCover:true,
+			showArtist:true,
+			showTitle:true,
+			showProgressbar:true,
+			openFromLeft:false,
+			noScroll:false,
+		} as MusicPlayerParamsData,
 	},
 
 
@@ -1992,6 +2003,12 @@ const store = createStore({
 			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
 			if(emergencyFollows) {
 				state.emergencyFollows = JSON.parse(emergencyFollows);
+			}
+
+			//Init music player params
+			const musicPlayerParams = Store.get(Store.MUSIC_PLAYER_PARAMS);
+			if(musicPlayerParams) {
+				state.musicPlayerParams = JSON.parse(musicPlayerParams);
 			}
 			
 			//Load bot messages
