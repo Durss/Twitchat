@@ -273,16 +273,20 @@ const store = createStore({
 				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData},
 			tts: {
-				speakMessages:	 			{save:true, type:"toggle", value:false, label:"Enable text to speech", id:400},
-				volume: 					{save:true, type:"slider", value:1, label:"Volume", id:401, parent:400, min:0, max:1, step:0.1},
-				rate: 						{save:true, type:"slider", value:1, label:"Speed", id:402, parent:400, min:0.1, max:10, step:0.1},
-				pitch: 						{save:true, type:"slider", value:1, label:"Pitch", id:403, parent:400, min:0, max:2, step:0.1},
-				voice:						{save:true, type:"list", value:'Microsoft Hortense - French (France)', listValues:TTSUtils.instance.getVoices()?.map(x => { return {label:x.name, value:x.name} }), label:"voice", id:404, parent:400},
-				spokenPattern:				{save:true, type:"text", value:'$USER says $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE)", id:405, parent:400},
-				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0=unlimited)", id:406, parent:400, min:0, max:2000, step:10},
-				timeout: 					{save:true, type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", id:407, parent:400, min:0, max:300, step:10},
-				removeURL:		 			{save:true, type:"toggle", value:true, label:"Remove URL", id:408, parent:400},
-				replaceURL:		 			{save:true, type:"text", value:'url', label:"Replace by", id:409, parent:408},
+				ttsEnabled:	 					{save:true, type:"toggle", value:false, label:"Enable text to speech", id:400},
+				volume: 						{save:true, type:"slider", value:1, label:"Volume", id:401, parent:400, min:0, max:1, step:0.1},
+				rate: 							{save:true, type:"slider", value:1, label:"Speed", id:402, parent:400, min:0.1, max:10, step:0.1},
+				pitch: 							{save:true, type:"slider", value:1, label:"Pitch", id:403, parent:400, min:0, max:2, step:0.1},
+				voice:							{save:true, type:"list", value:'Microsoft Hortense - French (France)', listValues:TTSUtils.instance.getVoices()?.map(x => { return {label:x.name, value:x.name} }), label:"voice", id:404, parent:400},
+				ttsRemoveEmotes:				{save:true, type:"toggle", value:true, label:"Speak emotes", id:412, parent:400},
+				spokenPatternmessage:		{save:true, type:"text", value:'$USER says $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:405, parent:400, longText:true},
+				spokenPatternnotice:			{save:true, type:"text", value:'$MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:406, parent:400},
+				spokenPatternwhisper:		{save:true, type:"text", value:'$USER whispers $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:407, parent:400},
+				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0=unlimited)", id:408, parent:400, min:0, max:2000, step:10},
+				timeout: 					{save:true, type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", id:409, parent:400, min:0, max:300, step:10},
+				removeURL:		 			{save:true, type:"toggle", value:true, label:"Remove URL", id:410, parent:400},
+				replaceURL:		 			{save:true, type:"text", value:'url', label:"Replace by", id:411, parent:410},
+				inactivityPeriod:			{save:true, type:"slider", value:5, label:"Inactivity period (minutes)", id:413, parent:400, min:0, max:60, step:1},
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 		roomStatusParams: {
@@ -642,10 +646,6 @@ const store = createStore({
 				state.activityFeed.push(payload as ActivityFeedData);
 			}
 
-			if(state.params.tts.speakMessages.value && messageStr) {
-				TTSUtils.instance.speakText(message.tags['display-name'], messageStr, message);
-			}	
-
 			messages.push( message );
 			state.chatMessages = messages;
 		},
@@ -738,7 +738,7 @@ const store = createStore({
 							SevenTVUtils.instance.disable();
 						}
 					}
-					if(key=="speakMessages") {
+					if(key=="ttsEnabled") {
 						TTSUtils.instance.enable(v as boolean);
 					}
 				}
@@ -777,6 +777,10 @@ const store = createStore({
 			if(index != -1) {
 				state.trackedUsers.splice(index, 1);
 			}
+		},
+
+		tts(state, payload:IRCEventDataList.Message) {
+			TTSUtils.instance.speak(payload);
 		},
 
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
@@ -1520,7 +1524,7 @@ const store = createStore({
 				}
 			});
 
-			TTSUtils.instance.enable(state.params.tts.speakMessages.value as boolean);
+			TTSUtils.instance.enable(state.params.tts.ttsEnabled.value as boolean);
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
@@ -1727,6 +1731,8 @@ const store = createStore({
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
+
+		tts({commit}, payload:IRCEventDataList.Message) { commit("tts", payload); },
 		
 		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
 

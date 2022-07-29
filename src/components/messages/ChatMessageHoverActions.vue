@@ -13,6 +13,12 @@
 			v-if="!isSelf"
 			:loading="shoutoutLoading"
 			/>
+		<Button :aria-label="'TTS'"
+			:icon="$image('icons/tts.svg')"
+			data-tooltip="TTS"
+			@click="tts()"
+			v-if="!isSelf"
+			/>
 	</div>
 </template>
 
@@ -54,6 +60,10 @@ export default class ChatMessageHoverActions extends Vue {
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
+	}
+
+	public tts() {
+		store.dispatch("tts", this.messageData);
 	}
 }
 </script>
