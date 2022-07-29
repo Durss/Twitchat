@@ -99,6 +99,8 @@ export default class OverlayMusicPlayer extends Vue {
 				this.params = obj.params;
 			}
 			if((e.data as {trackName?:string}).trackName) {
+				const prevArtist = this.artist;
+				const prevTitle = this.title;
 				const obj = (e.data as unknown) as 
 							{
 								trackName:string,
@@ -120,9 +122,12 @@ export default class OverlayMusicPlayer extends Vue {
 				gsap.to(this, {duration, progress:1, ease:"linear"});
 
 				if(this.params?.noScroll !== true) {
-					this.resetScrolling = true;
-					await this.$nextTick();
-					this.resetScrolling = false;
+					//If it's a new track, reset the scrolling
+					if(prevArtist != this.artist && prevTitle != this.title) {
+						this.resetScrolling = true;
+						await this.$nextTick();
+						this.resetScrolling = false;
+					}
 				}
 			}else{
 				this.isPlaying = this.params?.autoHide !== false;
