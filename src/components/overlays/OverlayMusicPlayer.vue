@@ -92,10 +92,7 @@ export default class OverlayMusicPlayer extends Vue {
 	public mounted():void {
 		this.onTrackHandler = async (e:TwitchatEvent) => {
 			if(e.data && ((e.data as unknown) as {params:MusicPlayerParamsData}).params){
-				const obj = (e.data as unknown) as 
-							{
-								params:MusicPlayerParamsData,
-							}
+				const obj = (e.data as unknown) as  { params:MusicPlayerParamsData }
 				this.params = obj.params;
 			}
 			if((e.data as {trackName?:string}).trackName) {
@@ -135,7 +132,9 @@ export default class OverlayMusicPlayer extends Vue {
 					this.artist = "no music";
 					this.title = "no music";
 					this.cover = this.$image("img/defaultCover.svg");
-					gsap.killTweensOf(this);
+				}
+				gsap.killTweensOf(this);
+				if(this.params) {
 					this.params.showProgressbar = false;
 				}
 			}
