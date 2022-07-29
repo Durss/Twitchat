@@ -335,3 +335,9 @@ export interface MusicPlayerParamsData {
 	openFromLeft:boolean;
 	noScroll:boolean;
 }
+
+export interface MusicTriggerData {
+	type:"musicEvent";
+	start:boolean;
+	music?:MusicMessage;
+}

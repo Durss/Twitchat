@@ -1,11 +1,14 @@
-import type { MusicMessage } from "@/types/TwitchatDataTypes";
+import type { MusicMessage, MusicTriggerData } from "@/types/TwitchatDataTypes";
+import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import Config from "./Config";
 import { EventDispatcher } from "./EventDispatcher";
+import type { IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem, SpotifyTrack, SearchTrackResult, SpotifyAuthToken } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
 import StoreProxy from "./StoreProxy";
+import TriggerActionHandler from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -252,6 +255,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				if(episode) json = episode;
 			}
 
+
 			this.currentTrack = {
 				type:"music",
 				title:json.item.name,
@@ -269,16 +273,30 @@ export default class SpotifyHelper extends EventDispatcher {
 				this._getTrackTimeout = setTimeout(()=> {
 					this.getCurrentTrack();
 				}, Math.min(5000, delay + 1000));
-
+				
+				//Broadcast to the triggers
+				if(!this._lastTrackInfo
+				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
+				|| this._lastTrackInfo?.title != this.currentTrack.title
+				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
+					const triggerData:MusicTriggerData = {
+						type: "musicEvent",
+						start:true,
+						music:this.currentTrack,
+					}
+					TriggerActionHandler.instance.onMessage(triggerData);
+				}
+				
 				//Broadcast to the overlays
-				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+				const apiData = {
 					trackName: this.currentTrack.title,
 					artistName: this.currentTrack.artist,
 					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
 					cover: this.currentTrack.cover,
-					params: StoreProxy.store.state.musicPlayerParams,
-				});
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
+
 				this._lastTrackInfo = this.currentTrack;
 
 			}else{
@@ -287,6 +305,14 @@ export default class SpotifyHelper extends EventDispatcher {
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
 						params: StoreProxy.store.state.musicPlayerParams,
 					});
+
+					//Broadcast to the triggers
+					const triggerData:MusicTriggerData = {
+						type: "musicEvent",
+						start:false,
+					}
+					TriggerActionHandler.instance.onMessage(triggerData);
+
 					this._lastTrackInfo = null;
 				}
 				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);

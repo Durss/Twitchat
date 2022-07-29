@@ -248,6 +248,8 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.RAID] = "raid_purple";
 		map[TriggerTypes.REWARD_REDEEM] = "channelPoints_purple";
 		map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = "music_purple";
+		map[TriggerTypes.MUSIC_START] = "music_purple";
+		map[TriggerTypes.MUSIC_STOP] = "music_purple";
 		map[TriggerTypes.TIMER_START] = "timer_purple";
 		map[TriggerTypes.TIMER_STOP] = "timer_purple";
 		map[TriggerTypes.COUNTDOWN_START] = "countdown_purple";

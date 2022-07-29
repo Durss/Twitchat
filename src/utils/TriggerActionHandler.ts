@@ -1,4 +1,4 @@
-import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -178,6 +178,11 @@ export default class TriggerActionHandler {
 			if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
+
+		}else if(message.type == "musicEvent") {
+			if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
 		// console.log("Message not matching any trigger", message);
@@ -313,6 +318,11 @@ export default class TriggerActionHandler {
 		}
 		return false;
 	}
+	
+	private async handleMusicEvent(message:MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		const event = message.start? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
+		return await this.parseSteps(event, message, testMode, guid);
+	}
 
 	/**
 	 * Executes the steps of the trigger
@@ -400,6 +410,8 @@ export default class TriggerActionHandler {
 					//Handle Chat action
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string);
+						console.log("PARSE STEPS", eventType, trigger, message);
+						console.log(text);
 						IRCClient.instance.sendMessage(text);
 					}else
 
@@ -554,8 +566,9 @@ export default class TriggerActionHandler {
 				}
 			}
 
-			//If it's a music placeholder, replace it by the current music info
-			if(h.tag.indexOf("CURRENT_TRACK") == 0) {
+			//If it's a music placeholder for the ADDED TO QUEUE event
+			//replace it by the current music info
+			if(eventType == TriggerTypes.TRACK_ADDED_TO_QUEUE && h.tag.indexOf("CURRENT_TRACK") == 0) {
 				if(message.type == "music") {
 					value = message[h.pointer];
 				}else{
@@ -604,4 +617,5 @@ type MessageTypes = IRCEventDataList.Message
 | EmergencyModeUpdate
 | ChatHighlightInfo
 | ChatAlertInfo
+| MusicTriggerData
 ;
