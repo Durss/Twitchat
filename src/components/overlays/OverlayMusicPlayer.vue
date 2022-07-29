@@ -7,7 +7,7 @@
 					<div id="music_infos" class="trackHolder">
 						<Vue3Marquee :duration="duration"
 						:clone="params?.noScroll === false"
-						v-if="params?.noScroll !== true || !resetScrolling">
+						v-if="params?.noScroll !== true && !resetScrolling">
 							<div class="track">
 								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
 								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
@@ -119,7 +119,7 @@ export default class OverlayMusicPlayer extends Vue {
 				gsap.killTweensOf(this);
 				gsap.to(this, {duration, progress:1, ease:"linear"});
 
-				if(obj.params.noScroll !== true) {
+				if(this.params?.noScroll !== true) {
 					this.resetScrolling = true;
 					await this.$nextTick();
 					this.resetScrolling = false;

@@ -294,6 +294,7 @@ export default class SpotifyHelper extends EventDispatcher {
 					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
 					cover: this.currentTrack.cover,
+					params: StoreProxy.store.state.musicPlayerParams,
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
