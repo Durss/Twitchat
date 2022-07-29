@@ -411,7 +411,6 @@ export default class ParamsTriggers extends Vue {
 			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
 				json.message = this.triggerData.chatCommand + " lorem ipsum";
-				console.log(json.message);
 			}
 			TriggerActionHandler.instance.onMessage(json, true);
 		}

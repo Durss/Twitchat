@@ -410,8 +410,6 @@ export default class TriggerActionHandler {
 					//Handle Chat action
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string);
-						console.log("PARSE STEPS", eventType, trigger, message);
-						console.log(text);
 						IRCClient.instance.sendMessage(text);
 					}else
 
