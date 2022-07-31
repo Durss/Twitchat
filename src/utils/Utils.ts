@@ -176,9 +176,9 @@ export default class Utils {
 	 */
 	public static checkPermissions(permissions:PermissionsData, user:ChatUserstate):boolean {
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
-		const mod = user.badges?.moderator != undefined;
+		const mod = user.badges?.moderator != undefined || user.mod === true;
 		const vip = user.badges?.vip != undefined;
-		const sub = user.badges?.subscriber != undefined;
+		const sub = user.badges?.subscriber != undefined || user.subscriber === true;
 		const broadcaster = user.badges?.broadcaster != undefined;
 		const allowed = (permissions.mods && mod) ||
 						(permissions.vips && vip) ||

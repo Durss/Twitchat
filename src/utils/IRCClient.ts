@@ -27,7 +27,7 @@ export default class IRCClient extends EventDispatcher {
 	public connected = false;
 	public botsLogins:string[] = [];
 	public onlineUsers:string[] = [];
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugMode:boolean = true && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	private login!:string;
@@ -76,7 +76,7 @@ export default class IRCClient extends EventDispatcher {
 			let channels = [ login ];
 			this.channel = "#"+login;
 			if(this.debugMode) {
-				channels = channels.concat(["fakhear"]);
+				channels = channels.concat(["lazy_naya"]);
 			}
 
 			(async ()=> {
