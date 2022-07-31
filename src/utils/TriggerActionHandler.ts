@@ -382,8 +382,8 @@ export default class TriggerActionHandler {
 							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 						}
 						if(step.url) {
-							// console.log("URL");
 							const url = await this.parseText(eventType, message, step.url as string, true);
+							// console.log("URL", url);
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
