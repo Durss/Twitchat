@@ -196,6 +196,7 @@ export const TriggerMusicTypes = {
 	PAUSE_PLAYBACK:"3",
 	RESUME_PLAYBACK:"4",
 	GET_CURRENT_TRACK:"5",
+	START_PLAYLIST:"6",
 }
 
 export const MusicTriggerEvents:TriggerEventTypes[] = [
@@ -203,4 +204,5 @@ export const MusicTriggerEvents:TriggerEventTypes[] = [
 	{label:"Play next track", value:TriggerMusicTypes.NEXT_TRACK},
 	{label:"Pause playback", value:TriggerMusicTypes.PAUSE_PLAYBACK},
 	{label:"Resume playback", value:TriggerMusicTypes.RESUME_PLAYBACK},
+	{label:"Start playlist", value:TriggerMusicTypes.START_PLAYLIST},
 ]

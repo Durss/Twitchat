@@ -1446,6 +1446,7 @@ const store = createStore({
 		refreshAuthToken({commit}, payload:()=>boolean) { commit("authenticate", {cb:payload, forceRefresh:true}); },
 
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
+			console.log("START APP");
 			let jsonConfigs;
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");

@@ -156,3 +156,42 @@ export interface SearchTrackItem {
 	type: string;
 	uri: string;
 }
+
+export interface SearchPlaylistItem {
+	collaborative: boolean;
+	description: string;
+	external_urls: ExternalUrls;
+	followers: {
+        href: string;
+        total: number;
+	};
+	href: string;
+	id: string;
+	images: Image[];
+	name: string;
+	owner: {
+        external_urls: ExternalUrls;
+        followers: {
+			href: string;
+			total: number;
+		};
+        href: string;
+        id: string;
+        type: string;
+        uri: string;
+        display_name: string;
+    };
+	public: boolean;
+	snapshot_id: string;
+	tracks: {
+        href: string;
+        items: Item[];
+        limit: number;
+        next: string;
+        offset: number;
+        previous: string;
+        total: number;
+    };
+	type: string;
+	uri: string;
+}

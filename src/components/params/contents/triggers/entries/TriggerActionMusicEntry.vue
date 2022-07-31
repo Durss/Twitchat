@@ -9,43 +9,43 @@
 	<div class="TriggerActionMusicEntry" v-else>
 		<ParamItem class="item file" :paramData="actions_conf" v-model="action.musicAction" />
 
-		<ParamItem class="item text" :paramData="track_conf" v-model="action.track" v-if="showTrackInput" ref="textContentTrack" />
-		<ToggleBlock small class="helper"
-			v-if="showTrackInput && getHelpers(event)?.length > 0"
-			title="Special placeholders dynamically replaced"
-			:open="false"
-		>
-			<ul class="list">
-				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h, 'textContentTrack')" data-tooltip="Insert">
-					<strong>&#123;{{h.tag}}&#125;</strong>
-					{{h.desc}}
-				</li>
-			</ul>
-		</ToggleBlock>
+		<div v-if="showTrackInput" >
+			<ParamItem class="item text" :paramData="track_conf" v-model="action.track" ref="textContentTrack" />
+			<PlaceholderSelector class="placeholders"
+				:target="getField('textContentTrack')"
+				:placeholders="helpers"
+				v-model="action.track"
+			/>
+		</div>
 
-		<ParamItem class="item text" :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" v-if="showTrackInput" ref="textContentConfirm" />
-		<ToggleBlock small class="helper"
-			v-if="showTrackInput && getHelpers(event)?.length > 0"
-			title="Special placeholders dynamically replaced"
-			:open="false"
-		>
-			<ul class="list">
-				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h, 'textContentConfirm')" data-tooltip="Insert">
-					<strong>&#123;{{h.tag}}&#125;</strong>
-					{{h.desc}}
-				</li>
-			</ul>
-		</ToggleBlock>
+		<div v-if="showTrackInput">
+			<ParamItem class="item text" :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" ref="textContentConfirm" />
+			<PlaceholderSelector class="placeholders"
+				:target="getField('textContentConfirm')"
+				:placeholders="helpers"
+				v-model="action.confirmMessage"
+			/>
+		</div>
+
+		<div v-if="showPlaylistInput">
+			<ParamItem class="item text" :paramData="playlist_conf" v-model="action.playlist" ref="playlistName" />
+			<PlaceholderSelector class="placeholders"
+				:target="getField('playlistName')"
+				:placeholders="helpers"
+				v-model="action.playlist"
+			/>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { ParameterData, TriggerActionMusicEntryData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import type { ParameterData, PlaceholderEntry, TriggerActionMusicEntryData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes, type ITriggerActionHelper } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';
+import PlaceholderSelector from '../../../PlaceholderSelector.vue';
 
 @Options({
 	props:{
@@ -55,6 +55,7 @@ import ParamItem from '../../../ParamItem.vue';
 	components:{
 		ParamItem,
 		ToggleBlock,
+		PlaceholderSelector,
 	},
 })
 export default class TriggerActionMusicEntry extends Vue {
@@ -65,10 +66,24 @@ export default class TriggerActionMusicEntry extends Vue {
 	public actions_conf:ParameterData = { label:"Action", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:ParameterData = { label:"Track (name or URL)", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
 	public confirmSongRequest_conf:ParameterData = { label:"Send confirmation message", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public playlist_conf:ParameterData = { label:"Playlist name, link or ID", type:"text", longText:true, value:"", icon:"info_purple.svg", maxLength:500 };
 
-	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
+	public get helpers():PlaceholderEntry[] { return TriggerActionHelpers(this.event); }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
+	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	
+	public async getField(ref:string):Promise<HTMLInputElement|HTMLTextAreaElement> {
+		await this.$nextTick();
+		let target = this.$refs[ref];
+		if((target as Vue).$el) target = (target as Vue).$el;
+		let input:HTMLInputElement|HTMLTextAreaElement = (target as HTMLDivElement).getElementsByTagName("input")[0];
+		if(!input) {
+			input = (target as HTMLDivElement).getElementsByTagName("textarea")[0];
+		}
+
+		return input;
+	}
 
 	public mounted():void {
 		//List all available trigger types
@@ -81,23 +96,6 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	}
 
-	/**
-	 * Add a token on the text
-	 */
-	public insert(h:{tag:string, desc:string}, target:string):void {
-		const tag = "{"+h.tag+"}";
-		const holder = (this.$refs[target] as ParamItem).$el as HTMLDivElement;
-		console.log(holder);
-		let input:HTMLInputElement|HTMLTextAreaElement = holder.getElementsByTagName("input")[0];
-		if(!input) {
-			input = holder.getElementsByTagName("textarea")[0];
-		}
-		let carretPos = input.selectionStart as number | 0;
-		if(!carretPos) carretPos = 0;
-		//Insert tag
-		input.value = input.value.substring(0, carretPos) + tag + input.value.substring(carretPos);
-		input.dispatchEvent(new Event("input"));//Tell vue the input's value changed
-	}
 }
 </script>
 
