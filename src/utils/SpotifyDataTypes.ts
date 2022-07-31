@@ -137,6 +137,16 @@ export interface SearchTrackResult {
 	total: number;
 }
 
+export interface SearchPlaylistResult {
+	href: string;
+	items: SearchPlaylistItem[];
+	limit: number;
+	next: string;
+	offset: number;
+	previous?: string;
+	total: number;
+}
+
 export interface SearchTrackItem {
 	album: Album;
 	artists: Artist[];

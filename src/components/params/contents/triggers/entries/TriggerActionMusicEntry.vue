@@ -28,6 +28,7 @@
 		</div>
 
 		<div v-if="showPlaylistInput">
+			<div class="item warn">Only works with Spotify</div>
 			<ParamItem class="item text" :paramData="playlist_conf" v-model="action.playlist" ref="playlistName" />
 			<PlaceholderSelector class="placeholders"
 				:target="getField('playlistName')"
@@ -41,7 +42,7 @@
 <script lang="ts">
 import type { ParameterData, PlaceholderEntry, TriggerActionMusicEntryData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes, type ITriggerActionHelper } from '@/utils/TriggerActionData';
+import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';
@@ -127,6 +128,16 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	.item:not(:first-child) {
 		margin-top: .5em;
+	}
+
+	.warn {
+		display: block;
+		width: fit-content;
+		border-radius: .25em;
+		margin:auto;
+		background-color: @mainColor_warn;
+		color: @mainColor_light;
+		padding: .25em .5em;
 	}
 
 	.info {

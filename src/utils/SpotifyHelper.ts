@@ -1,11 +1,10 @@
 import type { MusicMessage, MusicTriggerData } from "@/types/TwitchatDataTypes";
-import type { JsonArray, JsonObject } from "type-fest";
+import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import Config from "./Config";
 import { EventDispatcher } from "./EventDispatcher";
-import type { IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
-import type { SearchTrackItem, SpotifyTrack, SearchTrackResult, SpotifyAuthToken, SearchPlaylistItem } from "./SpotifyDataTypes";
+import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
 import StoreProxy from "./StoreProxy";
 import TriggerActionHandler from "./TriggerActionHandler";
@@ -79,13 +78,14 @@ export default class SpotifyHelper extends EventDispatcher {
 	public async startAuthFlow():Promise<void> {
 		const res = await fetch(Config.instance.API_PATH+"/CSRFToken", {method:"GET"});
 		const json = await res.json();
-		const scope = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
+		const scopes = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
+		console.log(scopes);
 
 		let url = "https://accounts.spotify.com/authorize";
 		url += "?client_id="+this.clientID;
 		url += "&response_type=code";
 		url += "&redirect_uri="+encodeURIComponent( document.location.origin+"/spotify/auth" );
-		url += "&scope=+"+scope;
+		url += "&scope=+"+scopes;
 		url += "&state="+json.token;
 		url += "&show_dialog=true";
 
@@ -180,6 +180,29 @@ export default class SpotifyHelper extends EventDispatcher {
 		}
 		const json = await res.json();
 		const tracks = json.tracks as SearchTrackResult;
+		if(tracks.items.length == 0) {
+			return null;
+		}else{
+			return tracks.items[0];
+		}
+	}
+
+	/**
+	 * Adds a track to the queue
+	 * 
+	 * @returns if a track has been found or not
+	 */
+	public async searchPlaylist(name:string):Promise<SearchPlaylistItem|null> {
+		const options = {
+			headers:this._headers
+		}
+		const res = await fetch("https://api.spotify.com/v1/search?type=playlist&q="+encodeURIComponent(name), options);
+		if(res.status == 401) {
+			await this.refreshToken();
+			return null;
+		}
+		const json = await res.json();
+		const tracks = json.playlists as SearchPlaylistResult;
 		if(tracks.items.length == 0) {
 			return null;
 		}else{
@@ -328,8 +351,8 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns track info
 	 */
-	public async getPlaylistByName(nameOrID:string):Promise<SearchPlaylistItem|null> {
-		if(!this._playlistsCache) {
+	public async getUserPlaylist(id:string|null, name?:string):Promise<SearchPlaylistItem|null> {
+		if(this._playlistsCache.length === 0) {
 			const options = {
 				headers:this._headers
 			}
@@ -341,7 +364,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				const res = await fetch("https://api.spotify.com/v1/me/playlists?limit="+limit+"&offset="+offset, options);
 				json = await res.json();
 				offset += limit;
-				playlists.concat((json.items as unknown) as SearchPlaylistItem[]);
+				playlists = playlists.concat((json.items as unknown) as SearchPlaylistItem[]);
 			}while(json.next);
 			this._playlistsCache = playlists;
 		}
@@ -350,14 +373,16 @@ export default class SpotifyHelper extends EventDispatcher {
 		let selected:SearchPlaylistItem|null = null;
 		for (let i = 0; i < this._playlistsCache.length; i++) {
 			const p = this._playlistsCache[i];
-			if(nameOrID === p.id ) return p;
-			const dist = Utils.levenshtein(nameOrID, p.name);
-			if(dist < minDist) {
-				minDist = dist;
-				selected = p;
+			if(id === p.id ) return p;
+			if(name){
+				const dist = Utils.levenshtein(name, p.name);
+				if(dist < minDist) {
+					minDist = dist;
+					selected = p;
+				}
 			}
 		}
-		return null;
+		return selected;
 	}
 
 	/**
@@ -388,10 +413,13 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * Starts playing a playlist
 	 * @returns 
 	 */
-	public async startPlaylist(nameOrID:string):Promise<boolean> {
-		const res = await this.getPlaylistByName(nameOrID);
+	public async startPlaylist(id:string|null, name?:string):Promise<boolean> {
+		let res = await this.getUserPlaylist(id, name);
+		if(!res && name) {
+			res = await this.searchPlaylist(name);
+		}
 		if(res) {
-			return this.simpleAction("me/player/play", "PUT", {context_uri: res.id});
+			return this.simpleAction("me/player/play", "PUT", {context_uri: res.uri});
 		}
 		return false;
 	}
@@ -408,7 +436,7 @@ export default class SpotifyHelper extends EventDispatcher {
 	/**
 	 * Executes a simplea ction that requires no param
 	 * @param path 
-	 * @returns 
+	 * @returns success or not
 	 */
 	public async simpleAction(path:string, method:"POST"|"PUT"|"GET", body?:JsonObject):Promise<boolean> {
 		const options:{[key:string]:unknown} = {
@@ -423,6 +451,16 @@ export default class SpotifyHelper extends EventDispatcher {
 		}
 		if(res.status == 204) {
 			return true;
+		}
+		if(res.status == 404) {
+			try {
+				const json = await res.json();
+				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
+					StoreProxy.store.state.alert = "Spotify requires you to first play some music before trying to use it from Twitchat"
+				}
+			}catch(error){}
+
+			return false;
 		}
 		if(res.status == 409) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] API rate limits exceeded"));

@@ -687,6 +687,7 @@ const UserDataSchema = {
 										musicAction: {type:"string", maxLength:3},
 										track: {type:"string", maxLength:500},
 										confirmMessage: {type:"string", maxLength:500},
+										playlist: {type:"string", maxLength:500},
 									}
 								},
 							]
@@ -935,6 +936,7 @@ const UserDataSchema = {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				noScroll: {type:"boolean"},
 				autoHide: {type:"boolean"},
 				erase: {type:"boolean"},
 				showCover: {type:"boolean"},

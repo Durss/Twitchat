@@ -497,16 +497,19 @@ export default class TriggerActionHandler {
 						
 						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m:string = step.playlist;
-							console.log("SET PLAYLIST", Config.instance.SPOTIFY_CONNECTED, m);
 							if(message.type == "message") {
 								m = await this.parseText(eventType, message, m);
 							}
 							if(Config.instance.SPOTIFY_CONNECTED) {
+								let id:string|null = null;
 								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
 									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-									m = chunks[2];
+									id = chunks[2];
 								}
-								SpotifyHelper.instance.startPlaylist(m);
+								const success = await SpotifyHelper.instance.startPlaylist(id, m);
+								if(!success) {
+									IRCClient.instance.sendMessage("Playlist not found");
+								}
 							}
 							// if(Config.instance.DEEZER_CONNECTED) {
 							// 	DeezerHelper.instance.resume();
