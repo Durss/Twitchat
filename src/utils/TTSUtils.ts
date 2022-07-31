@@ -1,9 +1,11 @@
+import type { PermissionsData } from "@/types/TwitchatDataTypes";
 import IRCClient from "./IRCClient";
 import IRCEvent from "./IRCEvent";
-import type { IRCEventData, IRCEventDataList } from "./IRCEventDataTypes";
+import { getType, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
 import type PubSubEvent from "./PubSubEvent";
 import StoreProxy from "./StoreProxy";
 import TwitchUtils from "./TwitchUtils";
+import Utils from "./Utils";
 
 export interface SpokenMessage {
 	wroteTime: number,
@@ -57,7 +59,6 @@ export default class TTSUtils {
 	 */
 	 public async enable(enable: boolean):Promise<void> {
 		this.enabled = enable;
-		console.log(enable);
 		
 		if (enable) {
 			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
@@ -87,6 +88,8 @@ export default class TTSUtils {
 
 	private onAddMessage(e:IRCEvent):void {
 		const message = e.data as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper;
+		console.log(message);
+		
 		this.processMessage(message);
 	}	
 
@@ -94,7 +97,7 @@ export default class TTSUtils {
 		const paramsTTS = StoreProxy.store.state.params.tts;
 		const uid:string|undefined = message?.tags['user-id'];
 		const user: string|undefined = message?.tags['display-name'];
-		const messageStr = message.type == "whisper"? message.params[1] : message.message;
+		let messageStr = message.type === "whisper"? message.params[1] : message.message;
 		
 		if (message.type === 'message') {
 			// only speak if inactivity period is reached
@@ -103,11 +106,50 @@ export default class TTSUtils {
 			
 			if (paramsTTS.inactivityPeriod.value > 0 && (performance.now() - lastMessageTime <= paramsTTS.inactivityPeriod.value * 1000 * 60)) {
 				return;
-			}	
-		}	
+			}
+			if (paramsTTS['speakPattern'+message.type].value === '') {
+				return;
+			}
+			if(message.message && message.tags.username) {
+				const permissions: PermissionsData = {
+					vips: paramsTTS.tts_vips.value,
+					subs: paramsTTS.tts_subs.value,
+					mods: paramsTTS.tts_subs.value,
+					all: paramsTTS.tts_all.value,
+					users: paramsTTS.tts_users.value
+				}
+				
+				if(!Utils.checkPermissions(permissions, message.tags)) {
+					return;
+				}
+			}
+		} else if (message.type === 'whisper') {
+			if (paramsTTS['speakPattern'+message.type].value === '') {
+				return;
+			}
+		} else {
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = getType(message);
+			console.log(message.type, message.tags, type);
+			
+			if(type == "sub" && !paramsTTS.speakSubs.value) return;
+			if(type == "reward" && !paramsTTS.speakRewards.value) return;
+			if(type == "raid" && !paramsTTS.speakRaids.value) return;
+			if(type == "bits" && !paramsTTS.speakBits.value) return;
+			if(type == "follow" && !paramsTTS.speakFollow.value) return;
+			if(type == "poll" && !paramsTTS.speakPolls.value) return;
+			if(type == "prediction" && !paramsTTS.speakPredictions.value) return;
+			if(type == "bingo" && !paramsTTS.speakBingos.value) return;
+			if(type == "raffle" && !paramsTTS.speakRaffles.value) return;
+			if(type == "commercial") return;
+			if(type == "countdown") return;
 
+			messageStr = message.tags['system-msg']
+			console.log(messageStr);
+			
+		}
+		
 		if (messageStr) {
-			let spokenText = paramsTTS['spokenPattern'+message.type].value.replace('$MESSAGE', messageStr);
+			let spokenText = paramsTTS['speakPattern'+message.type].value.replace('$MESSAGE', messageStr);
 			spokenText = spokenText.replace('$USER', user ? user : '');
 			if (paramsTTS.removeURL.value) {
 				spokenText = spokenText.replace(/(http[s]?|ftp):[^ ]*/g, paramsTTS.replaceURL.value);
@@ -158,7 +200,6 @@ export default class TTSUtils {
 			const data = e.data as IRCEventDataList.MessageDeleted;
 			messageID = data.tags['target-msg-id'] as string;
 		}
-		const keepDeletedMessages = StoreProxy.store.state.params.filters.keepDeletedMessages.value;
 
 		let index = this.pendingMessages.findIndex(v => v.message.tags.id === messageID);
 		if(index > -1) {

@@ -489,7 +489,16 @@ export default class ChatForm extends Vue {
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
+		}else
 
+		if(cmd == "/tts") {
+			store.state.params.tts.tts_users.value = (store.state.params.tts.tts_users.value as string).split(',').concat(params).join(',');
+			this.message = "";
+		}else
+
+		if(cmd == "/notts") {
+			store.state.params.tts.tts_users.value = (store.state.params.tts.tts_users.value as string).split(',').filter(el => !params.includes(el)).join(',');
+			this.message = "";
 		}else{
 			//Send message
 			try {
