@@ -836,6 +836,7 @@ const UserDataSchema = {
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
 		greetHeight: {type:"number"},
+		leftColSize: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later

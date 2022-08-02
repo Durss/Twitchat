@@ -19,6 +19,7 @@ export default class Store {
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";
 	public static GREET_AUTO_HEIGHT:string = "greetHeight";
+	public static LEFT_COL_SIZE:string = "leftColSize";
 	public static OBS_PORT:string = "obsPort";
 	public static OBS_PASS:string = "obsPass";
 	public static OBS_IP:string = "obsIP";

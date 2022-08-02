@@ -1954,43 +1954,43 @@ const store = createStore({
 			//Init OBS command params
 			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
 			if(obsMuteUnmuteCommands) {
-				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
+				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (state.obsMuteUnmuteCommands as unknown) as JsonObject);
 			}
 			
 			//Init OBS permissions
 			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
-				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
+				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (state.obsCommandsPermissions as unknown) as JsonObject);
 			}
 			
 			//Init emergency actions
 			const emergency = Store.get(Store.EMERGENCY_PARAMS);
 			if(emergency) {
-				state.emergencyParams = JSON.parse(emergency);
+				Utils.mergeRemoteObject(JSON.parse(emergency), (state.emergencyParams as unknown) as JsonObject);
 			}
 			
 			//Init alert actions
 			const alert = Store.get(Store.ALERT_PARAMS);
 			if(alert) {
-				state.chatAlertParams = JSON.parse(alert);
+				Utils.mergeRemoteObject(JSON.parse(alert), (state.chatAlertParams as unknown) as JsonObject);
 			}
 			
-			//Init spoiler actions
+			//Init spoiler param
 			const spoiler = Store.get(Store.SPOILER_PARAMS);
 			if(spoiler) {
-				state.spoilerParams = JSON.parse(spoiler);
+				Utils.mergeRemoteObject(JSON.parse(spoiler), (state.spoilerParams as unknown) as JsonObject);
 			}
 			
 			//Init chat highlight params
 			const chatHighlight = Store.get(Store.CHAT_HIGHLIGHT_PARAMS);
 			if(chatHighlight) {
-				state.chatHighlightOverlayParams = JSON.parse(chatHighlight);
+				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (state.chatHighlightOverlayParams as unknown) as JsonObject);
 			}
 			
 			//Init triggers
 			const triggers = Store.get(Store.TRIGGERS);
 			if(triggers) {
-				state.triggers = JSON.parse(triggers);
+				Utils.mergeRemoteObject(JSON.parse(triggers), (state.triggers as unknown) as JsonObject);
 				TriggerActionHandler.instance.triggers = state.triggers;
 			}
 				
@@ -2009,7 +2009,7 @@ const store = createStore({
 			//Init music player params
 			const musicPlayerParams = Store.get(Store.MUSIC_PLAYER_PARAMS);
 			if(musicPlayerParams) {
-				state.musicPlayerParams = JSON.parse(musicPlayerParams);
+				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (state.musicPlayerParams as unknown) as JsonObject);
 			}
 			
 			//Load bot messages
@@ -2017,22 +2017,7 @@ const store = createStore({
 			if(botMessages) {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
-				const localMessages = state.botMessages;
-				const remoteMessages = JSON.parse(botMessages);
-				// JSONPatch.applyPatch(localMessages, remoteMessages);
-				// JSONPatch.applyPatch(remoteMessages, localMessages);
-				for (const k in localMessages) {
-					const key = k as BotMessageField;
-					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-						remoteMessages[key] = localMessages[key];
-					}
-					for (const subkey in localMessages[key]) {
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-						}
-					}
-				}
-				state.botMessages = (remoteMessages as unknown) as IBotMessage;
+				Utils.mergeRemoteObject(JSON.parse(botMessages), (state.botMessages as unknown) as JsonObject);
 			}
 
 			if(authenticated) {

@@ -1,5 +1,6 @@
 import type { ChatUserstate } from 'tmi.js';
 import type { PermissionsData } from '@/types/TwitchatDataTypes';
+import type { JsonObject } from 'type-fest';
 
 /**
  * Created by Durss
@@ -498,6 +499,33 @@ export default class Utils {
 			let letters = this.defaultDiacriticsRemovalMap[i].letters;
 			for (let j = 0; j < letters.length; j++) {
 				this.diacriticsMap[letters[j]] = this.defaultDiacriticsRemovalMap[i].base;
+			}
+		}
+	}
+
+	/**
+	 * Merges a remote data object into the local data object.
+	 * 
+	 * @param data 
+	 */
+	public static mergeRemoteObject(remote:JsonObject, local:JsonObject):void {
+		//If a data exists on the remote object, set it on the local object.
+		//No need to do any cleanup as the server will clean any expired
+		//or non-legitimate data
+		for (const key in remote) {
+			const v = remote[key];
+			if(v == null) continue;
+
+			if(Array.isArray(v)) {
+				local[key] = v;
+
+			}else
+			if(typeof(v) == "object" && local.hasOwnProperty(key)) {
+				//Deep merge sub objects
+				this.mergeRemoteObject(v, local[key] as JsonObject);
+
+			}else{
+				local[key] = v;
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="top">
-			<div class="leftColumn">
+			<div class="leftColumn" :style="leftStyles">
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
 					@showModal="(v:string) => currentModal = v"
@@ -10,7 +10,11 @@
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>
 
-			<div class="rightColumn" v-if="splitView">
+			<div class="dragBt" v-if="splitView" @mousedown="startDrag()" @touchstart="startDrag()">
+				<div class="grip"></div>
+			</div>
+
+			<div class="rightColumn" v-if="splitView" :style="rightStyles">
 				<NewUsers class="newUsers" v-if="$store.state.params.features.firstMessage.value" />
 
 				<ActivityFeed class="activityFeed" listMode />
@@ -186,22 +190,29 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 })
 export default class Chat extends Vue {
 
+	public disposed = false;
+	public resizing = false;
 	public showFeed = false;
+	public canStartAd = true;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCommands = false;
 	public showUserList = false;
 	public showChatUsers = false;
-	public showStorageModal = false;
 	public showBlinkLayer = false;
-	public canStartAd = true;
+	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
+	public mouseY = 0;
+	public mouseX = 0;
+	public leftColSize = 0;
 	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentMessageSearch = "";
 	public currentNotificationContent = "";
 	
+	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
+	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
 	public get splitView():boolean { return StoreProxy.store.state.params.appearance.splitView.value as boolean && StoreProxy.store.state.canSplitView && !this.hideChat; }
@@ -222,13 +233,68 @@ export default class Chat extends Vue {
 		return res;
 	}
 
+	public get leftStyles():{[key:string]:string} {
+		if(!this.splitView) return {};
+		
+		let size = this.leftColSize*100;
+		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
+			size = 100-size;
+		}
+		if(this.splitViewVertical) {
+			return {
+				"height": size + '%',
+				"min-height": size + "%",
+				"max-height": size + "%",
+			}
+		}else{
+			return {
+				"width": size + '%',
+				"min-width": size + "%",
+				"max-width": size + "%",
+			}
+		}
+	}
+
+	public get rightStyles():{[key:string]:string} {
+		if(!this.splitView) return {};
+		
+		let size = this.leftColSize*100;
+		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value !== true) {
+			size = 100-size;
+		}
+		if(this.splitViewVertical) {
+			return {
+				"height": size + '%',
+				"min-height": size + "%",
+				"max-height": size + "%",
+			}
+		}else{
+			return {
+				"width": size + '%',
+				"min-width": size + "%",
+				"max-width": size + "%",
+			}
+		}
+	}
+
 	private resizeHandler!:(e:Event) => void;
 
 	public beforeMount():void {
 		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
 		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.mouseUpHandler = () => this.resizing = false;
+		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+		
+		let size = parseFloat(Store.get(Store.LEFT_COL_SIZE));
+		if(isNaN(size)) size = 50;
+		this.leftColSize = size;
+
 		window.addEventListener("resize", this.resizeHandler);
+		document.addEventListener("mouseup", this.mouseUpHandler);
+		document.addEventListener("touchend", this.mouseUpHandler);
+		document.addEventListener("mousemove", this.mouseMoveHandler);
+		document.addEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
@@ -238,6 +304,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		this.onResize();
+		this.renderFrame();
 
 		//Auto opens the prediction status if pending for completion
 		watch(() => StoreProxy.store.state.currentPrediction, (newValue, prevValue) => {
@@ -294,6 +361,7 @@ export default class Chat extends Vue {
 	}
 
 	public beforeUnmount():void {
+		this.disposed = true;
 		window.removeEventListener("resize", this.resizeHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
@@ -404,7 +472,7 @@ export default class Chat extends Vue {
 	}
 
 	/**
-	 * Temporary debug command
+	 * Temporary debug command to try targetting a fadeout issue of the chat
 	 * @param index 
 	 */
 	public debug(index:number):void {
@@ -415,6 +483,41 @@ export default class Chat extends Vue {
 		if(index == 2) {
 			gsap.to(div.getElementsByClassName("holder")[0], {opacity:1, duration:.5});
 		}
+	}
+
+	/**
+	 * Called when starting window resize
+	 */
+	public startDrag():void {
+		this.resizing = true;
+	}
+
+	/**
+	 * Called when the mouse moves
+	 */
+	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
+		if(e.type == "mousemove") {
+			this.mouseX = (e as MouseEvent).clientX;
+			this.mouseY = (e as MouseEvent).clientY;
+		}else{
+			this.mouseX = (e as TouchEvent).touches[0].clientX;
+			this.mouseY = (e as TouchEvent).touches[0].clientY;
+		}
+	}
+
+	private async renderFrame():Promise<void> {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+
+		if(!this.resizing) return;
+		
+		if(this.splitViewVertical) {
+			this.leftColSize = this.mouseY / 923;
+		}else{
+			this.leftColSize = this.mouseX / window.innerWidth;
+		}
+		console.log(this.mouseX, this.leftColSize);
+		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
 	}
 }
 
@@ -428,7 +531,6 @@ export default class Chat extends Vue {
 	flex-direction: column;
 
 	&.splitView {
-
 		.top {
 			display: flex;
 			flex-direction: row;
@@ -465,17 +567,32 @@ export default class Chat extends Vue {
 				flex-direction: column;
 				.leftColumn {
 					width: 100%;
-					max-height: 60%;
+					// max-height: 60%;
 				}
 				.rightColumn {
 					width: 100%;
-					max-height: 40%;
+					// max-height: 40%;
 				}
 			}
 
 			&.switchCols {
 				.top {
 					flex-direction: column-reverse;
+				}
+			}
+
+			.dragBt {
+				padding: 3px;
+				cursor: ns-resize;
+				.grip {
+					left: unset;
+					top: 50%;
+					width: 100%;
+					height: 1px;
+					&::before {
+						height: 5px;
+						width: 40px;
+					}
 				}
 			}
 		}
@@ -505,11 +622,10 @@ export default class Chat extends Vue {
 	&.switchCols:not(.splitVertical) {
 		.top {
 			flex-direction: row-reverse;
-		}
-
-		.leftColumn {
-			padding-left: 2px;
-			padding-right: 0;
+			.leftColumn {
+				padding-left: 2px;
+				padding-right: 0;
+			}
 		}
 
 		.popin {
@@ -525,6 +641,28 @@ export default class Chat extends Vue {
 				left: auto;
 				max-width: 50vw;
 				margin: auto;
+			}
+		}
+	}
+
+	.dragBt {
+		padding: 0 3px;
+		cursor: ew-resize;
+		user-select: none;
+		.grip {
+			position: relative;
+			left: 50%;
+			height: 100%;
+			width: 1px;
+			background: @mainColor_dark_light;
+			&::before {
+				content:"";
+				position: absolute;
+				.center();
+				display: block;
+				width: 5px;
+				height: 40px;
+				background: @mainColor_dark_light;
 			}
 		}
 	}
