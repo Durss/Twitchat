@@ -93,14 +93,14 @@
 
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
 
-		<PollForm class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
-		<ChatPollForm class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" />
-		<RaffleForm class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
-		<BingoForm class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-		<PredictionForm class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
-		<LiveFollowings class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
-		<StreamInfoForm class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
-		<TTUserList class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
+		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
+		<ChatPollForm :style="rightStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" />
+		<RaffleForm :style="rightStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
+		<BingoForm :style="rightStyles" class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
+		<PredictionForm :style="rightStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
+		<LiveFollowings :style="rightStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+		<StreamInfoForm :style="rightStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
+		<TTUserList :style="rightStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
 
@@ -582,6 +582,8 @@ export default class Chat extends Vue {
 			}
 
 			.dragBt {
+				margin-right: 0;
+				margin-bottom: -7px;
 				padding: 3px;
 				cursor: ns-resize;
 				.grip {
@@ -649,6 +651,8 @@ export default class Chat extends Vue {
 		padding: 0 3px;
 		cursor: ew-resize;
 		user-select: none;
+		z-index: 2;
+		margin-right: -7px;
 		.grip {
 			position: relative;
 			left: 50%;
