@@ -509,6 +509,7 @@ export default class Utils {
 	 * @param data 
 	 */
 	public static mergeRemoteObject(remote:JsonObject, local:JsonObject):void {
+		if(!local || !remote) return;
 		//If a data exists on the remote object, set it on the local object.
 		//No need to do any cleanup as the server will clean any expired
 		//or non-legitimate data

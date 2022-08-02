@@ -287,7 +287,7 @@ export default class Chat extends Vue {
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		
 		let size = parseFloat(Store.get(Store.LEFT_COL_SIZE));
-		if(isNaN(size)) size = 50;
+		if(isNaN(size)) size = .5;
 		this.leftColSize = size;
 
 		window.addEventListener("resize", this.resizeHandler);
@@ -516,7 +516,7 @@ export default class Chat extends Vue {
 		}else{
 			this.leftColSize = this.mouseX / window.innerWidth;
 		}
-		console.log(this.mouseX, this.leftColSize);
+		
 		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
 	}
 }
