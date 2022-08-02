@@ -512,11 +512,11 @@ export default class Chat extends Vue {
 		if(!this.resizing) return;
 		
 		if(this.splitViewVertical) {
-			this.leftColSize = this.mouseY / 923;
+			this.leftColSize = (this.mouseY - 3) / (window.innerHeight - 40);//40 = ~footer's height
 		}else{
-			this.leftColSize = this.mouseX / window.innerWidth;
+			this.leftColSize = (this.mouseX - 3) / window.innerWidth;
 		}
-		
+
 		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
 	}
 }
