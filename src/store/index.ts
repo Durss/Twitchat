@@ -30,7 +30,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -395,6 +395,17 @@ const store = createStore({
 			},
 		} as AlertParamsData,
 		chatAlert:null as IRCEventDataList.Message|IRCEventDataList.Whisper|null,
+		
+		musicPlayerParams: {
+			autoHide:false,
+			erase:true,
+			showCover:true,
+			showArtist:true,
+			showTitle:true,
+			showProgressbar:true,
+			openFromLeft:false,
+			noScroll:false,
+		} as MusicPlayerParamsData,
 	},
 
 
@@ -1449,6 +1460,7 @@ const store = createStore({
 		refreshAuthToken({commit}, payload:()=>boolean) { commit("authenticate", {cb:payload, forceRefresh:true}); },
 
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
+			console.log("START APP");
 			let jsonConfigs;
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
@@ -1956,43 +1968,43 @@ const store = createStore({
 			//Init OBS command params
 			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
 			if(obsMuteUnmuteCommands) {
-				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
+				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (state.obsMuteUnmuteCommands as unknown) as JsonObject);
 			}
 			
 			//Init OBS permissions
 			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
-				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
+				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (state.obsCommandsPermissions as unknown) as JsonObject);
 			}
 			
 			//Init emergency actions
 			const emergency = Store.get(Store.EMERGENCY_PARAMS);
 			if(emergency) {
-				state.emergencyParams = JSON.parse(emergency);
+				Utils.mergeRemoteObject(JSON.parse(emergency), (state.emergencyParams as unknown) as JsonObject);
 			}
 			
 			//Init alert actions
 			const alert = Store.get(Store.ALERT_PARAMS);
 			if(alert) {
-				state.chatAlertParams = JSON.parse(alert);
+				Utils.mergeRemoteObject(JSON.parse(alert), (state.chatAlertParams as unknown) as JsonObject);
 			}
 			
-			//Init spoiler actions
+			//Init spoiler param
 			const spoiler = Store.get(Store.SPOILER_PARAMS);
 			if(spoiler) {
-				state.spoilerParams = JSON.parse(spoiler);
+				Utils.mergeRemoteObject(JSON.parse(spoiler), (state.spoilerParams as unknown) as JsonObject);
 			}
 			
 			//Init chat highlight params
 			const chatHighlight = Store.get(Store.CHAT_HIGHLIGHT_PARAMS);
 			if(chatHighlight) {
-				state.chatHighlightOverlayParams = JSON.parse(chatHighlight);
+				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (state.chatHighlightOverlayParams as unknown) as JsonObject);
 			}
 			
 			//Init triggers
 			const triggers = Store.get(Store.TRIGGERS);
 			if(triggers) {
-				state.triggers = JSON.parse(triggers);
+				Utils.mergeRemoteObject(JSON.parse(triggers), (state.triggers as unknown) as JsonObject);
 				TriggerActionHandler.instance.triggers = state.triggers;
 			}
 				
@@ -2006,6 +2018,12 @@ const store = createStore({
 			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
 			if(emergencyFollows) {
 				state.emergencyFollows = JSON.parse(emergencyFollows);
+			}
+
+			//Init music player params
+			const musicPlayerParams = Store.get(Store.MUSIC_PLAYER_PARAMS);
+			if(musicPlayerParams) {
+				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (state.musicPlayerParams as unknown) as JsonObject);
 			}
 			
 			//Init OBS permissions
@@ -2026,22 +2044,7 @@ const store = createStore({
 			if(botMessages) {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
-				const localMessages = state.botMessages;
-				const remoteMessages = JSON.parse(botMessages);
-				// JSONPatch.applyPatch(localMessages, remoteMessages);
-				// JSONPatch.applyPatch(remoteMessages, localMessages);
-				for (const k in localMessages) {
-					const key = k as BotMessageField;
-					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-						remoteMessages[key] = localMessages[key];
-					}
-					for (const subkey in localMessages[key]) {
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-						}
-					}
-				}
-				state.botMessages = (remoteMessages as unknown) as IBotMessage;
+				Utils.mergeRemoteObject(JSON.parse(botMessages), (state.botMessages as unknown) as JsonObject);
 			}
 
 			if(authenticated) {

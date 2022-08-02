@@ -17,6 +17,8 @@ export const TriggerTypes = {
 	REWARD_REDEEM:"13",
 	STREAM_INFO_UPDATE:"19",
 	TRACK_ADDED_TO_QUEUE:"14",
+	MUSIC_START:"24",
+	MUSIC_STOP:"25",
 	TIMER_START:"15",
 	TIMER_STOP:"16",
 	COUNTDOWN_START:"17",
@@ -112,6 +114,14 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
 	];
 	
+	map[TriggerTypes.MUSIC_START] = [
+		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"music.artist"},
+		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"music.title"},
+		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"music.album"},
+		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"music.cover"},
+		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"music.url"},
+	];
+	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
 		{tag:"TITLE", desc:"Stream title", pointer:"title"},
 		{tag:"CATEGORY", desc:"Stream category", pointer:"category"},
@@ -168,6 +178,8 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Raid", value:TriggerTypes.RAID, description:"Execute an action when someone raids the channel", jsonTest:{"type":"highlight","channel":"#durss","tags":{"info":"this tags prop is a fake one to make things easier for my code","id":"16423778121330.0751974390273129","tmi-sent-ts":"1642377812133","msg-id":"raid"},"username":"Durss","viewers":727}},
 	{label:"Stream info update", value:TriggerTypes.STREAM_INFO_UPDATE, description:"Execute an action when the stream info are updated"},
 	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
+	{label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute an action when a music starts playing", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
+	{label:"Music stops playing", value:TriggerTypes.MUSIC_STOP, description:"Execute an action when a music stops playing"},
 	{label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started with the command <strong>/timerStart</strong>"},
 	{label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <strong>/timerStop</strong>"},
 	{label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <strong>/countdown</strong>"},
@@ -184,6 +196,7 @@ export const TriggerMusicTypes = {
 	PAUSE_PLAYBACK:"3",
 	RESUME_PLAYBACK:"4",
 	GET_CURRENT_TRACK:"5",
+	START_PLAYLIST:"6",
 }
 
 export const MusicTriggerEvents:TriggerEventTypes[] = [
@@ -191,4 +204,5 @@ export const MusicTriggerEvents:TriggerEventTypes[] = [
 	{label:"Play next track", value:TriggerMusicTypes.NEXT_TRACK},
 	{label:"Pause playback", value:TriggerMusicTypes.PAUSE_PLAYBACK},
 	{label:"Resume playback", value:TriggerMusicTypes.RESUME_PLAYBACK},
+	{label:"Start playlist", value:TriggerMusicTypes.START_PLAYLIST},
 ]

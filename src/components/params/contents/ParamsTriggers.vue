@@ -248,6 +248,8 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.RAID] = "raid_purple";
 		map[TriggerTypes.REWARD_REDEEM] = "channelPoints_purple";
 		map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = "music_purple";
+		map[TriggerTypes.MUSIC_START] = "music_purple";
+		map[TriggerTypes.MUSIC_STOP] = "music_purple";
 		map[TriggerTypes.TIMER_START] = "timer_purple";
 		map[TriggerTypes.TIMER_STOP] = "timer_purple";
 		map[TriggerTypes.COUNTDOWN_START] = "countdown_purple";
@@ -409,7 +411,6 @@ export default class ParamsTriggers extends Vue {
 			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
 				json.message = this.triggerData.chatCommand + " lorem ipsum";
-				console.log(json.message);
 			}
 			TriggerActionHandler.instance.onMessage(json, true);
 		}

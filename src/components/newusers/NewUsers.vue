@@ -199,7 +199,9 @@ export default class NewUsers extends Vue {
 		this.disposed = true;
 		clearInterval(this.deleteInterval);
 		document.removeEventListener("mouseup", this.mouseUpHandler);
+		document.removeEventListener("touchend", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
+		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);

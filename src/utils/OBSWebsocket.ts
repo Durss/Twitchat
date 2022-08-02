@@ -107,7 +107,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		//*/
 
 		/* GET A SOURCE SETTINGS
-		const settings = await this.obs.call("GetInputSettings", {inputName: "TTImage"});
+		const settings = await this.obs.call("GetInputSettings", {inputName: "TTBrowerSourceTest"});
 		console.log(settings);
 		//*/
 
@@ -337,7 +337,15 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setBrowserSourceURL(sourceName:string, url:string):Promise<void> {
 		if(!this.connected) return;
 		
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
+		// const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
+		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, url}
+		if(!/https?:\/\.*/i?.test(url)) {
+			//If using a local file, do not use "local_file" param is it does not
+			//supports query parameters. 
+			newSettings.url = "file:///"+url;
+		}
+		
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:newSettings as JsonObject});
 	}
 
 	/**
@@ -381,4 +389,15 @@ export interface OBSFilter {
 	filterKind: string;
 	filterName: string;
 	filterSettings: unknown;
+}
+
+export interface BrowserSourceSettings {
+	fps?: number;
+	fps_custom?: boolean;
+	height?: number;
+	is_local_file?: boolean;
+	local_file?: string;
+	shutdown?: boolean;
+	url?: string;
+	width?: number;
 }

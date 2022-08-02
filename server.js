@@ -687,6 +687,7 @@ const UserDataSchema = {
 										musicAction: {type:"string", maxLength:3},
 										track: {type:"string", maxLength:500},
 										confirmMessage: {type:"string", maxLength:500},
+										playlist: {type:"string", maxLength:500},
 									}
 								},
 							]
@@ -850,6 +851,7 @@ const UserDataSchema = {
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
 		greetHeight: {type:"number"},
+		leftColSize: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
@@ -943,6 +945,21 @@ const UserDataSchema = {
 						users: {type:"string", maxLength:1000},
 					}
 				},
+			}
+		},
+		
+		musicPlayerParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				noScroll: {type:"boolean"},
+				autoHide: {type:"boolean"},
+				erase: {type:"boolean"},
+				showCover: {type:"boolean"},
+				showArtist: {type:"boolean"},
+				showTitle: {type:"boolean"},
+				showProgressbar: {type:"boolean"},
+				openFromLeft: {type:"boolean"},
 			}
 		},
 	}

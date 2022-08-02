@@ -13,10 +13,10 @@
 				<input type="text" placeholder="Search a parameter..." v-model="search" v-autofocus>
 			</div>
 			
-			<div class="menu" v-if="content == null && !search">
-				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Chat Features" @click="setContent('features')" :selected="content == 'features' || content == 'spoiler'" />
-				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Chat Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
-				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Chat Filters" @click="setContent('filters')" :selected="content == 'filters'" />
+			<div class="content menu" v-if="content == null && !search">
+				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'spoiler'" />
+				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
+				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent('emergency')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice bot" @click="setContent('voice')" :selected="content == 'voice'" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />

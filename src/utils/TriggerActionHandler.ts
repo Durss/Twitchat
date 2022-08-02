@@ -1,4 +1,4 @@
-import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -178,6 +178,11 @@ export default class TriggerActionHandler {
 			if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
+
+		}else if(message.type == "musicEvent") {
+			if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
 		// console.log("Message not matching any trigger", message);
@@ -313,6 +318,11 @@ export default class TriggerActionHandler {
 		}
 		return false;
 	}
+	
+	private async handleMusicEvent(message:MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		const event = message.start? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
+		return await this.parseSteps(event, message, testMode, guid);
+	}
 
 	/**
 	 * Executes the steps of the trigger
@@ -361,7 +371,6 @@ export default class TriggerActionHandler {
 			// console.log(canExecute);
 			
 			if(canExecute) {
-				// console.log("Parse steps", actions);
 				for (let i = 0; i < data.actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
 					const step = data.actions[i];
@@ -373,8 +382,8 @@ export default class TriggerActionHandler {
 							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 						}
 						if(step.url) {
-							// console.log("URL");
 							const url = await this.parseText(eventType, message, step.url as string, true);
+							// console.log("URL", url);
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
@@ -466,7 +475,7 @@ export default class TriggerActionHandler {
 							if(Config.instance.DEEZER_CONNECTED) {
 								DeezerHelper.instance.nextTrack();
 							}
-						}
+						}else
 						
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 							if(Config.instance.SPOTIFY_CONNECTED) {
@@ -475,7 +484,7 @@ export default class TriggerActionHandler {
 							if(Config.instance.DEEZER_CONNECTED) {
 								DeezerHelper.instance.pause();
 							}
-						}
+						}else
 						
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 							if(Config.instance.SPOTIFY_CONNECTED) {
@@ -484,6 +493,27 @@ export default class TriggerActionHandler {
 							if(Config.instance.DEEZER_CONNECTED) {
 								DeezerHelper.instance.resume();
 							}
+						}else
+						
+						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
+							let m:string = step.playlist;
+							if(message.type == "message") {
+								m = await this.parseText(eventType, message, m);
+							}
+							if(Config.instance.SPOTIFY_CONNECTED) {
+								let id:string|null = null;
+								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
+									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+									id = chunks[2];
+								}
+								const success = await SpotifyHelper.instance.startPlaylist(id, m);
+								if(!success) {
+									IRCClient.instance.sendMessage("Playlist not found");
+								}
+							}
+							// if(Config.instance.DEEZER_CONNECTED) {
+							// 	DeezerHelper.instance.resume();
+							// }
 						}
 					}
 
@@ -554,8 +584,9 @@ export default class TriggerActionHandler {
 				}
 			}
 
-			//If it's a music placeholder, replace it by the current music info
-			if(h.tag.indexOf("CURRENT_TRACK") == 0) {
+			//If it's a music placeholder for the ADDED TO QUEUE event
+			//replace it by the current music info
+			if(eventType == TriggerTypes.TRACK_ADDED_TO_QUEUE && h.tag.indexOf("CURRENT_TRACK") == 0) {
 				if(message.type == "music") {
 					value = message[h.pointer];
 				}else{
@@ -604,4 +635,5 @@ type MessageTypes = IRCEventDataList.Message
 | EmergencyModeUpdate
 | ChatHighlightInfo
 | ChatAlertInfo
+| MusicTriggerData
 ;

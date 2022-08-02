@@ -117,6 +117,7 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	musicAction:string;
 	track:string;
 	confirmMessage:string;
+	playlist:string;
 }
 
 export interface ParameterDataListValue {
@@ -135,8 +136,8 @@ export interface ParameterData {
 	label:string;
 	min?:number;//min numeric value
 	max?:number;//max numeric value
+	step?:number;//For numeric values
 	maxLength?:number;
-	step?:number;//For numerci values
 	icon?:string;
 	placeholder?:string;
 	parent?:number;
@@ -324,4 +325,21 @@ export interface AnchorData {
 	icon:string;
 	div:HTMLElement;
 	selected:boolean;
+}
+
+export interface MusicPlayerParamsData {
+	autoHide:boolean;
+	erase:boolean;
+	showCover:boolean;
+	showArtist:boolean;
+	showTitle:boolean;
+	showProgressbar:boolean;
+	openFromLeft:boolean;
+	noScroll:boolean;
+}
+
+export interface MusicTriggerData {
+	type:"musicEvent";
+	start:boolean;
+	music?:MusicMessage;
 }

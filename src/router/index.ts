@@ -1,3 +1,4 @@
+import Store from '@/store/Store'
 import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
 import StoreProxy from '@/utils/StoreProxy'
 import Utils from '@/utils/Utils'

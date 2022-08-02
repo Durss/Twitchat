@@ -14,20 +14,8 @@
 
 		<div v-if="deezerConnected" class="content">
 			<div class="row">
-				<label for="deezer_overlay_url">Set this in an OBS browser source to display currently playing deezer track:</label>
-				<input type="text" id="deezer_overlay_url" v-model="overlayUrl">
-				<ToggleBlock small title="CSS customization" :open="false">
-					<div>You can change the appearance of the player by overriding these CSS IDs on OBS browser source params</div>
-					<ul>
-						<li>#music_holder { ... }</li>
-						<li>#music_cover { ... }</li>
-						<li>#music_infos { ... }</li>
-						<li>#music_title { ... }</li>
-						<li>#music_artist { ... }</li>
-						<li>#music_progress { ... }</li>
-						<li>#music_progress_fill { ... }</li>
-					</ul>
-				</ToggleBlock>
+				<label for="deezer_overlay_url">Set this URL in an OBS browser source to display currently playing Deezer track:</label>
+				<OverlayParamsMusic />
 				
 			</div>
 			<div class="row">
@@ -50,12 +38,14 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
+import OverlayParamsMusic from './OverlayParamsMusic.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ToggleBlock,
+		OverlayParamsMusic,
 		OverlayMusicPlayer,
 	},
 	emits:["setContent"]
@@ -67,7 +57,6 @@ export default class OverlayParamsDeezer extends Vue {
 	public currentTrack:MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get deezerConnected():boolean { return StoreProxy.store.state.deezerConnected; }
-	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
@@ -104,14 +93,6 @@ export default class OverlayParamsDeezer extends Vue {
 			flex-direction: column;
 			&:not(:first-child) {
 				margin-top: 1em;
-			}
-
-			ul {
-				margin-top: .5em;
-				li {
-					list-style-type: disc;
-					list-style-position: inside;
-				}
 			}
 		}
 	}
