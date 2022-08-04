@@ -16,8 +16,16 @@ import VoiceControl from '@/views/VoiceControl.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		alias: '/home',
 		name: 'home',
+		component: Home,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
+		path: '/home',
+		name: 'home_forced',
 		component: Home,
 		meta: {
 			overflow:true,
