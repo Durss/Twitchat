@@ -20,6 +20,7 @@ export default class VoiceController {
 
 	private lastTriggerKey:string = "";
 	private ignoreResult:boolean = false;
+	private wasIncludingGlobalCommand:boolean = false;
 	private timeoutNoAnswer:number = -1;
 	private recognition!:SpeechRecognition;
 	private hashmap:{[key:string]:VoiceAction} = {};
@@ -78,7 +79,11 @@ export default class VoiceController {
 				if(event.results[i].isFinal) {
 					texts.push(event.results[i][0].transcript);
 					this.finalText = texts[0].replace(this.lastTriggerKey, "");
+					if(!this.wasIncludingGlobalCommand) {
+						this.triggerAction(this.textUpdateAction, {text:this.finalText});
+					}
 					this.triggerAction(new VoiceAction(VoiceAction.SPEECH_END), {text:this.finalText});
+					this.wasIncludingGlobalCommand = false;
 				}else{
 					tempText_loc += event.results[i][0].transcript;
 				}
@@ -106,6 +111,7 @@ export default class VoiceController {
 						actionsList.push({id:VoiceAction.TEXT_UPDATE as TwitchatActionType, value:{text:v}});
 					}else{
 						hasGlobalAction = true;
+						this.wasIncludingGlobalCommand = true;
 					}
 				}
 			}

@@ -240,11 +240,11 @@ export default class PollForm extends Vue {
 			this.prevField.dispatchEvent(new Event("input"));
 			this.prevField = null;
 			this.prevFieldValue = "";
-			console.log("_____RESTORE content", this.prevFieldValue);
+			// console.log("_____RESTORE content", this.prevFieldValue);
 		}else{
 			this.prevField = this.currentInput;
 			this.prevFieldValue = this.currentInput.value;
-			console.log("_____BACKUP content", this.prevFieldValue);
+			// console.log("_____BACKUP content", this.prevFieldValue);
 		}
 		if(this.tabIndex != prevTabIndex && prevInput) prevInput.classList.remove("voiceFocus");
 		if(this.tabIndex < 0) this.tabIndex = 0;
@@ -258,7 +258,7 @@ export default class PollForm extends Vue {
 	private onBatchVoiceAction(e:TwitchatEvent):void {
 		const actionList = e.data as {id:string, value:string}[];
 		this.tabIndex = this.originalTabIndex;
-		console.log("ON BATCH ACTION ", this.tabIndex, actionList);
+		// console.log("ON BATCH ACTION ", this.tabIndex, actionList);
 		for (let i = 0; i < actionList.length; i++) {
 			const a = actionList[i];
 			this.onVoiceAction(new TwitchatEvent(a.id as TwitchatActionType, a.value), true);
