@@ -274,19 +274,18 @@ export default class SpotifyHelper extends EventDispatcher {
 		}
 		
 		let json:SpotifyTrack|null = await res.json();
+		if(json?.currently_playing_type == "episode") {
+			const episode = await this.getEpisodeInfos();
+			if(episode) json = episode;
+		}
+
 		if(json?.item) {
-			if(json.currently_playing_type == "episode") {
-				const episode = await this.getEpisodeInfos();
-				if(episode) json = episode;
-			}
-
-
 			this.currentTrack = {
 				type:"music",
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
-				album:json.item.album.name,
-				cover:json.item.album.images[0].url,
+				album:json.item.album? json.item.album.name : "",
+				cover:json.item.show? json.item.show.images[0].url : json.item.album.images[0].url,
 				duration:json.item.duration_ms,
 				url:json.item.href,
 			};
