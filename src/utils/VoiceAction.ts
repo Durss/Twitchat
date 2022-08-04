@@ -39,7 +39,7 @@ export default class VoiceAction {
 	public static STOP_POLL_DESCRIPTION:string = "Close current poll";
 	public static STOP_POLL_ICON:string = "poll";
 	public static STOP_PREDICTION:string = "STOP_PREDICTION";
-	public static STOP_PREDICTION_DESCRIPTION:string = "Close current description and choose an outcome";
+	public static STOP_PREDICTION_DESCRIPTION:string = "Cancel current prediction";
 	public static STOP_PREDICTION_ICON:string = "prediction";
 
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";

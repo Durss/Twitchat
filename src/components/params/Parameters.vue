@@ -33,7 +33,6 @@
 				<ParamsList v-if="(content && isGenericListContent) || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
 				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
 				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
 				<ParamsAlert v-if="content == 'alert'" @setContent="setContent" />

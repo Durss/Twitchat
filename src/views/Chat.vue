@@ -323,6 +323,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 
@@ -397,6 +399,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 	}
 
 	public clearChat():void {
@@ -409,6 +413,7 @@ export default class Chat extends Vue {
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif = "";
 		let modal = "";
+		console.log("PUBLIC EVENT", e.type);
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
@@ -432,11 +437,31 @@ export default class Chat extends Vue {
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
+			case TwitchatEvent.STOP_POLL:{
+				const poll = StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
+				console.log("STOP POLL", poll);
+				try {
+					await TwitchUtils.endPoll(poll.id);
+				}catch(error) {
+					StoreProxy.store.state.alert = "An error occurred while deleting the poll";
+				}
+				break;
+			}
 			case TwitchatEvent.CREATE_PREDICTION:
 				this.currentModal = 'prediction';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
+			case TwitchatEvent.STOP_PREDICTION:{
+				const prediction = StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction;
+				console.log("STOP PREDICTION", prediction);
+				try {
+					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
+				}catch(error) {
+					StoreProxy.store.state.alert = "An error occurred while deleting the poll";
+				}
+				break;
+			}
 		}
 
 		if(notif) {

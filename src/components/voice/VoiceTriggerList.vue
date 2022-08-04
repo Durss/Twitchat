@@ -1,15 +1,15 @@
 <template>
 	<div class="voicetriggerlist">
 
-		<Button :icon="$image('icons/add.svg')" title="Add action" class="addBt"
-			@click="addAction()"
-			v-if="getActionIDs().length > 0 && globalCommandsOK"
-		/>
-
 		<VoiceGlobalCommands class="action global"
 			v-model="globalCommands"
 			v-model:complete="globalCommandsOK"
-			:open="!globalCommandsOK || actions.length == 0"
+			:open="actions.length == 0"
+		/>
+
+		<Button :icon="$image('icons/add.svg')" title="Add action" class="addBt"
+			@click="addAction()"
+			:disabled="getActionIDs().length == 0 || !globalCommandsOK"
 		/>
 		
 		<ToggleBlock v-for="(a,index) in actions"
@@ -22,6 +22,14 @@
 			:ref="a.id"
 			class="action"
 		>
+			<template #actions>
+				<Button small highlight
+					:icon="$image('icons/cross_white.svg')"
+					class="toggleAction"
+					@click="deleteAction(a.id)"
+				/>
+			</template>
+
 			<label :for="'select'+index">Action to execute</label>
 			<vue-select :id="'select'+index"
 				label="label"
@@ -36,7 +44,6 @@
 			<label :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
 			<textarea :id="'text'+index" v-model="a.sentences" rows="5" maxlength="1000"></textarea>
 			
-			<Button @click="deleteAction(a.id)" :icon="$image('icons/cross_white.svg')" highlight title="Delete" class="saveBt" />
 		</ToggleBlock>
 	</div>
 </template>
@@ -225,15 +232,18 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	.action {
-		border: 1px solid @mainColor_normal;
-		border-radius: .5em;
+		&>:deep(.content) {
+			border: 1px solid @mainColor_normal;
+			border-top: none;
+			border-radius: 0 0 .5em .5em;
+		}
 
 		&:not(:first-of-type) {
 			margin-top: .5em;
 		}
 
 		&.global {
-			border: 1px solid darken(@mainColor_normal, 20%);
+			margin-bottom: 1em;
 			:deep(.header) {
 				background-color: darken(@mainColor_normal, 20%);
 			}
@@ -251,6 +261,11 @@ export default class VoiceTriggerList extends Vue {
 				margin: auto;
 				margin-top: .5em;
 			}
+		}
+		.toggleAction {
+			border-radius: 0;
+			padding: .3em;
+			align-self: stretch;
 		}
 	}
 }

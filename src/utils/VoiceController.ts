@@ -3,7 +3,7 @@ import type { JsonObject } from "type-fest";
 import { reactive, watch } from "vue";
 import PublicAPI from "./PublicAPI";
 import StoreProxy from "./StoreProxy";
-import TwitchatEvent, { type TwitchatActionType } from "./TwitchatEvent";
+import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "./TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**
@@ -19,6 +19,7 @@ export default class VoiceController {
 	public started:boolean = false;
 
 	private lastTriggerKey:string = "";
+	private lastTriggerAction:VoiceAction|null = null;
 	private ignoreResult:boolean = false;
 	private wasIncludingGlobalCommand:boolean = false;
 	private timeoutNoAnswer:number = -1;
@@ -84,6 +85,7 @@ export default class VoiceController {
 					}
 					this.triggerAction(new VoiceAction(VoiceAction.SPEECH_END), {text:this.finalText});
 					this.wasIncludingGlobalCommand = false;
+					this.lastTriggerAction = null;
 				}else{
 					tempText_loc += event.results[i][0].transcript;
 				}
@@ -132,14 +134,16 @@ export default class VoiceController {
 					if(index > -1) {
 						this.lastTriggerKey = key;
 						tempText_loc = tempText_loc.replace(key, "");
-						this.triggerAction(this.hashmap[key]);
+						const action = this.hashmap[key];
+						//Make sure event is broadcasted only once
+						if(this.lastTriggerAction?.id !== action.id) {
+							this.lastTriggerAction = action;
+							this.triggerAction(action);
+						}
 					}
 				}
 				this.triggerAction(this.textUpdateAction, {text:tempText_loc});
 			}
-
-			// tempText_loc = tempText_loc.trim();
-			// this.triggerAction(this.textUpdateAction, {text:tempText_loc});
 
 			this.tempText = tempText_loc;
 		}
@@ -229,7 +233,7 @@ export default class VoiceController {
 
 		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:$|(?:[^\\s]{1}\\s)?|\\s)", "gi");
 
-		// console.log(this.hashmap);
+		console.log(this.hashmap);
 		// console.log(this.hashmapGlobalActions);
 		// console.log(this.splitRegGlobalActions);
 	}
@@ -245,6 +249,6 @@ export default class VoiceController {
 			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}, true); return;
 			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}, true); return;
 		}
-		PublicAPI.instance.broadcast(action.id as TwitchatActionType, data, true);
+		PublicAPI.instance.broadcast(action.id as TwitchatActionType|TwitchatEventType, data, true);
 	}
 }

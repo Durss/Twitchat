@@ -570,12 +570,12 @@ export default class TwitchUtils {
 	/**
 	 * Ends a prediction
 	 */
-	public static async endPrediction(pollId:string, winId:string, cancel = false):Promise<TwitchDataTypes.Prediction[]> {
+	public static async endPrediction(predictionId:string, winId:string, cancel = false):Promise<TwitchDataTypes.Prediction[]> {
 		const options = {
 			method:"PATCH",
 			headers: this.headers,
 			body: JSON.stringify({
-				id:pollId,
+				id:predictionId,
 				status:cancel? "CANCELED" : "RESOLVED",
 				winning_outcome_id:winId,
 				broadcaster_id:UserSession.instance.authToken.user_id,

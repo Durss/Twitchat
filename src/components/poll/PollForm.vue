@@ -138,10 +138,6 @@ export default class PollForm extends Vue {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
-		
-		// watch(()=>VoiceController.instance.tempText, ()=> this.onText());
-		// watch(()=>VoiceController.instance.finalText, ()=> this.originalTabIndex = this.tabIndex);
-		
 
 		this.voiceActionHandler = (e:TwitchatEvent) => this.onVoiceAction(e);
 		this.batchVoiceActionHandler = (e:TwitchatEvent) => this.onBatchVoiceAction(e);

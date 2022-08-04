@@ -27,7 +27,9 @@ export default class TwitchatEvent extends Event {
 	public static TIMER_STOP:TwitchatEventType = "TIMER_STOP";
 	public static TIMER_OVERLAY_PRESENCE:TwitchatEventType = "TIMER_OVERLAY_PRESENCE";
 	public static CREATE_POLL:TwitchatEventType = "CREATE_POLL";
+	public static STOP_POLL:TwitchatEventType = "STOP_POLL";
 	public static CREATE_PREDICTION:TwitchatEventType = "CREATE_PREDICTION";
+	public static STOP_PREDICTION:TwitchatEventType = "STOP_PREDICTION";
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 
@@ -85,7 +87,9 @@ export type TwitchatEventType =
 	| "TIMER_STOP"
 	| "TIMER_OVERLAY_PRESENCE"
 	| "CREATE_POLL"
+	| "STOP_POLL"
 	| "CREATE_PREDICTION"
+	| "STOP_PREDICTION"
 	| "EMERGENCY_MODE"
 	| "CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 ;

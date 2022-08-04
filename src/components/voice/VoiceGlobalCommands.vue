@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" medium :open="open">
+	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" medium :open="openLocal">
 		<div class="head">
 			These are the things you'll have to say to perform some actions like navigating through menus.
 		</div>
@@ -38,11 +38,13 @@ export default class VoiceGlobalCommands extends Vue {
 
 	public items:ParameterData[] = [];
 	public itemsID:string[] = [];
+	public openLocal:boolean = false;
 	
 
 	public mounted():void {
 		// const actions = StoreProxy.store.state.voiceActions;
 		const actions = Object.keys(VoiceAction);
+		this.openLocal = this.open;
 		type VAKeys = keyof typeof VoiceAction;
 
 		//Search for global labels
@@ -63,10 +65,10 @@ export default class VoiceGlobalCommands extends Vue {
 			});
 			this.itemsID.push(id);
 		}
-		this.updateCommands();
+		this.updateCommands(true);
 	}
 
-	public updateCommands():void {
+	public updateCommands(isInit:boolean = false):void {
 		const data:VoiceAction[] = [];
 		let allDone = true;
 		for (let i = 0; i < this.items.length; i++) {
@@ -77,10 +79,12 @@ export default class VoiceGlobalCommands extends Vue {
 			})
 
 			allDone &&= item.value != "";
-			
 		}
 		this.$emit("update:modelValue", data);
 		this.$emit("update:complete", allDone);
+		if(isInit && allDone){
+			this.openLocal = false;
+		}
 	}
 
 }
