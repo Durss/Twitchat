@@ -75,7 +75,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
-import type TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchatEvent, { type TwitchatActionType } from '@/utils/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
 
 @Options({
@@ -111,7 +111,11 @@ export default class PollForm extends Vue {
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
 
 	private tabIndex:number = 0;
+	private prevField:HTMLInputElement|null = null;
+	private prevFieldValue:string = "";
+	private originalTabIndex:number = 0;
 	private voiceActionHandler!:(e:TwitchatEvent)=>void;
+	private batchVoiceActionHandler!:(e:TwitchatEvent)=>void;
 
 	public get answers():string[] {
 		let res = [];
@@ -136,14 +140,18 @@ export default class PollForm extends Vue {
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		
 		// watch(()=>VoiceController.instance.tempText, ()=> this.onText());
-		// watch(()=>VoiceController.instance.finalText, ()=> this.onText(true));
+		// watch(()=>VoiceController.instance.finalText, ()=> this.originalTabIndex = this.tabIndex);
+		
 
 		this.voiceActionHandler = (e:TwitchatEvent) => this.onVoiceAction(e);
+		this.batchVoiceActionHandler = (e:TwitchatEvent) => this.onBatchVoiceAction(e);
 		PublicAPI.instance.addEventListener(VoiceAction.ERASE, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.NEXT, this.voiceActionHandler);
 		PublicAPI.instance.addEventListener(VoiceAction.TEXT_UPDATE, this.voiceActionHandler);
+		PublicAPI.instance.addEventListener(VoiceAction.SPEECH_END, this.voiceActionHandler);
+		PublicAPI.instance.addEventListener(VoiceAction.ACTION_BATCH, this.batchVoiceActionHandler);
 	}
 
 	public beforeUnmount():void {
@@ -152,6 +160,8 @@ export default class PollForm extends Vue {
 		PublicAPI.instance.removeEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
 		PublicAPI.instance.removeEventListener(VoiceAction.NEXT, this.voiceActionHandler);
 		PublicAPI.instance.removeEventListener(VoiceAction.TEXT_UPDATE, this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener(VoiceAction.SPEECH_END, this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener(VoiceAction.ACTION_BATCH, this.batchVoiceActionHandler);
 	}
 
 	public async close():Promise<void> {
@@ -187,27 +197,27 @@ export default class PollForm extends Vue {
 
 	private onText(text:string = ""):void {
 		const maxLength = this.currentInput.maxLength;
-		// let text = VoiceController.instance.currentText;
+		// text too long, shake the field
 		if(text.length > maxLength) {
 			gsap.fromTo(this.currentInput, {x:-2}, {x:2, duration:0.01, clearProps:"x", repeat:20});
+			text = text.substring(0, maxLength);
 		}
-		// text = this.currentInput.value + text;
-		if(maxLength) text = text.substring(0, maxLength);
+		
 		this.currentInput.value = text;
 		this.currentInput.dispatchEvent(new Event("input"));
 	}
 
-	private onVoiceAction(e:TwitchatEvent):void {
-		console.log("ON ACTION ", e.type);
+	private onVoiceAction(e:TwitchatEvent, isBatch:boolean = false):void {
+		// console.log("ON ACTION ", e.type, e.data);
 		const inputList = (this.$el as HTMLDivElement).getElementsByTagName("input");
-		const activeEl = document.activeElement;
-		for (let i = 0; i < inputList.length; i++) {
-			const e = inputList[i];
-			if(e === activeEl) this.tabIndex = i;
-		}
 		
 		const prevTabIndex = this.tabIndex;
+		const prevInput = this.currentInput;
 		switch(e.type) {
+			case VoiceAction.SPEECH_END: {
+				this.originalTabIndex = this.tabIndex
+				break;
+			}
 			case VoiceAction.ERASE: {
 				this.currentInput.value = "";
 				this.currentInput.dispatchEvent(new Event("input"));
@@ -216,14 +226,42 @@ export default class PollForm extends Vue {
 			case VoiceAction.SUBMIT: this.submitPoll(); break;
 			case VoiceAction.PREVIOUS: this.tabIndex --; break;
 			case VoiceAction.NEXT: this.tabIndex ++; break;
-			case VoiceAction.TEXT_UPDATE: this.onText((e.data as {text:string}).text as string); return;
+			case VoiceAction.TEXT_UPDATE: {
+				this.onText((e.data as {text:string}).text as string);
+				return;
+			}
 		}
-		if(this.tabIndex != prevTabIndex && this.currentInput) this.currentInput.classList.remove("voiceFocus");
+
+		if(e.type != VoiceAction.SPEECH_END
+		&& e.type != VoiceAction.ERASE
+		&& this.prevField) {
+			//Backup prev field value to revert it if just using a global command
+			this.prevField.value = this.prevFieldValue;
+			this.prevField.dispatchEvent(new Event("input"));
+			this.prevField = null;
+			this.prevFieldValue = "";
+			console.log("_____RESTORE content", this.prevFieldValue);
+		}else{
+			this.prevField = this.currentInput;
+			this.prevFieldValue = this.currentInput.value;
+			console.log("_____BACKUP content", this.prevFieldValue);
+		}
+		if(this.tabIndex != prevTabIndex && prevInput) prevInput.classList.remove("voiceFocus");
 		if(this.tabIndex < 0) this.tabIndex = 0;
 		if(this.tabIndex > inputList.length-1) this.tabIndex = inputList.length-1;
 		if(this.tabIndex != prevTabIndex) {
 			this.currentInput.focus();
 			this.currentInput.classList.add("voiceFocus");
+		}
+	}
+
+	private onBatchVoiceAction(e:TwitchatEvent):void {
+		const actionList = e.data as {id:string, value:string}[];
+		this.tabIndex = this.originalTabIndex;
+		console.log("ON BATCH ACTION ", this.tabIndex, actionList);
+		for (let i = 0; i < actionList.length; i++) {
+			const a = actionList[i];
+			this.onVoiceAction(new TwitchatEvent(a.id as TwitchatActionType, a.value), true);
 		}
 	}
 }

@@ -25,23 +25,21 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 
 	public mounted():void {
 		// const actions = StoreProxy.store.state.voiceActions;
+		type VAKeys = keyof typeof VoiceAction;
 		const actions = Object.keys(VoiceAction);
 
 		//Search for global labels
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
-			//@ts-ignore
-			const isGlobal = VoiceAction[a+"_IS_GLOBAL"] === true;
+			const isGlobal = Object.prototype.hasOwnProperty.call(VoiceAction, a+"_IS_GLOBAL") === true;
 			if(!isGlobal) continue;//Ignore non global commands
-
-			//@ts-ignore
-			const id:string = VoiceAction[a];
+			
+			const id:string = VoiceAction[a as VAKeys] as string;
 			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action) {
 				this.actions.push({
 					action,
-					//@ts-ignore
-					label:VoiceAction[id+"_DESCRIPTION"],
+					label:VoiceAction[id+"_DESCRIPTION" as VAKeys] as string,
 				});
 			}
 		}

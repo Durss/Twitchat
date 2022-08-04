@@ -712,8 +712,6 @@ export default class PubSub extends EventDispatcher{
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 
-		console.log(message);
-		
 		IRCClient.instance.sendHighlight(message);
 	}
 

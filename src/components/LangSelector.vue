@@ -4,6 +4,7 @@
 		placeholder="Select language..."
 		:options="languages"
 		:appendToBody="true"
+		:calculate-position="$placeDropdown"
 		>
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[1][0])" mode="rounded" class="flag" />
@@ -15,6 +16,7 @@
 		placeholder="Select country..."
 		:options="subLanguages"
 		:appendToBody="true"
+		:calculate-position="$placeDropdown"
 		>
 			<template v-slot:option="option">
 				<CountryFlag :iso="getISOFromLang(option.value[0])" mode="rounded" class="flag" />

@@ -259,13 +259,12 @@ export default class ChatForm extends Vue {
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
 		const actions = Object.keys(VoiceAction);
+		type VAKeys = keyof typeof VoiceAction;
 		//Search for global labels
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
-			//@ts-ignore
-			if(VoiceAction[a+"_IS_GLOBAL"] !== true) continue;
-			//@ts-ignore
-			const id:string = VoiceAction[a];
+			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
+			const id:string = VoiceAction[a as VAKeys] as string;
 			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(!action?.sentences) return false;
 		}

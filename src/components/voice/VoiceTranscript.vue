@@ -1,8 +1,10 @@
 <template>
-	<div class="voicetranscript" v-if="show">
+	<div class="voicetranscript">
 		<!-- <img src="@/assets/icons/microphone.svg" alt="microphone"> -->
-		<div class="holder">
-			<div class="text">{{text}}</div>
+		<div class="holder" ref="holder" v-if="show" @click="hide()">
+			<div class="padder">
+				<div class="text">{{text}}</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -34,17 +36,24 @@ export default class VoiceTranscript extends Vue {
 				if(!this.show){
 					this.show = true;
 					await this.$nextTick();
-					gsap.killTweensOf(this.$el);
-					gsap.from(this.$el, {duration:.25, height:0, paddingTop:0, paddingBottom:0, clearProps:"all"});
+					const holder = this.$refs.holder as HTMLDivElement;
+					gsap.killTweensOf(holder);
+					gsap.to(holder, {duration:.25, y:"0%"});
 				}
 			}else if(this.show){
-				gsap.killTweensOf(this.$el);
-				const delay = VoiceController.instance.finalText.length * .025;
-				gsap.to(this.$el, {delay, duration:.25, height:0, paddingTop:0, paddingBottom:0, clearProps:"all", onComplete:()=>{
+				const holder = this.$refs.holder as HTMLDivElement;
+				gsap.killTweensOf(holder);
+				const delay = Math.min(2, VoiceController.instance.finalText.length * .025);
+				gsap.to(holder, {delay, duration:.25, y:"120%", clearProps:"all", onComplete:()=>{
 					this.show = false;
 				}});
 			}
 		});
+	}
+
+	public hide():void {
+		VoiceController.instance.tempText = "";
+		VoiceController.instance.finalText = "";
 	}
 
 }
@@ -54,32 +63,51 @@ export default class VoiceTranscript extends Vue {
 .voicetranscript{
 	width: 100%;
 	color:@mainColor_light;
-	background-color: fade(@mainColor_dark, 90%);
 	overflow: hidden;
-	padding: .5em;
+	z-index: 1000;
+	line-height: 1.1em;
+	height: fit-content;
+	max-height: 3em;
+	pointer-events: none;
 
 	.holder {
-		overflow: hidden;
-		display: flex;
-		flex-direction: vertical;
-		align-items: flex-end;
-		justify-content: center;
-		text-align: center;
-		max-height: 2em;
+		padding: .5em;
+		background-color: fade(#000000, 50%);
+		transform: translate(0, calc(100% + 1em));
+		pointer-events: all;
+		backdrop-filter: blur(6px);
+		z-index: -1;
+		cursor: pointer;
+		transition: background-color .25s;
 
-		&::before {
-			content:"";
-			background-image: url("../../assets/icons/microphone.svg");
-			background-repeat: no-repeat;
-			width: 2em;
-			min-width: 2em;
-			height: 1em;
-			align-self: flex-start;
+		&:hover {
+			background-color: fade(#111, 50%);
 		}
 
-		.text {
-			width: 100%;
+		.padder {
+			max-height: 2em;
+			overflow: hidden;
+			display: flex;
+			align-items: flex-end;
+			justify-content: center;
+			text-align: center;
+
+			&::before {
+				content:"";
+				background-image: url("../../assets/icons/microphone.svg");
+				background-repeat: no-repeat;
+				width: 2em;
+				min-width: 2em;
+				max-width: 2em;
+				height: 1em;
+				align-self: flex-start;
+			}
+
+			.text {//This holder makes sure no text is visible over the padding of its parent
+				width: 100%;
+			}
 		}
+
 	}
 }
 </style>

@@ -23,7 +23,8 @@ export default class VoiceController {
 	private timeoutNoAnswer:number = -1;
 	private recognition!:SpeechRecognition;
 	private hashmap:{[key:string]:VoiceAction} = {};
-	private carretIndex:number = 0;
+	private hashmapGlobalActions:{[key:string]:VoiceAction} = {};
+	private splitRegGlobalActions!:RegExp;
 	private textUpdateAction!:VoiceAction;
 
 	
@@ -77,50 +78,76 @@ export default class VoiceController {
 				if(event.results[i].isFinal) {
 					texts.push(event.results[i][0].transcript);
 					this.finalText = texts[0].replace(this.lastTriggerKey, "");
+					this.triggerAction(new VoiceAction(VoiceAction.SPEECH_END), {text:this.finalText});
 				}else{
 					tempText_loc += event.results[i][0].transcript;
 				}
 			}
 
-			tempText_loc = tempText_loc.toLowerCase().substring(Math.max(0,this.carretIndex));
-			let isTriggerFound = false;
-			for (const key in this.hashmap) {
-				const index = tempText_loc.indexOf(key);
-				if(index > -1) {
-					this.lastTriggerKey = key;
-					tempText_loc = tempText_loc.replace(key, "");
-					this.triggerAction(this.hashmap[key]);
-					this.carretIndex += index + key.length;
-					isTriggerFound = true;
+			tempText_loc = tempText_loc.toLowerCase();
+			//while talking, split the current text with all the global commands so
+			//we get multiple chunks of actions
+			const actionsList:{id:TwitchatActionType, value?:string|JsonObject}[] = [];
+			let hasGlobalAction = false;
+			if(tempText_loc.length > 0) {
+				this.splitRegGlobalActions.lastIndex = 0;//reset regexp pointer
+				const chunks = tempText_loc.split(this.splitRegGlobalActions);
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					let matchAction = false;
+					for (const key in this.hashmapGlobalActions) {
+						if(v == this.hashmapGlobalActions[key].sentences) {
+							actionsList.push({id:this.hashmapGlobalActions[key].id as TwitchatActionType});
+							matchAction = true;
+							break;
+						}
+					}
+					if(!matchAction && v.length > 0) {
+						actionsList.push({id:VoiceAction.TEXT_UPDATE as TwitchatActionType, value:{text:v}});
+					}else{
+						hasGlobalAction = true;
+					}
 				}
 			}
-
-			//Reset carret after temp text is cleared.
-			//Edge is turbo slow to fire the onspeechend event.
-			//This condition is a workaround for that issue.
-			if(tempText_loc?.length == 0) {
-				this.carretIndex = -1;
+			if(hasGlobalAction) {
+				//If there's just one global action, send it the normal way
+				if(actionsList.length ==1) {
+					const a = actionsList[0];
+					this.triggerAction(new VoiceAction(a.id), a.value as JsonObject);
+				}else{
+					//There are more than one action including global one(s), send them
+					//all as a batch
+					this.triggerAction(new VoiceAction(VoiceAction.ACTION_BATCH), (actionsList as unknown) as JsonObject);
+				}
+			}else if(tempText_loc.length > 0) {
+				//Handle non-global commands
+				for (const key in this.hashmap) {
+					const index = tempText_loc.indexOf(key);
+					if(index > -1) {
+						this.lastTriggerKey = key;
+						tempText_loc = tempText_loc.replace(key, "");
+						this.triggerAction(this.hashmap[key]);
+					}
+				}
+				this.triggerAction(this.textUpdateAction, {text:tempText_loc});
 			}
 
-			tempText_loc = tempText_loc.trim();
-			this.triggerAction(this.textUpdateAction, {text:tempText_loc});
+			// tempText_loc = tempText_loc.trim();
+			// this.triggerAction(this.textUpdateAction, {text:tempText_loc});
 
 			this.tempText = tempText_loc;
 		}
 		
 		this.recognition.onend = () => {
-			this.carretIndex = -1;
 			if(!this.started) return;
 			this.recognition.start();
 		};
 
 		this.recognition.onspeechend = () => {
-			this.carretIndex = -1;
 			// console.log("SPEECH END");
 		};
 		
 		this.recognition.onerror = () => {
-			this.carretIndex = -1;
 			// console.log("ON ERROR", e);
 		}
 
@@ -164,16 +191,19 @@ export default class VoiceController {
 		});
 
 		watch(()=>StoreProxy.store.state.voiceActions, ()=> {
-			this.buildHashmap();
+			this.buildHashmaps();
 		}, {deep:true})
 
-		this.buildHashmap();
+		this.buildHashmaps();
 	}
 
-	private buildHashmap():void {
+	private buildHashmaps():void {
+		type VAKeys = keyof typeof VoiceAction;
 		const actions:VoiceAction[] = StoreProxy.store.state.voiceActions;
 		this.hashmap = {};
+		this.hashmapGlobalActions = {};
 
+		let regChunks:string[] = [];
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
 			if(!a.id) continue;
@@ -181,17 +211,27 @@ export default class VoiceController {
 			sentences?.forEach(v => {
 				const key = v.trim().toLowerCase();
 				if(key.length > 1) {
-					this.hashmap[key] = a;
+					if(VoiceAction[a.id+"_IS_GLOBAL" as VAKeys] === true) {
+						this.hashmapGlobalActions[key] = a;
+						regChunks.push( a.sentences?.replace(/[^a-z0-9]/gi, "") as string );
+					}else{
+						this.hashmap[key] = a;
+					}
 				}
 			}) 
 		}
-		console.log(this.hashmap);
+
+		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:$|(?:[^\\s]{1}\\s)?|\\s)", "gi");
+
+		// console.log(this.hashmap);
+		// console.log(this.hashmapGlobalActions);
+		// console.log(this.splitRegGlobalActions);
 	}
 
 	private triggerAction(action:VoiceAction, data?:JsonObject):void {
 		if(!action.id) return;
 
-		console.log("TRIGGER ACTION", action.id, data);
+		// console.log("TRIGGER ACTION", action.id, data);
 		
 		switch(action.id) {
 			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true); return;

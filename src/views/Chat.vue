@@ -14,7 +14,7 @@
 				<div class="grip"></div>
 			</div>
 
-			<div class="rightColumn" v-if="splitView" :style="rightStyles">
+			<div class="rightColumn" v-if="splitView" :style="rightStyles" ref="rightCol">
 				<NewUsers class="newUsers" v-if="$store.state.params.features.firstMessage.value" />
 
 				<ActivityFeed class="activityFeed" listMode />
@@ -91,9 +91,8 @@
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
 
-		<VoiceTranscript class="contentWindows tts" v-if="splitView" />
-
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
+		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" v-if="splitView" />
 
 		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
 		<ChatPollForm :style="rightStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
@@ -212,6 +211,7 @@ export default class Chat extends Vue {
 	public mouseX = 0;
 	public leftColSize = 0;
 	public startAdCooldown = 0;
+	public ttsPosY = 0;
 	public currentModal = "";
 	public currentMessageSearch = "";
 	public currentNotificationContent = "";
@@ -245,17 +245,18 @@ export default class Chat extends Vue {
 		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
 			size = 100-size;
 		}
+		const value = `calc(${size}% - 7px)`;//7px => dragbar size
 		if(this.splitViewVertical) {
 			return {
-				"height": size + '%',
-				"min-height": size + "%",
-				"max-height": size + "%",
+				"height": value,
+				"min-height": value,
+				"max-height": value,
 			}
 		}else{
 			return {
-				"width": size + '%',
-				"min-width": size + "%",
-				"max-width": size + "%",
+				"width": value,
+				"min-width": value,
+				"max-width": value,
 			}
 		}
 	}
@@ -267,19 +268,31 @@ export default class Chat extends Vue {
 		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value !== true) {
 			size = 100-size;
 		}
+		const value = `calc(${size}% - 7px)`;
+
 		if(this.splitViewVertical) {
 			return {
-				"height": size + '%',
-				"min-height": size + "%",
-				"max-height": size + "%",
+				"height": value,
+				"min-height": value,
+				"max-height": value,
 			}
 		}else{
 			return {
-				"width": size + '%',
-				"min-width": size + "%",
-				"max-width": size + "%",
+				"width": value,
+				"min-width": value,
+				"max-width": value,
 			}
 		}
+	}
+
+	public get ttsStyles():{[key:string]:string} {
+		let res:{[key:string]:string} = {};
+		if(this.splitView && this.splitViewVertical && StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
+			res.top = this.ttsPosY+"px";
+		}else if(!this.splitViewVertical){
+			res = this.rightStyles;
+		}
+		return res;
 	}
 
 	private resizeHandler!:(e:Event) => void;
@@ -532,6 +545,7 @@ export default class Chat extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 
+		if(this.ttsPosY === 0) this.replaceTTS();
 		if(!this.resizing) return;
 		
 		if(this.splitViewVertical) {
@@ -541,6 +555,16 @@ export default class Chat extends Vue {
 		}
 
 		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
+
+		await this.$nextTick();
+		this.replaceTTS();
+	}
+
+	private replaceTTS():void {
+		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true && this.$refs.rightCol) {
+			const rect = (this.$refs.rightCol as HTMLDivElement).getBoundingClientRect();
+			this.ttsPosY = rect.height;
+		}
 	}
 }
 
@@ -602,12 +626,17 @@ export default class Chat extends Vue {
 				.top {
 					flex-direction: column-reverse;
 				}
+				&.switchCols {
+					.contentWindows.tts {
+						transform: translateY(-100%);
+					}
+				}
 			}
 
 			.dragBt {
 				margin-right: 0;
-				margin-bottom: -7px;
 				padding: 3px;
+				flex-grow: 1;
 				cursor: ns-resize;
 				.grip {
 					left: unset;
@@ -639,7 +668,12 @@ export default class Chat extends Vue {
 			&.tts {
 				left: auto;
 				right:0;
-				max-width: 50vw;
+			}
+		}
+		&.switchCols {
+			.contentWindows.tts {
+				left: 0;
+				right: auto;
 			}
 		}
 	}
@@ -675,7 +709,7 @@ export default class Chat extends Vue {
 		cursor: ew-resize;
 		user-select: none;
 		z-index: 2;
-		margin-right: -7px;
+		width: 14px;
 		.grip {
 			position: relative;
 			left: 50%;

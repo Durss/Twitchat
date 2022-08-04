@@ -43,16 +43,15 @@ export default class VoiceGlobalCommands extends Vue {
 	public mounted():void {
 		// const actions = StoreProxy.store.state.voiceActions;
 		const actions = Object.keys(VoiceAction);
+		type VAKeys = keyof typeof VoiceAction;
 
 		//Search for global labels
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
-			//@ts-ignore
-			const isGlobal = VoiceAction[a+"_IS_GLOBAL"] === true;
+			const isGlobal = VoiceAction[a+"_IS_GLOBAL" as VAKeys] === true;
 			if(!isGlobal) continue;
 
-			//@ts-ignore
-			const id:string = VoiceAction[a];
+			const id:string = VoiceAction[a as VAKeys] as string;
 			let text = "";
 			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action?.sentences) text = action.sentences;
@@ -60,11 +59,11 @@ export default class VoiceGlobalCommands extends Vue {
 			this.items.push({
 				type:"text",
 				value:text,
-				//@ts-ignore
-				label:VoiceAction[id+"_DESCRIPTION"],
+				label:VoiceAction[id+"_DESCRIPTION" as VAKeys] as string,
 			});
 			this.itemsID.push(id);
 		}
+		this.updateCommands();
 	}
 
 	public updateCommands():void {

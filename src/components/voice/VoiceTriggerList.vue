@@ -30,6 +30,7 @@
 				:reduce="reduceSelectData"
 				:options="getActionIDs(a)"
 				:appendToBody="true"
+				:calculate-position="$placeDropdown"
 			></vue-select>
 
 			<label :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
@@ -72,13 +73,14 @@ export default class VoiceTriggerList extends Vue {
 	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
 	public mounted():void {
+		type VAKeys = keyof typeof VoiceAction;
 		this.actions = JSON.parse(JSON.stringify(StoreProxy.store.state.voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
 			if(!a.id) continue;
-			//@ts-ignore ignore global commands
-			if(VoiceAction[a.id+"_IS_GLOBAL"] === true) {
+			//ignore global commands
+			if(VoiceAction[a.id+"_IS_GLOBAL" as VAKeys] === true) {
 				this.actions.splice(i, 1);
 				i--;
 				continue;
@@ -139,6 +141,7 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public getActionIDs(action?:VoiceAction):{label:string, value:string}[] {
+		type VAKeys = keyof typeof VoiceAction;
 		let availableActions = Object.keys(VoiceAction);
 		availableActions = availableActions.filter(v=> v.indexOf("_DESCRIPTION") == -1);
 		availableActions = availableActions.filter(v=> v.indexOf("_ICON") == -1);
@@ -156,8 +159,7 @@ export default class VoiceTriggerList extends Vue {
 
 		//Remove global commands (erase, prev, next, submit)
 		for (let i = 0; i < availableActions.length; i++) {
-			//@ts-ignore
-			const isGlobal = VoiceAction[availableActions[i]+"_IS_GLOBAL"] === true;
+			const isGlobal = VoiceAction[availableActions[i]+"_IS_GLOBAL" as VAKeys] === true;
 			if(isGlobal) {
 				availableActions.splice(i, 1);
 				i--;
@@ -166,25 +168,24 @@ export default class VoiceTriggerList extends Vue {
 
 		return availableActions.map(v=> {
 			return {
-				//@ts-ignore
-				label:VoiceAction[v+"_DESCRIPTION"],
+				label:VoiceAction[v+"_DESCRIPTION" as VAKeys] as string,
 				value:v,
 			}
 		});
 	}
 
 	public getLabelFromID(id:string|undefined):string {
+		type VAKeys = keyof typeof VoiceAction;
 		if(!id===null) return "ACTION ID NOT FOUND : "+id;
-		//@ts-ignore
-		let label = VoiceAction[id+"_DESCRIPTION"];
+		let label = VoiceAction[id+"_DESCRIPTION" as VAKeys] as string;
 		if(!label) label = "...select action..."
 		return label;
 	}
 
 	public getIconFromID(id:string|undefined):string {
 		if(!id===null) return "ACTION ID NOT FOUND : "+id;
-		//@ts-ignore
-		return VoiceAction[id+"_ICON"];
+		type VAKeys = keyof typeof VoiceAction;
+		return VoiceAction[id+"_ICON" as VAKeys] as string;
 	}
 	
 	/**
