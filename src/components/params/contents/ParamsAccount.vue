@@ -33,7 +33,6 @@ import ParamItem from '../ParamItem.vue';
 })
 export default class ParamsAccount extends Vue {
 
-	public obsOverlayURL = "";
 	public showSuggestions = false;
 	public showObs = false;
 	public showCredits = true;
@@ -56,9 +55,7 @@ export default class ParamsAccount extends Vue {
 
 	public mounted():void {
 		this.syncEnabled = Store.get(Store.SYNC_DATA_TO_SERVER) == "true";
-		watch(()=> StoreProxy.store.state.params, ()=> this.onParamChanged());
 		watch(()=> this.syncEnabled, ()=> Store.set(Store.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
-		this.onParamChanged();
 	}
 
 	public ahs():void {
@@ -69,24 +66,6 @@ export default class ParamsAccount extends Vue {
 		// StoreProxy.store.state.ahsInstaller.userChoice.then((choiceResult) => {
 		// 	this.canInstall = false;
 		// })
-	}
-
-	private onParamChanged():void {
-		let path = router.resolve({name:'chatLight', params:{login:UserSession.instance.authToken.login}}).href;
-		//eslint-disable-next-line
-		const params:any = {};
-		for (const cat in StoreProxy.store.state.params) {
-			//eslint-disable-next-line
-			const values = StoreProxy.store.state.params[cat as ParameterCategory];
-			for (const key in values) {
-				const p = values[key] as ParameterData;
-				if(p.id) {
-					params[p.id] = p.value;
-				}
-			}
-		}
-		params.access_token = UserSession.instance.authResult;
-		this.obsOverlayURL = document.location.origin+path+"?params="+btoa(JSON.stringify(params));
 	}
 
 }

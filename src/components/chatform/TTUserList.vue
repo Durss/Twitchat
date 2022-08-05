@@ -2,12 +2,19 @@
 	<div class="ttuserlist">
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
+
+			<div class="title">
+				<p>{{users.length}} users</p>
+				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
+			</div>
 			
-			<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
-
 			<div class="noResult" v-if="!loading && users?.length == 0">no user found :(</div>
-
-			<div class="title">{{users.length}} users</div>
+		
+			<div class="stats">
+				<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
+				<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
+				<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
+			</div>
 
 			<div class="list">
 				<div v-for="u in users"
@@ -55,8 +62,11 @@ import Button from '../Button.vue';
 export default class TTUserList extends Vue {
 
 	public users:UserData[] = [];
-	public loading = true;
-	public token = "";
+	public loading:boolean = true;
+	public token:string = "";
+	public activeLast24h:number = 0;
+	public activeLast7days:number = 0;
+	public activeLast30days:number = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -125,10 +135,20 @@ export default class TTUserList extends Vue {
 				const users = json.users as {id:string, date:number, user:TwitchDataTypes.UserInfo}[];
 				const ids = users.map(u => u.id);
 				const channels = await TwitchUtils.loadUserInfo(ids);
+				this.activeLast24h = 0;
+				this.activeLast7days = 0;
+				this.activeLast30days = 0;
+				const offset24h = Date.now() - 24 * 60 * 60 * 1000;
+				const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
+				const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
 				for (let i = 0; i < channels.length; i++) {
 					const c = channels[i];
 					const index = users.findIndex(u => u.id == c.id);
 					users[index].user = c;
+					const date = users[index].date;
+					if(date > offset24h) this.activeLast24h++;
+					if(date > offset7days) this.activeLast7days++;
+					if(date > offset30days) this.activeLast30days++;
 				}
 				users.sort((a, b) => b.date - a.date);
 				this.users = users;
@@ -156,15 +176,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	height: 100%;
 	.modal();
 
-	.closeBt {
-		position: absolute;
-		top: 0;
-		right: 0;
-		z-index: 1;
-		border-top-right-radius: 0;
-		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-	}
-
 	.loader {
 		.center();
 		position: absolute;
@@ -181,15 +192,42 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		height: 100%;
 		overflow: auto;
 		background-color: @mainColor_dark;
-		padding: 10px;
 		@gap: 5px;
 
 		.title {
 			text-align: center;
 			margin-bottom: .5em;
+			color: @mainColor_light;
+			background-color: @mainColor_normal;
+			display: flex;
+			flex-direction: row;
+			p {
+				padding: .5em;
+				padding-left: 2em;//Makes sure title is visually centered
+				flex-grow: 1;
+			}
+			.closeBt {
+				padding: .5em;
+			}
+		}
+
+		.stats {
+			display: grid;
+			grid-template-columns: auto auto;
+			font-size: .8em;
+			padding: 0 1em;
+			color: @mainColor_light;
+			p:nth-child(odd) {
+				text-align: right;
+				margin-right: .5em;
+			}
+			p:nth-child(even) {
+				font-weight: bold;
+			}
 		}
 
 		.list {
+			padding: .5em;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
