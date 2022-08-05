@@ -96,6 +96,7 @@ export default class VoiceController {
 					this.wasIncludingGlobalCommand = false;
 					this.lastTriggerAction = null;
 					this.triggersCountDone = 0;
+					this.lastTriggerKey = "";
 				}else{
 					tempText_loc += event.results[i][0].transcript;
 				}

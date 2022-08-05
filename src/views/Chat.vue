@@ -349,6 +349,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 
@@ -429,6 +430,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 	}
 
 	public clearChat():void {
@@ -513,6 +515,11 @@ export default class Chat extends Vue {
 				}).catch(()=>{});
 				break;
 			case TwitchatEvent.STOP_EMERGENCY:{
+				StoreProxy.store.dispatch("setEmergencyMode", false);
+				break;
+			}
+
+			case TwitchatEvent.SHOUTOUT:{
 				StoreProxy.store.dispatch("setEmergencyMode", false);
 				break;
 			}

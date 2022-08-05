@@ -10,6 +10,7 @@
 		"major": "npm version major -m \"Upgrade version to v%s\"",
 		"build": "vue-tsc --noEmit && vite build",
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+		"streamdeck_package": "DistributionTool.exe -b -i streamdeck_plugin/fr.twitchat.sdPlugin -o streamdeck_plugin",
 		"check-circular-dependencies": "dpdm ./src/main.ts"
 	},
 	"dependencies": {

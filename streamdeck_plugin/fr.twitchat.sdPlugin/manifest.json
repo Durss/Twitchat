@@ -1,11 +1,11 @@
 {
 	"Actions": [
 		{
-			"Icon": "./icons/GREET_FEED_READ_default",
+			"Icon": "icons/GREET_FEED_READ_default",
 			"Name": "Clear 'Greet them' section",
 			"States": [
 				{
-					"Image": "./icons/GREET_FEED_READ",
+					"Image": "icons/GREET_FEED_READ",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -15,11 +15,11 @@
 			"UUID": "fr.twitchat.action.greet-feed-read-all"
 		},
 		{
-			"Icon": "./icons/GREET_FEED_READ_default",
+			"Icon": "icons/GREET_FEED_READ_default",
 			"Name": "Clear X messages from 'Greet them' section",
 			"States": [
 				{
-					"Image": "./icons/GREET_FEED_READ",
+					"Image": "icons/GREET_FEED_READ",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -29,11 +29,11 @@
 			"UUID": "fr.twitchat.action.greet-feed-read"
 		},
 		{
-			"Icon": "./icons/CHAT_FEED_READ_default",
+			"Icon": "icons/CHAT_FEED_READ_default",
 			"Name": "Mark all chat messages as read",
 			"States": [
 				{
-					"Image": "./icons/CHAT_FEED_READ",
+					"Image": "icons/CHAT_FEED_READ",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -43,11 +43,11 @@
 			"UUID": "fr.twitchat.action.chat-feed-read-all"
 		},
 		{
-			"Icon": "./icons/CHAT_FEED_READ_default",
+			"Icon": "icons/CHAT_FEED_READ_default",
 			"Name": "Mark X chat message as read",
 			"States": [
 				{
-					"Image": "./icons/CHAT_FEED_READ",
+					"Image": "icons/CHAT_FEED_READ",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -57,11 +57,11 @@
 			"UUID": "fr.twitchat.action.chat-feed-read"
 		},
 		{
-			"Icon": "./icons/CHAT_FEED_PAUSE_default",
+			"Icon": "icons/CHAT_FEED_PAUSE_default",
 			"Name": "Pause chat",
 			"States": [
 				{
-					"Image": "./icons/CHAT_FEED_PAUSE",
+					"Image": "icons/CHAT_FEED_PAUSE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -71,11 +71,11 @@
 			"UUID": "fr.twitchat.action.chat-feed-pause"
 		},
 		{
-			"Icon": "./icons/CHAT_FEED_UNPAUSE_default",
+			"Icon": "icons/CHAT_FEED_UNPAUSE_default",
 			"Name": "Resume paused chat",
 			"States": [
 				{
-					"Image": "./icons/CHAT_FEED_UNPAUSE",
+					"Image": "icons/CHAT_FEED_UNPAUSE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -85,11 +85,11 @@
 			"UUID": "fr.twitchat.action.chat-feed-unpause"
 		},
 		{
-			"Icon": "./icons/CHAT_FEED_SCROLL_UP_default",
+			"Icon": "icons/CHAT_FEED_SCROLL_UP_default",
 			"Name": "Scroll chat up",
 			"States": [
 				{
-					"Image": "./icons/CHAT_FEED_SCROLL_UP",
+					"Image": "icons/CHAT_FEED_SCROLL_UP",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -99,11 +99,11 @@
 			"UUID": "fr.twitchat.action.chat-feed-scroll-up"
 		},
 		{
-			"Icon": "./icons/CHAT_FEED_SCROLL_DOWN_default",
+			"Icon": "icons/CHAT_FEED_SCROLL_DOWN_default",
 			"Name": "Scroll chat down",
 			"States": [
 				{
-					"Image": "./icons/CHAT_FEED_SCROLL_DOWN",
+					"Image": "icons/CHAT_FEED_SCROLL_DOWN",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -113,11 +113,11 @@
 			"UUID": "fr.twitchat.action.chat-feed-scroll-down"
 		},
 		{
-			"Icon": "./icons/POLL_TOGGLE_default",
+			"Icon": "icons/POLL_TOGGLE_default",
 			"Name": "Toggles the current poll state",
 			"States": [
 				{
-					"Image": "./icons/POLL_TOGGLE",
+					"Image": "icons/POLL_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -127,11 +127,11 @@
 			"UUID": "fr.twitchat.action.poll-toggle"
 		},
 		{
-			"Icon": "./icons/PREDICTION_TOGGLE_default",
+			"Icon": "icons/PREDICTION_TOGGLE_default",
 			"Name": "Toggles the current prediction state",
 			"States": [
 				{
-					"Image": "./icons/PREDICTION_TOGGLE",
+					"Image": "icons/PREDICTION_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -141,11 +141,11 @@
 			"UUID": "fr.twitchat.action.prediction-toggle"
 		},
 		{
-			"Icon": "./icons/BINGO_TOGGLE_default",
+			"Icon": "icons/BINGO_TOGGLE_default",
 			"Name": "Toggles the current bingo state",
 			"States": [
 				{
-					"Image": "./icons/BINGO_TOGGLE",
+					"Image": "icons/BINGO_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -155,11 +155,11 @@
 			"UUID": "fr.twitchat.action.bingo-toggle"
 		},
 		{
-			"Icon": "./icons/RAFFLE_TOGGLE_default",
+			"Icon": "icons/RAFFLE_TOGGLE_default",
 			"Name": "Toggles the current raffle state",
 			"States": [
 				{
-					"Image": "./icons/RAFFLE_TOGGLE",
+					"Image": "icons/RAFFLE_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -169,11 +169,11 @@
 			"UUID": "fr.twitchat.action.raffle-toggle"
 		},
 		{
-			"Icon": "./icons/ACTIVITY_FEED_TOGGLE_default",
+			"Icon": "icons/ACTIVITY_FEED_TOGGLE_default",
 			"Name": "Toggles the activity feed display",
 			"States": [
 				{
-					"Image": "./icons/ACTIVITY_FEED_TOGGLE",
+					"Image": "icons/ACTIVITY_FEED_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -183,11 +183,11 @@
 			"UUID": "fr.twitchat.action.activity-feed-toggle"
 		},
 		{
-			"Icon": "./icons/VIEWERS_COUNT_TOGGLE_default",
+			"Icon": "icons/VIEWERS_COUNT_TOGGLE_default",
 			"Name": "Toggles the viewers count display",
 			"States": [
 				{
-					"Image": "./icons/VIEWERS_COUNT_TOGGLE",
+					"Image": "icons/VIEWERS_COUNT_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -197,11 +197,11 @@
 			"UUID": "fr.twitchat.action.viewers-count-toggle"
 		},
 		{
-			"Icon": "./icons/MOD_TOOLS_TOGGLE_default",
+			"Icon": "icons/MOD_TOOLS_TOGGLE_default",
 			"Name": "Toggles the moderation tools display",
 			"States": [
 				{
-					"Image": "./icons/MOD_TOOLS_TOGGLE",
+					"Image": "icons/MOD_TOOLS_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -211,11 +211,11 @@
 			"UUID": "fr.twitchat.action.mod-tools-toggle"
 		},
 		{
-			"Icon": "./icons/CENSOR_DELETED_MESSAGES_TOGGLE_default",
+			"Icon": "icons/CENSOR_DELETED_MESSAGES_TOGGLE_default",
 			"Name": "Toggles the censorship of deleted messages",
 			"States": [
 				{
-					"Image": "./icons/CENSOR_DELETED_MESSAGES_TOGGLE",
+					"Image": "icons/CENSOR_DELETED_MESSAGES_TOGGLE",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -223,16 +223,44 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": false,
 			"UUID": "fr.twitchat.action.censor-deleted-messages-toggle"
+		},
+		{
+			"Icon": "icons/SHOUTOUT_default",
+			"Name": "Sends a shoutout to the latest raider",
+			"States": [
+				{
+					"Image": "icons/SHOUTOUT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"UUID": "fr.twitchat.action.shoutout"
+		},
+		{
+			"Icon": "icons/EMERGENCY_default",
+			"Name": "Starts/stops the emergency mode",
+			"States": [
+				{
+					"Image": "icons/EMERGENCY",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"UUID": "fr.twitchat.action.set-emergency-mode"
 		}
 	],
 	"Category":"Twitchat",
-	"CategoryIcon":"./icons/pluginIcon",
+	"CategoryIcon":"icons/pluginIcon",
 	"SDKVersion": 2,
 	"Author": "Durss",
 	"CodePath": "index.html",
 	"Description": "Manage twitchat",
 	"Name": "Twitchat",
-	"Icon": "./icons/pluginIcon",
+	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
 	"Version": "1.0",
 	"OS": [

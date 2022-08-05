@@ -67,6 +67,7 @@ export default class TwitchatEvent extends Event {
 	public static SHOW_CLIP:TwitchatActionType = "SHOW_CLIP";
 	public static START_EMERGENCY:TwitchatActionType = "START_EMERGENCY";
 	public static STOP_EMERGENCY:TwitchatActionType = "STOP_EMERGENCY";
+	public static SHOUTOUT:TwitchatActionType = "SHOUTOUT";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -135,4 +136,5 @@ export type TwitchatActionType =
 	| "SHOW_CLIP"
 	| "START_EMERGENCY"
 	| "STOP_EMERGENCY"
+	| "SHOUTOUT"
 ;

@@ -1510,7 +1510,10 @@ const store = createStore({
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
 				const enable = (e.data as unknown) as {enabled:boolean};
-				this.dispatch("setEmergencyMode", enable);
+				let enabled = enable.enabled;
+				//If no JSON is specified, just toggle the state
+				if(!e.data || enabled === undefined) enabled = !state.emergencyModeEnabled;
+				this.dispatch("setEmergencyMode", enabled);
 			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {

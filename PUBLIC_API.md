@@ -168,6 +168,7 @@ export type TwitchatActionType =
 	| "SHOW_CLIP"
 	| "START_EMERGENCY"
 	| "STOP_EMERGENCY"
+	| "SHOUTOUT"
 ```
 <br>
 <br>
@@ -620,6 +621,7 @@ If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ```
 ## **SET_EMERGENCY_MODE**
 Starts or stops the emergency mode.
+If not JSON is given it will simply toggle the current state
 ### JSON param *(optional)*
 ```typescript
 {
@@ -692,6 +694,12 @@ Starts the emergency mode as the user clicked the emergency button
 ```
 ## **STOP_EMERGENCY**
 Stop the emergency mode
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **SHOUTOUT**
+Sends a shoutout to the latest raider
 ### JSON param *(optional)*
 ```typescript
 -none-
