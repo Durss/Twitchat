@@ -33,17 +33,21 @@
 			</div>
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Port</div>
-				<input class="sdpi-item-value" value="4455" placeholder="4455" id="OBSWS_PORT"> <!-- oninput="sendValueToPlugin(event.target.value, 'OBSWS_PORT')"> -->
+				<input class="sdpi-item-value" value="4455" placeholder="4455" id="OBSWS_PORT">
 			</div>
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Pass</div>
-				<input class="sdpi-item-value" type="password" value="" id="OBSWS_PASS"> <!-- oninput="sendValueToPlugin(event.target.value, 'OBSWS_PASS')"> -->
+				<input class="sdpi-item-value" type="password" value="" id="OBSWS_PASS">
+			</div>
+			<div class="sdpi-item">
+				<div class="sdpi-item-label">IP</div>
+				<input class="sdpi-item-value" value="127.0.0.1" placeholder="127.0.0.1" id="OBSWS_IP">
 			</div>
 			<div class="sdpi-item">
 				<details class="sdpi-item-value">
 					<summary>Where can i find these values?</summary>
 					<p>You can find these values on OBS under the <strong>"Tools -> obs-websocket"</strong> menu.</p>
-					<p>Make sure you first <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">installed Obs-Websocket v5+</a></p>
+					<p>Make sure you have <strong>OBS 28+</strong> or <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-Websocket v5+ plugin</a> installed</p>
 				</details>
 			</div><div class="sdpi-item">
 				<button class="sdpi-item-value" onclick="onConnect()">Connect</button>
@@ -118,6 +122,7 @@
 				}
 			}
 			document.getElementById("obsParams").style.display = settings.OBSWS_CONNECTED? "none" : "block";
+			
 		}
 
 
@@ -134,7 +139,8 @@
 		function onConnect() {
 			const port = document.getElementById("OBSWS_PORT").value;
 			const pass = document.getElementById("OBSWS_PASS").value;
-			sendValueToPlugin({port, pass}, "OBSW_DO_CONNECT");
+			const ip = document.getElementById("OBSWS_IP").value;
+			sendValueToPlugin({port, pass, ip}, "OBSW_DO_CONNECT");
 		}
 
 		function onTest() {
