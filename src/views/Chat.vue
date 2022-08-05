@@ -518,11 +518,6 @@ export default class Chat extends Vue {
 				StoreProxy.store.dispatch("setEmergencyMode", false);
 				break;
 			}
-
-			case TwitchatEvent.SHOUTOUT:{
-				StoreProxy.store.dispatch("setEmergencyMode", false);
-				break;
-			}
 		}
 
 		if(notif) {

@@ -95,6 +95,7 @@ const store = createStore({
 		streamInfoPreset: [] as StreamInfoPreset[],
 		timerStart: 0,
 		countdown: null as CountdownData|null,
+		lastRaiderLogin: null as string|null,
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -625,6 +626,11 @@ const store = createStore({
 							return;
 						}
 					}
+				}
+
+				//If it's a subgift, merge it with potential previous ones
+				if(payload.type == "highlight" && payload.tags["msg-id"] == "raid") {
+					state.lastRaiderLogin = payload.username as string;
 				}
 
 				//Search in the last 50 messages if this message has already been sent
@@ -1506,6 +1512,14 @@ const store = createStore({
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
 				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
 				this.dispatch("onRaffleComplete", {publish:false, winner});
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+				if(state.lastRaiderLogin) {
+					this.dispatch("shoutout", state.lastRaiderLogin)
+				}else{
+					state.alert = "You have not been raided yet"
+				}
 			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
