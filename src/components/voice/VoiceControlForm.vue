@@ -3,8 +3,8 @@
 		<label for="langSelector">Select your language:</label>
 		<LangSelector id="langSelector" v-model:lang="lang" class="langSelector" />
 		
-		<Button v-if="!started && lang" title="Start voice bot" class="startBt" @click="startBot()" />
-		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight />
+		<Button v-if="!started && lang" title="Start voice bot" class="startBt" @click="startBot()" :icon="$image('icons/voice.svg')" />
+		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight :icon="$image('icons/stop.svg')" />
 		
 		<ToggleBlock title="Speak to see the result" :enabled="false" class="block" v-if="started">
 			<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
