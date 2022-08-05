@@ -30,6 +30,8 @@ export default class TwitchatEvent extends Event {
 	public static STOP_POLL:TwitchatEventType = "STOP_POLL";
 	public static CREATE_PREDICTION:TwitchatEventType = "CREATE_PREDICTION";
 	public static STOP_PREDICTION:TwitchatEventType = "STOP_PREDICTION";
+	public static CREATE_RAFFLE:TwitchatEventType = "CREATE_RAFFLE";
+	public static STOP_RAFFLE:TwitchatEventType = "STOP_RAFFLE";
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 
@@ -59,6 +61,8 @@ export default class TwitchatEvent extends Event {
 	public static GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatActionType = "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 	public static SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE:TwitchatActionType = "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE";
 	public static SHOW_CLIP:TwitchatActionType = "SHOW_CLIP";
+	public static START_EMERGENCY:TwitchatActionType = "START_EMERGENCY";
+	public static STOP_EMERGENCY:TwitchatActionType = "STOP_EMERGENCY";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -88,6 +92,8 @@ export type TwitchatEventType =
 	| "TIMER_OVERLAY_PRESENCE"
 	| "CREATE_POLL"
 	| "STOP_POLL"
+	| "CREATE_RAFFLE"
+	| "STOP_RAFFLE"
 	| "CREATE_PREDICTION"
 	| "STOP_PREDICTION"
 	| "EMERGENCY_MODE"
@@ -120,4 +126,6 @@ export type TwitchatActionType =
 	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
 	| "SHOW_CLIP"
+	| "START_EMERGENCY"
+	| "STOP_EMERGENCY"
 ;

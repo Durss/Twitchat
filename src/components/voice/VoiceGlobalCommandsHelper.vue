@@ -1,6 +1,7 @@
 <template>
 	<div class="voiceglobalcommandshelper">
 		<img src="@/assets/icons/voice_purple.svg" alt="voice control enabled" class="icon">
+		
 		<div class="list">
 			<div v-for="a in actions" :key="a.action.id" class="row">
 				<span class="label">{{a.label}}:</span>
@@ -16,10 +17,17 @@ import VoiceAction from '@/utils/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
-	props:{},
+	props:{
+		confirmMode: {
+			type: Boolean,
+			default: false
+		}
+	},
 	components:{}
 })
 export default class VoiceGlobalCommandsHelper extends Vue {
+
+	public confirmMode!:boolean;
 
 	public actions:{label:string, action:VoiceAction}[] = [];
 
@@ -37,10 +45,13 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 			const id:string = VoiceAction[a as VAKeys] as string;
 			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action) {
-				this.actions.push({
-					action,
-					label:VoiceAction[id+"_DESCRIPTION" as VAKeys] as string,
-				});
+				if(this.confirmMode === false
+				|| (this.confirmMode && (id == VoiceAction.SUBMIT || id == VoiceAction.CANCEL))) {
+					this.actions.push({
+						action,
+						label:VoiceAction[id+"_DESCRIPTION" as VAKeys] as string,
+					});
+				}
 			}
 		}
 	}

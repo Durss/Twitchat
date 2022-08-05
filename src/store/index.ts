@@ -336,6 +336,7 @@ const store = createStore({
 			cancelCallback:()=>{ },
 			yesLabel:"",
 			noLabel:"",
+			STTOrigin:false,
 		},
 
 		emergencyParams: {

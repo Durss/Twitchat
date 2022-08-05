@@ -57,6 +57,8 @@ export default class Config {
 		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
 		return this.SPOTIFY_CONNECTED || this.DEEZER_CONNECTED;
 	}
+
+	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
 	
 	
 	

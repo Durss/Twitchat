@@ -28,6 +28,7 @@ export default class VoiceController {
 	private hashmapGlobalActions:{[key:string]:VoiceAction} = {};
 	private splitRegGlobalActions!:RegExp;
 	private textUpdateAction!:VoiceAction;
+	private triggersCountDone:number = 0;
 
 	
 	constructor() {
@@ -48,6 +49,11 @@ export default class VoiceController {
 	public get currentText():string {
 		if(this.tempText) return this.tempText;
 		return this.finalText;
+	}
+
+	public get apiAvailable():boolean {
+		//@ts-ignore
+		return (window.SpeechRecognition ?? window.webkitSpeechRecognition) != undefined;
 	}
 	
 	
@@ -83,9 +89,13 @@ export default class VoiceController {
 					if(!this.wasIncludingGlobalCommand) {
 						this.triggerAction(this.textUpdateAction, {text:this.finalText});
 					}
+					if(this.triggersCountDone === 0) {
+						this.parseSentence(this.finalText);
+					}
 					this.triggerAction(new VoiceAction(VoiceAction.SPEECH_END), {text:this.finalText});
 					this.wasIncludingGlobalCommand = false;
 					this.lastTriggerAction = null;
+					this.triggersCountDone = 0;
 				}else{
 					tempText_loc += event.results[i][0].transcript;
 				}
@@ -128,21 +138,7 @@ export default class VoiceController {
 					this.triggerAction(new VoiceAction(VoiceAction.ACTION_BATCH), (actionsList as unknown) as JsonObject);
 				}
 			}else if(tempText_loc.length > 0) {
-				//Handle non-global commands
-				for (const key in this.hashmap) {
-					const index = tempText_loc.indexOf(key);
-					if(index > -1) {
-						this.lastTriggerKey = key;
-						tempText_loc = tempText_loc.replace(key, "");
-						const action = this.hashmap[key];
-						//Make sure event is broadcasted only once
-						if(this.lastTriggerAction?.id !== action.id) {
-							this.lastTriggerAction = action;
-							this.triggerAction(action);
-						}
-					}
-				}
-				this.triggerAction(this.textUpdateAction, {text:tempText_loc});
+				tempText_loc = this.parseSentence(tempText_loc);
 			}
 
 			this.tempText = tempText_loc;
@@ -207,6 +203,25 @@ export default class VoiceController {
 		this.buildHashmaps();
 	}
 
+	private parseSentence(str:string):string {
+		//Handle non-global commands
+		for (const key in this.hashmap) {
+			const index = str.indexOf(key);
+			if(index > -1) {
+				this.lastTriggerKey = key;
+				str = str.replace(key, "");
+				const action = this.hashmap[key];
+				//Make sure event is broadcasted only once
+				if(this.lastTriggerAction?.id !== action.id) {
+					this.lastTriggerAction = action;
+					this.triggerAction(action);
+				}
+			}
+		}
+		this.triggerAction(this.textUpdateAction, {text:str});
+		return str;
+	}
+
 	private buildHashmaps():void {
 		type VAKeys = keyof typeof VoiceAction;
 		const actions:VoiceAction[] = StoreProxy.store.state.voiceActions;
@@ -233,7 +248,7 @@ export default class VoiceController {
 
 		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:$|(?:[^\\s]{1}\\s)?|\\s)", "gi");
 
-		console.log(this.hashmap);
+		// console.log(this.hashmap);
 		// console.log(this.hashmapGlobalActions);
 		// console.log(this.splitRegGlobalActions);
 	}
@@ -248,6 +263,9 @@ export default class VoiceController {
 			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}, true); return;
 			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}, true); return;
 			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}, true); return;
+		}
+		if(action.id != VoiceAction.TEXT_UPDATE) {
+			this.triggersCountDone ++;
 		}
 		PublicAPI.instance.broadcast(action.id as TwitchatActionType|TwitchatEventType, data, true);
 	}

@@ -10,6 +10,12 @@ declare module '@vue/runtime-core' {
 			description?: string,
 			data?: T,
 			yesLabel?:string,
-			noLabel?:string) => Promise<T|undefined>,
+			noLabel?:string,
+			STTOrigin?:boolean) => Promise<T|undefined>,
+	}
+}
+declare global {
+	interface Window {
+		obsstudio?: any;
 	}
 }

@@ -70,13 +70,15 @@ const confirm = <T>(title: string,
 	description?: string,
 	data?: T,
 	yesLabel?:string,
-	noLabel?:string): Promise<T|undefined> => {
+	noLabel?:string,
+	STTOrigin?:boolean): Promise<T|undefined> => {
 	const prom = <Promise<T|undefined>>new Promise((resolve, reject) => {
 		const confirmData = {
 			title,
 			description,
 			yesLabel,
 			noLabel,
+			STTOrigin,
 			confirmCallback : () => {
 				resolve(data);
 			},

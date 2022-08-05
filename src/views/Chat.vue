@@ -92,13 +92,13 @@
 			@close="showChatUsers = false" />
 
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
-		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" v-if="splitView" />
+		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" />
 
 		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
 		<ChatPollForm :style="rightStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<RaffleForm :style="rightStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
+		<RaffleForm :style="rightStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<PredictionForm :style="rightStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
 		<BingoForm :style="rightStyles" class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-		<PredictionForm :style="rightStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings :style="rightStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
 		<StreamInfoForm :style="rightStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
 		<TTUserList :style="rightStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
@@ -322,9 +322,13 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 
@@ -398,9 +402,13 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 	}
 
 	public clearChat():void {
@@ -424,14 +432,17 @@ export default class Chat extends Vue {
 				StoreProxy.store.state.params.appearance.showViewersCount.value = !StoreProxy.store.state.params.appearance.showViewersCount.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
+				
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
 				StoreProxy.store.state.params.features.showModTools.value = !StoreProxy.store.state.params.features.showModTools.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
+
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
 				StoreProxy.store.state.params.filters.censorDeletedMessages.value = !StoreProxy.store.state.params.filters.censorDeletedMessages.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
+
 			case TwitchatEvent.CREATE_POLL:
 				this.currentModal = 'poll';
 				await this.$nextTick();
@@ -439,7 +450,6 @@ export default class Chat extends Vue {
 				break;
 			case TwitchatEvent.STOP_POLL:{
 				const poll = StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
-				console.log("STOP POLL", poll);
 				try {
 					await TwitchUtils.endPoll(poll.id);
 				}catch(error) {
@@ -447,19 +457,39 @@ export default class Chat extends Vue {
 				}
 				break;
 			}
+
 			case TwitchatEvent.CREATE_PREDICTION:
-				this.currentModal = 'prediction';
+				this.currentModal = 'pred';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.STOP_PREDICTION:{
 				const prediction = StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction;
-				console.log("STOP PREDICTION", prediction);
 				try {
 					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					StoreProxy.store.state.alert = "An error occurred while deleting the poll";
+					StoreProxy.store.state.alert = "An error occurred while deleting the prediction";
 				}
+				break;
+			}
+
+			case TwitchatEvent.CREATE_RAFFLE:
+				this.currentModal = 'raffle';
+				await this.$nextTick();
+				this.voiceControl = true;
+				break;
+			case TwitchatEvent.STOP_RAFFLE:{
+				StoreProxy.store.dispatch("stopRaffle");
+				break;
+			}
+
+			case TwitchatEvent.START_EMERGENCY:
+				this.$confirm("Enable emergency mode ?", undefined, undefined, undefined, undefined, true).then(()=>{
+					StoreProxy.store.dispatch("setEmergencyMode", true);
+				}).catch(()=>{});
+				break;
+			case TwitchatEvent.STOP_EMERGENCY:{
+				StoreProxy.store.dispatch("setEmergencyMode", false);
 				break;
 			}
 		}

@@ -17,7 +17,7 @@
 			medium
 			:open="isOpen(a.id)"
 			:title="getLabelFromID(a.id)"
-			:icons="[getIconFromID(a.id)]"
+			:icons="a.id? [getIconFromID(a.id)] : []"
 			:key="a.id"
 			:ref="a.id"
 			class="action"
@@ -32,17 +32,21 @@
 
 			<label :for="'select'+index">Action to execute</label>
 			<vue-select :id="'select'+index"
-				label="label"
 				placeholder="Select an action..."
 				v-model="a.id"
 				:reduce="reduceSelectData"
 				:options="getActionIDs(a)"
 				:appendToBody="true"
 				:calculate-position="$placeDropdown"
-			></vue-select>
+			>
+				<template v-slot:option="option">
+					<img class="listIcon" style="{background-color: red;}" :src="$image('icons/'+option.icon+'_purple.svg')" v-if="option.icon" />
+					{{ option.label }}
+				</template>
+			</vue-select>
 
-			<label :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
-			<textarea :id="'text'+index" v-model="a.sentences" rows="5" maxlength="1000"></textarea>
+			<label v-if="a.id" :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
+			<textarea v-if="a.id" :id="'text'+index" v-model="a.sentences" rows="5" maxlength="1000"></textarea>
 			
 		</ToggleBlock>
 	</div>
@@ -173,10 +177,15 @@ export default class VoiceTriggerList extends Vue {
 			}
 		}
 
+		//Ignore items with no description
+		availableActions = availableActions.filter(v=> { return VoiceAction[v+"_DESCRIPTION" as VAKeys] as string; });
+
 		return availableActions.map(v=> {
+			const icon = VoiceAction[v+"_ICON" as VAKeys] as string;;
 			return {
 				label:VoiceAction[v+"_DESCRIPTION" as VAKeys] as string,
 				value:v,
+				icon,
 			}
 		});
 	}
@@ -224,6 +233,9 @@ export default class VoiceTriggerList extends Vue {
 
 <style scoped lang="less">
 .voicetriggerlist{
+
+	//.listIcon style is on index.less.
+	//Couldn't make it work from the template even in a unscoped tag
 	
 	.addBt {
 		margin:auto;

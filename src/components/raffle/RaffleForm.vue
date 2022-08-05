@@ -7,6 +7,8 @@
 				<Button aria-label="Close raffle form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
+				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
+				
 				<div class="description">
 					<ToggleBlock :icons="['infos']" small title="Legal concerns" :open="false" class="legal">
 						<div>Depending on your country's legislation, making your viewers win something while using the "sub" ponderation option or randomly picking a winner amongst your subs might be illegal.</div>
@@ -19,7 +21,7 @@
 					<Button title="Subs" bounce :selected="subMode" @click="subMode = true" :icon="$image('icons/sub.svg')" />
 				</div>
 
-				<form @submit.prevent="onSubmit()" class="form" v-if="!subMode">
+				<form @submit.prevent="submitForm()" class="form" v-if="!subMode">
 					<div class="info">
 						<p>Randomly pick someone amongst users that sent a chat command</p>
 					</div>
@@ -99,6 +101,7 @@ import Store from '@/store/Store';
 import type { ParameterData, ParamsContenType, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { RaffleData } from '@/utils/CommonDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -113,17 +116,27 @@ import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
+import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Options({
-	props:{},
+	props:{
+		voiceControl: {
+			type: Boolean,
+			default: false
+		}
+	},
 	components:{
 		Button,
 		ParamItem,
 		ToggleBlock,
 		PostOnChatParam,
+		VoiceGlobalCommandsHelper,
 	}
 })
 export default class RaffleForm extends Vue {
+
+	public voiceControl!:boolean;
 
 	public loadingSubs = false;
 	public winner:TwitchDataTypes.Subscriber|null = null;
@@ -150,7 +163,8 @@ export default class RaffleForm extends Vue {
 	
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private wheelOverlayPresenceHandler!:()=>void;
-	public wheelOverlayExists = false;
+	private wheelOverlayExists = false;
+	private voiceController!:FormVoiceControllHelper;
 
 	/**
 	 * Gets subs filtered by the current filters
@@ -165,6 +179,12 @@ export default class RaffleForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		watch(()=>this.voiceControl, ()=>{
+			if(this.voiceControl && !this.voiceController) {
+				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
+			}
+		});
+		
 		this.showCountdownOverlay.value = Store.get(Store.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 		this.maxUsersToggle.children = [this.maxUsers];
 		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
@@ -187,6 +207,7 @@ export default class RaffleForm extends Vue {
 	}
 
 	public beforeUnmount():void {
+		if(this.voiceController) this.voiceController.dispose();
 		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 	}
 
@@ -204,7 +225,7 @@ export default class RaffleForm extends Vue {
 	/**
 	 * Create a chat raffle
 	 */
-	public onSubmit():void {
+	public submitForm():void {
 		const cmd = this.command.value? this.command.value as string : "!raffle";
 		const payload:RaffleData = {
 			command:cmd,
@@ -232,7 +253,7 @@ export default class RaffleForm extends Vue {
 		this.winner = null;
 		let increment = {value:0};
 		let prevRounded = increment.value;
-		if(PublicAPI.instance.localConnectionAvailable) {
+		if(Config.instance.OBS_DOCK_CONTEXT) {
 			this.loadingSubs = true;
 			//Ask if the wheel overlay exists
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
@@ -302,6 +323,11 @@ export default class RaffleForm extends Vue {
 	.modal();
 
 	.content {
+
+		.voiceHelper {
+			margin: auto;
+		}
+
 		.tabs {
 			display: flex;
 			flex-direction: row;

@@ -91,7 +91,6 @@ export default class LangSelector extends Vue {
 	 * @param resetSubList 
 	 */
 	public onChange(resetSubList:boolean = false):void {
-		console.log("ON CHANGE");
 		if(resetSubList && this.subLanguages.length > 0) {
 			this.sublangLocal.label = this.subLanguages[0].label;
 			this.sublangLocal.value = this.subLanguages[0].value;

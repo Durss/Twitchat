@@ -166,6 +166,8 @@ export type TwitchatActionType =
 	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
 	| "SHOW_CLIP"
+	| "START_EMERGENCY"
+	| "STOP_EMERGENCY"
 ```
 <br>
 <br>
@@ -634,6 +636,7 @@ If it does you'll receive the `CHAT_HIGHLIGHT_OVERLAY_PRESENCE` event.
 ## **SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE**
 Send a chat message on the "chat highlight" overlay
 Send no data to hide the current message
+### JSON param
 ```typescript
 {
 	message: string;//Message with emotes parsed as HTML tags
@@ -655,6 +658,7 @@ Send no data to hide the current message
 ```
 ## **SHOW_CLIP**
 Send a clip to be displayed on the chat highlight overlay
+### JSON param
 ```typescript
 {
 	//This is the same JSON as the one sent by the Twitch API
@@ -679,4 +683,16 @@ Send a clip to be displayed on the chat highlight overlay
 		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
 	}
 }
+```
+## **START_EMERGENCY**
+Starts the emergency mode as the user clicked the emergency button
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **STOP_EMERGENCY**
+Stop the emergency mode
+### JSON param *(optional)*
+```typescript
+-none-
 ```
