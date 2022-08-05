@@ -81,8 +81,8 @@ export default class EmoteSelector extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(Object.keys(StoreProxy.store.state.userEmotesCache).length > 0) {
-			this.users = StoreProxy.store.state.userEmotesCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
+		if(Object.keys(StoreProxy.store.state.emoteSelectorCache).length > 0) {
+			this.users = StoreProxy.store.state.emoteSelectorCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
 		}else{
 
 			const emotes = await TwitchUtils.getEmotes();
@@ -136,7 +136,7 @@ export default class EmoteSelector extends Vue {
 			}
 	
 			//Save it to storage to avoid loading everything back again
-			StoreProxy.store.dispatch("setUserEmotesCache", sets);
+			StoreProxy.store.dispatch("setEmoteSelectorCache", sets);
 			this.users = sets;
 		}
 

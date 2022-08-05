@@ -95,6 +95,18 @@
 				</transition>
 
 				<transition name="blink">
+				<div class="pins" v-if="$store.state.pinedMessages.length > 0">
+					<Button aria-label="Open pined messages"
+						:icon="$image('icons/pin.svg')"
+						bounce
+						small
+						data-tooltip="Pined messages"
+						@click="$emit('pins')" />
+					<div class="count">{{$store.state.pinedMessages.length}}</div>
+				</div>
+				</transition>
+
+				<transition name="blink">
 				<Button aria-label="Open dev mode options"
 					:icon="$image('icons/debug.svg')"
 					bounce
@@ -218,6 +230,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 	emits: [
 		"debug",
 		"ad",
+		"pins",
 		"poll",
 		"pred",
 		"clear",
@@ -523,7 +536,6 @@ export default class ChatForm extends Vue {
 						},
 					}
 					const res = await fetch(Config.instance.API_PATH+"/userdata?uid="+users[0].id, options)
-					console.log(res);
 					if(res.status === 200) {
 						const json = await res.json();
 						const data = JSON.stringify(json.data);
@@ -839,7 +851,7 @@ export default class ChatForm extends Vue {
 				color: #ff0000;
 			}
 
-			.whispers {
+			.whispers, .pins {
 				position: relative;
 				.count {
 					position: absolute;

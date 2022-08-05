@@ -56,12 +56,13 @@ const store = createStore({
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
 		chatMessages: [] as ChatMessageTypes[],
+		pinedMessages: [] as IRCEventDataList.Message[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchDataTypes.ModeratorUser[],
 		currentPoll: {} as TwitchDataTypes.Poll,
 		currentPrediction: {} as TwitchDataTypes.Prediction,
 		tmiUserState: {} as UserNoticeState,
-		userEmotesCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
+		emoteSelectorCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
 		trackedUsers: [] as TrackedUser[],
 		onlineUsers: [] as string[],
 		voiceActions: [] as VoiceAction[],
@@ -901,7 +902,7 @@ const store = createStore({
 
 		setEmotes(state, payload:TwitchDataTypes.Emote[]) { UserSession.instance.emotesCache = payload; },
 
-		setUserEmotesCache(state, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { state.userEmotesCache = payload; },
+		setEmoteSelectorCache(state, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { state.emoteSelectorCache = payload; },
 
 		trackUser(state, payload:IRCEventDataList.Message) {
 			const list = state.trackedUsers as TrackedUser[];
@@ -1443,6 +1444,16 @@ const store = createStore({
 		async clearEmergencyFollows(state) {
 			state.emergencyFollows.splice(0)
 			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
+		},
+		
+		pinMessage(state, message:IRCEventDataList.Message) { state.pinedMessages.push(message); },
+		
+		unpinMessage(state, message:IRCEventDataList.Message) {
+			state.pinedMessages.forEach((v, index)=> {
+				if(v.tags.id == message.tags.id) {
+					state.pinedMessages.splice(index, 1);
+				}
+			})
 		},
 		
 	},
@@ -2162,7 +2173,7 @@ const store = createStore({
 
 		setEmotes({commit}, payload:TwitchDataTypes.Emote[]) { commit("setEmotes", payload); },
 
-		setUserEmotesCache({commit}, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
+		setEmoteSelectorCache({commit}, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { commit("setEmoteSelectorCache", payload); },
 
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
@@ -2334,6 +2345,10 @@ const store = createStore({
 		addEmergencyFollower({commit}, payload:EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
 		
 		clearEmergencyFollows({commit}) { commit("clearEmergencyFollows"); },
+		
+		pinMessage({commit}, message:IRCEventDataList.Message) { commit("pinMessage", message); },
+		
+		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
 	},
 	modules: {
 	}

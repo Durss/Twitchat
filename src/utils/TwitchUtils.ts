@@ -175,10 +175,19 @@ export default class TwitchUtils {
 			//tag as if it was sent by IRC.
 			if(customParsing && UserSession.instance.emotesCache) {
 				let fakeTag = "";
-				const emoteList = UserSession.instance.emotesCache;
-				const tagsDone:{[key:string]:boolean} = {};
+				const emoteList:TwitchDataTypes.Emote[] = [];
+				const emoteListHashmap = UserSession.instance.emotesCacheHashmap;
 				// const start = Date.now();
-				//Parse all available emotes
+				const chunks = message.split(/\s/);
+				for (let i = 0; i < chunks.length; i++) {
+					const txt = chunks[i];
+					if(emoteListHashmap[txt.toLowerCase()]) {
+						emoteList.push( emoteListHashmap[txt.toLowerCase()] );
+					}
+				}
+				
+				//Parse emotes
+				const tagsDone:{[key:string]:boolean} = {};
 				for (let i = 0; i < emoteList.length; i++) {
 					const e = emoteList[i];
 					const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");

@@ -10,7 +10,8 @@ export default class UserSession {
 	private static _instance:UserSession;
 
 	public authResult:TwitchDataTypes.AuthTokenResult|null = null;
-	public emotesCache:TwitchDataTypes.Emote[]|null = null;
+	//keys are lowercased version of the emotes codes
+	public emotesCacheHashmap:{[key:string]:TwitchDataTypes.Emote} = {};
 	public user:TwitchDataTypes.UserInfo| null = null;
 	public access_token:string|null = null;
 	public authToken = {
@@ -20,6 +21,8 @@ export default class UserSession {
 		user_id: "",
 		expires_in: 0,
 	} as TwitchDataTypes.Token;
+
+	private _emotesCache:TwitchDataTypes.Emote[]|null = null;
 	
 	constructor() {
 	
@@ -37,6 +40,17 @@ export default class UserSession {
 
 	public get hasChannelPoints():boolean {
 		return this.user?.broadcaster_type != "";
+	}
+	public get emotesCache():TwitchDataTypes.Emote[]|null { return this._emotesCache; }
+	public set emotesCache(value:TwitchDataTypes.Emote[]|null) {
+		if(!value) return;
+
+		const hashmap:{[key:string]:TwitchDataTypes.Emote} = {};
+		value.forEach(e => {
+			hashmap[e.name.toLowerCase()] = e;
+		});
+		this.emotesCacheHashmap = hashmap;
+		this._emotesCache = value;
 	}
 	
 	

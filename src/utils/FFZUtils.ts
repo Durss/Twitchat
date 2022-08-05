@@ -9,7 +9,9 @@ export default class FFZUtils {
 	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:FFZEmote[] = [];
+	private globalEmotesHashmaps:{[key:string]:FFZEmote} = {};
 	private channelEmotes:{[key:string]:FFZEmote[]} = {};
+	private channelEmotesHashmaps:{[key:string]:{[key:string]:FFZEmote}} = {};
 	
 	constructor() {
 	
@@ -48,10 +50,26 @@ export default class FFZUtils {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
-		let allEmotes = this.globalEmotes.concat();
-		//TODO parse only the emotes from the channel the message was posted to
-		for (const key in this.channelEmotes) {
-			allEmotes = allEmotes.concat(this.channelEmotes[key]);
+		let allEmotes:FFZEmote[] = [];
+		let emotesDone:{[key:string]:boolean} = {};
+		const chunks = message.split(/\s/);
+		for (let i = 0; i < chunks.length; i++) {
+			const txt = chunks[i];
+			if(this.globalEmotesHashmaps[txt.toLowerCase()]) {
+				const emote = this.globalEmotesHashmaps[txt.toLowerCase()];
+				if(emote && emotesDone[emote.name] !== true) {
+					allEmotes.push( emote );
+					emotesDone[emote.name] = true;
+				}
+			}
+			//TODO parse only the emotes from the channel the message was posted to
+			for (const key in this.channelEmotesHashmaps) {
+				const emote = this.channelEmotesHashmaps[key][txt.toLowerCase()];
+				if(emote && emotesDone[emote.name] !== true) {
+					allEmotes.push( emote );
+					emotesDone[emote.name] = true;
+				}
+			}
 		}
 
 		//Parse global emotes
@@ -95,21 +113,17 @@ export default class FFZUtils {
 
 	/**
 	 * Get a FFZ emote data from its code
-	 * //TODO optimize accesses with a hashmap
 	 * @param code 
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):FFZEmote|null {
-		code = code.toLowerCase();
-		for (let i = 0; i < this.globalEmotes.length; i++) {
-			const e = this.globalEmotes[i];
-			if(e.name.toLowerCase() == code) return e;
+		if(this.globalEmotesHashmaps[code.toLowerCase()]) {
+			return this.globalEmotesHashmaps[code.toLowerCase()];
 		}
-		for (const key in this.channelEmotes) {
-			const list = this.channelEmotes[key];
-			for (let i = 0; i < list.length; i++) {
-				const e = list[i];
-				if(e.name.toLowerCase() == code) return e;
+		for (const key in this.channelEmotesHashmaps) {
+			const list = this.channelEmotesHashmaps[key];
+			if(this.channelEmotesHashmaps[key][code.toLowerCase()]) {
+				return this.channelEmotesHashmaps[key][code.toLowerCase()];
 			}
 		}
 		return null;
@@ -155,6 +169,9 @@ export default class FFZUtils {
 					}
 				}
 				this.globalEmotes = emotes;
+				emotes.forEach(e => {
+					this.globalEmotesHashmaps[e.name.toLowerCase()] = e;
+				});
 			}
 		}catch(error) {
 			//
@@ -173,6 +190,10 @@ export default class FFZUtils {
 					}
 				}
 				this.channelEmotes[channelId] = emotes;
+				this.channelEmotesHashmaps[channelId] = {};
+				emotes.forEach(e => {
+					this.channelEmotesHashmaps[channelId][e.name.toLowerCase()] = e;
+				});
 			}
 		}catch(error) {
 			//
