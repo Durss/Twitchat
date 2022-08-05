@@ -276,7 +276,6 @@ export default class Chat extends Vue {
 		}
 
 		if(this.splitViewVertical) {
-			console.log(size, this.availHeight);
 			const value = `calc(${size*this.availHeight}px - 14px)`;
 			return {
 				"top":switchCols? "0" : (this.availHeight*(1-size)+14)+"px",
@@ -286,7 +285,7 @@ export default class Chat extends Vue {
 				"width": "100%",
 			}
 		}else{
-			const value = `calc(${size*100}% - 14px)`;
+			const value = `calc(${size*100}% - 7px)`;
 			return {
 				"width": value,
 				"min-width": value,
@@ -442,7 +441,6 @@ export default class Chat extends Vue {
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif = "";
 		let modal = "";
-		console.log("PUBLIC EVENT", e.type);
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
