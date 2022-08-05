@@ -40,6 +40,7 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -111,10 +112,11 @@ export default class TTUserList extends Vue {
 	private async updateList():Promise<void> {
 		let res;
 		try {
-			res = await fetch(Config.instance.API_PATH+"/users?token=" + this.token, {
+			res = await fetch(Config.instance.API_PATH+"/users", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
+					"Authorization": "Bearer "+UserSession.instance.access_token as string,
 				},
 			})
 			const json = await res.json();
