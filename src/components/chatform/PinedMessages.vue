@@ -2,7 +2,7 @@
 	<div class="pinedmessages">
 		<div class="content">
 			<div class="title">
-				<p>Pined messages</p>
+				<p><img src="@/assets/icons/pin.svg" class="icon" />Pined messages</p>
 				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 			</div>
 
@@ -84,6 +84,11 @@ export default class PinedMessages extends Vue {
 			}
 			.closeBt {
 				padding: .5em;
+			}
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+				vertical-align: middle;
 			}
 		}
 

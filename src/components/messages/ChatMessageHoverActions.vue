@@ -4,7 +4,6 @@
 			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
-			v-if="!isBroadcaster"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
 			:icon="$image('icons/shoutout.svg')"
@@ -18,11 +17,13 @@
 			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
 			@click="chatHighlight()"
 			:loading="highlightLoading"
+			v-if="!messageData.automod"
 			/>
 		<Button aria-label="Pin message"
 			:icon="$image('icons/pin.svg')"
 			data-tooltip="Pin message"
 			@click="pinMessage()"
+			v-if="!messageData.automod"
 			/>
 	</div>
 </template>
