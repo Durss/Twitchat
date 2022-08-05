@@ -10,7 +10,9 @@ export default class SevenTVUtils {
 	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:SevenTVEmote[] = [];
+	private globalEmotesHashmaps:{[key:string]:SevenTVEmote} = {};
 	private channelEmotes:{[key:string]:SevenTVEmote[]} = {};
+	private channelEmotesHashmaps:{[key:string]:{[key:string]:SevenTVEmote}} = {};
 	
 	constructor() {
 	
@@ -49,10 +51,26 @@ export default class SevenTVUtils {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
-		let allEmotes = this.globalEmotes.concat();
-		//TODO parse only the emotes from the channel the message was posted to
-		for (const key in this.channelEmotes) {
-			allEmotes = allEmotes.concat(this.channelEmotes[key]);
+		let allEmotes:SevenTVEmote[] = [];
+		let emotesDone:{[key:string]:boolean} = {};
+		const chunks = message.split(/\s/);
+		for (let i = 0; i < chunks.length; i++) {
+			const txt = chunks[i];
+			if(this.globalEmotesHashmaps[txt.toLowerCase()]) {
+				const emote = this.globalEmotesHashmaps[txt.toLowerCase()];
+				if(emote && emotesDone[emote.name] !== true) {
+					allEmotes.push( emote );
+					emotesDone[emote.name] = true;
+				}
+			}
+			//TODO parse only the emotes from the channel the message was posted to
+			for (const key in this.channelEmotesHashmaps) {
+				const emote = this.channelEmotesHashmaps[key][txt.toLowerCase()];
+				if(emote && emotesDone[emote.name] !== true) {
+					allEmotes.push( emote );
+					emotesDone[emote.name] = true;
+				}
+			}
 		}
 
 		//Parse global emotes
@@ -97,21 +115,17 @@ export default class SevenTVUtils {
 
 	/**
 	 * Get a SevenTV emote data from its code
-	 * //TODO optimize accesses with a hashmap
 	 * @param code 
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):SevenTVEmote|null {
-		code = code.toLowerCase();
-		for (let i = 0; i < this.globalEmotes.length; i++) {
-			const e = this.globalEmotes[i];
-			if(e.name.toLowerCase() == code) return e;
+		if(this.globalEmotesHashmaps[code.toLowerCase()]) {
+			return this.globalEmotesHashmaps[code.toLowerCase()];
 		}
-		for (const key in this.channelEmotes) {
-			const list = this.channelEmotes[key];
-			for (let i = 0; i < list.length; i++) {
-				const e = list[i];
-				if(e.name.toLowerCase() == code) return e;
+		for (const key in this.channelEmotesHashmaps) {
+			const list = this.channelEmotesHashmaps[key];
+			if(this.channelEmotesHashmaps[key][code.toLowerCase()]) {
+				return this.channelEmotesHashmaps[key][code.toLowerCase()];
 			}
 		}
 		return null;
@@ -147,8 +161,11 @@ export default class SevenTVUtils {
 	private async loadGlobalEmotes():Promise<void> {
 		try {
 			const res = await fetch("https://api.7tv.app/v2/emotes/global");
-			const json = await res.json();
+			const json = (await res.json()) as SevenTVEmote[];
 			this.globalEmotes = json;
+			json.forEach(e => {
+				this.globalEmotesHashmaps[e.name.toLowerCase()] = e;
+			});
 		}catch(error) {
 			//
 		}
@@ -157,8 +174,12 @@ export default class SevenTVUtils {
 	private async loadChannelEmotes(channelId:string):Promise<void> {
 		try {
 			const res = await fetch("https://api.7tv.app/v2/users/"+channelId+"/emotes");
-			const json:SevenTVEmote[] = await res.json();
+			const json = (await res.json()) as SevenTVEmote[];
 			this.channelEmotes[channelId] = json;
+			this.channelEmotesHashmaps[channelId] = {};
+			json.forEach(e => {
+				this.channelEmotesHashmaps[channelId][e.name.toLowerCase()] = e;
+			});
 		}catch(error) {
 			//
 		}

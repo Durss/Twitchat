@@ -10,7 +10,9 @@ export default class BTTVUtils {
 	private emotesLoaded = false;
 	private channelList:string[] = [];
 	private globalEmotes:BTTVEmote[] = [];
+	private globalEmotesHashmaps:{[key:string]:BTTVEmote} = {};
 	private channelEmotes:{[key:string]:BTTVEmote[]} = {};
+	private channelEmotesHashmaps:{[key:string]:{[key:string]:BTTVEmote}} = {};
 	
 	constructor() {
 	
@@ -49,13 +51,29 @@ export default class BTTVUtils {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
-		let allEmotes = this.globalEmotes.concat();
-		//TODO parse only the emotes from the channel the message was posted to
-		for (const key in this.channelEmotes) {
-			allEmotes = allEmotes.concat(this.channelEmotes[key]);
+		let allEmotes:BTTVEmote[] = [];
+		let emotesDone:{[key:string]:boolean} = {};
+		const chunks = message.split(/\s/);
+		for (let i = 0; i < chunks.length; i++) {
+			const txt = chunks[i];
+			if(this.globalEmotesHashmaps[txt.toLowerCase()]) {
+				const emote = this.globalEmotesHashmaps[txt.toLowerCase()];
+				if(emote && emotesDone[emote.code] !== true) {
+					allEmotes.push( emote );
+					emotesDone[emote.code] = true;
+				}
+			}
+			//TODO parse only the emotes from the channel the message was posted to
+			for (const key in this.channelEmotesHashmaps) {
+				const emote = this.channelEmotesHashmaps[key][txt.toLowerCase()];
+				if(emote && emotesDone[emote.code] !== true) {
+					allEmotes.push( emote );
+					emotesDone[emote.code] = true;
+				}
+			}
 		}
 
-		//Parse global emotes
+		//Parse all emotes
 		for (let i = 0; i < allEmotes.length; i++) {
 			const e = allEmotes[i];
 			const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -96,21 +114,17 @@ export default class BTTVUtils {
 
 	/**
 	 * Get a BTTV emote data from its code
-	 * //TODO optimize accesses with a hashmap
 	 * @param code 
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):BTTVEmote|null {
-		code = code.toLowerCase();
-		for (let i = 0; i < this.globalEmotes.length; i++) {
-			const e = this.globalEmotes[i];
-			if(e.code.toLowerCase() == code) return e;
+		if(this.globalEmotesHashmaps[code.toLowerCase()]) {
+			return this.globalEmotesHashmaps[code.toLowerCase()];
 		}
-		for (const key in this.channelEmotes) {
-			const list = this.channelEmotes[key];
-			for (let i = 0; i < list.length; i++) {
-				const e = list[i];
-				if(e.code.toLowerCase() == code) return e;
+		for (const key in this.channelEmotesHashmaps) {
+			const list = this.channelEmotesHashmaps[key];
+			if(this.channelEmotesHashmaps[key][code.toLowerCase()]) {
+				return this.channelEmotesHashmaps[key][code.toLowerCase()];
 			}
 		}
 		return null;
@@ -146,8 +160,11 @@ export default class BTTVUtils {
 	private async loadGlobalEmotes():Promise<void> {
 		try {
 			const res = await fetch("https://api.betterttv.net/3/cached/emotes/global");
-			const json = await res.json();
+			const json = (await res.json()) as BTTVEmote[];
 			this.globalEmotes = json;
+			json.forEach(e => {
+				this.globalEmotesHashmaps[e.code.toLowerCase()] = e;
+			});
 		}catch(error) {
 			//
 		}
@@ -165,6 +182,10 @@ export default class BTTVUtils {
 				emotes = emotes.concat(json.sharedEmotes);
 			}
 			this.channelEmotes[channelId] = emotes;
+			this.channelEmotesHashmaps[channelId] = {};
+			emotes.forEach(e => {
+				this.channelEmotesHashmaps[channelId][e.code.toLowerCase()] = e;
+			});
 		}catch(error) {
 			//
 		}

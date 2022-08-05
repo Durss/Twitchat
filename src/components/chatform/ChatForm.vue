@@ -497,7 +497,6 @@ export default class ChatForm extends Vue {
 						},
 					}
 					const res = await fetch(Config.instance.API_PATH+"/userdata?uid="+users[0].id, options)
-					console.log(res);
 					if(res.status === 200) {
 						const json = await res.json();
 						const data = JSON.stringify(json.data);

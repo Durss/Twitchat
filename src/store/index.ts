@@ -59,7 +59,7 @@ const store = createStore({
 		currentPoll: {} as TwitchDataTypes.Poll,
 		currentPrediction: {} as TwitchDataTypes.Prediction,
 		tmiUserState: {} as UserNoticeState,
-		userEmotesCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
+		emoteSelectorCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
 		trackedUsers: [] as TrackedUser[],
 		onlineUsers: [] as string[],
 		raffle: null as RaffleData | null,
@@ -892,7 +892,7 @@ const store = createStore({
 
 		setEmotes(state, payload:TwitchDataTypes.Emote[]) { UserSession.instance.emotesCache = payload; },
 
-		setUserEmotesCache(state, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { state.userEmotesCache = payload; },
+		setEmoteSelectorCache(state, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { state.emoteSelectorCache = payload; },
 
 		trackUser(state, payload:IRCEventDataList.Message) {
 			const list = state.trackedUsers as TrackedUser[];
@@ -2123,7 +2123,7 @@ const store = createStore({
 
 		setEmotes({commit}, payload:TwitchDataTypes.Emote[]) { commit("setEmotes", payload); },
 
-		setUserEmotesCache({commit}, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { commit("setUserEmotesCache", payload); },
+		setEmoteSelectorCache({commit}, payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { commit("setEmoteSelectorCache", payload); },
 
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
