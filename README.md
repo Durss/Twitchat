@@ -63,7 +63,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Supports new `/announce message` feature
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 - [x] Expose an API to control some stuff remotely
-- [x] Stream Deck plugin
+- [x] Stream Deck™ plugin
 - [x] Chat poll feature: kind of a poll where your viewers decide its options
 - [x] Handles "low trust" feature ([more info](https://help.twitch.tv/s/article/ban-evasion))
 - [x] Custom spoiler feature so viewers can hide message contents to the streamer
@@ -174,3 +174,17 @@ Here is the expected file structure:\
 # Server
 The server is super basic for now as there isn't much needs.
 For this reason it's a just a single file server coded in vanila JS that doesn't need any compilation. That might change in the futur.
+<br>
+<br>
+<br>
+
+# Package Stream Deck™ plugin
+Delete the following file:
+```
+streamdeck_plugin/fr.twitchat.streamDeckPlugin
+```
+Run the following command:
+```
+npm run streamdeck_package
+```
+The file `fr.twitchat.streamDeckPlugin` should be built back.
