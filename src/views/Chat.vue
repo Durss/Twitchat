@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="top">
+		<div class="top" ref="top">
 			<div class="leftColumn" :style="leftStyles">
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
@@ -10,7 +10,7 @@
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>
 
-			<div class="dragBt" v-if="splitView" @mousedown="startDrag()" @touchstart="startDrag()">
+			<div class="dragBt" ref="splitter" v-if="splitView" @mousedown="startDrag()" @touchstart="startDrag()">
 				<div class="grip"></div>
 			</div>
 
@@ -197,28 +197,28 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 })
 export default class Chat extends Vue {
 
-	public disposed = false;
-	public resizing = false;
 	public showFeed = false;
-	public canStartAd = true;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCommands = false;
-	public showUserList = false;
 	public voiceControl = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public mouseY = 0;
-	public mouseX = 0;
-	public leftColSize = 0;
 	public startAdCooldown = 0;
-	public ttsPosY = 0;
 	public currentModal = "";
-	public currentMessageSearch = "";
 	public currentNotificationContent = "";
+
+	private disposed = false;
+	private mouseY = 0;
+	private mouseX = 0;
+	private leftColSize = 0;
+	private splitterPosY = 0;
+	private availHeight = 0;
+	private resizing = false;
+	private canStartAd = true;
 	
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
@@ -245,18 +245,19 @@ export default class Chat extends Vue {
 	public get leftStyles():{[key:string]:string} {
 		if(!this.splitView) return {};
 		
-		let size = this.leftColSize*100;
+		let size = this.leftColSize;
 		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
-			size = 100-size;
+			size = 1-size;
 		}
-		const value = `calc(${size}% - 7px)`;//7px => dragbar size
 		if(this.splitViewVertical) {
+			const value = `calc(${size*this.availHeight}px - 7px)`;//7px => dragbar size
 			return {
 				"height": value,
 				"min-height": value,
 				"max-height": value,
 			}
 		}else{
+			const value = `calc(${size*100}% - 7px)`;//7px => dragbar size
 			return {
 				"width": value,
 				"min-width": value,
@@ -268,19 +269,24 @@ export default class Chat extends Vue {
 	public get rightStyles():{[key:string]:string} {
 		if(!this.splitView) return {};
 		
-		let size = this.leftColSize*100;
-		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value !== true) {
-			size = 100-size;
+		let size = this.leftColSize;
+		const switchCols = StoreProxy.store.state.params.appearance.splitViewSwitch.value === true;
+		if(!switchCols) {
+			size = 1-size;
 		}
-		const value = `calc(${size}% - 7px)`;
 
 		if(this.splitViewVertical) {
+			console.log(size, this.availHeight);
+			const value = `calc(${size*this.availHeight}px - 14px)`;
 			return {
+				"top":switchCols? "0" : (this.availHeight*(1-size)+14)+"px",
 				"height": value,
 				"min-height": value,
 				"max-height": value,
+				"width": "100%",
 			}
 		}else{
+			const value = `calc(${size*100}% - 14px)`;
 			return {
 				"width": value,
 				"min-width": value,
@@ -292,7 +298,7 @@ export default class Chat extends Vue {
 	public get ttsStyles():{[key:string]:string} {
 		let res:{[key:string]:string} = {};
 		if(this.splitView && this.splitViewVertical && StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
-			res.top = this.ttsPosY+"px";
+			res.top = this.splitterPosY+"px";
 		}else if(!this.splitViewVertical){
 			res = this.rightStyles;
 		}
@@ -579,7 +585,6 @@ export default class Chat extends Vue {
 	 */
 	public searchMessage(str:string):void {
 		this.currentModal = 'search';
-		this.currentMessageSearch = str;
 	}
 
 	/**
@@ -620,7 +625,7 @@ export default class Chat extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 
-		if(this.ttsPosY === 0) this.replaceTTS();
+		if(this.splitterPosY === 0) this.replaceTTS();
 		if(!this.resizing) return;
 		
 		if(this.splitViewVertical) {
@@ -636,10 +641,12 @@ export default class Chat extends Vue {
 	}
 
 	private replaceTTS():void {
-		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true && this.$refs.rightCol) {
-			const rect = (this.$refs.rightCol as HTMLDivElement).getBoundingClientRect();
-			this.ttsPosY = rect.height;
-		}
+		if(!this.$refs.splitter) return;
+		let rect = (this.$refs.splitter as HTMLDivElement).getBoundingClientRect();
+		this.splitterPosY = rect.top;
+		
+		rect = (this.$refs.top as HTMLDivElement).getBoundingClientRect();
+		this.availHeight = rect.height;
 	}
 }
 
@@ -711,6 +718,7 @@ export default class Chat extends Vue {
 			.dragBt {
 				margin-right: 0;
 				padding: 3px;
+				width: 100%;
 				flex-grow: 1;
 				cursor: ns-resize;
 				.grip {
