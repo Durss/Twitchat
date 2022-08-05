@@ -308,6 +308,17 @@ export default class Chat extends Vue {
 		if(isNaN(size)) size = .5;
 		this.leftColSize = size;
 
+		// Function that attempts to request a screen wake lock.
+		const requestWakeLock = async () => {
+			try {
+				await navigator.wakeLock.request("screen");
+			} catch (err) {
+				const error = err as {name:string, message:string}
+				console.error(`${error.name}, ${error.message}`);
+			}
+		};
+		requestWakeLock();
+
 		window.addEventListener("resize", this.resizeHandler);
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);

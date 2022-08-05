@@ -17,6 +17,7 @@
 		"types": [
 			"webpack-env",
 			"vite/client",
+			"dom-screen-wake-lock",
 		],
 		"paths": {
 			"@/*": [
