@@ -115,12 +115,12 @@ export default class VoiceAction {
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
 	public static VIEWERS_COUNT_TOGGLE_DESCRIPTION:string = "Show/hide viewers count";
 	public static VIEWERS_COUNT_TOGGLE_ICON:string = "user";
-	// public static MOD_TOOLS_TOGGLE:TwitchatActionType = "MOD_TOOLS_TOGGLE";
-	// public static MOD_TOOLS_TOGGLE_DESCRIPTION:string = "Show/hide moderation tools";
-	// public static MOD_TOOLS_TOGGLE_ICON:string = "";
-	// public static CENSOR_DELETED_MESSAGES_TOGGLE:TwitchatActionType = "CENSOR_DELETED_MESSAGES_TOGGLE";
-	// public static CENSOR_DELETED_MESSAGES_TOGGLE_DESCRIPTION:string = "Show/hide deleted message content";
-	// public static CENSOR_DELETED_MESSAGES_TOGGLE_ICON:string = "";
+	public static MOD_TOOLS_TOGGLE:TwitchatActionType = "MOD_TOOLS_TOGGLE";
+	public static MOD_TOOLS_TOGGLE_DESCRIPTION:string = "Show/hide moderation tools";
+	public static MOD_TOOLS_TOGGLE_ICON:string = "mod";
+	public static CENSOR_DELETED_MESSAGES_TOGGLE:TwitchatActionType = "CENSOR_DELETED_MESSAGES_TOGGLE";
+	public static CENSOR_DELETED_MESSAGES_TOGGLE_DESCRIPTION:string = "Show/hide deleted message content";
+	public static CENSOR_DELETED_MESSAGES_TOGGLE_ICON:string = "show";
 	
 	constructor(public id?:string|TwitchatActionType, public sentences?:string) {
 	}
