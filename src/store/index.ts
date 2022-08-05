@@ -54,6 +54,7 @@ const store = createStore({
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
 		chatMessages: [] as ChatMessageTypes[],
+		pinedMessages: [] as IRCEventDataList.Message[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchDataTypes.ModeratorUser[],
 		currentPoll: {} as TwitchDataTypes.Poll,
@@ -1426,6 +1427,16 @@ const store = createStore({
 			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
 		},
 		
+		pinMessage(state, message:IRCEventDataList.Message) { state.pinedMessages.push(message); },
+		
+		unpinMessage(state, message:IRCEventDataList.Message) {
+			state.pinedMessages.forEach((v, index)=> {
+				if(v.tags.id == message.tags.id) {
+					state.pinedMessages.splice(index, 1);
+				}
+			})
+		},
+		
 	},
 
 
@@ -2292,6 +2303,10 @@ const store = createStore({
 		addEmergencyFollower({commit}, payload:EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
 		
 		clearEmergencyFollows({commit}) { commit("clearEmergencyFollows"); },
+		
+		pinMessage({commit}, message:IRCEventDataList.Message) { commit("pinMessage", message); },
+		
+		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
 	},
 	modules: {
 	}

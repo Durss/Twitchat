@@ -41,6 +41,7 @@
 				@bingo="currentModal = 'bingo'"
 				@liveStreams="currentModal = 'liveStreams'"
 				@TTuserList="currentModal = 'TTuserList'"
+				@pins="currentModal = 'pins'"
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
@@ -101,6 +102,7 @@
 		<LiveFollowings :style="rightStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
 		<StreamInfoForm :style="rightStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
 		<TTUserList :style="rightStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
+		<PinedMessages :style="rightStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
 
@@ -158,6 +160,7 @@ import { Options, Vue } from 'vue-class-component';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
+import PinedMessages from '../components/chatform/PinedMessages.vue';
 
 @Options({
 	components:{
@@ -177,6 +180,7 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 		ChatPollForm,
 		CommandHelper,
 		EmoteSelector,
+		PinedMessages,
 		PredictionForm,
 		LiveFollowings,
 		StreamInfoForm,

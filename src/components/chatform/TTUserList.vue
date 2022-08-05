@@ -49,7 +49,8 @@ import Button from '../Button.vue';
 	props:{},
 	components:{
 		Button,
-	}
+	},
+	emits:["close"]
 })
 export default class TTUserList extends Vue {
 

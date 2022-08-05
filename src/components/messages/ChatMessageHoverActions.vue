@@ -13,11 +13,16 @@
 			v-if="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
-		<Button :aria-label="'Highlight message'"
+		<Button aria-label="Highlight message"
 			:icon="$image('icons/highlight.svg')"
 			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
 			@click="chatHighlight()"
 			:loading="highlightLoading"
+			/>
+		<Button aria-label="Pin message"
+			:icon="$image('icons/pin.svg')"
+			data-tooltip="Pin message"
+			@click="pinMessage()"
 			/>
 	</div>
 </template>
@@ -67,6 +72,16 @@ export default class ChatMessageHoverActions extends Vue {
 		StoreProxy.store.dispatch("highlightChatMessageOverlay", this.messageData);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
+	}
+
+	public pinMessage():void {
+		const pins = StoreProxy.store.state.pinedMessages as IRCEventDataList.Message[]
+		//Check if message is already pinned
+		if(pins.find(m => m.tags.id == this.messageData.tags.id)) {
+			StoreProxy.store.dispatch("unpinMessage", this.messageData);
+		}else{
+			StoreProxy.store.dispatch("pinMessage", this.messageData);
+		}
 	}
 }
 </script>
