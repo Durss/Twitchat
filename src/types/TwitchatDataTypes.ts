@@ -343,3 +343,9 @@ export interface MusicTriggerData {
 	start:boolean;
 	music?:MusicMessage;
 }
+
+export interface HypeTrainTriggerData {
+	type:"hypeTrainApproach"|"hypeTrainStart"|"hypeTrainProgress"|"hypeTrainEnd";
+	level:number;
+	percent:number;
+}

@@ -27,6 +27,10 @@ export const TriggerTypes = {
 	EMERGENCY_MODE_STOP:"21",
 	HIGHLIGHT_CHAT_MESSAGE:"22",
 	CHAT_ALERT:"23",
+	HYPE_TRAIN_APPROACH:"26",
+	HYPE_TRAIN_START:"27",
+	HYPE_TRAIN_PROGRESS:"28",
+	HYPE_TRAIN_END:"29",
 }
 
 export interface ITriggerActionHelper {
@@ -151,6 +155,15 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"USER", desc:"User's name", pointer:"message.tags.username"},
 		{tag:"ALERT", desc:"User's message without emotes", pointer:"message.message"},
 	];
+	
+	map[TriggerTypes.HYPE_TRAIN_START] = 
+	map[TriggerTypes.HYPE_TRAIN_PROGRESS] = [
+		{tag:"LEVEL", desc:"Current level", pointer:"level"},
+		{tag:"PERCENT", desc:"Current level progression (0 -> 100)", pointer:"percent"},
+	];
+	map[TriggerTypes.HYPE_TRAIN_END] = [
+		{tag:"LEVEL", desc:"Level reached", pointer:"level"},
+	];
 
 	//If requesting chat command helpers and there is a music
 	//service available, contact the music service helpers
@@ -176,6 +189,10 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Bits", value:TriggerTypes.BITS, description:"Execute an action when someone sends bits", jsonTest:{"type":"highlight","channel":"#durss","tags":{"badge-info":{"subscriber":"1"},"badges":{"subscriber":"0"},"bits":"51275","color":"#9ACD32","display-name":"Durss","emotes":{},"first-msg":false,"flags":null,"id":"2a1279df-d092-4f87-a2bc-a9123d64f39c","mod":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1642379087259","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"","badge-info-raw":"subscriber/1","badges-raw":"subscriber/0","username":"durss","message-type":"chat"},"message":"Here are 51275 bits for you! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100"}},
 	{label:"Follow", value:TriggerTypes.FOLLOW, description:"Execute an action when someone follows the channel", jsonTest:{"channel":"#durss","tags":{"username":"Durss","user-id":"29961813","tmi-sent-ts":"1644088397887","id":"00000000-0000-0000-0001-000000000000","msg-id":"follow"},"username":"Durss","type":"highlight"}},
 	{label:"Raid", value:TriggerTypes.RAID, description:"Execute an action when someone raids the channel", jsonTest:{"type":"highlight","channel":"#durss","tags":{"info":"this tags prop is a fake one to make things easier for my code","id":"16423778121330.0751974390273129","tmi-sent-ts":"1642377812133","msg-id":"raid"},"username":"Durss","viewers":727}},
+	{label:"Hype train approach", value:TriggerTypes.HYPE_TRAIN_APPROACH, description:"Execute an action when a hype train approaches", jsonTest:{type:"hypeTrainApproach", level:0, percent:0}},
+	{label:"Hype train start", value:TriggerTypes.HYPE_TRAIN_START, description:"Execute an action when a hype train starts", jsonTest:{type:"hypeTrainStart", level:1, percent:30}},
+	{label:"Hype train progress", value:TriggerTypes.HYPE_TRAIN_PROGRESS, description:"Execute an action when a hype train progresses", jsonTest:{type:"hypeTrainProgress", level:2, percent:83}},
+	{label:"Hype train end", value:TriggerTypes.HYPE_TRAIN_END, description:"Execute an action when a hype train ends", jsonTest:{type:"hypeTrainEnd", level:3, percent:10}},
 	{label:"Stream info update", value:TriggerTypes.STREAM_INFO_UPDATE, description:"Execute an action when the stream info are updated"},
 	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
 	{label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute an action when a music starts playing", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},

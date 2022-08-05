@@ -19,57 +19,59 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<Button aria-label="open emergency params" small title="try it" @click.stop="openParamPage('emergency')" />
-							<span>Protect yourself from <strong>followbot raids</strong> with the new option of the Emergency button</span>
+							<Button aria-label="open voice params" small title="try it" @click.stop="openParamPage('voice')" />
+							<span><strong>Control Twitchat with your voice</strong>! Create polls and predictions, scroll the chat, mark messages as read and much more with your voice.</span>
 						</li>
 						<li>
-							<Button aria-label="open alert param" small title="try it" @click.stop="openParamPage('alert')" />
-							<span>Let your mods scream at you to make sure you read them with the new <strong>alert feature</strong> under <mark>Parameters =&gt features</mark>.</span>
+							<span>You can now <strong>pin messages</strong> so you don't loose them. Roll over a message and click the pin icon. Open the pinned messages later with the pin icon at the bottom.</span>
 						</li>
 						<li>
-							<span>Content of message sent by users you <strong>blocked</strong> is now hidden. Click to reveal.</span>
+							<span><strong>Stream Deck™ plugin</strong> can now start the emergency mode and shoutout your latest raider.</span>
 						</li>
 						<li>
-							<span>If sending a <strong>clip</strong>'s link, it's <strong>preview</strong> will be displayed</span>
+							<Button aria-label="open overlays" small title="open" @click.stop="openParamPage('overlays')" />
+							<span>Many options added to the <strong>music player</strong> overlay</span>
 						</li>
 						<li>
-							<span>The "Message Highlight" overlay can now play a clip with a single click on a dedicated button of the clip's preview</span>
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
+							<span>Allow your viewers to change your <strong>currently playing spotify playlist</strong> from chat commands or channel point rewards</span>
 						</li>
 						<li>
-							<span>Colored <mark>/announce</mark> commands available</span>
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
+							<span><strong>2 new triggers</strong> added to execute actions when a <strong>music starts or stops playing</strong> <i>(ex: to automatically send current track info on chat)</i></span>
 						</li>
 						<li>
-							<span><mark>/block</mark> and <mark>/unblock</mark> commands available</span>
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
+							<span><strong>4 new triggers</strong> added to execute actions when <strong>hype train</strong> approches, starts, progresses and ends</span>
+						</li>
+						<li>
+							<span>When using the split view option you can now <strong>resize the columns</strong> as you wish</span>
+						</li>
+						<li>
+							<Button aria-label="open followers param" small title="open" @click.stop="openSpecificParam('appearance.highlightNonFollowers')" />
+							<span>Users list will now show who's not following you <i>(if you enabled the option)</i></span>
+						</li>
+						<li>
+							<Button aria-label="open alert param" small title="donate 💝" href="https://ko-fi.com/durss" type="link" target="_blank" />
+							<span>I opened a <strong>Ko-fi</strong> page for donations</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
-						<li>
-							<span>You won't loose the Greet them history if you reload twitchat during your stream. It will show a user again only after 8h.</span>
-						</li>
-						<li>
-							<span>Get your current Twitchat version on the bottom of the parameters or with the <mark>/version</mark> command</span>
-						</li>
-						<li>
-							<Button aria-label="open chat suggestions feature" small title="open" @click.stop="openModal('chatpoll')" />
-							<span><mark>Chat poll</mark> feature has been renamed to <mark>Chat suggestions</mark> for the sake of clarity</span>
-						</li>
-						<li>
-							<span>Parameters menu has been reviewed with a full page menu instead of the huge stack of tabs at the top</span>
-						</li>
-						<li>
-							<span>Timer and Countdown overlay is a little less ugly</span>
-						</li>
-						<li>
-							<Button aria-label="open chat suggestions feature" small title="open" @click.stop="openParamPage('overlays')" />
-							<span>Spotify and Deezer overlay parameters now shows an example of what the player looks like</span>
-						</li>
+						<li>If using Twitchat on a mobile device, Twitchat will now <strong>prevent it from locking</strong> the screen in case of inactivity</li>
+						<li>Music overlay will also show <strong>podcast info</strong> played from Spotify</li>
+						<li>Added <strong>CSS selectors</strong> to the music player so you can better customize it</li>
+						<li>I updated the way i sync your data with the server. <strong>PLEASE</strong> let me know if you experience any data loss!</li>
+						<li>Optimized emotes parsing</li>
+						<li>You can now pass query parameters to a local HTML on the triggers. <i>(ex: if you create a custom sub/cheer/raid alert page)</i></li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block fix" title="Fixes" :open="true" :icons="['fix']">
 					<ul>
-						<li>Chat connexion was lost after few hours without succeeding to reconnect forcing you to reload the page. This should be fixed now.</li>
+						<li>Music player overlay was sometimes blocked when using Spotify.</li>
+						<li>You had to create at least 2 chat commands to see them on the list.</li>
+						<li>Sub-only trigger wasn't working for subs that weren't showing their sub badge.</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -84,7 +86,7 @@
 			<ChatTipAndTrickAd class="content"
 				@showModal="(v:string)=> $emit('showModal', v)"
 				@openParam="(v:string)=> openParamPage(v)"
-				@openParamItem="(v:string)=> showSpecificParam(v)"
+				@openParamItem="(v:string)=> openSpecificParam(v)"
 			/>
 		</div>
 
@@ -150,7 +152,7 @@ export default class ChatAd extends Vue {
 		StoreProxy.store.dispatch("showParams", true);
 	}
 
-	public showSpecificParam(id:string):void {
+	public openSpecificParam(id:string):void {
 		StoreProxy.store.state.tempStoreValue = "SEARCH:"+id;
 		StoreProxy.store.dispatch("showParams", true);
 	}

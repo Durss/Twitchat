@@ -1,4 +1,4 @@
-import type { EmergencyFollowerData, HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
+import type { EmergencyFollowerData, HypeTrainStateData, HypeTrainTriggerData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
 import TwitchUtils from '@/utils/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
 import type { ChatUserstate } from "tmi.js";
@@ -159,17 +159,17 @@ export default class PubSub extends EventDispatcher{
 		await Utils.promisedTimeout(10000);
 		this.parseEvent(PubsubJSON.HypeTrainStart);
 		await Utils.promisedTimeout(5000);
-		this.parseEvent(PubsubJSON.HypeTrainProgressBits);
-		this.parseEvent(PubsubJSON.HypeTrainConductorUpdateBits);
+		// this.parseEvent(PubsubJSON.HypeTrainProgressBits);
+		// this.parseEvent(PubsubJSON.HypeTrainConductorUpdateBits);
 		this.parseEvent(PubsubJSON.HypeTrainLevelUp2);
 		await Utils.promisedTimeout(10000);
-		this.parseEvent(PubsubJSON.HypeTrainProgressSubGift);
-		this.parseEvent(PubsubJSON.HypeTrainConductorUpdateSubGifts);
+		// this.parseEvent(PubsubJSON.HypeTrainProgressSubGift);
+		// this.parseEvent(PubsubJSON.HypeTrainConductorUpdateSubGifts);
 		this.parseEvent(PubsubJSON.HypeTrainLevelUp5);
 		await Utils.promisedTimeout(10000);
-		this.parseEvent(PubsubJSON.HypeTrainProgressSub);
-		this.parseEvent(PubsubJSON.HypeTrainConductorUpdateSubs);
-		await Utils.promisedTimeout(5000);
+		// this.parseEvent(PubsubJSON.HypeTrainProgressSub);
+		// this.parseEvent(PubsubJSON.HypeTrainConductorUpdateSubs);
+		// await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.HypeTrainComplete);
 		await Utils.promisedTimeout(10000);
 		this.parseEvent(PubsubJSON.HypeTrainExpire);
@@ -735,6 +735,12 @@ export default class PubSub extends EventDispatcher{
 		this.hypeTrainApproachingTimer = setTimeout(()=> {
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, train.timeLeft * 1000);
+		const message:HypeTrainTriggerData = {
+			type: "hypeTrainApproach",
+			level:0,
+			percent:0,
+		}
+		TriggerActionHandler.instance.onMessage(message)
 	}
 
 	/**
@@ -753,6 +759,12 @@ export default class PubSub extends EventDispatcher{
 			is_boost_train:data.is_boost_train,
 		};
 		StoreProxy.store.dispatch("setHypeTrain", train);
+		const message:HypeTrainTriggerData = {
+			type: "hypeTrainStart",
+			level:train.level,
+			percent:Math.floor(train.currentValue/train.goal * 100),
+		}
+		TriggerActionHandler.instance.onMessage(message)
 	}
 	
 	/**
@@ -770,6 +782,12 @@ export default class PubSub extends EventDispatcher{
 			is_boost_train:data.is_boost_train,
 		};
 		StoreProxy.store.dispatch("setHypeTrain", train);
+		const message:HypeTrainTriggerData = {
+			type: "hypeTrainProgress",
+			level:train.level,
+			percent:Math.floor(train.currentValue/train.goal * 100),
+		}
+		TriggerActionHandler.instance.onMessage(message)
 	}
 	
 	/**
@@ -787,6 +805,12 @@ export default class PubSub extends EventDispatcher{
 			is_boost_train:data.is_boost_train,
 		};
 		StoreProxy.store.dispatch("setHypeTrain", train);
+		const message:HypeTrainTriggerData = {
+			type: "hypeTrainProgress",
+			level:train.level,
+			percent:Math.floor(train.currentValue/train.goal * 100),
+		}
+		TriggerActionHandler.instance.onMessage(message)
 	}
 	
 	/**
@@ -807,6 +831,15 @@ export default class PubSub extends EventDispatcher{
 			//Hide hype train popin
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, 20000)
+
+		let level = storeData.level;
+		if(storeData.currentValue < storeData.goal) level --;
+		const message:HypeTrainTriggerData = {
+			type: "hypeTrainEnd",
+			level,
+			percent:0,
+		}
+		TriggerActionHandler.instance.onMessage(message)
 	}
 	
 	/**
