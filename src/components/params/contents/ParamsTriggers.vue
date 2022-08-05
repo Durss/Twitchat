@@ -51,7 +51,7 @@
 			</div>
 		</div>
 
-		<div class="triggerDescription" v-if="event_conf.value != '0' && !showLoading">
+		<div class="triggerDescription" v-if="((event_conf.value != '0' && ! isSublist) || (isSublist && subevent_conf.value != '0') || isChatCmd) && !showLoading">
 			<div v-html="triggerDescription"></div>
 
 			<div class="ctas">
@@ -610,7 +610,6 @@ export default class ParamsTriggers extends Vue {
 		flex-direction: row;
 		position: sticky;
 		align-items: flex-start;
-		top: 0;
 		z-index: 1;
 		background-color: #eee;
 		padding-bottom: 1em;

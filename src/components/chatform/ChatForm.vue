@@ -172,11 +172,13 @@
 
 <script lang="ts">
 import { TwitchatAdTypes, type BingoConfig } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
@@ -343,17 +345,6 @@ export default class ChatForm extends Vue {
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
 
-		let hash = "";
-		try {
-			const encoder = new TextEncoder();
-			const data = encoder.encode(cmd);
-			const buffer = await window.crypto.subtle.digest('SHA-256', data);
-			const hashArray = Array.from(new Uint8Array(buffer));
-			hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); 
-		}catch(error){
-			//ignore
-		}
-
 		if(cmd == "/devmode") {
 			this.message = "";
 			StoreProxy.store.dispatch("toggleDevMode");
@@ -484,12 +475,39 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(hash == "31f4a7f4e0a1d55a70775e51038ddfa2ae196e56dda1b10e82db2278bd19b6dc") {
+		if(cmd == "/userlist") {
+			StoreProxy.store.state.tempStoreValue = params[0];
+			this.$emit('TTuserList');
+			this.message = "";
+		}else
+
+		if(cmd == "/userdata") {
 			if(params.length == 0) {
-				StoreProxy.store.state.alert = "Missing secret token";
+				StoreProxy.store.state.alert = "Missing user name";
 			}else{
-				StoreProxy.store.state.tempStoreValue = params[0];
-				this.$emit('TTuserList');
+				const users = await TwitchUtils.loadUserInfo(undefined, [params[0]])
+				if(users.length == 0) {
+					StoreProxy.store.state.alert = "User not found";
+				}else{
+					const options = {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": "Bearer "+UserSession.instance.access_token as string,
+						},
+					}
+					const res = await fetch(Config.instance.API_PATH+"/userdata?uid="+users[0].id, options)
+					console.log(res);
+					if(res.status === 200) {
+						const json = await res.json();
+						const data = JSON.stringify(json.data);
+						const blob = new Blob([data], { type: 'application/json' });
+						const url = window.URL.createObjectURL(blob);
+						window.open(url, "_blank");
+					}else{
+						StoreProxy.store.state.alert = "Unable to load user data";
+					}
+				}
 			}
 			this.message = "";
 		}else
