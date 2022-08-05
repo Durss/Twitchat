@@ -44,9 +44,9 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -91,9 +91,9 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		if(store.state.tempStoreValue) {
-			this.title = store.state.tempStoreValue as string;
-			store.state.tempStoreValue = null;
+		if(StoreProxy.store.state.tempStoreValue) {
+			this.title = StoreProxy.store.state.tempStoreValue as string;
+			StoreProxy.store.state.tempStoreValue = null;
 		}
 	}
 

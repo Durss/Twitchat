@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -44,10 +44,8 @@ export default class PollState extends Vue {
 	public loading = false;
 	public progressPercent = 0;
 
-	private disposed = false;
-
 	public get poll():TwitchDataTypes.Poll {
-		return store.state.currentPoll as TwitchDataTypes.Poll;
+		return StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
 	}
 
 	public getPercent(c:TwitchDataTypes.PollChoice):number {
@@ -94,7 +92,7 @@ export default class PollState extends Vue {
 	// }
 
 	public beforeUnmount():void {
-		this.disposed = true;
+		
 	}
 
 	public endPoll():void {
@@ -105,7 +103,7 @@ export default class PollState extends Vue {
 				await TwitchUtils.endPoll(this.poll.id);
 			}catch(error) {
 				this.loading = false;
-				store.state.alert = "An error occurred while deleting the poll";
+				StoreProxy.store.state.alert = "An error occurred while deleting the poll";
 			}
 			this.loading = false;
 		}).catch(()=> {

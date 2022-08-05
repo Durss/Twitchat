@@ -1,4 +1,6 @@
+import router from '@/router';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import type { BingoData, RaffleData, TrackedUser } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -27,20 +29,22 @@ import TTSUtils from '@/utils/TTSUtils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type BingoConfig, type BotMessageField, type ChatPollData, type CommandData, type CountdownData, type HypeTrainStateData, type IBotMessage, type InstallHandler, type IParameterCategory, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 4,
+		latestUpdateIndex: 6,
+		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
 		showParams: false,
 		devmode: false,
 		canSplitView: false,
 		hasChannelPoints: false,
+		emergencyModeEnabled: false,
 		ahsInstaller: null as InstallHandler|null,
 		alert: "",
 		tooltip: "",
@@ -50,7 +54,7 @@ const store = createStore({
 		newScopeToRequest: [] as string[],
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
-		chatMessages: [] as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper)[],
+		chatMessages: [] as ChatMessageTypes[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchDataTypes.ModeratorUser[],
 		currentPoll: {} as TwitchDataTypes.Poll,
@@ -68,13 +72,14 @@ const store = createStore({
 		raiding: null as PubSubDataTypes.RaidInfos|null,
 		realHistorySize: 5000,
 		followingStates: {} as {[key:string]:boolean},
+		followingStatesByNames: {} as {[key:string]:boolean},
 		userPronouns: {} as {[key:string]:string|boolean},
 		playbackState: null as PubSubDataTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubDataTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
-		PermissionsForm: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
+		obsCommandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
 		deezerConnected: false,
@@ -105,7 +110,7 @@ const store = createStore({
 			},
 			shoutout: {
 				enabled:true,
-				message:"/announce Go checkout {USER} {URL} . Her/His last stream's title was \"{TITLE}\" in category \"{CATEGORY}\".",
+				message:"/announce Go checkout {USER} {URL} . Her/His last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 		} as IBotMessage,
 		commands: [
@@ -183,6 +188,30 @@ const store = createStore({
 				needChannelPoints:false,
 			},
 			{
+				id:"announceblue",
+				cmd:"/announceblue {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"announcegreen",
+				cmd:"/announcegreen {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"announceorange",
+				cmd:"/announceorange {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
+				id:"announcepurple",
+				cmd:"/announcepurple {message}",
+				details:"Makes an announcement",
+				needChannelPoints:false,
+			},
+			{
 				id:"commercial",
 				cmd:"/commercial {duration}",
 				details:"Starts an ad. Duration: 30, 60, 90, 120, 150 or 180",
@@ -219,9 +248,39 @@ const store = createStore({
 				id:"notts",
 				cmd:"/notts {user}",
 				details:"Remove user from the list of tts users",
+			},
+			{
+				id:"block",
+				cmd:"/block {user}",
+				details:"Block a user",
+			},
+			{
+				id:"Unblock",
+				cmd:"/unblock {user}",
+				details:"Unblock a user",
 			}
 		] as CommandData[],
+
 		params: {
+			features: {
+				spoilersEnabled: 			{save:true, type:"toggle", value:true, label:"Enable spoiler tag", id:216, icon:"show_purple.svg"},
+				alertMode: 					{save:true, type:"toggle", value:true, label:"Enable alert mode", id:217, icon:"alert_purple.svg"},
+				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
+				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
+				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
+				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
+				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
+				markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
+				lockAutoScroll: 			{save:true, type:"toggle", value:false, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
+				showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
+				raidStreamInfo: 			{save:true, type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
+				raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"raidHighlight.svg", example:"raidHighlightUser.png"},
+				groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
+				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
+				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user joins/leaves the chat", id:211, icon:"notification_purple.svg"},
+				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
+				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
+			} as {[key:string]:ParameterData},
 			appearance: {
 				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
@@ -234,15 +293,14 @@ const store = createStore({
 				highlightNonFollowers: 		{save:true, type:"toggle", value:false, label:"Indicate non-followers (network intensive)", id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
 				highlightMentions: 			{save:true, type:"toggle", value:true, label:"Highlight messages mentioning me", id:1, icon:"broadcaster_purple.svg"},
 				translateNames:				{save:true, type:"toggle", value:true, label:"Translate user names", id:22, icon:"translate_purple.svg", example:"translate.png"},
-				showEmotes: 				{save:true, type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
 				showViewersCount: 			{save:true, type:"toggle", value:true, label:"Show viewers count", id:17, icon:"user_purple.svg"},
-				bttvEmotes: 				{save:true, type:"toggle", value:false, label:"Show BTTV emotes", id:3, icon:"emote_purple.svg"},
-				ffzEmotes: 					{save:true, type:"toggle", value:false, label:"Show FFZ emotes", id:19, icon:"emote_purple.svg"},
-				sevenTVEmotes: 				{save:true, type:"toggle", value:false, label:"Show 7TV emotes", id:20, icon:"emote_purple.svg"},
+				showEmotes: 				{save:true, type:"toggle", value:true, label:"Show emotes", id:2, icon:"emote_purple.svg"},
+				bttvEmotes: 				{save:true, type:"toggle", value:false, label:"Show BTTV emotes", id:3, icon:"emote_purple.svg", parent:2},
+				ffzEmotes: 					{save:true, type:"toggle", value:false, label:"Show FFZ emotes", id:19, icon:"emote_purple.svg", parent:2},
+				sevenTVEmotes: 				{save:true, type:"toggle", value:false, label:"Show 7TV emotes", id:20, icon:"emote_purple.svg", parent:2},
 				showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 				minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
-				shoutoutLabel: 				{save:true, type:"text", value:"", label:"Shoutout message", id:14, icon:"shoutout_purple.svg", longText:true},
 				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count", min:50, max:500, step:50, id:8},
 				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size", min:1, max:7, step:1, id:12},
 			} as {[key:string]:ParameterData},
@@ -265,23 +323,6 @@ const store = createStore({
 				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
 				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
-			features: {
-				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
-				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
-				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
-				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
-				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
-				markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
-				lockAutoScroll: 			{save:true, type:"toggle", value:false, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
-				showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
-				raidStreamInfo: 			{save:true, type:"toggle", value:true, label:"Show last stream info of the raider", id:207, icon:"raid_purple.svg", example:"raidStreamInfo.png"},
-				raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"highlight.svg", example:"raidHighlightUser.png"},
-				groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user (sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-				keepHighlightMyMessages:	{save:true, type:"toggle", value:false, label:"Show \"highlight my message\" rewards in activity feed", id:210, icon:"notification_purple.svg"},
-				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user enters/leaves the chat", id:211, icon:"notification_purple.svg"},
-				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
-				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
-			} as {[key:string]:ParameterData},
 			tts: {
 				ttsEnabled:	 				{save:true, type:"toggle", value:false, label:"Enable text to speech", id:400},
 				volume: 					{save:true, type:"slider", value:1, label:"Volume", id:401, parent:400, min:0, max:1, step:0.1},
@@ -292,7 +333,6 @@ const store = createStore({
 				speakPatternmessage:		{save:true, type:"text", value:'$USER says $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:405, parent:400, longText:true},
 				speakPatternwhisper:		{save:true, type:"text", value:'$USER whispers $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:407, parent:400},
 				speakPatternnotice:			{save:true, type:"text", value:'$MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:406, parent:400},
-				speakPatternhighlight:		{save:true, type:"text", value:'$MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:450, parent:400},
 				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0=unlimited)", id:408, parent:400, min:0, max:2000, step:10},
 				timeout: 					{save:true, type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", id:409, parent:400, min:0, max:300, step:10},
 				removeURL:		 			{save:true, type:"toggle", value:true, label:"Remove URL", id:410, parent:400},
@@ -314,12 +354,18 @@ const store = createStore({
 				tts_users:					{save:true, type:"text", value:"", label:"Specific users", id:428, longText:true, placeholder:"user1, user2, user3, ..." },
 			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
+
 		roomStatusParams: {
-			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
+			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
-		} as {[key:string]:ParameterData},
+		} as IRoomStatusCategory,
+
+		accountParams: {
+			syncDataWithServer: { type:"toggle", value:false, label:"Sync parameters to server", id:401 },
+		} as IAccountParamsCategory,
+
 		confirm:{
 			title:"",
 			description:"",
@@ -328,7 +374,90 @@ const store = createStore({
 			yesLabel:"",
 			noLabel:"",
 		},
+
+		emergencyParams: {
+			enabled:false,
+			emotesOnly:false,
+			subOnly:false,
+			followOnly:false,
+			noTriggers:false,
+			slowMode:false,
+			followOnlyDuration:60,
+			slowModeDuration:10,
+			toUsers:"",
+			obsScene:"",
+			obsSources:[],
+			chatCmd:"",
+			chatCmdPerms:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+			autoBlockFollows:false,
+			autoUnblockFollows:false,
+		} as EmergencyParamsData,
+
+		//Stores all the people that followed during an emergency
+		emergencyFollows: [] as EmergencyFollowerData[],
+
+		spoilerParams: {
+			permissions:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as SpoilerParamsData,
+
+		isChatMessageHighlighted: false,
+		chatHighlightOverlayParams: {
+			position:"bl",
+		} as ChatHighlightOverlayData,
+		
+		chatAlertParams: {
+			chatCmd:"!alert",
+			message:true,
+			shake:true,
+			sound:true,
+			blink:false,
+			permissions:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as AlertParamsData,
+		chatAlert:null as IRCEventDataList.Message|IRCEventDataList.Whisper|null,
+		
+		musicPlayerParams: {
+			autoHide:false,
+			erase:true,
+			showCover:true,
+			showArtist:true,
+			showTitle:true,
+			showProgressbar:true,
+			openFromLeft:false,
+			noScroll:false,
+		} as MusicPlayerParamsData,
 	},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	mutations: {
 		async authenticate(state, payload) {
 			const code = payload.code;
@@ -341,7 +470,7 @@ const store = createStore({
 					const res = await fetch(Config.instance.API_PATH+"/gettoken?code="+code, {method:"GET"});
 					json = await res.json();
 				}else {
-					json = JSON.parse(Store.get("oAuthToken"));
+					json = JSON.parse(Store.get(Store.TWITCH_AUTH_TOKEN));
 					//Refresh token if going to expire within the next 5 minutes
 					if(json && (forceRefresh || json.expires_at < Date.now() - 60000*5)) {
 						const res = await fetch(Config.instance.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
@@ -349,13 +478,16 @@ const store = createStore({
 					}
 				}
 				if(!json) {
+					console.log("No JSON :(", json);
 					if(cb) cb(false);
 					return;
 				}
-				const userRes:unknown = await TwitchUtils.validateToken(json.access_token);
-				if(!(userRes as TwitchDataTypes.Token).expires_in
-				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
+				const userRes = await TwitchUtils.validateToken(json.access_token);
+				const status = (userRes as TwitchDataTypes.Error).status;
+				if(isNaN((userRes as TwitchDataTypes.Token).expires_in)
+				&& status != 200) throw("invalid token");
 
+				UserSession.instance.access_token = json.access_token;
 				UserSession.instance.authToken = userRes as TwitchDataTypes.Token;
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
@@ -371,37 +503,51 @@ const store = createStore({
 					return;
 				}
 				if(!json.expires_at) {
-					json.expires_at = Date.now() + json.expires_in*1000;
+					json.expires_at = Date.now() + UserSession.instance.authToken.expires_in*1000;
 				}
 				UserSession.instance.authResult = json;
 				Store.access_token = json.access_token;
-				Store.set("oAuthToken", json, false);
-				
-				if(!state.authenticated) {
-					//Connect if we were not connected before
-					IRCClient.instance.connect(UserSession.instance.authToken.login, json.access_token);
-					PubSub.instance.connect();
-				}
+				Store.set(Store.TWITCH_AUTH_TOKEN, json, false);
 				
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
-				console.log("INIT USER", users);
 				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
 				if(currentUser) {
 					state.hasChannelPoints = currentUser.broadcaster_type != "";
 					UserSession.instance.user = currentUser;
 				}
-
-				state.mods = await TwitchUtils.getModerators();
-
+				
+				if(state.authenticated) {
+					//If we were authenticated, simply update the token on IRC
+					IRCClient.instance.updateToken(json.access_token);
+				}else{
+					IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
+					PubSub.instance.connect();
+				}
 				state.authenticated = true;
+				state.mods = await TwitchUtils.getModerators();
 				state.followingStates[UserSession.instance.authToken.user_id] = true;
+				state.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
+
+				const expire = UserSession.instance.authToken.expires_in;
+				let delay = Math.max(0, expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
+				//Refresh at least every 3h
+				const maxDelay = 1000 * 60 * 60 * 3;
+				if(delay > maxDelay) delay = maxDelay;
+			
+				console.log("Refresh token in", Utils.formatDuration(delay));
+				clearTimeout(state.refreshTokenTO);
+				state.refreshTokenTO = setTimeout(()=>{
+					store.dispatch("authenticate", {forceRefresh:true});
+				}, delay);
+				
 			}catch(error) {
 				console.log(error);
 				state.authenticated = false;
 				Store.remove("oAuthToken");
 				state.alert = "Authentication failed";
 				if(cb) cb(false);
+				router.push({name: 'login'});//Redirect to login if connection failed
 			}
 		},
 
@@ -418,11 +564,17 @@ const store = createStore({
 			if(contentID == -1) {
 				let possibleAds = [];
 				possibleAds.push(TwitchatAdTypes.SPONSOR);
-				possibleAds.push(TwitchatAdTypes.TIP);
+				//Give more chances to hae anything but the "sponsor" ad
+				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatAdTypes.DISCORD);
+				possibleAds.push(TwitchatAdTypes.DISCORD);
 				possibleAds.push(TwitchatAdTypes.DISCORD);
 
-				const lastUpdateRead = parseInt(Store.get("updateIndex"));
+				const lastUpdateRead = parseInt(Store.get(Store.UPDATE_INDEX));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
+					//Force last updates if any not read
 					possibleAds = [TwitchatAdTypes.UPDATES];
 				}else{
 					//Add 2 empty slots for every content type available
@@ -516,7 +668,7 @@ const store = createStore({
 						const messageStr = mess.type == "whisper"? mess.params[1] : mess.message;
 						if(mess.type == "message"
 						&& uid == mess.tags['user-id']
-						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//i > len-20 more or less says "if message is still visible on screen"
+						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
 						&& textMessage.message == messageStr) {
 							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
 							mess.occurrenceCount ++;
@@ -534,6 +686,7 @@ const store = createStore({
 					if(uid && state.followingStates[uid] == undefined) {
 						TwitchUtils.getFollowState(uid, textMessage.tags['room-id']).then((res:boolean) => {
 							state.followingStates[uid] = res;
+							state.followingStatesByNames[message.tags.username?.toLowerCase()] = res;
 						}).catch(()=>{/*ignore*/})
 					}
 				}
@@ -542,6 +695,7 @@ const store = createStore({
 				if(payload.type == "highlight") {
 					if(payload.tags['msg-id'] == "follow") {
 						state.followingStates[payload.tags['user-id'] as string] = true;
+						state.followingStatesByNames[message.tags.username?.toLowerCase()] = true;
 					}
 				}
 				
@@ -773,7 +927,7 @@ const store = createStore({
 		setCypherKey(state, payload:string) {
 			state.cypherKey = payload;
 			TwitchCypherPlugin.instance.cypherKey = payload;
-			Store.set("cypherKey", payload);
+			Store.set(Store.CYPHER_KEY, payload);
 		},
 
 		setCypherEnabled(state, payload:boolean) { state.cypherEnabled = payload; },
@@ -912,8 +1066,8 @@ const store = createStore({
 			}else{
 				state.devmode = !state.devmode;
 			}
-			if(state.devmode != JSON.parse(Store.get("devmode"))) {
-				Store.set("devmode", state.devmode);
+			if(state.devmode != JSON.parse(Store.get(Store.DEVMODE))) {
+				Store.set(Store.DEVMODE, state.devmode);
 			}
 			if(notify) {
 				IRCClient.instance.sendNotice("devmode", "Developer mode "+(state.devmode?"enabled":"disabled"));
@@ -938,7 +1092,7 @@ const store = createStore({
 			//IF reaching this point, it's most probably because 
 			if(payload.retryCount != 5) {
 				const retryCount = payload.retryCount? payload.retryCount++ : 1;
-				window.setTimeout(()=>{
+				setTimeout(()=>{
 					//@ts-ignore (typings seems wrong, this line is actually correct)
 					this.commit("flagLowTrustMessage", {data:payload.data, retryCount})
 				}, 100);
@@ -955,17 +1109,17 @@ const store = createStore({
 
 		setOBSSceneCommands(state, value:OBSSceneCommand[]) {
 			state.obsSceneCommands = value;
-			Store.set("obsConf_scenes", value);
+			Store.set(Store.OBS_CONF_SCENES, value);
 		},
 
 		setOBSMuteUnmuteCommands(state, value:OBSMuteUnmuteCommands) {
 			state.obsMuteUnmuteCommands = value;
-			Store.set("obsConf_muteUnmute", value);
+			Store.set(Store.OBS_CONF_MUTE_UNMUTE, value);
 		},
 
-		setPermissionsForm(state, value:PermissionsData) {
-			state.PermissionsForm = value;
-			Store.set("obsConf_permissions", value);
+		setObsCommandsPermissions(state, value:PermissionsData) {
+			state.obsCommandsPermissions = value;
+			Store.set(Store.OBS_CONF_PERMISSIONS, value);
 		},
 
 		setTrigger(state, value:{key:string, data:TriggerData}) {
@@ -1006,27 +1160,27 @@ const store = createStore({
 				value.data.actions = cleanEmptyActions(value.data.actions);
 				state.triggers[value.key] = value.data;
 			}
-			Store.set("triggers", state.triggers);
+			Store.set(Store.TRIGGERS, state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
 		},
 
 		deleteTrigger(state, key:string) {
 			if(state.triggers[key]) {
 				delete state.triggers[key];
-				Store.set("triggers", state.triggers);
+				Store.set(Store.TRIGGERS, state.triggers);
 			}
 		},
 
 		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
 			state.botMessages[value.key].enabled = value.enabled;
 			state.botMessages[value.key].message = value.message;
-			Store.set("botMessages", state.botMessages);
+			Store.set(Store.BOT_MESSAGES, state.botMessages);
 		},
 
 		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
 
 		setSpotifyCredentials(state, value:{client:string, secret:string}) {
-			Store.set("spotifyAppParams", value);
+			Store.set(Store.SPOTIFY_APP_PARAMS, value);
 			SpotifyHelper.instance.setAppParams(value.client, value.secret)
 		},
 
@@ -1040,7 +1194,7 @@ const store = createStore({
 				value = null;
 				Store.remove("spotifyAuthToken");
 			}else{
-				Store.set("spotifyAuthToken", value);
+				Store.set(Store.SPOTIFY_AUTH_TOKEN, value);
 			}
 			state.spotifyAuthToken = value;
 			SpotifyHelper.instance.token = value;
@@ -1091,7 +1245,7 @@ const store = createStore({
 				//add new preset
 				state.streamInfoPreset.push(preset);
 			}
-			Store.set("streamInfoPresets", state.streamInfoPreset);
+			Store.set(Store.STREAM_INFO_PRESETS, state.streamInfoPreset);
 		},
 
 		deleteStreamInfoPreset(state, preset:StreamInfoPreset) {
@@ -1100,7 +1254,7 @@ const store = createStore({
 				//update existing preset
 				state.streamInfoPreset.splice(index, 1);
 			}
-			Store.set("streamInfoPresets", state.streamInfoPreset);
+			Store.set(Store.STREAM_INFO_PRESETS, state.streamInfoPreset);
 		},
 
 		startTimer(state) {
@@ -1179,20 +1333,175 @@ const store = createStore({
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
 
 			state.countdown = null;
-		}
+		},
+
+		setEmergencyParams(state, params:EmergencyParamsData) {
+			state.emergencyParams = params;
+			Store.set(Store.EMERGENCY_PARAMS, params);
+		},
+
+		setAlertParams(state, params:AlertParamsData) {
+			state.chatAlertParams = params;
+			Store.set(Store.ALERT_PARAMS, params);
+		},
+		
+		setChatHighlightOverlayParams(state, params:ChatHighlightOverlayData) {
+			state.chatHighlightOverlayParams = params;
+			Store.set(Store.CHAT_HIGHLIGHT_PARAMS, params);
+		},
+		
+		setSpoilerParams(state, params:SpoilerParamsData) {
+			state.spoilerParams = params;
+			Store.set(Store.SPOILER_PARAMS, params);
+		},
+		
+		async highlightChatMessageOverlay(state, payload:IRCEventDataList.Message|null) {
+			let data:unknown = null;
+			if(payload) {
+				let [user] = await TwitchUtils.loadUserInfo([payload.tags['user-id'] as string]);
+				//Allow custom parsing of emotes only if it's a message of ours sent
+				//from twitchat to avoid killing performances.
+				//When seending a message, the one received back misses lots of info
+				//like the "id", in this case a custom ID is given that starts
+				//with "00000000"
+				const customParsing = payload.tags.id?.indexOf("00000000") == 0;
+				const chunks = TwitchUtils.parseEmotes(payload.message, payload.tags['emotes-raw'], false, customParsing);
+				let result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+					{}	let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/2x$/gi, "3x");//7TV format
+						url = url.replace(/1$/gi, "4");//FFZ format
+						result += "<img src='"+url+"' class='emote'>";
+					}
+				}
+				data = {message:result, user, params:state.chatHighlightOverlayParams};
+				state.isChatMessageHighlighted = true;
+
+				const clonedData:ChatHighlightInfo = JSON.parse(JSON.stringify(data));
+				clonedData.type = "chatOverlayHighlight";
+				TriggerActionHandler.instance.onMessage(clonedData);
+			}else{
+				state.isChatMessageHighlighted = false;
+
+				const clonedData:ChatHighlightInfo = {type: "chatOverlayHighlight"};
+				TriggerActionHandler.instance.onMessage(clonedData);
+			}
+			
+			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
+		},
+
+		setEmergencyMode(state, enable:boolean) {
+			let channel = IRCClient.instance.channel;
+			state.emergencyModeEnabled = enable;
+			const message:EmergencyModeInfo = {
+				type: "emergencyMode",
+				enabled: enable,
+			}
+			TriggerActionHandler.instance.onMessage(message);
+			IRCClient.instance.sendNotice("emergencyMode", "Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>");
+
+			if(enable) {
+				//ENABLE EMERGENCY MODE
+				if(state.emergencyParams.slowMode) IRCClient.instance.client.slow(channel, 10);
+				if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonly(channel);
+				if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribers(channel);
+				if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonly(channel, state.emergencyParams.followOnlyDuration);
+				if(state.emergencyParams.toUsers) {
+					const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					for (let i = 0; i < users.length; i++) {
+						const u = users[i];
+						if(u.length > 2) {
+							IRCClient.instance.client.timeout(channel, u, 600);
+						}
+					}
+				}
+				if(state.emergencyParams.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
+				if(state.emergencyParams.obsScene) OBSWebsocket.instance.setCurrentScene(state.emergencyParams.obsScene);
+				if(state.emergencyParams.obsSources) {
+					for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
+						const s = state.emergencyParams.obsSources[i];
+						OBSWebsocket.instance.setSourceState(s, false);
+					}
+				}
+			}else{
+				//DISABLE EMERGENCY MODE
+				//Unset all changes
+				if(state.emergencyParams.slowMode) IRCClient.instance.client.slowoff(channel);
+				if(state.emergencyParams.emotesOnly) IRCClient.instance.client.emoteonlyoff(channel);
+				if(state.emergencyParams.subOnly) IRCClient.instance.client.subscribersoff(channel);
+				if(state.emergencyParams.followOnly) IRCClient.instance.client.followersonlyoff(channel);
+				if(state.emergencyParams.toUsers) {
+					const users = state.emergencyParams.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					for (let i = 0; i < users.length; i++) {
+						const u = users[i];
+						if(u.length > 2) {
+							IRCClient.instance.client.unban(channel, u);
+						}
+					}
+				}
+				if(state.emergencyParams.obsSources) {
+					for (let i = 0; i < state.emergencyParams.obsSources.length; i++) {
+						const s = state.emergencyParams.obsSources[i];
+						OBSWebsocket.instance.setSourceState(s, true);
+					}
+				}
+				TriggerActionHandler.instance.emergencyMode = false;
+			}
+
+			//Broadcast to any connected peers
+			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
+		},
+
+		async executeChatAlert(state, message:IRCEventDataList.Message|IRCEventDataList.Whisper) {
+			state.chatAlert = message;
+			await Utils.promisedTimeout(50);
+			state.chatAlert = null;
+		},
+
+		async addEmergencyFollower(state, payload:EmergencyFollowerData) {
+			state.emergencyFollows.push(payload);
+			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
+		},
+
+		async clearEmergencyFollows(state) {
+			state.emergencyFollows.splice(0)
+			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
+		},
 		
 	},
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	actions: {
+		refreshAuthToken({commit}, payload:()=>boolean) { commit("authenticate", {cb:payload, forceRefresh:true}); },
+
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
 			let jsonConfigs;
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
 			}catch(error) {
-				state.alert = "Unable to contact server :("
+				state.alert = "Unable to contact server :(";
+				state.initComplete = true;
+				return;
 			}
 			TwitchUtils.client_id = jsonConfigs.client_id;
 			Config.instance.TWITCH_APP_SCOPES = jsonConfigs.scopes;
@@ -1201,30 +1510,33 @@ const store = createStore({
 			Config.instance.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
 			Config.instance.DEEZER_CLIENT_ID = Config.instance.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
 
-			//Loading parameters from storage and pushing them to the store
-			const props = Store.getAll();
-			for (const cat in state.params) {
-				const c = cat as ParameterCategory;
-				for (const key in props) {
-					const k = key.replace(/^p:/gi, "");
-					if(props[key] == null) continue;
-					if(/^p:/gi.test(key) && k in state.params[c]) {
-						const v:string = props[key] as string;
-						/* eslint-disable-next-line */
-						const pointer = state.params[c][k as ParameterCategory];
-						if(typeof pointer.value === 'boolean') {
-							pointer.value = (v == "true");
-						}
-						if(typeof pointer.value === 'string') {
-							pointer.value = v;
-						}
-						if(typeof pointer.value === 'number') {
-							pointer.value = parseFloat(v);
-						}
-					}
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
+				if(state.timerStart > 0) {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:state.timerStart });
 				}
-			}
+				
+				if(state.countdown) {
+					const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+				}
+			});
 
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
+				this.dispatch("onRaffleComplete", {publish:false, winner});
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+				const enable = (e.data as unknown) as {enabled:boolean};
+				this.dispatch("setEmergencyMode", enable);
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+			});
+			PublicAPI.instance.initialize();
+
+			//Overwrite store data from URL
 			const queryParams = Utils.getQueryParameterByName("params");
 			if(queryParams) {
 				//eslint-disable-next-line
@@ -1241,170 +1553,9 @@ const store = createStore({
 							}
 						}
 					}
-					Store.set("oAuthToken", json.access_token, false);
+					Store.set(Store.TWITCH_AUTH_TOKEN, json.access_token, false);
 				}catch(error){
 					//ignore
-				}
-			}
-			
-			//Init OBS scenes params
-			const obsSceneCommands = Store.get("obsConf_scenes");
-			if(obsSceneCommands) {
-				state.obsSceneCommands = JSON.parse(obsSceneCommands);
-			}
-			
-			//Init OBS command params
-			const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
-			if(OBSMuteUnmuteCommandss) {
-				state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
-			}
-			
-			//Init OBS permissions
-			const PermissionsForm = Store.get("obsConf_permissions");
-			if(PermissionsForm) {
-				state.PermissionsForm = JSON.parse(PermissionsForm);
-			}
-			
-			//Init triggers
-			const triggers = Store.get("triggers");
-			if(triggers) {
-				state.triggers = JSON.parse(triggers);
-				TriggerActionHandler.instance.triggers = state.triggers;
-			}
-			
-			//Load bot messages
-			const botMessages = Store.get("botMessages");
-			if(botMessages) {
-				//Merge remote and local to avoid losing potential new
-				//default values on local data
-				const localMessages = state.botMessages;
-				const remoteMessages = JSON.parse(botMessages);
-				// JSONPatch.applyPatch(localMessages, remoteMessages);
-				// JSONPatch.applyPatch(remoteMessages, localMessages);
-				for (const k in localMessages) {
-					const key = k as BotMessageField;
-					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-						remoteMessages[key] = localMessages[key];
-					}
-					for (const subkey in localMessages[key]) {
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-						}
-					}
-				}
-				state.botMessages = (remoteMessages as unknown) as IBotMessage;
-			}
-			
-			//Init OBS connection
-			//If params are specified on URL, use them (used by overlays)
-			let port = Utils.getQueryParameterByName("obs_port");
-			if(!port) port = Store.get("obsPort");
-			let pass = Utils.getQueryParameterByName("obs_pass");
-			if(!pass) pass = Store.get("obsPass");
-			let ip = Utils.getQueryParameterByName("obs_ip");
-			if(!ip) ip = Store.get("obsIP");
-			if(port != undefined || pass != undefined || ip != undefined) {
-				OBSWebsocket.instance.connect(port, pass, true, ip? ip : "127.0.0.1");
-			}
-			PublicAPI.instance.initialize();
-
-			const token = Store.get("oAuthToken");
-			if(token && payload.authenticate) {
-				try {
-					await new Promise((resolve,reject)=> {
-						commit("authenticate", {cb:(success:boolean)=>{
-							if(success) {
-								resolve(null);
-							}else{
-								reject();
-							}
-						}});
-					});
-
-					//Use an anonymous method to avoid locking loading
-					(async () => {
-						try {
-							TwitchUtils.searchTag("");//Preload tags to build local cache
-							if(store.state.hasChannelPoints) {
-								await TwitchUtils.getPolls();
-								await TwitchUtils.getPredictions();
-							}
-						}catch(e) {
-							//User is probably not an affiliate
-						}
-					})();
-				}catch(error) {
-					console.log(error);
-					state.authenticated = false;
-					Store.remove("oAuthToken");
-					state.initComplete = true;
-					payload.callback();
-					return;
-				}
-			
-				//Init OBS scenes params
-				const obsSceneCommands = Store.get("obsConf_scenes");
-				if(obsSceneCommands) {
-					state.obsSceneCommands = JSON.parse(obsSceneCommands);
-				}
-				
-				//Init OBS command params
-				const OBSMuteUnmuteCommandss = Store.get("obsConf_muteUnmute");
-				if(OBSMuteUnmuteCommandss) {
-					state.obsMuteUnmuteCommands = JSON.parse(OBSMuteUnmuteCommandss);
-				}
-				
-				//Init OBS permissions
-				const PermissionsForm = Store.get("obsConf_permissions");
-				if(PermissionsForm) {
-					state.PermissionsForm = JSON.parse(PermissionsForm);
-				}
-				
-				//Init triggers
-				const triggers = Store.get("triggers");
-				if(triggers) {
-					state.triggers = JSON.parse(triggers);
-				}
-				
-				//Init stream info presets
-				const presets = Store.get("streamInfoPresets");
-				if(presets) {
-					state.streamInfoPreset = JSON.parse(presets);
-				}
-				
-				//Load bot messages
-				const botMessages = Store.get("botMessages");
-				if(botMessages) {
-					//Merge remote and local to avoid losing potential new
-					//default values on local data
-					const localMessages = state.botMessages;
-					const remoteMessages = JSON.parse(botMessages);
-					// JSONPatch.applyPatch(localMessages, remoteMessages);
-					// JSONPatch.applyPatch(remoteMessages, localMessages);
-					for (const k in localMessages) {
-						const key = k as BotMessageField;
-						if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
-							remoteMessages[key] = localMessages[key];
-						}
-						for (const subkey in localMessages[key]) {
-							if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
-								remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
-							}
-						}
-					}
-					state.botMessages = (remoteMessages as unknown) as IBotMessage;
-				}
-	
-				//Init spotify connection
-				const spotifyAuthToken = Store.get("spotifyAuthToken");
-				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
-				}
-	
-				//Init spotify credentials
-				const spotifyAppParams = Store.get("spotifyAppParams");
-				if(spotifyAuthToken && spotifyAppParams) {
-					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
 				}
 			}
 
@@ -1419,7 +1570,7 @@ const store = createStore({
 				
 				//If a raffle is in progress, check if the user can enter
 				const raffle = state.raffle;
-				if(raffle && messageData.message?.toLowerCase().trim().indexOf(raffle.command.toLowerCase()) == 0) {
+				if(raffle && messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
 					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 					//Check if within time frame and max users count isn't reached and that user
 					//hasn't already entered
@@ -1438,6 +1589,7 @@ const store = createStore({
 							if(uid && state.followingStates[uid] == undefined) {
 								const res = await TwitchUtils.getFollowState(uid, user['room-id'])
 								state.followingStates[uid] = res != undefined;
+								state.followingStatesByNames[(user.username ?? user['display-name'] as string)?.toLowerCase()] = res;
 							}
 							if(state.followingStates[uid] === true) score += raffle.followRatio;
 						}
@@ -1465,7 +1617,7 @@ const store = createStore({
 							//it just after receiving a message.
 							//If we didn't wait for a frame, the message would be sent properly
 							//but wouldn't appear on this chat.
-							window.setTimeout(()=> {
+							setTimeout(()=> {
 								let message = state.botMessages.bingo.message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);
@@ -1505,9 +1657,9 @@ const store = createStore({
 				}
 
 				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
-					if(Utils.checkPermissions(state.PermissionsForm, messageData.tags)) {
+					//check if it's a command to control OBS scene
+					if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
 						const cmd = messageData.message.trim().toLowerCase();
-						//check if it's a command to control OBS scene
 						for (let i = 0; i < state.obsSceneCommands.length; i++) {
 							const scene = state.obsSceneCommands[i];
 							if(scene.command.trim().toLowerCase() == cmd) {
@@ -1524,6 +1676,46 @@ const store = createStore({
 							if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
 								OBSWebsocket.instance.setMuteState(audioSourceName, false);
 							}
+						}
+					}
+					
+					//check if its a command to start the emergency mode
+					if(Utils.checkPermissions(state.emergencyParams.chatCmdPerms, messageData.tags)) {
+						const cmd = messageData.message.trim().toLowerCase();
+						if(cmd===state.emergencyParams.chatCmd.trim()) {
+							commit("setEmergencyMode", true);
+						}
+					}
+
+					//check if its a spoiler request
+					if(messageData.tags["reply-parent-msg-id"] && Utils.checkPermissions(state.spoilerParams.permissions, messageData.tags)) {
+						const cmd = messageData.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
+						if(cmd.indexOf("!spoiler") === 0) {
+							//Search for original message the user answered to
+							for (let i = 0; i < state.chatMessages.length; i++) {
+								const c = state.chatMessages[i] as IRCEventDataList.Message;
+								if(c.tags.id === messageData.tags["reply-parent-msg-id"]) {
+									c.message = "|| "+c.message;
+									break;
+								}
+							}
+						}
+					}
+
+					//check if it's a chat alert command
+					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)
+					&& state.params.features.alertMode.value === true) {
+						if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
+							let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
+							//Remove command from message to make later things easier
+							const cmd = state.chatAlertParams.chatCmd as string;
+							mess.message = mess.message.replace(new RegExp("^"+cmd+" ?", "i"), "");
+							commit("executeChatAlert", mess);
+							let trigger:ChatAlertInfo = {
+								type:"chatAlert",
+								message:mess,
+							}
+							TriggerActionHandler.instance.onMessage(trigger);
 						}
 					}
 				}
@@ -1549,7 +1741,65 @@ const store = createStore({
 				}
 			});
 
-			TTSUtils.instance.enable(state.params.tts.ttsEnabled.value as boolean);
+			setTimeout(() => { // TODO: not a clean solution, how to know state is loaded?
+				console.log(state.params.tts.ttsEnabled.value);
+				TTSUtils.instance.enable(state.params.tts.ttsEnabled.value as boolean);				
+			}, 2000);
+
+			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
+				const data = event.data as IRCEventDataList.JoinList;
+				const users = data.users;
+
+				if(state.params.features.notifyJoinLeave.value === true) {
+					const usersClone = users.concat();
+					const join = usersClone.splice(0, 30);
+					let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
+					if(usersClone.length > 0) {
+						message += " and <mark>"+usersClone.length+"</mark> more";
+					}else{
+						message = message.replace(/,([^,]*)$/, " and$1");
+					}
+					message += " joined the chat room";
+					IRCClient.instance.sendNotice("online", message, data.channel);
+				}
+
+				//If non followers highlight option is enabled, get follow state of
+				//all the users that joined
+				if(state.params.appearance.highlightNonFollowers.value === true) {
+					console.log("LOAD STATES", data);
+					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
+					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
+					for (let i = 0; i < usersFull.length; i++) {
+						const uid = usersFull[i].id;
+						if(uid && state.followingStates[uid] == undefined) {
+							try {
+								const follows:boolean = await TwitchUtils.getFollowState(uid, channelInfos[0].id);
+								state.followingStates[uid] = follows;
+								state.followingStatesByNames[usersFull[i].login.toLowerCase()] = follows;
+							}catch(error) {
+								/*ignore*/
+								console.log("error checking follow state", error)
+							}
+						}
+					}
+				}
+			});
+
+			IRCClient.instance.addEventListener(IRCEvent.LEAVE, async (event:IRCEvent) => {
+				if(state.params.features.notifyJoinLeave.value === true) {
+					const data = event.data as IRCEventDataList.LeaveList;
+					const users = data.users;
+					const leave = users.splice(0, 30);
+					let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
+					if(users.length > 0) {
+						message += " and <mark>"+users.length+"</mark> more";
+					}else{
+						message = message.replace(/,([^,]*)$/, " and$1");
+					}
+					message += " left the chat room";
+					IRCClient.instance.sendNotice("offline", message, data.channel);
+				}
+			});
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
@@ -1593,7 +1843,8 @@ const store = createStore({
 					state.whispers = whispers;
 					state.whispersUnreadCount ++;
 
-					if(state.params.features.showWhispersOnChat.value === true) {
+					if(state.params.features.showWhispersOnChat.value === true
+					&& data.raw != "") {//Don't show whispers we sent to someone, on the chat
 						data.type = "whisper";
 						data.channel = IRCClient.instance.channel;
 						data.tags['tmi-sent-ts'] = Date.now().toString();
@@ -1620,11 +1871,13 @@ const store = createStore({
 				if(data.tags['followers-only'] != undefined) state.roomStatusParams.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
 				if(data.tags.slow != undefined) state.roomStatusParams.slowMode.value = data.tags.slow != false;
 			});
-			
-			state.initComplete = true;
+
+			IRCClient.instance.addEventListener(IRCEvent.REFRESH_TOKEN, (event:IRCEvent) => {
+				commit("authenticate", {});
+			});
 
 			//Makes sure all parameters have a unique ID !
-			const uniqueIdsCheck:{[key:number]:boolean} = {};
+			let uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in state.params) {
 				const values = state.params[cat as ParameterCategory];
 				for (const key in values) {
@@ -1637,42 +1890,228 @@ const store = createStore({
 				}
 			}
 			
-			const cypherKey = Store.get("cypherKey")
-			TwitchCypherPlugin.instance.initialize(cypherKey);
-			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
-				this.dispatch("setSpotifyToken", e.token);
-			});
-			SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
-				state.alert = e.error as string;
-			});
-			DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
-				this.dispatch("setDeezerConnected", true);
-			});
-			DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
-				this.dispatch("setDeezerConnected", false);
-				state.alert = "Deezer authentication failed";
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				if(state.timerStart > 0) {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:state.timerStart });
+			//Make sure all triggers have a unique ID !
+			uniqueIdsCheck = {};
+			for (const key in TriggerTypes) {
+				//@ts-ignore
+				const v = TriggerTypes[key];
+				if(uniqueIdsCheck[v] === true) {
+					state.alert = "Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"";
+					break;
 				}
-				
-				if(state.countdown) {
-					const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+				uniqueIdsCheck[v] = true;
+			}
+
+			//Authenticate user
+			const token = Store.get(Store.TWITCH_AUTH_TOKEN);
+			let authenticated = false;
+			if(token && payload.authenticate) {
+				const cypherKey = Store.get(Store.CYPHER_KEY)
+				TwitchCypherPlugin.instance.initialize(cypherKey);
+				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
+					this.dispatch("setSpotifyToken", e.token);
+				});
+				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
+					state.alert = e.error as string;
+				});
+				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
+					this.dispatch("setDeezerConnected", true);
+				});
+				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
+					this.dispatch("setDeezerConnected", false);
+					state.alert = "Deezer authentication failed";
+				});
+
+				try {
+					await new Promise((resolve,reject)=> {
+						commit("authenticate", {cb:(success:boolean)=>{
+							if(success) {
+								resolve(null);
+							}else{
+								reject();
+							}
+						}});
+					});
+
+					//Use an anonymous method to avoid blocking loading while
+					//all twitch tags are loading
+					(async () => {
+						try {
+							TwitchUtils.searchTag("");//Preload tags to build local cache
+							if(store.state.hasChannelPoints) {
+								await TwitchUtils.getPolls();
+								await TwitchUtils.getPredictions();
+							}
+						}catch(e) {
+							//User is probably not an affiliate
+						}
+					})();
+				}catch(error) {
+					console.log(error);
+					state.authenticated = false;
+					Store.remove("oAuthToken");
+					state.initComplete = true;
+					payload.callback();
+					return;
 				}
-			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
-				this.dispatch("onRaffleComplete", {publish:false, winner});
-			});
-
-			const devmode = Store.get("devmode") === "true";
-			this.dispatch("toggleDevMode", devmode);
-			this.dispatch("sendTwitchatAd");
+				if(Store.syncToServer === true && state.authenticated) {
+					await Store.loadRemoteData();
+				}
+	
+				const devmode = Store.get(Store.DEVMODE) === "true";
+				this.dispatch("toggleDevMode", devmode);
+				this.dispatch("sendTwitchatAd");
+				authenticated = true;
+			}
+	
+			this.dispatch("loadDataFromStorage", authenticated);
+			
+			state.initComplete = true;
+			
 			payload.callback();
+		},
+		
+		loadDataFromStorage({state}, authenticated) {
+			//Loading parameters from local storage and pushing them to current store
+			const props = Store.getAll();
+			for (const cat in state.params) {
+				const c = cat as ParameterCategory;
+				for (const key in props) {
+					const k = key.replace(/^p:/gi, "");
+					if(props[key] == null) continue;
+					if(/^p:/gi.test(key) && k in state.params[c]) {
+						const v:string = props[key] as string;
+						/* eslint-disable-next-line */
+						const pointer = state.params[c][k as ParameterCategory];
+						if(typeof pointer.value === 'boolean') {
+							pointer.value = (v == "true");
+						}
+						if(typeof pointer.value === 'string') {
+							pointer.value = v;
+						}
+						if(typeof pointer.value === 'number') {
+							pointer.value = parseFloat(v);
+						}
+					}
+				}
+			}
+
+			//Init OBS scenes params
+			const obsSceneCommands = Store.get(Store.OBS_CONF_SCENES);
+			if(obsSceneCommands) {
+				state.obsSceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS command params
+			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
+			if(obsMuteUnmuteCommands) {
+				state.obsMuteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
+			}
+			
+			//Init OBS permissions
+			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
+			if(obsCommandsPermissions) {
+				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
+			}
+			
+			//Init emergency actions
+			const emergency = Store.get(Store.EMERGENCY_PARAMS);
+			if(emergency) {
+				state.emergencyParams = JSON.parse(emergency);
+			}
+			
+			//Init alert actions
+			const alert = Store.get(Store.ALERT_PARAMS);
+			if(alert) {
+				state.chatAlertParams = JSON.parse(alert);
+			}
+			
+			//Init spoiler actions
+			const spoiler = Store.get(Store.SPOILER_PARAMS);
+			if(spoiler) {
+				state.spoilerParams = JSON.parse(spoiler);
+			}
+			
+			//Init chat highlight params
+			const chatHighlight = Store.get(Store.CHAT_HIGHLIGHT_PARAMS);
+			if(chatHighlight) {
+				state.chatHighlightOverlayParams = JSON.parse(chatHighlight);
+			}
+			
+			//Init triggers
+			const triggers = Store.get(Store.TRIGGERS);
+			if(triggers) {
+				state.triggers = JSON.parse(triggers);
+				TriggerActionHandler.instance.triggers = state.triggers;
+			}
+				
+			//Init stream info presets
+			const presets = Store.get(Store.STREAM_INFO_PRESETS);
+			if(presets) {
+				state.streamInfoPreset = JSON.parse(presets);
+			}
+
+			//Init emergency followers
+			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
+			if(emergencyFollows) {
+				state.emergencyFollows = JSON.parse(emergencyFollows);
+			}
+
+			//Init music player params
+			const musicPlayerParams = Store.get(Store.MUSIC_PLAYER_PARAMS);
+			if(musicPlayerParams) {
+				state.musicPlayerParams = JSON.parse(musicPlayerParams);
+			}
+			
+			//Load bot messages
+			const botMessages = Store.get(Store.BOT_MESSAGES);
+			if(botMessages) {
+				//Merge remote and local to avoid losing potential new
+				//default values on local data
+				const localMessages = state.botMessages;
+				const remoteMessages = JSON.parse(botMessages);
+				// JSONPatch.applyPatch(localMessages, remoteMessages);
+				// JSONPatch.applyPatch(remoteMessages, localMessages);
+				for (const k in localMessages) {
+					const key = k as BotMessageField;
+					if(!Object.prototype.hasOwnProperty.call(remoteMessages, key) || !remoteMessages[key]) {
+						remoteMessages[key] = localMessages[key];
+					}
+					for (const subkey in localMessages[key]) {
+						if(!Object.prototype.hasOwnProperty.call(remoteMessages[key], subkey) || !remoteMessages[key][subkey]) {
+							remoteMessages[key][subkey] = state.botMessages[key as BotMessageField][subkey as "enabled"|"message"];
+						}
+					}
+				}
+				state.botMessages = (remoteMessages as unknown) as IBotMessage;
+			}
+
+			if(authenticated) {
+				//Init spotify connection
+				const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
+				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
+					this.dispatch("setSpotifyToken", JSON.parse(spotifyAuthToken));
+				}
+
+				//Init spotify credentials
+				const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
+				if(spotifyAuthToken && spotifyAppParams) {
+					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+				}
+			}
+			
+			//Init OBS connection
+			//If params are specified on URL, use them (used by overlays)
+			let port = Utils.getQueryParameterByName("obs_port");
+			if(!port) port = Store.get(Store.OBS_PORT);
+			let pass = Utils.getQueryParameterByName("obs_pass");
+			if(!pass) pass = Store.get(Store.OBS_PASS);
+			let ip = Utils.getQueryParameterByName("obs_ip");
+			if(!ip) ip = Store.get(Store.OBS_IP);
+			if(port != undefined || pass != undefined || ip != undefined) {
+				OBSWebsocket.instance.connect(port, pass, true, ip);
+			}
 		},
 		
 		confirm({commit}, payload) { commit("confirm", payload); },
@@ -1840,7 +2279,7 @@ const store = createStore({
 
 		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
 
-		setPermissionsForm({commit}, value:PermissionsData) { commit("setPermissionsForm", value); },
+		setObsCommandsPermissions({commit}, value:PermissionsData) { commit("setObsCommandsPermissions", value); },
 
 		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerData}) { commit("setTrigger", value); },
 
@@ -1904,6 +2343,24 @@ const store = createStore({
 		},
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },
+		
+		setEmergencyParams({commit}, params:EmergencyParamsData) { commit("setEmergencyParams", params); },
+		
+		setAlertParams({commit}, params:AlertParamsData) { commit("setAlertParams", params); },
+		
+		setChatHighlightOverlayParams({commit}, params:ChatHighlightOverlayData) { commit("setChatHighlightOverlayParams", params); },
+		
+		highlightChatMessageOverlay({commit}, payload:IRCEventDataList.Message|null) { commit("highlightChatMessageOverlay", payload); },
+		
+		setSpoilerParams({commit}, params:SpoilerParamsData) { commit("setSpoilerParams", params); },
+		
+		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
+
+		executeChatAlert({commit}, message:IRCEventDataList.Message|IRCEventDataList.Whisper) { commit("executeChatAlert", message); },
+
+		addEmergencyFollower({commit}, payload:EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
+		
+		clearEmergencyFollows({commit}) { commit("clearEmergencyFollows"); },
 	},
 	modules: {
 	}

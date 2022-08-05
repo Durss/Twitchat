@@ -12,7 +12,7 @@
 <script lang="ts">
 import UserCard from '@/components/user/UserCard.vue';
 import { Options, Vue } from 'vue-class-component';
-import store from './store';
+import StoreProxy from './utils/StoreProxy';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
@@ -31,16 +31,13 @@ export default class App extends Vue {
 	private resizeHandler!:() => void;
 
 	public get showLoader():boolean {
-		return !this.authenticated && this.$route.meta.noBG !== true && store.state.initComplete;
-	}
-	public get authenticated():boolean {
-		return store.state.authenticated || (this.$route.meta.needAuth !== true && store.state.initComplete);
+		return !StoreProxy.store.state.initComplete;
 	}
 
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.$route.meta.overflow === true) res.push("overflow");
-		res.push("messageSize_"+store.state.params.appearance.defaultSize.value);
+		res.push("messageSize_"+StoreProxy.store.state.params.appearance.defaultSize.value);
 		return res;
 	}
 
@@ -69,10 +66,6 @@ export default class App extends Vue {
 	height: var(--vh);
 	font-size: 20px;
 	overflow: hidden;
-
-	.loader-init {
-		transform:scale(10);
-	}
 
 	&.overflow {
 		overflow: auto;

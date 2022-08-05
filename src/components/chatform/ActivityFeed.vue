@@ -68,7 +68,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import Store from '@/store/Store';
 import { getType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
@@ -83,6 +82,7 @@ import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -121,7 +121,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():ActivityFeedData[] {
-		const list = (store.state.activityFeed as ActivityFeedData[])
+		const list = (StoreProxy.store.state.activityFeed as ActivityFeedData[])
 		.filter(v => v.type == "highlight"
 		|| v.type == "poll"
 		|| v.type == "prediction"
@@ -132,7 +132,7 @@ export default class ActivityFeed extends Vue {
 		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
 
 		const result:ActivityFeedData[] = [];
-		
+
 		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
 		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
 		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
@@ -151,30 +151,32 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = getType(m);
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = getType(m);
 			
 			if(type == "sub" && showSubs) result.unshift(m);
-			if(type == "reward" && showRewards) result.unshift(m);
-			if(type == "raid" && showRaids) result.unshift(m);
-			if(type == "bits" && showBits) result.unshift(m);
-			if(type == "follow" && showFollow) result.unshift(m);
-			if(type == "poll" && showPolls) result.unshift(m);
-			if(type == "prediction" && showPredictions) result.unshift(m);
-			if(type == "bingo" && showBingos) result.unshift(m);
-			if(type == "raffle" && showRaffles) result.unshift(m);
-			if(type == "commercial") result.unshift(m);
-			if(type == "countdown") result.unshift(m);
+			else if(type == "reward" && showRewards) result.unshift(m);
+			else if(type == "raid" && showRaids) result.unshift(m);
+			else if(type == "bits" && showBits) result.unshift(m);
+			else if(type == "follow" && showFollow) result.unshift(m);
+			else if(type == "poll" && showPolls) result.unshift(m);
+			else if(type == "prediction" && showPredictions) result.unshift(m);
+			else if(type == "bingo" && showBingos) result.unshift(m);
+			else if(type == "raffle" && showRaffles) result.unshift(m);
+			else if(type == "commercial") result.unshift(m);
+			else if(type == "countdown") result.unshift(m);
+			else if(type == "cooldown") result.unshift(m);
 		}
 		
 		// if(this.listMode) {
 		// 	result.reverse();
 		// }
+		
 
 		return result;
 	}
 
 	public beforeMount():void {
-		const f = Store.get("activityFeedFilters");
+		const f = Store.get(Store.ACTIVITY_FEED_FILTERS);
 		let json:{[key:string]:boolean} = {};
 		try {
 			json = JSON.parse(f);
@@ -201,7 +203,7 @@ export default class ActivityFeed extends Vue {
 	public async mounted():Promise<void> {
 
 		watch(()=>this.filters, ()=> {
-			Store.set("activityFeedFilters", this.filters);
+			Store.set(Store.ACTIVITY_FEED_FILTERS, this.filters);
 		});
 
 		await this.$nextTick();

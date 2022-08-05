@@ -2,26 +2,24 @@
 	<div class="raidstate">
 		<img v-if="user" :src="user.profile_image_url" alt="avatar" class="avatar">
 		<div>
-			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
-			Raiding <strong>{{$store.state.raiding.target_display_name}}</strong> with <strong>{{$store.state.raiding.viewer_count}}</strong> viewers
-			<span class="timer">({{timeLeft}}s)</span>
+			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">Raiding <strong>{{$store.state.raiding.target_display_name}}</strong> with <strong>{{$store.state.raiding.viewer_count}}</strong> viewers<span class="timer">({{timeLeft}}s)</span>
 		</div>
 
 		<!-- <Button class="startBt" type="button" :icon="$image('icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
-		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry :(</div>
+		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry you'll have to wait {{timeLeft}}s :(</div>
 		<Button class="cancelBt" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" @click="cancelRaid()" />
 
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -44,8 +42,8 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(store.state.raiding?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [store.state.raiding?.target_login as string]))[0];
+		if(StoreProxy.store.state.raiding?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [StoreProxy.store.state.raiding?.target_login as string]))[0];
 		}
 	}
 
@@ -56,7 +54,7 @@ export default class RaidState extends Vue {
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
 		if(seconds <= 0) {
-			store.dispatch("setRaiding", "");
+			StoreProxy.store.dispatch("setRaiding", "");
 			return;
 		}
 		this.timeLeft = Utils.formatDuration(seconds);
@@ -85,6 +83,7 @@ export default class RaidState extends Vue {
 	.icon {
 		height: 25px;
 		vertical-align: middle;
+		margin-right: .5em;
 	}
 
 	.timer {

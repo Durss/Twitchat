@@ -29,8 +29,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -56,25 +56,25 @@ export default class MessageSearch extends Vue {
 	}
 
 	public mounted():void {
-		watch(() => store.state.searchMessages, () => {
+		watch(() => StoreProxy.store.state.searchMessages, () => {
 			this.updateList();
 		});
 		this.updateList();
 	}
 
 	private async updateList():Promise<void> {
-		if(this.search != store.state.searchMessages) {
+		if(this.search != StoreProxy.store.state.searchMessages) {
 			//If search has changed clear all current results
 			//to make sure items are properly updated.
 			//If an item from the prev search is still there
 			//with the new search, the highlight wouldn't be
 			//updated if we wouldn't remove it first.
-			this.search = store.state.searchMessages;
+			this.search = StoreProxy.store.state.searchMessages;
 			this.messages = [];
 			await this.$nextTick();
 		}
 
-		const list = store.state.chatMessages.concat();
+		const list = StoreProxy.store.state.chatMessages.concat();
 		const result:IRCEventDataList.Message[] = [];
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i] as IRCEventDataList.Message;
@@ -91,7 +91,7 @@ export default class MessageSearch extends Vue {
 	}
 
 	public close():void {
-		store.dispatch("searchMessages", "");
+		StoreProxy.store.dispatch("searchMessages", "");
 	}
 
 }

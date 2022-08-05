@@ -4,28 +4,35 @@
 			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
-			v-if="!isSelf"
+			v-if="!isBroadcaster"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
 			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
-			v-if="!isSelf"
+			v-if="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
 		<Button :aria-label="'TTS'"
 			:icon="$image('icons/tts.svg')"
 			data-tooltip="TTS"
 			@click="tts()"
-			v-if="!isSelf"
+			v-if="!isBroadcaster"
+			/>
+		<Button :aria-label="'Highlight message'"
+			:icon="$image('icons/highlight.svg')"
+			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
+			@click="chatHighlight()"
+			:loading="highlightLoading"
 			/>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -42,28 +49,34 @@ export default class ChatMessageHoverActions extends Vue {
 
 	public messageData!:IRCEventDataList.Message;
 	public shoutoutLoading = false;
+	public highlightLoading = false;
 
-	public get isSelf():boolean {
-		return this.messageData.tags.username?.toLowerCase() == UserSession.instance.authToken.login.toLowerCase();
-	}
+	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id }
 
 	public trackUser():void {
-		store.dispatch("trackUser", this.messageData);
+		StoreProxy.store.dispatch("trackUser", this.messageData);
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await store.dispatch("shoutout", this.messageData.tags['display-name'] as string);
+			await StoreProxy.store.dispatch("shoutout", this.messageData.tags['display-name'] as string);
 		}catch(error) {
-			store.state.alert = "Shoutout failed :(";
+			StoreProxy.store.state.alert = "Shoutout failed :(";
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
 	}
 
 	public tts() {
-		store.dispatch("tts", this.messageData);
+		StoreProxy.store.dispatch("tts", this.messageData);
+	}
+	
+	public async chatHighlight():Promise<void> {
+		this.highlightLoading = true;
+		StoreProxy.store.dispatch("highlightChatMessageOverlay", this.messageData);
+		await Utils.promisedTimeout(1000);
+		this.highlightLoading = false;
 	}
 }
 </script>

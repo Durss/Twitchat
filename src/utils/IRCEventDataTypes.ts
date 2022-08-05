@@ -4,6 +4,8 @@ import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData } from "./CommonDataTypes";
 import type { CountdownData, TimerData } from "@/types/TwitchatDataTypes";
 
+export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
+
 export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.PollResult
 	| IRCEventDataList.PredictionResult
@@ -29,6 +31,8 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.RaffleResult
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
+	| IRCEventDataList.JoinList
+	| IRCEventDataList.LeaveList
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -44,6 +48,7 @@ export namespace IRCEventDataList {
 		answers?: Message[];
 		cyphered?: boolean;
 		markedAsRead?: boolean;
+		blockedUser?: boolean;
 		lowTrust?: boolean;
 		deleted?: boolean;
 		deletedData?: PubSubDataTypes.DeletedMessage;
@@ -123,6 +128,8 @@ export namespace IRCEventDataList {
 		//custom data
 		firstMessage?: boolean;
 		markedAsRead?: boolean;
+		blockedUser?: boolean;
+		followBlocked?: boolean;
 		type: "highlight";
 		subgiftAdditionalRecipents?: string[];
 	}
@@ -170,6 +177,7 @@ export namespace IRCEventDataList {
 		isAnswer?: boolean;
 		occurrenceCount?: number;
 		highlightWord?: string;
+		blockedUser?: boolean;
 	}
 
 	export interface PollResult {
@@ -208,6 +216,19 @@ export namespace IRCEventDataList {
 		[paramater: string]: unknown;
 	}
 
+	export interface JoinList {
+		type: "join";
+		users:string[];
+		channel:string;
+		[paramater: string]: unknown;
+	}
+	export interface LeaveList {
+		type: "leave";
+		users:string[];
+		channel:string;
+		[paramater: string]: unknown;
+	}
+
 	export interface TimerResult {
 		type: "timer";
 		started:boolean;
@@ -223,8 +244,8 @@ export namespace IRCEventDataList {
 }
 
 export function getType(m: IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult | IRCEventDataList.BingoResult | IRCEventDataList.RaffleResult | IRCEventDataList.Commercial | IRCEventDataList.CountdownResult):
-		"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null {
-	let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = null;
+"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null {
+	let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = null;
 	if(m.type == "poll") {
 		type = "poll";
 	}else if(m.type == "prediction") {
@@ -255,6 +276,8 @@ export function getType(m: IRCEventDataList.Highlight | IRCEventDataList.PollRes
 		type = "follow";
 	}else if(m.tags['msg-id'] == "raid") {
 		type = "raid";
+	}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
+		type = "cooldown";
 	}
 	return type;
 }

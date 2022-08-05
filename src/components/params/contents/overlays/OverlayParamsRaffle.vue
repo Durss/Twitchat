@@ -12,10 +12,10 @@
 					</ul>
 				</ToggleBlock>
 			</div>
-			<div class="row center" v-if="wheelOverlayExists">
+			<div class="row center" v-if="overlayExists">
 				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="$image('icons/test.svg')" />
 			</div>
-			<div class="row center" v-if="!wheelOverlayExists">
+			<div class="row center" v-if="!overlayExists">
 				<span class="error">- overlay not configured or hidden -</span>
 			</div>
 			<div class="row">
@@ -47,28 +47,28 @@ export default class OverlayParamsRaffle extends Vue {
 
 	public open = false;
 	public loading = false;
-	public wheelOverlayExists = false;
+	public overlayExists = false;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
-	private wheelOverlayPresenceHandler!:()=>void;
+	private overlayPresenceHandler!:()=>void;
 	
 	public get overlayUrl():string { return this.$overlayURL("wheel"); }
 
 	public mounted():void {
-		this.wheelOverlayPresenceHandler = ()=> {
-			this.wheelOverlayExists = true;
+		this.overlayPresenceHandler = ()=> {
+			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>{
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 			clearTimeout(this.subcheckTimeout);
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = window.setTimeout(()=>{
-				this.wheelOverlayExists = false;
+			this.subcheckTimeout = setTimeout(()=>{
+				this.overlayExists = false;
 			}, 1500);
 		}, 2000);
 	}
@@ -76,7 +76,7 @@ export default class OverlayParamsRaffle extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
 	public async testWheel():Promise<void> {

@@ -36,10 +36,10 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
-import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import Config from '@/utils/Config';
+import StoreProxy from '@/utils/StoreProxy';
+import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -58,7 +58,7 @@ export default class TTUserList extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView; }
+	public get splitView():boolean { return StoreProxy.store.state.params.appearance.splitView.value as boolean && StoreProxy.store.state.canSplitView; }
 	public get classes():string[] {
 		const res = ["ttuserlist"];
 		if(this.splitView) res.push("splitView");
@@ -71,7 +71,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public beforeMount():void {
-		this.token = store.state.tempStoreValue as string;
+		this.token = StoreProxy.store.state.tempStoreValue as string;
 	}
 
 	public mounted():void {
@@ -130,11 +130,11 @@ export default class TTUserList extends Vue {
 				users.sort((a, b) => b.date - a.date);
 				this.users = users;
 			}else{
-				store.state.alert = json.message;
+				StoreProxy.store.state.alert = json.message;
 				this.$emit("close");
 			}
 		}catch(err:unknown) {
-			store.state.alert = "An error occured while loading users<br>";
+			StoreProxy.store.state.alert = "An error occured while loading users<br>";
 		}
 		
 		this.loading = false;

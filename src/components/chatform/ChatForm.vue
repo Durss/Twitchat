@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
 				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="$store.state.onlineUsers.length" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="onlineUsersTooltip" />
 				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
@@ -104,7 +104,7 @@
 
 				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
-					:icon="$image('icons/'+($store.state.cypherEnabled?'':'un')+'lock.svg')"
+					:icon="$image('icons/'+($store.state.cypherEnabled? 'lock.svg' : 'unlock.svg'))"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
@@ -120,6 +120,21 @@
 					@click="$emit('setCurrentNotification', 'deezer')" />
 				</transition>
 
+				<transition name="blink">
+				<Button small highlight class="chatHighlight" aria-label="chatHighlight button"
+					:icon="$image('icons/highlight_del.svg')"
+					bounce
+					v-if="chatHighlightEnabled"
+					data-tooltip="Remove currently<br>highlihted message"
+					@click="removeChatHighlight()" />
+				</transition>
+
+				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
+
+				<TimerCountDownInfo v-if="$store.state.countdown || $store.state.timerStart > 0" />
+
+				<CommercialTimer v-if="isCommercial" />
+
 				<div v-if="$store.state.params.appearance.showViewersCount.value === true
 					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
 					data-tooltip="Viewer count"
@@ -131,11 +146,14 @@
 					<img src="@/assets/icons/user.svg" alt="viewers">
 				</div>
 
-				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
-
-				<TimerCountDownInfo v-if="$store.state.countdown || $store.state.timerStart > 0" />
-
-				<CommercialTimer v-if="isCommercial" />
+				<transition name="blink">
+				<Button small highlight class="emergency" aria-label="emergency button"
+					:icon="$image('icons/emergency.svg')"
+					bounce
+					v-if="emergencyButtonEnabled"
+					:data-tooltip="$store.state.emergencyModeEnabled? 'Stop emergency mode' : 'Start emergency'"
+					@click="enableEmergencyMode()" />
+				</transition>
 
 			</form>
 
@@ -153,13 +171,12 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import { TwitchatAdTypes, type BingoConfig } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
@@ -224,13 +241,37 @@ export default class ChatForm extends Vue {
 	public autoCompleteCommands = false;
 	public spamInterval = 0;
 
+	public get emergencyButtonEnabled():boolean {
+		return StoreProxy.store.state.emergencyParams.enabled === true;
+	}
+
+	public get chatHighlightEnabled():boolean {
+		return StoreProxy.store.state.isChatMessageHighlighted;
+	}
+
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
 	}
 
+	public get onlineUsersTooltip():string {
+		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+StoreProxy.store.state.onlineUsers.length.toString();
+
+		if(StoreProxy.store.state.params.appearance.highlightNonFollowers.value === true) {
+			let followCount = 0;
+			const followState = StoreProxy.store.state.followingStatesByNames;
+			for (let i = 0; i < StoreProxy.store.state.onlineUsers.length; i++) {
+				const u = StoreProxy.store.state.onlineUsers[i];
+				if(followState[u.toLowerCase()] === true) followCount ++;
+			}
+			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount.toString();
+			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(StoreProxy.store.state.onlineUsers.length - followCount).toString();
+		}
+		return res;
+	}
+
 	public get whispersAvailable():boolean {
-		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
-		for (const key in store.state.whispers) {
+		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = StoreProxy.store.state.whispers;
+		for (const key in StoreProxy.store.state.whispers) {
 			if (whispers[key].length > 0) return true;
 		}
 		return false;
@@ -238,17 +279,18 @@ export default class ChatForm extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatform"];
-		if(store.state.cypherEnabled) res.push("cypherMode");
+		if(StoreProxy.store.state.cypherEnabled) res.push("cypherMode");
+		if(StoreProxy.store.state.emergencyModeEnabled) res.push("emergencyMode");
 		return res;
 	}
 
-	public get cypherConfigured():boolean { return store.state.cypherKey?.length > 0; }
+	public get cypherConfigured():boolean { return StoreProxy.store.state.cypherKey?.length > 0; }
 
-	public get isCommercial():boolean { return store.state.commercialEnd != 0; }
+	public get isCommercial():boolean { return StoreProxy.store.state.commercialEnd != 0; }
 	
 	public get showFeedBt():boolean {
-		return store.state.activityFeed?.length > 0
-		&& (!store.state.canSplitView || !store.state.params.appearance.splitView.value);
+		return StoreProxy.store.state.activityFeed?.length > 0
+		&& (!StoreProxy.store.state.canSplitView || !StoreProxy.store.state.params.appearance.splitView.value);
 	}
 
 	public async mounted():Promise<void> {
@@ -278,11 +320,11 @@ export default class ChatForm extends Vue {
 			}
 		});
 
-		try {
-			await TwitchUtils.loadRewards();
-		}catch(e) {
-			//User is probably not an affiliate
-		}
+		// try {
+		// 	await TwitchUtils.loadRewards();
+		// }catch(e) {
+		// 	//User is probably not an affiliate
+		// }
 	}
 
 	public beforeUnmount():void {
@@ -290,7 +332,7 @@ export default class ChatForm extends Vue {
 	}
 	
 	public toggleParams():void {
-		store.dispatch("showParams", !store.state.showParams);
+		StoreProxy.store.dispatch("showParams", !StoreProxy.store.state.showParams);
 	}
 	
 	public async sendMessage():Promise<void> {
@@ -314,7 +356,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/devmode") {
 			this.message = "";
-			store.dispatch("toggleDevMode");
+			StoreProxy.store.dispatch("toggleDevMode");
 		}else
 
 		if(cmd == "/error") {
@@ -330,14 +372,14 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/poll") {
 			//Open poll form
-			store.state.tempStoreValue = params.join(" ");
+			StoreProxy.store.state.tempStoreValue = params.join(" ");
 			this.$emit("poll");
 			this.message = "";
 		}else
 
 		if(cmd == "/prediction") {
 			//Open prediction form
-			store.state.tempStoreValue = params.join(" ");
+			StoreProxy.store.state.tempStoreValue = params.join(" ");
 			this.$emit("pred");
 			this.message = "";
 		}else
@@ -357,7 +399,7 @@ export default class ChatForm extends Vue {
 					min: 0,
 					max: 100,
 				};
-				store.dispatch("startBingo", payload);
+				StoreProxy.store.dispatch("startBingo", payload);
 			}else{
 				this.$emit("bingo");
 			}
@@ -368,7 +410,7 @@ export default class ChatForm extends Vue {
 			//Search a for messages
 			const search = params.join(" ");
 			// this.$emit("search", search);
-			store.dispatch("searchMessages", search);
+			StoreProxy.store.dispatch("searchMessages", search);
 			this.message = "";
 		}else
 
@@ -376,7 +418,7 @@ export default class ChatForm extends Vue {
 			this.sendingMessage = true;
 			this.message = "...";
 			//Make a shoutout
-			await store.dispatch("shoutout",params[0]);
+			await StoreProxy.store.dispatch("shoutout",params[0]);
 			this.sendingMessage = false;
 			this.message = "";
 		}else
@@ -394,8 +436,8 @@ export default class ChatForm extends Vue {
 					min: 4
 				},
 				wordsPerSentence: {
-					max: 16,
-					min: 4
+					max: 8,
+					min: 2
 				}
 			});
 			
@@ -406,8 +448,17 @@ export default class ChatForm extends Vue {
 				tags["display-name"] = tags.username;
 				tags["user-id"] = id.toString();//UserSession.instance.authToken.user_id;
 				tags.color = "#"+(id*id*id*id*id).toString().substring(0,8);
-				tags.id = IRCClient.instance.getFakeGuid();
-				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*3) + 1)
+				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*2) + 1);
+				if(StoreProxy.store.state.chatMessages.length > 0 && Math.random() < .5) {
+					for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
+						const m = StoreProxy.store.state.chatMessages[i];
+						if(m.type == "message") {
+							console.log("Answer to", m);
+							tags["reply-parent-msg-id"] = m.tags.id;
+							break;
+						}
+					}
+				}
 				IRCClient.instance.addMessage(message, tags, false)
 			}, 250);
 			this.message = "";
@@ -424,20 +475,20 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/updates") {
-			store.dispatch("sendTwitchatAd", 2);
+			StoreProxy.store.dispatch("sendTwitchatAd", 2);
 			this.message = "";
 		}else
 
 		if(cmd == "/tip") {
-			store.dispatch("sendTwitchatAd", TwitchatAdTypes.TIP);
+			StoreProxy.store.dispatch("sendTwitchatAd", TwitchatAdTypes.TIP_AND_TRICK);
 			this.message = "";
 		}else
 
 		if(hash == "31f4a7f4e0a1d55a70775e51038ddfa2ae196e56dda1b10e82db2278bd19b6dc") {
 			if(params.length == 0) {
-				store.state.alert = "Missing secret token";
+				StoreProxy.store.state.alert = "Missing secret token";
 			}else{
-				store.state.tempStoreValue = params[0];
+				StoreProxy.store.state.tempStoreValue = params[0];
 				this.$emit('TTuserList');
 			}
 			this.message = "";
@@ -454,12 +505,12 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/timerstart") {
-			store.dispatch("startTimer");
+			StoreProxy.store.dispatch("startTimer");
 			this.message = "";
 		}else
 
 		if(cmd == "/timerstop") {
-			store.dispatch("stopTimer");
+			StoreProxy.store.dispatch("stopTimer");
 			this.message = "";
 		}else
 
@@ -472,41 +523,79 @@ export default class ChatForm extends Vue {
 				if(coeff > 1) coeff = Math.pow(60, coeff-1);
 				duration += value * coeff;
 			}
-			store.dispatch("startCountdown", duration * 1000);
+			StoreProxy.store.dispatch("startCountdown", duration * 1000);
 			this.message = "";
 		}else
 
+		if(cmd == "/unblock2") {
+			this.message = "";
+			await TwitchUtils.unblockUser(params[0]);
+		}else
+
+		if(cmd == "/block") {
+			this.message = "";
+			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
+			if(users.length == 0) {
+				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> not found...");
+			}else{
+				let res = await TwitchUtils.blockUser(users[0].id);
+				if(res === true) {
+					await IRCClient.instance.sendNotice("block", "User <mark>"+params[0]+"</mark> blocked");
+				}
+			}
+		}else
+
+		if(cmd == "/unblock") {
+			this.message = "";
+			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
+			if(users.length == 0) {
+				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> not found...");
+			}else{
+				let res = await TwitchUtils.unblockUser(users[0].id);
+				if(res === true) {
+					await IRCClient.instance.sendNotice("unblock", "User <mark>"+users[0].id+"</mark> unblocked");
+				}
+			}
+		}else
+		
 		if(cmd == "/cypherkey") {
 			//Secret feature
-			store.dispatch("setCypherKey", params[0]);
+			StoreProxy.store.dispatch("setCypherKey", params[0]);
 			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
 			this.message = "";
 		}else
 
 		if(cmd == "/cypherreset") {
 			//Secret feature
-			store.dispatch("setCypherEnabled", false);
+			StoreProxy.store.dispatch("setCypherEnabled", false);
 			TwitchCypherPlugin.instance.cypherKey = "";
 			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
 			this.message = "";
 		}else
+		
+		if(cmd == "/version") {
+			//Secret feature
+			IRCClient.instance.sendNotice("version", "Twitchat version "+import.meta.env.PACKAGE_VERSION);
+			this.message = "";
+		}else
 
 		if(cmd == "/tts") {
-			store.state.params.tts.tts_users.value = (store.state.params.tts.tts_users.value as string).split(',').concat(params).join(',');
+			StoreProxy.store.state.params.tts.tts_users.value = (StoreProxy.store.state.params.tts.tts_users.value as string).split(',').concat(params).join(',');
 			this.message = "";
 		}else
 
 		if(cmd == "/notts") {
-			store.state.params.tts.tts_users.value = (store.state.params.tts.tts_users.value as string).split(',').filter(el => !params.includes(el)).join(',');
+			StoreProxy.store.state.params.tts.tts_users.value = (StoreProxy.store.state.params.tts.tts_users.value as string).split(',').filter(el => !params.includes(el)).join(',');
 			this.message = "";
 		}else{
 			//Send message
 			try {
-				if(store.state.cypherEnabled) {
+				if(StoreProxy.store.state.cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
-				await IRCClient.instance.sendMessage(this.message);
+				let mess = this.message;
 				this.message = "";
+				await IRCClient.instance.sendMessage(mess);
 			}catch(error) {
 				console.log(error);
 				this.error = true;
@@ -518,7 +607,27 @@ export default class ChatForm extends Vue {
 	 * Toggle secret cypher keyboard
 	 */
 	public toggleCypher():void {
-		store.dispatch("setCypherEnabled", !store.state.cypherEnabled);
+		StoreProxy.store.dispatch("setCypherEnabled", !StoreProxy.store.state.cypherEnabled);
+	}
+
+	/**
+	 * Start the mergency mode
+	 */
+	public enableEmergencyMode():void {
+		if(!StoreProxy.store.state.emergencyModeEnabled) {
+			this.$confirm("Enable emergency mode ?").then(()=>{
+				StoreProxy.store.dispatch("setEmergencyMode", true);
+			}).catch(()=>{});
+		}else{
+			StoreProxy.store.dispatch("setEmergencyMode", false);
+		}
+	}
+
+	/**
+	 * Remove the currently highlighted message
+	 */
+	public removeChatHighlight():void {
+		StoreProxy.store.dispatch("highlightChatMessageOverlay", null);
 	}
 
 	/**
@@ -625,6 +734,11 @@ export default class ChatForm extends Vue {
 			background-image: repeating-linear-gradient(-45deg, #00000020, #00000020 20px, #ffffff10 20px, #ffffff10 40px);
 		}
 	}
+	&.emergencyMode {
+		.holder {
+			background-color: @mainColor_alert;
+		}
+	}
 
 	.holder {
 		position: absolute;
@@ -695,12 +809,15 @@ export default class ChatForm extends Vue {
 				}
 			}
 
-			.button {
+			.button:not(.emergency) {
 				.clearButton() !important;
 				border-radius: 50%;
 				&:hover {
 					background-color: fade(@mainColor_light, 20%) !important;
 				}
+			}
+			.button.emergency {
+				margin-left: .5em;
 			}
 
 			.blink-enter-active {

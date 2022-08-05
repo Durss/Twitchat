@@ -2,9 +2,9 @@
 	<div class="chattipandtrickad">
 		<div v-if="tipIndex===0" class="entry">
 			<img src="@/assets/icons/obs_purple.svg" alt="elgato" class="icon">
-			<h1 class="row">Create your own sub alerts</h1>
+			<h1 class="row">Create your own alerts</h1>
 			<div class="row">With <strong>Twitchat</strong> you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.</div>
-			<div class="row">Add texts, images, videos, sounds, ... on your OBS scene and let Twitchat control them when a specific event happens. Text sources can be updated by Twitchat with dynamic values like the subscriber's name.</div>
+			<div class="row">Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name.</div>
 			<Button title="Try it now" @click.stop="openParam('triggers')" />
 		</div>
 		
@@ -12,7 +12,7 @@
 			<img src="@/assets/icons/elgato_purple.svg" alt="elgato" class="icon">
 			<h1 class="row">Stream Deck™ plugin</h1>
 			<div class="row"><strong>Twitchat</strong> can be controlled from your Stream Deck™.</div>
-			<div class="row">You can pause the chat, scroll it, mark message as read, open poll/prediction/bingo/raffle state and much more with the push of a button.</div>
+			<div class="row">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button.</div>
 			<Button title="Try it now" @click.stop="openParam('streamdeck')" />
 		</div>
 		
@@ -84,12 +84,34 @@
 			<Button :icon="$image('icons/timer.svg')" title="Try timer" @click.stop="startTimer()" />
 			<Button :icon="$image('icons/countdown.svg')" title="Try 2min countdown" @click.stop="startCountdown()" />
 		</div>
+		
+		<div v-if="tipIndex===10" class="entry">
+			<img src="@/assets/icons/obs_purple.svg" alt="obs dock" class="icon">
+			<h1 class="row">OBS Dock</h1>
+			<div class="row">Did you know you can add Twitchat as an <strong>OBS Dock</strong>?</div>
+			<div class="row">On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong></div>
+			<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
+		</div>
+		
+		<div v-if="tipIndex===11" class="entry">
+			<img src="@/assets/icons/highlight_purple.svg" alt="chat highlight" class="icon">
+			<h1 class="row">Highlight chat message</h1>
+			<div class="row">You want to show a viewer's message on your stream?</div>
+			<div class="row">You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button</div>
+			
+			<!-- <img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen"> -->
+			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+			<Button class="row" title="Configure overlay" @click.stop="openParam('overlays')" :icon="$image('icons/overlay.svg')" />
+			<div class="row">OR</div>
+			<Button class="row" title="Configure trigger" @click.stop="openParam('triggers')" :icon="$image('icons/broadcast.svg')" />
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParamsContenType } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -102,8 +124,8 @@ import Button from '../Button.vue';
 })
 export default class ChatTipAndTrickAd extends Vue {
 
-	public tipIndex = 0;
-	private maxIndex = 9;
+	public tipIndex = 11;
+	private maxIndex = this.tipIndex;
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
@@ -112,8 +134,8 @@ export default class ChatTipAndTrickAd extends Vue {
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 	public openParam(modal:ParamsContenType):void { this.$emit("openParam", modal); }
 	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
-	public startTimer():void { store.dispatch("startTimer"); }
-	public startCountdown():void { store.dispatch("startCountdown", 2 * 60 * 1000); }
+	public startTimer():void { StoreProxy.store.dispatch("startTimer"); }
+	public startCountdown():void { StoreProxy.store.dispatch("startCountdown", 2 * 60 * 1000); }
 
 }
 </script>
@@ -143,6 +165,14 @@ export default class ChatTipAndTrickAd extends Vue {
 			&:not(:first-of-type) {
 				margin-top: .5em;
 			}
+		}
+		
+		img {
+			max-width: 100%;
+		}
+		iframe {
+			width: 80%;
+			aspect-ratio: 16/9;
 		}
 	}
 }

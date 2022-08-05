@@ -86,7 +86,7 @@ export default class Utils {
 
 	public static promisedTimeout(delay: number): Promise<void> {
 		return new Promise(function (resolve) {
-			window.setTimeout(() => resolve(), delay);
+			setTimeout(() => resolve(), delay);
 		})
 	}
 
@@ -127,14 +127,22 @@ export default class Utils {
 	 * Formats a date
 	 * 
 	 * @param date 
+	 * @param addTime 
 	 * @returns 
 	 */
-	public static formatDate(date:Date):string {
-		return Utils.toDigits(date.getDate())+ "/"
+	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
+		let res = "";
+		if(!noDate) {
+			res = Utils.toDigits(date.getDate())+ "/"
 				+ Utils.toDigits(date.getMonth() + 1) + "/"
-				+ date.getFullYear() + " "
-				+ Utils.toDigits(date.getHours()) + "h"
+				+ date.getFullYear()
+		}
+		if(addTime) {
+			if(!noDate) res  += " "
+			res += Utils.toDigits(date.getHours()) + "h"
 				+ Utils.toDigits(date.getMinutes());
+		}
+		return res;
 	}
 
 	/**
@@ -168,9 +176,9 @@ export default class Utils {
 	 */
 	public static checkPermissions(permissions:PermissionsData, user:ChatUserstate):boolean {
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
-		const mod = user.badges?.moderator != undefined;
+		const mod = user.badges?.moderator != undefined || user.mod === true;
 		const vip = user.badges?.vip != undefined;
-		const sub = user.badges?.subscriber != undefined;
+		const sub = user.badges?.subscriber != undefined || user.subscriber === true;
 		const broadcaster = user.badges?.broadcaster != undefined;
 		const allowed = (permissions.mods && mod) ||
 						(permissions.vips && vip) ||

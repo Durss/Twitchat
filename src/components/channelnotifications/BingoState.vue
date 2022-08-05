@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import type { BingoData } from '@/utils/CommonDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
@@ -44,14 +44,14 @@ export default class BingoState extends Vue {
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 
 	public get bingoData():BingoData {
-		return store.state.bingo as BingoData;
+		return StoreProxy.store.state.bingo as BingoData;
 	}
 
 	public mounted():void {
 	}
 
 	public closeBingo():void {
-		store.dispatch("stopBingo");
+		StoreProxy.store.dispatch("stopBingo");
 		this.$emit("close");
 	}
 

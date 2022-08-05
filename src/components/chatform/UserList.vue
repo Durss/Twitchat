@@ -1,40 +1,40 @@
 <template>
 	<div class="userlist">
-		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users</h1>
+		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users <i>({{users.length}})</i></h1>
 		
 		<div class="users broadcaster" v-if="broadcaster.length > 0">
-			<div class="title">Broadcaster</div>
+			<div class="title">Broadcaster <i>({{broadcaster.length}})</i></div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users mods" v-if="mods.length > 0">
-			<div class="title">Moderators</div>
+			<div class="title">Moderators <i>({{mods.length}})</i></div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users vips" v-if="vips.length > 0">
-			<div class="title">VIPs</div>
+			<div class="title">VIPs <i>({{vips.length}})</i></div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 
 		<div class="users simple" v-if="simple.length > 0">
-			<div class="title">Users</div>
+			<div class="title">Users <i>({{simple.length}})</i></div>
 			<div class="list">
-				<a class="user" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -56,6 +56,13 @@ export default class UserList extends Vue {
 	public get vips():UserItem[] { return this.users.filter(u=>u.vip); }
 
 	public get simple():UserItem[] { return this.users.filter(u=>{ return !u.mod && !u.broadcaster && !u.vip; }); }
+	
+	public userClasses(name:string):string[] {
+		let res = ["user"];
+		if(StoreProxy.store.state.params.appearance.highlightNonFollowers.value === true
+		&& !StoreProxy.store.state.followingStatesByNames[name.toLowerCase()]) res.push("noFollow");
+		return res;
+	}
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -63,7 +70,7 @@ export default class UserList extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.updateList();
-		watch(() => store.state.onlineUsers, () => {
+		watch(() => StoreProxy.store.state.onlineUsers, () => {
 			this.updateList();
 		}, { deep: true });
 		this.open();
@@ -101,7 +108,7 @@ export default class UserList extends Vue {
 
 	private updateList():void {
 		let res:UserItem[] = [];
-		const users = store.state.onlineUsers as string[];
+		const users = StoreProxy.store.state.onlineUsers as string[];
 		for (let j = 0; j < users.length; j++) {
 			const userName = users[j];
 			const userNameLow = userName?.toLowerCase();
@@ -110,7 +117,7 @@ export default class UserList extends Vue {
 				id:userNameLow,
 				broadcaster:userNameLow == UserSession.instance.authToken.login.toLowerCase(),
 				vip:false,
-				mod:(store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
+				mod:(StoreProxy.store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,
 			});
 		}
@@ -161,6 +168,11 @@ interface UserItem {
 		}
 	}
 
+	i {
+		font-size: .8em;
+		font-weight: normal;
+	}
+
 	.users {
 		margin-top: 20px;
 
@@ -170,34 +182,33 @@ interface UserItem {
 		}
 
 		.list {
-			column-count: 3;
-			column-fill: auto;
+			@itemWidth: 150px;
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 			margin-left: 10px;
+			
 
 			.user {
 				display: inline-block;
 				text-overflow: ellipsis;
 				overflow: hidden;
-				width: 100%;
-				text-transform: capitalize;
-			}
-		}
-	}
-}
-@media only screen and (max-width: 500px) {
-	.userlist{
-		.users {
-			.list {
-				column-count: 2;
-			}
-		}
-	}
-}
-@media only screen and (max-width: 320px) {
-	.userlist{
-		.users {
-			.list {
-				column-count: 1;
+				width: @itemWidth;
+				text-decoration: none;
+				white-space:nowrap;
+
+				&.noFollow {
+					color: @mainColor_warn;
+
+					&::before {
+						content: "";
+						display: inline-block;
+						background-image: url('../../assets/icons/unfollow.svg');
+						background-repeat: no-repeat;
+						height: .75em;
+						width: .75em;
+						margin-right: .25em;
+					}
+				}
 			}
 		}
 	}

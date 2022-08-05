@@ -1,5 +1,5 @@
 <template class="cffdfdf">
-	<div :class="classes">
+	<div :class="classes" :data-tooltip="paramData.tooltip">
 		<div class="content">
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 
@@ -12,7 +12,7 @@
 					class="helpBt"
 				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
-				<ToggleButton :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" />
+				<ToggleButton class="toggleButton" :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -87,8 +87,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -170,7 +170,7 @@ export default class ParamItem extends Vue {
 		});
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
-				store.dispatch('updateParams');
+				StoreProxy.store.dispatch('updateParams');
 			}
 			this.$emit("change");
 			this.$emit("update:modelValue", this.paramData.value);
@@ -200,7 +200,7 @@ export default class ParamItem extends Vue {
 			}
 			return;
 		}
-		const list = store.state.params;
+		const list = StoreProxy.store.state.params;
 		let children:ParameterData[] = [];
 		for (const key in list) {
 			const params = list[key as ParameterCategory];
@@ -238,12 +238,6 @@ export default class ParamItem extends Vue {
 	overflow-y: clip;
 
 	&.error {
-		// color:@mainColor_alert;
-		// font-weight: bold;
-		// background: fade(@mainColor_alert, 30%);
-		// padding: .25em;
-		// border-radius: 1em;
-
 		border-left: .25em solid @mainColor_alert;
 		border-bottom: 1px solid @mainColor_alert;
 		padding-left: .25em;
@@ -287,6 +281,12 @@ export default class ParamItem extends Vue {
 		}
 		input, select, textarea {
 			width: 100%;
+			}
+
+		.holder {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 		}
 
 		.icon {
@@ -298,6 +298,7 @@ export default class ParamItem extends Vue {
 		
 
 		.helpBt {
+			align-self: flex-start;
 			background: none;
 			@size: 20px;
 			width: @size;
@@ -314,6 +315,10 @@ export default class ParamItem extends Vue {
 				max-height: 100%;
 			}
 		}
+
+		.toggleButton {
+			align-self: flex-start;
+		}
 		
 		.toggle, .number, .text, .list , .browse{
 			flex-grow: 1;
@@ -321,15 +326,22 @@ export default class ParamItem extends Vue {
 			flex-direction: row;
 			label {
 				flex-grow: 1;
-				// text-align: right;
 				margin: 0;
 				margin-right: 20px;
 				cursor: pointer;
 			}
+
+			&.number {
+				label {
+					flex: 2 1;
+				}
+				input {
+					flex: 1 1;
+				}
+			}
 		}
 
 		:deep(.small) {
-			// display: block;
 			font-size: .75em;
 			font-style: italic;
 		}
@@ -343,7 +355,6 @@ export default class ParamItem extends Vue {
 		}
 
 		textarea {
-			// max-width: 100%;
 			resize: vertical;
 			margin-top: .25em;
 		}
@@ -353,8 +364,6 @@ export default class ParamItem extends Vue {
 				width:auto;
 				max-width:unset;
 				text-align: left;
-				// border-top-right-radius: 0;
-				// border-bottom-right-radius: 0;
 			}
 			.browseBt {
 				border-top-left-radius: 0;

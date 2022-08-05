@@ -1,31 +1,22 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
+import StoreProxy from '@/utils/StoreProxy'
+import Utils from '@/utils/Utils'
 import type { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import Chat from '../views/Chat.vue'
-import Home from '../views/Home.vue'
 import ChatLight from '../views/ChatLight.vue'
+import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
-import Sponsor from '../views/Sponsor.vue'
 import Logout from '../views/Logout.vue'
 import Overlay from '../views/Overlay.vue'
-import store from '@/store'
-import Utils from '@/utils/Utils'
-import type { DeezerAuthResult } from '@/utils/DeezerHelper'
-import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
+import Sponsor from '../views/Sponsor.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
+		alias: '/home',
 		name: 'home',
 		component: Home,
-		meta: {
-			overflow:true,
-			needAuth:false,
-		}
-	},
-	{
-		path: '/sponsor',
-		name: 'sponsor',
-		component: Sponsor,
 		meta: {
 			overflow:true,
 			needAuth:false,
@@ -40,12 +31,20 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/sponsor',
+		name: 'sponsor',
+		component: Sponsor,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
 		path: '/chat/:login',
 		name: 'chatLight',
 		component: ChatLight,
 		meta: {
 			needAuth:false,
-			public:true,
 			noBG:true,
 		}
 	},
@@ -69,37 +68,16 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'spotify/auth',
 		redirect:() => {
 			if(!Utils.getQueryParameterByName("error")) {
-				store.state.showParams = true;//Open params
-				store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
+				StoreProxy.store.state.showParams = true;//Open params
+				StoreProxy.store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
 	
 				const params:SpotifyAuthResult = {
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				store.dispatch("setSpotifyAuthResult", params)
+				StoreProxy.store.dispatch("setSpotifyAuthResult", params)
 			}else{
-				store.state.alert = "You refused to grant access to your Spotify account";
-			}
-			return {name:"chat"}
-		},
-		meta: {
-			needAuth:true,
-		}
-	},
-	{
-		path: '/deezer/auth',
-		name: 'deezer/auth',
-		redirect:() => {
-			if(!Utils.getQueryParameterByName("error_reason")) {
-				store.state.showParams = true;//Open params
-				store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
-	
-				const params:DeezerAuthResult = {
-					code:Utils.getQueryParameterByName("code") as string,
-				}
-				store.dispatch("setDeezerAuthResult", params)
-			}else{
-				store.state.alert = "You refused to grant access to your Deezer account";
+				StoreProxy.store.state.alert = "You refused to grant access to your Spotify account";
 			}
 			return {name:"chat"}
 		},

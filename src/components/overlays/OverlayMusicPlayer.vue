@@ -1,17 +1,27 @@
 <template>
 	<div :class="classes">
 		<transition name="slide">
-			<div class="content" v-if="isPlaying">
-				<img :src="cover" class="cover" id="music_cover">
+			<div class="content" v-if="isPlaying" id="music_holder">
+				<img :src="cover" class="cover" id="music_cover" v-if="params?.showCover !== false">
 				<div class="infos">
-					<Vue3Marquee :duration="duration" class="trackHolder" :clone="true">
-						<div class="track">
-							<div class="artist" id="music_artist">{{artist}}</div>
-							<div class="title" id="music_title">{{track}}</div>
+					<div id="music_infos" class="trackHolder">
+						<Vue3Marquee :duration="duration"
+						:clone="params?.noScroll === false"
+						v-if="params?.noScroll !== true && !resetScrolling">
+							<div class="track">
+								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
+								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
+							</div>
+						</Vue3Marquee>
+						<div class="staticInfos">
+							<div class="track" v-if="params?.noScroll === true || resetScrolling">
+								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
+								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
+							</div>
 						</div>
-					</Vue3Marquee>
-					<div class="progressbar" ref="progressbar" id="music_progress" @click="onSeek($event)">
-						<div class="fill" :style="progressStyles"></div>
+					</div>
+					<div class="progressbar" ref="progressbar" id="music_progress" @click="onSeek($event)" v-if="params?.showProgressbar !== false">
+						<div class="fill" id="music_progress_fill" :style="progressStyles"></div>
 					</div>
 				</div>
 			</div>
@@ -20,8 +30,10 @@
 </template>
 
 <script lang="ts">
+import type { MusicMessage, MusicPlayerParamsData } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import gsap from 'gsap';
 import { watch } from 'vue';
@@ -35,6 +47,7 @@ import 'vue3-marquee/dist/style.css'
 			type: Boolean,
 			default: false,
 		},
+		staticTrackData: Object,
 	},
 	components:{
 		Vue3Marquee,
@@ -43,14 +56,17 @@ import 'vue3-marquee/dist/style.css'
 })
 export default class OverlayMusicPlayer extends Vue {
 
-	public embed!:boolean
-	public playbackPos!:number
+	public embed!:boolean;
+	public playbackPos!:number;
+	public staticTrackData!:MusicMessage;
 	
 	public artist = "";
-	public track = "";
+	public title = "";
 	public cover = "";
-	public isPlaying = false;
 	public progress = 0;
+	public isPlaying = false;
+	public resetScrolling = false;
+	public params:MusicPlayerParamsData|null = null;
 
 	public get paused():boolean { return !DeezerHelper.instance.playing; }
 
@@ -59,11 +75,12 @@ export default class OverlayMusicPlayer extends Vue {
 	public get classes():string[] {
 		let res = ["overlaymusicplayer"];
 		if(this.embed !== false) res.push("embed")
+		if(this.params?.openFromLeft === true) res.push("left")
 		return res;
 	}
 
 	public get duration():number {
-		return Math.max(this.artist.length, this.track.length, 20) / 2;
+		return Math.max(this.artist.length, this.title.length, 20) / 2;
 	}
 
 	public get progressStyles():{[key:string]:string} {
@@ -73,18 +90,25 @@ export default class OverlayMusicPlayer extends Vue {
 	}
 
 	public mounted():void {
-		this.onTrackHandler = (e:TwitchatEvent) => {
+		this.onTrackHandler = async (e:TwitchatEvent) => {
+			if(e.data && ((e.data as unknown) as {params:MusicPlayerParamsData}).params){
+				const obj = (e.data as unknown) as  { params:MusicPlayerParamsData }
+				this.params = obj.params;
+			}
 			if((e.data as {trackName?:string}).trackName) {
-				const obj = e.data as 
+				const prevArtist = this.artist;
+				const prevTitle = this.title;
+				const obj = (e.data as unknown) as 
 							{
 								trackName:string,
 								artistName:string,
 								trackDuration:number,
 								trackPlaybackPos:number,
 								cover:string,
+								params:MusicPlayerParamsData,
 							}
 				this.artist = obj.artistName;
-				this.track = obj.trackName;
+				this.title = obj.trackName;
 				this.cover = obj.cover;
 				this.isPlaying = true;
 
@@ -93,12 +117,36 @@ export default class OverlayMusicPlayer extends Vue {
 				const duration = (obj.trackDuration*(1-newProgress))/1000;
 				gsap.killTweensOf(this);
 				gsap.to(this, {duration, progress:1, ease:"linear"});
+
+				if(this.params?.noScroll !== true) {
+					//If it's a new track, reset the scrolling
+					if(prevArtist != this.artist && prevTitle != this.title) {
+						this.resetScrolling = true;
+						await this.$nextTick();
+						this.resetScrolling = false;
+					}
+				}
 			}else{
-				this.isPlaying = false;
+				this.isPlaying = this.params?.autoHide !== false;
+				if(this.params?.erase === true) {
+					this.artist = "no music";
+					this.title = "no music";
+					this.cover = this.$image("img/defaultCover.svg");
+				}
+				gsap.killTweensOf(this);
+				if(this.params) {
+					this.params.showProgressbar = false;
+				}
 			}
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+		
+		if(!this.staticTrackData) {
+			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+		}else{
+			this.onTrackChangeLocal();
+			this.progress = 50
+		}
 		if(this.embed) {
 			//Called when track changes
 			watch(()=>DeezerHelper.instance.currentTrack, ()=>this.onTrackChangeLocal());
@@ -122,14 +170,15 @@ export default class OverlayMusicPlayer extends Vue {
 	}
 
 	private onTrackChangeLocal():void {
-		const track = DeezerHelper.instance.currentTrack;
+		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
+		this.params = StoreProxy.store.state.musicPlayerParams;
 		if(track) {
 			this.artist = track.artist;
-			this.track = track.title;
+			this.title = track.title;
 			this.cover = track.cover;
 			this.isPlaying = true;
 
-			const newProgress = (DeezerHelper.instance.playbackPos/track.duration);
+			const newProgress = ((this.staticTrackData? 600 : DeezerHelper.instance.playbackPos)/track.duration);
 			this.progress = newProgress;
 			const duration = track.duration*(1-newProgress);
 			gsap.killTweensOf(this);
@@ -158,6 +207,13 @@ export default class OverlayMusicPlayer extends Vue {
 <style scoped lang="less">
 .overlaymusicplayer{
 	&.embed {
+		width: 100%;
+		max-width: 300px;
+		aspect-ratio: 300 / 54;
+		margin: auto;
+		margin-top: .5em;
+		margin-bottom: .5em;
+
 		.content {
 			width: 100%;
 			height: 100%;
@@ -202,7 +258,7 @@ export default class OverlayMusicPlayer extends Vue {
 			@minFontSize: calc(@maxHeight/3);
 			font-size: ~"min(@{minFontSize}, 50vh)";
 			flex: 1;
-			// padding: .25em 0;
+			padding: 0 .25em;
 			min-width: 0px;//Tell flexbox it's ok to shrink it
 			display: flex;
 			flex-direction: column;
@@ -222,18 +278,30 @@ export default class OverlayMusicPlayer extends Vue {
 				justify-content: center;
 				.track {
 					display: flex;
-					flex-direction: column;
+					flex-direction: column-reverse;
 					.artist, .title {
 						padding-right: 10vw;
 						display: flex;
 					}
 					.artist {
 						font-weight: bold;
+						font-size: .8em;
 						align-items: flex-end;
 					}
 					.title {
-						font-size: .8em;
+						font-weight: bold;
 						align-items: flex-start;
+					}
+				}
+
+				.staticInfos {
+					width: 100%;
+					.artist, .title {
+						padding-right: 0;
+						display: block;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
 					}
 				}
 			}
@@ -259,6 +327,13 @@ export default class OverlayMusicPlayer extends Vue {
 	.slide-enter-from,
 	.slide-leave-to {
 		transform: translateX(100%);
+	}
+
+	&.left {
+		.slide-enter-from,
+		.slide-leave-to {
+			transform: translateX(-100%);
+		}
 	}
 
 }

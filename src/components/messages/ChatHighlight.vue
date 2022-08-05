@@ -2,6 +2,11 @@
 	<div :class="classes" v-show="!filtered" @click.ctrl.stop.capture="copyJSON()">
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
+
+		<div v-if="messageData.followBlocked" class="blocked">
+			<img src="@/assets/icons/emergency.svg" alt="emergency"> blocked
+		</div>
+		
 		<div class="messageHolder">
 			<span class="reason" v-html="reason"></span>
 			<div class="info" v-if="info" v-html="info"></div>
@@ -26,7 +31,6 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
@@ -36,6 +40,7 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -62,7 +67,7 @@ export default class ChatHighlight extends Vue {
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
 	public get streamInfo():TwitchDataTypes.ChannelInfo|null {
-		if(store.state.params.features.raidStreamInfo.value === true) {
+		if(StoreProxy.store.state.params.features.raidStreamInfo.value === true) {
 			return this.pStreamInfo;
 		}
 		return null;
@@ -71,7 +76,8 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
-		if(store.state.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
+		if(this.messageData.followBlocked) res.push("followBlocked");
+		if(StoreProxy.store.state.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
 
@@ -87,7 +93,7 @@ export default class ChatHighlight extends Vue {
 		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|"hype_cooldown_expired"|"community_boost_complete"|null = null;
 		if(this.messageData.tags['msg-id'] == "follow") {
 			type = "follow";
-			this.filtered = !store.state.params.filters.showFollow.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showFollow.value;
 
 		}else if(this.messageData.tags['msg-id'] === "hype_cooldown_expired") {
 			type = "hype_cooldown_expired";
@@ -98,26 +104,26 @@ export default class ChatHighlight extends Vue {
 		}else if(this.messageData.tags.bits) {
 			value = this.messageData.tags.bits;
 			type = "bits";
-			this.filtered = !store.state.params.filters.showCheers.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showCheers.value;
 		}else if(this.messageData.methods?.prime) {
 			value = "prime";
 			type = "sub";
-			this.filtered = !store.state.params.filters.showSubs.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 		}else if(this.messageData.methods?.plan) {
 			value = parseInt(this.messageData.methods.plan)/1000;
 			type = this.messageData.recipient? "subgift" : "sub";
-			this.filtered = !store.state.params.filters.showSubs.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 		}else if(this.messageData.viewers != undefined) {
 			type = "raid";
 			value = this.messageData.viewers;
-			this.filtered = !store.state.params.filters.showRaids.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showRaids.value;
 		}else if(this.messageData.reward) {
 			type = "reward";
-			this.filtered = !store.state.params.filters.showRewards.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
 		}else if(this.messageData.tags['message-type'] == "giftpaidupgrade") {
 			value = 1;
 			type = "subgiftUpgrade";
-			this.filtered = !store.state.params.filters.showSubs.value;
+			this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 		}
 		if(type == null) {
 			console.warn("Unhandled highlight");
@@ -148,7 +154,7 @@ export default class ChatHighlight extends Vue {
 				this.icon = this.$image('icons/raid.svg');
 				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
 
-				if(store.state.params.features.raidStreamInfo.value === true) {
+				if(StoreProxy.store.state.params.features.raidStreamInfo.value === true) {
 					this.loadLastStreamInfos()
 				}
 				break;
@@ -205,7 +211,7 @@ export default class ChatHighlight extends Vue {
 					this.icon = this.messageData.reward?.redemption.reward.default_image.url_2x as string;
 				}
 				if(this.messageData.reward?.redemption.reward.prompt) {
-					if(store.state.params.filters.showRewardsInfos.value === true) {
+					if(StoreProxy.store.state.params.filters.showRewardsInfos.value === true) {
 						this.info = this.messageData.reward?.redemption.reward.prompt;
 					}
 				}
@@ -245,7 +251,7 @@ export default class ChatHighlight extends Vue {
 				//or a reward to avoid killing performances.
 				const customParsing = this.messageData.tags.id?.indexOf("00000000") == 0
 										|| this.messageData.reward != null;
-				let removeEmotes = !store.state.params.appearance.showEmotes.value;
+				let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
@@ -288,9 +294,9 @@ export default class ChatHighlight extends Vue {
 		this.shoutoutLoading = true;
 		if(this.messageData.viewers != undefined) {
 			try {
-				await store.dispatch("shoutout", this.messageData.username as string);
+				await StoreProxy.store.dispatch("shoutout", this.messageData.username as string);
 			}catch(error) {
-				store.state.alert = "Shoutout failed :(";
+				StoreProxy.store.state.alert = "Shoutout failed :(";
 				console.log(error);
 			}
 		}
@@ -363,6 +369,26 @@ export default class ChatHighlight extends Vue {
 		background-color: rgba(255, 255, 255, .2);
 		.message {
 			color: #fff;
+		}
+	}
+
+	// &.followBlocked {
+		// text-decoration: line-through;
+		// color: @mainColor_alert;
+		// background-color: fade(@mainColor_alert, 50%);
+	// }
+
+	.blocked {
+		display: inline;
+		padding: .25em .5em;
+		margin-right: .5em;
+		border-radius: .5em;
+		color: @mainColor_light;
+		background-color: @mainColor_alert;
+		white-space: nowrap;
+		img {
+			height: 1em;
+			vertical-align: middle;
 		}
 	}
 

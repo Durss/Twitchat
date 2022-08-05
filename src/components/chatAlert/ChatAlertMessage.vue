@@ -1,0 +1,91 @@
+<template>
+	<div class="chatalertmessage" @click="message = null" v-if="message" data-tooltip="Close">
+		<div class="user">{{user}} says</div>
+		<div class="message" v-html="message"></div>
+	</div>
+</template>
+
+<script lang="ts">
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
+import TwitchUtils from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
+import { watch } from 'vue';
+import { Options, Vue } from 'vue-class-component';
+
+@Options({
+	props:{},
+	components:{}
+})
+export default class ChatAlertMessage extends Vue {
+
+	public message:string|null = null;
+	public user:string|null = null;
+
+	public mounted():void {
+		watch(() => StoreProxy.store.state.chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper) => {
+			if(message && StoreProxy.store.state.chatAlertParams.message === true
+			&& StoreProxy.store.state.params.features.alertMode.value === true) {
+				let text = message.type == "whisper"? message.params[1] : message.message;
+				//Allow custom parsing of emotes only if it's a message of ours
+				const customParsing = message.tags.id?.indexOf("00000000") == 0;
+				let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
+				let chunks = TwitchUtils.parseEmotes(text, message.tags['emotes-raw'], removeEmotes, customParsing);
+				let result = "";
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+						result += Utils.parseURLs(v.value);
+					}else if(v.type == "emote") {
+						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+						url = url.replace(/1x$/gi, "3x");//BTTV format
+						url = url.replace(/2x$/gi, "3x");//7TV format
+						url = url.replace(/1$/gi, "4");//FFZ format
+						let tt = "<img src='"+url+"' width='112' height='112'><br><center>"+v.label+"</center>";
+						result += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
+					}
+				}
+				this.message = result;
+				this.user = message.tags.username as string;
+			}
+		})
+	}
+
+}
+</script>
+
+<style scoped lang="less">
+.chatalertmessage{
+	.center();
+	position: fixed;
+	z-index: 10;
+	background-color: @mainColor_alert;
+	color: @mainColor_light;
+	font-size: 1.5em;
+	border-radius: 1em;
+	width: 90vw;
+	max-height: 90vh;
+	overflow: hidden;
+	cursor: pointer;
+
+	.user {
+		font-size: 1.5em;
+		padding: .3em;
+		font-weight: bold;
+		text-align: center;
+		background-color: @mainColor_light;
+		color: @mainColor_alert;
+	}
+	
+	.message {
+		overflow: hidden;
+		text-align: center;
+		padding: 1em;
+		word-break: break-word;
+		:deep(.emote) {
+			height: 1em;
+		}
+	}
+}
+</style>

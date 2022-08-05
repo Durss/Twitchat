@@ -95,24 +95,24 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import Store from '@/store/Store';
 import type { ParameterData, ParamsContenType, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { RaffleData } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import type { JsonObject } from "type-fest";
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import type { RaffleData } from '@/utils/CommonDataTypes';
-import UserSession from '@/utils/UserSession';
-import Store from '@/store/Store';
-import { watch } from 'vue';
 
 @Options({
 	props:{},
@@ -165,7 +165,7 @@ export default class RaffleForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.showCountdownOverlay.value = Store.get("raffle_showCountdownOverlay") === "true";
+		this.showCountdownOverlay.value = Store.get(Store.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 		this.maxUsersToggle.children = [this.maxUsers];
 		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -173,7 +173,7 @@ export default class RaffleForm extends Vue {
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		
 		watch(()=>this.showCountdownOverlay.value, ()=>{
-			Store.set("raffle_showCountdownOverlay", this.showCountdownOverlay.value)
+			Store.set(Store.RAFFLE_OVERLAY_COUNTDOWN, this.showCountdownOverlay.value)
 		})
 
 		this.loadingSubs = true;
@@ -219,9 +219,9 @@ export default class RaffleForm extends Vue {
 			winners: [],
 		};
 		if(this.showCountdownOverlay.value) {
-			store.dispatch("startCountdown", payload.duration * 1000 * 60);
+			StoreProxy.store.dispatch("startCountdown", payload.duration * 1000 * 60);
 		}
-		store.dispatch("startRaffle", payload);
+		StoreProxy.store.dispatch("startRaffle", payload);
 		this.close();
 	}
 
@@ -232,7 +232,7 @@ export default class RaffleForm extends Vue {
 		this.winner = null;
 		let increment = {value:0};
 		let prevRounded = increment.value;
-		if(PublicAPI.instance.localConnexionAvailable) {
+		if(PublicAPI.instance.localConnectionAvailable) {
 			this.loadingSubs = true;
 			//Ask if the wheel overlay exists
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
@@ -277,15 +277,15 @@ export default class RaffleForm extends Vue {
 							label:this.winner.user_name,
 							data:this.winner,
 						}
-						store.dispatch("onRaffleComplete", {winner:winner});
+						StoreProxy.store.dispatch("onRaffleComplete", {winner:winner});
 					}
 				})
 			}})
 		}
 	}
 	public openParam(page:ParamsContenType):void {
-		store.state.tempStoreValue = "CONTENT:"+page;
-		store.dispatch("showParams", true);
+		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
+		StoreProxy.store.dispatch("showParams", true);
 	}
 	
 }

@@ -62,7 +62,7 @@ export default class OverlaysRaffleWheel extends Vue {
 				clearTimeout(this.resizeDebounce);
 				if(this.itemList.length > 0) {
 					//Only populate on resize
-					this.resizeDebounce = window.setTimeout(()=>this.populate(), 50);
+					this.resizeDebounce = setTimeout(()=>this.populate(), 50);
 				}
 			}
 		}

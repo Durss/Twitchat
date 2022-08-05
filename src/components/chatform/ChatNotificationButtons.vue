@@ -41,8 +41,8 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -69,8 +69,8 @@ export default class ChatNotificationButtons extends Vue {
 	
 
 	public get whispersAvailable():boolean {
-		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = store.state.whispers;
-		for (const key in store.state.whispers) {
+		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = StoreProxy.store.state.whispers;
+		for (const key in StoreProxy.store.state.whispers) {
 			if (whispers[key].length > 0) return true;
 		}
 		return false;

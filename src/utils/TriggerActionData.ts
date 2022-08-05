@@ -17,10 +17,16 @@ export const TriggerTypes = {
 	REWARD_REDEEM:"13",
 	STREAM_INFO_UPDATE:"19",
 	TRACK_ADDED_TO_QUEUE:"14",
+	MUSIC_START:"24",
+	MUSIC_STOP:"25",
 	TIMER_START:"15",
 	TIMER_STOP:"16",
 	COUNTDOWN_START:"17",
 	COUNTDOWN_STOP:"18",
+	EMERGENCY_MODE_START:"20",
+	EMERGENCY_MODE_STOP:"21",
+	HIGHLIGHT_CHAT_MESSAGE:"22",
+	CHAT_ALERT:"23",
 }
 
 export interface ITriggerActionHelper {
@@ -108,6 +114,14 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
 	];
 	
+	map[TriggerTypes.MUSIC_START] = [
+		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"music.artist"},
+		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"music.title"},
+		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"music.album"},
+		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"music.cover"},
+		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"music.url"},
+	];
+	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
 		{tag:"TITLE", desc:"Stream title", pointer:"title"},
 		{tag:"CATEGORY", desc:"Stream category", pointer:"category"},
@@ -127,6 +141,17 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"DURATION_MS", desc:"Countdown's duration in milliseconds", pointer:"duration_ms"},
 	];
 	
+	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [
+		{tag:"AVATAR", desc:"User's avatar", pointer:"user.profile_image_url"},
+		{tag:"USER", desc:"User's name", pointer:"user.display_name"},
+		{tag:"MESSAGE", desc:"Message without emotes", pointer:"message"},
+	];
+	
+	map[TriggerTypes.CHAT_ALERT] = [
+		{tag:"USER", desc:"User's name", pointer:"message.tags.username"},
+		{tag:"ALERT", desc:"User's message without emotes", pointer:"message.message"},
+	];
+
 	//If requesting chat command helpers and there is a music
 	//service available, contact the music service helpers
 	if(key == TriggerTypes.CHAT_COMMAND
@@ -153,10 +178,16 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Raid", value:TriggerTypes.RAID, description:"Execute an action when someone raids the channel", jsonTest:{"type":"highlight","channel":"#durss","tags":{"info":"this tags prop is a fake one to make things easier for my code","id":"16423778121330.0751974390273129","tmi-sent-ts":"1642377812133","msg-id":"raid"},"username":"Durss","viewers":727}},
 	{label:"Stream info update", value:TriggerTypes.STREAM_INFO_UPDATE, description:"Execute an action when the stream info are updated"},
 	{label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
+	{label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute an action when a music starts playing", jsonTest:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }},
+	{label:"Music stops playing", value:TriggerTypes.MUSIC_STOP, description:"Execute an action when a music stops playing"},
 	{label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started with the command <strong>/timerStart</strong>"},
 	{label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <strong>/timerStop</strong>"},
 	{label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <strong>/countdown</strong>"},
 	{label:"Countdown stop", value:TriggerTypes.COUNTDOWN_STOP, description:"Execute an action when a countdown completes or is stoped"},
+	{label:"Emergency start", value:TriggerTypes.EMERGENCY_MODE_START, description:"Execute an action when enabling the emergency mode"},
+	{label:"Emergency stop", value:TriggerTypes.EMERGENCY_MODE_STOP, description:"Execute an action when stopping the emergency mode"},
+	{label:"Highlight message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", jsonTest:{"type":"chatOverlayHighlight","message":"This is a test message for the chat highlight feature !","user":{"id":"29961813","login":"durss","display_name":"Durss","type":"","broadcaster_type":"affiliate","description":"Blablabla","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/c43305dd-d577-4369-b60b-df0a4acdb7d8-channel_offline_image-1920x1080.jpeg","view_count":15289,"created_at":"2012-04-21T23:01:18Z"},"id":"d97d6594-6cc4-4400-b4f4-e3b688263fa2","params":{"position":"bl"}}},
+	{label:"Chat alert", value:TriggerTypes.CHAT_ALERT, description:"Execute an action when the Chat Alert feature is triggered", jsonTest:{"type":"chatAlert", message:{"type":"message","message":"ItsBoshyTime Read your chat !!! ItsBoshyTime","tags":{"badge-info":{"subscriber":"16"},"badges":{"broadcaster":"1","subscriber":"12"},"client-nonce":"f90438208ff604cfba00470d60f1bb5b","color":"#9ACD32","display-name":"Durss","emotes":{"133468":["0-11","32-43"]},"first-msg":false,"flags":null,"id":"00000000-0000-0000-0000-000000000002","mod":false,"returning-chatter":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1658344567683","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"133468:0-11,32-43","badge-info-raw":"subscriber/16","badges-raw":"broadcaster/1,subscriber/12","username":"durss","message-type":"chat"},"channel":"#durss","self":false}}},
 ]
 
 export const TriggerMusicTypes = {

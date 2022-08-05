@@ -3,8 +3,8 @@
 		<div v-if="isSponsor" class="sponsor">
 			<div class="title">🍔 I like food 🍔</div>
 			<div class="content">Are you enjoying <strong>Twitchat</strong> ?<br>
-			It took me a lot of time and efforts to create.<br>
-			Twitchat is free, but if you can afford it, any tip would really <strong>make my day brighter</strong>!</div>
+			It took <strong>months</strong> of my life to create.<br>
+			Twitchat is free, but <strong>if you can afford it</strong>, any tip would really make my day brighter!</div>
 			<div class="cta">
 				<img @click.stop="openParamPage('sponsor')" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 				<Button aria-label="Open tip options" @click.stop="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
@@ -19,57 +19,57 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<Button aria-label="open stream infos params" small title="try it" @click.stop="openModal('streamInfo')" />
-							<span>Edit your <strong>stream infos</strong> and create presets.</span>
+							<Button aria-label="open emergency params" small title="try it" @click.stop="openParamPage('emergency')" />
+							<span>Protect yourself from <strong>followbot raids</strong> with the new option of the Emergency button</span>
 						</li>
 						<li>
-							<span>New <span class="cmd">/countdown</span> command to start a countdown of a custom duration</span>
+							<Button aria-label="open alert param" small title="try it" @click.stop="openParamPage('alert')" />
+							<span>Let your mods scream at you to make sure you read them with the new <strong>alert feature</strong> under <mark>Parameters =&gt features</mark>.</span>
 						</li>
 						<li>
-							<span>New <span class="cmd">/timerStart</span> command to time anything you want</span>
+							<span>Content of message sent by users you <strong>blocked</strong> is now hidden. Click to reveal.</span>
 						</li>
 						<li>
-							<Button aria-label="open timer overlay params" small title="try it" @click.stop="openParamPage('overlays')" />
-							<span>New timer and countdown <strong>overlay</strong></span>
+							<span>If sending a <strong>clip</strong>'s link, it's <strong>preview</strong> will be displayed</span>
 						</li>
 						<li>
-							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
-							<span>New timer and countdown <strong>triggers</strong></span>
+							<span>The "Message Highlight" overlay can now play a clip with a single click on a dedicated button of the clip's preview</span>
 						</li>
 						<li>
-							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage('triggers')" />
-							<span>New stream info update <strong>trigger</strong></span>
+							<span>Colored <mark>/announce</mark> commands available</span>
 						</li>
 						<li>
-							<span>You can now easily <strong>enable or disable triggers</strong></span>
-						</li>
-						<li>
-							<span>Raffle can now send confirmation message when a viewer enters</span>
-						</li>
-						<li>
-							<span>Raffle timer can be displayed on your stream with the new overlay</span>
+							<span><mark>/block</mark> and <mark>/unblock</mark> commands available</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
 						<li>
-							<Button aria-label="open about section" small title="open" @click.stop="openParamPage('about')" />
-							<span>Twitchat API documentation added to about section</span>
+							<span>You won't loose the Greet them history if you reload twitchat during your stream. It will show a user again only after 8h.</span>
 						</li>
-						<li>You can now resize the <strong>Greet them</strong> section as you wish</li>
-						<li><strong>Founders badge</strong> now displayed in the mini-badges</li>
-						<li>First load size of the app reduced by 50%</li>
-						<li>When changing the stream info a chat notification will be displayed</li>
-						<li>Improved message list performance</li>
+						<li>
+							<span>Get your current Twitchat version on the bottom of the parameters or with the <mark>/version</mark> command</span>
+						</li>
+						<li>
+							<Button aria-label="open chat suggestions feature" small title="open" @click.stop="openModal('chatpoll')" />
+							<span><mark>Chat poll</mark> feature has been renamed to <mark>Chat suggestions</mark> for the sake of clarity</span>
+						</li>
+						<li>
+							<span>Parameters menu has been reviewed with a full page menu instead of the huge stack of tabs at the top</span>
+						</li>
+						<li>
+							<span>Timer and Countdown overlay is a little less ugly</span>
+						</li>
+						<li>
+							<Button aria-label="open chat suggestions feature" small title="open" @click.stop="openParamPage('overlays')" />
+							<span>Spotify and Deezer overlay parameters now shows an example of what the player looks like</span>
+						</li>
 					</ul>
 				</ToggleBlock>
-				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
+				<ToggleBlock class="block fix" title="Fixes" :open="true" :icons="['fix']">
 					<ul>
-						<li>Triggers could get stuck which was blocking chat commands execution</li>
-						<li>Closing a bingo wasn't possible</li>
-						<li>Raffle, Bingo, Prediction and Poll triggers weren't fully implemented <i>(woops :3)</i></li>
-						<li>2min timeout was doing a 30min timeout</li>
+						<li>Chat connexion was lost after few hours without succeeding to reconnect forcing you to reload the page. This should be fixed now.</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -109,14 +109,14 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store from '@/store';
 import Store from '@/store/Store';
+import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
-import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
+import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Options({
 	props:{
@@ -136,7 +136,7 @@ export default class ChatAd extends Vue {
 
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
-	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP; }
+	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
@@ -146,22 +146,22 @@ export default class ChatAd extends Vue {
 	}
 
 	public openParamPage(page:string):void {
-		store.state.tempStoreValue = "CONTENT:"+page;
-		store.dispatch("showParams", true);
+		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
+		StoreProxy.store.dispatch("showParams", true);
 	}
 
 	public showSpecificParam(id:string):void {
-		store.state.tempStoreValue = "SEARCH:"+id;
-		store.dispatch("showParams", true);
+		StoreProxy.store.state.tempStoreValue = "SEARCH:"+id;
+		StoreProxy.store.dispatch("showParams", true);
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			Store.set("updateIndex", store.state.latestUpdateIndex);
+			Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
 		}
-		store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
+		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
 	}
 
@@ -242,6 +242,10 @@ export default class ChatAd extends Vue {
 				.cmd {
 					background-color: fade(@mainColor_warn, 15%);
 				}
+				mark {
+					border: 1px dashed darken(@mainColor_warn_light, 10%);
+					background-color: fade(@mainColor_warn_extralight, 50%);
+				}
 			}
 			&.fix {
 				:deep(.header){
@@ -306,6 +310,12 @@ export default class ChatAd extends Vue {
 					}
 				}
 			}
+		}
+		mark {
+			border: 1px dashed fade(#000, 20);
+			background-color: fade(#000, 5);
+			border-radius: .5em;
+			padding: 0 .25em;
 		}
 	}
 

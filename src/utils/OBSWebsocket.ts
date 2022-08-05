@@ -4,6 +4,7 @@ import { reactive } from 'vue';
 import { EventDispatcher } from './EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
 import TwitchatEvent from './TwitchatEvent';
+import Utils from './Utils';
 
 /**
 * Created : 29/03/2022 
@@ -59,6 +60,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async connect(port:string, pass:string, autoReconnect = true, ip = "127.0.0.1"):Promise<boolean> {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
+		if(!ip || ip.length < 5) return false;
 
 		try {
 			const protocol = ip == "127.0.0.1" ? "ws://" : "wss://";
@@ -67,7 +69,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		}catch(error) {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = window.setTimeout(()=> {
+				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -79,7 +81,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.connected = false;
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = window.setTimeout(()=> {
+				this.reconnectTimeout = setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -105,7 +107,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		//*/
 
 		/* GET A SOURCE SETTINGS
-		const settings = await this.obs.call("GetInputSettings", {inputName: "TTImage"});
+		const settings = await this.obs.call("GetInputSettings", {inputName: "TTBrowerSourceTest"});
 		console.log(settings);
 		//*/
 
@@ -138,7 +140,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
 		if(!this.connected) {
 			//Try again
-			window.setTimeout(()=> this.broadcast(type, data), 1000);
+			setTimeout(()=> this.broadcast(type, data), 1000);
 			return;
 		}
 
@@ -232,7 +234,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setCurrentScene(name:string):Promise<void> {
 		if(!this.connected) return;
 		
-		return await this.obs.call("SetCurrentProgramScene", {sceneName:name});
+		await this.obs.call("SetCurrentProgramScene", {sceneName:name});
 	}
 
 	/**
@@ -241,10 +243,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param text 
 	 */
-	public setTextSourceContent(sourceName:string, text:string):void {
+	public async setTextSourceContent(sourceName:string, text:string):Promise<void> {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
 	}
 
 	/**
@@ -254,11 +256,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param filterName 
 	 * @param visible 
 	 */
-	public setFilterState(sourceName:string, filterName:string, visible:boolean):void {
+	public async setFilterState(sourceName:string, filterName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
 		
 		//@ts-ignore ("SetSourceFilterEnabled" not yet defined on obs-websocket-js)
-		this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
+		await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
+		await Utils.promisedTimeout(20);
 	}
 
 	/**
@@ -269,14 +272,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
-
+		
+		//FIXME if the requested source is on multiple scenes, this will only toggle one of them
 		const item = await this.getSourceOnCurrentScene(sourceName);
 		if(item) {
-			this.obs.call("SetSceneItemEnabled", {
+			await this.obs.call("SetSceneItemEnabled", {
 				sceneName:item.scene,
 				sceneItemId:item.source.sceneItemId,
 				sceneItemEnabled:visible
 			});
+			await Utils.promisedTimeout(20);
 		}
 	}
 
@@ -320,7 +325,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
 		if(!this.connected) return;
 		
-		return await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
+		await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
 	}
 
 	/**
@@ -329,10 +334,18 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param url 
 	 */
-	public setBrowserSourceURL(sourceName:string, url:string):void {
+	public async setBrowserSourceURL(sourceName:string, url:string):Promise<void> {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{url}});
+		// const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
+		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, url}
+		if(!/https?:\/\.*/i?.test(url)) {
+			//If using a local file, do not use "local_file" param is it does not
+			//supports query parameters. 
+			newSettings.url = "file:///"+url;
+		}
+		
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:newSettings as JsonObject});
 	}
 
 	/**
@@ -341,10 +354,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param url 
 	 */
-	public setMediaSourceURL(sourceName:string, url:string):void {
+	public async setMediaSourceURL(sourceName:string, url:string):Promise<void> {
 		if(!this.connected) return;
 		
-		this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
 	}
 	
 	
@@ -376,4 +389,15 @@ export interface OBSFilter {
 	filterKind: string;
 	filterName: string;
 	filterSettings: unknown;
+}
+
+export interface BrowserSourceSettings {
+	fps?: number;
+	fps_custom?: boolean;
+	height?: number;
+	is_local_file?: boolean;
+	local_file?: string;
+	shutdown?: boolean;
+	url?: string;
+	width?: number;
 }

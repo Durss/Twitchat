@@ -1,9 +1,10 @@
-import type { MusicMessage } from "@/types/TwitchatDataTypes";
+import type { MusicMessage, MusicTriggerData } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import Config from "./Config";
 import DeezerHelperEvent from "./DeezerHelperEvent";
 import { EventDispatcher } from "./EventDispatcher";
 import PublicAPI from "./PublicAPI";
+import TriggerActionHandler from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -150,7 +151,7 @@ export default class DeezerHelper extends EventDispatcher{
 				window.addEventListener("mouseenter", onFocus);
 				
 				const onBlur = () => {
-					window.setTimeout(() => {
+					setTimeout(() => {
 						if(!document.activeElement) return;
 						if (document.activeElement.tagName === "IFRAME") {
 							this.userInteracted = true;
@@ -193,7 +194,16 @@ export default class DeezerHelper extends EventDispatcher{
 					this.playbackPos = arg[0];
 				});
 
-				DZ.Event.subscribe('player_paused', () => { this.playing = false; });
+				DZ.Event.subscribe('player_paused', () => {
+					this.playing = false;
+					
+					//Broadcast to the triggers
+					const triggerData:MusicTriggerData = {
+						type: "musicEvent",
+						start:false,
+					}
+					TriggerActionHandler.instance.onMessage(triggerData);
+				});
 				DZ.Event.subscribe('player_play', () => { this.playing = true; });
 				DZ.Event.subscribe('track_end', () => {
 					const ids = this.queue.map(t => parseInt(t.id)).splice(1);
@@ -239,7 +249,7 @@ export default class DeezerHelper extends EventDispatcher{
 			e.async = true;
 			e.onload = ()=> {
 				//Cleanup DOM
-				window.setTimeout(()=> {
+				setTimeout(()=> {
 					document.body.removeChild(e);
 				}, 1000)
 			}
@@ -368,6 +378,13 @@ export default class DeezerHelper extends EventDispatcher{
 				trackPlaybackPos: this.playbackPos * 1000,
 				cover: this.currentTrack.cover,
 			});
+
+			const triggerData:MusicTriggerData = {
+				type: "musicEvent",
+				start:true,
+				music:this.currentTrack,
+			}
+			TriggerActionHandler.instance.onMessage(triggerData);
 		}
 	}
 

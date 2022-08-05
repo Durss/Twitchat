@@ -8,13 +8,13 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=1">
 	<title>Twitchat</title>
 	<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0' name='viewport' />
-	<meta name="description" content="Custom twitch chat with special options so you don't miss any important messages" />
+	<meta name="description" content="Full featured Twitch chat alternative that tries to fill in gaps of the official Twitch chat" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	
 	<meta property="og:url" content="https://twitchat.fr" />
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="Twitchat" />
-	<meta property="og:description" content="Custom twitch chat with special options so you don't miss any important messages" />
+	<meta property="og:description" content="Full featured Twitch chat alternative that tries to fill in gaps of the official Twitch chat" />
 	<meta property="og:image" content="https://twitchat.fr/share.png?v=1" />
 	<meta property="og:image" content="https://twitchat.fr/share_small.png?v=1" />
 	<meta property="og:image:type" content="image/png" />
@@ -27,7 +27,7 @@
 	<link rel="manifest" href="/manifest.json">
 	<style>
 		body {
-			background-color: #0e0e10;
+			background-color: #18181b;
 		}
 		.loader-init {
 			position: absolute;
@@ -45,7 +45,7 @@
 		<strong>We're sorry but Twitchat cannot work without JavaScript enabled. Please enable it to continue.</strong>
 	</noscript>
 	<div id="app">
-		<img src="/loader_white.svg" alt="loader" class="loader-init">
+		<img src="/loader_white.svg" alt="loader" class="loader-init" id="static-loader">
 	</div>
 	<!-- built files will be auto injected -->
 
@@ -69,7 +69,7 @@
 			const p = noBgPaths[i];
 			if(new RegExp(p).test(url)) {
 				document.body.style.backgroundColor = "transparent";
-				document.getElementsByClassName("loader-init")[0].style.display = "none";
+				document.getElementById("static-loader").style.display = "none";
 				break;
 			}
 		}

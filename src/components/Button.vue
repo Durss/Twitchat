@@ -134,7 +134,7 @@ export default class Button extends Vue {
 		if(this.small !== false) list.push("small");
 		if(this.highlight !== false) list.push("highlight");
 		if(this.selected !== false) list.push("selected");
-		if(this.loading !== false) list.push("disabled");
+		if(this.loading !== false) list.push("disabled", "loading");
 		if(this.disabled !== false) list.push("disabled");
 		if(this.type == "checkbox") list.push("checkbox");
 		return list;
@@ -210,6 +210,7 @@ export default class Button extends Vue {
 	border-radius: @border_radius;
 	will-change: transform;
 	text-decoration: none;
+	min-height: calc(1em + 10px);
 
 	&:hover {
 		color: @mainColor_light;
@@ -241,6 +242,10 @@ export default class Button extends Vue {
 			color: fade(#000, 25%);
 			background-color: fade(@mainColor_dark_extralight, 50%);
 		}
+	}
+
+	&.loading {
+		cursor: wait;
 	}
 
 	&>*:not(.browse) {
@@ -395,8 +400,9 @@ export default class Button extends Vue {
 	}
 
 	&.big {
-		padding: 20px;
+		padding: .5em 1em;
 		font-size: 1.25em;
+		min-height: calc(1.25em + 40px);
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
@@ -407,12 +413,17 @@ export default class Button extends Vue {
 				}
 			}
 		}
+		.icon {
+			max-height: 1.5em;
+			height: 1.5em;
+		}
 	}
 
 	&.small {
 		padding: 4px;
 		border-radius: 5px;
 		font-size: .85em;
+		min-height: calc(.85em + 8px);
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
@@ -474,9 +485,11 @@ export default class Button extends Vue {
 		&.noTitle.big, &.big {
 			padding: 12px;
 			font-size: 1.2em;
+			min-height: calc(1.2em + 12px);
 		}
 		&:not(.big) {
 			font-size: .85em;
+			min-height: calc(.85em + 12px);
 		}
 	}
 }

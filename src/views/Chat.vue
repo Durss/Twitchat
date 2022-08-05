@@ -100,6 +100,9 @@
 		
 		<Parameters v-if="$store.state.showParams" />
 
+		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
+		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
+
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
 				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
@@ -107,6 +110,9 @@
 				<div class="message">Deezer needs you to click here to be able to play music.</div>
 			</div>
 		</Teleport>
+
+		<ChatAlertMessage />
+		<div class="blinkLayer" ref="blinkLayer" v-if="showBlinkLayer" @click="showBlinkLayer=false"></div>
 	</div>
 </template>
 
@@ -131,18 +137,23 @@ import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
-import store from '@/store';
+import Store from '@/store/Store';
+import type { AlertParamsData } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { BingoData, RaffleData } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import IRCClient from '@/utils/IRCClient';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
+import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
+import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 
 @Options({
 	components:{
@@ -165,7 +176,10 @@ import { Options, Vue } from 'vue-class-component';
 		PredictionForm,
 		LiveFollowings,
 		StreamInfoForm,
+		ChatAlertMessage,
+		DataServerSyncModal,
 		ChannelNotifications,
+		EmergencyFollowsListModal,
 	},
 	props:{
 	},
@@ -179,7 +193,10 @@ export default class Chat extends Vue {
 	public showCommands = false;
 	public showUserList = false;
 	public showChatUsers = false;
+	public showStorageModal = false;
+	public showBlinkLayer = false;
 	public canStartAd = true;
+	public forceEmergencyFollowClose = false;
 	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentMessageSearch = "";
@@ -187,16 +204,17 @@ export default class Chat extends Vue {
 	
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
-	public get splitView():boolean { return store.state.params.appearance.splitView.value as boolean && store.state.canSplitView && !this.hideChat; }
-	public get splitViewVertical():boolean { return store.state.params.appearance.splitViewVertical.value as boolean && store.state.canSplitView && !this.hideChat; }
-	public get hideChat():boolean { return store.state.params.appearance.hideChat.value as boolean; }
+	public get splitView():boolean { return StoreProxy.store.state.params.appearance.splitView.value as boolean && StoreProxy.store.state.canSplitView && !this.hideChat; }
+	public get splitViewVertical():boolean { return StoreProxy.store.state.params.appearance.splitViewVertical.value as boolean && StoreProxy.store.state.canSplitView && !this.hideChat; }
+	public get hideChat():boolean { return StoreProxy.store.state.params.appearance.hideChat.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
+	public get showEmergencyFollows():boolean { return StoreProxy.store.state.emergencyFollows.length > 0 && !StoreProxy.store.state.emergencyModeEnabled; }
 
 	public get classes():string[] {
 		const res = ["chat"];
 		if(this.splitView) {
 			res.push("splitView");
-			if(store.state.params.appearance.splitViewSwitch.value === true) {
+			if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
 				res.push("switchCols");
 			}
 			if(this.splitViewVertical) res.push("splitVertical")
@@ -206,7 +224,8 @@ export default class Chat extends Vue {
 
 	private resizeHandler!:(e:Event) => void;
 
-	public mounted():void {
+	public beforeMount():void {
+		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
 		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		window.addEventListener("resize", this.resizeHandler);
@@ -221,29 +240,56 @@ export default class Chat extends Vue {
 		this.onResize();
 
 		//Auto opens the prediction status if pending for completion
-		watch(() => store.state.currentPrediction, (newValue, prevValue) => {
-			let prediction = store.state.currentPrediction as TwitchDataTypes.Prediction;
+		watch(() => StoreProxy.store.state.currentPrediction, (newValue, prevValue) => {
+			let prediction = StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.status == "LOCKED" || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
-		watch(() => store.state.currentPoll, (newValue, prevValue) => {
-			let poll = store.state.currentPoll as TwitchDataTypes.Poll;
+		watch(() => StoreProxy.store.state.currentPoll, (newValue, prevValue) => {
+			let poll = StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && poll.status == "COMPLETED" || isNew) this.setCurrentNotification("poll");
 		});
 
 		//Auto opens the bingo status when created
-		watch(() => store.state.bingo, () => {
-			let bingo = store.state.bingo as BingoData;
+		watch(() => StoreProxy.store.state.bingo, () => {
+			let bingo = StoreProxy.store.state.bingo as BingoData;
 			if(bingo) this.setCurrentNotification("bingo");
 		});
 
 		//Auto opens the raffle status when created
-		watch(() => store.state.raffle, () => {
-			let raffle = store.state.raffle as RaffleData;
+		watch(() => StoreProxy.store.state.raffle, () => {
+			let raffle = StoreProxy.store.state.raffle as RaffleData;
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
+		});
+
+		//Handle chat alert feature
+		watch(() => StoreProxy.store.state.chatAlert, async (value:string) => {
+			if(value != null) {
+				if(StoreProxy.store.state.params.features.alertMode.value !== true) return;
+				
+				const params = StoreProxy.store.state.chatAlertParams as AlertParamsData;
+				gsap.killTweensOf(this.$el);
+				if(params.shake) {
+					gsap.fromTo(this.$el, {x:-10}, {duration:0.01, x:10, clearProps:"x", repeat:60});
+					gsap.fromTo(this.$el, {y:-10}, {duration:0.02, y:10, clearProps:"y", repeat:30})
+				}
+				if(params.blink) {
+					this.showBlinkLayer = true;
+					await this.$nextTick();
+					const layer = this.$refs.blinkLayer as HTMLDivElement;
+					gsap.killTweensOf(layer);
+					gsap.fromTo(layer, {opacity:0}, {duration:0.17, opacity:1, clearProps:"opacity", repeat:3,
+						onComplete:()=>{
+							this.showBlinkLayer = false;
+						}});
+				}
+				if(params.sound) {
+					new Audio(this.$image("sounds/wizz.mp3")).play();
+				}
+			}
 		});
 	}
 
@@ -276,24 +322,24 @@ export default class Chat extends Vue {
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
 			case TwitchatEvent.ACTIVITY_FEED_TOGGLE: this.showFeed = !this.showFeed; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
-				store.state.params.appearance.showViewersCount.value = !store.state.params.appearance.showViewersCount.value;
-				store.dispatch('updateParams');
+				StoreProxy.store.state.params.appearance.showViewersCount.value = !StoreProxy.store.state.params.appearance.showViewersCount.value;
+				StoreProxy.store.dispatch('updateParams');
 				break;
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
-				store.state.params.features.showModTools.value = !store.state.params.features.showModTools.value;
-				store.dispatch('updateParams');
+				StoreProxy.store.state.params.features.showModTools.value = !StoreProxy.store.state.params.features.showModTools.value;
+				StoreProxy.store.dispatch('updateParams');
 				break;
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
-				store.state.params.filters.censorDeletedMessages.value = !store.state.params.filters.censorDeletedMessages.value;
-				store.dispatch('updateParams');
+				StoreProxy.store.state.params.filters.censorDeletedMessages.value = !StoreProxy.store.state.params.filters.censorDeletedMessages.value;
+				StoreProxy.store.dispatch('updateParams');
 				break;
 		}
 
 		if(notif) {
 			if(this.currentNotificationContent == notif) {
-				this.currentNotificationContent = "";
+				this.setCurrentNotification("");
 			}else{
-				this.currentNotificationContent = notif;
+				this.setCurrentNotification(notif);
 			}
 		}
 
@@ -316,25 +362,25 @@ export default class Chat extends Vue {
 				if(res.length > 0) {
 					this.canStartAd = false;
 					this.startAdCooldown = Date.now() + res.retry_after * 1000;
-					window.setTimeout(()=>{
+					setTimeout(()=>{
 						this.canStartAd = true;
 						this.startAdCooldown = 0;
 					}, this.startAdCooldown);
-					store.dispatch("setCommercialEnd", Date.now() + res.length * 1000);
+					StoreProxy.store.dispatch("setCommercialEnd", Date.now() + res.length * 1000);
 				}
 			}catch(error) {
 				const e = (error as unknown) as {error:string, message:string, status:number}
 				console.log(error);
 				IRCClient.instance.sendNotice("commercial", e.message);
-				// store.state.alert = "An unknown error occured when starting commercial"
+				// StoreProxy.store.state.alert = "An unknown error occured when starting commercial"
 			}
 		}).catch(()=>{/*ignore*/});
 	}
 
 	public onResize():void {
 		const value = document.body.clientWidth > 599;
-		if(value != store.state.canSplitView) {
-			store.dispatch("canSplitView", value);
+		if(value != StoreProxy.store.state.canSplitView) {
+			StoreProxy.store.dispatch("canSplitView", value);
 		}
 	}
 
@@ -526,7 +572,7 @@ export default class Chat extends Vue {
 	.popin {
 		margin-left: auto;
 		z-index: 1;
-		height: 100%;//calc(100% - 40px);///40 => footer height
+		height: calc(100% - 40px);///40 => footer height
 		:deep(.holder) {
 			max-height: 100% !important;
 		}
@@ -546,6 +592,16 @@ export default class Chat extends Vue {
 			max-height: 80vh;
 			width: 100%;
 		}
+	}
+
+	.blinkLayer {
+		width: 100vw;
+		height: 100vh;
+		background-color: fade(#c00, 70%);
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 2;
 	}
 }
 </style>

@@ -1,7 +1,8 @@
-import { fileURLToPath, URL } from 'url'
+import { fileURLToPath, URL } from 'url';
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import loadVersion from 'vite-plugin-package-version';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,7 +10,7 @@ export default defineConfig({
 		port:8080,
 	},
 
-	plugins: [vue()],
+	plugins: [vue(),loadVersion()],
 
 	optimizeDeps: {
 		// exclude: ['tmi.js'],

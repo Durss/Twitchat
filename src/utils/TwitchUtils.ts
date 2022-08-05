@@ -361,7 +361,6 @@ export default class TwitchUtils {
 			const param = "broadcaster_id";
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
-			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			channels = channels.concat(json.data);
@@ -413,7 +412,6 @@ export default class TwitchUtils {
 			const param = ids ? "user_id" : "user_login";
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"streams?first=1&"+params;
-			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			streams = streams.concat(json.data);
@@ -475,7 +473,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
 			StoreProxy.store.dispatch("setPolls", {data:json.data});
@@ -543,7 +541,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
 			StoreProxy.store.dispatch("setPredictions", json.data);
@@ -1080,6 +1078,182 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Bans a user
+	 */
+	public static async banUser(uid:string, duration?:number, reason?:string):Promise<boolean> {
+		const body:{[key:string]:string|number} = {
+			user_id:uid,
+		};
+		if(duration) body.duration = duration;
+		if(reason) body.reason = reason;
+		
+		const options = {
+			method:"POST",
+			headers: this.headers,
+			body: JSON.stringify({data:body}),
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Unbans a user
+	 */
+	public static async unbanUser(uid:string):Promise<boolean> {
+		const options = {
+			method:"DELETE",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("user_id", uid);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Blocks a user
+	 */
+	public static async blockUser(uid:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
+		const options = {
+			method:"PUT",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+		url.searchParams.append("target_user_id", uid);
+		if(reason) url.searchParams.append("reason", reason);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
+				let dateLimit = parseInt(res.headers.get("Ratelimit-Reset") as string);
+				if(isNaN(dateLimit)) dateLimit = Date.now() + 1;
+				dateLimit *= 1000;
+				
+				let delay = dateLimit - Date.now();
+				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
+				
+				await Utils.promisedTimeout(delay)
+				return this.blockUser(uid, reason, ++recursiveIndex);
+			}else{
+				return false;
+			}
+		}
+	}
+
+	/**
+	 * Unblocks a user
+	 */
+	public static async unblockUser(uid:string, recursiveIndex:number = 0):Promise<boolean> {
+		const options = {
+			method:"DELETE",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+		url.searchParams.append("target_user_id", uid);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 204) {
+			return true;
+		}else{
+			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
+				let dateLimit = parseInt(res.headers.get("Ratelimit-Reset") as string);
+				if(isNaN(dateLimit)) dateLimit = Date.now() + 1;
+				dateLimit *= 1000;
+				
+				let delay = dateLimit - Date.now();
+				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
+				
+				await Utils.promisedTimeout(delay)
+				return this.unblockUser(uid, ++recursiveIndex);
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * Get a clip by its ID
+	 */
+	public static async getClipById(clipId:string):Promise<TwitchDataTypes.ClipInfo|null> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"clips");
+		url.searchParams.append("id", clipId);
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			const json = await res.json();
+			return json.data[0];
+		}else{
+			return null;
+		}
+	}
+
+	/**
+	 * Get list of blocked users
+	 */
+	public static async getBlockedUsers():Promise<TwitchDataTypes.BlockedUser[]> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		let list:TwitchDataTypes.BlockedUser[] = [];
+		let cursor:string|null = null;
+		do {
+			let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+			url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+			url.searchParams.append("first", "100");
+			if(cursor) url.searchParams.append("after", cursor);
+			const res = await fetch(url.href, options);
+			const json:{data:TwitchDataTypes.BlockedUser[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+			cursor = null;
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null)
+		return list;
+	}
+
+	/**
+	 * Sends an announcement
+	 */
+	public static async sendAnnouncement(message:string, color:"blue"|"green"|"orange"|"purple"|"primary" = "primary"):Promise<boolean> {
+		const options = {
+			method:"POST",
+			headers: this.headers,
+			body: JSON.stringify({ message, color }),
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/announcements");
+		url.searchParams.append("broadcaster_id", UserSession.instance.authToken.user_id);
+		url.searchParams.append("moderator_id", UserSession.instance.authToken.user_id);
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else{
 			return false;

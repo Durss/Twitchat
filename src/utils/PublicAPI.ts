@@ -34,7 +34,7 @@ export default class PublicAPI extends EventDispatcher {
 	 * Get if page is runing on OBS and thus the BrodcastChannel
 	 * API is available
 	 */
-	get localConnexionAvailable():boolean {
+	get localConnectionAvailable():boolean {
 		//@ts-ignore
 		return window.obsstudio != undefined;
 	}

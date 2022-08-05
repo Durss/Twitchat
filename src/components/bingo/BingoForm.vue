@@ -34,40 +34,40 @@
 					</div>
 				</form>
 
-				<Splitter title="Config" class="splitter" />
-
-				<PostOnChatParam botMessageKey="bingoStart"
-					:placeholderEnabled="false"
-					title="Announce bingo start on chat"
-					:placeholders="startPlaceholders"
-				/>
-				<PostOnChatParam botMessageKey="bingo"
-					title="Post bingo winner on chat"
-					:placeholders="winnerPlaceholders"
-				/>
+				<ToggleBlock title="Configs" class="configs" :open="false" small>
+					<PostOnChatParam botMessageKey="bingoStart"
+						:placeholderEnabled="false"
+						title="Announce bingo start on chat"
+						:placeholders="startPlaceholders"
+					/>
+					<PostOnChatParam botMessageKey="bingo"
+						title="Post bingo winner on chat"
+						:placeholders="winnerPlaceholders"
+					/>
+				</ToggleBlock>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import store from '@/store';
-import TwitchUtils from '@/utils/TwitchUtils';
+import type { BingoConfig, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
+import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import Splitter from '../Splitter.vue';
-import type { BingoConfig, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ParamItem,
-		Splitter,
+		ToggleBlock,
 		PostOnChatParam,
 	},
 	emits:["close"]
@@ -115,7 +115,7 @@ export default class BingoForm extends Vue {
 			min,
 			max,
 		};
-		store.dispatch("startBingo", payload);
+		StoreProxy.store.dispatch("startBingo", payload);
 		this.close();
 	}
 
@@ -191,7 +191,7 @@ export default class BingoForm extends Vue {
 			}
 		}
 
-		.splitter {
+		.configs {
 			margin: 1em 0;
 		}
 	}

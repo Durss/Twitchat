@@ -1,5 +1,6 @@
-import type { HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
+import type { EmergencyFollowerData, HypeTrainStateData, StreamInfoUpdate } from "@/types/TwitchatDataTypes";
 import TwitchUtils from '@/utils/TwitchUtils';
+import { LoremIpsum } from "lorem-ipsum";
 import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
 import type { TwitchDataTypes } from '../types/TwitchDataTypes';
@@ -139,7 +140,7 @@ export default class PubSub extends EventDispatcher{
 				// alert('[close] Connection died');
 			}
 			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = window.setTimeout(()=>{
+			this.reconnectTimeout = setTimeout(()=>{
 				this.connect();
 			}, 1000);
 		};
@@ -207,7 +208,25 @@ export default class PubSub extends EventDispatcher{
 		}
 		IRCClient.instance.addMessage(m.data.message_content.fragments[0].text, tags, false);
 		this.parseEvent(m);
+	}
 
+	public async simulateFollowbotRaid():Promise<void> {
+		const lorem = new LoremIpsum({
+			wordsPerSentence: {
+				max: 16,
+				min: 4
+			}
+		});
+		for (let i = 0; i < 50; i++) {
+			const id = Math.round(Math.random()*1000);
+			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+			this.followingEvent({
+				display_name: login,
+				username: login,
+				user_id:id.toString(),
+			})
+			await Utils.promisedTimeout(Math.random()*300);
+		}
 	}
 	
 	
@@ -261,6 +280,11 @@ export default class PubSub extends EventDispatcher{
 			if(localObj.type == "stream-down") {
 				StoreProxy.store.dispatch("setPlaybackState", null);
 			}
+
+
+
+		}else if(data.type == "whisper_sent") {
+			//TODO sent when sending a whisper from twitch interface, could be nice to handle to rebuild the full conversation on twitchat
 
 
 
@@ -379,7 +403,7 @@ export default class PubSub extends EventDispatcher{
 		}else if(data.type == "raid_go_v2") {
 			if(StoreProxy.store.state.params.features.stopStreamOnRaid.value === true) {
 				clearTimeout(this.raidTimeout)
-				this.raidTimeout = window.setTimeout(() => {
+				this.raidTimeout = setTimeout(() => {
 					OBSWebsocket.instance.stopStreaming();
 				}, 1000);
 			}
@@ -403,7 +427,7 @@ export default class PubSub extends EventDispatcher{
 				},
 			});
 			
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				//Automatically hide the boost after a few seconds
 				StoreProxy.store.dispatch("setCommunityBoost", null);
 			}, 30000);
@@ -651,6 +675,35 @@ export default class PubSub extends EventDispatcher{
 			"type": "highlight",
 		};
 
+		//If emergency mode is enabled and we asked to automatically block
+		//any new followser during that time, do it
+		if(StoreProxy.store.state.emergencyModeEnabled === true) {
+			const followData:EmergencyFollowerData = {
+				uid:data.user_id,
+				login:data.display_name,
+				date:Date.now(),
+				blocked:false,
+				unblocked:false,
+			}
+			if(StoreProxy.store.state.emergencyParams.autoBlockFollows === true){
+				message.followBlocked = true;
+				(async()=> {
+					let res = await TwitchUtils.blockUser(data.user_id, "spam");
+					followData.blocked = res;
+					//Unblock the user right away if requested
+					if(StoreProxy.store.state.emergencyParams.autoUnblockFollows === true) {
+						res = await TwitchUtils.unblockUser(data.user_id);
+						followData.unblocked = res;
+						StoreProxy.store.dispatch("addEmergencyFollower", followData);
+					}else{
+						StoreProxy.store.dispatch("addEmergencyFollower", followData);
+					}
+				})();
+			}else{
+				StoreProxy.store.dispatch("addEmergencyFollower", followData);
+			}
+		}
+
 		//Broadcast to OBS-ws
 		const wsMessage = {
 			display_name: data.display_name,
@@ -658,6 +711,8 @@ export default class PubSub extends EventDispatcher{
 			user_id: data.user_id,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+
+		console.log(message);
 		
 		IRCClient.instance.sendHighlight(message);
 	}
@@ -679,7 +734,7 @@ export default class PubSub extends EventDispatcher{
 		};
 		StoreProxy.store.dispatch("setHypeTrain", train);
 		//Hide "hypetrain approaching" notification if expired
-		this.hypeTrainApproachingTimer = window.setTimeout(()=> {
+		this.hypeTrainApproachingTimer = setTimeout(()=> {
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, train.timeLeft * 1000);
 	}
@@ -750,7 +805,7 @@ export default class PubSub extends EventDispatcher{
 		}
 		StoreProxy.store.dispatch("setHypeTrain", storeData);
 		
-		window.setTimeout(()=> {
+		setTimeout(()=> {
 			//Hide hype train popin
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, 20000)

@@ -2,6 +2,7 @@ import type { PermissionsData } from "@/types/TwitchatDataTypes";
 import IRCClient from "./IRCClient";
 import IRCEvent from "./IRCEvent";
 import { getType, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
+import type { PubSubDataTypes } from "./PubSubDataTypes";
 import type PubSubEvent from "./PubSubEvent";
 import StoreProxy from "./StoreProxy";
 import TwitchUtils from "./TwitchUtils";
@@ -10,7 +11,7 @@ import Utils from "./Utils";
 export interface SpokenMessage {
 	wroteTime: number,
 	voiceMessage: SpeechSynthesisUtterance,
-	message: IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper
+	messageID: string|undefined
 }
 
 export default class TTSUtils {
@@ -22,6 +23,7 @@ export default class TTSUtils {
 
 	private pendingMessages:SpokenMessage[] = [];
 	private lastMessageTime:number = performance.now();
+	private giftedSubs:any = {}
 
 	/********************
 	* HANDLERS          *
@@ -59,6 +61,7 @@ export default class TTSUtils {
 	 */
 	 public async enable(enable: boolean):Promise<void> {
 		this.enabled = enable;
+		console.log('enable', enable);
 		
 		if (enable) {
 			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
@@ -87,23 +90,29 @@ export default class TTSUtils {
 	}
 
 	private onAddMessage(e:IRCEvent):void {
-		const message = e.data as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper;
+		const message = e.data as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper|IRCEventDataList.Notice|IRCEventDataList.PollResult|IRCEventDataList.PredictionResult;
 		console.log(message);
 		
 		this.processMessage(message);
-	}	
+	}
 
-	private processMessage(message:IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper) {
+	private replacePattern(pattern: string, messageStr: string, user: string|undefined): string {
+		messageStr = pattern.replace('$MESSAGE', messageStr);
+		messageStr = messageStr.replace('$USER', user ? user : '');
+		return messageStr;
+	}
+
+	private processMessage(message:IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper|IRCEventDataList.Notice|IRCEventDataList.PollResult|IRCEventDataList.PredictionResult) {
 		const paramsTTS = StoreProxy.store.state.params.tts;
-		const uid:string|undefined = message?.tags['user-id'];
-		const user: string|undefined = message?.tags['display-name'];
-		let messageStr = message.type === "whisper"? message.params[1] : message.message;
+		// const uid:string|undefined = message?.tags['user-id'];
+		let user: string|undefined;
+		let messageStr: string = message.type === "whisper"? message.params[1] : message.message as string;
 		
 		if (message.type === 'message') {
 			// only speak if inactivity period is reached
 			const lastMessageTime = this.lastMessageTime;
 			this.lastMessageTime = performance.now();
-			
+			user = message?.tags['display-name'];
 			if (paramsTTS.inactivityPeriod.value > 0 && (performance.now() - lastMessageTime <= paramsTTS.inactivityPeriod.value * 1000 * 60)) {
 				return;
 			}
@@ -123,47 +132,122 @@ export default class TTSUtils {
 					return;
 				}
 			}
+			messageStr = this.replacePattern(paramsTTS['speakPattern'+message.type].value, messageStr, user);
 		} else if (message.type === 'whisper') {
 			if (paramsTTS['speakPattern'+message.type].value === '') {
 				return;
 			}
-		} else {
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|null = getType(message);
+			user = message?.tags['display-name'];
+			messageStr = this.replacePattern(paramsTTS['speakPattern'+message.type].value, messageStr, user);
+		} else if (message.type === 'notice') {
+			if (paramsTTS['speakPattern'+message.type].value === '') {
+				return;
+			}			
+		} else if (message.type === 'poll') {
+			if(!paramsTTS.speakPolls.value) return;
+			const pollData:IRCEventDataList.PollResult = message as IRCEventDataList.PollResult;
+			console.log(pollData, pollData.data, pollData.tags, pollData.winner, pollData['winner']);
+			const winner = pollData.data.choices.reduce((prev, elem) => {
+				if (elem.channel_points_votes > prev.channel_points_votes) {
+					return elem;
+				} else {
+					return prev;
+				}});
+			
+			messageStr = "Poll result, winner is "+winner.title;
+		} else if (message.type === 'prediction') {
+			if(!paramsTTS.speakPredictions.value) return;
+			const predictionData:IRCEventDataList.PredictionResult = message as IRCEventDataList.PredictionResult;
+			
+			const winner = predictionData.data.outcomes.find(pred => pred.id === predictionData.data.winning_outcome_id);
+			if (winner) {
+				messageStr = "Prediction result, correct answer is "+winner.title;
+			}
+	 	} else {
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = getType(message);
+			messageStr = message.tags['system-msg']
 			console.log(message.type, message.tags, type);
 			
-			if(type == "sub" && !paramsTTS.speakSubs.value) return;
-			if(type == "reward" && !paramsTTS.speakRewards.value) return;
-			if(type == "raid" && !paramsTTS.speakRaids.value) return;
-			if(type == "bits" && !paramsTTS.speakBits.value) return;
-			if(type == "follow" && !paramsTTS.speakFollow.value) return;
-			if(type == "poll" && !paramsTTS.speakPolls.value) return;
-			if(type == "prediction" && !paramsTTS.speakPredictions.value) return;
-			if(type == "bingo" && !paramsTTS.speakBingos.value) return;
-			if(type == "raffle" && !paramsTTS.speakRaffles.value) return;
-			if(type == "commercial") return;
-			if(type == "countdown") return;
+			if(type == "sub") {
+				if (!paramsTTS.speakSubs.value) return;
+				
+				if(message.methods?.prime) {
+					messageStr = ""+message.username+" subscribed with Prime";
+				} else if (message.recipient) { // subgift
+					const value = parseInt(message.methods?.plan!)/1000;
+					if (message.username && !(message.username in this.giftedSubs)) {
+						this.giftedSubs[message.username] = 1;
+						setTimeout(() => {
+							console.log(this.giftedSubs[message.username!]);
+							
+							if(this.giftedSubs[message.username!] > 1) {
+								messageStr = ""+message.username+" gifted "+(this.giftedSubs[message.username!])+" Tier "+value;
+							} else {
+								messageStr = ""+message.username+" gifted a Tier "+value+" to "+message.recipient;
+							}
+							delete this.giftedSubs[message.username!];
+							this.speakText(messageStr, message.tags.id);
+						}, 5000);
+					} else if (message.username) {
+						
+						this.giftedSubs[message.username]++;
+						console.log(this.giftedSubs[message.username!]);
+					} else {
+						// nothing
+					}
+					return;
+				} else if (message.tags['message-type'] == "giftpaidupgrade") {
+					messageStr = ""+message.username+" is continuing the Gift Sub they got from "+message.sender;
+				} else { // sub
+					const value = parseInt(message.methods?.plan!)/1000;
+					messageStr = ""+message.username+" subscribed at Tier "+value;
+				}
+			}
+			else if(type == "reward") {
+				if(!paramsTTS.speakRewards.value) return;
+				const localObj = message.reward as PubSubDataTypes.RewardData;				
+				messageStr = localObj.redemption.user.display_name+" redeemed the reward "+localObj.redemption.reward.title;
+			}
+			else if(type == "raid") {
+				if (!paramsTTS.speakRaids.value) return;
+				messageStr = ""+message.username+" is raiding with a party of "+message.viewers+".";
+			}
+			else if(type == "bits") {
+				if(!paramsTTS.speakBits.value) return;
+				messageStr = ""+message.tags.username+" sent "+message.tags.bits+" bits";
+			}
+			else if(type == "follow") {
+				if(!paramsTTS.speakFollow.value) return;
+				messageStr = ""+message.username+" followed your channel!";
+			}
+			else if(type == "bingo") {
+				if(!paramsTTS.speakBingos.value) return;
+				messageStr = "";
+			}
+			else if(type == "raffle"){
+				if(!paramsTTS.speakRaffles.value) return;
+				messageStr = "";
+			}
+			else if(type == "commercial") return;
+			else if(type == "countdown") return;
 
-			messageStr = message.tags['system-msg']
-			console.log(messageStr);
-			
+			console.log(type, messageStr);
 		}
 		
 		if (messageStr) {
-			let spokenText = paramsTTS['speakPattern'+message.type].value.replace('$MESSAGE', messageStr);
-			spokenText = spokenText.replace('$USER', user ? user : '');
 			if (paramsTTS.removeURL.value) {
-				spokenText = spokenText.replace(/(http[s]?|ftp):[^ ]*/g, paramsTTS.replaceURL.value);
+				messageStr = messageStr.replace(/(http[s]?|ftp):[^ ]*/g, paramsTTS.replaceURL.value);
 			}	
 	
-			spokenText = spokenText.substring(0, paramsTTS.maxLength.value || Number.MAX_VALUE);
+			messageStr = messageStr.substring(0, paramsTTS.maxLength.value || Number.MAX_VALUE);
 			if (paramsTTS.ttsRemoveEmotes) {
-				spokenText = TwitchUtils.parseEmotes(spokenText, undefined, true, true)[0].value;
+				messageStr = TwitchUtils.parseEmotes(messageStr, undefined, true, true)[0].value;
 			}	
-			this.speakText(user, spokenText, message);
+			this.speakText(messageStr, message.tags.id);
 		}	
 	}	
 
-	private async speakText(user: string | undefined, messageStr: string, message:IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper):Promise<void> {
+	private async speakText(messageStr: string, messageID:string|undefined):Promise<void> {
 		if (!this.enabled) {
 			return;
 		}			
@@ -188,7 +272,7 @@ export default class TTSUtils {
 		if (!window.speechSynthesis.speaking) {
 			window.speechSynthesis.speak(mess);
 		} else {
-			this.pendingMessages.push({wroteTime: performance.now(), voiceMessage: mess, message: message});
+			this.pendingMessages.push({wroteTime: performance.now(), voiceMessage: mess, messageID: messageID});
 		}			
 	}			
 
@@ -201,7 +285,7 @@ export default class TTSUtils {
 			messageID = data.tags['target-msg-id'] as string;
 		}
 
-		let index = this.pendingMessages.findIndex(v => v.message.tags.id === messageID);
+		let index = this.pendingMessages.findIndex(v => v.messageID === messageID);
 		if(index > -1) {
 			this.pendingMessages.splice(index, 1);
 		}

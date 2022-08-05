@@ -26,10 +26,10 @@
 </template>
 
 <script lang="ts">
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
-import ToggleBlock from '../../../ToggleBlock.vue';
 import Button from '../../../Button.vue';
+import ToggleBlock from '../../../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -43,8 +43,8 @@ export default class OverlayParamsTimer extends Vue {
 	public open = false;
 	public get overlayUrl():string { return this.$overlayURL("timer"); }
 	
-	public startTimer():void { store.dispatch("startTimer"); }
-	public startCountdown():void { store.dispatch("startCountdown", 2 * 60 * 1000); }
+	public startTimer():void { StoreProxy.store.dispatch("startTimer"); }
+	public startCountdown():void { StoreProxy.store.dispatch("startCountdown", 2 * 60 * 1000); }
 
 }
 </script>

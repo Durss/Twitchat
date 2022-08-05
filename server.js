@@ -32,6 +32,7 @@ http.createServer((request, response) => {
     });
 
 	request.addListener('end', async () => {
+		// console.log("CALL", request.method, request.url);
 		if(request.method == "HEAD") {
 			response.end();
 			return;
@@ -64,6 +65,11 @@ http.createServer((request, response) => {
 			//Get/Set user data
 			}else if(endpoint == "/api/user") {
 				userData(request, response, body);
+				return;
+		
+			//Get current chatters
+			}else if(endpoint == "/api/chatters") {
+				getChatters(request, response, body);
 				return;
 			
 			//Generate token from auth code
@@ -104,6 +110,11 @@ http.createServer((request, response) => {
 			//Get deezer token
 			}else if(endpoint == "/api/deezer/auth") {
 				deezerAuthenticate(request, response);
+				return;
+
+			//Get deezer token
+			}else if(endpoint == "/api/clip") {
+				twitchClip(request, response);
 				return;
 
 			//Rrefresh deezer access_token
@@ -165,10 +176,13 @@ http.createServer((request, response) => {
 
 
 function setHeaders(request, response) {
-	if(request.headers.host && credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1) {
+	if(request.headers.host
+	&& (credentials.redirect_uri.indexOf(request.headers.host.replace(/:[0-9]+/gi, "")) > -1
+		|| request.headers.host.indexOf("192.168") > -1)
+	) {
 		//Set CORS headers if host is found on the redirect URI
 		response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS')
-		response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
+		response.setHeader('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN,Authorization');
 		response.setHeader('Access-Control-Allow-Origin', "*");
 	}
 }
@@ -277,17 +291,10 @@ async function refreshToken(request, response) {
  * Get/set a user's data
  */
 async function userData(request, response, body) {
-	try {
-		body = JSON.parse(body);
-	}catch(error) {
-		response.writeHead(500, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({message:"Invalid body data", success:false}));
-	}
-	const access_token = body.access_token;
 	let userInfo = {};
 
 	//Check access token validity
-	const headers = { "Authorization":"Bearer "+access_token };
+	const headers = { "Authorization": request.headers.authorization };
 	const options = {
 		method: "GET",
 		headers: headers,
@@ -301,45 +308,84 @@ async function userData(request, response, body) {
 		return;
 	}
 
-	//avoid saving private data to server
-	delete body.data.obsPass;
-	delete body.data.oAuthToken;
-	//Do not save this to the server to avoid config to be erased
-	//on one of the instances
-	delete body.data.hideChat;
-	
-	// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
-
-	//Test data format
-	try {
-		const clone = JSON.parse(JSON.stringify(body.data));
-		// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
-
-		//schemaValidator() is supposed to tell if the format is valid or not.
-		//Because we enabled "removeAdditional" option, no error will be thrown
-		//if a field is not in the schema. Instead it will simply remove it.
-		//V9+ of the lib is supposed to allow us to retrieve the removed props,
-		//but it doesn't yet. As a workaround we use JSONPatch that compares
-		//the JSON before and after validation.
-		//This is not the most efficient way to do this, but we have no much
-		//other choice for now.
-		schemaValidator(body.data);
-		const diff = JsonPatch.compare(clone, body.data, false);
-		if(diff?.length > 0) {
-			console.log("Invalid format, some data has been removed from "+userInfo.login+"'s data");
-			console.log(diff);
-			fs.writeFileSync(userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+	//Get users' data
+	const userFilePath = userDataFolder + userInfo.user_id+".json";
+	if(request.method == "GET") {
+		if(!fs.existsSync(userFilePath)) {
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false}));
+		}else{
+			const data = fs.readFileSync(userFilePath, {encoding:"utf8"});
+			response.writeHead(200, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:true, data:JSON.parse(data)}));
 		}
-		fs.writeFileSync(userDataFolder+userInfo.user_id+".json", JSON.stringify(body.data), "utf8");
-		response.writeHead(200, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({success:true}));
-	}catch(error){
-		console.log(error);
-		const message = schemaValidator.errors;
-		console.log(message);
-		response.writeHead(500, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({message, success:false}));
+	
+	//Update users' data
+	}else if(request.method == "POST") {
+		try {
+			body = JSON.parse(body);
+		}catch(error) {
+			response.writeHead(500, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({message:"Invalid body data", success:false}));
+			return;
+		}
+
+		//avoid saving private data to server
+		delete body.obsPass;
+		delete body.oAuthToken;
+		//Do not save this to the server to avoid config to be erased
+		//on one of the instances
+		delete body["p:hideChat"];
+		
+		// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
+	
+		//Test data format
+		try {
+			const clone = JSON.parse(JSON.stringify(body));
+			// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
+	
+			//schemaValidator() is supposed to tell if the format is valid or not.
+			//Because we enabled "removeAdditional" option, no error will be thrown
+			//if a field is not in the schema. Instead it will simply remove it.
+			//V9+ of the lib is supposed to allow us to retrieve the removed props,
+			//but it doesn't yet. As a workaround we use JSONPatch that compares
+			//the JSON before and after validation.
+			//This is not the most efficient way to do this, but we have no much
+			//other choice for now.
+			schemaValidator(body);
+			const diff = JsonPatch.compare(clone, body, false);
+			if(diff?.length > 0) {
+				console.log("Invalid format, some data has been removed from "+userInfo.login+"'s data");
+				console.log(diff);
+				fs.writeFileSync(userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+			}
+			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
+			response.writeHead(200, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:true}));
+		}catch(error){
+			console.log(error);
+			const message = schemaValidator.errors;
+			console.log(message);
+			response.writeHead(500, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({message, success:false}));
+		}
 	}
+
+}
+
+/**
+ * Get user's chatters
+ */
+async function getChatters(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+	const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+params.channel.toLowerCase()+"/chatters", {method:"GET"});
+	let chatters = [];
+	if(chattersRes.status === 200) {
+		chatters = await chattersRes.json();
+	}
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify(chatters));
+
 }
 
 /**
@@ -493,51 +539,27 @@ async function deezerAuthenticate(request, response) {
 	}));
 }
 
-
-
-
 /**
- * Generates a credential token.
- * 
- * @param client_id 
- * @param client_secret 
- * @param scope 
+ * Just a proxy to load a twitch clip player source page
+ * [EDIT] actually not used as the actual video is loaded asynchronously
+ *        after a GQL query. To get it we would have to create a headless
+ *        browser, load the page, wait for the video to load, and get its URL.
+ *        No way i do this on my small server :D
+ * @param {*} request 
+ * @param {*} response 
  * @returns 
  */
-async function getClientCredentialToken() {
-	//Invalidate token if expiration date is passed
-	if(Date.now() > credentialToken_invalidation_date) credentialToken = null;
-	//Avoid generating a new token if one already exists
-	if(credentialToken) return Promise.resolve(credentialToken);
+async function twitchClip(request, response) {
+	const params = UrlParser.parse(request.url, true).query;
+	const id = params.id;
+	const res = await fetch("https://clips.twitch.tv/"+id);
+	const html = await res.text();
 
-	//Generate a new token
-	let headers = {};
-	var options = {
-		method: "POST",
-		headers: headers,
-	};
-	let url = "https://id.twitch.tv/oauth2/token?";
-	url += "client_id="+credentials.client_id;
-	url += "&client_secret="+credentials.client_secret;
-	url += "&grant_type=client_credentials";
-	url += "&scope="+credentials.scopes.join("+");
-
-	try {
-		const result = await fetch(url, options);
-		if(result.status == 200) {
-			let json = await result.json();
-			credentialToken = json.access_token;
-			credentialToken_invalidation_date = Date.now() + json.expires_in - 1000;
-			return json.access_token;
-		}else{
-			console.error("Token generation failed");
-			console.log(await result.text());
-			return null;
-		}
-	}catch(error) {
-		return null;
-	}
+	response.writeHead(200, {'Content-Type': 'text/html'});
+	response.end(html);
 }
+
+
 
 /**
  * Data schema to make sure people don't send random or invalid data to the server
@@ -758,7 +780,6 @@ const UserDataSchema = {
 		"p:firstMessage": {type:"boolean"},
 		"p:firstTimeMessage": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
-		"p:hideChat": {type:"boolean"},
 		"p:hideUsers": {type:"string"},
 		"p:highlightMentions": {type:"boolean"},
 		"p:highlightMods": {type:"boolean"},
@@ -810,6 +831,8 @@ const UserDataSchema = {
 		"p:timeout": {type:"integer", minimum:0, maximum:300},
 		"p:removeURL": {type:"boolean"},
 		"p:replaceURL": {type:"string"},
+		"p:spoilersEnabled": {type:"boolean"},
+		"p:alertMode": {type:"boolean"},
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -824,6 +847,113 @@ const UserDataSchema = {
 		greetHeight: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
+		emergencyParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled:{type:"boolean"},
+				chatCmd:{type:"string", maxLength:100},
+				chatCmdPerms:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
+				slowMode:{type:"boolean"},
+				emotesOnly:{type:"boolean"},
+				subOnly:{type:"boolean"},
+				followOnly:{type:"boolean"},
+				noTriggers:{type:"boolean"},
+				followOnlyDuration:{type:"number"},
+				slowModeDuration:{type:"number"},
+				toUsers:{type:"string"},
+				obsScene:{type:"string"},
+				obsSources:{
+					type:"array",
+					items:[{type:"string", maxLength:100}],
+				},
+				autoBlockFollows:{type:"boolean"},
+				autoUnblockFollows:{type:"boolean"},
+			}
+		},
+		emergencyFollowers: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				uid:{type:"string", maxLength:50},
+				login:{type:"string", maxLength:50},
+				date:{type:"number"},
+				blocked:{type:"boolean"},
+				unblocked:{type:"boolean"},
+			}
+		},
+		spoilerParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				permissions:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
+			}
+		},
+		chatHighlightParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				position:{type:"string", maxLength:2},
+			}
+		},
+		
+		chatAlertParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				chatCmd:{type:"string", maxLength:100},
+				message: {type:"boolean"},
+				shake: {type:"boolean"},
+				sound: {type:"boolean"},
+				blink: {type:"boolean"},
+				permissions:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
+			}
+		},
+		
+		musicPlayerParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				autoHide: {type:"boolean"},
+				erase: {type:"boolean"},
+				showCover: {type:"boolean"},
+				showArtist: {type:"boolean"},
+				showTitle: {type:"boolean"},
+				showProgressbar: {type:"boolean"},
+				openFromLeft: {type:"boolean"},
+			}
+		},
 	}
 }
 

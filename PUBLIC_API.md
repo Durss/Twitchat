@@ -64,7 +64,7 @@ async function connect(port:string, pass:string):Promise<boolean> {
 	try {
 		await obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 	}catch(error) {
-		window.setTimeout(()=> {
+		setTimeout(()=> {
 			//try again later
 			connect(port, pass);
 		}, 5000);
@@ -136,6 +136,8 @@ export type TwitchatEventType =
 	| "TIMER_STOP"
 	| "TIMER_OVERLAY_PRESENCE"
 	| "WHEEL_OVERLAY_PRESENCE"
+	| "EMERGENCY_MODE"
+	| "CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -160,6 +162,10 @@ export type TwitchatActionType =
 	| "GET_WHEEL_OVERLAY_PRESENCE"
 	| "GET_CURRENT_TIMERS"
 	| "GET_TIMER_OVERLAY_PRESENCE"
+	| "SET_EMERGENCY_MODE"
+	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
+	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
+	| "SHOW_CLIP"
 ```
 <br>
 <br>
@@ -421,6 +427,22 @@ Sent when a wheel overlay advertises its presence
 ```typescript
 -none-
 ```
+## **EMERGENCY_MODE**
+Sent when the emergency mode is started or stopped
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
+## **CHAT_HIGHLIGHT_OVERLAY_PRESENCE**
+Sent when a chat highlight overlay advertises its presence
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
 <br>
 <br>
 <br>
@@ -593,4 +615,68 @@ If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ### JSON param *(optional)*
 ```typescript
 -none-
+```
+## **SET_EMERGENCY_MODE**
+Starts or stops the emergency mode.
+### JSON param *(optional)*
+```typescript
+{
+	enabled:boolean
+}
+```
+## **GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE**
+Ask if a chat highlight overlay exists.\
+If it does you'll receive the `CHAT_HIGHLIGHT_OVERLAY_PRESENCE` event.
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE**
+Send a chat message on the "chat highlight" overlay
+Send no data to hide the current message
+```typescript
+{
+	message: string;//Message with emotes parsed as HTML tags
+	user:{
+		id: string;
+		login: string;
+		display_name: string;
+		type: string;
+		broadcaster_type: string;
+		description: string;
+		profile_image_url: string;
+		offline_image_url: string;
+		created_at: string;
+	},
+	params:{
+		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	}
+}
+```
+## **SHOW_CLIP**
+Send a clip to be displayed on the chat highlight overlay
+```typescript
+{
+	//This is the same JSON as the one sent by the Twitch API
+	clip:{
+		broadcaster_id: string;
+		broadcaster_name: string;
+		created_at: string;
+		creator_id: string;
+		creator_name: string;
+		duration: number;
+		embed_url: string;
+		game_id: string;
+		id: string;
+		language: string;
+		thumbnail_url: string;
+		title: string;
+		url: string;
+		video_id: string;
+		view_count: number;
+	},
+	params:{
+		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	}
+}
 ```

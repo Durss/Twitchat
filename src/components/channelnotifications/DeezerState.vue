@@ -91,7 +91,7 @@ export default class DeezerState extends Vue {
 		watch(()=> this.search, ()=> {
 			this.searching = true;
 			clearTimeout(this.searchDebounce);
-			this.searchDebounce = window.setTimeout(()=> {
+			this.searchDebounce = setTimeout(()=> {
 				this.searchTrack();
 			}, 500);
 		});
@@ -169,11 +169,7 @@ export default class DeezerState extends Vue {
 	}
 
 	.player {
-		width: 100%;
-		max-width: 300px;
-		height: 3em;
-		margin: auto;
-		margin-bottom: .5em;
+		margin-top: 0;
 	}
 
 	.controls {

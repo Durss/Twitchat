@@ -1,10 +1,14 @@
-import type { MusicMessage } from "@/types/TwitchatDataTypes";
+import type { MusicMessage, MusicTriggerData } from "@/types/TwitchatDataTypes";
+import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import Config from "./Config";
 import { EventDispatcher } from "./EventDispatcher";
+import type { IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem, SpotifyTrack, SearchTrackResult, SpotifyAuthToken } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
+import StoreProxy from "./StoreProxy";
+import TriggerActionHandler from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 
 /**
@@ -132,7 +136,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			//Refresh token 10min before it actually expires
 			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;
 			if(!isNaN(delay) && delay > 0) {
-				this._refreshTimeout = window.setTimeout(()=>this.refreshToken(), delay);
+				this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
 			}
 			this._headers = {
 				"Accept":"application/json",
@@ -225,14 +229,22 @@ export default class SpotifyHelper extends EventDispatcher {
 		const options = {
 			headers:this._headers
 		}
-		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
+		let res!:Response;
+		try {
+			res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
+			if(res.status > 401) throw("error");
+		}catch(error) {
+			//API crashed, try again 5s later
+			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+			return;
+		}
 		if(res.status == 401) {
 			await this.refreshToken();
 			return;
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
-			this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 10000);
+			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 10000);
 			return;
 		}
 		
@@ -242,6 +254,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				const episode = await this.getEpisodeInfos();
 				if(episode) json = episode;
 			}
+
 
 			this.currentTrack = {
 				type:"music",
@@ -257,27 +270,53 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(this.isPlaying) {
 				let delay = json.item.duration_ms - json.progress_ms;
 				if(isNaN(delay)) delay = 5000;
-				this._getTrackTimeout = window.setTimeout(()=> {
+				this._getTrackTimeout = setTimeout(()=> {
 					this.getCurrentTrack();
 				}, Math.min(5000, delay + 1000));
-
+				
+				//Broadcast to the triggers
+				if(!this._lastTrackInfo
+				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
+				|| this._lastTrackInfo?.title != this.currentTrack.title
+				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
+					const triggerData:MusicTriggerData = {
+						type: "musicEvent",
+						start:true,
+						music:this.currentTrack,
+					}
+					TriggerActionHandler.instance.onMessage(triggerData);
+				}
+				
 				//Broadcast to the overlays
-				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+				const apiData = {
 					trackName: this.currentTrack.title,
 					artistName: this.currentTrack.artist,
 					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
 					cover: this.currentTrack.cover,
-				});
+					params: StoreProxy.store.state.musicPlayerParams,
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
+
 				this._lastTrackInfo = this.currentTrack;
 
 			}else{
 				//Broadcast to the overlays
 				if(this._lastTrackInfo != null) {
-					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK);
+					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
+						params: StoreProxy.store.state.musicPlayerParams,
+					});
+
+					//Broadcast to the triggers
+					const triggerData:MusicTriggerData = {
+						type: "musicEvent",
+						start:false,
+					}
+					TriggerActionHandler.instance.onMessage(triggerData);
+
 					this._lastTrackInfo = null;
 				}
-				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
 		}
 	}

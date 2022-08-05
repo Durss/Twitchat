@@ -26,6 +26,8 @@ export default class TwitchatEvent extends Event {
 	public static TIMER_START:TwitchatEventType = "TIMER_START";
 	public static TIMER_STOP:TwitchatEventType = "TIMER_STOP";
 	public static TIMER_OVERLAY_PRESENCE:TwitchatEventType = "TIMER_OVERLAY_PRESENCE";
+	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
+	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -49,6 +51,10 @@ export default class TwitchatEvent extends Event {
 	public static GET_WHEEL_OVERLAY_PRESENCE:TwitchatActionType = "GET_WHEEL_OVERLAY_PRESENCE";
 	public static GET_TIMER_OVERLAY_PRESENCE:TwitchatActionType = "GET_TIMER_OVERLAY_PRESENCE";
 	public static GET_CURRENT_TIMERS:TwitchatActionType = "GET_CURRENT_TIMERS";
+	public static SET_EMERGENCY_MODE:TwitchatActionType = "SET_EMERGENCY_MODE";
+	public static GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatActionType = "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
+	public static SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE:TwitchatActionType = "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE";
+	public static SHOW_CLIP:TwitchatActionType = "SHOW_CLIP";
 
 	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -76,6 +82,8 @@ export type TwitchatEventType =
 	| "TIMER_START"
 	| "TIMER_STOP"
 	| "TIMER_OVERLAY_PRESENCE"
+	| "EMERGENCY_MODE"
+	| "CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
 ;
 
 export type TwitchatActionType =
@@ -100,4 +108,8 @@ export type TwitchatActionType =
 	| "WHEEL_OVERLAY_START"
 	| "GET_CURRENT_TIMERS"
 	| "GET_TIMER_OVERLAY_PRESENCE"
+	| "SET_EMERGENCY_MODE"
+	| "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
+	| "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE"
+	| "SHOW_CLIP"
 ;

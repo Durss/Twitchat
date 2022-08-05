@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import store from '@/store';
+import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -41,7 +41,7 @@ export default class Confirm extends Vue {
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("keydown", this.keyDownHandler);
-		watch(() => store.state.confirm, async () => {
+		watch(() => StoreProxy.store.state.confirm, async () => {
 			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
 		});
@@ -53,7 +53,7 @@ export default class Confirm extends Vue {
 	}
 
 	public onConfirmChanged():void {
-		let hidden = !store.state.confirm || !store.state.confirm.title;
+		let hidden = !StoreProxy.store.state.confirm || !StoreProxy.store.state.confirm.title;
 		
 		if(this.hidden == hidden) return;//No change, ignore
 		let holder = this.$refs.holder as HTMLElement;
@@ -61,10 +61,10 @@ export default class Confirm extends Vue {
 
 		if(!hidden) {
 			this.hidden = hidden;
-			this.title = store.state.confirm.title;
-			this.description = store.state.confirm.description;
-			this.yesLabel = store.state.confirm.yesLabel || "Yes";
-			this.noLabel = store.state.confirm.noLabel || "No";
+			this.title = StoreProxy.store.state.confirm.title;
+			this.description = StoreProxy.store.state.confirm.description;
+			this.yesLabel = StoreProxy.store.state.confirm.yesLabel || "Yes";
+			this.noLabel = StoreProxy.store.state.confirm.noLabel || "No";
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
@@ -104,15 +104,15 @@ export default class Confirm extends Vue {
 	}
 
 	public answer(confirm = false):void {
-		if(!store.state.confirm.title) return;
+		if(!StoreProxy.store.state.confirm.title) return;
 		
 		if(confirm) {
-			if(store.state.confirm.confirmCallback) {
-				store.state.confirm.confirmCallback();
+			if(StoreProxy.store.state.confirm.confirmCallback) {
+				StoreProxy.store.state.confirm.confirmCallback();
 			}
 		}else{
-			if(store.state.confirm.cancelCallback) {
-				store.state.confirm.cancelCallback();
+			if(StoreProxy.store.state.confirm.cancelCallback) {
+				StoreProxy.store.state.confirm.cancelCallback();
 			}
 		}
 		const confirmData = {
@@ -123,7 +123,7 @@ export default class Confirm extends Vue {
 			confirmCallback : () => { /*ignore*/ },
 			cancelCallback : () =>  { /*ignore*/ }
 		}
-		store.dispatch("confirm", confirmData);
+		StoreProxy.store.dispatch("confirm", confirmData);
 	}
 }
 </script>

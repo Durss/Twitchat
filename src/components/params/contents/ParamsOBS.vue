@@ -3,7 +3,7 @@
 		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
 
 		<div class="head">
-			<p>Create your own twitch alerts and allow your mods basic control over your OBS</p>
+			<p>Create your own twitch alerts, allow your mods basic control over your OBS and much more</p>
 			<p class="install">In order to work, this needs <strong>OBS v27.2+</strong> and <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
 		</div>
 
@@ -76,18 +76,18 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import store from '@/store';
-import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import Store from '@/store/Store';
+import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
-import OBSScenes from './obs/OBSScenes.vue';
 import OBSFilters from './obs/OBSFilters.vue';
+import OBSScenes from './obs/OBSScenes.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
 
 
 @Options({
@@ -125,9 +125,9 @@ export default class ParamsOBS extends Vue {
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
 	public mounted():void {
-		const port = Store.get("obsPort");
-		const pass = Store.get("obsPass");
-		const ip = Store.get("obsIP");
+		const port = Store.get(Store.OBS_PORT);
+		const pass = Store.get(Store.OBS_PASS);
+		const ip = Store.get(Store.OBS_IP);
 		if(port != undefined) this.obsPort_conf.value = port;
 		if(pass != undefined) this.obsPass_conf.value = pass;
 		if(ip != undefined) this.obsIP_conf.value = ip;
@@ -139,8 +139,7 @@ export default class ParamsOBS extends Vue {
 			this.openConnectForm = true;
 		}
 		
-
-		const storedPermissions = store.state.PermissionsForm;
+		const storedPermissions = StoreProxy.store.state.obsCommandsPermissions;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
@@ -174,7 +173,7 @@ export default class ParamsOBS extends Vue {
 			this.paramUpdate();
 			this.connected = true;
 			this.connectSuccess = true;
-			window.setTimeout(()=> {
+			setTimeout(()=> {
 				this.connectSuccess = false;
 				this.openConnectForm = false;
 			}, 3000);
@@ -192,7 +191,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		store.dispatch("setPermissionsForm", this.permissions);
+		StoreProxy.store.dispatch("setObsCommandsPermissions", this.permissions);
 	}
 
 	/**
@@ -200,9 +199,9 @@ export default class ParamsOBS extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		Store.set("obsPort", this.obsPort_conf.value);
-		Store.set("obsPass", this.obsPass_conf.value);
-		Store.set("obsIP", this.obsIP_conf.value);
+		Store.set(Store.OBS_PORT, this.obsPort_conf.value);
+		Store.set(Store.OBS_PASS, this.obsPass_conf.value);
+		Store.set(Store.OBS_IP, this.obsIP_conf.value);
 	}
 }
 </script>
