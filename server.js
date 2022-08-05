@@ -656,7 +656,7 @@ const UserDataSchema = {
 				}
 			}
 		},
-		obsConf_muteUnmuteobsConf_muteUnmute: {
+		obsConf_muteUnmute: {
 			type:"object",
 			properties: {
 				audioSourceName:{type:"string"},
