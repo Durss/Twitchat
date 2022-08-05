@@ -6,6 +6,10 @@ import { Event } from './EventDispatcher';
 */
 export default class TwitchatEvent extends Event {
 	//Events
+	public static TEXT_UPDATE:string = "TEXT_UPDATE";
+	public static ACTION_BATCH:string = "ACTION_BATCH";
+	public static SPEECH_END:string = "SPEECH_END";
+
 	public static MESSAGE_READ:TwitchatEventType = "MESSAGE_READ";
 	public static MESSAGE_NON_FOLLOWER:TwitchatEventType = "MESSAGE_NON_FOLLOWER";
 	public static MESSAGE_FILTERED:TwitchatEventType = "MESSAGE_FILTERED";
@@ -70,7 +74,10 @@ export default class TwitchatEvent extends Event {
 }
 
 export type TwitchatEventType =
-	"MESSAGE_READ"
+	"TEXT_UPDATE"
+	| "ACTION_BATCH"
+	| "SPEECH_END"
+	| "MESSAGE_READ"
 	| "MESSAGE_NON_FOLLOWER"
 	| "MESSAGE_FILTERED"
 	| "MESSAGE_DELETED"

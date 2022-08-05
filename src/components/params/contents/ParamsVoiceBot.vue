@@ -9,6 +9,11 @@
 			<p class="infos">Please use Google Chrome, Microsoft Edge or Safari.</p>
 		</div>
 
+		<div v-if="!voiceApiAvailable" class="fallback">
+			<p>If you still want to use Twitchat on the current browser, you can open the following page on one of the compatible browsers:</p>
+			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
+		</div>
+
 		<div v-if="voiceApiAvailable">
 			<VoiceControlForm v-if="obsConnected" class="form" />
 	
@@ -39,6 +44,11 @@ import Config from '@/utils/Config';
 export default class ParamsVoiceBot extends Vue {
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get voicePageUrl():string {
+		let url = document.location.origin;
+		url += this.$router.resolve({name:"voice"}).href;
+		return url;
+	}
 
 	public get voiceApiAvailable():boolean {
 		return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT;
@@ -80,6 +90,13 @@ export default class ParamsVoiceBot extends Vue {
 		.button {
 			margin-top: .5em;
 		}
+	}
+
+	.fallback {
+		margin-top: 1em;
+		border: 1px solid @mainColor_normal;
+		border-radius: 1em;
+		padding: .5em;
 	}
 }
 </style>

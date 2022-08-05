@@ -14,10 +14,10 @@ export default class VoiceController {
 	private static _instance:VoiceController;
 	
 	public lang:string = "en-US";
-	public tempText:string = "";
-	public finalText:string = "";
 	public started:boolean = false;
-
+	
+	private finalText:string = "";
+	private tempText:string = "";
 	private lastTriggerKey:string = "";
 	private lastTriggerAction:VoiceAction|null = null;
 	private ignoreResult:boolean = false;

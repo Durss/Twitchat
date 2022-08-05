@@ -60,7 +60,7 @@ export default class UserList extends Vue {
 	public userClasses(name:string):string[] {
 		let res = ["user"];
 		if(StoreProxy.store.state.params.appearance.highlightNonFollowers.value === true
-		&& !StoreProxy.store.state.followingStatesByNames[name.toLowerCase()]) res.push("noFollow");
+		&& StoreProxy.store.state.followingStatesByNames[name.toLowerCase()] === false) res.push("noFollow");
 		return res;
 	}
 

@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import router from '@/router';
 import { Options, Vue } from 'vue-class-component';
 import OverlayMusicPlayer from '../components/overlays/OverlayMusicPlayer.vue';
 import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue';
@@ -29,7 +28,7 @@ export default class Overlay extends Vue {
 	public overlay = "";
 
 	public mounted():void {
-		this.overlay = router.currentRoute.value.params.id as string;
+		this.overlay = this.$router.currentRoute.value.params.id as string;
 	}
 
 }

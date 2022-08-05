@@ -66,6 +66,10 @@ const store = createStore({
 		onlineUsers: [] as string[],
 		voiceActions: [] as VoiceAction[],
 		voiceLang: "en-US",
+		voiceText: {
+			tempText:"",
+			finalText:"",
+		},
 		raffle: null as RaffleData | null,
 		chatPoll: null as ChatPollData | null,
 		bingo: null as BingoData | null,
@@ -1461,7 +1465,6 @@ const store = createStore({
 		refreshAuthToken({commit}, payload:()=>boolean) { commit("authenticate", {cb:payload, forceRefresh:true}); },
 
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
-			console.log("START APP");
 			let jsonConfigs;
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
@@ -1501,6 +1504,15 @@ const store = createStore({
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
+				state.voiceText.tempText = (e.data as {text:string}).text;
+				state.voiceText.finalText = "";
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
+				state.voiceText.finalText = (e.data as {text:string}).text;
 			});
 			PublicAPI.instance.initialize();
 
@@ -1729,7 +1741,6 @@ const store = createStore({
 				//If non followers highlight option is enabled, get follow state of
 				//all the users that joined
 				if(state.params.appearance.highlightNonFollowers.value === true) {
-					console.log("LOAD STATES", data);
 					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
 					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
 					for (let i = 0; i < usersFull.length; i++) {

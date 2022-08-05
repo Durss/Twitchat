@@ -21,7 +21,7 @@ gsap.registerPlugin(ScrollToPlugin);
  * Add route guards for login
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-	const needAuth = to.meta.needAuth;
+	const needAuth = to.meta.needAuth !== false;
 	const transparent = to.meta.noBG;
 	if(transparent) {
 		document.body.style.backgroundColor = "transparent";
@@ -47,6 +47,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	}
 
 	if (!store.state.authenticated) {
+		console.log("REroute ?")
 		//Not authenticated, reroute to login
 		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
 			next({name: 'login', params: {redirect: to.name?.toString()}});

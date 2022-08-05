@@ -7,8 +7,8 @@
 		<Button v-if="started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight />
 		
 		<ToggleBlock title="Speak to see the result" :enabled="false" class="block" v-if="started">
-			<div class="temp" v-if="tempText">{{tempText}}</div>
-			<div class="final" v-if="finalText && !tempText">{{finalText}}</div>
+			<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
+			<div class="final" v-if="finalText">{{finalText}}</div>
 		</ToggleBlock>
 
 		<VoiceTriggerList class="block" />
@@ -40,8 +40,8 @@ export default class VoiceControlForm extends Vue {
 	public lang:string = "";
 
 	public get started():boolean { return VoiceController.instance.started; }
-	public get tempText():string { return VoiceController.instance.tempText; }
-	public get finalText():string { return VoiceController.instance.finalText; }
+	public get tempText():string { return StoreProxy.store.state.voiceText.tempText; }
+	public get finalText():string { return StoreProxy.store.state.voiceText.finalText; }
 
 	public beforeMount():void {
 		let userLang = navigator.language;

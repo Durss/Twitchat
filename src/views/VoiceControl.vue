@@ -1,9 +1,9 @@
 <template>
 	<div class="voicecontrol">
 		<div class="block head">
-			<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
+			<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
 			<p>This page allows you to control <strong>Twitchat</strong> and some twitch features with your voice</p>
-			<p class="install">In order to work, this needs <strong>OBS v27.2+</strong> and <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
+			<p class="install">In order to work, this needs <strong>OBS v28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
 		</div>
 
 		<ToggleBlock class="block conf"

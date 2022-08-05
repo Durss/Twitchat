@@ -79,6 +79,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: VoiceControl,
 		meta: {
 			overflow:true,
+			needAuth:true,
 		}
 	},
 	{

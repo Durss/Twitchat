@@ -13,7 +13,6 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import router from '@/router';
 import Store from '@/store/Store';
 import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
@@ -72,7 +71,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	private onParamChanged():void {
-		let path = router.resolve({name:'chatLight', params:{login:UserSession.instance.authToken.login}}).href;
+		let path = this.$router.resolve({name:'chatLight', params:{login:UserSession.instance.authToken.login}}).href;
 		//eslint-disable-next-line
 		const params:any = {};
 		for (const cat in StoreProxy.store.state.params) {

@@ -7,7 +7,7 @@
 			:open="actions.length == 0"
 		/>
 
-		<Button :icon="$image('icons/add.svg')" title="Add action" class="addBt"
+		<Button :icon="$image('icons/add.svg')" title="Add voice action" class="addBt"
 			@click="addAction()"
 			:disabled="getActionIDs().length == 0 || !globalCommandsOK"
 		/>

@@ -1,7 +1,7 @@
 <template>
 	<div class="voicetranscript">
 		<!-- <img src="@/assets/icons/microphone.svg" alt="microphone"> -->
-		<div class="holder" ref="holder" v-if="show" @click="hide()">
+		<div class="holder" ref="holder" v-if="show" @click="hide(true)">
 			<div class="padder">
 				<div class="text">{{text}}</div>
 			</div>
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import VoiceController from '@/utils/VoiceController';
+import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -24,36 +24,38 @@ export default class VoiceTranscript extends Vue {
 	public show:boolean = false;
 
 	public get text():string {
-		return VoiceController.instance.currentText;
+		if(StoreProxy.store.state.voiceText.tempText) return StoreProxy.store.state.voiceText.tempText;
+		return StoreProxy.store.state.voiceText.finalText;
 		// return "Cillum reprehenderit incididunt";
 		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
 	}
 
 	public mounted():void {
-		watch(()=> VoiceController.instance.tempText, async ()=>{
-			const res = VoiceController.instance.tempText !== "";
-			if(res) {
-				if(!this.show){
-					this.show = true;
-					await this.$nextTick();
-					const holder = this.$refs.holder as HTMLDivElement;
-					gsap.killTweensOf(holder);
-					gsap.to(holder, {duration:.25, y:"0%"});
-				}
-			}else if(this.show){
+		watch(()=> StoreProxy.store.state.voiceText.tempText, async ()=>{
+			if(!this.show){
+				this.show = true;
+				await this.$nextTick();
 				const holder = this.$refs.holder as HTMLDivElement;
 				gsap.killTweensOf(holder);
-				const delay = Math.min(2, VoiceController.instance.finalText.length * .025);
-				gsap.to(holder, {delay, duration:.25, y:"120%", clearProps:"all", onComplete:()=>{
-					this.show = false;
-				}});
+				gsap.to(holder, {duration:.25, y:"0%"});
+			}
+		});
+		watch(()=> StoreProxy.store.state.voiceText.finalText, async (value:string)=>{
+			if(value != "") {
+				this.hide();
 			}
 		});
 	}
 
-	public hide():void {
-		VoiceController.instance.tempText = "";
-		VoiceController.instance.finalText = "";
+	public hide(force:boolean = false):void {
+		const holder = this.$refs.holder as HTMLDivElement;
+		gsap.killTweensOf(holder);
+		let len = StoreProxy.store.state.voiceText.finalText.length;
+		if(isNaN(len) || len < 0) len = 1;
+		const delay = force? 0 : Math.min(2, len * .025);
+		gsap.to(holder, {delay, duration:.25, y:"120%", clearProps:"all", onComplete:()=>{
+			this.show = false;
+		}});
 	}
 
 }

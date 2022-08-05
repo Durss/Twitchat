@@ -80,7 +80,6 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import router from '@/router';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
@@ -148,7 +147,7 @@ export default class Login extends Vue {
 	public async mounted():Promise<void> {
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
-		let redirect = router.currentRoute.value.params?.redirect;
+		let redirect = this.$router.currentRoute.value.params?.redirect;
 
 		if(redirect) {
 			Store.set("redirect", redirect, false);

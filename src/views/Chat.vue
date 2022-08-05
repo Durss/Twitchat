@@ -432,7 +432,7 @@ export default class Chat extends Vue {
 				StoreProxy.store.state.params.appearance.showViewersCount.value = !StoreProxy.store.state.params.appearance.showViewersCount.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
-				
+
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
 				StoreProxy.store.state.params.features.showModTools.value = !StoreProxy.store.state.params.features.showModTools.value;
 				StoreProxy.store.dispatch('updateParams');
@@ -479,7 +479,12 @@ export default class Chat extends Vue {
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.STOP_RAFFLE:{
-				StoreProxy.store.dispatch("stopRaffle");
+				this.$confirm("Close raffle", "All raffle entries will be lost", undefined, undefined, undefined, true)
+				.then(async ()=> {
+					StoreProxy.store.dispatch("stopRaffle");
+				}).catch(()=> {
+					//ignore
+				});
 				break;
 			}
 

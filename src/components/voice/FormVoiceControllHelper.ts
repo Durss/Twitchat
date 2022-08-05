@@ -3,6 +3,14 @@ import type { TwitchatActionType } from '@/utils/TwitchatEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
 
+/**
+ * There's a VERY strange issue I couldn't figure out so far.
+ * If instanciating this class on the Confirm view in its mounted()
+ * then an later instance of this class will simply not work.
+ * No PublicAPI callback will be called.
+ * I've worked around this by instanciating this class on the
+ * Confirm view only on its open and destroying it on its close.
+ */
 export default class FormVoiceControllHelper {
 	
 	public enabled:boolean = true;

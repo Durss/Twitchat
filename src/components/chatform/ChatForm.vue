@@ -181,6 +181,7 @@
 
 <script lang="ts">
 import { TwitchatAdTypes, type BingoConfig } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
@@ -258,6 +259,7 @@ export default class ChatForm extends Vue {
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
+		if(Config.instance.OBS_DOCK_CONTEXT) return false;
 		const actions = Object.keys(VoiceAction);
 		type VAKeys = keyof typeof VoiceAction;
 		//Search for global labels
@@ -479,7 +481,6 @@ export default class ChatForm extends Vue {
 					for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
 						const m = StoreProxy.store.state.chatMessages[i];
 						if(m.type == "message") {
-							console.log("Answer to", m);
 							tags["reply-parent-msg-id"] = m.tags.id;
 							break;
 						}
