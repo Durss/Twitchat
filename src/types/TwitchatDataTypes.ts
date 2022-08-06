@@ -265,6 +265,31 @@ export interface TimerData {
 	duration?:number;
 }
 
+export interface TTSParamsData {
+	enabled: boolean;
+	volume: number;
+	rate: number;
+	pitch: number;
+	voice: string;
+	removeEmotes: boolean;
+	speakPatternmessage: string;
+	speakPatternwhisper: string;
+	speakPatternnotice: string;
+	maxLength: number;
+	timeout: number;
+	removeURL: boolean;
+	replaceURL: string;
+	inactivityPeriod: number;
+	speakRewards: boolean;
+	speakSubs: boolean;
+	speakBits: boolean;
+	speakRaids: boolean;
+	speakFollow: boolean;
+	speakPolls: boolean;
+	speakPredictions: boolean;
+	ttsPerms:PermissionsData;
+}
+
 export interface EmergencyParamsData {
 	enabled:boolean;
 	chatCmd:string;

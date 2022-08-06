@@ -119,19 +119,6 @@ export default class ParamsList extends Vue {
 		];
 	}
 
-	public get ttsPlaceholders():PlaceholderEntry[] {
-		return [
-			{
-				tag:"USER",
-				desc:"User name",
-			},
-			{
-				tag:"MESSAGE",
-				desc:"Message",
-			},
-		];
-	}
-
 	public get params():{[key:string]:ParameterData} {
 		let res:{[key:string]:ParameterData} = {};
 		if(this.filteredParams?.length > 0) {

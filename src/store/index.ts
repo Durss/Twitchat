@@ -29,7 +29,7 @@ import TTSUtils from '@/utils/TTSUtils';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -323,36 +323,6 @@ const store = createStore({
 				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
 				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
 			} as {[key:string]:ParameterData},
-			tts: {
-				ttsEnabled:	 				{save:true, type:"toggle", value:false, label:"Enable text to speech", id:400},
-				volume: 					{save:true, type:"slider", value:1, label:"Volume", id:401, parent:400, min:0, max:1, step:0.1},
-				rate: 						{save:true, type:"slider", value:1, label:"Speed", id:402, parent:400, min:0.1, max:10, step:0.1},
-				pitch: 						{save:true, type:"slider", value:1, label:"Pitch", id:403, parent:400, min:0, max:2, step:0.1},
-				voice:						{save:true, type:"list", value:'Microsoft Hortense - French (France)', listValues:TTSUtils.instance.getVoices()?.map(x => { return {label:x.name, value:x.name} }), label:"voice", id:404, parent:400},
-				ttsRemoveEmotes:			{save:true, type:"toggle", value:true, label:"Speak emotes", id:412, parent:400},
-				speakPatternmessage:		{save:true, type:"text", value:'$USER says $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:405, parent:400, longText:true},
-				speakPatternwhisper:		{save:true, type:"text", value:'$USER whispers $MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:407, parent:400},
-				speakPatternnotice:			{save:true, type:"text", value:'$MESSAGE', label:"Spoken pattern ($USER, $MESSAGE), empty=mute", id:406, parent:400},
-				maxLength:					{save:true, type:"slider", value:200, label:"Max spoken text length (0=unlimited)", id:408, parent:400, min:0, max:2000, step:10},
-				timeout: 					{save:true, type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", id:409, parent:400, min:0, max:300, step:10},
-				removeURL:		 			{save:true, type:"toggle", value:true, label:"Remove URL", id:410, parent:400},
-				replaceURL:		 			{save:true, type:"text", value:'url', label:"Replace by", id:411, parent:410},
-				inactivityPeriod:			{save:true, type:"slider", value:5, label:"Inactivity period (minutes)", id:413, parent:400, min:0, max:60, step:1},
-				speakRewards: 				{save:true, type:"toggle", value:true, label:"Speak rewards redeemed", id:414, icon:"channelPoints_purple.svg"},
-				speakSubs: 					{save:true, type:"toggle", value:true, label:"Speak sub alerts", id:416, icon:"sub_purple.svg"},
-				speakBits: 					{save:true, type:"toggle", value:true, label:"Speak bit alerts", id:417, icon:"bits_purple.svg"},
-				speakRaids: 				{save:true, type:"toggle", value:true, label:"Speak raid alerts", id:418, icon:"raid_purple.svg"},
-				speakFollow: 				{save:true, type:"toggle", value:true, label:"Speak follow alerts", id:419, icon:"follow_purple.svg"},
-				speakPolls: 				{save:true, type:"toggle", value:true, label:"Speak polls", id:420, icon:"follow_purple.svg"},
-				speakPredictions: 			{save:true, type:"toggle", value:true, label:"Speak predictions", id:421, icon:"follow_purple.svg"},
-				speakBingos: 				{save:true, type:"toggle", value:true, label:"Speak bingos", id:422, icon:"follow_purple.svg"},
-				speakRaffle: 				{save:true, type:"toggle", value:true, label:"Speak raffles", id:423, icon:"follow_purple.svg"},
-				tts_mods:					{save:true, type:"toggle", value:true, label:"Moderators", id:424, icon:"mod_purple.svg" },
-				tts_vips:					{save:true, type:"toggle", value:false, label:"VIPs", id:425, icon:"vip_purple.svg" },
-				tts_subs:					{save:true, type:"toggle", value:false, label:"Subscribers", id:426, icon:"sub_purple.svg" },
-				tts_all:					{save:true, type:"toggle", value:false, label:"Everyone", id:427, icon:"user_purple.svg" },
-				tts_users:					{save:true, type:"text", value:"", label:"Specific users", id:428, longText:true, placeholder:"user1, user2, user3, ..." },
-			} as {[key:string]:ParameterData}
 		} as IParameterCategory,
 
 		roomStatusParams: {
@@ -374,6 +344,38 @@ const store = createStore({
 			yesLabel:"",
 			noLabel:"",
 		},
+		ttsParams: {
+			enabled:false,
+			volume:1,
+			rate:1,
+			pitch:1,
+			voice:'Microsoft Hortense - French (France)',
+			maxLength:200,
+			timeout:60,
+			removeEmotes:true,
+			removeURL:true,
+			replaceURL:'url',
+			inactivityPeriod:5,
+			speakPatternmessage:'$USER says $MESSAGE',
+			speakPatternwhisper:'$USER whispers $MESSAGE',
+			speakPatternnotice:'$MESSAGE',
+			speakRewards:true,
+			speakSubs:true,
+			speakBits:true,
+			speakRaids:true,
+			speakFollow:true,
+			speakPolls:true,
+			speakPredictions:true,
+			speakBingos:true,
+			speakRaffle:true,
+			ttsPerms:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as TTSParamsData,
 
 		emergencyParams: {
 			enabled:false,
@@ -917,9 +919,6 @@ const store = createStore({
 							SevenTVUtils.instance.disable();
 						}
 					}
-					if(key=="ttsEnabled") {
-						TTSUtils.instance.enable(v as boolean);
-					}
 				}
 			}
 		},
@@ -1335,6 +1334,12 @@ const store = createStore({
 			state.countdown = null;
 		},
 
+		setTTSParams(state, params:TTSParamsData) {
+			state.ttsParams = params;
+			Store.set(Store.TTS_PARAMS, params);
+			TTSUtils.instance.enable(params.enabled);
+		},
+
 		setEmergencyParams(state, params:EmergencyParamsData) {
 			state.emergencyParams = params;
 			Store.set(Store.EMERGENCY_PARAMS, params);
@@ -1741,11 +1746,6 @@ const store = createStore({
 				}
 			});
 
-			setTimeout(() => { // TODO: not a clean solution, how to know state is loaded?
-				console.log(state.params.tts.ttsEnabled.value);
-				TTSUtils.instance.enable(state.params.tts.ttsEnabled.value as boolean);				
-			}, 2000);
-
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
 				const data = event.data as IRCEventDataList.JoinList;
 				const users = data.users;
@@ -2013,6 +2013,13 @@ const store = createStore({
 			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
 				state.obsCommandsPermissions = JSON.parse(obsCommandsPermissions);
+			}
+
+			//Init TTS actions
+			const tts = Store.get(Store.TTS_PARAMS);
+			if (tts) {
+				state.ttsParams = JSON.parse(tts);
+				TTSUtils.instance.enable(state.ttsParams.enabled as boolean);
 			}
 			
 			//Init emergency actions
@@ -2343,6 +2350,8 @@ const store = createStore({
 		},
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },
+
+		setTTSParams({commit}, params:TTSParamsData) { commit("setTTSParams", params); },
 		
 		setEmergencyParams({commit}, params:EmergencyParamsData) { commit("setEmergencyParams", params); },
 		

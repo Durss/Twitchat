@@ -36,6 +36,7 @@
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
 				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
 				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
+				<ParamsTTS v-if="content == 'tts'" @setContent="setContent" />
 				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
 				<ParamsAlert v-if="content == 'alert'" @setContent="setContent" />
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
@@ -70,6 +71,7 @@ import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
+import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
 import StoreProxy from '@/utils/StoreProxy';
@@ -91,6 +93,7 @@ import ParamsAlert from './contents/ParamsAlert.vue';
 		ParamsOverlays,
 		ParamsTriggers,
 		ParamsEmergency,
+		ParamsTTS,
 		ParamsStreamdeck,
 	}
 })
@@ -112,7 +115,6 @@ export default class Parameters extends Vue {
 		return this.content == "features"
 			|| this.content == "appearance"
 			|| this.content == "filters"
-			|| this.content == "tts"
 			|| this.search.length>0;
 	}
 

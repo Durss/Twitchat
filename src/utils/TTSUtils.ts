@@ -34,7 +34,7 @@ export default class TTSUtils {
 	constructor() {
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
 			this.voices = window.speechSynthesis.getVoices();
-			StoreProxy.store.state.params.tts.voice.listValues = this.voices.map(x => { return {label:x.name, value:x.name} });
+			// StoreProxy.store.state.ttsParams.voice.listValues = this.voices.map(x => { return {label:x.name, value:x.name} });
 		};
 		this.addMessageHandler = (e:IRCEvent)=> this.onAddMessage(e);
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
@@ -50,7 +50,6 @@ export default class TTSUtils {
 
 		return TTSUtils._instance;
 	}
-
 	
 	
 	/******************
@@ -60,20 +59,18 @@ export default class TTSUtils {
 	 * Enables TTS
 	 */
 	 public async enable(enable: boolean):Promise<void> {
-		this.enabled = enable;
-		console.log('enable', enable);
-		
-		if (enable) {
-			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.NOTICE, this.addMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
-		} else {
+		 if (enable && !this.enabled) {
+			 IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+			 IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
+			 IRCClient.instance.addEventListener(IRCEvent.NOTICE, this.addMessageHandler);
+			 IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
+		} else if (!enable && this.enabled) {
 			IRCClient.instance.removeEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 			IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
 			IRCClient.instance.removeEventListener(IRCEvent.NOTICE, this.addMessageHandler);
 			IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
 		}
+		this.enabled = enable;
 	}
 
     /**
@@ -91,8 +88,6 @@ export default class TTSUtils {
 
 	private onAddMessage(e:IRCEvent):void {
 		const message = e.data as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper|IRCEventDataList.Notice|IRCEventDataList.PollResult|IRCEventDataList.PredictionResult;
-		console.log(message);
-		
 		this.processMessage(message);
 	}
 
@@ -103,7 +98,7 @@ export default class TTSUtils {
 	}
 
 	private processMessage(message:IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper|IRCEventDataList.Notice|IRCEventDataList.PollResult|IRCEventDataList.PredictionResult) {
-		const paramsTTS = StoreProxy.store.state.params.tts;
+		const paramsTTS = StoreProxy.store.state.ttsParams;
 		// const uid:string|undefined = message?.tags['user-id'];
 		let user: string|undefined;
 		let messageStr: string = message.type === "whisper"? message.params[1] : message.message as string;
@@ -113,40 +108,31 @@ export default class TTSUtils {
 			const lastMessageTime = this.lastMessageTime;
 			this.lastMessageTime = performance.now();
 			user = message?.tags['display-name'];
-			if (paramsTTS.inactivityPeriod.value > 0 && (performance.now() - lastMessageTime <= paramsTTS.inactivityPeriod.value * 1000 * 60)) {
+			if (paramsTTS.inactivityPeriod > 0 && (performance.now() - lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
 				return;
 			}
-			if (paramsTTS['speakPattern'+message.type].value === '') {
+			if (paramsTTS['speakPattern'+message.type] === '') {
 				return;
 			}
 			if(message.message && message.tags.username) {
-				const permissions: PermissionsData = {
-					vips: paramsTTS.tts_vips.value,
-					subs: paramsTTS.tts_subs.value,
-					mods: paramsTTS.tts_subs.value,
-					all: paramsTTS.tts_all.value,
-					users: paramsTTS.tts_users.value
-				}
-				
-				if(!Utils.checkPermissions(permissions, message.tags)) {
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.tags)) {
 					return;
 				}
 			}
-			messageStr = this.replacePattern(paramsTTS['speakPattern'+message.type].value, messageStr, user);
+			messageStr = this.replacePattern(paramsTTS['speakPattern'+message.type], messageStr, user);
 		} else if (message.type === 'whisper') {
-			if (paramsTTS['speakPattern'+message.type].value === '') {
+			if (paramsTTS['speakPattern'+message.type] === '') {
 				return;
 			}
 			user = message?.tags['display-name'];
-			messageStr = this.replacePattern(paramsTTS['speakPattern'+message.type].value, messageStr, user);
+			messageStr = this.replacePattern(paramsTTS['speakPattern'+message.type], messageStr, user);
 		} else if (message.type === 'notice') {
-			if (paramsTTS['speakPattern'+message.type].value === '') {
+			if (paramsTTS['speakPattern'+message.type] === '') {
 				return;
 			}			
 		} else if (message.type === 'poll') {
-			if(!paramsTTS.speakPolls.value) return;
+			if(!paramsTTS.speakPolls) return;
 			const pollData:IRCEventDataList.PollResult = message as IRCEventDataList.PollResult;
-			console.log(pollData, pollData.data, pollData.tags, pollData.winner, pollData['winner']);
 			const winner = pollData.data.choices.reduce((prev, elem) => {
 				if (elem.channel_points_votes > prev.channel_points_votes) {
 					return elem;
@@ -156,9 +142,8 @@ export default class TTSUtils {
 			
 			messageStr = "Poll result, winner is "+winner.title;
 		} else if (message.type === 'prediction') {
-			if(!paramsTTS.speakPredictions.value) return;
-			const predictionData:IRCEventDataList.PredictionResult = message as IRCEventDataList.PredictionResult;
-			
+			if(!paramsTTS.speakPredictions) return;
+			const predictionData:IRCEventDataList.PredictionResult = message as IRCEventDataList.PredictionResult;			
 			const winner = predictionData.data.outcomes.find(pred => pred.id === predictionData.data.winning_outcome_id);
 			if (winner) {
 				messageStr = "Prediction result, correct answer is "+winner.title;
@@ -166,10 +151,9 @@ export default class TTSUtils {
 	 	} else {
 			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = getType(message);
 			messageStr = message.tags['system-msg']
-			console.log(message.type, message.tags, type);
 			
 			if(type == "sub") {
-				if (!paramsTTS.speakSubs.value) return;
+				if (!paramsTTS.speakSubs) return;
 				
 				if(message.methods?.prime) {
 					messageStr = ""+message.username+" subscribed with Prime";
@@ -178,8 +162,6 @@ export default class TTSUtils {
 					if (message.username && !(message.username in this.giftedSubs)) {
 						this.giftedSubs[message.username] = 1;
 						setTimeout(() => {
-							console.log(this.giftedSubs[message.username!]);
-							
 							if(this.giftedSubs[message.username!] > 1) {
 								messageStr = ""+message.username+" gifted "+(this.giftedSubs[message.username!])+" Tier "+value;
 							} else {
@@ -188,10 +170,8 @@ export default class TTSUtils {
 							delete this.giftedSubs[message.username!];
 							this.speakText(messageStr, message.tags.id);
 						}, 5000);
-					} else if (message.username) {
-						
+					} else if (message.username) {						
 						this.giftedSubs[message.username]++;
-						console.log(this.giftedSubs[message.username!]);
 					} else {
 						// nothing
 					}
@@ -204,44 +184,42 @@ export default class TTSUtils {
 				}
 			}
 			else if(type == "reward") {
-				if(!paramsTTS.speakRewards.value) return;
+				if(!paramsTTS.speakRewards) return;
 				const localObj = message.reward as PubSubDataTypes.RewardData;				
 				messageStr = localObj.redemption.user.display_name+" redeemed the reward "+localObj.redemption.reward.title;
 			}
 			else if(type == "raid") {
-				if (!paramsTTS.speakRaids.value) return;
+				if (!paramsTTS.speakRaids) return;
 				messageStr = ""+message.username+" is raiding with a party of "+message.viewers+".";
 			}
 			else if(type == "bits") {
-				if(!paramsTTS.speakBits.value) return;
+				if(!paramsTTS.speakBits) return;
 				messageStr = ""+message.tags.username+" sent "+message.tags.bits+" bits";
 			}
 			else if(type == "follow") {
-				if(!paramsTTS.speakFollow.value) return;
+				if(!paramsTTS.speakFollow) return;
 				messageStr = ""+message.username+" followed your channel!";
 			}
 			else if(type == "bingo") {
-				if(!paramsTTS.speakBingos.value) return;
+				if(!paramsTTS.speakBingos) return;
 				messageStr = "";
 			}
 			else if(type == "raffle"){
-				if(!paramsTTS.speakRaffles.value) return;
+				if(!paramsTTS.speakRaffles) return;
 				messageStr = "";
 			}
 			else if(type == "commercial") return;
 			else if(type == "countdown") return;
-
-			console.log(type, messageStr);
 		}
 		
 		if (messageStr) {
-			if (paramsTTS.removeURL.value) {
-				messageStr = messageStr.replace(/(http[s]?|ftp):[^ ]*/g, paramsTTS.replaceURL.value);
+			if (paramsTTS.removeURL) {
+				messageStr = messageStr.replace(/(http[s]?|ftp):[^ ]*/g, paramsTTS.replaceURL);
 			}	
 	
-			messageStr = messageStr.substring(0, paramsTTS.maxLength.value || Number.MAX_VALUE);
-			if (paramsTTS.ttsRemoveEmotes) {
-				messageStr = TwitchUtils.parseEmotes(messageStr, undefined, true, true)[0].value;
+			messageStr = messageStr.substring(0, paramsTTS.maxLength || Number.MAX_VALUE);
+			if (paramsTTS.removeEmotes) {
+				messageStr = TwitchUtils.parseEmotes(messageStr, undefined, true, true).map(elem=>elem.value).join(' ');
 			}	
 			this.speakText(messageStr, message.tags.id);
 		}	
@@ -251,19 +229,19 @@ export default class TTSUtils {
 		if (!this.enabled) {
 			return;
 		}			
-		const paramsTTS = StoreProxy.store.state.params.tts;
+		const paramsTTS = StoreProxy.store.state.ttsParams;
 		
 		const mess = new SpeechSynthesisUtterance(messageStr);
-		mess.rate = paramsTTS.rate.value;
-		mess.pitch = paramsTTS.pitch.value;
-		mess.volume = paramsTTS.volume.value;
-		mess.voice = this.voices.find(x => x.name == paramsTTS.voice.value) || this.voices[0];
+		mess.rate = paramsTTS.rate;
+		mess.pitch = paramsTTS.pitch;
+		mess.volume = paramsTTS.volume;
+		mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
 		mess.lang = mess.voice.lang;
 		mess.onend = (ev: SpeechSynthesisEvent) => {
 			let nextMessage = this.pendingMessages.shift();
 			if (nextMessage) {
 				// check timeout
-				if (paramsTTS.timeout.value === 0 || performance.now() - nextMessage.wroteTime <= paramsTTS.timeout.value * 1000) {
+				if (paramsTTS.timeout === 0 || performance.now() - nextMessage.wroteTime <= paramsTTS.timeout * 1000) {
 					window.speechSynthesis.speak(nextMessage.voiceMessage);
 				}			
 			}			
