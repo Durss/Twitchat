@@ -131,8 +131,6 @@ export default class ParamsTTS extends Vue {
 		this.param_removeURL.children = [this.param_replaceURL];
 		Object.keys(params).forEach(
 			param => {
-				console.log(param, (this as any)['param_'+param]);
-				
 				if (typeof (params as any)[param] === "object") {
 					(this as any)['param_'+param] = (params as any)[param];
 				} else {
@@ -140,10 +138,9 @@ export default class ParamsTTS extends Vue {
 				}
 			}
 		);
-		console.log(this.param_voice.listValues);
 		
 		this.setVoices();
-		console.log(this.param_voice.listValues);
+
 		watch(()=>this.finalData, ()=> {
 			StoreProxy.store.dispatch("setTTSParams", this.finalData);
 		}, {deep:true});

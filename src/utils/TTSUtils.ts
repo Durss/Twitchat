@@ -33,11 +33,8 @@ export default class TTSUtils {
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
 	
 	constructor() {
-		// console.log(this.voices);
-		
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
 			this.voices = window.speechSynthesis.getVoices();
-			// console.log('updated', this.voices);
 		};
 		this.addMessageHandler = (e:IRCEvent)=> this.onAddMessage(e);
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
@@ -61,12 +58,12 @@ export default class TTSUtils {
 	/**
 	 * Enables TTS
 	 */
-	 public async enable(enable: boolean):Promise<void> {
-		 if (enable && !this.enabled) {
-			 IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-			 IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
-			 IRCClient.instance.addEventListener(IRCEvent.NOTICE, this.addMessageHandler);
-			 IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
+	public async enable(enable: boolean):Promise<void> {
+		if (enable && !this.enabled) {
+			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
+			IRCClient.instance.addEventListener(IRCEvent.NOTICE, this.addMessageHandler);
+			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
 		} else if (!enable && this.enabled) {
 			IRCClient.instance.removeEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 			IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
