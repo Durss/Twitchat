@@ -15,8 +15,8 @@
 		<Button aria-label="TTS"
 			:icon="$image('icons/tts.svg')"
 			data-tooltip="TTS"
-			@click="tts()"
-			v-if="!isBroadcaster"
+			@click="ttsRead()"
+			v-if="ttsEnabled"
 			/>
 		<Button aria-label="Highlight message"
 			:icon="$image('icons/highlight.svg')"
@@ -57,7 +57,8 @@ export default class ChatMessageHoverActions extends Vue {
 	public shoutoutLoading = false;
 	public highlightLoading = false;
 
-	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id }
+	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id; }
+	public get ttsEnabled():boolean { return StoreProxy.store.state.ttsParams.enabled; }
 
 	public trackUser():void {
 		StoreProxy.store.dispatch("trackUser", this.messageData);
@@ -74,8 +75,8 @@ export default class ChatMessageHoverActions extends Vue {
 		this.shoutoutLoading = false;
 	}
 
-	public tts() {
-		StoreProxy.store.dispatch("tts", this.messageData);
+	public ttsRead() {
+		StoreProxy.store.dispatch("ttsReadMessage", this.messageData);
 	}
 	
 	public async chatHighlight():Promise<void> {

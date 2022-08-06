@@ -1,7 +1,6 @@
-import type { PermissionsData } from "@/types/TwitchatDataTypes";
 import IRCClient from "./IRCClient";
 import IRCEvent from "./IRCEvent";
-import { getType, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
+import { getTwitchatMessageType, type IRCEventDataList } from "./IRCEventDataTypes";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import type PubSubEvent from "./PubSubEvent";
 import StoreProxy from "./StoreProxy";
@@ -82,7 +81,7 @@ export default class TTSUtils {
 		return this.voices;
     }
 
-	public speak(message: IRCEventDataList.Message) {
+	public read(message: IRCEventDataList.Message) {
 		this.processMessage(message);
 	}
 
@@ -148,8 +147,8 @@ export default class TTSUtils {
 			if (winner) {
 				messageStr = "Prediction result, correct answer is "+winner.title;
 			}
-	 	} else {
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = getType(message);
+		} else {
+			let type = getTwitchatMessageType(message);
 			messageStr = message.tags['system-msg']
 			
 			if(type == "sub") {

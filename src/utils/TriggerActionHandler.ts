@@ -3,7 +3,7 @@ import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
 import IRCClient from "./IRCClient";
-import type { IRCEventDataList } from "./IRCEventDataTypes";
+import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from "./IRCEventDataTypes";
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
@@ -69,69 +69,72 @@ export default class TriggerActionHandler {
 		// console.log("Execute next", message);
 
 		if((message.type == "message" || message.type == "highlight")) {
-			switch(message.tags["msg-id"]) {
-				case "follow": {
+			const type = getTwitchatMessageType(message);
+			switch(type) {
+				case TwitchatMessageType.FOLLOW: {
 					if(await this.handleFollower(message, testMode, this.currentSpoolGUID)) {
 						return;
 					}
 					break;
 				}
 
-				case "sub": 
-				case "resub": 
-				case "giftpaidupgrade": {
+				case TwitchatMessageType.SUB: 
+				case TwitchatMessageType.SUB_PRIME: 
+				case TwitchatMessageType.SUBGIFT_UPGRADE: {
 					if(await this.handleSub(message, testMode, this.currentSpoolGUID)) {
 						return;
 					}
 					break;
 				}
 				
-				case "subgift": {
+				case TwitchatMessageType.SUBGIFT: {
 					if(await this.handleSubgift(message, testMode, this.currentSpoolGUID)) {
 						return;
 					}
 					break;
 				}
 
-				case "raid": {
+				case TwitchatMessageType.RAID: {
 					if(await this.handleRaid(message, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
+
+				case TwitchatMessageType.REWARD: {
+					if(await this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
+
+				case TwitchatMessageType.BITS: {
+					if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
+
+				case TwitchatMessageType.BITS: {
+					if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
 						return;
 					}
 					break;
 				}
 			}
 
-			if(message.reward) {
-				if(await this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
-					return;
-				}
-			}else 
-			if(message.tags.bits) {
-				if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
-					return;
-				}
-			}else{
+			if(message.tags["first-msg"] === true) {
+				await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID);
+			}else
+			if(message.firstMessage === true) {
+				await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID);
+			}else
+			if(message.tags["returning-chatter"] === true) {
+				await this.handleReturningChatter(message, testMode, this.currentSpoolGUID);
+			}
 
-				if(message.tags["first-msg"] === true) {
-					if(await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID)) {
-						// return;
-					}
-				}else 
-				if(message.firstMessage === true) {
-					if(await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID)) {
-						// return;
-					}
-				}else 
-				if(message.tags["returning-chatter"] === true) {
-					if(await this.handleReturningChatter(message, testMode, this.currentSpoolGUID)) {
-						// return;
-					}
-				}
-				if(message.message) {
-					if(await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID)) {
-						// return;
-					}
-				}
+			if(message.message) {
+				await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
 			}
 
 		}else if(message.type == "prediction") {

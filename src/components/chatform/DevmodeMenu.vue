@@ -6,6 +6,7 @@
 			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="$image('icons/firstTime.svg')" />
 			<Button small title="Returning user" @click="simulateEvent('returningUser')" :icon="$image('icons/returning.svg')" />
 			<Button small title="Presentation" @click="simulateEvent('presentation')" :icon="$image('icons/firstTime.svg')" />
+			<Button small title="Highlighted message" @click="simulateEvent('highlighted')" :icon="$image('icons/firstTime.svg')" />
 			<Button small title="Raid" @click="simulateEvent('raided')" :icon="$image('icons/raid.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />

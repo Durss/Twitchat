@@ -15,22 +15,24 @@
 		<ParamItem class="item" :paramData="param_maxLength" />
 		<ParamItem class="item" :paramData="param_timeout" />
 		<ParamItem class="item" :paramData="param_inactivityPeriod" />
-		<InputPLaceHolder :paramData="param_speakPatternmessage" :placeholders="tts2Placeholders" />
-		<InputPLaceHolder :paramData="param_speakPatternwhisper" :placeholders="tts2Placeholders" />
-		<InputPLaceHolder :paramData="param_speakPatternnotice" :placeholders="tts1Placeholder" />
+		<InputPLaceHolder :paramData="param_readPatternmessage" :placeholders="tts2Placeholders" />
+		<InputPLaceHolder :paramData="param_readPatternwhisper" :placeholders="tts2Placeholders" />
+		<InputPLaceHolder :paramData="param_readPatternnotice" :placeholders="tts1Placeholder" />
 
 		<Splitter class="item splitter" title="Removal filters" />
 		<ParamItem class="item" :paramData="param_removeEmotes" />
 		<ParamItem class="item" :paramData="param_removeURL" />
 
 		<Splitter class="item splitter" title="Filters" />
-		<ParamItem class="item" :paramData="param_speakFollow" />
-		<ParamItem class="item" :paramData="param_speakSubs" />
-		<ParamItem class="item" :paramData="param_speakRaids" />
-		<ParamItem class="item" :paramData="param_speakRewards" />
-		<ParamItem class="item" :paramData="param_speakBits" />
-		<ParamItem class="item" :paramData="param_speakPolls" />
-		<ParamItem class="item" :paramData="param_speakPredictions" />
+		<ParamItem class="item" :paramData="param_readFollow" />
+		<ParamItem class="item" :paramData="param_readSubs" />
+		<ParamItem class="item" :paramData="param_readRaids" />
+		<ParamItem class="item" :paramData="param_readRewards" />
+		<ParamItem class="item" :paramData="param_readBits" />
+		<ParamItem class="item" :paramData="param_readPolls" />
+		<ParamItem class="item" :paramData="param_readBingos" />
+		<ParamItem class="item" :paramData="param_readRaffle" />
+		<ParamItem class="item" :paramData="param_readPredictions" />
 		<div>
 			<ToggleBlock title="Users filter" :open="false" small class="item">
 				<PermissionsForm v-model="param_ttsPerms" />
@@ -43,15 +45,14 @@
 <script lang="ts">
 import type { ParameterData, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
-import TTSUtils from '@/utils/TTSUtils';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
+import InputPLaceHolder from '../InputPLaceHolder.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
-import InputPLaceHolder from '../InputPLaceHolder.vue';
 
 @Options({
 	props:{},
@@ -71,21 +72,23 @@ export default class ParamsTTS extends Vue {
     public param_pitch:ParameterData = {type:"slider", value:1, label:"Pitch", min:0, max:2, step:0.1};
     public param_voice:ParameterData = {type:"list", value:'Microsoft Hortense - French (France)', listValues:[], label:"voice", id:404, parent:400};
     public param_removeEmotes:ParameterData = {type:"toggle", value:true, label:"Remove emotes"};
-    public param_speakPatternmessage:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Message pattern, empty=mute", longText:false};
-    public param_speakPatternwhisper:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Whisper pattern, empty=mute"};
-    public param_speakPatternnotice:ParameterData = {type:"text", value:'{MESSAGE}', label:"Notice pattern, empty=mute"};
+    public param_readPatternmessage:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Message pattern, empty=mute", longText:false};
+    public param_readPatternwhisper:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Whisper pattern, empty=mute"};
+    public param_readPatternnotice:ParameterData = {type:"text", value:'{MESSAGE}', label:"Notice pattern, empty=mute"};
     public param_maxLength:ParameterData = {type:"slider", value:200, label:"Max spoken text length (0=unlimited)", min:0, max:2000, step:10};
     public param_timeout:ParameterData = {type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", min:0, max:300, step:10};
-    public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove URLs"};
+    public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove links"};
     public param_replaceURL:ParameterData = {type:"text", value:'url', label:"Replace by"};
     public param_inactivityPeriod:ParameterData = {type:"slider", value:0, label:"Inactivity period (minutes)", min:0, max:60, step:1};
-    public param_speakRewards:ParameterData = {type:"toggle", value:true, label:"Speak rewards redeemed", icon:"channelPoints_purple.svg"};
-    public param_speakSubs:ParameterData = {type:"toggle", value:true, label:"Speak sub alerts", icon:"sub_purple.svg"};
-    public param_speakBits:ParameterData = {type:"toggle", value:true, label:"Speak bit alerts", icon:"bits_purple.svg"};
-    public param_speakRaids:ParameterData = {type:"toggle", value:true, label:"Speak raid alerts", icon:"raid_purple.svg"};
-    public param_speakFollow:ParameterData = {type:"toggle", value:true, label:"Speak follow alerts", icon:"follow_purple.svg"};
-    public param_speakPolls:ParameterData = {type:"toggle", value:true, label:"Speak polls", icon:"poll_purple.svg"};
-    public param_speakPredictions:ParameterData = {type:"toggle", value:true, label:"Speak predictions", icon:"prediction_purple.svg"};
+    public param_readRewards:ParameterData = {type:"toggle", value:true, label:"Read rewards redeemed", icon:"channelPoints_purple.svg"};
+    public param_readSubs:ParameterData = {type:"toggle", value:true, label:"Read sub alerts", icon:"sub_purple.svg"};
+    public param_readBits:ParameterData = {type:"toggle", value:true, label:"Read bit alerts", icon:"bits_purple.svg"};
+    public param_readRaids:ParameterData = {type:"toggle", value:true, label:"Read raid alerts", icon:"raid_purple.svg"};
+    public param_readFollow:ParameterData = {type:"toggle", value:true, label:"Read follow alerts", icon:"follow_purple.svg"};
+    public param_readPolls:ParameterData = {type:"toggle", value:true, label:"Read polls", icon:"poll_purple.svg"};
+    public param_readBingos:ParameterData = {type:"toggle", value:true, label:"Read bingos", icon:"bingo_purple.svg"};
+    public param_readRaffle:ParameterData = {type:"toggle", value:true, label:"Read raffles", icon:"ticket_purple.svg"};
+    public param_readPredictions:ParameterData = {type:"toggle", value:true, label:"Read predictions", icon:"prediction_purple.svg"};
 	public param_ttsPerms:PermissionsData = {
 		mods:true,
 		vips:false,
@@ -102,21 +105,23 @@ export default class ParamsTTS extends Vue {
             pitch:this.param_pitch.value as number,
             voice:this.param_voice.value as string,
             removeEmotes:this.param_removeEmotes.value as boolean,
-            speakPatternmessage:this.param_speakPatternmessage.value as string,
-            speakPatternwhisper:this.param_speakPatternwhisper.value as string,
-            speakPatternnotice:this.param_speakPatternnotice.value as string,
+            readPatternmessage:this.param_readPatternmessage.value as string,
+            readPatternwhisper:this.param_readPatternwhisper.value as string,
+            readPatternnotice:this.param_readPatternnotice.value as string,
             maxLength:this.param_maxLength.value as number,
             timeout:this.param_timeout.value as number,
             removeURL:this.param_removeURL.value as boolean,
             replaceURL:this.param_replaceURL.value as string,
             inactivityPeriod:this.param_inactivityPeriod.value as number,
-            speakRewards:this.param_speakRewards.value as boolean,
-            speakSubs:this.param_speakSubs.value as boolean,
-            speakBits:this.param_speakBits.value as boolean,
-            speakRaids:this.param_speakRaids.value as boolean,
-            speakFollow:this.param_speakFollow.value as boolean,
-            speakPolls:this.param_speakPolls.value as boolean,
-            speakPredictions:this.param_speakPredictions.value as boolean,
+            readRewards:this.param_readRewards.value as boolean,
+            readSubs:this.param_readSubs.value as boolean,
+            readBits:this.param_readBits.value as boolean,
+            readRaids:this.param_readRaids.value as boolean,
+            readFollow:this.param_readFollow.value as boolean,
+            readPolls:this.param_readPolls.value as boolean,
+            readBingos:this.param_readBingos.value as boolean,
+            readRaffle:this.param_readRaffle.value as boolean,
+            readPredictions:this.param_readPredictions.value as boolean,
 			ttsPerms:this.param_ttsPerms,
 		};
 	}

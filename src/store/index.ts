@@ -367,18 +367,18 @@ const store = createStore({
 			removeURL:true,
 			replaceURL:'url',
 			inactivityPeriod:5,
-			speakPatternmessage:'$USER says $MESSAGE',
-			speakPatternwhisper:'$USER whispers $MESSAGE',
-			speakPatternnotice:'$MESSAGE',
-			speakRewards:true,
-			speakSubs:true,
-			speakBits:true,
-			speakRaids:true,
-			speakFollow:true,
-			speakPolls:true,
-			speakPredictions:true,
-			speakBingos:true,
-			speakRaffle:true,
+			readPatternmessage:'$USER says $MESSAGE',
+			readPatternwhisper:'$USER whispers $MESSAGE',
+			readPatternnotice:'$MESSAGE',
+			readRewards:true,
+			readSubs:true,
+			readBits:true,
+			readRaids:true,
+			readFollow:true,
+			readPolls:true,
+			readPredictions:true,
+			readBingos:true,
+			readRaffle:true,
 			ttsPerms:{
 				mods:true,
 				vips:false,
@@ -973,8 +973,8 @@ const store = createStore({
 			}
 		},
 
-		tts(state, payload:IRCEventDataList.Message) {
-			TTSUtils.instance.speak(payload);
+		ttsReadMessage(state, payload:IRCEventDataList.Message) {
+			TTSUtils.instance.read(payload);
 		},
 
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
@@ -2256,7 +2256,7 @@ const store = createStore({
 
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
 
-		tts({commit}, payload:IRCEventDataList.Message) { commit("tts", payload); },
+		ttsReadMessage({commit}, payload:IRCEventDataList.Message) { commit("ttsReadMessage", payload); },
 		
 		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
 

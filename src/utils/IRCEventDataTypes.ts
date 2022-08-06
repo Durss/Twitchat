@@ -243,41 +243,64 @@ export namespace IRCEventDataList {
 	}
 }
 
-export function getType(m: IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult | IRCEventDataList.BingoResult | IRCEventDataList.RaffleResult | IRCEventDataList.Commercial | IRCEventDataList.CountdownResult):
-"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null {
-	let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = null;
+export const TwitchatMessageType = {
+	HIGHLIGHTED_MESSAGE:"message",
+	BITS:"bits",
+	SUB:"sub",
+	SUB_PRIME:"prime",
+	SUBGIFT:"subgift",
+	SUBGIFT_UPGRADE:"subgiftUpgrade",
+	RAID:"raid",
+	REWARD:"reward",
+	FOLLOW:"follow",
+	POLL:"poll",
+	PREDICTION:"prediction",
+	COMMERCIAL:"commercial",
+	BINGO:"bingo",
+	RAFFLE:"raffle",
+	COUNTDOWN:"countdown",
+	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
+	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
+} as const;
+
+//Dynamically type ActivityFeedMessageStringType from TwitchatMessageType values
+type ActivityFeedMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
+export function getTwitchatMessageType(m: ActivityFeedData):ActivityFeedMessageStringType {
+	let type:ActivityFeedMessageStringType = null;
 	if(m.type == "poll") {
-		type = "poll";
+		type = TwitchatMessageType.POLL;
+	}else if(m.type == "message") {
+		type = TwitchatMessageType.HIGHLIGHTED_MESSAGE;
 	}else if(m.type == "prediction") {
-		type = "prediction";
+		type = TwitchatMessageType.PREDICTION;
 	}else if(m.type == "bingo") {
-		type = "bingo";
+		type = TwitchatMessageType.BINGO;
 	}else if(m.type == "raffle") {
-		type = "raffle";
+		type = TwitchatMessageType.RAFFLE;
 	}else if(m.type == "countdown") {
-		type = "countdown";
+		type = TwitchatMessageType.COUNTDOWN;
 	}else if(m.type == "notice") {
 		if(m.tags['msg-id'] == "commercial") {
-			type = "commercial";
+			type = TwitchatMessageType.COMMERCIAL;
 		}
 	}else if(m.tags.bits) {
-		type = "bits";
-	}else if(m.methods?.prime) {
-		type = "sub";
-	}else if(m.methods?.plan) {
-		type = "sub";
+		type = TwitchatMessageType.BITS;
 	}else if(m.recipient) {
-		type = "sub";
+		type = TwitchatMessageType.SUBGIFT;
+	}else if(m.methods?.prime) {
+		type = TwitchatMessageType.SUB_PRIME;
+	}else if(m.methods?.plan) {
+		type = TwitchatMessageType.SUB;
 	}else if(m.tags['message-type'] == "giftpaidupgrade") {
-		type = "sub";
+		type = TwitchatMessageType.SUBGIFT_UPGRADE;
 	}else if(m.reward) {
-		type = "reward";
+		type = TwitchatMessageType.REWARD;
 	}else if(m.tags['msg-id'] == "follow") {
-		type = "follow";
+		type = TwitchatMessageType.FOLLOW;
 	}else if(m.tags['msg-id'] == "raid") {
-		type = "raid";
+		type = TwitchatMessageType.RAID;
 	}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
-		type = "cooldown";
+		type = TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED;
 	}
 	return type;
 }

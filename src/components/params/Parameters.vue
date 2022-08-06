@@ -19,11 +19,11 @@
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent('emergency')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent('voice')" :selected="content == 'voice'" />
+				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent('tts')" :selected="content == 'tts'" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
 				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
-				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent('tts')" :selected="content == 'tts'" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 

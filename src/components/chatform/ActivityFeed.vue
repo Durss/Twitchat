@@ -69,7 +69,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import { getType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
+import { TwitchatMessageType, getTwitchatMessageType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -146,32 +146,28 @@ export default class ActivityFeed extends Vue {
 		
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
-			if(m.type == "message") {
-				result.unshift(m)
-				continue;
-			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = getType(m);
+			let type = getTwitchatMessageType(m);
 			
-			if(type == "sub" && showSubs) result.unshift(m);
-			else if(type == "reward" && showRewards) result.unshift(m);
-			else if(type == "raid" && showRaids) result.unshift(m);
-			else if(type == "bits" && showBits) result.unshift(m);
-			else if(type == "follow" && showFollow) result.unshift(m);
-			else if(type == "poll" && showPolls) result.unshift(m);
-			else if(type == "prediction" && showPredictions) result.unshift(m);
-			else if(type == "bingo" && showBingos) result.unshift(m);
-			else if(type == "raffle" && showRaffles) result.unshift(m);
-			else if(type == "commercial") result.unshift(m);
-			else if(type == "countdown") result.unshift(m);
-			else if(type == "cooldown") result.unshift(m);
+			if((type == TwitchatMessageType.SUB
+			|| type == TwitchatMessageType.SUBGIFT
+			|| type == TwitchatMessageType.SUB_PRIME
+			|| type == TwitchatMessageType.SUBGIFT_UPGRADE) && showSubs) result.unshift(m);
+			else if(type == TwitchatMessageType.REWARD && showRewards) result.unshift(m);
+			else if(type == TwitchatMessageType.RAID && showRaids) result.unshift(m);
+			else if(type == TwitchatMessageType.BITS && showBits) result.unshift(m);
+			else if(type == TwitchatMessageType.FOLLOW && showFollow) result.unshift(m);
+			else if(type == TwitchatMessageType.POLL && showPolls) result.unshift(m);
+			else if(type == TwitchatMessageType.PREDICTION && showPredictions) result.unshift(m);
+			else if(type == TwitchatMessageType.BINGO && showBingos) result.unshift(m);
+			else if(type == TwitchatMessageType.RAFFLE && showRaffles) result.unshift(m);
+			else if(type == TwitchatMessageType.COMMERCIAL) result.unshift(m);
+			else if(type == TwitchatMessageType.COUNTDOWN) result.unshift(m);
+			else if(type == TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED) result.unshift(m);
+			else if(type == TwitchatMessageType.HIGHLIGHTED_MESSAGE) result.unshift(m);
+
 		}
 		
-		// if(this.listMode) {
-		// 	result.reverse();
-		// }
-		
-
 		return result;
 	}
 

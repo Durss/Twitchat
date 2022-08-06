@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -90,41 +90,8 @@ export default class ChatHighlight extends Vue {
 	public get reason():string {
 		let value:number|"prime" = 0;
 		this.info = "";
-		let type:"bits"|"sub"|"subgift"|"raid"|"reward"|"subgiftUpgrade"|"follow"|"hype_cooldown_expired"|"community_boost_complete"|null = null;
-		if(this.messageData.tags['msg-id'] == "follow") {
-			type = "follow";
-			this.filtered = !StoreProxy.store.state.params.filters.showFollow.value;
+		let type = getTwitchatMessageType(this.messageData);
 
-		}else if(this.messageData.tags['msg-id'] === "hype_cooldown_expired") {
-			type = "hype_cooldown_expired";
-
-		}else if(this.messageData.tags['msg-id'] === "community_boost_complete") {
-			type = "community_boost_complete";
-
-		}else if(this.messageData.tags.bits) {
-			value = this.messageData.tags.bits;
-			type = "bits";
-			this.filtered = !StoreProxy.store.state.params.filters.showCheers.value;
-		}else if(this.messageData.methods?.prime) {
-			value = "prime";
-			type = "sub";
-			this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
-		}else if(this.messageData.methods?.plan) {
-			value = parseInt(this.messageData.methods.plan)/1000;
-			type = this.messageData.recipient? "subgift" : "sub";
-			this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
-		}else if(this.messageData.viewers != undefined) {
-			type = "raid";
-			value = this.messageData.viewers;
-			this.filtered = !StoreProxy.store.state.params.filters.showRaids.value;
-		}else if(this.messageData.reward) {
-			type = "reward";
-			this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
-		}else if(this.messageData.tags['message-type'] == "giftpaidupgrade") {
-			value = 1;
-			type = "subgiftUpgrade";
-			this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
-		}
 		if(type == null) {
 			console.warn("Unhandled highlight");
 			console.log(this.messageData);
@@ -134,77 +101,90 @@ export default class ChatHighlight extends Vue {
 
 		let res = "";
 		switch(type) {
-			case "follow":
+			case TwitchatMessageType.FOLLOW:
 				this.icon = this.$image('icons/follow.svg');
-				res = "<strong>"+this.messageData.username+"</strong> followed your channel!";
+				res = `<strong>${this.messageData.username}</strong> followed your channel!`;
+				this.filtered = !StoreProxy.store.state.params.filters.showFollow.value;
 				break;
 
-			case "hype_cooldown_expired":
+			case TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED:
 				this.icon = this.$image('icons/train.svg');
 				res = "Hype train can be started again!";
 				break;
 
-			case "community_boost_complete":
+			case TwitchatMessageType.COMMUNITY_BOOST_COMPLETE:
 				this.icon = this.$image('icons/boost.svg');
-				res = "Your channel has been boosted to "+this.messageData.viewers+" people";
+				res = `Your channel has been boosted to ${this.messageData.viewers} people`;
 				break;
 
-			case "raid":
+			case TwitchatMessageType.RAID:
+				value = this.messageData.viewers as number;
+				this.filtered = !StoreProxy.store.state.params.filters.showRaids.value;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
-				res = "<strong>"+this.messageData.username+"</strong> is raiding with a party of "+this.messageData.viewers+".";
+				res = `<strong>${this.messageData.username}</strong> is raiding with a party of ${this.messageData.viewers}.`;
 
 				if(StoreProxy.store.state.params.features.raidStreamInfo.value === true) {
 					this.loadLastStreamInfos()
 				}
 				break;
 
-			case "bits":
-				res = "<strong>"+this.messageData.tags.username+"</strong> sent <strong>"+value+"</strong> bits";
+			case TwitchatMessageType.BITS:
+				value = this.messageData.tags.bits;
+				res = `<strong>${this.messageData.tags.username}</strong> sent <strong>${value}</strong> bits`;
 				this.icon = this.$image('icons/bits.svg');
+				this.filtered = !StoreProxy.store.state.params.filters.showCheers.value;
 				break;
 
-			case "sub":
-				if(value == "prime") {
-					res = "<strong>"+this.messageData.username+"</strong> subscribed with Prime";
+			case TwitchatMessageType.SUB:
+			case TwitchatMessageType.SUB_PRIME:
+				const isResub = this.messageData.tags["msg-id"] === "resub";
+				const method = isResub ? "resubscribed" : "subscribed";
+				if(type == TwitchatMessageType.SUB_PRIME) {
+					res = `<strong>${this.messageData.username}</strong> ${method} with Prime`;
 					this.icon = this.$image('icons/prime.svg');
 				}else{
-					res = "<strong>"+this.messageData.username+"</strong> subscribed at Tier "+value;
+					value = parseInt(this.messageData.methods?.plan as string)/1000;
+					res = `<strong>${this.messageData.username}</strong> ${method} at Tier ${value}`;
 					this.icon = this.$image('icons/sub.svg');
 				}
 
 				if(typeof this.messageData.tags["msg-param-cumulative-months"] === "string") {
-					res += " for "+this.messageData.tags["msg-param-cumulative-months"] +" months";
+					res += ` for ${this.messageData.tags["msg-param-cumulative-months"]} months`;
 				} else if(this.messageData.months) {
-					res += " for "+this.messageData.months+" months";
+					res += ` for ${this.messageData.months} months`;
 				}
 				if(typeof this.messageData.tags['msg-param-streak-months'] === "string") {
-					res += " ("+this.messageData.tags['msg-param-streak-months']+" months streak)";
+					res += ` (${this.messageData.tags['msg-param-streak-months']} months streak)`;
 				}
+				this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 				break;
 
-			case "subgift":
+			case TwitchatMessageType.SUBGIFT:
 				this.icon = this.$image('icons/gift.svg');
 				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
 					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
-					const recipientsStr = "<strong>"+recipients.join("</strong>, <strong>")+"</strong>";
-					res = "<strong>"+this.messageData.username+"</strong> gifted <strong>"+(this.messageData.subgiftAdditionalRecipents?.length+1)+"</strong> Tier "+value+" to "+recipientsStr;
+					const recipientsStr = `<strong>${recipients.join("</strong>, <strong>")}</strong>`;
+
+					res = `<strong>${this.messageData.username}</strong> gifted <strong>${(this.messageData.subgiftAdditionalRecipents?.length+1)}</strong> Tier ${value} to ${recipientsStr}`;
 				}else{
-					res = "<strong>"+this.messageData.username+"</strong> gifted a Tier "+value+" to <strong>"+this.messageData.recipient+"</strong>";
+					res = `<strong>${this.messageData.username}</strong> gifted a Tier ${value} to <strong>${this.messageData.recipient}</strong>`;
 				}
 				break;
 
-			case "subgiftUpgrade":
+			case TwitchatMessageType.SUBGIFT_UPGRADE:
+				this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 				this.icon = this.$image('icons/gift.svg');
-				res = "<strong>"+this.messageData.username+"</strong> is continuing the Gift Sub they got from <strong>"+this.messageData.sender+"</strong>";
+				res = `<strong>${this.messageData.username}</strong> is continuing the Gift Sub they got from <strong>${this.messageData.sender}</strong>`;
 				break;
 
-			case "reward":{
+			case TwitchatMessageType.REWARD: {
+				this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
 				this.messageText = "";
 				const localObj = this.messageData.reward as PubSubDataTypes.RewardData;
 				res = localObj.redemption.user.display_name;
-				res += " redeemed the reward <strong>"+localObj.redemption.reward.title+"</strong>";
-				res += " <span class='small'>("+localObj.redemption.reward.cost+" pts)</span>";
+				res += ` redeemed the reward <strong>${localObj.redemption.reward.title}</strong>`;
+				res += ` <span class='small'>(${localObj.redemption.reward.cost} pts)</span>`;
 				if(this.messageData.reward?.redemption.reward.image) {
 					this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
 				}else{

@@ -273,21 +273,23 @@ export interface TTSParamsData {
 	pitch: number;
 	voice: string;
 	removeEmotes: boolean;
-	speakPatternmessage: string;
-	speakPatternwhisper: string;
-	speakPatternnotice: string;
+	readPatternmessage: string;
+	readPatternwhisper: string;
+	readPatternnotice: string;
 	maxLength: number;
 	timeout: number;
 	removeURL: boolean;
 	replaceURL: string;
 	inactivityPeriod: number;
-	speakRewards: boolean;
-	speakSubs: boolean;
-	speakBits: boolean;
-	speakRaids: boolean;
-	speakFollow: boolean;
-	speakPolls: boolean;
-	speakPredictions: boolean;
+	readRewards: boolean;
+	readSubs: boolean;
+	readBits: boolean;
+	readRaids: boolean;
+	readFollow: boolean;
+	readPolls: boolean;
+	readBingos: boolean;
+	readRaffle: boolean;
+	readPredictions: boolean;
 	ttsPerms:PermissionsData;
 }
 

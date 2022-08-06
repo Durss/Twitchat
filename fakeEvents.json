@@ -752,5 +752,44 @@
 			"id": "00000000-0000-0000-0000-000000000003",
 			"tmi-sent-ts": "1650663299244"
 		}
+	},
+
+	"highlighted": {
+		"type": "message",
+		"message": "This is an highlighted message!",
+		"tags": {
+			"badge-info": {
+				"subscriber": "17"
+			},
+			"badges": {
+				"broadcaster": "1",
+				"subscriber": "12",
+				"glhf-pledge": "1"
+			},
+			"color": "#9ACD32",
+			"display-name": "Durss",
+			"emotes": null,
+			"first-msg": false,
+			"flags": null,
+			"id": "00000000-0000-0000-0000-000000000003",
+			"mod": false,
+			"msg-id": "highlighted-message",
+			"returning-chatter": false,
+			"room-id": "29961813",
+			"subscriber": true,
+			"tmi-sent-ts": "1659824599376",
+			"turbo": false,
+			"user-id": "29961813",
+			"user-type": null,
+			"emotes-raw": null,
+			"badge-info-raw": "subscriber/17",
+			"badges-raw": "broadcaster/1,subscriber/12,glhf-pledge/1",
+			"username": "durss",
+			"message-type": "chat"
+		},
+		"channel": "#durss",
+		"self": false,
+		"firstMessage": false,
+		"hasMention": false
 	}
 }
