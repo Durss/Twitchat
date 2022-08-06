@@ -52,7 +52,6 @@ export default class PlaceholderSelector extends Vue {
 		//Insert tag
 		const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
 		this.$emit("update:modelValue", text);
-		target.dispatchEvent(new Event("input"));
 	}
 }
 </script>
