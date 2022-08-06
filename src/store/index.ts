@@ -25,12 +25,13 @@ import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
+import TTSUtils from '@/utils/TTSUtils';
 import type VoiceAction from '@/utils/VoiceAction';
 import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type WheelItem } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -249,6 +250,16 @@ const store = createStore({
 				details:"Unban a user",
 			},
 			{
+				id:"tts",
+				cmd:"/tts {user}",
+				details:"Add user to the list of tts users",
+			},
+			{
+				id:"notts",
+				cmd:"/notts {user}",
+				details:"Remove user from the list of tts users",
+			},
+			{
 				id:"block",
 				cmd:"/block {user}",
 				details:"Block a user",
@@ -321,7 +332,7 @@ const store = createStore({
 				showFollow: 				{save:true, type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg"},
 				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg"},
 				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
-			} as {[key:string]:ParameterData}
+			} as {[key:string]:ParameterData},
 		} as IParameterCategory,
 
 		roomStatusParams: {
@@ -344,6 +355,38 @@ const store = createStore({
 			noLabel:"",
 			STTOrigin:false,
 		},
+		ttsParams: {
+			enabled:false,
+			volume:1,
+			rate:1,
+			pitch:1,
+			voice:'Microsoft Hortense - French (France)',
+			maxLength:200,
+			timeout:60,
+			removeEmotes:true,
+			removeURL:true,
+			replaceURL:'url',
+			inactivityPeriod:5,
+			speakPatternmessage:'$USER says $MESSAGE',
+			speakPatternwhisper:'$USER whispers $MESSAGE',
+			speakPatternnotice:'$MESSAGE',
+			speakRewards:true,
+			speakSubs:true,
+			speakBits:true,
+			speakRaids:true,
+			speakFollow:true,
+			speakPolls:true,
+			speakPredictions:true,
+			speakBingos:true,
+			speakRaffle:true,
+			ttsPerms:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as TTSParamsData,
 
 		emergencyParams: {
 			enabled:false,
@@ -930,6 +973,10 @@ const store = createStore({
 			}
 		},
 
+		tts(state, payload:IRCEventDataList.Message) {
+			TTSUtils.instance.speak(payload);
+		},
+
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
 
 		startRaffle(state, payload:RaffleData) {
@@ -1311,6 +1358,12 @@ const store = createStore({
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
 
 			state.countdown = null;
+		},
+
+		setTTSParams(state, params:TTSParamsData) {
+			state.ttsParams = params;
+			Store.set(Store.TTS_PARAMS, params);
+			TTSUtils.instance.enable(params.enabled);
 		},
 
 		setEmergencyParams(state, params:EmergencyParamsData) {
@@ -2016,6 +2069,13 @@ const store = createStore({
 			if(obsCommandsPermissions) {
 				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (state.obsCommandsPermissions as unknown) as JsonObject);
 			}
+
+			//Init TTS actions
+			const tts = Store.get(Store.TTS_PARAMS);
+			if (tts) {
+				state.ttsParams = JSON.parse(tts);
+				TTSUtils.instance.enable(state.ttsParams.enabled as boolean);
+			}
 			
 			//Init emergency actions
 			const emergency = Store.get(Store.EMERGENCY_PARAMS);
@@ -2195,6 +2255,8 @@ const store = createStore({
 		trackUser({commit}, payload:IRCEventDataList.Message) { commit("trackUser", payload); },
 
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
+
+		tts({commit}, payload:IRCEventDataList.Message) { commit("tts", payload); },
 		
 		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
 
@@ -2344,6 +2406,8 @@ const store = createStore({
 		},
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },
+
+		setTTSParams({commit}, params:TTSParamsData) { commit("setTTSParams", params); },
 		
 		setEmergencyParams({commit}, params:EmergencyParamsData) { commit("setEmergencyParams", params); },
 		

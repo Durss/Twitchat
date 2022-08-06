@@ -242,3 +242,42 @@ export namespace IRCEventDataList {
 		[paramater: string]: unknown;
 	}
 }
+
+export function getType(m: IRCEventDataList.Highlight | IRCEventDataList.PollResult | IRCEventDataList.PredictionResult | IRCEventDataList.BingoResult | IRCEventDataList.RaffleResult | IRCEventDataList.Commercial | IRCEventDataList.CountdownResult):
+"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null {
+	let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = null;
+	if(m.type == "poll") {
+		type = "poll";
+	}else if(m.type == "prediction") {
+		type = "prediction";
+	}else if(m.type == "bingo") {
+		type = "bingo";
+	}else if(m.type == "raffle") {
+		type = "raffle";
+	}else if(m.type == "countdown") {
+		type = "countdown";
+	}else if(m.type == "notice") {
+		if(m.tags['msg-id'] == "commercial") {
+			type = "commercial";
+		}
+	}else if(m.tags.bits) {
+		type = "bits";
+	}else if(m.methods?.prime) {
+		type = "sub";
+	}else if(m.methods?.plan) {
+		type = "sub";
+	}else if(m.recipient) {
+		type = "sub";
+	}else if(m.tags['message-type'] == "giftpaidupgrade") {
+		type = "sub";
+	}else if(m.reward) {
+		type = "reward";
+	}else if(m.tags['msg-id'] == "follow") {
+		type = "follow";
+	}else if(m.tags['msg-id'] == "raid") {
+		type = "raid";
+	}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
+		type = "cooldown";
+	}
+	return type;
+}

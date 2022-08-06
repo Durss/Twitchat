@@ -69,7 +69,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import type { ActivityFeedData } from '@/utils/IRCEventDataTypes';
+import { getType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -151,40 +151,7 @@ export default class ActivityFeed extends Vue {
 				continue;
 			}
 
-			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = null;
-			if(m.type == "poll") {
-				type = "poll";
-			}else if(m.type == "prediction") {
-				type = "prediction";
-			}else if(m.type == "bingo") {
-				type = "bingo";
-			}else if(m.type == "raffle") {
-				type = "raffle";
-			}else if(m.type == "countdown") {
-				type = "countdown";
-			}else if(m.type == "notice") {
-				if(m.tags['msg-id'] == "commercial") {
-					type = "commercial";
-				}
-			}else if(m.tags.bits) {
-				type = "bits";
-			}else if(m.methods?.prime) {
-				type = "sub";
-			}else if(m.methods?.plan) {
-				type = "sub";
-			}else if(m.recipient) {
-				type = "sub";
-			}else if(m.tags['message-type'] == "giftpaidupgrade") {
-				type = "sub";
-			}else if(m.reward) {
-				type = "reward";
-			}else if(m.tags['msg-id'] == "follow") {
-				type = "follow";
-			}else if(m.tags['msg-id'] == "raid") {
-				type = "raid";
-			}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
-				type = "cooldown";
-			}
+			let type:"bits"|"sub"|"raid"|"reward"|"follow"|"poll"|"prediction"|"commercial"|"bingo"|"raffle"|"countdown"|"cooldown"|null = getType(m);
 			
 			if(type == "sub" && showSubs) result.unshift(m);
 			else if(type == "reward" && showRewards) result.unshift(m);

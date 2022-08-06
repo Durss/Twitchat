@@ -12,6 +12,12 @@
 			v-if="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
+		<Button aria-label="TTS"
+			:icon="$image('icons/tts.svg')"
+			data-tooltip="TTS"
+			@click="tts()"
+			v-if="!isBroadcaster"
+			/>
 		<Button aria-label="Highlight message"
 			:icon="$image('icons/highlight.svg')"
 			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
@@ -68,6 +74,10 @@ export default class ChatMessageHoverActions extends Vue {
 		this.shoutoutLoading = false;
 	}
 
+	public tts() {
+		StoreProxy.store.dispatch("tts", this.messageData);
+	}
+	
 	public async chatHighlight():Promise<void> {
 		this.highlightLoading = true;
 		StoreProxy.store.dispatch("highlightChatMessageOverlay", this.messageData);

@@ -23,6 +23,7 @@
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
 				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
+				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent('tts')" :selected="content == 'tts'" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent('account')" :selected="content == 'account'" />
 				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
 
@@ -34,6 +35,7 @@
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
 				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
+				<ParamsTTS v-if="content == 'tts'" @setContent="setContent" />
 				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
 				<ParamsAlert v-if="content == 'alert'" @setContent="setContent" />
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
@@ -63,6 +65,7 @@ import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
+import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
 import ParamsList from './contents/ParamsList.vue';
@@ -92,6 +95,7 @@ import ParamItem from './ParamItem.vue';
 		ParamsTriggers,
 		ParamsVoiceBot,
 		ParamsEmergency,
+		ParamsTTS,
 		ParamsStreamdeck,
 	}
 })

@@ -633,7 +633,16 @@ export default class ChatForm extends Vue {
 			//Secret feature
 			IRCClient.instance.sendNotice("version", "Twitchat version "+import.meta.env.PACKAGE_VERSION);
 			this.message = "";
+		}else
 
+		if(cmd == "/tts") {
+			StoreProxy.store.state.params.tts.tts_users.value = (StoreProxy.store.state.params.tts.tts_users.value as string).split(',').concat(params).join(',');
+			this.message = "";
+		}else
+
+		if(cmd == "/notts") {
+			StoreProxy.store.state.params.tts.tts_users.value = (StoreProxy.store.state.params.tts.tts_users.value as string).split(',').filter(el => !params.includes(el)).join(',');
+			this.message = "";
 		}else{
 			//Send message
 			try {

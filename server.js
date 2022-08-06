@@ -14,9 +14,9 @@ const crypto = require('crypto');
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
-console.log("=============");
-console.log("Server stated");
-console.log("=============");
+console.log("==============");
+console.log("Server started");
+console.log("==============");
 
 if(!fs.existsSync(userDataFolder)) {
 	fs.mkdirSync(userDataFolder);
@@ -910,6 +910,44 @@ const UserDataSchema = {
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
+		ttsParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				volume: {type:"number", minimum:0, maximum:1},
+				rate: {type:"number", minimum:0.1, maximum:10},
+				pitch: {type:"number", minimum:0, maximum:2},
+				voice: {type:"string"},
+				removeEmotes: {type:"boolean"},
+				speakPatternmessage: {type:"string"},
+				speakPatternwhisper: {type:"string"},
+				speakPatternnotice: {type:"string"},
+				maxLength: {type:"integer", minimum:0, maximum:2000},
+				timeout: {type:"integer", minimum:0, maximum:300},
+				removeURL: {type:"boolean"},
+				replaceURL: {type:"string"},
+				inactivityPeriod: {type:"integer", minimum:0, maximum:60},
+				speakRewards: {type:"boolean"},
+				speakSubs: {type:"boolean"},
+				speakBits: {type:"boolean"},
+				speakRaids: {type:"boolean"},
+				speakFollow: {type:"boolean"},
+				speakPolls: {type:"boolean"},
+				speakPredictions: {type:"boolean"},
+				ttsPerms:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
+			}
+		},
 		emergencyParams: {
 			type:"object",
 			additionalProperties: false,
