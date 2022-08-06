@@ -8,6 +8,7 @@ import StoreProxy from "./StoreProxy";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
 
+
 export interface SpokenMessage {
 	wroteTime: number,
 	voiceMessage: SpeechSynthesisUtterance,
@@ -32,9 +33,11 @@ export default class TTSUtils {
 	private deleteMessageHandler!:(e:IRCEvent)=>void;
 	
 	constructor() {
+		// console.log(this.voices);
+		
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
 			this.voices = window.speechSynthesis.getVoices();
-			// StoreProxy.store.state.ttsParams.voice.listValues = this.voices.map(x => { return {label:x.name, value:x.name} });
+			// console.log('updated', this.voices);
 		};
 		this.addMessageHandler = (e:IRCEvent)=> this.onAddMessage(e);
 		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
@@ -92,8 +95,8 @@ export default class TTSUtils {
 	}
 
 	private replacePattern(pattern: string, messageStr: string, user: string|undefined): string {
-		messageStr = pattern.replace('$MESSAGE', messageStr);
-		messageStr = messageStr.replace('$USER', user ? user : '');
+		messageStr = pattern.replace('{MESSAGE}', messageStr);
+		messageStr = messageStr.replace('{USER}', user ? user : '');
 		return messageStr;
 	}
 
@@ -201,12 +204,10 @@ export default class TTSUtils {
 				messageStr = ""+message.username+" followed your channel!";
 			}
 			else if(type == "bingo") {
-				if(!paramsTTS.speakBingos) return;
-				messageStr = "";
+				return;
 			}
 			else if(type == "raffle"){
-				if(!paramsTTS.speakRaffles) return;
-				messageStr = "";
+				return;
 			}
 			else if(type == "commercial") return;
 			else if(type == "countdown") return;
@@ -219,7 +220,7 @@ export default class TTSUtils {
 	
 			messageStr = messageStr.substring(0, paramsTTS.maxLength || Number.MAX_VALUE);
 			if (paramsTTS.removeEmotes) {
-				messageStr = TwitchUtils.parseEmotes(messageStr, undefined, true, true).map(elem=>elem.value).join(' ');
+				messageStr = TwitchUtils.parseEmotes(messageStr, undefined, true, true).map(elem=>elem.value).join(', ');
 			}	
 			this.speakText(messageStr, message.tags.id);
 		}	

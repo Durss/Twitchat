@@ -6,25 +6,18 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
 
 		<Splitter class="item splitter" title="Voice parameters" />
+		<ParamItem class="item" :paramData="param_voice" />
 		<ParamItem class="item" :paramData="param_volume" />
 		<ParamItem class="item" :paramData="param_rate" />
 		<ParamItem class="item" :paramData="param_pitch" />
-		<ParamItem class="item" :paramData="param_voice" />
 
 		<Splitter class="item splitter" title="Message parameters" />
 		<ParamItem class="item" :paramData="param_maxLength" />
 		<ParamItem class="item" :paramData="param_timeout" />
 		<ParamItem class="item" :paramData="param_inactivityPeriod" />
-		<ParamItem class="item" :paramData="param_speakPatternmessage" />
-		<PostOnChatParam class="row"
-			botMessageKey="shoutout"
-			:noToggle="false"
-			title="Shoutout message"
-			:placeholders="ttsPlaceholders"
-		/>
-
-		<ParamItem class="item" :paramData="param_speakPatternwhisper" />
-		<ParamItem class="item" :paramData="param_speakPatternnotice" />
+		<InputPLaceHolder :paramData="param_speakPatternmessage" :placeholders="tts2Placeholders" />
+		<InputPLaceHolder :paramData="param_speakPatternwhisper" :placeholders="tts2Placeholders" />
+		<InputPLaceHolder :paramData="param_speakPatternnotice" :placeholders="tts1Placeholder" />
 
 		<Splitter class="item splitter" title="Removal filters" />
 		<ParamItem class="item" :paramData="param_removeEmotes" />
@@ -48,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, ParameterDataListValue, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
+import type { ParameterData, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TTSUtils from '@/utils/TTSUtils';
 import gsap from 'gsap';
@@ -57,16 +50,16 @@ import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
-import PostOnChatParam from '../PostOnChatParam.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
+import InputPLaceHolder from '../InputPLaceHolder.vue';
 
 @Options({
 	props:{},
 	components:{
 		Splitter,
 		ParamItem,
-		PostOnChatParam,
 		ToggleBlock,
+		InputPLaceHolder,
 		PermissionsForm,
 	}
 })
@@ -76,16 +69,16 @@ export default class ParamsTTS extends Vue {
     public param_volume:ParameterData = {type:"slider", value:1, label:"Volume", min:0, max:1, step:0.1};
     public param_rate:ParameterData = {type:"slider", value:1, label:"Speed", min:0.1, max:10, step:0.1};
     public param_pitch:ParameterData = {type:"slider", value:1, label:"Pitch", min:0, max:2, step:0.1};
-    public param_voice:ParameterData = {type:"list", value:'Microsoft Hortense - French (France)', listValues:TTSUtils.instance.getVoices()?.map(x => { return {label:x.name, value:x.name} }), label:"voice", id:404, parent:400};
+    public param_voice:ParameterData = {type:"list", value:'Microsoft Hortense - French (France)', listValues:[], label:"voice", id:404, parent:400};
     public param_removeEmotes:ParameterData = {type:"toggle", value:true, label:"Remove emotes"};
-    public param_speakPatternmessage:ParameterData = {type:"text", value:'$USER says $MESSAGE', label:"Message pattern ($USER, $MESSAGE), empty=mute", longText:true};
-    public param_speakPatternwhisper:ParameterData = {type:"text", value:'$USER whispers $MESSAGE', label:"Whisper pattern ($USER, $MESSAGE), empty=mute"};
-    public param_speakPatternnotice:ParameterData = {type:"text", value:'$MESSAGE', label:"Notice pattern ($MESSAGE), empty=mute"};
+    public param_speakPatternmessage:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Message pattern, empty=mute", longText:false};
+    public param_speakPatternwhisper:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Whisper pattern, empty=mute"};
+    public param_speakPatternnotice:ParameterData = {type:"text", value:'{MESSAGE}', label:"Notice pattern, empty=mute"};
     public param_maxLength:ParameterData = {type:"slider", value:200, label:"Max spoken text length (0=unlimited)", min:0, max:2000, step:10};
     public param_timeout:ParameterData = {type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", min:0, max:300, step:10};
-    public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove URL"};
+    public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove URLs"};
     public param_replaceURL:ParameterData = {type:"text", value:'url', label:"Replace by"};
-    public param_inactivityPeriod:ParameterData = {type:"slider", value:5, label:"Inactivity period (minutes)", min:0, max:60, step:1};
+    public param_inactivityPeriod:ParameterData = {type:"slider", value:0, label:"Inactivity period (minutes)", min:0, max:60, step:1};
     public param_speakRewards:ParameterData = {type:"toggle", value:true, label:"Speak rewards redeemed", icon:"channelPoints_purple.svg"};
     public param_speakSubs:ParameterData = {type:"toggle", value:true, label:"Speak sub alerts", icon:"sub_purple.svg"};
     public param_speakBits:ParameterData = {type:"toggle", value:true, label:"Speak bit alerts", icon:"bits_purple.svg"};
@@ -128,12 +121,18 @@ export default class ParamsTTS extends Vue {
 		};
 	}
 
+	public setVoices():void {
+		this.param_voice.listValues = window.speechSynthesis.getVoices().map(x => { return {label:x.name, value:x.name} });
+	}
+
 	public async beforeMount():Promise<void> {
 		let params: TTSParamsData = StoreProxy.store.state.ttsParams;
 		
 		this.param_removeURL.children = [this.param_replaceURL];
 		Object.keys(params).forEach(
 			param => {
+				console.log(param, (this as any)['param_'+param]);
+				
 				if (typeof (params as any)[param] === "object") {
 					(this as any)['param_'+param] = (params as any)[param];
 				} else {
@@ -141,7 +140,10 @@ export default class ParamsTTS extends Vue {
 				}
 			}
 		);
-
+		console.log(this.param_voice.listValues);
+		
+		this.setVoices();
+		console.log(this.param_voice.listValues);
 		watch(()=>this.finalData, ()=> {
 			StoreProxy.store.dispatch("setTTSParams", this.finalData);
 		}, {deep:true});
@@ -191,12 +193,21 @@ export default class ParamsTTS extends Vue {
 	// 	this.selectedOBSSources = list;
 	// }
 
-	public get ttsPlaceholders():PlaceholderEntry[] {
+	public get tts2Placeholders():PlaceholderEntry[] {
 		return [
 			{
 				tag:"USER",
 				desc:"User name",
 			},
+			{
+				tag:"MESSAGE",
+				desc:"Message",
+			},
+		];
+	}
+
+	public get tts1Placeholder():PlaceholderEntry[] {
+		return [
 			{
 				tag:"MESSAGE",
 				desc:"Message",

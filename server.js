@@ -920,8 +920,6 @@ const UserDataSchema = {
 				speakFollow: {type:"boolean"},
 				speakPolls: {type:"boolean"},
 				speakPredictions: {type:"boolean"},
-				speakBingos: {type:"boolean"},
-				speakRaffle: {type:"boolean"},
 				ttsPerms:{
 					type:"object",
 					additionalProperties: false,
