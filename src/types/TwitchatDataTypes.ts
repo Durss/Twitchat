@@ -40,12 +40,11 @@ export interface IRoomStatusCategory {
 	slowMode:ParameterData;
 }
 
-export type ParameterCategory = "appearance" | "filters"| "features"| "tts";
+export type ParameterCategory = "appearance" | "filters"| "features";
 export interface IParameterCategory {
 	appearance:{[key:string]:ParameterData};
 	filters:{[key:string]:ParameterData};
 	features:{[key:string]:ParameterData};
-	tts:{[key:string]:ParameterData};
 }
 
 export type AccountParamsCategory = "syncDataWithServer";
