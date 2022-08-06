@@ -31,18 +31,26 @@ import { Options, Vue } from 'vue-class-component';
 export default class PlaceholderSelector extends Vue {
 
 	public placeholders!:PlaceholderEntry[];
-	public target!:HTMLInputElement | HTMLTextAreaElement;
+	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
 	public modelValue!:string;
 
 	/**
 	 * Add a token on the text
 	 */
-	public insert(h:{tag:string, desc:string}):void {
+	public async insert(h:{tag:string, desc:string}):Promise<void> {
+		let target = this.target as HTMLInputElement | HTMLTextAreaElement;
+		if((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
+			target = await(new Promise((resolve)=>{
+				(this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then((input:HTMLInputElement | HTMLTextAreaElement)=>{
+					resolve(input);
+				});
+			}))
+		}
 		const tag = "{"+h.tag+"}";
-		let carretPos = this.target.selectionStart as number | 0;
+		let carretPos = target.selectionStart as number | 0;
 		if(!carretPos) carretPos = 0;
 		//Insert tag
-		const text = this.target.value.substring(0, carretPos) + tag + this.target.value.substring(carretPos);
+		const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
 		this.$emit("update:modelValue", text);
 	}
 }

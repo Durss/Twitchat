@@ -14,7 +14,7 @@
 				<input type="text" placeholder="Search a parameter..." v-model="search" v-autofocus>
 			</div>
 			
-			<div class="menu" v-if="content == null && !search">
+			<div class="content menu" v-if="content == null && !search">
 				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'spoiler'" />
 				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />

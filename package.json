@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "4.2.3",
+	"version": "4.4.4",
 	"private": true,
 	"scripts": {
 		"dev": "vite --host",
@@ -24,6 +24,7 @@
 	},
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.1.0",
+		"@types/dom-screen-wake-lock": "^1.0.0",
 		"@types/gsap": "^3.0.0",
 		"@types/node": "^16.11.25",
 		"@types/tmi.js": "^1.8.1",

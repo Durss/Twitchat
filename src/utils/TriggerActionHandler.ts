@@ -371,7 +371,6 @@ export default class TriggerActionHandler {
 			// console.log(canExecute);
 			
 			if(canExecute) {
-				// console.log("Parse steps", actions);
 				for (let i = 0; i < data.actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
 					const step = data.actions[i];
@@ -476,7 +475,7 @@ export default class TriggerActionHandler {
 							if(Config.instance.DEEZER_CONNECTED) {
 								DeezerHelper.instance.nextTrack();
 							}
-						}
+						}else
 						
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 							if(Config.instance.SPOTIFY_CONNECTED) {
@@ -485,7 +484,7 @@ export default class TriggerActionHandler {
 							if(Config.instance.DEEZER_CONNECTED) {
 								DeezerHelper.instance.pause();
 							}
-						}
+						}else
 						
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 							if(Config.instance.SPOTIFY_CONNECTED) {
@@ -494,6 +493,27 @@ export default class TriggerActionHandler {
 							if(Config.instance.DEEZER_CONNECTED) {
 								DeezerHelper.instance.resume();
 							}
+						}else
+						
+						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
+							let m:string = step.playlist;
+							if(message.type == "message") {
+								m = await this.parseText(eventType, message, m);
+							}
+							if(Config.instance.SPOTIFY_CONNECTED) {
+								let id:string|null = null;
+								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
+									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+									id = chunks[2];
+								}
+								const success = await SpotifyHelper.instance.startPlaylist(id, m);
+								if(!success) {
+									IRCClient.instance.sendMessage("Playlist not found");
+								}
+							}
+							// if(Config.instance.DEEZER_CONNECTED) {
+							// 	DeezerHelper.instance.resume();
+							// }
 						}
 					}
 

@@ -81,6 +81,7 @@ Documentation can be found [here](PUBLIC_API.md).
 First create a `credentials.json` file on the root directory and fill in these values :
 ```json
 {
+	"admin_ids": ["YOUR_TWITCH_ID"],
 	"client_id": "",
 	"client_secret": "",
 	"redirect_uri": "http://localhost:8080/oauth",
@@ -107,7 +108,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 	],
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
-	"spotify_scopes": "user-read-currently-playing user-modify-playback-state",
+	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",
 	"spotify_redirect_uri": "http://localhost:8080/spotify/auth"
 }
 ```

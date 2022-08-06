@@ -13,8 +13,6 @@ const crypto = require('crypto');
 
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
-let credentialToken = null;
-let credentialToken_invalidation_date = 0;
 
 console.log("==============");
 console.log("Server started");
@@ -95,6 +93,11 @@ http.createServer((request, response) => {
 			//Get users
 			}else if(endpoint == "/api/users") {
 				getUsers(request, response);
+				return;
+
+			//Get users
+			}else if(endpoint == "/api/userdata") {
+				getUserData(request, response);
 				return;
 
 			//Get spotify token
@@ -291,18 +294,8 @@ async function refreshToken(request, response) {
  * Get/set a user's data
  */
 async function userData(request, response, body) {
-	let userInfo = {};
-
-	//Check access token validity
-	const headers = { "Authorization": request.headers.authorization };
-	const options = {
-		method: "GET",
-		headers: headers,
-	};
-	const result = await fetch("https://id.twitch.tv/oauth2/validate", options)
-	if(result.status == 200) {
-		userInfo = await result.json();
-	}else{
+	let userInfo = await getUserFromToken(request.headers.authorization);
+	if(!userInfo) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message:"Invalid access token", success:false}));
 		return;
@@ -405,18 +398,23 @@ async function getFakeEvents(request, response) {
  * Get users list
  */
 async function getUsers(request, response) {
-	let params = UrlParser.parse(request.url, true).query;
-	//Missing token
-	if(!params.token) {
+	//Missing auth token
+	if(!request.headers.authorization) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({success:false}));
 		return;
 	}
-	//Check token
-	const hash = crypto.createHash('sha256').update(credentials.csrf_key).digest("hex");
-	if(hash != params.token.toLowerCase()){
+	
+	const userInfo = await getUserFromToken(request.headers.authorization);
+	if(!userInfo) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({success:false, message:"invalid token"}));
+		response.end(JSON.stringify({message:"Invalid access token", success:false}));
+		return;
+	}
+
+	if(credentials.admin_ids.indexOf(userInfo.user_id) == -1) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"You're not allowed to call this endpoint", success:false}));
 		return;
 	}
 
@@ -432,6 +430,45 @@ async function getUsers(request, response) {
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify({success:true, users}));
+}
+
+/**
+ * Get users list
+ */
+async function getUserData(request, response) {
+	let params = UrlParser.parse(request.url, true).query;
+
+	//Missing auth token
+	if(!request.headers.authorization) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:false}));
+		return;
+	}
+	
+	const userInfo = await getUserFromToken(request.headers.authorization);
+	if(!userInfo) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Invalid access token", success:false}));
+		return;
+	}
+
+	if(credentials.admin_ids.indexOf(userInfo.user_id) == -1) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"You're not allowed to call this endpoint", success:false}));
+		return;
+	}
+
+	let file = {};
+	try {
+		file = JSON.parse(fs.readFileSync(userDataFolder+"/"+params.uid+".json", "utf8"));
+	}catch(error){
+		response.writeHead(404, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:false, message:"Unable to load user data file"}));
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:true, data:file}));
 }
 
 /**
@@ -559,6 +596,24 @@ async function twitchClip(request, response) {
 	response.end(html);
 }
 
+/**
+ * Validates a token and return the user data
+ */
+async function getUserFromToken(token) {
+	//Check access token validity
+	const options = {
+		method: "GET",
+		headers: { "Authorization": token },
+	};
+	const result = await fetch("https://id.twitch.tv/oauth2/validate", options);
+	
+	if(result.status == 200) {
+		return await result.json();
+	}else{
+		return null;
+	}
+
+}
 
 
 /**
@@ -687,6 +742,7 @@ const UserDataSchema = {
 										musicAction: {type:"string", maxLength:3},
 										track: {type:"string", maxLength:500},
 										confirmMessage: {type:"string", maxLength:500},
+										playlist: {type:"string", maxLength:500},
 									}
 								},
 							]
@@ -835,6 +891,7 @@ const UserDataSchema = {
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
 		greetHeight: {type:"number"},
+		leftColSize: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
@@ -975,6 +1032,7 @@ const UserDataSchema = {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				noScroll: {type:"boolean"},
 				autoHide: {type:"boolean"},
 				erase: {type:"boolean"},
 				showCover: {type:"boolean"},

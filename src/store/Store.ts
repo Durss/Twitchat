@@ -19,6 +19,7 @@ export default class Store {
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";
 	public static GREET_AUTO_HEIGHT:string = "greetHeight";
+	public static LEFT_COL_SIZE:string = "leftColSize";
 	public static OBS_PORT:string = "obsPort";
 	public static OBS_PASS:string = "obsPass";
 	public static OBS_IP:string = "obsIP";
@@ -94,7 +95,7 @@ export default class Store {
 			v = "7";
 		}
 		if(v=="7") {
-			//Because of my stupid version check, users could skip updates
+			//Because of an old stupid version check, users could skip updates
 			//Trying to fix this here...
 			Store.remove("p:showPollPredResults");
 			v = "8";
@@ -110,6 +111,12 @@ export default class Store {
 		if(v=="10") {
 			this.migrateEmergency();
 			v = "11";
+		}
+		if(v=="11") {
+			//Because of an old stupid version check, users could skip updates
+			//Trying to fix this here...
+			this.remove("obsConf_sources");
+			v = "12";
 		}
 
 		this.set(this.DATA_VERSION, v);

@@ -26,6 +26,13 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	}else{
 		document.body.style.backgroundColor = Utils.getLessVars().mainColor_dark as string;
 	}
+
+	//If landing on homepage, edirect to chat if an auth token is available
+	const authToken = Store.get(Store.TWITCH_AUTH_TOKEN);
+	if(authToken && to.name === "home") {
+		next({name:"chat"});
+		return;
+	}
 	
 	if (!store.state.initComplete) {
 		try {
