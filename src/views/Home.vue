@@ -305,7 +305,6 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import router from '@/router';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
@@ -385,7 +384,7 @@ export default class Home extends Vue {
 
 	public redirectToChat():void {
 		let url = document.location.origin;
-		url += router.resolve({name:"chat"}).href;
+		url += this.$router.resolve({name:"chat"}).href;
 		window.location.href = url;
 	}
 

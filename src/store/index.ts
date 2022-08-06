@@ -25,6 +25,8 @@ import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
+import type VoiceAction from '@/utils/VoiceAction';
+import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
@@ -35,7 +37,7 @@ import Store from './Store';
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 6,
+		latestUpdateIndex: 7,
 		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
@@ -54,6 +56,7 @@ const store = createStore({
 		cypherEnabled: false,
 		commercialEnd: 0,//Date.now() + 120000,
 		chatMessages: [] as ChatMessageTypes[],
+		pinedMessages: [] as IRCEventDataList.Message[],
 		activityFeed: [] as ActivityFeedData[],
 		mods: [] as TwitchDataTypes.ModeratorUser[],
 		currentPoll: {} as TwitchDataTypes.Poll,
@@ -62,6 +65,12 @@ const store = createStore({
 		emoteSelectorCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
 		trackedUsers: [] as TrackedUser[],
 		onlineUsers: [] as string[],
+		voiceActions: [] as VoiceAction[],
+		voiceLang: "en-US",
+		voiceText: {
+			tempText:"",
+			finalText:"",
+		},
 		raffle: null as RaffleData | null,
 		chatPoll: null as ChatPollData | null,
 		bingo: null as BingoData | null,
@@ -86,6 +95,7 @@ const store = createStore({
 		streamInfoPreset: [] as StreamInfoPreset[],
 		timerStart: 0,
 		countdown: null as CountdownData|null,
+		lastRaiderLogin: null as string|null,
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -332,6 +342,7 @@ const store = createStore({
 			cancelCallback:()=>{ },
 			yesLabel:"",
 			noLabel:"",
+			STTOrigin:false,
 		},
 
 		emergencyParams: {
@@ -615,6 +626,11 @@ const store = createStore({
 							return;
 						}
 					}
+				}
+
+				//If it's a subgift, merge it with potential previous ones
+				if(payload.type == "highlight" && payload.tags["msg-id"] == "raid") {
+					state.lastRaiderLogin = payload.username as string;
 				}
 
 				//Search in the last 50 messages if this message has already been sent
@@ -1129,6 +1145,16 @@ const store = createStore({
 			Store.set(Store.BOT_MESSAGES, state.botMessages);
 		},
 
+		setVoiceLang(state, value:string) {
+			state.voiceLang = value
+			Store.set("voiceLang", value);
+		},
+
+		setVoiceActions(state, value:VoiceAction[]) {
+			state.voiceActions = value;
+			Store.set("voiceActions", value);
+		},
+
 		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
 
 		setSpotifyCredentials(state, value:{client:string, secret:string}) {
@@ -1426,6 +1452,16 @@ const store = createStore({
 			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
 		},
 		
+		pinMessage(state, message:IRCEventDataList.Message) { state.pinedMessages.push(message); },
+		
+		unpinMessage(state, message:IRCEventDataList.Message) {
+			state.pinedMessages.forEach((v, index)=> {
+				if(v.tags.id == message.tags.id) {
+					state.pinedMessages.splice(index, 1);
+				}
+			})
+		},
+		
 	},
 
 
@@ -1446,7 +1482,6 @@ const store = createStore({
 		refreshAuthToken({commit}, payload:()=>boolean) { commit("authenticate", {cb:payload, forceRefresh:true}); },
 
 		async startApp({state, commit}, payload:{authenticate:boolean, callback:()=>void}) {
-			console.log("START APP");
 			let jsonConfigs;
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
@@ -1478,14 +1513,34 @@ const store = createStore({
 				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
 				this.dispatch("onRaffleComplete", {publish:false, winner});
 			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+				if(state.lastRaiderLogin) {
+					this.dispatch("shoutout", state.lastRaiderLogin)
+				}else{
+					state.alert = "You have not been raided yet"
+				}
+			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
 				const enable = (e.data as unknown) as {enabled:boolean};
-				this.dispatch("setEmergencyMode", enable);
+				let enabled = enable.enabled;
+				//If no JSON is specified, just toggle the state
+				if(!e.data || enabled === undefined) enabled = !state.emergencyModeEnabled;
+				this.dispatch("setEmergencyMode", enabled);
 			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				state.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
+				state.voiceText.tempText = (e.data as {text:string}).text;
+				state.voiceText.finalText = "";
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
+				state.voiceText.finalText = (e.data as {text:string}).text;
 			});
 			PublicAPI.instance.initialize();
 
@@ -1714,7 +1769,6 @@ const store = createStore({
 				//If non followers highlight option is enabled, get follow state of
 				//all the users that joined
 				if(state.params.appearance.highlightNonFollowers.value === true) {
-					console.log("LOAD STATES", data);
 					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
 					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
 					for (let i = 0; i < usersFull.length; i++) {
@@ -2012,6 +2066,19 @@ const store = createStore({
 				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (state.musicPlayerParams as unknown) as JsonObject);
 			}
 			
+			//Init OBS permissions
+			const voiceActions = Store.get("voiceActions");
+			if(voiceActions) {
+				state.voiceActions = JSON.parse(voiceActions);
+			}
+			
+			//Init OBS permissions
+			const voiceLang = Store.get("voiceLang");
+			if(voiceLang) {
+				state.voiceLang = voiceLang;
+				VoiceController.instance.lang = voiceLang;
+			}
+			
 			//Load bot messages
 			const botMessages = Store.get(Store.BOT_MESSAGES);
 			if(botMessages) {
@@ -2218,8 +2285,11 @@ const store = createStore({
 
 		updateBotMessage({commit}, value:{key:string, enabled:boolean, message:string}) { commit("updateBotMessage", value); },
 
-		ahsInstaller({commit}, value:InstallHandler) { commit("ahsInstaller", value); },
+		setVoiceLang({commit}, value:string) { commit("setVoiceLang", value); },
 
+		setVoiceActions({commit}, value:VoiceAction[]) { commit("setVoiceActions", value); },
+
+		ahsInstaller({commit}, value:InstallHandler) { commit("ahsInstaller", value); },
 
 		setSpotifyCredentials({commit}, value:{client:string, secret:string}) { commit("setSpotifyCredentials", value); },
 
@@ -2292,6 +2362,10 @@ const store = createStore({
 		addEmergencyFollower({commit}, payload:EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
 		
 		clearEmergencyFollows({commit}) { commit("clearEmergencyFollows"); },
+		
+		pinMessage({commit}, message:IRCEventDataList.Message) { commit("pinMessage", message); },
+		
+		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
 	},
 	modules: {
 	}

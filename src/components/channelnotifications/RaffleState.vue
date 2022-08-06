@@ -37,7 +37,10 @@
 
 <script lang="ts">
 import type { PlaceholderEntry, WheelData, WheelItem } from '@/types/TwitchatDataTypes';
+import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -47,8 +50,6 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
-import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{},
@@ -120,7 +121,7 @@ export default class RaffleState extends Vue {
 		}while(this.raffleData.winners.find(w => w['user-id'] == winner.user['user-id']));
 		
 		//Ask if a wheel overlay exists
-		if(PublicAPI.instance.localConnectionAvailable) {
+		if(Config.instance.OBS_DOCK_CONTEXT) {
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 		}

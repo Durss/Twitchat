@@ -5,7 +5,8 @@
 	:error="isError"
 	:errorTitle="errorTitle"
 	:open="opened"
-	:title="title" :class="classes"
+	:title="title"
+	:class="classes"
 	:icons="icons"
 	>
 		<template #actions>
@@ -57,6 +58,7 @@ import Config from '@/utils/Config';
 		action:Object,
 		sources:Object,
 		index:Number,
+		totalItems:Number,
 		event:String,
 	},
 	components:{
@@ -74,6 +76,7 @@ export default class TriggerActionEntry extends Vue {
 	public action!:TriggerActionTypes;
 	public sources!:OBSSourceItem[];
 	public index!:number;
+	public totalItems!:number;
 	public event!:string;
 
 	public opened = false;
@@ -150,7 +153,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.opened = !this.action.type;
+		this.opened = !this.action.type || this.totalItems <= 2;
 	}
 
 	public async mounted():Promise<void> {

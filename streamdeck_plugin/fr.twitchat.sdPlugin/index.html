@@ -21,8 +21,9 @@
 			CHAT_FEED_READ: 1,
 			CHAT_FEED_SCROLL_UP: 100,
 			CHAT_FEED_SCROLL_DOWN: 100,
-			OBSWS_PORT: "",
+			OBSWS_PORT: "4455",
 			OBSWS_PASS: "",
+			OBSWS_IP: "127.0.0.1",
 			OBSWS_CONNECTED: false,
 		};
 
@@ -165,6 +166,7 @@
 					if(jsonPayload.OBSW_DO_CONNECT) {
 						settingsCache.OBSWS_PASS = jsonPayload.OBSW_DO_CONNECT.pass;
 						settingsCache.OBSWS_PORT = jsonPayload.OBSW_DO_CONNECT.port;
+						settingsCache.OBSWS_IP = jsonPayload.OBSW_DO_CONNECT.ip;
 						actions.SetGlobalSettings(settingsCache);
 						obsConnect(context);
 					}
@@ -198,7 +200,8 @@
 			if(connecting || settingsCache.OBSWS_CONNECTED === true) return;
 			connecting = true;//Avoid double websocketOBS.connect() calls that messes up obs-ws
 			try {
-				websocketOBS.connect("ws://127.0.0.1:"+settingsCache.OBSWS_PORT, settingsCache.OBSWS_PASS, {rpcVersion:1})
+				const ip = settingsCache.OBSWS_IP? settingsCache.OBSWS_IP : "127.0.0.1";
+				websocketOBS.connect("ws://"+ip+":"+settingsCache.OBSWS_PORT, settingsCache.OBSWS_PASS, {rpcVersion:1})
 				.then(()=> {
 					connecting = false;
 					const changed = settingsCache.OBSWS_CONNECTED != true;

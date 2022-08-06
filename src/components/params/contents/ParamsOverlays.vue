@@ -26,16 +26,15 @@
 </template>
 
 <script lang="ts">
+import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
-import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
-import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
-import Config from '@/utils/Config';
 import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
-import PublicAPI from '@/utils/PublicAPI';
-import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
+import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
+import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
+import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 
 @Options({
 	props:{},
@@ -54,7 +53,7 @@ export default class ParamsOverlays extends Vue {
 	public showDockTutorial:boolean = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get localConnectionAvailable():boolean { return PublicAPI.instance.localConnectionAvailable; }
+	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }

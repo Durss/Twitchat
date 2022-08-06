@@ -4,7 +4,7 @@
 
 		<div class="head">
 			<p>Create your own twitch alerts, allow your mods basic control over your OBS and much more</p>
-			<p class="install">In order to work, this needs <strong>OBS v27.2+</strong> and <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
+			<p class="install">In order to work, this needs <strong>OBS v28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
 		</div>
 
 		<ToggleBlock class="block conf"

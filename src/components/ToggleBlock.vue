@@ -25,6 +25,14 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from './Button.vue';
 
+/**
+ * To add actions on the right of the header (like a delete button)
+ * use the template tag like this :
+ * 	<ToggleBlock>
+ * 		<template #actions>...</template>
+ * 	</ToggleBlock>
+ */
+
 @Options({
 	props:{
 		title:String,

@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="top">
+		<div class="top" ref="top">
 			<div class="leftColumn" :style="leftStyles">
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
@@ -10,11 +10,11 @@
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>
 
-			<div class="dragBt" v-if="splitView" @mousedown="startDrag()" @touchstart="startDrag()">
+			<div class="dragBt" ref="splitter" v-if="splitView" @mousedown="startDrag()" @touchstart="startDrag()">
 				<div class="grip"></div>
 			</div>
 
-			<div class="rightColumn" v-if="splitView" :style="rightStyles">
+			<div class="rightColumn" v-if="splitView" :style="rightStyles" ref="rightCol">
 				<NewUsers class="newUsers" v-if="$store.state.params.features.firstMessage.value" />
 
 				<ActivityFeed class="activityFeed" listMode />
@@ -41,6 +41,7 @@
 				@bingo="currentModal = 'bingo'"
 				@liveStreams="currentModal = 'liveStreams'"
 				@TTuserList="currentModal = 'TTuserList'"
+				@pins="currentModal = 'pins'"
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
@@ -92,15 +93,17 @@
 			@close="showChatUsers = false" />
 
 		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
+		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" />
 
-		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" />
-		<ChatPollForm :style="rightStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" />
-		<RaffleForm :style="rightStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" />
+		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<ChatPollForm :style="rightStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<RaffleForm :style="rightStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<PredictionForm :style="rightStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
 		<BingoForm :style="rightStyles" class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-		<PredictionForm :style="rightStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" />
 		<LiveFollowings :style="rightStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
 		<StreamInfoForm :style="rightStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
 		<TTUserList :style="rightStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
+		<PinedMessages :style="rightStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
 
@@ -158,6 +161,8 @@ import { Options, Vue } from 'vue-class-component';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
+import PinedMessages from '../components/chatform/PinedMessages.vue';
+import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 
 @Options({
 	components:{
@@ -177,9 +182,11 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 		ChatPollForm,
 		CommandHelper,
 		EmoteSelector,
+		PinedMessages,
 		PredictionForm,
 		LiveFollowings,
 		StreamInfoForm,
+		VoiceTranscript,
 		ChatAlertMessage,
 		DataServerSyncModal,
 		ChannelNotifications,
@@ -190,26 +197,28 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 })
 export default class Chat extends Vue {
 
-	public disposed = false;
-	public resizing = false;
 	public showFeed = false;
-	public canStartAd = true;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCommands = false;
-	public showUserList = false;
+	public voiceControl = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public mouseY = 0;
-	public mouseX = 0;
-	public leftColSize = 0;
 	public startAdCooldown = 0;
 	public currentModal = "";
-	public currentMessageSearch = "";
 	public currentNotificationContent = "";
+
+	private disposed = false;
+	private mouseY = 0;
+	private mouseX = 0;
+	private leftColSize = 0;
+	private splitterPosY = 0;
+	private availHeight = 0;
+	private resizing = false;
+	private canStartAd = true;
 	
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
@@ -236,21 +245,23 @@ export default class Chat extends Vue {
 	public get leftStyles():{[key:string]:string} {
 		if(!this.splitView) return {};
 		
-		let size = this.leftColSize*100;
+		let size = this.leftColSize;
 		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
-			size = 100-size;
+			size = 1-size;
 		}
 		if(this.splitViewVertical) {
+			const value = `calc(${size*this.availHeight}px - 7px)`;//7px => dragbar size
 			return {
-				"height": size + '%',
-				"min-height": size + "%",
-				"max-height": size + "%",
+				"height": value,
+				"min-height": value,
+				"max-height": value,
 			}
 		}else{
+			const value = `calc(${size*100}% - 7px)`;//7px => dragbar size
 			return {
-				"width": size + '%',
-				"min-width": size + "%",
-				"max-width": size + "%",
+				"width": value,
+				"min-width": value,
+				"max-width": value,
 			}
 		}
 	}
@@ -258,23 +269,39 @@ export default class Chat extends Vue {
 	public get rightStyles():{[key:string]:string} {
 		if(!this.splitView) return {};
 		
-		let size = this.leftColSize*100;
-		if(StoreProxy.store.state.params.appearance.splitViewSwitch.value !== true) {
-			size = 100-size;
+		let size = this.leftColSize;
+		const switchCols = StoreProxy.store.state.params.appearance.splitViewSwitch.value === true;
+		if(!switchCols) {
+			size = 1-size;
 		}
+
 		if(this.splitViewVertical) {
+			const value = `calc(${size*this.availHeight}px - 14px)`;
 			return {
-				"height": size + '%',
-				"min-height": size + "%",
-				"max-height": size + "%",
+				"top":switchCols? "0" : (this.availHeight*(1-size)+14)+"px",
+				"height": value,
+				"min-height": value,
+				"max-height": value,
+				"width": "100%",
 			}
 		}else{
+			const value = `calc(${size*100}% - 7px)`;
 			return {
-				"width": size + '%',
-				"min-width": size + "%",
-				"max-width": size + "%",
+				"width": value,
+				"min-width": value,
+				"max-width": value,
 			}
 		}
+	}
+
+	public get ttsStyles():{[key:string]:string} {
+		let res:{[key:string]:string} = {};
+		if(this.splitView && this.splitViewVertical && StoreProxy.store.state.params.appearance.splitViewSwitch.value === true) {
+			res.top = this.splitterPosY+"px";
+		}else if(!this.splitViewVertical){
+			res = this.rightStyles;
+		}
+		return res;
 	}
 
 	private resizeHandler!:(e:Event) => void;
@@ -314,6 +341,15 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 
@@ -342,6 +378,10 @@ export default class Chat extends Vue {
 			let raffle = StoreProxy.store.state.raffle as RaffleData;
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
 		});
+
+		watch(()=>this.currentModal, ()=>{
+			this.voiceControl = false;
+		})
 
 		//Handle chat alert feature
 		watch(() => StoreProxy.store.state.chatAlert, async (value:string) => {
@@ -382,6 +422,15 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 	}
 
 	public clearChat():void {
@@ -391,7 +440,7 @@ export default class Chat extends Vue {
 	/**
 	 * Called when requesting an action from the public API
 	 */
-	private onPublicApiEvent(e:TwitchatEvent):void {
+	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif = "";
 		let modal = "";
 		switch(e.type) {
@@ -404,14 +453,71 @@ export default class Chat extends Vue {
 				StoreProxy.store.state.params.appearance.showViewersCount.value = !StoreProxy.store.state.params.appearance.showViewersCount.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
+
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
 				StoreProxy.store.state.params.features.showModTools.value = !StoreProxy.store.state.params.features.showModTools.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
+
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
 				StoreProxy.store.state.params.filters.censorDeletedMessages.value = !StoreProxy.store.state.params.filters.censorDeletedMessages.value;
 				StoreProxy.store.dispatch('updateParams');
 				break;
+
+			case TwitchatEvent.CREATE_POLL:
+				this.currentModal = 'poll';
+				await this.$nextTick();
+				this.voiceControl = true;
+				break;
+			case TwitchatEvent.STOP_POLL:{
+				const poll = StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
+				try {
+					await TwitchUtils.endPoll(poll.id);
+				}catch(error) {
+					StoreProxy.store.state.alert = "An error occurred while deleting the poll";
+				}
+				break;
+			}
+
+			case TwitchatEvent.CREATE_PREDICTION:
+				this.currentModal = 'pred';
+				await this.$nextTick();
+				this.voiceControl = true;
+				break;
+			case TwitchatEvent.STOP_PREDICTION:{
+				const prediction = StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction;
+				try {
+					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
+				}catch(error) {
+					StoreProxy.store.state.alert = "An error occurred while deleting the prediction";
+				}
+				break;
+			}
+
+			case TwitchatEvent.CREATE_RAFFLE:
+				this.currentModal = 'raffle';
+				await this.$nextTick();
+				this.voiceControl = true;
+				break;
+			case TwitchatEvent.STOP_RAFFLE:{
+				this.$confirm("Close raffle", "All raffle entries will be lost", undefined, undefined, undefined, true)
+				.then(async ()=> {
+					StoreProxy.store.dispatch("stopRaffle");
+				}).catch(()=> {
+					//ignore
+				});
+				break;
+			}
+
+			case TwitchatEvent.START_EMERGENCY:
+				this.$confirm("Enable emergency mode ?", undefined, undefined, undefined, undefined, true).then(()=>{
+					StoreProxy.store.dispatch("setEmergencyMode", true);
+				}).catch(()=>{});
+				break;
+			case TwitchatEvent.STOP_EMERGENCY:{
+				StoreProxy.store.dispatch("setEmergencyMode", false);
+				break;
+			}
 		}
 
 		if(notif) {
@@ -479,7 +585,6 @@ export default class Chat extends Vue {
 	 */
 	public searchMessage(str:string):void {
 		this.currentModal = 'search';
-		this.currentMessageSearch = str;
 	}
 
 	/**
@@ -520,6 +625,7 @@ export default class Chat extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 
+		if(this.splitterPosY === 0) this.replaceTTS();
 		if(!this.resizing) return;
 		
 		if(this.splitViewVertical) {
@@ -529,6 +635,18 @@ export default class Chat extends Vue {
 		}
 
 		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
+
+		await this.$nextTick();
+		this.replaceTTS();
+	}
+
+	private replaceTTS():void {
+		if(!this.$refs.splitter) return;
+		let rect = (this.$refs.splitter as HTMLDivElement).getBoundingClientRect();
+		this.splitterPosY = rect.top;
+		
+		rect = (this.$refs.top as HTMLDivElement).getBoundingClientRect();
+		this.availHeight = rect.height;
 	}
 }
 
@@ -590,12 +708,18 @@ export default class Chat extends Vue {
 				.top {
 					flex-direction: column-reverse;
 				}
+				&.switchCols {
+					.contentWindows.tts {
+						transform: translateY(-100%);
+					}
+				}
 			}
 
 			.dragBt {
 				margin-right: 0;
-				margin-bottom: -7px;
 				padding: 3px;
+				width: 100%;
+				flex-grow: 1;
 				cursor: ns-resize;
 				.grip {
 					left: unset;
@@ -624,10 +748,15 @@ export default class Chat extends Vue {
 				max-width: 50vw;
 				margin: auto;
 			}
-
-			&.streams {
-				width: 50%;
-				height: 100%;
+			&.tts {
+				left: auto;
+				right:0;
+			}
+		}
+		&.switchCols {
+			.contentWindows.tts {
+				left: 0;
+				right: auto;
 			}
 		}
 	}
@@ -663,7 +792,7 @@ export default class Chat extends Vue {
 		cursor: ew-resize;
 		user-select: none;
 		z-index: 2;
-		margin-right: -7px;
+		width: 14px;
 		.grip {
 			position: relative;
 			left: 50%;

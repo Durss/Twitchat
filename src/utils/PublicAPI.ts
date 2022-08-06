@@ -30,15 +30,6 @@ export default class PublicAPI extends EventDispatcher {
 		return PublicAPI._instance;
 	}
 
-	/**
-	 * Get if page is runing on OBS and thus the BrodcastChannel
-	 * API is available
-	 */
-	get localConnectionAvailable():boolean {
-		//@ts-ignore
-		return window.obsstudio != undefined;
-	}
-	
 	
 	
 	/******************
@@ -70,10 +61,11 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param type 
 	 * @param data 
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false):Promise<void> {
+		// console.log("Broadcasting", type, data);
 		if(!data) data = {};
 		data.id = Utils.guid();
-		this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
+		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
 
 		//Broadcast to other browser's tabs
 		try {

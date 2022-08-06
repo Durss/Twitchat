@@ -5,6 +5,8 @@ import { createApp } from 'vue';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
+import CountryFlag from 'vue3-country-flag-icon';
+import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
 import App from './App.vue';
 import './less/index.less';
 import router from './router';
@@ -19,7 +21,7 @@ gsap.registerPlugin(ScrollToPlugin);
  * Add route guards for login
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-	const needAuth = to.meta.needAuth;
+	const needAuth = to.meta.needAuth !== false;
 	const transparent = to.meta.noBG;
 	if(transparent) {
 		document.body.style.backgroundColor = "transparent";
@@ -45,10 +47,10 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	}
 
 	if (!store.state.authenticated) {
+		console.log("REroute ?")
 		//Not authenticated, reroute to login
-		if(needAuth === true) {
-			next({name: 'login'});
-			return;
+		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
+			next({name: 'login', params: {redirect: to.name?.toString()}});
 		}
 	}
 
@@ -69,13 +71,15 @@ const confirm = <T>(title: string,
 	description?: string,
 	data?: T,
 	yesLabel?:string,
-	noLabel?:string): Promise<T|undefined> => {
+	noLabel?:string,
+	STTOrigin?:boolean): Promise<T|undefined> => {
 	const prom = <Promise<T|undefined>>new Promise((resolve, reject) => {
 		const confirmData = {
 			title,
 			description,
 			yesLabel,
 			noLabel,
+			STTOrigin,
 			confirmCallback : () => {
 				resolve(data);
 			},
@@ -122,6 +126,7 @@ Store.init();
 const app = createApp(App)
 .use(store)
 .use(router)
+.component("country-flag", CountryFlag)
 .component("vue-select", VueSelect)
 .provide("$store", store)
 .provide("$image", image)

@@ -7,7 +7,7 @@
 		<Splitter title="Install steps" />
 
 		<ol>
-			<li><span class="index">1.</span>This plugin needs <a :href="obswsInstaller" target="_blank">OBS-websocket V5</a> plugin to be installed on OBS</li>
+			<li><span class="index">1.</span>This plugin needs <strong>OBS 28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket V5+</a> plugin to be installed</li>
 			
 			<li><span class="index">2.</span> Install Stream Deck™ plugin:
 				<Button :icon="$image('icons/elgato.svg')"

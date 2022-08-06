@@ -15,6 +15,7 @@ export type ParamsContenType = 'appearance'
 							| 'emergency'
 							| 'spoiler'
 							| 'alert'
+							| 'voice'
 							| null ;
 
 export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
@@ -341,4 +342,10 @@ export interface MusicTriggerData {
 	type:"musicEvent";
 	start:boolean;
 	music?:MusicMessage;
+}
+
+export interface HypeTrainTriggerData {
+	type:"hypeTrainApproach"|"hypeTrainStart"|"hypeTrainProgress"|"hypeTrainEnd";
+	level:number;
+	percent:number;
 }

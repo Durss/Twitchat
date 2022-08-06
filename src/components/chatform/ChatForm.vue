@@ -95,6 +95,18 @@
 				</transition>
 
 				<transition name="blink">
+				<div class="pins" v-if="$store.state.pinedMessages.length > 0">
+					<Button aria-label="Open pined messages"
+						:icon="$image('icons/pin.svg')"
+						bounce
+						small
+						data-tooltip="Pined messages"
+						@click="$emit('pins')" />
+					<div class="count">{{$store.state.pinedMessages.length}}</div>
+				</div>
+				</transition>
+
+				<transition name="blink">
 				<Button aria-label="Open dev mode options"
 					:icon="$image('icons/debug.svg')"
 					bounce
@@ -147,12 +159,21 @@
 				</div>
 
 				<transition name="blink">
+				<Button small highlight class="voice" aria-label="start voice bot"
+					:icon="$image('icons/microphone'+(voiceBotStarted? '_recording' : '')+'.svg')"
+					bounce
+					v-if="voiceBotConfigured"
+					:data-tooltip="voiceBotStarted? 'Stop voice bot' : 'Start voice bot'"
+					@click="toggleVoiceBot()" />
+				</transition>
+
+				<transition name="blink">
 				<Button small highlight class="emergency" aria-label="emergency button"
 					:icon="$image('icons/emergency.svg')"
 					bounce
 					v-if="emergencyButtonEnabled"
 					:data-tooltip="$store.state.emergencyModeEnabled? 'Stop emergency mode' : 'Start emergency'"
-					@click="enableEmergencyMode()" />
+					@click="toggleEmergencyMode()" />
 				</transition>
 
 			</form>
@@ -178,6 +199,8 @@ import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
+import VoiceAction from '@/utils/VoiceAction';
+import VoiceController from '@/utils/VoiceController';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { LoremIpsum } from "lorem-ipsum";
@@ -207,6 +230,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 	emits: [
 		"debug",
 		"ad",
+		"pins",
 		"poll",
 		"pred",
 		"clear",
@@ -245,6 +269,22 @@ export default class ChatForm extends Vue {
 
 	public get emergencyButtonEnabled():boolean {
 		return StoreProxy.store.state.emergencyParams.enabled === true;
+	}
+
+	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
+	public get voiceBotConfigured():boolean {
+		if(Config.instance.OBS_DOCK_CONTEXT) return false;
+		const actions = Object.keys(VoiceAction);
+		type VAKeys = keyof typeof VoiceAction;
+		//Search for global labels
+		for (let i = 0; i < actions.length; i++) {
+			const a = actions[i];
+			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
+			const id:string = VoiceAction[a as VAKeys] as string;
+			const action = (StoreProxy.store.state.voiceActions as VoiceAction[]).find(v=> v.id == id);
+			if(!action?.sentences) return false;
+		}
+		return true;
 	}
 
 	public get chatHighlightEnabled():boolean {
@@ -444,7 +484,6 @@ export default class ChatForm extends Vue {
 					for (let i = 0; i < StoreProxy.store.state.chatMessages.length; i++) {
 						const m = StoreProxy.store.state.chatMessages[i];
 						if(m.type == "message") {
-							console.log("Answer to", m);
 							tags["reply-parent-msg-id"] = m.tags.id;
 							break;
 						}
@@ -621,13 +660,24 @@ export default class ChatForm extends Vue {
 	/**
 	 * Start the mergency mode
 	 */
-	public enableEmergencyMode():void {
+	public toggleEmergencyMode():void {
 		if(!StoreProxy.store.state.emergencyModeEnabled) {
 			this.$confirm("Enable emergency mode ?").then(()=>{
 				StoreProxy.store.dispatch("setEmergencyMode", true);
 			}).catch(()=>{});
 		}else{
 			StoreProxy.store.dispatch("setEmergencyMode", false);
+		}
+	}
+
+	/**
+	 * Start the voice bot
+	 */
+	public toggleVoiceBot():void {
+		if(VoiceController.instance.started) {
+			VoiceController.instance.stop();
+		}else{
+			VoiceController.instance.start();
 		}
 	}
 
@@ -801,7 +851,7 @@ export default class ChatForm extends Vue {
 				color: #ff0000;
 			}
 
-			.whispers {
+			.whispers, .pins {
 				position: relative;
 				.count {
 					position: absolute;
