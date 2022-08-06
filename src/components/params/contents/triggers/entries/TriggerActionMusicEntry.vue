@@ -10,31 +10,16 @@
 		<ParamItem class="item file" :paramData="actions_conf" v-model="action.musicAction" />
 
 		<div v-if="showTrackInput" >
-			<ParamItem class="item text" :paramData="track_conf" v-model="action.track" ref="textContentTrack" />
-			<PlaceholderSelector class="placeholders"
-				:target="getField('textContentTrack')"
-				:placeholders="helpers"
-				v-model="action.track"
-			/>
+			<InputPLaceHolder :placeholders="helpers" :paramData="track_conf" v-model="action.track" />
 		</div>
 
 		<div v-if="showTrackInput">
-			<ParamItem class="item text" :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" ref="textContentConfirm" />
-			<PlaceholderSelector class="placeholders"
-				:target="getField('textContentConfirm')"
-				:placeholders="helpers"
-				v-model="action.confirmMessage"
-			/>
+			<InputPLaceHolder :placeholders="helpers" :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" />
 		</div>
 
 		<div v-if="showPlaylistInput">
 			<div class="item warn">Only works with Spotify</div>
-			<ParamItem class="item text" :paramData="playlist_conf" v-model="action.playlist" ref="playlistName" />
-			<PlaceholderSelector class="placeholders"
-				:target="getField('playlistName')"
-				:placeholders="helpers"
-				v-model="action.playlist"
-			/>
+			<InputPLaceHolder :placeholders="helpers" :paramData="playlist_conf" v-model="action.playlist" />
 		</div>
 	</div>
 </template>
@@ -45,6 +30,7 @@ import Config from '@/utils/Config';
 import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
+import InputPLaceHolder from '../../../InputPLaceHolder.vue';
 import ParamItem from '../../../ParamItem.vue';
 import PlaceholderSelector from '../../../PlaceholderSelector.vue';
 
@@ -56,6 +42,7 @@ import PlaceholderSelector from '../../../PlaceholderSelector.vue';
 	components:{
 		ParamItem,
 		ToggleBlock,
+		InputPLaceHolder,
 		PlaceholderSelector,
 	},
 })
@@ -73,23 +60,11 @@ export default class TriggerActionMusicEntry extends Vue {
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
-	
-	public async getField(ref:string):Promise<HTMLInputElement|HTMLTextAreaElement> {
-		await this.$nextTick();
-		let target = this.$refs[ref];
-		if((target as Vue).$el) target = (target as Vue).$el;
-		let input:HTMLInputElement|HTMLTextAreaElement = (target as HTMLDivElement).getElementsByTagName("input")[0];
-		if(!input) {
-			input = (target as HTMLDivElement).getElementsByTagName("textarea")[0];
-		}
-
-		return input;
-	}
 
 	public mounted():void {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [
-			{label:"Select a trigger...", value:"0" },
+			{label:"Select an action...", value:"0" },
 		];
 		events = events.concat(MusicTriggerEvents);
 		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;

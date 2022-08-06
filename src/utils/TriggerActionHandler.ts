@@ -121,6 +121,11 @@ export default class TriggerActionHandler {
 					if(await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID)) {
 						// return;
 					}
+				}else 
+				if(message.tags["returning-chatter"] === true) {
+					if(await this.handleReturningChatter(message, testMode, this.currentSpoolGUID)) {
+						// return;
+					}
 				}
 				if(message.message) {
 					if(await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID)) {
@@ -215,6 +220,10 @@ export default class TriggerActionHandler {
 	
 	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
+	}
+	
+	private async handleReturningChatter(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, guid);
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {

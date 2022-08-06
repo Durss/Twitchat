@@ -14,6 +14,7 @@
 		<div v-else-if="isUpdate" class="updates">
 			<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 			<div class="title">🎉 New updates 🎉</div>
+			<div class="version">Version {{appVersion}}</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
@@ -35,6 +36,10 @@
 						<li>
 							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
 							<span>Allow your viewers to change your <strong>currently playing spotify playlist</strong> from chat commands or channel point rewards</span>
+						</li>
+						<li>
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
+							<span><strong>1 new trigger</strong> added to execute actions when a <strong>user returns after 30+ days</strong> on your chat</span>
 						</li>
 						<li>
 							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
@@ -143,6 +148,8 @@ export default class ChatAd extends Vue {
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
+	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+
 	public mounted():void {
 		
 	}
@@ -208,6 +215,12 @@ export default class ChatAd extends Vue {
 			border-radius: .5em;
 			padding: 0 .25em;
 		}
+	}
+	
+	.version {
+		font-size: 1.25em;
+		text-align: center;
+		padding-top: .5em;
 	}
 
 	.content {

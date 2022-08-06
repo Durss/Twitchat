@@ -6,7 +6,6 @@
 			:target="placeholderTarget"
 			:placeholders="placeholders"
 			v-model="paramData.value"
-			@change="saveParams()"
 		/>
 	</div>
 </template>
@@ -16,9 +15,14 @@ import type { ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes'
 import { Options, Vue } from 'vue-class-component';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import ParamItem from './ParamItem.vue';
+import { watch } from 'vue';
 
 @Options({
 	props:{
+		modelValue:{
+			type:String,
+			default:"",
+		},
 		paramData:Object,
 		placeholders:{
 			type:Object,
@@ -28,7 +32,8 @@ import ParamItem from './ParamItem.vue';
 	components:{
 		ParamItem,
 		PlaceholderSelector,
-	}
+	},
+	emits:["update:modelValue"]
 })
 /**
  * Links a ParamItem to a PlaceholderSelector
@@ -41,6 +46,7 @@ export default class InputPLaceHolder extends Vue {
 
 	public paramData!:ParameterData;
 	public placeholders!:PlaceholderEntry[];
+	public modelValue!:string;
 
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
@@ -48,13 +54,16 @@ export default class InputPLaceHolder extends Vue {
 		if(this.paramData.type != "text") {
 			throw new Error("paramData type must be \"text\"");
 		}
-		// await this.$nextTick();
+		
+		if(this.modelValue) {
+			this.paramData.value = this.modelValue;
+		}
+		
 		this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.querySelector("textarea,input");
-		console.log(this.placeholderTarget);
-	}
 
-	public saveParams():void {
-		console.log("okfdokf");
+		watch(()=>this.paramData.value, ()=> {
+			this.$emit("update:modelValue", this.paramData.value);
+		});
 	}
 
 }

@@ -90,6 +90,7 @@
 				<TriggerActionEntry class="action"
 					:action="element"
 					:index="index"
+					:totalItems="actionList.length"
 					:sources="sources"
 					:event="event_conf.value"
 					@delete="deleteAction(index)"
@@ -99,11 +100,10 @@
 			</template>
 		</draggable>
 
-		<div class="bottomCTAS">
+		<div class="bottomCTAS" v-if="event_conf.value != '0'">
 			<Button :icon="$image('icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
-				v-if="event_conf.value != '0'"
 			/>
 		</div>
 	</div>
@@ -226,6 +226,7 @@ export default class ParamsTriggers extends Vue {
 		const map:{[key:string]:string} = {}
 		map[TriggerTypes.FIRST_ALL_TIME] = "firstTime_purple";
 		map[TriggerTypes.FIRST_TODAY] = "firstTime_purple";
+		map[TriggerTypes.RETURNING_USER] = "returning_purple";
 		map[TriggerTypes.POLL_RESULT] = "poll_purple";
 		map[TriggerTypes.PREDICTION_RESULT] = "prediction_purple";
 		map[TriggerTypes.RAFFLE_RESULT] = "ticket_purple";
