@@ -579,12 +579,12 @@ export default class TwitchUtils {
 	/**
 	 * Ends a prediction
 	 */
-	public static async endPrediction(pollId:string, winId:string, cancel = false):Promise<TwitchDataTypes.Prediction[]> {
+	public static async endPrediction(predictionId:string, winId:string, cancel = false):Promise<TwitchDataTypes.Prediction[]> {
 		const options = {
 			method:"PATCH",
 			headers: this.headers,
 			body: JSON.stringify({
-				id:pollId,
+				id:predictionId,
 				status:cancel? "CANCELED" : "RESOLVED",
 				winning_outcome_id:winId,
 				broadcaster_id:UserSession.instance.authToken.user_id,
@@ -1239,6 +1239,7 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
 			const res = await fetch(url.href, options);
+			if(res.status != 200) return [];//AS i managed to corrupt my twitch data, i need this to avoid errors everytime
 			const json:{data:TwitchDataTypes.BlockedUser[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
 			cursor = null;

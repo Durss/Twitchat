@@ -80,6 +80,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -146,6 +147,11 @@ export default class Login extends Vue {
 	public async mounted():Promise<void> {
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
+		let redirect = this.$router.currentRoute.value.params?.redirect;
+
+		if(redirect) {
+			Store.set("redirect", redirect, false);
+		}
 
 		if(this.$route.name == "oauth") {
 			this.authenticating = true;
@@ -161,7 +167,13 @@ export default class Login extends Vue {
 					StoreProxy.store.dispatch("authenticate", {code, csrf, cb:(success:boolean)=> {
 						this.authenticating = false;
 						if(success) {
-							this.$router.push({name:"chat"});
+							redirect = Store.get("redirect");
+							Store.remove("redirect");
+							if(redirect) {
+								this.$router.push({name: redirect});
+							}else{
+								this.$router.push({name:"chat"});
+							}
 						}else{
 							StoreProxy.store.state.alert = "Invalid credentials";
 							this.authenticating = false;

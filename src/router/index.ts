@@ -4,19 +4,28 @@ import StoreProxy from '@/utils/StoreProxy'
 import Utils from '@/utils/Utils'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
-import Chat from '../views/Chat.vue'
-import ChatLight from '../views/ChatLight.vue'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import Logout from '../views/Logout.vue'
-import Overlay from '../views/Overlay.vue'
-import Sponsor from '../views/Sponsor.vue'
+import Chat from '@/views/Chat.vue'
+import ChatLight from '@/views/ChatLight.vue'
+import Home from '@/views/Home.vue'
+import Login from '@/views/Login.vue'
+import Logout from '@/views/Logout.vue'
+import Overlay from '@/views/Overlay.vue'
+import Sponsor from '@/views/Sponsor.vue'
+import VoiceControl from '@/views/VoiceControl.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		alias: '/home',
 		name: 'home',
+		component: Home,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
+		path: '/home',
+		name: 'home_forced',
 		component: Home,
 		meta: {
 			overflow:true,
@@ -63,6 +72,15 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/oauth',
 		name: 'oauth',
 		component: Login,
+	},
+	{
+		path: '/voice',
+		name: 'voice',
+		component: VoiceControl,
+		meta: {
+			overflow:true,
+			needAuth:true,
+		}
 	},
 	{
 		path: '/spotify/auth',

@@ -7,10 +7,12 @@
 				<Button aria-label="Close prediction form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
-				<form  @submit.prevent="submitPoll()">
+				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
+
+				<form  @submit.prevent="submitForm()">
 					<div class="row">
 						<label for="prediction_title">Question</label>
-						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''">
+						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="0">
 					</div>
 					<div class="row answers">
 						<label for="prediction_answer">Answers</label>
@@ -21,6 +23,7 @@
 								v-model="answers[index]"
 								maxlength="25"
 								v-autofocus="index == 0 && title != ''"
+								:tabindex="index + 1"
 							>
 							<Button aria-label="Delte outcome option" class="deleteBt" small
 								:icon="$image('icons/cross.svg')"
@@ -53,16 +56,26 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
+import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
+import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Options({
-	props:{},
+	props:{
+		voiceControl: {
+			type: Boolean,
+			default: false
+		}
+	},
 	components:{
 		Button,
 		ParamItem,
+		VoiceGlobalCommandsHelper,
 	},
 	emits:['close']
 })
 export default class PredictionForm extends Vue {
+
+	public voiceControl!:boolean;
 
 	public loading = false;
 
@@ -70,6 +83,8 @@ export default class PredictionForm extends Vue {
 	public title = "";
 	public answers:string[] = ["", ""];
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
+
+	private voiceController!:FormVoiceControllHelper;
 
 	public get canSubmit():boolean {
 		return this.title.length > 1 && this.answers[0].length > 0 && this.answers[1].length > 0;
@@ -98,6 +113,12 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		watch(()=>this.voiceControl, ()=>{
+			if(this.voiceControl && !this.voiceController) {
+				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
+			}
+		});
+
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
@@ -124,6 +145,10 @@ export default class PredictionForm extends Vue {
 		}, {deep:true});
 	}
 
+	public beforeUnmount():void {
+		if(this.voiceController) this.voiceController.dispose();
+	}
+
 	public async deleteAnswer(index:number):Promise<void> {
 		this.answers.splice(index, 1);
 	}
@@ -136,7 +161,7 @@ export default class PredictionForm extends Vue {
 		}});
 	}
 
-	public async submitPoll():Promise<void> {
+	public async submitForm():Promise<void> {
 		this.loading = true;
 		this.error = "";
 
@@ -169,6 +194,11 @@ export default class PredictionForm extends Vue {
 	.modal();
 
 	.content {
+
+		.voiceHelper {
+			margin: auto;
+		}
+		
 		form {
 			display: flex;
 			flex-direction: column;
@@ -231,6 +261,9 @@ export default class PredictionForm extends Vue {
 				}
 			}
 		}
+	}
+	.voiceFocus {
+		border: 2px solid @mainColor_normal;
 	}
 }
 </style>

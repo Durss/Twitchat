@@ -191,6 +191,8 @@ export default class Store {
 				delete data["p:shoutoutLabel"];
 				delete data[this.GREET_HISTORY];
 				delete data[this.SYNC_DATA_TO_SERVER];
+				delete data.deezerEnabled;
+				delete data.redirect;
 	
 				let headers = {
 					'Authorization': 'Bearer '+this.access_token,

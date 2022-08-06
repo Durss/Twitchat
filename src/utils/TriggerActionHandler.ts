@@ -1,4 +1,4 @@
-import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -121,6 +121,11 @@ export default class TriggerActionHandler {
 					if(await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID)) {
 						// return;
 					}
+				}else 
+				if(message.tags["returning-chatter"] === true) {
+					if(await this.handleReturningChatter(message, testMode, this.currentSpoolGUID)) {
+						// return;
+					}
 				}
 				if(message.message) {
 					if(await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID)) {
@@ -183,6 +188,12 @@ export default class TriggerActionHandler {
 			if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
+
+		}else if(message.type == "hypeTrainApproach" || message.type == "hypeTrainStart"
+		|| message.type == "hypeTrainProgress" || message.type == "hypeTrainEnd") {
+			if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
 		}
 
 		// console.log("Message not matching any trigger", message);
@@ -209,6 +220,10 @@ export default class TriggerActionHandler {
 	
 	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
+	}
+	
+	private async handleReturningChatter(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, guid);
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
@@ -322,6 +337,16 @@ export default class TriggerActionHandler {
 	private async handleMusicEvent(message:MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		const event = message.start? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
 		return await this.parseSteps(event, message, testMode, guid);
+	}
+	
+	private async handleHypeTrainEvent(message:HypeTrainTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		const idToType = {
+			hypeTrainApproach:TriggerTypes.HYPE_TRAIN_APPROACH,
+			hypeTrainStart:TriggerTypes.HYPE_TRAIN_START,
+			hypeTrainProgress:TriggerTypes.HYPE_TRAIN_PROGRESS,
+			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END,
+		}
+		return await this.parseSteps(idToType[message.type], message, testMode, guid);
 	}
 
 	/**
@@ -636,4 +661,5 @@ type MessageTypes = IRCEventDataList.Message
 | ChatHighlightInfo
 | ChatAlertInfo
 | MusicTriggerData
+| HypeTrainTriggerData
 ;

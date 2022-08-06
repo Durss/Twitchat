@@ -805,6 +805,20 @@ const UserDataSchema = {
 				},
 			}
 		},
+		voiceActions: {
+			type:"array",
+			items: [
+				{
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						id: {type:"string", maxLength:100},
+						sentences: {type:"string", maxLength:1000},
+					}
+				},
+			]
+		},
+		voiceLang: {type:"string"},
 		"streamInfoPresets":{
 			type:"array",
 			items:[
@@ -854,6 +868,7 @@ const UserDataSchema = {
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:raidStreamInfo": {type:"boolean"},
 		"p:receiveWhispers": {type:"boolean"},
+		"p:showWhispersOnChat": {type:"boolean"},
 		"p:showBadges": {type:"boolean"},
 		"p:showBots": {type:"boolean"},
 		"p:showCheers": {type:"boolean"},

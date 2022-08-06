@@ -18,7 +18,7 @@ export default class Config {
 	public TWITCH_APP_SCOPES:string[] = [];
 	public TWITCH_API_PATH = "https://api.twitch.tv/helix/";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
-	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.0";
+	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.1";
 	public MAX_PREDICTION_OUTCOMES = 10;
 	public SPOTIFY_CLIENT_ID = "";
 	public SPOTIFY_SCOPES = "";
@@ -57,6 +57,8 @@ export default class Config {
 		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
 		return this.SPOTIFY_CONNECTED || this.DEEZER_CONNECTED;
 	}
+
+	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
 	
 	
 	

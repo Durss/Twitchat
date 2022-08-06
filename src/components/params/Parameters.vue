@@ -7,7 +7,6 @@
 				<h1 class="title">Parameters</h1>
 				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce />
 			</div>
-			
 
 			<div class="search" v-if="content == null">
 			<!-- <div class="search" v-if="isGenericListContent"> -->
@@ -19,9 +18,10 @@
 				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent('emergency')" :selected="content == 'obs' || content=='eventsAction'" />
-				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
+				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent('voice')" :selected="content == 'voice'" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
+				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
 				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent('tts')" :selected="content == 'tts'" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent('account')" :selected="content == 'account'" />
@@ -34,7 +34,6 @@
 				<ParamsList v-if="(content && isGenericListContent) || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" @setContent="setContent" />
 				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
 				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
 				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
 				<ParamsTTS v-if="content == 'tts'" @setContent="setContent" />
 				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
@@ -42,7 +41,8 @@
 				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
 				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
 				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
-
+				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
+				<ParamsVoiceBot v-if="content == 'voice'" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
 
@@ -57,25 +57,26 @@
 
 <script lang="ts">
 import type { ParameterCategory, ParameterData, ParamsContenType } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
-import ParamsList from './contents/ParamsList.vue';
-import ParamsOBS from './contents/ParamsOBS.vue';
-import ParamsSponsor from './contents/ParamsSponsor.vue';
-import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
-import ParamItem from './ParamItem.vue';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
-import ParamsOverlays from './contents/ParamsOverlays.vue';
-import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTTS from './contents/ParamsTTS.vue';
-import ParamsEmergency from './contents/ParamsEmergency.vue';
-import ParamsSpoiler from './contents/ParamsSpoiler.vue';
-import StoreProxy from '@/utils/StoreProxy';
 import ParamsAlert from './contents/ParamsAlert.vue';
+import ParamsEmergency from './contents/ParamsEmergency.vue';
+import ParamsList from './contents/ParamsList.vue';
+import ParamsOBS from './contents/ParamsOBS.vue';
+import ParamsOverlays from './contents/ParamsOverlays.vue';
+import ParamsSpoiler from './contents/ParamsSpoiler.vue';
+import ParamsSponsor from './contents/ParamsSponsor.vue';
+import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
+import ParamsTriggers from './contents/ParamsTriggers.vue';
+import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
+import ParamItem from './ParamItem.vue';
 
 @Options({
 	props:{},
@@ -92,6 +93,7 @@ import ParamsAlert from './contents/ParamsAlert.vue';
 		ParamsSponsor,
 		ParamsOverlays,
 		ParamsTriggers,
+		ParamsVoiceBot,
 		ParamsEmergency,
 		ParamsTTS,
 		ParamsStreamdeck,

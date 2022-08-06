@@ -3,6 +3,9 @@
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
 			<div class="title" v-html="title"></div>
+			
+			<VoiceGlobalCommandsHelper v-if="voiceControl" :confirmMode="true" />
+
 			<div class="description" v-html="description"></div>
 			<div class="buttons">
 				<Button class="cancel" type="cancel" @click.stop="answer()" :title="noLabel" alert />
@@ -14,29 +17,38 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
 import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHelper.vue';
 
 @Options({
+	props:{},
 	components:{
-		Button
+		Button,
+		VoiceGlobalCommandsHelper,
 	}
 })
 export default class Confirm extends Vue {
+
+	
 	public title = "";
 	public description = "";
 	public yesLabel = "";
 	public noLabel = "";
 	public hidden = true;
 	public submitPressed = false;
+	public voiceControl = false;
 
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
+	private voiceController!:FormVoiceControllHelper;
 
 	public mounted():void {
+
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
@@ -65,18 +77,37 @@ export default class Confirm extends Vue {
 			this.description = StoreProxy.store.state.confirm.description;
 			this.yesLabel = StoreProxy.store.state.confirm.yesLabel || "Yes";
 			this.noLabel = StoreProxy.store.state.confirm.noLabel || "No";
+			this.voiceControl = StoreProxy.store.state.confirm.STTOrigin === true;
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
 			gsap.to(dimmer, {duration:.25, opacity:1});
 			gsap.from(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out"});
+			if(this.voiceControl) {
+				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
+			}
 		}else{
+			if(this.voiceController) this.voiceController.dispose();
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.to(dimmer, {duration:.25, opacity:0, ease:"sine.in"});
 			gsap.to(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out", onComplete:()=> {
 				this.hidden = true;
 			}});
 		}
+	}
+
+	/**
+	 * Used by FormVoiceControllHelper
+	 */
+	public close():void {
+		this.answer(false);
+	}
+
+	/**
+	 * Used by FormVoiceControllHelper
+	 */
+	public submitForm():void {
+		this.answer(true);
 	}
 
 	private onDownUp(e:KeyboardEvent):void {
@@ -163,6 +194,10 @@ export default class Confirm extends Vue {
 		.title {
 			font-size: 45px;
 			text-align: center;
+		}
+
+		.voiceHelper {
+			margin: auto;
 		}
 
 		.description {

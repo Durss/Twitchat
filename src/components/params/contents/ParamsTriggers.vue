@@ -55,11 +55,6 @@
 			<div v-html="triggerDescription"></div>
 
 			<div class="ctas">
-				<Button :icon="$image('icons/add.svg')" title="Add action"
-					class="cta addBt"
-					@click="addAction()"
-					v-if="event_conf.value != '0'"
-				/>
 				<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
 					class="cta resyncBt"
 					@click="listSources(true)"
@@ -95,6 +90,7 @@
 				<TriggerActionEntry class="action"
 					:action="element"
 					:index="index"
+					:totalItems="actionList.length"
 					:sources="sources"
 					:event="event_conf.value"
 					@delete="deleteAction(index)"
@@ -104,18 +100,12 @@
 			</template>
 		</draggable>
 
-		<!-- <div class="buttons">
+		<div class="bottomCTAS" v-if="event_conf.value != '0'">
 			<Button :icon="$image('icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
-				v-if="event_conf.value != '0'"
 			/>
-			<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
-				class="addBt"
-				@click="listSources(true)"
-				v-if="event_conf.value != '0'" :loading="syncing"
-			/>
-		</div> -->
+		</div>
 	</div>
 </template>
 
@@ -236,6 +226,7 @@ export default class ParamsTriggers extends Vue {
 		const map:{[key:string]:string} = {}
 		map[TriggerTypes.FIRST_ALL_TIME] = "firstTime_purple";
 		map[TriggerTypes.FIRST_TODAY] = "firstTime_purple";
+		map[TriggerTypes.RETURNING_USER] = "returning_purple";
 		map[TriggerTypes.POLL_RESULT] = "poll_purple";
 		map[TriggerTypes.PREDICTION_RESULT] = "prediction_purple";
 		map[TriggerTypes.RAFFLE_RESULT] = "ticket_purple";
@@ -259,6 +250,10 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.EMERGENCY_MODE_STOP] = "emergency_purple";
 		map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = "highlight_purple";
 		map[TriggerTypes.CHAT_ALERT] = "alert_purple";
+		map[TriggerTypes.HYPE_TRAIN_APPROACH] = "train_purple";
+		map[TriggerTypes.HYPE_TRAIN_START] = "train_purple";
+		map[TriggerTypes.HYPE_TRAIN_PROGRESS] = "train_purple";
+		map[TriggerTypes.HYPE_TRAIN_END] = "train_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");
@@ -737,13 +732,27 @@ export default class ParamsTriggers extends Vue {
 		margin-top: 1em;
 	}
 
-	.buttons {
-		display: flex;
-		flex-direction: row;
+	.bottomCTAS {
+		// display: flex;
+		// flex-direction: row;
+		background: linear-gradient(90deg, @mainColor_normal 2px, transparent 1px);
+		background-position: 100% 0;
+		background-repeat: no-repeat;
+		background-size: calc(50% + 1px) 1em;
+		padding-top: 1em;
 		.addBt {
 			display: block;
 			margin: auto;
-			margin-top: 1em;
+		}
+		&::before{
+			content: "";
+			display: block;
+			width: 1em;
+			height: .5em;
+			background-color: @mainColor_normal;
+			border-top-left-radius: 100% 200%;
+			border-top-right-radius: 100% 200%;
+			margin: auto;
 		}
 	}
 
