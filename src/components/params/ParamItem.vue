@@ -184,6 +184,14 @@ export default class ParamItem extends Vue {
 		});
 		this.buildChildren();
 		
+		if(this.paramData.listValues) {
+			//Check if the value is on the listValues.
+			//If not, fallback to the first value.
+			if(!this.paramData.listValues.find(v=>v.label === this.paramData.value)) {
+				this.paramData.value = this.paramData.listValues[0].value;
+			}
+		}
+
 		this.inputField = this.$refs.input as HTMLTextAreaElement;
 	}
 
