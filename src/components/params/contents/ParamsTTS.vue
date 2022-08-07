@@ -2,7 +2,7 @@
 	<div class="paramstts">
 		<img src="@/assets/icons/tts_purple.svg" alt="emergency icon" class="icon">
 
-		<p class="header">Text to speech parameters.</p>
+		<p class="header">Read your messages out loud</p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
 
 		<div class="fadeHolder" :style="holderStyles">
@@ -13,13 +13,14 @@
 				<ParamItem class="item" :paramData="param_readNotices" />
 				<ParamItem class="item" :paramData="param_readFollow" />
 				<ParamItem class="item" :paramData="param_readSubs" />
+				<ParamItem class="item" :paramData="param_readSubgifts" />
+				<ParamItem class="item" :paramData="param_readBits" />
 				<ParamItem class="item" :paramData="param_readRaids" />
 				<ParamItem class="item" :paramData="param_readRewards" />
-				<ParamItem class="item" :paramData="param_readBits" />
 				<ParamItem class="item" :paramData="param_readPolls" />
+				<ParamItem class="item" :paramData="param_readPredictions" />
 				<ParamItem class="item" :paramData="param_readBingos" />
 				<ParamItem class="item" :paramData="param_readRaffle" />
-				<ParamItem class="item" :paramData="param_readPredictions" />
 
 				<ToggleBlock title="Users filter" :open="false" small class="item">
 					<PermissionsForm v-model="param_ttsPerms" />
@@ -91,30 +92,32 @@ export default class ParamsTTS extends Vue {
 	public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove links"};
 	public param_replaceURL:ParameterData = {type:"text", value:'link', label:"Replace by"};
 
-	public param_readMessages:ParameterData = {type:"toggle", value:false, label:"Read chat messages", icon:"user_purple.svg" };
-	public param_readMessagesPattern:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Format", longText:false};
-	public param_readWhispers:ParameterData = {type:"toggle", value:false, label:"Read whispers", icon:"whispers_purple.svg" };
-	public param_readWhispersPattern:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Format", longText:false};
-	public param_readNotices:ParameterData = {type:"toggle", value:false, label:"Read notices (TO, ban join/leave)", icon:"info_purple.svg" };
-	public param_readNoticesPattern:ParameterData = {type:"text", value:'{MESSAGE}', label:"Format", longText:false};
-	public param_readRewards:ParameterData = {type:"toggle", value:true, label:"Read channel point rewards", icon:"channelPoints_purple.svg"};
-	public param_readRewardsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readSubs:ParameterData = {type:"toggle", value:false, label:"Read sub alerts", icon:"sub_purple.svg" };
-	public param_readSubsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readBits:ParameterData = {type:"toggle", value:false, label:"Read bits alerts", icon:"bits_purple.svg" };
-	public param_readBitsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readRaids:ParameterData = {type:"toggle", value:false, label:"Read raid alerts", icon:"raid_purple.svg" };
-	public param_readRaidsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readFollow:ParameterData = {type:"toggle", value:false, label:"Read follow alerts", icon:"follow_purple.svg" };
-	public param_readFollowPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readPolls:ParameterData = {type:"toggle", value:false, label:"Read poll results", icon:"poll_purple.svg" };
-	public param_readPollsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readBingos:ParameterData = {type:"toggle", value:false, label:"Read bingo results", icon:"bingo_purple.svg" };
-	public param_readBingosPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readRaffle:ParameterData = {type:"toggle", value:false, label:"Read raffle results", icon:"ticket_purple.svg" };
-	public param_readRafflePattern:ParameterData = {type:"toggle", value:"", label:"Format"};
-	public param_readPredictions:ParameterData = {type:"toggle", value:false, label:"Read prediction results", icon:"prediction_purple.svg" };
-	public param_readPredictionsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readMessages:ParameterData = {type:"toggle", value:false, label:"Chat messages", icon:"user_purple.svg" };
+	public param_readMessagesPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderMessages};
+	public param_readWhispers:ParameterData = {type:"toggle", value:false, label:"Whispers", icon:"whispers_purple.svg" };
+	public param_readWhispersPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderMessages};
+	public param_readNotices:ParameterData = {type:"toggle", value:false, label:"Notices (TO, ban, join/leave, emote-only,...)", icon:"info_purple.svg" };
+	public param_readNoticesPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderNotices};
+	public param_readRewards:ParameterData = {type:"toggle", value:true, label:"Channel point rewards", icon:"channelPoints_purple.svg"};
+	public param_readRewardsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderRewards};
+	public param_readSubs:ParameterData = {type:"toggle", value:false, label:"Sub alerts", icon:"sub_purple.svg" };
+	public param_readSubsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderSubs};
+	public param_readSubgifts:ParameterData = {type:"toggle", value:false, label:"Subgift alerts", icon:"gift_purple.svg" };
+	public param_readSubgiftsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderSubs};
+	public param_readBits:ParameterData = {type:"toggle", value:false, label:"Bits alerts", icon:"bits_purple.svg" };
+	public param_readBitsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderBits};
+	public param_readRaids:ParameterData = {type:"toggle", value:false, label:"Raid alerts", icon:"raid_purple.svg" };
+	public param_readRaidsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderRaids};
+	public param_readFollow:ParameterData = {type:"toggle", value:false, label:"Follow alerts", icon:"follow_purple.svg" };
+	public param_readFollowPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderFollows};
+	public param_readPolls:ParameterData = {type:"toggle", value:false, label:"Poll results", icon:"poll_purple.svg" };
+	public param_readPollsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderPolls};
+	public param_readPredictions:ParameterData = {type:"toggle", value:false, label:"Prediction results", icon:"prediction_purple.svg" };
+	public param_readPredictionsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderPredictions};
+	public param_readBingos:ParameterData = {type:"toggle", value:false, label:"Bingo results", icon:"bingo_purple.svg" };
+	public param_readBingosPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderBingo};
+	public param_readRaffle:ParameterData = {type:"toggle", value:false, label:"Raffle results", icon:"ticket_purple.svg" };
+	public param_readRafflePattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderRaffles};
 	public param_ttsPerms:PermissionsData = {
 		mods:true,
 		vips:false,
@@ -154,6 +157,8 @@ export default class ParamsTTS extends Vue {
 			readRewardsPattern:this.param_readRewardsPattern.value as string,
 			readSubs:this.param_readSubs.value as boolean,
 			readSubsPattern:this.param_readSubsPattern.value as string,
+			readSubgifts:this.param_readSubgifts.value as boolean,
+			readSubgiftsPattern:this.param_readSubgiftsPattern.value as string,
 			readBits:this.param_readBits.value as boolean,
 			readBitsPattern:this.param_readBitsPattern.value as string,
 			readRaids:this.param_readRaids.value as boolean,
@@ -177,6 +182,8 @@ export default class ParamsTTS extends Vue {
 
 	public async beforeMount():Promise<void> {
 		let params: TTSParamsData = StoreProxy.store.state.ttsParams;
+		
+		this.setVoices();
 
 		this.param_enabled.value = params.enabled;
 		this.param_volume.value = params.volume;
@@ -200,6 +207,8 @@ export default class ParamsTTS extends Vue {
 		this.param_readRewardsPattern.value = params.readRewardsPattern;
 		this.param_readSubs.value = params.readSubs === true;
 		this.param_readSubsPattern.value = params.readSubsPattern;
+		this.param_readSubgifts.value = params.readSubs === true;
+		this.param_readSubgiftsPattern.value = params.readSubsPattern;
 		this.param_readBits.value = params.readBits === true;
 		this.param_readBitsPattern.value = params.readBitsPattern;
 		this.param_readRaids.value = params.readRaids === true;
@@ -215,17 +224,21 @@ export default class ParamsTTS extends Vue {
 		this.param_readPredictions.value = params.readPredictions === true;
 		this.param_readPredictionsPattern.value = params.readPredictionsPattern;
 		
-		this.setVoices();
-		
 		this.param_removeURL.children = [this.param_replaceURL];
 
 		this.param_readMessages.children = [this.param_readMessagesPattern];
 		this.param_readWhispers.children = [this.param_readWhispersPattern];
 		this.param_readNotices.children = [this.param_readNoticesPattern];
-
-		this.param_readMessagesPattern.placeholderList = this.tts2Placeholders;
-		this.param_readWhispersPattern.placeholderList = this.tts2Placeholders;
-		this.param_readNoticesPattern.placeholderList = this.tts1Placeholder;
+		this.param_readRewards.children = [this.param_readRewardsPattern];
+		this.param_readSubs.children = [this.param_readSubsPattern];
+		this.param_readSubgifts.children = [this.param_readSubgiftsPattern];
+		this.param_readBits.children = [this.param_readBitsPattern];
+		this.param_readRaids.children = [this.param_readRaidsPattern];
+		this.param_readFollow.children = [this.param_readFollowPattern];
+		this.param_readPolls.children = [this.param_readPollsPattern];
+		this.param_readBingos.children = [this.param_readBingosPattern];
+		this.param_readRaffle.children = [this.param_readRafflePattern];
+		this.param_readPredictions.children = [this.param_readPredictionsPattern];
 
 		this.param_maxLengthToggle.children = [this.param_maxLength];
 		this.param_timeoutToggle.children = [this.param_timeout];
@@ -239,28 +252,6 @@ export default class ParamsTTS extends Vue {
 			StoreProxy.store.dispatch("setTTSParams", this.finalData);
 		}, {deep:true});
 		
-	}
-
-	public get tts2Placeholders():PlaceholderEntry[] {
-		return [
-			{
-				tag:"USER",
-				desc:"User name",
-			},
-			{
-				tag:"MESSAGE",
-				desc:"Message",
-			},
-		];
-	}
-
-	public get tts1Placeholder():PlaceholderEntry[] {
-		return [
-			{
-				tag:"MESSAGE",
-				desc:"Message",
-			},
-		];
 	}
 
 	public test():void {
@@ -323,6 +314,9 @@ export default class ParamsTTS extends Vue {
 			.item {
 				&:not(:first-child) {
 					margin-top: .5em;
+				}
+				&.splitter {
+					margin: .5em 0 1em 0;
 				}
 				&.label {
 					i {

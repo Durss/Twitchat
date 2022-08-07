@@ -32,8 +32,8 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.RaffleResult
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
-	| IRCEventDataList.JoinList
-	| IRCEventDataList.LeaveList
+	| IRCEventDataList.Join
+	| IRCEventDataList.Leave
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -48,7 +48,7 @@ export namespace IRCEventDataList {
 		answerTo?: Message;
 		answers?: Message[];
 		cyphered?: boolean;
-		markedAsRead?: boolean;
+		markedAsRead?:boolean;
 		blockedUser?: boolean;
 		lowTrust?: boolean;
 		deleted?: boolean;
@@ -59,23 +59,6 @@ export namespace IRCEventDataList {
 		type: "message";
 	}
 
-	export interface Timeout {
-		channel: string;
-		username: string;
-		reason: string;
-		duration: number;
-		//custom data
-		type: "notice";
-	}
-
-	export interface Ban {
-		channel: string;
-		username: string;
-		reason: string;
-		//custom data
-		type: "notice";
-	}
-
 	export interface MessageDeleted {
 		channel: string;
 		username: string;
@@ -83,6 +66,7 @@ export namespace IRCEventDataList {
 		tags: DeleteUserstate;
 		//custom data
 		type: "message";
+		markedAsRead?:boolean;
 	}
 
 	export interface Automod {
@@ -90,28 +74,7 @@ export namespace IRCEventDataList {
 		message: string;
 		msgID: 'msg_rejected' | 'msg_rejected_mandatory';
 		type: "message";
-	}
-
-	export interface Notice {
-		channel: string;
-		message?: string;
-		msgid: MsgID | string;
-		tags: ChatUserstate;
-		username?: string;
-		//custom data
-		type: "notice";
-	}
-
-	export interface Hosted {
-		channel: string;
-		viewers: number;
-		autohost: boolean;
-		username?: string;
-		tags: ChatUserstate;
-		message: string;
-		msgid: MsgID;
-		//custom data
-		type: "notice";
+		markedAsRead?:boolean;
 	}
 
 	export interface Highlight {
@@ -128,7 +91,7 @@ export namespace IRCEventDataList {
 		reward?: PubSubDataTypes.RewardData;
 		//custom data
 		firstMessage?: boolean;
-		markedAsRead?: boolean;
+		markedAsRead?:boolean;
 		blockedUser?: boolean;
 		followBlocked?: boolean;
 		type: "highlight";
@@ -140,7 +103,7 @@ export namespace IRCEventDataList {
 		tags: {
 			id: string
 		};
-		markedAsRead?: boolean;
+		markedAsRead?:boolean;
 		contentID: number;
 		type: "ad";
 		[paramater: string]: unknown;
@@ -152,6 +115,7 @@ export namespace IRCEventDataList {
 		prefix: string;
 		command: string;
 		params: string[];
+		msgid:"followers_on"|"followers_off"|"subs_on"|"subs_off"|"emote_only_on"|"emote_only_off"|"slow_on"|"slow_off"
 		tags: {
 			"emote-only": boolean;
 			"followers-only": string;
@@ -162,6 +126,7 @@ export namespace IRCEventDataList {
 			"subs-only": boolean;
 			channel: string;
 		};
+		markedAsRead?:boolean;
 	}
 
 	export interface Whisper {
@@ -173,7 +138,7 @@ export namespace IRCEventDataList {
 		tags: ChatUserstate;
 		//custom data
 		firstMessage: boolean;
-		markedAsRead: boolean;
+		markedAsRead?:boolean;
 		timestamp: number;
 		isAnswer?: boolean;
 		occurrenceCount?: number;
@@ -183,81 +148,133 @@ export namespace IRCEventDataList {
 
 	export interface PollResult {
 		type: "poll";
+		markedAsRead?:boolean;
 		data: TwitchDataTypes.Poll;
 		tags: { id: string, "tmi-sent-ts": string };
-		[paramater: string]: unknown;
+		winner?:string;
 	}
 
 	export interface PredictionResult {
 		type: "prediction";
+		markedAsRead?:boolean;
 		data: TwitchDataTypes.Prediction;
 		tags: { id: string, "tmi-sent-ts": string };
-		[paramater: string]: unknown;
+		winner?:string;
 	}
 
 	export interface BingoResult {
 		type: "bingo";
+		markedAsRead?:boolean;
 		data: BingoData;
 		tags: { id: string, "tmi-sent-ts": string };
-		[paramater: string]: unknown;
+		winner?:ChatUserstate;
 	}
 
 	export interface RaffleResult {
 		type: "raffle";
+		markedAsRead?:boolean;
 		data: RaffleData;
 		tags: { id: string, "tmi-sent-ts": string };
-		[paramater: string]: unknown;
+		winner?:ChatUserstate;
 	}
 
 	export interface CountdownResult {
 		type: "countdown";
+		markedAsRead?:boolean;
 		started:boolean;
 		data: CountdownData;
 		tags: { id: string, "tmi-sent-ts": string };
-		[paramater: string]: unknown;
-	}
-
-	export interface JoinList {
-		type: "join";
-		users:string[];
-		channel:string;
-		[paramater: string]: unknown;
-	}
-	export interface LeaveList {
-		type: "leave";
-		users:string[];
-		channel:string;
-		[paramater: string]: unknown;
+		start?:string;
+		start_ms?:number;
+		duration?:string;
+		duration_ms?:number;
 	}
 
 	export interface TimerResult {
 		type: "timer";
+		markedAsRead?:boolean;
 		started:boolean;
 		data: TimerData;
-		[paramater: string]: unknown;
+		duration?:string;
+		duration_ms?:number;
+	}
+
+	export interface JoinLeaveList {
+		type: "leave"|"join";
+		users:string[];
+		channel:string;
+	}
+
+	export interface Notice {
+		type: "notice";
+		markedAsRead?:boolean;
+		channel: string;
+		message?: string;
+		msgid: MsgID | string;
+		tags: ChatUserstate;
+		username?: string;
+	}
+
+	export interface Hosted extends Notice {
+		msgid: "usage_host";
+		viewers: number;
+		autohost: boolean;
+	}
+
+	export interface Timeout extends Notice {
+		msgid: "timeout_success";
+		reason: string;
+		duration: number;
+	}
+
+	export interface Ban extends Notice {
+		msgid: "ban_success";
+		reason: string;
+	}
+
+	export interface Join extends Notice {
+		msgid:"online";
+	}
+
+	export interface Leave extends Notice {
+		msgid:"offline";
+	}
+	export interface Emergency extends Notice {
+		msgid:"emergencyMode";
+		enabled:boolean;
 	}
 
 	export interface Commercial extends Notice {
+		msgid: "commercial";
 		ended: boolean;
-		tags: { id: string, "tmi-sent-ts": string, "msg-id": "commercial"; };
-		[paramater: string]: unknown;
 	}
 }
 
+//The following should be on TwitchatDataTypes.ts but as it's using a ref to
+//ActivityFeedData from here, and this class is using a reference to TwitchatDataTypes,
+//if these types were on TwitchatDataTypes.ts we would get a circular dependency issue.
+//The only way to fix these circular import issues would be to have ALL types declared
+//on one single file. But i'd rather not do that.
 export const TwitchatMessageType = {
 	BITS:"bits",
 	SUB:"sub",
 	RAID:"raid",
 	POLL:"poll",
+	BAN:"bingo",
+	HOST:"host",
+	JOIN:"join",
+	LEAVE:"leave",
 	BINGO:"bingo",
 	RAFFLE:"raffle",
 	NOTICE:"notice",
 	REWARD:"reward",
 	FOLLOW:"follow",
-	SUB_PRIME:"prime",
 	SUBGIFT:"subgift",
+	TIMEOUT:"timeout",
+	SUB_PRIME:"prime",
 	COUNTDOWN:"countdown",
 	COMMERCIAL:"commercial",
+	ROOM_STATE:"roomState",
 	PREDICTION:"prediction",
 	HIGHLIGHTED_MESSAGE:"message",
 	SUBGIFT_UPGRADE:"subgiftUpgrade",
@@ -267,7 +284,7 @@ export const TwitchatMessageType = {
 
 //Dynamically type ActivityFeedMessageStringType from TwitchatMessageType values
 type ActivityFeedMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
-export function getTwitchatMessageType(m: ActivityFeedData):ActivityFeedMessageStringType {
+export function getTwitchatMessageType(m: IRCEventData):ActivityFeedMessageStringType {
 	let type:ActivityFeedMessageStringType = null;
 	if(m.type == "poll") {
 		type = TwitchatMessageType.POLL;
@@ -282,27 +299,50 @@ export function getTwitchatMessageType(m: ActivityFeedData):ActivityFeedMessageS
 	}else if(m.type == "countdown") {
 		type = TwitchatMessageType.COUNTDOWN;
 	}else if(m.type == "notice") {
-		if(m.tags['msg-id'] == "commercial") {
+		if(m.msgid == "timeout_success") {
+			type = TwitchatMessageType.TIMEOUT;
+		}else
+		if(m.msgid == "ban_success") {
+			type = TwitchatMessageType.BAN;
+		}else
+		if(m.msgid == "commercial") {
 			type = TwitchatMessageType.COMMERCIAL;
+		}else
+		if(m.msgid == "online") {
+			type = TwitchatMessageType.JOIN;
+		}else
+		if(m.msgid == "offline") {
+			type = TwitchatMessageType.LEAVE;
+		}else
+		if(m.msgid == "usage_host") {
+			type = TwitchatMessageType.HOST;
+		}else
+		if(["followers_on","followers_off","subs_on","subs_off","emote_only_on","emote_only_off","slow_on","slow_off"]
+		.indexOf((m as IRCEventDataList.RoomState).msgid) > -1) {
+			type = TwitchatMessageType.ROOM_STATE;
+		}else{
+			type = TwitchatMessageType.NOTICE;
 		}
 	}else if(m.tags.bits) {
 		type = TwitchatMessageType.BITS;
-	}else if(m.recipient) {
-		type = TwitchatMessageType.SUBGIFT;
-	}else if(m.methods?.prime) {
-		type = TwitchatMessageType.SUB_PRIME;
-	}else if(m.methods?.plan) {
-		type = TwitchatMessageType.SUB;
-	}else if(m.tags['message-type'] == "giftpaidupgrade") {
-		type = TwitchatMessageType.SUBGIFT_UPGRADE;
-	}else if(m.reward) {
-		type = TwitchatMessageType.REWARD;
-	}else if(m.tags['msg-id'] == "follow") {
-		type = TwitchatMessageType.FOLLOW;
-	}else if(m.tags['msg-id'] == "raid") {
-		type = TwitchatMessageType.RAID;
-	}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
-		type = TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED;
+	}else if(m.type == "highlight") {
+		if(m.recipient) {
+			type = TwitchatMessageType.SUBGIFT;
+		}else if(m.methods?.prime) {
+			type = TwitchatMessageType.SUB_PRIME;
+		}else if(m.methods?.plan) {
+			type = TwitchatMessageType.SUB;
+		}else if(m.tags['message-type'] == "giftpaidupgrade") {
+			type = TwitchatMessageType.SUBGIFT_UPGRADE;
+		}else if(m.reward) {
+			type = TwitchatMessageType.REWARD;
+		}else if(m.tags['msg-id'] == "follow") {
+			type = TwitchatMessageType.FOLLOW;
+		}else if(m.tags['msg-id'] == "raid") {
+			type = TwitchatMessageType.RAID;
+		}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
+			type = TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED;
+		}
 	}
 	return type;
 }

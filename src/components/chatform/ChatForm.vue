@@ -596,7 +596,7 @@ export default class ChatForm extends Vue {
 			}else{
 				let res = await TwitchUtils.blockUser(users[0].id);
 				if(res === true) {
-					await IRCClient.instance.sendNotice("block", "User <mark>"+params[0]+"</mark> blocked");
+					await IRCClient.instance.sendNotice("block", "User <mark>"+users[0].login+"</mark> blocked");
 				}
 			}
 		}else
@@ -609,7 +609,7 @@ export default class ChatForm extends Vue {
 			}else{
 				let res = await TwitchUtils.unblockUser(users[0].id);
 				if(res === true) {
-					await IRCClient.instance.sendNotice("unblock", "User <mark>"+users[0].id+"</mark> unblocked");
+					await IRCClient.instance.sendNotice("unblock", "User <mark>"+users[0].login+"</mark> unblocked");
 				}
 			}
 		}else

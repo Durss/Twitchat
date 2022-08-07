@@ -13,7 +13,7 @@
 
 		<div v-else-if="isUpdate" class="updates">
 			<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-			<div class="title">🎉 New updates 🎉</div>
+			<div class="title">🎉 Latest updates 🎉</div>
 			<div class="version">Version {{appVersion}}</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
 			<div class="content">
@@ -83,6 +83,8 @@
 						<li>I updated the way i sync your data with the server. <strong>PLEASE</strong> let me know if you experience any data loss!</li>
 						<li>Optimized emotes parsing</li>
 						<li>You can now pass query parameters to a local HTML on the triggers. <i>(ex: if you create a custom sub/cheer/raid alert page)</i></li>
+						<li>Performance improvement on the way BTTV/FFZ/7TV emotes were replaced</li>
+						<li>Huge performance improvement if you were filtering out known bots messages</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block fix" title="Fixes" :open="true" :icons="['fix']">

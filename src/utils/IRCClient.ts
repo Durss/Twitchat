@@ -256,7 +256,7 @@ export default class IRCClient extends EventDispatcher {
 			
 			this.client.on("ban", (channel: string, username: string, reason: string)=> {
 				if(!this.idToExample["ban"]) this.idToExample["ban"] = {type:"notice", channel, username, reason};
-				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {type:"notice", channel, username, reason}));
+				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {type:"notice", msgid:"ban_success", channel, username, reason, tags:this.getFakeTags()}));
 			});
 			
 			this.client.on("messagedeleted", (channel: string, username: string, deletedMessage: string, tags: tmi.DeleteUserstate)=> {
@@ -301,7 +301,7 @@ export default class IRCClient extends EventDispatcher {
 			
 			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
 				if(!this.idToExample["timeout"]) this.idToExample["timeout"] = {type:"notice", channel, username, reason, duration};
-				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", channel, username, reason, duration}));
+				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", msgid:"timeout_success", channel, username, reason, duration, tags:this.getFakeTags()}));
 			});
 			
 			this.client.on("hosted", (channel: string, username: string, viewers: number, autohost: boolean)=> {
@@ -595,7 +595,7 @@ export default class IRCClient extends EventDispatcher {
 			return;
 		}
 		//Ignore bot messages if requested
-		if(StoreProxy.store.state.params.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] !== true) {
+		if(StoreProxy.store.state.params.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] === true) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}
@@ -701,7 +701,7 @@ export default class IRCClient extends EventDispatcher {
 		clearTimeout(this.joinSpoolTimeout);
 		
 		this.joinSpoolTimeout = setTimeout(() => {
-			const data:IRCEventDataList.JoinList = {
+			const data:IRCEventDataList.JoinLeaveList = {
 				type:"join",
 				channel,
 				users:this.joinSpool,
@@ -716,7 +716,7 @@ export default class IRCClient extends EventDispatcher {
 		clearTimeout(this.partSpoolTimeout);
 		
 		this.partSpoolTimeout = setTimeout(() => {
-			const data:IRCEventDataList.LeaveList = {
+			const data:IRCEventDataList.JoinLeaveList = {
 				type:"leave",
 				channel,
 				users:this.partSpool,

@@ -374,23 +374,25 @@ const store = createStore({
 			readNotices:false,
 			readNoticesPattern:'{MESSAGE}',
 			readRewards:false,
-			readRewardsPattern:"",
+			readRewardsPattern:"{USER} redeemed reward {REWARD}",
 			readSubs:false,
-			readSubsPattern:"",
+			readSubsPattern:"{USER} subscribed at tier {TIER}",
+			readSubgifts:false,
+			readSubgiftsPattern:"{USER} subgifted {RECIPENT}",
 			readBits:false,
-			readBitsPattern:"",
+			readBitsPattern:"{USER} sent {BITS} bits",
 			readRaids:false,
-			readRaidsPattern:"",
+			readRaidsPattern:"{USER} raided with {VIEWERS} viewers",
 			readFollow:false,
-			readFollowPattern:"",
+			readFollowPattern:"{USER} is now following",
 			readPolls:false,
-			readPollsPattern:"",
+			readPollsPattern:"Poll ended. Winning choice is, {WINNER}",
 			readPredictions:false,
-			readPredictionsPattern:"",
+			readPredictionsPattern:"Prediction ended. Winning choice is, {WINNER}",
 			readBingos:false,
-			readBingosPattern:"",
+			readBingosPattern:"{USER} won the bingo",
 			readRaffle:false,
-			readRafflePattern:"",
+			readRafflePattern:"{USER} won the raffle",
 			ttsPerms:{
 				mods:true,
 				vips:false,
@@ -404,7 +406,7 @@ const store = createStore({
 			enabled:false,
 			emotesOnly:false,
 			subOnly:false,
-			followOnly:false,
+			followOnly:true,
 			noTriggers:false,
 			slowMode:false,
 			followOnlyDuration:60,
@@ -643,6 +645,8 @@ const store = createStore({
 				message:messageStr as string,
 				tags:message.tags,
 			}
+
+			console.log("ADD CHAT MESSAGE", message);
 			
 			//Limit history size
 			// const maxMessages = state.params.appearance.historySize.value;
@@ -1116,12 +1120,12 @@ const store = createStore({
 				}
 			}
 
-			//IF reaching this point, it's most probably because 
-			if(payload.retryCount != 5) {
-				const retryCount = payload.retryCount? payload.retryCount++ : 1;
+			//If reaching this point, it's most probably because pubsub sent us the
+			//event before receiving message on IRC. Wait a little and try again
+			if(payload.retryCount != 20) {
+				payload.retryCount = payload.retryCount? payload.retryCount++ : 1;
 				setTimeout(()=>{
-					//@ts-ignore (typings seems wrong, this line is actually correct)
-					this.commit("flagLowTrustMessage", {data:payload.data, retryCount})
+					store.commit("flagLowTrustMessage", payload);
 				}, 100);
 			}
 		},
@@ -1302,6 +1306,7 @@ const store = createStore({
 			const message:IRCEventDataList.TimerResult = {
 				type:"timer",
 				started:true,
+				markedAsRead:false,
 				data:{
 					startAt:Date.now(),
 					duration:Date.now() - state.timerStart,
@@ -1317,6 +1322,7 @@ const store = createStore({
 			const message:IRCEventDataList.TimerResult = {
 				type:"timer",
 				started:false,
+				markedAsRead:false,
 				data:{
 					startAt:Date.now(),
 					duration:Date.now() - state.timerStart,
@@ -1342,6 +1348,7 @@ const store = createStore({
 				type:"countdown",
 				started:true,
 				data:state.countdown as CountdownData,
+				markedAsRead:false,
 				tags: {
 					id:IRCClient.instance.getFakeGuid(),
 					"tmi-sent-ts": Date.now().toString()
@@ -1359,6 +1366,7 @@ const store = createStore({
 				type:"countdown",
 				started:true,
 				data:state.countdown as CountdownData,
+				markedAsRead:false,
 				tags: {
 					id:IRCClient.instance.getFakeGuid(),
 					"tmi-sent-ts": Date.now().toString()
@@ -1699,6 +1707,7 @@ const store = createStore({
 								const payload:IRCEventDataList.BingoResult = {
 									type:"bingo",
 									data:state.bingo as BingoData,
+									markedAsRead:false,
 									tags: {
 										id:IRCClient.instance.getFakeGuid(),
 										"tmi-sent-ts": Date.now().toString()
@@ -1815,7 +1824,7 @@ const store = createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
-				const data = event.data as IRCEventDataList.JoinList;
+				const data = event.data as IRCEventDataList.JoinLeaveList;
 				const users = data.users;
 
 				if(state.params.features.notifyJoinLeave.value === true) {
@@ -1854,7 +1863,7 @@ const store = createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.LEAVE, async (event:IRCEvent) => {
 				if(state.params.features.notifyJoinLeave.value === true) {
-					const data = event.data as IRCEventDataList.LeaveList;
+					const data = event.data as IRCEventDataList.JoinLeaveList;
 					const users = data.users;
 					const leave = users.splice(0, 30);
 					let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
@@ -2222,6 +2231,7 @@ const store = createStore({
 								id:IRCClient.instance.getFakeGuid(),
 								"tmi-sent-ts": Date.now().toString()},
 							type:"poll",
+							markedAsRead:false,
 							data:poll
 						};
 						this.dispatch("addChatMessage", m);
@@ -2244,6 +2254,7 @@ const store = createStore({
 							id:IRCClient.instance.getFakeGuid(),
 							"tmi-sent-ts": Date.now().toString()},
 						type:"prediction",
+						markedAsRead:false,
 						data:payload[0]
 					};
 					this.dispatch("addChatMessage", m);
@@ -2310,6 +2321,7 @@ const store = createStore({
 				const message:IRCEventDataList.RaffleResult = {
 					type:"raffle",
 					data:state.raffle as RaffleData,
+					markedAsRead:false,
 					tags: {
 						id:IRCClient.instance.getFakeGuid(),
 						"tmi-sent-ts": Date.now().toString()
@@ -2400,6 +2412,7 @@ const store = createStore({
 					type:"countdown",
 					started:false,
 					data:JSON.parse(JSON.stringify(state.countdown)) as CountdownData,
+					markedAsRead:false,
 					tags: {
 						id:IRCClient.instance.getFakeGuid(),
 						"tmi-sent-ts": Date.now().toString()
@@ -2407,7 +2420,7 @@ const store = createStore({
 				};
 				
 				this.dispatch("addChatMessage", message);
-				this.commit("stopCountdown");
+				commit("stopCountdown");
 			}, Math.max(duration, 1000));
 
 			commit("startCountdown", {duration, timeout});

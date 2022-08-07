@@ -186,7 +186,9 @@ List of the events fired by Twitchat you can listen to and the JSON data sent in
 
 
 ## **MESSAGE_READ**
-Sent when clicking a message on the chat to mark it as read
+Sent when clicking a message on the chat to mark it as read.
+Only sent for users' messages and whispers.
+Poll results, sub/bits/.. alerts, notices, etc... won't fire this event
 ```typescript
 {
 	channel:string,

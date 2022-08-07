@@ -43,8 +43,8 @@ export default class ChatNotice extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatnotice"];
-		if(this.messageData.tags["msg-id"] == "offline") res.push("alert");
-		if(this.messageData.tags["msg-id"] == "emergencyMode") res.push("emergency");
+		if(this.messageData.msgid == "offline") res.push("alert");
+		if(this.messageData.msgid == "emergencyMode") res.push("emergency");
 		return res;
 	}
 

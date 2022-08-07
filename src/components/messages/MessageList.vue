@@ -89,7 +89,7 @@
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
-				v-if="!lightMode && !m.blockedUser && m.type == 'message'">
+				v-if="!lightMode && m.type == 'message' && !m.blockedUser && m.type == 'message'">
 					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 				</div>
 			</div>
@@ -715,6 +715,8 @@ export default class MessageList extends Vue {
 	 * Called on a message is clicked
 	 */
 	public toggleMarkRead(m:MessageTypes, event?:MouseEvent):void {
+		if(m.type == "ad") return;
+
 		if(event) {
 			const target = event.target as HTMLElement;
 			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
@@ -728,13 +730,15 @@ export default class MessageList extends Vue {
 			this.prevMarkedReadItem = m;
 		}
 
-		const messageStr = m.type == "whisper"? m.params[1] : m.message;
-		const message = {
-			channel:m.channel as string,
-			message:messageStr as string,
-			tags:m.tags,
+		if(m.type == "message" || m.type == "whisper") {
+			const messageStr = m.type == "whisper"? m.params[1] : m.message;
+			const message = {
+				channel:m.channel as string,
+				message:messageStr as string,
+				tags:m.tags,
+			}
+			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});
 	}
 
 	/**

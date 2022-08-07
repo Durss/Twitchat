@@ -189,6 +189,8 @@ export default class PubSub extends EventDispatcher{
 	public async simulateLowTrustUser():Promise<void> {
 		const m = PubsubJSON.LowTrustMessage;
 		m.data.message_id = IRCClient.instance.getFakeGuid();
+
+		//Send fake message on tchat to flag it afterwards
 		const tags:ChatUserstate = {
 			'message-type': "chat",
 			username: m.data.low_trust_user.sender.login,
@@ -205,8 +207,13 @@ export default class PubSub extends EventDispatcher{
 			'user-type': "",
 			"user-id": m.data.low_trust_user.sender.user_id,
 			"tmi-sent-ts": Date.now().toString(),
-		}
+		};
+
+		console.log(m.data.message_content.fragments[0].text);
+		console.log(tags);
 		IRCClient.instance.addMessage(m.data.message_content.fragments[0].text, tags, false);
+
+		//Flag mesage as low trust
 		this.parseEvent(m);
 	}
 
@@ -338,6 +345,11 @@ export default class PubSub extends EventDispatcher{
 
 		}else if(data.type == "automod_caught_message") {
 			this.automodEvent(data.data as  PubSubDataTypes.AutomodData);
+
+
+
+		}else if(data.type == "low_trust_user_treatment_update") {
+			//Called when flagging a user as suspicious
 
 
 

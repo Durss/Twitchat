@@ -1,5 +1,5 @@
 import { Event } from '@/utils/EventDispatcher';
-import type { IRCEventData } from './IRCEventDataTypes';
+import type { IRCEventData, IRCEventDataList } from './IRCEventDataTypes';
 
 /**
 * Created : 07/12/2020 
@@ -24,7 +24,7 @@ export default class IRCEvent extends Event {
 	public static LEAVE = "LEAVE";
 	public static REFRESH_TOKEN = "REFRESH_TOKEN";
 	
-	constructor(type:string, public data?:IRCEventData) {
+	constructor(type:string, public data?:IRCEventData|IRCEventDataList.JoinLeaveList) {
 		super(type);
 	}
 	

@@ -356,6 +356,9 @@ export default class ParamsEmergency extends Vue {
 				&:not(:first-child) {
 					margin-top: .5em;
 				}
+				&.splitter {
+					margin: .5em 0 1em 0;
+				}
 				&.label {
 					i {
 						font-size: .8em;

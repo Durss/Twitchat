@@ -19,7 +19,7 @@
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent(contentFilters)" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
 				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
-				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent(contentTts)" />
+				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
 				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
@@ -32,19 +32,19 @@
 			
 			<div class="content" v-if="content != null || search">
 				<ParamsList v-if="(content && isGenericListContent) || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" @setContent="setContent" />
-				<ParamsStreamdeck v-if="content == 'streamdeck'" @setContent="setContent" />
-				<ParamsOBS v-if="content == 'obs'" @setContent="setContent" />
-				<ParamsEmergency v-if="content == 'emergency'" @setContent="setContent" />
-				<ParamsTTS v-if="content == 'tts'" @setContent="setContent" />
-				<ParamsSpoiler v-if="content == 'spoiler'" @setContent="setContent" />
-				<ParamsAlert v-if="content == 'alert'" @setContent="setContent" />
-				<ParamsAccount v-if="content == 'account'" @setContent="setContent" />
-				<ParamsAbout v-if="content == 'about'" @setContent="setContent" />
-				<ParamsOverlays v-if="content == 'overlays'" @setContent="setContent" />
-				<ParamsTriggers v-if="content == 'triggers'" @setContent="setContent" />
-				<ParamsVoiceBot v-if="content == 'voice'" @setContent="setContent" />
+				<ParamsStreamdeck v-if="content == contentStreamdeck" @setContent="setContent" />
+				<ParamsOBS v-if="content == contentObs" @setContent="setContent" />
+				<ParamsEmergency v-if="content == contentEmergency" @setContent="setContent" />
+				<ParamsTTS v-if="content == contentTts" @setContent="setContent" />
+				<ParamsSpoiler v-if="content == contentSpoiler" @setContent="setContent" />
+				<ParamsAlert v-if="content == contentAlert" @setContent="setContent" />
+				<ParamsAccount v-if="content == contentAccount" @setContent="setContent" />
+				<ParamsAbout v-if="content == contentAbout" @setContent="setContent" />
+				<ParamsOverlays v-if="content == contentOverlays" @setContent="setContent" />
+				<ParamsTriggers v-if="content == contentTriggers" @setContent="setContent" />
+				<ParamsVoiceBot v-if="content == contentVoice" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
-				<ParamsSponsor v-if="content == 'sponsor'" @setContent="setContent" />
+				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
