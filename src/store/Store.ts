@@ -185,10 +185,14 @@ export default class Store {
 				delete data[this.TWITCH_AUTH_TOKEN];
 				delete data[this.SPOTIFY_AUTH_TOKEN];
 				delete data[this.SPOTIFY_APP_PARAMS];
+				
 				//Do not save this to the server to avoid config to be erased
 				//on one of the instances
 				delete data["p:hideChat"];
-				delete data["p:shoutoutLabel"];
+				
+				delete data["p:shoutoutLabel"];//Old that that some people still have
+				
+				//Things unnecessary to save server side
 				delete data[this.GREET_HISTORY];
 				delete data[this.SYNC_DATA_TO_SERVER];
 				delete data.deezerEnabled;

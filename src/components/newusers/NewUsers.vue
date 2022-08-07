@@ -224,13 +224,13 @@ export default class NewUsers extends Vue {
 		if(m.type != "message" && m.type != "highlight") return;
 		if(m.type == "highlight" && m.viewers) return;//Ignore raids
 		if(m.blockedUser === true) return;//Ignore blocked users
-		let login = m.tags.login? m.tags.login : m.tags.username;
+		let login:string = m.tags.login? m.tags.login : m.tags.username;
 		if(!login) return;
 		login = login.toLowerCase();
 		//Ignore self messages
 		if(login == m.channel.substring(1)) return;
 		//Ignore bot messages
-		if(IRCClient.instance.botsLogins.indexOf(login) > -1) return;
+		if(IRCClient.instance.botsLogins[login.toLowerCase()] === true) return;
 		//Ignore hidden users from params
 		if((StoreProxy.store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
 		

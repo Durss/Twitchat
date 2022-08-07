@@ -25,7 +25,7 @@ export default class IRCClient extends EventDispatcher {
 	public client!:tmi.Client;
 	public channel!:string;
 	public connected = false;
-	public botsLogins:string[] = [];
+	public botsLogins:{[key:string]:boolean} = {};
 	public onlineUsers:string[] = [];
 	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
 	
@@ -111,10 +111,11 @@ export default class IRCClient extends EventDispatcher {
 					//Load bots list
 					const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
 					const json = await res.json();
-					this.botsLogins = (json.bots as string[][]).map(b => b[0].toLowerCase());
+					(json.bots as string[][]).forEach(b => this.botsLogins[b[0].toLowerCase()] = true);
 				}catch(error) {
 					//Fallback in case twitchinsights dies someday
-					this.botsLogins = ["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"];
+					["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
+					.forEach(b => this.botsLogins[b.toLowerCase()] = true);
 				}
 
 				if(this.fakeEvents) {
@@ -180,7 +181,7 @@ export default class IRCClient extends EventDispatcher {
 									const u = sublist[j];
 									const index = this.onlineUsers.indexOf(u);
 									if(index > -1) break;
-									if(this.botsLogins.indexOf(u) == -1) {
+									if(this.botsLogins[u.toLowerCase()] !== true) {
 										this.userJoin(u, channels[i]);
 									}
 									this.onlineUsers.push(u);
@@ -192,7 +193,7 @@ export default class IRCClient extends EventDispatcher {
 					}
 				}else {
 					//Ignore bots
-					if(this.botsLogins.indexOf(user) == -1) {
+					if(this.botsLogins[user.toLowerCase()] !== true) {
 						this.userJoin(user, channel);
 					}
 				}
@@ -212,7 +213,7 @@ export default class IRCClient extends EventDispatcher {
 					this.onlineUsers.splice(index, 1);
 				}
 				//Ignore bots
-				if(this.botsLogins.indexOf(user) == -1) {
+				if(this.botsLogins[user.toLowerCase()] !== true) {
 					this.userLeave(user, channel);
 				}
 				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
@@ -594,7 +595,7 @@ export default class IRCClient extends EventDispatcher {
 			return;
 		}
 		//Ignore bot messages if requested
-		if(StoreProxy.store.state.params.filters.showBots.value === false && this.botsLogins.indexOf(login.toLowerCase()) > -1) {
+		if(StoreProxy.store.state.params.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] !== true) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}
