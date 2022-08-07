@@ -20,14 +20,14 @@
 		<ParamItem class="item" :paramData="param_sound" />
 		<ParamItem class="item" :paramData="param_blink" />
 
-		<div class="item infos">Do more actions with the <a @click="$emit('setContent', 'triggers')">Triggers</a> system.</div>
+		<div class="item infos">Do more actions with the <a @click="$emit('setContent', contentTriggers)">Triggers</a> system.</div>
 
 		<Button title="Test" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
 	</div>
 </template>
 
 <script lang="ts">
-import type { ParameterData, PermissionsData, AlertParamsData } from '@/types/TwitchatDataTypes';
+import { type ParameterData, type PermissionsData, type AlertParamsData, type ParamsContentStringType, ParamsContentType } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../ToggleBlock.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
@@ -73,6 +73,8 @@ export default class ParamsAlert extends Vue {
 			permissions: this.chatCommandPerms,
 		};
 	}
+	
+	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
 		let params:AlertParamsData = JSON.parse(JSON.stringify(StoreProxy.store.state.chatAlertParams));

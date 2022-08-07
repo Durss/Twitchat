@@ -13,7 +13,7 @@
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<div>These features need you to</div>
-			<Button class="button" :icon="$image('icons/obs_purple.svg')" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
+			<Button class="button" :icon="$image('icons/obs_purple.svg')" title="Connect with OBS" white @click="$emit('setContent', contentObs)" />
 			<div class="or">or</div>
 			<Button class="button" :icon="$image('icons/twitchat_purple.svg')" title="Dock Twitchat on OBS" white @click="showDockTutorial = true" v-if="!showDockTutorial" />
 			<Button class="button" :icon="$image('icons/cross.svg')" title="Close" white @click="showDockTutorial = false" v-if="showDockTutorial" />
@@ -26,6 +26,7 @@
 </template>
 
 <script lang="ts">
+import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
@@ -58,6 +59,7 @@ export default class ParamsOverlays extends Vue {
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 
 }
 </script>

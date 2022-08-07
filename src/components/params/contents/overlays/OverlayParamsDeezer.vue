@@ -20,7 +20,7 @@
 			</div>
 			<div class="row">
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
-				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
+				<div>Head over the <a @click="$emit('setContent', contentTriggers)">Triggers tab</a></div>
 				<div class="infos">Click on the <strong>Deezer icon</strong> <img src="@/assets/icons/deezer_purple.svg" alt="deezer" class="icon"> on the bottom right of the screen to add tracks, view the queue, and control the playback !</div>
 				<div class="warning">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
 			</div>
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import type { MusicMessage } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type MusicMessage, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
@@ -57,6 +57,7 @@ export default class OverlayParamsDeezer extends Vue {
 	public currentTrack:MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get deezerConnected():boolean { return StoreProxy.store.state.deezerConnected; }
+	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");

@@ -6,8 +6,8 @@
 			It took <strong>months</strong> of my life to create.<br>
 			Twitchat is free, but <strong>if you can afford it</strong>, any tip would really make my day brighter!</div>
 			<div class="cta">
-				<img @click.stop="openParamPage('sponsor')" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
-				<Button aria-label="Open tip options" @click.stop="openParamPage('sponsor')" title="🌞 Make my day brighter 🌞" />
+				<img @click.stop="openParamPage(contentSponsor)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
+				<Button aria-label="Open tip options" @click.stop="openParamPage(contentSponsor)" title="🌞 Make my day brighter 🌞" />
 			</div>
 		</div>
 
@@ -20,50 +20,63 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<Button aria-label="open voice params" small title="try it" @click.stop="openParamPage('voice')" />
-							<span><strong>Control Twitchat with your voice</strong>! Create polls and predictions, scroll the chat, mark messages as read and much more with your voice.</span>
+							<img src="@/assets/icons/voice.svg" class="icon" />
+							<Button aria-label="open voice params" small title="try it" @click.stop="openParamPage(contentVoice)" />
+							<span><strong>Control Twitchat with your voice</strong>! Create polls and predictions, scroll the chat, mark messages as read and much more with your voice</span>
 						</li>
 						<li>
-							<span>You can now <strong>pin messages</strong> so you don't loose them. Roll over a message and click the pin icon. Open the pinned messages later with the pin icon at the bottom.</span>
+							<img src="@/assets/icons/tts.svg" class="icon" />
+							<Button aria-label="open tts params" small title="try it" @click.stop="openParamPage(contentTts)" />
+							<span>Make Twitchat <strong>read out loud</strong> any messages you receive</span>
 						</li>
 						<li>
-							<span><strong>Stream Deck™ plugin</strong> can now start the emergency mode and shoutout your latest raider.</span>
+							<img src="@/assets/icons/pin.svg" class="icon" />
+							<span>You can now <strong>pin messages</strong> so you don't loose them. Roll over a message and click the pin icon. Open the pinned messages later with the pin icon at the bottom</span>
 						</li>
 						<li>
-							<Button aria-label="open overlays" small title="open" @click.stop="openParamPage('overlays')" />
+							<img src="@/assets/icons/elgato.svg" class="icon" />
+							<span><strong>Stream Deck™ plugin</strong> can now start the emergency mode and shoutout your latest raider</span>
+						</li>
+						<li>
+							<img src="@/assets/icons/music.svg" class="icon" />
+							<Button aria-label="open overlays" small title="open" @click.stop="openParamPage(contentOverlays)" />
 							<span>Many options added to the <strong>music player</strong> overlay</span>
 						</li>
 						<li>
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
+							<img src="@/assets/icons/music.svg" class="icon" />
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
 							<span>Allow your viewers to change your <strong>currently playing spotify playlist</strong> from chat commands or channel point rewards</span>
 						</li>
 						<li>
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
-							<span><strong>1 new trigger</strong> added to execute actions when a <strong>user returns after 30+ days</strong> on your chat</span>
+							<img src="@/assets/icons/broadcast.svg" class="icon" />
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
+							<span><strong>1 new trigger</strong> to execute actions when a <strong>user returns after 30+ days</strong> on your chat</span>
 						</li>
 						<li>
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
-							<span><strong>2 new triggers</strong> added to execute actions when a <strong>music starts or stops playing</strong> <i>(ex: to automatically send current track info on chat)</i></span>
+							<img src="@/assets/icons/broadcast.svg" class="icon" />
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
+							<span><strong>2 new triggers</strong> to execute actions when a <strong>music starts or stops playing</strong> <i>(ex: to automatically send current track info on chat)</i></span>
 						</li>
 						<li>
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage('triggers')" />
-							<span><strong>4 new triggers</strong> added to execute actions when <strong>hype train</strong> approches, starts, progresses and ends</span>
+							<img src="@/assets/icons/broadcast.svg" class="icon" />
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
+							<span><strong>4 new triggers</strong> to execute actions when <strong>hype train</strong> approches, starts, progresses and ends</span>
 						</li>
 						<li>
-							<span>When using the split view option you can now <strong>resize the columns</strong> as you wish</span>
-						</li>
-						<li>
+							<img src="@/assets/icons/unfollow_white.svg" class="icon" />
 							<Button aria-label="open followers param" small title="open" @click.stop="openSpecificParam('appearance.highlightNonFollowers')" />
 							<span>Users list will now show who's not following you <i>(if you enabled the option)</i></span>
 						</li>
 						<li>
-							<Button aria-label="open alert param" small title="donate 💝" href="https://ko-fi.com/durss" type="link" target="_blank" />
+							<img src="@/assets/icons/follow.svg" class="icon" />
+							<Button aria-label="open alert param" small title="donate" href="https://ko-fi.com/durss" type="link" target="_blank" />
 							<span>I opened a <strong>Ko-fi</strong> page for donations</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
+						<li>When using the split view option you can now <strong>resize the columns</strong> as you wish</li>
 						<li>If using Twitchat on a mobile device, Twitchat will now <strong>prevent it from locking</strong> the screen in case of inactivity</li>
 						<li>Music overlay will also show <strong>podcast info</strong> played from Spotify</li>
 						<li>Added <strong>CSS selectors</strong> to the music player so you can better customize it</li>
@@ -90,7 +103,7 @@
 			<div class="title">💡 Tips &amp; tricks 💡</div>
 			<ChatTipAndTrickAd class="content"
 				@showModal="(v:string)=> $emit('showModal', v)"
-				@openParam="(v:string)=> openParamPage(v)"
+				@openParam="(v:any)=> openParamPage(v)"
 				@openParamItem="(v:string)=> openSpecificParam(v)"
 			/>
 		</div>
@@ -117,7 +130,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Store from '@/store/Store';
-import { TwitchatAdTypes } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, TwitchatAdTypes, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
@@ -140,6 +153,12 @@ export default class ChatAd extends Vue {
 
 	public messageData!:IRCEventDataList.TwitchatAd;
 	
+	public voiceIcon:string = "";
+	public ttsIcon:string = "";
+	public pinIcon:string = "";
+	public elgatoIcon:string = "";
+	public followIcon:string = "";
+	public kofiIcon:string = "";
 
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
@@ -149,12 +168,38 @@ export default class ChatAd extends Vue {
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+	
+	public get contentAppearance():ParamsContentStringType { return ParamsContentType.APPEARANCE; } 
+	public get contentFilters():ParamsContentStringType { return ParamsContentType.FILTERS; } 
+	public get contentAccount():ParamsContentStringType { return ParamsContentType.ACCOUNT; } 
+	public get contentAbout():ParamsContentStringType { return ParamsContentType.ABOUT; } 
+	public get contentFeatures():ParamsContentStringType { return ParamsContentType.FEATURES; } 
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
+	public get contentStreamdeck():ParamsContentStringType { return ParamsContentType.STREAMDECK; } 
+	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
+	public get contentOverlays():ParamsContentStringType { return ParamsContentType.OVERLAYS; } 
+	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
+	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
+	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
+	public get contentTts():ParamsContentStringType { return ParamsContentType.TTS; } 
+	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
 
-	public mounted():void {
-		
+	public async getSvgIcon(name:string) {
+		const module = await import(`../../assets/icons/${name}.svg?raw`);
+		return module.default
 	}
 
-	public openParamPage(page:string):void {
+	public async mounted():Promise<void> {
+		this.voiceIcon = await this.getSvgIcon("voice");
+		this.ttsIcon = await this.getSvgIcon("tts");
+		this.pinIcon = await this.getSvgIcon("pin");
+		this.elgatoIcon = await this.getSvgIcon("elgato");
+		this.followIcon = await this.getSvgIcon("follow");
+		this.kofiIcon = await this.getSvgIcon("kofi");
+	}
+
+	public openParamPage(page:ParamsContentStringType):void {
 		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
 		StoreProxy.store.dispatch("showParams", true);
 	}
@@ -253,6 +298,9 @@ export default class ChatAd extends Vue {
 						background: fade(@mainColor_warn, 10%);
 					}
 				}
+				.icon {
+					background: @mainColor_warn;
+				}
 
 				.cmd {
 					background-color: fade(@mainColor_warn, 15%);
@@ -281,6 +329,9 @@ export default class ChatAd extends Vue {
 					&:hover {
 						background: fade(@mainColor_alert, 10%);
 					}
+				}
+				.icon {
+					background: @mainColor_alert;
 				}
 
 				.cmd {
@@ -323,6 +374,16 @@ export default class ChatAd extends Vue {
 					&:hover {
 						background: fade(@mainColor_normal, 10%);
 					}
+				}
+				.icon {
+					border-radius: .5em;
+					height: 2em;
+					width: 2em;
+					padding: .25em;
+					display: inline;
+					margin-right: .5em;
+					vertical-align: middle;
+					background: @mainColor_normal;
 				}
 			}
 		}

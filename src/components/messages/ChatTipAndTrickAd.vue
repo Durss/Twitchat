@@ -5,7 +5,7 @@
 			<h1 class="row">Create your own alerts</h1>
 			<div class="row">With <strong>Twitchat</strong> you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.</div>
 			<div class="row">Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name.</div>
-			<Button title="Try it now" @click.stop="openParam('triggers')" />
+			<Button title="Try it now" @click.stop="openParam(contentTriggers)" />
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
@@ -13,7 +13,7 @@
 			<h1 class="row">Stream Deck™ plugin</h1>
 			<div class="row"><strong>Twitchat</strong> can be controlled from your Stream Deck™.</div>
 			<div class="row">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button.</div>
-			<Button title="Try it now" @click.stop="openParam('streamdeck')" />
+			<Button title="Try it now" @click.stop="openParam(contentStreamdeck)" />
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
@@ -44,7 +44,7 @@
 			<h1 class="row">Control OBS from chat</h1>
 			<div class="row"><strong>Twitchat</strong> can change your current scene and mute/unmute your microphone from a chat command.</div>
 			<div class="row">If you forget to switch scene or unmute yourself, a mod can be there and do it for you as a backup.</div>
-			<Button title="Try it now" @click.stop="openParam('obs')" />
+			<Button title="Try it now" @click.stop="openParam(contentObs)" />
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
@@ -66,7 +66,7 @@
 			<div class="row"><strong>Twitchat</strong> provides a <strong>Spotify</strong> and <strong>Deezer</strong> integrations.</div>
 			<div class="row">This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.</div>
 			<div class="row">You can create your own song request system.</div>
-			<Button title="Try it now" @click.stop="openParam('overlays')" />
+			<Button title="Try it now" @click.stop="openParam(contentOverlays)" />
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
@@ -74,7 +74,7 @@
 			<h1 class="row">Twitchat overlays</h1>
 			<div class="row"><strong>Twitchat</strong> provides a some <strong>overlays</strong> for your stream.</div>
 			<div class="row">It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner.</div>
-			<Button title="Try it now" @click.stop="openParam('overlays')" />
+			<Button title="Try it now" @click.stop="openParam(contentOverlays)" />
 		</div>
 		
 		<div v-if="tipIndex===9" class="entry">
@@ -102,15 +102,15 @@
 			<!-- <img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen"> -->
 			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-			<Button class="row" title="Configure overlay" @click.stop="openParam('overlays')" :icon="$image('icons/overlay.svg')" />
+			<Button class="row" title="Configure overlay" @click.stop="openParam(contentOverlays)" :icon="$image('icons/overlay.svg')" />
 			<div class="row">OR</div>
-			<Button class="row" title="Configure trigger" @click.stop="openParam('triggers')" :icon="$image('icons/broadcast.svg')" />
+			<Button class="row" title="Configure trigger" @click.stop="openParam(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { ParamsContenType } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -127,12 +127,17 @@ export default class ChatTipAndTrickAd extends Vue {
 	public tipIndex = 11;
 	private maxIndex = this.tipIndex;
 
+	public get contentOverlays() { return ParamsContentType.OVERLAYS; }
+	public get contentTriggers() { return ParamsContentType.TRIGGERS; }
+	public get contentObs() { return ParamsContentType.OBS; }
+	public get contentStreamdeck() { return ParamsContentType.STREAMDECK; }
+
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
-	public openParam(modal:ParamsContenType):void { this.$emit("openParam", modal); }
+	public openParam(modal:ParamsContentStringType):void { this.$emit("openParam", modal); }
 	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
 	public startTimer():void { StoreProxy.store.dispatch("startTimer"); }
 	public startCountdown():void { StoreProxy.store.dispatch("startCountdown", 2 * 60 * 1000); }

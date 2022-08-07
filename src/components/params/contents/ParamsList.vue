@@ -20,7 +20,7 @@
 			>
 				<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
 					<img src="@/assets/icons/infos.svg" alt="info">
-					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
+					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
 				</div>
 				
 				<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
@@ -32,15 +32,15 @@
 				</div>
 
 				<div v-else-if="p.id == 215 && p.value === true" class="info config">
-					<Button white small title="Configure" @click="$emit('setContent', 'emergency')" />
+					<Button white small title="Configure" @click="$emit('setContent', contentEmergency)" />
 				</div>
 
 				<div v-else-if="p.id == 216 && p.value === true" class="info config">
-					<Button white small title="Configure" @click="$emit('setContent', 'spoiler')" />
+					<Button white small title="Configure" @click="$emit('setContent', contentSpoiler)" />
 				</div>
 
 				<div v-else-if="p.id == 217 && p.value === true" class="info config">
-					<Button white small title="Configure" @click="$emit('setContent', 'alert')" />
+					<Button white small title="Configure" @click="$emit('setContent', contentAlert)" />
 				</div>
 			</transition>
 		</div>
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterCategory, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterCategory, type ParameterData, type ParamsContentStringType, type PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
@@ -137,6 +137,11 @@ export default class ParamsList extends Vue {
 		}
 		return res;
 	}
+	
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
+	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
+	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
 
 	public onShowItem(el:HTMLDivElement, done:()=>void):void {
 		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{

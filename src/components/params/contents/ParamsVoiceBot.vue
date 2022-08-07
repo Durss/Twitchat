@@ -19,7 +19,7 @@
 	
 			<div class="connectObs" v-if="!obsConnected">
 				<div>This features needs you to connect with OBS.</div>
-				<Button class="button" title="Connect with OBS" white @click="$emit('setContent', 'obs')" />
+				<Button class="button" title="Connect with OBS" white @click="$emit('setContent', contentObs)" />
 			</div>
 		</div>
 	</div>
@@ -32,6 +32,7 @@ import VoiceControlForm from '../../voice/VoiceControlForm.vue';
 import Button from '../../Button.vue';
 import VoiceController from '@/utils/VoiceController';
 import Config from '@/utils/Config';
+import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -42,6 +43,8 @@ import Config from '@/utils/Config';
 	emits:["setContent"]
 })
 export default class ParamsVoiceBot extends Vue {
+	
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voicePageUrl():string {

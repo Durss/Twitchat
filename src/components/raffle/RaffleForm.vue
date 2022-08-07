@@ -98,7 +98,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import type { ParameterData, ParamsContenType, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
+import type { ParameterData, ParamsContentType, PlaceholderEntry, WheelItem } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { RaffleData } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -304,7 +304,7 @@ export default class RaffleForm extends Vue {
 			}})
 		}
 	}
-	public openParam(page:ParamsContenType):void {
+	public openParam(page:ParamsContentType):void {
 		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
 		StoreProxy.store.dispatch("showParams", true);
 	}

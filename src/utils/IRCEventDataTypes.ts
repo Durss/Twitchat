@@ -14,6 +14,7 @@ export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.Message
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
+	| IRCEventDataList.Notice
 	;
 export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.Timeout
@@ -244,21 +245,22 @@ export namespace IRCEventDataList {
 }
 
 export const TwitchatMessageType = {
-	HIGHLIGHTED_MESSAGE:"message",
 	BITS:"bits",
 	SUB:"sub",
-	SUB_PRIME:"prime",
-	SUBGIFT:"subgift",
-	SUBGIFT_UPGRADE:"subgiftUpgrade",
 	RAID:"raid",
-	REWARD:"reward",
-	FOLLOW:"follow",
 	POLL:"poll",
-	PREDICTION:"prediction",
-	COMMERCIAL:"commercial",
 	BINGO:"bingo",
 	RAFFLE:"raffle",
+	NOTICE:"notice",
+	REWARD:"reward",
+	FOLLOW:"follow",
+	SUB_PRIME:"prime",
+	SUBGIFT:"subgift",
 	COUNTDOWN:"countdown",
+	COMMERCIAL:"commercial",
+	PREDICTION:"prediction",
+	HIGHLIGHTED_MESSAGE:"message",
+	SUBGIFT_UPGRADE:"subgiftUpgrade",
 	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
 	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 } as const;

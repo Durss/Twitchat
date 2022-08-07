@@ -33,7 +33,7 @@
 			</div>
 			<div class="row">
 				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
-				<div>Head over the <a @click="$emit('setContent', 'triggers')">Triggers tab</a></div>
+				<div>Head over the <a @click="$emit('setContent', contentTriggers)">Triggers tab</a></div>
 			</div>
 			<Button title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import type { MusicMessage, ParameterData } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type MusicMessage, type ParameterData, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import { Options, Vue } from 'vue-class-component';
@@ -80,6 +80,8 @@ export default class OverlayParamsSpotify extends Vue {
 	public get canConnect():boolean {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
 	}
+	
+	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
 
 	public authenticate():void {
 		this.loading = true;

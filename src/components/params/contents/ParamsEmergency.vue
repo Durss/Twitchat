@@ -44,7 +44,7 @@
 				<div class="item" v-if="!obsConnected">
 					<div class="warn">
 						<img src="@/assets/icons/infos.svg" alt="info">
-						<p class="label"><a @click="$emit('setContent', 'obs')">Connect with OBS</a> to control scene and sources</p>
+						<p class="label"><a @click="$emit('setContent', contentObs)">Connect with OBS</a> to control scene and sources</p>
 					</div>
 				</div>
 				
@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import type { EmergencyParamsData, ParameterData, ParameterDataListValue, PermissionsData } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type EmergencyParamsData, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type PermissionsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
@@ -138,6 +138,7 @@ export default class ParamsEmergency extends Vue {
 	}
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 	
 	public get obsSources_filtered():OBSSourceItem[] {
 		let sources = this.obsSources.concat();

@@ -935,6 +935,8 @@ const UserDataSchema = {
 				readRewardsPattern: {type:"string", maxLength:300},
 				readSubs: {type:"boolean"},
 				readSubsPattern:{type:"string", maxLength:300},
+				readSubgifts: {type:"boolean"},
+				readSubgiftsPattern:{type:"string", maxLength:300},
 				readBits: {type:"boolean"},
 				readBitsPattern:{type:"string", maxLength:300},
 				readRaids: {type:"boolean"},

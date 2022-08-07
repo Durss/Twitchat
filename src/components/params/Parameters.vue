@@ -14,18 +14,18 @@
 			</div>
 			
 			<div class="content menu" v-if="content == null && !search">
-				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent('features')" :selected="content == 'features' || content == 'spoiler'" />
-				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent('appearance')" :selected="content == 'appearance'" />
-				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent('filters')" :selected="content == 'filters'" />
-				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent('emergency')" :selected="content == 'obs' || content=='eventsAction'" />
-				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent('voice')" :selected="content == 'voice'" />
-				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent('tts')" :selected="content == 'tts'" />
-				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent('overlays')" :selected="content == 'overlays'" />
-				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent('triggers')" :selected="content == 'triggers'" />
-				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent('obs')" :selected="content == 'obs' || content=='eventsAction'" />
-				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent('streamdeck')" :selected="content == 'streamdeck'" />
-				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent('account')" :selected="content == 'account'" />
-				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent('about')" :selected="content == 'about' || content == 'sponsor'" />
+				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent(contentFeatures)" />
+				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
+				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent(contentFilters)" />
+				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
+				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
+				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="TTS" @click="setContent(contentTts)" />
+				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
+				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
+				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
+				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
+				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
+				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
 
 				<div class="version">v {{appVersion}}</div>
 			</div>
@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterCategory, ParameterData, ParamsContenType } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterCategory, type ParameterData, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -65,7 +65,6 @@ import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
-import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
 import ParamsList from './contents/ParamsList.vue';
@@ -75,6 +74,7 @@ import ParamsSpoiler from './contents/ParamsSpoiler.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
+import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamItem from './ParamItem.vue';
 
@@ -105,9 +105,25 @@ export default class Parameters extends Vue {
 	public search = "";
 	public showMenu = false;
 	public filteredParams:ParameterData[] = [];
-	public content:ParamsContenType = null;
+	public content:ParamsContentStringType = null;
 
-	private prevContent:ParamsContenType = null;
+	private prevContent:ParamsContentStringType = null;
+	
+	public get contentAppearance():ParamsContentStringType { return ParamsContentType.APPEARANCE; } 
+	public get contentFilters():ParamsContentStringType { return ParamsContentType.FILTERS; } 
+	public get contentAccount():ParamsContentStringType { return ParamsContentType.ACCOUNT; } 
+	public get contentAbout():ParamsContentStringType { return ParamsContentType.ABOUT; } 
+	public get contentFeatures():ParamsContentStringType { return ParamsContentType.FEATURES; } 
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
+	public get contentStreamdeck():ParamsContentStringType { return ParamsContentType.STREAMDECK; } 
+	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
+	public get contentOverlays():ParamsContentStringType { return ParamsContentType.OVERLAYS; } 
+	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
+	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
+	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
+	public get contentTts():ParamsContentStringType { return ParamsContentType.TTS; } 
+	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
 
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -127,7 +143,7 @@ export default class Parameters extends Vue {
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
-			this.content = v.replace("CONTENT:", "") as ParamsContenType;
+			this.content = v.replace("CONTENT:", "") as ParamsContentStringType;
 
 		}else if(v.indexOf("SEARCH:") === 0) {
 			//Prefilled search
@@ -179,7 +195,7 @@ export default class Parameters extends Vue {
 		this.prevContent = null;
 	}
 
-	public setContent(id:ParamsContenType):void {
+	public setContent(id:ParamsContentStringType):void {
 		this.prevContent = this.content;
 		if(id == this.content) {
 			//Refresh content if already active

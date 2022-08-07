@@ -2,7 +2,7 @@
 	<div class="TriggerActionMusicEntry" v-if="!musicServiceConfigured">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
-			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'overlays')">Overlays tab</a> on the <strong>Spotify</strong> section</p>
+			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentOverlays)">Overlays tab</a> on the <strong>Spotify</strong> section</p>
 		</div>
 	</div>
 
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, TriggerActionMusicEntryData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
@@ -57,6 +57,7 @@ export default class TriggerActionMusicEntry extends Vue {
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get contentOverlays():ParamsContentStringType { return ParamsContentType.OVERLAYS; } 
 
 	public mounted():void {
 		//List all available trigger types

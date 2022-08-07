@@ -2,7 +2,7 @@
 	<div :class="classes" v-if="!obsConnected">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
-			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', 'obs')">OBS tab</a></p>
+			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
 		</div>
 	</div>
 
@@ -30,7 +30,7 @@
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ParameterData, ParameterDataListValue, TriggerActionObsData } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type TriggerActionObsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
@@ -71,6 +71,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	private filters:OBSFilter[] = [];
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 

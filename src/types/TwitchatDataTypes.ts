@@ -1,25 +1,26 @@
 import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
 
-export type ParamsContenType = 'appearance'
-							| 'filters'
-							| 'account'
-							| 'about'
-							| 'features'
-							| 'obs'
-							| 'eventsAction'
-							| 'sponsor'
-							| 'streamdeck'
-							| 'triggers'
-							| 'overlays'
-							| 'emergency'
-							| 'spoiler'
-							| 'alert'
-							| 'tts'
-							| 'voice'
-							| null ;
 
-export type BotMessageField = "raffle" | "bingo" | "raffleStart" | "bingoStart" | "shoutout";
+export const ParamsContentType = {
+	APPEARANCE: "appearance",
+	FILTERS: "filters",
+	ACCOUNT: "account",
+	ABOUT: "about",
+	FEATURES: "features",
+	OBS: "obs",
+	SPONSOR: "sponsor",
+	STREAMDECK: "streamdeck",
+	TRIGGERS: "triggers",
+	OVERLAYS: "overlays",
+	EMERGENCY: "emergency",
+	SPOILER: "spoiler",
+	ALERT: "alert",
+	TTS: "tts",
+	VOICE: "voice",
+} as const;
+export type ParamsContentStringType = typeof ParamsContentType[keyof typeof ParamsContentType]|null;
+
 export interface IBotMessage {
 	bingo:BotMessageEntry;
 	bingoStart:BotMessageEntry;
@@ -32,26 +33,27 @@ export interface BotMessageEntry {
 	enabled:boolean;
 	message:string;
 }
+export type BotMessageField = keyof IBotMessage;
 
-export type RoomStatusCategory = "emotesOnly"|"followersOnly"|"subsOnly"|"slowMode";
 export interface IRoomStatusCategory {
 	emotesOnly:ParameterData;
 	followersOnly:ParameterData;
 	subsOnly:ParameterData;
 	slowMode:ParameterData;
 }
+export type RoomStatusCategory = keyof IRoomStatusCategory;
 
-export type ParameterCategory = "appearance" | "filters"| "features";
 export interface IParameterCategory {
 	appearance:{[key:string]:ParameterData};
 	filters:{[key:string]:ParameterData};
 	features:{[key:string]:ParameterData};
 }
+export type ParameterCategory = keyof IParameterCategory;
 
-export type AccountParamsCategory = "syncDataWithServer";
 export interface IAccountParamsCategory {
 	syncDataWithServer:ParameterData;
 }
+export type AccountParamsCategory = keyof IAccountParamsCategory;
 
 
 export interface OBSSceneCommand {
@@ -289,6 +291,8 @@ export interface TTSParamsData {
 	readRewardsPattern: string;
 	readSubs: boolean;
 	readSubsPattern:string;
+	readSubgifts:boolean,
+	readSubgiftsPattern:string,
 	readBits: boolean;
 	readBitsPattern:string;
 	readRaids: boolean;

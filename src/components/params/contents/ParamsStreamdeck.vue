@@ -19,7 +19,7 @@
 				/>
 			</li>
 
-			<li><span class="index">3.</span>Head over the <a @click="$emit('setContent', 'obs')">OBS tab</a> and set the OBS-Websocket credentials to link Twitchat with OBS.</li>
+			<li><span class="index">3.</span>Head over the <a @click="$emit('setContent', contentObs)">OBS tab</a> and set the OBS-Websocket credentials to link Twitchat with OBS.</li>
 
 			<li><span class="index">4.</span>On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.
 			<br>You should be asked to enter your OBS-Websocket credentials:
@@ -34,6 +34,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Splitter from '@/components/Splitter.vue';
+import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Options, Vue } from 'vue-class-component';
 
@@ -47,6 +48,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ParamsStreamdeck extends Vue {
 	
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 
