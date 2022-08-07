@@ -5,38 +5,48 @@
 		<p class="header">Text to speech parameters.</p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
 
-		<Splitter class="item splitter" title="Voice parameters" />
-		<ParamItem class="item" :paramData="param_voice" />
-		<ParamItem class="item" :paramData="param_volume" />
-		<ParamItem class="item" :paramData="param_rate" />
-		<ParamItem class="item" :paramData="param_pitch" />
+		<div class="fadeHolder" :style="holderStyles">
+			<section>
+				<Splitter class="item splitter" title="Voice parameters" />
+				<ParamItem class="item" :paramData="param_voice" />
+				<ParamItem class="item" :paramData="param_volume" />
+				<ParamItem class="item" :paramData="param_rate" />
+				<ParamItem class="item" :paramData="param_pitch" />
+				<Button class="item" title="Test" />
+			</section>
 
-		<Splitter class="item splitter" title="Message parameters" />
-		<ParamItem class="item" :paramData="param_maxLength" />
-		<ParamItem class="item" :paramData="param_timeout" />
-		<ParamItem class="item" :paramData="param_inactivityPeriod" />
-		<InputPLaceHolder :paramData="param_readPatternmessage" :placeholders="tts2Placeholders" />
-		<InputPLaceHolder :paramData="param_readPatternwhisper" :placeholders="tts2Placeholders" />
-		<InputPLaceHolder :paramData="param_readPatternnotice" :placeholders="tts1Placeholder" />
+			<section>
+				<Splitter class="item splitter" title="Message parameters" />
+				<ParamItem class="item" :paramData="param_maxLength" />
+				<ParamItem class="item" :paramData="param_timeout" />
+				<ParamItem class="item" :paramData="param_inactivityPeriod" />
+				<InputPLaceHolder :paramData="param_readPatternmessage" :placeholders="tts2Placeholders" />
+				<InputPLaceHolder :paramData="param_readPatternwhisper" :placeholders="tts2Placeholders" />
+				<InputPLaceHolder :paramData="param_readPatternnotice" :placeholders="tts1Placeholder" />
+			</section>
 
-		<Splitter class="item splitter" title="Removal filters" />
-		<ParamItem class="item" :paramData="param_removeEmotes" />
-		<ParamItem class="item" :paramData="param_removeURL" />
+			<section>
+				<Splitter class="item splitter" title="Removal filters" />
+				<ParamItem class="item" :paramData="param_removeEmotes" />
+				<ParamItem class="item" :paramData="param_removeURL" />
+			</section>
 
-		<Splitter class="item splitter" title="Filters" />
-		<ParamItem class="item" :paramData="param_readFollow" />
-		<ParamItem class="item" :paramData="param_readSubs" />
-		<ParamItem class="item" :paramData="param_readRaids" />
-		<ParamItem class="item" :paramData="param_readRewards" />
-		<ParamItem class="item" :paramData="param_readBits" />
-		<ParamItem class="item" :paramData="param_readPolls" />
-		<ParamItem class="item" :paramData="param_readBingos" />
-		<ParamItem class="item" :paramData="param_readRaffle" />
-		<ParamItem class="item" :paramData="param_readPredictions" />
-		<div>
-			<ToggleBlock title="Users filter" :open="false" small class="item">
-				<PermissionsForm v-model="param_ttsPerms" />
-			</ToggleBlock>
+			<section>
+				<Splitter class="item splitter" title="Filters" />
+				<ParamItem class="item" :paramData="param_readFollow" />
+				<ParamItem class="item" :paramData="param_readSubs" />
+				<ParamItem class="item" :paramData="param_readRaids" />
+				<ParamItem class="item" :paramData="param_readRewards" />
+				<ParamItem class="item" :paramData="param_readBits" />
+				<ParamItem class="item" :paramData="param_readPolls" />
+				<ParamItem class="item" :paramData="param_readBingos" />
+				<ParamItem class="item" :paramData="param_readRaffle" />
+				<ParamItem class="item" :paramData="param_readPredictions" />
+				
+				<ToggleBlock title="Users filter" :open="false" small class="item">
+					<PermissionsForm v-model="param_ttsPerms" />
+				</ToggleBlock>
+			</section>
 		</div>
 
     </div>
@@ -45,9 +55,9 @@
 <script lang="ts">
 import type { ParameterData, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
-import gsap from 'gsap';
-import { watch } from 'vue';
+import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import Button from '../../Button.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import InputPLaceHolder from '../InputPLaceHolder.vue';
@@ -57,6 +67,7 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 @Options({
 	props:{},
 	components:{
+		Button,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
@@ -70,7 +81,7 @@ export default class ParamsTTS extends Vue {
     public param_volume:ParameterData = {type:"slider", value:1, label:"Volume", min:0, max:1, step:0.1};
     public param_rate:ParameterData = {type:"slider", value:1, label:"Speed", min:0.1, max:10, step:0.1};
     public param_pitch:ParameterData = {type:"slider", value:1, label:"Pitch", min:0, max:2, step:0.1};
-    public param_voice:ParameterData = {type:"list", value:'Microsoft Hortense - French (France)', listValues:[], label:"voice", id:404, parent:400};
+    public param_voice:ParameterData = {type:"list", value:'', listValues:[], label:"Voice", id:404, parent:400};
     public param_removeEmotes:ParameterData = {type:"toggle", value:true, label:"Remove emotes"};
     public param_readPatternmessage:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Message pattern, empty=mute", longText:false};
     public param_readPatternwhisper:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Whisper pattern, empty=mute"};
@@ -96,6 +107,13 @@ export default class ParamsTTS extends Vue {
 		all:false,
 		users:"",
 	};
+
+	public get holderStyles():StyleValue {
+		return {
+			opacity:this.param_enabled.value === true? 1 : .5,
+			pointerEvents:this.param_enabled.value === true? "all" : "none",
+		};
+	}
 
 	public get finalData():TTSParamsData {
 		return {
@@ -133,6 +151,8 @@ export default class ParamsTTS extends Vue {
 	public async beforeMount():Promise<void> {
 		let params: TTSParamsData = StoreProxy.store.state.ttsParams;
 		
+		this.setVoices();
+		
 		this.param_removeURL.children = [this.param_replaceURL];
 		Object.keys(params).forEach(
 			param => {
@@ -143,57 +163,12 @@ export default class ParamsTTS extends Vue {
 				}
 			}
 		);
-		
-		this.setVoices();
 
 		watch(()=>this.finalData, ()=> {
 			StoreProxy.store.dispatch("setTTSParams", this.finalData);
 		}, {deep:true});
 		
 	}
-
-	public onShowItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.killTweensOf(el);
-		//Delay the opening so the animation occurs after the child's animation.
-		//this way the user has more chances to see it appear than if all the
-		//animations occured at the same time
-		gsap.from(el, {height:0, duration:.2, ease:"sine.out", delay:.5, onComplete:()=>{
-			done();
-		}});
-	}
-
-	public onHideItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.killTweensOf(el);
-		gsap.to(el, {height:0, duration:.2, ease:"sine.out", onComplete:()=>{
-			done();
-		}});
-	}
-
-	/**
-	 * Gets all the available OBS sources and sort them alphabetically
-	 */
-	// private async listOBSSources():Promise<void> {
-	// 	try {
-	// 		this.obsSources = await OBSWebsocket.instance.getSources();
-	// 	}catch(error){
-	// 		//
-	// 	}
-	// 	this.obsSources.sort((a, b) => {
-	// 		if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
-	// 		if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
-	// 		return 0;
-	// 	});
-
-	// 	//Prefill form from storage
-	// 	const list = [];
-	// 	for (let i = 0; i < this.obsSources.length; i++) {
-	// 		const el = this.obsSources[i];
-	// 		if((StoreProxy.store.state.emergencyParams.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
-	// 			list.push(el);
-	// 		}
-	// 	}
-	// 	this.selectedOBSSources = list;
-	// }
 
 	public get tts2Placeholders():PlaceholderEntry[] {
 		return [
@@ -233,6 +208,15 @@ export default class ParamsTTS extends Vue {
 		margin-bottom: 1em;
 	}
 
+	.enableBt {
+		max-width: 200px;
+		margin: auto;
+		margin-top: .5em;
+		border: 1px solid @mainColor_normal;
+		border-radius: 1em;
+		padding: .5em 1em !important;
+	}
+
 	.header {
 		text-align: center;
 		margin-bottom: .5em;
@@ -247,67 +231,36 @@ export default class ParamsTTS extends Vue {
 			}
 		}
 	}
-	
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		padding-left: calc(1em + 10px);
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-	}
 
-	.item {
-		margin-top: .5em;
-		&.label {
-			i {
-				font-size: .8em;
-			}
-			.icon {
-				width: 1.2em;
-				max-height: 1.2em;
-				margin-right: .5em;
-				margin-bottom: 2px;
-				display: inline;
-				vertical-align: middle;
-			}
-			p {
-				display: inline;
-			}
-		}
+	.fadeHolder {
+		transition: opacity .2s;
 
-		&.splitter {
+		section {
 			margin-top: 2em;
-		}
-
-		&.enableBt {
-			max-width: 200px;
-			margin: auto;
-			border: 1px solid @mainColor_normal;
-			border-radius: 1em;
-			padding: .5em 1em !important;
-		}
-		
-		&.infos {
-			font-size: .8em;
-			background-color:  @mainColor_light;
-			padding: .5em;
 			border-radius: .5em;
-			// margin-top: 0;
-			// overflow: hidden;
-			// padding-left: calc(1em + 10px);
-
-			.togglable {
-				overflow: hidden;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .5em;
+			
+			.item {
+				&:not(:first-child) {
+					margin-top: .5em;
+				}
+				&.label {
+					i {
+						font-size: .8em;
+					}
+					.icon {
+						width: 1.2em;
+						max-height: 1.2em;
+						margin-right: .5em;
+						margin-bottom: 2px;
+						display: inline;
+						vertical-align: middle;
+					}
+					p {
+						display: inline;
+					}
+				}
 			}
 		}
 	}

@@ -9,9 +9,9 @@
 		<ol>
 			<li><span class="index">1.</span>This plugin needs <strong>OBS 28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket V5+</a> plugin to be installed</li>
 			
-			<li><span class="index">2.</span> Install Stream Deck™ plugin:
+			<li><span class="index">2.</span> 
 				<Button :icon="$image('icons/elgato.svg')"
-					title="Download plugin"
+					title="Download Stream Deck™ plugin"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
 					type="link"
@@ -19,10 +19,10 @@
 				/>
 			</li>
 
-			<li><span class="index">3.</span>Once those plugins are installed, head over the <a @click="$emit('setContent', 'obs')">OBS tab</a> and set the OBS-Websocket credentials to connect Twitchat with OBS.</li>
+			<li><span class="index">3.</span>Head over the <a @click="$emit('setContent', 'obs')">OBS tab</a> and set the OBS-Websocket credentials to link Twitchat with OBS.</li>
 
 			<li><span class="index">4.</span>On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.
-			<br>You should be asked to enter your OBS-Websocket credentials like this:
+			<br>You should be asked to enter your OBS-Websocket credentials:
 			<img src="@/assets/img/streamdeck_credentials.png" alt="credentials"></li>
 
 			<li><span class="index">5.</span>Once everything is done you should be able to control Twitchat from your Stream Deck™ 🥳🎉</li>
@@ -73,6 +73,9 @@ export default class ParamsStreamdeck extends Vue {
 		list-style-type: none;
 		li {
 			margin-top: 1em;
+			border-radius: .5em;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .5em;
 			width: 100%;
 			.index {
 				display: blo;
@@ -80,15 +83,10 @@ export default class ParamsStreamdeck extends Vue {
 				font-size: 1.2em;
 				margin-right: .5em;
 			}
-			.button {
-				margin: .5em auto 0 auto;
-				padding-right: 1.5em;
-				display: block;
-				width: min-content;
-			}
 
-			:deep(img) {
+			&>:deep(img) {
 				max-width: 100%;
+				margin-top: .5em;
 			}
 		}
 	}

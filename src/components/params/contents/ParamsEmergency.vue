@@ -4,69 +4,77 @@
 		
 		<p class="header">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
 		<p class="header small" v-if="param_enable.value === true">Start an emergency with the <img src="@/assets/icons/emergency.svg" class="btExample"> button on the chat bar <i>(see bottom right of screen)</i> or with a chat command</p>
-		<ParamItem class="item enableBt" :paramData="param_enable" />
+		<ParamItem class="enableBt" :paramData="param_enable" />
 
-		<Splitter class="item splitter" title="Chat command" />
-		<div class="item label">Allow your mods to trigger the emergency mode from a chat command</div>
-		<div>
-			<ParamItem class="item" :paramData="param_chatCommand" />
-			<ToggleBlock title="Allowed users" :open="false" small class="item">
-				<PermissionsForm v-model="chatCommandPerms" />
-			</ToggleBlock>
-		</div>
+		<div class="fadeHolder" :style="holderStyles">
+			<section>
+				<Splitter class="item splitter" title="Chat command" />
+				<div class="item label">Allow your mods to trigger the emergency mode from a chat command</div>
+				<div>
+					<ParamItem class="item" :paramData="param_chatCommand" />
+					<ToggleBlock title="Allowed users" :open="false" small class="item">
+						<PermissionsForm v-model="chatCommandPerms" />
+					</ToggleBlock>
+				</div>
+			</section>
 
-		<Splitter class="item splitter" title="Chat params" />
-		<div v-for="(p,key) in channelParams" :key="key">
-			<ParamItem class="item" :paramData="p" />
-		</div>
+			<section>
+				<Splitter class="item splitter" title="Chat params" />
+				<ParamItem v-for="(p,key) in channelParams" :key="key" class="item" :paramData="p" />
+			</section>
 
-		<Splitter class="item splitter" title="Followbot raid" />
-		<div class="item label">If you enable this, any new follower occuring during an emergency will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i></div>
-		<ParamItem class="item" :paramData="param_autoBlockFollowing" />
-		<div class="item infos">
-			<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
-			<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all your blocked users</a> on Twitch.</p>
-			<transition
-				@enter="onShowItem"
-				@leave="onHideItem"
-			>
-				<div v-if="param_autoBlockFollowing.value === true" class="togglable"><strong>You'll want to tell you viewers not to follow your channel during an emergency.</strong></div>
-			</transition>
-		</div>
+			<section>
+				<Splitter class="item splitter" title="Followbot raid" />
+				<div class="item label">If you enable this, any new follower occuring during an emergency will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i></div>
+				<ParamItem class="item" :paramData="param_autoBlockFollowing" />
+				<div class="item infos">
+					<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
+					<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all your blocked users</a> on Twitch.</p>
+					<transition
+						@enter="onShowItem"
+						@leave="onHideItem"
+					>
+						<div v-if="param_autoBlockFollowing.value === true" class="togglable"><strong>You'll want to tell you viewers not to follow your channel during an emergency.</strong></div>
+					</transition>
+				</div>
+			</section>
 
-		<Splitter class="item splitter" title="OBS params" />
-		<div class="item" v-if="!obsConnected">
-			<div class="info">
-				<img src="@/assets/icons/infos.svg" alt="info">
-				<p class="label"><a @click="$emit('setContent', 'obs')">Connect with OBS</a> to control scene and sources</p>
-			</div>
-		</div>
-		
-		<div v-else>
-			<div class="item label">
-				<img src="@/assets/icons/list_purple.svg" alt="scene icon" class="icon">
-				<p>Select an OBS scene to switch to</p>
-			</div>
-			<vue-select class="sourceSelector" label="label"
-				placeholder="Select a scene..."
-				v-model="selectedOBSScene"
-				:options="param_obsScene.listValues"
-				:calculate-position="$placeDropdown"
-				appendToBody
-			></vue-select>
-			
-			<div class="item label">
-				<img src="@/assets/icons/show_purple.svg" alt="sources icon" class="icon">
-				<p>Select OBS sources to hide<br><i>(ex: streamelements alerts)</i></p>
-			</div>
-			<vue-select class="sourceSelector" label="sourceName"
-				placeholder="Select one or more sources..."
-				v-model="selectedOBSSources"
-				:options="obsSources_filtered"
-				:calculate-position="$placeDropdown"
-				appendToBody
-				multiple
-			></vue-select>
+			<section>
+				<Splitter class="item splitter" title="OBS params" />
+				<div class="item" v-if="!obsConnected">
+					<div class="warn">
+						<img src="@/assets/icons/infos.svg" alt="info">
+						<p class="label"><a @click="$emit('setContent', 'obs')">Connect with OBS</a> to control scene and sources</p>
+					</div>
+				</div>
+				
+				<div v-else class="item">
+					<div class="item label">
+						<img src="@/assets/icons/list_purple.svg" alt="scene icon" class="icon">
+						<p>Select an OBS scene to switch to</p>
+					</div>
+					<vue-select class="sourceSelector" label="label"
+						placeholder="Select a scene..."
+						v-model="selectedOBSScene"
+						:options="param_obsScene.listValues"
+						:calculate-position="$placeDropdown"
+						appendToBody
+					></vue-select>
+					
+					<div class="item label">
+						<img src="@/assets/icons/show_purple.svg" alt="sources icon" class="icon">
+						<p>Select OBS sources to hide<br><i>(ex: streamelements alerts)</i></p>
+					</div>
+					<vue-select class="sourceSelector" label="sourceName"
+						placeholder="Select one or more sources..."
+						v-model="selectedOBSSources"
+						:options="obsSources_filtered"
+						:calculate-position="$placeDropdown"
+						appendToBody
+						multiple
+					></vue-select>
+				</div>
+			</section>
 		</div>
 	</div>
 </template>
@@ -76,7 +84,7 @@ import type { EmergencyParamsData, ParameterData, ParameterDataListValue, Permis
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
-import { watch } from 'vue';
+import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
@@ -122,6 +130,13 @@ export default class ParamsEmergency extends Vue {
 		users:"",
 	};
 
+	public get holderStyles():StyleValue {
+		return {
+			opacity:this.param_enable.value === true? 1 : .5,
+			pointerEvents:this.param_enable.value === true? "all" : "none",
+		};
+	}
+	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	
 	public get obsSources_filtered():OBSSourceItem[] {
@@ -295,67 +310,77 @@ export default class ParamsEmergency extends Vue {
 			}
 		}
 	}
-	
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		padding-left: calc(1em + 10px);
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
+
+	.enableBt {
+		max-width: 200px;
+		margin: auto;
+		margin-top: .5em;
+		border: 1px solid @mainColor_normal;
+		border-radius: 1em;
+		padding: .5em 1em !important;
 	}
 
-	.item {
-		margin-top: .5em;
-		&.label {
-			i {
-				font-size: .8em;
-			}
-			.icon {
-				width: 1.2em;
-				max-height: 1.2em;
-				margin-right: .5em;
-				margin-bottom: 2px;
-				display: inline;
-				vertical-align: middle;
-			}
-			p {
-				display: inline;
-			}
-		}
+	.fadeHolder {
+		transition: opacity .2s;
 
-		&.splitter {
+		section {
 			margin-top: 2em;
-		}
-
-		&.enableBt {
-			max-width: 200px;
-			margin: auto;
-			border: 1px solid @mainColor_normal;
-			border-radius: 1em;
-			padding: .5em 1em !important;
-		}
-		
-		&.infos {
-			font-size: .8em;
-			background-color:  @mainColor_light;
-			padding: .5em;
 			border-radius: .5em;
-			// margin-top: 0;
-			// overflow: hidden;
-			// padding-left: calc(1em + 10px);
-
-			.togglable {
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .5em;
+			
+			.warn {
 				overflow: hidden;
+				padding: .5em;
+				padding-left: calc(1em + 10px);
+				background-color: @mainColor_light;
+				border-radius: .5em;
+				margin-bottom: .5em;
+				img {
+					height: 1em;
+					margin-right: .5em;
+					vertical-align: middle;
+				}
+				.label {
+					display: inline;
+					color: @mainColor_warn;
+				}
+			}
+
+			.item {
+				&:not(:first-child) {
+					margin-top: .5em;
+				}
+				&.label {
+					i {
+						font-size: .8em;
+					}
+					.icon {
+						width: 1.2em;
+						max-height: 1.2em;
+						margin-right: .5em;
+						margin-bottom: 2px;
+						display: inline;
+						vertical-align: middle;
+					}
+					p {
+						display: inline;
+					}
+				}
+				
+				&.infos {
+					font-size: .8em;
+					background-color:  @mainColor_light;
+					padding: .5em;
+					border-radius: .5em;
+					// margin-top: 0;
+					// overflow: hidden;
+					// padding-left: calc(1em + 10px);
+
+					.togglable {
+						overflow: hidden;
+					}
+				}
 			}
 		}
 	}
