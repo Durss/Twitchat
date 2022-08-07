@@ -12,17 +12,15 @@
 				<ParamItem class="item" :paramData="param_volume" />
 				<ParamItem class="item" :paramData="param_rate" />
 				<ParamItem class="item" :paramData="param_pitch" />
-				<Button class="item" title="Test" />
+				<input class="item center" type="text" :value="testStr" placeholder="message...">
+				<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" @click="test()" />
 			</section>
 
 			<section>
 				<Splitter class="item splitter" title="Message parameters" />
-				<ParamItem class="item" :paramData="param_maxLength" />
-				<ParamItem class="item" :paramData="param_timeout" />
-				<ParamItem class="item" :paramData="param_inactivityPeriod" />
-				<InputPLaceHolder :paramData="param_readPatternmessage" :placeholders="tts2Placeholders" />
-				<InputPLaceHolder :paramData="param_readPatternwhisper" :placeholders="tts2Placeholders" />
-				<InputPLaceHolder :paramData="param_readPatternnotice" :placeholders="tts1Placeholder" />
+				<ParamItem class="item" :paramData="param_maxLengthToggle" />
+				<ParamItem class="item" :paramData="param_timeoutToggle" />
+				<ParamItem class="item" :paramData="param_inactivityPeriodToggle" />
 			</section>
 
 			<section>
@@ -33,6 +31,9 @@
 
 			<section>
 				<Splitter class="item splitter" title="Filters" />
+				<ParamItem class="item" :paramData="param_readMessages" />
+				<ParamItem class="item" :paramData="param_readWhispers" />
+				<ParamItem class="item" :paramData="param_readNotices" />
 				<ParamItem class="item" :paramData="param_readFollow" />
 				<ParamItem class="item" :paramData="param_readSubs" />
 				<ParamItem class="item" :paramData="param_readRaids" />
@@ -49,18 +50,18 @@
 			</section>
 		</div>
 
-    </div>
+	</div>
 </template>
 
 <script lang="ts">
 import type { ParameterData, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import TTSUtils from '@/utils/TTSUtils';
 import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
-import InputPLaceHolder from '../InputPLaceHolder.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
 
@@ -71,35 +72,53 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 		Splitter,
 		ParamItem,
 		ToggleBlock,
-		InputPLaceHolder,
 		PermissionsForm,
 	}
 })
 export default class ParamsTTS extends Vue {
 
+	public testStr:string = "This is a test message";
 	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
-    public param_volume:ParameterData = {type:"slider", value:1, label:"Volume", min:0, max:1, step:0.1};
-    public param_rate:ParameterData = {type:"slider", value:1, label:"Speed", min:0.1, max:10, step:0.1};
-    public param_pitch:ParameterData = {type:"slider", value:1, label:"Pitch", min:0, max:2, step:0.1};
-    public param_voice:ParameterData = {type:"list", value:'', listValues:[], label:"Voice", id:404, parent:400};
-    public param_removeEmotes:ParameterData = {type:"toggle", value:true, label:"Remove emotes"};
-    public param_readPatternmessage:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Message pattern, empty=mute", longText:false};
-    public param_readPatternwhisper:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Whisper pattern, empty=mute"};
-    public param_readPatternnotice:ParameterData = {type:"text", value:'{MESSAGE}', label:"Notice pattern, empty=mute"};
-    public param_maxLength:ParameterData = {type:"slider", value:200, label:"Max spoken text length (0=unlimited)", min:0, max:2000, step:10};
-    public param_timeout:ParameterData = {type:"slider", value:60, label:"Timeout (seconds, 0=no timeout)", min:0, max:300, step:10};
-    public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove links"};
-    public param_replaceURL:ParameterData = {type:"text", value:'url', label:"Replace by"};
-    public param_inactivityPeriod:ParameterData = {type:"slider", value:0, label:"Inactivity period (minutes)", min:0, max:60, step:1};
-    public param_readRewards:ParameterData = {type:"toggle", value:true, label:"Read rewards redeemed", icon:"channelPoints_purple.svg"};
-    public param_readSubs:ParameterData = {type:"toggle", value:true, label:"Read sub alerts", icon:"sub_purple.svg"};
-    public param_readBits:ParameterData = {type:"toggle", value:true, label:"Read bit alerts", icon:"bits_purple.svg"};
-    public param_readRaids:ParameterData = {type:"toggle", value:true, label:"Read raid alerts", icon:"raid_purple.svg"};
-    public param_readFollow:ParameterData = {type:"toggle", value:true, label:"Read follow alerts", icon:"follow_purple.svg"};
-    public param_readPolls:ParameterData = {type:"toggle", value:true, label:"Read polls", icon:"poll_purple.svg"};
-    public param_readBingos:ParameterData = {type:"toggle", value:true, label:"Read bingos", icon:"bingo_purple.svg"};
-    public param_readRaffle:ParameterData = {type:"toggle", value:true, label:"Read raffles", icon:"ticket_purple.svg"};
-    public param_readPredictions:ParameterData = {type:"toggle", value:true, label:"Read predictions", icon:"prediction_purple.svg"};
+	public param_volume:ParameterData = {type:"slider", value:1, label:"Volume {VALUE}", min:0, max:1, step:0.1};
+	public param_rate:ParameterData = {type:"slider", value:1, label:"Speed {VALUE}", min:0.1, max:5, step:0.1};
+	public param_pitch:ParameterData = {type:"slider", value:1, label:"Pitch {VALUE}", min:0, max:2, step:0.1};
+	public param_voice:ParameterData = {type:"list", value:'', listValues:[], label:"Voice", id:404, parent:400};
+	public param_removeEmotes:ParameterData = {type:"toggle", value:true, label:"Remove emotes"};
+
+	public param_maxLengthToggle:ParameterData = {type:"toggle", value:false, label:"Limit message size" };
+	public param_maxLength:ParameterData = {type:"slider", value:200, label:"Read {VALUE} chars max", min:10, max:500, step:10};
+	public param_timeoutToggle:ParameterData = {type:"toggle", value:false, label:"Remove message from queue if they're not read within..." };
+	public param_timeout:ParameterData = {type:"slider", value:60, label:"{VALUE} seconds", min:1, max:300, step:10};
+	public param_inactivityPeriodToggle:ParameterData = {type:"toggle", value:false, label:"Read messages only if no message has been received for..." };
+	public param_inactivityPeriod:ParameterData = {type:"slider", value:0, label:"{VALUE} minutes", min:0, max:60, step:1};
+
+	public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove links"};
+	public param_replaceURL:ParameterData = {type:"text", value:'link', label:"Replace by"};
+
+	public param_readMessages:ParameterData = {type:"toggle", value:false, label:"Read chat messages", icon:"user_purple.svg" };
+	public param_readMessagesPattern:ParameterData = {type:"text", value:'{USER} says {MESSAGE}', label:"Format", longText:false};
+	public param_readWhispers:ParameterData = {type:"toggle", value:false, label:"Read whispers", icon:"whispers_purple.svg" };
+	public param_readWhispersPattern:ParameterData = {type:"text", value:'{USER} whispers {MESSAGE}', label:"Format", longText:false};
+	public param_readNotices:ParameterData = {type:"toggle", value:false, label:"Read notices (TO, ban join/leave)", icon:"info_purple.svg" };
+	public param_readNoticesPattern:ParameterData = {type:"text", value:'{MESSAGE}', label:"Format", longText:false};
+	public param_readRewards:ParameterData = {type:"toggle", value:true, label:"Read channel point rewards", icon:"channelPoints_purple.svg"};
+	public param_readRewardsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readSubs:ParameterData = {type:"toggle", value:false, label:"Read sub alerts", icon:"sub_purple.svg" };
+	public param_readSubsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readBits:ParameterData = {type:"toggle", value:false, label:"Read bits alerts", icon:"bits_purple.svg" };
+	public param_readBitsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readRaids:ParameterData = {type:"toggle", value:false, label:"Read raid alerts", icon:"raid_purple.svg" };
+	public param_readRaidsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readFollow:ParameterData = {type:"toggle", value:false, label:"Read follow alerts", icon:"follow_purple.svg" };
+	public param_readFollowPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readPolls:ParameterData = {type:"toggle", value:false, label:"Read poll results", icon:"poll_purple.svg" };
+	public param_readPollsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readBingos:ParameterData = {type:"toggle", value:false, label:"Read bingo results", icon:"bingo_purple.svg" };
+	public param_readBingosPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readRaffle:ParameterData = {type:"toggle", value:false, label:"Read raffle results", icon:"ticket_purple.svg" };
+	public param_readRafflePattern:ParameterData = {type:"toggle", value:"", label:"Format"};
+	public param_readPredictions:ParameterData = {type:"toggle", value:false, label:"Read prediction results", icon:"prediction_purple.svg" };
+	public param_readPredictionsPattern:ParameterData = {type:"toggle", value:"", label:"Format"};
 	public param_ttsPerms:PermissionsData = {
 		mods:true,
 		vips:false,
@@ -118,29 +137,41 @@ export default class ParamsTTS extends Vue {
 	public get finalData():TTSParamsData {
 		return {
 			enabled:this.param_enabled.value as boolean,
-            volume:this.param_volume.value as number,
-            rate:this.param_rate.value as number,
-            pitch:this.param_pitch.value as number,
-            voice:this.param_voice.value as string,
-            removeEmotes:this.param_removeEmotes.value as boolean,
-            readPatternmessage:this.param_readPatternmessage.value as string,
-            readPatternwhisper:this.param_readPatternwhisper.value as string,
-            readPatternnotice:this.param_readPatternnotice.value as string,
-            maxLength:this.param_maxLength.value as number,
-            timeout:this.param_timeout.value as number,
-            removeURL:this.param_removeURL.value as boolean,
-            replaceURL:this.param_replaceURL.value as string,
-            inactivityPeriod:this.param_inactivityPeriod.value as number,
-            readRewards:this.param_readRewards.value as boolean,
-            readSubs:this.param_readSubs.value as boolean,
-            readBits:this.param_readBits.value as boolean,
-            readRaids:this.param_readRaids.value as boolean,
-            readFollow:this.param_readFollow.value as boolean,
-            readPolls:this.param_readPolls.value as boolean,
-            readBingos:this.param_readBingos.value as boolean,
-            readRaffle:this.param_readRaffle.value as boolean,
-            readPredictions:this.param_readPredictions.value as boolean,
+			volume:this.param_volume.value as number,
+			rate:this.param_rate.value as number,
+			pitch:this.param_pitch.value as number,
+			voice:this.param_voice.value as string,
 			ttsPerms:this.param_ttsPerms,
+			removeEmotes:this.param_removeEmotes.value as boolean,
+			maxLength:this.param_maxLengthToggle.value === true? this.param_maxLength.value as number : 0,
+			timeout:this.param_timeoutToggle.value === true? this.param_timeout.value as number : 0,
+			inactivityPeriod:this.param_inactivityPeriodToggle? this.param_inactivityPeriod.value as number : 0,
+			removeURL:this.param_removeURL.value as boolean,
+			replaceURL:this.param_replaceURL.value as string,
+			readMessages:this.param_readMessages.value as boolean,
+			readMessagePatern:this.param_readMessagesPattern.value as string,
+			readWhispers:this.param_readWhispers.value as boolean,
+			readWhispersPattern:this.param_readWhispersPattern.value as string,
+			readNotices:this.param_readNotices.value as boolean,
+			readNoticesPattern:this.param_readNoticesPattern.value as string,
+			readRewards:this.param_readRewards.value as boolean,
+			readRewardsPattern:this.param_readRewardsPattern.value as string,
+			readSubs:this.param_readSubs.value as boolean,
+			readSubsPattern:this.param_readSubsPattern.value as string,
+			readBits:this.param_readBits.value as boolean,
+			readBitsPattern:this.param_readBitsPattern.value as string,
+			readRaids:this.param_readRaids.value as boolean,
+			readRaidsPattern:this.param_readRaidsPattern.value as string,
+			readFollow:this.param_readFollow.value as boolean,
+			readFollowPattern:this.param_readFollowPattern.value as string,
+			readPolls:this.param_readPolls.value as boolean,
+			readPollsPattern:this.param_readPollsPattern.value as string,
+			readBingos:this.param_readBingos.value as boolean,
+			readBingosPattern:this.param_readBingosPattern.value as string,
+			readRaffle:this.param_readRaffle.value as boolean,
+			readRafflePattern:this.param_readRafflePattern.value as string,
+			readPredictions:this.param_readPredictions.value as boolean,
+			readPredictionsPattern:this.param_readPredictionsPattern.value as string,
 		};
 	}
 
@@ -150,19 +181,63 @@ export default class ParamsTTS extends Vue {
 
 	public async beforeMount():Promise<void> {
 		let params: TTSParamsData = StoreProxy.store.state.ttsParams;
+
+		this.param_enabled.value = params.enabled;
+		this.param_volume.value = params.volume;
+		this.param_rate.value = params.rate;
+		this.param_pitch.value = params.pitch;
+		this.param_voice.value = params.voice;
+		this.param_ttsPerms = params.ttsPerms;
+		this.param_removeEmotes.value = params.removeEmotes;
+		this.param_maxLength.value = params.maxLength;
+		this.param_timeout.value = params.timeout;
+		this.param_inactivityPeriod.value = params.inactivityPeriod;
+		this.param_removeURL.value = params.removeURL;
+		this.param_replaceURL.value = params.replaceURL;
+		this.param_readMessages.value = params.readMessages === true;
+		this.param_readMessagesPattern.value = params.readMessagePatern;
+		this.param_readWhispers.value = params.readWhispers === true;
+		this.param_readWhispersPattern.value = params.readWhispersPattern;
+		this.param_readNotices.value = params.readNotices === true;
+		this.param_readNoticesPattern.value = params.readNoticesPattern;
+		this.param_readRewards.value = params.readRewards === true;
+		this.param_readRewardsPattern.value = params.readRewardsPattern;
+		this.param_readSubs.value = params.readSubs === true;
+		this.param_readSubsPattern.value = params.readSubsPattern;
+		this.param_readBits.value = params.readBits === true;
+		this.param_readBitsPattern.value = params.readBitsPattern;
+		this.param_readRaids.value = params.readRaids === true;
+		this.param_readRaidsPattern.value = params.readRaidsPattern;
+		this.param_readFollow.value = params.readFollow === true;
+		this.param_readFollowPattern.value = params.readFollowPattern;
+		this.param_readPolls.value = params.readPolls === true;
+		this.param_readPollsPattern.value = params.readPollsPattern;
+		this.param_readBingos.value = params.readBingos === true;
+		this.param_readBingosPattern.value = params.readBingosPattern;
+		this.param_readRaffle.value = params.readRaffle === true;
+		this.param_readRafflePattern.value = params.readRafflePattern;
+		this.param_readPredictions.value = params.readPredictions === true;
+		this.param_readPredictionsPattern.value = params.readPredictionsPattern;
 		
 		this.setVoices();
 		
 		this.param_removeURL.children = [this.param_replaceURL];
-		Object.keys(params).forEach(
-			param => {
-				if (typeof (params as any)[param] === "object") {
-					(this as any)['param_'+param] = (params as any)[param];
-				} else {
-					(this as any)['param_'+param].value = (params as any)[param];
-				}
-			}
-		);
+
+		this.param_readMessages.children = [this.param_readMessagesPattern];
+		this.param_readWhispers.children = [this.param_readWhispersPattern];
+		this.param_readNotices.children = [this.param_readNoticesPattern];
+
+		this.param_readMessagesPattern.placeholderList = this.tts2Placeholders;
+		this.param_readWhispersPattern.placeholderList = this.tts2Placeholders;
+		this.param_readNoticesPattern.placeholderList = this.tts1Placeholder;
+
+		this.param_maxLengthToggle.children = [this.param_maxLength];
+		this.param_timeoutToggle.children = [this.param_timeout];
+		this.param_inactivityPeriodToggle.children = [this.param_inactivityPeriod];
+
+		this.param_maxLengthToggle.value = this.param_maxLength.value as number > 0;
+		this.param_timeoutToggle.value = this.param_timeout.value as number > 0;
+		this.param_inactivityPeriodToggle.value = this.param_inactivityPeriod.value as number > 0;
 
 		watch(()=>this.finalData, ()=> {
 			StoreProxy.store.dispatch("setTTSParams", this.finalData);
@@ -190,6 +265,10 @@ export default class ParamsTTS extends Vue {
 				desc:"Message",
 			},
 		];
+	}
+
+	public test():void {
+		TTSUtils.instance.readText(this.testStr);
 	}
 }
 </script>
@@ -264,6 +343,11 @@ export default class ParamsTTS extends Vue {
 					p {
 						display: inline;
 					}
+				}
+				&.center {
+					display: block;
+					margin-left: auto;
+					margin-right: auto;
 				}
 			}
 		}

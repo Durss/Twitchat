@@ -140,7 +140,8 @@ export interface ParameterData {
 	step?:number;//For numeric values
 	maxLength?:number;
 	icon?:string;
-	placeholder?:string;
+	placeholder?:string;//Placeholder for the input
+	placeholderList?:PlaceholderEntry[];//creates clickable {XXX} placeholders
 	parent?:number;
 	example?:string;//Displays an icon with a tooltip containing the specified image example
 	storage?:unknown;//Just a field to allow storage of random data if necessary
@@ -273,23 +274,35 @@ export interface TTSParamsData {
 	pitch: number;
 	voice: string;
 	removeEmotes: boolean;
-	readPatternmessage: string;
-	readPatternwhisper: string;
-	readPatternnotice: string;
 	maxLength: number;
 	timeout: number;
 	removeURL: boolean;
 	replaceURL: string;
 	inactivityPeriod: number;
+	readMessages:boolean;
+	readMessagePatern: string;
+	readWhispers:boolean;
+	readWhispersPattern: string;
+	readNotices:boolean;
+	readNoticesPattern: string;
 	readRewards: boolean;
+	readRewardsPattern: string;
 	readSubs: boolean;
+	readSubsPattern:string;
 	readBits: boolean;
+	readBitsPattern:string;
 	readRaids: boolean;
+	readRaidsPattern:string;
 	readFollow: boolean;
+	readFollowPattern:string;
 	readPolls: boolean;
+	readPollsPattern:string;
 	readBingos: boolean;
+	readBingosPattern:string;
 	readRaffle: boolean;
+	readRafflePattern:string;
 	readPredictions: boolean;
+	readPredictionsPattern:string;
 	ttsPerms:PermissionsData;
 }
 

@@ -361,24 +361,36 @@ const store = createStore({
 			rate:1,
 			pitch:1,
 			voice:'',
-			maxLength:200,
-			timeout:60,
+			maxLength:0,
+			timeout:0,
 			removeEmotes:true,
 			removeURL:true,
 			replaceURL:'url',
-			inactivityPeriod:5,
-			readPatternmessage:'{USER} says {MESSAGE}',
-			readPatternwhisper:'{USER} whispers {MESSAGE}',
-			readPatternnotice:'{MESSAGE}',
-			readRewards:true,
-			readSubs:true,
-			readBits:true,
-			readRaids:true,
-			readFollow:true,
-			readPolls:true,
-			readPredictions:true,
-			readBingos:true,
-			readRaffle:true,
+			inactivityPeriod:0,
+			readMessages:true,
+			readMessagePatern:'{USER} says: {MESSAGE}',
+			readWhispers:false,
+			readWhispersPattern:'{USER} whispers: {MESSAGE}',
+			readNotices:false,
+			readNoticesPattern:'{MESSAGE}',
+			readRewards:false,
+			readRewardsPattern:"",
+			readSubs:false,
+			readSubsPattern:"",
+			readBits:false,
+			readBitsPattern:"",
+			readRaids:false,
+			readRaidsPattern:"",
+			readFollow:false,
+			readFollowPattern:"",
+			readPolls:false,
+			readPollsPattern:"",
+			readPredictions:false,
+			readPredictionsPattern:"",
+			readBingos:false,
+			readBingosPattern:"",
+			readRaffle:false,
+			readRafflePattern:"",
 			ttsPerms:{
 				mods:true,
 				vips:false,
@@ -2073,8 +2085,7 @@ const store = createStore({
 			//Init TTS actions
 			const tts = Store.get(Store.TTS_PARAMS);
 			if (tts) {
-				state.ttsParams = JSON.parse(tts);
-				TTSUtils.instance.enable(state.ttsParams.enabled as boolean);
+				Utils.mergeRemoteObject(JSON.parse(tts), (state.ttsParams as unknown) as JsonObject);
 			}
 			
 			//Init emergency actions
