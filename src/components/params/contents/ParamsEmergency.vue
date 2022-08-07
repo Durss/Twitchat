@@ -314,20 +314,24 @@ export default class ParamsEmergency extends Vue {
 	.enableBt {
 		max-width: 200px;
 		margin: auto;
-		margin-top: .5em;
+		margin-top: 1.5em;
+		margin-bottom: 2em;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
+		background-color: fade(@mainColor_normal_extralight, 30%);
 	}
 
 	.fadeHolder {
 		transition: opacity .2s;
 
 		section {
-			margin-top: 2em;
 			border-radius: .5em;
 			background-color: fade(@mainColor_normal_extralight, 30%);
 			padding: .5em;
+			&:not(:first-of-type) {
+				margin-top: 2em;
+			}
 			
 			.warn {
 				overflow: hidden;
