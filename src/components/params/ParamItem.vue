@@ -42,9 +42,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
-				<label :for="'slider'+key">
-					{{paramData.label}} <span>({{paramData.value}})</span>
-				</label>
+				<label :for="'slider'+key" v-html="label"></label>
 				<input ref="input" type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus" v-if="!paramData.noInput">
 			</div>
 			
@@ -76,6 +74,12 @@
 				/> -->
 			</div>
 		</div>
+		
+		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && paramData.placeholderList"
+			:target="placeholderTarget"
+			:placeholders="paramData.placeholderList"
+			v-model="paramData.value"
+		/>
 
 		<ParamItem v-for="(c, index) in children"
 			class="child"
@@ -94,6 +98,7 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
+import PlaceholderSelector from './PlaceholderSelector.vue';
 
 @Options({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -119,6 +124,7 @@ import ToggleButton from '../ToggleButton.vue';
 	components:{
 		Button,
 		ToggleButton,
+		PlaceholderSelector,
 	},
 	emits: ["change", "update:modelValue"]
 })
@@ -129,9 +135,11 @@ export default class ParamItem extends Vue {
 	public childLevel!:number;
 	public paramData!:ParameterData;
 	public modelValue!:string|boolean|number|string[];
+
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
 	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;
+	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
 
@@ -146,7 +154,16 @@ export default class ParamItem extends Vue {
 	}
 
 	public get label():string {
-		return this.paramData.label.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+		if(!this.paramData) return "";
+		let txt = this.paramData.label;
+		if(txt.indexOf("{VALUE}") > -1) {
+			if(this.paramData.value || this.paramData.value === 0) {
+				txt = txt.replace(/\{VALUE\}/gi, this.paramData.value.toString());
+			}else{
+				txt = txt.replace(/\{VALUE\}/gi, "x");
+			}
+		}
+		return txt.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
 	}
 
 	public get textValue():string {
@@ -184,12 +201,20 @@ export default class ParamItem extends Vue {
 		});
 		this.buildChildren();
 		
-		if(this.paramData.listValues) {
+		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
 			//Check if the value is on the listValues.
 			//If not, fallback to the first value.
 			if(!this.paramData.listValues.find(v=>v.label === this.paramData.value)) {
 				this.paramData.value = this.paramData.listValues[0].value;
 			}
+		}
+
+		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
+			if(this.paramData.type != "text") {
+				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\"");
+			}
+			
+			this.placeholderTarget = this.$el.querySelector("textarea,input");
 		}
 
 		this.inputField = this.$refs.input as HTMLTextAreaElement;
@@ -391,6 +416,9 @@ export default class ParamItem extends Vue {
 		.child {
 			@padding:15px;
 			width: calc(100% - @padding);
+		}
+		.placeholders {
+			padding-left: 0;
 		}
 	}
 
