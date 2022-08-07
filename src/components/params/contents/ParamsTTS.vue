@@ -7,30 +7,7 @@
 
 		<div class="fadeHolder" :style="holderStyles">
 			<section>
-				<Splitter class="item splitter" title="Voice parameters" />
-				<ParamItem class="item" :paramData="param_voice" />
-				<ParamItem class="item" :paramData="param_volume" />
-				<ParamItem class="item" :paramData="param_rate" />
-				<ParamItem class="item" :paramData="param_pitch" />
-				<input class="item center" type="text" :value="testStr" placeholder="message...">
-				<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" @click="test()" />
-			</section>
-
-			<section>
-				<Splitter class="item splitter" title="Message parameters" />
-				<ParamItem class="item" :paramData="param_maxLengthToggle" />
-				<ParamItem class="item" :paramData="param_timeoutToggle" />
-				<ParamItem class="item" :paramData="param_inactivityPeriodToggle" />
-			</section>
-
-			<section>
-				<Splitter class="item splitter" title="Removal filters" />
-				<ParamItem class="item" :paramData="param_removeEmotes" />
-				<ParamItem class="item" :paramData="param_removeURL" />
-			</section>
-
-			<section>
-				<Splitter class="item splitter" title="Filters" />
+				<Splitter class="item splitter" title="Messages to read" />
 				<ParamItem class="item" :paramData="param_readMessages" />
 				<ParamItem class="item" :paramData="param_readWhispers" />
 				<ParamItem class="item" :paramData="param_readNotices" />
@@ -47,6 +24,25 @@
 				<ToggleBlock title="Users filter" :open="false" small class="item">
 					<PermissionsForm v-model="param_ttsPerms" />
 				</ToggleBlock>
+			</section>
+			
+			<section>
+				<Splitter class="item splitter" title="Voice parameters" />
+				<ParamItem class="item" :paramData="param_voice" />
+				<ParamItem class="item" :paramData="param_volume" />
+				<ParamItem class="item" :paramData="param_rate" />
+				<ParamItem class="item" :paramData="param_pitch" />
+				<input class="item center" type="text" :value="testStr" placeholder="message...">
+				<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" @click="test()" />
+			</section>
+
+			<section>
+				<Splitter class="item splitter" title="Filters" />
+				<ParamItem class="item" :paramData="param_removeEmotes" />
+				<ParamItem class="item" :paramData="param_removeURL" />
+				<ParamItem class="item" :paramData="param_maxLengthToggle" />
+				<ParamItem class="item" :paramData="param_timeoutToggle" />
+				<ParamItem class="item" :paramData="param_inactivityPeriodToggle" />
 			</section>
 		</div>
 
