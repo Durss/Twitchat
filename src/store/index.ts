@@ -86,6 +86,7 @@ const store = createStore({
 		playbackState: null as PubSubDataTypes.PlaybackInfo|null,
 		communityBoostState: null as PubSubDataTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
+		obsConnectionEnabled: null as boolean|null,
 		obsSceneCommands: [] as OBSSceneCommand[],
 		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
 		obsCommandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
@@ -368,7 +369,7 @@ const store = createStore({
 			removeURL:true,
 			replaceURL:'link',
 			inactivityPeriod:0,
-			readMessages:true,
+			readMessages:false,
 			readMessagePatern:'{USER} says: {MESSAGE}',
 			readWhispers:false,
 			readWhispersPattern:'{USER} whispers: {MESSAGE}',
@@ -387,9 +388,9 @@ const store = createStore({
 			readFollow:false,
 			readFollowPattern:"{USER} is now following",
 			readPolls:false,
-			readPollsPattern:"Poll ended. Winning choice is, {WINNER}",
+			readPollsPattern:"Poll \"{TITLE}\" ended. Winning choice is, {WINNER}",
 			readPredictions:false,
-			readPredictionsPattern:"Prediction ended. Winning choice is, {WINNER}",
+			readPredictionsPattern:"Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
 			readBingos:false,
 			readBingosPattern:"{USER} won the bingo",
 			readRaffle:false,
@@ -2182,15 +2183,32 @@ const store = createStore({
 				}
 			}
 			
+			//Initialise new toggle param for OBS connection.
+			//If any OBS param exists, set it to true because the
+			//user probably configured it. Otherwise set it to false
+			if(Store.get(Store.OBS_CONNECTION_ENABLED) === null) {
+				if(Store.get(Store.OBS_PASS) || Store.get(Store.OBS_PORT) || state.obsMuteUnmuteCommands || state.obsSceneCommands.length > 0) {
+					state.obsConnectionEnabled = true;
+				}else{
+					state.obsConnectionEnabled = false;
+				}
+				Store.set(Store.OBS_CONNECTION_ENABLED, state.obsConnectionEnabled);
+			}else{
+				state.obsConnectionEnabled = Store.get(Store.OBS_CONNECTION_ENABLED) === "true";
+			}
+			
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)
 			let port = Utils.getQueryParameterByName("obs_port");
-			if(!port) port = Store.get(Store.OBS_PORT);
 			let pass = Utils.getQueryParameterByName("obs_pass");
-			if(!pass) pass = Store.get(Store.OBS_PASS);
 			let ip = Utils.getQueryParameterByName("obs_ip");
+			const urlForced = port || pass || ip;
+			if(!port) port = Store.get(Store.OBS_PORT);
+			if(!pass) pass = Store.get(Store.OBS_PASS);
 			if(!ip) ip = Store.get(Store.OBS_IP);
-			if(port != undefined || pass != undefined || ip != undefined) {
+			//If OBS params are on URL or if connection is enabled, connect
+			if((state.obsConnectionEnabled || urlForced)
+			&& (port != undefined || pass != undefined || ip != undefined)) {
 				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 		},

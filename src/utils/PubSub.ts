@@ -209,8 +209,6 @@ export default class PubSub extends EventDispatcher{
 			"tmi-sent-ts": Date.now().toString(),
 		};
 
-		console.log(m.data.message_content.fragments[0].text);
-		console.log(tags);
 		IRCClient.instance.addMessage(m.data.message_content.fragments[0].text, tags, false);
 
 		//Flag mesage as low trust

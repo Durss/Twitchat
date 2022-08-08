@@ -1,6 +1,5 @@
 import type { PlaceholderEntry, TTSParamsData } from "@/types/TwitchatDataTypes";
-import IRCClient from "./IRCClient";
-import IRCEvent from "./IRCEvent";
+import { watch } from "vue";
 import { getTwitchatMessageType, TwitchatMessageType, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
 import PubSub from "./PubSub";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
@@ -85,11 +84,11 @@ export default class TTSUtils {
 	private pendingMessages:SpokenMessage[] = [];
 	private lastMessageTime:number = performance.now();
 	private stopTimeout:number = -1;
+	private idsParsed:{[key:string]:boolean} = {};
 
 	/********************
 	* HANDLERS          *
 	********************/
-	private addMessageHandler!:(e:IRCEvent)=>void;
 	private deleteMessageHandler!:(e:PubSubEvent)=>void;
 	
 	constructor() {
@@ -97,8 +96,25 @@ export default class TTSUtils {
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
 			this.voices = window.speechSynthesis.getVoices();
 		};
-		this.addMessageHandler = (e:IRCEvent)=> this.onAddMessage(e);
+		
 		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
+			
+		
+		watch(() => StoreProxy.store.state.chatMessages, async (value) => {
+				//There should be no need to read more than 100 new messages at a time
+				//Unless the chat is ultra spammy in which case we wouldn't notice
+				//messages are missing from the list anyway...
+				const len = StoreProxy.store.state.chatMessages.length;
+				let i = Math.max(0, len - 100);
+				for (; i < len; i++) {
+					const m = StoreProxy.store.state.chatMessages[i] as IRCEventDataList.Message;
+					if(this.idsParsed[m.tags.id as string] !== true) {
+						this.idsParsed[m.tags.id as string] = true;
+						this.onAddMessage(m);
+					}
+				}
+				return;
+		});
 	}
 	
 	/********************
@@ -118,16 +134,8 @@ export default class TTSUtils {
 	public set enabled(value: boolean) {
 		if (value && !this._enabled) {
 			PubSub.instance.addEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.WHISPER, this.addMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.NOTICE, this.addMessageHandler);
-			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
 		} else if (!value && this._enabled) {
 			PubSub.instance.removeEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-			IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.addMessageHandler);
-			IRCClient.instance.removeEventListener(IRCEvent.WHISPER, this.addMessageHandler);
-			IRCClient.instance.removeEventListener(IRCEvent.NOTICE, this.addMessageHandler);
-			IRCClient.instance.removeEventListener(IRCEvent.HIGHLIGHT, this.addMessageHandler);
 		}
 		this._enabled = value;
 	}
@@ -197,8 +205,7 @@ export default class TTSUtils {
 		this.lastMessageTime = performance.now();
 	}
 
-	private onAddMessage(e:IRCEvent):void {
-		const message = e.data as IRCEventData;
+	private onAddMessage(message:IRCEventData):void {
 		this.processMessage(message);
 	}
 
@@ -215,6 +222,9 @@ export default class TTSUtils {
 		&& (performance.now() - lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
 			return;
 		}
+
+		// console.log("Read message type", type);
+		// console.log(message);
 
 		switch(type) {
 			case TwitchatMessageType.MESSAGE:{

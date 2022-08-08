@@ -23,7 +23,6 @@
 				<Splitter class="item splitter" title="Messages to read" />
 				<ParamItem class="item" :paramData="param_readMessages" />
 				<ParamItem class="item" :paramData="param_readWhispers" />
-				<ParamItem class="item" :paramData="param_readNotices" />
 				<ParamItem class="item" :paramData="param_readFollow" />
 				<ParamItem class="item" :paramData="param_readSubs" />
 				<ParamItem class="item" :paramData="param_readSubgifts" />
@@ -34,6 +33,7 @@
 				<ParamItem class="item" :paramData="param_readPredictions" />
 				<ParamItem class="item" :paramData="param_readBingos" />
 				<ParamItem class="item" :paramData="param_readRaffle" />
+				<ParamItem class="item" :paramData="param_readNotices" />
 			</section>
 			
 			<section>
@@ -49,7 +49,7 @@
 			<section>
 				<Splitter class="item splitter" title="Filters" />
 				<ParamItem class="item" :paramData="param_removeEmotes" />
-				<ParamItem class="item" :paramData="param_removeURL" />
+				<ParamItem class="item shrinkInput" :paramData="param_removeURL" />
 				<ParamItem class="item" :paramData="param_maxDurationToggle" />
 				<ParamItem class="item" :paramData="param_maxLengthToggle" />
 				<ParamItem class="item" :paramData="param_timeoutToggle" />
@@ -371,6 +371,11 @@ export default class ParamsTTS extends Vue {
 					display: block;
 					margin-left: auto;
 					margin-right: auto;
+				}
+				&.shrinkInput {
+					:deep(input) {
+						width: auto;
+					}
 				}
 			}
 		}

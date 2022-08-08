@@ -656,6 +656,7 @@ const UserDataSchema = {
 				}
 			}
 		},
+		obsConnectionEnabled: {type:"boolean"},
 		obsConf_muteUnmute: {
 			type:"object",
 			properties: {
