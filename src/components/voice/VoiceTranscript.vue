@@ -24,14 +24,14 @@ export default class VoiceTranscript extends Vue {
 	public show:boolean = false;
 
 	public get text():string {
-		if(StoreProxy.store.state.voiceText.tempText) return StoreProxy.store.state.voiceText.tempText;
+		if(StoreProxy.store.state.voiceText.rawTempText) return StoreProxy.store.state.voiceText.rawTempText;
 		return StoreProxy.store.state.voiceText.finalText;
 		// return "Cillum reprehenderit incididunt";
 		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
 	}
 
 	public mounted():void {
-		watch(()=> StoreProxy.store.state.voiceText.tempText, async ()=>{
+		watch(()=> StoreProxy.store.state.voiceText.rawTempText, async ()=>{
 			if(!this.show){
 				this.show = true;
 				await this.$nextTick();

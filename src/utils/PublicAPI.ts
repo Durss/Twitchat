@@ -75,8 +75,14 @@ export default class PublicAPI extends EventDispatcher {
 			console.error(error);
 		}
 
-		//Broadcast to any OBS Websocket connected client
-		OBSWebsocket.instance.broadcast(type, data);
+		if(!OBSWebsocket.instance.connected) {
+			//OBS not connected and asked to broadcast to self, just
+			//broadcast to self right away
+			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, data));
+		}else{
+			//Broadcast to any OBS Websocket connected client
+			OBSWebsocket.instance.broadcast(type, data);
+		}
 	}
 	
 	

@@ -7,6 +7,7 @@ import { Event } from './EventDispatcher';
 export default class TwitchatEvent extends Event {
 	//Events
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
+	public static RAW_TEXT_UPDATE:string = "RAW_TEXT_UPDATE";
 	public static ACTION_BATCH:string = "ACTION_BATCH";
 	public static SPEECH_END:string = "SPEECH_END";
 
@@ -69,7 +70,7 @@ export default class TwitchatEvent extends Event {
 	public static STOP_EMERGENCY:TwitchatActionType = "STOP_EMERGENCY";
 	public static SHOUTOUT:TwitchatActionType = "SHOUTOUT";
 
-	constructor(type:TwitchatActionType, public data?:JsonObject | JsonArray | JsonValue) {
+	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
 	}
 }

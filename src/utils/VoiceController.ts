@@ -79,18 +79,16 @@ export default class VoiceController {
 		this.recognition.onresult = async (event) => {
 			if(this.ignoreResult) return;
 
-			const texts = [];
 			this.tempText = "";
 			let tempText_loc = "";
 			for (let i = event.resultIndex; i < event.results.length; ++i) {
 				if(event.results[i].isFinal) {
-					texts.push(event.results[i][0].transcript);
-					this.finalText = texts[0].replace(this.lastTriggerKey, "");
+					this.finalText = event.results[i][0].transcript.replace(this.lastTriggerKey, "");
 					if(!this.wasIncludingGlobalCommand) {
 						this.triggerAction(this.textUpdateAction, {text:this.finalText});
 					}
 					if(this.triggersCountDone === 0) {
-						this.parseSentence(this.finalText);
+						this.parseSentence(this.finalText.toLowerCase());
 					}
 					this.triggerAction(new VoiceAction(VoiceAction.SPEECH_END), {text:this.finalText});
 					this.wasIncludingGlobalCommand = false;
@@ -98,6 +96,7 @@ export default class VoiceController {
 					this.triggersCountDone = 0;
 					this.lastTriggerKey = "";
 				}else{
+					this.finalText = "";
 					tempText_loc += event.results[i][0].transcript;
 				}
 			}
@@ -128,6 +127,7 @@ export default class VoiceController {
 					}
 				}
 			}
+			
 			if(hasGlobalAction) {
 				//If there's just one global action, send it the normal way
 				if(actionsList.length ==1) {
@@ -143,6 +143,9 @@ export default class VoiceController {
 			}
 
 			this.tempText = tempText_loc;
+			if(!this.finalText) {
+				this.triggerAction(new VoiceAction(VoiceAction.RAW_TEXT_UPDATE), {text:this.tempText});
+			}
 		}
 		
 		this.recognition.onend = () => {
@@ -210,7 +213,7 @@ export default class VoiceController {
 			const index = str.indexOf(key);
 			if(index > -1) {
 				this.lastTriggerKey = key;
-				str = str.replace(key, "");
+				// str = str.replace(key, "");
 				const action = this.hashmap[key];
 				//Make sure event is broadcasted only once
 				if(this.lastTriggerAction?.id !== action.id) {

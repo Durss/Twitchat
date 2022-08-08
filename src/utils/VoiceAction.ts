@@ -6,6 +6,7 @@ import type { TwitchatActionType } from "./TwitchatEvent";
 export default class VoiceAction {
 
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
+	public static RAW_TEXT_UPDATE:string = "RAW_TEXT_UPDATE";
 	public static ACTION_BATCH:string = "ACTION_BATCH";
 	public static SPEECH_END:string = "SPEECH_END";
 

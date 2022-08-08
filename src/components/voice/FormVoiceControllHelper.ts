@@ -2,6 +2,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import type { TwitchatActionType } from '@/utils/TwitchatEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
+import gsap from 'gsap';
 
 /**
  * There's a VERY strange issue I couldn't figure out so far.
