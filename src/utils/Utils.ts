@@ -102,9 +102,12 @@ export default class Utils {
 	 * @param text 
 	 * @returns 
 	 */
-	public static parseURLs(text:string, target = "_blank"):string {
-		let res = text.replace(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi, "<a href='$1' target='"+target+"'>$1</a>");
-		res = res.replace(/href='(?!https?)(\/\/)?(.*?)'/gi, "href='https://$2'");
+	public static parseURLs(text:string, target = "_blank", replaceBy:string = ""):string {
+		const replace = replaceBy.length > 0? replaceBy :"<a href='$1' target='"+target+"'>$1</a>";
+		let res = text.replace(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi, replace);
+		if(replaceBy.length === 0) {
+			res = res.replace(/href='(?!https?)(\/\/)?(.*?)'/gi, "href='https://$2'");
+		}
 		// res = res.replace(/(\.|,)$/gi, "");
 		return res;
 	}

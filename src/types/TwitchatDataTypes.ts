@@ -277,6 +277,7 @@ export interface TTSParamsData {
 	voice: string;
 	removeEmotes: boolean;
 	maxLength: number;
+	maxDuration: number;
 	timeout: number;
 	removeURL: boolean;
 	replaceURL: string;

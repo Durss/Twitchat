@@ -84,6 +84,7 @@ export default class TTSUtils {
 	private voices:SpeechSynthesisVoice[] = [];
 	private pendingMessages:SpokenMessage[] = [];
 	private lastMessageTime:number = performance.now();
+	private stopTimeout:number = -1;
 
 	/********************
 	* HANDLERS          *
@@ -163,10 +164,9 @@ export default class TTSUtils {
 	public async readText(messageStr: string, messageID?:string):Promise<void> {
 		if (!this._enabled || messageStr.length == 0) return;
 		
-		const paramsTTS = StoreProxy.store.state.ttsParams;
-		if(paramsTTS.maxLength > 0) {
-			messageStr = messageStr.substring(0, paramsTTS.maxLength);
-		}
+		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
+
+		clearTimeout(this.stopTimeout)
 		
 		const mess = new SpeechSynthesisUtterance(messageStr);
 		mess.rate = paramsTTS.rate;
@@ -183,23 +183,23 @@ export default class TTSUtils {
 				}
 			}
 		}
-		
+		if(paramsTTS.maxDuration > 0) {
+			this.stopTimeout = setTimeout(()=> {
+				window.speechSynthesis.cancel();
+			}, paramsTTS.maxDuration * 1000);
+		}
+
 		if (!window.speechSynthesis.speaking) {
 			window.speechSynthesis.speak(mess);
 		} else {
 			this.pendingMessages.push({wroteTime: performance.now(), voiceMessage: mess, messageID: messageID});
 		}
+		this.lastMessageTime = performance.now();
 	}
 
 	private onAddMessage(e:IRCEvent):void {
 		const message = e.data as IRCEventData;
 		this.processMessage(message);
-	}
-
-	private replacePattern(pattern: string, messageStr: string, user: string|undefined): string {
-		messageStr = pattern.replace(/\{MESSAGE\}/gi, messageStr);
-		messageStr = messageStr.replace(/\{USER\}/gi, user ? user : '');
-		return messageStr;
 	}
 
 	private async processMessage(message:IRCEventData):Promise<void> {
@@ -208,7 +208,6 @@ export default class TTSUtils {
 
 		// const uid:string|undefined = message?.tags['user-id'];
 		const lastMessageTime = this.lastMessageTime;
-		this.lastMessageTime = performance.now();
 
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
@@ -229,6 +228,9 @@ export default class TTSUtils {
 				if(m.automod) return;
 
 				let mess: string = m.message;
+				if(paramsTTS.maxLength > 0) {
+					mess = mess.substring(0, paramsTTS.maxLength);
+				}
 				if(paramsTTS.removeEmotes===true) {
 					//Allow custom parsing of emotes only if it's a message of ours sent
 					//from twitchat to avoid killing performances.
@@ -237,6 +239,9 @@ export default class TTSUtils {
 					//with "00000000"
 					const customParsing = m.tags.id?.indexOf("00000000") == 0;
 					mess = TwitchUtils.parseEmotes(mess, m.tags["emotes-raw"], true, customParsing).map(elem=>elem.value).join(', ');
+				}
+				if(paramsTTS.removeURL) {
+					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
 				}
 				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, m.tags["display-name"] as string)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
@@ -253,8 +258,14 @@ export default class TTSUtils {
 				if(!Utils.checkPermissions(paramsTTS.ttsPerms, m.tags)) return;
 
 				let mess: string = m.params[1];
+				if(paramsTTS.maxLength > 0) {
+					mess = mess.substring(0, paramsTTS.maxLength);
+				}
 				if(paramsTTS.removeEmotes===true) {
 					mess = TwitchUtils.parseEmotes(mess, m.tags["emotes-raw"], true).map(elem=>elem.value).join(', ');
+				}
+				if(paramsTTS.removeURL) {
+					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
 				}
 				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)

@@ -50,6 +50,7 @@
 				<Splitter class="item splitter" title="Filters" />
 				<ParamItem class="item" :paramData="param_removeEmotes" />
 				<ParamItem class="item" :paramData="param_removeURL" />
+				<ParamItem class="item" :paramData="param_maxDurationToggle" />
 				<ParamItem class="item" :paramData="param_maxLengthToggle" />
 				<ParamItem class="item" :paramData="param_timeoutToggle" />
 				<ParamItem class="item" :paramData="param_inactivityPeriodToggle" />
@@ -94,9 +95,11 @@ export default class ParamsTTS extends Vue {
 
 	public param_maxLengthToggle:ParameterData = {type:"toggle", value:false, label:"Limit message size" };
 	public param_maxLength:ParameterData = {type:"slider", value:200, label:"Read {VALUE} chars max", min:10, max:500, step:10};
+	public param_maxDurationToggle:ParameterData = {type:"toggle", value:false, label:"Limit message duration" };
+	public param_maxDuration:ParameterData = {type:"slider", value:200, label:"Stop reading a message after {VALUE} seconds", min:0, max:120, step:1};
 	public param_timeoutToggle:ParameterData = {type:"toggle", value:false, label:"Remove message from queue if they're not read within..." };
-	public param_timeout:ParameterData = {type:"slider", value:60, label:"{VALUE} seconds", min:1, max:300, step:10};
-	public param_inactivityPeriodToggle:ParameterData = {type:"toggle", value:false, label:"Read messages only if no message has been received for..." };
+	public param_timeout:ParameterData = {type:"slider", value:60, label:"{VALUE} seconds", min:0, max:300, step:10};
+	public param_inactivityPeriodToggle:ParameterData = {type:"toggle", value:false, label:"Read messages only if no message has been read for..." };
 	public param_inactivityPeriod:ParameterData = {type:"slider", value:0, label:"{VALUE} minutes", min:0, max:60, step:1};
 
 	public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove links"};
@@ -153,6 +156,7 @@ export default class ParamsTTS extends Vue {
 			ttsPerms:this.param_ttsPerms,
 			removeEmotes:this.param_removeEmotes.value as boolean,
 			maxLength:this.param_maxLengthToggle.value === true? this.param_maxLength.value as number : 0,
+			maxDuration:this.param_maxDurationToggle.value === true? this.param_maxDuration.value as number : 0,
 			timeout:this.param_timeoutToggle.value === true? this.param_timeout.value as number : 0,
 			inactivityPeriod:this.param_inactivityPeriodToggle? this.param_inactivityPeriod.value as number : 0,
 			removeURL:this.param_removeURL.value as boolean,
@@ -203,6 +207,7 @@ export default class ParamsTTS extends Vue {
 		this.param_ttsPerms = params.ttsPerms;
 		this.param_removeEmotes.value = params.removeEmotes;
 		this.param_maxLength.value = params.maxLength;
+		this.param_maxDuration.value = params.maxDuration;
 		this.param_timeout.value = params.timeout;
 		this.param_inactivityPeriod.value = params.inactivityPeriod;
 		this.param_removeURL.value = params.removeURL;
@@ -251,10 +256,12 @@ export default class ParamsTTS extends Vue {
 		this.param_readPredictions.children = [this.param_readPredictionsPattern];
 
 		this.param_maxLengthToggle.children = [this.param_maxLength];
+		this.param_maxDurationToggle.children = [this.param_maxDuration];
 		this.param_timeoutToggle.children = [this.param_timeout];
 		this.param_inactivityPeriodToggle.children = [this.param_inactivityPeriod];
 
 		this.param_maxLengthToggle.value = this.param_maxLength.value as number > 0;
+		this.param_maxDurationToggle.value = this.param_maxDuration.value as number > 0;
 		this.param_timeoutToggle.value = this.param_timeout.value as number > 0;
 		this.param_inactivityPeriodToggle.value = this.param_inactivityPeriod.value as number > 0;
 
