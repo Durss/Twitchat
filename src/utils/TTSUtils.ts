@@ -291,6 +291,7 @@ export default class TTSUtils {
 			case TwitchatMessageType.LEAVE:
 			case TwitchatMessageType.JOIN:
 			case TwitchatMessageType.HOST:
+			case TwitchatMessageType.ROOM_STATE:
 			case TwitchatMessageType.NOTICE: {
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readNotices) return;
