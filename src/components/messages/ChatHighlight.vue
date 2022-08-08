@@ -162,6 +162,7 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatMessageType.SUBGIFT:
 				this.icon = this.$image('icons/gift.svg');
+				value = parseInt(this.messageData.methods?.plan as string)/1000;
 				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
 					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
 					const recipientsStr = `<strong>${recipients.join("</strong>, <strong>")}</strong>`;

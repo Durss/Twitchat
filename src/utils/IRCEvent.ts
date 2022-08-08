@@ -16,7 +16,6 @@ export default class IRCEvent extends Event {
 	public static HIGHLIGHT = "HIGHLIGHT";
 	public static BAN = "BAN";
 	public static CLEARCHAT = "CLEARCHAT";
-	public static DELETE_MESSAGE = "DELETE_MESSAGE";
 	public static AUTOMOD = "AUTOMOD";
 	public static ROOMSTATE = "ROOMSTATE";
 	public static WHISPER = "WHISPER";

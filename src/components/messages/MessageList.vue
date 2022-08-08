@@ -131,12 +131,12 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import IRCClient from '@/utils/IRCClient';
-import IRCEvent from '@/utils/IRCEvent';
+import type IRCEvent from '@/utils/IRCEvent';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import PubSubEvent from '@/utils/PubSubEvent';
+import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -145,14 +145,13 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
 import ChatBingoResult from './ChatBingoResult.vue';
+import ChatCountdownResult from './ChatCountdownResult.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
 import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
-import ChatCountdownResult from './ChatCountdownResult.vue';
-import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	components:{
@@ -199,7 +198,7 @@ export default class MessageList extends Vue {
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
 	private prevTouchMove!:TouchEvent;
-	private deleteMessageHandler!:(e:IRCEvent)=>void;
+	private deleteMessageHandler!:(e:PubSubEvent)=>void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get classes():string[] {
@@ -265,11 +264,10 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY = maxScroll;
 		})
 
-		this.deleteMessageHandler = (e:IRCEvent)=> this.onDeleteMessage(e);
+		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
 		PubSub.instance.addEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -285,7 +283,6 @@ export default class MessageList extends Vue {
 		this.disposed = true;
 
 		PubSub.instance.removeEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		IRCClient.instance.removeEventListener(IRCEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -328,14 +325,10 @@ export default class MessageList extends Vue {
 	 * If the message is added to that history, it won't be deleted
 	 * automatically, hence, we need this to do it.
 	 */
-	public onDeleteMessage(e:IRCEvent|PubSubEvent):void {
+	public onDeleteMessage(e:PubSubEvent):void {
 		let messageID = "";
-		if(typeof e.data == "string") {
-			messageID = e.data;
-		}else{
-			const data = e.data as IRCEventDataList.MessageDeleted;
-			messageID = data.tags['target-msg-id'] as string;
-		}
+		
+		messageID = e.data as string;
 		const keepDeletedMessages = StoreProxy.store.state.params.filters.keepDeletedMessages.value;
 
 		if(this.pendingMessages.length > 0) {

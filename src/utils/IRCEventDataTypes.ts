@@ -19,8 +19,6 @@ export type ActivityFeedData = IRCEventDataList.Highlight
 export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.Timeout
 	| IRCEventDataList.Ban
-	| IRCEventDataList.MessageDeleted
-	| IRCEventDataList.Automod
 	| IRCEventDataList.Notice
 	| IRCEventDataList.Highlight
 	| IRCEventDataList.Hosted
@@ -37,6 +35,7 @@ export type IRCEventData = IRCEventDataList.Message
 	;
 export namespace IRCEventDataList {
 	export interface Message {
+		type: "message";
 		channel: string;
 		message: string;
 		tags: ChatUserstate;
@@ -56,25 +55,7 @@ export namespace IRCEventDataList {
 		occurrenceCount?: number;
 		highlightWord?: string;
 		hasMention?: boolean;
-		type: "message";
-	}
-
-	export interface MessageDeleted {
-		channel: string;
-		username: string;
-		deletedMessage: string;
-		tags: DeleteUserstate;
-		//custom data
-		type: "message";
-		markedAsRead?:boolean;
-	}
-
-	export interface Automod {
-		channel: string;
-		message: string;
-		msgID: 'msg_rejected' | 'msg_rejected_mandatory';
-		type: "message";
-		markedAsRead?:boolean;
+		msgID?: 'msg_rejected' | 'msg_rejected_mandatory';
 	}
 
 	export interface Highlight {
@@ -256,11 +237,11 @@ export namespace IRCEventDataList {
 //The only way to fix these circular import issues would be to have ALL types declared
 //on one single file. But i'd rather not do that.
 export const TwitchatMessageType = {
-	BITS:"bits",
+	BAN:"ban",
 	SUB:"sub",
+	BITS:"bits",
 	RAID:"raid",
 	POLL:"poll",
-	BAN:"bingo",
 	HOST:"host",
 	JOIN:"join",
 	LEAVE:"leave",
@@ -269,6 +250,8 @@ export const TwitchatMessageType = {
 	NOTICE:"notice",
 	REWARD:"reward",
 	FOLLOW:"follow",
+	MESSAGE:"message",
+	WHISPER:"whisper",
 	SUBGIFT:"subgift",
 	TIMEOUT:"timeout",
 	SUB_PRIME:"prime",
@@ -276,20 +259,21 @@ export const TwitchatMessageType = {
 	COMMERCIAL:"commercial",
 	ROOM_STATE:"roomState",
 	PREDICTION:"prediction",
-	HIGHLIGHTED_MESSAGE:"message",
 	SUBGIFT_UPGRADE:"subgiftUpgrade",
 	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
 	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 } as const;
 
-//Dynamically type ActivityFeedMessageStringType from TwitchatMessageType values
-type ActivityFeedMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
-export function getTwitchatMessageType(m: IRCEventData):ActivityFeedMessageStringType {
-	let type:ActivityFeedMessageStringType = null;
+//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
+type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
+export function getTwitchatMessageType(m: IRCEventData):TwitchatMessageStringType {
+	let type:TwitchatMessageStringType = null;
 	if(m.type == "poll") {
 		type = TwitchatMessageType.POLL;
 	}else if(m.type == "message") {
-		type = TwitchatMessageType.HIGHLIGHTED_MESSAGE;
+		type = TwitchatMessageType.MESSAGE;
+	}else if(m.type == "whisper") {
+		type = TwitchatMessageType.WHISPER;
 	}else if(m.type == "prediction") {
 		type = TwitchatMessageType.PREDICTION;
 	}else if(m.type == "bingo") {
@@ -342,6 +326,8 @@ export function getTwitchatMessageType(m: IRCEventData):ActivityFeedMessageStrin
 			type = TwitchatMessageType.RAID;
 		}else if(m.tags['msg-id'] == "hype_cooldown_expired") {
 			type = TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED;
+		}else if(m.tags['msg-id'] == "community_boost_complete") {
+			type = TwitchatMessageType.COMMUNITY_BOOST_COMPLETE;
 		}
 	}
 	return type;

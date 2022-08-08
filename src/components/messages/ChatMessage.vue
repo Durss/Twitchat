@@ -143,9 +143,9 @@ export default class ChatMessage extends Vue {
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
 	
+	public text = "";
 	public firstTime = false;
 	public automod:PubSubDataTypes.AutomodData | null = null;
-	public text = "";
 	public automodReasons = "";
 	public badges:TwitchDataTypes.Badge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
@@ -420,16 +420,17 @@ export default class ChatMessage extends Vue {
 	public copyJSON():void {
 		if(this.messageData.type == "whisper") {
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			return;
+			console.log(this.messageData);
+		}else{
+			const answersBckp = this.messageData.answers;
+			const answerToBckp = this.messageData.answerTo;
+			this.messageData.answers = undefined;
+			this.messageData.answerTo = undefined;
+			Utils.copyToClipboard(JSON.stringify(this.messageData));
+			console.log(this.messageData);
+			this.messageData.answers = answersBckp;
+			this.messageData.answerTo = answerToBckp;
 		}
-		const answersBckp = this.messageData.answers;
-		const answerToBckp = this.messageData.answerTo;
-		this.messageData.answers = undefined;
-		this.messageData.answerTo = undefined;
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		this.messageData.answers = answersBckp;
-		this.messageData.answerTo = answerToBckp;
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
@@ -537,10 +538,12 @@ export default class ChatMessage extends Vue {
 		if(!text) return "";
 		try {
 			let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
-			if(this.automod) {
+			if((mess as IRCEventDataList.Message).automod) {
 				result = text;
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				result = result.replace(/&lt;(\/)?mark&gt;/g, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
+				console.log(result);
+				result = result.replace(/&lt;(\/)?mark&gt;/gi, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
+				console.log(result);
 			}else{
 				//Allow custom parsing of emotes only if it's a message of ours sent
 				//from twitchat to avoid killing performances.

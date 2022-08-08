@@ -1,5 +1,6 @@
 import Store from "@/store/Store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
+import { LoremIpsum } from "lorem-ipsum";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
 import BTTVUtils from "./BTTVUtils";
@@ -257,15 +258,6 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on("ban", (channel: string, username: string, reason: string)=> {
 				if(!this.idToExample["ban"]) this.idToExample["ban"] = {type:"notice", channel, username, reason};
 				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {type:"notice", msgid:"ban_success", channel, username, reason, tags:this.getFakeTags()}));
-			});
-			
-			this.client.on("messagedeleted", (channel: string, username: string, deletedMessage: string, tags: tmi.DeleteUserstate)=> {
-				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, username, deletedMessage, tags}));
-			});
-			
-			this.client.on("automod", (channel: string, msgID: 'msg_rejected' | 'msg_rejected_mandatory', message: string)=> {
-				if(!this.idToExample["automod"]) this.idToExample["automod"] = {type:"message", channel, msgID, message};
-				this.dispatchEvent(new IRCEvent(IRCEvent.DELETE_MESSAGE, {type:"message", channel, msgID, message}));
 			});
 			
 			this.client.on("raided", async (channel: string, username: string, viewers: number) => {
@@ -664,7 +656,14 @@ export default class IRCClient extends EventDispatcher {
 			if(json.type == "prediction") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
-			
+			if(key == "subgift") {
+				const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
+				const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+				let txt = JSON.stringify(json);
+				txt = txt.replace(/\{RECIPIENT\}/gi, login);
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, JSON.parse(txt)));
+				
+			}else
 			if(json.type == "highlight") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
 			}

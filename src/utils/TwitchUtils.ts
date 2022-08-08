@@ -321,7 +321,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static async parseCheermotes(message:string, channel_id:string):Promise<string> {
+	public static async parseCheermotes(message:string, channel_id:string, removeCheermotes:boolean = false):Promise<string> {
 		let emotes:TwitchDataTypes.CheermoteSet[];
 		try {
 			emotes = await this.loadCheermoteList(channel_id);
@@ -350,7 +350,8 @@ export default class TwitchUtils {
 				}
 				let img = tiers.images.dark.animated["2"];
 				if(!img) img = tiers.images.dark.static["2"];
-				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), "<img src='"+img+"' class='cheermote'>")
+				const replace = removeCheermotes? "" : "<img src='"+img+"' class='cheermote'>";
+				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), replace)
 			}
 		}
 		return message;

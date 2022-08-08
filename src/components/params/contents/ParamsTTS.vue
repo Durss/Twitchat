@@ -5,7 +5,20 @@
 		<p class="header">Read your messages out loud</p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
 
+
 		<div class="fadeHolder" :style="holderStyles">
+			<transition
+				@enter="onShowItem"
+				@leave="onHideItem"
+			>
+				<section v-if="param_readMessages.value === true || param_readWhispers.value === true">
+					<Splitter class="item splitter" title="Read permissions" />
+					<p class="item">Choose who's messages you want to read.</p>
+					<p class="item small">It only filters out the chat messages and whispers. It won't affect sub alerts, cheers, raid, channel points, etc...</p>
+					<PermissionsForm class="item" v-model="param_ttsPerms" />
+				</section>
+			</transition>
+
 			<section>
 				<Splitter class="item splitter" title="Messages to read" />
 				<ParamItem class="item" :paramData="param_readMessages" />
@@ -21,10 +34,6 @@
 				<ParamItem class="item" :paramData="param_readPredictions" />
 				<ParamItem class="item" :paramData="param_readBingos" />
 				<ParamItem class="item" :paramData="param_readRaffle" />
-
-				<ToggleBlock title="Users filter" :open="false" small class="item">
-					<PermissionsForm v-model="param_ttsPerms" />
-				</ToggleBlock>
 			</section>
 			
 			<section>
@@ -54,6 +63,7 @@
 import type { ParameterData, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TTSUtils from '@/utils/TTSUtils';
+import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -103,7 +113,7 @@ export default class ParamsTTS extends Vue {
 	public param_readSubs:ParameterData = {type:"toggle", value:false, label:"Sub alerts", icon:"sub_purple.svg" };
 	public param_readSubsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderSubs};
 	public param_readSubgifts:ParameterData = {type:"toggle", value:false, label:"Subgift alerts", icon:"gift_purple.svg" };
-	public param_readSubgiftsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderSubs};
+	public param_readSubgiftsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderSubgifts};
 	public param_readBits:ParameterData = {type:"toggle", value:false, label:"Bits alerts", icon:"bits_purple.svg" };
 	public param_readBitsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderBits};
 	public param_readRaids:ParameterData = {type:"toggle", value:false, label:"Raid alerts", icon:"raid_purple.svg" };
@@ -208,7 +218,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readSubs.value = params.readSubs === true;
 		this.param_readSubsPattern.value = params.readSubsPattern;
 		this.param_readSubgifts.value = params.readSubs === true;
-		this.param_readSubgiftsPattern.value = params.readSubsPattern;
+		this.param_readSubgiftsPattern.value = params.readSubgiftsPattern;
 		this.param_readBits.value = params.readBits === true;
 		this.param_readBitsPattern.value = params.readBitsPattern;
 		this.param_readRaids.value = params.readRaids === true;
@@ -257,6 +267,21 @@ export default class ParamsTTS extends Vue {
 	public test():void {
 		TTSUtils.instance.readText(this.testStr);
 	}
+
+	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {
+		await this.$nextTick();
+		gsap.killTweensOf(el);
+		gsap.from(el, {height:0, margin:0, paddingTop:0, paddingBottom:0, duration:.5, ease:"sine.inOut", onComplete:()=>{
+			done();
+		}});
+	}
+
+	public onHideItem(el:HTMLDivElement, done:()=>void):void {
+		gsap.killTweensOf(el);
+		gsap.to(el, {height:0, margin:0, paddingTop:0, paddingBottom:0, duration:.5, ease:"sine.inOut", onComplete:()=>{
+			done();
+		}});
+	}
 }
 </script>
 
@@ -278,7 +303,6 @@ export default class ParamsTTS extends Vue {
 		max-width: 200px;
 		margin: auto;
 		margin-top: 1.5em;
-		margin-bottom: 2em;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
@@ -304,12 +328,11 @@ export default class ParamsTTS extends Vue {
 		transition: opacity .2s;
 
 		section {
+			overflow: hidden;
 			border-radius: .5em;
 			background-color: fade(@mainColor_normal_extralight, 30%);
 			padding: .5em;
-			&:not(:first-of-type) {
-				margin-top: 2em;
-			}
+			margin-top: 2em;
 			
 			.item {
 				&:not(:first-child) {
@@ -333,6 +356,9 @@ export default class ParamsTTS extends Vue {
 					p {
 						display: inline;
 					}
+				}
+				&.small {
+					font-size: .8em;
 				}
 				&.center {
 					display: block;

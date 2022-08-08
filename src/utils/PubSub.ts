@@ -218,12 +218,7 @@ export default class PubSub extends EventDispatcher{
 	}
 
 	public async simulateFollowbotRaid():Promise<void> {
-		const lorem = new LoremIpsum({
-			wordsPerSentence: {
-				max: 16,
-				min: 4
-			}
-		});
+		const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
 		for (let i = 0; i < 50; i++) {
 			const id = Math.round(Math.random()*1000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
@@ -501,6 +496,9 @@ export default class PubSub extends EventDispatcher{
 						deleteData:localObj,
 					}
 					StoreProxy.store.dispatch("delChatMessage", data);
+					let messageID = "";
+					if(localObj.args && localObj.args.length > 2) messageID = localObj.args[2];
+					this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, messageID));
 					break;
 				}
 				default:

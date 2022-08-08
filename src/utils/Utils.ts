@@ -98,7 +98,7 @@ export default class Utils {
 	}
 
 	/**
-	 * Turns text url into <a> tags
+	 * Turns text url into &lt;a&gt; tags
 	 * @param text 
 	 * @returns 
 	 */

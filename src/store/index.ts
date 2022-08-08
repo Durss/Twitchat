@@ -1,6 +1,6 @@
 import router from '@/router';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { ChatMessageTypes } from '@/utils/IRCEventDataTypes';
+import { getTwitchatMessageType, TwitchatMessageType, type ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import type { BingoData, RaffleData, TrackedUser } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -374,11 +374,11 @@ const store = createStore({
 			readNotices:false,
 			readNoticesPattern:'{MESSAGE}',
 			readRewards:false,
-			readRewardsPattern:"{USER} redeemed reward {REWARD}",
+			readRewardsPattern:"{USER} redeemed reward {REWARD_NAME}",
 			readSubs:false,
 			readSubsPattern:"{USER} subscribed at tier {TIER}",
 			readSubgifts:false,
-			readSubgiftsPattern:"{USER} subgifted {RECIPENT}",
+			readSubgiftsPattern:"{USER} gifted a sub tier {TIER} to {RECIPIENT}",
 			readBits:false,
 			readBitsPattern:"{USER} sent {BITS} bits",
 			readRaids:false,
@@ -395,9 +395,9 @@ const store = createStore({
 			readRafflePattern:"{USER} won the raffle",
 			ttsPerms:{
 				mods:true,
-				vips:false,
-				subs:false,
-				all:false,
+				vips:true,
+				subs:true,
+				all:true,
 				users:""
 			},
 		} as TTSParamsData,
@@ -646,8 +646,6 @@ const store = createStore({
 				tags:message.tags,
 			}
 
-			console.log("ADD CHAT MESSAGE", message);
-			
 			//Limit history size
 			// const maxMessages = state.params.appearance.historySize.value;
 			const maxMessages = state.realHistorySize;
@@ -870,6 +868,7 @@ const store = createStore({
 				const m = list[i];
 				if(data.messageId == m.tags.id) {
 					if(m.type == "ad") {
+						//Called if closing an ad
 						list.splice(i, 1);
 					}else{
 						//Broadcast to OBS-ws
@@ -880,11 +879,12 @@ const store = createStore({
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 	
-						//Delete message from list
 						if(keepDeletedMessages === true && !m.automod) {
+							//Just flag as deleted so its render is faded
 							m.deleted = true;
 							m.deletedData = data.deleteData;
 						}else{
+							//Remove message from list
 							list.splice(i, 1);
 						}
 					}
@@ -1383,7 +1383,7 @@ const store = createStore({
 		setTTSParams(state, params:TTSParamsData) {
 			state.ttsParams = params;
 			Store.set(Store.TTS_PARAMS, params);
-			TTSUtils.instance.enable(params.enabled);
+			TTSUtils.instance.enabled = params.enabled;
 		},
 
 		setEmergencyParams(state, params:EmergencyParamsData) {
@@ -1641,168 +1641,174 @@ const store = createStore({
 			}
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
-				const messageData = event.data as IRCEventDataList.Message;
-				const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
+				const type = getTwitchatMessageType(event.data as IRCEventData);
 				
-				if(trackedUser) {
-					if(!trackedUser.messages) trackedUser.messages = [];
-					trackedUser.messages.push(messageData);
-				}
-				
-				//If a raffle is in progress, check if the user can enter
-				const raffle = state.raffle;
-				if(raffle && messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
-					const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
-					//Check if within time frame and max users count isn't reached and that user
-					//hasn't already entered
-					if(ellapsed <= raffle.duration * 60000
-					&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
-					&& !raffle.users.find(v=>v.user['user-id'] == messageData.tags['user-id'])) {
-						let score = 1;
-						const user = messageData.tags;
-						//Apply ratios if any is defined
-						if(raffle.vipRatio > 0 && user.badges?.vip) score += raffle.vipRatio;
-						if(raffle.subRatio > 0 && user.badges?.subscriber)  score += raffle.subRatio;
-						if(raffle.subgitRatio > 0 && user.badges?.['sub-gifter'])  score += raffle.subgitRatio;
-						if(raffle.followRatio > 0) {
-							//Check if user is following
-							const uid = user['user-id'] as string;
-							if(uid && state.followingStates[uid] == undefined) {
-								const res = await TwitchUtils.getFollowState(uid, user['room-id'])
-								state.followingStates[uid] = res != undefined;
-								state.followingStatesByNames[(user.username ?? user['display-name'] as string)?.toLowerCase()] = res;
-							}
-							if(state.followingStates[uid] === true) score += raffle.followRatio;
-						}
-						raffle.users.push( { score, user } );
-						
-						if(state.botMessages.raffleJoin.enabled) {
-							let message = state.botMessages.raffleJoin.message;
-							message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
-							IRCClient.instance.sendMessage(message);
-						}
+				if(type == TwitchatMessageType.MESSAGE) {
+					const messageData = event.data as IRCEventDataList.Message;
+					
+					//Is it a tracked user ?
+					const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
+					if(trackedUser) {
+						if(!trackedUser.messages) trackedUser.messages = [];
+						trackedUser.messages.push(messageData);
 					}
-				}
 
-				//If a bingo's in progress, check if the user won it
-				const bingo = state.bingo;
-				if(bingo && messageData.message && bingo.winners.length == 0) {
-					let win = bingo.numberValue && parseInt(messageData.message) == bingo.numberValue;
-					win ||= bingo.emoteValue
-					&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
-					if(win) {
-						bingo.winners = [messageData.tags];
-						if(state.botMessages.bingo.enabled) {
-							//TMI.js never cease to amaze me.
-							//It doesn't send the message back to the sender if sending
-							//it just after receiving a message.
-							//If we didn't wait for a frame, the message would be sent properly
-							//but wouldn't appear on this chat.
-							setTimeout(()=> {
-								let message = state.botMessages.bingo.message;
+					//If a raffle is in progress, check if the user can enter
+					const raffle = state.raffle;
+					if(raffle && messageData.type == TwitchatMessageType.MESSAGE
+					&& messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
+						const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
+						//Check if within time frame and max users count isn't reached and that user
+						//hasn't already entered
+						if(ellapsed <= raffle.duration * 60000
+						&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
+						&& !raffle.users.find(v=>v.user['user-id'] == messageData.tags['user-id'])) {
+							let score = 1;
+							const user = messageData.tags;
+							//Apply ratios if any is defined
+							if(raffle.vipRatio > 0 && user.badges?.vip) score += raffle.vipRatio;
+							if(raffle.subRatio > 0 && user.badges?.subscriber)  score += raffle.subRatio;
+							if(raffle.subgitRatio > 0 && user.badges?.['sub-gifter'])  score += raffle.subgitRatio;
+							if(raffle.followRatio > 0) {
+								//Check if user is following
+								const uid = user['user-id'] as string;
+								if(uid && state.followingStates[uid] == undefined) {
+									const res = await TwitchUtils.getFollowState(uid, user['room-id'])
+									state.followingStates[uid] = res != undefined;
+									state.followingStatesByNames[(user.username ?? user['display-name'] as string)?.toLowerCase()] = res;
+								}
+								if(state.followingStates[uid] === true) score += raffle.followRatio;
+							}
+							raffle.users.push( { score, user } );
+							
+							if(state.botMessages.raffleJoin.enabled) {
+								let message = state.botMessages.raffleJoin.message;
 								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
 								IRCClient.instance.sendMessage(message);
-
-								//Post result on chat
-								const payload:IRCEventDataList.BingoResult = {
-									type:"bingo",
-									data:state.bingo as BingoData,
-									markedAsRead:false,
-									tags: {
-										id:IRCClient.instance.getFakeGuid(),
-										"tmi-sent-ts": Date.now().toString()
-									},
-								}
-								this.dispatch("addChatMessage", payload);
-								TriggerActionHandler.instance.onMessage(payload);
-							},0);
-						}
-					}
-				}
-
-				//If there's a chat poll and the timer isn't over
-				const chatPoll = state.chatPoll as ChatPollData;
-				if(chatPoll && Date.now() - chatPoll.startTime < chatPoll.duration * 60 * 1000 && messageData.message) {
-					const cmd = chatPoll.command.toLowerCase();
-					if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
-						if(chatPoll.allowMultipleAnswers
-						|| chatPoll.choices.findIndex(v=>v.user['user-id'] == messageData.tags['user-id'])==-1) {
-							const text = messageData.message.replace(cmd, "").trim();
-							if(text.length > 0) {
-								chatPoll.choices.push({
-									user: messageData.tags,
-									text
-								});
 							}
 						}
 					}
-				}
-
-				if(messageData.type == "message" && messageData.message && messageData.tags.username) {
-					//check if it's a command to control OBS scene
-					if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
-						const cmd = messageData.message.trim().toLowerCase();
-						for (let i = 0; i < state.obsSceneCommands.length; i++) {
-							const scene = state.obsSceneCommands[i];
-							if(scene.command.trim().toLowerCase() == cmd) {
-								OBSWebsocket.instance.setCurrentScene(scene.scene.sceneName);
-							}
-						}
-
-						const audioSourceName = state.obsMuteUnmuteCommands?.audioSourceName;
-						if(audioSourceName) {
-							//Check if it's a command to mute/unmute an audio source
-							if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
-								OBSWebsocket.instance.setMuteState(audioSourceName, true);
-							}
-							if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
-								OBSWebsocket.instance.setMuteState(audioSourceName, false);
+	
+					//If a bingo's in progress, check if the user won it
+					const bingo = state.bingo;
+					if(bingo && messageData.message && bingo.winners.length == 0) {
+						let win = bingo.numberValue && parseInt(messageData.message) == bingo.numberValue;
+						win ||= bingo.emoteValue
+						&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
+						if(win) {
+							bingo.winners = [messageData.tags];
+							if(state.botMessages.bingo.enabled) {
+								//TMI.js never cease to amaze me.
+								//It doesn't send the message back to the sender if sending
+								//it just after receiving a message.
+								//If we didn't wait for a frame, the message would be sent properly
+								//but wouldn't appear on this chat.
+								setTimeout(()=> {
+									let message = state.botMessages.bingo.message;
+									message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
+									IRCClient.instance.sendMessage(message);
+	
+									//Post result on chat
+									const payload:IRCEventDataList.BingoResult = {
+										type:"bingo",
+										data:state.bingo as BingoData,
+										markedAsRead:false,
+										tags: {
+											id:IRCClient.instance.getFakeGuid(),
+											"tmi-sent-ts": Date.now().toString()
+										},
+									}
+									this.dispatch("addChatMessage", payload);
+									TriggerActionHandler.instance.onMessage(payload);
+								},0);
 							}
 						}
 					}
-					
-					//check if its a command to start the emergency mode
-					if(Utils.checkPermissions(state.emergencyParams.chatCmdPerms, messageData.tags)) {
-						const cmd = messageData.message.trim().toLowerCase();
-						if(cmd===state.emergencyParams.chatCmd.trim()) {
-							commit("setEmergencyMode", true);
-						}
-					}
-
-					//check if its a spoiler request
-					if(messageData.tags["reply-parent-msg-id"] && Utils.checkPermissions(state.spoilerParams.permissions, messageData.tags)) {
-						const cmd = messageData.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
-						if(cmd.indexOf("!spoiler") === 0) {
-							//Search for original message the user answered to
-							for (let i = 0; i < state.chatMessages.length; i++) {
-								const c = state.chatMessages[i] as IRCEventDataList.Message;
-								if(c.tags.id === messageData.tags["reply-parent-msg-id"]) {
-									c.message = "|| "+c.message;
-									break;
+	
+					//If there's a suggestion poll and the timer isn't over
+					const suggestionPoll = state.chatPoll as ChatPollData;
+					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000 && messageData.message) {
+						const cmd = suggestionPoll.command.toLowerCase();
+						if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
+							if(suggestionPoll.allowMultipleAnswers
+							|| suggestionPoll.choices.findIndex(v=>v.user['user-id'] == messageData.tags['user-id'])==-1) {
+								const text = messageData.message.replace(cmd, "").trim();
+								if(text.length > 0) {
+									suggestionPoll.choices.push({
+										user: messageData.tags,
+										text
+									});
 								}
 							}
 						}
 					}
-
-					//check if it's a chat alert command
-					if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)
-					&& state.params.features.alertMode.value === true) {
-						if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
-							let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
-							//Remove command from message to make later things easier
-							const cmd = state.chatAlertParams.chatCmd as string;
-							mess.message = mess.message.replace(new RegExp("^"+cmd+" ?", "i"), "");
-							commit("executeChatAlert", mess);
-							let trigger:ChatAlertInfo = {
-								type:"chatAlert",
-								message:mess,
+	
+					if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+						//check if it's a command to control an OBS scene
+						if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
+							const cmd = messageData.message.trim().toLowerCase();
+							for (let i = 0; i < state.obsSceneCommands.length; i++) {
+								const scene = state.obsSceneCommands[i];
+								if(scene.command.trim().toLowerCase() == cmd) {
+									OBSWebsocket.instance.setCurrentScene(scene.scene.sceneName);
+								}
 							}
-							TriggerActionHandler.instance.onMessage(trigger);
+	
+							const audioSourceName = state.obsMuteUnmuteCommands?.audioSourceName;
+							if(audioSourceName) {
+								//Check if it's a command to mute/unmute an audio source
+								if(cmd == state.obsMuteUnmuteCommands?.muteCommand) {
+									OBSWebsocket.instance.setMuteState(audioSourceName, true);
+								}
+								if(cmd == state.obsMuteUnmuteCommands?.unmuteCommand) {
+									OBSWebsocket.instance.setMuteState(audioSourceName, false);
+								}
+							}
+						}
+						
+						//check if its a command to start the emergency mode
+						if(Utils.checkPermissions(state.emergencyParams.chatCmdPerms, messageData.tags)) {
+							const cmd = messageData.message.trim().toLowerCase();
+							if(cmd===state.emergencyParams.chatCmd.trim()) {
+								commit("setEmergencyMode", true);
+							}
+						}
+	
+						//check if its a spoiler request
+						if(messageData.tags["reply-parent-msg-id"] && Utils.checkPermissions(state.spoilerParams.permissions, messageData.tags)) {
+							const cmd = messageData.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
+							if(cmd.indexOf("!spoiler") === 0) {
+								//Search for original message the user answered to
+								for (let i = 0; i < state.chatMessages.length; i++) {
+									const c = state.chatMessages[i] as IRCEventDataList.Message;
+									if(c.tags.id === messageData.tags["reply-parent-msg-id"]) {
+										c.message = "|| "+c.message;
+										break;
+									}
+								}
+							}
+						}
+	
+						//check if it's a chat alert command
+						if(Utils.checkPermissions(state.chatAlertParams.permissions, messageData.tags)
+						&& state.params.features.alertMode.value === true) {
+							if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
+								let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
+								//Remove command from message to make later things easier
+								const cmd = state.chatAlertParams.chatCmd as string;
+								mess.message = mess.message.replace(new RegExp("^"+cmd+" ?", "i"), "");
+								commit("executeChatAlert", mess);
+								let trigger:ChatAlertInfo = {
+									type:"chatAlert",
+									message:mess,
+								}
+								TriggerActionHandler.instance.onMessage(trigger);
+							}
 						}
 					}
 				}
 
-				TriggerActionHandler.instance.onMessage(messageData);
+				TriggerActionHandler.instance.onMessage(event.data as IRCEventData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
@@ -1887,13 +1893,6 @@ const store = createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, (event:IRCEvent) => {
 				this.dispatch("addChatMessage", event.data);
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.DELETE_MESSAGE, (event:IRCEvent) => {
-				const data = {
-					messageId:(event.data as IRCEventDataList.MessageDeleted).tags['target-msg-id']
-				}
-				this.dispatch("delChatMessage", data);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
@@ -2095,6 +2094,7 @@ const store = createStore({
 			const tts = Store.get(Store.TTS_PARAMS);
 			if (tts) {
 				Utils.mergeRemoteObject(JSON.parse(tts), (state.ttsParams as unknown) as JsonObject);
+				TTSUtils.instance.enabled = state.ttsParams.enabled;
 			}
 			
 			//Init emergency actions

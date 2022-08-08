@@ -218,15 +218,15 @@
 			"msg-param-gift-months": true,
 			"msg-param-months": true,
 			"msg-param-origin-id": "cf 8a 7f a4 b1 9f ac e4 9f bc ac c8 c2 30 b3 5d 0c 84 c7 b1",
-			"msg-param-recipient-display-name": "aken44800",
+			"msg-param-recipient-display-name": "{RECIPIENT}",
 			"msg-param-recipient-id": "452550058",
-			"msg-param-recipient-user-name": "aken44800",
+			"msg-param-recipient-user-name": "{RECIPIENT}",
 			"msg-param-sender-count": false,
 			"msg-param-sub-plan-name": "SUBSCRIBER",
 			"msg-param-sub-plan": "1000",
 			"room-id": "24147592",
 			"subscriber": true,
-			"system-msg": "SwizzerJ gifted a Tier 1 sub to aken44800!",
+			"system-msg": "SwizzerJ gifted a Tier 1 sub to {RECIPIENT}!",
 			"tmi-sent-ts": "1642377361661",
 			"user-id": "156668532",
 			"user-type": null,
@@ -235,7 +235,7 @@
 			"badges-raw": "subscriber/3012,sub-gifter/5",
 			"message-type": "subgift"
 		},
-		"recipient": "aken44800",
+		"recipient": "{RECIPIENT}",
 		"firstMessage": false
 	},
 	"timeout_success": {
@@ -307,7 +307,7 @@
 		}
 	},
 	"automod": {
-		"type": "message",
+		"type": "automod",
 		"message": "<mark>batard</mark>",
 		"tags": {
 			"username": "durssbot",
@@ -783,5 +783,31 @@
 		"self": false,
 		"firstMessage": false,
 		"hasMention": false
+	},
+
+	"join": {
+		"type": "notice",
+		"channel": "#durss",
+		"msgid": "online",
+		"message": "<mark>durss</mark> joined the chat room",
+		"tags": {
+			"info": "this tags prop is a fake one to make things easier for my code",
+			"id": "00000000-0000-0000-0000-000000000004",
+			"tmi-sent-ts": "1659921844941",
+			"msg-id": "online"
+		}
+	},
+
+	"leave": {
+		"type": "notice",
+		"channel": "#durss",
+		"msgid": "offline",
+		"message": "<mark>durss</mark> left the chat room",
+		"tags": {
+			"info": "this tags prop is a fake one to make things easier for my code",
+			"id": "00000000-0000-0000-0000-000000000003",
+			"tmi-sent-ts": "1659921787106",
+			"msg-id": "offline"
+		}
 	}
 }

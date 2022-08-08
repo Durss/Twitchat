@@ -650,13 +650,21 @@ export default class TriggerActionHandler {
 	}
 }
 type MessageTypes = IRCEventDataList.Message
+| IRCEventDataList.Timeout
+| IRCEventDataList.Ban
+| IRCEventDataList.Notice
 | IRCEventDataList.Highlight
-| IRCEventDataList.Message
-| IRCEventDataList.PredictionResult
+| IRCEventDataList.Hosted
+| IRCEventDataList.RoomState
+| IRCEventDataList.Whisper
 | IRCEventDataList.PollResult
+| IRCEventDataList.PredictionResult
 | IRCEventDataList.BingoResult
 | IRCEventDataList.RaffleResult
+| IRCEventDataList.Commercial
 | IRCEventDataList.CountdownResult
+| IRCEventDataList.Join
+| IRCEventDataList.Leave
 | IRCEventDataList.TimerResult
 | MusicMessage
 | StreamInfoUpdate

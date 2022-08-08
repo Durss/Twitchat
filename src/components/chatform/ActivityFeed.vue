@@ -164,7 +164,8 @@ export default class ActivityFeed extends Vue {
 			else if(type == TwitchatMessageType.COMMERCIAL) result.unshift(m);
 			else if(type == TwitchatMessageType.COUNTDOWN) result.unshift(m);
 			else if(type == TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED) result.unshift(m);
-			else if(type == TwitchatMessageType.HIGHLIGHTED_MESSAGE) result.unshift(m);
+			else if(type == TwitchatMessageType.MESSAGE) result.unshift(m);
+			else if(type == TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) result.unshift(m);
 
 		}
 		

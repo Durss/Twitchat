@@ -98,7 +98,7 @@ export default class PinedMessages extends Vue {
 			.messageItem {
 				display: flex;
 				flex-direction: row;
-				align-items: flex-start;
+				align-items: center;
 
 				&:hover {
 					background-color: fade(@mainColor_light, 10%);
