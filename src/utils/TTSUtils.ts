@@ -257,6 +257,9 @@ export default class TTSUtils {
 				//Stop there if the user isn't part of the permissions
 				if(!Utils.checkPermissions(paramsTTS.ttsPerms, m.tags)) return;
 
+				//Don't read our answers
+				if(m.isAnswer === true) return;
+
 				let mess: string = m.params[1];
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.substring(0, paramsTTS.maxLength);
