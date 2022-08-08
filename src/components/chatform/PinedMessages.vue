@@ -9,6 +9,12 @@
 			<div class="list">
 				<div v-for="m in $store.state.pinedMessages" :key="m.tags.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
+					<Button aria-label="Highlight message"
+						:icon="$image('icons/highlight.svg')"
+						data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
+						@click="chatHighlight(m)"
+						:loading="highlightLoading"
+						/>
 					<Button class="deleteBt" small @click="unpin(m)" highlight :icon="$image('icons/delete.svg')" />
 				</div>
 			</div>
@@ -22,6 +28,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 import Button from '../Button.vue';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import Utils from '@/utils/Utils';
 
 @Options({
 	props:{},
@@ -32,6 +39,8 @@ import StoreProxy from '@/utils/StoreProxy';
 	emits:["close"]
 })
 export default class PinedMessages extends Vue {
+	
+	public highlightLoading = false;
 
 	public mounted():void {
 	}
@@ -48,7 +57,13 @@ export default class PinedMessages extends Vue {
 		if(StoreProxy.store.state.pinedMessages.length === 0) {
 			this.close();
 		}
-
+	}
+	
+	public async chatHighlight(m:IRCEventDataList.Message):Promise<void> {
+		this.highlightLoading = true;
+		StoreProxy.store.dispatch("highlightChatMessageOverlay", m);
+		await Utils.promisedTimeout(1000);
+		this.highlightLoading = false;
 	}
 }
 </script>
@@ -111,7 +126,7 @@ export default class PinedMessages extends Vue {
 					font-size: var(--messageSize);
 				}
 
-				.deleteBt {
+				.button {
 					.clearButton();
 					width: 1.25em;
 					min-width: 1.25em;
