@@ -1,11 +1,13 @@
 <template>
 	<div class="ChatMessageHoverActions">
 		<Button :aria-label="'Track '+messageData.tags.username+' messages'"
+			bounce
 			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="trackUser()"
 			/>
 		<Button :aria-label="'Shoutout '+messageData.tags.username"
+			bounce
 			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
@@ -19,6 +21,7 @@
 			v-if="ttsEnabled"
 			/>
 		<Button aria-label="Highlight message"
+			bounce
 			:icon="$image('icons/highlight.svg')"
 			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
 			@click="chatHighlight()"
@@ -26,6 +29,7 @@
 			v-if="!messageData.automod"
 			/>
 		<Button aria-label="Pin message"
+			bounce
 			:icon="$image('icons/pin.svg')"
 			data-tooltip="Pin message"
 			@click="pinMessage()"
