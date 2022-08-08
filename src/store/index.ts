@@ -70,6 +70,7 @@ const store = createStore({
 		voiceLang: "en-US",
 		voiceText: {
 			tempText:"",
+			rawTempText:"",
 			finalText:"",
 		},
 		raffle: null as RaffleData | null,
@@ -1612,6 +1613,10 @@ const store = createStore({
 			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
 				state.voiceText.tempText = (e.data as {text:string}).text;
 				state.voiceText.finalText = "";
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent)=> {
+				state.voiceText.rawTempText = (e.data as {text:string}).text;
 			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {

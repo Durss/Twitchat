@@ -83,12 +83,57 @@
 			<section class="transition">
 				<div class="content">
 					<div class="screen">
+						<video loading="lazy" src="@/assets/img/homepage/voiceControl.mp4" alt="voice control demo" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/voice.svg" alt="voice" class="icon">
+					<div class="infos">
+						<h2>Voice control</h2>
+						<div class="description">Control the chat, create polls and predictions and much more with your voice thanks to the voice bot</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/tts.png" alt="tts">
+					</div>
+					<img src="@/assets/icons/tts.svg" alt="tts" class="icon">
+					<div class="infos">
+						<h2>Read messages out loud</h2>
+						<div class="description">You can make Twitchat read any messages the way you want</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
 						<video loading="lazy" src="@/assets/img/homepage/alert.mp4" alt="alert" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
 					</div>
 					<img src="@/assets/icons/alert.svg" alt="emergency" class="icon">
 					<div class="infos">
 						<h2>Alert command</h2>
 						<div class="description">Let your moderator get your attention with a configurable alert command</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<video loading="lazy" src="@/assets/img/homepage/pin.mp4" alt="alert" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/pin.svg" alt="pin" class="icon">
+					<div class="infos">
+						<h2>Pin messages</h2>
+						<div class="description">Pin any message and find them back in a dedicated list</div>
 					</div>
 				</div>
 			</section>
@@ -185,7 +230,7 @@
 				</div>
 			</section>
 
-			<div class="splitter"></div>
+			<!-- <div class="splitter"></div>
 	
 			<section class="transition">
 				<div class="content">
@@ -198,7 +243,7 @@
 						<div class="description">Free some space by replacing twitch badges by their minifed version</div>
 					</div>
 				</div>
-			</section>
+			</section> -->
 
 			<div class="splitter"></div>
 	
@@ -241,7 +286,7 @@
 					<img src="@/assets/icons/notification.svg" alt="alerts" class="icon">
 					<div class="infos">
 						<h2>Create your own alerts</h2>
-						<div class="description">Twitchat provides a <strong>Trigger</strong> system to control OBS and send messages on chat based on many events like a sub, cheers, a poll result, channel points rewards, ...</div>
+						<div class="description">Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat or control Spotify based on many events like a sub, cheers, a poll result, channel points rewards, ...</div>
 					</div>
 				</div>
 			</section>
@@ -280,6 +325,7 @@
 								<li>Automatically see last stream info of a raider</li>
 								<li>Control your OBS</li>
 								<li>Know when users enter/leave your chat</li>
+								<li>Replace badges by minified plain color versions</li>
 								<li>And much more...</li>
 							</ul>
 						</div>
