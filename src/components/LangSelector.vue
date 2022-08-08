@@ -11,6 +11,7 @@
 				{{ option.label }}
 			</template>
 		</vue-select>
+		
 		<vue-select v-model="sublangLocal"
 		v-if="subLanguages?.length > 1"
 		placeholder="Select country..."
@@ -73,7 +74,7 @@ export default class LangSelector extends Vue {
 					const sl = l[j];
 					if(sl[0].toLowerCase() == this.lang.toLowerCase()) {
 						this.langLocal.label = l[0] as string;
-						if(j>1) {
+						if(l.length>1) {
 							this.sublangLocal.label = sl[1];
 						}
 						break;
@@ -81,6 +82,8 @@ export default class LangSelector extends Vue {
 				}
 			}
 		}
+
+		console.log(this.lang);
 
 		watch(()=>this.langLocal, ()=> { this.onChange(true); });
 		watch(()=>this.sublangLocal, ()=> { this.onChange(); });
@@ -91,14 +94,15 @@ export default class LangSelector extends Vue {
 	 * @param resetSubList 
 	 */
 	public onChange(resetSubList:boolean = false):void {
-		if(resetSubList && this.subLanguages.length > 0) {
-			this.sublangLocal.label = this.subLanguages[0].label;
-			this.sublangLocal.value = this.subLanguages[0].value;
-		}else{
-			this.sublangLocal.label = "";
-			this.sublangLocal.value = [];
+		if(resetSubList) {
+			if(this.subLanguages.length > 0) {
+				this.sublangLocal.label = this.subLanguages[0].label;
+				this.sublangLocal.value = this.subLanguages[0].value;
+			}else{
+				this.sublangLocal.label = "";
+				this.sublangLocal.value = [];
+			}
 		}
-		
 		if(!this.langLocal) {
 			this.$emit("update:lang", "");
 		}else
