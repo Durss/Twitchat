@@ -1,54 +1,66 @@
 <template>
 	<div class="voicetriggerlist">
 
+		<Button :icon="$image('icons/add.svg')" title="Add voice action" class="addBt"
+			@click="addAction()"
+			:disabled="getActionIDs().length == 0 || !globalCommandsOK"
+		/>
+
 		<VoiceGlobalCommands class="action global"
 			v-model="globalCommands"
 			v-model:complete="globalCommandsOK"
 			:open="actions.length == 0"
 		/>
 
-		<Button :icon="$image('icons/add.svg')" title="Add voice action" class="addBt"
-			@click="addAction()"
-			:disabled="getActionIDs().length == 0 || !globalCommandsOK"
-		/>
-		
-		<ToggleBlock v-for="(a,index) in actions"
-			v-if="globalCommandsOK"
-			medium
-			:open="isOpen(a.id)"
-			:title="getLabelFromID(a.id)"
-			:icons="a.id? [getIconFromID(a.id)] : []"
-			:key="a.id"
-			:ref="a.id"
-			class="action"
-		>
-			<template #actions>
-				<Button small highlight
-					:icon="$image('icons/cross_white.svg')"
-					class="toggleAction"
-					@click="deleteAction(a.id)"
-				/>
+		<draggable 
+		v-if="actions"
+		v-model="actions" 
+		group="actions" 
+		item-key="id"
+		ghost-class="ghost"
+		direction="vertical"
+		handle=".action>.header>img"
+		:animation="250"
+		:dragoverBubble="true">
+			<template #item="{element, index}">
+				<ToggleBlock
+					v-if="globalCommandsOK"
+					medium
+					:open="isOpen(element.id)"
+					:title="getLabelFromID(element.id)"
+					:icons="element.id? ['orderable_white',getIconFromID(element.id)] : ['orderable_white']"
+					:ref="element.id"
+					class="action"
+				>
+					<template #actions>
+						<Button small highlight
+							:icon="$image('icons/cross_white.svg')"
+							class="toggleAction"
+							@click="deleteAction(element.id)"
+						/>
+					</template>
+
+					<label :for="'select'+index">Action to execute</label>
+					<vue-select :id="'select'+index"
+						placeholder="Select an action..."
+						v-model="element.id"
+						:reduce="reduceSelectData"
+						:options="getActionIDs(element)"
+						:appendToBody="true"
+						:calculate-position="$placeDropdown"
+					>
+						<template v-slot:option="option">
+							<img class="listIcon" style="{background-color: red;}" :src="$image('icons/'+option.icon+'_purple.svg')" v-if="option.icon" />
+							{{ option.label }}
+						</template>
+					</vue-select>
+
+					<label v-if="element.id" :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
+					<textarea v-if="element.id" :id="'text'+index" v-model="element.sentences" rows="5" maxlength="1000"></textarea>
+					
+				</ToggleBlock>
 			</template>
-
-			<label :for="'select'+index">Action to execute</label>
-			<vue-select :id="'select'+index"
-				placeholder="Select an action..."
-				v-model="a.id"
-				:reduce="reduceSelectData"
-				:options="getActionIDs(a)"
-				:appendToBody="true"
-				:calculate-position="$placeDropdown"
-			>
-				<template v-slot:option="option">
-					<img class="listIcon" style="{background-color: red;}" :src="$image('icons/'+option.icon+'_purple.svg')" v-if="option.icon" />
-					{{ option.label }}
-				</template>
-			</vue-select>
-
-			<label v-if="a.id" :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
-			<textarea v-if="a.id" :id="'text'+index" v-model="a.sentences" rows="5" maxlength="1000"></textarea>
-			
-		</ToggleBlock>
+		</draggable>
 	</div>
 </template>
 
@@ -62,12 +74,14 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
+import draggable from 'vuedraggable';
 
 @Options({
 	props:{
 	},
 	components:{
 		Button,
+		draggable,
 		ToggleBlock,
 		VoiceGlobalCommands,
 	}

@@ -131,8 +131,8 @@ import StoreProxy from '@/utils/StoreProxy';
 @Options({
 	props:{},
 	components:{
-		draggable,
 		Button,
+		draggable,
 		ToggleButton,
 		TriggerActionEntry,
 		TriggerActionChatCommandParams,

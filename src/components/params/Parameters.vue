@@ -274,10 +274,11 @@ export default class Parameters extends Vue {
 						right: 0;
 						color:@mainColor_light;
 						background-color: @mainColor_normal;
+						background: linear-gradient(90deg, fade(@mainColor_normal, 0) 0%, @mainColor_normal 30%, @mainColor_normal 100%);
 						height: 100%;
 						display: flex;
 						align-items: center;
-						padding: 0 .35em;
+						padding: 0 .35em 0 1em;
 						font-size: .8em;
 						font-family: "Nunito";
 						text-transform: uppercase;
