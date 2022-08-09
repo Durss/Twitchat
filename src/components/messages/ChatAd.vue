@@ -30,11 +30,17 @@
 							<span>Make Twitchat <strong>read out loud</strong> any messages you receive</span>
 						</li>
 						<li>
+							<img src="@/assets/icons/broadcast.svg" class="icon" />
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
+							<span>A <strong>new trigger action</strong> allows you to read anything out loud</span>
+						</li>
+						<li>
 							<img src="@/assets/icons/pin.svg" class="icon" />
-							<span>You can now <strong>pin messages</strong> so you don't loose them. Roll over a message and click the pin icon. Open the pinned messages later with the pin icon at the bottom</span>
+							<span>You can now <strong>pin messages</strong> so you don't loose them. Roll over a user's message and click the pin icon. Open the pinned messages later with the pin icon at the bottom</span>
 						</li>
 						<li>
 							<img src="@/assets/icons/elgato.svg" class="icon" />
+							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentStreamdeck)" />
 							<span><strong>Stream Deck™ plugin</strong> can now start the emergency mode and shoutout your latest raider</span>
 						</li>
 						<li>
