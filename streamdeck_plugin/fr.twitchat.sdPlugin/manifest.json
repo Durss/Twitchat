@@ -243,7 +243,7 @@
 		},
 		{
 			"Icon": "icons/EMERGENCY_default",
-			"Name": "Starts/stops emergency mode",
+			"Name": "Toggle emergency mode",
 			"States": [
 				{
 					"Image": "icons/EMERGENCY",
