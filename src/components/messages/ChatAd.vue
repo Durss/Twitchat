@@ -126,6 +126,32 @@
 				/>
 			</div>
 		</div>
+
+		<div v-if="isUpdateWarning" class="discord">
+			<Button aria-label="Close discord message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+			<div class="title">Important</div>
+			<div class="content">
+				<img src="@/assets/icons/alert_purple.svg" alt="discord" class="icon">
+				<div>This update contains lots of deep changes in Twitchat's codebase.</div>
+				<div>It's been tested as best as possible but there are chances some issues have not been catched in the process.</div>
+				<br>
+				<div>If you experience even the slightest issue I'd greatly appreciate you take time to tell me either on Discord or Twitter.</div>
+			</div>
+			<div class="cta">
+				<Button :icon="$image('icons/discord.svg')"
+					title="Discord"
+					:href="discordURL"
+					target="_blank"
+					type="link"
+				/>
+				<Button :icon="$image('icons/twitter.svg')"
+					title="Twitter"
+					:href="discordURL"
+					target="_blank"
+					type="link"
+				/>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -136,6 +162,7 @@ import { ParamsContentType, TwitchatAdTypes, type ParamsContentStringType } from
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
@@ -162,6 +189,7 @@ export default class ChatAd extends Vue {
 	public followIcon:string = "";
 	public kofiIcon:string = "";
 
+	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
@@ -215,7 +243,18 @@ export default class ChatAd extends Vue {
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
+			if(Store.UPDATE_INDEX != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
+				setTimeout(()=> {
+					StoreProxy.store.dispatch("addChatMessage",{
+					type:"ad",
+						channel:"#"+UserSession.instance.authToken.login,
+						markedAsRead:false,
+						contentID:TwitchatAdTypes.UPDATE_WARNING,
+						tags:{id:"twitchatAd"+Math.random()}
+					});
+				}, 1000);
+				Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
+			}
 		}
 		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
@@ -402,6 +441,10 @@ export default class ChatAd extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+
+		.button:not(:first-of-type) {
+			margin-top: .5em;
+		}
 
 		.sponsorGif {
 			width: 8em;

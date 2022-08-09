@@ -205,6 +205,7 @@ export const TwitchatAdTypes = {
 	UPDATES:2,
 	TIP_AND_TRICK:3,
 	DISCORD:4,
+	UPDATE_WARNING:5,
 }
 
 export interface InstallHandler {
