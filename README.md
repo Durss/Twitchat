@@ -27,6 +27,9 @@ Documentation can be found [here](PUBLIC_API.md).
 # Features
 - [x] Enable an emergency button with custom actions to prevent from follow bots and doxxing
 - [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify or Deezer when an event occurs
+- [x] Control Twitchat and create polls or predictions with your voice
+- [x] Read your messages and alerts out loud thank to the include text-to-speech
+- [x] Pin messages and find them back later
 - [x] Display the first message of users seperatly so you don't forget to greet them
 - [x] Send any message from your chat to your stream with a single click
 - [x] Make it easier to follow a conversation between users
