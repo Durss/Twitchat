@@ -105,14 +105,11 @@ export default class AutocompleteChatForm extends Vue {
 				this.selectedIndex --;
 				e.preventDefault();
 				break;
-			case "Tab":
-				this.selectedIndex += e.shiftKey? -1 : 1;
-				e.preventDefault();
-				break;
 			case "ArrowDown":
 				this.selectedIndex ++;
 				e.preventDefault();
 				break;
+			case "Tab":
 			case "Enter": {
 				e.preventDefault();
 				e.stopPropagation();

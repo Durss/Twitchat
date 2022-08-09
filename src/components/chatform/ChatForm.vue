@@ -17,7 +17,7 @@
 					ref="input"
 					placeholder="message..."
 					maxlength="500"
-					@keydown.tab.prevent="onTab()"
+					@keyup.capture.tab="(e)=>onTab(e)"
 					@keyup.enter="sendMessage()"
 					@keydown="onKeyDown">
 				
@@ -178,6 +178,14 @@
 
 			</form>
 
+			<transition name="slide">
+				<Button small class="muteBt" aria-label="mute text to speech"
+					:icon="$image('icons/mute.svg')"
+					v-if="$store.state.ttsSpeaking"
+					data-tooltip="Stop speaking"
+					@click="stopTTS()" />
+			</transition>
+
 			<AutocompleteChatForm class="contentWindows emotesLive"
 				v-if="openAutoComplete"
 				:search="autoCompleteSearch"
@@ -211,6 +219,7 @@ import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import TTSUtils from '@/utils/TTSUtils';
 
 @Options({
 	props:{
@@ -462,14 +471,8 @@ export default class ChatForm extends Vue {
 		if(cmd == "/spam") {
 			clearInterval(this.spamInterval);
 			const lorem = new LoremIpsum({
-				sentencesPerParagraph: {
-					max: 8,
-					min: 4
-				},
-				wordsPerSentence: {
-					max: 8,
-					min: 2
-				}
+				sentencesPerParagraph: { max: 8, min: 4 },
+				wordsPerSentence: { max: 8, min: 2 }
 			});
 			
 			this.spamInterval = window.setInterval(()=> {
@@ -755,9 +758,14 @@ export default class ChatForm extends Vue {
 	}
 
 	/**
-	 * Called when pressing tab key on input field
+	 * Called when pressing any key
 	 */
 	public onKeyDown(e:KeyboardEvent):void {
+		if(e.shiftKey) return;//Avoid blocking browser tab navigation
+		if(e.ctrlKey) return;//Avoid blocking browser tab navigation
+		//Avoid leaving the input form
+		if(e.key == "Tab") e.preventDefault();
+
 		if(!this.openAutoComplete) return;
 		if(e.key == "ArrowUp" || e.key == "ArrowDown") {
 			e.preventDefault();
@@ -767,7 +775,7 @@ export default class ChatForm extends Vue {
 	/**
 	 * Called when pressing tab key on input field
 	 */
-	public onTab():void {
+	public onTab(e:KeyboardEvent):void {
 		const input = this.$refs.input as HTMLInputElement;
 		let carretPos = input.selectionStart as number;
 		let i = carretPos - 1;
@@ -777,11 +785,24 @@ export default class ChatForm extends Vue {
 		}
 		const len = carretPos - i;
 		if(len > 2) {
+			if(!this.openAutoComplete) {
+				//Avoid closing the auto complete list right away now that
+				//we can submit it with the tab key
+				e.stopPropagation();
+			}
 			this.autoCompleteUsers = true;
 			this.autoCompleteEmotes = true;
 			this.autoCompleteCommands = true;
 			this.autoCompleteSearch = this.message.substring(i+1, carretPos);
 		}
+		e.preventDefault();
+	}
+
+	/**
+	 * Interrupts the TTS
+	 */
+	public stopTTS():void {
+		TTSUtils.instance.stop();
 	}
 
 }
@@ -921,6 +942,24 @@ export default class ChatForm extends Vue {
 				}
 			}
 		}
+	}
+
+	.muteBt {
+		.clearButton();
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 1;
+		transform: translate(0, -100%);
+		padding: .25em;
+		height: auto;
+		background-color: fade(@mainColor_light, 20%);
+		transition: transform .25s;
+	}
+
+	.slide-enter-from,
+	.slide-leave-to {
+		transform: translate(100%, -100%);
 	}
 
 	.contentWindows {
