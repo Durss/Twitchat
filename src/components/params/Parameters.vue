@@ -18,8 +18,8 @@
 				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent(contentFilters)" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
-				<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
-				<Button bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
+				<Button class="beta" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
+				<Button class="beta" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
 				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
@@ -265,6 +265,23 @@ export default class Parameters extends Vue {
 				box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 				&:not(:first-child) {
 					margin-top: 10px;
+				}
+
+				&.beta {
+					&::after {
+						content: "beta";
+						position: absolute;
+						right: 0;
+						color:@mainColor_light;
+						background-color: @mainColor_normal;
+						height: 100%;
+						display: flex;
+						align-items: center;
+						padding: 0 .35em;
+						font-size: .8em;
+						font-family: "Nunito";
+						text-transform: uppercase;
+					}
 				}
 			}
 

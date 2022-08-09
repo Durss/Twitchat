@@ -108,6 +108,7 @@
 		<Parameters v-if="$store.state.showParams" />
 
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
+		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
 		<Teleport to="body">

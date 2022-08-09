@@ -33,7 +33,6 @@ import Button from '../../Button.vue';
 import VoiceController from '@/utils/VoiceController';
 import Config from '@/utils/Config';
 import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
-import router from '@/router';
 
 @Options({
 	props:{},
@@ -47,7 +46,7 @@ export default class ParamsVoiceBot extends Vue {
 	
 	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 
-	public get obsConnected():boolean { return router.currentRoute.value.name != "voice" || OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return this.$router.currentRoute.value.name != "voice" || OBSWebsocket.instance.connected; }
 	public get voicePageUrl():string {
 		let url = document.location.origin;
 		url += this.$router.resolve({name:"voice"}).href;

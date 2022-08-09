@@ -154,6 +154,13 @@ export default class TTSUtils {
 		return this.voices;
     }
 
+    /**
+     * Stops currently playing speech
+     */
+    public stop():void {
+		window.speechSynthesis.cancel();
+    }
+
 	/**
 	 * Reads a twitchat message
 	 * @param message 
@@ -182,7 +189,12 @@ export default class TTSUtils {
 		mess.volume = paramsTTS.volume;
 		mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
 		mess.lang = mess.voice.lang;
+		mess.onstart = (ev: SpeechSynthesisEvent) => {
+			StoreProxy.store.state.ttsSpeaking = true;
+		}
 		mess.onend = (ev: SpeechSynthesisEvent) => {
+			clearTimeout(this.stopTimeout);
+			StoreProxy.store.state.ttsSpeaking = false;
 			let nextMessage = this.pendingMessages.shift();
 			if (nextMessage) {
 				// check timeout
@@ -191,6 +203,7 @@ export default class TTSUtils {
 				}
 			}
 		}
+
 		if(paramsTTS.maxDuration > 0) {
 			this.stopTimeout = setTimeout(()=> {
 				window.speechSynthesis.cancel();

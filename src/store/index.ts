@@ -357,6 +357,7 @@ const store = createStore({
 			noLabel:"",
 			STTOrigin:false,
 		},
+		ttsSpeaking: false,
 		ttsParams: {
 			enabled:false,
 			volume:1,
@@ -614,7 +615,7 @@ const store = createStore({
 				}
 		
 				contentID = Utils.pickRand(possibleAds);
-				// contentID = TwitchatAdTypes.TIP;//TODO comment this line
+				// contentID = TwitchatAdTypes.UPDATES;//TODO comment this line
 				if(contentID == 0) return;
 			}
 
@@ -624,8 +625,8 @@ const store = createStore({
 				channel:"#"+UserSession.instance.authToken.login,
 				markedAsRead:false,
 				contentID,
-				tags:{id:"twitchatAd"+Math.random()}}
-			);
+				tags:{id:"twitchatAd"+Math.random()}
+			} );
 			state.chatMessages = list;
 		},
 
