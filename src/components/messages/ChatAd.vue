@@ -87,7 +87,6 @@
 						<li>Music overlay will also show <strong>podcast info</strong> played from Spotify</li>
 						<li>Added <strong>CSS selectors</strong> to the music player so you can better customize it</li>
 						<li>I updated the way i sync your data with the server. <strong>PLEASE</strong> let me know if you experience any data loss!</li>
-						<li>Optimized emotes parsing</li>
 						<li>You can now pass query parameters to a local HTML on the triggers. <i>(ex: if you create a custom sub/cheer/raid alert page)</i></li>
 						<li>Performance improvement on the way BTTV/FFZ/7TV emotes were replaced</li>
 						<li>Huge performance improvement if you were filtering out known bots messages</li>
@@ -249,7 +248,7 @@ export default class ChatAd extends Vue {
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			if(Store.UPDATE_INDEX != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
+			if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
 				setTimeout(()=> {
 					StoreProxy.store.dispatch("addChatMessage",{
 					type:"ad",
