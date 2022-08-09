@@ -12,24 +12,11 @@
 		<ParamItem class="item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
 		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
-		<ToggleBlock small class="helper"
-			v-if="(isTextSource || isBrowserSource || isMediaSource) && getHelpers(event)?.length > 0"
-			title="Special placeholders dynamically replaced"
-			:open="false"
-		>
-			<ul class="list">
-				<li v-for="(h,index) in getHelpers(event)" :key="h.tag+event+index" @click="insert(h)" data-tooltip="Insert">
-					<strong>&#123;{{h.tag}}&#125;</strong>
-					{{h.desc}}
-				</li>
-			</ul>
-		</ToggleBlock>
 	</div>
 </template>
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 import { ParamsContentType, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type TriggerActionObsData } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -45,7 +32,6 @@ import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/Trigger
 	},
 	components:{
 		ParamItem,
-		ToggleBlock,
 	},
 	emits:["setContent"]
 })
@@ -65,7 +51,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	public filter_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
 	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
 	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
-	public media_conf:ParameterData = { label:"Media file", type:"browse", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
+	public media_conf:ParameterData = { label:"Media file", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];
@@ -108,29 +94,23 @@ export default class TriggerActionOBSEntry extends Vue {
 				&& this.show_conf.value === true;
 	}
 
-	public async mounted():Promise<void> {
+	public async beforeMount():Promise<void> {
 		if(this.action.show == undefined) this.action.show = true;
-		//Prefill forms
-		this.prefillForm();
+
+		this.text_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.url_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.media_conf.placeholderList = TriggerActionHelpers(this.event);
 
 		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
 
-	/**
-	 * Add a token on the text
-	 */
-	public insert(h:{tag:string, desc:string}):void {
-		const tag = "{"+h.tag+"}";
-		const holder = this.$refs.textContent as ParamItem;
-		const input = (holder.$el as HTMLDivElement).getElementsByTagName(this.isTextSource? "textarea" : "input")[0];
-		let carretPos = input.selectionStart as number | 0;
-		if(!carretPos) carretPos = 0;
-		//Insert tag
-		input.value = input.value.substring(0, carretPos) + tag + input.value.substring(carretPos);
-		this.text_conf.value = input.value;
+	public mounted():void {
+		//Prefill forms
+		this.prefillForm();
 	}
+
 
 	/**
 	 * Prefills the form
@@ -202,31 +182,6 @@ export default class TriggerActionOBSEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionobsentry{
-	.helper {
-		font-size: .8em;
-		padding-left: 2em;
-		.list {
-			list-style-type: none;
-			// padding-left: 1em;
-			li {
-				padding: .25em;
-				cursor: pointer;
-				&:hover {
-					background-color: fade(@mainColor_normal, 10%);
-				}
-				&:not(:last-child) {
-					border-bottom: 1px solid @mainColor_normal;
-				}
-				strong {
-					display: inline-block;
-					min-width: 82px;
-					border-right: 1px solid @mainColor_normal;
-				}
-			}
-		}
-	}
-
-
 	.info {
 		overflow: hidden;
 		padding: .5em;

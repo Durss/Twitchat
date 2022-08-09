@@ -10,6 +10,7 @@ import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
 import StoreProxy from "./StoreProxy";
 import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes } from "./TriggerActionData";
+import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
@@ -436,8 +437,14 @@ export default class TriggerActionHandler {
 					
 					//Handle Chat action
 					if(step.type == "chat") {
-						const text = await this.parseText(eventType, message, step.text as string);
+						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
 						IRCClient.instance.sendMessage(text);
+					}else
+					
+					//Handle TTS action
+					if(step.type == "tts") {
+						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
+						TTSUtils.instance.readNow(text);
 					}else
 
 					if(step.type == "music") {
@@ -565,7 +572,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode = false):Promise<string> {
+	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode = false, subEvent?:string|null):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
@@ -606,7 +613,9 @@ export default class TriggerActionHandler {
 							cleanMessage += v.value+" ";
 						}
 					}
-					value = cleanMessage.trim();
+					if(!subEvent) subEvent = "";
+					//Remove command from final text
+					value = cleanMessage.replace(new RegExp(subEvent, "i"), "").trim();
 				}else{
 					value = m.message;
 				}

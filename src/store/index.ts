@@ -1188,6 +1188,9 @@ const store = createStore({
 					if(v.type == "obs") return v.sourceName?.length > 0;
 					if(v.type == "chat") return v.text?.length > 0;
 					if(v.type == "music") return true;
+					if(v.type == "tts") return true;
+					//@ts-ignore
+					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
 				})
 

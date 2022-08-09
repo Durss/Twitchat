@@ -28,12 +28,14 @@
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
 				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('tts')" title="Text to speech" :icon="$image('icons/tts_purple.svg')" v-if="$store.state.ttsParams.enabled"/>
 				<Button class="button" white @click="selectActionType('music')" title="Control music" :icon="$image('icons/music_purple.svg')" v-if="musicServiceConfigured"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
 			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
-			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" :sources="sources" />
+			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
+			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
 
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==''" v-model="action.delay" />
 
@@ -52,6 +54,7 @@ import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import Config from '@/utils/Config';
+import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 
 @Options({
 	props:{
@@ -65,9 +68,10 @@ import Config from '@/utils/Config';
 		Button,
 		ParamItem,
 		ToggleBlock,
-		TriggerActionMusicEntry,
 		TriggerActionOBSEntry,
+		TriggerActionTTSEntry,
 		TriggerActionChatEntry,
+		TriggerActionMusicEntry,
 	},
 	emits:["delete", "setContent", "duplicate"]
 })
@@ -122,6 +126,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "obs") icons.push( this.action.show? 'show' : 'hide' );
 		if(this.action.type == "music") icons.push( 'music' );
 		if(this.action.type == "chat") icons.push( 'whispers' );
+		if(this.action.type == "tts") icons.push( 'tts' );
 		return icons;
 	}
 
@@ -166,7 +171,7 @@ export default class TriggerActionEntry extends Vue {
 		this.$emit("update");
 	}
 
-	public selectActionType(type:'obs'|'chat'|'music'):void {
+	public selectActionType(type:'obs'|'chat'|'music'|'tts'):void {
 		this.action.type = type
 	}
 

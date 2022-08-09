@@ -1,6 +1,6 @@
 <template>
-	<div class="triggeractionchatentry">
-		<ParamItem class="item" :paramData="message_conf" ref="textContent" v-model="action.text" />
+	<div class="triggeractionttsentry">
+		<ParamItem class="item file" :paramData="message_conf" ref="textContent" v-model="action.text" />
 	</div>
 </template>
 
@@ -20,13 +20,13 @@ import ParamItem from '../../../ParamItem.vue';
 	},
 	emits:["update"]
 })
-export default class TriggerActionChatEntry extends Vue {
-
+export default class TriggerActionTTSEntry extends Vue {
+	
 	public action!:TriggerActionChatData;
 	public event!:string;
-	
-	public message_conf:ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
-	
+
+	public message_conf:ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
+
 	public beforeMount():void {
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event);
 	}
@@ -35,7 +35,7 @@ export default class TriggerActionChatEntry extends Vue {
 </script>
 
 <style scoped lang="less">
-.triggeractionchatentry{
-
+.triggeractionttsentry{
+	
 }
 </style>

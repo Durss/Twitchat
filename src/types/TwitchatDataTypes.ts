@@ -82,6 +82,7 @@ export interface TriggerData {
 export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionObsData
 								| TriggerActionChatData
+								| TriggerActionTTSData
 								| TriggerActionMusicEntryData
 ;
 
@@ -112,6 +113,11 @@ export interface TriggerActionObsData extends TriggerActionData{
 
 export interface TriggerActionChatData extends TriggerActionData{
 	type:"chat";
+	text:string;
+}
+
+export interface TriggerActionTTSData extends TriggerActionData{
+	type:"tts";
 	text:string;
 }
 

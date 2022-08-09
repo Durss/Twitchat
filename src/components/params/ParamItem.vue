@@ -66,12 +66,12 @@
 				/>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
 				<input type="text" :name="paramData.fieldName" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
-				<!-- <Button v-model:file="paramData.value"
+				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
 					:accept="paramData.accept?paramData.accept:'*'"
 					:icon="$image('icons/upload.svg')"
-				/> -->
+				/>
 			</div>
 		</div>
 		
@@ -138,7 +138,6 @@ export default class ParamItem extends Vue {
 
 	public key:string = Math.random().toString();
 	public children:ParameterData[] = [];
-	public inputField:HTMLTextAreaElement|HTMLInputElement|HTMLSelectElement|null = null;
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
@@ -204,20 +203,17 @@ export default class ParamItem extends Vue {
 		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
 			//Check if the value is on the listValues.
 			//If not, fallback to the first value.
-			if(!this.paramData.listValues.find(v=>v.label === this.paramData.value)) {
+			if(!this.paramData.listValues.find(v=>v.value === this.paramData.value)) {
 				this.paramData.value = this.paramData.listValues[0].value;
 			}
 		}
 
 		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
 			if(this.paramData.type != "text") {
-				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\"");
+				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
 			}
-			
 			this.placeholderTarget = this.$el.querySelector("textarea,input");
 		}
-
-		this.inputField = this.$refs.input as HTMLTextAreaElement;
 	}
 
 	private async buildChildren():Promise<void> {
