@@ -14,6 +14,8 @@
 		</ToggleBlock>
 
 		<VoiceControlForm class="block" v-if="connected" />
+		
+		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
 	</div>
 </template>
 
@@ -27,6 +29,9 @@ import ToggleBlock from '../components/ToggleBlock.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 import type { ParameterData } from '@/types/TwitchatDataTypes';
+import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
+import StoreProxy from '@/utils/StoreProxy';
+import Store from '@/store/Store';
 
 @Options({
 	props:{},
@@ -36,6 +41,7 @@ import type { ParameterData } from '@/types/TwitchatDataTypes';
 		ToggleBlock,
 		OBSConnectForm,
 		VoiceControlForm,
+		DataServerSyncModal,
 	}
 })
 export default class VoiceControl extends Vue {
@@ -43,16 +49,17 @@ export default class VoiceControl extends Vue {
 	public loading:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
+	public showStorageModal:boolean = false;
 	
 	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
 	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
-	public get connected():boolean { return OBSWebsocket.instance.connected; }
 
+	public get connected():boolean { return OBSWebsocket.instance.connected; }
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public mounted():void {
-		
+		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
 	}
 
 }

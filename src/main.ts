@@ -47,10 +47,10 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	}
 
 	if (!store.state.authenticated) {
-		console.log("REroute ?")
 		//Not authenticated, reroute to login
 		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
 			next({name: 'login', params: {redirect: to.name?.toString()}});
+			return;
 		}
 	}
 
