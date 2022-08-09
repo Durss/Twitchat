@@ -1072,6 +1072,7 @@ const UserDataSchema = {
 				showTitle: {type:"boolean"},
 				showProgressbar: {type:"boolean"},
 				openFromLeft: {type:"boolean"},
+				customInfoTemplate: {type:"string", maxLength:5000},
 			}
 		},
 	}
