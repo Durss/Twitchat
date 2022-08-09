@@ -221,7 +221,7 @@ export default class ChatAd extends Vue {
 	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
 
 	public async getSvgIcon(name:string) {
-		const module = await import(`../../assets/icons/${name}.svg?raw`);
+		const module = await import(`../../assets/icons/${name}.svg`);
 		return module.default
 	}
 
