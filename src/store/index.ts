@@ -476,6 +476,7 @@ const store = createStore({
 			showProgressbar:true,
 			openFromLeft:false,
 			noScroll:false,
+			customInfoTemplate:"",
 		} as MusicPlayerParamsData,
 	},
 

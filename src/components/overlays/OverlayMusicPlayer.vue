@@ -3,18 +3,21 @@
 		<transition name="slide">
 			<div class="content" v-if="isPlaying" id="music_holder">
 				<img :src="cover" class="cover" id="music_cover" v-if="params?.showCover !== false">
+				
 				<div class="infos">
 					<div id="music_infos" class="trackHolder">
 						<Vue3Marquee :duration="duration"
 						:clone="params?.noScroll === false"
 						v-if="params?.noScroll !== true && !resetScrolling">
 							<div class="track">
+								<div class="custom" id="music_info_custom_template" v-if="customTrackInfo" v-html="customTrackInfo"></div>
 								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
 								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
 							</div>
 						</Vue3Marquee>
 						<div class="staticInfos">
 							<div class="track" v-if="params?.noScroll === true || resetScrolling">
+								<div class="custom" id="music_info_custom_template" v-if="customTrackInfo" v-html="customTrackInfo"></div>
 								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
 								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
 							</div>
@@ -63,6 +66,7 @@ export default class OverlayMusicPlayer extends Vue {
 	public artist = "";
 	public title = "";
 	public cover = "";
+	public customTrackInfo = "";
 	public progress = 0;
 	public isPlaying = false;
 	public resetScrolling = false;
@@ -75,7 +79,10 @@ export default class OverlayMusicPlayer extends Vue {
 	public get classes():string[] {
 		let res = ["overlaymusicplayer"];
 		if(this.embed !== false) res.push("embed")
-		if(this.params?.openFromLeft === true) res.push("left")
+		if(this.params) {
+			if(this.params.noScroll === true) res.push("noScroll")
+			if(this.params.openFromLeft === true) res.push("left")
+		}
 		return res;
 	}
 
@@ -111,6 +118,12 @@ export default class OverlayMusicPlayer extends Vue {
 				this.title = obj.trackName;
 				this.cover = obj.cover;
 				this.isPlaying = true;
+				let customTrackInfo = obj.params.customInfoTemplate;
+				if(this.customTrackInfo.length > 0) {
+					customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
+					customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
+				}
+				this.customTrackInfo = customTrackInfo;
 
 				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
 				this.progress = newProgress;
@@ -154,6 +167,8 @@ export default class OverlayMusicPlayer extends Vue {
 			watch(()=>DeezerHelper.instance.playing, ()=>this.updateEmbedProgress());
 			//Called when seeking
 			watch(()=>DeezerHelper.instance.playbackPos, ()=> this.updateEmbedProgress());
+			//Called when seeking
+			watch(()=>StoreProxy.store.state.musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
 			this.onTrackChangeLocal();
 		}
 	}
@@ -171,12 +186,18 @@ export default class OverlayMusicPlayer extends Vue {
 
 	private onTrackChangeLocal():void {
 		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
-		this.params = StoreProxy.store.state.musicPlayerParams;
+		this.params = StoreProxy.store.state.musicPlayerParams as MusicPlayerParamsData;
 		if(track) {
 			this.artist = track.artist;
 			this.title = track.title;
 			this.cover = track.cover;
 			this.isPlaying = true;
+			let customTrackInfo = this.params.customInfoTemplate;
+			if(this.customTrackInfo.length > 0) {
+				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
+				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
+			}
+			this.customTrackInfo = customTrackInfo;
 
 			const newProgress = ((this.staticTrackData? 600 : DeezerHelper.instance.playbackPos)/track.duration);
 			this.progress = newProgress;
@@ -239,6 +260,20 @@ export default class OverlayMusicPlayer extends Vue {
 		}
 	}
 
+	&.noScroll {
+		.content {
+			.infos {
+				.trackHolder {
+					.track {
+						.custom {
+							padding-right: 0 !important;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	.content {
 		@maxHeight: ~"min(100vh, 25vw)";
 		display: flex;
@@ -279,6 +314,11 @@ export default class OverlayMusicPlayer extends Vue {
 				.track {
 					display: flex;
 					flex-direction: column-reverse;
+
+					.custom {
+						padding-right: 10vw;
+					}
+
 					.artist, .title {
 						padding-right: 10vw;
 						display: flex;

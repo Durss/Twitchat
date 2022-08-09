@@ -11,6 +11,7 @@
 				<li>#music_artist { ... }</li>
 				<li>#music_progress { ... }</li>
 				<li>#music_progress_fill { ... }</li>
+				<li>#music_info_custom_template { ... }</li>
 			</ul>
 		</ToggleBlock>
 		
@@ -22,6 +23,7 @@
 			<ParamItem :paramData="param_showArtist" v-model="$store.state.musicPlayerParams.showArtist" />
 			<ParamItem :paramData="param_showTitle" v-model="$store.state.musicPlayerParams.showTitle" />
 			<ParamItem :paramData="param_showProgress" v-model="$store.state.musicPlayerParams.showProgressbar" />
+			<ParamItem :paramData="param_customTemplateToggle" />
 		</div>
 
 	</div>
@@ -29,7 +31,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { MusicPlayerParamsData, ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -53,23 +55,42 @@ export default class OverlayParamsMusic extends Vue {
 	public param_showArtist:ParameterData = {type:"toggle", label:"Show artist", value:true};
 	public param_showTitle:ParameterData = {type:"toggle", label:"Show title", value:true};
 	public param_showProgress:ParameterData = {type:"toggle", label:"Show progress bar", value:true};
+	public param_customTemplateToggle:ParameterData = {type:"toggle", label:"Use custom template", value:true};
+	public param_customTemplate:ParameterData = {type:"text", label:"Template (HTML accepted)", value:"", longText:true, placeholderList:[{tag:"TITLE", desc:"track title"}, {tag:"ARTIST", desc:"track artist"}]};
 	
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {
+		const params = StoreProxy.store.state.musicPlayerParams as MusicPlayerParamsData;
 		this.param_autoHide.children = [this.param_autoHideErase];
-		this.param_autoHideErase.value = StoreProxy.store.state.musicPlayerParams.erase;
+		this.param_autoHideErase.value = params.erase;
+		this.param_customTemplateToggle.children = [this.param_customTemplate];
+		this.param_customTemplateToggle.value = params.customInfoTemplate?.length > 0;
+		this.param_customTemplate.value = params.customInfoTemplate;
+
 		watch(()=> this.param_autoHideErase.value, ()=>{
-			StoreProxy.store.state.musicPlayerParams.erase = this.param_autoHideErase.value;
 			this.saveData();
 		})
 
 		watch(() => StoreProxy.store.state.musicPlayerParams, () => {
 			this.saveData();
 		},  {deep:true});
+
+		watch(() => this.param_customTemplateToggle.value, () => {
+			this.saveData();
+		});
+
+		watch(() => this.param_customTemplate.value, () => {
+			this.saveData();
+		});
 	}
 
 	private saveData():void {
+		let template = this.param_customTemplate.value;
+		if(!this.param_customTemplateToggle.value) template = "";
+		StoreProxy.store.state.musicPlayerParams.customInfoTemplate = template;
+		StoreProxy.store.state.musicPlayerParams.erase = this.param_autoHideErase.value;
+
 		Store.set(Store.MUSIC_PLAYER_PARAMS, StoreProxy.store.state.musicPlayerParams);
 	}
 

@@ -391,6 +391,7 @@ export interface MusicPlayerParamsData {
 	showProgressbar:boolean;
 	openFromLeft:boolean;
 	noScroll:boolean;
+	customInfoTemplate:string;
 }
 
 export interface MusicTriggerData {
