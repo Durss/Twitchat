@@ -812,7 +812,7 @@ export default class ChatForm extends Vue {
 			this.autoCompleteCommands = true;
 			this.autoCompleteSearch = this.message.substring(i+1, carretPos);
 		}
-		e.preventDefault();
+		// e.preventDefault();
 	}
 
 	/**
