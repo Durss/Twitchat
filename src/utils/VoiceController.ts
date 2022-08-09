@@ -205,6 +205,14 @@ export default class VoiceController {
 		}, {deep:true})
 
 		this.buildHashmaps();
+
+		PublicAPI.instance.addEventListener(TwitchatEvent.ENABLE_STT, ()=> {
+			this.start();
+		})
+
+		PublicAPI.instance.addEventListener(TwitchatEvent.DISABLE_STT, ()=> {
+			this.stop();
+		})
 	}
 
 	private parseSentence(str:string):string {

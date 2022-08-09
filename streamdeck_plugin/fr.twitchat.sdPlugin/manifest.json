@@ -251,6 +251,48 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": false,
 			"UUID": "fr.twitchat.action.set-emergency-mode"
+		},
+		{
+			"Icon": "icons/STOP_TTS_default",
+			"Name": "Stops any text to speech currently playing",
+			"States": [
+				{
+					"Image": "icons/STOP_TTS",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"UUID": "fr.twitchat.action.stop-tts"
+		},
+		{
+			"Icon": "icons/ENABLE_STT_default",
+			"Name": "Enable the speech recognition to control twitchat with your voice",
+			"States": [
+				{
+					"Image": "icons/ENABLE_STT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"UUID": "fr.twitchat.action.enable-stt"
+		},
+		{
+			"Icon": "icons/DISABLE_STT_default",
+			"Name": "Disable the speech recognition",
+			"States": [
+				{
+					"Image": "icons/DISABLE_STT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": false,
+			"UUID": "fr.twitchat.action.disable-stt"
 		}
 	],
 	"Category":"Twitchat",

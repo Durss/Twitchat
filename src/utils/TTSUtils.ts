@@ -1,10 +1,12 @@
 import type { PlaceholderEntry, TTSParamsData } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import { getTwitchatMessageType, TwitchatMessageType, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
+import PublicAPI from "./PublicAPI";
 import PubSub from "./PubSub";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import PubSubEvent from "./PubSubEvent";
 import StoreProxy from "./StoreProxy";
+import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
 
@@ -115,6 +117,10 @@ export default class TTSUtils {
 				}
 				return;
 		});
+
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
+			this.stop();
+		})
 	}
 	
 	/********************

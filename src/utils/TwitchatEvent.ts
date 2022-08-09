@@ -69,6 +69,9 @@ export default class TwitchatEvent extends Event {
 	public static START_EMERGENCY:TwitchatActionType = "START_EMERGENCY";
 	public static STOP_EMERGENCY:TwitchatActionType = "STOP_EMERGENCY";
 	public static SHOUTOUT:TwitchatActionType = "SHOUTOUT";
+	public static STOP_TTS:TwitchatActionType = "STOP_TTS";
+	public static ENABLE_STT:TwitchatActionType = "ENABLE_STT";
+	public static DISABLE_STT:TwitchatActionType = "DISABLE_STT";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -138,4 +141,7 @@ export type TwitchatActionType =
 	| "START_EMERGENCY"
 	| "STOP_EMERGENCY"
 	| "SHOUTOUT"
+	| "STOP_TTS"
+	| "ENABLE_STT"
+	| "DISABLE_STT"
 ;

@@ -169,6 +169,7 @@ export type TwitchatActionType =
 	| "START_EMERGENCY"
 	| "STOP_EMERGENCY"
 	| "SHOUTOUT"
+	| "STOP_TTS"
 ```
 <br>
 <br>
@@ -702,6 +703,24 @@ Stop the emergency mode
 ```
 ## **SHOUTOUT**
 Sends a shoutout to the latest raider
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **STOP_TTS**
+Stops any currently playing text to speech audio
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **ENABLE_STT**
+Enabled the speech recognition to control twitchat with your voice
+### JSON param *(optional)*
+```typescript
+-none-
+```
+## **DISABLE_STT**
+Disable the speech recognition
 ### JSON param *(optional)*
 ```typescript
 -none-
