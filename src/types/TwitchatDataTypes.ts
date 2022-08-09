@@ -190,6 +190,7 @@ export interface CommandData {
 	cmd:string;
 	details:string;
 	needChannelPoints?:boolean;
+	needTTS?:boolean;
 }
 
 export interface PermissionsData {

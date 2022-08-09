@@ -10,6 +10,8 @@
 			</div>
 
 			<form @submit.prevent="" class="inputForm">
+				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+
 				<input type="text"
 					class="dark"
 					v-model="message"
@@ -22,9 +24,6 @@
 					@keydown="onKeyDown">
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
-				
-				<!-- <Button aria-label="send message"
-					@click="sendMessage()" type="button" :icon="$image('icons/checkmark_white.svg')" bounce :disabled="!message" :loading="sendingMessage" /> -->
 				
 				<Button aria-label="Open emotes list"
 					:icon="$image('icons/emote.svg')"
@@ -220,6 +219,7 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import TTSUtils from '@/utils/TTSUtils';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 
 @Options({
 	props:{
@@ -268,7 +268,7 @@ export default class ChatForm extends Vue {
 
 	public message = "";
 	public error = false;
-	public sendingMessage = false;
+	public loading = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
@@ -330,6 +330,7 @@ export default class ChatForm extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatform"];
+		if(this.loading) res.push("loading");
 		if(StoreProxy.store.state.cypherEnabled) res.push("cypherMode");
 		if(StoreProxy.store.state.emergencyModeEnabled) res.push("emergencyMode");
 		return res;
@@ -455,11 +456,9 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/so") {
-			this.sendingMessage = true;
 			this.message = "...";
 			//Make a shoutout
 			await StoreProxy.store.dispatch("shoutout",params[0]);
-			this.sendingMessage = false;
 			this.message = "";
 		}else
 
@@ -527,7 +526,12 @@ export default class ChatForm extends Vue {
 			if(params.length == 0) {
 				StoreProxy.store.state.alert = "Missing user name";
 			}else{
-				const users = await TwitchUtils.loadUserInfo(undefined, [params[0]])
+				this.loading = true;
+				let users:TwitchDataTypes.UserInfo[] = [];
+				try {
+					users = await TwitchUtils.loadUserInfo(undefined, [params[0]])
+				}catch(error) {}
+
 				if(users.length == 0) {
 					StoreProxy.store.state.alert = "User not found";
 				}else{
@@ -549,6 +553,7 @@ export default class ChatForm extends Vue {
 						StoreProxy.store.state.alert = "Unable to load user data";
 					}
 				}
+				this.loading = false;
 			}
 			this.message = "";
 		}else
@@ -588,33 +593,38 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/unblock2") {
 			this.message = "";
+			this.loading = true;
 			await TwitchUtils.unblockUser(params[0]);
+			this.loading = false;
 		}else
 
 		if(cmd == "/block") {
 			this.message = "";
+			this.loading = true;
 			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
 			if(users.length == 0) {
-				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> not found...");
+				await IRCClient.instance.sendNotice("error", "User <mark>"+params[0]+"</mark> not found...");
 			}else{
 				let res = await TwitchUtils.blockUser(users[0].id);
 				if(res === true) {
 					await IRCClient.instance.sendNotice("block", "User <mark>"+users[0].login+"</mark> blocked");
 				}
 			}
+			this.loading = false;
 		}else
 
 		if(cmd == "/unblock") {
 			this.message = "";
+			this.loading = true;
 			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
 			if(users.length == 0) {
-				await IRCClient.instance.sendNotice("unblock", "User <mark>"+params[0]+"</mark> not found...");
+				await IRCClient.instance.sendNotice("error", "User <mark>"+params[0]+"</mark> not found...");
 			}else{
 				let res = await TwitchUtils.unblockUser(users[0].id);
 				if(res === true) {
 					await IRCClient.instance.sendNotice("unblock", "User <mark>"+users[0].login+"</mark> unblocked");
 				}
-			}
+			}this.loading = false;
 		}else
 		
 		if(cmd == "/cypherkey") {
@@ -638,14 +648,21 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/tts") {
-			StoreProxy.store.state.params.tts.tts_users.value = (StoreProxy.store.state.params.tts.tts_users.value as string).split(',').concat(params).join(',');
+		if(cmd == "/ttsoff" || cmd == "/tts") {
+			this.loading = true;
+			const username = params[0].toLowerCase().replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi, "").trim();
+			try {
+				const user = await TwitchUtils.loadUserInfo(undefined, [username]);
+				if(user.length == 0) {
+					IRCClient.instance.sendNotice("error", "User <mark>"+username+"</mark> not found...");
+					this.loading = false;
+					return;
+				}
+			}catch(error) {}
+			const payload = {username, read:cmd=="/tts"};
+			StoreProxy.store.dispatch("ttsReadUser", payload);
 			this.message = "";
-		}else
-
-		if(cmd == "/notts") {
-			StoreProxy.store.state.params.tts.tts_users.value = (StoreProxy.store.state.params.tts.tts_users.value as string).split(',').filter(el => !params.includes(el)).join(',');
-			this.message = "";
+			this.loading = false;
 		}else{
 			//Send message
 			try {
@@ -816,6 +833,13 @@ export default class ChatForm extends Vue {
 	min-height: @height;
 	margin: auto;
 	position: relative;
+	opacity: 1;
+	transition: opacity .25s;
+
+	&.loading {
+		opacity: .5;
+		pointer-events: none;
+	}
 
 	&.cypherMode {
 		.holder {
@@ -861,6 +885,11 @@ export default class ChatForm extends Vue {
 			justify-content: center;
 			flex-grow: 1;
 			flex-wrap: wrap;
+
+			.loader {
+				height: 1em;
+			}
+
 			input {
 				min-width: 50px;
 				//These 2 following lines seems stupide AF but they allow 
@@ -900,9 +929,6 @@ export default class ChatForm extends Vue {
 			.button:not(.emergency) {
 				.clearButton() !important;
 				border-radius: 50%;
-				&:hover {
-					background-color: fade(@mainColor_light, 20%) !important;
-				}
 			}
 			.button.emergency {
 				margin-left: .5em;

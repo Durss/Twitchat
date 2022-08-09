@@ -127,9 +127,13 @@
 		margin-right: 0;
 		min-width: auto;
 		object-fit: contain;
+		vertical-align: middle;
 	}
 	:deep(.label) {
-		font-size: 12px;
 		font-weight: normal;
+		margin-left: .5em;
+	}
+	&:hover {
+		background-color: fade(@mainColor_light, 20%) !important;
 	}
 }

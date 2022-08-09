@@ -254,12 +254,14 @@ const store = createStore({
 			{
 				id:"tts",
 				cmd:"/tts {user}",
-				details:"Add user to the list of tts users",
+				details:"Start reading the messages of a user",
+				needTTS:true,
 			},
 			{
-				id:"notts",
-				cmd:"/notts {user}",
-				details:"Remove user from the list of tts users",
+				id:"ttsoff",
+				cmd:"/ttsoff {user}",
+				details:"Stop reading the messages of a user",
+				needTTS:true,
 			},
 			{
 				id:"block",
@@ -997,6 +999,24 @@ const store = createStore({
 			TTSUtils.instance.read(payload);
 		},
 
+		ttsReadUser(state, payload:{username:string, read:boolean}) {
+			let list = state.ttsParams.ttsPerms.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+			payload.username = payload.username.toLowerCase().replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi, "").trim();
+			const index = list.indexOf(payload.username)
+			if(index > -1) {
+				if(!payload.read) list.splice(index, 1);
+			}else if(payload.read){
+				list.push(payload.username);
+			}
+			list = list.filter(v => v.trim().length > 2);
+			state.ttsParams.ttsPerms.users = list.join(",");
+			if(payload.read) {
+				IRCClient.instance.sendNotice("tts", "User <mark>"+payload.username+"</mark>'s messages will be read out loud.");
+			}else{
+				IRCClient.instance.sendNotice("tts", "User <mark>"+payload.username+"</mark>'s messages will not be read out loud anymore.");
+			}
+		},
+		
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
 
 		startRaffle(state, payload:RaffleData) {
@@ -2304,6 +2324,8 @@ const store = createStore({
 		untrackUser({commit}, payload:ChatUserstate) { commit("untrackUser", payload); },
 
 		ttsReadMessage({commit}, payload:IRCEventDataList.Message) { commit("ttsReadMessage", payload); },
+		
+		ttsReadUser({commit}, payload:{username:string, read:boolean}) { commit("ttsReadUser", payload); },
 		
 		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
 

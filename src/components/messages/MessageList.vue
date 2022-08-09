@@ -109,7 +109,7 @@
 		>
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
-				<h1 v-if="!conversationMode">History</h1>
+				<h1 v-if="!conversationMode">{{conversation[0].tags['display-name']}} history</h1>
 				<Button class="button" aria-label="close conversation" :icon="$image('icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
@@ -121,6 +121,13 @@
 					disableConversation
 					/>
 			</div>
+
+			<Button class="readBt" aria-label="read this user's messages"
+				:title="readLabel"
+				:icon="$image('icons/tts.svg')"
+				@click="toggleReadUser()"
+				v-if="!conversationMode"
+				small bounce />
 		</div>
 
 		<div v-if="localMessages.length == 0 && !lightMode" class="noMessage">
@@ -131,7 +138,7 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import type IRCEvent from '@/utils/IRCEvent';
+import type { PermissionsData } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
@@ -182,7 +189,7 @@ export default class MessageList extends Vue {
 	public lightMode!:boolean;
 	public localMessages:MessageTypes[] = [];
 	public pendingMessages:MessageTypes[] = [];
-	public conversation:MessageTypes[] = [];
+	public conversation:IRCEventDataList.Message[] = [];
 	public ariaMessage = "";
 	public ariaMessageTimeout = -1;
 	public lockScroll = false;
@@ -218,6 +225,19 @@ export default class MessageList extends Vue {
 
 	public get conversationStyles():StyleValue {
 		return { top: this.conversationPos+"px" }
+	}
+
+	public get readLabel():string {
+		if(!this.conversation[0].tags['display-name']) return "";
+		const username = this.conversation[0].tags['display-name']?.toLowerCase();
+		const permissions:PermissionsData = StoreProxy.store.state.ttsParams.ttsPerms;
+		let label = "";
+		if(permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
+			label = "Read future "+username+"'s messages";
+		}else{
+			label = "Stop reading "+username+"'s messages";
+		}
+		return label;
 	}
 
 	public async mounted():Promise<void> {
@@ -357,6 +377,18 @@ export default class MessageList extends Vue {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Toggles whether the TTS should read this user's messages
+	 */
+	public toggleReadUser():void {
+		if(!this.conversation[0].tags['display-name']) return;
+		const username = this.conversation[0].tags['display-name']?.toLowerCase();
+		const permissions:PermissionsData = StoreProxy.store.state.ttsParams.ttsPerms;
+		const read = permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1;
+		const payload = {username, read};
+		StoreProxy.store.dispatch("ttsReadUser", payload);
 	}
 
 	/**
@@ -938,16 +970,24 @@ type MessageTypes = IRCEventDataList.Highlight
 				color: @mainColor_light;
 			}
 			.button {
-				width: 20px;
-				height: 20px;
-				padding: 3px;
-				border-radius: 5px;
+				.clearButton();
+				width: 1.25em;
+				height: 1.25em;
+				padding: .5em;
 			}
 		}
 		.messages {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
+		}
+
+		.readBt {
+			font-size: .7em;
+			.clearButton();
+			display: block;
+			margin: auto;
+			padding: 0 .25em;
 		}
 	}
 }

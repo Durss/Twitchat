@@ -132,9 +132,6 @@ export default class PinedMessages extends Vue {
 					min-width: 1.25em;
 					height: 1.25em;
 					min-height: 1.25em;
-					&:hover {
-						background-color: fade(@mainColor_light, 50%);
-					}
 				}
 			}
 		}

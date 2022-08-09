@@ -43,7 +43,8 @@ export default class ChatNotice extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatnotice"];
-		if(this.messageData.msgid == "offline") res.push("alert");
+		if(this.messageData.msgid == "offline"
+		|| this.messageData.msgid == "error") res.push("alert");
 		if(this.messageData.msgid == "emergencyMode") res.push("emergency");
 		return res;
 	}
@@ -59,6 +60,9 @@ export default class ChatNotice extends Vue {
 			case "online": this.icon = "enter"; break;
 			case "offline": this.icon = "leave"; break;
 			case "emergencyMode": this.icon = "emergency"; break;
+		}
+		if(this.messageData.msgid == "error") {
+			this.icon = "infos_red"
 		}
 		this.$emit("ariaMessage", this.text);
 	}

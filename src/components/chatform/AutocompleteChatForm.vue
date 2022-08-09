@@ -167,6 +167,7 @@ export default class AutocompleteChatForm extends Vue {
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
+						if(e.needTTS === true && !StoreProxy.store.state.ttsParams.enabled) continue;
 						if(e.needChannelPoints === true && !StoreProxy.store.state.hasChannelPoints) continue;
 						res.push({
 							type:"cmd",
