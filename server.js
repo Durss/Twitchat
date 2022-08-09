@@ -940,6 +940,7 @@ const UserDataSchema = {
 				readSubgifts: {type:"boolean"},
 				readSubgiftsPattern:{type:"string", maxLength:300},
 				readBits: {type:"boolean"},
+				readBitsMinAmount: {type:"number", minimum:0, maximum:1000000},
 				readBitsPattern:{type:"string", maxLength:300},
 				readRaids: {type:"boolean"},
 				readRaidsPattern:{type:"string", maxLength:300},

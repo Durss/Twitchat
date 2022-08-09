@@ -85,7 +85,7 @@ export default class TTSUtils {
 	private _enabled:boolean = false;
 	private voices:SpeechSynthesisVoice[] = [];
 	private pendingMessages:SpokenMessage[] = [];
-	private lastMessageTime:number = performance.now();
+	private lastMessageTime:number = 0;
 	private stopTimeout:number = -1;
 	private idsParsed:{[key:string]:boolean} = {};
 
@@ -184,7 +184,7 @@ export default class TTSUtils {
 	 * @param text 
 	 */
 	public readNow(text: string):void {
-		const m:SpokenMessage = {text, id:"xxx", date: performance.now()};
+		const m:SpokenMessage = {text, id:"xxx", date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
 		if(StoreProxy.store.state.ttsSpeaking) {
 			this.stop();
@@ -204,13 +204,14 @@ export default class TTSUtils {
 		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
 		const type = getTwitchatMessageType(message);
 
-		// console.log("Read message type", type);
-		// console.log(message);
+		console.log("Read message type", type);
+		console.log(message);
 
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
 		if (paramsTTS.inactivityPeriod > 0
-		&& (performance.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
+		&& (Date.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
+			console.log("BLOCK");
 			return;
 		}
 
@@ -354,10 +355,16 @@ export default class TTSUtils {
 			}
 
 			case TwitchatMessageType.BITS: {
+				console.log('READ IT?',paramsTTS.readBits);
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readBits) return;
 
 				const m = message as IRCEventDataList.Highlight;
+				const bits = parseInt(m.tags.bits as string);
+				console.log(bits, paramsTTS.readBitsMinAmount);
+				
+				//Has enough bits been sent ?
+				if(bits < paramsTTS.readBitsMinAmount) return;
 				
 				let mess: string = m.message as string;
 				if(paramsTTS.removeEmotes===true) {
@@ -367,7 +374,7 @@ export default class TTSUtils {
 					mess = await TwitchUtils.parseCheermotes(mess, m.tags["room-id"] as string, true);
 				}
 				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
-				txt = txt.replace(/\{BITS\}/gi, (m.tags.bits as number).toString());
+				txt = txt.replace(/\{BITS\}/gi, bits.toString());
 				txt = txt.replace(/\{MESSAGE\}/gi, mess);
 				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
@@ -483,7 +490,7 @@ export default class TTSUtils {
 	private async addMessageToQueue(text: string, id:string):Promise<void> {
 		if (!this._enabled || text.length == 0) return;
 
-		const m:SpokenMessage = {text, id, date: performance.now()};
+		const m:SpokenMessage = {text, id, date: Date.now()};
 
 		if (this.pendingMessages.length == 0) {
 			this.pendingMessages.push(m)
@@ -503,7 +510,7 @@ export default class TTSUtils {
 		const message = this.pendingMessages[0];
 		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
 		
-		if (paramsTTS.timeout > 0 && performance.now() - message.date > paramsTTS.timeout * 1000 * 60) {
+		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
 			//Timeout reached for this message, ignore it and
 			//process the next one
 			this.pendingMessages.shift();
@@ -536,7 +543,7 @@ export default class TTSUtils {
 				window.speechSynthesis.cancel();
 			}, paramsTTS.maxDuration * 1000);
 		}
-		this.lastMessageTime = performance.now();
+		this.lastMessageTime = Date.now();
 	}
 
 }

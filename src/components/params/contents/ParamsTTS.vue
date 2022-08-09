@@ -118,6 +118,7 @@ export default class ParamsTTS extends Vue {
 	public param_readSubgifts:ParameterData = {type:"toggle", value:false, label:"Subgift alerts", icon:"gift_purple.svg" };
 	public param_readSubgiftsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderSubgifts};
 	public param_readBits:ParameterData = {type:"toggle", value:false, label:"Bits alerts", icon:"bits_purple.svg" };
+	public param_readBitsMinAmount:ParameterData = {type:"number", value:0, label:"Minimum bits amount", min:0, max:1000000 };
 	public param_readBitsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderBits};
 	public param_readRaids:ParameterData = {type:"toggle", value:false, label:"Raid alerts", icon:"raid_purple.svg" };
 	public param_readRaidsPattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderRaids};
@@ -158,7 +159,7 @@ export default class ParamsTTS extends Vue {
 			maxLength:this.param_maxLengthToggle.value === true? this.param_maxLength.value as number : 0,
 			maxDuration:this.param_maxDurationToggle.value === true? this.param_maxDuration.value as number : 0,
 			timeout:this.param_timeoutToggle.value === true? this.param_timeout.value as number : 0,
-			inactivityPeriod:this.param_inactivityPeriodToggle? this.param_inactivityPeriod.value as number : 0,
+			inactivityPeriod:this.param_inactivityPeriodToggle.value === true? this.param_inactivityPeriod.value as number : 0,
 			removeURL:this.param_removeURL.value as boolean,
 			replaceURL:this.param_replaceURL.value as string,
 			readMessages:this.param_readMessages.value as boolean,
@@ -174,6 +175,7 @@ export default class ParamsTTS extends Vue {
 			readSubgifts:this.param_readSubgifts.value as boolean,
 			readSubgiftsPattern:this.param_readSubgiftsPattern.value as string,
 			readBits:this.param_readBits.value as boolean,
+			readBitsMinAmount:this.param_readBitsMinAmount.value as number,
 			readBitsPattern:this.param_readBitsPattern.value as string,
 			readRaids:this.param_readRaids.value as boolean,
 			readRaidsPattern:this.param_readRaidsPattern.value as string,
@@ -225,6 +227,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readSubgifts.value = params.readSubgifts === true;
 		this.param_readSubgiftsPattern.value = params.readSubgiftsPattern;
 		this.param_readBits.value = params.readBits === true;
+		this.param_readBitsMinAmount.value = params.readBitsMinAmount;
 		this.param_readBitsPattern.value = params.readBitsPattern;
 		this.param_readRaids.value = params.readRaids === true;
 		this.param_readRaidsPattern.value = params.readRaidsPattern;
@@ -247,7 +250,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readRewards.children = [this.param_readRewardsPattern];
 		this.param_readSubs.children = [this.param_readSubsPattern];
 		this.param_readSubgifts.children = [this.param_readSubgiftsPattern];
-		this.param_readBits.children = [this.param_readBitsPattern];
+		this.param_readBits.children = [this.param_readBitsMinAmount, this.param_readBitsPattern];
 		this.param_readRaids.children = [this.param_readRaidsPattern];
 		this.param_readFollow.children = [this.param_readFollowPattern];
 		this.param_readPolls.children = [this.param_readPollsPattern];

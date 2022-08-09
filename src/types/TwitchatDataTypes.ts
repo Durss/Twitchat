@@ -297,6 +297,7 @@ export interface TTSParamsData {
 	readSubgifts:boolean,
 	readSubgiftsPattern:string,
 	readBits: boolean;
+	readBitsMinAmount: number;
 	readBitsPattern:string;
 	readRaids: boolean;
 	readRaidsPattern:string;
