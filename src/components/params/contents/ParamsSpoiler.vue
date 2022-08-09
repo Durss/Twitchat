@@ -2,16 +2,18 @@
 	<div class="paramsspoiler">
 		<img src="@/assets/icons/show_purple.svg" alt="emergency icon" class="icon">
 		
-		<p class="header">Messages starting by <mark>||</mark> will be masked by default and revealed on hover</p>
+		<p class="header">Messages starting with <mark>||</mark> will be masked by default and revealed on hover</p>
 
+		<Splitter class="splitter">Spoil somone else's message</Splitter>
 		<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <mark>!spoiler</mark> command</div>
-		<PermissionsForm class="item" v-model="chatCommandPerms" />
+		<div class="item">Users allowed to use <mark>!spoiler</mark> command:</div>
+		<PermissionsForm class="item perms" v-model="chatCommandPerms" />
 		
-		<div class="item">How to spoil someone else's message:</div>
+		<Splitter class="splitter">How to spoil another message</Splitter>
 		<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
 
 		<div class="item disclaimer">
-			<div><strong>WARNING:</strong> Twitch's answer system being terrible, if you try to use <mark>!spoiler</mark> on an answer, it will actually make the original message <i>(the one the user answered to)</i> as a spoiler instead of its anwser.</div>
+			<div><strong>WARNING:</strong> Twitch's answer system being terribly bad, if you try to use <mark>!spoiler</mark> on an answer, it will actually make the original message <i>(the one the user answered to)</i> as a spoiler instead of its answer.</div>
 			<div>For example, bellow, if you try to spoil the <mark>Answer 1</mark> by answering to it, it will actually spoil the <mark>Original message</mark> instead:</div>
 		</div>
 		<ul>
@@ -33,10 +35,12 @@ import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import PermissionsForm from './obs/PermissionsForm.vue';
+import Splitter from '../../Splitter.vue';
 
 @Options({
 	props:{},
 	components:{
+		Splitter,
 		PermissionsForm,
 	}
 })
@@ -92,6 +96,11 @@ export default class ParamsSpoiler extends Vue {
 		background: fade(@mainColor_normal, 15%);
 	}
 
+	.splitter {
+		margin-top: 2em;
+		margin-bottom: .5em;
+	}
+
 	.item {
 		margin-top: .5em;
 		&.label {
@@ -111,8 +120,14 @@ export default class ParamsSpoiler extends Vue {
 			}
 		}
 
+		&.perms {
+			margin: 0 10%;
+			margin-top: 1em;
+		}
+
 		&.splitter {
 			margin-top: 1em;
+			margin-bottom: 2em;
 		}
 
 		&.disclaimer {

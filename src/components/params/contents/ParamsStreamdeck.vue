@@ -4,7 +4,7 @@
 
 		<p class="head">A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button</p>
 		
-		<Splitter title="Install steps" />
+		<Splitter>Install steps</Splitter>
 
 		<ol>
 			<li><span class="index">1.</span>This plugin needs <strong>OBS 28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket V5+</a> plugin to be installed</li>

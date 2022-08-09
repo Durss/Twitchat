@@ -1,7 +1,7 @@
 <template>
 	<div class="splitter">
 			<span class="line"></span>
-			<span>{{title}}</span>
+			<span><slot /></span>
 			<span class="line"></span>
 	</div>
 </template>
@@ -10,14 +10,10 @@
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
-	props:{
-		title:String
-	},
+	props:{},
 	components:{}
 })
 export default class Splitter extends Vue {
-
-	public title!:string;
 
 }
 </script>

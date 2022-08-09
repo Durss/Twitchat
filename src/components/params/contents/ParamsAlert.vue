@@ -4,7 +4,7 @@
 		
 		<p class="header">Let your mods alert you if something's urgent</p>
 
-		<Splitter class="item splitter" title="Chat command" />
+		<Splitter class="item splitter">Chat command</Splitter>
 		
 		<div>
 			<ParamItem class="item" :paramData="param_chatCommand" />
@@ -13,7 +13,7 @@
 			</ToggleBlock>
 		</div>
 
-		<Splitter class="item splitter" title="Actions" />
+		<Splitter class="item splitter">Actions</Splitter>
 
 		<ParamItem class="item" :paramData="param_message" />
 		<ParamItem class="item" :paramData="param_shake" />

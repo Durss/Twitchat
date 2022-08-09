@@ -12,7 +12,7 @@
 				@leave="onHideItem"
 			>
 				<section v-if="param_readMessages.value === true || param_readWhispers.value === true">
-					<Splitter class="item splitter" title="Read permissions" />
+					<Splitter class="item splitter">Read permissions</Splitter>
 					<p class="item">Choose who's messages you want to read.</p>
 					<p class="item small">It only filters out the chat messages and whispers. It won't affect sub alerts, cheers, raid, channel points, etc...</p>
 					<PermissionsForm class="item" v-model="param_ttsPerms" />
@@ -20,7 +20,7 @@
 			</transition>
 
 			<section>
-				<Splitter class="item splitter" title="Messages to read" />
+				<Splitter class="item splitter">Messages to read</Splitter>
 				<ParamItem class="item" :paramData="param_readMessages" />
 				<ParamItem class="item" :paramData="param_readWhispers" />
 				<ParamItem class="item" :paramData="param_readFollow" />
@@ -37,7 +37,7 @@
 			</section>
 			
 			<section>
-				<Splitter class="item splitter" title="Voice parameters" />
+				<Splitter class="item splitter">Voice parameters</Splitter>
 				<ParamItem class="item" :paramData="param_voice" />
 				<ParamItem class="item" :paramData="param_volume" />
 				<ParamItem class="item" :paramData="param_rate" />
@@ -47,7 +47,7 @@
 			</section>
 
 			<section>
-				<Splitter class="item splitter" title="Filters" />
+				<Splitter class="item splitter">Filters</Splitter>
 				<ParamItem class="item" :paramData="param_removeEmotes" />
 				<ParamItem class="item shrinkInput" :paramData="param_removeURL" />
 				<ParamItem class="item" :paramData="param_maxDurationToggle" />

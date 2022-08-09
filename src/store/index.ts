@@ -278,7 +278,7 @@ const store = createStore({
 		params: {
 			features: {
 				spoilersEnabled: 			{save:true, type:"toggle", value:true, label:"Enable spoiler tag", id:216, icon:"show_purple.svg"},
-				alertMode: 					{save:true, type:"toggle", value:true, label:"Enable alert mode", id:217, icon:"alert_purple.svg"},
+				alertMode: 					{save:true, type:"toggle", value:true, label:"Enable chat alert", id:217, icon:"alert_purple.svg"},
 				receiveWhispers: 			{save:true, type:"toggle", value:true, label:"Receive whispers", id:200, icon:"whispers_purple.svg"},
 				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
 				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},

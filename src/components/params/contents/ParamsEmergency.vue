@@ -8,7 +8,7 @@
 
 		<div class="fadeHolder" :style="holderStyles">
 			<section>
-				<Splitter class="item splitter" title="Chat command" />
+				<Splitter class="item splitter">Chat command</Splitter>
 				<div class="item label">Allow your mods to trigger the emergency mode from a chat command</div>
 				<div>
 					<ParamItem class="item" :paramData="param_chatCommand" />
@@ -19,12 +19,12 @@
 			</section>
 
 			<section>
-				<Splitter class="item splitter" title="Chat params" />
+				<Splitter class="item splitter">Chat params</Splitter>
 				<ParamItem v-for="(p,key) in channelParams" :key="key" class="item" :paramData="p" />
 			</section>
 
 			<section>
-				<Splitter class="item splitter" title="Followbot raid" />
+				<Splitter class="item splitter">Followbot raid</Splitter>
 				<div class="item label">If you enable this, any new follower occuring during an emergency will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i></div>
 				<ParamItem class="item" :paramData="param_autoBlockFollowing" />
 				<div class="item infos">
@@ -40,7 +40,7 @@
 			</section>
 
 			<section>
-				<Splitter class="item splitter" title="OBS params" />
+				<Splitter class="item splitter">OBS params</Splitter>
 				<div class="item" v-if="!obsConnected">
 					<div class="warn">
 						<img src="@/assets/icons/infos.svg" alt="info">
