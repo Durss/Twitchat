@@ -998,7 +998,7 @@ const store = createStore({
 		},
 
 		ttsReadMessage(state, payload:IRCEventDataList.Message) {
-			TTSUtils.instance.read(payload);
+			TTSUtils.instance.readNow(payload.message);
 		},
 
 		ttsReadUser(state, payload:{username:string, read:boolean}) {
