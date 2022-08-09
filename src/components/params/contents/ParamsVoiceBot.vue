@@ -2,12 +2,12 @@
 	<div class="paramsvoicebot">
 		<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
 		<div class="title">Control <strong>Twitchat</strong> with your voice</div>
-		<!-- <p>If you use Twitchat from an OBS dock, you'll want to open twitchat on one of the above browsers.</p> -->
 		
 		<div v-if="!voiceApiAvailable" class="noApi">
 			<p>This browser does not support voice recognition</p>
 			<p class="infos">Please use Google Chrome, Microsoft Edge or Safari.</p>
 		</div>
+		<div v-else class="infos">Only works with Google Chrome, Microsoft Edge or Safari</div>
 
 		<div v-if="!voiceApiAvailable" class="fallback">
 			<p>If you still want to use Twitchat on the current browser, you can open the following page on one of the compatible browsers:</p>
