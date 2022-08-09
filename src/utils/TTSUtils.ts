@@ -11,10 +11,10 @@ import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
 
 
-export interface SpokenMessage {
-	wroteTime: number,
-	voiceMessage: SpeechSynthesisUtterance,
-	messageID: string|undefined
+interface SpokenMessage {
+	text: string,
+	date: number,
+	id: string,
 }
 
 export default class TTSUtils {
@@ -113,7 +113,7 @@ export default class TTSUtils {
 					const m = StoreProxy.store.state.chatMessages[i] as IRCEventDataList.Message;
 					if(this.idsParsed[m.tags.id as string] !== true) {
 						this.idsParsed[m.tags.id as string] = true;
-						this.onAddMessage(m);
+						this.parseMessage(m);
 					}
 				}
 				return;
@@ -142,6 +142,8 @@ export default class TTSUtils {
 		if (value && !this._enabled) {
 			PubSub.instance.addEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		} else if (!value && this._enabled) {
+			this.stop();
+			this.pendingMessages = [];
 			PubSub.instance.removeEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		}
 		this._enabled = value;
@@ -172,79 +174,45 @@ export default class TTSUtils {
 	 * Reads a twitchat message
 	 * @param message 
 	 */
-	public read(message: IRCEventDataList.Message) {
-		this.processMessage(message);
+	public read(message: IRCEventDataList.Message):void {
+		this.parseMessage(message);
 	}
 
 	/**
-	 * Reads a raw string message
+	 * Reads a string message now.
+	 * Stops any currently playing message and add it next on the queue
+	 * @param text 
+	 */
+	public readNow(text: string):void {
+		const m:SpokenMessage = {text, id:"xxx", date: performance.now()};
+		this.pendingMessages.splice(1, 0, m);
+		if(StoreProxy.store.state.ttsSpeaking) {
+			this.stop();
+		}else
+		if(this.pendingMessages.length == 1) {
+			this.readNextMessage();
+		}
+	}
+
+	/**
+	 * Parse a message and add it to the queue
 	 * 
-	 * @param messageStr 
-	 * @param messageID 
+	 * @param message 
 	 * @returns 
 	 */
-	public async readText(messageStr: string, messageID?:string):Promise<void> {
-		if (!this._enabled || messageStr.length == 0) return;
-		
-		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
-
-		clearTimeout(this.stopTimeout)
-		
-		const mess = new SpeechSynthesisUtterance(messageStr);
-		mess.rate = paramsTTS.rate;
-		mess.pitch = paramsTTS.pitch;
-		mess.volume = paramsTTS.volume;
-		mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
-		mess.lang = mess.voice.lang;
-		mess.onstart = (ev: SpeechSynthesisEvent) => {
-			StoreProxy.store.state.ttsSpeaking = true;
-		}
-		mess.onend = (ev: SpeechSynthesisEvent) => {
-			clearTimeout(this.stopTimeout);
-			StoreProxy.store.state.ttsSpeaking = false;
-			let nextMessage = this.pendingMessages.shift();
-			if (nextMessage) {
-				// check timeout
-				if (paramsTTS.timeout === 0 || performance.now() - nextMessage.wroteTime <= paramsTTS.timeout * 1000) {
-					window.speechSynthesis.speak(nextMessage.voiceMessage);
-				}
-			}
-		}
-
-		if(paramsTTS.maxDuration > 0) {
-			this.stopTimeout = setTimeout(()=> {
-				window.speechSynthesis.cancel();
-			}, paramsTTS.maxDuration * 1000);
-		}
-
-		if (!window.speechSynthesis.speaking) {
-			window.speechSynthesis.speak(mess);
-		} else {
-			this.pendingMessages.push({wroteTime: performance.now(), voiceMessage: mess, messageID: messageID});
-		}
-		this.lastMessageTime = performance.now();
-	}
-
-	private onAddMessage(message:IRCEventData):void {
-		this.processMessage(message);
-	}
-
-	private async processMessage(message:IRCEventData):Promise<void> {
+	private async parseMessage(message:IRCEventData):Promise<void> {
 		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
 		const type = getTwitchatMessageType(message);
 
-		// const uid:string|undefined = message?.tags['user-id'];
-		const lastMessageTime = this.lastMessageTime;
+		// console.log("Read message type", type);
+		// console.log(message);
 
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
 		if (paramsTTS.inactivityPeriod > 0
-		&& (performance.now() - lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
+		&& (performance.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
 			return;
 		}
-
-		// console.log("Read message type", type);
-		// console.log(message);
 
 		switch(type) {
 			case TwitchatMessageType.MESSAGE:{
@@ -275,7 +243,7 @@ export default class TTSUtils {
 				}
 				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, m.tags["display-name"] as string)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -302,7 +270,7 @@ export default class TTSUtils {
 				}
 				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -321,7 +289,7 @@ export default class TTSUtils {
 
 				let mess: string = m.message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
 				let txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -332,7 +300,7 @@ export default class TTSUtils {
 				const m = message as IRCEventDataList.Highlight;
 				
 				let txt = paramsTTS.readFollowPattern.replace(/\{USER\}/gi, m.username as string);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -348,7 +316,7 @@ export default class TTSUtils {
 				let txt = paramsTTS.readSubsPattern.replace(/\{USER\}/gi, m.username as string);
 				txt = txt.replace(/\{MESSAGE\}/gi, m.message ?? "");
 				txt = txt.replace(/\{TIER\}/gi, tier);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -360,6 +328,7 @@ export default class TTSUtils {
 				const tier = (parseInt(m.methods?.plan as string)/1000).toString();
 				let prevCount = (m.subgiftAdditionalRecipents?.length ?? 0) + 1;
 
+				//Wait a little for potential subgift streak to complete
 				const checkComplete = () => {
 					let recipients = [m.recipient];
 					if(m.subgiftAdditionalRecipents && m.subgiftAdditionalRecipents.length > 0) {
@@ -376,7 +345,7 @@ export default class TTSUtils {
 					txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.join(', ').replace(/,\s([^,]*)$/, " and$1"));
 					txt = txt.replace(/\{TIER\}/gi, tier);
 					txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
-					this.readText(txt, m.tags.id);
+					this.addMessageToQueue(txt, m.tags.id as string);
 					clearInterval(checkCompleteInterval);
 				}
 
@@ -400,7 +369,7 @@ export default class TTSUtils {
 				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
 				txt = txt.replace(/\{BITS\}/gi, (m.tags.bits as number).toString());
 				txt = txt.replace(/\{MESSAGE\}/gi, mess);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -412,7 +381,7 @@ export default class TTSUtils {
 				
 				let txt = paramsTTS.readRaidsPattern.replace(/\{USER\}/gi, m.username as string);
 				txt = txt.replace(/\{VIEWERS\}/gi, (m.viewers as number).toString());
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -426,7 +395,7 @@ export default class TTSUtils {
 				let txt = paramsTTS.readRewardsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
 				txt = txt.replace(/\{REWARD_NAME\}/gi, reward.title);
 				txt = txt.replace(/\{REWARD_DESC\}/gi, reward.prompt);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -445,7 +414,7 @@ export default class TTSUtils {
 				})
 				let txt = paramsTTS.readPollsPattern.replace(/\{TITLE\}/gi, m.data.title);
 				txt = txt.replace(/\{WINNER\}/gi, winner);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id);
 				break;
 			}
 
@@ -463,7 +432,7 @@ export default class TTSUtils {
 				
 				let txt = paramsTTS.readPredictionsPattern.replace(/\{TITLE\}/gi, m.data.title);
 				txt = txt.replace(/\{WINNER\}/gi, winner);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id);
 				break;
 			}
 
@@ -474,7 +443,7 @@ export default class TTSUtils {
 				const m = message as IRCEventDataList.BingoResult;
 				
 				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, m.winner?.["display-name"] as string);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id);
 				break;
 			}
 
@@ -485,19 +454,89 @@ export default class TTSUtils {
 				const m = message as IRCEventDataList.RaffleResult;
 				
 				let txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, m.winner?.["display-name"] as string);
-				this.readText(txt, m.tags.id);
+				this.addMessageToQueue(txt, m.tags.id);
 				break;
 			}
 		}
 	}
 
+	/**
+	 * Called if a message is deleted
+	 * Remove it from the queue
+	 */
 	private onDeleteMessage(e:PubSubEvent):void {
 		let messageID = e.data as string;
 
-		let index = this.pendingMessages.findIndex(v => v.messageID === messageID);
+		let index = this.pendingMessages.findIndex(v => v.id === messageID);
 		if(index > -1) {
 			this.pendingMessages.splice(index, 1);
 		}
+	}
+
+	/**
+	 * Reads a raw string message
+	 * 
+	 * @param text 
+	 * @param id 
+	 * @returns 
+	 */
+	private async addMessageToQueue(text: string, id:string):Promise<void> {
+		if (!this._enabled || text.length == 0) return;
+
+		const m:SpokenMessage = {text, id, date: performance.now()};
+
+		if (this.pendingMessages.length == 0) {
+			this.pendingMessages.push(m)
+			this.readNextMessage();
+		} else {
+			this.pendingMessages.push(m);
+		}
+	}
+
+	/**
+	 * Read the next pending message
+	 * @param str 
+	 */
+	private readNextMessage():void {
+		if(this.pendingMessages.length === 0 || !this._enabled) return;
+
+		const message = this.pendingMessages[0];
+		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
+		
+		if (paramsTTS.timeout > 0 && performance.now() - message.date > paramsTTS.timeout * 1000 * 60) {
+			//Timeout reached for this message, ignore it and
+			//process the next one
+			this.pendingMessages.shift();
+			//Settimout is here to avoid potential recursion overflow
+			//if there are too many expired pending messages
+			setTimeout(() => { this.readNextMessage(); }, 10);
+			return;
+		}
+		
+		const mess = new SpeechSynthesisUtterance(message.text);
+		mess.rate = paramsTTS.rate;
+		mess.pitch = paramsTTS.pitch;
+		mess.volume = paramsTTS.volume;
+		mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
+		mess.lang = mess.voice.lang;
+		mess.onstart = (ev: SpeechSynthesisEvent) => {
+			StoreProxy.store.state.ttsSpeaking = true;
+		}
+		mess.onend = (ev: SpeechSynthesisEvent) => {
+			this.pendingMessages.shift();
+			clearTimeout(this.stopTimeout);
+			StoreProxy.store.state.ttsSpeaking = false;
+			this.readNextMessage();
+		}
+
+		window.speechSynthesis.speak(mess);
+
+		if(paramsTTS.maxDuration > 0) {
+			this.stopTimeout = setTimeout(()=> {
+				window.speechSynthesis.cancel();
+			}, paramsTTS.maxDuration * 1000);
+		}
+		this.lastMessageTime = performance.now();
 	}
 
 }
