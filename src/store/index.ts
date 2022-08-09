@@ -382,7 +382,7 @@ const store = createStore({
 			readSubs:false,
 			readSubsPattern:"{USER} subscribed at tier {TIER}",
 			readSubgifts:false,
-			readSubgiftsPattern:"{USER} gifted a sub tier {TIER} to {RECIPIENT}",
+			readSubgiftsPattern:"{USER} gifted {COUNT} sub tier {TIER} to {RECIPIENTS}",
 			readBits:false,
 			readBitsPattern:"{USER} sent {BITS} bits",
 			readRaids:false,

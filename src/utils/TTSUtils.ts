@@ -41,7 +41,8 @@ export default class TTSUtils {
 	public static placeholderSubgifts:PlaceholderEntry[] = [
 			{ tag:"USER", desc:"Subgifter's name" },
 			{ tag:"TIER", desc:"Sub tier" },
-			{ tag:"RECIPIENT", desc:"Sub gift recipient" },
+			{ tag:"COUNT", desc:"Sub gift count" },
+			{ tag:"RECIPIENTS", desc:"Sub gift recipients" },
 		];
 
 	public static placeholderRaids:PlaceholderEntry[] = [
@@ -357,16 +358,29 @@ export default class TTSUtils {
 
 				const m = message as IRCEventDataList.Highlight;
 				const tier = (parseInt(m.methods?.plan as string)/1000).toString();
-				
-				let recipients = [m.recipient];
-				if(m.subgiftAdditionalRecipents && m.subgiftAdditionalRecipents.length > 0) {
-					recipients = recipients.concat(m.subgiftAdditionalRecipents);
+				let prevCount = (m.subgiftAdditionalRecipents?.length ?? 0) + 1;
+
+				const checkComplete = () => {
+					let recipients = [m.recipient];
+					if(m.subgiftAdditionalRecipents && m.subgiftAdditionalRecipents.length > 0) {
+						recipients = recipients.concat(m.subgiftAdditionalRecipents);
+					}
+					
+					//If count has changed, wait a little there might be more subgifts coming
+					if(prevCount != recipients.length) {
+						prevCount = recipients.length;
+						return;
+					}
+	
+					let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
+					txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.join(', ').replace(/,\s([^,]*)$/, " and$1"));
+					txt = txt.replace(/\{TIER\}/gi, tier);
+					txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
+					this.readText(txt, m.tags.id);
+					clearInterval(checkCompleteInterval);
 				}
 
-				let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
-				txt = txt.replace(/\{RECIPIENT\}/gi, recipients.join(', ').replace(/,([^,]*)$/, " and$1"));
-				txt = txt.replace(/\{TIER\}/gi, tier);
-				this.readText(txt, m.tags.id);
+				const checkCompleteInterval = setInterval(()=>checkComplete(), 500);
 				break;
 			}
 

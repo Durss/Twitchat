@@ -222,7 +222,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readRewardsPattern.value = params.readRewardsPattern;
 		this.param_readSubs.value = params.readSubs === true;
 		this.param_readSubsPattern.value = params.readSubsPattern;
-		this.param_readSubgifts.value = params.readSubs === true;
+		this.param_readSubgifts.value = params.readSubgifts === true;
 		this.param_readSubgiftsPattern.value = params.readSubgiftsPattern;
 		this.param_readBits.value = params.readBits === true;
 		this.param_readBitsPattern.value = params.readBitsPattern;
