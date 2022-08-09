@@ -16,7 +16,8 @@
 		},
 		{
 			"Icon": "icons/GREET_FEED_READ_default",
-			"Name": "Clear X messages from 'Greet them' section",
+			"Name": "Clear 'Greet them' messages",
+			"Tooltip": "Clear some messages from 'Greet them' section", 
 			"States": [
 				{
 					"Image": "icons/GREET_FEED_READ",
@@ -114,7 +115,7 @@
 		},
 		{
 			"Icon": "icons/POLL_TOGGLE_default",
-			"Name": "Toggles the current poll state",
+			"Name": "Toggle current poll state",
 			"States": [
 				{
 					"Image": "icons/POLL_TOGGLE",
@@ -128,7 +129,7 @@
 		},
 		{
 			"Icon": "icons/PREDICTION_TOGGLE_default",
-			"Name": "Toggles the current prediction state",
+			"Name": "Toggle current prediction state",
 			"States": [
 				{
 					"Image": "icons/PREDICTION_TOGGLE",
@@ -142,7 +143,7 @@
 		},
 		{
 			"Icon": "icons/BINGO_TOGGLE_default",
-			"Name": "Toggles the current bingo state",
+			"Name": "Toggle current bingo state",
 			"States": [
 				{
 					"Image": "icons/BINGO_TOGGLE",
@@ -156,7 +157,7 @@
 		},
 		{
 			"Icon": "icons/RAFFLE_TOGGLE_default",
-			"Name": "Toggles the current raffle state",
+			"Name": "Toggle current raffle state",
 			"States": [
 				{
 					"Image": "icons/RAFFLE_TOGGLE",
@@ -170,7 +171,7 @@
 		},
 		{
 			"Icon": "icons/ACTIVITY_FEED_TOGGLE_default",
-			"Name": "Toggles the activity feed display",
+			"Name": "Toggle activity feed display",
 			"States": [
 				{
 					"Image": "icons/ACTIVITY_FEED_TOGGLE",
@@ -184,7 +185,7 @@
 		},
 		{
 			"Icon": "icons/VIEWERS_COUNT_TOGGLE_default",
-			"Name": "Toggles the viewers count display",
+			"Name": "Toggle viewers count display",
 			"States": [
 				{
 					"Image": "icons/VIEWERS_COUNT_TOGGLE",
@@ -198,7 +199,7 @@
 		},
 		{
 			"Icon": "icons/MOD_TOOLS_TOGGLE_default",
-			"Name": "Toggles the moderation tools display",
+			"Name": "Toggle moderation tools display",
 			"States": [
 				{
 					"Image": "icons/MOD_TOOLS_TOGGLE",
@@ -212,7 +213,8 @@
 		},
 		{
 			"Icon": "icons/CENSOR_DELETED_MESSAGES_TOGGLE_default",
-			"Name": "Toggles the censorship of deleted messages",
+			"Name": "Toggle censorship",
+			"Tooltip": "Toggle the censorship of deleted messages",
 			"States": [
 				{
 					"Image": "icons/CENSOR_DELETED_MESSAGES_TOGGLE",
@@ -226,7 +228,8 @@
 		},
 		{
 			"Icon": "icons/SHOUTOUT_default",
-			"Name": "Sends a shoutout to the latest raider",
+			"Name": "Send a shoutout",
+			"Tooltip": "Send a shoutout to the latest raider",
 			"States": [
 				{
 					"Image": "icons/SHOUTOUT",
@@ -240,7 +243,7 @@
 		},
 		{
 			"Icon": "icons/EMERGENCY_default",
-			"Name": "Starts/stops the emergency mode",
+			"Name": "Starts/stops emergency mode",
 			"States": [
 				{
 					"Image": "icons/EMERGENCY",
@@ -254,7 +257,8 @@
 		},
 		{
 			"Icon": "icons/STOP_TTS_default",
-			"Name": "Stops any text to speech currently playing",
+			"Name": "Stop message read",
+			"Tooltip": "Stops any text to speech currently playing",
 			"States": [
 				{
 					"Image": "icons/STOP_TTS",
@@ -268,7 +272,8 @@
 		},
 		{
 			"Icon": "icons/ENABLE_STT_default",
-			"Name": "Enable the speech recognition to control twitchat with your voice",
+			"Name": "Enable speech recognition",
+			"Tooltip": "Enable the speech recognition to control twitchat with your voice",
 			"States": [
 				{
 					"Image": "icons/ENABLE_STT",
@@ -282,7 +287,7 @@
 		},
 		{
 			"Icon": "icons/DISABLE_STT_default",
-			"Name": "Disable the speech recognition",
+			"Name": "Disable speech recognition",
 			"States": [
 				{
 					"Image": "icons/DISABLE_STT",
