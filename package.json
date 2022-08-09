@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "4.4.4",
+	"version": "5.0.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite --host",
