@@ -27,9 +27,22 @@
 			<div v-if="action.type===''" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
-				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"/>
-				<Button class="button" white @click="selectActionType('tts')" title="Text to speech" :icon="$image('icons/tts_purple.svg')" v-if="$store.state.ttsParams.enabled"/>
-				<Button class="button" white @click="selectActionType('music')" title="Control music" :icon="$image('icons/music_purple.svg')" v-if="musicServiceConfigured"/>
+				
+				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
+					:disabled="!obsConnected"
+					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
+				
+				<Button class="button" white @click="selectActionType('tts')"
+					title="Text to speech"
+					:icon="$image('icons/tts_purple.svg')"
+					:disabled="!$store.state.ttsParams.enabled"
+					:data-tooltip="$store.state.ttsParams.enabled? '' : 'This needs the <strong>text to speech</strong><br>feature to be enabled'"/>
+				
+				<Button class="button" white @click="selectActionType('music')"
+					title="Control music"
+					:icon="$image('icons/music_purple.svg')"
+					:disabled="!musicServiceConfigured"
+					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the Overlays section'"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
@@ -55,6 +68,7 @@ import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import Config from '@/utils/Config';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 @Options({
 	props:{
@@ -87,6 +101,7 @@ export default class TriggerActionEntry extends Vue {
 	public isError = false;
 	public delay_conf:ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
 	public get errorTitle():string {
@@ -218,8 +233,13 @@ export default class TriggerActionEntry extends Vue {
 			font-weight: bold;
 			margin-bottom: .5em;
 		}
-		.button:not(:last-child) {
-			margin-bottom: .25em;
+		.button {
+			&:not(:last-child) {
+				margin-bottom: .25em;
+			}
+			&.disabled {
+				color: fade(@mainColor_light, 50%);
+			}
 		}
 	}
 
