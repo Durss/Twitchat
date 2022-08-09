@@ -204,14 +204,13 @@ export default class TTSUtils {
 		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
 		const type = getTwitchatMessageType(message);
 
-		console.log("Read message type", type);
-		console.log(message);
+		// console.log("Read message type", type);
+		// console.log(message);
 
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
 		if (paramsTTS.inactivityPeriod > 0
 		&& (Date.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
-			console.log("BLOCK");
 			return;
 		}
 
@@ -355,13 +354,11 @@ export default class TTSUtils {
 			}
 
 			case TwitchatMessageType.BITS: {
-				console.log('READ IT?',paramsTTS.readBits);
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readBits) return;
 
 				const m = message as IRCEventDataList.Highlight;
 				const bits = parseInt(m.tags.bits as string);
-				console.log(bits, paramsTTS.readBitsMinAmount);
 				
 				//Has enough bits been sent ?
 				if(bits < paramsTTS.readBitsMinAmount) return;
