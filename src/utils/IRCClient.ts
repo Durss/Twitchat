@@ -84,16 +84,6 @@ export default class IRCClient extends EventDispatcher {
 				//Get user IDs from logins to then load their badges
 				const users = await TwitchUtils.loadUserInfo(undefined, channels);
 				const uids = users.map(user => user.id);
-				
-				//Get list of all blocked users and build a hashmap out of it
-				try {
-					const blockedUsers = await TwitchUtils.getBlockedUsers();
-					this.blockedUsers = {};
-					for (let i = 0; i < blockedUsers.length; i++) {
-						const u = blockedUsers[i];
-						this.blockedUsers[u.user_id] = true;
-					}
-				}catch(error) {/*ignore*/}
 
 				//Load global badges infos
 				await TwitchUtils.loadGlobalBadges();
@@ -122,6 +112,16 @@ export default class IRCClient extends EventDispatcher {
 				if(this.fakeEvents) {
 					this.sendFakeEvent();
 				}
+				
+				//Get list of all blocked users and build a hashmap out of it
+				try {
+					const blockedUsers = await TwitchUtils.getBlockedUsers();
+					this.blockedUsers = {};
+					for (let i = 0; i < blockedUsers.length; i++) {
+						const u = blockedUsers[i];
+						this.blockedUsers[u.user_id] = true;
+					}
+				}catch(error) {/*ignore*/}
 			})();
 			
 			if(token) {

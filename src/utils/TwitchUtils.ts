@@ -1227,7 +1227,7 @@ export default class TwitchUtils {
 	/**
 	 * Get list of blocked users
 	 */
-	public static async getBlockedUsers():Promise<TwitchDataTypes.BlockedUser[]> {
+	public static async getBlockedUsers(max:number = 10000):Promise<TwitchDataTypes.BlockedUser[]> {
 		const options = {
 			method:"GET",
 			headers: this.headers,
@@ -1247,6 +1247,7 @@ export default class TwitchUtils {
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
 			}
+			if(list.length >= max) break;
 		}while(cursor != null)
 		return list;
 	}

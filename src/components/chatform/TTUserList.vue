@@ -2,7 +2,7 @@
 	<div class="ttuserlist">
 		<div class="content" ref="list">
 			<div class="title">
-				<p><img src="@/assets/icons/user.svg" class="icon" />{{Math.max(users.length, usersSpool.length)}} users</p>
+				<p><img src="@/assets/icons/user.svg" class="icon" />{{userCount}} users</p>
 				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 			</div>
 			
@@ -68,7 +68,8 @@ export default class TTUserList extends Vue {
 	public usersSpool:UserData[] = [];
 	public loading:boolean = true;
 	public token:string = "";
-	public spoolChunkSize:number = 50;
+	public spoolChunkSize:number = 200;
+	public userCount:number = 0;
 	public activeLast24h:number = 0;
 	public activeLast7days:number = 0;
 	public activeLast30days:number = 0;
@@ -150,6 +151,7 @@ export default class TTUserList extends Vue {
 				this.activeLast7days = 0;
 				this.activeLast30days = 0;
 				this.users = users.sort((a, b) => b.date - a.date);
+				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
 				StoreProxy.store.state.alert = json.message;
