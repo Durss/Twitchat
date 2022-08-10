@@ -380,18 +380,23 @@ export default class ChatMessage extends Vue {
 		let badges:{label:string, class?:string}[] = [];
 		const message = this.messageData as IRCEventDataList.Message;
 		if(StoreProxy.store.state.params.appearance.showBadges.value
-		&& StoreProxy.store.state.params.appearance.minimalistBadges.value) {
-			if(message.tags.badges?.predictions?.indexOf("pink")) badges.push({label:"Prediction", class:"prediction pink"});
-			if(message.tags.badges?.predictions?.indexOf("blue")) badges.push({label:"Prediction", class:"prediction blue"});
-			if(message.tags.badges?.vip) badges.push({label:"VIP", class:"vip"});
-			if(message.tags.badges?.subscriber && !message.tags.badges?.broadcaster) badges.push({label:"Sub", class:"subscriber"});
-			if(message.tags.badges?.premium) badges.push({label:"Prime", class:"premium"});
-			if(message.tags.badges?.moderator) badges.push({label:"Moderator", class:"moderator"});
-			if(message.tags.badges?.staff) badges.push({label:"Twitch staff", class:"staff"});
-			if(message.tags.badges?.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
-			if(message.tags.badges?.partner) badges.push({label:"Partner", class:"partner"});
-			if(message.tags.badges?.founder) badges.push({label:"Founder", class:"founder"});
-			if(message.tags.badges?.ambassador) badges.push({label:"Ambassador", class:"ambassador"});
+		&& StoreProxy.store.state.params.appearance.minimalistBadges.value
+		&& message.tags.badges) {
+			console.log(message, message.tags.badges?.predictions);
+			if(message.tags.badges.predictions) {
+				const label = message.tags["badge-info"]? message.tags["badge-info"].predictions as string : "Prediction";
+				if(message.tags.badges.predictions.indexOf("pink") > -1) badges.push({label, class:"prediction pink"});
+				if(message.tags.badges.predictions.indexOf("blue") > -1) badges.push({label, class:"prediction blue"});
+			}
+			if(message.tags.badges.vip) badges.push({label:"VIP", class:"vip"});
+			if(message.tags.badges.subscriber && !message.tags.badges?.broadcaster) badges.push({label:"Sub", class:"subscriber"});
+			if(message.tags.badges.premium) badges.push({label:"Prime", class:"premium"});
+			if(message.tags.badges.moderator) badges.push({label:"Moderator", class:"moderator"});
+			if(message.tags.badges.staff) badges.push({label:"Twitch staff", class:"staff"});
+			if(message.tags.badges.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
+			if(message.tags.badges.partner) badges.push({label:"Partner", class:"partner"});
+			if(message.tags.badges.founder) badges.push({label:"Founder", class:"founder"});
+			if(message.tags.badges.ambassador) badges.push({label:"Ambassador", class:"ambassador"});
 		}
 		return badges;
 	}
