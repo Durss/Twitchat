@@ -211,8 +211,10 @@ export default class TTSUtils {
 		//that duration has not passed yet, don't read the message
 		if (paramsTTS.inactivityPeriod > 0
 		&& (Date.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
+			this.lastMessageTime = Date.now();
 			return;
 		}
+		this.lastMessageTime = Date.now();
 
 		switch(type) {
 			case TwitchatMessageType.MESSAGE:{
@@ -540,7 +542,6 @@ export default class TTSUtils {
 				window.speechSynthesis.cancel();
 			}, paramsTTS.maxDuration * 1000);
 		}
-		this.lastMessageTime = Date.now();
 	}
 
 }

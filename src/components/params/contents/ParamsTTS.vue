@@ -99,7 +99,7 @@ export default class ParamsTTS extends Vue {
 	public param_maxDuration:ParameterData = {type:"slider", value:200, label:"Stop reading a message after {VALUE} seconds", min:0, max:120, step:1};
 	public param_timeoutToggle:ParameterData = {type:"toggle", value:false, label:"Remove message from queue if they're not read within..." };
 	public param_timeout:ParameterData = {type:"slider", value:60, label:"{VALUE} minutes", min:0, max:30, step:1};
-	public param_inactivityPeriodToggle:ParameterData = {type:"toggle", value:false, label:"Read messages only if no message has been read for..." };
+	public param_inactivityPeriodToggle:ParameterData = {type:"toggle", value:false, label:"Read messages only if no message has been received for..." };
 	public param_inactivityPeriod:ParameterData = {type:"slider", value:0, label:"{VALUE} minutes", min:0, max:60, step:1};
 
 	public param_removeURL:ParameterData = {type:"toggle", value:true, label:"Remove links"};
