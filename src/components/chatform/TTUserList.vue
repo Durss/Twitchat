@@ -1,23 +1,24 @@
 <template>
 	<div class="ttuserlist">
-		<div class="content">
-			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
-
+		<div class="content" ref="list">
 			<div class="title">
-				<p><img src="@/assets/icons/user.svg" class="icon" />{{users.length}} users</p>
+				<p><img src="@/assets/icons/user.svg" class="icon" />{{Math.max(users.length, usersSpool.length)}} users</p>
 				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 			</div>
 			
 			<div class="noResult" v-if="!loading && users?.length == 0">no user found :(</div>
 		
 			<div class="stats">
-				<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
-				<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
-				<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
+				<div class="table">
+					<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
+					<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
+					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
+				</div>
+				<Button small class="loadNext" title="Load 500 next" :icon="$image('icons/user.svg')" @click="loadNextUsers(500)" />
 			</div>
 
 			<div class="list">
-				<div v-for="u in users"
+				<div v-for="u in usersSpool"
 					:key="u.id"
 					class="user"
 					ref="userCard"
@@ -37,6 +38,8 @@
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
 				</div>
+
+				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 			</div>
 		</div>
 	</div>
@@ -62,8 +65,10 @@ import Button from '../Button.vue';
 export default class TTUserList extends Vue {
 
 	public users:UserData[] = [];
+	public usersSpool:UserData[] = [];
 	public loading:boolean = true;
 	public token:string = "";
+	public spoolChunkSize:number = 50;
 	public activeLast24h:number = 0;
 	public activeLast7days:number = 0;
 	public activeLast30days:number = 0;
@@ -89,6 +94,14 @@ export default class TTUserList extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
+		const list = this.$refs.list as HTMLDivElement;
+		list.addEventListener("scroll", (ev:Event):void => {
+			if ((list.clientHeight + list.scrollTop) >= list.scrollHeight) {
+				if(!this.loading) {
+					this.loadNextUsers();
+				}
+			}
+		});
 		this.updateList();
 	}
 
@@ -133,25 +146,11 @@ export default class TTUserList extends Vue {
 			const json = await res.json();
 			if(json.success) {
 				const users = json.users as {id:string, date:number, user:TwitchDataTypes.UserInfo}[];
-				const ids = users.map(u => u.id);
-				const channels = await TwitchUtils.loadUserInfo(ids);
 				this.activeLast24h = 0;
 				this.activeLast7days = 0;
 				this.activeLast30days = 0;
-				const offset24h = Date.now() - 24 * 60 * 60 * 1000;
-				const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
-				const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
-				for (let i = 0; i < channels.length; i++) {
-					const c = channels[i];
-					const index = users.findIndex(u => u.id == c.id);
-					users[index].user = c;
-					const date = users[index].date;
-					if(date > offset24h) this.activeLast24h++;
-					if(date > offset7days) this.activeLast7days++;
-					if(date > offset30days) this.activeLast30days++;
-				}
-				users.sort((a, b) => b.date - a.date);
-				this.users = users;
+				this.users = users.sort((a, b) => b.date - a.date);
+				this.loadNextUsers();
 			}else{
 				StoreProxy.store.state.alert = json.message;
 				this.$emit("close");
@@ -159,7 +158,28 @@ export default class TTUserList extends Vue {
 		}catch(err:unknown) {
 			StoreProxy.store.state.alert = "An error occured while loading users<br>";
 		}
-		
+		this.loading = false;
+	}
+
+	public async loadNextUsers(chunk?:number):Promise<void> {
+		this.loading = true;
+		chunk = chunk? chunk : this.spoolChunkSize;
+		const users = this.users.splice(0, chunk);
+		const ids = users.map(u => u.id);
+		const channels = await TwitchUtils.loadUserInfo(ids);
+		const offset24h = Date.now() - 24 * 60 * 60 * 1000;
+		const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
+		const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
+		for (let i = 0; i < channels.length; i++) {
+			const c = channels[i];
+			const index = users.findIndex(u => u.id == c.id);
+			users[index].user = c;
+			const date = users[index].date;
+			if(date > offset24h) this.activeLast24h++;
+			if(date > offset7days) this.activeLast7days++;
+			if(date > offset30days) this.activeLast30days++;
+		}
+		this.usersSpool = this.usersSpool.concat(users);
 		this.loading = false;
 	}
 }
@@ -177,8 +197,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	.modal();
 
 	.loader {
-		.center();
-		position: absolute;
 	}
 
 	.noResult {
@@ -217,17 +235,24 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		}
 
 		.stats {
-			display: grid;
-			grid-template-columns: auto auto;
-			font-size: .8em;
-			padding: 0 1em;
-			color: @mainColor_light;
-			p:nth-child(odd) {
-				text-align: right;
-				margin-right: .5em;
+			.table {
+				display: grid;
+				grid-template-columns: auto auto;
+				font-size: .8em;
+				padding: 0 1em;
+				color: @mainColor_light;
+				p:nth-child(odd) {
+					text-align: right;
+					margin-right: .5em;
+				}
+				p:nth-child(even) {
+					font-weight: bold;
+				}
 			}
-			p:nth-child(even) {
-				font-weight: bold;
+			.loadNext {
+				display: block;
+				margin: auto;
+				margin-top: .5em;
 			}
 		}
 

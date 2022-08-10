@@ -635,13 +635,11 @@ export default class IRCClient extends EventDispatcher {
 	 * Sends a fake event by its code (see fakeEvents.json)
 	 * @param code
 	 */
-	public async sendFakeEvent(code?:string):Promise<void> {
+	public async sendFakeEvent(code?:string, json?:any):Promise<void> {
 		const fakeEventsRes = await fetch(Config.instance.API_PATH+"/fakeevents");
 		const fakeEventsJSON = await fakeEventsRes.json();
-		for (const key in fakeEventsJSON) {
-			if(code && key != code) continue;
-
-			const json = fakeEventsJSON[key];
+		
+		const sendEvent = async (json:any):Promise<void> => {
 			(json as IRCEventDataList.Notice).tags.id = this.getFakeGuid();
 			(json as IRCEventDataList.Highlight).tags["tmi-sent-ts"] = Date.now().toString();
 			if(json.type == "notice") {
@@ -656,7 +654,7 @@ export default class IRCClient extends EventDispatcher {
 			if(json.type == "prediction") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, json));
 			}
-			if(key == "subgift") {
+			if(fakeEventKey == "subgift") {
 				const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
 				const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 				let txt = JSON.stringify(json);
@@ -670,6 +668,17 @@ export default class IRCClient extends EventDispatcher {
 			this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));
 
 			await Utils.promisedTimeout(50);
+		}
+		let fakeEventKey = "";
+		if(code) {
+			for (const key in fakeEventsJSON) {
+				if(code && key != code) continue;
+				fakeEventKey = key;
+				json = fakeEventsJSON[ fakeEventKey ];
+				sendEvent(json);
+			}
+		}else{
+			sendEvent(json);
 		}
 	}
 

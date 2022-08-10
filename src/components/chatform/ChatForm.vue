@@ -18,7 +18,7 @@
 					v-if="!error"
 					ref="input"
 					placeholder="message..."
-					maxlength="500"
+					:maxlength="maxLength"
 					@keyup.capture.tab="(e)=>onTab(e)"
 					@keyup.enter="sendMessage()"
 					@keydown="onKeyDown">
@@ -275,6 +275,13 @@ export default class ChatForm extends Vue {
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
 	public spamInterval = 0;
+	public get maxLength():number {
+		if(this.message.indexOf("/raw") === 0) {
+			return 500000;
+		}else{
+			return 500;
+		}
+	}
 
 	public get emergencyButtonEnabled():boolean {
 		return StoreProxy.store.state.emergencyParams.enabled === true;
@@ -645,6 +652,17 @@ export default class ChatForm extends Vue {
 		if(cmd == "/version") {
 			//Secret feature
 			IRCClient.instance.sendNotice("version", "Twitchat version "+import.meta.env.PACKAGE_VERSION);
+			this.message = "";
+		}else
+		
+		if(cmd == "/raw") {
+			//Secret feature
+			console.log(params.join(""));
+			try {
+				IRCClient.instance.sendFakeEvent(undefined, JSON.parse(params.join("")));
+			}catch(error) {
+				StoreProxy.store.state.alert = "Invalid or missing JSON";
+			}
 			this.message = "";
 		}else
 

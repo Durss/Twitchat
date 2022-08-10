@@ -149,7 +149,7 @@
 					<div class="infos">
 						<h2>Spoiler command</h2>
 						<div class="description">Messages starting with <mark>||</mark> will be shown as spoilers.
-						<br>Your mods will be able to set another users' message as spoiler by responding to it with the <mark>!spoiler</mark> command
+						<br>Your mods will be able to set another user's message as spoiler by responding to it with the <mark>!spoiler</mark> command
 						</div>
 					</div>
 				</div>
