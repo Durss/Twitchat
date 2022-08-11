@@ -7,6 +7,7 @@
 		<img src="@/assets/img/eating.gif" alt="eating" />
 
 		<div class="buttons">
+			<Button big type="link" href="https://www.patreon.com/durss" target="_blank" title="Become a Patron" :icon="$image('icons/patreon_white.svg')" />
 			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Donate on Paypal" :icon="$image('icons/paypal_white.svg')" />
 			<Button big type="link" href="https://ko-fi.com/durss" target="_blank" title="Donate on Ko-fi" :icon="$image('icons/kofi_white.svg')" class="kofiBt" />
 			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Donate on Github" :icon="$image('icons/github_white.svg')" />
