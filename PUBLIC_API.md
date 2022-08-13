@@ -590,14 +590,14 @@ Start a wheel animation.
 		{
 			id:string;
 			label:string;
-			data:winner;
+			data:any;
 		},
 		//...
 	],
 	winner: {
 		id:string;
 		label:string;
-		data:winner;
+		data:any;
 	},
 }
 ```
