@@ -31,7 +31,13 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Read your messages and alerts out loud thank to the include text-to-speech
 - [x] Pin messages and find them back later
 - [x] Display the first message of users seperatly so you don't forget to greet them
-- [x] Show any message of your chat to your stream with a single click
+- [x] Show any message of your chat on your stream with a single click
+- [x] Stream Deck™ plugin
+- [x] Custom spoiler feature so viewers can hide message contents to the streamer
+- [x] Alert command to make Twitchat shake, blink, emit sound and display a message over everything else
+- [x] Edit your stream's info from Twitchat with possibility to create pressets
+- [x] Create a timer or a countdown with a simple command and show it on your stream
+- [x] Control spotify or deezer from chat commands *(create your own song request system)* and show currently playing track on your stream
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss her/his messages
@@ -41,7 +47,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] See if a user is not following the channel
 - [x] Display received whispers and answer them
 - [x] Filter some messages *(bots, commands, self, /me, etc...)*
-- [x] Customize messages *(remove badges, show minimalist badges, remove emotes)*
+- [x] Customize messages display *(remove badges, show minimalist badges, remove emotes)*
 - [x] Customize messages appearance by roles *(viewers, mods, vips, subs)*
 - [x] Moderate messages *(ban, timeout, delete message)*
 - [x] Allow/deny messages blocked by automod
@@ -61,19 +67,13 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Filter out only specific commands
 - [x] See live viewers count
 - [x] Keep or remove deleted messages
-- [x] See all my followings that are live to raid them easily
-- [x] Supports new boost trains
-- [x] Supports new `/announce message` feature
+- [x] See all your followings that are live to raid them easily
+- [x] Supports boost trains
+- [x] Supports `/announce message` feature
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 - [x] Expose an API to control some stuff remotely
-- [x] Stream Deck™ plugin
-- [x] Chat poll feature: kind of a poll where your viewers decide its options
+- [x] Chat suggestion feature: allow your viewers to give suggestions with a dedicated command and randomly pick one of them
 - [x] Handles "low trust" feature ([more info](https://help.twitch.tv/s/article/ban-evasion))
-- [x] Custom spoiler feature so viewers can hide message contents to the streamer
-- [x] Alert command to make Twitchat shake, blink, emit sound and display a message over everything else
-- [x] Edit your stream's info from Twitchat with possibility to create pressets
-- [x] Create a timer or a countdown with a simple command and show it on your stream
-- [x] Control spotify or deezer from chat commands *(create your own song request system)* and show currently playing track on your stream
 - [x] And many other things....
 <br>
 <br>
