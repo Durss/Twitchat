@@ -31,7 +31,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Read your messages and alerts out loud thank to the include text-to-speech
 - [x] Pin messages and find them back later
 - [x] Display the first message of users seperatly so you don't forget to greet them
-- [x] Send any message from your chat to your stream with a single click
+- [x] Show any message of your chat to your stream with a single click
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss her/his messages
