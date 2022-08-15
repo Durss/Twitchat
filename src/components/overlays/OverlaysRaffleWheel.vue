@@ -22,7 +22,8 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
-import type { WheelData, WheelItem } from '@/types/TwitchatDataTypes';
+import type { WheelData } from '@/types/TwitchatDataTypes';
+import type { WheelItem } from '@/utils/CommonDataTypes';
 
 @Options({
 	props:{},

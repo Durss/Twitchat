@@ -448,8 +448,8 @@ export default class TTSUtils {
 
 				const m = message as IRCEventDataList.BingoResult;
 				
-				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, m.winner?.["display-name"] as string);
-				this.addMessageToQueue(txt, m.tags.id);
+				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, m.winner as string);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 
@@ -459,8 +459,8 @@ export default class TTSUtils {
 
 				const m = message as IRCEventDataList.RaffleResult;
 				
-				let txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, m.winner?.["display-name"] as string);
-				this.addMessageToQueue(txt, m.tags.id);
+				let txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, m.winner.label);
+				this.addMessageToQueue(txt, m.tags.id as string);
 				break;
 			}
 		}

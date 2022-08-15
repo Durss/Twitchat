@@ -1,4 +1,4 @@
-import type { BingoData, RaffleData, WheelItem } from "@/utils/CommonDataTypes";
+import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
 import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
 

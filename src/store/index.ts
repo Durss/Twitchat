@@ -397,9 +397,9 @@ const store = createStore({
 			readPredictions:false,
 			readPredictionsPattern:"Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
 			readBingos:false,
-			readBingosPattern:"{USER} won the bingo",
+			readBingosPattern:"{WINNER} won the bingo",
 			readRaffle:false,
-			readRafflePattern:"{USER} won the raffle",
+			readRafflePattern:"{WINNER} won the raffle",
 			ttsPerms:{
 				mods:true,
 				vips:true,
