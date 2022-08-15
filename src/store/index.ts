@@ -1127,8 +1127,6 @@ const store = createStore({
 			// state.raffle = null;
 			if(!state.raffle) return;
 			const winner = state.raffle.entries.find(v=> v.id == payload.winner.id);
-			console.log("WINNER", payload, winner);
-			console.log(state.raffle);
 			if(!winner) return;
 
 			if(!state.raffle.winners) state.raffle.winners = [];
