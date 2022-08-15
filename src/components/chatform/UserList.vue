@@ -195,6 +195,7 @@ interface UserItem {
 				width: @itemWidth;
 				text-decoration: none;
 				white-space:nowrap;
+				line-height: 1.2em;
 
 				&.noFollow {
 					color: @mainColor_warn;

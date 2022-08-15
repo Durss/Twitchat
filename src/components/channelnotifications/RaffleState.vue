@@ -3,19 +3,19 @@
 		<h1 class="title"><img src="@/assets/icons/ticket.svg">Raffle - <span class="highlight">{{raffleData.command}}</span></h1>
 
 		<ProgressBar class="progress"
-		:percent="raffleData.users?.length == raffleData.maxUsers && raffleData.maxUsers > 0?  1 : progressPercent"
-		:duration="raffleData.users?.length == raffleData.maxUsers && raffleData.maxUsers > 0?  0 : raffleData.duration*60000" />
+		:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
+		:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration*60000" />
 
-		<div class="item users">
+		<div class="item entries">
 			<img src="@/assets/icons/user.svg" alt="user">
-			<p class="count">{{raffleData.users?.length}}</p>
-			<p class="max" v-if="raffleData.maxUsers">/{{raffleData.maxUsers}}</p>
+			<p class="count">{{raffleData.entries?.length}}</p>
+			<p class="max" v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</p>
 			<p>entered</p>
 		</div>
 		<div class="item winners" v-if="raffleData.winners.length > 0">
 			<span class="title">Winners <span class="count">({{raffleData.winners.length}})</span> :</span>
-			<div class="users">
-				<span v-for="w in raffleData.winners" :key="w['user-id']" @click="openUserCard(w)">{{w['display-name']}}</span>
+			<div class="entries">
+				<span v-for="w in raffleData.winners" :key="w.label" @click="openUserCard(w)">{{w.label}}</span>
 			</div>
 		</div>
 
@@ -23,7 +23,8 @@
 			:icon="$image('icons/ticket.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
-			:disabled="!raffleData.users || raffleData.users.length == 0 || raffleData.winners.length == raffleData.users.length" />
+			:loading="picking"
+			:disabled="!raffleData.entries || raffleData.entries.length == 0 || raffleData.winners.length == raffleData.entries.length" />
 
 		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
@@ -36,15 +37,13 @@
 </template>
 
 <script lang="ts">
-import type { PlaceholderEntry, WheelData, WheelItem } from '@/types/TwitchatDataTypes';
-import type { RaffleData, RaffleVote } from '@/utils/CommonDataTypes';
-import Config from '@/utils/Config';
+import type { PlaceholderEntry, WheelData } from '@/types/TwitchatDataTypes';
+import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import type { ChatUserstate } from 'tmi.js';
 import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -62,6 +61,7 @@ import ProgressBar from '../ProgressBar.vue';
 })
 export default class RaffleState extends Vue {
 
+	public picking = false;
 	public progressPercent = 0;
 	public raffleData:RaffleData = StoreProxy.store.state.raffle as RaffleData;
 	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
@@ -95,18 +95,19 @@ export default class RaffleState extends Vue {
 		});
 	}
 
-	public openUserCard(user:ChatUserstate):void {
-		StoreProxy.store.dispatch("openUserCard", user.username);
+	public openUserCard(user:RaffleEntry):void {
+		StoreProxy.store.dispatch("openUserCard", user.label);
 	}
 
 	public async pickWinner():Promise<void> {
-		let winner:RaffleVote;
+		let winner:RaffleEntry;
+		this.picking = true;
 		
 		const list = [];
 		//Ponderate votes by adding one user many times if her/his
 		//score is greater than 1
-		for (let i = 0; i < this.raffleData.users.length; i++) {
-			const u = this.raffleData.users[i];
+		for (let i = 0; i < this.raffleData.entries.length; i++) {
+			const u = this.raffleData.entries[i];
 			if(u.score==1) list.push(u);
 			else {
 				for (let j = 0; j < u.score; j++) {
@@ -118,30 +119,24 @@ export default class RaffleState extends Vue {
 		//Pick a winner that has not already be picked
 		do{
 			winner = Utils.pickRand(list);
-		}while(this.raffleData.winners.find(w => w['user-id'] == winner.user['user-id']));
+		}while(this.raffleData.winners.find(w => w.id == winner.id));
 		
 		//Ask if a wheel overlay exists
-		if(Config.instance.OBS_DOCK_CONTEXT) {
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
-			await Utils.promisedTimeout(500);//Give the overlay some time to answer
-		}
+		this.wheelOverlayExists = false;
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+		await Utils.promisedTimeout(500);//Give the overlay some time to answer
 
 		//A wheel overlay exists, send it data and wait for it to complete
 		if(this.wheelOverlayExists){
-			const list:WheelItem[] = this.raffleData.users.map((v:RaffleVote):WheelItem=>{
+			const list:WheelItem[] = this.raffleData.entries.map((v:RaffleEntry):WheelItem=>{
 										return {
-											id:v.user.id as string,
-											label:v.user['display-name'] as string,
-											data:v.user
+											id:v.id,
+											label:v.label,
 										}
 									});
 			const data:WheelData = {
 				items:list,
-				winner: {
-					id:winner.user.id as string,
-					label:winner.user['display-name'] as string,
-					data:winner,
-				},
+				winner:winner.id,
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 
@@ -149,12 +144,13 @@ export default class RaffleState extends Vue {
 
 			//no wheel overlay found, just announce the winner
 			const winnerData:WheelItem = {
-				id:winner.user.id as string,
-				label:winner.user['display-name'] as string,
-				data:winner,
+				id:winner.id,
+				label:winner.label,
 			}
 			StoreProxy.store.dispatch("onRaffleComplete", {winner:winnerData});
 		}
+
+		this.picking = false;
 
 	}
 
@@ -194,7 +190,7 @@ export default class RaffleState extends Vue {
 			margin-bottom: 10px;
 		}
 
-		&.users {
+		&.entries {
 			display: flex;
 			flex-direction: row;
 			font-style: italic;
@@ -215,6 +211,18 @@ export default class RaffleState extends Vue {
 			width: 70%;
 			margin-top: 10px;
 			font-size: .8em;
+			:deep(.togglebutton) {
+				border-color: @mainColor_light;
+				.circle {
+					background-color: @mainColor_light;
+				}
+			}
+			:deep(.togglebutton.selected) {
+				background-color: fade(@mainColor_light, 40%);
+			}
+			:deep(.togglebutton:hover) {
+				background-color: fade(@mainColor_light, 50%);
+			}
 		}
 
 
@@ -239,7 +247,7 @@ export default class RaffleState extends Vue {
 					font-style: italic;
 				}
 			}
-			.users {
+			.entries {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;

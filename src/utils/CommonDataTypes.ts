@@ -35,20 +35,29 @@ export interface BingoData {
 }
 
 export interface RaffleData {
+	mode:"chat"|"sub"|"manual";
 	command:string;
 	duration:number;
-	maxUsers:number;
+	maxEntries:number;
 	created_at:number;
-	users:RaffleVote[];
+	entries:RaffleEntry[];
 	vipRatio:number;
 	followRatio:number;
 	subRatio:number;
 	subgitRatio:number;
-	winners:ChatUserstate[];
+	winners:RaffleEntry[];
+	subMode_includeGifters:boolean;
+	subMode_excludeGifted:boolean;
+	showCountdownOverlay:boolean;
+	customEntries:string[];
 }
 
-export interface RaffleVote {
-	user:ChatUserstate;
+export interface WheelItem {
+	id:string;
+	label:string;
+}
+
+export interface RaffleEntry extends WheelItem {
 	score:number;
 }
 

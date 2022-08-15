@@ -22,7 +22,8 @@
 		".git"
 	],
 	"watch": [
-		"."
+		"./server.js",
+		"./Logger.js"
 	],
 	"exec_mode": "fork"
 }

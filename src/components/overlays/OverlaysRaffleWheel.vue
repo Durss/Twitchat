@@ -241,7 +241,13 @@ export default class OverlaysRaffleWheel extends Vue {
 
 	public async onStartWheel(e:TwitchatEvent):Promise<void> {
 		const data = (e.data as unknown) as WheelData;
-		this.winnerData = data.winner;
+		const winner = data.items.find(v=>v.id == data.winner);
+		if(!winner) {
+			console.log("Invalid winner ID", data.winner);
+			return;
+		}
+
+		this.winnerData = winner;
 		this.itemList = [];
 		await this.$nextTick();//Let vue unmount the component
 		this.itemList = data.items;
@@ -271,8 +277,8 @@ export default class OverlaysRaffleWheel extends Vue {
 		}});
 
 		//Tell twitchat animation completed
-		const data = {winner:this.winnerData as unknown} as JsonObject;
-		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, data);
+		const data = (this.winnerData as unknown) as JsonObject;
+		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, {winner:data});
 	}
 }
 </script>

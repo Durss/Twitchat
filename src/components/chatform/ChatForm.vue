@@ -64,12 +64,14 @@
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open current raffle"
-					:icon="$image('icons/ticket.svg')"
-					bounce
-					v-if="$store.state.raffle"
-					data-tooltip="Raffle"
-					@click="$emit('setCurrentNotification', 'raffle')" />
+				<div class="whispers" v-if="$store.state.raffle && $store.state.raffle.mode == 'chat'">
+					<Button aria-label="Open current raffle"
+						:icon="$image('icons/ticket.svg')"
+						bounce
+						data-tooltip="Raffle"
+						@click="$emit('setCurrentNotification', 'raffle')" />
+					<div class="count" v-if="$store.state.raffle.entries.length > 0">{{$store.state.raffle.entries.length}}</div>
+				</div>
 				</transition>
 
 				<transition name="blink">
@@ -412,7 +414,7 @@ export default class ChatForm extends Vue {
 			throw(new Error("Test error"));
 		}else
 
-		if(cmd == "/chatpoll") {
+		if(cmd == "/chatsugg") {
 			//Open chat poll form
 			this.$emit("chatpoll");
 			this.message = "";
@@ -601,6 +603,9 @@ export default class ChatForm extends Vue {
 		if(cmd == "/unblock2") {
 			this.message = "";
 			this.loading = true;
+			// for (let i = 0; i < 1000; i++) {
+			// 	await TwitchUtils.unblockUser("FakeUser"+i);
+			// }
 			await TwitchUtils.unblockUser(params[0]);
 			this.loading = false;
 		}else

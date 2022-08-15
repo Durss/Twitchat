@@ -143,7 +143,6 @@ export default class ActivityFeed extends Vue {
 		const showBingos		= this.filters["bingo"] === true || this.filters["bingo"] === undefined;
 		const showRaffles		= this.filters["raffle"] === true || this.filters["raffle"] === undefined;
 
-		
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
 

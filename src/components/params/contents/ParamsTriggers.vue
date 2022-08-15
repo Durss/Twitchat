@@ -16,7 +16,7 @@
 				<div v-for="e in event_conf.listValues" :key="(e.value as string)" class="item">
 					<Button class="triggerBt"
 						white
-						v-if="event_conf.value == '0' || event_conf.value == e.value"
+						v-if="(event_conf.value == '0' || event_conf.value == e.value) && subevent_conf.value == '0'"
 						:title="e.label"
 						:icon="getIcon(e)"
 						@click="event_conf.value = e.value"
@@ -174,7 +174,7 @@ export default class ParamsTriggers extends Vue {
 		let canTest = false;
 		for (let i = 0; i < this.actionList.length; i++) {
 			const a = this.actionList[i];
-			if(a.type === "") {
+			if(a.type === null) {
 				//No action type defined
 				continue;
 			}else
@@ -339,7 +339,7 @@ export default class ParamsTriggers extends Vue {
 		this.actionList.push({
 			id:Math.random().toString(),
 			delay:0,
-			type:"",
+			type:null,
 		});
 		this.canSave = true;
 	}

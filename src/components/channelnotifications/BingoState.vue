@@ -98,10 +98,22 @@ export default class BingoState extends Vue {
 		}
 	}
 
-	.postChat {
+	&.postChat {
 		width: 70%;
 		margin-top: 10px;
 		font-size: .8em;
+		:deep(.togglebutton) {
+			border-color: @mainColor_light;
+			.circle {
+				background-color: @mainColor_light;
+			}
+		}
+		:deep(.togglebutton.selected) {
+			background-color: fade(@mainColor_light, 40%);
+		}
+		:deep(.togglebutton:hover) {
+			background-color: fade(@mainColor_light, 50%);
+		}
 	}
 
 	.winner {

@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="form">
 			<label :for="key">{{title}}</label>
-			<div class="input">
+			<div class="inputHolder">
 				<img :src="$image('loader/loader_dark.svg')" alt="loading" class="loader" v-if="loading">
 				<input :id="key" type="text"
 					@keyup="onSearchChange()" @focus="onFocus()"
@@ -85,7 +85,7 @@ export default class AutoCompleteForm extends Vue {
 	}
 
 	public get canSelect():boolean {
-		return this.modelValue.length < this.maxItems;
+		return this.modelValue.length < this.maxItems || this.maxItems == 1;
 	}
 
 	public async mounted():Promise<void> {
@@ -118,7 +118,8 @@ export default class AutoCompleteForm extends Vue {
 	}
 
 	public selectItem(item:unknown, index:number):void {
-		const list = this.modelValue.slice();
+		let list = this.modelValue.slice();
+		if(list.length == this.maxItems) list = list.splice(0, this.maxItems-1);
 		list.push(item);
 		this.$emit("update:modelValue", list);
 		this.items = [];
@@ -157,9 +158,9 @@ export default class AutoCompleteForm extends Vue {
 		label {
 			flex-grow: 1;
 		}
-		.input {
+		.inputHolder {
 			position: relative;
-			width: 100%;
+			width: auto;
 			.loader {
 				height: 1em;
 				width: 1em;
@@ -177,7 +178,7 @@ export default class AutoCompleteForm extends Vue {
 
 	&.loading {
 		.form {
-			.input {
+			.inputHolder {
 				input {
 					padding-left: calc(1em + 10px);
 				}

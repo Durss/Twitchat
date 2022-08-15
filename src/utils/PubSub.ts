@@ -79,12 +79,11 @@ export default class PubSub extends EventDispatcher{
 				"hype-train-events-v1."+uid,
 				"following."+uid,
 				"ads."+uid,
-				"video-playback-by-id."+uid,
-				"community-boost-events-v1."+uid,
+				"video-playback-by-id."+uid,//Get viewer count
+				"community-boost-events-v1."+uid,//Boost after a boost train complete
 				"ad-property-refresh."+uid,
 				"whispers."+uid,
 				"chatrooms-user-v1."+uid,//TO or ban events
-				"ad-property-refresh."+uid,
 				"stream-chat-room-v1."+uid,//Host events or extension messages
 				"broadcast-settings-update."+uid,//Stream info update
 				// "user-drop-events."+uid,

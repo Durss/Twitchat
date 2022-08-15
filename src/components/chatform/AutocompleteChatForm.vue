@@ -113,7 +113,6 @@ export default class AutocompleteChatForm extends Vue {
 			case "Enter": {
 				e.preventDefault();
 				e.stopPropagation();
-				console.log("ok");
 				this.selectItem(this.filteredItems[this.selectedIndex]);
 				break;
 			}

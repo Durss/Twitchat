@@ -9,14 +9,15 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const Ajv = require("ajv")
 const JsonPatch = require('fast-json-patch');
-const crypto = require('crypto');
+const Logger = require('./Logger.js').default;
 
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
-console.log("==============");
-console.log("Server started");
-console.log("==============");
+Logger.success("==============");
+Logger.success("Server started");
+Logger.success("==============");
+
 
 if(!fs.existsSync(userDataFolder)) {
 	fs.mkdirSync(userDataFolder);
@@ -30,7 +31,7 @@ http.createServer((request, response) => {
     });
 
 	request.addListener('end', async () => {
-		// console.log("CALL", request.method, request.url);
+		// Logger.log("CALL", request.method, request.url);
 		if(request.method == "HEAD") {
 			response.end();
 			return;
@@ -130,7 +131,7 @@ http.createServer((request, response) => {
 			// 		"method": "GET",
 			// 	});
 			// 	const json = await res.json();
-			// 	console.log(json)
+			// 	Logger.log(json)
 			// 	response.writeHead(200, {'Content-Type': 'application/json'});
 			// 	response.end(JSON.stringify(json));
 			// 	return;
@@ -153,9 +154,7 @@ http.createServer((request, response) => {
 					&& request.url.toLowerCase().indexOf("logout") == -1
 					&& request.url.toLowerCase().indexOf("login") == -1) {
 						
-						console.error(
-							"Error serving " + request.headers.host+request.url + " - " + err.message
-						);
+						Logger.watn("Error serving " + request.headers.host+request.url + " - " + err.message);
 					}
 
 					// let page = request.url;
@@ -211,7 +210,8 @@ async function generateToken(request, response) {
 		let res = await fetch(url, {method:"POST"});
 		json = await res.json();
 	}catch(error) {
-		console.log(error);
+		Logger.error("Token generation failed");
+		Logger.error(error);
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message:'error', success:false}));
 		return;
@@ -348,7 +348,7 @@ async function userData(request, response, body) {
 			schemaValidator(body);
 			const diff = JsonPatch.compare(clone, body, false);
 			if(diff?.length > 0) {
-				console.log("Invalid format, some data has been removed from "+userInfo.login+"'s data");
+				Logger.error("Invalid format, some data has been removed from "+userInfo.login+"'s data");
 				console.log(diff);
 				fs.writeFileSync(userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
 			}
@@ -356,9 +356,10 @@ async function userData(request, response, body) {
 			response.writeHead(200, {'Content-Type': 'application/json'});
 			response.end(JSON.stringify({success:true}));
 		}catch(error){
+			Logger.error("User data save failed for "+userInfo.login);
 			console.log(error);
 			const message = schemaValidator.errors;
-			console.log(message);
+			Logger.log(message);
 			response.writeHead(500, {'Content-Type': 'application/json'});
 			response.end(JSON.stringify({message, success:false}));
 		}
@@ -499,6 +500,7 @@ async function spotifyAuthenticate(request, response) {
 	}catch(error) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message:'error', success:false}));
+		Logger.error("Spotify authentication failed");
 		console.log(error);
 		return;
 	}
@@ -534,6 +536,7 @@ async function spotifyRefreshToken(request, response) {
 	}catch(error) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message:'error', success:false}));
+		Logger.error("Spotify token refresh failed");
 		console.log(error);
 		return;
 	}
@@ -565,6 +568,7 @@ async function deezerAuthenticate(request, response) {
 	}catch(error) {
 		response.writeHead(500, {'Content-Type': 'application/json'});
 		response.end(JSON.stringify({message:'error', success:false}));
+		Logger.error("Deezer authentication failed");
 		console.log(error);
 		return;
 	}

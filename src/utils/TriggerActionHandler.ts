@@ -276,7 +276,6 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:number):Promise<boolean> {
-		message.winner = message.data.winners[0];
 		return await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
 	}
 	
@@ -446,7 +445,13 @@ export default class TriggerActionHandler {
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
 						TTSUtils.instance.readNow(text);
 					}else
+					
+					//Handle raffle action
+					if(step.type == "raffle") {
+						StoreProxy.store.dispatch("startRaffle", step.raffleData);
+					}else
 
+					//Handle music actions
 					if(step.type == "music") {
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
 							const m = message.message.split(" ").splice(1).join(" ");

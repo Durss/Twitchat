@@ -1,3 +1,4 @@
+import type { BingoData, RaffleData, WheelItem } from "@/utils/CommonDataTypes";
 import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
 
@@ -84,7 +85,10 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionChatData
 								| TriggerActionTTSData
 								| TriggerActionMusicEntryData
+								| TriggerActionRaffleData
+								| TriggerActionBingoData
 ;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|null;
 
 export interface TriggerEventTypes extends ParameterDataListValue {
 	label:string;
@@ -99,7 +103,7 @@ export interface TriggerActionData {
 	delay:number;
 }
 export interface TriggerActionEmptyData extends TriggerActionData{
-	type:"";
+	type:null;
 }
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
@@ -119,6 +123,16 @@ export interface TriggerActionChatData extends TriggerActionData{
 export interface TriggerActionTTSData extends TriggerActionData{
 	type:"tts";
 	text:string;
+}
+
+export interface TriggerActionRaffleData extends TriggerActionData{
+	type:"raffle";
+	raffleData:RaffleData;
+}
+
+export interface TriggerActionBingoData extends TriggerActionData{
+	type:"bingo";
+	bingoData:BingoData;
 }
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{
@@ -220,15 +234,9 @@ export interface InstallHandler {
 	userChoice:Promise<{outcome:"accepted"}>;
 }
 
-export interface WheelItem {
-	id:string;
-	label:string;
-	data:unknown;
-}
-
 export interface WheelData {
 	items:WheelItem[];
-	winner:WheelItem;
+	winner:string;
 }
 
 export interface MusicMessage {

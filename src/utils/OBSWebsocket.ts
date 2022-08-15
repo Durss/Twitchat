@@ -2,6 +2,7 @@ import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from './EventDispatcher';
+import StoreProxy from './StoreProxy';
 import type { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
 import TwitchatEvent from './TwitchatEvent';
 import Utils from './Utils';
@@ -60,6 +61,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async connect(port:string, pass:string, autoReconnect = true, ip = "127.0.0.1"):Promise<boolean> {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
+		if(StoreProxy.store.state.obsConnectionEnabled !== true) return false;
 		if(!ip || ip.length < 5) return false;
 
 		try {

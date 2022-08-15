@@ -329,7 +329,6 @@ export default class ChatMessage extends Vue {
 		const uname = (this.messageData.tags['username'] as string).toLowerCase();
 		//If display name is different from username and at least half of the
 		//display name's chars ar not latin chars, translate it
-		if(uname == "papaya_rnint") console.log(dname.replace(/^[^a-zA-Z0-9]*/gi, "").length);
 		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
 	}
 	
@@ -382,7 +381,6 @@ export default class ChatMessage extends Vue {
 		if(StoreProxy.store.state.params.appearance.showBadges.value
 		&& StoreProxy.store.state.params.appearance.minimalistBadges.value
 		&& message.tags.badges) {
-			console.log(message, message.tags.badges?.predictions);
 			if(message.tags.badges.predictions) {
 				const label = message.tags["badge-info"]? message.tags["badge-info"].predictions as string : "Prediction";
 				if(message.tags.badges.predictions.indexOf("pink") > -1) badges.push({label, class:"prediction pink"});
@@ -546,9 +544,7 @@ export default class ChatMessage extends Vue {
 			if((mess as IRCEventDataList.Message).automod) {
 				result = text;
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				console.log(result);
 				result = result.replace(/&lt;(\/)?mark&gt;/gi, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
-				console.log(result);
 			}else{
 				//Allow custom parsing of emotes only if it's a message of ours sent
 				//from twitchat to avoid killing performances.

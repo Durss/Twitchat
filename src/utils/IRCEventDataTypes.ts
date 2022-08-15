@@ -1,7 +1,7 @@
 import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from "tmi.js";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
-import type { BingoData, RaffleData } from "./CommonDataTypes";
+import type { BingoData, RaffleData, RaffleEntry } from "./CommonDataTypes";
 import type { CountdownData, TimerData } from "@/types/TwitchatDataTypes";
 
 export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
@@ -155,8 +155,8 @@ export namespace IRCEventDataList {
 		type: "raffle";
 		markedAsRead?:boolean;
 		data: RaffleData;
-		tags: { id: string, "tmi-sent-ts": string };
-		winner?:ChatUserstate;
+		winner:RaffleEntry;
+		tags:ChatUserstate;
 	}
 
 	export interface CountdownResult {

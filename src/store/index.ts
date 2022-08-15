@@ -2,7 +2,7 @@ import router from '@/router';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import { getTwitchatMessageType, TwitchatMessageType, type ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
-import type { BingoData, RaffleData, TrackedUser } from '@/utils/CommonDataTypes';
+import type { BingoData, RaffleData, RaffleEntry, TrackedUser, WheelItem } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import DeezerHelperEvent from '@/utils/DeezerHelperEvent';
@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type WheelItem } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -144,7 +144,7 @@ const store = createStore({
 			{
 				id:"timerStop",
 				cmd:"/timerStop",
-				details:"Stops the timer",
+				details:"Stop the timer",
 			},
 			{
 				id:"countdown",
@@ -183,9 +183,9 @@ const store = createStore({
 				needChannelPoints:true,
 			},
 			{
-				id:"chatpoll",
-				cmd:"/chatpoll",
-				details:"Start a chat poll",
+				id:"chatsugg",
+				cmd:"/chatsugg",
+				details:"Start a chat suggestion",
 			},
 			{
 				id:"prediction",
@@ -238,7 +238,7 @@ const store = createStore({
 			{
 				id:"unvip",
 				cmd:"/unvip {user}",
-				details:"Remove VIP status to a user",
+				details:"Remove VIP status from a user",
 				needChannelPoints:true,
 			},
 			{
@@ -1021,13 +1021,95 @@ const store = createStore({
 		
 		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
 
-		startRaffle(state, payload:RaffleData) {
+		async startRaffle(state, payload:RaffleData) {
 			state.raffle = payload;
 			
-			if(state.botMessages.raffleStart.enabled) {
-				let message = state.botMessages.raffleStart.message;
-				message = message.replace(/\{CMD\}/gi, payload.command);
-				IRCClient.instance.sendMessage(message);
+			let overlayAvailable = false;
+			const callback = (e:TwitchatEvent) => {overlayAvailable = true;}
+			PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, callback);
+			
+			//Ask if the wheel overlay exists
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+			await Utils.promisedTimeout(500);//Give the overlay some time to answer
+			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, callback);
+			
+			switch(payload.mode) {
+				case "chat": {
+					//Start countdown if requested
+					if(payload.showCountdownOverlay) {
+						store.dispatch("startCountdown", payload.duration * 1000 * 60);
+					}
+					//Announce start on chat
+					if(state.botMessages.raffleStart.enabled) {
+						let message = state.botMessages.raffleStart.message;
+						message = message.replace(/\{CMD\}/gi, payload.command);
+						IRCClient.instance.sendMessage(message);
+					}
+					break;
+				}
+
+				case "sub": {
+					const idToExists:{[key:string]:boolean} = {};
+					let subs = await TwitchUtils.getSubsList();
+					console.log(subs);
+					subs = subs.filter(v => {
+						//Avoid duplicates
+						if(idToExists[v.user_id] == true) return false;
+						if(idToExists[v.gifter_id] == true && v.gifter_id) return false;
+						idToExists[v.user_id] = true;
+						idToExists[v.gifter_id] = true;
+						//Filter based on params
+						if(payload.subMode_includeGifters == true && subs.find(v2=> v2.gifter_id == v.user_id)) return true;
+						if(payload.subMode_excludeGifted == true && v.is_gift) return false;
+						if(v.user_id == v.broadcaster_id) return false;//Exclude self
+						return true;
+					});
+					
+					const items:RaffleEntry[] = subs.map(v=>{
+						return {
+							id:v.user_id,
+							label:v.user_name,
+							score:1,
+						}
+					});
+					state.raffle.entries = items;
+					
+					if(overlayAvailable) {
+						//A wheel overlay exists, ask it to animate
+						const winner = Utils.pickRand(items).id;
+						const data:{items:WheelItem[], winner:string} = { items, winner };
+						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
+					}else{
+						//No wheel overlay found, announce on chat
+						const winner:WheelItem = Utils.pickRand(items);
+						store.dispatch("onRaffleComplete", {publish:true, winner});
+					}
+					break;
+				}
+
+				case "manual": {
+					let id = 0;
+					const items:RaffleEntry[] = payload.customEntries.map(v=> {
+						return {
+							id:(id++).toString(),
+							label:v,
+							score:1,
+						}
+					});
+					state.raffle.entries = items;
+					
+					if(overlayAvailable) {
+						//A wheel overlay exists, ask it to animate
+						const winner = Utils.pickRand(items).id;
+						const data:{items:WheelItem[], winner:string} = { items, winner };
+						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
+					}else{
+						//No wheel overlay found, announce on chat
+						const winner:WheelItem = Utils.pickRand(items);
+						store.dispatch("onRaffleComplete", {publish:true, winner});
+					}
+					break;
+				}
 			}
 		},
 
@@ -1036,26 +1118,36 @@ const store = createStore({
 		onRaffleComplete(state, payload:{publish:boolean, winner:WheelItem}) {
 			// state.raffle = null;
 			if(!state.raffle) return;
+			const winner = state.raffle.entries.find(v=> v.id == payload.winner.id);
+			console.log("WINNER", payload, winner);
+			console.log(state.raffle);
+			if(!winner) return;
+
+			if(!state.raffle.winners) state.raffle.winners = [];
+			state.raffle.winners.push(winner);
+			
+			//Execute triggers
+			const message:IRCEventDataList.RaffleResult = {
+				type:"raffle",
+				data:state.raffle as RaffleData,
+				markedAsRead:false,
+				winner,
+				tags:IRCClient.instance.getFakeTags(),
+			}
+			TriggerActionHandler.instance.onMessage(message);
+			store.dispatch("addChatMessage", message);
 
 			//Post result on chat
 			if(state.botMessages.raffle.enabled) {
 				let message = state.botMessages.raffle.message;
 				let label = payload.winner.label;
-				
-				if((payload.winner.data as ChatUserstate)['display-name']) {
-					label = (payload.winner.data as ChatUserstate)['display-name'] as string;
-				}
-				if((payload.winner.data as TwitchDataTypes.Subscriber).user_name) {
-					label = (payload.winner.data as TwitchDataTypes.Subscriber).user_name;
-				}
 				message = message.replace(/\{USER\}/gi, label);
 				IRCClient.instance.sendMessage(message);
 			}
 
+			//Publish the result on the public API
 			if(payload.publish !== false) {
-				//Publish the result on the public API
-				const data = { winner:payload.winner };
-				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, (data as unknown) as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, (payload.winner as unknown) as JsonObject);
 			}
 		},
 
@@ -1185,11 +1277,13 @@ const store = createStore({
 			//remove incomplete entries
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
-					if(v.type == "") return false;
+					if(v.type == null) return false;
 					if(v.type == "obs") return v.sourceName?.length > 0;
 					if(v.type == "chat") return v.text?.length > 0;
 					if(v.type == "music") return true;
 					if(v.type == "tts") return true;
+					if(v.type == "raffle") return true;
+					if(v.type == "bingo") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -1612,8 +1706,8 @@ const store = createStore({
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-				const winner = ((e.data as unknown) as {winner:WheelItem}).winner;
-				this.dispatch("onRaffleComplete", {publish:false, winner});
+				const data = (e.data as unknown) as {winner:WheelItem};
+				this.dispatch("onRaffleComplete", {publish:false, winner:data.winner});
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
@@ -1688,14 +1782,15 @@ const store = createStore({
 
 					//If a raffle is in progress, check if the user can enter
 					const raffle = state.raffle;
-					if(raffle && messageData.type == TwitchatMessageType.MESSAGE
+					if(raffle && raffle.mode == "chat"
+					&& messageData.type == TwitchatMessageType.MESSAGE
 					&& messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
 						const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 						//Check if within time frame and max users count isn't reached and that user
 						//hasn't already entered
 						if(ellapsed <= raffle.duration * 60000
-						&& (raffle.maxUsers <= 0 || raffle.users.length < raffle.maxUsers)
-						&& !raffle.users.find(v=>v.user['user-id'] == messageData.tags['user-id'])) {
+						&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)
+						&& !raffle.entries.find(v=>v.id == messageData.tags['user-id'])) {
 							let score = 1;
 							const user = messageData.tags;
 							//Apply ratios if any is defined
@@ -1712,7 +1807,11 @@ const store = createStore({
 								}
 								if(state.followingStates[uid] === true) score += raffle.followRatio;
 							}
-							raffle.users.push( { score, user } );
+							raffle.entries.push( {
+								score,
+								label:user['display-name'] ?? user.username ?? "missing login",
+								id:user['user-id'] as string,
+							} );
 							
 							if(state.botMessages.raffleJoin.enabled) {
 								let message = state.botMessages.raffleJoin.message;
@@ -2338,53 +2437,7 @@ const store = createStore({
 
 		stopRaffle({commit}) { commit("stopRaffle"); },
 
-		onRaffleComplete({commit, state}, payload:{publish:boolean, winner:WheelItem}) {
-			if(!state.raffle) {
-				//We end up here when doing a "sub" raffle.
-				//Users are not picked after sending a chat command but from
-				//our subs lists. As the raffle system is mostly made around
-				//chat commands, we need to create fake data to make it look
-				//like it's a classic raffle.
-				const winner:ChatUserstate = {
-					"display-name": payload.winner.label,
-					login: payload.winner.label,
-					id: payload.winner.id,
-				}
-				state.raffle = {
-					command:"__fakerafflecmd__",
-					duration:0,
-					maxUsers:0,
-					created_at:0,
-					users:[{user:winner, score:1}],
-					vipRatio:0,
-					followRatio:0,
-					subRatio:0,
-					subgitRatio:0,
-					winners:[],
-				}
-			}
-
-			//Send notification on the activity feed
-			const winner = state.raffle.users.find(v=> v.user.id == payload.winner.id);
-			if(winner) {
-				if(!state.raffle.winners) state.raffle.winners = [];
-				state.raffle.winners.push(winner.user);
-				//Post result on chat
-				const message:IRCEventDataList.RaffleResult = {
-					type:"raffle",
-					data:state.raffle as RaffleData,
-					markedAsRead:false,
-					tags: {
-						id:IRCClient.instance.getFakeGuid(),
-						"tmi-sent-ts": Date.now().toString()
-					},
-				}
-				TriggerActionHandler.instance.onMessage(message);
-			}
-			
-			//Close the raffle
-			commit("onRaffleComplete", payload);
-		},
+		onRaffleComplete({commit}, payload:{publish:boolean, winner:WheelItem}) { commit("onRaffleComplete", payload); },
 
 		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
 

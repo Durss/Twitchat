@@ -25,13 +25,17 @@
 				:open="presets.length == 0 || forceOpenForm" icon="update">
 					<ParamItem class="item" :paramData="param_title" autofocus />
 	
-					<AutoCompleteForm title="Category" @search="searchCategory" v-slot="{ item }" v-model="categories" :maxItems="1" idKey="id">
+					<AutoCompleteForm class="item category" title="Category" @search="searchCategory" v-slot="{ item }" v-model="categories" :maxItems="1" idKey="id">
 						<Button class="autoComplete-item" small :title="item.name" :icon="item.box_art_url" />
 					</AutoCompleteForm>
 	
-					<AutoCompleteForm title="Tags" @search="searchTags" v-slot="{ item }" :delay="0" v-model="tags" :maxItems="5" idKey="tag_id">
+					<AutoCompleteForm class="item" title="Tags" @search="searchTags" v-slot="{ item }" :delay="0" v-model="tags" :maxItems="5" idKey="tag_id">
 						<Button class="autoComplete-item" small :title="item.localization_names['en-us']" />
 					</AutoCompleteForm>
+					<div class="info">
+						<img src="@/assets/icons/infos.svg" alt="info">
+						<p class="label">Custom tags are not yet allowed by Twitch API</p>
+					</div>
 					
 					<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
 					
@@ -223,6 +227,10 @@ export default class StreamInfoForm extends Vue {
 	height: 100%;
 	.modal();
 
+	.item {
+		margin-top: .5em;
+	}
+
 	.presets {
 		margin-bottom: 1em;
 		.preset {
@@ -268,12 +276,49 @@ export default class StreamInfoForm extends Vue {
 			max-height: 2em;
 			margin-right: .25em;
 		}
+
+		&:after {
+			content: "";
+			background-image: url("../../assets/icons/trash.svg");
+			width: 1em;
+			height: 1em;
+			background-repeat: no-repeat;
+			background-position: center;
+			transition: .25s all;
+		}
+
+		&:hover {
+			&:after {
+				width: 1.25em;
+				height: 1.25em;
+			}
+		}
 	}
 	:deep(.selected) {
 		.button {
 			.icon{
 				max-height: 4em;
 			}
+		}
+	}
+
+	.info {
+		overflow: hidden;
+		padding: .5em;
+		padding-left: calc(1em + 10px);
+		background-color: @mainColor_light;
+		border-radius: .5em;
+		margin: .5em 0;
+		font-size: .8em;
+		text-align: center;
+		img {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
+		}
+		.label {
+			display: inline;
+			color: @mainColor_warn;
 		}
 	}
 

@@ -361,28 +361,9 @@ Sent when a raffle completes
 ```typescript
 {
 	winner:{
-		id:string;
 		label:string;
-		//Data when doing a chat raffle
-		data:{
-			user:Object;//IRC user data
-			score:number;//Ponderation score if any
-		};
-		//Data when doing a raffle amongst our subs
-		data:{
-			broadcaster_id: string;
-			broadcaster_login: string;
-			broadcaster_name: string;
-			gifter_id: string;
-			gifter_login: string;
-			gifter_name: string;
-			is_gift: boolean;
-			tier: string;
-			plan_name: string;
-			user_id: string;
-			user_name: string;
-			user_login: string;
-		};
+		id:string;//user ID in case of a chat raffle
+		score:number;//Score value if using ponderation options
 	},
 }
 ```
@@ -583,7 +564,7 @@ Request the currently playing spotify track\
 Start a wheel animation.
 ### JSON param *(optional)*
 `items` contains the list of wheel items to display on the wheel. There must be between 1 and an infinity of items.\
-`winner` param is the entry of the list the wheel should stop to.
+`winner` param is the `id` of the entry the wheel should stop to.
 ```typescript
 {
 	items:[
@@ -594,11 +575,7 @@ Start a wheel animation.
 		},
 		//...
 	],
-	winner: {
-		id:string;
-		label:string;
-		data:any;
-	},
+	winner:string;
 }
 ```
 ## **GET_WHEEL_OVERLAY_PRESENCE**

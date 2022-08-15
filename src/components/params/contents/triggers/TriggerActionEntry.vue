@@ -24,7 +24,7 @@
 		</template>
 
 		<div>
-			<div v-if="action.type===''" class="typeSelector">
+			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
 				
@@ -43,14 +43,18 @@
 					:icon="$image('icons/music_purple.svg')"
 					:disabled="!musicServiceConfigured"
 					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the Overlays section'"/>
+					
+				<Button class="button" white @click="selectActionType('bingo')" title="Start a bingo" :icon="$image('icons/bingo_purple.svg')"/>
+				
+				<Button class="button" white @click="selectActionType('raffle')" title="Start a raffle" :icon="$image('icons/ticket_purple.svg')"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
 			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
 			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
-			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
+			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 
-			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==''" v-model="action.delay" />
+			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
 
 		</div>
 	</ToggleBlock>
@@ -59,7 +63,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ParameterData, TriggerActionTypes } from '@/types/TwitchatDataTypes';
+import type { ParameterData, TriggerActionStringTypes, TriggerActionTypes } from '@/types/TwitchatDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '@/components/params/ParamItem.vue';
@@ -69,6 +73,7 @@ import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import Config from '@/utils/Config';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import RaffleForm from '../../../raffle/RaffleForm.vue';
 
 @Options({
 	props:{
@@ -81,6 +86,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 	components:{
 		Button,
 		ParamItem,
+		RaffleForm,
 		ToggleBlock,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
@@ -186,7 +192,7 @@ export default class TriggerActionEntry extends Vue {
 		this.$emit("update");
 	}
 
-	public selectActionType(type:'obs'|'chat'|'music'|'tts'):void {
+	public selectActionType(type:TriggerActionStringTypes):void {
 		this.action.type = type
 	}
 
