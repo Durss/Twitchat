@@ -12,7 +12,7 @@
 			<p class="max" v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</p>
 			<p>entered</p>
 		</div>
-		<div class="item winners" v-if="raffleData.winners.length > 0">
+		<div class="item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
 			<span class="title">Winners <span class="count">({{raffleData.winners.length}})</span> :</span>
 			<div class="entries">
 				<span v-for="w in raffleData.winners" :key="w.label" @click="openUserCard(w)">{{w.label}}</span>
@@ -24,7 +24,7 @@
 			title="Pick a winner"
 			@click="pickWinner()"
 			:loading="picking"
-			:disabled="!raffleData.entries || raffleData.entries.length == 0 || raffleData.winners.length == raffleData.entries.length" />
+			:disabled="!raffleData.entries || raffleData.entries.length == 0 || raffleData.winners?.length == raffleData.entries.length" />
 
 		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
@@ -114,6 +114,9 @@ export default class RaffleState extends Vue {
 					list.push(u);
 				}
 			}
+		}
+		if(!this.raffleData.winners) {
+			this.raffleData.winners = [];
 		}
 		
 		//Pick a winner that has not already be picked

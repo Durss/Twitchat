@@ -45,11 +45,11 @@ export interface RaffleData {
 	followRatio:number;
 	subRatio:number;
 	subgitRatio:number;
-	winners:RaffleEntry[];
 	subMode_includeGifters:boolean;
 	subMode_excludeGifted:boolean;
 	showCountdownOverlay:boolean;
 	customEntries:string;
+	winners?:RaffleEntry[];
 }
 
 export interface WheelItem {

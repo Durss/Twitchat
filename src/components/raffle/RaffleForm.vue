@@ -225,7 +225,6 @@ export default class RaffleForm extends Vue {
 			subMode_excludeGifted: this.subs_excludeGifted.value as boolean,
 			showCountdownOverlay: this.showCountdownOverlay.value as boolean,
 			customEntries: this.customEntries.value as string,
-			winners: [],
 		}
 	}
 
