@@ -42,7 +42,7 @@
 				<ParamItem class="item" :paramData="param_volume" />
 				<ParamItem class="item" :paramData="param_rate" />
 				<ParamItem class="item" :paramData="param_pitch" />
-				<input class="item center" type="text" :value="testStr" placeholder="message...">
+				<input class="item center" type="text" v-model="testStr" placeholder="message...">
 				<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" @click="test()" />
 			</section>
 
