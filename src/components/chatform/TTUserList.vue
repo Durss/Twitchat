@@ -26,7 +26,7 @@
 					:key="u.id"
 					class="user"
 					ref="userCard"
-					:href="'https://twitch.tv/' + u.user.login"
+					:href="u.user? 'https://twitch.tv/' + u.user.login : '#'"
 					target="_blank"
 				>
 					<div class="header" v-if="u.user">
@@ -135,10 +135,6 @@ export default class TTUserList extends Vue {
 		this.$emit('close');
 	}
 
-	public openUser(u:UserData):void {
-		window.open("https://twitch.tv/" + u.user.login, "_blank");
-	}
-
 	private async updateList():Promise<void> {
 		let res;
 		try {
@@ -175,7 +171,7 @@ export default class TTUserList extends Vue {
 			const u = this.users[i];
 			if(u.date < limit) break;
 		}
-		console.log("load", i);
+		
 		if(i > 0) {
 			this.loadNextUsers(i);
 		}
