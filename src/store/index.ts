@@ -1567,8 +1567,8 @@ const store = createStore({
 			}else{
 				state.isChatMessageHighlighted = false;
 
-				const clonedData:ChatHighlightInfo = {type: "chatOverlayHighlight"};
-				TriggerActionHandler.instance.onMessage(clonedData);
+				// const clonedData:ChatHighlightInfo = {type: "chatOverlayHighlight"};
+				// TriggerActionHandler.instance.onMessage(clonedData);
 			}
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)

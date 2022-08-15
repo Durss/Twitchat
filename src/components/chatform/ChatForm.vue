@@ -138,7 +138,7 @@
 					:icon="$image('icons/highlight_del.svg')"
 					bounce
 					v-if="chatHighlightEnabled"
-					data-tooltip="Remove currently<br>highlihted message"
+					data-tooltip="Remove currently<br>highlighted message"
 					@click="removeChatHighlight()" />
 				</transition>
 
