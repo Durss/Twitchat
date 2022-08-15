@@ -55,7 +55,7 @@ export default class ChatBingoResult extends Vue {
 		width: 1.5em;
 		height: 1.5em;
 		object-fit: contain;
-		margin-right: 20px;
+		margin-right: 1em;
 	}
 	.emote {
 		width: 2em;
