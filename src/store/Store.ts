@@ -1,6 +1,6 @@
 import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
-import type { TriggerData, TriggerActionTypes } from "../types/TwitchatDataTypes";
+import type { TriggerData, TriggerActionTypes, TTSParamsData } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
 import StoreProxy from "@/utils/StoreProxy";
 
@@ -118,6 +118,10 @@ export default class Store {
 			//Trying to fix this here...(again)
 			this.remove("obsConf_sources");
 			v = "12";
+		}
+		if(v=="12") {
+			this.fixTTSPlaceholders();
+			v = "13";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -480,5 +484,17 @@ export default class Store {
 		this.remove("obsIp");
 		this.remove("p:emergencyButton");
 		this.set(this.EMERGENCY_PARAMS, StoreProxy.store.state.emergencyParams);
+	}
+
+	/**
+	 * Fixing wrong TTS placeholders
+	 */
+	private static fixTTSPlaceholders():void {
+		const params = JSON.parse(this.get(this.TTS_PARAMS)) as TTSParamsData;
+		if(params) {
+			params.readBingosPattern = params.readBingosPattern.replace(/\{USER\}/gi, "{WINNER}");
+			params.readRafflePattern = params.readRafflePattern.replace(/\{USER\}/gi, "{WINNER}");
+			this.set(this.TTS_PARAMS, params);
+		}
 	}
 }

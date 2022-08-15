@@ -2208,102 +2208,102 @@ const store = createStore({
 				}
 			}
 
-			//Init OBS scenes params
-			const obsSceneCommands = Store.get(Store.OBS_CONF_SCENES);
-			if(obsSceneCommands) {
-				state.obsSceneCommands = JSON.parse(obsSceneCommands);
-			}
-			
-			//Init OBS command params
-			const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
-			if(obsMuteUnmuteCommands) {
-				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (state.obsMuteUnmuteCommands as unknown) as JsonObject);
-			}
-			
-			//Init OBS permissions
-			const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
-			if(obsCommandsPermissions) {
-				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (state.obsCommandsPermissions as unknown) as JsonObject);
-			}
-
-			//Init TTS actions
-			const tts = Store.get(Store.TTS_PARAMS);
-			if (tts) {
-				Utils.mergeRemoteObject(JSON.parse(tts), (state.ttsParams as unknown) as JsonObject);
-				TTSUtils.instance.enabled = state.ttsParams.enabled;
-			}
-			
-			//Init emergency actions
-			const emergency = Store.get(Store.EMERGENCY_PARAMS);
-			if(emergency) {
-				Utils.mergeRemoteObject(JSON.parse(emergency), (state.emergencyParams as unknown) as JsonObject);
-			}
-			
-			//Init alert actions
-			const alert = Store.get(Store.ALERT_PARAMS);
-			if(alert) {
-				Utils.mergeRemoteObject(JSON.parse(alert), (state.chatAlertParams as unknown) as JsonObject);
-			}
-			
-			//Init spoiler param
-			const spoiler = Store.get(Store.SPOILER_PARAMS);
-			if(spoiler) {
-				Utils.mergeRemoteObject(JSON.parse(spoiler), (state.spoilerParams as unknown) as JsonObject);
-			}
-			
-			//Init chat highlight params
-			const chatHighlight = Store.get(Store.CHAT_HIGHLIGHT_PARAMS);
-			if(chatHighlight) {
-				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (state.chatHighlightOverlayParams as unknown) as JsonObject);
-			}
-			
-			//Init triggers
-			const triggers = Store.get(Store.TRIGGERS);
-			if(triggers) {
-				Utils.mergeRemoteObject(JSON.parse(triggers), (state.triggers as unknown) as JsonObject);
-				TriggerActionHandler.instance.triggers = state.triggers;
-			}
-				
-			//Init stream info presets
-			const presets = Store.get(Store.STREAM_INFO_PRESETS);
-			if(presets) {
-				state.streamInfoPreset = JSON.parse(presets);
-			}
-
-			//Init emergency followers
-			const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
-			if(emergencyFollows) {
-				state.emergencyFollows = JSON.parse(emergencyFollows);
-			}
-
-			//Init music player params
-			const musicPlayerParams = Store.get(Store.MUSIC_PLAYER_PARAMS);
-			if(musicPlayerParams) {
-				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (state.musicPlayerParams as unknown) as JsonObject);
-			}
-			
-			//Init OBS permissions
-			const voiceActions = Store.get("voiceActions");
-			if(voiceActions) {
-				state.voiceActions = JSON.parse(voiceActions);
-			}
-			
-			//Init OBS permissions
-			const voiceLang = Store.get("voiceLang");
-			if(voiceLang) {
-				state.voiceLang = voiceLang;
-				VoiceController.instance.lang = voiceLang;
-			}
-			
-			//Load bot messages
-			const botMessages = Store.get(Store.BOT_MESSAGES);
-			if(botMessages) {
-				//Merge remote and local to avoid losing potential new
-				//default values on local data
-				Utils.mergeRemoteObject(JSON.parse(botMessages), (state.botMessages as unknown) as JsonObject);
-			}
-
 			if(authenticated) {
+				//Init OBS scenes params
+				const obsSceneCommands = Store.get(Store.OBS_CONF_SCENES);
+				if(obsSceneCommands) {
+					state.obsSceneCommands = JSON.parse(obsSceneCommands);
+				}
+				
+				//Init OBS command params
+				const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
+				if(obsMuteUnmuteCommands) {
+					Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (state.obsMuteUnmuteCommands as unknown) as JsonObject);
+				}
+				
+				//Init OBS permissions
+				const obsCommandsPermissions = Store.get(Store.OBS_CONF_PERMISSIONS);
+				if(obsCommandsPermissions) {
+					Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (state.obsCommandsPermissions as unknown) as JsonObject);
+				}
+
+				//Init TTS actions
+				const tts = Store.get(Store.TTS_PARAMS);
+				if (tts) {
+					Utils.mergeRemoteObject(JSON.parse(tts), (state.ttsParams as unknown) as JsonObject);
+					TTSUtils.instance.enabled = state.ttsParams.enabled;
+				}
+				
+				//Init emergency actions
+				const emergency = Store.get(Store.EMERGENCY_PARAMS);
+				if(emergency) {
+					Utils.mergeRemoteObject(JSON.parse(emergency), (state.emergencyParams as unknown) as JsonObject);
+				}
+				
+				//Init alert actions
+				const alert = Store.get(Store.ALERT_PARAMS);
+				if(alert) {
+					Utils.mergeRemoteObject(JSON.parse(alert), (state.chatAlertParams as unknown) as JsonObject);
+				}
+				
+				//Init spoiler param
+				const spoiler = Store.get(Store.SPOILER_PARAMS);
+				if(spoiler) {
+					Utils.mergeRemoteObject(JSON.parse(spoiler), (state.spoilerParams as unknown) as JsonObject);
+				}
+				
+				//Init chat highlight params
+				const chatHighlight = Store.get(Store.CHAT_HIGHLIGHT_PARAMS);
+				if(chatHighlight) {
+					Utils.mergeRemoteObject(JSON.parse(chatHighlight), (state.chatHighlightOverlayParams as unknown) as JsonObject);
+				}
+				
+				//Init triggers
+				const triggers = Store.get(Store.TRIGGERS);
+				if(triggers) {
+					Utils.mergeRemoteObject(JSON.parse(triggers), (state.triggers as unknown) as JsonObject);
+					TriggerActionHandler.instance.triggers = state.triggers;
+				}
+					
+				//Init stream info presets
+				const presets = Store.get(Store.STREAM_INFO_PRESETS);
+				if(presets) {
+					state.streamInfoPreset = JSON.parse(presets);
+				}
+
+				//Init emergency followers
+				const emergencyFollows = Store.get(Store.EMERGENCY_FOLLOWERS);
+				if(emergencyFollows) {
+					state.emergencyFollows = JSON.parse(emergencyFollows);
+				}
+
+				//Init music player params
+				const musicPlayerParams = Store.get(Store.MUSIC_PLAYER_PARAMS);
+				if(musicPlayerParams) {
+					Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (state.musicPlayerParams as unknown) as JsonObject);
+				}
+				
+				//Init OBS permissions
+				const voiceActions = Store.get("voiceActions");
+				if(voiceActions) {
+					state.voiceActions = JSON.parse(voiceActions);
+				}
+				
+				//Init OBS permissions
+				const voiceLang = Store.get("voiceLang");
+				if(voiceLang) {
+					state.voiceLang = voiceLang;
+					VoiceController.instance.lang = voiceLang;
+				}
+				
+				//Load bot messages
+				const botMessages = Store.get(Store.BOT_MESSAGES);
+				if(botMessages) {
+					//Merge remote and local to avoid losing potential new
+					//default values on local data
+					Utils.mergeRemoteObject(JSON.parse(botMessages), (state.botMessages as unknown) as JsonObject);
+				}
+
 				//Init spotify connection
 				const spotifyAuthToken = Store.get(Store.SPOTIFY_AUTH_TOKEN);
 				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
