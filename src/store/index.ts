@@ -1476,7 +1476,6 @@ const store = createStore({
 				type:"countdown",
 				started:true,
 				data:state.countdown as CountdownData,
-				markedAsRead:false,
 				tags: {
 					id:IRCClient.instance.getFakeGuid(),
 					"tmi-sent-ts": Date.now().toString()
@@ -1492,15 +1491,15 @@ const store = createStore({
 
 			const message:IRCEventDataList.CountdownResult = {
 				type:"countdown",
-				started:true,
-				data:state.countdown as CountdownData,
-				markedAsRead:false,
+				started:false,
+				data:JSON.parse(JSON.stringify(state.countdown)) as CountdownData,
 				tags: {
 					id:IRCClient.instance.getFakeGuid(),
 					"tmi-sent-ts": Date.now().toString()
 				},
 			};
 			TriggerActionHandler.instance.onMessage(message);
+			store.dispatch("addChatMessage", message);
 
 			const data = { startAt:state.countdown?.startAt, duration:state.countdown?.duration };
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
@@ -1833,6 +1832,7 @@ const store = createStore({
 						win ||= bingo.emoteValue
 						&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
 						if(win) {
+							const winner = messageData.tags['display-name'] as string;
 							bingo.winners = [messageData.tags];
 							if(state.botMessages.bingo.enabled) {
 								//TMI.js never cease to amaze me.
@@ -1841,22 +1841,23 @@ const store = createStore({
 								//If we didn't wait for a frame, the message would be sent properly
 								//but wouldn't appear on this chat.
 								setTimeout(()=> {
-									const winner = messageData.tags['display-name'] as string;
-									let message = state.botMessages.bingo.message;
-									message = message.replace(/\{USER\}/gi, winner)
-									IRCClient.instance.sendMessage(message);
-	
-									//Post result on chat
-									const payload:IRCEventDataList.BingoResult = {
-										type:"bingo",
-										data:state.bingo as BingoData,
-										winner,
-										tags:IRCClient.instance.getFakeTags(),
+									if(state.botMessages.bingo.enabled) {
+										let message = state.botMessages.bingo.message;
+										message = message.replace(/\{USER\}/gi, winner)
+										IRCClient.instance.sendMessage(message);
 									}
-									this.dispatch("addChatMessage", payload);
-									TriggerActionHandler.instance.onMessage(payload);
 								},0);
 							}
+	
+							//Post result on chat
+							const payload:IRCEventDataList.BingoResult = {
+								type:"bingo",
+								data:state.bingo as BingoData,
+								winner,
+								tags:IRCClient.instance.getFakeTags(),
+							}
+							this.dispatch("addChatMessage", payload);
+							TriggerActionHandler.instance.onMessage(payload);
 						}
 					}
 	
@@ -2516,18 +2517,6 @@ const store = createStore({
 		
 		startCountdown({commit, state}, duration:number) {
 			let timeout = setTimeout(()=> {
-				const message:IRCEventDataList.CountdownResult = {
-					type:"countdown",
-					started:false,
-					data:JSON.parse(JSON.stringify(state.countdown)) as CountdownData,
-					markedAsRead:false,
-					tags: {
-						id:IRCClient.instance.getFakeGuid(),
-						"tmi-sent-ts": Date.now().toString()
-					},
-				};
-				
-				this.dispatch("addChatMessage", message);
 				commit("stopCountdown");
 			}, Math.max(duration, 1000));
 
