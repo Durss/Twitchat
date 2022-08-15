@@ -238,7 +238,7 @@ export default class RaffleForm extends Vue {
 			}
 		});
 
-		if(this.triggerMode) {
+		if(this.triggerMode && this.action.raffleData) {
 			this.mode = this.action.raffleData.mode;
 			this.command.value = this.action.raffleData.command
 			this.enterDuration.value = this.action.raffleData.duration;

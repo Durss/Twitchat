@@ -5,7 +5,7 @@
 		<ParamItem :paramData="param_subs" class="row" v-model="modelValue.subs" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_users" class="row" v-model="modelValue.users" @change="$emit('update:modelValue', modelValue)"/>
-		<div v-if="noSelection" class="noSelection">Nobody is allowed by the current selection</div>
+		<div v-if="noSelection" class="noSelection">Nobody but you is allowed by the current selection</div>
 	</div>
 </template>
 

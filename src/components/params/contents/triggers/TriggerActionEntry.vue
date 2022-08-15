@@ -149,6 +149,8 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "music") icons.push( 'music' );
 		if(this.action.type == "chat") icons.push( 'whispers' );
 		if(this.action.type == "tts") icons.push( 'tts' );
+		if(this.action.type == "raffle") icons.push( 'ticket' );
+		if(this.action.type == "bingo") icons.push( 'bingo' );
 		return icons;
 	}
 
