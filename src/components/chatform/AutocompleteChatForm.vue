@@ -63,12 +63,12 @@ export default class AutocompleteChatForm extends Vue {
 		return res;
 	}
 
-	private keyUpHandler!:(e:KeyboardEvent) => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 
 	public mounted():void {
 		this.selectedIndex = 0;
-		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyUp(e);
-		document.addEventListener("keydown", this.keyUpHandler);
+		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
+		document.addEventListener("keydown", this.keyDownHandler);
 		watch(()=>this.search, ()=>{
 			this.onSearchChange();
 		});
@@ -76,7 +76,7 @@ export default class AutocompleteChatForm extends Vue {
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("keydown", this.keyUpHandler);
+		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
 	public selectItem(item:ListItem):void {
@@ -88,7 +88,7 @@ export default class AutocompleteChatForm extends Vue {
 		}
 	}
 
-	public onkeyUp(e:KeyboardEvent):void {
+	public onkeyDown(e:KeyboardEvent):void {
 		switch(e.key) {
 			case "Escape":
 				this.$emit("close");
@@ -113,6 +113,7 @@ export default class AutocompleteChatForm extends Vue {
 			case "Enter": {
 				e.preventDefault();
 				e.stopPropagation();
+				console.log("KEY DOWN");
 				this.selectItem(this.filteredItems[this.selectedIndex]);
 				break;
 			}

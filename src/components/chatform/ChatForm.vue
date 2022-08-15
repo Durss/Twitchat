@@ -20,7 +20,7 @@
 					placeholder="message..."
 					:maxlength="maxLength"
 					@keyup.capture.tab="(e)=>onTab(e)"
-					@keyup.enter="sendMessage()"
+					@keydown.enter="sendMessage()"
 					@keydown="onKeyDown">
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
@@ -399,7 +399,6 @@ export default class ChatForm extends Vue {
 	public async sendMessage():Promise<void> {
 		if(this.message.length == 0) return;
 		if(this.openAutoComplete) return;
-
 
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
