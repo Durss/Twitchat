@@ -6,7 +6,7 @@
 				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 			</div>
 			
-			<div class="noResult" v-if="!loading && users?.length == 0">no user found :(</div>
+			<div class="noResult" v-if="!loading && userCount == 0">no user found :(</div>
 		
 			<div class="stats">
 				<div class="table">
@@ -14,15 +14,20 @@
 					<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
 					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
 				</div>
-				<Button small class="loadNext" title="Load 500 next" :icon="$image('icons/user.svg')" @click="loadNextUsers(500)" />
+				<div class="ctas">
+					<Button small :disabled="loading" title="Load 24h" :icon="$image('icons/user.svg')" @click="loadTimeframe(1)" />
+					<Button small :disabled="loading" title="Load 7d" :icon="$image('icons/user.svg')" @click="loadTimeframe(7)" />
+					<Button small :disabled="loading" title="Load 30d" :icon="$image('icons/user.svg')" @click="loadTimeframe(30)" />
+				</div>
 			</div>
 
 			<div class="list">
-				<div v-for="u in usersSpool"
+				<a v-for="u in usersSpool"
 					:key="u.id"
 					class="user"
 					ref="userCard"
-					@click="openUser(u)"
+					:href="'https://twitch.tv/' + u.user.login"
+					target="_blank"
 				>
 					<div class="header" v-if="u.user">
 						<img :src="getProfilePicURL(u)" alt="profile" class="avatar">
@@ -37,7 +42,7 @@
 						<span class="login">DELETED USER ID {{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
-				</div>
+				</a>
 
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 			</div>
@@ -163,6 +168,19 @@ export default class TTUserList extends Vue {
 		this.loading = false;
 	}
 
+	public async loadTimeframe(days:number):Promise<void> {
+		const limit = Date.now() - (days * 24 * 60 * 60 * 1000);
+		let i = 0;
+		for (; i < this.users.length; i++) {
+			const u = this.users[i];
+			if(u.date < limit) break;
+		}
+		console.log("load", i);
+		if(i > 0) {
+			this.loadNextUsers(i);
+		}
+	}
+
 	public async loadNextUsers(chunk?:number):Promise<void> {
 		this.loading = true;
 		chunk = chunk? chunk : this.spoolChunkSize;
@@ -197,9 +215,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	width: 100%;
 	height: 100%;
 	.modal();
-
-	.loader {
-	}
 
 	.noResult {
 		.center();
@@ -251,10 +266,12 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 					font-weight: bold;
 				}
 			}
-			.loadNext {
-				display: block;
-				margin: auto;
+			
+			.ctas {
 				margin-top: .5em;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-evenly;
 			}
 		}
 
@@ -276,6 +293,8 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 				flex-direction: column;
 				position: relative;
 				transition: border .2s;
+				text-decoration: none;
+				color: @mainColor_normal;
 				cursor: pointer;
 	
 				&:nth-child(odd) {
