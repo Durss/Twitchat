@@ -1051,7 +1051,6 @@ const store = createStore({
 				case "sub": {
 					const idToExists:{[key:string]:boolean} = {};
 					let subs = await TwitchUtils.getSubsList();
-					console.log(subs);
 					subs = subs.filter(v => {
 						//Avoid duplicates
 						if(idToExists[v.user_id] == true) return false;
@@ -1089,7 +1088,16 @@ const store = createStore({
 
 				case "manual": {
 					let id = 0;
-					const items:RaffleEntry[] = payload.customEntries.map(v=> {
+					let customEntries:string[] = [];
+					let customEntriesStr = payload.customEntries;
+					if(customEntriesStr?.length > 0) {
+						const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
+						customEntries = customEntriesStr.split(new RegExp(splitter, ""));
+						customEntries = customEntries.map(v=> v.trim());
+					}else{
+						customEntries = ["invalid custom entries"];
+					}
+					const items:RaffleEntry[] = customEntries.map(v=> {
 						return {
 							id:(id++).toString(),
 							label:v,

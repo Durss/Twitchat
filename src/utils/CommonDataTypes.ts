@@ -49,7 +49,7 @@ export interface RaffleData {
 	subMode_includeGifters:boolean;
 	subMode_excludeGifted:boolean;
 	showCountdownOverlay:boolean;
-	customEntries:string[];
+	customEntries:string;
 }
 
 export interface WheelItem {

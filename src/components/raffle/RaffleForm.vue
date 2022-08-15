@@ -173,7 +173,7 @@ export default class RaffleForm extends Vue {
 	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
 	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
 	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
-	public maxUsers:ParameterData = {label:"Max users count", value:10, type:"number", min:0, max:1000000};
+	public maxEntries:ParameterData = {label:"Max users count", value:10, type:"number", min:0, max:1000000};
 	public ponderateVotes:ParameterData = {label:"Ponderate votes (additional points given for every matching criteria)", value:false, type:"toggle"};
 	public ponderateVotes_vip:ParameterData = {label:"VIP", value:0, type:"number", min:0, max:100, icon:"vip_purple.svg"};
 	public ponderateVotes_sub:ParameterData = {label:"Subscriber", value:0, type:"number", min:0, max:100, icon:"sub_purple.svg"};
@@ -211,18 +211,12 @@ export default class RaffleForm extends Vue {
 
 	public get finalData():RaffleData {
 		const cmd = this.command.value? this.command.value as string : "!raffle";
-		let customEntries:string[] = [];
-		let customEntriesStr = this.customEntries.value as string;
-		if(this.mode == "manual") {
-			const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
-			customEntries = customEntriesStr.split(new RegExp(splitter, ""));
-		}
 
 		return  {
 			mode:this.mode,
 			command:cmd,
 			duration:this.enterDuration.value as number,
-			maxEntries:this.maxUsersToggle.value ? this.maxUsers.value as number : 0,
+			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
 			created_at:new Date().getTime(),
 			entries:[],
 			followRatio: this.ponderateVotes_follower.value as number,
@@ -232,7 +226,7 @@ export default class RaffleForm extends Vue {
 			subMode_includeGifters: this.subs_includeGifters.value as boolean,
 			subMode_excludeGifted: this.subs_excludeGifted.value as boolean,
 			showCountdownOverlay: this.showCountdownOverlay.value as boolean,
-			customEntries,
+			customEntries: this.customEntries.value as string,
 			winners: [],
 		}
 	};
@@ -243,13 +237,32 @@ export default class RaffleForm extends Vue {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		});
+
+		if(this.triggerMode) {
+			this.mode = this.action.raffleData.mode;
+			this.command.value = this.action.raffleData.command
+			this.enterDuration.value = this.action.raffleData.duration;
+			this.maxEntries.value = this.action.raffleData.maxEntries
+			this.maxUsersToggle.value = this.maxEntries.value > 0;
+			this.ponderateVotes_follower.value = this.action.raffleData.followRatio;
+			this.ponderateVotes_vip.value = this.action.raffleData.vipRatio;
+			this.ponderateVotes_sub.value = this.action.raffleData.subRatio;
+			this.ponderateVotes_subgift.value = this.action.raffleData.subgitRatio;
+			this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters;
+			this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted;
+			this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
+			this.customEntries.value = this.action.raffleData.customEntries;
+		}
 		
 		this.showCountdownOverlay.value = Store.get(Store.RAFFLE_OVERLAY_COUNTDOWN) === "true";
-		this.maxUsersToggle.children = [this.maxUsers];
+		this.maxUsersToggle.children = [this.maxEntries];
 		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+
+		if(!this.triggerMode) {
+			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
+			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
+			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		}
 		
 		watch(()=>this.showCountdownOverlay.value, ()=>{
 			Store.set(Store.RAFFLE_OVERLAY_COUNTDOWN, this.showCountdownOverlay.value)
@@ -260,7 +273,7 @@ export default class RaffleForm extends Vue {
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList();
 		this.pickingEntry = false;
-		this.onValueChange();
+		// this.onValueChange();
 	}
 
 	public beforeUnmount():void {
