@@ -271,7 +271,6 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:number):Promise<boolean> {
-		message.winner = message.data.winners[0];
 		return await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, guid);
 	}
 	
@@ -448,7 +447,12 @@ export default class TriggerActionHandler {
 					
 					//Handle raffle action
 					if(step.type == "raffle") {
-						StoreProxy.store.dispatch("startRaffle", step.raffleData);
+						StoreProxy.store.dispatch("startRaffle", JSON.parse(JSON.stringify(step.raffleData)));
+					}else
+					
+					//Handle bingo action
+					if(step.type == "bingo") {
+						StoreProxy.store.dispatch("startBingo", JSON.parse(JSON.stringify(step.bingoData)));
 					}else
 
 					//Handle music actions

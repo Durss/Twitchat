@@ -132,7 +132,7 @@ export interface TriggerActionRaffleData extends TriggerActionData{
 
 export interface TriggerActionBingoData extends TriggerActionData{
 	type:"bingo";
-	bingoData:BingoData;
+	bingoData:BingoConfig;
 }
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{

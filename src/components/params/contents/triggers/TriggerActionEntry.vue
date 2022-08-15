@@ -54,6 +54,7 @@
 			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
+			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
 
@@ -75,6 +76,7 @@ import Config from '@/utils/Config';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
+import BingoForm from '../../../bingo/BingoForm.vue';
 
 @Options({
 	props:{
@@ -87,6 +89,7 @@ import RaffleForm from '../../../raffle/RaffleForm.vue';
 	components:{
 		Button,
 		ParamItem,
+		BingoForm,
 		RaffleForm,
 		ToggleBlock,
 		TriggerActionOBSEntry,
@@ -256,11 +259,12 @@ export default class TriggerActionEntry extends Vue {
 		margin-top: .25em;
 	}
 
-	.delay, .show {
+	.delay {
 		:deep(input){
-			width: 90px;
 			flex-grow: unset;
 			min-width: unset;
+			width: 90px;
+			max-width: 90px;
 		}
 	}
 

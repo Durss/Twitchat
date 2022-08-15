@@ -748,34 +748,48 @@ const UserDataSchema = {
 										track: {type:"string", maxLength:500},
 										confirmMessage: {type:"string", maxLength:500},
 										playlist: {type:"string", maxLength:500},
-										raffleData:  {
-											mode: {type:"string", maxLength:20},
-											command: {type:"string", maxLength:100},
-											duration: {type:"number", minimum:0, maximum:120},
-											maxEntries: {type:"number", minimum:0, maximum:1000000},
-											created_at: {type:"number", minimum:0, maximum:9999999999999},
-											entries: {
-												type:"array",
-												items: [
-													{
-														type: "object",
-														additionalProperties: false,
-														properties: {
-															id:{type:"string", maxLength:100},
-															label:{type:"string", maxLength:200},
-															score:{type:"number", minimum:0, maximum:100},
+										raffleData: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												mode: {type:"string", maxLength:20},
+												command: {type:"string", maxLength:100},
+												duration: {type:"number", minimum:0, maximum:120},
+												maxEntries: {type:"number", minimum:0, maximum:1000000},
+												created_at: {type:"number", minimum:0, maximum:9999999999999},
+												entries: {
+													type:"array",
+													items: [
+														{
+															type: "object",
+															additionalProperties: false,
+															properties: {
+																id:{type:"string", maxLength:100},
+																label:{type:"string", maxLength:200},
+																score:{type:"number", minimum:0, maximum:100},
+															}
 														}
-													}
-												]
+													]
+												},
+												followRatio: {type:"number", minimum:0, maximum:100},
+												vipRatio: {type:"number", minimum:0, maximum:100},
+												subRatio: {type:"number", minimum:0, maximum:100},
+												subgitRatio: {type:"number", minimum:0, maximum:100},
+												subMode_includeGifters: {type:"boolean"},
+												subMode_excludeGifted: {type:"boolean"},
+												showCountdownOverlay: {type:"boolean"},
+												customEntries: {type:"string", maxLength:1000000},
 											},
-											followRatio: {type:"number", minimum:0, maximum:100},
-											vipRatio: {type:"number", minimum:0, maximum:100},
-											subRatio: {type:"number", minimum:0, maximum:100},
-											subgitRatio: {type:"number", minimum:0, maximum:100},
-											subMode_includeGifters: {type:"boolean"},
-											subMode_excludeGifted: {type:"boolean"},
-											showCountdownOverlay: {type:"boolean"},
-											customEntries: {type:"string", maxLength:1000000},
+										},
+										bingoData: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												guessNumber: {type:"boolean"},
+												guessEmote: {type:"boolean"},
+												min: {type:"number", minimum:0, maximum:999999999},
+												max: {type:"number", minimum:0, maximum:999999999},
+											}
 										}
 									}
 								},

@@ -69,7 +69,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.BINGO_RESULT] = [
-		{tag:"WINNER", desc:"Winner name", pointer:"winner.display-name"},
+		{tag:"WINNER", desc:"Winner name", pointer:"winner"},
 	];
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [

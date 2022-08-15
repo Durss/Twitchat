@@ -118,9 +118,7 @@ import Store from '@/store/Store';
 import type { ParameterData, ParamsContentStringType, PlaceholderEntry, TriggerActionRaffleData } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { RaffleData } from '@/utils/CommonDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
 import StoreProxy from '@/utils/StoreProxy';
-import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
@@ -229,7 +227,7 @@ export default class RaffleForm extends Vue {
 			customEntries: this.customEntries.value as string,
 			winners: [],
 		}
-	};
+	}
 
 	public async mounted():Promise<void> {
 		watch(()=>this.voiceControl, ()=>{
@@ -305,65 +303,6 @@ export default class RaffleForm extends Vue {
 			this.pickingEntry = false;
 		}
 	}
-
-	/**
-	 * Picks a random user amongst our subs
-	 */
-	// public async pickSub():Promise<void> {
-	// 	this.winner = null;
-	// 	let increment = {value:0};
-	// 	let prevRounded = increment.value;
-	// 	if(Config.instance.OBS_DOCK_CONTEXT) {
-	// 		this.loadingSubs = true;
-	// 		//Ask if the wheel overlay exists
-	// 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
-	// 		await Utils.promisedTimeout(500);//Give the overlay some time to answer
-	// 	}
-	// 	if(this.wheelOverlayExists){
-	// 		//A wheel overlay exists, ask it to animate
-	// 		const list:WheelItem[] = this.subsFiltered.map(v=>{return{
-	// 									id:v.user_id,
-	// 									label:v.user_name,
-	// 									data:v
-	// 								}});
-	// 		const data:{items:WheelItem[], winner:WheelItem} = {
-	// 			items: list,
-	// 			winner: Utils.pickRand(list),
-	// 		}
-	// 		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
-	// 		this.loadingSubs = false;
-			
-	// 	}else{
-	// 		//No wheel overlay exist, create a pick animation here
-	// 		gsap.to(increment, {value:100, ease:"sine.out", duration:5, onUpdate:()=> {
-	// 			let rounded = Math.round(increment.value);
-	// 			if(rounded != prevRounded) {
-	// 				prevRounded = rounded;
-	// 				this.winnerTmp = Utils.pickRand(this.subsFiltered);
-	// 			}
-	// 		}, onComplete:()=>{
-	// 			//Animation complete
-	// 			this.winner = this.winnerTmp;
-	// 			this.winnerTmp = null;
-	// 			//Wait for result holder to be mounted
-	// 			this.$nextTick().then(()=> {
-	// 				//Animate result holder
-	// 				gsap.fromTo(this.$refs.winnerHolder as HTMLDivElement,
-	// 							{scaleX:1.25, scaleY:2},
-	// 							{duration:1, scale:1, ease:"elastic.out(1, 0.5)"});
-					
-	// 				if(this.winner) {
-	// 					const winner:WheelItem = {
-	// 						id:this.winner.user_id,
-	// 						label:this.winner.user_name,
-	// 						data:this.winner,
-	// 					}
-	// 					StoreProxy.store.dispatch("onRaffleComplete", {winner:winner});
-	// 				}
-	// 			})
-	// 		}})
-	// 	}
-	// }
 	
 	public openParam(page:ParamsContentStringType):void {
 		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;

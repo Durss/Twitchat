@@ -199,5 +199,15 @@ export default class TriggerActionOBSEntry extends Vue {
 			color: @mainColor_warn;
 		}
 	}
+
+	.paramitem  {
+		:deep(select), :deep(input) {
+			max-width: 200px;
+		}
+	}
+
+	.item {
+		margin-bottom: .25em;
+	}
 }
 </style>

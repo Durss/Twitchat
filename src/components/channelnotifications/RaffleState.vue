@@ -205,7 +205,6 @@ export default class RaffleState extends Vue {
 				margin-right: 5px;
 			}
 		}
-		
 
 		&.postChat {
 			width: 70%;
@@ -224,7 +223,6 @@ export default class RaffleState extends Vue {
 				background-color: fade(@mainColor_light, 50%);
 			}
 		}
-
 
 		&.winners {
 			display: block;

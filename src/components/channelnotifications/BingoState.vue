@@ -98,7 +98,7 @@ export default class BingoState extends Vue {
 		}
 	}
 
-	&.postChat {
+	.postChat {
 		width: 70%;
 		margin-top: 10px;
 		font-size: .8em;

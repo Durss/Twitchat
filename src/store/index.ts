@@ -1136,7 +1136,6 @@ const store = createStore({
 			const message:IRCEventDataList.RaffleResult = {
 				type:"raffle",
 				data:state.raffle as RaffleData,
-				markedAsRead:false,
 				winner,
 				tags:IRCClient.instance.getFakeTags(),
 			}
@@ -1842,19 +1841,17 @@ const store = createStore({
 								//If we didn't wait for a frame, the message would be sent properly
 								//but wouldn't appear on this chat.
 								setTimeout(()=> {
+									const winner = messageData.tags['display-name'] as string;
 									let message = state.botMessages.bingo.message;
-									message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
+									message = message.replace(/\{USER\}/gi, winner)
 									IRCClient.instance.sendMessage(message);
 	
 									//Post result on chat
 									const payload:IRCEventDataList.BingoResult = {
 										type:"bingo",
 										data:state.bingo as BingoData,
-										markedAsRead:false,
-										tags: {
-											id:IRCClient.instance.getFakeGuid(),
-											"tmi-sent-ts": Date.now().toString()
-										},
+										winner,
+										tags:IRCClient.instance.getFakeTags(),
 									}
 									this.dispatch("addChatMessage", payload);
 									TriggerActionHandler.instance.onMessage(payload);

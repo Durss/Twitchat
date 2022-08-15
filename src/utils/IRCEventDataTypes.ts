@@ -147,8 +147,8 @@ export namespace IRCEventDataList {
 		type: "bingo";
 		markedAsRead?:boolean;
 		data: BingoData;
-		tags: { id: string, "tmi-sent-ts": string };
-		winner?:ChatUserstate;
+		tags:ChatUserstate;
+		winner?:string;
 	}
 
 	export interface RaffleResult {
