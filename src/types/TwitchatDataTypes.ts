@@ -19,6 +19,7 @@ export const ParamsContentType = {
 	ALERT: "alert",
 	TTS: "tts",
 	VOICE: "voice",
+	VOICEMOD: "voicemod",
 } as const;
 export type ParamsContentStringType = typeof ParamsContentType[keyof typeof ParamsContentType]|null;
 
@@ -87,8 +88,9 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionMusicEntryData
 								| TriggerActionRaffleData
 								| TriggerActionBingoData
+								| TriggerActionVoicemodData
 ;
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|null;
 
 export interface TriggerEventTypes extends ParameterDataListValue {
 	label:string;
@@ -135,6 +137,11 @@ export interface TriggerActionBingoData extends TriggerActionData{
 	bingoData:BingoConfig;
 }
 
+export interface TriggerActionVoicemodData extends TriggerActionData{
+	type:"voicemod";
+	voiceID:string;
+}
+
 export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";
 	musicAction:string;
@@ -146,7 +153,7 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 export interface ParameterDataListValue {
 	label:string;
 	value:string | number | boolean | undefined;
-	[paramater: string]: unknown;
+	[parameter: string]: unknown;
 }
 
 export interface ParameterData {
@@ -162,6 +169,7 @@ export interface ParameterData {
 	step?:number;//For numeric values
 	maxLength?:number;
 	icon?:string;
+	iconURL?:string;
 	placeholder?:string;//Placeholder for the input
 	placeholderList?:PlaceholderEntry[];//creates clickable {XXX} placeholders
 	parent?:number;
@@ -247,7 +255,7 @@ export interface MusicMessage {
 	cover:string,
 	duration:number,
 	url:string,
-    [paramater: string]: unknown;//This is here to avoid lint errors on dynamic pointers
+    [parameter: string]: unknown;//This is here to avoid lint errors on dynamic pointers
 }
 
 export interface StreamInfoUpdate {
@@ -412,4 +420,16 @@ export interface HypeTrainTriggerData {
 	type:"hypeTrainApproach"|"hypeTrainStart"|"hypeTrainProgress"|"hypeTrainEnd";
 	level:number;
 	percent:number;
+}
+
+export interface VoicemodParamsData {
+	enabled:boolean;
+	voiceIndicator:boolean;
+	commandToVoiceID:{[key:string]:string};
+	chatCmdPerms:PermissionsData;
+}
+
+export interface VoicemodTriggerData {
+	type:"voicemod";
+	voiceID?:string;
 }

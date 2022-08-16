@@ -170,22 +170,32 @@
 
 				<transition name="blink">
 				<Button small highlight class="emergency" aria-label="emergency button"
+					v-if="emergencyButtonEnabled"
 					:icon="$image('icons/emergency.svg')"
 					bounce
-					v-if="emergencyButtonEnabled"
 					:data-tooltip="$store.state.emergencyModeEnabled? 'Stop emergency mode' : 'Start emergency'"
 					@click="toggleEmergencyMode()" />
 				</transition>
 
 			</form>
 
-			<transition name="slide">
-				<Button small class="muteBt" aria-label="mute text to speech"
-					:icon="$image('icons/mute.svg')"
-					v-if="$store.state.ttsSpeaking"
-					data-tooltip="Stop speaking"
-					@click="stopTTS()" />
-			</transition>
+			<div class="floatingButtons">
+				<transition name="slide">
+					<Button small class="muteBt" aria-label="mute text to speech"
+						:icon="$image('icons/mute.svg')"
+						v-if="$store.state.ttsSpeaking"
+						data-tooltip="Stop speaking"
+						@click="stopTTS()" />
+				</transition>
+
+				<transition name="slide">
+					<Button small class="voicemodBt" aria-label="Reset voice effect"
+						v-if="$store.state.voicemodParams.voiceIndicator && $store.state.voicemodCurrentVoice.voiceID != 'nofx'"
+						:icon="'data:image/png;base64,' + $store.state.voicemodCurrentVoice.image"
+						data-tooltip="Reset voice effect"
+						@click="resetVoiceEffect()" />
+				</transition>
+			</div>
 
 			<AutocompleteChatForm class="contentWindows emotesLive"
 				v-if="openAutoComplete"
@@ -222,6 +232,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import TTSUtils from '@/utils/TTSUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 
 @Options({
 	props:{
@@ -452,6 +463,12 @@ export default class ChatForm extends Vue {
 			}else{
 				this.$emit("bingo");
 			}
+			this.message = "";
+		}else
+
+		if(cmd == "/voice") {
+			//change voicemod voice
+			//TODO
 			this.message = "";
 		}else
 
@@ -844,6 +861,13 @@ export default class ChatForm extends Vue {
 		TTSUtils.instance.stop();
 	}
 
+	/**
+	 * Reset current voice effect
+	 */
+	public resetVoiceEffect():void {
+		VoicemodWebSocket.instance.disableVoiceEffect();
+	}
+
 }
 </script>
 
@@ -992,22 +1016,44 @@ export default class ChatForm extends Vue {
 		}
 	}
 
-	.muteBt {
-		.clearButton();
+	.floatingButtons {
 		position: absolute;
 		top: 0;
 		right: 0;
 		z-index: 1;
 		transform: translate(0, -100%);
-		padding: .25em;
-		height: auto;
-		background-color: fade(@mainColor_light, 20%);
-		transition: transform .25s;
-	}
+		display: flex;
+		flex-direction: column;
 
-	.slide-enter-from,
-	.slide-leave-to {
-		transform: translate(100%, -100%);
+		.button {
+			.clearButton();
+			height: auto;
+			background-color: fade(@mainColor_light, 20%);
+			padding: .25em;
+			width: 2em;
+			height: 2em;
+			transform: translate(0, 0);
+			transition: transform .25s;
+		}
+
+		.voicemodBt {
+			padding: 0;
+			background-color: #00fff6;
+			&:hover {
+				background-color: darken(#00fff6, 10%) !important;
+			}
+			:deep(.icon){
+				width: 100%;
+				height: 100%;
+				max-height: 100%;
+				max-width: 100%;
+			}
+		}
+
+			.slide-enter-from,
+			.slide-leave-to {
+				transform: translate(100%, 0);
+			}
 	}
 
 	.contentWindows {

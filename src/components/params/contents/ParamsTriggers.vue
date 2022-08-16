@@ -254,6 +254,7 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.HYPE_TRAIN_START] = "train_purple";
 		map[TriggerTypes.HYPE_TRAIN_PROGRESS] = "train_purple";
 		map[TriggerTypes.HYPE_TRAIN_END] = "train_purple";
+		map[TriggerTypes.VOICEMOD] = "voicemod_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");

@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, PermissionsData, PlaceholderEntry, TTSParamsData } from '@/types/TwitchatDataTypes';
+import type { ParameterData, PermissionsData, TTSParamsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TTSUtils from '@/utils/TTSUtils';
 import gsap from 'gsap';

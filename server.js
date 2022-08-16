@@ -748,6 +748,7 @@ const UserDataSchema = {
 										track: {type:"string", maxLength:500},
 										confirmMessage: {type:"string", maxLength:500},
 										playlist: {type:"string", maxLength:500},
+										voiceID: {type:"string", maxLength:100},
 										raffleData: {
 											type: "object",
 											additionalProperties: false,
@@ -1122,6 +1123,19 @@ const UserDataSchema = {
 				customInfoTemplate: {type:"string", maxLength:5000},
 			}
 		},
+
+		voicemodParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				voiceIdToCommand:{
+					type:"object",
+					additionalProperties: true,
+					".*": {type:"string", maxLength:100},
+				},
+			}
+		}
 	}
 }
 

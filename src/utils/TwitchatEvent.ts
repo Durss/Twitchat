@@ -39,6 +39,7 @@ export default class TwitchatEvent extends Event {
 	public static STOP_RAFFLE:TwitchatEventType = "STOP_RAFFLE";
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
+	public static VOICEMOD_CHANGE:TwitchatEventType = "VOICEMOD_CHANGE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -110,6 +111,7 @@ export type TwitchatEventType =
 	| "STOP_PREDICTION"
 	| "EMERGENCY_MODE"
 	| "CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
+	| "VOICEMOD_CHANGE"
 ;
 
 export type TwitchatActionType =

@@ -23,6 +23,7 @@
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
 				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
+				<Button class="beta" bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
 				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
@@ -43,6 +44,7 @@
 				<ParamsOverlays v-if="content == contentOverlays" @setContent="setContent" />
 				<ParamsTriggers v-if="content == contentTriggers" @setContent="setContent" />
 				<ParamsVoiceBot v-if="content == contentVoice" @setContent="setContent" />
+				<ParamsVoicemod v-if="content == contentVoicemod" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
@@ -77,6 +79,7 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamItem from './ParamItem.vue';
+import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 
 @Options({
 	props:{},
@@ -94,6 +97,7 @@ import ParamItem from './ParamItem.vue';
 		ParamsOverlays,
 		ParamsTriggers,
 		ParamsVoiceBot,
+		ParamsVoicemod,
 		ParamsEmergency,
 		ParamsTTS,
 		ParamsStreamdeck,
@@ -115,6 +119,7 @@ export default class Parameters extends Vue {
 	public get contentAbout():ParamsContentStringType { return ParamsContentType.ABOUT; } 
 	public get contentFeatures():ParamsContentStringType { return ParamsContentType.FEATURES; } 
 	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentVoicemod():ParamsContentStringType { return ParamsContentType.VOICEMOD; } 
 	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
 	public get contentStreamdeck():ParamsContentStringType { return ParamsContentType.STREAMDECK; } 
 	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 

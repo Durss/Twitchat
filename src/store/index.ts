@@ -31,8 +31,10 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
+import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
+import VoicemodEvent from '@/utils/VoicemodEvent';
 
 //TODO split that giant mess into sub stores
 
@@ -478,6 +480,25 @@ const store = createStore({
 			noScroll:false,
 			customInfoTemplate:"",
 		} as MusicPlayerParamsData,
+		
+		voicemodCurrentVoice:{
+			voiceID: "nofx",
+			friendlyName: "clean",
+			image:"",
+		} as VoicemodTypes.Voice,
+
+		voicemodParams: {
+			enabled:false,
+			voiceIndicator:true,
+			commandToVoiceID:{},
+			chatCmdPerms:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as VoicemodParamsData,
 	},
 
 
@@ -1289,6 +1310,7 @@ const store = createStore({
 					if(v.type == "tts") return true;
 					if(v.type == "raffle") return true;
 					if(v.type == "bingo") return true;
+					if(v.type == "voicemod") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -1662,6 +1684,11 @@ const store = createStore({
 			})
 		},
 		
+		setVoicemodParams(state, payload:VoicemodParamsData) {
+			state.voicemodParams = payload;
+			Store.set(Store.VOICEMOD_PARAMS, payload);
+		},
+		
 	},
 
 
@@ -1776,6 +1803,7 @@ const store = createStore({
 				
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
+					const cmd = (messageData.message as string).split(" ")[0].trim().toLowerCase();
 					
 					//Is it a tracked user ?
 					const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
@@ -1788,7 +1816,7 @@ const store = createStore({
 					const raffle = state.raffle;
 					if(raffle && raffle.mode == "chat"
 					&& messageData.type == TwitchatMessageType.MESSAGE
-					&& messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
+					&& cmd == raffle.command.trim().toLowerCase()) {
 						const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 						//Check if within time frame and max users count isn't reached and that user
 						//hasn't already entered
@@ -1863,9 +1891,8 @@ const store = createStore({
 	
 					//If there's a suggestion poll and the timer isn't over
 					const suggestionPoll = state.chatPoll as ChatPollData;
-					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000 && messageData.message) {
-						const cmd = suggestionPoll.command.toLowerCase();
-						if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
+					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000) {
+						if(cmd == suggestionPoll.command.toLowerCase().trim()) {
 							if(suggestionPoll.allowMultipleAnswers
 							|| suggestionPoll.choices.findIndex(v=>v.user['user-id'] == messageData.tags['user-id'])==-1) {
 								const text = messageData.message.replace(cmd, "").trim();
@@ -1879,10 +1906,9 @@ const store = createStore({
 						}
 					}
 	
-					if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+					if(messageData.type == "message" && cmd && messageData.tags.username) {
 						//check if it's a command to control an OBS scene
 						if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
-							const cmd = messageData.message.trim().toLowerCase();
 							for (let i = 0; i < state.obsSceneCommands.length; i++) {
 								const scene = state.obsSceneCommands[i];
 								if(scene.command.trim().toLowerCase() == cmd) {
@@ -1940,6 +1966,11 @@ const store = createStore({
 								}
 								TriggerActionHandler.instance.onMessage(trigger);
 							}
+						}
+						
+						//Check if it's a voicemod command
+						if(state.voicemodParams.commandToVoiceID[cmd]) {
+							VoicemodWebSocket.instance.enableVoiceEffect(state.voicemodParams.commandToVoiceID[cmd]);
 						}
 					}
 				}
@@ -2132,6 +2163,17 @@ const store = createStore({
 					this.dispatch("setDeezerConnected", false);
 					state.alert = "Deezer authentication failed";
 				});
+				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
+					TriggerActionHandler.instance.onMessage({ type:"voicemod", voiceID: e.voiceID })
+					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
+						const v = VoicemodWebSocket.instance.voices[i];
+						if(v.voiceID == e.voiceID) {
+							const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID);
+							v.image = img;
+							state.voicemodCurrentVoice = v;
+						}
+					}
+				})
 
 				try {
 					await new Promise((resolve,reject)=> {
@@ -2314,6 +2356,15 @@ const store = createStore({
 				const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
 				if(spotifyAuthToken && spotifyAppParams) {
 					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+				}
+
+				//Init voicemod
+				const voicemodParams = Store.get(Store.VOICEMOD_PARAMS);
+				if(voicemodParams) {
+					this.dispatch("setVoicemodParams", JSON.parse(voicemodParams));
+					if(state.voicemodParams.enabled) {
+						VoicemodWebSocket.instance.connect();
+					}
 				}
 			}
 			
@@ -2551,6 +2602,8 @@ const store = createStore({
 		pinMessage({commit}, message:IRCEventDataList.Message) { commit("pinMessage", message); },
 		
 		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
+		
+		setVoicemodParams({commit}, payload:VoicemodParamsData) { commit("setVoicemodParams", payload); },
 	},
 	modules: {
 	}

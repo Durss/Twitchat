@@ -87,7 +87,7 @@ export namespace IRCEventDataList {
 		markedAsRead?:boolean;
 		contentID: number;
 		type: "ad";
-		[paramater: string]: unknown;
+		[parameter: string]: unknown;
 	}
 
 	export interface RoomState {
