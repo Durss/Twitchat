@@ -16,8 +16,15 @@
 			</section>
 
 			<section v-if="connected">
-				<div class="item center">Let your viewers control your voice from chat commands</div>
-				<div class="item small">For more control over your voice effects you can create <mark>Chat Commands</mark> on the <a @click="$emit('setContent', contentTriggers)">triggers section</a>.</div>
+				<Splitter>Users allowed</Splitter>
+				<div class="item center">Select who can use chat commands to change your voice</div>
+				<PermissionsForm class="item" v-model="permissions" />
+			</section>
+
+			<section v-if="connected">
+				<Splitter>Voices list</Splitter>
+				<div class="item center">Associate any voice to a chat command</div>
+				<div class="item small">For more control on when to trigger a voice effect head over the <a @click="$emit('setContent', contentTriggers)">triggers section</a>.</div>
 				<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
 			</section>
 		</div>
@@ -26,18 +33,22 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterData, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterData, type ParamsContentStringType, type PermissionsData } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket, {type VoicemodTypes} from '@/utils/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import type { VoicemodParamsData } from '../../../types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import PermissionsForm from './obs/PermissionsForm.vue';
+import Splitter from '../../Splitter.vue';
 
 @Options({
 	props:{},
 	components:{
+		Splitter,
 		ParamItem,
+		PermissionsForm,
 	},
 	emits:["setContent"]
 })
@@ -49,6 +60,13 @@ export default class ParamsVoicemod extends Vue {
 	public voices:VoicemodTypes.Voice[] = [];
 	public voiceParams:ParameterData[] = [];
 	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public permissions:PermissionsData = {
+		mods: false,
+		vips: false,
+		subs: false,
+		all: false,
+		users: ""
+	}
 	
 	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
 
@@ -60,9 +78,16 @@ export default class ParamsVoicemod extends Vue {
 	}
 
 	public mounted():void {
-		if(StoreProxy.store.state.voicemodParams.enabled === true) {
-			console.log(JSON.parse(JSON.stringify(StoreProxy.store.state.voicemodParams)));
+		const params:VoicemodParamsData = StoreProxy.store.state.voicemodParams;
+		if(params.enabled === true) {
 			this.param_enabled.value = true;
+
+			const storedPermissions = params.chatCmdPerms;
+			this.permissions.mods = storedPermissions?.mods;
+			this.permissions.vips = storedPermissions?.vips;
+			this.permissions.subs = storedPermissions?.subs;
+			this.permissions.all = storedPermissions?.all;
+			this.permissions.users = storedPermissions?.users;
 		}
 	}
 
@@ -157,6 +182,7 @@ export default class ParamsVoicemod extends Vue {
 		const data:VoicemodParamsData = {
 			enabled: this.param_enabled.value as boolean,
 			commandToVoiceID,
+			chatCmdPerms:this.permissions,
 		}
 		StoreProxy.store.dispatch("setVoicemodParams", data);
 	}

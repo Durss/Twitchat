@@ -88,8 +88,9 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionMusicEntryData
 								| TriggerActionRaffleData
 								| TriggerActionBingoData
+								| TriggerActionVoicemodData
 ;
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|null;
 
 export interface TriggerEventTypes extends ParameterDataListValue {
 	label:string;
@@ -134,6 +135,11 @@ export interface TriggerActionRaffleData extends TriggerActionData{
 export interface TriggerActionBingoData extends TriggerActionData{
 	type:"bingo";
 	bingoData:BingoConfig;
+}
+
+export interface TriggerActionVoicemodData extends TriggerActionData{
+	type:"voicemod";
+	voiceID:string;
 }
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{
@@ -419,4 +425,10 @@ export interface HypeTrainTriggerData {
 export interface VoicemodParamsData {
 	enabled:boolean;
 	commandToVoiceID:{[key:string]:string};
+	chatCmdPerms:PermissionsData;
+}
+
+export interface VoicemodTriggerData {
+	type:"voicemod";
+	voiceID?:string;
 }

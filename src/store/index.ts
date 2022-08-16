@@ -34,6 +34,7 @@ import { createStore } from 'vuex';
 import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import VoicemodEvent from '@/utils/VoicemodEvent';
 
 //TODO split that giant mess into sub stores
 
@@ -483,6 +484,13 @@ const store = createStore({
 		voicemodParams: {
 			enabled:false,
 			commandToVoiceID:{},
+			chatCmdPerms:{
+				mods:true,
+				vips:false,
+				subs:false,
+				all:false,
+				users:""
+			},
 		} as VoicemodParamsData,
 	},
 
@@ -1295,6 +1303,7 @@ const store = createStore({
 					if(v.type == "tts") return true;
 					if(v.type == "raffle") return true;
 					if(v.type == "bingo") return true;
+					if(v.type == "voicemod") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -2147,6 +2156,9 @@ const store = createStore({
 					this.dispatch("setDeezerConnected", false);
 					state.alert = "Deezer authentication failed";
 				});
+				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, (e:VoicemodEvent)=> {
+					TriggerActionHandler.instance.onMessage({ type:"voicemod", voiceID: e.voiceID })
+				})
 
 				try {
 					await new Promise((resolve,reject)=> {
@@ -2334,7 +2346,6 @@ const store = createStore({
 				//Init voicemod
 				const voicemodParams = Store.get(Store.VOICEMOD_PARAMS);
 				if(voicemodParams) {
-					console.log("PRELOAD ", voicemodParams);
 					this.dispatch("setVoicemodParams", JSON.parse(voicemodParams));
 					if(state.voicemodParams.enabled) {
 						VoicemodWebSocket.instance.connect();

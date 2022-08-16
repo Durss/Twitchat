@@ -34,7 +34,7 @@ export default class TriggerActionTTSEntry extends Vue {
 
 	public message_conf:ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
 	
-	public get contentTTS():ParamsContentStringType { return ParamsContentType.TTS; } 
+	public get contentTTS():ParamsContentStringType { return ParamsContentType.TTS; }
 
 	public beforeMount():void {
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event);

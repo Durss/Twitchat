@@ -748,6 +748,7 @@ const UserDataSchema = {
 										track: {type:"string", maxLength:500},
 										confirmMessage: {type:"string", maxLength:500},
 										playlist: {type:"string", maxLength:500},
+										voiceID: {type:"string", maxLength:100},
 										raffleData: {
 											type: "object",
 											additionalProperties: false,

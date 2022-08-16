@@ -31,6 +31,10 @@
 				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
 					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
+					
+				<Button class="button" white @click="selectActionType('bingo')" title="Start a bingo" :icon="$image('icons/bingo_purple.svg')"/>
+				
+				<Button class="button" white @click="selectActionType('raffle')" title="Start a raffle" :icon="$image('icons/ticket_purple.svg')"/>
 				
 				<Button class="button" white @click="selectActionType('tts')"
 					title="Text to speech"
@@ -43,16 +47,20 @@
 					:icon="$image('icons/music_purple.svg')"
 					:disabled="!musicServiceConfigured"
 					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the Overlays section'"/>
-					
-				<Button class="button" white @click="selectActionType('bingo')" title="Start a bingo" :icon="$image('icons/bingo_purple.svg')"/>
 				
-				<Button class="button" white @click="selectActionType('raffle')" title="Start a raffle" :icon="$image('icons/ticket_purple.svg')"/>
+				<Button class="button" white
+				@click="selectActionType('voicemod')"
+					title="Control Voicemod"
+					:icon="$image('icons/voicemod_purple.svg')"
+					:disabled="!voicemodEnabled"
+					:data-tooltip="voicemodEnabled? '' : 'You need to connect<br>with Voicemod'"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
 			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
 			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
+			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
@@ -77,6 +85,8 @@ import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import BingoForm from '../../../bingo/BingoForm.vue';
+import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
+import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 
 @Options({
 	props:{
@@ -96,6 +106,7 @@ import BingoForm from '../../../bingo/BingoForm.vue';
 		TriggerActionTTSEntry,
 		TriggerActionChatEntry,
 		TriggerActionMusicEntry,
+		TriggerActionVoicemodEntry,
 	},
 	emits:["delete", "setContent", "duplicate"]
 })
@@ -113,6 +124,7 @@ export default class TriggerActionEntry extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
 
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";
@@ -154,6 +166,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "tts") icons.push( 'tts' );
 		if(this.action.type == "raffle") icons.push( 'ticket' );
 		if(this.action.type == "bingo") icons.push( 'bingo' );
+		if(this.action.type == "voicemod") icons.push( 'voicemod' );
 		return icons;
 	}
 
@@ -216,6 +229,7 @@ export default class TriggerActionEntry extends Vue {
 		}
 		&>.icon {
 			height: 1.5em !important;
+			max-width: 2em !important;
 			padding: .15em 0;
 			width: unset !important;
 			vertical-align: middle;
@@ -251,6 +265,9 @@ export default class TriggerActionEntry extends Vue {
 			}
 			&.disabled {
 				color: fade(@mainColor_light, 50%);
+			}
+			:deep(.icon) {
+				max-width: 1.5em;
 			}
 		}
 	}

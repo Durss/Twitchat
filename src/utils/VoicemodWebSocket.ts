@@ -1,34 +1,37 @@
+import { EventDispatcher } from "./EventDispatcher";
+import VoicemodEvent from "./VoicemodEvent";
+
 /**
 * Created : 25/07/2021 
 */
-export default class VoicemodWebSocket {
+export default class VoicemodWebSocket extends EventDispatcher {
 
-	public static ACTION_REGISTER_PLUGIN: string = "registerPlugin";
-	public static ACTION_GET_VOICES: string = "getVoices";
-	public static ACTION_GET_MEMES: string = "getMemes";
-	public static ACTION_SELECT_VOICE: string = "selectVoice";
-	public static ACTION_PLAY_MEME: string = "playMeme";
-	public static ACTION_STOP_ALL_MEME_SOUNDS: string = "stopAllMemeSounds";
-	public static ACTION_BEEP_SOUND_ON_OFF: string = "beepSound_OnOff";
+	private static ACTION_REGISTER_PLUGIN: string = "registerPlugin";
+	private static ACTION_GET_VOICES: string = "getVoices";
+	private static ACTION_GET_MEMES: string = "getMemes";
+	private static ACTION_SELECT_VOICE: string = "selectVoice";
+	private static ACTION_PLAY_MEME: string = "playMeme";
+	private static ACTION_STOP_ALL_MEME_SOUNDS: string = "stopAllMemeSounds";
+	private static ACTION_BEEP_SOUND_ON_OFF: string = "beepSound_OnOff";
 
 	//Bellow events are captured but nothing is done with it so far
-	public static EVENT_TOGGLE_MUTE: string = "toggleMute";
-	public static EVENT_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
-	public static EVENT_TOGGLE_BACKGROUND: string = "toggleBackground";
-	public static EVENT_TOGGLE_HEAR_MY_VOICE: string = "toggleHearMyVoice";
-	public static EVENT_VOICE_CHANGED_EVENT: string = "voiceChangedEvent";
+	private static EVENT_TOGGLE_MUTE: string = "toggleMute";
+	private static EVENT_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
+	private static EVENT_TOGGLE_BACKGROUND: string = "toggleBackground";
+	private static EVENT_TOGGLE_HEAR_MY_VOICE: string = "toggleHearMyVoice";
+	private static EVENT_VOICE_CHANGED_EVENT: string = "voiceChangedEvent";
+	private static ACTION_GET_BITMAP: string = "getBitmap";
 
 	//Bellow actions are not implemented
-	public static ACTION_GET_BITMAP: string = "getBitmap";
-	public static ACTION_SELECT_RANDOM_VOICE: string = "selectRandomVoice";
-	public static ACTION_VOICE_CHANGER_ON_OFF: string = "voiceChanger_OnOff";
-	public static ACTION_HEAR_MY_VOICE_ON_OFF: string = "hearMyVoice_OnOff";
-	public static ACTION_BACKGROUND_ON_OFF: string = "background_OnOff";
-	public static ACTION_GET_HEAR_MYSELF_STATUS: string = "getHearMyselfStatus";
-	public static ACTION_GET_VOICE_CHANGER_STATUS: string = "getVoiceChangerStatus";
-	public static ACTION_GET_MUTE_MIC_STATUS: string = "getMuteMicStatus";
-	public static ACTION_GET_BACKGROUND_EFFECT_STATUS: string = "getBackgroundEffectStatus";
-	public static ACTION_DATA_STOP_ALL_SOUNDS: string = "stopAllSounds";
+	private static ACTION_SELECT_RANDOM_VOICE: string = "selectRandomVoice";
+	private static ACTION_VOICE_CHANGER_ON_OFF: string = "voiceChanger_OnOff";
+	private static ACTION_HEAR_MY_VOICE_ON_OFF: string = "hearMyVoice_OnOff";
+	private static ACTION_BACKGROUND_ON_OFF: string = "background_OnOff";
+	private static ACTION_GET_HEAR_MYSELF_STATUS: string = "getHearMyselfStatus";
+	private static ACTION_GET_VOICE_CHANGER_STATUS: string = "getVoiceChangerStatus";
+	private static ACTION_GET_MUTE_MIC_STATUS: string = "getMuteMicStatus";
+	private static ACTION_GET_BACKGROUND_EFFECT_STATUS: string = "getBackgroundEffectStatus";
+	private static ACTION_DATA_STOP_ALL_SOUNDS: string = "stopAllSounds";
 
 	private static _instance:VoicemodWebSocket;
 	
@@ -54,6 +57,11 @@ export default class VoicemodWebSocket {
 	/********************
 	* GETTER / SETTERS *
 	********************/
+
+	/**
+	 * Get if socket is connecetd
+	 */
+	public get connected():boolean { return this._connected; }
 
 	/**
 	 * Get all the available voice effects
@@ -365,7 +373,7 @@ export default class VoicemodWebSocket {
 				break;
 
 			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:
-				//TODO
+				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, json.actionObject.voiceID as string))
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_VOICE_CHANGER:

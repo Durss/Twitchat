@@ -1,4 +1,4 @@
-import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData } from "@/types/TwitchatDataTypes";
+import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData, VoicemodTriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -14,6 +14,7 @@ import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
+import VoicemodWebSocket from "./VoicemodWebSocket";
 
 /**
 * Created : 22/04/2022 
@@ -193,6 +194,11 @@ export default class TriggerActionHandler {
 				return;
 			}
 
+		}else if(message.type == "voicemod") {
+			if(await this.handleVoicemodEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
 		}else if(message.type == "hypeTrainApproach" || message.type == "hypeTrainStart"
 		|| message.type == "hypeTrainProgress" || message.type == "hypeTrainEnd") {
 			if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
@@ -341,6 +347,10 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(event, message, testMode, guid);
 	}
 	
+	private async handleVoicemodEvent(message:VoicemodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, guid);
+	}
+	
 	private async handleHypeTrainEvent(message:HypeTrainTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		const idToType = {
 			hypeTrainApproach:TriggerTypes.HYPE_TRAIN_APPROACH,
@@ -453,6 +463,13 @@ export default class TriggerActionHandler {
 					//Handle bingo action
 					if(step.type == "bingo") {
 						StoreProxy.store.dispatch("startBingo", JSON.parse(JSON.stringify(step.bingoData)));
+					}else
+					
+					//Handle voicemod action
+					if(step.type == "voicemod") {
+						if(step.voiceID) {
+							VoicemodWebSocket.instance.enableVoiceEffect("", step.voiceID)
+						}
 					}else
 
 					//Handle music actions
@@ -691,4 +708,5 @@ type MessageTypes = IRCEventDataList.Message
 | ChatAlertInfo
 | MusicTriggerData
 | HypeTrainTriggerData
+| VoicemodTriggerData
 ;

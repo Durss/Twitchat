@@ -32,6 +32,7 @@ export const TriggerTypes = {
 	HYPE_TRAIN_PROGRESS:"28",
 	HYPE_TRAIN_END:"29",
 	RETURNING_USER:"30",
+	VOICEMOD:"31",
 }
 
 export interface ITriggerActionHelper {
@@ -167,8 +168,13 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"LEVEL", desc:"Current level", pointer:"level"},
 		{tag:"PERCENT", desc:"Current level progression (0 -> 100)", pointer:"percent"},
 	];
+
 	map[TriggerTypes.HYPE_TRAIN_END] = [
 		{tag:"LEVEL", desc:"Level reached", pointer:"level"},
+	];
+
+	map[TriggerTypes.VOICEMOD] = [
+		{tag:"VOICE_ID", desc:"Contains the voice's ID", pointer:"voiceID"},
 	];
 
 	//If requesting chat command helpers and there is a music
@@ -212,6 +218,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{label:"Emergency stop", value:TriggerTypes.EMERGENCY_MODE_STOP, description:"Execute an action when stopping the emergency mode"},
 	{label:"Highlighted message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", jsonTest:{"type":"chatOverlayHighlight","message":"This is a test message for the chat highlight feature !","user":{"id":"29961813","login":"durss","display_name":"Durss","type":"","broadcaster_type":"affiliate","description":"Blablabla","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/c43305dd-d577-4369-b60b-df0a4acdb7d8-channel_offline_image-1920x1080.jpeg","view_count":15289,"created_at":"2012-04-21T23:01:18Z"},"id":"d97d6594-6cc4-4400-b4f4-e3b688263fa2","params":{"position":"bl"}}},
 	{label:"Chat alert", value:TriggerTypes.CHAT_ALERT, description:"Execute an action when the Chat Alert feature is triggered", jsonTest:{"type":"chatAlert", message:{"type":"message","message":"ItsBoshyTime Read your chat !!! ItsBoshyTime","tags":{"badge-info":{"subscriber":"16"},"badges":{"broadcaster":"1","subscriber":"12"},"client-nonce":"f90438208ff604cfba00470d60f1bb5b","color":"#9ACD32","display-name":"Durss","emotes":{"133468":["0-11","32-43"]},"first-msg":false,"flags":null,"id":"00000000-0000-0000-0000-000000000002","mod":false,"returning-chatter":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1658344567683","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"133468:0-11,32-43","badge-info-raw":"subscriber/16","badges-raw":"broadcaster/1,subscriber/12","username":"durss","message-type":"chat"},"channel":"#durss","self":false}}},
+	{label:"Voicemod - voice changed", value:TriggerTypes.VOICEMOD, description:"Execute an action when changing the voice effect on voicemod"},
 ]
 
 export const TriggerMusicTypes = {
