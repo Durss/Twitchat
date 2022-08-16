@@ -468,7 +468,7 @@ export default class TriggerActionHandler {
 					//Handle voicemod action
 					if(step.type == "voicemod") {
 						if(step.voiceID) {
-							VoicemodWebSocket.instance.enableVoiceEffect("", step.voiceID)
+							VoicemodWebSocket.instance.enableVoiceEffect(step.voiceID)
 						}
 					}else
 

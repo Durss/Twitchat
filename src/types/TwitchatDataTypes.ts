@@ -424,6 +424,7 @@ export interface HypeTrainTriggerData {
 
 export interface VoicemodParamsData {
 	enabled:boolean;
+	voiceIndicator:boolean;
 	commandToVoiceID:{[key:string]:string};
 	chatCmdPerms:PermissionsData;
 }

@@ -33,7 +33,7 @@ import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
 import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
-import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
 
 //TODO split that giant mess into sub stores
@@ -481,8 +481,15 @@ const store = createStore({
 			customInfoTemplate:"",
 		} as MusicPlayerParamsData,
 		
+		voicemodCurrentVoice:{
+			voiceID: "nofx",
+			friendlyName: "clean",
+			image:"",
+		} as VoicemodTypes.Voice,
+
 		voicemodParams: {
 			enabled:false,
+			voiceIndicator:true,
 			commandToVoiceID:{},
 			chatCmdPerms:{
 				mods:true,
@@ -1963,7 +1970,7 @@ const store = createStore({
 						
 						//Check if it's a voicemod command
 						if(state.voicemodParams.commandToVoiceID[cmd]) {
-							VoicemodWebSocket.instance.enableVoiceEffect("", state.voicemodParams.commandToVoiceID[cmd]);
+							VoicemodWebSocket.instance.enableVoiceEffect(state.voicemodParams.commandToVoiceID[cmd]);
 						}
 					}
 				}
@@ -2156,8 +2163,16 @@ const store = createStore({
 					this.dispatch("setDeezerConnected", false);
 					state.alert = "Deezer authentication failed";
 				});
-				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, (e:VoicemodEvent)=> {
+				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
 					TriggerActionHandler.instance.onMessage({ type:"voicemod", voiceID: e.voiceID })
+					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
+						const v = VoicemodWebSocket.instance.voices[i];
+						if(v.voiceID == e.voiceID) {
+							const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID);
+							v.image = img;
+							state.voicemodCurrentVoice = v;
+						}
+					}
 				})
 
 				try {

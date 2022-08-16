@@ -142,33 +142,17 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param name		the name of the voice effect to activate
 	 * @param id		(optional) The ID of the voice effect to activate
 	 */
-	public async enableVoiceEffect(name:string, id?:string, autoRemoveDelay:number = -1):Promise<void> {
+	public async enableVoiceEffect(id:string, autoRemoveDelay:number = -1):Promise<void> {
 		let voice!:VoicemodTypes.Voice;
-		let rawName = name;
-		name = name.trim().toLowerCase().replace(/[^\w\s]/g, '');
 		if(!this._voicesList || !this._voicesList.length) {
 			console.log("🎤 VoicemodWebSocket not connected");
 			return;
 		}
 		//Search for a voice effect with the requested name
 		for (let i = 0; i < this._voicesList.length; i++) {
-			if(id) {
-				if (id === this._voicesList[i].voiceID) {
-					voice = this._voicesList[i];
-					break;
-				}
-			}else{
-				let nameRef = this._voicesList[i].friendlyName;
-				//Check if the requested name is exactly the same
-				if(rawName == nameRef) {
-					voice = this._voicesList[i];
-					//As this exactly matches the requested name, we can stop searching
-					break;
-				}
-				//Check if requested name is more or less the same
-				if (nameRef.trim().toLowerCase().replace(/[^\w\s]/g, '') === name) {
-					voice = this._voicesList[i];
-				}
+			if (id === this._voicesList[i].voiceID) {
+				voice = this._voicesList[i];
+				break;
 			}
 		}
 
@@ -183,7 +167,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 		if(autoRemoveDelay > -1) {
 			this._resetTimeout = setTimeout(async ()=> {
-				this.enableVoiceEffect("clean");
+				this.enableVoiceEffect("nofx");
 			}, autoRemoveDelay);
 		}
 	}
@@ -192,7 +176,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Disables the current voice effect
 	 */
 	public disableVoiceEffect():void {
-		this.enableVoiceEffect("clean");
+		this.enableVoiceEffect("nofx");
 		this._currentVoiceEffect = null;
 	}
 
@@ -336,10 +320,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				//Request all available meme sound list
 				this.send(VoicemodWebSocket.ACTION_GET_MEMES);
 				this.send(VoicemodWebSocket.ACTION_GET_BITMAP, {voiceID:"nofx"});
+				this.send
 				break;
 
 			case VoicemodWebSocket.ACTION_GET_VOICES:
 				this._voicesList = json.actionObject.allVoices;
+				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, json.actionObject.selectedVoice as string))
 				this.checkInitComplete();
 			break;
 			
@@ -402,7 +388,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 }
 
-export declare module VoicemodTypes {
+export module VoicemodTypes {
     export interface SocketEvent {
 		target:WebSocket;
 		type:string;
@@ -431,6 +417,7 @@ export declare module VoicemodTypes {
     export interface Voice {
         voiceID: string;
         friendlyName: string;
+		image?: string;
     }
 
     export interface Meme {

@@ -18,7 +18,12 @@
 			<section v-if="connected">
 				<Splitter>Users allowed</Splitter>
 				<div class="item center">Select who can use chat commands to change your voice</div>
-				<PermissionsForm class="item" v-model="permissions" />
+				<PermissionsForm class="item" v-model="permissions" @change="saveData()" />
+			</section>
+
+			<section v-if="connected">
+				<Splitter>Params</Splitter>
+				<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
 			</section>
 
 			<section v-if="connected">
@@ -60,6 +65,7 @@ export default class ParamsVoicemod extends Vue {
 	public voices:VoicemodTypes.Voice[] = [];
 	public voiceParams:ParameterData[] = [];
 	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_voiceIndicator:ParameterData = {type:"toggle", label:"Show when a voice effect is active", value:true, example:"voicemod_reset.png"};
 	public permissions:PermissionsData = {
 		mods: false,
 		vips: false,
@@ -78,17 +84,7 @@ export default class ParamsVoicemod extends Vue {
 	}
 
 	public mounted():void {
-		const params:VoicemodParamsData = StoreProxy.store.state.voicemodParams;
-		if(params.enabled === true) {
-			this.param_enabled.value = true;
-
-			const storedPermissions = params.chatCmdPerms;
-			this.permissions.mods = storedPermissions?.mods;
-			this.permissions.vips = storedPermissions?.vips;
-			this.permissions.subs = storedPermissions?.subs;
-			this.permissions.all = storedPermissions?.all;
-			this.permissions.users = storedPermissions?.users;
-		}
+		this.prefill();
 	}
 
 	/**
@@ -96,6 +92,7 @@ export default class ParamsVoicemod extends Vue {
 	 */
 	public toggleState():void {
 		if(this.param_enabled.value === true) {
+			this.prefill();
 			this.connect();
 		} else {
 			this.connected = false;
@@ -145,7 +142,6 @@ export default class ParamsVoicemod extends Vue {
 		for (let i = 0; i < loadTotal; i++) {
 			const v = this.voices[i];
 			VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID).then((img:string)=>{
-				// console.log(v.voiceID);
 				const data:ParameterData = {
 					type: "text",
 					storage: v,
@@ -168,7 +164,6 @@ export default class ParamsVoicemod extends Vue {
 	 * Save current configs
 	 */
 	public saveData():void {
-		console.log("Do save...");
 		const commandToVoiceID:{[key:string]:string} = {};
 
 		for (let i = 0; i < this.voiceParams.length; i++) {
@@ -181,10 +176,29 @@ export default class ParamsVoicemod extends Vue {
 
 		const data:VoicemodParamsData = {
 			enabled: this.param_enabled.value as boolean,
-			commandToVoiceID,
+			voiceIndicator: this.param_voiceIndicator.value as boolean,
 			chatCmdPerms:this.permissions,
+			commandToVoiceID,
 		}
 		StoreProxy.store.dispatch("setVoicemodParams", data);
+	}
+
+	/**
+	 * Prefills the forms
+	 */
+	private prefill():void {
+		const params:VoicemodParamsData = StoreProxy.store.state.voicemodParams;
+		if(params.enabled === true) {
+			this.param_enabled.value = true;
+			this.param_voiceIndicator.value = params.voiceIndicator;
+
+			const storedPermissions = params.chatCmdPerms;
+			this.permissions.mods = storedPermissions?.mods;
+			this.permissions.vips = storedPermissions?.vips;
+			this.permissions.subs = storedPermissions?.subs;
+			this.permissions.all = storedPermissions?.all;
+			this.permissions.users = storedPermissions?.users;
+		}
 	}
 }
 </script>
