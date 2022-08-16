@@ -1129,10 +1129,22 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				enabled: {type:"boolean"},
-				voiceIdToCommand:{
+				voiceIndicator: {type:"boolean"},
+				commandToVoiceID:{
 					type:"object",
 					additionalProperties: true,
 					".*": {type:"string", maxLength:100},
+				},
+				chatCmdPerms:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
 				},
 			}
 		}
