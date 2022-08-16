@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 
 //TODO split that giant mess into sub stores
@@ -478,6 +478,11 @@ const store = createStore({
 			noScroll:false,
 			customInfoTemplate:"",
 		} as MusicPlayerParamsData,
+		
+		voicemodParams: {
+			enabled:false,
+			voiceIdToCommand:{},
+		} as VoicemodParamsData,
 	},
 
 
@@ -1662,6 +1667,11 @@ const store = createStore({
 			})
 		},
 		
+		setVoicemodParams(state, payload:VoicemodParamsData) {
+			state.voicemodParams = payload;
+			Store.set(Store.VOICEMOD_PARAMS, payload);
+		},
+		
 	},
 
 
@@ -2551,6 +2561,8 @@ const store = createStore({
 		pinMessage({commit}, message:IRCEventDataList.Message) { commit("pinMessage", message); },
 		
 		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
+		
+		setVoicemodParams({commit}, payload:VoicemodParamsData) { commit("setVoicemodParams", payload); },
 	},
 	modules: {
 	}

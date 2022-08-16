@@ -455,6 +455,12 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/voice") {
+			//change voicemod voice
+			//TODO
+			this.message = "";
+		}else
+
 		if(cmd == "/search") {
 			//Search a for messages
 			const search = params.join(" ");

@@ -1122,6 +1122,19 @@ const UserDataSchema = {
 				customInfoTemplate: {type:"string", maxLength:5000},
 			}
 		},
+
+		voicemodParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				voiceIdToCommand:{
+					type:"object",
+					additionalProperties: true,
+					".*": {type:"string", maxLength:100},
+				},
+			}
+		}
 	}
 }
 

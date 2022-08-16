@@ -2,6 +2,7 @@
 	<div :class="classes" :data-tooltip="paramData.tooltip">
 		<div class="content">
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
 
 			<div v-if="paramData.type == 'toggle'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
@@ -356,7 +357,7 @@ export default class ParamItem extends Vue {
 			label {
 				flex-grow: 1;
 				margin: 0;
-				margin-right: 1em;
+				padding-right: 1em;
 				cursor: pointer;
 			}
 
