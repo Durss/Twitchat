@@ -38,7 +38,7 @@ export default class VoicemodWebSocket {
 	private _voicesList!: VoicemodTypes.Voice[]|undefined;
 	private _memesList!: VoicemodTypes.Meme[]|undefined;
 	private _currentVoiceEffect!: VoicemodTypes.Voice|null;
-	private _wasConnected: boolean = false;
+	private _connected: boolean = false;
 	private _autoReconnect: boolean = false;
 	private _resetTimeout:number = -1;
 	private _voiceIdImageToPromise:{[key:string]:{resolve:(base64:string)=>void, reject:()=>void}} = {};
@@ -82,6 +82,7 @@ export default class VoicemodWebSocket {
 	* PUBLIC METHODS *
 	******************/
 	public connect(ip:string="127.0.0.1", port:number=59129): Promise<void> {
+		if(this._connected) return Promise.resolve();
 		if(this._connecting) return Promise.resolve();
 		this._connecting = true;
 		return new Promise((resolve, reject) => {
@@ -91,18 +92,18 @@ export default class VoicemodWebSocket {
 			this._socket.onopen = () => {
 				console.log('🎤 Voicemod connection succeed');
 				this._connecting = false;
-				this._wasConnected = true;
+				this._connected = true;
 				this._autoReconnect = true;
 			};
 
 			this._socket.onmessage = (event:any) => this.onSocketMessage(event);
 
 			this._socket.onclose = (e) => {
-				if(this._wasConnected) {
+				if(this._connected) {
 					console.log('🎤 Voicemod connection lost');
 				}
 				this._connecting = false;
-				this._wasConnected = false;
+				this._connected = false;
 				if(this._autoReconnect) {
 					try {
 						this.connect(ip, port);

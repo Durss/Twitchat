@@ -418,5 +418,5 @@ export interface HypeTrainTriggerData {
 
 export interface VoicemodParamsData {
 	enabled:boolean;
-	voiceIdToCommand:{[key:string]:string};
+	commandToVoiceID:{[key:string]:string};
 }

@@ -33,6 +33,7 @@ import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
 import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
+import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 
 //TODO split that giant mess into sub stores
 
@@ -481,7 +482,7 @@ const store = createStore({
 		
 		voicemodParams: {
 			enabled:false,
-			voiceIdToCommand:{},
+			commandToVoiceID:{},
 		} as VoicemodParamsData,
 	},
 
@@ -1786,6 +1787,7 @@ const store = createStore({
 				
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
+					const cmd = (messageData.message as string).split(" ")[0].trim().toLowerCase();
 					
 					//Is it a tracked user ?
 					const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
@@ -1798,7 +1800,7 @@ const store = createStore({
 					const raffle = state.raffle;
 					if(raffle && raffle.mode == "chat"
 					&& messageData.type == TwitchatMessageType.MESSAGE
-					&& messageData.message?.toLowerCase().trim().indexOf(raffle.command.trim().toLowerCase()) == 0) {
+					&& cmd == raffle.command.trim().toLowerCase()) {
 						const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
 						//Check if within time frame and max users count isn't reached and that user
 						//hasn't already entered
@@ -1873,9 +1875,8 @@ const store = createStore({
 	
 					//If there's a suggestion poll and the timer isn't over
 					const suggestionPoll = state.chatPoll as ChatPollData;
-					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000 && messageData.message) {
-						const cmd = suggestionPoll.command.toLowerCase();
-						if(messageData.message.trim().toLowerCase().indexOf(cmd) == 0) {
+					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000) {
+						if(cmd == suggestionPoll.command.toLowerCase().trim()) {
 							if(suggestionPoll.allowMultipleAnswers
 							|| suggestionPoll.choices.findIndex(v=>v.user['user-id'] == messageData.tags['user-id'])==-1) {
 								const text = messageData.message.replace(cmd, "").trim();
@@ -1889,10 +1890,9 @@ const store = createStore({
 						}
 					}
 	
-					if(messageData.type == "message" && messageData.message && messageData.tags.username) {
+					if(messageData.type == "message" && cmd && messageData.tags.username) {
 						//check if it's a command to control an OBS scene
 						if(Utils.checkPermissions(state.obsCommandsPermissions, messageData.tags)) {
-							const cmd = messageData.message.trim().toLowerCase();
 							for (let i = 0; i < state.obsSceneCommands.length; i++) {
 								const scene = state.obsSceneCommands[i];
 								if(scene.command.trim().toLowerCase() == cmd) {
@@ -1950,6 +1950,11 @@ const store = createStore({
 								}
 								TriggerActionHandler.instance.onMessage(trigger);
 							}
+						}
+						
+						//Check if it's a voicemod command
+						if(state.voicemodParams.commandToVoiceID[cmd]) {
+							VoicemodWebSocket.instance.enableVoiceEffect("", state.voicemodParams.commandToVoiceID[cmd]);
 						}
 					}
 				}
@@ -2324,6 +2329,16 @@ const store = createStore({
 				const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
 				if(spotifyAuthToken && spotifyAppParams) {
 					this.dispatch("setSpotifyCredentials", JSON.parse(spotifyAppParams));
+				}
+
+				//Init voicemod
+				const voicemodParams = Store.get(Store.VOICEMOD_PARAMS);
+				if(voicemodParams) {
+					console.log("PRELOAD ", voicemodParams);
+					this.dispatch("setVoicemodParams", JSON.parse(voicemodParams));
+					if(state.voicemodParams.enabled) {
+						VoicemodWebSocket.instance.connect();
+					}
 				}
 			}
 			
