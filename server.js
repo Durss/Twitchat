@@ -1133,7 +1133,9 @@ const UserDataSchema = {
 				commandToVoiceID:{
 					type:"object",
 					additionalProperties: true,
-					".*": {type:"string", maxLength:100},
+					patternProperties: {
+						".*": {type:"string", maxLength:100},
+					}
 				},
 				chatCmdPerms:{
 					type:"object",

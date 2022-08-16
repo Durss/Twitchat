@@ -1969,7 +1969,8 @@ const store = createStore({
 						}
 						
 						//Check if it's a voicemod command
-						if(state.voicemodParams.commandToVoiceID[cmd]) {
+						if(Utils.checkPermissions(state.voicemodParams.chatCmdPerms, messageData.tags)
+						&& state.voicemodParams.commandToVoiceID[cmd]) {
 							VoicemodWebSocket.instance.enableVoiceEffect(state.voicemodParams.commandToVoiceID[cmd]);
 						}
 					}
