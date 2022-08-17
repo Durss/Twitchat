@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="fill" :style="getStyles()"></div>
-		<div class="timer" v-if="percent<=1 && duration != undefined">{{timeLeft}}s</div>
+		<div class="timer" v-if="percent<=1 && duration != undefined">{{timeLeft}}</div>
 	</div>
 </template>
 
@@ -75,11 +75,11 @@ export default class ProgressBar extends Vue {
 	}
 
 	.timer {
+		font-family: "Azeret";
 		position: absolute;
 		left: 50%;
 		transform: translate(-50%, -50%);
 		background-color: @mainColor_light;
-		color:@mainColor_normal;
 		padding: 3px 6px;
 		border-radius: 15px;
 		font-size: 15px;

@@ -8,7 +8,14 @@
 
 		<ActivityFeedFilters v-model="filters" class="filters" />
 		
-		<div  v-if="messages.length > 0" class="messageList">
+		<Button class="trainFilter" title="Hype train events"
+			v-if="customActivities.length > 0"
+			@click="customActivities = []"
+			:icon="$image('icons/back_white.svg')" />
+
+		<div v-if="messages.length > 0" class="messageList">
+			
+
 			<div v-for="(m,index) in messages" :key="m.tags.id">
 				<ChatMessage
 					class="message"
@@ -62,6 +69,14 @@
 					ref="message"
 					v-else-if="m.type == 'countdown'"
 					:countdownData="m" />
+
+				<ChatHypeTrainResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'hype_train_end'"
+					:result="m"
+					:filtering="customActivities.length > 0"
+					@setCustomActivities="(list:ActivityFeedData[])=> customActivities = list"/>
 			</div>
 		</div>
 	</div>
@@ -83,6 +98,8 @@ import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
 import StoreProxy from '@/utils/StoreProxy';
+import ChatHypeTrainResult from '../messages/ChatHypeTrainResult.vue';
+import Button from '../Button.vue';
 
 @Options({
 	props:{
@@ -92,14 +109,16 @@ import StoreProxy from '@/utils/StoreProxy';
 		},
 	},
 	components:{
+		Button,
 		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
-		ChatCountdownResult,
 		ActivityFeedFilters,
+		ChatCountdownResult,
+		ChatHypeTrainResult,
 		ChatPredictionResult,
 	}
 })
@@ -109,6 +128,7 @@ export default class ActivityFeed extends Vue {
 
 	public filterKeys = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
 	public filters:{[key:string]:boolean} = {};
+	public customActivities:ActivityFeedData[] = [];
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -121,15 +141,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():ActivityFeedData[] {
-		const list = (StoreProxy.store.state.activityFeed as ActivityFeedData[])
-		.filter(v => v.type == "highlight"
-		|| v.type == "poll"
-		|| v.type == "prediction"
-		|| v.type == "bingo"
-		|| v.type == "raffle"
-		|| v.type == "countdown"
-		|| (v.type == "message" && v.tags["msg-id"] === "highlighted-message")
-		|| (v.type == "notice" && v.tags["msg-id"] === "commercial"));
+		const list = this.customActivities.length > 0? this.customActivities : (StoreProxy.store.state.activityFeed as ActivityFeedData[]);
 
 		const result:ActivityFeedData[] = [];
 
@@ -165,7 +177,7 @@ export default class ActivityFeed extends Vue {
 			else if(type == TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED) result.unshift(m);
 			else if(type == TwitchatMessageType.MESSAGE) result.unshift(m);
 			else if(type == TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) result.unshift(m);
-
+			else if(type == TwitchatMessageType.HYPE_TRAIN_END) result.unshift(m);
 		}
 		
 		return result;
@@ -253,6 +265,12 @@ export default class ActivityFeed extends Vue {
 	transform-origin: bottom center;
 	position: relative;
 
+	.trainFilter {
+		border-radius: 0;
+		:deep(.label) {
+			flex-grow: 1;
+		}
+	}
 
 	&.listMode {
 		background: none;

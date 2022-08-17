@@ -86,6 +86,13 @@
 					:countdownData="m"
 				/>
 
+				<ChatHypeTrainResult
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'hype_train_end' && $store.state.params.filters.showNotifications.value"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					:result="m" />
+
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
@@ -159,6 +166,7 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
 
 @Options({
 	components:{
@@ -170,6 +178,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatPredictionResult,
 		ChatMessageHoverActions,
@@ -795,6 +804,7 @@ type MessageTypes = IRCEventDataList.Highlight
 				|  IRCEventDataList.TwitchatAd
 				|  IRCEventDataList.Whisper
 				|  IRCEventDataList.CountdownResult
+				|  IRCEventDataList.HypeTrainResult
 ;
 </script>
 

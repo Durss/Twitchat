@@ -31,7 +31,7 @@
 
 		<ProgressBar v-if="trainProgress || trainData.state === 'APPROACHING'"
 			class="progressBar"
-			:duration="trainData.timeLeft*1000"
+			:duration="5*60*1000"
 			:percent="timerPercent"
 			:green="boostMode"
 		/>
@@ -60,6 +60,7 @@ export default class HypeTrainState extends Vue {
 
 	public timerPercent = 0;
 	public progressPercent = 0;
+	public disposed = false;
 
 	public get boostMode():boolean {
 		return this.trainData.is_boost_train;
@@ -109,19 +110,27 @@ export default class HypeTrainState extends Vue {
 	public mounted():void {
 		this.dataChange();
 		watch(()=>StoreProxy.store.state.hypeTrain, ()=>this.dataChange());
+
+		this.renderFrame();
+	}
+
+	public beforeUnmount():void {
+		this.disposed = true;
 	}
 
 	public dataChange():void {
-		const ellapsed = new Date().getTime() - this.trainData.started_at;
-		const duration = this.trainData.timeLeft * 1000;
-		const timeLeft = duration - ellapsed
-		this.timerPercent = ellapsed/duration;
 		gsap.killTweensOf(this);
-
-		gsap.to(this, {timerPercent:1, duration:timeLeft/1000, ease:"linear"});
 
 		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
+	}
+
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		const ellapsed = new Date().getTime() - this.trainData.updated_at;
+		const duration = this.trainData.timeLeft * 1000;
+		this.timerPercent = 1 - (duration-ellapsed)/(5*60*1000);
 	}
 
 }
@@ -137,6 +146,7 @@ export default class HypeTrainState extends Vue {
 
 	.progressBar {
 		margin: 10px 0;
+		color: @windowStateColor;
 	}
 
 	.content {
@@ -166,9 +176,9 @@ export default class HypeTrainState extends Vue {
 		}
 
 		.percent {
+			font-family: "Azeret";
 			font-size: 1.25em;
 			margin-left: 15px;
-			font-weight: bold;
 			background-color: fade(@mainColor_light, 25%);
 			padding: 5px;
 			border-radius: 5px;

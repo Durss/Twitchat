@@ -208,6 +208,7 @@ export interface HypeTrainStateData {
 	currentValue:number;
 	goal:number;
 	started_at:number;
+	updated_at:number;
 	timeLeft:number;
 	state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 	is_boost_train:boolean;

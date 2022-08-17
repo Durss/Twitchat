@@ -701,6 +701,7 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.Join
 | IRCEventDataList.Leave
 | IRCEventDataList.TimerResult
+| IRCEventDataList.HypeTrainResult
 | MusicMessage
 | StreamInfoUpdate
 | EmergencyModeUpdate

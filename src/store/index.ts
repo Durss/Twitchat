@@ -877,6 +877,7 @@ const store = createStore({
 			|| payload.type == "bingo"
 			|| payload.type == "raffle"
 			|| payload.type == "countdown"
+			|| payload.type == "hype_train_end"
 			|| (
 				state.params.features.keepHighlightMyMessages.value === true
 				&& payload.type == "message"
@@ -1249,7 +1250,47 @@ const store = createStore({
 			}
 		},
 
-		setHypeTrain(state, data:HypeTrainStateData) { state.hypeTrain = data; },
+		setHypeTrain(state, data:HypeTrainStateData) {
+			state.hypeTrain = data;
+			if(data.state == "COMPLETED") {
+				const threshold = 10*1000;
+				const offset = data.started_at;
+				const activities:ActivityFeedData[] = [];
+				for (let i = 0; i < state.activityFeed.length; i++) {
+					const el = state.activityFeed[i];
+					if(!el.tags['tmi-sent-ts']) continue;
+					let timestamp = el.tags['tmi-sent-ts'];
+					//If receiving a timestamp, convert it to number as the Date constructor
+					//accept either a number or a fully formated date/time string but not
+					//a timestamp string
+					const ts = parseInt(timestamp).toString() == timestamp? parseInt(timestamp) : timestamp;
+					const date = new Date(ts).getTime();
+					const type = getTwitchatMessageType(el);
+					if(type == TwitchatMessageType.BITS
+					|| type == TwitchatMessageType.SUB
+					|| type == TwitchatMessageType.SUB_PRIME
+					|| type == TwitchatMessageType.SUBGIFT
+					|| type == TwitchatMessageType.SUBGIFT_UPGRADE) {
+						if(date > offset - threshold) {
+							activities.push( el );
+						}
+					}
+				}
+
+				if(activities.length > 0) {
+					const res:IRCEventDataList.HypeTrainResult = {
+						type:"hype_train_end",
+						train:state.hypeTrain,
+						activities,
+						tags: {
+							id:IRCClient.instance.getFakeGuid(),
+							"tmi-sent-ts": Date.now().toString()
+						},
+					}
+					store.dispatch("addChatMessage", res);
+				}
+			}
+		},
 
 		flagLowTrustMessage(state, payload:{data:PubSubDataTypes.LowTrustMessage, retryCount?:number}) {
 			//Ignore message if user is "restricted"

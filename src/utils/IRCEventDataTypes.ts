@@ -2,7 +2,7 @@ import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, 
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData, RaffleEntry } from "./CommonDataTypes";
-import type { CountdownData, TimerData } from "@/types/TwitchatDataTypes";
+import type { CountdownData, HypeTrainStateData, TimerData } from "@/types/TwitchatDataTypes";
 
 export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
 
@@ -15,6 +15,7 @@ export type ActivityFeedData = IRCEventDataList.Highlight
 	| IRCEventDataList.Commercial
 	| IRCEventDataList.CountdownResult
 	| IRCEventDataList.Notice
+	| IRCEventDataList.HypeTrainResult
 	;
 export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.Timeout
@@ -32,6 +33,7 @@ export type IRCEventData = IRCEventDataList.Message
 	| IRCEventDataList.CountdownResult
 	| IRCEventDataList.Join
 	| IRCEventDataList.Leave
+	| IRCEventDataList.HypeTrainResult
 	;
 export namespace IRCEventDataList {
 	export interface Message {
@@ -180,6 +182,14 @@ export namespace IRCEventDataList {
 		duration_ms?:number;
 	}
 
+	export interface HypeTrainResult {
+		type: "hype_train_end";
+		tags: { id: string, "tmi-sent-ts": string };
+		markedAsRead?: boolean;
+		train: HypeTrainStateData;
+		activities: ActivityFeedData[];
+	}
+
 	export interface JoinLeaveList {
 		type: "leave"|"join";
 		users:string[];
@@ -259,6 +269,7 @@ export const TwitchatMessageType = {
 	COMMERCIAL:"commercial",
 	ROOM_STATE:"roomState",
 	PREDICTION:"prediction",
+	HYPE_TRAIN_END:"hype_train_end",
 	SUBGIFT_UPGRADE:"subgiftUpgrade",
 	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
 	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
@@ -282,6 +293,8 @@ export function getTwitchatMessageType(m: IRCEventData):TwitchatMessageStringTyp
 		type = TwitchatMessageType.RAFFLE;
 	}else if(m.type == "countdown") {
 		type = TwitchatMessageType.COUNTDOWN;
+	}else if(m.type == "hype_train_end") {
+		type = TwitchatMessageType.HYPE_TRAIN_END;
 	}else if(m.type == "notice") {
 		if(m.msgid == "timeout_success") {
 			type = TwitchatMessageType.TIMEOUT;

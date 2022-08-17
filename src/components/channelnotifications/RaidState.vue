@@ -47,7 +47,7 @@ export default class RaidState extends Vue {
 		}
 	}
 
-	public unmounted():void {
+	public beforeUnmount():void {
 		clearInterval(this.timerInterval);
 	}
 
