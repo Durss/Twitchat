@@ -207,6 +207,7 @@ export interface HypeTrainStateData {
 	level:number;
 	currentValue:number;
 	goal:number;
+	approached_at:number;
 	started_at:number;
 	updated_at:number;
 	timeLeft:number;

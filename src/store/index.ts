@@ -1253,8 +1253,8 @@ const store = createStore({
 		setHypeTrain(state, data:HypeTrainStateData) {
 			state.hypeTrain = data;
 			if(data.state == "COMPLETED") {
-				const threshold = 10*1000;
-				const offset = data.started_at;
+				const threshold = 5*1000;
+				const offset = data.approached_at;
 				const activities:ActivityFeedData[] = [];
 				for (let i = 0; i < state.activityFeed.length; i++) {
 					const el = state.activityFeed[i];
