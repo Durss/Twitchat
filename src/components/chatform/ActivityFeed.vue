@@ -76,7 +76,7 @@
 					v-else-if="m.type == 'hype_train_end'"
 					:result="m"
 					:filtering="customActivities.length > 0"
-					@setCustomActivities="(list:ActivityFeedData[])=> customActivities = list"/>
+					@setCustomActivities="(list:any[])=> customActivities = list"/>
 			</div>
 		</div>
 	</div>
