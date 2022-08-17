@@ -151,7 +151,17 @@ export default class TTUserList extends Vue {
 				this.activeLast24h = 0;
 				this.activeLast7days = 0;
 				this.activeLast30days = 0;
+				const offset24h = Date.now() - 24 * 60 * 60 * 1000;
+				const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
+				const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
 				this.users = users.sort((a, b) => b.date - a.date);
+				for (let i = 0; i < users.length; i++) {
+					const c = users[i];
+					const date = c.date;
+					if(date > offset24h) this.activeLast24h++;
+					if(date > offset7days) this.activeLast7days++;
+					if(date > offset30days) this.activeLast30days++;
+				}
 				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
@@ -183,17 +193,11 @@ export default class TTUserList extends Vue {
 		const users = this.users.splice(0, chunk);
 		const ids = users.map(u => u.id);
 		const channels = await TwitchUtils.loadUserInfo(ids);
-		const offset24h = Date.now() - 24 * 60 * 60 * 1000;
-		const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
-		const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
 		for (let i = 0; i < channels.length; i++) {
 			const c = channels[i];
 			const index = users.findIndex(u => u.id == c.id);
 			users[index].user = c;
 			const date = users[index].date;
-			if(date > offset24h) this.activeLast24h++;
-			if(date > offset7days) this.activeLast7days++;
-			if(date > offset30days) this.activeLast30days++;
 		}
 		this.usersSpool = this.usersSpool.concat(users);
 		this.loading = false;
