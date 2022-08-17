@@ -175,7 +175,7 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatMessageType.SUBGIFT_UPGRADE:
 				this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
-				this.icon = this.$image('icons/gift.svg');
+				this.icon = this.$image('icons/sub.svg');
 				res = `<strong>${this.messageData.username}</strong> is continuing the Gift Sub they got from <strong>${this.messageData.sender}</strong>`;
 				break;
 
