@@ -198,6 +198,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return {inputs:[]};
 		
 		const kinds = await this.getInputKindList();
+		console.log(kinds);
 		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
 		return await this.obs.call("GetInputList", {inputKind:audioKind});
 	}

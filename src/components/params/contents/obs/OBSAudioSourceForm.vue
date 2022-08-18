@@ -17,7 +17,7 @@
 import Button from '@/components/Button.vue';
 import Store from '@/store/Store';
 import type { OBSMuteUnmuteCommands, ParameterData } from '@/types/TwitchatDataTypes';
-import type { OBSAudioSource } from '@/utils/OBSWebsocket';
+import type { OBSAudioSource, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
@@ -36,7 +36,7 @@ export default class OBSAudioSourceForm extends Vue {
 
 	public noAudioSource = false;
 	public loadingAudioSources = false;
-	public audioSources:OBSAudioSource[] = [];
+	public audioSources:OBSSourceItem[] = [];
 	public obsAllowed_audioSources:ParameterData = { type:"list", value:"", listValues:[], label:"Audio source" };
 	public obsAllowed_muteCommand:ParameterData = { type:"text", value:"", label:"Mute command", placeholder:"!mute" };
 	public obsAllowed_unmuteCommand:ParameterData = { type:"text", value:"", label:"Unmute command", placeholder:"!unmute" };
@@ -81,17 +81,16 @@ export default class OBSAudioSourceForm extends Vue {
 			await Utils.promisedTimeout(500);
 		}
 
-		const res = await OBSWebsocket.instance.getAudioSources();
-		this.audioSources = (res.inputs as unknown) as OBSAudioSource[];
+		this.audioSources = await OBSWebsocket.instance.getSources();
 		if(this.audioSources.length > 0) {
 			this.noAudioSource = false;
-			this.obsAllowed_audioSources.listValues = this.audioSources.map(v=> { return {label:v.inputName, value:v.inputName};});//Audio sources
+			this.obsAllowed_audioSources.listValues = this.audioSources.map(v=> { return {label:v.sourceName, value:v.sourceName};});//Audio sources
 			this.obsAllowed_audioSources.listValues.unshift( this.defaultEntry );
 			this.obsAllowed_audioSources.value = this.defaultEntry.value;//Default value
 
 			if(storeConf
 			&& storeConf.audioSourceName
-			&& this.audioSources.find(v => v.inputName == storeConf.audioSourceName)) {
+			&& this.audioSources.find(v => v.sourceName == storeConf.audioSourceName)) {
 				this.obsAllowed_audioSources.value = storeConf.audioSourceName;
 			}
 
@@ -99,7 +98,7 @@ export default class OBSAudioSourceForm extends Vue {
 			if(storedState) {
 				this.obsAllowed_muteCommand.value = storedState.muteCommand;
 				this.obsAllowed_unmuteCommand.value = storedState.unmuteCommand;
-				if(this.audioSources.find(v => v.inputName == storedState.audioSourceName)) {
+				if(this.audioSources.find(v => v.sourceName == storedState.audioSourceName)) {
 					this.obsAllowed_audioSources.value = storedState.audioSourceName;
 				}
 			}
