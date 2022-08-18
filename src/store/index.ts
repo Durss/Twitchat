@@ -91,7 +91,7 @@ const store = createStore({
 		tempStoreValue: null as unknown,
 		obsConnectionEnabled: null as boolean|null,
 		obsSceneCommands: [] as OBSSceneCommand[],
-		obsMuteUnmuteCommands: null as OBSMuteUnmuteCommands|null,
+		obsMuteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"} as OBSMuteUnmuteCommands,
 		obsCommandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
@@ -2302,7 +2302,9 @@ const store = createStore({
 				//Init OBS command params
 				const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
 				if(obsMuteUnmuteCommands) {
+					console.log(JSON.parse(obsMuteUnmuteCommands), state.obsMuteUnmuteCommands);
 					Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (state.obsMuteUnmuteCommands as unknown) as JsonObject);
+					console.log(state.obsMuteUnmuteCommands);
 				}
 				
 				//Init OBS permissions
