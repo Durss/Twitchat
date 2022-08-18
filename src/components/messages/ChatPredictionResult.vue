@@ -34,6 +34,7 @@ import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
+import gsap from 'gsap';
 
 @Options({
 	props:{
@@ -80,6 +81,7 @@ export default class ChatPredictionResult extends Vue {
 	public copyJSON():void {
 		Utils.copyToClipboard(JSON.stringify(this.predictionData));
 		console.log(this.predictionData);
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 }

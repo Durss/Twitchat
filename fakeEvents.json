@@ -809,5 +809,264 @@
 			"tmi-sent-ts": "1659921787106",
 			"msg-id": "offline"
 		}
+	},
+
+	"hypeTrainSummary":{
+		"type": "hype_train_end",
+		"train": {
+			"level": 5,
+			"currentValue": 11700,
+			"goal": 3000,
+			"approached_at": 1660782246836,
+			"started_at": 1660782246836,
+			"updated_at": 1660782246839,
+			"timeLeft": 45,
+			"state": "COMPLETED",
+			"is_boost_train": false
+		},
+		"activities": [
+			{
+				"type": "highlight",
+				"channel": "#littlebigwhale",
+				"username": "Durssbot",
+				"methods": {
+					"prime": true,
+					"plan": "Prime",
+					"planName": "Be a Little Whale !"
+				},
+				"tags": {
+					"badge-info": {
+						"subscriber": "0"
+					},
+					"badges": {
+						"subscriber": "0",
+						"premium": "1"
+					},
+					"color": "#1690F3",
+					"display-name": "Durssbot",
+					"emotes": null,
+					"flags": null,
+					"id": "00000000-0000-0000-0000-000000000003",
+					"login": "Durssbot",
+					"mod": false,
+					"msg-id": "sub",
+					"msg-param-cumulative-months": true,
+					"msg-param-months": false,
+					"msg-param-multimonth-duration": false,
+					"msg-param-multimonth-tenure": false,
+					"msg-param-should-share-streak": false,
+					"msg-param-sub-plan-name": "Be a Little Whale !",
+					"msg-param-sub-plan": "Prime",
+					"msg-param-was-gifted": "false",
+					"room-id": "29961813",
+					"subscriber": true,
+					"system-msg": "Durssbot subscribed with Prime.",
+					"tmi-sent-ts": "1660782245981",
+					"user-id": "647389082",
+					"user-type": null,
+					"emotes-raw": null,
+					"badge-info-raw": "subscriber/0",
+					"badges-raw": "subscriber/0,premium/1",
+					"message-type": "sub"
+				},
+				"message": "Woop wooooooop !",
+				"hasMention": false
+			},
+			{
+				"type": "highlight",
+				"channel": "#durss",
+				"username": "SwizzerJ",
+				"methods": {
+					"prime": false,
+					"plan": "3000",
+					"planName": "SUBSCRIBER"
+				},
+				"months": 0,
+				"tags": {
+					"badge-info": {
+						"subscriber": "12"
+					},
+					"badges": {
+						"subscriber": "3012",
+						"sub-gifter": "5"
+					},
+					"color": "#D1D02A",
+					"display-name": "SwizzerJ",
+					"emotes": null,
+					"flags": null,
+					"id": "00000000-0000-0000-0000-000000000004",
+					"login": "swizzerj",
+					"mod": false,
+					"msg-id": "subgift",
+					"msg-param-gift-months": true,
+					"msg-param-months": true,
+					"msg-param-origin-id": "cf 8a 7f a4 b1 9f ac e4 9f bc ac c8 c2 30 b3 5d 0c 84 c7 b1",
+					"msg-param-recipient-display-name": "est_id",
+					"msg-param-recipient-id": "452550058",
+					"msg-param-recipient-user-name": "est_id",
+					"msg-param-sender-count": false,
+					"msg-param-sub-plan-name": "SUBSCRIBER",
+					"msg-param-sub-plan": "1000",
+					"room-id": "24147592",
+					"subscriber": true,
+					"system-msg": "SwizzerJ gifted a Tier 1 sub to est_id!",
+					"tmi-sent-ts": "1660782252346",
+					"user-id": "156668532",
+					"user-type": null,
+					"emotes-raw": null,
+					"badge-info-raw": "subscriber/12",
+					"badges-raw": "subscriber/3012,sub-gifter/5",
+					"message-type": "subgift"
+				},
+				"recipient": "est_id",
+				"firstMessage": false,
+				"subgiftAdditionalRecipents": [
+					"esse",
+					"cupidatat_exercitation",
+					"Lorem_cillum_velit",
+					"officia_adipisicing",
+					"sit_incididunt",
+					"tempor_do",
+					"ut_tempor",
+					"enim",
+					"ullamco_nulla",
+					"incididunt_amet_do",
+					"est_dolore_Lorem",
+					"deserunt",
+					"reprehenderit_sit",
+					"incididunt_consequat",
+					"ex_esse_pariatur",
+					"cupidatat_elit_occaecat",
+					"quis_elit",
+					"officia_voluptate",
+					"non_ea",
+					"minim_velit"
+				]
+			},
+			{
+				"type": "highlight",
+				"channel": "#thesushidragon",
+				"tags": {
+					"badge-info": {
+						"subscriber": "1"
+					},
+					"badges": {
+						"subscriber": "0"
+					},
+					"bits": "500",
+					"color": "#FFB800",
+					"display-name": "stefan_ifl",
+					"emotes": {
+						"emotesv2_ebe983c6817446df902aef539bb0b82c": [
+							"96-106"
+						]
+					},
+					"first-msg": false,
+					"flags": null,
+					"id": "00000000-0000-0000-0000-000000000018",
+					"mod": false,
+					"room-id": "96738828",
+					"subscriber": true,
+					"tmi-sent-ts": "1660782249381",
+					"turbo": false,
+					"user-id": "42950183",
+					"user-type": null,
+					"emotes-raw": "emotesv2_ebe983c6817446df902aef539bb0b82c:0-10",
+					"badge-info-raw": "subscriber/1",
+					"badges-raw": "subscriber/0",
+					"username": "stefan_ifl",
+					"message-type": "chat"
+				},
+				"message": "waterm45Pog amazing content dude ! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100",
+				"hasMention": false
+			},
+			{
+				"type": "highlight",
+				"channel": "#littlebigwhale",
+				"username": "Durssbot",
+				"methods": {
+					"prime": true,
+					"plan": "Prime",
+					"planName": "Be a Little Whale !"
+				},
+				"tags": {
+					"badge-info": {
+						"subscriber": "0"
+					},
+					"badges": {
+						"subscriber": "0",
+						"premium": "1"
+					},
+					"color": "#1690F3",
+					"display-name": "Durssbot",
+					"emotes": null,
+					"flags": null,
+					"id": "00000000-0000-0000-0000-000000000019",
+					"login": "Durssbot",
+					"mod": false,
+					"msg-id": "sub",
+					"msg-param-cumulative-months": true,
+					"msg-param-months": false,
+					"msg-param-multimonth-duration": false,
+					"msg-param-multimonth-tenure": false,
+					"msg-param-should-share-streak": false,
+					"msg-param-sub-plan-name": "Be a Little Whale !",
+					"msg-param-sub-plan": "Prime",
+					"msg-param-was-gifted": "false",
+					"room-id": "29961813",
+					"subscriber": true,
+					"system-msg": "Durssbot subscribed with Prime.",
+					"tmi-sent-ts": "1660782249852",
+					"user-id": "647389082",
+					"user-type": null,
+					"emotes-raw": null,
+					"badge-info-raw": "subscriber/0",
+					"badges-raw": "subscriber/0,premium/1",
+					"message-type": "sub"
+				},
+				"message": "Woop wooooooop !",
+				"hasMention": false
+			},
+			{
+				"type": "highlight",
+				"channel": "#alisa",
+				"username": "gnarlybuds",
+				"sender": "bob_sled_",
+				"tags": {
+					"badge-info": {
+						"subscriber": "4"
+					},
+					"badges": {
+						"subscriber": "3",
+						"premium": "1"
+					},
+					"color": "#008000",
+					"display-name": "gnarlybuds",
+					"emotes": null,
+					"flags": null,
+					"id": "00000000-0000-0000-0000-00000000001b",
+					"login": "gnarlybuds",
+					"mod": false,
+					"msg-id": "giftpaidupgrade",
+					"msg-param-sender-login": "bob_sled_",
+					"msg-param-sender-name": "bob_sled_",
+					"room-id": "44345043",
+					"subscriber": true,
+					"system-msg": "gnarlybuds is continuing the Gift Sub they got from bob_sled_!",
+					"tmi-sent-ts": "1660782253761",
+					"user-id": "176225384",
+					"user-type": null,
+					"emotes-raw": null,
+					"badge-info-raw": "subscriber/4",
+					"badges-raw": "subscriber/3,premium/1",
+					"message-type": "giftpaidupgrade"
+				},
+				"firstMessage": false
+			}
+		],
+		"tags": {
+			"id": "00000000-0000-0000-0000-00000000001c",
+			"tmi-sent-ts": "1660782292837"
+		}
 	}
 }

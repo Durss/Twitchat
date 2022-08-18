@@ -26,6 +26,7 @@
 <script lang="ts">
 import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 
@@ -60,6 +61,7 @@ export default class ChatHypeTrainResult extends Vue {
 	public copyJSON():void {
 		Utils.copyToClipboard(JSON.stringify(this.result));
 		console.log(this.result);
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	public mounted():void {
@@ -110,7 +112,7 @@ export default class ChatHypeTrainResult extends Vue {
 		width: 1.5em;
 		height: 1.5em;
 		object-fit: contain;
-		margin-right: 1em;
+		margin: 0 .5em;
 	}
 	
 	.highlight() {

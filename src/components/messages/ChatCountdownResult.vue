@@ -11,6 +11,7 @@
 <script lang="ts">
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -35,6 +36,7 @@ export default class ChatCountdownResult extends Vue {
 	public copyJSON():void {
 		Utils.copyToClipboard(JSON.stringify(this.countdownData));
 		console.log(this.countdownData);
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 }
 </script>

@@ -662,7 +662,7 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, JSON.parse(txt)));
 				
 			}else
-			if(json.type == "highlight") {
+			if(json.type == "highlight" || json.type == "hype_train_end") {
 				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
 			}
 			this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, json));

@@ -19,6 +19,7 @@
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
 			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="$image('icons/train.svg')" />
+			<Button small title="Hype train summary" @click="simulateEvent('hypeTrainSummary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="$image('icons/train.svg')" />
 			<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="$image('icons/boost.svg')" />
 			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="$image('icons/ban.svg')" />
