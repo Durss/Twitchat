@@ -89,7 +89,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public get roundProgressPercent():number {
-		return Math.floor(this.progressPercent);
+		return Math.round(this.progressPercent);
 	}
 
 	public get styles():StyleValue {
@@ -121,7 +121,7 @@ export default class HypeTrainState extends Vue {
 	public dataChange():void {
 		gsap.killTweensOf(this);
 
-		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
+		const p = Math.round(this.trainData.currentValue/this.trainData.goal * 100);
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
 	}
 
