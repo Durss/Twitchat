@@ -129,6 +129,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	public async stopStreaming():Promise<void> {
+		if(!this.connected) return;
 		const status = await this.obs.call("GetStreamStatus");
 		if(status.outputActive) {
 			await this.obs.call("StopStream");

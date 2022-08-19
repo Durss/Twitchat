@@ -1253,7 +1253,7 @@ const store = createStore({
 		setHypeTrain(state, data:HypeTrainStateData) {
 			state.hypeTrain = data;
 			if(data.state == "COMPLETED") {
-				const threshold = 5*1000;
+				const threshold = 60*1000;
 				const offset = data.approached_at;
 				const activities:ActivityFeedData[] = [];
 				for (let i = 0; i < state.activityFeed.length; i++) {
@@ -1277,18 +1277,16 @@ const store = createStore({
 					}
 				}
 
-				if(activities.length > 0) {
-					const res:IRCEventDataList.HypeTrainResult = {
-						type:"hype_train_end",
-						train:state.hypeTrain,
-						activities,
-						tags: {
-							id:IRCClient.instance.getFakeGuid(),
-							"tmi-sent-ts": Date.now().toString()
-						},
-					}
-					store.dispatch("addChatMessage", res);
+				const res:IRCEventDataList.HypeTrainResult = {
+					type:"hype_train_end",
+					train:state.hypeTrain,
+					activities,
+					tags: {
+						id:IRCClient.instance.getFakeGuid(),
+						"tmi-sent-ts": Date.now().toString()
+					},
 				}
+				store.dispatch("addChatMessage", res);
 			}
 		},
 
@@ -2302,9 +2300,7 @@ const store = createStore({
 				//Init OBS command params
 				const obsMuteUnmuteCommands = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
 				if(obsMuteUnmuteCommands) {
-					console.log(JSON.parse(obsMuteUnmuteCommands), state.obsMuteUnmuteCommands);
 					Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (state.obsMuteUnmuteCommands as unknown) as JsonObject);
-					console.log(state.obsMuteUnmuteCommands);
 				}
 				
 				//Init OBS permissions

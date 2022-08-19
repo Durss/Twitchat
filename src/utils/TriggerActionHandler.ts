@@ -358,7 +358,11 @@ export default class TriggerActionHandler {
 			hypeTrainProgress:TriggerTypes.HYPE_TRAIN_PROGRESS,
 			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END,
 		}
-		return await this.parseSteps(idToType[message.type], message, testMode, guid);
+		const event = idToType[message.type];
+		if(event) {
+			return await this.parseSteps(event, message, testMode, guid);
+		}
+		return false;
 	}
 
 	/**

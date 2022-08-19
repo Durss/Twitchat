@@ -28,7 +28,7 @@ export default class IRCClient extends EventDispatcher {
 	public connected = false;
 	public botsLogins:{[key:string]:boolean} = {};
 	public onlineUsers:string[] = [];
-	public debugMode:boolean = false && !Config.instance.IS_PROD;//Enable to subscribe to other twitch channels to get chat messages
+	public debugChans:string[] = Config.instance.IS_PROD? [] : Config.instance.debugChans;
 	
 	private fakeEvents:boolean = false && !Config.instance.IS_PROD;//Enable to send fake events and test different displays
 	private login!:string;
@@ -76,9 +76,7 @@ export default class IRCClient extends EventDispatcher {
 			this.login = login;
 			let channels = [ login ];
 			this.channel = "#"+login;
-			if(this.debugMode) {
-				channels = channels.concat(["julienbelhumeur"]);
-			}
+			channels = channels.concat(this.debugChans);
 
 			(async ()=> {
 				//Get user IDs from logins to then load their badges

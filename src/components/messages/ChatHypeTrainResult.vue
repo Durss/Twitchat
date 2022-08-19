@@ -5,20 +5,20 @@
 		<div class="infoHolder">
 			<strong>Hype Train completed at <mark>level {{result.train.level}}</mark> <mark>{{reachPercent}}%</mark></strong>
 			<div class="details">
-				<div class="row">
+				<div class="row" v-if="bits > 0">
 					<img src="@/assets/icons/bits.svg" class="icon">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row">
+				<div class="row" v-if="subs > 0">
 					<img src="@/assets/icons/sub.svg" class="icon">
 					<span class="label">{{subs}}</span>
 				</div>
-				<div class="row">
+				<div class="row" v-if="subgifts > 0">
 					<img src="@/assets/icons/gift.svg" class="icon">
 					<span class="label">{{subgifts}}</span>
 				</div>
 			</div>
-			<Button v-if="!filtering" title="Filter activities" :icon="$image('icons/filters.svg')" @click="filter()" />
+			<Button v-if="!filtering && result.activities.length > 0" title="Filter activities" :icon="$image('icons/filters.svg')" @click="filter()" />
 		</div>
 	</div>
 </template>

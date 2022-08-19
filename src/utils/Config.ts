@@ -53,6 +53,14 @@ export default class Config {
 	public get SPOTIFY_CONFIGURED():boolean { return this.SPOTIFY_CLIENT_ID?.length > 20; }
 	public get DEEZER_CONFIGURED():boolean { return this.DEEZER_CLIENT_ID?.length > 5; }
 
+	/**
+	 * Add twitch logins to connect to their chats and get some
+	 * PubSub events from
+	 */
+	public get debugChans():string[] {
+		return [];
+	}
+
 	public get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {
 		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
 		return this.SPOTIFY_CONNECTED || this.DEEZER_CONNECTED;

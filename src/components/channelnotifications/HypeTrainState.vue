@@ -31,7 +31,7 @@
 
 		<ProgressBar v-if="trainProgress || trainData.state === 'APPROACHING'"
 			class="progressBar"
-			:duration="5*60*1000"
+			:duration="timerDuration"
 			:percent="timerPercent"
 			:green="boostMode"
 		/>
@@ -59,6 +59,7 @@ export default class HypeTrainState extends Vue {
 	// state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 
 	public timerPercent = 0;
+	public timerDuration = 0;
 	public progressPercent = 0;
 	public disposed = false;
 
@@ -121,6 +122,8 @@ export default class HypeTrainState extends Vue {
 	public dataChange():void {
 		gsap.killTweensOf(this);
 
+		this.timerDuration = this.trainData.state == "APPROACHING"? this.trainData.timeLeft * 1000 : 5*60*1000
+
 		const p = Math.round(this.trainData.currentValue/this.trainData.goal * 100);
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
 	}
@@ -130,7 +133,7 @@ export default class HypeTrainState extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 		const ellapsed = new Date().getTime() - this.trainData.updated_at;
 		const duration = this.trainData.timeLeft * 1000;
-		this.timerPercent = 1 - (duration-ellapsed)/(5*60*1000);
+		this.timerPercent = 1 - (duration-ellapsed)/this.timerDuration;
 	}
 
 }

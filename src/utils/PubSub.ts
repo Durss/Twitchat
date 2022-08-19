@@ -57,7 +57,7 @@ export default class PubSub extends EventDispatcher{
 	public connect():void {
 		this.socket = new WebSocket("wss://pubsub-edge.twitch.tv");
 
-		this.socket.onopen = () => {
+		this.socket.onopen = async () => {
 			//It's required to ping the server at least every 5min
 			//to keep the connection alive
 			clearInterval(this.pingInterval);
@@ -95,20 +95,29 @@ export default class PubSub extends EventDispatcher{
 				"low-trust-users."+UserSession.instance.authToken.user_id+"."+UserSession.instance.authToken.user_id,
 				// "stream-change-v1."+UserSession.instance.authToken.user_id,
 			];
-			if(IRCClient.instance.debugMode) {
+
+			
+			if(IRCClient.instance.debugChans.length > 0) {
 				//Subscribe to someone else's channel points
-				const uidTest = "43809079";
-				subscriptions.push("community-points-channel-v1."+uidTest);//Get channel points rewards
-				// subscriptions.push("predictions-user-v1."+uidTest);//Get prediction event
-				subscriptions.push("channel-ad-poll-update-events."+uidTest);
-				subscriptions.push("predictions-channel-v1."+uidTest);//Get prediction event
-				subscriptions.push("polls."+uidTest);//Get prediction event
-				subscriptions.push("pv-watch-party-events."+uidTest);
-				subscriptions.push("stream-chat-room-v1."+uidTest);//Host events
-				subscriptions.push("stream-change-by-channel."+uidTest);
-				subscriptions.push("radio-events-v1."+uidTest);
-				// subscriptions.push("user-subscribe-events-v1."+uidTest);
-				subscriptions.push("channel-sub-gifts-v1."+uidTest);
+				let chans = IRCClient.instance.debugChans;
+				const users = await TwitchUtils.loadUserInfo(undefined, chans);
+				const uids = users.map(v=> v.id);
+				for (let i = 0; i < uids.length; i++) {
+					const uid = uids[i];
+					subscriptions.push("raid."+uid);
+					subscriptions.push("hype-train-events-v1."+uid);
+					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
+					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
+					// subscriptions.push("channel-ad-poll-update-events."+uid);
+					// subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
+					// subscriptions.push("polls."+uid);//Get prediction event//Get poll events
+					// subscriptions.push("pv-watch-party-events."+uid);
+					subscriptions.push("stream-chat-room-v1."+uid);//Host events
+					// subscriptions.push("stream-change-by-channel."+uid);
+					// subscriptions.push("radio-events-v1."+uid);
+					// subscriptions.push("channel-sub-gifts-v1."+uid);
+					
+				}
 			}
 			this.subscribe(subscriptions);
 		};
@@ -274,13 +283,13 @@ export default class PubSub extends EventDispatcher{
 	}
 
 	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubDataTypes.RaidInfos}, topic?:string):void {
-		if(topic == "following."+UserSession.instance.authToken.user_id) {
+		if(topic && /folowing\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Following;
 			this.followingEvent(localObj);
 
 
 
-		}else if(topic == "video-playback-by-id."+UserSession.instance.authToken.user_id) {
+		}else if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
 				StoreProxy.store.dispatch("setPlaybackState", localObj);
@@ -737,11 +746,12 @@ export default class PubSub extends EventDispatcher{
 	 */
 	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching):void {
 		const key = Object.keys(data.events_remaining_durations)[0];
+		const wasAlreadyApproaching = Object.keys(StoreProxy.store.state.hypeTrain).length > 0;
 		const train:HypeTrainStateData = {
 			level:1,
 			currentValue:0,
 			goal:data.goal,
-			approached_at:Date.now(),
+			approached_at:StoreProxy.store.state.hypeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
 			timeLeft:data.events_remaining_durations[key],
@@ -749,16 +759,20 @@ export default class PubSub extends EventDispatcher{
 			is_boost_train:data.is_boost_train,
 		};
 		StoreProxy.store.dispatch("setHypeTrain", train);
+
 		//Hide "hypetrain approaching" notification if expired
 		this.hypeTrainApproachingTimer = setTimeout(()=> {
 			StoreProxy.store.dispatch("setHypeTrain", {});
 		}, train.timeLeft * 1000);
-		const message:HypeTrainTriggerData = {
-			type: "hypeTrainApproach",
-			level:0,
-			percent:0,
+
+		if(!wasAlreadyApproaching) {
+			const message:HypeTrainTriggerData = {
+				type: "hypeTrainApproach",
+				level:0,
+				percent:0,
+			}
+			TriggerActionHandler.instance.onMessage(message)
 		}
-		TriggerActionHandler.instance.onMessage(message)
 	}
 
 	/**
@@ -787,7 +801,7 @@ export default class PubSub extends EventDispatcher{
 		const message:HypeTrainTriggerData = {
 			type: "hypeTrainStart",
 			level:train.level,
-			percent:Math.floor(train.currentValue/train.goal * 100),
+			percent:Math.round(train.currentValue/train.goal * 100),
 		}
 		TriggerActionHandler.instance.onMessage(message)
 	}
@@ -797,12 +811,19 @@ export default class PubSub extends EventDispatcher{
 	 * @param data 
 	 */
 	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress):void {
+		const storeTrain = StoreProxy.store.state.hypeTrain as HypeTrainStateData;
+		const prevLevel = storeTrain.level;
+		const prevValue = storeTrain.currentValue;
+		if(data.progress.value == prevLevel && data.progress.level.value == prevValue) {
+			//Make sure 2 identical progress events are not processed
+			return;
+		}
 		const train:HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			approached_at:(StoreProxy.store.state.hypeTrain as HypeTrainStateData).approached_at,
-			started_at:(StoreProxy.store.state.hypeTrain as HypeTrainStateData).started_at,
+			approached_at:storeTrain.approached_at,
+			started_at:storeTrain.started_at,
 			updated_at:Date.now(),
 			timeLeft:data.progress.remaining_seconds,
 			state: "PROGRESSING",
@@ -818,7 +839,7 @@ export default class PubSub extends EventDispatcher{
 		const message:HypeTrainTriggerData = {
 			type: "hypeTrainProgress",
 			level:train.level,
-			percent:Math.floor(train.currentValue/train.goal * 100),
+			percent:Math.round(train.currentValue/train.goal * 100),
 		}
 		TriggerActionHandler.instance.onMessage(message)
 	}
@@ -849,7 +870,7 @@ export default class PubSub extends EventDispatcher{
 		const message:HypeTrainTriggerData = {
 			type: "hypeTrainProgress",
 			level:train.level,
-			percent:Math.floor(train.currentValue/train.goal * 100),
+			percent:Math.round(train.currentValue/train.goal * 100),
 		}
 		TriggerActionHandler.instance.onMessage(message)
 	}
@@ -878,7 +899,7 @@ export default class PubSub extends EventDispatcher{
 		const message:HypeTrainTriggerData = {
 			type: "hypeTrainEnd",
 			level,
-			percent:storeData.currentValue/(storeData.goal * 100),
+			percent:Math.round(storeData.currentValue/(storeData.goal * 100)),
 		}
 		TriggerActionHandler.instance.onMessage(message)
 	}
@@ -930,7 +951,9 @@ namespace PubsubJSON {
 	export const BoostComplete = {"type":"community-boost-end","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"ORDER_STATE_FULFILLED","GoalProgress":1104,"GoalTarget":1100}],"ending_reason":"ORDER_STATE_FULFILLED"}};
 
 	export const HypetrainList =[
-		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":'{"type":"hype-train-approaching","data":{"channel_id":"227146018","goal":3,"events_remaining_durations":{"1":300},"level_one_rewards":[{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"},{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"},{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"}],"creator_color":"00AA7F","participants":["38001049","59580201"],"approaching_hype_train_id":"fbafb76e-0447-49ca-b008-c954f374be33","is_boost_train":false}}'}},
+		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.180847952","message":"{\"type\":\"hype-train-approaching\",\"data\":{\"channel_id\":\"402890635\",\"goal\":3,\"events_remaining_durations\":{\"1\":261},\"level_one_rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"}],\"creator_color\":\"00DADA\",\"participants\":[\"117971644\",\"661245368\"],\"approaching_hype_train_id\":\"50ced304-5348-4481-b4b2-de74d7203677\",\"is_boost_train\":false}}"}},
+		new Date("Wed Aug 17 2022 21:14:45 GMT+0200"),
+		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":'{"type":"hype-train-approaching","data":{"channel_id":"402890635","goal":3,"events_remaining_durations":{"1":269},"level_one_rewards":[{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"},{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"},{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"}],"creator_color":"00AA7F","participants":["38001049","59580201"],"approaching_hype_train_id":"fbafb76e-0447-49ca-b008-c954f374be33","is_boost_train":false}}'}},
 		new Date("Wed Aug 17 2022 21:15:25 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-start\",\"data\":{\"channel_id\":\"402890635\",\"id\":\"362ad65c-3a64-46cd-883e-a8041cce41bc\",\"started_at\":1660763732000,\"expires_at\":1660764032000,\"updated_at\":1660763732000,\"ended_at\":null,\"ending_reason\":null,\"config\":{\"channel_id\":\"402890635\",\"is_enabled\":true,\"is_whitelisted\":true,\"kickoff\":{\"num_of_events\":3,\"min_points\":100,\"duration\":300000000000},\"cooldown_duration\":7200000000000,\"level_duration\":300000000000,\"difficulty\":\"EASY\",\"reward_end_date\":null,\"participation_conversion_rates\":{\"BITS.CHEER\":1,\"BITS.EXTENSION\":1,\"BITS.POLL\":1,\"SUBS.TIER_1_GIFTED_SUB\":500,\"SUBS.TIER_1_SUB\":500,\"SUBS.TIER_2_GIFTED_SUB\":1000,\"SUBS.TIER_2_SUB\":1000,\"SUBS.TIER_3_GIFTED_SUB\":2500,\"SUBS.TIER_3_SUB\":2500},\"notification_thresholds\":{\"BITS.CHEER\":1000,\"BITS.EXTENSION\":1000,\"BITS.POLL\":1000,\"SUBS.TIER_1_GIFTED_SUB\":5,\"SUBS.TIER_1_SUB\":5,\"SUBS.TIER_2_GIFTED_SUB\":5,\"SUBS.TIER_2_SUB\":5,\"SUBS.TIER_3_GIFTED_SUB\":5,\"SUBS.TIER_3_SUB\":5},\"difficulty_settings\":{\"EASY\":[{\"value\":1,\"goal\":1600,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"}],\"impressions\":300},{\"value\":2,\"goal\":3400,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_0457808073314f62962554c12ebb6b4d\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHands1\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_8c40cd16027f48c0a70ac7b1fa1c397e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHands2\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_0330a84e75ad48c1821c1d29a7dadd4d\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeFail\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_9b68a8fa2f1d457496ac016b251e06b6\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHai\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_9bcc622c0b2a48b180a159c25a2b8245\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeNom\"}],\"impressions\":600},{\"value\":3,\"goal\":5500,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_08abf0cd0e78494a9da8a2315c3648f4\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeBLEH\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_ccc146905a694f3b8df390f55e34002a\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeApplause\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_4918bd32ff5b476f82bda49f3e958767\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeRage\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d01d1cf36b549098434c7a6e50a8828\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeMwah\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_43da115e6b6749828f7dee47d17dd315\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHuh\"}],\"impressions\":900},{\"value\":4,\"goal\":7800,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_663dbd72c3ae48c585ffd61f3c348fa9\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeWave\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_271ea48a09ca418baad2ea1f734ab09e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeReading\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_1337536bcecf49f4bb9cd1a699341ee2\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeShock\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_8c1d964bd7e14fe1b8bd61d29ee0eb8c\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeStress\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_cdc7a602ee08462e81fb6cc0e3e8de61\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCry\"}],\"impressions\":1200},{\"value\":5,\"goal\":10800,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCheer\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_1630ff0e5ff34a808f4b25320a540ee7\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLurk\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePopcorn\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_1885b5088372466b800789b02daf7b65\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeEvil\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_85a13cc47247425fa152b9292c4589a9\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeAwww\"}],\"impressions\":1500}]},\"conductor_rewards\":{\"BITS\":{\"CURRENT\":[{\"type\":\"BADGE\",\"id\":\"1\",\"group_id\":\"hype-train\",\"reward_level\":0,\"badge_id\":\"aHlwZS10cmFpbjsxOzQwMjg5MDYzNQ==\",\"image_url\":\"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2\"}],\"FORMER\":[{\"type\":\"BADGE\",\"id\":\"2\",\"group_id\":\"hype-train\",\"reward_level\":0,\"badge_id\":\"aHlwZS10cmFpbjsyOzQwMjg5MDYzNQ==\",\"image_url\":\"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2\"}]},\"SUBS\":{\"CURRENT\":[{\"type\":\"BADGE\",\"id\":\"1\",\"group_id\":\"hype-train\",\"reward_level\":0,\"badge_id\":\"aHlwZS10cmFpbjsxOzQwMjg5MDYzNQ==\",\"image_url\":\"https://static-cdn.jtvnw.net/badges/v1/fae4086c-3190-44d4-83c8-8ef0cbe1a515/2\"}],\"FORMER\":[{\"type\":\"BADGE\",\"id\":\"2\",\"group_id\":\"hype-train\",\"reward_level\":0,\"badge_id\":\"aHlwZS10cmFpbjsyOzQwMjg5MDYzNQ==\",\"image_url\":\"https://static-cdn.jtvnw.net/badges/v1/9c8d038a-3a29-45ea-96d4-5031fb1a7a81/2\"}]}},\"callout_emote_id\":\"304892672\",\"callout_emote_token\":\"peleriShy\",\"use_creator_color\":true,\"primary_hex_color\":\"46217E\",\"use_personalized_settings\":false,\"has_conductor_badges\":true,\"boost_train_config\":{\"twitch_impressions\":{\"EASY\":500,\"HARD\":500,\"INSANE\":500,\"MEDIUM\":500,\"SUPER HARD\":500}}},\"participations\":{\"SUBS.TIER_1_GIFTED_SUB\":1,\"SUBS.TIER_1_SUB\":2},\"conductors\":{},\"progress\":{\"level\":{\"value\":1,\"goal\":1600,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"}],\"impressions\":300},\"value\":1500,\"goal\":1600,\"total\":1500,\"remaining_seconds\":299},\"is_boost_train\":false,\"all_time_high_progress\":{\"level\":{\"value\":1,\"goal\":1600,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"}],\"impressions\":300},\"value\":0,\"goal\":1600,\"total\":0,\"remaining_seconds\":299}}}"}},
 		new Date("Wed Aug 17 2022 21:15:33 GMT+0200"),

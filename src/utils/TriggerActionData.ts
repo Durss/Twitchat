@@ -171,6 +171,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 
 	map[TriggerTypes.HYPE_TRAIN_END] = [
 		{tag:"LEVEL", desc:"Level reached", pointer:"level"},
+		{tag:"PERCENT", desc:"Percent reached", pointer:"percent"},
 	];
 
 	map[TriggerTypes.VOICEMOD] = [
