@@ -511,13 +511,14 @@ export default class Utils {
 	 * 
 	 * @param data 
 	 */
-	public static mergeRemoteObject(remote:JsonObject, local:JsonObject):void {
+	public static mergeRemoteObject(remote:JsonObject, local:JsonObject, log:boolean = false):void {
 		if(!local || !remote) return;
 		//If a data exists on the remote object, set it on the local object.
 		//No need to do any cleanup as the server will clean any expired
 		//or non-legitimate data
 		for (const key in remote) {
 			const v = remote[key];
+			if(log) console.log(key, v);
 			if(v == null) continue;
 
 			if(Array.isArray(v)) {
@@ -525,10 +526,14 @@ export default class Utils {
 
 			}else
 			if(typeof(v) == "object" && local.hasOwnProperty(key)) {
+				if(log) console.log("Merge sub object", key);
 				//Deep merge sub objects
 				this.mergeRemoteObject(v, local[key] as JsonObject);
 
 			}else{
+				if(log) console.log("REPLACE");
+				if(log) console.log(local[key]);
+				if(log) console.log(v);
 				local[key] = v;
 			}
 		}

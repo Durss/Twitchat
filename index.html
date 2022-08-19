@@ -30,9 +30,9 @@
 	<link rel="manifest" href="/manifest.json">
 	<style>
 		body {
-			background-color: #18181b;
+			background-color: transparent;
 		}
-		.loader-init {
+		#loader-init {
 			position: absolute;
 			transform: translate(-50%, -50%);
 			top: 50%;
@@ -40,23 +40,78 @@
 			width: 80px;
 			height: 80px;
 		}
-	</style>
-	<script type="text/javascript">
-		function onLoadError(error) {
-			console.log("Load error");
-			console.log(error);
+		#error {
+			display: flex;
+			background-color: #bb3c3c;
+			color: #fff;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			font-size: max(5vh, 5vw);
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			border-radius: 5vw;
 		}
-	</script>
+	</style>
 </head>
 
 <body>
+	<script type="text/javascript">
+		/**
+		 * Check for script loading error
+		 * Tries to load it with cache cleaning 10 more times
+		 * then show a fullscreen error if it failed 10 times.
+		 * This is mostly done for OBS overlays as the cache
+		 * there seems to be a little annoying sometimes
+		 */
+		function onLoadError(error, script) {
+			const url = new URL(script.src);
+			let date = parseInt(url.searchParams.get("ck"));
+			let counter = parseInt(url.searchParams.get("cki"));
+			if(isNaN(counter)) counter = 0;
+			if(!isNaN(date) && Date.now() - date > 30 * 1000) counter = 0;
+			counter ++;
+			url.searchParams.set("ck", Date.now());
+			url.searchParams.set("cki", counter);
+			document.getElementById("loader-init").style.display = "none";
+			//Stop spamming script refresh after 10 attempts
+			if(counter <= 10) {
+				setTimeout(()=>{
+					document.head.removeChild(script);
+					let s = document.createElement('script');
+					s.defer = true;
+					s.type = script.type;
+					s.crossOrigin = script.crossOrigin;
+					s.src = url.href;
+					s.addEventListener("error", (error)=>onLoadError(error, s));
+					document.head.append(s);
+				}, 250)
+			}else{
+				document.getElementById("error").style.display = "flex";
+			}
+		}
+		document.querySelectorAll("script").forEach(function(script) {
+			if(/index.*\.js/.test(script.src)) {
+				script.addEventListener("error", (error)=>onLoadError(error, script));
+			}
+		});
+	</script>
+
 	<noscript>
 		<strong>We're sorry but Twitchat cannot work without JavaScript enabled. Please enable it to continue.</strong>
 	</noscript>
-	<div id="app">
-		<img src="/loader_white.svg" alt="loader" class="loader-init" id="static-loader">
-	</div>
+	
+	<img src="/loader_white.svg" alt="loader" style="display: none;" id="loader-init">
+	
+	<div id="app"></div>
 	<!-- built files will be auto injected -->
+	
+	<div id="error" style="display: none;">
+		<div>Twitchat failed loading :(</div>
+		<div>Try refreshing and cleaning up your cache!</div>
+	</div>
 
 	<script type="text/javascript">
 		if ('serviceWorker' in navigator) {
@@ -72,15 +127,20 @@
 		//This is also done on vue's side but we want it to be active
 		//when vue is loading as well for these routes so we don't have
 		//a black screen showing up.
-		const noBgPaths = ["overlay/*"]
+		const noBgPaths = ["overlay/*"];
 		const url = document.location.pathname;
+		const showLoader = true;
 		for (let i = 0; i < noBgPaths.length; i++) {
 			const p = noBgPaths[i];
 			if(new RegExp(p).test(url)) {
-				document.body.style.backgroundColor = "transparent";
-				document.getElementById("static-loader").style.display = "none";
+				showLoader = false;
 				break;
 			}
+		}
+
+		if(showLoader) {
+			document.body.style.backgroundColor = "#18181b";
+			document.getElementById("loader-init").style.display = "block";
 		}
 	</script>
 	<script type="module" onerror="onLoadError()" src="/src/main.ts"></script>

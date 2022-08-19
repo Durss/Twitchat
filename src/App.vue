@@ -5,12 +5,12 @@
 		<Confirm />
 		<Alert />
 		<Tooltip />
-		<img src="/loader_white.svg" alt="loader" class="loader-init" v-if="showLoader">
 	</div>
 </template>
 
 <script lang="ts">
 import UserCard from '@/components/user/UserCard.vue';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import StoreProxy from './utils/StoreProxy';
 import Alert from "./views/AlertView.vue";
@@ -30,10 +30,6 @@ export default class App extends Vue {
 
 	private resizeHandler!:() => void;
 
-	public get showLoader():boolean {
-		return !StoreProxy.store.state.initComplete;
-	}
-
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.$route.meta.overflow === true) res.push("overflow");
@@ -45,6 +41,8 @@ export default class App extends Vue {
 		this.resizeHandler = ()=> this.onWindowResize();
 		window.addEventListener("resize", this.resizeHandler);
 		this.onWindowResize();
+		watch(()=> StoreProxy.store.state.initComplete, ()=> this.hideMainLoader())
+		this.hideMainLoader();
 	}
 
 	public beforeUnmount():void {
@@ -55,6 +53,15 @@ export default class App extends Vue {
 		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
 		//Here we calculate the actual page height and set it as a CSS var.
 		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
+	}
+
+	private hideMainLoader():void {
+		if(StoreProxy.store.state.initComplete === true) {
+			const loader = document.body.querySelector("#loader-init");
+			if(loader && loader.parentNode) {
+				loader.parentNode.removeChild(loader);
+			}
+		}
 	}
 
 }

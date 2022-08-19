@@ -2365,25 +2365,25 @@ const store = createStore({
 					Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (state.musicPlayerParams as unknown) as JsonObject);
 				}
 				
-				//Init OBS permissions
+				//Init Voice control actions
 				const voiceActions = Store.get("voiceActions");
 				if(voiceActions) {
 					state.voiceActions = JSON.parse(voiceActions);
 				}
 				
-				//Init OBS permissions
+				//Init Voice control language
 				const voiceLang = Store.get("voiceLang");
 				if(voiceLang) {
 					state.voiceLang = voiceLang;
 					VoiceController.instance.lang = voiceLang;
 				}
 				
-				//Load bot messages
+				//Init bot messages
 				const botMessages = Store.get(Store.BOT_MESSAGES);
 				if(botMessages) {
 					//Merge remote and local to avoid losing potential new
 					//default values on local data
-					Utils.mergeRemoteObject(JSON.parse(botMessages), (state.botMessages as unknown) as JsonObject);
+					Utils.mergeRemoteObject(JSON.parse(botMessages), (state.botMessages as unknown) as JsonObject, true);
 				}
 
 				//Init spotify connection

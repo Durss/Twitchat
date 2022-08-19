@@ -20,7 +20,7 @@
 					placeholder="message..."
 					:maxlength="maxLength"
 					@keyup.capture.tab="(e)=>onTab(e)"
-					@keydown.enter="sendMessage()"
+					@keydown.enter="(e:Event)=>sendMessage(e)"
 					@keydown="onKeyDown">
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
@@ -233,6 +233,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import TTSUtils from '@/utils/TTSUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import gsap from 'gsap';
 
 @Options({
 	props:{
@@ -397,6 +398,10 @@ export default class ChatForm extends Vue {
 		// }catch(e) {
 		// 	//User is probably not an affiliate
 		// }
+		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
+		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
+		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
+		
 	}
 
 	public beforeUnmount():void {
@@ -407,7 +412,7 @@ export default class ChatForm extends Vue {
 		StoreProxy.store.dispatch("showParams", !StoreProxy.store.state.showParams);
 	}
 	
-	public async sendMessage():Promise<void> {
+	public async sendMessage(event:Event):Promise<void> {
 		if(this.message.length == 0) return;
 		if(this.openAutoComplete) return;
 
@@ -425,12 +430,14 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/chatsugg") {
+			event.preventDefault();//avoid auto submit of the opening form
 			//Open chat poll form
 			this.$emit("chatpoll");
 			this.message = "";
 		}else
 
 		if(cmd == "/poll") {
+			event.preventDefault();//avoid auto submit of the opening form
 			//Open poll form
 			StoreProxy.store.state.tempStoreValue = params.join(" ");
 			this.$emit("poll");
@@ -438,6 +445,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/prediction") {
+			event.preventDefault();//avoid auto submit of the opening form
 			//Open prediction form
 			StoreProxy.store.state.tempStoreValue = params.join(" ");
 			this.$emit("pred");
@@ -445,6 +453,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/raffle") {
+			event.preventDefault();//avoid auto submit of the opening form
 			//Open raffle form
 			this.$emit("raffle");
 			this.message = "";
@@ -461,6 +470,7 @@ export default class ChatForm extends Vue {
 				};
 				StoreProxy.store.dispatch("startBingo", payload);
 			}else{
+				event.preventDefault();//avoid auto submit of the opening form
 				this.$emit("bingo");
 			}
 			this.message = "";

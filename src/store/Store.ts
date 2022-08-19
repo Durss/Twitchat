@@ -178,7 +178,7 @@ export default class Store {
 	public static async save(force:boolean = false, delay:number = 1500):Promise<void> {
 		clearTimeout(this.saveTO);
 		if(!force) {
-			if(!this.syncToServer) return;//User want to only save data locally
+			if(!this.syncToServer) return;//User wants to only save data locally
 			if(!this.access_token) return;
 			if(!this.dataImported) return;//Don't export anything before importing data first
 		}
