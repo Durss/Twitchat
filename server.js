@@ -1,7 +1,7 @@
 //DIRTY ASS LAZY SERVER !
 //Will do that properly someday :3
-const statik = require('node-static');
 const fs = require('fs');
+const statik = require('node-static');
 const fileServer = new statik.Server('./dist');
 const http = require('http');
 const UrlParser = require('url');

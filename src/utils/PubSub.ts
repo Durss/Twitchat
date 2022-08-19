@@ -283,7 +283,8 @@ export default class PubSub extends EventDispatcher{
 	}
 
 	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubDataTypes.RaidInfos}, topic?:string):void {
-		if(topic && /folowing\.[0-9]+/.test(topic)) {
+		
+		if(topic && /following\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Following;
 			this.followingEvent(localObj);
 
