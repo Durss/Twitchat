@@ -64,7 +64,7 @@ export default class PublicAPI extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false):Promise<void> {
 		// console.log("Broadcasting", type, data);
 		if(!data) data = {};
-		data.id = Utils.guid();
+		data.id = crypto.randomUUID();
 		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
 
 		//Broadcast to other browser's tabs

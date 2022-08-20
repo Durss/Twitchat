@@ -1,13 +1,13 @@
 <template>
 	<div :class="classes" :style="styles">
 		
-		<div class="content" v-if="trainData.state === 'APPROACHING'">
+		<div class="content" v-if="trainData.state == 'APPROACHING'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>{{label}} train Approaching!</h1>
 		</div>
 		
-		<div class="content" v-if="trainData.state === 'COMPLETED'">
+		<div class="content" v-if="trainData.state == 'COMPLETED'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
@@ -16,7 +16,7 @@
 			</h1>
 		</div>
 		
-		<div class="content" v-if="trainData.state === 'EXPIRE'">
+		<div class="content" v-if="trainData.state == 'EXPIRE'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>{{label}} train went away...</h1>
@@ -29,7 +29,7 @@
 			<p class="percent">{{roundProgressPercent}}%</p>
 		</div>
 
-		<ProgressBar v-if="trainProgress || trainData.state === 'APPROACHING'"
+		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
 			class="progressBar"
 			:duration="timerDuration"
 			:percent="timerPercent"

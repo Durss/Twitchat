@@ -27,6 +27,7 @@ export default class PubSub extends EventDispatcher{
 	private pingInterval!:number;
 	private reconnectTimeout!:number;
 	private hypeTrainApproachingTimer!:number;
+	private hypeTrainProgressTimer!:number;
 	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
 	
@@ -163,11 +164,12 @@ export default class PubSub extends EventDispatcher{
 	}
 
 	public async simulateHypeTrain():Promise<void> {
-		const dateOffset = (PubsubJSON.HypetrainList[1] as Date).getTime();
-		for (let i = 0; i < PubsubJSON.HypetrainList.length; i+=2) {
-			const date = PubsubJSON.HypetrainList[i+1] as Date;
-			const event = PubsubJSON.HypetrainList[i] as {data:{message:string}};
-			Utils.promisedTimeout(date.getTime() - dateOffset).then(()=> {
+		const dateOffset = (PubsubJSON.RealHypeTrainData[1] as Date).getTime();
+		const timeScale = .05;
+		for (let i = 0; i < PubsubJSON.RealHypeTrainData.length; i+=2) {
+			const date = PubsubJSON.RealHypeTrainData[i+1] as Date;
+			const event = PubsubJSON.RealHypeTrainData[i] as {data:{message:string}};
+			Utils.promisedTimeout((date.getTime() - dateOffset)*timeScale).then(()=> {
 				const json = JSON.parse(event.data.message);
 				this.parseEvent( json );
 			})
@@ -302,7 +304,20 @@ export default class PubSub extends EventDispatcher{
 
 
 		}else if(data.type == "whisper_sent") {
-			//TODO sent when sending a whisper from twitch interface, could be nice to handle to rebuild the full conversation on twitchat
+			//TODO sent when sending a whisper from twitch interface, could be nice to
+			//handle to rebuild the full conversation on twitchat
+
+
+
+		}else if(data.type == "updated_room") {
+			//TODO sent when updating room status (see RoomStatusUpdate JSON example)
+
+
+
+		}else if(data.type == "chat_rich_embed") {
+			//TODO sent when a clip is sent on chat (see ChatRichEmbed JSON example).
+			//Warning: JSON might be mostly empty/incomplete. Example bellow:
+			//{"type":"chat_rich_embed","data":{"message_id":"1fda6833-d53c-44d2-958b-389dd2289ff8","request_url":"https://clips.twitch.tv/","thumbnail_url":"https://clips-media-assets2.twitch.tv/-preview-86x45.jpg","twitch_metadata":{"clip_metadata":{"game":"","channel_display_name":"","slug":"","id":"0","broadcaster_id":"","curator_id":""}}}}
 
 
 
@@ -812,37 +827,46 @@ export default class PubSub extends EventDispatcher{
 	 * @param data 
 	 */
 	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress):void {
-		const storeTrain = StoreProxy.store.state.hypeTrain as HypeTrainStateData;
-		const prevLevel = storeTrain.level;
-		const prevValue = storeTrain.currentValue;
-		if(data.progress.value == prevLevel && data.progress.level.value == prevValue) {
-			//Make sure 2 identical progress events are not processed
-			return;
-		}
-		const train:HypeTrainStateData = {
-			level:data.progress.level.value,
-			currentValue:data.progress.value,
-			goal:data.progress.goal,
-			approached_at:storeTrain.approached_at,
-			started_at:storeTrain.started_at,
-			updated_at:Date.now(),
-			timeLeft:data.progress.remaining_seconds,
-			state: "PROGRESSING",
-			is_boost_train:data.is_boost_train,
-		};
-		
-		//This line makes debug easier if I wanna start the train at any
-		//point of its timeline
-		if(!train.approached_at) train.approached_at = Date.now();
-		if(!train.started_at) train.started_at = Date.now();
-		
-		StoreProxy.store.dispatch("setHypeTrain", train);
-		const message:HypeTrainTriggerData = {
-			type: "hypeTrainProgress",
-			level:train.level,
-			percent:Math.round(train.currentValue/train.goal * 100),
-		}
-		TriggerActionHandler.instance.onMessage(message)
+		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
+		clearTimeout(this.hypeTrainProgressTimer);
+		//postepone the progress event in case it's followed by a LEVEL UP event to avoid
+		//having kind of two similar events
+		this.hypeTrainProgressTimer = setTimeout(()=> {
+			const storeTrain = StoreProxy.store.state.hypeTrain as HypeTrainStateData;
+			const prevLevel = storeTrain.level;
+			const prevValue = storeTrain.currentValue;
+			//Makes sure that if a progress event follows the LEVEL UP event, only
+			//the LEVEL UP event is handled.
+			//ame goal as the setTimeout() above but if the events order is reversed
+			if(data.progress.value == prevLevel && data.progress.level.value == prevValue) {
+				//Make sure 2 identical progress events are not processed
+				return;
+			}
+			const train:HypeTrainStateData = {
+				level:data.progress.level.value,
+				currentValue:data.progress.value,
+				goal:data.progress.goal,
+				approached_at:storeTrain.approached_at,
+				started_at:storeTrain.started_at,
+				updated_at:Date.now(),
+				timeLeft:data.progress.remaining_seconds,
+				state: "PROGRESSING",
+				is_boost_train:data.is_boost_train,
+			};
+			
+			//This line makes debug easier if I wanna start the train at any
+			//point of its timeline
+			if(!train.approached_at) train.approached_at = Date.now();
+			if(!train.started_at) train.started_at = Date.now();
+			
+			StoreProxy.store.dispatch("setHypeTrain", train);
+			const message:HypeTrainTriggerData = {
+				type: "hypeTrainProgress",
+				level:train.level,
+				percent:Math.round(train.currentValue/train.goal * 100),
+			}
+			TriggerActionHandler.instance.onMessage(message)
+		}, 200)
 	}
 	
 	/**
@@ -850,6 +874,8 @@ export default class PubSub extends EventDispatcher{
 	 * @param data 
 	 */
 	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp):void {
+		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
+		clearTimeout(this.hypeTrainProgressTimer);
 		const train:HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
@@ -861,6 +887,7 @@ export default class PubSub extends EventDispatcher{
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
 		};
+		console.log("LEVEL UP", train.level, train.currentValue/train.goal);
 
 		//This line makes debug easier if I wanna start the train at any
 		//point of its timeline
@@ -882,13 +909,18 @@ export default class PubSub extends EventDispatcher{
 	 */
 	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd):void {
 		const storeData:HypeTrainStateData = StoreProxy.store.state.hypeTrain as HypeTrainStateData;
-		if(data.ending_reason == "COMPLETED") {
-			storeData.state = "COMPLETED";
-		}
-		if(data.ending_reason == "EXPIRE") {
-			storeData.state = "EXPIRE";
-		}
-		StoreProxy.store.dispatch("setHypeTrain", storeData);
+		const train:HypeTrainStateData = {
+			level: storeData.level,
+			currentValue: storeData.currentValue,
+			goal: storeData.goal,
+			approached_at: storeData.approached_at,
+			started_at: storeData.started_at,
+			updated_at: storeData.updated_at,
+			timeLeft: storeData.timeLeft,
+			state: data.ending_reason,
+			is_boost_train: storeData.is_boost_train,
+		};
+		StoreProxy.store.dispatch("setHypeTrain", train);
 		
 		setTimeout(()=> {
 			//Hide hype train popin
@@ -900,7 +932,7 @@ export default class PubSub extends EventDispatcher{
 		const message:HypeTrainTriggerData = {
 			type: "hypeTrainEnd",
 			level,
-			percent:Math.round(storeData.currentValue/(storeData.goal * 100)),
+			percent:Math.round(storeData.currentValue/storeData.goal * 100),
 		}
 		TriggerActionHandler.instance.onMessage(message)
 	}
@@ -950,8 +982,10 @@ namespace PubsubJSON {
 	export const BoostProgress1 = {"type":"community-boost-progression","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"DELIVERING_ORDER","GoalProgress":150,"GoalTarget":1100}],"total_goal_progress":150, "total_goal_target":1100}};
 	export const BoostProgress2 = {"type":"community-boost-progression","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"DELIVERING_ORDER","GoalProgress":700,"GoalTarget":1100}],"total_goal_progress":700,"total_goal_target":1100}};
 	export const BoostComplete = {"type":"community-boost-end","data":{"channel_id":"29961813","boost_orders":[{"ID":"095321ce-5429-4109-929d-c5f8598c0a9f","State":"ORDER_STATE_FULFILLED","GoalProgress":1104,"GoalTarget":1100}],"ending_reason":"ORDER_STATE_FULFILLED"}};
+	export const ChatRichEmbed = {"type":"chat_rich_embed","data":{"message_id":"7210d939-72b7-44a1-b711-4030c12088a4","request_url":"https://clips.twitch.tv/BumblingTriangularWitchMrDestructoid-QqRP6nMJmsWqb8B2","author_name":"Durss","thumbnail_url":"https://clips-media-assets2.twitch.tv/77t1WEKkT-pzCZrFqm_Adg/AT-cm%7C77t1WEKkT-pzCZrFqm_Adg-preview-86x45.jpg","title":"Live chill","twitch_metadata":{"clip_metadata":{"game":"Art","channel_display_name":"EncreMecanique","slug":"BumblingTriangularWitchMrDestructoid-QqRP6nMJmsWqb8B2","id":"3965327491","broadcaster_id":"190145142","curator_id":"29961813"}}}};
+	export const RoomStatusUpdate = {"type":"updated_room","data":{"room":{"channel_id":"29961813","modes":{"followers_only_duration_minutes":30,"emote_only_mode_enabled":false,"r9k_mode_enabled":false,"subscribers_only_mode_enabled":false,"verified_only_mode_enabled":true,"slow_mode_duration_seconds":null,"slow_mode_set_at":"0001-01-01T00:00:00Z","account_verification_options":{"subscribers_exempt":true,"moderators_exempt":true,"vips_exempt":true,"phone_verification_mode":0,"email_verification_mode":2,"partial_phone_verification_config":{"restrict_first_time_chatters":true,"restrict_based_on_follower_age":true,"restrict_based_on_account_age":true,"minimum_follower_age_in_minutes":1440,"minimum_account_age_in_minutes":10080},"partial_email_verification_config":{"restrict_first_time_chatters":true,"restrict_based_on_follower_age":true,"restrict_based_on_account_age":true,"minimum_follower_age_in_minutes":1440,"minimum_account_age_in_minutes":10080}}},"rules":["Sois un amour de princesse ❤"]}}};
 
-	export const HypetrainList =[
+	export const RealHypeTrainData =[
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.180847952","message":"{\"type\":\"hype-train-approaching\",\"data\":{\"channel_id\":\"402890635\",\"goal\":3,\"events_remaining_durations\":{\"1\":261},\"level_one_rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"}],\"creator_color\":\"00DADA\",\"participants\":[\"117971644\",\"661245368\"],\"approaching_hype_train_id\":\"50ced304-5348-4481-b4b2-de74d7203677\",\"is_boost_train\":false}}"}},
 		new Date("Wed Aug 17 2022 21:14:45 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":'{"type":"hype-train-approaching","data":{"channel_id":"402890635","goal":3,"events_remaining_durations":{"1":269},"level_one_rewards":[{"type":"EMOTE","id":"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeCool"},{"type":"EMOTE","id":"emotesv2_036fd741be4141198999b2ca4300668e","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLove1"},{"type":"EMOTE","id":"emotesv2_3114c3d12dc44f53810140f632128b54","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeSleep"},{"type":"EMOTE","id":"emotesv2_7d457ecda087479f98501f80e23b5a04","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypePat"},{"type":"EMOTE","id":"emotesv2_e7a6e7e24a844e709c4d93c0845422e1","group_id":"","reward_level":0,"set_id":"1a8f0108-5aee-4125-8067-d39e983e934b","token":"HypeLUL"}],"creator_color":"00AA7F","participants":["38001049","59580201"],"approaching_hype_train_id":"fbafb76e-0447-49ca-b008-c954f374be33","is_boost_train":false}}'}},

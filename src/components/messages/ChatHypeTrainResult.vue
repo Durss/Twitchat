@@ -5,15 +5,19 @@
 		<div class="infoHolder">
 			<strong>Hype Train completed at <mark>level {{result.train.level}}</mark> <mark>{{reachPercent}}%</mark></strong>
 			<div class="details">
-				<div class="row" v-if="bits > 0">
+				<div class="row" v-if="bits > 0" data-tooltip="Bits">
 					<img src="@/assets/icons/bits.svg" class="icon">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row" v-if="subs > 0">
+				<div class="row" v-if="subs > 0" data-tooltip="Subs">
 					<img src="@/assets/icons/sub.svg" class="icon">
 					<span class="label">{{subs}}</span>
 				</div>
-				<div class="row" v-if="subgifts > 0">
+				<div class="row" v-if="primes > 0" data-tooltip="Primes">
+					<img src="@/assets/icons/prime.svg" class="icon">
+					<span class="label">{{primes}}</span>
+				</div>
+				<div class="row" v-if="subgifts > 0" data-tooltip="Subgifts">
 					<img src="@/assets/icons/gift.svg" class="icon">
 					<span class="label">{{subgifts}}</span>
 				</div>
@@ -51,6 +55,7 @@ export default class ChatHypeTrainResult extends Vue {
 	public reachPercent:number = 0;
 	public subs:number = 0;
 	public subgifts:number = 0;
+	public primes:number = 0;
 	public bits:number = 0;
 	
 	public get time():string {
@@ -71,8 +76,8 @@ export default class ChatHypeTrainResult extends Vue {
 			const type = getTwitchatMessageType(el);
 			switch(type) {
 				case TwitchatMessageType.SUB:
-				case TwitchatMessageType.SUB_PRIME:
 				case TwitchatMessageType.SUBGIFT_UPGRADE: this.subs ++; break;
+				case TwitchatMessageType.SUB_PRIME: this.primes++; break;
 				case TwitchatMessageType.SUBGIFT: {
 					let count = 1;
 					const subgiftAdditionalRecipents = (el as IRCEventDataList.Highlight).subgiftAdditionalRecipents
@@ -140,9 +145,11 @@ export default class ChatHypeTrainResult extends Vue {
 			.highlight();
 			padding-top: .25em;
 			padding-bottom: .25em;
+			cursor: pointer;
 			
 			.icon {
 				height: 1em;
+				max-width: 1em;
 				margin-right: .25em;
 				vertical-align: top;
 			}

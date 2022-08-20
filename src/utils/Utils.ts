@@ -28,39 +28,30 @@ export default class Utils {
 		return a;
 	}
 
-	/**
-	 * Get a random GUID
-	 * 
-	 * @returns 
-	 */
-	public static guid():string {
-		return  ([1e7].toString()+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-		(parseInt(c) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> parseInt(c) / 4).toString(16));
-	}
-
 
 	/**
 	 * Copies a text to clipboard
 	 */
 	public static copyToClipboard(text: string): void {
-		const el = document.createElement('textarea');
-		el.value = text;
-		el.setAttribute('readonly', '');
-		el.style.position = 'absolute';
-		el.style.left = '-9999px';
-		document.body.appendChild(el);
-		const sel = document.getSelection();
-		const selected =
-			sel && sel.rangeCount > 0
-				? document.getSelection()?.getRangeAt(0)
-				: false;
-		el.select();
-		document.execCommand('copy');
-		document.body.removeChild(el);
-		if (selected && sel) {
-			sel.removeAllRanges();
-			sel.addRange(selected);
-		}
+		navigator.clipboard.writeText(text);
+		// const el = document.createElement('textarea');
+		// el.value = text;
+		// el.setAttribute('readonly', '');
+		// el.style.position = 'absolute';
+		// el.style.left = '-9999px';
+		// document.body.appendChild(el);
+		// const sel = document.getSelection();
+		// const selected =
+		// 	sel && sel.rangeCount > 0
+		// 		? document.getSelection()?.getRangeAt(0)
+		// 		: false;
+		// el.select();
+		// document.execCommand('copy');
+		// document.body.removeChild(el);
+		// if (selected && sel) {
+		// 	sel.removeAllRanges();
+		// 	sel.addRange(selected);
+		// }
 	}
 
 	public static getQueryParameterByName(name:string, url?:string):string|null {

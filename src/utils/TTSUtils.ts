@@ -183,8 +183,12 @@ export default class TTSUtils {
 	 * Stops any currently playing message and add it next on the queue
 	 * @param text 
 	 */
-	public readNow(text: string):void {
-		const m:SpokenMessage = {text, id:"xxx", date: Date.now()};
+	public readNow(text: string, id?:string):void {
+		if (!this._enabled || text.length == 0) return;
+		if(id) this.cleanupPrevIDs(id);
+		if(!id) id = crypto.randomUUID();
+
+		const m:SpokenMessage = {text, id, date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
 		if(StoreProxy.store.state.ttsSpeaking) {
 			this.stop();
@@ -193,6 +197,52 @@ export default class TTSUtils {
 			this.readNextMessage();
 		}
 	}
+
+	/**
+	 * Reads a string message after the current one.
+	 * @param text 
+	 */
+	public readNext(text: string, id?:string):void {
+		if (!this._enabled || text.length == 0) return;
+		if(id) this.cleanupPrevIDs(id);
+		if(!id) id = crypto.randomUUID();
+		
+		const m:SpokenMessage = {text, id, date: Date.now()};
+		if(this.pendingMessages.length == 0) {
+			this.pendingMessages.push(m);
+			this.readNextMessage();
+		}else{
+			this.pendingMessages.splice(1, 0, m);
+		}
+	}
+
+	/**
+	 * Adds a string message to the TTS queue
+	 * 
+	 * @param text 
+	 * @param id 
+	 * @returns 
+	 */
+	public async addMessageToQueue(text: string, id?:string):Promise<void> {
+		if (!this._enabled || text.length == 0) return;
+		if(id) this.cleanupPrevIDs(id);
+		if(!id) id = crypto.randomUUID();
+
+		const m:SpokenMessage = {text, id, date: Date.now()};
+
+		if (this.pendingMessages.length == 0) {
+			this.pendingMessages.push(m)
+			this.readNextMessage();
+		} else {
+			this.pendingMessages.push(m);
+		}
+	}
+	
+	
+	
+	/*******************
+	* PRIVATE METHODS *
+	*******************/
 
 	/**
 	 * Parse a message and add it to the queue
@@ -480,26 +530,6 @@ export default class TTSUtils {
 	}
 
 	/**
-	 * Reads a raw string message
-	 * 
-	 * @param text 
-	 * @param id 
-	 * @returns 
-	 */
-	private async addMessageToQueue(text: string, id:string):Promise<void> {
-		if (!this._enabled || text.length == 0) return;
-
-		const m:SpokenMessage = {text, id, date: Date.now()};
-
-		if (this.pendingMessages.length == 0) {
-			this.pendingMessages.push(m)
-			this.readNextMessage();
-		} else {
-			this.pendingMessages.push(m);
-		}
-	}
-
-	/**
 	 * Read the next pending message
 	 * @param str 
 	 */
@@ -541,6 +571,22 @@ export default class TTSUtils {
 			this.stopTimeout = setTimeout(()=> {
 				window.speechSynthesis.cancel();
 			}, paramsTTS.maxDuration * 1000);
+		}
+	}
+
+	/**
+	 * Cleans up any existing message with the same ID
+	 * @param id 
+	 */
+	private cleanupPrevIDs(id:string):void {
+		//Only clean after the first one as it's the one currently playing
+		for (let i = 1; i < this.pendingMessages.length; i++) {
+			const m = this.pendingMessages[i];
+			if(m.id === id) {
+				console.log("SPLICE", this.pendingMessages[i]);
+				this.pendingMessages.splice(i, 1);
+				i--;
+			}
 		}
 	}
 

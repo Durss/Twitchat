@@ -360,7 +360,7 @@ export default class TriggerActionHandler {
 		}
 		const event = idToType[message.type];
 		if(event) {
-			return await this.parseSteps(event, message, testMode, guid);
+			return await this.parseSteps(event, message, testMode, guid, undefined, "hypetrain");
 		}
 		return false;
 	}
@@ -373,7 +373,7 @@ export default class TriggerActionHandler {
 	 * 
 	 * @returns true if the trigger was executed
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string):Promise<boolean> {
+	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		const trigger = this.triggers[ eventType ];
 		// console.log("PARSE STEPS", eventType, trigger, message);
@@ -456,7 +456,7 @@ export default class TriggerActionHandler {
 					//Handle TTS action
 					if(step.type == "tts") {
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
-						TTSUtils.instance.readNow(text);
+						TTSUtils.instance.readNext(text, ttsID ?? eventType);
 					}else
 					
 					//Handle raffle action
