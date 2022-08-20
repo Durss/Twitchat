@@ -129,7 +129,7 @@
 		//a black screen showing up.
 		const noBgPaths = ["overlay/*"];
 		const url = document.location.pathname;
-		const showLoader = true;
+		let showLoader = true;
 		for (let i = 0; i < noBgPaths.length; i++) {
 			const p = noBgPaths[i];
 			if(new RegExp(p).test(url)) {
