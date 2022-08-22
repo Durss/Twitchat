@@ -124,6 +124,10 @@ export default class Store {
 			this.fixTTSPlaceholders();
 			v = "13";
 		}
+		if(v=="13") {
+			this.cleanupOldData();
+			v = "14";
+		}
 
 		this.set(this.DATA_VERSION, v);
 

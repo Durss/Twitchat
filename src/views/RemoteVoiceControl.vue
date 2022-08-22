@@ -13,25 +13,24 @@
 			<OBSConnectForm  class="connectForm" />
 		</ToggleBlock>
 
-		<VoiceControlForm class="block" v-if="connected" />
+		<VoiceControlForm class="block" v-if="connected" sttOnly />
 		
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
 	</div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ParamItem from '../components/params/ParamItem.vue';
-import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
-import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
-import Config from '@/utils/Config';
-import ToggleBlock from '../components/ToggleBlock.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
-import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
-import StoreProxy from '@/utils/StoreProxy';
 import Store from '@/store/Store';
+import type { ParameterData } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import { Options, Vue } from 'vue-class-component';
+import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
+import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
+import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
+import ParamItem from '../components/params/ParamItem.vue';
+import ToggleBlock from '../components/ToggleBlock.vue';
+import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 
 @Options({
 	props:{},
@@ -44,7 +43,7 @@ import Store from '@/store/Store';
 		DataServerSyncModal,
 	}
 })
-export default class VoiceControl extends Vue {
+export default class RemoteVoiceControl extends Vue {
 
 	public loading:boolean = false;
 	public connectError:boolean = false;

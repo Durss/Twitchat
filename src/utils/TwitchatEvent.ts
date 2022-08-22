@@ -5,12 +5,14 @@ import { Event } from './EventDispatcher';
 * Created : 14/04/2022 
 */
 export default class TwitchatEvent extends Event {
-	//Events
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
 	public static RAW_TEXT_UPDATE:string = "RAW_TEXT_UPDATE";
 	public static ACTION_BATCH:string = "ACTION_BATCH";
 	public static SPEECH_END:string = "SPEECH_END";
+	public static REMOTE_TEMP_TEXT_EVENT:TwitchatEventType = "REMOTE_TEMP_TEXT_EVENT";
+	public static REMOTE_FINAL_TEXT_EVENT:TwitchatEventType = "REMOTE_FINAL_TEXT_EVENT";
 
+	//Events
 	public static MESSAGE_READ:TwitchatEventType = "MESSAGE_READ";
 	public static MESSAGE_NON_FOLLOWER:TwitchatEventType = "MESSAGE_NON_FOLLOWER";
 	public static MESSAGE_FILTERED:TwitchatEventType = "MESSAGE_FILTERED";
@@ -83,6 +85,8 @@ export type TwitchatEventType =
 	"TEXT_UPDATE"
 	| "ACTION_BATCH"
 	| "SPEECH_END"
+	| "REMOTE_TEMP_TEXT_EVENT"
+	| "REMOTE_FINAL_TEXT_EVENT"
 	| "MESSAGE_READ"
 	| "MESSAGE_NON_FOLLOWER"
 	| "MESSAGE_FILTERED"

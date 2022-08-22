@@ -83,57 +83,27 @@
 			<section class="transition">
 				<div class="content">
 					<div class="screen">
-						<video loading="lazy" src="@/assets/img/homepage/voiceControl.mp4" alt="voice control demo" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
-					</div>
-					<img src="@/assets/icons/voice.svg" alt="voice" class="icon">
-					<div class="infos">
-						<h2>Voice control</h2>
-						<div class="description">Control the chat, create polls and predictions and much more with your voice thanks to the voice bot</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="splitter"></div>
-	
-			<section class="transition">
-				<div class="content">
-					<div class="screen">
-						<img loading="lazy" src="@/assets/img/homepage/tts.png" alt="tts">
-					</div>
-					<img src="@/assets/icons/tts.svg" alt="tts" class="icon">
-					<div class="infos">
-						<h2>Read messages out loud</h2>
-						<div class="description">You can make Twitchat read any messages the way you want</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="splitter"></div>
-	
-			<section class="transition">
-				<div class="content">
-					<div class="screen">
-						<video loading="lazy" src="@/assets/img/homepage/alert.mp4" alt="alert" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
-					</div>
-					<img src="@/assets/icons/alert.svg" alt="emergency" class="icon">
-					<div class="infos">
-						<h2>Alert command</h2>
-						<div class="description">Let your moderator get your attention with a configurable alert command</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="splitter"></div>
-	
-			<section class="transition">
-				<div class="content">
-					<div class="screen">
 						<video loading="lazy" src="@/assets/img/homepage/pin.mp4" alt="alert" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
 					</div>
 					<img src="@/assets/icons/pin.svg" alt="pin" class="icon">
 					<div class="infos">
 						<h2>Pin messages</h2>
 						<div class="description">Pin any message and find them back in a dedicated list</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/streamdeck.png" alt="stream deck">
+					</div>
+					<img src="@/assets/icons/elgato.svg" alt="hand" class="icon">
+					<div class="infos">
+						<h2>Stream Deck™</h2>
+						<div class="description">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button</div>
 					</div>
 				</div>
 			</section>
@@ -160,12 +130,57 @@
 			<section class="transition">
 				<div class="content">
 					<div class="screen">
-						<img loading="lazy" src="@/assets/img/homepage/streamdeck.png" alt="stream deck">
+						<img loading="lazy" src="@/assets/img/homepage/search.png" alt="search">
 					</div>
-					<img src="@/assets/icons/elgato.svg" alt="hand" class="icon">
+					<img src="@/assets/icons/search.svg" alt="search" class="icon">
 					<div class="infos">
-						<h2>Stream Deck™</h2>
-						<div class="description">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button</div>
+						<h2>Search messages</h2>
+						<div class="description">Quickly search for messages containing any word with the <mark>/search</mark> command</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<video loading="lazy" src="@/assets/img/homepage/alert.mp4" alt="alert" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/alert.svg" alt="emergency" class="icon">
+					<div class="infos">
+						<h2>Alert command</h2>
+						<div class="description">Let your moderator get your attention with a configurable alert command</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<video loading="lazy" src="@/assets/img/homepage/voiceControl.mp4" alt="voice control demo" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+					</div>
+					<img src="@/assets/icons/voice.svg" alt="voice" class="icon">
+					<div class="infos">
+						<h2>Voice control</h2>
+						<div class="description">Control the chat, create polls and predictions and much more with your voice thanks to the voice bot</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="splitter"></div>
+	
+			<section class="transition">
+				<div class="content">
+					<div class="screen">
+						<img loading="lazy" src="@/assets/img/homepage/tts.png" alt="tts">
+					</div>
+					<img src="@/assets/icons/tts.svg" alt="tts" class="icon">
+					<div class="infos">
+						<h2>Read messages out loud</h2>
+						<div class="description">You can make Twitchat read any messages the way you want</div>
 					</div>
 				</div>
 			</section>
@@ -211,21 +226,6 @@
 					<div class="infos">
 						<h2>Conversations</h2>
 						<div class="description">Follow conversation between viewers with the simple click of a button</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="splitter"></div>
-	
-			<section class="transition">
-				<div class="content">
-					<div class="screen">
-						<img loading="lazy" src="@/assets/img/homepage/search.png" alt="search">
-					</div>
-					<img src="@/assets/icons/search.svg" alt="search" class="icon">
-					<div class="infos">
-						<h2>Search messages</h2>
-						<div class="description">Quickly search for messages containing any word with the <mark>/search</mark> command</div>
 					</div>
 				</div>
 			</section>

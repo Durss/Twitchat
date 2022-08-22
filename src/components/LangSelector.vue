@@ -83,8 +83,6 @@ export default class LangSelector extends Vue {
 			}
 		}
 
-		console.log(this.lang);
-
 		watch(()=>this.langLocal, ()=> { this.onChange(true); });
 		watch(()=>this.sublangLocal, ()=> { this.onChange(); });
 	}

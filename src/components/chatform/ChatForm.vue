@@ -755,7 +755,7 @@ export default class ChatForm extends Vue {
 		if(VoiceController.instance.started) {
 			VoiceController.instance.stop();
 		}else{
-			VoiceController.instance.start();
+			VoiceController.instance.start(false);
 		}
 	}
 

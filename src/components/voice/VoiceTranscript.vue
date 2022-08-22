@@ -48,6 +48,8 @@ export default class VoiceTranscript extends Vue {
 	}
 
 	public hide(force:boolean = false):void {
+		if(!this.show) return;
+		
 		const holder = this.$refs.holder as HTMLDivElement;
 		gsap.killTweensOf(holder);
 		let len = StoreProxy.store.state.voiceText.finalText.length;

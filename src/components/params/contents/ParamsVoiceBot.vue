@@ -14,8 +14,8 @@
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>
 
-		<div v-if="voiceApiAvailable">
-			<VoiceControlForm v-if="obsConnected" class="form" />
+		<div>
+			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
 	
 			<div class="connectObs" v-if="!obsConnected">
 				<div>This features needs you to connect with OBS.</div>

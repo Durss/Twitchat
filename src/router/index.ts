@@ -1,17 +1,16 @@
-import Store from '@/store/Store'
 import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
 import StoreProxy from '@/utils/StoreProxy'
 import Utils from '@/utils/Utils'
-import type { RouteRecordRaw } from 'vue-router'
-import { createRouter, createWebHistory } from 'vue-router'
 import Chat from '@/views/Chat.vue'
 import ChatLight from '@/views/ChatLight.vue'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Logout from '@/views/Logout.vue'
 import Overlay from '@/views/Overlay.vue'
+import RemoteVoiceControl from '@/views/RemoteVoiceControl.vue'
 import Sponsor from '@/views/Sponsor.vue'
-import VoiceControl from '@/views/VoiceControl.vue'
+import type { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -76,10 +75,10 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/voice',
 		name: 'voice',
-		component: VoiceControl,
+		component: RemoteVoiceControl,
 		meta: {
 			overflow:true,
-			needAuth:true,
+			needAuth:false,
 		}
 	},
 	{
