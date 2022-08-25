@@ -1,8 +1,8 @@
 <template>
 	<div class="userlist">
 		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users <i>({{users.length}})</i></h1>
-		<a @click="showInfo = !showInfo" class="infoBt">Why is the chat user count so different from the viewer count?</a>
-		<div v-if="showInfo" class="infos">
+		<a @click="toggleInfos()" class="infoBt">Why is the chat users count different from the viewer count?</a>
+		<div v-if="showInfo" class="infos" ref="infos">
 			<p>Chat user count shows people actually connected on your chat, viewers count tells how many viewers are watching you.</p>
 			<p>It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat or in audio-only on mobile)</i></p>
 			<p>Also, nothing's official, but it's almost certain that Twitch removes you from the viewer count if you keep the stream on a background tab for some time while keeping you connected on the chat so you keep receiving messages.</p>
@@ -87,6 +87,23 @@ export default class UserList extends Vue {
 
 	public beforeUnmount():void {
 		document.removeEventListener("mousedown", this.clickHandler);
+	}
+
+	public async toggleInfos():Promise<void> {
+		if(this.showInfo) {
+			const holder = this.$refs.infos as HTMLDivElement;
+			gsap.to(holder, {duration:.5, height:0, minHeight:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut", onComplete:()=>{this.showInfo = false;}});
+		}else{
+			this.showInfo = true;
+			await this.$nextTick();
+			const holder = this.$refs.infos as HTMLDivElement;
+			const bounds = holder.getBoundingClientRect();
+			holder.style.overflow = "hidden";
+			holder.style.height = bounds.height+"px";
+			holder.style.minHeight = bounds.height+"px";
+			console.log(bounds);
+			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
+		}
 	}
 
 	private open():void {
