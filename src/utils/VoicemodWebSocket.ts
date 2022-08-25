@@ -1,3 +1,4 @@
+import { reactive } from "vue";
 import { EventDispatcher } from "./EventDispatcher";
 import VoicemodEvent from "./VoicemodEvent";
 
@@ -35,13 +36,14 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	private static _instance:VoicemodWebSocket;
 	
+	public connected: boolean = false;
+	
 	private _initResolver!: Function;
 	private _connecting!: boolean;
 	private _socket!: WebSocket;
 	private _voicesList!: VoicemodTypes.Voice[]|undefined;
 	private _memesList!: VoicemodTypes.Meme[]|undefined;
 	private _currentVoiceEffect!: VoicemodTypes.Voice|null;
-	private _connected: boolean = false;
 	private _autoReconnect: boolean = false;
 	private _resetTimeout:number = -1;
 	private _voiceIdImageToPromise:{[key:string]:{resolve:(base64:string)=>void, reject:()=>void}} = {};
@@ -49,7 +51,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	static get instance():VoicemodWebSocket {
 		if(!VoicemodWebSocket._instance) {
-			VoicemodWebSocket._instance = new VoicemodWebSocket();
+			VoicemodWebSocket._instance = reactive(new VoicemodWebSocket()) as VoicemodWebSocket;
 		}
 		return VoicemodWebSocket._instance;
 	}
@@ -57,11 +59,6 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-
-	/**
-	 * Get if socket is connecetd
-	 */
-	public get connected():boolean { return this._connected; }
 
 	/**
 	 * Get all the available voice effects
@@ -90,7 +87,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	* PUBLIC METHODS *
 	******************/
 	public connect(ip:string="127.0.0.1", port:number=59129): Promise<void> {
-		if(this._connected) return Promise.resolve();
+		if(this.connected) return Promise.resolve();
 		if(this._connecting) return Promise.resolve();
 		this._connecting = true;
 		return new Promise((resolve, reject) => {
@@ -100,18 +97,18 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			this._socket.onopen = () => {
 				console.log('🎤 Voicemod connection succeed');
 				this._connecting = false;
-				this._connected = true;
+				this.connected = true;
 				this._autoReconnect = true;
 			};
 
 			this._socket.onmessage = (event:any) => this.onSocketMessage(event);
 
 			this._socket.onclose = (e) => {
-				if(this._connected) {
+				if(this.connected) {
 					console.log('🎤 Voicemod connection lost');
 				}
 				this._connecting = false;
-				this._connected = false;
+				this.connected = false;
 				if(this._autoReconnect) {
 					try {
 						this.connect(ip, port);
