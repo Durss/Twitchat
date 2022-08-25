@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, TriggerEventTypeCategories, type ParameterData, type ParamsContentStringType, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
@@ -62,7 +62,7 @@ export default class TriggerActionMusicEntry extends Vue {
 	public mounted():void {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [
-			{label:"Select an action...", value:"0" },
+			{label:"Select an action...", value:"0", category:TriggerEventTypeCategories.MUSIC},
 		];
 		events = events.concat(MusicTriggerEvents);
 		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;
