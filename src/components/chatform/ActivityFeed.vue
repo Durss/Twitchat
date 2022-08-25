@@ -11,7 +11,7 @@
 		<Button class="trainFilter" title="Hype train events"
 			v-if="customActivities.length > 0"
 			@click="customActivities = []"
-			:icon="$image('icons/back_white.svg')" />
+			:icon="$image('icons/back.svg')" />
 
 		<div v-if="messages.length > 0" class="messageList">
 			

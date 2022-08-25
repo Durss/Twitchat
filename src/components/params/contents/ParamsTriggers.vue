@@ -3,7 +3,6 @@
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
 		<p class="header" v-if="!currentEvent">Execute custom actions based on twitch events.<br></p>
-		<p class="useCase" v-if="!currentEvent"><strong>Use case examples: </strong>control <u>OBS</u> sources and filters; create <u>chat commands</u>; control <u>spotify</u></p>
 
 		<div class="menu">
 			<Button class="backBt" v-if="currentEvent"
@@ -13,6 +12,8 @@
 			/>
 
 			<div class="list">
+				
+				<!-- Main event title -->
 				<div v-if="currentEvent" class="mainCategoryTitle">
 					<img v-if="getIcon(currentEvent)" :src="getIcon(currentEvent) ?? ''">
 					
@@ -25,10 +26,12 @@
 						v-if="currentEvent && canToggle(currentEvent)"
 					/>
 				</div>
+				
+				<!-- Sub event title -->
 				<div v-if="currentSubEvent" class="subCategoryTitle">
 					<img v-if="getIcon(currentSubEvent)" :src="getIcon(currentSubEvent) ?? ''">
 					
-					<div class="label">{{currentSubEvent?.label}}</div>
+					<div class="label" v-html="currentSubEvent?.label"></div>
 
 					<ToggleButton class="toggle"
 						:aria-label="currentSubEvent.enabled? 'trigger enabled' : 'trigger disabled'"
@@ -81,12 +84,12 @@
 		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && currentSubEvent)) && !showLoading">
 			<div class="text" v-html="triggerDescription"></div>
 
-			<div class="ctas">
+			<div class="ctas" v-if="currentEvent && obsConnected">
 				<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
 					class="cta resyncBt"
 					@click="listSources(true)"
 					data-tooltip="If you changed something<br>on OBS, click this to see it<br>listed on OBS actions"
-					v-if="currentEvent" :loading="syncing"
+					:loading="syncing"
 				/>
 			</div>
 
@@ -103,7 +106,7 @@
 			:actionData="triggerData"
 		/>
 
-		<Button :icon="$image('icons/add.svg')" title="Add chat command"
+		<Button :icon="$image('icons/whispers.svg')" title="Create chat command"
 			v-if="isChatCmd && actionList.length == 0"
 			class="addBt"
 			@click="addAction()"
@@ -192,6 +195,8 @@ export default class ParamsTriggers extends Vue {
 						enabled:true,
 						actions:[],
 					};
+
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get isChatCmd():boolean { return this.currentEvent?.value === TriggerTypes.CHAT_COMMAND; }
 
@@ -322,7 +327,6 @@ export default class ParamsTriggers extends Vue {
 		if(this.isSublist) {
 			key = this.currentEvent!.value+"_"+key;
 		}
-		console.log(key, e);
 		
 		if(StoreProxy.store.state.triggers[key]) {
 			const trigger = JSON.parse(JSON.stringify(StoreProxy.store.state.triggers[key]));
@@ -436,13 +440,20 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Adds an action to the lsit
 	 */
-	public addAction():void {
+	public async addAction():Promise<void> {
 		this.canSave = false;//Avoid saving data after adding an empty action
 		this.actionList.push({
 			id:Math.random().toString(),
 			delay:0,
 			type:null,
 		});
+
+		//Because we watch for any modifications on "actionList" to fires a
+		//save process, we want to avoid that save process to occure as
+		//it cleans up any empty action (like this new one).
+		//If we were not waiting for a frame the save process would clean
+		//the new item right after creating it
+		await this.$nextTick();
 		this.canSave = true;
 	}
 
@@ -699,7 +710,7 @@ export default class ParamsTriggers extends Vue {
 
 	.header {
 		text-align: center;
-		margin-bottom: .5em;
+		margin-bottom: 1em;
 	}
 
 	.useCase {
@@ -731,10 +742,11 @@ export default class ParamsTriggers extends Vue {
 			margin-bottom: .5em;
 			border-radius: .5em;
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-			padding: 0 1em;
+			padding: 0 .5em;
 			img {
 				height: 1em;
 				margin-right: .5em;
+				filter: drop-shadow(0 0 2px fade(@mainColor_normal, 50%));
 			}
 			.label {
 				flex-grow: 1;
@@ -804,6 +816,7 @@ export default class ParamsTriggers extends Vue {
 		padding: .5em;
 		border-radius: .5em;
 		text-align: center;
+		margin-bottom: 1em;
 
 		.text {
 			:deep(mark) {

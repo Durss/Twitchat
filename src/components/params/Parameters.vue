@@ -3,9 +3,9 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button aria-label="Back to menu" :icon="$image('icons/back_white.svg')" @click="back()" class="close" bounce v-if="content != null" />
+				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="bt clearButton" bounce v-if="content != null" />
 				<h1 class="title">Parameters</h1>
-				<Button aria-label="Close parameters" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce />
+				<Button aria-label="Close parameters" :icon="$image('icons/cross.svg')" @click="close()" class="bt clearButton" bounce />
 			</div>
 
 			<div class="search" v-if="content == null">
@@ -18,12 +18,13 @@
 				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent(contentFilters)" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
-				<Button class="beta" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
-				<Button class="beta" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
+				<Button class="beta1" bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentObs)" />
+				<Button class="beta2" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
+				<Button class="beta2" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
 				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
 				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
-				<Button class="beta" bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
+				<Button class="beta2" bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
 				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
@@ -272,14 +273,14 @@ export default class Parameters extends Vue {
 					margin-top: 10px;
 				}
 
-				&.beta {
+				&.beta1, &.beta2 {
 					&::before {
 						content: "beta";
 						position: absolute;
 						left: 0;
 						color:@mainColor_light;
 						background-color: @mainColor_normal;
-						background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 70%) 30%, fade(@mainColor_normal, 70%) 100%);
+						background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 30%, fade(@mainColor_normal, 100%) 100%);
 						height: 100%;
 						display: flex;
 						align-items: center;
@@ -287,6 +288,11 @@ export default class Parameters extends Vue {
 						font-size: .8em;
 						font-family: "Nunito";
 						text-transform: uppercase;
+					}
+					&.beta2 {
+						&::before {
+							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
+						}
 					}
 				}
 			}

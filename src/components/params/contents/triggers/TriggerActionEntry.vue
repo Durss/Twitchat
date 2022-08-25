@@ -27,14 +27,14 @@
 			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
-				
-				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
-					:disabled="!obsConnected"
-					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
 					
 				<Button class="button" white @click="selectActionType('bingo')" title="Start a bingo" :icon="$image('icons/bingo_purple.svg')"/>
 				
 				<Button class="button" white @click="selectActionType('raffle')" title="Start a raffle" :icon="$image('icons/ticket_purple.svg')"/>
+				
+				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
+					:disabled="!obsConnected"
+					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
 				
 				<Button class="button" white @click="selectActionType('tts')"
 					title="Text to speech"
