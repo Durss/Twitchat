@@ -3,49 +3,52 @@
 		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
 		
 		<div class="header">Automatically delete messages</div>
-		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
+		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 		
-		<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
-			Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.<br>
-			If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.<br>
-			<br>
-			Bots like <a href="https://nightbot.tv" target="_blank">Nightbot</a> or <a href="https://wizebot.tv/index" target="_blank">Wizebot</a> allow you to filter messages with complex rules via what's called <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">Regular Expressions</a>.<br>
-			<br>
-			<strong>Twitchat's</strong> automod feature allows you to use Regular Expressions but also tries to make usage of alternative chars useless for bypassing automod rules.<br>
-			Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.
-			For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.<br>
-			<br>
-			<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you receive lots of messages.
-		</ToggleBlock>
-		<ToggleBlock class="infos" title="Is deleting a message efficient?" small :open="false">
-			No.<br>
-			<br>
-			But it's the only way to moderate a message after it's sent.<br>
-			Extensions like <a href="https://betterttv.com" target="_blank">BetterTTV</a> allow users to keep deleted message.<br>
-			<br>
-			<strong>If you want to avoid this</strong>, you'll have to configure a chat delay <i>(<a href="https://dashboard.twitch.tv/settings/moderation" target="_blank">see Chat Options</a>)</i>. If a message is deleted during this time lapse, it won't be displayed anywhere <i>(although it's technically possible)</i>.<br>
-			<br>
-			The only safe way of filtering a message is when Twitch deletes it based on blocked terms. But as explained before, it's very limited :/
-		</ToggleBlock>
-
-		<div class="testForm">
-			<div>Test chars cleanup:</div>
-			<input type="text" v-model="testStr" placeholder="write text...">
-			<div class="result" v-if="testClean">{{testClean}}</div>
-		</div>
-
-		<div class="holder" v-if="automodData.enabled">
-			<Button title="Add rule" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
+		<div class="fadeHolder" :style="holderStyles">
+			<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
+				Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.<br>
+				If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.<br>
+				<br>
+				Bots like <a href="https://nightbot.tv" target="_blank">Nightbot</a> or <a href="https://wizebot.tv/index" target="_blank">Wizebot</a> allow you to filter messages with complex rules via what's called <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">Regular Expressions</a>.<br>
+				<br>
+				<strong>Twitchat's</strong> automod feature allows you to use Regular Expressions but also tries to make usage of alternative chars useless for bypassing automod rules.<br>
+				Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.
+				For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.<br>
+				<br>
+				<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you receive lots of messages.
+			</ToggleBlock>
+			<ToggleBlock class="infos" title="Is deleting a message efficient for doxxing?" small :open="false">
+				No.<br>
+				<br>
+				But it's the only way to moderate a message after it's sent.<br>
+				The main problem is that extensions like <a href="https://betterttv.com" target="_blank">BetterTTV</a> allow users to keep deleted message.<br>
+				<br>
+				<strong>If you want to avoid this</strong>, you'll have to configure a chat delay <i>(<a href="https://dashboard.twitch.tv/settings/moderation" target="_blank">see Chat Options</a>)</i>. If a message is deleted during this time lapse, it won't be displayed anywhere, even for BTTV users.<br>
+				<i>Note that the message is still sent to everyone so it's technically possible to get it. Just a more complicated.</i><br>
+				<br>
+				The only safe way of filtering a message is when Twitch deletes it based on blocked terms before sending it to everyone. But as explained before, it's very limited :/
+			</ToggleBlock>
 	
-			<div class="list">
-				<ToggleBlock medium v-for="(f, index) in automodData.keywordsFilters" :key="f.id" :title="f.label">
-					<template #actions>
-						<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" />
-					</template>
-					<ParamItem class="item" :paramData="param_keywordsLabel[f.id]" v-model="f.label" />
-					<ParamItem class="item" :paramData="param_keywordsRegex[f.id]" v-model="f.regex" />
-					<ParamItem class="item" :paramData="param_keywordsSync[f.id]" v-model="f.serverSync" />
-				</ToggleBlock>
+			<div class="testForm">
+				<div>Test chars cleanup:</div>
+				<input type="text" v-model="testStr" placeholder="write text...">
+				<div class="result" v-if="testClean">{{testClean}}</div>
+			</div>
+	
+			<div class="holder">
+				<Button title="Add rule" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
+		
+				<div class="list" v-if="automodData.keywordsFilters.length > 0">
+					<ToggleBlock medium v-for="f in automodData.keywordsFilters" :key="f.id" :title="f.label.length > 0? f.label : 'New rule'">
+						<template #actions>
+							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click="deleteRule(f)" />
+						</template>
+						<ParamItem class="item" :paramData="param_keywordsLabel[f.id]" v-model="f.label" />
+						<ParamItem class="item" :paramData="param_keywordsRegex[f.id]" v-model="f.regex" />
+						<ParamItem class="item" :paramData="param_keywordsSync[f.id]" v-model="f.serverSync" />
+					</ToggleBlock>
+				</div>
 			</div>
 		</div>
 
@@ -56,7 +59,7 @@
 import type { AutomodParamsData, AutomodParamsKeywordFilterData, ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import UnicodeUtils from '@/utils/UnicodeUtils';
-import { reactive, watch } from 'vue';
+import { reactive, watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
@@ -80,6 +83,13 @@ export default class ParamsAutomod extends Vue {
 	public automodData!:AutomodParamsData;
 
 	public get testClean():string { return UnicodeUtils.instance.normalizeAlphaNum(this.testStr).toLowerCase(); }
+
+	public get holderStyles():StyleValue {
+		return {
+			opacity:this.param_enabled.value === true? 1 : .5,
+			pointerEvents:this.param_enabled.value === true? "all" : "none",
+		};
+	}
 
 	public beforeMount():void {
 		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.store.state.automodParams)));
@@ -110,6 +120,18 @@ export default class ParamsAutomod extends Vue {
 		this.param_keywordsLabel[item.id] = {label:'Rule name', type:'text', value:'', maxLength:100};
 		this.param_keywordsRegex[item.id] = {label:'Rule', type:'text', value:'', maxLength:5000, longText:true};
 		this.param_keywordsSync[item.id] = {label:'Save to server', type:'toggle', value:false};
+	}
+
+	public deleteRule(rule:AutomodParamsKeywordFilterData):void {
+		this.$confirm("Delete rule?", "This cannot be undone").then(()=> {
+			for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
+				const f = this.automodData.keywordsFilters[i];
+				if(f.id == rule.id) {
+					this.automodData.keywordsFilters.splice(i,1);
+					i--;
+				}
+			}
+		}).catch(e=>{});
 	}
 
 	public save():void {
@@ -189,23 +211,33 @@ export default class ParamsAutomod extends Vue {
 		padding: .1em .5em;
 		border-radius: .5em;
 	}
+	
 
-	.holder {
-		margin-top: 1.5em;
-		transition: opacity .2s;
-		width: 100%;
-
-		.addBt {
-			margin: auto;
-			display: block;
+	.item {
+		&:not(:first-child) {
+			margin-top: .5em;
 		}
+	}
 
-		.list {
-			margin-top: 1.5em;
+	.fadeHolder {
+		transition: opacity .2s;
 
-			.deleteBt {
-				border-radius: 0;
-				height: 100%;
+		.holder {
+			margin-top: 1em;
+			width: 100%;
+	
+			.addBt {
+				margin: auto;
+				display: block;
+			}
+	
+			.list {
+				margin-top: 1em;
+
+				.deleteBt {
+					border-radius: 0;
+					height: 100%;
+				}
 			}
 		}
 	}
