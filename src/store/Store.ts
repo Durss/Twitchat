@@ -1,6 +1,6 @@
 import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
-import type { TriggerData, TriggerActionTypes, TTSParamsData } from "../types/TwitchatDataTypes";
+import type { TriggerData, TriggerActionTypes, TTSParamsData, AutomodParamsData } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
 import StoreProxy from "@/utils/StoreProxy";
 
@@ -46,6 +46,7 @@ export default class Store {
 	public static GREET_HISTORY:string = "greetHistory";
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
+	public static AUTOMOD_PARAMS:string = "automodParams";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -207,6 +208,15 @@ export default class Store {
 				delete data[this.SYNC_DATA_TO_SERVER];
 				delete data.deezerEnabled;
 				delete data.redirect;
+				
+				//Remove automod items the user asked not to sync to server
+				const automod = data.automodParams as AutomodParamsData;
+				for (let i = 0; i < automod.keywordsFilters.length; i++) {
+					if(!automod.keywordsFilters[i].serverSync) {
+						automod.keywordsFilters.splice(i,1);
+						i--;
+					}
+				}
 	
 				let headers = {
 					'Authorization': 'Bearer '+this.access_token,

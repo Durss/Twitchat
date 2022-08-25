@@ -1157,6 +1157,24 @@ const UserDataSchema = {
 					}
 				},
 			}
+		},
+
+		automodParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				keywordsFilters:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						id: {type:"string", maxLength:36},
+						label: {type:"string", maxLength:100},
+						regex: {type:"string", maxLength:5000},
+						serverSync: {type:"boolean"},
+					}
+				},
+			}
 		}
 	}
 }

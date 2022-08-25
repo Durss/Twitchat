@@ -3,7 +3,7 @@
 		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
 		
 		<div class="header">Automatically delete messages</div>
-		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="automodData.enabled" />
+		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 		
 		<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
 			Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.<br>
@@ -38,9 +38,14 @@
 			<Button title="Add rule" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
 	
 			<div class="list">
-				<div v-for="(f, index) in automodData.keywordsFilters" :key="f.id">
-					<input type="text" v-model="f.regex">
-				</div>
+				<ToggleBlock medium v-for="(f, index) in automodData.keywordsFilters" :key="f.id" :title="f.label">
+					<template #actions>
+						<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" />
+					</template>
+					<ParamItem class="item" :paramData="param_keywordsLabel[f.id]" v-model="f.label" />
+					<ParamItem class="item" :paramData="param_keywordsRegex[f.id]" v-model="f.regex" />
+					<ParamItem class="item" :paramData="param_keywordsSync[f.id]" v-model="f.serverSync" />
+				</ToggleBlock>
 			</div>
 		</div>
 
@@ -48,14 +53,14 @@
 </template>
 
 <script lang="ts">
-import type { AutomodParamsData, ParameterData } from '@/types/TwitchatDataTypes';
+import type { AutomodParamsData, AutomodParamsKeywordFilterData, ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import UnicodeUtils from '@/utils/UnicodeUtils';
-import { reactive, watch, type StyleValue } from 'vue';
+import { reactive, watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
-import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
+import ToggleBlock from '../../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -69,15 +74,22 @@ export default class ParamsAutomod extends Vue {
 
 	public testStr:string = "ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ";
 	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_keywordsLabel:{[key:string]:ParameterData} = {};
+	public param_keywordsRegex:{[key:string]:ParameterData} = {};
+	public param_keywordsSync:{[key:string]:ParameterData} = {};
 	public automodData!:AutomodParamsData;
 
-	public get testClean():string { return UnicodeUtils.instance.normalizeAlphaNum(this.testStr); }
+	public get testClean():string { return UnicodeUtils.instance.normalizeAlphaNum(this.testStr).toLowerCase(); }
 
 	public beforeMount():void {
-		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.store.state.automodParams)))
-		watch(()=>this.automodData, ()=> {
-			this.save();
+		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.store.state.automodParams)));
+		this.param_enabled.value = this.automodData.enabled;
+		this.automodData.keywordsFilters.forEach(v=> {
+			this.param_keywordsLabel[v.id] = {label:'Rule name', type:'text', value:'', maxLength:100};
+			this.param_keywordsRegex[v.id] = {label:'Rule', type:'text', value:'', maxLength:5000, longText:true};
+			this.param_keywordsSync[v.id] = {label:'Save to server', type:'toggle', value:false};
 		});
+		watch(()=>this.automodData, ()=> this.save() );
 	}
 
 	public mounted():void {
@@ -88,15 +100,20 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	public addRule():void {
-		this.automodData.keywordsFilters.push({
+		const item:AutomodParamsKeywordFilterData = {
 			id:crypto.randomUUID(),
 			label:"",
 			regex:"",
-		})
+			serverSync:false,
+		};
+		this.automodData.keywordsFilters.push(item);
+		this.param_keywordsLabel[item.id] = {label:'Rule name', type:'text', value:'', maxLength:100};
+		this.param_keywordsRegex[item.id] = {label:'Rule', type:'text', value:'', maxLength:5000, longText:true};
+		this.param_keywordsSync[item.id] = {label:'Save to server', type:'toggle', value:false};
 	}
 
-	private save():void {
-		//TODO
+	public save():void {
+		StoreProxy.store.dispatch("setAutomodParams", this.automodData);
 	}
 
 }
@@ -181,6 +198,15 @@ export default class ParamsAutomod extends Vue {
 		.addBt {
 			margin: auto;
 			display: block;
+		}
+
+		.list {
+			margin-top: 1.5em;
+
+			.deleteBt {
+				border-radius: 0;
+				height: 100%;
+			}
 		}
 	}
 	

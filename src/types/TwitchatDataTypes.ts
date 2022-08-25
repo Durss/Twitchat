@@ -461,6 +461,7 @@ export interface AutomodParamsKeywordFilterData {
 	id:string;
 	label:string;
 	regex:string;
+	serverSync:boolean;
 }
 
 export interface ShoutoutTriggerData {

@@ -1747,6 +1747,11 @@ const store = createStore({
 			Store.set(Store.VOICEMOD_PARAMS, payload);
 		},
 		
+		setAutomodParams(state, payload:AutomodParamsData) {
+			state.automodParams = payload;
+			Store.set(Store.AUTOMOD_PARAMS, payload);
+		},
+		
 	},
 
 
@@ -2669,6 +2674,8 @@ const store = createStore({
 		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
 		
 		setVoicemodParams({commit}, payload:VoicemodParamsData) { commit("setVoicemodParams", payload); },
+		
+		setAutomodParams({commit}, payload:AutomodParamsData) { commit("setAutomodParams", payload); },
 	},
 	modules: {
 	}

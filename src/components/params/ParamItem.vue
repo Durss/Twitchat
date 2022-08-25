@@ -185,6 +185,7 @@ export default class ParamItem extends Vue {
 				this.paramData.value = value;
 			}
 		});
+		
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
 				StoreProxy.store.dispatch('updateParams');
@@ -193,12 +194,15 @@ export default class ParamItem extends Vue {
 			this.$emit("update:modelValue", this.paramData.value);
 			this.buildChildren();
 		});
+		
 		watch(() => this.paramData.children, () => {
 			this.buildChildren();
 		});
+		
 		watch(() => this.file, () => {
 			console.log(this.file);
 		});
+		
 		this.buildChildren();
 		
 		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
