@@ -238,7 +238,7 @@ export default class ParamsVoicemod extends Vue {
 		border-radius: .5em;
 		background-color: fade(@mainColor_normal_extralight, 30%);
 		padding: .5em;
-		margin-top: 2em;
+		margin-top: 1.5em;
 		
 		.item {
 			&:not(:first-child) {

@@ -283,6 +283,11 @@ export default class ToggleBlock extends Vue {
 		&:hover {
 			background-color: darken(@mainColor_light, 3%);
 		}
+		:deep(span) {
+			font-weight: normal;
+			font-style: italic;
+			font-size: .8em;
+		}
 	}
 
 	.content {

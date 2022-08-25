@@ -14,7 +14,6 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Store from '@/store/Store';
-import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';

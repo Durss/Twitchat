@@ -19,6 +19,7 @@ export const ParamsContentType = {
 	ALERT: "alert",
 	TTS: "tts",
 	VOICE: "voice",
+	AUTOMOD: "autmod",
 	VOICEMOD: "voicemod",
 } as const;
 export type ParamsContentStringType = typeof ParamsContentType[keyof typeof ParamsContentType]|null;
@@ -449,6 +450,17 @@ export interface VoicemodParamsData {
 export interface VoicemodTriggerData {
 	type:"voicemod";
 	voiceID?:string;
+}
+
+export interface AutomodParamsData {
+	enabled:boolean;
+	keywordsFilters:AutomodParamsKeywordFilterData[]
+}
+
+export interface AutomodParamsKeywordFilterData {
+	id:string;
+	label:string;
+	regex:string;
 }
 
 export interface ShoutoutTriggerData {
