@@ -178,8 +178,8 @@ export default class Utils {
 		const allowed = (permissions.mods && mod) ||
 						(permissions.vips && vip) ||
 						(permissions.subs && sub) ||
+						(permissions.broadcaster !== false && broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
 						permissions.all ||
-						broadcaster ||
 						allowedUsers?.indexOf((user.username as string).toLowerCase()) != -1;
 		return allowed;
 	}

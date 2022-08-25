@@ -2,64 +2,91 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<p class="header" v-if="event_conf.value == '0'">Execute custom actions based on twitch events.<br></p>
-		<p class="useCase" v-if="event_conf.value == '0'"><strong>Use case examples: </strong>control <u>OBS</u> sources and filters; create <u>chat commands</u>; control <u>spotify</u></p>
+		<p class="header" v-if="!currentEvent">Execute custom actions based on twitch events.<br></p>
+		<p class="useCase" v-if="!currentEvent"><strong>Use case examples: </strong>control <u>OBS</u> sources and filters; create <u>chat commands</u>; control <u>spotify</u></p>
 
 		<div class="menu">
-			<Button class="backBt" v-if="event_conf.value != '0'"
+			<Button class="backBt" v-if="currentEvent"
 				white
 				@click="goBack()"
 				:icon="$image('icons/back_purple.svg')"
 			/>
+
 			<div class="list">
-				<!-- Main list -->
-				<div v-for="e in event_conf.listValues" :key="(e.value as string)" class="item">
-					<Button class="triggerBt"
-						white
-						v-if="(event_conf.value == '0' || event_conf.value == e.value) && subevent_conf.value == '0'"
-						:title="e.label"
-						:icon="getIcon(e)"
-						@click="event_conf.value = e.value"
-					/>
+				<div v-if="currentEvent" class="mainCategoryTitle">
+					<img v-if="getIcon(currentEvent)" :src="getIcon(currentEvent) ?? ''">
+					
+					<div class="label">{{currentEvent?.label}}</div>
 
 					<ToggleButton class="toggle"
-						:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
-						v-model="e.enabled"
-						@change="onToggleEnable(e)"
-						v-if="(event_conf.value == e.value || event_conf.value == '0') && canToggle(e)"
+						:aria-label="currentEvent.enabled? 'trigger enabled' : 'trigger disabled'"
+						v-model="currentEvent.enabled"
+						@change="onToggleEnable(currentEvent)"
+						v-if="currentEvent && canToggle(currentEvent)"
 					/>
 				</div>
+				<div v-if="currentSubEvent" class="subCategoryTitle">
+					<img v-if="getIcon(currentSubEvent)" :src="getIcon(currentSubEvent) ?? ''">
+					
+					<div class="label">{{currentSubEvent?.label}}</div>
+
+					<ToggleButton class="toggle"
+						:aria-label="currentSubEvent.enabled? 'trigger enabled' : 'trigger disabled'"
+						v-model="currentSubEvent.enabled"
+						@change="onToggleEnable(currentSubEvent)"
+						v-if="currentSubEvent && canToggle(currentSubEvent)"
+					/>
+				</div>
+				
+				<!-- Main list -->
+				<ToggleBlock class="category" v-if="!currentEvent"
+				v-for="c in eventCategories" :key="c.label" :title="c.label" :open="false" :icons="[c.icon]">
+					<div v-for="e in c.events" :key="(e.value as string)" class="item">
+						<Button class="triggerBt"
+							white
+							:title="e.label"
+							:icon="getIcon(e)"
+							@click="currentEvent = e"
+						/>
+
+						<ToggleButton class="toggle"
+							:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
+							v-model="e.enabled"
+							@change="onToggleEnable(e)"
+							v-if="canToggle(e)"
+						/>
+					</div>
+				</ToggleBlock>
 
 				<!-- Sublist -->
-				<div v-if="isSublist && subevent_conf.listValues && subevent_conf.listValues.length > 0"
-				v-for="e in subevent_conf.listValues" :key="(e.value as string)" class="item">
+				<div v-if="isSublist && !currentSubEvent && subeventsList && subeventsList.length > 0"
+				v-for="e in subeventsList" :key="(e.value as string)" class="item">
 					<Button :class="getSubListClasses(e)"
 						white
-						v-if="subevent_conf.value == '0' || subevent_conf.value == e.value"
 						:title="e.label"
 						:icon="getIcon(e)"
-						@click="subevent_conf.value = e.value"
+						@click="currentSubEvent = e"
 					/>
 
 					<ToggleButton class="toggle"
 						:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
 						v-model="e.enabled"
 						@change="onToggleEnable(e)"
-						v-if="(subevent_conf.value == e.value || subevent_conf.value == '0') && canToggle(e)"
+						v-if="canToggle(e)"
 					/>
 				</div>
 			</div>
 		</div>
 
-		<div class="triggerDescription" v-if="((event_conf.value != '0' && ! isSublist) || (isSublist && subevent_conf.value != '0') || isChatCmd) && !showLoading">
-			<div v-html="triggerDescription"></div>
+		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && currentSubEvent)) && !showLoading">
+			<div class="text" v-html="triggerDescription"></div>
 
 			<div class="ctas">
 				<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
 					class="cta resyncBt"
 					@click="listSources(true)"
 					data-tooltip="If you changed something<br>on OBS, click this to see it<br>listed on OBS actions"
-					v-if="event_conf.value != '0'" :loading="syncing"
+					v-if="currentEvent" :loading="syncing"
 				/>
 			</div>
 
@@ -72,8 +99,14 @@
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
 		<TriggerActionChatCommandParams class="chatCmdParams"
-			v-if="isChatCmd && triggerData"
+			v-if="isChatCmd && triggerData && actionList.length > 0"
 			:actionData="triggerData"
+		/>
+
+		<Button :icon="$image('icons/add.svg')" title="Add chat command"
+			v-if="isChatCmd && actionList.length == 0"
+			class="addBt"
+			@click="addAction()"
 		/>
 
 		<draggable 
@@ -92,7 +125,7 @@
 					:index="index"
 					:totalItems="actionList.length"
 					:sources="sources"
-					:event="event_conf.value"
+					:event="currentEvent?.value"
 					@delete="deleteAction(index)"
 					@duplicate="duplicateAction(element, index)"
 					@setContent="(v:string)=>$emit('setContent', v)"
@@ -100,7 +133,7 @@
 			</template>
 		</draggable>
 
-		<div class="bottomCTAS" v-if="event_conf.value != '0'">
+		<div class="bottomCTAS" v-if="(!isSublist && currentEvent) || (isSublist && currentSubEvent)">
 			<Button :icon="$image('icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
@@ -124,15 +157,17 @@ import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
 import TriggerActionChatCommandParams from './triggers/TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './triggers/TriggerActionEntry.vue';
-import type { ParameterData, ParameterDataListValue, TriggerData, TriggerActionTypes, TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import { type TriggerData, type TriggerActionTypes, type TriggerEventTypes, TriggerEventTypeCategories, type ParameterDataListValue } from '@/types/TwitchatDataTypes';
 import ToggleButton from '../../ToggleButton.vue';
 import StoreProxy from '@/utils/StoreProxy';
+import ToggleBlock from '../../ToggleBlock.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		draggable,
+		ToggleBlock,
 		ToggleButton,
 		TriggerActionEntry,
 		TriggerActionChatCommandParams,
@@ -140,9 +175,13 @@ import StoreProxy from '@/utils/StoreProxy';
 	emits:["setContent"]
 })
 export default class ParamsTriggers extends Vue {
+
+	public currentEvent:TriggerEventTypes|null = null;
+	public currentSubEvent:ParameterDataListValue|null = null;
+	public eventsList:TriggerEventTypes[] = [];
+	public subeventsList:ParameterDataListValue[] = [];
+	public eventCategories:{label:string, icon:string, events:TriggerEventTypes[]}[] = [];
 	public actionList:TriggerActionTypes[] = [];
-	public event_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
-	public subevent_conf:ParameterData = { label:"", type:"list", value:"0", listValues:[] };
 	public sources:OBSSourceItem[] = [];
 	public canSave = true;
 	public syncing = false;
@@ -154,11 +193,11 @@ export default class ParamsTriggers extends Vue {
 						actions:[],
 					};
 
-	public get isChatCmd():boolean { return this.event_conf.value === TriggerTypes.CHAT_COMMAND; }
+	public get isChatCmd():boolean { return this.currentEvent?.value === TriggerTypes.CHAT_COMMAND; }
 
 	public get triggerKey():string {
-		let key = this.event_conf.value as string;
-		let subkey = this.subevent_conf.value as string;
+		let key = this.currentEvent?.value as string;
+		let subkey = this.currentSubEvent?.value as string;
 		if(key === TriggerTypes.CHAT_COMMAND) {
 			subkey = this.triggerData.chatCommand as string;
 		}
@@ -199,10 +238,14 @@ export default class ParamsTriggers extends Vue {
 	 * Get a trigger's description
 	 */
 	public get triggerDescription():string|null {
-		const value = this.event_conf.value as string;
-		const item = this.event_conf.listValues?.find(v => v.value == value) as TriggerEventTypes|null;
+		const value = this.currentEvent?.value as string;
+		const item = this.eventsList.find(v => v.value == value) as TriggerEventTypes|null;
 		if(item) {
-			return item.description as string;
+			let desc = item.description as string;
+			if(this.currentSubEvent) {
+				desc = desc.replace(/\{SUB_ITEM_NAME\}/gi, this.currentSubEvent.label);
+			}
+			return desc;
 		}
 		return null;
 	}
@@ -210,7 +253,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getSubListClasses(e:ParameterDataListValue):string[] {
+	public getSubListClasses(e:TriggerEventTypes|ParameterDataListValue):string[] {
 		const res = ["triggerBt", "subItem"];
 		if(this.getIcon(e) && e.value != "0") res.push("hasIcon");
 		return res;
@@ -219,7 +262,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:ParameterDataListValue):string|null {
+	public getIcon(e:TriggerEventTypes|ParameterDataListValue):string|null {
 		if(e.icon) {
 			return e.icon as string;
 		}
@@ -254,7 +297,16 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.HYPE_TRAIN_START] = "train_purple";
 		map[TriggerTypes.HYPE_TRAIN_PROGRESS] = "train_purple";
 		map[TriggerTypes.HYPE_TRAIN_END] = "train_purple";
+		map[TriggerTypes.HYPE_TRAIN_CANCELED] = "train_purple";
 		map[TriggerTypes.VOICEMOD] = "voicemod_purple";
+		map[TriggerTypes.SHOUTOUT] = "shoutout_purple";
+		map[TriggerTypes.TIMEOUT] = "timeout_purple";
+		map[TriggerTypes.BAN] = "ban_purple";
+		map[TriggerTypes.UNBAN] = "unban_purple";
+		map[TriggerTypes.VIP] = "vip_purple";
+		map[TriggerTypes.UNVIP] = "unvip_purple";
+		map[TriggerTypes.MOD] = "mod_purple";
+		map[TriggerTypes.UNMOD] = "unmod_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");
@@ -265,11 +317,12 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Get if a trigger entry can be toggled
 	 */
-	public canToggle(e:ParameterDataListValue):boolean {
+	public canToggle(e:TriggerEventTypes|ParameterDataListValue):boolean {
 		let key = e.value as string;
-		if(this.event_conf.value != "0") {
-			key = this.event_conf.value+"_"+(e.value as string).toLowerCase();
+		if(this.isSublist) {
+			key = this.currentEvent!.value+"_"+key;
 		}
+		console.log(key, e);
 		
 		if(StoreProxy.store.state.triggers[key]) {
 			const trigger = JSON.parse(JSON.stringify(StoreProxy.store.state.triggers[key]));
@@ -282,8 +335,8 @@ export default class ParamsTriggers extends Vue {
 	
 	public async mounted():Promise<void> {
 		watch(()=> OBSWebsocket.instance.connected, () => { this.listSources(); });
-		watch(()=> this.event_conf.value, () => { this.onSelectTrigger(); });
-		watch(()=> this.subevent_conf.value, () => { this.onSelectsubTrigger(); });
+		watch(()=> this.currentEvent, () => { this.onSelectTrigger(); });
+		watch(()=> this.currentSubEvent, () => { this.onSelectsubTrigger(); });
 		watch(()=> this.actionList, () => { this.saveData(); }, { deep:true });
 		watch(()=> this.triggerData, () => { this.saveData(); }, { deep:true });
 		await this.listSources();
@@ -299,16 +352,64 @@ export default class ParamsTriggers extends Vue {
 			const enabled = StoreProxy.store.state.triggers[v.value]?.enabled;
 			v.enabled = enabled !== false;
 		})
-		// this.event_conf.value = events[0].value;
-		this.event_conf.listValues = events;
+
+		events.sort((a, b) => {
+			if(a.category > b.category) return 1;
+			if(a.category < b.category) return -1;
+			return 0;
+		})
+
+		this.eventCategories = [];
+		let currCat = events[0].category;
+		let catEvents:TriggerEventTypes[] = [];
+		const catToLabel:{[key:number]:string} = {};
+		catToLabel[ TriggerEventTypeCategories.GLOBAL ] = "Chat - Channel points - Stream";
+		catToLabel[ TriggerEventTypeCategories.USER ] = "User event";
+		catToLabel[ TriggerEventTypeCategories.SUBITS ] = "Sub & bits";
+		catToLabel[ TriggerEventTypeCategories.MOD ] = "Moderation actions";
+		catToLabel[ TriggerEventTypeCategories.TWITCHAT ] = "Twitchat";
+		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = "Hyper train";
+		catToLabel[ TriggerEventTypeCategories.GAMES ] = "Games";
+		catToLabel[ TriggerEventTypeCategories.MUSIC ] = "Music";
+		catToLabel[ TriggerEventTypeCategories.TIMER ] = "Timers";
+		
+		const catToIcon:{[key:number]:string} = {};
+		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
+		catToIcon[ TriggerEventTypeCategories.USER ] = "user_purple";
+		catToIcon[ TriggerEventTypeCategories.SUBITS ] = "coin_purple";
+		catToIcon[ TriggerEventTypeCategories.MOD ] = "mod_purple";
+		catToIcon[ TriggerEventTypeCategories.TWITCHAT ] = "twitchat_purple";
+		catToIcon[ TriggerEventTypeCategories.HYPETRAIN ] = "train_purple";
+		catToIcon[ TriggerEventTypeCategories.GAMES ] = "ticket_purple";
+		catToIcon[ TriggerEventTypeCategories.MUSIC ] = "music_purple";
+		catToIcon[ TriggerEventTypeCategories.TIMER ] = "timer_purple";
+
+		for (let i = 0; i < events.length; i++) {
+			const ev = events[i];
+			if(ev.category != currCat || i === events.length-1) {
+				this.eventCategories.push({
+					label: catToLabel[catEvents[0].category],
+					icon: catToIcon[catEvents[0].category],
+					events:catEvents,
+				});
+				catEvents = [ev];
+			}else{
+				catEvents.push(ev);
+			}
+			currCat = ev.category
+			// this.event_conf.value = events[0].value;
+		}
+		
+		
+		this.eventsList = events;
 	}
 
 	/**
 	 * Go up on the tree
 	 */
 	public goBack():void {
-		if(this.subevent_conf.value != '0') this.subevent_conf.value = '0';
-		else this.event_conf.value = '0'
+		if(this.currentSubEvent) this.currentSubEvent = null;
+		else this.currentEvent = null;
 	}
 
 	/**
@@ -394,7 +495,7 @@ export default class ParamsTriggers extends Vue {
 	 * Called to test the actions sequence
 	 */
 	public testTrigger():void {
-		let key = this.event_conf.value as string;
+		let key = this.currentEvent?.value as string;
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
 		const entry = TriggerEvents.find(v=>v.value == key);
 		
@@ -402,7 +503,7 @@ export default class ParamsTriggers extends Vue {
 			const json = entry.jsonTest as IRCEventDataList.Message;
 			if(key == TriggerTypes.REWARD_REDEEM) {
 				//Push current reward ID to the test JSON data
-				if(json.reward) json.reward.redemption.reward.id = this.subevent_conf.value as string;
+				if(json.reward) json.reward.redemption.reward.id = this.currentSubEvent?.value as string;
 			}
 			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
@@ -421,9 +522,9 @@ export default class ParamsTriggers extends Vue {
 			StoreProxy.store.dispatch("deleteTrigger", this.triggerKey);
 			//Reset menu selection
 			if(this.isSublist) {
-				this.subevent_conf.value = "0";
+				this.currentSubEvent = null;
 			}else{
-				this.event_conf.value = "0";
+				this.currentEvent = null;
 			}
 			this.resetTriggerData();
 		}).catch(()=> {});
@@ -432,10 +533,11 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Toggle a trigger
 	 */
-	public onToggleEnable(e:ParameterDataListValue):void {
+	public onToggleEnable(e:TriggerEventTypes|ParameterDataListValue|null):void {
+		if(!e) return;
 		let key = e.value as string;
-		if(this.event_conf.value != "0") {
-			key = this.event_conf.value+"_"+(e.value as string).toLowerCase();
+		if(this.currentEvent) {
+			key = this.currentEvent.value+"_"+(e.value as string).toLowerCase();
 		}
 		if(StoreProxy.store.state.triggers[key]) {
 			const trigger = StoreProxy.store.state.triggers[key];
@@ -448,23 +550,24 @@ export default class ParamsTriggers extends Vue {
 	 * Called when selecting a trigger
 	 */
 	private async onSelectTrigger(onlypopulateSublist = false):Promise<void> {
-		let key = this.event_conf.value as string;
-		this.subevent_conf.value = "0";
+		this.currentSubEvent = null;
 		this.isSublist = false;
 		
-		if(key == "0") {
+		if(!this.currentEvent) {
 			//No selection, reset everything
 			this.actionList = [];
 			this.resetTriggerData();
 
 		}else {
+			let key = this.currentEvent.value as string;
+
 			const entry = TriggerEvents.find(v=> v.value == key);
 			if(entry?.isCategory === true) {
 				//Chat commands and channel point rewards are stored differently to avoid
 				//flooding the main trigger list. Main trigger elements are stored with
 				//simple keys like "1" where these ones are stored with keys like "1_entryName".
 				this.isSublist = true;
-				this.subevent_conf.listValues = [];
+				this.subeventsList = [];
 				if(!onlypopulateSublist) this.actionList = [];
 				
 				if(key == TriggerTypes.CHAT_COMMAND) {
@@ -474,21 +577,21 @@ export default class ParamsTriggers extends Vue {
 					for (const k in triggers) {
 						if(k.indexOf(key+"_") === 0) commandList.push(triggers[k] as TriggerData);
 					}
-					this.subevent_conf.listValues = commandList.sort((a,b)=> {
+					this.subeventsList = commandList.sort((a,b)=> {
 						if(!a.chatCommand || !b.chatCommand) return 0
 						if(a.chatCommand < b.chatCommand) return -1;
 						if(a.chatCommand > b.chatCommand) return 1;
 						return 0;
-					}).map(v=> {
+					}).map((v):ParameterDataListValue=> {
 						return {
 							label:v.chatCommand as string,
 							value:v.chatCommand?.toLowerCase(),
 							enabled:v.enabled
 						}
 					});
-					const select = commandList.find(v=>v.chatCommand == this.triggerData.chatCommand);
+					const select = this.subeventsList.find(v=>v.value == this.triggerData.chatCommand);
 					if(select) {
-						this.subevent_conf.value = select.chatCommand?.toLowerCase();
+						this.currentSubEvent = select;
 					}
 				}
 
@@ -513,8 +616,11 @@ export default class ParamsTriggers extends Vue {
 	 */
 	private async onSelectsubTrigger():Promise<void> {
 		this.canSave = false;
-		let key = this.event_conf.value as string;
-		key += "_"+(this.subevent_conf.value as string).toLowerCase();
+		let key = this.currentEvent?.value as string;
+		key += "_";
+		if(this.currentSubEvent) {
+			key += (this.currentSubEvent.value as string).toLowerCase();
+		}
 		
 		//Load actions for the selected sub event
 		let json = StoreProxy.store.state.triggers[key];
@@ -522,11 +628,11 @@ export default class ParamsTriggers extends Vue {
 			const trigger = JSON.parse(JSON.stringify(StoreProxy.store.state.triggers[key]));//Avoid modifying the original data
 			this.triggerData = trigger as TriggerData;
 			this.actionList = this.triggerData.actions;
-		//Do not reset if the sub event
+
 		}else if(this.isSublist){
+			//If going up the sublist, clear actions
 			this.actionList = [];
 			this.resetTriggerData();
-			this.addAction();
 		}
 		await this.$nextTick();
 		this.canSave = true;
@@ -551,7 +657,7 @@ export default class ParamsTriggers extends Vue {
 			if(a.title.toLowerCase() < b.title.toLowerCase()) return -1;
 			if(a.title.toLowerCase() > b.title.toLowerCase()) return 1;
 			return 0;
-		}).map(v => {
+		}).map((v):ParameterDataListValue => {
 			const enabled = StoreProxy.store.state.triggers[TriggerTypes.REWARD_REDEEM+"_"+v.id]?.enabled;
 			return {
 				label:v.title+"<span class='cost'>("+v.cost+")</span>",
@@ -560,7 +666,7 @@ export default class ParamsTriggers extends Vue {
 				icon:v.image?.url_2x
 			};
 		})
-		this.subevent_conf.listValues = this.subevent_conf.listValues?.concat(list);
+		this.subeventsList = this.subeventsList?.concat(list);
 		this.showLoading = false;
 	}
 
@@ -614,10 +720,35 @@ export default class ParamsTriggers extends Vue {
 			min-width: 30px;
 		}
 
+		.mainCategoryTitle, .subCategoryTitle {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+			background-color: @mainColor_light;
+			width: 100%;
+			height: 32px;
+			margin-bottom: .5em;
+			border-radius: .5em;
+			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+			padding: 0 1em;
+			img {
+				height: 1em;
+				margin-right: .5em;
+			}
+			.label {
+				flex-grow: 1;
+			}
+		}
+
 		.list {
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
+
+			.category:not(:last-of-type) {
+				margin-bottom: 1em;
+			}
 
 			.item {
 				position: relative;
@@ -673,6 +804,20 @@ export default class ParamsTriggers extends Vue {
 		padding: .5em;
 		border-radius: .5em;
 		text-align: center;
+
+		.text {
+			:deep(mark) {
+				line-height: 1.5em;
+				border: 1px dashed @mainColor_normal;
+				background-color: fade(@mainColor_normal, 15%);
+				padding: .1em .5em;
+				border-radius: .5em;
+				span {
+					//This is used to hide the channel point reward's costs
+					display: none;
+				}
+			}
+		}
 	}
 
 	.sortable-chosen {
@@ -727,10 +872,6 @@ export default class ParamsTriggers extends Vue {
 		.cta:not(:last-child) {
 			margin-right: 1em;
 		}
-	}
-
-	.chatCmdParams {
-		margin-top: 1em;
 	}
 
 	.bottomCTAS {

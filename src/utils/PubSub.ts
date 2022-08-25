@@ -393,6 +393,20 @@ export default class PubSub extends EventDispatcher{
 
 
 
+		}else if(data.type == "moderator_added") {
+			const user = (data.data as PubSubDataTypes.ModeratorAdded).target_user_login;
+			// IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+			TriggerActionHandler.instance.onMessage({ type:"mod", user});
+
+
+
+		}else if(data.type == "vip_added") {
+			const user = (data.data as PubSubDataTypes.VIPAdded).target_user_login;
+			// IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+			TriggerActionHandler.instance.onMessage({ type:"vip", user});
+
+
+
 		}else if(data.type == "extension_message") {
 			//Manage extension messages
 			const mess = data.data as PubSubDataTypes.ExtensionMessage;
@@ -482,23 +496,51 @@ export default class PubSub extends EventDispatcher{
 				}
 				case "timeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
-					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "unknown";
+					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
 					IRCClient.instance.sendNotice("timeout_success", localObj.created_by+" has banned "+user+" for "+duration+" seconds");
+					TriggerActionHandler.instance.onMessage({ type:"timeout", duration:parseInt(duration), user});
 					break;
 				}
 				case "untimeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
 					IRCClient.instance.sendNotice("timeout_success", localObj.created_by+" has removed temporary ban from "+user);
+					TriggerActionHandler.instance.onMessage({ type:"unban", user});
 					break;
 				}
 				case "ban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+					TriggerActionHandler.instance.onMessage({ type:"ban", user});
 					break;
 				}
 				case "unban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unbanned by "+localObj.created_by);
+					TriggerActionHandler.instance.onMessage({ type:"unban", user});
+					break;
+				}
+				case "mod": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+					TriggerActionHandler.instance.onMessage({ type:"mod", user});
+					break;
+				}
+				case "unmod": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unbanned by "+localObj.created_by);
+					TriggerActionHandler.instance.onMessage({ type:"unmod", user});
+					break;
+				}
+				case "vip": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					TriggerActionHandler.instance.onMessage({ type:"vip", user});
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been vip by "+localObj.created_by);
+					break;
+				}
+				case "unvip": {
+					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					TriggerActionHandler.instance.onMessage({ type:"unvip", user});
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unvip by "+localObj.created_by);
 					break;
 				}
 				case "raid": {
@@ -932,6 +974,7 @@ export default class PubSub extends EventDispatcher{
 		const message:HypeTrainTriggerData = {
 			type: "hypeTrainEnd",
 			level,
+			state:data.ending_reason,
 			percent:Math.round(storeData.currentValue/storeData.goal * 100),
 		}
 		TriggerActionHandler.instance.onMessage(message)

@@ -559,6 +559,24 @@ export namespace PubSubDataTypes {
 		game_id: string;
 	}
 
+	export interface ModeratorAdded {
+		channel_id: string;
+		target_user_id: string;
+		moderation_action: string;
+		target_user_login: string;
+		created_by_user_id: string;
+		created_by: string;
+	}
+
+	export interface VIPAdded {
+		channel_id: string;
+		target_user_id: string;
+		target_user_login: string;
+		created_by_user_id: string;
+		created_by: string;
+	}
+	
+
 	//adding props missing from typings
 	export interface IRCTagsExtended extends ChatUserstate {
 		"first-msg"?:boolean;

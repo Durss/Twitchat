@@ -11,6 +11,7 @@ const Ajv = require("ajv")
 const JsonPatch = require('fast-json-patch');
 const Logger = require('./Logger.js').default;
 
+const port = 3018;
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
@@ -174,7 +175,7 @@ http.createServer((request, response) => {
 			});
 		}
 	}).resume();
-}).listen(3018);
+}).listen(port);
 
 
 function setHeaders(request, response) {
@@ -673,6 +674,7 @@ const UserDataSchema = {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				broadcaster: {type:"boolean"},
 				mods: {type:"boolean"},
 				vips: {type:"boolean"},
 				subs: {type:"boolean"},
@@ -714,6 +716,7 @@ const UserDataSchema = {
 						permissions: {
 							type:"object",
 							properties: {
+								broadcaster: {type:"boolean"},
 								mods: {type:"boolean"},
 								vips: {type:"boolean"},
 								subs: {type:"boolean"},
@@ -1006,6 +1009,7 @@ const UserDataSchema = {
 					type:"object",
 					additionalProperties: false,
 					properties: {
+						broadcaster: {type:"boolean"},
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
@@ -1025,6 +1029,7 @@ const UserDataSchema = {
 					type:"object",
 					additionalProperties: false,
 					properties: {
+						broadcaster: {type:"boolean"},
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
@@ -1068,6 +1073,7 @@ const UserDataSchema = {
 					type:"object",
 					additionalProperties: false,
 					properties: {
+						broadcaster: {type:"boolean"},
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
@@ -1098,6 +1104,7 @@ const UserDataSchema = {
 					type:"object",
 					additionalProperties: false,
 					properties: {
+						broadcaster: {type:"boolean"},
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
@@ -1141,6 +1148,7 @@ const UserDataSchema = {
 					type:"object",
 					additionalProperties: false,
 					properties: {
+						broadcaster: {type:"boolean"},
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},

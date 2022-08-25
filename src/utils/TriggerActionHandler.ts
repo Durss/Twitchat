@@ -1,4 +1,4 @@
-import type { ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, StreamInfoUpdate, TriggerData, VoicemodTriggerData } from "@/types/TwitchatDataTypes";
+import type { BanTriggerData, ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, ShoutoutTriggerData, StreamInfoUpdate, TimeoutTriggerData, TriggerData, UnbanTriggerData, VoicemodTriggerData, VIPTriggerData, UnVIPTriggerData, ModTriggerData, UnmodTriggerData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -199,6 +199,46 @@ export default class TriggerActionHandler {
 				return;
 			}
 
+		}else if(message.type == "ban") {
+			if(await this.handleBanEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "unban") {
+			if(await this.handleUnbanEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "mod") {
+			if(await this.handleModEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "unmod") {
+			if(await this.handleUnmodEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "vip") {
+			if(await this.handleVIPEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "unvip") {
+			if(await this.handleUnVIPEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "timeout") {
+			if(await this.handleTimeoutEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
+		}else if(message.type == "shoutout") {
+			if(await this.handleShoutoutEvent(message, testMode, this.currentSpoolGUID)) {
+				return;
+			}
+
 		}else if(message.type == "hypeTrainApproach" || message.type == "hypeTrainStart"
 		|| message.type == "hypeTrainProgress" || message.type == "hypeTrainEnd") {
 			if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
@@ -350,6 +390,38 @@ export default class TriggerActionHandler {
 	private async handleVoicemodEvent(message:VoicemodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, guid);
 	}
+
+	private async handleBanEvent(message:BanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.BAN, message, testMode, guid);
+	}
+
+	private async handleUnbanEvent(message:UnbanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.UNBAN, message, testMode, guid);
+	}
+
+	private async handleModEvent(message:ModTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.MOD, message, testMode, guid);
+	}
+
+	private async handleUnmodEvent(message:UnmodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.UNMOD, message, testMode, guid);
+	}
+
+	private async handleVIPEvent(message:VIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.VIP, message, testMode, guid);
+	}
+
+	private async handleUnVIPEvent(message:UnVIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.UNVIP, message, testMode, guid);
+	}
+
+	private async handleTimeoutEvent(message:TimeoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, guid);
+	}
+	
+	private async handleShoutoutEvent(message:ShoutoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, guid);
+	}
 	
 	private async handleHypeTrainEvent(message:HypeTrainTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		const idToType = {
@@ -357,6 +429,9 @@ export default class TriggerActionHandler {
 			hypeTrainStart:TriggerTypes.HYPE_TRAIN_START,
 			hypeTrainProgress:TriggerTypes.HYPE_TRAIN_PROGRESS,
 			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END,
+		}
+		if(message.state == "EXPIRE") {
+			idToType.hypeTrainEnd = TriggerTypes.HYPE_TRAIN_CANCELED;
 		}
 		const event = idToType[message.type];
 		if(event) {
@@ -714,4 +789,12 @@ type MessageTypes = IRCEventDataList.Message
 | MusicTriggerData
 | HypeTrainTriggerData
 | VoicemodTriggerData
+| ShoutoutTriggerData
+| BanTriggerData
+| UnbanTriggerData
+| ModTriggerData
+| UnmodTriggerData
+| TimeoutTriggerData
+| VIPTriggerData
+| UnVIPTriggerData
 ;

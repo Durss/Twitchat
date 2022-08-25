@@ -47,6 +47,7 @@ import Splitter from '../../Splitter.vue';
 export default class ParamsSpoiler extends Vue {
 
 	public chatCommandPerms:PermissionsData = {
+		broadcaster:true,
 		mods:true,
 		vips:false,
 		subs:false,

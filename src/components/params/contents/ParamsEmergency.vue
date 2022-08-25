@@ -123,6 +123,7 @@ export default class ParamsEmergency extends Vue {
 		noTrigger:ParameterData;
 	}|null = null;
 	public chatCommandPerms:PermissionsData = {
+		broadcaster:true,
 		mods:true,
 		vips:false,
 		subs:false,

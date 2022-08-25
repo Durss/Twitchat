@@ -92,7 +92,20 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 ;
 export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|null;
 
+export const TriggerEventTypeCategories = {
+	GLOBAL: 1,
+	USER: 2,
+	SUBITS: 3,
+	MOD: 4,
+	TWITCHAT: 5,
+	HYPETRAIN: 6,
+	GAMES: 7,
+	MUSIC: 8,
+	TIMER: 9,
+} as const;
+export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 export interface TriggerEventTypes extends ParameterDataListValue {
+	category:TriggerEventTypeCategoryValue;
 	label:string;
 	value:string;
 	description?:string,
@@ -224,6 +237,7 @@ export interface CommandData {
 }
 
 export interface PermissionsData {
+	broadcaster:boolean;
 	mods:boolean;
 	vips:boolean;
 	subs:boolean;
@@ -422,6 +436,7 @@ export interface HypeTrainTriggerData {
 	type:"hypeTrainApproach"|"hypeTrainStart"|"hypeTrainProgress"|"hypeTrainEnd";
 	level:number;
 	percent:number;
+	state?:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 }
 
 export interface VoicemodParamsData {
@@ -434,4 +449,46 @@ export interface VoicemodParamsData {
 export interface VoicemodTriggerData {
 	type:"voicemod";
 	voiceID?:string;
+}
+
+export interface ShoutoutTriggerData {
+	type:"shoutout";
+	user:TwitchDataTypes.UserInfo;
+	stream:TwitchDataTypes.ChannelInfo;
+}
+
+export interface BanTriggerData {
+	type:"ban";
+	user:string;
+}
+
+export interface UnbanTriggerData {
+	type:"unban";
+	user:string;
+}
+
+export interface ModTriggerData {
+	type:"mod";
+	user:string;
+}
+
+export interface UnmodTriggerData {
+	type:"unmod";
+	user:string;
+}
+
+export interface VIPTriggerData {
+	type:"vip";
+	user:string;
+}
+
+export interface UnVIPTriggerData {
+	type:"unvip";
+	user:string;
+}
+
+export interface TimeoutTriggerData {
+	type:"timeout";
+	user:string;
+	duration:number;
 }

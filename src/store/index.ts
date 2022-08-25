@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
@@ -403,6 +403,7 @@ const store = createStore({
 			readRaffle:false,
 			readRafflePattern:"{WINNER} won the raffle",
 			ttsPerms:{
+				broadcaster:true,
 				mods:true,
 				vips:true,
 				subs:true,
@@ -425,6 +426,7 @@ const store = createStore({
 			obsSources:[],
 			chatCmd:"",
 			chatCmdPerms:{
+				broadcaster:true,
 				mods:true,
 				vips:false,
 				subs:false,
@@ -440,6 +442,7 @@ const store = createStore({
 
 		spoilerParams: {
 			permissions:{
+				broadcaster:true,
 				mods:true,
 				vips:false,
 				subs:false,
@@ -460,6 +463,7 @@ const store = createStore({
 			sound:true,
 			blink:false,
 			permissions:{
+				broadcaster:true,
 				mods:true,
 				vips:false,
 				subs:false,
@@ -492,6 +496,7 @@ const store = createStore({
 			voiceIndicator:true,
 			commandToVoiceID:{},
 			chatCmdPerms:{
+				broadcaster:true,
 				mods:true,
 				vips:false,
 				subs:false,
@@ -1252,7 +1257,7 @@ const store = createStore({
 
 		setHypeTrain(state, data:HypeTrainStateData) {
 			state.hypeTrain = data;
-			if(data.state == "COMPLETED") {
+			if(data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 60*1000;
 				const offset = data.approached_at;
 				const activities:ActivityFeedData[] = [];
@@ -1276,17 +1281,19 @@ const store = createStore({
 						}
 					}
 				}
-
-				const res:IRCEventDataList.HypeTrainResult = {
-					type:"hype_train_end",
-					train:state.hypeTrain,
-					activities,
-					tags: {
-						id:IRCClient.instance.getFakeGuid(),
-						"tmi-sent-ts": Date.now().toString()
-					},
+				
+				if(activities.length > 0) {
+					const res:IRCEventDataList.HypeTrainResult = {
+						type:"hype_train_end",
+						train:data,
+						activities,
+						tags: {
+							id:IRCClient.instance.getFakeGuid(),
+							"tmi-sent-ts": Date.now().toString()
+						},
+					}
+					store.dispatch("addChatMessage", res);
 				}
-				store.dispatch("addChatMessage", res);
 			}
 		},
 
@@ -1460,6 +1467,13 @@ const store = createStore({
 				message = message.replace(/\{TITLE\}/gi, streamTitle);
 				message = message.replace(/\{CATEGORY\}/gi, category);
 				await IRCClient.instance.sendMessage(message);
+				
+				const trigger:ShoutoutTriggerData = {
+					type: "shoutout",
+					user:userInfos[0],
+					stream:channelInfo[0],
+				}
+				TriggerActionHandler.instance.onMessage(trigger)
 			}else{
 				//Warn user doesn't exist
 				state.alert = "User "+username+" doesn't exist.";
@@ -2103,11 +2117,13 @@ const store = createStore({
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
-				this.dispatch("delUserMessages", (event.data as IRCEventDataList.Ban).username);
+				const data = (event.data as IRCEventDataList.Ban);
+				this.dispatch("delUserMessages", data.username);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.TIMEOUT, (event:IRCEvent) => {
-				this.dispatch("delUserMessages", (event.data as IRCEventDataList.Timeout).username);
+				const data = (event.data as IRCEventDataList.Timeout);
+				this.dispatch("delUserMessages", data.username);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.CLEARCHAT, () => {
@@ -2204,7 +2220,7 @@ const store = createStore({
 					state.alert = "Deezer authentication failed";
 				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
-					TriggerActionHandler.instance.onMessage({ type:"voicemod", voiceID: e.voiceID })
+					TriggerActionHandler.instance.onMessage({ type:"voicemod", voiceID: e.voiceID });
 					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
 						const v = VoicemodWebSocket.instance.voices[i];
 						if(v.voiceID == e.voiceID) {
@@ -2249,7 +2265,11 @@ const store = createStore({
 				}
 
 				if(Store.syncToServer === true && state.authenticated) {
-					await Store.loadRemoteData();
+					if(!await Store.loadRemoteData()) {
+						//Force data sync popup to show up if remote
+						//data have been deleted
+						Store.remove(Store.SYNC_DATA_TO_SERVER);
+					}
 				}
 	
 				const devmode = Store.get(Store.DEVMODE) === "true";

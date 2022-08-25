@@ -56,7 +56,7 @@ import { Options, Vue } from 'vue-class-component';
 		bounce:{type:Boolean, default: false},
 		accept:{type:String, default: "image/*"},
 	},
-	emits: ['click', 'change', 'update:modelValue', 'update:file'],
+	emits: ['click', 'update:modelValue', 'update:file'],
 	expose: ['value'],
 })
 export default class Button extends Vue {

@@ -1,11 +1,12 @@
 <template>
 	<div class="obspermissions">
+		<ParamItem :paramData="param_broadcaster" class="row" v-model="modelValue.broadcaster" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_mods" class="row" v-model="modelValue.mods" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_vips" class="row" v-model="modelValue.vips" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_subs" class="row" v-model="modelValue.subs" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_users" class="row" v-model="modelValue.users" @change="$emit('update:modelValue', modelValue)"/>
-		<div v-if="noSelection" class="noSelection">Nobody but you is allowed by the current selection</div>
+		<div v-if="noSelection" class="noSelection">Nobody is allowed by the current selection</div>
 	</div>
 </template>
 
@@ -28,17 +29,19 @@ export default class OBSPermissions extends Vue {
 
 	public modelValue!:PermissionsData;
 	
-	public param_mods:ParameterData		= { type:"toggle", value:true, label:"Moderators", icon:"mod_purple.svg" };
-	public param_vips:ParameterData		= { type:"toggle", value:false, label:"VIPs", icon:"vip_purple.svg" };
-	public param_subs:ParameterData		= { type:"toggle", value:false, label:"Subscribers", icon:"sub_purple.svg" };
-	public param_all:ParameterData		= { type:"toggle", value:false, label:"Everyone", icon:"user_purple.svg" };
-	public param_users:ParameterData	= { type:"text", value:"", label:"Specific users", longText:true, placeholder:"user1, user2, user3, ..." };
+	public param_broadcaster:ParameterData	= { type:"toggle", value:true, label:"Broadcaster", icon:"broadcaster_purple.svg" };
+	public param_mods:ParameterData			= { type:"toggle", value:true, label:"Moderators", icon:"mod_purple.svg" };
+	public param_vips:ParameterData			= { type:"toggle", value:false, label:"VIPs", icon:"vip_purple.svg" };
+	public param_subs:ParameterData			= { type:"toggle", value:false, label:"Subscribers", icon:"sub_purple.svg" };
+	public param_all:ParameterData			= { type:"toggle", value:false, label:"Everyone", icon:"user_purple.svg" };
+	public param_users:ParameterData		= { type:"text", value:"", label:"Specific users", longText:true, placeholder:"user1, user2, user3, ..." };
 
 	public get noSelection():boolean {
 		return this.modelValue.mods === false
 		&& this.modelValue.vips === false
 		&& this.modelValue.subs === false
 		&& this.modelValue.all === false
+		&& this.modelValue.broadcaster === false
 		&& this.modelValue.users === "";
 	}
 

@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import type { ChatPollData, ParameterData } from '@/types/TwitchatDataTypes';
+import type { ChatPollData, ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -61,7 +61,8 @@ export default class ChatPollForm extends Vue {
 	public command:ParameterData = {type:"text", value:"!sugg", label:"Command", placeholder:"!sugg", maxLength:31};
 	public duration:ParameterData = {label:"Poll duration (minutes)", value:2, type:"number", min:1, max:30};
 	public multiAnswers:ParameterData = {label:"Users can submit multiple entries", value:false, type:"toggle"};
-	public permissions = {
+	public permissions:PermissionsData = {
+		broadcaster:true,
 		mods:true,
 		vips:true,
 		subs:true,

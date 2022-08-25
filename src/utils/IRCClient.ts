@@ -258,6 +258,11 @@ export default class IRCClient extends EventDispatcher {
 				this.dispatchEvent(new IRCEvent(IRCEvent.BAN, {type:"notice", msgid:"ban_success", channel, username, reason, tags:this.getFakeTags()}));
 			});
 			
+			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
+				if(!this.idToExample["timeout"]) this.idToExample["timeout"] = {type:"notice", channel, username, reason, duration};
+				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", msgid:"timeout_success", channel, username, reason, duration, tags:this.getFakeTags()}));
+			});
+			
 			this.client.on("raided", async (channel: string, username: string, viewers: number) => {
 				// this.dispatchEvent(new IRCEvent(IRCEvent.NOTICE, {type:"notice", channel, username, viewers}));
 				const tags = this.getFakeTags();
@@ -287,11 +292,6 @@ export default class IRCClient extends EventDispatcher {
 						StoreProxy.store.dispatch("untrackUser", message.tags);
 					}, 5 * 60 * 1000);
 				}
-			});
-			
-			this.client.on("timeout", (channel: string, username: string, reason: string, duration: number)=> {
-				if(!this.idToExample["timeout"]) this.idToExample["timeout"] = {type:"notice", channel, username, reason, duration};
-				this.dispatchEvent(new IRCEvent(IRCEvent.TIMEOUT, {type:"notice", msgid:"timeout_success", channel, username, reason, duration, tags:this.getFakeTags()}));
 			});
 			
 			this.client.on("hosted", (channel: string, username: string, viewers: number, autohost: boolean)=> {
@@ -325,6 +325,7 @@ export default class IRCClient extends EventDispatcher {
 				// if (data.command != "PRIVMSG") {
 				switch(data.command) {
 					case "USERNOTICE": {
+						//Handle announcement messages
 						if(((data.tags as tmi.ChatUserstate)["msg-id"] as unknown) === "announcement") {
 							const params = data.params as string[];
 							const tags = data.tags as tmi.ChatUserstate;
@@ -350,7 +351,6 @@ export default class IRCClient extends EventDispatcher {
 						break;
 					}
 					case "USERSTATE": {
-						// console.log(data);
 						StoreProxy.store.dispatch("setUserState", data as tmi.UserNoticeState);
 						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
 						break;

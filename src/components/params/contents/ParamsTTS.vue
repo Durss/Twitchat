@@ -42,8 +42,10 @@
 				<ParamItem class="item" :paramData="param_volume" />
 				<ParamItem class="item" :paramData="param_rate" />
 				<ParamItem class="item" :paramData="param_pitch" />
-				<input class="item center" type="text" v-model="testStr" placeholder="message...">
-				<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" @click="test()" />
+				<form @submit.prevent="test()">
+					<input class="item center" type="text" v-model="testStr" placeholder="message...">
+					<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" type="submit" />
+				</form>
 			</section>
 
 			<section>
@@ -133,6 +135,7 @@ export default class ParamsTTS extends Vue {
 	public param_readRaffle:ParameterData = {type:"toggle", value:false, label:"Raffle results", icon:"ticket_purple.svg" };
 	public param_readRafflePattern:ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderRaffles};
 	public param_ttsPerms:PermissionsData = {
+		broadcaster:true,
 		mods:true,
 		vips:false,
 		subs:false,

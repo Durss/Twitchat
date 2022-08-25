@@ -121,6 +121,7 @@ export default class ParamsOBS extends Vue {
 	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
 	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 	public permissions:PermissionsData = {
+		broadcaster:true,
 		mods: false,
 		vips: false,
 		subs: false,

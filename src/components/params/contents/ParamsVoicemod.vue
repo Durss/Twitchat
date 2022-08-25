@@ -67,6 +67,7 @@ export default class ParamsVoicemod extends Vue {
 	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
 	public param_voiceIndicator:ParameterData = {type:"toggle", label:"Show when a voice effect is active", value:true, example:"voicemod_reset.png"};
 	public permissions:PermissionsData = {
+		broadcaster:true,
 		mods: false,
 		vips: false,
 		subs: false,
@@ -119,6 +120,7 @@ export default class ParamsVoicemod extends Vue {
 			this.populate();
 		}
 		if(!res) {
+			this.connecting = false;
 			this.connectionFailed = true;
 		}
 	}

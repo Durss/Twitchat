@@ -56,6 +56,7 @@ export default class ParamsAlert extends Vue {
 	public param_blink:ParameterData = {type:"toggle", label:"Blink Twitchat", value:false};
 	public param_sound:ParameterData = {type:"toggle", label:"Play sound", value:true};
 	public chatCommandPerms:PermissionsData = {
+		broadcaster:true,
 		mods:true,
 		vips:false,
 		subs:false,

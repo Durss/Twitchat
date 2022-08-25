@@ -6,7 +6,6 @@
 	title="Parameters"
 	:icons="['params']">
 
-		<p class="title">Set a chat command that will trigger the actions</p>
 		<ParamItem class="row" :paramData="param_cmd" @focusout="onUpdateCommand()" :error="cmdNameConflict" />
 		<div v-if="cmdNameConflict" class="cmdNameConflict">A command with this name already exists</div>
 
@@ -66,6 +65,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 	public beforeMount():void {
 		if(!this.actionData.permissions) {
 			this.actionData.permissions = {
+				broadcaster:true,
 				mods:true,
 				vips:true,
 				subs:true,
