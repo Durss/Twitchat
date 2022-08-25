@@ -190,8 +190,8 @@ export default class ParamItem extends Vue {
 			if(this.paramData.save === true) {
 				StoreProxy.store.dispatch('updateParams');
 			}
-			this.$emit("change");
 			this.$emit("update:modelValue", this.paramData.value);
+			this.$emit("change");
 			this.buildChildren();
 		});
 		
@@ -292,6 +292,7 @@ export default class ParamItem extends Vue {
 				flex-grow: 1;
 				display: flex;
 				flex-direction: column;
+				align-items: flex-start;
 			}
 		}
 	}

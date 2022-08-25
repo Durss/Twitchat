@@ -303,6 +303,7 @@ export default class ParamsEmergency extends Vue {
 		margin-bottom: .5em;
 		&.small {
 			font-size: .8em;
+			margin-bottom: 0;
 			.btExample {
 				height: 1.25em;
 				padding: .25em;
@@ -314,14 +315,17 @@ export default class ParamsEmergency extends Vue {
 	}
 
 	.enableBt {
-		max-width: 200px;
+		width: min-content;
 		margin: auto;
 		margin-top: 1.5em;
-		margin-bottom: 2em;
+		margin-bottom: 1.5em;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
+		:deep(label) {
+			white-space: nowrap;
+		}
 	}
 
 	.fadeHolder {

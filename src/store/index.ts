@@ -2436,6 +2436,22 @@ const store = createStore({
 						VoicemodWebSocket.instance.connect();
 					}
 				}
+
+				//Init automod
+				const automodParams = Store.get(Store.AUTOMOD_PARAMS);
+				if(automodParams) {
+					Utils.mergeRemoteObject(JSON.parse(automodParams), (state.automodParams as unknown) as JsonObject);
+					const backup:AutomodParamsData = JSON.parse(automodParams);
+					console.log("Load automod", backup);
+					for (let i = 0; i < backup.keywordsFilters.length; i++) {
+						const el = backup.keywordsFilters[i];
+						if(!el.serverSync) {
+							console.log("Insert", el);
+							state.automodParams.keywordsFilters.splice(i, 0, el);
+						}
+					}
+					this.dispatch("automodParams", state.automodParams);
+				}
 			}
 			
 			//Initialise new toggle param for OBS connection.

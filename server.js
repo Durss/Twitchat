@@ -153,6 +153,7 @@ http.createServer((request, response) => {
 					&& request.url.toLowerCase().indexOf("deezer") == -1
 					&& request.url.toLowerCase().indexOf("sponsor") == -1
 					&& request.url.toLowerCase().indexOf("home") == -1
+					&& request.url.toLowerCase().indexOf("voice") == -1
 					&& request.url.toLowerCase().indexOf("logout") == -1
 					&& request.url.toLowerCase().indexOf("login") == -1) {
 						Logger.warn("Error serving " + request.headers.host+request.url + " - " + err.message);

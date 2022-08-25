@@ -313,13 +313,16 @@ export default class ParamsTTS extends Vue {
 	}
 
 	.enableBt {
-		max-width: 200px;
+		width: min-content;
 		margin: auto;
 		margin-top: 1.5em;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
+		:deep(label) {
+			white-space: nowrap;
+		}
 	}
 
 	.header {
