@@ -181,7 +181,6 @@ export default class StreamInfoForm extends Vue {
 	public async editPreset(p:StreamInfoPreset):Promise<void> {
 		this.loading = true;
 		this.forceOpenForm = true;
-		this.param_namePreset.value = p.title;
 		this.presetEditing = p;
 		
 		try {
