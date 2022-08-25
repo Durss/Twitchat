@@ -602,6 +602,11 @@ export default class TriggerActionHandler {
 								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data as JsonObject);
 								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
 								if(step.confirmMessage) {
+									let m = message.message;
+									if(subEvent) {
+										m = m.replace(subEvent, "").trim();
+									}
+									data.message = m;
 									const chatMessage = await this.parseText(eventType, data, step.confirmMessage);
 									IRCClient.instance.sendMessage(chatMessage);
 								}
