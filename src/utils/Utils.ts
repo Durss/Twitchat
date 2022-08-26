@@ -1,6 +1,7 @@
 import type { ChatUserstate } from 'tmi.js';
-import type { PermissionsData } from '@/types/TwitchatDataTypes';
+import type { AutomodParamsKeywordFilterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
+import StoreProxy from './StoreProxy';
 
 /**
  * Created by Durss
@@ -180,7 +181,7 @@ export default class Utils {
 						(permissions.subs && sub) ||
 						(permissions.broadcaster !== false && broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
 						permissions.all ||
-						allowedUsers?.indexOf((user.username as string).toLowerCase()) != -1;
+						allowedUsers?.indexOf((user.username ?? user['display-name'] as string).toLowerCase()) != -1;
 		return allowed;
 	}
 
@@ -528,5 +529,33 @@ export default class Utils {
 				local[key] = v;
 			}
 		}
+	}
+
+	/**
+	 * Check if a message is automoded by a rule
+	 * @param mess 
+	 * @param tags 
+	 * @returns 
+	 */
+	public static isAutomoded(mess:string, tags:ChatUserstate):AutomodParamsKeywordFilterData|null {
+		if(StoreProxy.store.state.automodParams.enabled
+		&& !Utils.checkPermissions(StoreProxy.store.state.automodParams.exludedUsers, tags)) {
+			const rules = StoreProxy.store.state.automodParams.keywordsFilters as AutomodParamsKeywordFilterData[];
+			for (let i = 0; i < rules.length; i++) {
+				const r = rules[i];
+				if(!r.enabled) continue;//Rule disabled, skip it
+				
+				//Check if reg is valid
+				let reg!:RegExp, valid=true;
+				try{ reg = new RegExp(r.regex, "gi"); }
+				catch(e){ valid = false; }
+
+				if(valid && reg.test(mess)) {
+					//Reg matches
+					return r;
+				}
+			}
+		}
+		return null;
 	}
 }

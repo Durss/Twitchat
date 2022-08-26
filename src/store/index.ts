@@ -1879,23 +1879,30 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const type = getTwitchatMessageType(event.data as IRCEventData);
 
+				//Automod messages contents
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
-					if(state.automodParams.enabled && !Utils.checkPermissions(state.automodParams.exludedUsers, messageData.tags)) {
-						const rules = state.automodParams.keywordsFilters;
-						const mess = messageData.message;
-						for (let i = 0; i < rules.length; i++) {
-							const r = rules[i];
-							if(!r.enabled) continue;
-							let reg!:RegExp, valid=true;
-							try{ reg = new RegExp(r.regex, "gi"); }
-							catch(e){ valid = false; }
-							if(valid && reg.test(mess)) {
-								messageData.ttAutomod = r;
-								let id = messageData.tags.id as string;
-								IRCClient.instance.deleteMessage(id);
-								return;
-							}
+					let rule = Utils.isAutomoded(messageData.message, messageData.tags);
+					if(rule) {
+						messageData.ttAutomod = rule;
+						let id = messageData.tags.id as string;
+						IRCClient.instance.deleteMessage(id);
+						return;
+					}
+				}else {
+					let username = "";
+					const messageData = event.data as IRCEventDataList.Highlight;
+					if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
+						username = messageData.username as string
+					}else if(type == TwitchatMessageType.BITS) {
+						username = messageData.tags.username as string;
+					}
+					if(username && messageData.message) {
+						let rule = Utils.isAutomoded(messageData.message, {username});
+						if(rule) {
+							messageData.ttAutomod = rule;
+							IRCClient.instance.sendMessage(`/ban ${username}`);
+							return;
 						}
 					}
 				}
@@ -2117,20 +2124,8 @@ const store = createStore({
 				&& state.automodParams.banUserNames === true)
 				for (let i = 0; i < users.length; i++) {
 					const username = users[i];
-					const rules = state.automodParams.keywordsFilters;
-					for (let i = 0; i < rules.length; i++) {
-						const r = rules[i];
-						if(!r.enabled) continue;
-						if(state.automodParams.enabled
-						&& !Utils.checkPermissions(state.automodParams.exludedUsers, {username})) {
-							let reg!:RegExp, valid=true;
-							try{ reg = new RegExp(r.regex, "gi"); }
-							catch(e){ valid = false; }
-							if(valid && reg.test(username)) {
-								IRCClient.instance.sendMessage(`/ban ${username}`);
-								return;
-							}
-						}
+					if(Utils.isAutomoded(username, {username})) {
+						IRCClient.instance.sendMessage(`/ban ${username}`);
 					}
 				}
 

@@ -611,7 +611,13 @@ async function getUserFromToken(token) {
 		method: "GET",
 		headers: { "Authorization": token },
 	};
-	const result = await fetch("https://id.twitch.tv/oauth2/validate", options);
+
+	let result;
+	try {
+		result = await fetch("https://id.twitch.tv/oauth2/validate", options);
+	}catch(error) {
+		return null;
+	}
 	
 	if(result.status == 200) {
 		return await result.json();

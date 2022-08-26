@@ -80,6 +80,7 @@ export namespace IRCEventDataList {
 		followBlocked?: boolean;
 		type: "highlight";
 		subgiftAdditionalRecipents?: string[];
+		ttAutomod?: AutomodParamsKeywordFilterData;
 	}
 
 	export interface TwitchatAd {
@@ -128,7 +129,6 @@ export namespace IRCEventDataList {
 		occurrenceCount?: number;
 		highlightWord?: string;
 		blockedUser?: boolean;
-		ttAutomod?: AutomodParamsKeywordFilterData;
 	}
 
 	export interface PollResult {

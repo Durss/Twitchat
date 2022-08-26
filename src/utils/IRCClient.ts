@@ -354,12 +354,12 @@ export default class IRCClient extends EventDispatcher {
 					case "USERSTATE": {
 						StoreProxy.store.dispatch("setUserState", data as tmi.UserNoticeState);
 						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
+						
+						//If there are messages pending for their ID, give the oldest one
+						//the received ID
 						if((data as tmi.UserNoticeState).tags.id && this.queuedMessages.length > 0) {
 							const m = this.queuedMessages.shift();
-							console.log(this.queuedMessages.length+" messages pending");
 							if(m) {
-								console.log("POP message", m.message);
-								console.log("Set ID:", (data as tmi.UserNoticeState).tags.id);
 								(m.tags as tmi.ChatUserstate).id = (data as tmi.UserNoticeState).tags.id;
 								(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
 								this.addMessage(m.message, m.tags as tmi.ChatUserstate, m.self, undefined, m.channel);

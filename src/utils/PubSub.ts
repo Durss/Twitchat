@@ -834,15 +834,28 @@ export default class PubSub extends EventDispatcher{
 			}
 		}
 
-		//Broadcast to OBS-ws
-		const wsMessage = {
-			display_name: data.display_name,
-			username: data.username,
-			user_id: data.user_id,
+		let automoded = false;
+		if(StoreProxy.store.state.automodParams.banUserNames === true) {
+			let rule = Utils.isAutomoded(data.display_name, {username:data.username});
+			console.log("AUTOMOD ?", data.display_name, rule);
+			if(rule) {
+				(data.message as IRCEventDataList.Highlight).ttAutomod = rule;
+				automoded = true;
+				IRCClient.instance.sendMessage(`/ban ${data.username}`);
+			}
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 
 		IRCClient.instance.sendHighlight(data.message as IRCEventDataList.Highlight);
+
+		if(!automoded) {
+			//Broadcast to OBS-ws
+			const wsMessage = {
+				display_name: data.display_name,
+				username: data.username,
+				user_id: data.user_id,
+			}
+			PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+		}
 	}
 
 	/**

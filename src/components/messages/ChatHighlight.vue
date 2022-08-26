@@ -276,8 +276,14 @@ export default class ChatHighlight extends Vue {
 			this.$emit("ariaMessage", this.reason+" "+this.messageText);
 		}
 
+
+		//Add twitchat's automod badge
+		if(this.messageData.ttAutomod) {
+			this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messageData.ttAutomod.label});
+		}
+
 		if(this.messageData.followBlocked) {
-			this.badgeInfos.push({ type:"emergencyBlocked" })
+			this.badgeInfos.push({ type:"emergencyBlocked" });
 		}else{
 			//Watch for change so it updates in case of a follow bot raid
 			watch(()=>this.messageData.followBlocked, ()=> {
