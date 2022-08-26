@@ -31,7 +31,7 @@ export default class PubSub extends EventDispatcher{
 	private hypeTrainProgressTimer!:number;
 	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
-	private lastRecentFollower:PubSubDataTypes.Following[] = [];
+	private lastRecentFollowers:PubSubDataTypes.Following[] = [];
 	
 	constructor() {
 		super();
@@ -763,15 +763,15 @@ export default class PubSub extends EventDispatcher{
 			"type": "highlight",
 		} as IRCEventDataList.Highlight);
 
-		if(this.lastRecentFollower.length > 1) {
+		if(this.lastRecentFollowers.length > 1) {
 			//duration between 2 follow events to consider them as a follow streak
 			const minDuration = 500;
-			let dateOffset:number = this.lastRecentFollower[0].follow_date as number;
-			for (let i = 1; i < this.lastRecentFollower.length; i++) {
-				const f = this.lastRecentFollower[i];
+			let dateOffset:number = this.lastRecentFollowers[0].follow_date as number;
+			for (let i = 1; i < this.lastRecentFollowers.length; i++) {
+				const f = this.lastRecentFollowers[i];
 				//more than the minDuration has past, reset the streak
 				if((f.follow_date as number) - dateOffset > minDuration) {
-					this.lastRecentFollower = [];
+					this.lastRecentFollowers = [];
 					break;
 				}
 				dateOffset = f.follow_date as number;
@@ -779,15 +779,14 @@ export default class PubSub extends EventDispatcher{
 		}
 
 		let blockList = [data];
-		this.lastRecentFollower.push( data );
-		console.log(this.lastRecentFollower.length);
+		this.lastRecentFollowers.push( data );
 
-		if(this.lastRecentFollower.length > 30
+		if(this.lastRecentFollowers.length > 30
 		&& StoreProxy.store.state.emergencyModeEnabled !== true
 		&& StoreProxy.store.state.emergencyParams.enabled === true
 		&& StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot === true) {
 			//Set all the past users in the block list to process them
-			blockList = this.lastRecentFollower;
+			blockList = this.lastRecentFollowers;
 			//Start emergency mode
 			StoreProxy.store.dispatch("setEmergencyMode", true);
 		}

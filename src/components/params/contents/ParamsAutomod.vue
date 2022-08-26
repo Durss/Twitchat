@@ -5,6 +5,7 @@
 		<div class="header">Automatically delete messages</div>
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 		
+		
 		<div class="fadeHolder" :style="holderStyles">
 			<div class="disclaimers">
 				<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
@@ -31,6 +32,12 @@
 					The only safe way of filtering a message is when Twitch deletes it based on blocked terms before sending it to everyone. But as explained before, it's very limited :/
 				</ToggleBlock>
 			</div>
+
+			<ToggleBlock medium class="options" title="Options" :icons="['params']" :open="false">
+				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
+				<div class="permsTitle">Exclude users from automod rules:</div>
+				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
+			</ToggleBlock>
 	
 			<div class="testForm">
 				<div>Test rules:</div>
@@ -42,6 +49,7 @@
 						<li v-for="r in blockedBy">{{r.label}}</li>
 					</ul>
 				</div>
+				<div class="pass" v-else-if="testStr.length > 0">This message passes automod</div>
 			</div>
 	
 			<div class="holder">
@@ -54,7 +62,8 @@
 					:title="f.label.length > 0? f.label : 'New rule'"
 					:open="keywordToOpen[f.id]">
 						<template #actions>
-							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click="deleteRule(f)" />
+							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear data-tooltip="Enable/Disable rule" />
+							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
 						<ParamItem class="item sync" :paramData="param_keywordsSync[f.id]" v-model="f.serverSync" data-tooltip="If the rule contains personnal information<br>you can choose not to save it on server.<br>You'll loose it if you clean your cookies." />
 						<ParamItem class="item ruleName" :paramData="param_keywordsLabel[f.id]" v-model="f.label" />
@@ -77,6 +86,8 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
+import ToggleButton from '../../ToggleButton.vue';
 
 @Options({
 	props:{},
@@ -84,12 +95,15 @@ import ToggleBlock from '../../ToggleBlock.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
+		ToggleButton,
+		PermissionsForm,
 	}
 })
 export default class ParamsAutomod extends Vue {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
 	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_banUserNames:ParameterData = {type:"toggle", label:"Ban users whose names match a mod rule", value:false};
 	public param_keywordsLabel:{[key:string]:ParameterData} = {};
 	public param_keywordsRegex:{[key:string]:ParameterData} = {};
 	public param_keywordsSync:{[key:string]:ParameterData} = {};
@@ -138,6 +152,7 @@ export default class ParamsAutomod extends Vue {
 	public beforeMount():void {
 		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.store.state.automodParams)));
 		this.param_enabled.value = this.automodData.enabled;
+		this.param_banUserNames.value = this.automodData.banUserNames;
 		this.automodData.keywordsFilters.forEach(v=> {
 			this.initRule(v);
 		});
@@ -159,6 +174,7 @@ export default class ParamsAutomod extends Vue {
 			id:crypto.randomUUID(),
 			label:"",
 			regex:"",
+			enabled:true,
 			serverSync:true,
 		};
 		this.automodData.keywordsFilters.push(item);
@@ -253,6 +269,17 @@ export default class ParamsAutomod extends Vue {
 		border-radius: .5em;
 		background-color: fade(@mainColor_normal, 10%);
 	}
+
+	.options{
+		margin-top: 1.5em;
+		.permsTitle {
+			margin-top: 1em;
+			margin-bottom: .5em;
+		}
+		.perms {
+			width: 80%;
+		}
+	}
 	
 	.testForm {
 		display: flex;
@@ -278,6 +305,18 @@ export default class ParamsAutomod extends Vue {
 			border-bottom-left-radius: .5em;
 			border-bottom-right-radius: .5em;
 			word-wrap: break-word;
+			font-size: .8em;
+		}
+
+		.pass {
+			margin:auto;
+			margin-top: .5em;
+			padding: .25em .5em;
+			width: calc(100% - .75em);
+			color: @mainColor_light;
+			background-color: @mainColor_highlight;
+			border-radius: .5em;
+			text-align: center;
 			font-size: .8em;
 		}
 
@@ -338,9 +377,15 @@ export default class ParamsAutomod extends Vue {
 					&:not(:last-child) {
 						margin-bottom: .5em;
 					}
+
+					&:deep(h2) {
+						margin-left: calc(2em + 20px + .5em);
+					}
+
 					.deleteBt {
 						border-radius: 0;
 						height: 100%;
+						margin-left: .5em;
 					}
 					
 	

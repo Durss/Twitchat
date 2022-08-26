@@ -696,6 +696,12 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/delete") {
+			//Secret feature
+			IRCClient.instance.deleteMessage(params[0]);
+			this.message = "";
+		}else
+		
 		if(cmd == "/raw") {
 			//Secret feature
 			console.log(params.join(""));

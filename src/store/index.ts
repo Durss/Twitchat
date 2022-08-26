@@ -513,7 +513,16 @@ const store = createStore({
 
 		automodParams: {
 			enabled:false,
+			banUserNames:false,
 			keywordsFilters:[],
+			exludedUsers:{
+				broadcaster:true,
+				mods:true,
+				vips:true,
+				subs:false,
+				all:false,
+				users:""
+			},
 		} as AutomodParamsData,
 	},
 
@@ -1871,18 +1880,20 @@ const store = createStore({
 				const type = getTwitchatMessageType(event.data as IRCEventData);
 
 				if(type == TwitchatMessageType.MESSAGE) {
-					if(state.automodParams.enabled) {
-						const messageData = event.data as IRCEventDataList.Message;
+					const messageData = event.data as IRCEventDataList.Message;
+					if(state.automodParams.enabled && !Utils.checkPermissions(state.automodParams.exludedUsers, messageData.tags)) {
 						const rules = state.automodParams.keywordsFilters;
 						const mess = messageData.message;
 						for (let i = 0; i < rules.length; i++) {
 							const r = rules[i];
+							if(!r.enabled) continue;
 							let reg!:RegExp, valid=true;
 							try{ reg = new RegExp(r.regex, "gi"); }
 							catch(e){ valid = false; }
 							if(valid && reg.test(mess)) {
 								messageData.ttAutomod = r;
-								IRCClient.instance.deleteMessage(messageData.tags.id as string);
+								let id = messageData.tags.id as string;
+								IRCClient.instance.deleteMessage(id);
 								return;
 							}
 						}
@@ -2100,6 +2111,27 @@ const store = createStore({
 					}
 					message += " joined the chat room";
 					IRCClient.instance.sendNotice("online", message, data.channel);
+				}
+
+				if(state.automodParams.enabled === true
+				&& state.automodParams.banUserNames === true)
+				for (let i = 0; i < users.length; i++) {
+					const username = users[i];
+					const rules = state.automodParams.keywordsFilters;
+					for (let i = 0; i < rules.length; i++) {
+						const r = rules[i];
+						if(!r.enabled) continue;
+						if(state.automodParams.enabled
+						&& !Utils.checkPermissions(state.automodParams.exludedUsers, {username})) {
+							let reg!:RegExp, valid=true;
+							try{ reg = new RegExp(r.regex, "gi"); }
+							catch(e){ valid = false; }
+							if(valid && reg.test(username)) {
+								IRCClient.instance.sendMessage(`/ban ${username}`);
+								return;
+							}
+						}
+					}
 				}
 
 				//If non followers highlight option is enabled, get follow state of

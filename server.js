@@ -1173,6 +1173,7 @@ const UserDataSchema = {
 						id: {type:"string", maxLength:36},
 						label: {type:"string", maxLength:100},
 						regex: {type:"string", maxLength:5000},
+						enabled: {type:"boolean"},
 						serverSync: {type:"boolean"},
 					}
 				},

@@ -468,11 +468,14 @@ export interface VoicemodTriggerData {
 
 export interface AutomodParamsData {
 	enabled:boolean;
-	keywordsFilters:AutomodParamsKeywordFilterData[]
+	banUserNames:boolean;
+	keywordsFilters:AutomodParamsKeywordFilterData[];
+	exludedUsers:PermissionsData;
 }
 
 export interface AutomodParamsKeywordFilterData {
 	id:string;
+	enabled:boolean;
 	label:string;
 	regex:string;
 	serverSync:boolean;

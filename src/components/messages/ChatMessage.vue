@@ -47,8 +47,7 @@
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" :canDelete="messageData.type != 'whisper'" />
 
-			<!-- <span v-if="messageData.type == 'whisper'" class="whisperlabel">whisper</span> -->
-			<ChatMessageInfos :infos="infoBadges" />
+			<ChatMessageInfos class="infoBadges" :infos="infoBadges" />
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 
@@ -749,6 +748,10 @@ export default class ChatMessage extends Vue {
 		.mod {
 			display: inline;
 			margin-right: 5px;
+		}
+
+		.infoBadges {
+			margin-left: .25em;
 		}
 
 		.badge {
