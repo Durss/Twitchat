@@ -181,7 +181,6 @@ export default class EmergencyFollowsListModal extends Vue {
 						}
 						.name {
 							max-width: 160px;
-							font-weight: bold;
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
