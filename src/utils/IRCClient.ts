@@ -40,6 +40,7 @@ export default class IRCClient extends EventDispatcher {
 	private partSpool:string[] = [];
 	private greetHistory:{d:number,uid:string}[] = [];
 	private blockedUsers:{[key:string]:boolean} = {};
+	private queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[]=[]
 	private joinSpoolTimeout = -1;
 	private partSpoolTimeout = -1;
 	private refreshingToken = false;
@@ -353,6 +354,17 @@ export default class IRCClient extends EventDispatcher {
 					case "USERSTATE": {
 						StoreProxy.store.dispatch("setUserState", data as tmi.UserNoticeState);
 						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
+						if((data as tmi.UserNoticeState).tags.id && this.queuedMessages.length > 0) {
+							const m = this.queuedMessages.shift();
+							console.log(this.queuedMessages.length+" messages pending");
+							if(m) {
+								console.log("POP message", m.message);
+								console.log("Set ID:", (data as tmi.UserNoticeState).tags.id);
+								(m.tags as tmi.ChatUserstate).id = (data as tmi.UserNoticeState).tags.id;
+								(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
+								this.addMessage(m.message, m.tags as tmi.ChatUserstate, m.self, undefined, m.channel);
+							}
+						}
 						break;
 					}
 
@@ -383,7 +395,12 @@ export default class IRCClient extends EventDispatcher {
 				if(tags["custom-reward-id"]) return;
 
 				if(tags["message-type"] == "chat" || tags["message-type"] == "action") {
-					this.addMessage(message, tags, self, undefined, channel);
+					tags = JSON.parse(JSON.stringify(tags));
+					if(!tags.id) {
+						this.queuedMessages.push({message, tags, self, channel});
+					}else{
+						this.addMessage(message, tags, self, undefined, channel);
+					}
 				}
 			});
 	
@@ -416,7 +433,7 @@ export default class IRCClient extends EventDispatcher {
 		}
 	}
 
-	public sendMessage(message:string):Promise<unknown> {
+	public async sendMessage(message:string):Promise<unknown> {
 		if(!this.connected) return Promise.resolve();
 
 		if(message == "/disconnect") {
@@ -440,11 +457,12 @@ export default class IRCClient extends EventDispatcher {
 				tags.username = this.login;
 				tags["display-name"] = this.login;
 				tags["user-id"] = UserSession.instance.authToken.user_id;
-				tags.id = this.getFakeGuid();
+				tags.id = this.getFakeGuid(1);
 				this.addMessage(message, tags, true, undefined, this.channel);
 			}
 			
-			return this.client.say(this.login, message);
+			const res = await this.client.say(this.login, message);
+			return res;
 		}
 	}
 
@@ -516,7 +534,6 @@ export default class IRCClient extends EventDispatcher {
 			if(!this.selfTags) this.selfTags = JSON.parse(JSON.stringify(tags));
 			//Darn TMI doesn't send back the user ID when message is sent from this client
 			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
-			tags.id = this.getFakeGuid();
 		}
 
 		//Create message structure
@@ -530,8 +547,7 @@ export default class IRCClient extends EventDispatcher {
 												automod
 											};
 
-		//For some (stupid) reason, twitch does not send these
-		//data for the broadcaster's messages...
+		//as TMI only send us back a fake message, some data are missing
 		if(!tags.id) tags.id = this.getFakeGuid();
 		if(!tags["tmi-sent-ts"]) tags["tmi-sent-ts"] = Date.now().toString();
 		
@@ -680,10 +696,10 @@ export default class IRCClient extends EventDispatcher {
 		}
 	}
 
-	public getFakeGuid():string {
+	public getFakeGuid(offset:number = 0):string {
 		let suffix = (this.increment++).toString(16);
 		while(suffix.length < 12) suffix = "0" + suffix;
-		return "00000000-0000-0000-0000-"+suffix;
+		return "0000000"+offset+"-0000-0000-0000-"+suffix;
 	}
 
 	public getFakeTags():tmi.ChatUserstate {
