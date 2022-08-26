@@ -19,7 +19,7 @@
 								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.unblocked" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
 							</div>
 							<div class="ctas">
-								<Button class="cardBt" small data-tooltip="Open viewer card" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
+								<Button class="cardBt" small data-tooltip="Open viewer details" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
 								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.banned !== true" highlight :icon="$image('icons/ban.svg')" />
 								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.banned === true" :icon="$image('icons/unban.svg')" />
 								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.unblocked" highlight :icon="$image('icons/block.svg')" />

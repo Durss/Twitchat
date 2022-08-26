@@ -47,7 +47,7 @@
 
 				<div class="list" v-if="!errorFollowings && !loadingFollowings" ref="list">
 					<div v-for="u in followings" class="user">
-						<a :href="'https://twitch.tv/'+u.to_name" target="_blank" class="login">{{u.to_name}}</a>
+						<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
 						<div class="date">{{u.followed_at}}</div>
 					</div>
 				</div>
