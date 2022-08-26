@@ -1172,6 +1172,19 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				enabled: {type:"boolean"},
+				banUserNames: {type:"boolean"},
+				exludedUsers: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						broadcaster: {type:"boolean"},
+						mods: {type:"boolean"},
+						vips: {type:"boolean"},
+						subs: {type:"boolean"},
+						all: {type:"boolean"},
+						users: {type:"string", maxLength:1000},
+					}
+				},
 				keywordsFilters:{
 					type:"object",
 					additionalProperties: false,
