@@ -186,13 +186,13 @@ export default class Confirm extends Vue {
 		.center();
 		position: absolute;
 		background-color: @mainColor_light_extralight;
-		padding: 30px;
+		padding: 1em;
 		width: 400px;
 		box-sizing: border-box;
-		border-radius: 20px;
+		border-radius: 1em;
 
 		.title {
-			font-size: 45px;
+			font-size: 2em;
 			text-align: center;
 		}
 
@@ -201,8 +201,8 @@ export default class Confirm extends Vue {
 		}
 
 		.description {
-			font-size: 24px;
-			margin-top: 20px;
+			font-size: 1.2em;
+			margin-top: 1em;
 			:deep(strong) {
 				color: @mainColor_warn;
 				font-weight: bold;

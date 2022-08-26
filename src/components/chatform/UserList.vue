@@ -1,32 +1,40 @@
 <template>
 	<div class="userlist">
 		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users <i>({{users.length}})</i></h1>
+		<a @click="toggleInfos()" class="infoBt">Why is the chat users count different from the viewer count?</a>
+		<div v-if="showInfo" class="infos" ref="infos">
+			<p>Chat user count shows people actually connected on your chat, viewers count tells how many viewers are watching you.</p>
+			<p>It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat or in audio-only on mobile)</i></p>
+			<p>Also, nothing's official, but it's almost certain that Twitch removes you from the viewer count if you keep the stream on a background tab for some time while keeping you connected on the chat so you keep receiving messages.</p>
+			<p>This usually makes your chatters count go higher than your viewers count after a raid.</p>
+			<p>When on homepage though, your viewer count will be MUCH higher than your chatters count.</p>
+		</div>
 		
 		<div class="users broadcaster" v-if="broadcaster.length > 0">
 			<div class="title">Broadcaster <i>({{broadcaster.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users mods" v-if="mods.length > 0">
 			<div class="title">Moderators <i>({{mods.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users vips" v-if="vips.length > 0">
 			<div class="title">VIPs <i>({{vips.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 
 		<div class="users simple" v-if="simple.length > 0">
 			<div class="title">Users <i>({{simple.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 	</div>
@@ -48,6 +56,7 @@ import { Options, Vue } from 'vue-class-component';
 export default class UserList extends Vue {
 
 	public users:UserItem[] = [];
+	public showInfo:boolean = false;
 
 	public get broadcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
 
@@ -78,6 +87,27 @@ export default class UserList extends Vue {
 
 	public beforeUnmount():void {
 		document.removeEventListener("mousedown", this.clickHandler);
+	}
+
+	public async toggleInfos():Promise<void> {
+		if(this.showInfo) {
+			const holder = this.$refs.infos as HTMLDivElement;
+			gsap.to(holder, {duration:.5, height:0, minHeight:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut", onComplete:()=>{this.showInfo = false;}});
+		}else{
+			this.showInfo = true;
+			await this.$nextTick();
+			const holder = this.$refs.infos as HTMLDivElement;
+			const bounds = holder.getBoundingClientRect();
+			holder.style.overflow = "hidden";
+			holder.style.height = bounds.height+"px";
+			holder.style.minHeight = bounds.height+"px";
+			console.log(bounds);
+			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
+		}
+	}
+
+	public openUserCard(username:string):void {
+		StoreProxy.store.dispatch("openUserCard", username);
 	}
 
 	private open():void {
@@ -165,6 +195,27 @@ interface UserItem {
 		img {
 			height: 1em;
 			vertical-align: middle;
+		}
+	}
+
+	.infoBt {
+		margin: auto;
+		font-style: italic;
+	}
+
+	.infos {
+		color:@mainColor_light;
+		background-color: @mainColor_dark_light;
+		padding: 1em;
+		margin: auto;
+		margin-top: 1em;
+		border-radius: .5em;
+		max-width: 500px;
+		p:not(:last-of-type) {
+			margin-bottom: .5em;
+		}
+		p:first-letter {
+			margin-left: .5em;
 		}
 	}
 

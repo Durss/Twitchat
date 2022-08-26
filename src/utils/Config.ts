@@ -58,8 +58,8 @@ export default class Config {
 	 * PubSub events from
 	 */
 	public get debugChans():string[] {
-		return ["guile", "andythefrenchy"];
-		// return ["inforea", "zulzorander", "alisa", "solivann", "clara_doxal"];
+		// return ["guile", "gunselsenol"];
+		return [];
 	}
 
 	public get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {

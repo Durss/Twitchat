@@ -47,7 +47,7 @@
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" :canDelete="messageData.type != 'whisper'" />
 
-			<span v-if="messageData.type == 'whisper'" class="whisperlabel">whisper</span>
+			<ChatMessageInfos class="infoBadges" :infos="infoBadges" />
 			
 			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 
@@ -105,6 +105,7 @@
 </template>
 
 <script lang="ts">
+import type { ChatMessageInfoData } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -122,11 +123,13 @@ import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from './ChatModTools.vue';
+import ChatMessageInfos from './ChatMessageInfos.vue';
 
 @Options({
 	components:{
 		Button,
 		ChatModTools,
+		ChatMessageInfos,
 	},
 	props:{
 		messageData:Object,
@@ -150,6 +153,7 @@ export default class ChatMessage extends Vue {
 	public badges:TwitchDataTypes.Badge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
+	public infoBadges:ChatMessageInfoData[] = [];
 
 	public get pronoun():string|null {
 		const key = StoreProxy.store.state.userPronouns[this.messageData.tags['user-id'] as string];
@@ -403,7 +407,6 @@ export default class ChatMessage extends Vue {
 	 * Open a users' card
 	 */
 	public openUserCard():void {
-		if(this.lightMode) return;
 		const message = this.messageData as IRCEventDataList.Message;
 		StoreProxy.store.dispatch("openUserCard", message.tags.username);
 	}
@@ -445,6 +448,16 @@ export default class ChatMessage extends Vue {
 		
 		/* eslint-disable-next-line */
 		this.firstTime = mess.tags['first-msg'] === true && !this.isPresentation;
+
+		//Add twitchat's automod badge
+		if(mess.ttAutomod) {
+			this.infoBadges.push({type:"automod", tooltip:"<strong>Rule:</strong> "+mess.ttAutomod.label});
+		}
+
+		//Add whisper badge
+		if(this.messageData.type == 'whisper') {
+			this.infoBadges.push({type:"whisper"});
+		}
 
 		//Manage automod content
 		if(!this.lightMode && mess.automod) {
@@ -737,6 +750,10 @@ export default class ChatMessage extends Vue {
 			margin-right: 5px;
 		}
 
+		.infoBadges {
+			margin-left: .25em;
+		}
+
 		.badge {
 			width: 1em;
 			height: 1em;
@@ -973,17 +990,6 @@ export default class ChatMessage extends Vue {
 		// border: 1px dashed @mainColor_light;
 		border-radius: .5em;
 		font-style: italic;
-		.infos {
-			.whisperlabel {
-				font-size: .9em;
-				border-radius: 3px;
-				color: @mainColor_dark;
-				background-color: @mainColor_light;
-				padding: 0 .3em;
-				margin-right: 5px;
-				vertical-align: middle;
-			}
-		}
 	}
 
 	&.lowTrust {

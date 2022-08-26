@@ -14,6 +14,9 @@ export namespace PubSubDataTypes {
 		display_name: string;
 		username: string;
 		user_id:string;
+		//Custom data added
+		message?:unknown;//actual type is "IRCEventDataList.Highlight" but it's set as unknown to avoid circular imports
+		follow_date?:number;
 	}
 
 	export interface PlaybackInfo {

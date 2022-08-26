@@ -185,20 +185,24 @@ export default class ParamItem extends Vue {
 				this.paramData.value = value;
 			}
 		});
+		
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
 				StoreProxy.store.dispatch('updateParams');
 			}
-			this.$emit("change");
 			this.$emit("update:modelValue", this.paramData.value);
+			this.$emit("change");
 			this.buildChildren();
 		});
+		
 		watch(() => this.paramData.children, () => {
 			this.buildChildren();
 		});
+		
 		watch(() => this.file, () => {
 			console.log(this.file);
 		});
+		
 		this.buildChildren();
 		
 		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
@@ -288,6 +292,7 @@ export default class ParamItem extends Vue {
 				flex-grow: 1;
 				display: flex;
 				flex-direction: column;
+				align-items: flex-start;
 			}
 		}
 	}

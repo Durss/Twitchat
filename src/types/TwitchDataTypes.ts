@@ -289,6 +289,7 @@ export namespace TwitchDataTypes {
 		from_name: string;
 		to_id: string;
 		to_name: string;
+		to_login: string;
 		followed_at: string;
 	}
 

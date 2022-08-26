@@ -1,18 +1,19 @@
 <template>
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
-		<img src="@/assets/icons/ban.svg" alt="ban" data-tooltip="Ban" @click.stop="ban()">
+		<img src="@/assets/icons/ban.svg" alt="ban" data-tooltip="Ban" @click.stop="banUser()">
 		<img src="@/assets/icons/timeout.svg" alt="timeout"
 		@click.stop="openToOptions()"
 		data-tooltip="Timeout">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
-			<Button  aria-label="Timeout for 10 seconds" @click.stop="timeout(10)" title="10s" small />
-			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeout(120)" title="2m" small />
-			<Button  aria-label="Timeout for 30 minutes" @click.stop="timeout(1800)" title="30m" small />
-			<Button  aria-label="Timeout for 1 hour" @click.stop="timeout(3600)" title="1h" small />
-			<Button  aria-label="Timeout for 12 hours" @click.stop="timeout(3600*12)" title="12h" small />
-			<Button  aria-label="Timeout for 1 week" @click.stop="timeout(3600*24*7)" title="1w" small />
+			<Button  aria-label="Timeout for 10 seconds" @click.stop="timeoutUser(10)" title="10s" small />
+			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeoutUser(120)" title="2m" small />
+			<Button  aria-label="Timeout for 30 minutes" @click.stop="timeoutUser(1800)" title="30m" small />
+			<Button  aria-label="Timeout for 1 hour" @click.stop="timeoutUser(3600)" title="1h" small />
+			<Button  aria-label="Timeout for 12 hours" @click.stop="timeoutUser(3600*12)" title="12h" small />
+			<Button  aria-label="Timeout for 1 week" @click.stop="timeoutUser(3600*24*7)" title="1w" small />
 		</div>
 		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()" v-if="canDelete">
+		<img src="@/assets/icons/block.svg" alt="trash" data-tooltip="Block" @click.stop="blockUser()" v-if="canBlock !== false">
 	</div>
 </template>
 
@@ -27,6 +28,10 @@ import Button from '../Button.vue';
 	props:{
 		messageData:Object,
 		canDelete:Boolean,
+		canBlock:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
@@ -36,23 +41,32 @@ import Button from '../Button.vue';
 export default class ChatModTools extends Vue {
 	
 	public canDelete!:boolean;
+	public canBlock!:boolean;
 
 	public messageData!:IRCEventDataList.Message;
 	public showToOptions = false;
 
 	private closeTimeout = 0;
 
-	public ban():void {
-		this.$confirm("Ban "+this.messageData.tags['display-name'], "Are you sure you want to ban this user ?")
+	public banUser():void {
+		this.$confirm("Ban "+(this.messageData.tags['display-name'] ?? this.messageData.tags.username), "Are you sure you want to ban this user ?")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			IRCClient.instance.sendMessage(`/ban ${this.messageData.tags['display-name']}`);
+			IRCClient.instance.sendMessage(`/ban ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])}`);
 		})
 	}
 
-	public timeout(duration:number):void {
+	public blockUser():void {
+		this.$confirm("Block "+(this.messageData.tags['display-name'] ?? this.messageData.tags.username), "Are you sure you want to block this user ?<br>She/He will be removed from your followers.")
+		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-		IRCClient.instance.sendMessage(`/timeout ${this.messageData.tags['display-name']} ${duration}`);
+			IRCClient.instance.sendMessage(`/block ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])}`);
+		})
+	}
+
+	public timeoutUser(duration:number):void {
+		this.$emit('deleteUser', this.messageData);
+		IRCClient.instance.sendMessage(`/timeout ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])} ${duration}`);
 	}
 
 	public deleteMessage():void {
@@ -108,7 +122,12 @@ export default class ChatModTools extends Vue {
 		flex-direction: row;
 		bottom: 0;
 		.button {
+			.clearButton();
+			padding: 0 .2em;
 			margin-right: 1px;
+			:deep(.label) {
+				margin-left: 0;
+			}
 		}
 	}
 }

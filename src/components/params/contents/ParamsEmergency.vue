@@ -10,8 +10,8 @@
 			<section>
 				<Splitter class="item splitter">Chat command</Splitter>
 				<div class="item label">Allow your mods to trigger the emergency mode from a chat command</div>
-				<div>
-					<ParamItem class="item" :paramData="param_chatCommand" />
+				<div class="item">
+					<ParamItem :paramData="param_chatCommand" />
 					<ToggleBlock title="Allowed users" :open="false" small class="item">
 						<PermissionsForm v-model="chatCommandPerms" />
 					</ToggleBlock>
@@ -25,7 +25,8 @@
 
 			<section>
 				<Splitter class="item splitter">Followbot raid</Splitter>
-				<div class="item label">If you enable this, any new follower occuring during an emergency will be removed right away from your followers<i>(with a <mark>/block</mark> command)</i></div>
+				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
+				<div class="item label intro">If enabled, the following feature removes any follower occuring during an emergency<br><i>(with a <mark>/block</mark> command)</i></div>
 				<ParamItem class="item" :paramData="param_autoBlockFollowing" />
 				<div class="item infos">
 					<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
@@ -111,6 +112,7 @@ export default class ParamsEmergency extends Vue {
 	public param_slowModeDuration:ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
 	public param_autoBlockFollowing:ParameterData = { type:"toggle", value:false, label:"Block follows", icon:"unfollow_purple.svg"};
 	public param_autoUnblockFollowing:ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg", tooltip:"Enable this if you just want<br>to remove users's follow<br>without restricting her/him<br>access to your channel"};
+	public param_autoEnableOnFollowbot:ParameterData = { type:"toggle", value:false, label:"Automatically start emergency mode on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
 	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:ParameterDataListValue|null = null;
@@ -166,6 +168,7 @@ export default class ParamsEmergency extends Vue {
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
 			autoBlockFollows:this.param_autoBlockFollowing.value === true,
 			autoUnblockFollows:this.param_autoUnblockFollowing.value === true,
+			autoEnableOnFollowbot:this.param_autoEnableOnFollowbot.value === true,
 		};
 	}
 
@@ -201,6 +204,9 @@ export default class ParamsEmergency extends Vue {
 		}
 		if(StoreProxy.store.state.emergencyParams.autoUnblockFollows != undefined) {
 			this.param_autoUnblockFollowing.value = StoreProxy.store.state.emergencyParams.autoUnblockFollows;
+		}
+		if(StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot != undefined) {
+			this.param_autoEnableOnFollowbot.value = StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot;
 		}
 
 		await this.listOBSScenes();
@@ -303,6 +309,7 @@ export default class ParamsEmergency extends Vue {
 		margin-bottom: .5em;
 		&.small {
 			font-size: .8em;
+			margin-bottom: 0;
 			.btExample {
 				height: 1.25em;
 				padding: .25em;
@@ -314,14 +321,17 @@ export default class ParamsEmergency extends Vue {
 	}
 
 	.enableBt {
-		max-width: 200px;
+		width: min-content;
 		margin: auto;
 		margin-top: 1.5em;
-		margin-bottom: 2em;
+		margin-bottom: 1.5em;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
+		:deep(label) {
+			white-space: nowrap;
+		}
 	}
 
 	.fadeHolder {
@@ -376,6 +386,10 @@ export default class ParamsEmergency extends Vue {
 						display: inline;
 					}
 				}
+
+				&.intro {
+					margin-top: 1em;
+				}
 				
 				&.infos {
 					font-size: .8em;
@@ -395,9 +409,8 @@ export default class ParamsEmergency extends Vue {
 	}
 
 	.sourceSelector {
-		background-color: @mainColor_light;
 		:deep(.vs__selected) {
-			color: @mainColor_light;
+			color: @mainColor_light !important;
 			background-color: @mainColor_normal;
 			border: none;
 			svg {

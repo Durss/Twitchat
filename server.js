@@ -153,6 +153,7 @@ http.createServer((request, response) => {
 					&& request.url.toLowerCase().indexOf("deezer") == -1
 					&& request.url.toLowerCase().indexOf("sponsor") == -1
 					&& request.url.toLowerCase().indexOf("home") == -1
+					&& request.url.toLowerCase().indexOf("voice") == -1
 					&& request.url.toLowerCase().indexOf("logout") == -1
 					&& request.url.toLowerCase().indexOf("login") == -1) {
 						Logger.warn("Error serving " + request.headers.host+request.url + " - " + err.message);
@@ -610,7 +611,13 @@ async function getUserFromToken(token) {
 		method: "GET",
 		headers: { "Authorization": token },
 	};
-	const result = await fetch("https://id.twitch.tv/oauth2/validate", options);
+
+	let result;
+	try {
+		result = await fetch("https://id.twitch.tv/oauth2/validate", options);
+	}catch(error) {
+		return null;
+	}
 	
 	if(result.status == 200) {
 		return await result.json();
@@ -1052,6 +1059,7 @@ const UserDataSchema = {
 				},
 				autoBlockFollows:{type:"boolean"},
 				autoUnblockFollows:{type:"boolean"},
+				autoEnableOnFollowbot:{type:"boolean"},
 			}
 		},
 		emergencyFollowers: {
@@ -1154,6 +1162,25 @@ const UserDataSchema = {
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000},
+					}
+				},
+			}
+		},
+
+		automodParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				keywordsFilters:{
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						id: {type:"string", maxLength:36},
+						label: {type:"string", maxLength:100},
+						regex: {type:"string", maxLength:5000},
+						enabled: {type:"boolean"},
+						serverSync: {type:"boolean"},
 					}
 				},
 			}

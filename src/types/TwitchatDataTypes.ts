@@ -19,6 +19,7 @@ export const ParamsContentType = {
 	ALERT: "alert",
 	TTS: "tts",
 	VOICE: "voice",
+	AUTOMOD: "autmod",
 	VOICEMOD: "voicemod",
 } as const;
 export type ParamsContentStringType = typeof ParamsContentType[keyof typeof ParamsContentType]|null;
@@ -162,6 +163,19 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	confirmMessage:string;
 	playlist:string;
 }
+
+export const ChatMessageInfoDataType = {
+	AUTOMOD: "automod",
+	WHISPER: "whisper",
+	EMERGENCY_BLOCKED: "emergencyBlocked",
+} as const;
+export type ChatMessageInfoDataStringType = typeof ChatMessageInfoDataType[keyof typeof ChatMessageInfoDataType];
+export interface ChatMessageInfoData {
+	type:ChatMessageInfoDataStringType;
+	label?:string;
+	tooltip?:string;
+}
+
 
 export interface ParameterDataListValue {
 	label:string;
@@ -363,6 +377,7 @@ export interface EmergencyParamsData {
 	noTriggers:boolean;
 	autoBlockFollows:boolean;
 	autoUnblockFollows:boolean;
+	autoEnableOnFollowbot:boolean;
 	followOnlyDuration:number;
 	slowModeDuration:number;
 	toUsers:string;
@@ -449,6 +464,21 @@ export interface VoicemodParamsData {
 export interface VoicemodTriggerData {
 	type:"voicemod";
 	voiceID?:string;
+}
+
+export interface AutomodParamsData {
+	enabled:boolean;
+	banUserNames:boolean;
+	keywordsFilters:AutomodParamsKeywordFilterData[];
+	exludedUsers:PermissionsData;
+}
+
+export interface AutomodParamsKeywordFilterData {
+	id:string;
+	enabled:boolean;
+	label:string;
+	regex:string;
+	serverSync:boolean;
 }
 
 export interface ShoutoutTriggerData {

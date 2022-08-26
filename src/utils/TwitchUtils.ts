@@ -773,7 +773,7 @@ export default class TwitchUtils {
 	/**
 	 * Gets if the specified user is following the channel
 	 * 
-	 * @param uid user ID list
+	 * @param uid user ID
 	 */
 	public static async getFollowState(uid:string, channelId?:string):Promise<boolean> {
 		if(!channelId) channelId = UserSession.instance.authToken.user_id;
@@ -790,7 +790,26 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets a followers' list
+	 * Gets if the following info of the specified user
+	 * 
+	 * @param uid user ID
+	 */
+	public static async getFollowInfo(uid:string, channelId?:string):Promise<TwitchDataTypes.Following|null> {
+		if(!channelId) channelId = UserSession.instance.authToken.user_id;
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?to_id="+channelId+"&from_id="+uid, {
+			method:"GET",
+			headers:this.headers,
+		});
+		const json:{error:string, data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+		if(json.error) {
+			throw(json.error);
+		}else{
+			return json.data[0];
+		}
+	}
+
+	/**
+	 * Gets a followers list
 	 * 
 	 * @param channelId channelId to get followers list
 	 */
@@ -815,6 +834,31 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets a followings list
+	 * 
+	 * @param channelId channelId to get followings list
+	 */
+	public static async getFollowings(channelId?:string|null, maxCount=-1):Promise<TwitchDataTypes.Following[]> {
+		if(!channelId) channelId = UserSession.instance.authToken.user_id;
+		let list:TwitchDataTypes.Following[] = [];
+		let cursor:string|null = null;
+		do {
+			const pCursor = cursor? "&after="+cursor : "";
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first=100&from_id="+channelId+pCursor, {
+				method:"GET",
+				headers:this.headers,
+			});
+			const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+			cursor = null;
+			if(json.pagination?.cursor) {
+				cursor = json.pagination.cursor;
+			}
+		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
+		return list;
+	}
+
+	/**
 	 * Gets a list of the current subscribers to the specified channel
 	 */
 	public static async getSubsList(channelId?:string):Promise<TwitchDataTypes.Subscriber[]> {
@@ -823,7 +867,7 @@ export default class TwitchUtils {
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+UserSession.instance.authToken.user_id+pCursor, {
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+channelId+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -835,6 +879,24 @@ export default class TwitchUtils {
 			}
 		}while(cursor != null)
 		return list;
+	}
+
+	/**
+	 * Gets the subscription state of a user to a channel
+	 */
+	public static async getSubscriptionState(userId:string, channelId?:string):Promise<TwitchDataTypes.Subscriber|null> {
+		if(!channelId) channelId = UserSession.instance.authToken.user_id;
+		const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions/user?broadcaster_id="+channelId+"&user_id="+userId, {
+			method:"GET",
+			headers:this.headers,
+		});
+		try {
+			const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
+			if(json.data?.length > 0) {
+				return json.data[0];
+			}
+		}catch(error) {}
+		return null;
 	}
 
 	/**

@@ -116,13 +116,6 @@ export default class TriggerActionHandler {
 					}
 					break;
 				}
-
-				case TwitchatMessageType.BITS: {
-					if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
-				}
 			}
 
 			if(message.tags["first-msg"] === true) {
@@ -265,28 +258,34 @@ export default class TriggerActionHandler {
 	}
 
 	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
 	
 	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		return await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
 	}
 	
 	private async handleReturningChatter(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		return await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, guid);
 	}
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
 	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
 	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
@@ -365,6 +364,7 @@ export default class TriggerActionHandler {
 	}
 	
 	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		const cmd = message.message.trim().split(" ")[0].toLowerCase();
 		return await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
 	}
@@ -602,6 +602,11 @@ export default class TriggerActionHandler {
 								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data as JsonObject);
 								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
 								if(step.confirmMessage) {
+									let m = message.message;
+									if(subEvent) {
+										m = m.replace(subEvent, "").trim();
+									}
+									data.message = m;
 									const chatMessage = await this.parseText(eventType, data, step.confirmMessage);
 									IRCClient.instance.sendMessage(chatMessage);
 								}

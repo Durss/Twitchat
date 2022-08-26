@@ -251,12 +251,15 @@ export default class ParamsOBS extends Vue {
 	}
 
 	.enableBt {
-		max-width: 200px;
-		margin: 2em auto;
+		width: min-content;
+		margin: 1.5em auto;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
+		:deep(label) {
+			white-space: nowrap;
+		}
 	}
 
 	.block:not(:first-of-type) {

@@ -19,7 +19,7 @@
 								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.unblocked" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
 							</div>
 							<div class="ctas">
-								<Button class="cardBt" small data-tooltip="Open viewer card" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
+								<Button class="cardBt" small data-tooltip="Open viewer details" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
 								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.banned !== true" highlight :icon="$image('icons/ban.svg')" />
 								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.banned === true" :icon="$image('icons/unban.svg')" />
 								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.unblocked" highlight :icon="$image('icons/block.svg')" />
@@ -30,7 +30,7 @@
 				</div>
 				<div class="ctas">
 					<Button @click="copyList()" title="Copy CSV list to clipboard" :icon="$image('icons/copy.svg')" />
-					<Button @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
+					<Button class="later" @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
 					<Button highlight @click="clearList()" title="Finish & clear list" :icon="$image('icons/checkmark_white.svg')" />
 				</div>
 			</div>
@@ -181,7 +181,6 @@ export default class EmergencyFollowsListModal extends Vue {
 						}
 						.name {
 							max-width: 160px;
-							font-weight: bold;
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
@@ -222,6 +221,13 @@ export default class EmergencyFollowsListModal extends Vue {
 				align-items: center;
 				.button:not(:first-child) {
 					margin-top: .5em;
+				}
+				.later {
+					background-color: @mainColor_warn;
+					&:hover {
+						background-color: @mainColor_warn_light;
+
+					}
 				}
 			}
 		}

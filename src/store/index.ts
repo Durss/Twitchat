@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
@@ -157,6 +157,11 @@ const store = createStore({
 				id:"search",
 				cmd:"/search {text}",
 				details:"Search for a message by its content",
+			},
+			{
+				id:"userinfo",
+				cmd:"/userinfo {user}",
+				details:"Opens a user's profile info",
 			},
 			{
 				id:"raffle",
@@ -435,6 +440,7 @@ const store = createStore({
 			},
 			autoBlockFollows:false,
 			autoUnblockFollows:false,
+			autoEnableOnFollowbot:true,
 		} as EmergencyParamsData,
 
 		//Stores all the people that followed during an emergency
@@ -504,6 +510,20 @@ const store = createStore({
 				users:""
 			},
 		} as VoicemodParamsData,
+
+		automodParams: {
+			enabled:false,
+			banUserNames:false,
+			keywordsFilters:[],
+			exludedUsers:{
+				broadcaster:true,
+				mods:true,
+				vips:true,
+				subs:false,
+				all:false,
+				users:""
+			},
+		} as AutomodParamsData,
 	},
 
 
@@ -1258,7 +1278,7 @@ const store = createStore({
 		setHypeTrain(state, data:HypeTrainStateData) {
 			state.hypeTrain = data;
 			if(data.state == "COMPLETED" && data.approached_at) {
-				const threshold = 60*1000;
+				const threshold = 5*60*1000;
 				const offset = data.approached_at;
 				const activities:ActivityFeedData[] = [];
 				for (let i = 0; i < state.activityFeed.length; i++) {
@@ -1742,6 +1762,11 @@ const store = createStore({
 			Store.set(Store.VOICEMOD_PARAMS, payload);
 		},
 		
+		setAutomodParams(state, payload:AutomodParamsData) {
+			state.automodParams = payload;
+			Store.set(Store.AUTOMOD_PARAMS, payload);
+		},
+		
 	},
 
 
@@ -1853,6 +1878,34 @@ const store = createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const type = getTwitchatMessageType(event.data as IRCEventData);
+
+				//Automod messages contents
+				if(type == TwitchatMessageType.MESSAGE) {
+					const messageData = event.data as IRCEventDataList.Message;
+					let rule = Utils.isAutomoded(messageData.message, messageData.tags);
+					if(rule) {
+						messageData.ttAutomod = rule;
+						let id = messageData.tags.id as string;
+						IRCClient.instance.deleteMessage(id);
+						return;
+					}
+				}else {
+					let username = "";
+					const messageData = event.data as IRCEventDataList.Highlight;
+					if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
+						username = messageData.username as string
+					}else if(type == TwitchatMessageType.BITS) {
+						username = messageData.tags.username as string;
+					}
+					if(username && messageData.message) {
+						let rule = Utils.isAutomoded(messageData.message, {username});
+						if(rule) {
+							messageData.ttAutomod = rule;
+							IRCClient.instance.sendMessage(`/ban ${username}`);
+							return;
+						}
+					}
+				}
 				
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
@@ -2065,6 +2118,15 @@ const store = createStore({
 					}
 					message += " joined the chat room";
 					IRCClient.instance.sendNotice("online", message, data.channel);
+				}
+
+				if(state.automodParams.enabled === true
+				&& state.automodParams.banUserNames === true)
+				for (let i = 0; i < users.length; i++) {
+					const username = users[i];
+					if(Utils.isAutomoded(username, {username})) {
+						IRCClient.instance.sendMessage(`/ban ${username}`);
+					}
 				}
 
 				//If non followers highlight option is enabled, get follow state of
@@ -2426,6 +2488,13 @@ const store = createStore({
 						VoicemodWebSocket.instance.connect();
 					}
 				}
+
+				//Init automod
+				const automodParams = Store.get(Store.AUTOMOD_PARAMS);
+				if(automodParams) {
+					Utils.mergeRemoteObject(JSON.parse(automodParams), (state.automodParams as unknown) as JsonObject);
+					this.dispatch("setAutomodParams", state.automodParams);
+				}
 			}
 			
 			//Initialise new toggle param for OBS connection.
@@ -2664,6 +2733,8 @@ const store = createStore({
 		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
 		
 		setVoicemodParams({commit}, payload:VoicemodParamsData) { commit("setVoicemodParams", payload); },
+		
+		setAutomodParams({commit}, payload:AutomodParamsData) { commit("setAutomodParams", payload); },
 	},
 	modules: {
 	}

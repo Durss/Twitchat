@@ -18,6 +18,7 @@
 				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent(contentFilters)" />
 				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
+				<Button class="beta1" bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentAutomod)" />
 				<Button class="beta2" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
 				<Button class="beta2" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
 				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
@@ -45,6 +46,7 @@
 				<ParamsTriggers v-if="content == contentTriggers" @setContent="setContent" />
 				<ParamsVoiceBot v-if="content == contentVoice" @setContent="setContent" />
 				<ParamsVoicemod v-if="content == contentVoicemod" @setContent="setContent" />
+				<ParamsAutomod v-if="content == contentAutomod" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
@@ -80,6 +82,7 @@ import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamItem from './ParamItem.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
+import ParamsAutomod from './contents/ParamsAutomod.vue';
 
 @Options({
 	props:{},
@@ -87,10 +90,12 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 		Button,
 		ParamItem,
 		ParamsOBS,
+		ParamsTTS,
 		ParamsList,
 		ParamsAbout,
 		ParamsAlert,
 		ToggleButton,
+		ParamsAutomod,
 		ParamsSpoiler,
 		ParamsAccount,
 		ParamsSponsor,
@@ -99,7 +104,6 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 		ParamsVoiceBot,
 		ParamsVoicemod,
 		ParamsEmergency,
-		ParamsTTS,
 		ParamsStreamdeck,
 	}
 })
@@ -129,6 +133,7 @@ export default class Parameters extends Vue {
 	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
 	public get contentTts():ParamsContentStringType { return ParamsContentType.TTS; } 
 	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
+	public get contentAutomod():ParamsContentStringType { return ParamsContentType.AUTOMOD; } 
 
 	/**
 	 * If true, will display a search field at the top of the view to

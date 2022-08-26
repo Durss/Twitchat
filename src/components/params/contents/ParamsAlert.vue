@@ -2,7 +2,7 @@
 	<div class="paramsalert">
 		<img src="@/assets/icons/alert_purple.svg" alt="emergency icon" class="icon">
 		
-		<p class="header">Let your mods alert you if something's urgent</p>
+		<div class="header">Let your mods alert you if something's urgent</div>
 
 		<Splitter class="item splitter">Chat command</Splitter>
 		
