@@ -2493,7 +2493,7 @@ const store = createStore({
 				const automodParams = Store.get(Store.AUTOMOD_PARAMS);
 				if(automodParams) {
 					Utils.mergeRemoteObject(JSON.parse(automodParams), (state.automodParams as unknown) as JsonObject);
-					this.dispatch("automodParams", state.automodParams);
+					this.dispatch("setAutomodParams", state.automodParams);
 				}
 			}
 			
