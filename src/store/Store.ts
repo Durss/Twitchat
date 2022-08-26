@@ -157,6 +157,7 @@ export default class Store {
 			};
 			const res = await fetch(Config.instance.API_PATH+"/user", {method:"GET", headers});
 			if(importToLS) {
+				console.log("Import to local storage...");
 				const backupAutomod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
 				//Import data to local storage.
 				const json = await res.json();
@@ -167,17 +168,19 @@ export default class Store {
 						this.store.setItem(this.dataPrefix + key, str);
 					}
 					
-					//Make sure we don't loose unsynced automod rules
-					//(should think of a generic way of doing this..)
-					const automod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
-					for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
-						const el = backupAutomod.keywordsFilters[i];
-						if(!el.serverSync) {
-							console.log("Insert", el);
-							automod.keywordsFilters.splice(i, 0, el);
+					if(backupAutomod) {
+						//Make sure we don't loose unsynced automod rules
+						//(should think of a generic way of doing this..)
+						const automod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
+						for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
+							const el = backupAutomod.keywordsFilters[i];
+							if(!el.serverSync) {
+								console.log("Insert", el);
+								automod.keywordsFilters.splice(i, 0, el);
+							}
 						}
+						this.set(Store.AUTOMOD_PARAMS, automod);
 					}
-					this.set(Store.AUTOMOD_PARAMS, automod);
 
 					this.rawStore = json.data;
 					this.dataImported = true;
@@ -186,6 +189,8 @@ export default class Store {
 			}
 			return res.status != 404;
 		}catch(error) {
+			console.error("Remote data loading failed !");
+			console.log(error);
 			return false;
 		}
 	}
@@ -225,10 +230,12 @@ export default class Store {
 				
 				//Remove automod items the user asked not to sync to server
 				const automod = data.automodParams as AutomodParamsData;
-				for (let i = 0; i < automod.keywordsFilters.length; i++) {
-					if(!automod.keywordsFilters[i].serverSync) {
-						automod.keywordsFilters.splice(i,1);
-						i--;
+				if(automod) {
+					for (let i = 0; i < automod.keywordsFilters.length; i++) {
+						if(!automod.keywordsFilters[i].serverSync) {
+							automod.keywordsFilters.splice(i,1);
+							i--;
+						}
 					}
 				}
 	
