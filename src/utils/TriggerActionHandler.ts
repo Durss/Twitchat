@@ -710,7 +710,7 @@ export default class TriggerActionHandler {
 				}
 			}
 
-			if(h.tag === "MESSAGE") {
+			if(h.tag === "MESSAGE" && (message as IRCEventDataList.Message).tags?.['emotes-raw']) {
 				const m = message as IRCEventDataList.Message;
 				if(m.message && m.tags) {
 					//Parse emotes
