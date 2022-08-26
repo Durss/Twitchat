@@ -1,7 +1,6 @@
 <template>
 	<div :class="classes">
 		<router-view />
-		<UserCard />
 		<Confirm />
 		<Alert />
 		<Tooltip />
@@ -9,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import UserCard from '@/components/user/UserCard.vue';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import StoreProxy from './utils/StoreProxy';
@@ -23,7 +21,6 @@ import Tooltip from "./views/Tooltip.vue";
 		Alert,
 		Confirm,
 		Tooltip,
-		UserCard,
 	}
 })
 export default class App extends Vue {

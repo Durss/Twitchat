@@ -276,16 +276,6 @@ export default class StreamInfoForm extends Vue {
 			margin-right: .25em;
 		}
 
-		&:after {
-			content: "";
-			background-image: url("../../assets/icons/trash.svg");
-			width: 1em;
-			height: 1em;
-			background-repeat: no-repeat;
-			background-position: center;
-			transition: .25s all;
-		}
-
 		&:hover {
 			&:after {
 				width: 1.25em;
@@ -297,6 +287,16 @@ export default class StreamInfoForm extends Vue {
 		.button {
 			.icon{
 				max-height: 4em;
+			}
+
+			&:after {
+				content: "";
+				background-image: url("../../assets/icons/trash.svg");
+				width: 1em;
+				height: 1em;
+				background-repeat: no-repeat;
+				background-position: center;
+				transition: .25s all;
 			}
 		}
 	}

@@ -665,6 +665,16 @@ export default class ChatForm extends Vue {
 			}this.loading = false;
 		}else
 		
+		if(cmd == "/userinfo") {
+			//Secret feature
+			if(!params[0]) {
+				await IRCClient.instance.sendNotice("error", "Missing user name param");
+			}else{
+				StoreProxy.store.dispatch("openUserCard", params[0]);
+			}
+			this.message = "";
+		}else
+		
 		if(cmd == "/cypherkey") {
 			//Secret feature
 			StoreProxy.store.dispatch("setCypherKey", params[0]);

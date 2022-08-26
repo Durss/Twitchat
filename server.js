@@ -1053,6 +1053,7 @@ const UserDataSchema = {
 				},
 				autoBlockFollows:{type:"boolean"},
 				autoUnblockFollows:{type:"boolean"},
+				autoEnableOnFollowbot:{type:"boolean"},
 			}
 		},
 		emergencyFollowers: {

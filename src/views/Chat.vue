@@ -106,10 +106,12 @@
 		<PinedMessages :style="rightStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store.state.showParams" />
+		
+		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
 		
-		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
+		<UserCard />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -164,6 +166,7 @@ import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
+import UserCard from '../components/user/UserCard.vue';
 
 @Options({
 	components:{
@@ -171,6 +174,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 		NewUsers,
 		ChatForm,
 		UserList,
+		UserCard,
 		PollForm,
 		BingoForm,
 		Parameters,

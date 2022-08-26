@@ -164,6 +164,19 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	playlist:string;
 }
 
+export const ChatMessageInfoDataType = {
+	AUTOMOD: "automod",
+	WHISPER: "whisper",
+	EMERGENCY_BLOCKED: "emergencyBlocked",
+} as const;
+export type ChatMessageInfoDataStringType = typeof ChatMessageInfoDataType[keyof typeof ChatMessageInfoDataType];
+export interface ChatMessageInfoData {
+	type:ChatMessageInfoDataStringType;
+	label?:string;
+	tooltip?:string;
+}
+
+
 export interface ParameterDataListValue {
 	label:string;
 	value:string | number | boolean | undefined;
@@ -364,6 +377,7 @@ export interface EmergencyParamsData {
 	noTriggers:boolean;
 	autoBlockFollows:boolean;
 	autoUnblockFollows:boolean;
+	autoEnableOnFollowbot:boolean;
 	followOnlyDuration:number;
 	slowModeDuration:number;
 	toUsers:string;

@@ -157,6 +157,7 @@ export default class Store {
 			};
 			const res = await fetch(Config.instance.API_PATH+"/user", {method:"GET", headers});
 			if(importToLS) {
+				const backupAutomod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
 				//Import data to local storage.
 				const json = await res.json();
 				if(json.success === true) {
@@ -165,6 +166,19 @@ export default class Store {
 						const str = typeof value == "string"? value : JSON.stringify(value);
 						this.store.setItem(this.dataPrefix + key, str);
 					}
+					
+					//Make sure we don't loose unsynced automod rules
+					//(should think of a generic way of doing this..)
+					const automod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
+					for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
+						const el = backupAutomod.keywordsFilters[i];
+						if(!el.serverSync) {
+							console.log("Insert", el);
+							automod.keywordsFilters.splice(i, 0, el);
+						}
+					}
+					this.set(Store.AUTOMOD_PARAMS, automod);
+
 					this.rawStore = json.data;
 					this.dataImported = true;
 					this.init();//Migrate remote data if necessary

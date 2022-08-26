@@ -2,7 +2,7 @@ import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, 
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData, RaffleEntry } from "./CommonDataTypes";
-import type { CountdownData, HypeTrainStateData, TimerData } from "@/types/TwitchatDataTypes";
+import type { AutomodParamsKeywordFilterData, CountdownData, HypeTrainStateData, TimerData } from "@/types/TwitchatDataTypes";
 
 export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
 
@@ -45,6 +45,7 @@ export namespace IRCEventDataList {
 		//Custom injected props
 		firstMessage: boolean;
 		automod?: PubSubDataTypes.AutomodData;
+		ttAutomod?: AutomodParamsKeywordFilterData;
 		reward?: PubSubDataTypes.RewardData;
 		answerTo?: Message;
 		answers?: Message[];
@@ -127,6 +128,7 @@ export namespace IRCEventDataList {
 		occurrenceCount?: number;
 		highlightWord?: string;
 		blockedUser?: boolean;
+		ttAutomod?: AutomodParamsKeywordFilterData;
 	}
 
 	export interface PollResult {

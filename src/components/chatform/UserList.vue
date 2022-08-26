@@ -13,28 +13,28 @@
 		<div class="users broadcaster" v-if="broadcaster.length > 0">
 			<div class="title">Broadcaster <i>({{broadcaster.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users mods" v-if="mods.length > 0">
 			<div class="title">Moderators <i>({{mods.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users vips" v-if="vips.length > 0">
 			<div class="title">VIPs <i>({{vips.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 
 		<div class="users simple" v-if="simple.length > 0">
 			<div class="title">Users <i>({{simple.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" :href="'https://twitch.tv/'+u.login" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 	</div>
@@ -104,6 +104,10 @@ export default class UserList extends Vue {
 			console.log(bounds);
 			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
 		}
+	}
+
+	public openUserCard(username:string):void {
+		StoreProxy.store.dispatch("openUserCard", username);
 	}
 
 	private open():void {

@@ -159,6 +159,11 @@ const store = createStore({
 				details:"Search for a message by its content",
 			},
 			{
+				id:"userinfo",
+				cmd:"/userinfo {user}",
+				details:"Opens a user's profile info",
+			},
+			{
 				id:"raffle",
 				cmd:"/raffle",
 				details:"Start a raffle",
@@ -435,6 +440,7 @@ const store = createStore({
 			},
 			autoBlockFollows:false,
 			autoUnblockFollows:false,
+			autoEnableOnFollowbot:true,
 		} as EmergencyParamsData,
 
 		//Stores all the people that followed during an emergency
@@ -1263,7 +1269,7 @@ const store = createStore({
 		setHypeTrain(state, data:HypeTrainStateData) {
 			state.hypeTrain = data;
 			if(data.state == "COMPLETED" && data.approached_at) {
-				const threshold = 60*1000;
+				const threshold = 5*60*1000;
 				const offset = data.approached_at;
 				const activities:ActivityFeedData[] = [];
 				for (let i = 0; i < state.activityFeed.length; i++) {
@@ -1863,6 +1869,25 @@ const store = createStore({
 
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const type = getTwitchatMessageType(event.data as IRCEventData);
+
+				if(type == TwitchatMessageType.MESSAGE) {
+					if(state.automodParams.enabled) {
+						const messageData = event.data as IRCEventDataList.Message;
+						const rules = state.automodParams.keywordsFilters;
+						const mess = messageData.message;
+						for (let i = 0; i < rules.length; i++) {
+							const r = rules[i];
+							let reg!:RegExp, valid=true;
+							try{ reg = new RegExp(r.regex, "gi"); }
+							catch(e){ valid = false; }
+							if(valid && reg.test(mess)) {
+								messageData.ttAutomod = r;
+								IRCClient.instance.deleteMessage(messageData.tags.id as string);
+								return;
+							}
+						}
+					}
+				}
 				
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
@@ -2063,6 +2088,7 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
 				const data = event.data as IRCEventDataList.JoinLeaveList;
 				const users = data.users;
+				console.log("JOIN", event);
 
 				if(state.params.features.notifyJoinLeave.value === true) {
 					const usersClone = users.concat();
@@ -2441,15 +2467,6 @@ const store = createStore({
 				const automodParams = Store.get(Store.AUTOMOD_PARAMS);
 				if(automodParams) {
 					Utils.mergeRemoteObject(JSON.parse(automodParams), (state.automodParams as unknown) as JsonObject);
-					const backup:AutomodParamsData = JSON.parse(automodParams);
-					console.log("Load automod", backup);
-					for (let i = 0; i < backup.keywordsFilters.length; i++) {
-						const el = backup.keywordsFilters[i];
-						if(!el.serverSync) {
-							console.log("Insert", el);
-							state.automodParams.keywordsFilters.splice(i, 0, el);
-						}
-					}
 					this.dispatch("automodParams", state.automodParams);
 				}
 			}

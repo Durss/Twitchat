@@ -70,6 +70,7 @@ export default class ChatHypeTrainResult extends Vue {
 	}
 
 	public mounted():void {
+		console.log(this.result.train);
 		this.reachPercent = Math.round(this.result.train.currentValue / this.result.train.goal * 100);
 		for (let i = 0; i < this.result.activities.length; i++) {
 			const el = this.result.activities[i];

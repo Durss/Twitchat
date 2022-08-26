@@ -3,6 +3,7 @@ import TwitchUtils from '@/utils/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
 import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
+import { reactive } from "vue";
 import type { TwitchDataTypes } from '../types/TwitchDataTypes';
 import { EventDispatcher } from "./EventDispatcher";
 import IRCClient from "./IRCClient";
@@ -30,6 +31,7 @@ export default class PubSub extends EventDispatcher{
 	private hypeTrainProgressTimer!:number;
 	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
+	private lastRecentFollower:PubSubDataTypes.Following[] = [];
 	
 	constructor() {
 		super();
@@ -237,13 +239,13 @@ export default class PubSub extends EventDispatcher{
 	public async simulateFollowbotRaid():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
 		for (let i = 0; i < 50; i++) {
-			const id = Math.round(Math.random()*1000);
+			const id = Math.round(Math.random()*1000000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 			this.followingEvent({
 				display_name: login,
 				username: login,
 				user_id:id.toString(),
-			})
+			}, true)
 			await Utils.promisedTimeout(Math.random()*300);
 		}
 	}
@@ -745,8 +747,10 @@ export default class PubSub extends EventDispatcher{
 	/**
 	 * Called when having a new follower
 	 */
-	private followingEvent(data:PubSubDataTypes.Following):void {
-		const message:IRCEventDataList.Highlight = {
+	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false):void {
+		data.follow_date = Date.now();
+
+		data.message = reactive({
 			channel: IRCClient.instance.channel,
 			tags:{
 				"username":data.display_name,
@@ -755,35 +759,77 @@ export default class PubSub extends EventDispatcher{
 				"msg-id": "follow",
 			},
 			username: data.display_name,
+			followBlocked:false,
 			"type": "highlight",
-		};
+		} as IRCEventDataList.Highlight);
+
+		if(this.lastRecentFollower.length > 1) {
+			//duration between 2 follow events to consider them as a follow streak
+			const minDuration = 500;
+			let dateOffset:number = this.lastRecentFollower[0].follow_date as number;
+			for (let i = 1; i < this.lastRecentFollower.length; i++) {
+				const f = this.lastRecentFollower[i];
+				//more than the minDuration has past, reset the streak
+				if((f.follow_date as number) - dateOffset > minDuration) {
+					this.lastRecentFollower = [];
+					break;
+				}
+				dateOffset = f.follow_date as number;
+			}
+		}
+
+		let blockList = [data];
+		this.lastRecentFollower.push( data );
+
+		if(this.lastRecentFollower.length > 30
+		&& StoreProxy.store.state.emergencyModeEnabled === true
+		&& StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot === true) {
+			//Set all the past users in the block list to process them
+			blockList = this.lastRecentFollower;
+			//Start emergency mode
+			StoreProxy.store.dispatch("setEmergencyMode", true);
+		}
+
 
 		//If emergency mode is enabled and we asked to automatically block
 		//any new followser during that time, do it
 		if(StoreProxy.store.state.emergencyModeEnabled === true) {
-			const followData:EmergencyFollowerData = {
-				uid:data.user_id,
-				login:data.display_name,
-				date:Date.now(),
-				blocked:false,
-				unblocked:false,
-			}
-			if(StoreProxy.store.state.emergencyParams.autoBlockFollows === true){
-				message.followBlocked = true;
-				(async()=> {
-					let res = await TwitchUtils.blockUser(data.user_id, "spam");
-					followData.blocked = res;
-					//Unblock the user right away if requested
-					if(StoreProxy.store.state.emergencyParams.autoUnblockFollows === true) {
-						res = await TwitchUtils.unblockUser(data.user_id);
-						followData.unblocked = res;
-						StoreProxy.store.dispatch("addEmergencyFollower", followData);
-					}else{
-						StoreProxy.store.dispatch("addEmergencyFollower", followData);
-					}
-				})();
-			}else{
-				StoreProxy.store.dispatch("addEmergencyFollower", followData);
+			for (let i = 0; i < blockList.length; i++) {
+				const event = blockList[i];
+				
+				const followData:EmergencyFollowerData = {
+					uid:event.user_id,
+					login:event.display_name,
+					date:Date.now(),
+					blocked:false,
+					unblocked:false,
+				}
+				if(StoreProxy.store.state.emergencyParams.autoBlockFollows === true){
+					(event.message as IRCEventDataList.Highlight).followBlocked = true;
+					(async()=> {
+						let res = false;
+						if(simulationMode===true) {
+							res = true;
+						}else{
+							res = await TwitchUtils.blockUser(event.user_id, "spam");
+						}
+						followData.blocked = res;
+						//Unblock the user right away if requested
+						if(StoreProxy.store.state.emergencyParams.autoUnblockFollows === true) {
+							if(simulationMode===true) {
+								res = true;
+							}else{
+								res = await TwitchUtils.unblockUser(event.user_id);
+							}
+							followData.unblocked = res;
+							StoreProxy.store.dispatch("addEmergencyFollower", followData);
+						}else{
+							StoreProxy.store.dispatch("addEmergencyFollower", followData);
+						}
+					})();
+				}else{
+					StoreProxy.store.dispatch("addEmergencyFollower", followData);
+				}
 			}
 		}
 
@@ -795,7 +841,7 @@ export default class PubSub extends EventDispatcher{
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 
-		IRCClient.instance.sendHighlight(message);
+		IRCClient.instance.sendHighlight(data.message as IRCEventDataList.Highlight);
 	}
 
 	/**

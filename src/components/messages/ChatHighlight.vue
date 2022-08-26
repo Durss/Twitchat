@@ -3,12 +3,13 @@
 		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
-		<div v-if="messageData.followBlocked" class="blocked">
-			<img src="@/assets/icons/emergency.svg" alt="emergency"> blocked
-		</div>
+		<ChatMessageInfos :infos="badgeInfos" />
 		
 		<div class="messageHolder">
-			<span class="reason" v-html="reason"></span>
+			<span class="reason">
+				<span class="username" v-if="username" @click="openUserCard()">{{username}}</span>
+				<span class="text" v-html="reason"></span>
+			</span>
 			<div class="info" v-if="info" v-html="info"></div>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
@@ -41,6 +42,9 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import ChatMessageInfos from './ChatMessageInfos.vue';
+import type { ChatMessageInfoData } from '@/types/TwitchatDataTypes';
+import { watch } from 'vue';
 
 @Options({
 	props:{
@@ -49,6 +53,7 @@ import StoreProxy from '@/utils/StoreProxy';
 	},
 	components:{
 		Button,
+		ChatMessageInfos,
 	},
 	emits:["ariaMessage"]
 })
@@ -59,10 +64,12 @@ export default class ChatHighlight extends Vue {
 	public messageText = '';
 	public info = "";
 	public icon = "";
+	public username = "";
 	public filtered = false;
 	public isRaid = false;
 	public shoutoutLoading = false;
 	public loading = false;
+	public badgeInfos:ChatMessageInfoData[] = [];
 
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
@@ -76,7 +83,6 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
-		if(this.messageData.followBlocked) res.push("followBlocked");
 		if(StoreProxy.store.state.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
@@ -103,7 +109,8 @@ export default class ChatHighlight extends Vue {
 		switch(type) {
 			case TwitchatMessageType.FOLLOW:
 				this.icon = this.$image('icons/follow.svg');
-				res = `<strong>${this.messageData.username}</strong> followed your channel!`;
+				this.username = this.messageData.username as string;
+				res = `followed your channel!`;
 				this.filtered = !StoreProxy.store.state.params.filters.showFollow.value;
 				break;
 
@@ -122,7 +129,8 @@ export default class ChatHighlight extends Vue {
 				this.filtered = !StoreProxy.store.state.params.filters.showRaids.value;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
-				res = `<strong>${this.messageData.username}</strong> is raiding with a party of ${this.messageData.viewers}.`;
+				this.username = this.messageData.username as string;
+				res = `is raiding with a party of ${this.messageData.viewers}.`;
 
 				if(StoreProxy.store.state.params.features.raidStreamInfo.value === true) {
 					this.loadLastStreamInfos()
@@ -131,7 +139,8 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatMessageType.BITS:
 				value = this.messageData.tags.bits;
-				res = `<strong>${this.messageData.tags.username}</strong> sent <strong>${value}</strong> bits`;
+				this.username = this.messageData.tags.username as string;
+				res = `sent <strong>${value}</strong> bits`;
 				this.icon = this.$image('icons/bits.svg');
 				this.filtered = !StoreProxy.store.state.params.filters.showCheers.value;
 				break;
@@ -140,12 +149,13 @@ export default class ChatHighlight extends Vue {
 			case TwitchatMessageType.SUB_PRIME:
 				const isResub = this.messageData.tags["msg-id"] === "resub";
 				const method = isResub ? "resubscribed" : "subscribed";
+				this.username = this.messageData.username as string;
 				if(type == TwitchatMessageType.SUB_PRIME) {
-					res = `<strong>${this.messageData.username}</strong> ${method} with Prime`;
+					res = `${method} with Prime`;
 					this.icon = this.$image('icons/prime.svg');
 				}else{
 					value = parseInt(this.messageData.methods?.plan as string)/1000;
-					res = `<strong>${this.messageData.username}</strong> ${method} at Tier ${value}`;
+					res = `${method} at Tier ${value}`;
 					this.icon = this.$image('icons/sub.svg');
 				}
 
@@ -163,20 +173,22 @@ export default class ChatHighlight extends Vue {
 			case TwitchatMessageType.SUBGIFT:
 				this.icon = this.$image('icons/gift.svg');
 				value = parseInt(this.messageData.methods?.plan as string)/1000;
+				this.username = this.messageData.username as string;
 				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
 					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
 					const recipientsStr = `<strong>${recipients.join("</strong>, <strong>")}</strong>`;
 
-					res = `<strong>${this.messageData.username}</strong> gifted <strong>${(this.messageData.subgiftAdditionalRecipents?.length+1)}</strong> Tier ${value} to ${recipientsStr}`;
+					res = `gifted <strong>${(this.messageData.subgiftAdditionalRecipents?.length+1)}</strong> Tier ${value} to ${recipientsStr}`;
 				}else{
-					res = `<strong>${this.messageData.username}</strong> gifted a Tier ${value} to <strong>${this.messageData.recipient}</strong>`;
+					res = `gifted a Tier ${value} to <strong>${this.messageData.recipient}</strong>`;
 				}
 				break;
 
 			case TwitchatMessageType.SUBGIFT_UPGRADE:
 				this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 				this.icon = this.$image('icons/sub.svg');
-				res = `<strong>${this.messageData.username}</strong> is continuing the Gift Sub they got from <strong>${this.messageData.sender}</strong>`;
+				this.username = this.messageData.username as string;
+				res = `is continuing the Gift Sub they got from <strong>${this.messageData.sender}</strong>`;
 				break;
 
 			case TwitchatMessageType.REWARD: {
@@ -263,11 +275,22 @@ export default class ChatHighlight extends Vue {
 			
 			this.$emit("ariaMessage", this.reason+" "+this.messageText);
 		}
+
+		if(this.messageData.followBlocked) {
+			this.badgeInfos.push({ type:"emergencyBlocked" })
+		}else{
+			//Watch for change so it updates in case of a follow bot raid
+			watch(()=>this.messageData.followBlocked, ()=> {
+				if(this.messageData.followBlocked) {
+					this.badgeInfos.push({ type:"emergencyBlocked" })
+				}
+			});
+		}
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
@@ -282,6 +305,10 @@ export default class ChatHighlight extends Vue {
 			}
 		}
 		this.shoutoutLoading = false;
+	}
+
+	public openUserCard():void {
+		StoreProxy.store.dispatch("openUserCard", this.username);
 	}
 
 	private async loadLastStreamInfos():Promise<void> {
@@ -330,6 +357,7 @@ export default class ChatHighlight extends Vue {
 			.reason {
 				font-size: 1em;
 			}
+
 			.message, .info {
 				margin: 0;
 				margin-top: .5em;
@@ -350,26 +378,6 @@ export default class ChatHighlight extends Vue {
 		background-color: rgba(255, 255, 255, .2);
 		.message {
 			color: #fff;
-		}
-	}
-
-	// &.followBlocked {
-		// text-decoration: line-through;
-		// color: @mainColor_alert;
-		// background-color: fade(@mainColor_alert, 50%);
-	// }
-
-	.blocked {
-		display: inline;
-		padding: .25em .5em;
-		margin-right: .5em;
-		border-radius: .5em;
-		color: @mainColor_light;
-		background-color: @mainColor_alert;
-		white-space: nowrap;
-		img {
-			height: 1em;
-			vertical-align: middle;
 		}
 	}
 
@@ -399,12 +407,14 @@ export default class ChatHighlight extends Vue {
 
 		.reason {
 			color: #fff;
-			:deep(strong) {
-				font-weight: bold;
-				color: @mainColor_warn;
-			}
 			:deep(.small) {
 				font-size: .6em;
+			}
+			.username {
+				font-weight: bold;
+				color: @mainColor_warn;
+				margin-right: .25em;
+				cursor: pointer;
 			}
 		}
 	

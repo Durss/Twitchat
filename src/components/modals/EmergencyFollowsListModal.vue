@@ -30,7 +30,7 @@
 				</div>
 				<div class="ctas">
 					<Button @click="copyList()" title="Copy CSV list to clipboard" :icon="$image('icons/copy.svg')" />
-					<Button @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
+					<Button class="later" @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
 					<Button highlight @click="clearList()" title="Finish & clear list" :icon="$image('icons/checkmark_white.svg')" />
 				</div>
 			</div>
@@ -222,6 +222,13 @@ export default class EmergencyFollowsListModal extends Vue {
 				align-items: center;
 				.button:not(:first-child) {
 					margin-top: .5em;
+				}
+				.later {
+					background-color: @mainColor_warn;
+					&:hover {
+						background-color: @mainColor_warn_light;
+
+					}
 				}
 			}
 		}
