@@ -12,7 +12,7 @@
 
 		<div v-if="isReturning" class="header">
 			<img src="@/assets/icons/returning.svg" alt="new" class="icon">
-			<p><strong>{{messageData.tags["display-name"]}}</strong> is returning after +30 days</p>
+			<p><strong>{{messageData.tags["display-name"]}}</strong> is returning after chatting twice the last 30 days</p>
 		</div>
 
 		<div v-if="automod" class="automod">
