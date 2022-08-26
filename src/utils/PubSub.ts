@@ -780,9 +780,11 @@ export default class PubSub extends EventDispatcher{
 
 		let blockList = [data];
 		this.lastRecentFollower.push( data );
+		console.log(this.lastRecentFollower.length);
 
 		if(this.lastRecentFollower.length > 30
-		&& StoreProxy.store.state.emergencyModeEnabled === true
+		&& StoreProxy.store.state.emergencyModeEnabled !== true
+		&& StoreProxy.store.state.emergencyParams.enabled === true
 		&& StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot === true) {
 			//Set all the past users in the block list to process them
 			blockList = this.lastRecentFollower;

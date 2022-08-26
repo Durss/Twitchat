@@ -2088,7 +2088,6 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
 				const data = event.data as IRCEventDataList.JoinLeaveList;
 				const users = data.users;
-				console.log("JOIN", event);
 
 				if(state.params.features.notifyJoinLeave.value === true) {
 					const usersClone = users.concat();
