@@ -416,7 +416,7 @@ export default class UserCard extends Vue {
 			}
 
 			.warn {
-				margin-bottom: .5em;
+				margin: .5em auto;
 			}
 
 			.loader {
