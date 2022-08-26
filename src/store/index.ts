@@ -1901,7 +1901,7 @@ const store = createStore({
 						let rule = Utils.isAutomoded(messageData.message, {username});
 						if(rule) {
 							messageData.ttAutomod = rule;
-							IRCClient.instance.sendMessage(`/ban ${username}`);
+							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
 							return;
 						}
 					}
@@ -2124,8 +2124,19 @@ const store = createStore({
 				&& state.automodParams.banUserNames === true)
 				for (let i = 0; i < users.length; i++) {
 					const username = users[i];
-					if(Utils.isAutomoded(username, {username})) {
-						IRCClient.instance.sendMessage(`/ban ${username}`);
+					const rule = Utils.isAutomoded(username, {username});
+					if(rule) {
+						IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
+						IRCClient.instance.sendHighlight({
+							channel: UserSession.instance.authToken.login,
+							type:"highlight",
+							username,
+							ttAutomod:rule,
+							tags:{
+								"tmi-sent-ts":Date.now().toString(),
+								"msg-id": "autoban_join",
+							},
+						});
 					}
 				}
 

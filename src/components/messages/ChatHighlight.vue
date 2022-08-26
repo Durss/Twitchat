@@ -18,6 +18,11 @@
 				<div class="title">{{streamInfo.title}}</div>
 				<div class="game">{{streamInfo.game_name}}</div>
 			</div>
+
+			<div class="automodActions" v-if="allowUnban">
+				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click="unbanUser()" />
+				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click="blockUser()" />
+			</div>
 		</div>
 		<Button v-if="isRaid"
 			aria-label="Send a shoutout"
@@ -45,6 +50,7 @@ import StoreProxy from '@/utils/StoreProxy';
 import ChatMessageInfos from './ChatMessageInfos.vue';
 import type { ChatMessageInfoData } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
+import IRCClient from '@/utils/IRCClient';
 
 @Options({
 	props:{
@@ -69,6 +75,10 @@ export default class ChatHighlight extends Vue {
 	public isRaid = false;
 	public shoutoutLoading = false;
 	public loading = false;
+	public allowUnban = false;
+	public moderating = false;
+	public canUnban = true;
+	public canBlock = true;
 	public badgeInfos:ChatMessageInfoData[] = [];
 
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
@@ -117,6 +127,13 @@ export default class ChatHighlight extends Vue {
 			case TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED:
 				this.icon = this.$image('icons/train.svg');
 				res = "Hype train can be started again!";
+				break;
+
+			case TwitchatMessageType.AUTOBAN_JOIN:
+				this.icon = this.$image('icons/mod.svg');
+				this.username = this.messageData.username as string;
+				res = "has been banned by automod after joining the chat as his/her nickname matches the follwing rule: \"<i>"+this.messageData.ttAutomod?.label+"</i>\"";
+				this.allowUnban = true;
 				break;
 
 			case TwitchatMessageType.COMMUNITY_BOOST_COMPLETE:
@@ -317,6 +334,25 @@ export default class ChatHighlight extends Vue {
 		StoreProxy.store.dispatch("openUserCard", this.username);
 	}
 
+	public async unbanUser():Promise<void> {
+		this.moderating = true;
+		await IRCClient.instance.sendMessage(`/unban ${this.username}`);
+		this.moderating = false;
+		this.canUnban = false;
+	}
+
+	public async blockUser():Promise<void> {
+		this.moderating = true;
+		try {
+			const user = await TwitchUtils.loadUserInfo(undefined, [this.username]);
+			if(user?.length > 0) {
+				await TwitchUtils.blockUser(user[0].id)
+			}
+		}catch(error) {}
+		this.moderating = false;
+		this.canBlock = false;
+	}
+
 	private async loadLastStreamInfos():Promise<void> {
 		this.loading = true;
 		this.pStreamInfo = null;
@@ -374,6 +410,16 @@ export default class ChatHighlight extends Vue {
 
 			.info {
 				color: @mainColor_warn;
+			}
+			.automodActions {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				.button:not(:first-child) {
+					margin-left: .5em;
+				}
 			}
 		}
 	}

@@ -271,6 +271,7 @@ export const TwitchatMessageType = {
 	COMMERCIAL:"commercial",
 	ROOM_STATE:"roomState",
 	PREDICTION:"prediction",
+	AUTOBAN_JOIN:"autoban_join",
 	HYPE_TRAIN_END:"hype_train_end",
 	SUBGIFT_UPGRADE:"subgiftUpgrade",
 	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
@@ -343,6 +344,8 @@ export function getTwitchatMessageType(m: IRCEventData):TwitchatMessageStringTyp
 			type = TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED;
 		}else if(m.tags['msg-id'] == "community_boost_complete") {
 			type = TwitchatMessageType.COMMUNITY_BOOST_COMPLETE;
+		}else if(m.tags['msg-id'] == "autoban_join") {
+			type = TwitchatMessageType.AUTOBAN_JOIN;
 		}
 	}
 	return type;

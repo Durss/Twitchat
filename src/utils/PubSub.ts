@@ -837,11 +837,10 @@ export default class PubSub extends EventDispatcher{
 		let automoded = false;
 		if(StoreProxy.store.state.automodParams.banUserNames === true) {
 			let rule = Utils.isAutomoded(data.display_name, {username:data.username});
-			console.log("AUTOMOD ?", data.display_name, rule);
 			if(rule) {
 				(data.message as IRCEventDataList.Highlight).ttAutomod = rule;
 				automoded = true;
-				IRCClient.instance.sendMessage(`/ban ${data.username}`);
+				IRCClient.instance.sendMessage(`/ban ${data.username} banned by Twitchat's automod after following the channel because nickname matched mod rule "${rule.label}"`);
 			}
 		}
 

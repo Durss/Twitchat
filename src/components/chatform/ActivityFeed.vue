@@ -178,6 +178,7 @@ export default class ActivityFeed extends Vue {
 			else if(type == TwitchatMessageType.MESSAGE) result.unshift(m);
 			else if(type == TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) result.unshift(m);
 			else if(type == TwitchatMessageType.HYPE_TRAIN_END) result.unshift(m);
+			else if(type == TwitchatMessageType.AUTOBAN_JOIN) result.unshift(m);
 		}
 		
 		return result;

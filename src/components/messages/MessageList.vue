@@ -38,7 +38,7 @@
 					/>
 
 				<ChatHighlight
-					v-else-if="m.type == 'highlight' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'highlight' && ($store.state.params.filters.showNotifications.value || m.tags?.['msg-id']==='autoban_join')"
 					class="message"
 					:messageData="m"
 					lightMode

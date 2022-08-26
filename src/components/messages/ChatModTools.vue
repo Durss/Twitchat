@@ -52,7 +52,7 @@ export default class ChatModTools extends Vue {
 		this.$confirm("Ban "+(this.messageData.tags['display-name'] ?? this.messageData.tags.username), "Are you sure you want to ban this user ?")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			IRCClient.instance.sendMessage(`/ban ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])}`);
+			IRCClient.instance.sendMessage(`/ban ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])} manually banned from Twitchat`);
 		})
 	}
 
