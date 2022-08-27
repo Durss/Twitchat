@@ -32,6 +32,7 @@ export default class PubSub extends EventDispatcher{
 	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
 	private lastRecentFollowers:PubSubDataTypes.Following[] = [];
+	private followCache:{[key:string]:boolean} = {};
 	
 	constructor() {
 		super();
@@ -749,6 +750,9 @@ export default class PubSub extends EventDispatcher{
 	 */
 	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false):void {
 		data.follow_date = Date.now();
+
+		if(this.followCache[data.username] === true) return;
+		this.followCache[data.username] = true;
 
 		data.message = reactive({
 			channel: IRCClient.instance.channel,
