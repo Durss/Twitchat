@@ -14,30 +14,30 @@
 					<div class="row">
 						<label for="poll_title">Question</label>
 						<div class="field">
-							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="0">
+							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1">
 							<div class="len">{{title.length}}/60</div>
 						</div>
 					</div>
 					<div class="row">
 						<label for="poll_answer">Answers (at least 2)</label>
 						<div class="field">
-							<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''" tabindex="1">
+							<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''" tabindex="2">
 							<div class="len">{{answer1.length}}/25</div>
 						</div>
 						<div class="field">
-							<input type="text" v-model="answer2" maxlength="25" tabIndex="2">
+							<input type="text" v-model="answer2" maxlength="25" tabIndex="3">
 							<div class="len">{{answer2.length}}/25</div>
 						</div>
 						<div class="field">
-							<input type="text" v-model="answer3" maxlength="25" tabIndex="3">
+							<input type="text" v-model="answer3" maxlength="25" tabIndex="4">
 							<div class="len">{{answer3.length}}/25</div>
 						</div>
 						<div class="field">
-							<input type="text" v-model="answer4" maxlength="25" tabIndex="4">
+							<input type="text" v-model="answer4" maxlength="25" tabIndex="5">
 							<div class="len">{{answer4.length}}/25</div>
 						</div>
 						<div class="field">
-							<input type="text" v-model="answer5" maxlength="25" tabIndex="5">
+							<input type="text" v-model="answer5" maxlength="25" tabIndex="6">
 							<div class="len">{{answer5.length}}/25</div>
 						</div>
 					</div>

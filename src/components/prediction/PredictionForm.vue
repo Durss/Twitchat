@@ -12,7 +12,7 @@
 				<form  @submit.prevent="submitForm()">
 					<div class="row">
 						<label for="prediction_title">Question</label>
-						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="0">
+						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="1">
 					</div>
 					<div class="row answers">
 						<label for="prediction_answer">Answers</label>
@@ -23,7 +23,7 @@
 								v-model="answers[index]"
 								maxlength="25"
 								v-autofocus="index == 0 && title != ''"
-								:tabindex="index + 1"
+								:tabindex="index + 2"
 							>
 							<Button aria-label="Delte outcome option" class="deleteBt" small
 								:icon="$image('icons/cross.svg')"
