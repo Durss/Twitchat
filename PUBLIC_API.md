@@ -226,7 +226,7 @@ Sent when a message is deleted.
 }
 ```
 ## **MESSAGE_FIRST**
-Sent when a user sends her/his first message of the stream *("Greet them" section)*.
+Sent when a user sends their first message of the stream *("Greet them" section)*.
 ```typescript
 {
 	channel:string,
@@ -235,7 +235,7 @@ Sent when a user sends her/his first message of the stream *("Greet them" sectio
 }
 ```
 ## **MESSAGE_FIRST_ALL_TIME**
-Sent when a user sends her/his first message on the channel.
+Sent when a user sends their first message on the channel.
 ```typescript
 {
 	channel:string,

@@ -40,7 +40,7 @@ Documentation can be found [here](PUBLIC_API.md).
 - [x] Control spotify or deezer from chat commands *(create your own song request system)* and show currently playing track on your stream
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
-- [x] Track a user to make sure not to miss her/his messages
+- [x] Track a user to make sure not to miss their messages
 - [x] Create a raffle and pick random winners. An overlay is available to display a wheel that selects a winner.
 - [x] Create a bingo in which users have to find a number or an emoji
 - [x] Ask your viewers for suggestions with a dedicated command

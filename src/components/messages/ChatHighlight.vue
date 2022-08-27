@@ -132,7 +132,7 @@ export default class ChatHighlight extends Vue {
 			case TwitchatMessageType.AUTOBAN_JOIN:
 				this.icon = this.$image('icons/mod.svg');
 				this.username = this.messageData.username as string;
-				res = "has been banned by automod after joining the chat as his/her nickname matches the following rule: \"<i>"+this.messageData.ttAutomod?.label+"</i>\"";
+				res = "has been banned by automod after joining the chat as their nickname matches the following rule: \"<i>"+this.messageData.ttAutomod?.label+"</i>\"";
 				this.allowUnban = true;
 				break;
 

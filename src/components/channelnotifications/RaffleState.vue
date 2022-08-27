@@ -104,7 +104,7 @@ export default class RaffleState extends Vue {
 		this.picking = true;
 		
 		const list = [];
-		//Ponderate votes by adding one user many times if her/his
+		//Ponderate votes by adding one user many times if their
 		//score is greater than 1
 		for (let i = 0; i < this.raffleData.entries.length; i++) {
 			const u = this.raffleData.entries[i];

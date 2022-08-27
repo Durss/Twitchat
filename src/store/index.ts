@@ -124,7 +124,7 @@ const store = createStore({
 			},
 			shoutout: {
 				enabled:true,
-				message:"/announce Go checkout {USER} {URL} . Her/His last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
+				message:"/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 		} as IBotMessage,
 		commands: [
@@ -290,7 +290,7 @@ const store = createStore({
 				showWhispersOnChat: 		{save:true, type:"toggle", value:true, label:"Show whispers on chat", id:214, icon:"conversation_purple.svg", parent:200},
 				firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
 				conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations (allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
-				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering her/his name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
+				userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering their name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
 				markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
 				lockAutoScroll: 			{save:true, type:"toggle", value:false, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
 				showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
