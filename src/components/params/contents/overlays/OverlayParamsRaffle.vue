@@ -87,7 +87,7 @@ export default class OverlayParamsRaffle extends Vue {
 		});
 		const data = {
 			items:((items as unknown) as JsonArray),
-			winner: (Utils.pickRand(items) as unknown) as JsonObject,
+			winner: Utils.pickRand(items).id,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, data)
 		await Utils.promisedTimeout(100);

@@ -1077,7 +1077,7 @@ const store = createStore({
 			
 			//Ask if the wheel overlay exists
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
-			await Utils.promisedTimeout(500);//Give the overlay some time to answer
+			await Utils.promisedTimeout(1000);//Give the overlay some time to answer
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, callback);
 			
 			switch(payload.mode) {
