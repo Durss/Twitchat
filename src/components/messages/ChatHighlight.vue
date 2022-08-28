@@ -209,10 +209,12 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case TwitchatMessageType.REWARD: {
+				const localObj = this.messageData.reward as PubSubDataTypes.RewardData;
 				this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
 				this.messageText = "";
-				const localObj = this.messageData.reward as PubSubDataTypes.RewardData;
-				res = localObj.redemption.user.display_name;
+				this.icon = this.$image('icons/sub.svg');
+				this.username = localObj.redemption.user.display_name as string;
+				res = "";
 				res += ` redeemed the reward <strong>${localObj.redemption.reward.title}</strong>`;
 				res += ` <span class='small'>(${localObj.redemption.reward.cost} pts)</span>`;
 				if(this.messageData.reward?.redemption.reward.image) {
