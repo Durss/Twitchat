@@ -474,6 +474,7 @@ export default class ChatHighlight extends Vue {
 			color: rgba(255, 255, 255, .5);
 			color: @mainColor_normal;
 			font-style: italic;
+			word-break: break-word;
 			:deep(.cheermote), :deep(.emote) {
 				width: 2em;
 				height: 2em;
