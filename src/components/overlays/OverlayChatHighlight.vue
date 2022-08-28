@@ -131,7 +131,6 @@ export default class OverlayChatHighlight extends Vue {
 	}
 
 	public onIFrameLoaded(e:unknown):void {
-		console.log("ON load");
 		clearInterval(this.iFrameInitTimeout);
 		clearInterval(this.progressBarInterval);
 
@@ -208,17 +207,21 @@ export default class OverlayChatHighlight extends Vue {
 		const holder = (this.$refs.holder ?? this.$refs.clip_holder) as HTMLDivElement;
 		if(!holder) return;
 
+		const bounds = holder.getBoundingClientRect();
+		const winW = window.innerWidth;
+		const winH = window.innerHeight;
+
 		if(this.params.position.indexOf("r") > -1){
-			gsap.from(holder, {x:"100%", duration:1, ease:"sine.out"});
+			gsap.from(holder, {x:winW, duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position.indexOf("l") > -1){
-			gsap.from(holder, {x:"-100%", duration:1, ease:"sine.out"});
+			gsap.from(holder, {x:-(bounds.x+bounds.width), duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position == "t"){
-			gsap.from(holder, {y:"-100%", duration:1, ease:"sine.out"});
+			gsap.from(holder, {y:-(bounds.y+bounds.height), duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position == "b"){
-			gsap.from(holder, {y:"100%", duration:1, ease:"sine.out"});
+			gsap.from(holder, {y:winH, duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position == "m"){
 			gsap.from(holder, {scale:0, duration:1, ease:"back.out"});
@@ -236,7 +239,7 @@ export default class OverlayChatHighlight extends Vue {
 		display: inline-flex;
 		flex-direction: row;
 		align-items: center;
-		font-size: 2em;
+		font-size: 1.5em;
 		background-color: darken(@mainColor_light, 10%);
 		padding: .5em;
 		border-top-right-radius: 1em;
@@ -331,7 +334,7 @@ export default class OverlayChatHighlight extends Vue {
 				color:@mainColor_dark;
 				word-break: break-word;
 				:deep(.emote) {
-					height: 1em;
+					height: 1.25em;
 					vertical-align: middle;
 				}
 			}
