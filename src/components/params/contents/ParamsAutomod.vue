@@ -4,34 +4,34 @@
 		
 		<div class="header">Automatically delete messages</div>
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
-		
-		
+	
+		<div class="disclaimers">
+			<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
+				Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.<br>
+				If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.<br>
+				<br>
+				Bots like <a href="https://nightbot.tv" target="_blank">Nightbot</a> or <a href="https://wizebot.tv/index" target="_blank">Wizebot</a> allow you to filter messages with complex rules via what's called <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">Regular Expressions</a>.<br>
+				<br>
+				<strong>Twitchat's</strong> automod feature allows you to use Regular Expressions but also tries to make usage of alternative chars useless for bypassing automod rules.<br>
+				Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.
+				For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.<br>
+				<br>
+				<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you receive lots of messages.
+			</ToggleBlock>
+			<ToggleBlock class="infos" title="Is deleting a message efficient against doxxing?" small :open="false">
+				No.<br>
+				<br>
+				But it's the only way to moderate a message after it's sent.<br>
+				The main problem is that extensions like <a href="https://betterttv.com" target="_blank">BetterTTV</a> allow users to keep deleted message.<br>
+				<br>
+				<strong>If you want to avoid this</strong>, you'll have to configure a chat delay <i>(<a href="https://dashboard.twitch.tv/settings/moderation" target="_blank">see Chat Options</a>)</i>. If a message is deleted during this time lapse, it won't be displayed anywhere, even for BTTV users.<br>
+				<i>Note that the message is still sent to everyone so it's technically possible to get it. Just more complicated.</i><br>
+				<br>
+				The only safe way of filtering a message is when Twitch deletes it based on blocked terms before sending it to everyone. But as explained before, it's very limited :/
+			</ToggleBlock>
+		</div>
+	
 		<div class="fadeHolder" :style="holderStyles">
-			<div class="disclaimers">
-				<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
-					Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.<br>
-					If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.<br>
-					<br>
-					Bots like <a href="https://nightbot.tv" target="_blank">Nightbot</a> or <a href="https://wizebot.tv/index" target="_blank">Wizebot</a> allow you to filter messages with complex rules via what's called <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">Regular Expressions</a>.<br>
-					<br>
-					<strong>Twitchat's</strong> automod feature allows you to use Regular Expressions but also tries to make usage of alternative chars useless for bypassing automod rules.<br>
-					Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.
-					For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.<br>
-					<br>
-					<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you receive lots of messages.
-				</ToggleBlock>
-				<ToggleBlock class="infos" title="Is deleting a message efficient against doxxing?" small :open="false">
-					No.<br>
-					<br>
-					But it's the only way to moderate a message after it's sent.<br>
-					The main problem is that extensions like <a href="https://betterttv.com" target="_blank">BetterTTV</a> allow users to keep deleted message.<br>
-					<br>
-					<strong>If you want to avoid this</strong>, you'll have to configure a chat delay <i>(<a href="https://dashboard.twitch.tv/settings/moderation" target="_blank">see Chat Options</a>)</i>. If a message is deleted during this time lapse, it won't be displayed anywhere, even for BTTV users.<br>
-					<i>Note that the message is still sent to everyone so it's technically possible to get it. Just more complicated.</i><br>
-					<br>
-					The only safe way of filtering a message is when Twitch deletes it based on blocked terms before sending it to everyone. But as explained before, it's very limited :/
-				</ToggleBlock>
-			</div>
 
 			<ToggleBlock medium class="options" title="Options" :icons="['params']" :open="false">
 				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />

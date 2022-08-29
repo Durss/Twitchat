@@ -20,83 +20,48 @@
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<img src="@/assets/icons/voice.svg" class="icon" />
-							<Button aria-label="open voice params" small title="try it" @click.stop="openParamPage(contentVoice)" />
-							<span><strong>Control Twitchat with your voice</strong>! Create polls and predictions, scroll the chat, mark messages as read and much more with your voice</span>
+							<img src="@/assets/icons/mod.svg" class="icon" />
+							<Button aria-label="open autmod params" small title="try it" @click.stop="openParamPage(contentAutomod)" />
+							<span><strong>Automod tool</strong> with that allows to delete messages or automatically block users if their names isn't appropriate. Users won't be able to bypass it with alternative chars like <mark>🆃🅆ｉ𝘁𝕔𝓱🅰🅣</mark></span>
 						</li>
 						<li>
-							<img src="@/assets/icons/tts.svg" class="icon" />
-							<Button aria-label="open tts params" small title="try it" @click.stop="openParamPage(contentTts)" />
-							<span>Make Twitchat <strong>read out loud</strong> any messages you receive</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/broadcast.svg" class="icon" />
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
-							<span>A <strong>new trigger action</strong> allows you to read anything out loud</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/pin.svg" class="icon" />
-							<span>You can now <strong>pin messages</strong> so you don't loose them. Roll over a user's message and click the pin icon. Open the pinned messages later with the pin icon at the bottom</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/elgato.svg" class="icon" />
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentStreamdeck)" />
-							<span><strong>Stream Deck™ plugin</strong> can now start the emergency mode and shoutout your latest raider</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/music.svg" class="icon" />
-							<Button aria-label="open overlays" small title="open" @click.stop="openParamPage(contentOverlays)" />
-							<span>Many options added to the <strong>music player</strong> overlay</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/music.svg" class="icon" />
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
-							<span>Allow your viewers to change your <strong>currently playing spotify playlist</strong> from chat commands or channel point rewards</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/broadcast.svg" class="icon" />
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>1 new trigger</strong> to execute actions when a <strong>user returns after 30+ days</strong> on your chat</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/broadcast.svg" class="icon" />
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>2 new triggers</strong> to execute actions when a <strong>music starts or stops playing</strong> <i>(ex: to automatically send current track info on chat)</i></span>
-						</li>
-						<li>
-							<img src="@/assets/icons/broadcast.svg" class="icon" />
-							<Button aria-label="open triggers" small title="open" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>4 new triggers</strong> to execute actions when <strong>hype train</strong> approches, starts, progresses and ends</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/unfollow_white.svg" class="icon" />
-							<Button aria-label="open followers param" small title="open" @click.stop="openSpecificParam('appearance.highlightNonFollowers')" />
-							<span>Users list will now show who's not following you <i>(if you enabled the option)</i></span>
+							<img src="@/assets/icons/user.svg" class="icon" />
+							<Button aria-label="open viewer info" small title="try it" @click.stop="openViewerCard()" />
+							<span><strong>Viewer inspector</strong> to quickly check for a user's info. Just click a nickname or use <mark>/userinfo</mark> command</span>
 						</li>
 						<li>
 							<img src="@/assets/icons/follow.svg" class="icon" />
-							<Button aria-label="open alert param" small title="donate" href="https://ko-fi.com/durss" type="link" target="_blank" />
-							<span>I opened a <strong>Ko-fi</strong> page for donations</span>
+							<Button aria-label="open viewer params" small title="try it" @click.stop="openParamPage(contentEmergency)" />
+							<span><strong>Follow bot raid</strong> detection added to the emergency button options. It can automatically start an emergency if Twitchat detects such a raid.</span>
+						</li>
+						<li>
+							<img src="@/assets/icons/train.svg" class="icon" />
+							<Button aria-label="show hype summary example" small title="try it" @click.stop="simulateEvent('hypeTrainSummary')" />
+							<span><strong>Hype train summaries</strong> are now posted when an hype train completes.</span>
+						</li>
+						<li>
+							<img src="@/assets/icons/broadcast.svg" class="icon" />
+							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
+							<span><strong>9 new triggers</strong> available : ban/unban, vip/unvip, mod/unmod, timeout, shoutout, hype train cancelled</span>
+						</li>
+						<li>
+							<img src="@/assets/icons/broadcast.svg" class="icon" />
+							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
+							<span><strong>1 new trigger action</strong> to send a message on the <strong>Message Highlight</strong> overlay from any trigger.</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
-						<li>When using the split view option you can now <strong>resize the columns</strong> as you wish</li>
-						<li>If using Twitchat on a mobile device, Twitchat will now <strong>prevent it from locking</strong> the screen in case of inactivity</li>
-						<li>Music overlay will also show <strong>podcast info</strong> played from Spotify</li>
-						<li>Added <strong>CSS selectors</strong> to the music player so you can better customize it</li>
-						<li>I updated the way i sync your data with the server. <strong>PLEASE</strong> let me know if you experience any data loss!</li>
-						<li>You can now pass query parameters to a local HTML on the triggers. <i>(ex: if you create a custom sub/cheer/raid alert page)</i></li>
-						<li>Performance improvement on the way BTTV/FFZ/7TV emotes were replaced</li>
-						<li>Huge performance improvement if you were filtering out known bots messages</li>
+						<li><strong>Highlight my message</strong> reward now available on the channel point rewards list under the triggers section</li>
+						<li>If you click a nickname anywhere it will now open the user's details on the new viewer inspector</li>
+						<li>New <strong>Broadcaster</strong> permission everywhere you can set custom permissions <i>(ex: if you don't want your own messages to be read by TTS)</i></li>
 					</ul>
 				</ToggleBlock>
-				<ToggleBlock class="block fix" title="Fixes" :open="true" :icons="['fix']">
+				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
-						<li>Music player overlay was sometimes blocked when using Spotify.</li>
-						<li>You had to create at least 2 chat commands to see them on the list.</li>
-						<li>Sub-only trigger wasn't working for subs that weren't showing their sub badge.</li>
+						<li>Editing a stream info preset was renaming it with the stream's title.</li>
+						<li>The button to test the wheel overlay was broken.</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -165,6 +130,7 @@ import Button from '@/components/Button.vue';
 import Store from '@/store/Store';
 import { ParamsContentType, TwitchatAdTypes, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
+import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
@@ -219,6 +185,7 @@ export default class ChatAd extends Vue {
 	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
 	public get contentTts():ParamsContentStringType { return ParamsContentType.TTS; } 
 	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
+	public get contentAutomod():ParamsContentStringType { return ParamsContentType.AUTOMOD; } 
 
 	public async getSvgIcon(name:string) {
 		const module = await import(`../../assets/icons/${name}.svg`);
@@ -247,22 +214,31 @@ export default class ChatAd extends Vue {
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
-		if(this.isUpdate) {
-			if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
-				setTimeout(()=> {
-					StoreProxy.store.dispatch("addChatMessage",{
-					type:"ad",
-						channel:"#"+UserSession.instance.authToken.login,
-						markedAsRead:false,
-						contentID:TwitchatAdTypes.UPDATE_WARNING,
-						tags:{id:"twitchatAd"+Math.random()}
-					});
-				}, 1000);
-				Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
-			}
-		}
+		//Push a message after closing the ad
+		// if(this.isUpdate) {
+		// 	if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
+		// 		setTimeout(()=> {
+		// 			StoreProxy.store.dispatch("addChatMessage",{
+		// 			type:"ad",
+		// 				channel:"#"+UserSession.instance.authToken.login,
+		// 				markedAsRead:false,
+		// 				contentID:TwitchatAdTypes.UPDATE_WARNING,
+		// 				tags:{id:"twitchatAd"+Math.random()}
+		// 			});
+		// 		}, 1000);
+		// 		Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
+		// 	}
+		// }
 		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
+	}
+
+	public openViewerCard():void {
+		StoreProxy.store.dispatch("openUserCard", UserSession.instance.user?.login);
+	}
+
+	public async simulateEvent(code:string):Promise<void> {
+		IRCClient.instance.sendFakeEvent(code);
 	}
 
 }

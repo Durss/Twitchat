@@ -40,7 +40,7 @@ import VoicemodEvent from '@/utils/VoicemodEvent';
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 7,
+		latestUpdateIndex: 8,
 		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
