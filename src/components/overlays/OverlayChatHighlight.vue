@@ -76,27 +76,27 @@ export default class OverlayChatHighlight extends Vue {
 		// this.onShowMessage(new TwitchatEvent(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, json));
 
 		//Display a debug clip
-		this.onShowClip(new TwitchatEvent(TwitchatEvent.SHOW_CLIP,{
-			params:{position:"bl"},
-			clip:{
-				"id": "c512b3a0-be87-4e4b-87a3-4a9d98608f47",
-				"url": "https://clips.twitch.tv/CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
-				"embed_url": "https://clips.twitch.tv/embed?clip=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
-				"broadcaster_id": "43809079",
-				"broadcaster_name": "Shakawah",
-				"creator_id": "37620928",
-				"creator_name": "leader_fox09",
-				"video_id": "1536352135",
-				"game_id": "490377",
-				"language": "fr",
-				"title": "La chanson fruitée",
-				"view_count": 36,
-				"created_at": "2022-07-19T22:33:05Z",
-				"thumbnail_url": "https://clips-media-assets2.twitch.tv/--ncnh-fwLaXoz4D3LwRgg/AT-cm%7C--ncnh-fwLaXoz4D3LwRgg-preview-480x272.jpg",
-				"duration": 51.2,
-				"vod_offset": 30692
-			}
-		}));
+		// this.onShowClip(new TwitchatEvent(TwitchatEvent.SHOW_CLIP,{
+		// 	params:{position:"bl"},
+		// 	clip:{
+		// 		"id": "c512b3a0-be87-4e4b-87a3-4a9d98608f47",
+		// 		"url": "https://clips.twitch.tv/CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
+		// 		"embed_url": "https://clips.twitch.tv/embed?clip=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
+		// 		"broadcaster_id": "43809079",
+		// 		"broadcaster_name": "Shakawah",
+		// 		"creator_id": "37620928",
+		// 		"creator_name": "leader_fox09",
+		// 		"video_id": "1536352135",
+		// 		"game_id": "490377",
+		// 		"language": "fr",
+		// 		"title": "La chanson fruitée",
+		// 		"view_count": 36,
+		// 		"created_at": "2022-07-19T22:33:05Z",
+		// 		"thumbnail_url": "https://clips-media-assets2.twitch.tv/--ncnh-fwLaXoz4D3LwRgg/AT-cm%7C--ncnh-fwLaXoz4D3LwRgg-preview-480x272.jpg",
+		// 		"duration": 51.2,
+		// 		"vod_offset": 30692
+		// 	}
+		// }));
 		
 		this.showMessageHandler = (e:TwitchatEvent)=>this.onShowMessage(e);
 		this.showClipHandler = (e:TwitchatEvent)=>this.onShowClip(e);

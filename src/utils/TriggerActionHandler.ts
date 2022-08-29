@@ -252,8 +252,10 @@ export default class TriggerActionHandler {
 	private initialize():void {
 		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 			const data = (e.data as unknown) as ChatHighlightInfo;
-			data.type = "chatOverlayHighlight";
-			this.onMessage(data, false)
+			if(data.message) {
+				data.type = "chatOverlayHighlight";
+				this.onMessage(data, false)
+			}
 		});
 	}
 
@@ -490,7 +492,7 @@ export default class TriggerActionHandler {
 				for (let i = 0; i < data.actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
 					const step = data.actions[i];
-					console.log("Parse step", step);
+					// console.log("Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
@@ -532,9 +534,7 @@ export default class TriggerActionHandler {
 					//Handle highlight action
 					if(step.type == "highlight") {
 						if(step.show) {
-							console.log("HIGHLIGHT", message);
 							let text = await this.parseText(eventType, message, step.text as string, false, subEvent, true);
-							console.log(text);
 							//Remove command name from message
 							if(subEvent) text = text.replace(subEvent, "").trim();
 							let user = null;
@@ -739,7 +739,7 @@ export default class TriggerActionHandler {
 				}
 			}else
 
-			if(h.tag === "MESSAGE") {
+			if(h.tag === "MESSAGE" && value) {
 				const m = message as IRCEventDataList.Message;
 				//Parse emotes
 				const isReward = (message as IRCEventDataList.Highlight).reward != undefined;
