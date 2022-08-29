@@ -548,8 +548,10 @@ export default class TriggerActionHandler {
 											params:StoreProxy.store.state.chatHighlightOverlayParams,
 										}
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
+							StoreProxy.store.state.isChatMessageHighlighted = true;
 						}else{
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
+							StoreProxy.store.state.isChatMessageHighlighted = false;
 						}
 					}else
 					
