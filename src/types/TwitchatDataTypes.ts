@@ -75,11 +75,15 @@ export interface OBSMuteUnmuteCommands {
 
 export interface TriggerData {
 	enabled:boolean;
-	chatCommand?:string;
+	name?:string;//This should be replaced by the more generic "name" but i'm too lazy to make data migration for now :3
 	prevKey?:string;
 	permissions?:PermissionsData;
 	cooldown?:{global:number, user:number};
 	actions:TriggerActionTypes[];
+	/**
+	 * @deprecated Only here for typings on data migration. User "name" property
+	 */
+	chatCommand?:string
 }
 
 export type TriggerActionTypes =  TriggerActionEmptyData

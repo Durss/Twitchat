@@ -112,6 +112,18 @@
 			@click="addAction()"
 		/>
 
+
+		<TriggerActionScheduleParams class="chatCmdParams"
+			v-if="isSchedule && triggerData && actionList.length > 0"
+			:actionData="triggerData"
+		/>
+
+		<Button :icon="$image('icons/date.svg')" title="Add scheduled trigger"
+			v-if="isSchedule && actionList.length == 0"
+			class="addBt"
+			@click="addAction()"
+		/>
+
 		<draggable 
 		v-model="actionList" 
 		group="actions" 
@@ -165,6 +177,7 @@ import ToggleButton from '../../ToggleButton.vue';
 import StoreProxy from '@/utils/StoreProxy';
 import ToggleBlock from '../../ToggleBlock.vue';
 import UserSession from '@/utils/UserSession';
+import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.vue';
 
 @Options({
 	props:{},
@@ -174,6 +187,7 @@ import UserSession from '@/utils/UserSession';
 		ToggleBlock,
 		ToggleButton,
 		TriggerActionEntry,
+		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 	},
 	emits:["setContent"]
@@ -200,12 +214,14 @@ export default class ParamsTriggers extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get isChatCmd():boolean { return this.currentEvent?.value === TriggerTypes.CHAT_COMMAND; }
+	
+	public get isSchedule():boolean { return this.currentEvent?.value === TriggerTypes.SCHEDULE; }
 
 	public get triggerKey():string {
 		let key = this.currentEvent?.value as string;
 		let subkey = this.currentSubEvent?.value as string;
-		if(key === TriggerTypes.CHAT_COMMAND) {
-			subkey = this.triggerData.chatCommand as string;
+		if(this.currentEvent?.isCategory && key !== TriggerTypes.REWARD_REDEEM) {
+			subkey = this.triggerData.name as string;
 		}
 		if(subkey != "0" && subkey) key = key+"_"+subkey;
 		return key;
@@ -313,6 +329,7 @@ export default class ParamsTriggers extends Vue {
 		map[TriggerTypes.UNVIP] = "unvip_purple";
 		map[TriggerTypes.MOD] = "mod_purple";
 		map[TriggerTypes.UNMOD] = "unmod_purple";
+		map[TriggerTypes.SCHEDULE] = "date_purple";
 		
 		if(map[e.value as string]) {
 			return  this.$image('icons/'+map[e.value as string]+".svg");
@@ -489,9 +506,10 @@ export default class ParamsTriggers extends Vue {
 		//Save the trigger only if it can be tested which means it
 		//has the minimum necessary data defined
 		if(this.canTestAction) {
+			// console.log(this.triggerKey, this.triggerData);
 			StoreProxy.store.dispatch("setTrigger", { key:this.triggerKey, data:this.triggerData});
 		}
-		if(this.isChatCmd) {
+		if(this.isChatCmd || this.isSchedule) {
 			//Preselects the current subevent
 			this.onSelectTrigger(true);
 		}
@@ -519,7 +537,7 @@ export default class ParamsTriggers extends Vue {
 			}
 			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
-				json.message = this.triggerData.chatCommand + " lorem ipsum";
+				json.message = this.triggerData.name + " lorem ipsum";
 			}
 			TriggerActionHandler.instance.onMessage(json, true);
 		}
@@ -582,7 +600,12 @@ export default class ParamsTriggers extends Vue {
 				this.subeventsList = [];
 				if(!onlypopulateSublist) this.actionList = [];
 				
-				if(key == TriggerTypes.CHAT_COMMAND) {
+
+				if(key == TriggerTypes.REWARD_REDEEM) {
+					this.listRewards();
+				}
+				else
+				{
 					const triggers = StoreProxy.store.state.triggers;
 					//Search for all command triggers
 					const commandList:TriggerData[] = [];
@@ -590,25 +613,21 @@ export default class ParamsTriggers extends Vue {
 						if(k.indexOf(key+"_") === 0) commandList.push(triggers[k] as TriggerData);
 					}
 					this.subeventsList = commandList.sort((a,b)=> {
-						if(!a.chatCommand || !b.chatCommand) return 0
-						if(a.chatCommand < b.chatCommand) return -1;
-						if(a.chatCommand > b.chatCommand) return 1;
+						if(!a.name || !b.name) return 0
+						if(a.name < b.name) return -1;
+						if(a.name > b.name) return 1;
 						return 0;
 					}).map((v):ParameterDataListValue=> {
 						return {
-							label:v.chatCommand as string,
-							value:v.chatCommand?.toLowerCase(),
+							label:v.name as string,
+							value:v.name?.toLowerCase(),
 							enabled:v.enabled
 						}
 					});
-					const select = this.subeventsList.find(v=>v.value == this.triggerData.chatCommand);
+					const select = this.subeventsList.find(v=>v.value == this.triggerData.name);
 					if(select) {
 						this.currentSubEvent = select;
 					}
-				}
-
-				if(key == TriggerTypes.REWARD_REDEEM) {
-					this.listRewards();
 				}
 			}else if(StoreProxy.store.state.triggers[key]){
 				const trigger = JSON.parse(JSON.stringify(StoreProxy.store.state.triggers[key]));//Avoid modifying the original data
@@ -630,7 +649,7 @@ export default class ParamsTriggers extends Vue {
 		this.canSave = false;
 		let key = this.currentEvent?.value as string;
 		key += "_";
-		if(this.currentSubEvent) {
+		if(this.currentSubEvent?.value !== undefined) {
 			key += (this.currentSubEvent.value as string).toLowerCase();
 		}
 		

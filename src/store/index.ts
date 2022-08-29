@@ -1386,16 +1386,17 @@ const store = createStore({
 			}
 			let remove = false;
 			//Chat command specifics
-			if(value.key.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
-				if(value.data.chatCommand) {
-					//If command has been changed, cleanup the previous one from storage
+			if(value.key.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0
+			|| value.key.indexOf(TriggerTypes.SCHEDULE+"_") === 0) {
+				if(value.data.name) {
+					//If name has been changed, cleanup the previous one from storage
 					if(value.data.prevKey) {
 						delete state.triggers[value.data.prevKey];
 						delete value.data.prevKey;
 					}
 					if(value.data.actions.length == 0) remove = true;
 				}else{
-					//Chat command not defined, don't save it
+					//Name not defined, don't save it
 					delete state.triggers[value.key];
 					return;
 				}

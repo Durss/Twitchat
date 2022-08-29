@@ -719,7 +719,8 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						chatCommand: {type:"string", maxLength:100},
+						name: {type:"string", maxLength:100},
+						chatCommand: {type:"string", maxLength:100},//Deprecated
 						permissions: {
 							type:"object",
 							properties: {

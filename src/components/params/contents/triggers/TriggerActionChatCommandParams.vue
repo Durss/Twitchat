@@ -18,14 +18,6 @@
 			<ParamItem class="cooldown" :paramData="param_userCD" v-model="actionData.cooldown.user" />
 		</ToggleBlock>
 
-		<!-- <Button type="button"
-			title="Delete"
-			class="saveBt"
-			v-if="isChange"
-			@click="save()"
-			:icon="$image('icons/save.svg')"
-			:disabled="param_cmd.value === ''"
-		/> -->
 	</ToggleBlock>
 </template>
 
@@ -85,7 +77,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 	public populate():void {
 		this.param_cmd.value = 
-		this.originalCmd = this.actionData.chatCommand as string;
+		this.originalCmd = this.actionData.name as string;
 	}
 
 	public onUpdateCommand():void {
@@ -98,17 +90,17 @@ export default class TriggerActionChatCommandParams extends Vue {
 				//Is a chat command?
 				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
 					const t = triggers[k] as TriggerData;
-					if(t.chatCommand == this.param_cmd.value) {
+					if(t.name?.toLowerCase() == (this.param_cmd.value as string).toLowerCase()) {
 						this.cmdNameConflict = true;
 						return;
 					}
 				}
 			}
-			this.actionData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.actionData.chatCommand;
+			this.actionData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.actionData.name;
 		}
 		//This triggers a save event that will clean the previous key
 		//based on the "prevKey" property value
-		this.actionData.chatCommand = this.param_cmd.value as string;
+		this.actionData.name = this.param_cmd.value as string;
 	}
 
 }
