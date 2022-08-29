@@ -1,6 +1,6 @@
 <template>
 	<div class="overlaychathighlight">
-		<div :class="classes" ref="holder" id="highlight_holder" v-if="params">
+		<div :class="classes" ref="holder" id="highlight_holder" v-if="params && !clipData">
 			<div class="profilePic" id="highlight_avatar" v-if="user">
 				<img :src="user.profile_image_url">
 			</div>
@@ -76,27 +76,27 @@ export default class OverlayChatHighlight extends Vue {
 		// this.onShowMessage(new TwitchatEvent(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, json));
 
 		//Display a debug clip
-		// this.onShowClip(new TwitchatEvent(TwitchatEvent.SHOW_CLIP,{
-		// 	params:{position:"m"},
-		// 	clip:{
-		// 		"id": "c512b3a0-be87-4e4b-87a3-4a9d98608f47",
-		// 		"url": "https://clips.twitch.tv/CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
-		// 		"embed_url": "https://clips.twitch.tv/embed?clip=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
-		// 		"broadcaster_id": "43809079",
-		// 		"broadcaster_name": "Shakawah",
-		// 		"creator_id": "37620928",
-		// 		"creator_name": "leader_fox09",
-		// 		"video_id": "1536352135",
-		// 		"game_id": "490377",
-		// 		"language": "fr",
-		// 		"title": "La chanson fruitée",
-		// 		"view_count": 36,
-		// 		"created_at": "2022-07-19T22:33:05Z",
-		// 		"thumbnail_url": "https://clips-media-assets2.twitch.tv/--ncnh-fwLaXoz4D3LwRgg/AT-cm%7C--ncnh-fwLaXoz4D3LwRgg-preview-480x272.jpg",
-		// 		"duration": 51.2,
-		// 		"vod_offset": 30692
-		// 	}
-		// }));
+		this.onShowClip(new TwitchatEvent(TwitchatEvent.SHOW_CLIP,{
+			params:{position:"bl"},
+			clip:{
+				"id": "c512b3a0-be87-4e4b-87a3-4a9d98608f47",
+				"url": "https://clips.twitch.tv/CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
+				"embed_url": "https://clips.twitch.tv/embed?clip=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC",
+				"broadcaster_id": "43809079",
+				"broadcaster_name": "Shakawah",
+				"creator_id": "37620928",
+				"creator_name": "leader_fox09",
+				"video_id": "1536352135",
+				"game_id": "490377",
+				"language": "fr",
+				"title": "La chanson fruitée",
+				"view_count": 36,
+				"created_at": "2022-07-19T22:33:05Z",
+				"thumbnail_url": "https://clips-media-assets2.twitch.tv/--ncnh-fwLaXoz4D3LwRgg/AT-cm%7C--ncnh-fwLaXoz4D3LwRgg-preview-480x272.jpg",
+				"duration": 51.2,
+				"vod_offset": 30692
+			}
+		}));
 		
 		this.showMessageHandler = (e:TwitchatEvent)=>this.onShowMessage(e);
 		this.showClipHandler = (e:TwitchatEvent)=>this.onShowClip(e);
@@ -130,28 +130,6 @@ export default class OverlayChatHighlight extends Vue {
 		}
 	}
 
-	public onIFrameLoaded(e:unknown):void {
-		clearInterval(this.iFrameInitTimeout);
-		clearInterval(this.progressBarInterval);
-
-		this.iFrameInitTimeout = setTimeout(()=> {
-			this.showCurrent();
-			let starTime = Date.now();
-			this.loadingClip = false;
-			this.progressBarInterval = setInterval(()=> {
-				if(!this.clipData) return;
-				const duration = this.clipData.duration-1;
-				this.clipPercent = (Date.now() - starTime) / (duration*1000);
-				
-				if(this.clipPercent >= 1) {
-					this.clipData = null;
-					clearInterval(this.progressBarInterval);
-					PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {});
-				}
-			}, 500);
-		})
-	}
-
 	private async onShowClip(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 		
@@ -161,11 +139,34 @@ export default class OverlayChatHighlight extends Vue {
 		this.message = "";
 		this.user = null;
 		this.clipPercent = 0;
+		this.loadingClip = true;
 		// const res = await fetch(Config.instance.API_PATH+"/clip?id=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC", {method:"GET"});
 		// const html = await res.text();
 		// await this.$nextTick();
 		// if(this.clipData) {
 		// }
+	}
+
+	public onIFrameLoaded(e:unknown):void {
+		clearInterval(this.iFrameInitTimeout);
+		clearInterval(this.progressBarInterval);
+
+		this.iFrameInitTimeout = setTimeout(async ()=> {
+			this.loadingClip = false;
+			await this.$nextTick();
+			this.showCurrent();
+			const startTime = Date.now();
+			const duration = this.clipData!.duration;
+			console.log(duration, startTime);
+			this.progressBarInterval = setInterval(()=> {
+				this.clipPercent = (Date.now() - startTime) / (duration*1000);
+				
+				if(this.clipPercent >= 1) {
+					clearInterval(this.progressBarInterval);
+					PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {}, true);
+				}
+			}, 50);
+		}, 500);
 	}
 
 	private async hideCurrent():Promise<void> {
@@ -204,12 +205,15 @@ export default class OverlayChatHighlight extends Vue {
 
 	private showCurrent():void {
 		if(!this.params) return;
+		console.log(this.$refs.clip_holder);
 		const holder = (this.$refs.holder ?? this.$refs.clip_holder) as HTMLDivElement;
 		if(!holder) return;
 
 		const bounds = holder.getBoundingClientRect();
 		const winW = window.innerWidth;
 		const winH = window.innerHeight;
+		console.log(holder);
+		console.log(bounds);
 
 		if(this.params.position.indexOf("r") > -1){
 			gsap.from(holder, {x:winW, duration:1, ease:"sine.out"});
