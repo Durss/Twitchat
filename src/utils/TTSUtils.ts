@@ -283,11 +283,8 @@ export default class TTSUtils {
 				}
 				if(paramsTTS.removeEmotes===true) {
 					//Allow custom parsing of emotes only if it's a message of ours sent
-					//from twitchat to avoid killing performances.
-					//When seending a message, the one received back misses lots of info
-					//like the "id", in this case a custom ID is given that starts
-					//with "00000000"
-					const customParsing = m.tags.id?.indexOf("00000000") == 0;
+					//from current IRC client
+					const customParsing = m.sentLocally;
 					mess = TwitchUtils.parseEmotes(mess, m.tags["emotes-raw"], true, customParsing).map(elem=>elem.value).join(', ');
 				}
 				if(paramsTTS.removeURL) {

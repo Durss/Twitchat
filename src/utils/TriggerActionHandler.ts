@@ -482,7 +482,7 @@ export default class TriggerActionHandler {
 			if(testMode) canExecute = true;
 			
 			if(!trigger || data.actions.length == 0) canExecute = false;
-			// console.log(steps);
+			// console.log(data);
 			// console.log(message);
 			// console.log(canExecute);
 			
@@ -490,6 +490,7 @@ export default class TriggerActionHandler {
 				for (let i = 0; i < data.actions.length; i++) {
 					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
 					const step = data.actions[i];
+					console.log("Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
@@ -526,6 +527,30 @@ export default class TriggerActionHandler {
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
 						IRCClient.instance.sendMessage(text);
+					}else
+					
+					//Handle highlight action
+					if(step.type == "highlight") {
+						if(step.show) {
+							console.log("HIGHLIGHT", message);
+							let text = await this.parseText(eventType, message, step.text as string, false, subEvent, true);
+							console.log(text);
+							//Remove command name from message
+							if(subEvent) text = text.replace(subEvent, "").trim();
+							let user = null;
+							const m = message as IRCEventDataList.Message;
+							if(m.tags?.["user-id"]) {
+								[user] = await TwitchUtils.loadUserInfo([m.tags?.["user-id"] as string]);
+							}
+							const data = {
+											message: text,
+											user,
+											params:StoreProxy.store.state.chatHighlightOverlayParams,
+										}
+							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
+						}else{
+							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
+						}
 					}else
 					
 					//Handle TTS action
@@ -603,9 +628,8 @@ export default class TriggerActionHandler {
 								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
 								if(step.confirmMessage) {
 									let m = message.message;
-									if(subEvent) {
-										m = m.replace(subEvent, "").trim();
-									}
+									//Remove command name from message
+									if(subEvent) m = m.replace(subEvent, "").trim();
 									data.message = m;
 									const chatMessage = await this.parseText(eventType, data, step.confirmMessage);
 									IRCClient.instance.sendMessage(chatMessage);
@@ -682,7 +706,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode = false, subEvent?:string|null):Promise<string> {
+	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
@@ -700,35 +724,39 @@ export default class TriggerActionHandler {
 				console.warn("Unable to find pointer for helper", h);
 				value = "";
 			}
-			// console.log("Pointer:", h.pointer, "_ value:", value);
+
+			// console.log("Pointer:", h, "_ value:", value);
 			
+			h.tag = h.tag.toUpperCase();
+
 			if(h.tag === "SUB_TIER") {
 				if(!isNaN(value as number) && (value as number) > 0) {
 					value = Math.round((value as number)/1000)
 				}else{
 					value = 1;//Fallback just in case but shouldn't be necessary
 				}
-			}
+			}else
 
-			if(h.tag === "MESSAGE" && (message as IRCEventDataList.Message).tags?.['emotes-raw']) {
+			if(h.tag === "MESSAGE") {
 				const m = message as IRCEventDataList.Message;
-				if(m.message && m.tags) {
-					//Parse emotes
-					const chunks = TwitchUtils.parseEmotes(m.message as string, m.tags['emotes-raw'], true);
-					let cleanMessage = ""
-					//only keep text chunks to remove emotes
-					for (let i = 0; i < chunks.length; i++) {
-						const v = chunks[i];
-						if(v.type == "text") {
-							cleanMessage += v.value+" ";
-						}
+				//Parse emotes
+				const isReward = (message as IRCEventDataList.Highlight).reward != undefined;
+				const customParsing = m.sentLocally === true || isReward;
+				const chunks = TwitchUtils.parseEmotes(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
+				let cleanMessage = ""
+				//only keep text chunks to remove emotes
+				for (let i = 0; i < chunks.length; i++) {
+					const v = chunks[i];
+					if(v.type == "text") {
+						cleanMessage += v.value+" ";
+					}else
+					if((keepEmotes === true || isReward) && v.type == "emote") {
+						cleanMessage += "<img src=\""+v.value+"\" class=\"emote\">";
 					}
-					if(!subEvent) subEvent = "";
-					//Remove command from final text
-					value = cleanMessage.replace(new RegExp(subEvent, "i"), "").trim();
-				}else{
-					value = m.message;
 				}
+				if(!subEvent) subEvent = "";
+				//Remove command from final text
+				value = cleanMessage.replace(new RegExp(subEvent, "i"), "").trim();
 			}
 
 			//If it's a music placeholder for the ADDED TO QUEUE event
@@ -756,7 +784,9 @@ export default class TriggerActionHandler {
 
 			if(value && typeof value == "string") {
 				//Strip HTML tags (removes emotes and cheermotes)
-				value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+				if(!keepEmotes) {
+					value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+				}
 				
 				if(urlEncode) {
 					value = encodeURIComponent(value as string);

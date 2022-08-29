@@ -12,11 +12,25 @@
 					<div>You can change the appearance of the message by overriding these CSS IDs on OBS browser source params</div>
 					<ul>
 						<li>#highlight_holder { ... }</li>
+					</ul>
+					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
+						<li>#highlight_holder.position-tl { ... }</li>
+						<li>#highlight_holder.position-t { ... }</li>
+						<li>#highlight_holder.position-tr { ... }</li>
+						<li>#highlight_holder.position-l { ... }</li>
+						<li>#highlight_holder.position-m { ... }</li>
+						<li>#highlight_holder.position-r { ... }</li>
+						<li>#highlight_holder.position-bl { ... }</li>
+						<li>#highlight_holder.position-b { ... }</li>
+						<li>#highlight_holder.position-br { ... }</li>
+					</ToggleBlock>
+					<ul>
 						<li>#highlight_avatar { ... }</li>
 						<li>#highlight_infos { ... }</li>
 						<li>#highlight_login { ... }</li>
 						<li>#highlight_message { ... }</li>
-						<br>
+					</ul>
+					<ul>
 						<li>#clip_holder { ... }</li>
 						<li>#clip_player { ... }</li>
 						<li>#clip_progressbar { ... }</li>
@@ -203,6 +217,10 @@ export default class OverlayParamsHighlight extends Vue {
 
 			&.center {
 				align-items: center;
+			}
+
+			.cssPositionning {
+				margin-left: 1.7em;
 			}
 
 			&.placement {

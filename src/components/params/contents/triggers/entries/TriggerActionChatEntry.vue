@@ -25,7 +25,7 @@ export default class TriggerActionChatEntry extends Vue {
 	public action!:TriggerActionChatData;
 	public event!:string;
 	
-	public message_conf:ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
+	public message_conf:ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public beforeMount():void {
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event);

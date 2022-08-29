@@ -15,9 +15,10 @@
 					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
 				</div>
 				<div class="ctas">
-					<Button small :disabled="loading" title="Load 24h" :icon="$image('icons/user.svg')" @click="loadTimeframe(1)" />
+					<Button small :disabled="loading" title="Reload" :icon="$image('icons/refresh.svg')" @click="updateList()" />
+					<!-- <Button small :disabled="loading" title="Load 24h" :icon="$image('icons/user.svg')" @click="loadTimeframe(1)" />
 					<Button small :disabled="loading" title="Load 7d" :icon="$image('icons/user.svg')" @click="loadTimeframe(7)" />
-					<Button small :disabled="loading" title="Load 30d" :icon="$image('icons/user.svg')" @click="loadTimeframe(30)" />
+					<Button small :disabled="loading" title="Load 30d" :icon="$image('icons/user.svg')" @click="loadTimeframe(30)" /> -->
 				</div>
 			</div>
 
@@ -135,8 +136,11 @@ export default class TTUserList extends Vue {
 		this.$emit('close');
 	}
 
-	private async updateList():Promise<void> {
+	public async updateList():Promise<void> {
 		let res;
+		this.loading = true;
+		this.users = [];
+		this.usersSpool = [];
 		try {
 			res = await fetch(Config.instance.API_PATH+"/users", {
 				method: "GET",

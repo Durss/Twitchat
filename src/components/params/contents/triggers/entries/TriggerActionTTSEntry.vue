@@ -32,7 +32,7 @@ export default class TriggerActionTTSEntry extends Vue {
 	public action!:TriggerActionChatData;
 	public event!:string;
 
-	public message_conf:ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
+	public message_conf:ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get contentTTS():ParamsContentStringType { return ParamsContentType.TTS; }
 

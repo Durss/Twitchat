@@ -32,6 +32,8 @@
 				
 				<Button class="button" white @click="selectActionType('raffle')" title="Start a raffle" :icon="$image('icons/ticket_purple.svg')"/>
 				
+				<Button class="button" white @click="selectActionType('highlight')" title="Highlight on stream" :icon="$image('icons/highlight_purple.svg')" />
+				
 				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
 					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
@@ -61,6 +63,7 @@
 			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
 			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
+			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
@@ -87,6 +90,7 @@ import RaffleForm from '../../../raffle/RaffleForm.vue';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 
 @Options({
 	props:{
@@ -107,6 +111,7 @@ import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 		TriggerActionChatEntry,
 		TriggerActionMusicEntry,
 		TriggerActionVoicemodEntry,
+		TriggerActionHighlightEntry,
 	},
 	emits:["delete", "setContent", "duplicate"]
 })

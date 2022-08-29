@@ -1377,6 +1377,7 @@ const store = createStore({
 					if(v.type == "raffle") return true;
 					if(v.type == "bingo") return true;
 					if(v.type == "voicemod") return true;
+					if(v.type == "highlight") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -1633,11 +1634,8 @@ const store = createStore({
 			if(payload) {
 				let [user] = await TwitchUtils.loadUserInfo([payload.tags['user-id'] as string]);
 				//Allow custom parsing of emotes only if it's a message of ours sent
-				//from twitchat to avoid killing performances.
-				//When seending a message, the one received back misses lots of info
-				//like the "id", in this case a custom ID is given that starts
-				//with "00000000"
-				const customParsing = payload.tags.id?.indexOf("00000000") == 0;
+				//from current IRC client
+				const customParsing = payload.sentLocally;
 				const chunks = TwitchUtils.parseEmotes(payload.message, payload.tags['emotes-raw'], false, customParsing);
 				let result = "";
 				for (let i = 0; i < chunks.length; i++) {
@@ -1666,7 +1664,7 @@ const store = createStore({
 				// TriggerActionHandler.instance.onMessage(clonedData);
 			}
 			
-			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
+			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject);
 		},
 
 		setEmergencyMode(state, enable:boolean) {
@@ -2534,6 +2532,7 @@ const store = createStore({
 			//If OBS params are on URL or if connection is enabled, connect
 			if((state.obsConnectionEnabled || urlForced)
 			&& (port != undefined || pass != undefined || ip != undefined)) {
+				state.obsConnectionEnabled = true;
 				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 		},

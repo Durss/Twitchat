@@ -90,8 +90,9 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRaffleData
 								| TriggerActionBingoData
 								| TriggerActionVoicemodData
+								| TriggerActionHighlightData
 ;
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|null;
 
 export const TriggerEventTypeCategories = {
 	GLOBAL: 1,
@@ -162,6 +163,12 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	track:string;
 	confirmMessage:string;
 	playlist:string;
+}
+
+export interface TriggerActionHighlightData extends TriggerActionData{
+	type:"highlight";
+	show:boolean;
+	text:string;
 }
 
 export const ChatMessageInfoDataType = {

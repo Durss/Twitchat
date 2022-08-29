@@ -362,7 +362,7 @@ export default class IRCClient extends EventDispatcher {
 							if(m) {
 								(m.tags as tmi.ChatUserstate).id = (data as tmi.UserNoticeState).tags.id;
 								(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
-								this.addMessage(m.message, m.tags as tmi.ChatUserstate, m.self, undefined, m.channel);
+								this.addMessage(m.message, m.tags as tmi.ChatUserstate, m.self, undefined, m.channel, true);
 							}
 						}
 						break;
@@ -525,7 +525,7 @@ export default class IRCClient extends EventDispatcher {
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
 	}
 
-	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubDataTypes.AutomodData, channel?:string):void {
+	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubDataTypes.AutomodData, channel?:string, sentLocally:boolean = false):void {
 		const login = tags.username as string;
 
 		if(message == "!logJSON") console.log(this.idToExample);
@@ -546,6 +546,9 @@ export default class IRCClient extends EventDispatcher {
 												firstMessage:false,
 												automod
 											};
+		if(sentLocally) {
+			data.sentLocally = true;
+		}
 
 		//as TMI only send us back a fake message, some data are missing
 		if(!tags.id) tags.id = this.getFakeGuid();
@@ -614,7 +617,7 @@ export default class IRCClient extends EventDispatcher {
 		if(StoreProxy.store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
 			const blocked = StoreProxy.store.state.params.filters.blockedCommands.value as string;
 			if(blocked.length > 0) {
-				//Ignore all commands
+				//Ignore specific commands
 				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
 				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
 				const cmd = message.split(" ")[0].substring(1).trim().toLowerCase();
@@ -627,6 +630,51 @@ export default class IRCClient extends EventDispatcher {
 				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 				return;
 			}
+		}
+
+		if(tags["msg-id"] === "highlighted-message") {
+			const reward = UserSession.instance.highlightMyMessageReward;
+			const data:IRCEventDataList.Highlight = {
+				reward: {
+					timestamp: Date.now().toString(),
+					redemption: {
+						id: tags["msg-id"],
+						user: {
+							id: tags["user-id"] as string,
+							login: tags.username as string,
+							display_name: tags["display-name"] as string,
+						},
+						channel_id: UserSession.instance.user!.id,
+						redeemed_at: Date.now().toString(),
+						user_input: message,
+						reward: {
+							id: tags["msg-id"],
+							channel_id: UserSession.instance.user!.id,
+							title: reward.title,
+							prompt: reward.prompt,
+							cost: reward.cost,
+							is_user_input_required: reward.is_user_input_required,
+							is_sub_only: false,
+							image: reward.image!,
+							default_image: reward.default_image,
+							background_color: "#000000",
+							is_enabled: true,
+							is_paused: false,
+							is_in_stock: true,
+							max_per_stream: reward.max_per_stream_setting,
+							should_redemptions_skip_request_queue: false,
+							updated_for_indicator_at: Date.now().toString(),
+							max_per_user_per_stream: reward.max_per_user_per_stream_setting,
+							global_cooldown: reward.global_cooldown_setting,
+						},
+						status: "",
+					}
+				},
+				channel: IRCClient.instance.channel,
+				tags,
+				type:"highlight",
+			}
+			IRCClient.instance.sendHighlight(data);
 		}
 		
 		const loginLower = (tags.username as string).toLowerCase();

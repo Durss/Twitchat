@@ -58,6 +58,7 @@ export namespace IRCEventDataList {
 		occurrenceCount?: number;
 		highlightWord?: string;
 		hasMention?: boolean;
+		sentLocally?: boolean;//True if message is sent from the current IRC clien
 		msgID?: 'msg_rejected' | 'msg_rejected_mandatory';
 	}
 
@@ -129,6 +130,7 @@ export namespace IRCEventDataList {
 		occurrenceCount?: number;
 		highlightWord?: string;
 		blockedUser?: boolean;
+		sentLocally?: boolean;
 	}
 
 	export interface PollResult {

@@ -164,6 +164,7 @@ import { type TriggerData, type TriggerActionTypes, type TriggerEventTypes, Trig
 import ToggleButton from '../../ToggleButton.vue';
 import StoreProxy from '@/utils/StoreProxy';
 import ToggleBlock from '../../ToggleBlock.vue';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	props:{},
@@ -662,6 +663,10 @@ export default class ParamsTriggers extends Vue {
 			this.showLoading = false;
 			return;
 		}
+
+		//Push "Highlight my message" reward as it's not given by the API...
+		this.rewards.push(UserSession.instance.highlightMyMessageReward)
+
 		const list = this.rewards.sort((a,b)=> {
 			if(a.cost < b.cost) return -1;
 			if(a.cost > b.cost) return 1;
@@ -671,7 +676,7 @@ export default class ParamsTriggers extends Vue {
 		}).map((v):ParameterDataListValue => {
 			const enabled = StoreProxy.store.state.triggers[TriggerTypes.REWARD_REDEEM+"_"+v.id]?.enabled;
 			return {
-				label:v.title+"<span class='cost'>("+v.cost+")</span>",
+				label:v.title+(v.cost> 0? "<span class='cost'>("+v.cost+")</span>" : ""),
 				value:v.id,
 				enabled,
 				icon:v.image?.url_2x

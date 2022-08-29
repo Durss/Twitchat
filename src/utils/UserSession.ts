@@ -52,6 +52,48 @@ export default class UserSession {
 		this.emotesCacheHashmap = hashmap;
 		this._emotesCache = value;
 	}
+
+	public get highlightMyMessageReward():TwitchDataTypes.Reward {
+		const img = new URL(`/src/assets/icons/reward_highlight.svg`, import.meta.url).href;
+		return {
+			broadcaster_name: UserSession.instance.user!.login,
+			broadcaster_login: UserSession.instance.user!.login,
+			broadcaster_id: UserSession.instance.user!.id,
+			id: "highlighted-message",
+			image:{
+				url_1x:img,
+				url_2x:img,
+				url_4x:img,
+			},
+			background_color: "#9147ff",
+			is_enabled: true,
+			cost: -1,
+			title: "Highlight my message",
+			prompt: "",
+			is_user_input_required: true,
+			max_per_stream_setting: {
+				is_enabled: false,
+				max_per_stream: 0,
+			},
+			max_per_user_per_stream_setting: {
+				is_enabled: false,
+				max_per_user_per_stream: 0,
+			},
+			global_cooldown_setting: {
+				is_enabled: false,
+				global_cooldown_seconds: 0,
+			},
+			is_paused: false,
+			is_in_stock: true,
+			default_image: {
+				url_1x:img,
+				url_2x:img,
+				url_4x:img,
+			},
+			should_redemptions_skip_request_queue: false,
+		}
+	}
+
 	
 	
 	

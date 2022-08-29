@@ -234,6 +234,7 @@ import TTSUtils from '@/utils/TTSUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import gsap from 'gsap';
+import Store from '@/store/Store';
 
 @Options({
 	props:{
@@ -551,48 +552,6 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/userlist") {
-			StoreProxy.store.state.tempStoreValue = params[0];
-			this.$emit('TTuserList');
-			this.message = "";
-		}else
-
-		if(cmd == "/userdata") {
-			if(params.length == 0) {
-				StoreProxy.store.state.alert = "Missing user name";
-			}else{
-				this.loading = true;
-				let users:TwitchDataTypes.UserInfo[] = [];
-				try {
-					users = await TwitchUtils.loadUserInfo(undefined, [params[0]])
-				}catch(error) {}
-
-				if(users.length == 0) {
-					StoreProxy.store.state.alert = "User not found";
-				}else{
-					const options = {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							"Authorization": "Bearer "+UserSession.instance.access_token as string,
-						},
-					}
-					const res = await fetch(Config.instance.API_PATH+"/userdata?uid="+users[0].id, options)
-					if(res.status === 200) {
-						const json = await res.json();
-						const data = JSON.stringify(json.data);
-						const blob = new Blob([data], { type: 'application/json' });
-						const url = window.URL.createObjectURL(blob);
-						window.open(url, "_blank");
-					}else{
-						StoreProxy.store.state.alert = "Unable to load user data";
-					}
-				}
-				this.loading = false;
-			}
-			this.message = "";
-		}else
-
 		if(cmd == "/alphatest1") {
 			this.$emit("debug", 1);
 			this.message = "";
@@ -666,7 +625,6 @@ export default class ChatForm extends Vue {
 		}else
 		
 		if(cmd == "/userinfo") {
-			//Secret feature
 			if(!params[0]) {
 				await IRCClient.instance.sendNotice("error", "Missing user name param");
 			}else{
@@ -696,14 +654,14 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/delete") {
-			//Secret feature
+		if(cmd == "/deletemessage") {
+			//Delete a chat message from its ID
 			IRCClient.instance.deleteMessage(params[0]);
 			this.message = "";
 		}else
 		
 		if(cmd == "/raw") {
-			//Secret feature
+			//Allows to display a message on chat from its raw JSON
 			console.log(params.join(""));
 			try {
 				IRCClient.instance.sendFakeEvent(undefined, JSON.parse(params.join("")));
@@ -728,7 +686,56 @@ export default class ChatForm extends Vue {
 			StoreProxy.store.dispatch("ttsReadUser", payload);
 			this.message = "";
 			this.loading = false;
-		}else{
+		}else
+
+		if(cmd == "/userlist") {
+			StoreProxy.store.state.tempStoreValue = params[0];
+			this.$emit('TTuserList');
+			this.message = "";
+		}else
+
+		if(cmd == "/userdata" || cmd == "/loaduserdata") {
+			if(params.length == 0) {
+				StoreProxy.store.state.alert = "Missing user name";
+			}else{
+				this.loading = true;
+				let users:TwitchDataTypes.UserInfo[] = [];
+				try {
+					users = await TwitchUtils.loadUserInfo(undefined, [params[0]])
+				}catch(error) {}
+
+				if(users.length == 0) {
+					StoreProxy.store.state.alert = "User not found";
+				}else{
+					const options = {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": "Bearer "+UserSession.instance.access_token as string,
+						},
+					}
+					const res = await fetch(Config.instance.API_PATH+"/userdata?uid="+users[0].id, options)
+					if(res.status === 200) {
+						const json = await res.json();
+						if(cmd === "/loaduserdata") {
+							Store.loadFromJSON(json.data);
+						}else{
+							//Open JSOn on new tab
+							const data = JSON.stringify(json.data);
+							const blob = new Blob([data], { type: 'application/json' });
+							const url = window.URL.createObjectURL(blob);
+							window.open(url, "_blank");
+						}
+					}else{
+						StoreProxy.store.state.alert = "Unable to load user data";
+					}
+				}
+				this.loading = false;
+			}
+			this.message = "";
+		}else
+		
+		{
 			//Send message
 			try {
 				if(StoreProxy.store.state.cypherEnabled) {

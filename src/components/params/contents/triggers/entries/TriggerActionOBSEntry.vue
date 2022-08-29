@@ -49,7 +49,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
 	public source_conf:ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
 	public filter_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
-	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg" };
+	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
 	public media_conf:ParameterData = { label:"Media file", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;

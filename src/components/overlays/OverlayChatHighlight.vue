@@ -1,11 +1,11 @@
 <template>
 	<div class="overlaychathighlight">
-		<div :class="classes" ref="holder" id="highlight_holder" v-if="params && user">
-			<div class="profilePic" id="highlight_avatar">
+		<div :class="classes" ref="holder" id="highlight_holder" v-if="params">
+			<div class="profilePic" id="highlight_avatar" v-if="user">
 				<img :src="user.profile_image_url">
 			</div>
 			<div class="infos" id="highlight_infos">
-				<div class="login" id="highlight_login">{{user.display_name}}</div>
+				<div class="login" id="highlight_login" v-if="user">{{user.display_name}}</div>
 				<div class="message" id="highlight_message" v-html="message"></div>
 			</div>
 		</div>
@@ -124,7 +124,7 @@ export default class OverlayChatHighlight extends Vue {
 		this.loadingClip = true;
 		this.clipPercent = 0;
 
-		if(this.message && this.params && this.user) {
+		if(this.message && this.params) {
 			await this.$nextTick();
 			this.showCurrent();
 		}

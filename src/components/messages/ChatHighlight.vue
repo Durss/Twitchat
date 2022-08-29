@@ -216,7 +216,9 @@ export default class ChatHighlight extends Vue {
 				this.username = localObj.redemption.user.display_name as string;
 				res = "";
 				res += ` redeemed the reward <strong>${localObj.redemption.reward.title}</strong>`;
-				res += ` <span class='small'>(${localObj.redemption.reward.cost} pts)</span>`;
+				if(localObj.redemption.reward.cost > -1) {//It's set to -1 for "highlight my message" reward
+					res += ` <span class='small'>(${localObj.redemption.reward.cost} pts)</span>`;
+				}
 				if(this.messageData.reward?.redemption.reward.image) {
 					this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
 				}else{
@@ -259,10 +261,8 @@ export default class ChatHighlight extends Vue {
 		let text = this.messageData.message;
 		if(text) {
 			try {
-				//Allow custom parsing of emotes only if it's a message of ours
-				//or a reward to avoid killing performances.
-				const customParsing = this.messageData.tags.id?.indexOf("00000000") == 0
-										|| this.messageData.reward != null;
+				//Allow custom parsing of emotes only if it's a reward to avoid killing performances.
+				const customParsing = this.messageData.reward != null;
 				let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";

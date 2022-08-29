@@ -34,6 +34,7 @@ import Button from './Button.vue';
  */
 
 @Options({
+	name:"ToggelBlock",
 	props:{
 		title:String,
 		icons:Array,

@@ -27,8 +27,8 @@ export default class ChatAlertMessage extends Vue {
 			if(message && StoreProxy.store.state.chatAlertParams.message === true
 			&& StoreProxy.store.state.params.features.alertMode.value === true) {
 				let text = message.type == "whisper"? message.params[1] : message.message;
-				//Allow custom parsing of emotes only if it's a message of ours
-				const customParsing = message.tags.id?.indexOf("00000000") == 0;
+				//Allow custom parsing of emotes only if it's a message of ours sent from current IRC client
+				const customParsing = message.sentLocally === true;
 				let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, message.tags['emotes-raw'], removeEmotes, customParsing);
 				let result = "";
