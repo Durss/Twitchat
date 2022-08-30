@@ -992,7 +992,6 @@ export default class PubSub extends EventDispatcher{
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
 		};
-		console.log("LEVEL UP", train.level, train.currentValue/train.goal);
 
 		//This line makes debug easier if I wanna start the train at any
 		//point of its timeline

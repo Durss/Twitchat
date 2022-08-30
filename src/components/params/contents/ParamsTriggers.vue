@@ -247,13 +247,13 @@ export default class ParamsTriggers extends Vue {
 				//If it's a chat action, it needs at least the message to be defined
 				if(!(a.text?.length > 0)) continue;
 			}
-			// else
-			// if(a.type == "music"){
-			// }
 			canTest = true;
 			break;
 		}
-		return canTest;
+		//Check if a JSON example is available
+		const entry = TriggerEvents.find(v=>v.value == this.currentEvent?.value);
+		const hasJSON = entry ? entry.jsonTest != undefined : false;
+		return canTest && hasJSON;
 	}
 
 	/**
@@ -364,6 +364,7 @@ export default class ParamsTriggers extends Vue {
 		for (let i = 0; i < events.length; i++) {
 			const ev = events[i];
 			if(ev.category != currCat || i === events.length-1) {
+				if(i === events.length-1) catEvents.push(ev);
 				this.eventCategories.push({
 					label: catToLabel[catEvents[0].category],
 					icon: catToIcon[catEvents[0].category],
@@ -376,7 +377,6 @@ export default class ParamsTriggers extends Vue {
 			currCat = ev.category
 			// this.event_conf.value = events[0].value;
 		}
-		
 		
 		this.eventsList = events;
 	}
@@ -467,10 +467,10 @@ export default class ParamsTriggers extends Vue {
 			// console.log(this.triggerKey, this.triggerData);
 			StoreProxy.store.dispatch("setTrigger", { key:this.triggerKey, data:this.triggerData});
 		// }
-		if(this.isChatCmd || this.isSchedule) {
+		// if(this.isChatCmd || this.isSchedule) {
 			//Preselects the current subevent
-			await this.onSelectTrigger(true);
-		}
+			// await this.onSelectTrigger(true);
+		// }
 
 		//As we watch for any modifications on "actionCategory" and we
 		//modify it during the save process, we need to freeze the save
@@ -498,6 +498,8 @@ export default class ParamsTriggers extends Vue {
 				json.message = this.triggerData.name + " lorem ipsum";
 			}
 			TriggerActionHandler.instance.onMessage(json, true);
+		}else if(this.isSchedule) {
+			//TODO
 		}
 	}
 
@@ -515,6 +517,7 @@ export default class ParamsTriggers extends Vue {
 				this.currentEvent = null;
 			}
 			this.resetTriggerData();
+			this.onSelectTrigger();
 		}).catch(()=> {});
 	}
 

@@ -1364,6 +1364,7 @@ const store = createStore({
 		},
 
 		setTrigger(state, value:{key:string, data:TriggerData}) {
+			if(!value.key) return;
 			value.key = value.key.toLowerCase();
 
 			//remove incomplete entries
@@ -1496,7 +1497,7 @@ const store = createStore({
 					type: "shoutout",
 					user:userInfos[0],
 					stream:channelInfo[0],
-				}
+				};
 				TriggerActionHandler.instance.onMessage(trigger)
 			}else{
 				//Warn user doesn't exist
@@ -1539,6 +1540,7 @@ const store = createStore({
 					duration:Date.now() - state.timerStart,
 				},
 			};
+			console.log(message);
 			TriggerActionHandler.instance.onMessage(message);
 		},
 
