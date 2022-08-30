@@ -1370,14 +1370,15 @@ const store = createStore({
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
 					if(v.type == null) return false;
-					if(v.type == "obs") return v.sourceName?.length > 0;
-					if(v.type == "chat") return v.text?.length > 0;
+					if(v.type == "obs") return true;//v.sourceName?.length > 0;
+					if(v.type == "chat") return true;//v.text?.length > 0;
 					if(v.type == "music") return true;
 					if(v.type == "tts") return true;
 					if(v.type == "raffle") return true;
 					if(v.type == "bingo") return true;
 					if(v.type == "voicemod") return true;
 					if(v.type == "highlight") return true;
+					if(v.type == "trigger") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -1391,10 +1392,10 @@ const store = createStore({
 				if(value.data.name) {
 					//If name has been changed, cleanup the previous one from storage
 					if(value.data.prevKey) {
-						delete state.triggers[value.data.prevKey];
+						delete state.triggers[value.data.prevKey.toLowerCase()];
 						delete value.data.prevKey;
 					}
-					if(value.data.actions.length == 0) remove = true;
+					// if(value.data.actions.length == 0) remove = true;
 				}else{
 					//Name not defined, don't save it
 					delete state.triggers[value.key.toLowerCase()];

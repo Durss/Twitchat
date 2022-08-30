@@ -62,7 +62,7 @@
 				</ToggleBlock>
 
 				<!-- Sublist -->
-				<div v-if="isSublist && !currentSubEvent && subeventsList && subeventsList.length > 0"
+				<div v-if="isSublist && !currentSubEvent && actionList.length==0 && subeventsList && subeventsList.length > 0"
 				v-for="e in subeventsList" :key="(e.value as string)" class="item">
 					<Button :class="getSubListClasses(e)"
 						white
@@ -81,7 +81,7 @@
 			</div>
 		</div>
 
-		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && currentSubEvent)) && !showLoading">
+		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
 			<div class="text" v-html="triggerDescription"></div>
 
 			<div class="ctas" v-if="currentEvent && obsConnected">
@@ -93,8 +93,8 @@
 				/>
 			</div>
 
-			<div class="ctas" v-if="canTestAction">
-				<Button title="Test trigger" class="cta" @click="testTrigger()" :icon="$image('icons/test.svg')" />
+			<div class="ctas">
+				<Button v-if="canTestAction" title="Test trigger" class="cta" @click="testTrigger()" :icon="$image('icons/test.svg')" />
 				<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="$image('icons/delete.svg')" />
 			</div>
 		</div>
@@ -102,24 +102,24 @@
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
 		<TriggerActionChatCommandParams class="chatCmdParams"
-			v-if="isChatCmd && triggerData && actionList.length > 0"
+			v-if="isChatCmd && triggerData && (currentSubEvent || actionList.length > 0)"
 			:actionData="triggerData"
 		/>
 
 		<Button :icon="$image('icons/whispers.svg')" title="Create chat command"
-			v-if="isChatCmd && actionList.length == 0"
+			v-if="isChatCmd && !currentSubEvent && actionList.length == 0"
 			class="addBt"
 			@click="addAction()"
 		/>
 
 
 		<TriggerActionScheduleParams class="chatCmdParams"
-			v-if="isSchedule && triggerData && actionList.length > 0"
+			v-if="isSchedule && triggerData && (currentSubEvent || actionList.length > 0)"
 			:actionData="triggerData"
 		/>
 
 		<Button :icon="$image('icons/date.svg')" title="Add scheduled action"
-			v-if="isSchedule && actionList.length == 0"
+			v-if="isSchedule && !currentSubEvent && actionList.length == 0"
 			class="addBt"
 			@click="addAction()"
 		/>
@@ -434,8 +434,11 @@ export default class ParamsTriggers extends Vue {
 	 * Called when deleting an action item
 	 */
 	public deleteAction(index:number):void {
-		this.$confirm("Delete action ?").then(()=> {
+		this.$confirm("Delete action ?").then(async ()=> {
+			// if(this.actionList.length == 1) this.canSave = false;
 			this.actionList.splice(index, 1);
+			// await this.$nextTick();
+			// this.canSave = true;
 		}).catch(()=> {});
 	}
 
@@ -460,13 +463,13 @@ export default class ParamsTriggers extends Vue {
 
 		//Save the trigger only if it can be tested which means it
 		//has the minimum necessary data defined
-		if(this.canTestAction) {
+		// if(this.canTestAction) {
 			// console.log(this.triggerKey, this.triggerData);
 			StoreProxy.store.dispatch("setTrigger", { key:this.triggerKey, data:this.triggerData});
-		}
+		// }
 		if(this.isChatCmd || this.isSchedule) {
 			//Preselects the current subevent
-			this.onSelectTrigger(true);
+			await this.onSelectTrigger(true);
 		}
 
 		//As we watch for any modifications on "actionCategory" and we
@@ -584,12 +587,13 @@ export default class ParamsTriggers extends Vue {
 						this.currentSubEvent = select;
 					}
 				}
-			}else if(StoreProxy.store.state.triggers[key]){
-				const trigger = JSON.parse(JSON.stringify(StoreProxy.store.state.triggers[key]));//Avoid modifying the original data
+			}else if(StoreProxy.store.state.triggers[key.toLowerCase()]){
+				const trigger = JSON.parse(JSON.stringify(StoreProxy.store.state.triggers[key.toLowerCase()]));//Avoid modifying the original data
 				this.actionList = (trigger as TriggerData).actions;
 			}else{
 				this.actionList = [];
 			}
+
 			if(!this.isSublist && this.actionList.length == 0) {
 				this.addAction();
 				// StoreProxy.store.state.triggers[this.triggerKey].enabled = true;

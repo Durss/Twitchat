@@ -450,14 +450,15 @@ export default class TriggerActionHandler {
 	 * 
 	 * @returns true if the trigger was executed
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string):Promise<boolean> {
+	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		const trigger = this.triggers[ eventType ];
-		// console.log("PARSE STEPS", eventType, trigger, message);
 		
 		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;
 		}else{
+			// console.log("PARSE STEPS", eventType);
+			// console.log("PARSE STEPS", eventType, trigger, message);
 			const data = trigger as TriggerData;
 			if(!data.enabled) return false;
 			let canExecute = true;
@@ -490,9 +491,11 @@ export default class TriggerActionHandler {
 			
 			if(canExecute) {
 				for (let i = 0; i < data.actions.length; i++) {
-					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
+					if(guid != this.currentSpoolGUID) {
+						return true;//Stop there, something asked to override the current exec sequence
+					}
 					const step = data.actions[i];
-					// console.log("Parse step", step);
+					// console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
@@ -575,6 +578,16 @@ export default class TriggerActionHandler {
 					if(step.type == "voicemod") {
 						if(step.voiceID) {
 							VoicemodWebSocket.instance.enableVoiceEffect(step.voiceID)
+						}
+					}else
+					
+					//Handle sub trigger action
+					if(step.type == "trigger") {
+						if(step.triggerKey) {
+							const trigger = this.triggers[step.triggerKey];
+							if(trigger) {
+								await this.parseSteps(step.triggerKey, message, testMode, guid, undefined, undefined, false);
+							}
 						}
 					}else
 
@@ -696,10 +709,13 @@ export default class TriggerActionHandler {
 			// console.log("Steps parsed", actions);
 		}
 
-		//Remove item done
-		this.actionsSpool.shift();
-		if(this.actionsSpool.length > 0) {
-			this.executeNext();
+
+		if(autoExecuteNext) {
+			//Remove item done
+			this.actionsSpool.shift();
+			if(this.actionsSpool.length > 0) {
+				this.executeNext();
+			}
 		}
 
 		return true;

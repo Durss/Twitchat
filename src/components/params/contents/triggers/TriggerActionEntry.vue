@@ -222,7 +222,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public selectActionType(type:TriggerActionStringTypes):void {
-		this.action.type = type
+		this.action.type = type;
 	}
 
 }

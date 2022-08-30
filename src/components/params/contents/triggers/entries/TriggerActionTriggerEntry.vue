@@ -8,7 +8,7 @@
 
 		<img src="@/assets/loader/loader.svg" alt="loading" class="loader" v-if="loading">
 		
-		<vue-select class="item list" v-model="selectedTrigger"
+		<vue-select class="item list" v-model="action.triggerKey"
 		v-if="triggerList?.length > 1"
 		placeholder="Select a trigger..."
 		:options="triggerList"
@@ -50,12 +50,11 @@ export default class TriggerActionTriggerEntry extends Vue {
 	public event!:string;
 
 	public loading:boolean = true;
-	public selectedTrigger:{label:string, trigger:TriggerData, info:TriggerEventTypes}|null = null;
-	public triggerList:{label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
+	public triggerList:{triggerKey:string, label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
 
 	private rewards:TwitchDataTypes.Reward[] = [];
 
-	public reduceSelectData(option:{label:string, trigger:TriggerData}){ return option.label; }
+	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TriggerData}){ return option.triggerKey; }
 
 	/**
 	 * Gets a trigger's icon
@@ -68,7 +67,14 @@ export default class TriggerActionTriggerEntry extends Vue {
 		return this.$image("icons/"+e.icon+"_purple.svg");
 	}
 
-	public async mounted():Promise<void> {
+	public mounted():void {
+		this.populateList();
+	}
+
+	/**
+	 * Loads all existing triggers
+	 */
+	private async populateList():Promise<void> {
 		const triggers = StoreProxy.store.state.triggers;
 		this.triggerList = [];
 		for (const key in triggers) {
@@ -83,6 +89,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 					if(subKey == "highlighted-message") {
 						//Special case for "highlight my message" reward
 						this.triggerList.push({
+							triggerKey:key,
 							label:UserSession.instance.highlightMyMessageReward.title,
 							trigger:triggers[key],
 							info,
@@ -96,6 +103,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 						const reward = this.rewards.find(v=> v.id == subKey);
 						if(reward) {
 							this.triggerList.push({
+								triggerKey:key,
 								label:reward.title,
 								trigger:triggers[key],
 								info,
@@ -106,6 +114,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 					//Not a reward
 					//It's a Chat Command or Scheduled action (or anything new done after this comment)
 					this.triggerList.push({
+						triggerKey:key,
 						label:subKey,
 						trigger:triggers[key],
 						info,
@@ -113,6 +122,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 				}
 			}else{
 				this.triggerList.push({
+					triggerKey:key,
 					label:info.label,
 					trigger:triggers[key],
 						info,
