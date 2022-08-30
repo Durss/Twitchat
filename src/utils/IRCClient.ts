@@ -634,6 +634,10 @@ export default class IRCClient extends EventDispatcher {
 
 		if(tags["msg-id"] === "highlighted-message") {
 			const reward = UserSession.instance.highlightMyMessageReward;
+			const rewardTags = JSON.parse(JSON.stringify(tags));
+			//Replace actual message ID otherwise we would get duplicate keys
+			//because of the classic hat message, which would mess everything up !
+			rewardTags.id = this.getFakeGuid();
 			const data:IRCEventDataList.Highlight = {
 				reward: {
 					timestamp: Date.now().toString(),
@@ -671,10 +675,10 @@ export default class IRCClient extends EventDispatcher {
 					}
 				},
 				channel: IRCClient.instance.channel,
-				tags,
+				tags:rewardTags,
 				type:"highlight",
 			}
-			IRCClient.instance.sendHighlight(data);
+			this.sendHighlight(data);
 		}
 		
 		const loginLower = (tags.username as string).toLowerCase();
