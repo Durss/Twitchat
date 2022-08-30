@@ -60,7 +60,17 @@ http.createServer((request, response) => {
 					deezer_client_id:credentials.deezer_client_id,
 					deezer_dev_client_id:credentials.deezer_dev_client_id,
 				}));
-					return;
+				return;
+
+			//Get latest script
+			}else if(endpoint == "/api/script") {
+				const file = fs.readdirSync("./dist/assets").find(v => /index\..*\.js/gi.test(v));
+				const txt = fs.readFileSync("./dist/assets/"+file, {encoding:"utf8"});
+				response.writeHead(200, {'Content-Type': 'application/javascript'});
+				response.end(txt);
+				return;
+
+				return;
 		
 			//Get/Set user data
 			}else if(endpoint == "/api/user") {
