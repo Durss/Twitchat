@@ -214,21 +214,21 @@ export default class ChatAd extends Vue {
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
-		//Push a message after closing the ad
-		// if(this.isUpdate) {
-		// 	if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
-		// 		setTimeout(()=> {
-		// 			StoreProxy.store.dispatch("addChatMessage",{
-		// 			type:"ad",
-		// 				channel:"#"+UserSession.instance.authToken.login,
-		// 				markedAsRead:false,
-		// 				contentID:TwitchatAdTypes.UPDATE_WARNING,
-		// 				tags:{id:"twitchatAd"+Math.random()}
-		// 			});
-		// 		}, 1000);
-		// 		Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
-		// 	}
-		// }
+		if(this.isUpdate) {
+			if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
+				//Push a message after closing the ad
+				// setTimeout(()=> {
+				// 	StoreProxy.store.dispatch("addChatMessage",{
+				// 	type:"ad",
+				// 		channel:"#"+UserSession.instance.authToken.login,
+				// 		markedAsRead:false,
+				// 		contentID:TwitchatAdTypes.UPDATE_WARNING,
+				// 		tags:{id:"twitchatAd"+Math.random()}
+				// 	});
+				// }, 1000);
+				Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
+			}
+		}
 		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
 	}

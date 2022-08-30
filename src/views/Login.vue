@@ -149,7 +149,7 @@ export default class Login extends Vue {
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 		let redirect = this.$router.currentRoute.value.params?.redirect;
 
-		if(redirect) {
+		if(redirect && redirect != "logout") {
 			Store.set("redirect", redirect, false);
 		}
 
@@ -166,6 +166,8 @@ export default class Login extends Vue {
 				}else{
 					StoreProxy.store.dispatch("authenticate", {code, csrf, cb:(success:boolean)=> {
 						this.authenticating = false;
+						//Make sure data are properly loaded from server/localstorage
+						StoreProxy.store.dispatch("loadDataFromStorage", true);
 						if(success) {
 							redirect = Store.get("redirect");
 							Store.remove("redirect");
