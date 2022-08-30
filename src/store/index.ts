@@ -1397,23 +1397,24 @@ const store = createStore({
 					if(value.data.actions.length == 0) remove = true;
 				}else{
 					//Name not defined, don't save it
-					delete state.triggers[value.key];
+					delete state.triggers[value.key.toLowerCase()];
 					return;
 				}
 			}else{
 				if(value.data.actions.length == 0) remove = true;
 			}
 			if(remove) {
-				delete state.triggers[value.key];
+				delete state.triggers[value.key.toLowerCase()];
 			}else{
 				value.data.actions = cleanEmptyActions(value.data.actions);
-				state.triggers[value.key] = value.data;
+				state.triggers[value.key.toLowerCase()] = value.data;
 			}
 			Store.set(Store.TRIGGERS, state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
 		},
 
 		deleteTrigger(state, key:string) {
+			key = key.toLowerCase();
 			if(state.triggers[key]) {
 				delete state.triggers[key];
 				Store.set(Store.TRIGGERS, state.triggers);

@@ -108,9 +108,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 <style scoped lang="less">
 .TriggerActionchatcommandparams{
-	.title {
-		text-align: center;
-	}
 
 	.cmdNameConflict {
 		background-color: @mainColor_alert;
@@ -138,12 +135,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 				min-width: unset;
 			}
 		}
-	}
-
-	.saveBt {
-		display: block;
-		margin: auto;
-		margin-top: .5em;
 	}
 }
 </style>

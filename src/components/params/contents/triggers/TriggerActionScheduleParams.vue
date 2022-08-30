@@ -7,16 +7,9 @@
 	:icons="['params']">
 
 		<ParamItem class="row" :paramData="param_name" @focusout="onUpdateName()" :error="nameConflict" />
-		<div v-if="nameConflict" class="cmdNameConflict">A schedule with this name already exists</div>
+		<div v-if="nameConflict" class="nameConflict">A schedule with this name already exists</div>
 
-		<!-- <Button type="button"
-			title="Delete"
-			class="saveBt"
-			v-if="isChange"
-			@click="save()"
-			:icon="$image('icons/save.svg')"
-			:disabled="param_cmd.value === ''"
-		/> -->
+		
 	</ToggleBlock>
 </template>
 
@@ -88,6 +81,33 @@ export default class TriggerActionScheduleParams extends Vue {
 
 <style scoped lang="less">
 .triggeractionscheduleparams{
-	
+
+	.nameConflict {
+		background-color: @mainColor_alert;
+		color: @mainColor_light;
+		text-align: center;
+		margin:auto;
+		display: block;
+		width: 300px;
+		padding: .25em;
+		border-bottom-left-radius: .5em;
+		border-bottom-right-radius: .5em;
+	}
+
+	.row{
+		margin:auto;
+		max-width: 300px;
+		&:not(:first-child) {
+			margin-top: .5em;
+		}
+
+		.cooldown {
+			:deep(input) {
+				width: 75px;
+				flex-grow: unset;
+				min-width: unset;
+			}
+		}
+	}
 }
 </style>
