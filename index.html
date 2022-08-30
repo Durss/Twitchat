@@ -67,7 +67,14 @@
 		 * there seems to be a little annoying sometimes
 		 */
 		function onLoadError(error, script) {
-			const url = new URL(script.src);
+			const SERVER_PORT = 3018;
+			const IS_PROD = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
+			let API_PATH = "/api";
+			if(!IS_PROD) {
+				API_PATH = document.location.protocol+"//"+document.location.hostname+":"+SERVER_PORT+"/api";
+			}
+
+			const url = new URL(API_PATH+"/script");
 			let date = parseInt(url.searchParams.get("ck"));
 			let counter = parseInt(url.searchParams.get("cki"));
 			if(isNaN(counter)) counter = 0;
