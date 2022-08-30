@@ -95,8 +95,9 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionBingoData
 								| TriggerActionVoicemodData
 								| TriggerActionHighlightData
+								| TriggerActionTriggerData
 ;
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|null;
 
 export const TriggerEventTypeCategories = {
 	GLOBAL: 1,
@@ -114,6 +115,7 @@ export interface TriggerEventTypes extends ParameterDataListValue {
 	category:TriggerEventTypeCategoryValue;
 	label:string;
 	value:string;
+	icon:string,
 	description?:string,
 	isCategory?:boolean,
 	jsonTest?:unknown,
@@ -175,6 +177,11 @@ export interface TriggerActionHighlightData extends TriggerActionData{
 	text:string;
 }
 
+export interface TriggerActionTriggerData extends TriggerActionData{
+	type:"trigger";
+	triggerKey:string;
+}
+
 export const ChatMessageInfoDataType = {
 	AUTOMOD: "automod",
 	WHISPER: "whisper",
@@ -191,6 +198,7 @@ export interface ChatMessageInfoData {
 export interface ParameterDataListValue {
 	label:string;
 	value:string | number | boolean | undefined;
+	icon?:string;
 	[parameter: string]: unknown;
 }
 

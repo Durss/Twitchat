@@ -34,6 +34,8 @@
 				
 				<Button class="button" white @click="selectActionType('highlight')" title="Highlight on stream" :icon="$image('icons/highlight_purple.svg')" />
 				
+				<Button class="button" white @click="selectActionType('trigger')" title="Trigger" :icon="$image('icons/broadcast_purple.svg')" />
+				
 				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
 					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
@@ -64,6 +66,7 @@
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
 			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
 			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
+			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
@@ -91,6 +94,7 @@ import BingoForm from '../../../bingo/BingoForm.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
+import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 
 @Options({
 	props:{
@@ -110,6 +114,7 @@ import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.v
 		TriggerActionTTSEntry,
 		TriggerActionChatEntry,
 		TriggerActionMusicEntry,
+		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 	},

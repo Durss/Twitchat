@@ -770,6 +770,7 @@ const UserDataSchema = {
 										confirmMessage: {type:"string", maxLength:500},
 										playlist: {type:"string", maxLength:500},
 										voiceID: {type:"string", maxLength:100},
+										triggerKey: {type:"string", maxLength:100},
 										raffleData: {
 											type: "object",
 											additionalProperties: false,

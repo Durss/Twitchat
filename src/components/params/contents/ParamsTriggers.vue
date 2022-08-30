@@ -15,7 +15,7 @@
 				
 				<!-- Main event title -->
 				<div v-if="currentEvent" class="mainCategoryTitle">
-					<img v-if="getIcon(currentEvent)" :src="getIcon(currentEvent) ?? ''">
+					<img :src="getIcon(currentEvent)">
 					
 					<div class="label">{{currentEvent?.label}}</div>
 
@@ -29,7 +29,7 @@
 				
 				<!-- Sub event title -->
 				<div v-if="currentSubEvent" class="subCategoryTitle">
-					<img v-if="getIcon(currentSubEvent)" :src="getIcon(currentSubEvent) ?? ''">
+					<img :src="getIcon(currentSubEvent)">
 					
 					<div class="label" v-html="currentSubEvent?.label"></div>
 
@@ -118,7 +118,7 @@
 			:actionData="triggerData"
 		/>
 
-		<Button :icon="$image('icons/date.svg')" title="Add scheduled trigger"
+		<Button :icon="$image('icons/date.svg')" title="Add scheduled action"
 			v-if="isSchedule && actionList.length == 0"
 			class="addBt"
 			@click="addAction()"
@@ -277,64 +277,19 @@ export default class ParamsTriggers extends Vue {
 	 */
 	public getSubListClasses(e:TriggerEventTypes|ParameterDataListValue):string[] {
 		const res = ["triggerBt", "subItem"];
-		if(this.getIcon(e) && e.value != "0") res.push("hasIcon");
+		if(this.getIcon(e)) res.push("hasIcon");
 		return res;
 	}
 
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerEventTypes|ParameterDataListValue):string|null {
-		if(e.icon) {
+	public getIcon(e:TriggerEventTypes|ParameterDataListValue):string {
+		if(!e.icon) return "";
+		if(e.icon.indexOf("/") > -1) {
 			return e.icon as string;
 		}
-		const map:{[key:string]:string} = {}
-		map[TriggerTypes.FIRST_ALL_TIME] = "firstTime_purple";
-		map[TriggerTypes.FIRST_TODAY] = "firstTime_purple";
-		map[TriggerTypes.RETURNING_USER] = "returning_purple";
-		map[TriggerTypes.POLL_RESULT] = "poll_purple";
-		map[TriggerTypes.PREDICTION_RESULT] = "prediction_purple";
-		map[TriggerTypes.RAFFLE_RESULT] = "ticket_purple";
-		map[TriggerTypes.BINGO_RESULT] = "bingo_purple";
-		map[TriggerTypes.CHAT_COMMAND] = "whispers_purple";
-		map[TriggerTypes.SUB] = "sub_purple";
-		map[TriggerTypes.SUBGIFT] = "gift_purple";
-		map[TriggerTypes.BITS] = "bits_purple";
-		map[TriggerTypes.FOLLOW] = "follow_purple";
-		map[TriggerTypes.RAID] = "raid_purple";
-		map[TriggerTypes.REWARD_REDEEM] = "channelPoints_purple";
-		map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = "music_purple";
-		map[TriggerTypes.MUSIC_START] = "music_purple";
-		map[TriggerTypes.MUSIC_STOP] = "music_purple";
-		map[TriggerTypes.TIMER_START] = "timer_purple";
-		map[TriggerTypes.TIMER_STOP] = "timer_purple";
-		map[TriggerTypes.COUNTDOWN_START] = "countdown_purple";
-		map[TriggerTypes.COUNTDOWN_STOP] = "countdown_purple";
-		map[TriggerTypes.STREAM_INFO_UPDATE] = "info_purple";
-		map[TriggerTypes.EMERGENCY_MODE_START] = "emergency_purple";
-		map[TriggerTypes.EMERGENCY_MODE_STOP] = "emergency_purple";
-		map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = "highlight_purple";
-		map[TriggerTypes.CHAT_ALERT] = "alert_purple";
-		map[TriggerTypes.HYPE_TRAIN_APPROACH] = "train_purple";
-		map[TriggerTypes.HYPE_TRAIN_START] = "train_purple";
-		map[TriggerTypes.HYPE_TRAIN_PROGRESS] = "train_purple";
-		map[TriggerTypes.HYPE_TRAIN_END] = "train_purple";
-		map[TriggerTypes.HYPE_TRAIN_CANCELED] = "train_purple";
-		map[TriggerTypes.VOICEMOD] = "voicemod_purple";
-		map[TriggerTypes.SHOUTOUT] = "shoutout_purple";
-		map[TriggerTypes.TIMEOUT] = "timeout_purple";
-		map[TriggerTypes.BAN] = "ban_purple";
-		map[TriggerTypes.UNBAN] = "unban_purple";
-		map[TriggerTypes.VIP] = "vip_purple";
-		map[TriggerTypes.UNVIP] = "unvip_purple";
-		map[TriggerTypes.MOD] = "mod_purple";
-		map[TriggerTypes.UNMOD] = "unmod_purple";
-		map[TriggerTypes.SCHEDULE] = "date_purple";
-		
-		if(map[e.value as string]) {
-			return  this.$image('icons/'+map[e.value as string]+".svg");
-		}
-		return null;
+		return this.$image("icons/"+e.icon+"_purple.svg");
 	}
 
 	/**

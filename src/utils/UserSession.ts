@@ -55,7 +55,7 @@ export default class UserSession {
 	}
 
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
-		const img = rewardImg;//new URL(`/src/assets/icons/reward_highlight.svg`, import.meta.url).href;
+		const img = rewardImg;
 		return {
 			broadcaster_name: UserSession.instance.user!.login,
 			broadcaster_login: UserSession.instance.user!.login,
