@@ -483,19 +483,18 @@ export default class ChatHighlight extends Vue {
 				vertical-align: middle;
 				object-fit: contain;
 			}
-			&::before {
+			&::before, &::after {
 				content: "“";
 				font-family: "Nunito";
+				font-style: normal;
 				font-size: 2em;
-				vertical-align: middle;
-				margin-right: 10px;
+				line-height: .25em;
+				vertical-align: text-bottom;
+				margin-right: .2em;
 			}
 			&::after {
 				content: "”";
-				font-family: "Nunito";
-				font-size: 2em;
-				vertical-align: middle;
-				margin-left: 6px;
+				margin-left: .2em;
 			}
 		}
 
