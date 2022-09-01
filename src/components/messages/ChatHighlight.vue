@@ -181,8 +181,15 @@ export default class ChatHighlight extends Vue {
 				} else if(this.messageData.months) {
 					res += ` for ${this.messageData.months} months`;
 				}
+				let extras:string[] = [];
+				if(typeof this.messageData.tags["msg-param-multimonth-duration"] !== "boolean") {
+					extras.push(`for ${this.messageData.tags["msg-param-multimonth-duration"]} months in advance`);
+				}
 				if(typeof this.messageData.tags['msg-param-streak-months'] === "string") {
-					res += ` (${this.messageData.tags['msg-param-streak-months']} months streak)`;
+					extras.push(`${this.messageData.tags['msg-param-streak-months']} months streak`);
+				}
+				if(extras.length) {
+					res += " <i>("+extras.join(" ")+")</i>"
 				}
 				this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 				break;
