@@ -21,7 +21,17 @@
 				{{ option.label }}
 			</template>
 		</vue-select>
-		{{isDependencyLoop()}}
+		
+		<div v-if="dependencyLoopInfos.length > 0" class="dependencyLoop">
+			<div class="title">Dependency loop detected. This may make twitchat unstable</div>
+			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="item" :data-tooltip="d.event?.label">
+				<div class="infos">
+					<img v-if="d.event?.icon" :src="$image('icons/'+d.event?.icon+'.svg')"
+						:alt="d.event?.icon">
+					<span class="label">{{d.label}}</span>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -32,6 +42,7 @@ import StoreProxy from '@/utils/StoreProxy';
 import { TriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 
@@ -40,6 +51,7 @@ import ToggleBlock from '../../../../ToggleBlock.vue';
 		action:Object,
 		event:Object,
 		triggerData:Object,
+		triggerKey:String,
 	},
 	components:{
 		ToggleBlock,
@@ -50,37 +62,13 @@ export default class TriggerActionTriggerEntry extends Vue {
 	public action!:TriggerActionTriggerData;
 	public event!:TriggerEventTypes;
 	public triggerData!:TriggerData;
+	public triggerKey!:string;
 
 	public loading:boolean = true;
+	public dependencyLoopInfos:{event?:TriggerEventTypes, label:string}[] = [];
 	public triggerList:{triggerKey:string, label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
 
 	private rewards:TwitchDataTypes.Reward[] = [];
-
-	public isDependencyLoop(base?:TriggerData, key?:string):string[] {
-		if(!this.action.triggerKey) return [];
-		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
-		let found:string[] = [];
-		if(!base) {
-			base = triggers[this.action.triggerKey];
-			key = this.action.triggerKey;
-		}
-		if(!base.actions) return [];
-		console.log(this.action.triggerKey, base);
-		let name = base.name ?? TriggerEvents.find(v=> v.value === (key as string).split("_")[0])?.label as string;
-		for (let i = 0; i < base.actions.length; i++) {
-			const a = base.actions[i];
-			if(a.type == "trigger") {
-				if(a.id == this.action.id) {
-					found.push(name);
-					break;
-				}else if(a.triggerKey){
-					const list = this.isDependencyLoop( triggers[a.triggerKey], a.triggerKey );
-					if(list.length > 0) return found.concat( list );
-				}
-			}
-		}
-		return found;
-	}
 
 	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TriggerData}){ return option.triggerKey; }
 
@@ -97,6 +85,37 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	public mounted():void {
 		this.populateList();
+		watch(()=>this.action.triggerKey, ()=> {
+			this.buildDependencyLoop();
+		});
+	}
+
+	public checkDependencyLoop(base?:TriggerData, key?:string):string[] {
+		if(!this.action.triggerKey) return [];
+		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		let found:string[] = [];
+		if(!base) {
+			base = this.triggerData;
+			key = this.triggerKey;
+		}
+		if(!base.actions) return [];
+		// console.log(this.action.triggerKey, base);
+		for (let i = 0; i < base.actions.length; i++) {
+			const a = base.actions[i];
+			if(a.type == "trigger") {
+				if(a.triggerKey == this.triggerKey) {
+					found.push(key as string);
+					break;
+				}else if(a.triggerKey){
+					const list = this.checkDependencyLoop( triggers[a.triggerKey], a.triggerKey );
+					if(list.length > 0) {
+						found.push(key as string);
+						found = found.concat( list );
+					}
+				}
+			}
+		}
+		return found;
 	}
 
 	/**
@@ -158,6 +177,25 @@ export default class TriggerActionTriggerEntry extends Vue {
 			}
 		}
 		this.loading = false;
+		this.buildDependencyLoop();
+	}
+
+	private buildDependencyLoop():void {
+		const links = this.checkDependencyLoop();
+		if(links.length > 0) {
+			links.push(links[0]);
+			this.dependencyLoopInfos = links.map(v => {
+				const chunks = v.split("_");
+				const type = chunks[0];
+				const event = TriggerEvents.find(v=> v.value === type);
+				return {
+					event: event,
+					label: chunks[1],
+				}
+			});
+		}else{
+			this.dependencyLoopInfos = [];
+		}
 	}
 
 }
@@ -186,6 +224,54 @@ export default class TriggerActionTriggerEntry extends Vue {
 		&.list {
 			margin-top: .5em;
 			margin-bottom: .5em;
+		}
+	}
+
+	.dependencyLoop{
+		background-color: @mainColor_warn;
+		color: @mainColor_light;
+		padding: .5em;
+		border-radius: .5em;
+
+		.title {
+			margin-bottom: .5em;
+		}
+
+		.item {
+			display: inline-block;
+			cursor: default;
+			
+			&:not(:last-child) {
+				&:after {
+					content:"=>";
+					margin: 0 .5em;
+				}
+			}
+
+			&:not(.item ~ .item),//This means first item with class ".item"
+			&:last-child {
+				.infos {
+					// color: @mainColor_warn;
+				background-color: lighten(@mainColor_warn, 5%);
+
+					.label {
+						// font-weight: bold;
+					}
+				}
+			}
+
+			.infos {
+				border: 1px solid @mainColor_light;
+				border-radius: .25em;
+				display: inline-block;
+				padding: .25em;
+				background-color: darken(@mainColor_warn, 5%);
+				img {
+					height: 1em;
+					vertical-align: middle;
+					margin-right: .25em;
+				}
+			}
 		}
 	}
 }

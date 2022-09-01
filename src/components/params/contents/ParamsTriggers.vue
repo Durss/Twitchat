@@ -142,6 +142,7 @@
 					:sources="sources"
 					:event="currentEvent"
 					:triggerData="triggerData"
+					:triggerKey="triggerKey"
 					@delete="deleteAction(index)"
 					@duplicate="duplicateAction(element, index)"
 					@setContent="(v:string)=>$emit('setContent', v)"

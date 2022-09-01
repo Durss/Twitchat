@@ -66,7 +66,7 @@
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
 			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
 			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
-			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" />
+			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
@@ -101,9 +101,10 @@ import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 		action:Object,
 		sources:Object,
 		triggerData:Object,
+		event:Object,
 		index:Number,
 		totalItems:Number,
-		event:Object,
+		triggerKey:String,
 	},
 	components:{
 		Button,
@@ -126,6 +127,7 @@ export default class TriggerActionEntry extends Vue {
 	public action!:TriggerActionTypes;
 	public triggerData!:TriggerData;
 	public sources!:OBSSourceItem[];
+	public triggerKey!:string;
 	public index!:number;
 	public totalItems!:number;
 	public event!:TriggerEventTypes;
