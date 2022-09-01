@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, ParameterDataListValue, TriggerActionHighlightData } from '@/types/TwitchatDataTypes';
+import type { ParameterData, ParameterDataListValue, TriggerActionHighlightData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -16,7 +16,7 @@ import ParamItem from '../../../ParamItem.vue';
 @Options({
 	props:{
 		action:Object,
-		event:String,
+		event:Object,
 	},
 	components:{
 		ParamItem,
@@ -26,7 +26,7 @@ import ParamItem from '../../../ParamItem.vue';
 export default class TriggerActionHighlightEntry extends Vue {
 
 	public action!:TriggerActionHighlightData;
-	public event!:string;
+	public event!:TriggerEventTypes;
 
 	private showHideValues:ParameterDataListValue[] = [
 		{label:"Hide", value:false},
@@ -38,7 +38,7 @@ export default class TriggerActionHighlightEntry extends Vue {
 	
 	public beforeMount():void {
 		if(this.action.show == undefined) this.action.show = true;
-		this.message_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
 	}
 
 }

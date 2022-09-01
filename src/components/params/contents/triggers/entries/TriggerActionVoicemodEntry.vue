@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionVoicemodData } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionVoicemodData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -20,7 +20,7 @@ import ParamItem from '../../../ParamItem.vue';
 @Options({
 	props:{
 		action:Object,
-		event:String,
+		event:Object,
 	},
 	components:{
 		ParamItem,
@@ -30,7 +30,7 @@ import ParamItem from '../../../ParamItem.vue';
 export default class TriggerActionVoicemodEntry extends Vue {
 	
 	public action!:TriggerActionVoicemodData;
-	public event!:string;
+	public event!:TriggerEventTypes;
 
 	public param_voiceList:ParameterData = {type:"list", label:"Voice", listValues:[], value:""}
 	

@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionChatData } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -20,7 +20,7 @@ import ParamItem from '../../../ParamItem.vue';
 @Options({
 	props:{
 		action:Object,
-		event:String,
+		event:Object,
 	},
 	components:{
 		ParamItem,
@@ -30,14 +30,14 @@ import ParamItem from '../../../ParamItem.vue';
 export default class TriggerActionTTSEntry extends Vue {
 	
 	public action!:TriggerActionChatData;
-	public event!:string;
+	public event!:TriggerEventTypes;
 
 	public message_conf:ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get contentTTS():ParamsContentStringType { return ParamsContentType.TTS; }
 
 	public beforeMount():void {
-		this.message_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
 	}
 
 }

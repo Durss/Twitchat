@@ -66,7 +66,7 @@
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
 			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
 			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
-			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" />
+			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
@@ -79,7 +79,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ParameterData, TriggerActionStringTypes, TriggerActionTypes } from '@/types/TwitchatDataTypes';
+import type { ParameterData, TriggerActionStringTypes, TriggerActionTypes, TriggerEventTypes, TriggerData } from '@/types/TwitchatDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '@/components/params/ParamItem.vue';
@@ -100,9 +100,10 @@ import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 	props:{
 		action:Object,
 		sources:Object,
+		triggerData:Object,
 		index:Number,
 		totalItems:Number,
-		event:String,
+		event:Object,
 	},
 	components:{
 		Button,
@@ -123,10 +124,11 @@ import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 export default class TriggerActionEntry extends Vue {
 
 	public action!:TriggerActionTypes;
+	public triggerData!:TriggerData;
 	public sources!:OBSSourceItem[];
 	public index!:number;
 	public totalItems!:number;
-	public event!:string;
+	public event!:TriggerEventTypes;
 
 	public opened = false;
 	public isError = false;
@@ -177,6 +179,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "raffle") icons.push( 'ticket' );
 		if(this.action.type == "bingo") icons.push( 'bingo' );
 		if(this.action.type == "voicemod") icons.push( 'voicemod' );
+		if(this.action.type == "trigger") icons.push( 'broadcast' );
 		return icons;
 	}
 

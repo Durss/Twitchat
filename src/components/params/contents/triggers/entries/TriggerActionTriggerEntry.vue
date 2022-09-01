@@ -21,7 +21,7 @@
 				{{ option.label }}
 			</template>
 		</vue-select>
-
+		{{isDependencyLoop()}}
 	</div>
 </template>
 
@@ -38,7 +38,8 @@ import ToggleBlock from '../../../../ToggleBlock.vue';
 @Options({
 	props:{
 		action:Object,
-		event:String,
+		event:Object,
+		triggerData:Object,
 	},
 	components:{
 		ToggleBlock,
@@ -47,12 +48,39 @@ import ToggleBlock from '../../../../ToggleBlock.vue';
 export default class TriggerActionTriggerEntry extends Vue {
 
 	public action!:TriggerActionTriggerData;
-	public event!:string;
+	public event!:TriggerEventTypes;
+	public triggerData!:TriggerData;
 
 	public loading:boolean = true;
 	public triggerList:{triggerKey:string, label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
 
 	private rewards:TwitchDataTypes.Reward[] = [];
+
+	public isDependencyLoop(base?:TriggerData, key?:string):string[] {
+		if(!this.action.triggerKey) return [];
+		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		let found:string[] = [];
+		if(!base) {
+			base = triggers[this.action.triggerKey];
+			key = this.action.triggerKey;
+		}
+		if(!base.actions) return [];
+		console.log(this.action.triggerKey, base);
+		let name = base.name ?? TriggerEvents.find(v=> v.value === (key as string).split("_")[0])?.label as string;
+		for (let i = 0; i < base.actions.length; i++) {
+			const a = base.actions[i];
+			if(a.type == "trigger") {
+				if(a.id == this.action.id) {
+					found.push(name);
+					break;
+				}else if(a.triggerKey){
+					const list = this.isDependencyLoop( triggers[a.triggerKey], a.triggerKey );
+					if(list.length > 0) return found.concat( list );
+				}
+			}
+		}
+		return found;
+	}
 
 	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TriggerData}){ return option.triggerKey; }
 
@@ -75,7 +103,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateList():Promise<void> {
-		const triggers = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
 		this.triggerList = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
@@ -129,7 +157,6 @@ export default class TriggerActionTriggerEntry extends Vue {
 				});
 			}
 		}
-		console.log(this.triggerList);
 		this.loading = false;
 	}
 

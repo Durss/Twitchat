@@ -29,25 +29,22 @@ import { ParamsContentType, TriggerEventTypeCategories, type ParameterData, type
 import Config from '@/utils/Config';
 import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
-import ToggleBlock from '../../../../ToggleBlock.vue';
 import ParamItem from '../../../ParamItem.vue';
-import PlaceholderSelector from '../../../PlaceholderSelector.vue';
+
 
 @Options({
 	props:{
 		action:Object,
-		event:String,
+		event:Object,
 	},
 	components:{
 		ParamItem,
-		ToggleBlock,
-		PlaceholderSelector,
 	},
 })
 export default class TriggerActionMusicEntry extends Vue {
 
 	public action!:TriggerActionMusicEntryData;
-	public event!:string;
+	public event!:TriggerEventTypes;
 
 	public actions_conf:ParameterData = { label:"Action", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:ParameterData = { label:"Track (name or URL)", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
@@ -62,15 +59,15 @@ export default class TriggerActionMusicEntry extends Vue {
 	public mounted():void {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [
-			{label:"Select an action...", value:"0", category:TriggerEventTypeCategories.MUSIC},
+			{label:"Select an action...", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
 		];
 		events = events.concat(MusicTriggerEvents);
 		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;
 		this.actions_conf.listValues = events;
 
-		this.track_conf.placeholderList = TriggerActionHelpers(this.event);
-		this.confirmSongRequest_conf.placeholderList = TriggerActionHelpers(this.event);
-		this.playlist_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.track_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.confirmSongRequest_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.playlist_conf.placeholderList = TriggerActionHelpers(this.event.value);
 
 	}
 
