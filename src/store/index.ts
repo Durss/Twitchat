@@ -1394,6 +1394,22 @@ const store = createStore({
 					//If name has been changed, cleanup the previous one from storage
 					if(value.data.prevKey) {
 						delete state.triggers[value.data.prevKey.toLowerCase()];
+						//Update trigger dependencies if any is pointing
+						//to the old trigger's name
+						for (const key in state.triggers) {
+							if(key == value.key) continue;
+							const t = state.triggers[key];
+							for (let i = 0; i < t.actions.length; i++) {
+								const a = t.actions[i];
+								if(a.type == "trigger") {
+									//Found a trigger dep' pointing to the old trigger's name,
+									//update it with the new name
+									if(a.triggerKey === value.data.prevKey) {
+										a.triggerKey = value.key;
+									}
+								}
+							}
+						}
 						delete value.data.prevKey;
 					}
 					// if(value.data.actions.length == 0) remove = true;

@@ -23,7 +23,7 @@
 		</vue-select>
 		
 		<div v-if="dependencyLoopInfos.length > 0" class="dependencyLoop">
-			<div class="title">Dependency loop detected. This may make twitchat unstable</div>
+			<div class="title">Dependency loop detected.<br>This may make twitchat unstable</div>
 			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="item" :data-tooltip="d.event?.label">
 				<div class="infos">
 					<img v-if="d.event?.icon" :src="$image('icons/'+d.event?.icon+'.svg')"
@@ -88,34 +88,9 @@ export default class TriggerActionTriggerEntry extends Vue {
 		watch(()=>this.action.triggerKey, ()=> {
 			this.buildDependencyLoop();
 		});
-	}
-
-	public checkDependencyLoop(base?:TriggerData, key?:string):string[] {
-		if(!this.action.triggerKey) return [];
-		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
-		let found:string[] = [];
-		if(!base) {
-			base = this.triggerData;
-			key = this.triggerKey;
-		}
-		if(!base.actions) return [];
-		// console.log(this.action.triggerKey, base);
-		for (let i = 0; i < base.actions.length; i++) {
-			const a = base.actions[i];
-			if(a.type == "trigger") {
-				if(a.triggerKey == this.triggerKey) {
-					found.push(key as string);
-					break;
-				}else if(a.triggerKey){
-					const list = this.checkDependencyLoop( triggers[a.triggerKey], a.triggerKey );
-					if(list.length > 0) {
-						found.push(key as string);
-						found = found.concat( list );
-					}
-				}
-			}
-		}
-		return found;
+		watch(()=>this.triggerKey, ()=> {
+			this.buildDependencyLoop();
+		});
 	}
 
 	/**
@@ -181,7 +156,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	}
 
 	private buildDependencyLoop():void {
-		const links = this.checkDependencyLoop();
+		const links = this.recursiveLoopCheck();
 		if(links.length > 0) {
 			links.push(links[0]);
 			this.dependencyLoopInfos = links.map(v => {
@@ -196,6 +171,34 @@ export default class TriggerActionTriggerEntry extends Vue {
 		}else{
 			this.dependencyLoopInfos = [];
 		}
+	}
+
+	private recursiveLoopCheck(base?:TriggerData, key?:string):string[] {
+		if(!this.action.triggerKey) return [];
+		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		let found:string[] = [];
+		if(!base) {
+			base = this.triggerData;
+			key = this.triggerKey;
+		}
+		if(!base.actions) return [];
+		// console.log(this.action.triggerKey, base);
+		for (let i = 0; i < base.actions.length; i++) {
+			const a = base.actions[i];
+			if(a.type == "trigger") {
+				if(a.triggerKey == this.triggerKey) {
+					found.push(key as string);
+					break;
+				}else if(a.triggerKey && triggers[a.triggerKey]){
+					const list = this.recursiveLoopCheck( triggers[a.triggerKey], a.triggerKey );
+					if(list.length > 0) {
+						found.push(key as string);
+						found = found.concat( list );
+					}
+				}
+			}
+		}
+		return found;
 	}
 
 }
@@ -232,6 +235,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 		color: @mainColor_light;
 		padding: .5em;
 		border-radius: .5em;
+		text-align: center;
 
 		.title {
 			margin-bottom: .5em;
