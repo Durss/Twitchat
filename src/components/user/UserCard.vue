@@ -98,6 +98,7 @@ export default class UserCard extends Vue {
 		watch(() => StoreProxy.store.state.userCard, () => {
 			this.username = StoreProxy.store.state.userCard;
 			if(this.username == null) return;
+			this.username = this.username.replace(/^@/g, "");
 			this.loadUserInfo();
 		});
 
