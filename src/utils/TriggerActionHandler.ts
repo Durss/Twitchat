@@ -87,8 +87,6 @@ export default class TriggerActionHandler {
 		const message = this.actionsSpool[0];
 		if(!message) return;
 
-		console.log("Execute next !");
-
 		// console.log("Execute next", message);
 
 		if((message.type == "message" || message.type == "highlight")) {

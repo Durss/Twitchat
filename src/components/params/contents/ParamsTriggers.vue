@@ -476,10 +476,10 @@ export default class ParamsTriggers extends Vue {
 			// console.log(this.triggerKey, this.triggerData);
 			StoreProxy.store.dispatch("setTrigger", { key:this.triggerKey, data:this.triggerData});
 		// }
-		// if(this.isChatCmd || this.isSchedule) {
-			//Preselects the current subevent
-			// await this.onSelectTrigger(true);
-		// }
+		if(this.isChatCmd || this.isSchedule) {
+			// Preselects the current subevent
+			await this.onSelectTrigger(true);
+		}
 
 		//As we watch for any modifications on "actionCategory" and we
 		//modify it during the save process, we need to freeze the save

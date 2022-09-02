@@ -40,30 +40,57 @@ export default class SchedulerHelper {
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			if(mainKey == TriggerTypes.SCHEDULE) {
-				const trigger = triggers[key];
-				if(!trigger.scheduleParams) continue;
-
-				switch(trigger.scheduleParams.type) {
-					case TriggerScheduleTypes.REGULAR_REPEAT:{
-						this._pendingTriggers.push({
-							messageCount:0,
-							date:Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000,
-							triggerKey:key,
-						})
-						break;
-					}
-
-					case TriggerScheduleTypes.SPECIFIC_DATES:{
-						break;
-					}
-				}
+				this.scheduleTrigger(key, triggers[key]);
 			}
 		}
 	}
 
+	/**
+	 * Called when a messages is sent on tchat (not from twitchat)
+	 */
 	public incrementMessageCount():void {
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			this._pendingTriggers[i].messageCount++;
+		}
+	}
+
+	/**
+	 * Unschedule the requested trigger byt its key
+	 * @param key 
+	 * @returns 
+	 */
+	public unscheduleTrigger(key:string):void {
+		const existingIndex = this._pendingTriggers.findIndex(v=>v.triggerKey == key);
+		if(existingIndex > -1) {
+			this._pendingTriggers.splice(existingIndex, 1);
+		}
+	}
+
+	/**
+	 * Schedules a trigger and reset its scheduling if already scheduled
+	 * @param key 
+	 * @param trigger 
+	 * @returns 
+	 */
+	public scheduleTrigger(key:string, trigger:TriggerData):void {
+		if(!trigger.scheduleParams) return;
+
+		//Cleanup any previously scheduled trigger
+		this.unscheduleTrigger(key);
+
+		switch(trigger.scheduleParams.type) {
+			case TriggerScheduleTypes.REGULAR_REPEAT:{
+				this._pendingTriggers.push({
+					messageCount:0,
+					date:Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000,
+					triggerKey:key,
+				})
+				break;
+			}
+
+			case TriggerScheduleTypes.SPECIFIC_DATES:{
+				break;
+			}
 		}
 	}
 	

@@ -1427,6 +1427,11 @@ const store = createStore({
 								}
 							}
 						}
+						//If it is a schedule
+						if(value.key.split("_")[0] === TriggerTypes.SCHEDULE) {
+							//Remove old one from scheduling
+							SchedulerHelper.instance.unscheduleTrigger(value.data.prevKey);
+						}
 						delete value.data.prevKey;
 					}
 					// if(value.data.actions.length == 0) remove = true;
@@ -1444,6 +1449,12 @@ const store = createStore({
 				value.data.actions = cleanEmptyActions(value.data.actions);
 				state.triggers[value.key.toLowerCase()] = value.data;
 			}
+
+			//If it is a schedule trigger add it to the scheduler
+			if(value.key.split("_")[0] === TriggerTypes.SCHEDULE) {
+				SchedulerHelper.instance.scheduleTrigger(value.key, value.data);
+			}
+			
 			Store.set(Store.TRIGGERS, state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
 		},
