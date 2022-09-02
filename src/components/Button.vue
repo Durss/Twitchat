@@ -267,7 +267,6 @@ export default class Button extends Vue {
 			padding: 19px;
 			font-size: 1.25em;
 		}
-
 	}
 
 	&.checkbox {
@@ -424,8 +423,10 @@ export default class Button extends Vue {
 		border-radius: 5px;
 		font-size: .85em;
 		min-height: calc(.85em + 8px);
-		.icon {
-			margin-right: 3px;
+		&:not(.noTitle) {
+			.icon {
+				margin-right: 3px;
+			}
 		}
 		&.checkbox {
 			padding: 0;

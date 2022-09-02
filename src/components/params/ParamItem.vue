@@ -88,6 +88,10 @@
 			:key="'child_'+index+c.id"
 			:paramData="c"
 			:childLevel="childLevel+1" />
+
+		<div class="child" ref="param_child_slot" v-if="showSlot">
+			<slot></slot>
+		</div>
 	</div>
 </template>
 
@@ -138,6 +142,7 @@ export default class ParamItem extends Vue {
 	public modelValue!:string|boolean|number|string[];
 
 	public key:string = Math.random().toString();
+	public showSlot:boolean = false;
 	public children:ParameterData[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
@@ -223,17 +228,24 @@ export default class ParamItem extends Vue {
 
 	private async buildChildren():Promise<void> {
 		if(this.paramData.value === false){
-			if(this.children.length > 0) {
+			if(this.children.length > 0 || this.$refs.param_child_slot) {
 				//Hide transition
-				const childrenItems = this.$refs.param_child as Vue[];
-				const divs = childrenItems.map(v => v.$el);
+				let divs:HTMLDivElement[] = [];
+				if(this.$refs.param_child_slot) {
+					divs = [this.$refs.param_child_slot as HTMLDivElement];
+				}else{
+					const childrenItems = this.$refs.param_child as Vue[];
+					divs = childrenItems.map(v => v.$el);
+				}
 				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
 						onComplete:()=> {
+							this.showSlot = false;
 							this.children = [];
 						}});
 			}
 			return;
 		}
+
 		const list = StoreProxy.store.state.params;
 		let children:ParameterData[] = [];
 		for (const key in list) {
@@ -249,13 +261,21 @@ export default class ParamItem extends Vue {
 			children = children.concat(this.paramData.children);
 		}
 		
+		if(this.showSlot || this.children == children) return;
+		
 		this.children = children;
+		this.showSlot = true;
+		await this.$nextTick();
 
-		if(children.length > 0){
+		if(children.length > 0 || this.$refs.param_child_slot){
 			//Show transitions
-			await this.$nextTick();
-			const childrenItems = this.$refs.param_child as Vue[];
-			const divs = childrenItems.map(v => v.$el);
+			let divs:HTMLDivElement[] = [];
+			if(this.$refs.param_child_slot) {
+				divs = [this.$refs.param_child_slot as HTMLDivElement];
+			}else{
+				const childrenItems = this.$refs.param_child as Vue[];
+				divs = childrenItems.map(v => v.$el);
+			}
 			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
 		}
 	}

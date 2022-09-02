@@ -1,6 +1,7 @@
 <template>
 	<div class="triggeractiontriggerentry">
 		<div class="item">Execute another trigger.</div>
+		<div class="info">This is a beta feature! If you experience any unexpected behavior with it please <a :href="discordURL" target="_blank">let me know on Discord</a>!</div>
 		<ToggleBlock class="item" title="Important warning" :open="false" small>
 			Placeholders may not be available on the selected trigger.<br>
 			<u>Example:</u> If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {USER} and {MESSAGE} placeholders won't be available as it won't be executed from an actual chat message.
@@ -24,8 +25,8 @@
 		
 		<div v-if="dependencyLoopInfos.length > 0" class="dependencyLoop">
 			<div class="title">Dependency loop detected.<br>This may make twitchat unstable</div>
-			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="item" :data-tooltip="d.event?.label">
-				<div class="infos">
+			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="loopItem" :data-tooltip="d.event?.label">
+				<div class="loopInfo">
 					<img v-if="d.event?.icon" :src="$image('icons/'+d.event?.icon+'.svg')"
 						:alt="d.event?.icon">
 					<span class="label">{{d.label}}</span>
@@ -38,6 +39,7 @@
 <script lang="ts">
 import type { TriggerActionTriggerData, TriggerData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
 import { TriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -67,8 +69,10 @@ export default class TriggerActionTriggerEntry extends Vue {
 	public loading:boolean = true;
 	public dependencyLoopInfos:{event?:TriggerEventTypes, label:string}[] = [];
 	public triggerList:{triggerKey:string, label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
-
+	
 	private rewards:TwitchDataTypes.Reward[] = [];
+
+	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TriggerData}){ return option.triggerKey; }
 
@@ -98,7 +102,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 */
 	private async populateList():Promise<void> {
 		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
-		this.triggerList = [];
+		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			const info:TriggerEventTypes|undefined = TriggerEvents.find(v=> v.value === mainKey);
@@ -110,7 +114,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 				if(mainKey == TriggerTypes.REWARD_REDEEM) {
 					if(subKey == "highlighted-message") {
 						//Special case for "highlight my message" reward
-						this.triggerList.push({
+						list.push({
 							triggerKey:key,
 							label:UserSession.instance.highlightMyMessageReward.title,
 							trigger:triggers[key],
@@ -124,7 +128,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 						}
 						const reward = this.rewards.find(v=> v.id == subKey);
 						if(reward) {
-							this.triggerList.push({
+							list.push({
 								triggerKey:key,
 								label:reward.title,
 								trigger:triggers[key],
@@ -135,7 +139,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 				}else{
 					//Not a reward
 					//It's a Chat Command or Scheduled action (or anything new done after this comment)
-					this.triggerList.push({
+					list.push({
 						triggerKey:key,
 						label:subKey,
 						trigger:triggers[key],
@@ -143,7 +147,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 					});
 				}
 			}else{
-				this.triggerList.push({
+				list.push({
 					triggerKey:key,
 					label:info.label,
 					trigger:triggers[key],
@@ -151,6 +155,16 @@ export default class TriggerActionTriggerEntry extends Vue {
 				});
 			}
 		}
+		list.sort((a, b)=> {
+			const ka = a.triggerKey.split("_")[0];
+			const kb = b.triggerKey.split("_")[0];
+			if(ka > kb) return 1;
+			if(ka < kb) return -1;
+			if(a.triggerKey > b.triggerKey) return 1;
+			if(a.triggerKey < b.triggerKey) return -1;
+			return 0;
+		})
+		this.triggerList = list;
 		this.loading = false;
 		this.buildDependencyLoop();
 	}
@@ -210,6 +224,26 @@ export default class TriggerActionTriggerEntry extends Vue {
 	//.listIcon style is on index.less.
 	//Couldn't make it work from the template even in a unscoped tag
 
+	.info {
+		overflow: hidden;
+		padding: .5em;
+		padding-left: 1em;
+		background-color: @mainColor_light;
+		border-radius: .5em;
+		margin-bottom: .5em;
+		font-size: .8em;
+		img {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
+		}
+		.label {
+			display: inline;
+			color: @mainColor_warn;
+		}
+	}
+
+
 	.loader {
 		height: 2m;
 		margin: auto;
@@ -241,7 +275,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 			margin-bottom: .5em;
 		}
 
-		.item {
+		.loopItem {
 			display: inline-block;
 			cursor: default;
 			
@@ -252,14 +286,14 @@ export default class TriggerActionTriggerEntry extends Vue {
 				}
 			}
 
-			&:not(.item ~ .item),//This means "first item with class .item"
+			&:not(.loopItem ~ .loopItem),//This means "first item with class .loopItem"
 			&:last-child {
-				.infos {
+				.loopInfo {
 					background-color: lighten(@mainColor_warn, 5%);
 				}
 			}
 
-			.infos {
+			.loopInfo {
 				border: 1px solid @mainColor_light;
 				border-radius: .25em;
 				display: inline-block;

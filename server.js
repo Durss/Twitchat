@@ -69,12 +69,15 @@ http.createServer((request, response) => {
 				response.writeHead(200, {'Content-Type': 'application/javascript'});
 				response.end(txt);
 				return;
-
-				return;
 		
 			//Get/Set user data
 			}else if(endpoint == "/api/user") {
 				userData(request, response, body);
+				return;
+		
+			//Get/Set user data
+			}else if(endpoint == "/api/user/donor") {
+				isDonor(request, response, body);
 				return;
 		
 			//Get current chatters
@@ -376,7 +379,30 @@ async function userData(request, response, body) {
 			response.end(JSON.stringify({message, success:false}));
 		}
 	}
+}
 
+/**
+ * Gets if a user is part of the donors (create donors.json file with twitch UID array inside)
+ */
+async function isDonor(request, response, body) {
+	let userInfo = await getUserFromToken(request.headers.authorization);
+	if(!userInfo) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Invalid access token", success:false}));
+		return;
+	}
+
+	let json = [];
+	try {
+		json = JSON.parse(fs.readFileSync("donors.json", "utf8"));
+	}catch(error){
+		response.writeHead(404, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:false, message:"Unable to load donors data file"}));
+		return;
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:true, data:{isDonor:json.find(v=>v == userInfo.user_id) != undefined}}));
 }
 
 /**
@@ -391,7 +417,6 @@ async function getChatters(request, response) {
 	}
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify(chatters));
-
 }
 
 /**
@@ -730,8 +755,27 @@ const UserDataSchema = {
 					properties: {
 						enabled: {type:"boolean"},
 						name: {type:"string", maxLength:100},
-						scheduleType: {type:"string", maxLength:100},
 						chatCommand: {type:"string", maxLength:100},//Deprecated
+						scheduleParams: {
+							type:"object",
+							properties: {
+								type: {type:"string", maxLength:100},
+								repeatDuration: {type:"number", minimum:0, maximum:48*60},
+								repeatMinMessages: {type:"number", minimum:0, maximum:9999},
+								dates:{
+									type:"array",
+									items: [
+										{
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												value: {type:"string", maxLength:20},
+											}
+										}
+									]
+								}
+							}
+						},
 						permissions: {
 							type:"object",
 							properties: {

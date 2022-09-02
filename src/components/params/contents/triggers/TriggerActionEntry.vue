@@ -34,7 +34,7 @@
 				
 				<Button class="button" white @click="selectActionType('highlight')" title="Highlight on stream" :icon="$image('icons/highlight_purple.svg')" />
 				
-				<Button class="button" white @click="selectActionType('trigger')" title="Trigger" :icon="$image('icons/broadcast_purple.svg')" />
+				<Button class="button beta" white @click="selectActionType('trigger')" title="Trigger" :icon="$image('icons/broadcast_purple.svg')" />
 				
 				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
@@ -60,7 +60,7 @@
 					:data-tooltip="voicemodEnabled? '' : 'You need to connect<br>with Voicemod'"/>
 			</div>
 
-			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
+			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" :triggerKey="triggerKey" />
 			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="sources" />
 			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
 			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
@@ -249,6 +249,27 @@ export default class TriggerActionEntry extends Vue {
 			padding: .15em 0;
 			width: unset !important;
 			vertical-align: middle;
+		}
+	}
+
+	.button {
+		&.beta {
+			&::before {
+				content: "beta";
+				position: absolute;
+				left: 0;
+				color:@mainColor_light;
+				background-color: @mainColor_normal;
+				background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 30%, fade(@mainColor_normal, 100%) 100%);
+				height: 100%;
+				display: flex;
+				align-items: center;
+				padding: 0 1em 0 .35em;
+				font-size: .8em;
+				font-family: "Nunito";
+				text-transform: uppercase;
+				z-index: 1;
+			}
 		}
 	}
 

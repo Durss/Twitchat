@@ -44,7 +44,7 @@
 				<!-- Main list -->
 				<ToggleBlock class="category" v-if="!currentEvent"
 				v-for="c in eventCategories" :key="c.label" :title="c.label" :open="false" :icons="[c.icon]">
-					<div v-for="e in c.events" :key="(e.value as string)" class="item">
+					<div v-for="e in c.events" :key="(e.value as string)" :class="e.value=='41'? 'item beta' : 'item'">
 						<Button class="triggerBt"
 							white
 							:title="e.label"
@@ -766,6 +766,28 @@ export default class ParamsTriggers extends Vue {
 					transform: translateY(calc(-50% - 2px));
 					z-index: 1;
 				}
+				&.beta {
+					:deep(.button) {
+						padding-left: 3.5em;
+
+						&::before {
+							content: "beta";
+							position: absolute;
+							left: 0;
+							color:@mainColor_light;
+							background-color: @mainColor_normal;
+							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 30%, fade(@mainColor_normal, 100%) 100%);
+							height: 100%;
+							display: flex;
+							align-items: center;
+							padding: 0 1em 0 .35em;
+							font-size: .8em;
+							font-family: "Nunito";
+							text-transform: uppercase;
+							z-index: 1;
+						}
+					}
+				}
 			}
 			
 			.triggerBt {
@@ -856,17 +878,15 @@ export default class ParamsTriggers extends Vue {
 			background: none;
 		}
 
-		&:not(:last-of-type) {
-			&::after{
-				content: "";
-				display: block;
-				width: 1em;
-				height: .5em;
-				background-color: @mainColor_normal;
-				border-bottom-left-radius: 100% 200%;
-				border-bottom-right-radius: 100% 200%;
-				margin: auto;
-			}
+		&::after{
+			content: "";
+			display: block;
+			width: 1em;
+			height: .5em;
+			background-color: @mainColor_normal;
+			border-bottom-left-radius: 100% 200%;
+			border-bottom-right-radius: 100% 200%;
+			margin: auto;
 		}
 	}
 
@@ -875,7 +895,7 @@ export default class ParamsTriggers extends Vue {
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
-		margin-top: 1em;
+		margin-top: .5em;
 		flex-wrap: wrap;
 		.cta:not(:last-child) {
 			margin-right: 1em;
@@ -889,7 +909,7 @@ export default class ParamsTriggers extends Vue {
 		background-position: 100% 0;
 		background-repeat: no-repeat;
 		background-size: calc(50% + 1px) 1em;
-		padding-top: 1em;
+		padding-top: .5em;
 		.addBt {
 			display: block;
 			margin: auto;

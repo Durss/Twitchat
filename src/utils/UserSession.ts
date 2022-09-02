@@ -15,6 +15,7 @@ export default class UserSession {
 	public emotesCacheHashmap:{[key:string]:TwitchDataTypes.Emote} = {};
 	public user:TwitchDataTypes.UserInfo| null = null;
 	public access_token:string|null = null;
+	public isDonor:boolean = false;
 	public authToken = {
 		client_id: "",
 		login: "",

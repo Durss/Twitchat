@@ -35,6 +35,7 @@ import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessag
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
+import SchedulerHelper from '@/utils/SchedulerHelper';
 
 //TODO split that giant mess into sub stores
 
@@ -563,6 +564,7 @@ const store = createStore({
 					if(cb) cb(false);
 					return;
 				}
+				//Validate auth token
 				const userRes = await TwitchUtils.validateToken(json.access_token);
 				const status = (userRes as TwitchDataTypes.Error).status;
 				if(isNaN((userRes as TwitchDataTypes.Token).expires_in)
@@ -590,6 +592,21 @@ const store = createStore({
 				Store.access_token = json.access_token;
 				Store.set(Store.TWITCH_AUTH_TOKEN, json, false);
 				
+				//Check if user is part of the donors
+				try {
+					const options = {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": "Bearer "+UserSession.instance.access_token as string,
+						},
+					}
+					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
+					const donorJSON = await donorRes.json();
+					UserSession.instance.isDonor = donorJSON.data?.isDonor === true;
+				}catch(error) {}
+
+				//Get full user's info
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
 				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
 				if(currentUser) {
@@ -1898,8 +1915,8 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const type = getTwitchatMessageType(event.data as IRCEventData);
 
-				//Automod messages contents
 				if(type == TwitchatMessageType.MESSAGE) {
+					//Make sure message passes the automod rules
 					const messageData = event.data as IRCEventDataList.Message;
 					let rule = Utils.isAutomoded(messageData.message, messageData.tags);
 					if(rule) {
@@ -1909,6 +1926,7 @@ const store = createStore({
 						return;
 					}
 				}else {
+					//Make sure user name passes the automod rules
 					let username = "";
 					const messageData = event.data as IRCEventDataList.Highlight;
 					if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
@@ -1928,7 +1946,11 @@ const store = createStore({
 				
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
-					const cmd = (messageData.message as string).split(" ")[0].trim().toLowerCase();
+					const cmd = (messageData.message as string).trim().split(" ")[0].toLowerCase();
+
+					if(messageData.sentLocally !== true) {
+						SchedulerHelper.instance.incrementMessageCount();
+					}
 					
 					//Is it a tracked user ?
 					const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
@@ -2525,6 +2547,8 @@ const store = createStore({
 					Utils.mergeRemoteObject(JSON.parse(automodParams), (state.automodParams as unknown) as JsonObject);
 					this.dispatch("setAutomodParams", state.automodParams);
 				}
+
+				SchedulerHelper.instance.start();
 			}
 			
 			//Initialise new toggle param for OBS connection.
