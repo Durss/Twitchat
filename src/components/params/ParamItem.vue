@@ -314,11 +314,12 @@ export default class ParamItem extends Vue {
 		&:hover {
 			background-color: fade(@mainColor_normal, 10%);
 		}
-		input, select, textarea {
+		textarea {
 			width: 100%;
-			}
+		}
 
 		.holder {
+			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -366,14 +367,6 @@ export default class ParamItem extends Vue {
 				cursor: pointer;
 			}
 
-			&.number {
-				label {
-					flex: 2 1;
-				}
-				input {
-					flex: 1 1;
-				}
-			}
 		}
 
 		:deep(.small) {
@@ -389,9 +382,14 @@ export default class ParamItem extends Vue {
 			}
 		}
 
+		input {
+			width: 100%;
+		}
+
 		textarea {
 			resize: vertical;
 			margin-top: .25em;
+			flex-grow: 1;
 		}
 
 		.browse {
@@ -406,9 +404,10 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		input, select, textarea {
-			width: 100%;
+		select {
+			max-width: 250px;
 		}
+
 	}
 
 	&.level_1,

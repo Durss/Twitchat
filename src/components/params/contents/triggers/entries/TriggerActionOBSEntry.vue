@@ -202,7 +202,7 @@ export default class TriggerActionOBSEntry extends Vue {
 
 	.paramitem  {
 		:deep(select), :deep(input) {
-			max-width: 200px;
+			width: 250px;
 		}
 	}
 

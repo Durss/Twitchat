@@ -233,11 +233,10 @@ export default class LiveFollowings extends Vue {
 						font-size: .8em;
 						margin-top: .5em;
 						background-color: fade(@mainColor_normal, 15%);
-						align-self: center;
+						align-self: flex-start;
 						padding: .25em .5em;
 						width: auto;
 						border-radius: 1em;
-						text-align: center;
 					}
 				}
 	

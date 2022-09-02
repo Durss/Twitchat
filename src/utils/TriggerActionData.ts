@@ -279,3 +279,13 @@ export const MusicTriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Resume playback", value:TriggerMusicTypes.RESUME_PLAYBACK},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Start playlist", value:TriggerMusicTypes.START_PLAYLIST},
 ]
+
+export const TriggerScheduleTypes = {
+	REGULAR_REPEAT:"1",
+	SPECIFIC_DATES:"2",
+}
+
+export const ScheduleTriggerEvents:TriggerEventTypes[] = [
+	{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", label:"Regular repeat", value:TriggerScheduleTypes.REGULAR_REPEAT},
+	{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", label:"Specific dates", value:TriggerScheduleTypes.SPECIFIC_DATES},
+]

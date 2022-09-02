@@ -84,7 +84,7 @@
 		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
 			<div class="text" v-html="triggerDescription"></div>
 
-			<div class="ctas" v-if="currentEvent && obsConnected">
+			<div class="ctas" v-if="currentEvent && obsConnected && obsActions">
 				<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
 					class="cta resyncBt"
 					@click="listSources(true)"
@@ -103,7 +103,7 @@
 
 		<TriggerActionChatCommandParams class="chatCmdParams"
 			v-if="isChatCmd && triggerData && (currentSubEvent || actionList.length > 0)"
-			:actionData="triggerData"
+			:triggerData="triggerData"
 		/>
 
 		<Button :icon="$image('icons/whispers.svg')" title="Create chat command"
@@ -115,7 +115,7 @@
 
 		<TriggerActionScheduleParams class="chatCmdParams"
 			v-if="isSchedule && triggerData && (currentSubEvent || actionList.length > 0)"
-			:actionData="triggerData"
+			:triggerData="triggerData"
 		/>
 
 		<Button :icon="$image('icons/date.svg')" title="Add scheduled action"
@@ -272,6 +272,13 @@ export default class ParamsTriggers extends Vue {
 			return desc;
 		}
 		return null;
+	}
+
+	public get obsActions():boolean {
+		for (let i = 0; i < this.actionList.length; i++) {
+			if(this.actionList[i].type == "obs") return true;
+		}
+		return false;
 	}
 
 	/**

@@ -182,6 +182,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "bingo") icons.push( 'bingo' );
 		if(this.action.type == "voicemod") icons.push( 'voicemod' );
 		if(this.action.type == "trigger") icons.push( 'broadcast' );
+		if(this.action.type == "highlight") icons.push( 'highlight' );
 		return icons;
 	}
 

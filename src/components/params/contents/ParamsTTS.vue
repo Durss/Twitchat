@@ -385,6 +385,10 @@ export default class ParamsTTS extends Vue {
 						width: auto;
 					}
 				}
+	
+				:deep(input[type="range"]) {
+					width: 100%;
+				}
 			}
 		}
 	}

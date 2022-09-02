@@ -46,12 +46,6 @@ export default class TriggerActionHighlightEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionhighlightentry{
-	.paramitem  {
-		:deep(select), :deep(input) {
-			max-width: 200px;
-		}
-	}
-
 	.item {
 		margin-bottom: .25em;
 	}

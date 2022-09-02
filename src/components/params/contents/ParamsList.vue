@@ -172,54 +172,61 @@ export default class ParamsList extends Vue {
 			margin-right: .5em;
 		}
 	}
-	.row:not(:first-of-type) {
-		margin-top: 10px;
-	}
-	.row:not(:last-child) {
-		margin-bottom: 10px;
-	}
 
-	.info {
-		overflow: hidden;
-		padding-left: calc(1em + 10px);
-		img {
-			height: 1em;
-			vertical-align: middle;
+	.row {
+		:deep(input[type='range']) {
+			width: 100%;
+		}
+		&:not(:first-of-type) {
+			margin-top: 10px;
 		}
 
-		.label {
-			display: inline;
-			strong {
-				padding: .25em .5em;
-				border-radius: .5em;
-				font-size: .8em;
-				background: fade(@mainColor_normal, 15%);
+		&:not(:last-child) {
+			margin-bottom: 10px;
+		}
+
+		.info {
+			overflow: hidden;
+			padding-left: calc(1em + 10px);
+			img {
+				height: 1em;
+				vertical-align: middle;
 			}
-		}
-
-		&.obsConnect {
+	
 			.label {
-				color: @mainColor_warn;
+				display: inline;
+				strong {
+					padding: .25em .5em;
+					border-radius: .5em;
+					font-size: .8em;
+					background: fade(@mainColor_normal, 15%);
+				}
 			}
-		}
-
-		&.pronouns, &.spoiler {
-			.label {
-				font-size: .8em;
+	
+			&.obsConnect {
+				.label {
+					color: @mainColor_warn;
+				}
 			}
-		}
-
-		&.config {
-			// text-align: center;
-			// margin-top: -8px;
-
-			.button {
-				border: 1px solid @mainColor_normal;
-				border-top: none;
-				border-top-left-radius: 0;
-				border-top-right-radius: 0;
-				position: relative;
-				overflow: visible;
+	
+			&.pronouns, &.spoiler {
+				.label {
+					font-size: .8em;
+				}
+			}
+	
+			&.config {
+				// text-align: center;
+				// margin-top: -8px;
+	
+				.button {
+					border: 1px solid @mainColor_normal;
+					border-top: none;
+					border-top-left-radius: 0;
+					border-top-right-radius: 0;
+					position: relative;
+					overflow: visible;
+				}
 			}
 		}
 	}

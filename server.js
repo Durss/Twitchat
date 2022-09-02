@@ -730,6 +730,7 @@ const UserDataSchema = {
 					properties: {
 						enabled: {type:"boolean"},
 						name: {type:"string", maxLength:100},
+						scheduleType: {type:"string", maxLength:100},
 						chatCommand: {type:"string", maxLength:100},//Deprecated
 						permissions: {
 							type:"object",

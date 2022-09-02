@@ -252,15 +252,10 @@ export default class TriggerActionTriggerEntry extends Vue {
 				}
 			}
 
-			&:not(.item ~ .item),//This means first item with class ".item"
+			&:not(.item ~ .item),//This means "first item with class .item"
 			&:last-child {
 				.infos {
-					// color: @mainColor_warn;
-				background-color: lighten(@mainColor_warn, 5%);
-
-					.label {
-						// font-weight: bold;
-					}
+					background-color: lighten(@mainColor_warn, 5%);
 				}
 			}
 
