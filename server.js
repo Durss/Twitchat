@@ -769,6 +769,8 @@ const UserDataSchema = {
 											type: "object",
 											additionalProperties: false,
 											properties: {
+												daily: {type:"boolean"},
+												yearly: {type:"boolean"},
 												value: {type:"string", maxLength:20},
 											}
 										}

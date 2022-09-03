@@ -25,8 +25,15 @@
 				<div :class="dateClasses(d)"
 				v-for="(d, index) in triggerData.scheduleParams?.dates"
 				:key="'date'+index">
-					<input type="datetime-local" v-model="d.value" />
-					<Button class="deleteBt" :icon="$image('icons/cross_white.svg')" @click="delDate(index)" small highlight />
+					<div class="date">
+						<input type="datetime-local" v-model="d.value" />
+						<Button class="deleteBt" :icon="$image('icons/cross_white.svg')" @click="delDate(index)" small highlight />
+					</div>
+					<div class="recurrent">
+						<strong>Repeat:</strong>
+						<ParamItem :paramData="params_daily[index]" v-model="d.daily" />
+						<ParamItem :paramData="params_yearly[index]" v-model="d.yearly" />
+					</div>
 				</div>
 			</div>
 			<Button class="row" :icon="$image('icons/date.svg')" title="Add date" @click="addDate()" />
@@ -69,6 +76,8 @@ export default class TriggerActionScheduleParams extends Vue {
 	public param_repeatDurationValue:ParameterData = { type:"number", value:0, label:"Execute every {VALUE} minutes", icon:"timeout_purple.svg", min:.1, max:48*60 };
 	public param_repeatMessageCondition:ParameterData = { type:"toggle", value:false, label:"Message based repeat", icon:"whispers_purple.svg" };
 	public param_repeatMessageValue:ParameterData = { type:"number", value:0, label:"Must receive at least {VALUE} message", icon:"whispers_purple.svg", min:1, max:9999 };
+	public params_daily:ParameterData[] = [];
+	public params_yearly:ParameterData[] = [];
 
 	private originalName!:string;
 
@@ -104,6 +113,11 @@ export default class TriggerActionScheduleParams extends Vue {
 			}
 		})
 		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
+
+		for (let i = 0; i < this.triggerData.scheduleParams?.dates.length; i++) {
+			this.params_daily.push({ type:"toggle", value:false, label:"Daily"} );
+			this.params_yearly.push({ type:"toggle", value:false, label:"Yearly"} );
+		}
 		
 		this.populate();
 	}
@@ -113,9 +127,9 @@ export default class TriggerActionScheduleParams extends Vue {
 		this.originalName = this.triggerData.name as string;
 	}
 
-	public dateClasses(d:{value:string}):string[] {
+	public dateClasses(d:{value:string, daily:boolean}):string[] {
 		const res:string[] = ["row"];
-		if(new Date(d.value).getTime() < Date.now()) res.push("past");
+		if(new Date(d.value).getTime() < Date.now() && !d.daily) res.push("past");
 		return res;
 	}
 
@@ -126,7 +140,9 @@ export default class TriggerActionScheduleParams extends Vue {
 					+"-"+Utils.toDigits(d.getDate(),2)
 					+"T"+Utils.toDigits(d.getHours(),2)
 					+":"+Utils.toDigits(d.getMinutes()+5,2)
-		this.triggerData.scheduleParams?.dates?.push({value})
+		this.triggerData.scheduleParams?.dates?.push({value, daily:false, yearly:false});
+		this.params_daily.push({ type:"toggle", value:false, label:"Daily"} );
+		this.params_yearly.push({ type:"toggle", value:false, label:"Yearly"} );
 	}
 
 	public delDate(index:number):void {
@@ -195,7 +211,7 @@ export default class TriggerActionScheduleParams extends Vue {
 				flex-direction: column;
 				.row {
 					display: flex;
-					flex-direction: row;
+					flex-direction: column;
 
 					&.past {
 						input {
@@ -212,16 +228,26 @@ export default class TriggerActionScheduleParams extends Vue {
 						}
 					}
 
-					.deleteBt {
-						padding-left: .5em;
-						padding-right: .5em;
-						border-radius: 10px;
-						border-top-left-radius: 0;
-						border-bottom-left-radius: 0;
+					.date {
+						display: flex;
+						flex-direction: row;
+						.deleteBt {
+							padding-left: .5em;
+							padding-right: .5em;
+							border-radius: 10px;
+							border-top-left-radius: 0;
+							border-bottom-left-radius: 0;
+						}
+						input {
+							border-top-right-radius: 0;
+							border-bottom-right-radius: 0;
+						}
 					}
-					input {
-						border-top-right-radius: 0;
-						border-bottom-right-radius: 0;
+
+					.recurrent {
+						display: flex;
+						flex-direction: row;
+						justify-content: space-around;
 					}
 				}
 			}

@@ -89,6 +89,27 @@ export default class SchedulerHelper {
 			}
 
 			case TriggerScheduleTypes.SPECIFIC_DATES:{
+				for (let i = 0; i < trigger.scheduleParams.dates.length; i++) {
+					const d = trigger.scheduleParams.dates[i];
+					const date = new Date(d.value);
+					if(d.daily) date.setDate(new Date().getDate());
+					if(d.yearly) date.setFullYear(new Date().getFullYear());
+					if(Date.now() > date.getTime()) {
+						//Date past
+						if(d.daily) {
+							//Schedule for next day if it's a daily event
+							date.setDate(new Date().getDate()+1);
+						}else {
+							//ignore it
+							continue;
+						}
+					}
+					this._pendingTriggers.push({
+						messageCount:0,
+						date:date.getTime(),
+						triggerKey:key,
+					})
+				}
 				break;
 			}
 		}
@@ -130,7 +151,11 @@ export default class SchedulerHelper {
 				}
 
 				case TriggerScheduleTypes.SPECIFIC_DATES:{
-					if(schedule.repeatDuration > 0 && Date.now() < e.date) execute = false;
+					if(schedule.repeatDuration > 0 && Date.now() < e.date) {
+						execute = false;
+					}else{
+						this._pendingTriggers.splice(i, 1)
+					}
 					break;
 				}
 			}

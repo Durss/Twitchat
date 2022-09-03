@@ -91,7 +91,7 @@ export interface TriggerScheduleData {
 	type:string;
 	repeatDuration:number;
 	repeatMinMessages:number;
-	dates:{value:string}[];
+	dates:{daily:boolean, yearly:boolean, value:string}[];
 }
 
 export type TriggerActionTypes =  TriggerActionEmptyData
