@@ -292,25 +292,48 @@
 		const spinner = document.getElementById("spinner");
 		const letters = document.querySelectorAll(".letter");
 		const lettersCount = letters.length + 1;
+		let closeLoader = false;
 		let increment = Math.PI/4;
+		let incrementClose = 0;
+		//Animate loader
 		function renderFrame() {
 			if(!loader.parentNode) return;//Loader removed from stage
-			requestAnimationFrame(()=>renderFrame());
 
+			let visibleCount = 0;
 			for (let i = 0; i < letters.length; i++) {
 				const l = letters[i];
 				const scale = Math.max(0, Math.sin((lettersCount-i)/lettersCount*Math.PI*2 + increment));
-				const angle = (1-scale)*(100*Math.cos(increment)*Math.sin(increment/2));
-				l.style.left = (scale * 50 + 50)+"%";
-				l.style.left = (Math.cos((lettersCount-i)/lettersCount*Math.PI*2 + increment) * 40 + 50)+"%";
-				l.style.top = (Math.sin((lettersCount-i)/lettersCount*Math.PI*2 + increment) * 15 + 45)+"%";
+				let angle = (1-scale)*(100*Math.cos(increment)*Math.sin(increment/2));
+				let px = (Math.cos((lettersCount-i)/lettersCount*Math.PI*2 + increment) * 40 + 50);
+				let py = (Math.sin((lettersCount-i)/lettersCount*Math.PI*2 + increment) * 15 + 45);
+				let o = scale+.1;
+
+				if(closeLoader) {
+					incrementClose *= 1.0025;
+					o -= (incrementClose-1) * .5;
+					px -= (Math.cos(i/lettersCount*Math.PI*2)-1) * Math.sin(incrementClose-1)*50;
+					py -= (incrementClose-1)*50*(scale*.75+.25);
+					py += Math.sin(i/lettersCount*Math.PI*2) * Math.sin(incrementClose-1)*50;
+					angle *= incrementClose*.5;
+					spinner.style.transform = "translate(-50%, -50%) scale("+Math.max(0, 1-(incrementClose-1))+")";
+				}else{
+					const spinScale = (Math.cos(increment*2)+1)/2 * .15 + .85;
+					spinner.style.transform = "translate(-50%, -50%) scale("+spinScale+")";
+				}
+
+				l.style.left = px+"%";
+				l.style.top = py+"%";
 				l.style.transform = "translate(-50%, -50%) scale("+(scale*.5 + .25)+") rotate("+angle+"deg)";
 				l.style.zIndex = Math.round(scale*letters.length);
-				l.style.opacity = scale+.1;
-				const spinScale = (Math.cos(increment*2)+1)/2 * .15 + .85;
-				spinner.style.transform = "translate(-50%, -50%) scale("+spinScale+")";
+				l.style.opacity = Math.max(0, o);
+				if(o > 0) visibleCount++;
 				// spinner.style.opacity = 0;
 				increment += .0065;
+			}
+			if(visibleCount > 0) {
+				requestAnimationFrame(()=>renderFrame());
+			}else{
+				loader.parentNode.removeChild(loader);
 			}
 		}
 
@@ -318,6 +341,11 @@
 			document.body.style.backgroundColor = "#18181b";
 			loader.style.display = "block";
 			renderFrame();
+		}
+
+		function closeInitLoader() {
+			closeLoader = true;
+			incrementClose = 1;
 		}
 	</script>
 	<script type="module" onerror="onLoadError()" src="/src/main.ts"></script>

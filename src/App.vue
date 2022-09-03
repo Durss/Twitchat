@@ -54,10 +54,8 @@ export default class App extends Vue {
 
 	private hideMainLoader():void {
 		if(StoreProxy.store.state.initComplete === true) {
-			const loader = document.body.querySelector("#loader-init");
-			if(loader && loader.parentNode) {
-				loader.parentNode.removeChild(loader);
-			}
+			//@ts-ignore
+			closeInitLoader();//Method declared on index.html
 		}
 	}
 
