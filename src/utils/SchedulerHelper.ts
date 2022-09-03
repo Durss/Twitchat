@@ -1,4 +1,4 @@
-import type { TriggerData } from "@/types/TwitchatDataTypes";
+import type { TriggerData, TriggerScheduleData } from "@/types/TwitchatDataTypes";
 import StoreProxy from "./StoreProxy";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
 import TriggerActionHandler from "./TriggerActionHandler";
@@ -40,7 +40,7 @@ export default class SchedulerHelper {
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			if(mainKey == TriggerTypes.SCHEDULE) {
-				this.scheduleTrigger(key, triggers[key]);
+				this.scheduleTrigger(key, triggers[key].scheduleParams!);
 			}
 		}
 	}
@@ -69,28 +69,28 @@ export default class SchedulerHelper {
 	/**
 	 * Schedules a trigger and reset its scheduling if already scheduled
 	 * @param key 
-	 * @param trigger 
+	 * @param schedule 
 	 * @returns 
 	 */
-	public scheduleTrigger(key:string, trigger:TriggerData):void {
-		if(!trigger.scheduleParams) return;
+	public scheduleTrigger(key:string, schedule:TriggerScheduleData):void {
+		if(!schedule) return;
 
 		//Cleanup any previously scheduled trigger
 		this.unscheduleTrigger(key);
 
-		switch(trigger.scheduleParams.type) {
+		switch(schedule.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
 				this._pendingTriggers.push({
 					messageCount:0,
-					date:Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000,
+					date:Date.now() + schedule.repeatDuration * 60 * 1000,
 					triggerKey:key,
 				})
 				break;
 			}
 
 			case TriggerScheduleTypes.SPECIFIC_DATES:{
-				for (let i = 0; i < trigger.scheduleParams.dates.length; i++) {
-					const d = trigger.scheduleParams.dates[i];
+				for (let i = 0; i < schedule.dates.length; i++) {
+					const d = schedule.dates[i];
 					const date = new Date(d.value);
 					if(d.daily) date.setDate(new Date().getDate());
 					if(d.yearly) date.setFullYear(new Date().getFullYear());

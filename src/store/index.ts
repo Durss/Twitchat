@@ -1452,9 +1452,9 @@ const store = createStore({
 
 			//If it is a schedule trigger add it to the scheduler
 			if(value.key.split("_")[0] === TriggerTypes.SCHEDULE) {
-				SchedulerHelper.instance.scheduleTrigger(value.key, value.data);
+				SchedulerHelper.instance.scheduleTrigger(value.key, value.data.scheduleParams!);
 			}
-			
+
 			Store.set(Store.TRIGGERS, state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
 		},
