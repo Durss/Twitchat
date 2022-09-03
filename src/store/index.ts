@@ -127,6 +127,10 @@ const store = createStore({
 				enabled:true,
 				message:"/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
+			twitchatAd: {
+				enabled:true,
+				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers, you should take a look at it.",
+			},
 		} as IBotMessage,
 		commands: [
 			{
@@ -304,7 +308,7 @@ const store = createStore({
 				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData},
 			appearance: {
-				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
+				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 450px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
 				splitViewVertical: 			{save:true, type:"toggle", value:false, label:"Split vertically", id:21, parent:13},
 				hideChat: 					{save:false, type:"toggle", value:false, label:"Hide chat (if you want only the activity feed on an OBS dock)", id:18, icon:"nochat_purple.svg"},
@@ -604,6 +608,7 @@ const store = createStore({
 					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
 					const donorJSON = await donorRes.json();
 					UserSession.instance.isDonor = donorJSON.data?.isDonor === true;
+					UserSession.instance.donorLevel = donorJSON.data?.level;
 				}catch(error) {}
 
 				//Get full user's info

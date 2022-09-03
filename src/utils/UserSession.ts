@@ -16,6 +16,7 @@ export default class UserSession {
 	public user:TwitchDataTypes.UserInfo| null = null;
 	public access_token:string|null = null;
 	public isDonor:boolean = false;
+	public donorLevel:number = 0;
 	public authToken = {
 		client_id: "",
 		login: "",

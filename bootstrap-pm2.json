@@ -19,7 +19,8 @@
 		"public",
 		"src",
 		"userData",
-		".git"
+		".git",
+		"donors.json"
 	],
 	"watch": [
 		"./server.js",

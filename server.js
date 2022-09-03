@@ -392,17 +392,25 @@ async function isDonor(request, response, body) {
 		return;
 	}
 
-	let json = [];
-	try {
-		json = JSON.parse(fs.readFileSync("donors.json", "utf8"));
-	}catch(error){
-		response.writeHead(404, {'Content-Type': 'application/json'});
-		response.end(JSON.stringify({success:false, message:"Unable to load donors data file"}));
-		return;
+	let user, level = -1;
+	if(fs.existsSync("donors.json")) {
+		let json = [];
+		try {
+			json = JSON.parse(fs.readFileSync("donors.json", "utf8"));
+		}catch(error){
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false, message:"Unable to load donors data file"}));
+			return;
+		}
+		user = json.hasOwnProperty(userInfo.user_id);
+		if(user) {
+			const levels = [0,20,30,50,80,100,200,300,400,500,999999];
+			level = levels.findIndex(v=> v >= json[userInfo.user_id]) - 1;
+		}
 	}
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
-	response.end(JSON.stringify({success:true, data:{isDonor:json.find(v=>v == userInfo.user_id) != undefined}}));
+	response.end(JSON.stringify({success:true, data:{isDonor:user != undefined && level > -1, level}}));
 }
 
 /**
@@ -921,6 +929,14 @@ const UserDataSchema = {
 						message: {type:"string", maxLength:1000},
 					}
 				},
+				twitchatAd: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:1000},
+					}
+				},
 			}
 		},
 		voiceActions: {
@@ -1027,6 +1043,7 @@ const UserDataSchema = {
 		leftColSize: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		donorLevel: {type:"number", minimum:-1, maximum:10},
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		ttsParams: {
 			type:"object",

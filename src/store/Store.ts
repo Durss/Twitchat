@@ -47,6 +47,7 @@ export default class Store {
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
 	public static AUTOMOD_PARAMS:string = "automodParams";
+	public static DONOR_LEVEL:string = "donorLevel";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
