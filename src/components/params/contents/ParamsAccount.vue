@@ -11,8 +11,8 @@
 				<p class="outline">Thank you</p>
 				<p class="text">Thank you</p>
 			</div>
-			<p class="subtitle">for being a donor</p>
-			<img src="@/assets/icons/follow.svg" alt="heart" ref="heart" @click="burstStars(true)">
+			<!-- <p class="subtitle">for being a donor</p> -->
+			<img class="beatingHeat" src="@/assets/icons/donor.svg" alt="heart" ref="heart" @click="burstStars(true)">
 		
 			<div class="stars">
 				<!-- <div class="star" v-for="s in stars" :style="getStarStyles(s)"></div> -->
@@ -102,10 +102,10 @@ export default class ParamsAccount extends Vue {
 
 	private initHeart():void {
 		const heart = this.$refs.heart as HTMLDivElement;
-		gsap.fromTo(heart, {scale:1.2}, {duration:.35, scale:1, ease:"back.out", repeat:-1, repeatDelay:1.5, onRepeat:()=>{
+		gsap.fromTo(heart, {scale:1.2, x:"-50%"}, {duration:.35, scale:1, x:"-50%", ease:"back.out", repeat:-1, repeatDelay:1.5, onRepeat:()=>{
 			this.burstStars();
 		}});
-		gsap.fromTo(heart, {scale:1.15}, {duration:.35, delay:.2, scale:1, ease:"back.out", repeat:-1, repeatDelay:1.5, onRepeat:()=>{
+		gsap.fromTo(heart, {scale:1.15, x:"-50%"}, {duration:.35, delay:.2, scale:1, x:"-50%", ease:"back.out", repeat:-1, repeatDelay:1.5, onRepeat:()=>{
 			this.burstStars();
 		}});
 		
@@ -216,17 +216,22 @@ interface StarData {
 		background: url('@/assets/icons/follow_alert.svg');
 		background-repeat: no-repeat;
 		background-position: center center;
+		height: 10em;
+		filter: drop-shadow(0 0 .5em rgba(0,0,0,.25));
 		
 		.title {
+			.center();
+			position: absolute;
 			font-family: "Nunito";
-			font-size: 2em;
+			font-size: 3em;
 			text-align: center;
 			margin: auto;
-			margin-top: -.5em;
+			margin-top: -2em;
 			position: relative;
 			z-index: 1;
 			width: 180px;
 			height: 40px;
+			line-height: 2.5em;
 			
 			.outline {
 				position: absolute;
@@ -245,12 +250,14 @@ interface StarData {
 			text-align: center;
 		}
 
-		img {
+		.beatingHeat {
+			.center();
+			position: absolute;
 			height: 5em;
-			display: block;
-			margin: 1em auto 0 auto;
 			cursor: pointer;
 			transition: height .25s;
+			z-index: 1;
+			filter: drop-shadow(0 0 .5em rgba(0,0,0,.25));
 			&:hover {
 				height: 6em;
 			}
@@ -260,6 +267,7 @@ interface StarData {
 			position: absolute;
 			top:0;
 			left:0;
+			z-index: 2;
 
 			.star {
 				position: fixed;
