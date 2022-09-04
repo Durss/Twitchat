@@ -23,6 +23,7 @@
 			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<img :src="user?.profile_image_url" alt="avatar" class="avatar" ref="avatar">
+				<div class="live" v-if="currentStream">LIVE</div>
 				<div class="title">{{user.display_name}}</div>
 				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" data-tooltip="Account creation date"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
@@ -40,12 +41,14 @@
 			
 			<div class="followings">
 				<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
-				<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
+				<transition name="scale">
+					<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
+				</transition>
 
 				<div v-if="errorFollowings" class="error">Something went wrong while loading followings...</div>
 				<div v-if="suspiciousFollowFrequency" class="warn">This user has or has had a suspicious following behavior</div>
 
-				<div class="list" v-if="!errorFollowings && !loadingFollowings" ref="list">
+				<div class="list" v-if="!errorFollowings" ref="list">
 					<div v-for="u in followings" class="user">
 						<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
 						<div class="date">{{u.followed_at}}</div>
@@ -87,6 +90,7 @@ export default class UserCard extends Vue {
 	public createDate:string = "";
 	public followDate:string = "";
 	public user:TwitchDataTypes.UserInfo|null = null;
+	public currentStream:TwitchDataTypes.StreamInfo|null = null;
 	public fakeModMessage:IRCEventDataList.Message|null = null;
 	public followings:TwitchDataTypes.Following[] = [];
 	public followInfo:TwitchDataTypes.Following|null = null;
@@ -128,6 +132,7 @@ export default class UserCard extends Vue {
 			const users = await TwitchUtils.loadUserInfo(undefined, [this.username]);
 			if(users.length > 0) {
 				this.user = users[0];
+				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([this.user.id]))[0];
 				this.createDate = Utils.formatDate(new Date(this.user.created_at));
 				this.followInfo = await TwitchUtils.getFollowInfo(this.user.id);
 				if(this.followInfo) {
@@ -158,7 +163,14 @@ export default class UserCard extends Vue {
 		
 			this.loadingFollowings = true;
 			try {
-				this.followings = await TwitchUtils.getFollowings(this.user.id);
+				this.followings = await TwitchUtils.getFollowings(this.user.id, -1, async(list)=> {
+					const firstPage = this.followings.length == 0;
+					this.followings = list;
+					if(firstPage) {
+						await this.$nextTick();
+						gsap.from(this.$refs.list as HTMLDivElement, {duration:.5, height:0, ease:"sin.inOut"});
+					}
+				});
 				this.checkFollowBotting();
 			}catch(error) {
 				this.errorFollowings = true;
@@ -169,8 +181,6 @@ export default class UserCard extends Vue {
 				})
 			}
 			this.loadingFollowings = false;
-			await this.$nextTick();
-			gsap.from(this.$refs.list as HTMLDivElement, {duration:.5, height:0, ease:"sin.inOut"});
 		}
 	}
 
@@ -297,6 +307,7 @@ export default class UserCard extends Vue {
 			margin: auto;
 			display: block;
 			width: 2em;
+			height: 2em;
 		}
 
 		.error, .warn {
@@ -319,6 +330,18 @@ export default class UserCard extends Vue {
 
 			.title {
 				font-size: 2em;
+			}
+
+			.live {
+				background-color: @mainColor_alert;
+				color: @mainColor_light;
+				font-weight: bold;
+				font-size: .5em;
+				padding: .35em .75em;
+				border-radius: .5em;
+				margin-top: -1em;
+				z-index: 1;
+				box-shadow: 0 -.25em .5em rgba(0, 0, 0, .5);
 			}
 
 			.subtitle {
@@ -421,7 +444,22 @@ export default class UserCard extends Vue {
 			}
 
 			.loader {
+				height: 2em;
 				margin: .5em auto;
+
+				&.scale-enter-active {
+					transition: all .25s;
+				}
+
+				&.scale-leave-active {
+					transition: all .25s;
+				}
+
+				&.scale-enter-from,
+				&.scale-leave-to {
+					height: 0;
+					margin: 0 auto;
+				}
 			}
 
 			.list {
