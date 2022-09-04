@@ -24,6 +24,7 @@
 					<p>The message won't be posted if a link to Twitchat has been posted within the past hour so you can advertise about it by yourself.</p>
 					<Button title="Customize message" small :icon="$image('icons/edit.svg')" @click="openParamPage(contentAppearance)" />
 					<p class="spacing"><strong>Donors are not concerned</strong><br>If you donated, go under <a @click="openParamPage(contentAccount)">account section</a> to make sure you have the donor badge. If you don't see it, contact me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a> so I give it to you.</p>
+					<p>This feature is <strong>disabled for donors</strong> but you can enable it back if you'd still like to let your viewers know about Twitchat 💝</p>
 				</div>
 			</div>
 			<div class="content">
