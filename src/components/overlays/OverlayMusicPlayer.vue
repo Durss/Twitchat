@@ -50,6 +50,10 @@ import 'vue3-marquee/dist/style.css'
 			type: Boolean,
 			default: false,
 		},
+		keepEmbedTransitions: {
+			type: Boolean,
+			default: false,
+		},
 		staticTrackData: Object,
 	},
 	components:{
@@ -60,6 +64,7 @@ import 'vue3-marquee/dist/style.css'
 export default class OverlayMusicPlayer extends Vue {
 
 	public embed!:boolean;
+	public keepEmbedTransitions!:boolean;
 	public playbackPos!:number;
 	public staticTrackData!:MusicMessage;
 	
@@ -79,6 +84,7 @@ export default class OverlayMusicPlayer extends Vue {
 	public get classes():string[] {
 		let res = ["overlaymusicplayer"];
 		if(this.embed !== false) res.push("embed")
+		if(this.keepEmbedTransitions !== false) res.push("keepEmbedTransitions")
 		if(this.params) {
 			if(this.params.noScroll === true) res.push("noScroll")
 			if(this.params.openFromLeft === true) res.push("left")
@@ -251,12 +257,14 @@ export default class OverlayMusicPlayer extends Vue {
 			}
 		}
 
-		.slide-enter-active {
-			transition: unset;
-		}
-
-		.slide-leave-active {
-			transition: unset;
+		&:not(.keepEmbedTransitions) {
+			.slide-enter-active {
+				transition: unset;
+			}
+	
+			.slide-leave-active {
+				transition: unset;
+			}
 		}
 	}
 

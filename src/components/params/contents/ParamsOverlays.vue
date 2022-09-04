@@ -2,6 +2,11 @@
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
 		<div class="title">Add overlays to your stream</div>
+
+		<div class="unified">
+			Include all overlays in one single browser source:
+			<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+		</div>
 		
 		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsTimer class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
@@ -56,7 +61,8 @@ export default class ParamsOverlays extends Vue {
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; }
+	public get overlayUrl():string { return this.$overlayURL("unified"); }
 
 }
 </script>
@@ -106,6 +112,18 @@ export default class ParamsOverlays extends Vue {
 	.block {
 		&:not(:first-of-type) {
 			margin-top: .5em;
+		}
+	}
+
+	.unified {
+		border-radius: 1em;
+		background-color: white;
+		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+		padding: .5em;
+		text-align: center;
+		input {
+			margin: .5em;
+			width: 90%;
 		}
 	}
 }
