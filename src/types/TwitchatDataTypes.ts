@@ -1,7 +1,7 @@
 import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
+import type { TriggerScheduleTypes } from "@/utils/TriggerActionData";
 import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
-
 
 export const ParamsContentType = {
 	APPEARANCE: "appearance",
@@ -31,6 +31,7 @@ export interface IBotMessage {
 	raffleJoin:BotMessageEntry;
 	raffleStart:BotMessageEntry;
 	shoutout:BotMessageEntry;
+	twitchatAd:BotMessageEntry;
 }
 export interface BotMessageEntry {
 	enabled:boolean;
@@ -87,8 +88,11 @@ export interface TriggerData {
 	chatCommand?:string
 }
 
+
+export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
+
 export interface TriggerScheduleData {
-	type:string;
+	type:TriggerScheduleTypesValue;
 	repeatDuration:number;
 	repeatMinMessages:number;
 	dates:{daily:boolean, yearly:boolean, value:string}[];

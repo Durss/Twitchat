@@ -886,7 +886,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				raffleJoin: {
@@ -894,7 +894,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				raffle: {
@@ -902,7 +902,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				bingoStart: {
@@ -910,7 +910,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				bingo: {
@@ -918,7 +918,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				shoutout: {
@@ -926,7 +926,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				twitchatAd: {
@@ -934,7 +934,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 			}

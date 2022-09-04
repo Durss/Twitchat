@@ -43,6 +43,7 @@ export const TriggerTypes = {
 	MOD:"39",
 	UNMOD:"40",
 	SCHEDULE:"41",
+	TWITCHAT_AD:"ad",
 }
 
 export interface ITriggerActionHelper {
@@ -283,7 +284,7 @@ export const MusicTriggerEvents:TriggerEventTypes[] = [
 export const TriggerScheduleTypes = {
 	REGULAR_REPEAT:"1",
 	SPECIFIC_DATES:"2",
-}
+} as const;
 
 export const ScheduleTriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", label:"Regular repeat", value:TriggerScheduleTypes.REGULAR_REPEAT},

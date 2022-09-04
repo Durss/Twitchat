@@ -33,8 +33,8 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
+				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model.lazy="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model.lazy="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -290,6 +290,8 @@ export default class ParamItem extends Vue {
 <style scoped lang="less">
 .paramitem{
 	overflow-y: clip;
+	border-left: 0 solid transparent;
+	transition: border-left .25s, padding-left .25s;
 
 	&.error {
 		border-left: .25em solid @mainColor_alert;
@@ -426,6 +428,10 @@ export default class ParamItem extends Vue {
 
 		select {
 			max-width: 250px;
+		}
+
+		input, select, textarea{
+			transition: background-color .25s;
 		}
 
 	}

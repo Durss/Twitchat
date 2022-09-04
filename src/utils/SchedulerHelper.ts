@@ -2,6 +2,7 @@ import type { TriggerData, TriggerScheduleData } from "@/types/TwitchatDataTypes
 import StoreProxy from "./StoreProxy";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
 import TriggerActionHandler from "./TriggerActionHandler";
+import UserSession from "./UserSession";
 
 /**
 * Created : 02/09/2022 
@@ -11,6 +12,7 @@ export default class SchedulerHelper {
 	private static _instance:SchedulerHelper;
 	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
 	private _frameIndex:number = 0;
+	private _adSchedule?:TriggerScheduleData;
 	
 	constructor() {
 	
@@ -122,6 +124,14 @@ export default class SchedulerHelper {
 	*******************/
 	private initialize():void {
 		this.computeFrame();
+		
+		this._adSchedule = {
+			type:TriggerScheduleTypes.REGULAR_REPEAT,
+			repeatDuration:5,
+			repeatMinMessages:50,
+			dates:[],
+		}
+		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
 	}
 
 	private computeFrame():void {
@@ -130,17 +140,21 @@ export default class SchedulerHelper {
 		//We could thechnically use a setInterval(...,1000) instead, but
 		//its behavior isn't ideal when tab is put in background. All
 		//pending intervals would be fired at once when bringing the tab
-		//to the front. With a requestAnimationFrame() the process is
-		//slowed down to 1fps and tasks still executed in background
-		if(this._frameIndex++<60) return;
+		//back to foreground. With a requestAnimationFrame() the process
+		//is slowed down to 1 fps and tasks still executed in background
+		if(this._frameIndex++ < 60) return;
 		this._frameIndex = 0;
 		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
 
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];
 			const trigger = triggers[e.triggerKey];
-			if(!trigger) continue;
-			const schedule = trigger.scheduleParams!;
+			let schedule = trigger?.scheduleParams;
+			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+				if(UserSession.instance.isDonor) return;//No ad for donors
+				schedule = this._adSchedule;
+			}
+			if(!schedule) continue;
 
 			let execute = true;
 			switch(schedule.type) {
@@ -161,7 +175,7 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				e.date = Date.now() + trigger.scheduleParams!.repeatDuration * 60 * 1000,
+				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000,
 				e.messageCount = 0,
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}

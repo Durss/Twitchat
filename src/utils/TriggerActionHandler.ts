@@ -1,4 +1,4 @@
-import type { BanTriggerData, ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, ShoutoutTriggerData, StreamInfoUpdate, TimeoutTriggerData, TriggerData, UnbanTriggerData, VoicemodTriggerData, VIPTriggerData, UnVIPTriggerData, ModTriggerData, UnmodTriggerData } from "@/types/TwitchatDataTypes";
+import type { BanTriggerData, ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, ShoutoutTriggerData, StreamInfoUpdate, TimeoutTriggerData, TriggerData, UnbanTriggerData, VoicemodTriggerData, VIPTriggerData, UnVIPTriggerData, ModTriggerData, UnmodTriggerData, TriggerActionChatData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -456,7 +456,26 @@ export default class TriggerActionHandler {
 	 */
 	private async parseSteps(eventType:string, message:MessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
-		const trigger = this.triggers[ eventType ];
+		let trigger:TriggerData = this.triggers[ eventType ];
+		
+		//Special case for twitchat's ad, generate trigger data
+		if(eventType == TriggerTypes.TWITCHAT_AD) {
+			let text:string = StoreProxy.store.state.botMessages.twitchatAd.message;
+			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
+				text = "twitchat.fr : "+text;
+			}
+			trigger = {
+				enabled:true,
+				actions:[
+					{
+						id:Math.random().toString(),
+						type:"chat",
+						delay:0,
+						text,
+					} as TriggerActionChatData
+				]
+			}
+		}
 		
 		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;

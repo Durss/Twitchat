@@ -1,7 +1,9 @@
 <template>
 	<div class="postonchatparam">
 
-		<ParamItem class="parameter" :paramData="enabledParam" ref="paramItem" />
+		<ParamItem class="parameter" :paramData="enabledParam" ref="paramItem" :error="error != ''" />
+
+		<div v-if="error" class="errorMessage">{{error}}</div>
 		
 		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && placeholders && enabledParam.value===true"
 			:target="placeholderTarget"
@@ -47,7 +49,8 @@ export default class PostOnChatParam extends Vue {
 	public botMessageKey!:BotMessageField;
 	public placeholders!:PlaceholderEntry[];
 
-	public enabledParam:ParameterData = { label:"", value:false, type:"toggle"};
+	public error:string = "";
+	public enabledParam:ParameterData = { label:"", value:false, type:"toggle", maxLength:500};
 	public textParam:ParameterData = { label:"", value:"", type:"text", longText:true};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
@@ -78,6 +81,13 @@ export default class PostOnChatParam extends Vue {
 												message:this.textParam.value});
 		}
 
+		this.error = ""
+		if(this.botMessageKey == "twitchatAd") {
+			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(this.textParam.value as string)) {
+				this.error = "Message must contain \"twitchat.fr\"";
+			}
+		}
+
 		if(this.enabledParam.value) {
 			await this.$nextTick();
 			this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.getElementsByTagName("textarea")[0];
@@ -90,6 +100,16 @@ export default class PostOnChatParam extends Vue {
 .postonchatparam{
 	.placeholders {
 		margin-top: .5em;
+	}
+
+	&>.errorMessage {
+		background-color: @mainColor_alert;
+		color:@mainColor_light;
+		padding: .5em;
+		font-size: .8em;
+		border-radius: 0 0 .5em .5em;
+		text-align: center;
+		cursor: pointer;
 	}
 }
 </style>
