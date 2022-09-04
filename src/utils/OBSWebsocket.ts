@@ -68,6 +68,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			const protocol = ip == "127.0.0.1" ? "ws://" : "wss://";
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion:1});
+			this.connected = true;
 		}catch(error) {
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
@@ -78,7 +79,6 @@ export default class OBSWebsocket extends EventDispatcher {
 			return false;
 		}
 
-		this.connected = true;
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
 			if(this.autoReconnect) {
