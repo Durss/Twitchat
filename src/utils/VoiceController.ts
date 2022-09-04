@@ -229,15 +229,15 @@ export default class VoiceController {
 		// console.log("TRIGGER ACTION", action.id, data);
 		
 		switch(action) {
-			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true); return;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}, true); return;
-			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}, true); return;
-			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}, true, true); return;
+			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}, true, true); return;
+			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}, true, true); return;
 		}
 		if(action != VoiceAction.TEXT_UPDATE) {
 			this.triggersCountDone ++;
 		}
-		PublicAPI.instance.broadcast(action as TwitchatActionType|TwitchatEventType, data, true);
+		PublicAPI.instance.broadcast(action as TwitchatActionType|TwitchatEventType, data, true, true);
 	}
 
 	private onFinalText(text:string) {

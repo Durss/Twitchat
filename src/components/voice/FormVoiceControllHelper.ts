@@ -16,8 +16,8 @@ export default class FormVoiceControllHelper {
 	
 	public enabled:boolean = true;
 	
-	private tabIndex:number = 0;
-	private originalTabIndex:number = 0;
+	public tabIndex:number = 1;
+	private originalTabIndex:number = 1;
 	private voiceInputs:HTMLInputElement[] = [];
 	private prevField:HTMLInputElement|null = null;
 	private prevFieldValue:string = "";
@@ -29,7 +29,7 @@ export default class FormVoiceControllHelper {
 	}
 
 	private get currentInput():HTMLInputElement {
-		return this.voiceInputs[this.tabIndex];
+		return this.voiceInputs[this.tabIndex-1];
 	}
 
 	public dispose():void {
@@ -56,9 +56,14 @@ export default class FormVoiceControllHelper {
 		PublicAPI.instance.addEventListener(VoiceAction.ACTION_BATCH, this.batchVoiceActionHandler);
 		
 		this.updateVoiceInputList();
+		console.log(this.voiceInputs);
 		this.voiceInputs.forEach(v => {
-			v.addEventListener("click", ()=>this.tabIndex = v.tabIndex);
-		})
+			v.addEventListener("focus", ()=>{
+				this.tabIndex = v.tabIndex;
+				this.setFocus();
+			});
+		});
+
 	}
 
 	private updateVoiceInputList():void {
@@ -104,8 +109,9 @@ export default class FormVoiceControllHelper {
 
 		this.updateVoiceInputList();
 		
-		if(this.tabIndex < 0) this.tabIndex = this.voiceInputs.length-1;
-		if(this.tabIndex > this.voiceInputs.length-1) this.tabIndex = 0;
+		if(this.tabIndex < 1) this.tabIndex = this.voiceInputs.length;
+		if(this.tabIndex > this.voiceInputs.length) this.tabIndex = 1;
+		this.setFocus();
 
 		if(e.type != VoiceAction.SPEECH_END
 		&& e.type != VoiceAction.ERASE
@@ -119,7 +125,19 @@ export default class FormVoiceControllHelper {
 			this.prevField = this.currentInput;
 			this.prevFieldValue = this.currentInput.value;
 		}
+	}
 
+	private onBatchVoiceAction(e:TwitchatEvent):void {
+		const actionList = e.data as {id:string, value:string}[];
+		this.tabIndex = this.originalTabIndex;
+		this.setFocus();
+		for (let i = 0; i < actionList.length; i++) {
+			const a = actionList[i];
+			this.onVoiceAction(new TwitchatEvent(a.id as TwitchatActionType, a.value));
+		}
+	}
+
+	private setFocus():void {
 		//Set focus to the current input and remove it from the others
 		this.voiceInputs.forEach(v=> {
 			if(v.tabIndex == this.tabIndex) {
@@ -128,16 +146,7 @@ export default class FormVoiceControllHelper {
 				v.classList.add("voiceFocus");
 			}
 			else v.classList.remove("voiceFocus");
-		})
-	}
-
-	private onBatchVoiceAction(e:TwitchatEvent):void {
-		const actionList = e.data as {id:string, value:string}[];
-		this.tabIndex = this.originalTabIndex;
-		for (let i = 0; i < actionList.length; i++) {
-			const a = actionList[i];
-			this.onVoiceAction(new TwitchatEvent(a.id as TwitchatActionType, a.value));
-		}
+		});
 	}
 
 }

@@ -60,7 +60,7 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param type 
 	 * @param data 
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
 		// console.log("Broadcasting", type, data);
 		if(!data) data = {};
 		data.id = crypto.randomUUID();
@@ -74,12 +74,13 @@ export default class PublicAPI extends EventDispatcher {
 			console.error(error);
 		}
 
-		if(!OBSWebsocket.instance.connected) {
+		if(!OBSWebsocket.instance.connected || onlyLocal) {
 			//OBS not connected and asked to broadcast to self, just
 			//broadcast to self right away
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, data));
 		}else{
 			//Broadcast to any OBS Websocket connected client
+			console.log("BROADCAST", type);
 			OBSWebsocket.instance.broadcast(type, data);
 		}
 	}
