@@ -45,7 +45,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventTypeCategories, type ParameterData, type TriggerData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import { TriggerEventTypeCategories, type ParameterData, type TriggerData, type TriggerEventTypes, type TriggerScheduleTypesValue } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { ScheduleTriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
 import Utils from '@/utils/Utils';
@@ -89,7 +89,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		events = events.concat(ScheduleTriggerEvents);
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
-				type:events[1].value,
+				type:events[1].value as TriggerScheduleTypesValue,
 				repeatDuration:30,
 				repeatMinMessages:100,
 				dates:[],
@@ -97,8 +97,8 @@ export default class TriggerActionScheduleParams extends Vue {
 		}
 		this.param_action.value = this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0].value;
 		this.param_action.listValues = events;
-		const duration = this.triggerData.scheduleParams.repeatDuration;
-		const minMess = this.triggerData.scheduleParams.repeatMinMessages;
+		const duration = this.triggerData.scheduleParams!.repeatDuration;
+		const minMess = this.triggerData.scheduleParams!.repeatMinMessages;
 		this.param_repeatDurationCondition.value = duration != undefined && duration > 0;
 		this.param_repeatMessageCondition.value = minMess != undefined && minMess > 0;
 
@@ -114,7 +114,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		})
 		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
 
-		for (let i = 0; i < this.triggerData.scheduleParams?.dates.length; i++) {
+		for (let i = 0; i < this.triggerData.scheduleParams!.dates.length; i++) {
 			this.params_daily.push({ type:"toggle", value:false, label:"Daily"} );
 			this.params_yearly.push({ type:"toggle", value:false, label:"Yearly"} );
 		}

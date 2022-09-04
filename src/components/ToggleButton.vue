@@ -24,8 +24,8 @@ export default class ToggleButton extends Vue {
 
 	public get classes():string[] {
 		let res = ["togglebutton"];
-		if(this.small) res.push("small");
-		if(this.clear) res.push("clear");
+		if(this.small !== false) res.push("small");
+		if(this.clear !== false) res.push("clear");
 		if(this.modelValue) res.push("selected");
 		return res;
 	}

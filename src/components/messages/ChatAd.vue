@@ -42,12 +42,12 @@
 						<li>
 							<img src="@/assets/icons/broadcast.svg" class="icon" />
 							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>1 new trigger</strong> available: Triggers => Twitchat => <strong>Schedule actions</strong> that can either repeat actions regularly or be executed at specific dates</span>
+							<span><strong>1 new trigger</strong>: Repeat any actions regularly or execute them at specific dates (see: Triggers => Timers => <strong>Schedule actions</strong>)</span>
 						</li>
 						<li>
 							<img src="@/assets/icons/broadcast.svg" class="icon" />
 							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>1 new trigger action</strong> available: Call another trigger from any trigger</span>
+							<span><strong>1 new trigger action</strong>: Call another trigger from any trigger</span>
 						</li>
 					</ul>
 				</ToggleBlock>

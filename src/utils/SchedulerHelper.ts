@@ -165,7 +165,8 @@ export default class SchedulerHelper {
 			const trigger = triggers[e.triggerKey];
 			let schedule = trigger?.scheduleParams;
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
-				if(UserSession.instance.isDonor) return;//No ad for donors
+				//No ad for donors unless requested
+				if(UserSession.instance.isDonor && !StoreProxy.store.state.botMessages.twitchatAd.enabled) return;
 				schedule = this._adSchedule;
 			}
 			if(!schedule) continue;

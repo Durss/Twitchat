@@ -128,7 +128,7 @@ const store = createStore({
 				message:"/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			},
 			twitchatAd: {
-				enabled:true,
+				enabled:false,
 				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers, you should take a look at it.",
 			},
 		} as IBotMessage,

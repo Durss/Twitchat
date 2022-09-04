@@ -6,7 +6,11 @@
 
 		<ParamItem class="param" :paramData="$store.state.accountParams.syncDataWithServer" v-model="syncEnabled" />
 
-		<DonorState v-if="isDonor" />
+		<DonorState class="donorBadge" v-if="isDonor" />
+		<div class="badgesList" v-if="isDonor">
+			<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
+			<DonorState class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
+		</div>
 
 		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
 		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
@@ -44,6 +48,7 @@ export default class ParamsAccount extends Vue {
 	public get canInstall():boolean { return StoreProxy.store.state.ahsInstaller != null || true; }
 	public get userName():string { return UserSession.instance.authToken.login; }
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
+	public get donorLevel():number { return UserSession.instance.donorLevel; }
 	public get userPP():string {
 		let pp:string|undefined = UserSession.instance.user?.profile_image_url;
 		if(!pp) {
@@ -104,6 +109,23 @@ export default class ParamsAccount extends Vue {
 
 	.param {
 		width: 300px;
+	}
+
+	.donorBadge {
+		margin-top: 1em;
+	}
+
+	.badgesList {
+		margin-top: .5em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 80%;
+		.badge {
+			margin: .25em;
+			height: 3em;
+		}
 	}
 }
 </style>

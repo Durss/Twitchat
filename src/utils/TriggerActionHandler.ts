@@ -9,7 +9,7 @@ import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
 import StoreProxy from "./StoreProxy";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes } from "./TriggerActionData";
+import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "./TriggerActionData";
 import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -434,7 +434,7 @@ export default class TriggerActionHandler {
 			hypeTrainApproach:TriggerTypes.HYPE_TRAIN_APPROACH,
 			hypeTrainStart:TriggerTypes.HYPE_TRAIN_START,
 			hypeTrainProgress:TriggerTypes.HYPE_TRAIN_PROGRESS,
-			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END,
+			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END as TriggerTypesValue,
 		}
 		if(message.state == "EXPIRE") {
 			idToType.hypeTrainEnd = TriggerTypes.HYPE_TRAIN_CANCELED;
@@ -461,6 +461,7 @@ export default class TriggerActionHandler {
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
 			let text:string = StoreProxy.store.state.botMessages.twitchatAd.message;
+			//If no link is found on the message, force it at the begining
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
 				text = "twitchat.fr : "+text;
 			}

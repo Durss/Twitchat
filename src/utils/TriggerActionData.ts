@@ -44,7 +44,8 @@ export const TriggerTypes = {
 	UNMOD:"40",
 	SCHEDULE:"41",
 	TWITCHAT_AD:"ad",
-}
+} as const;
+export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
 
 export interface ITriggerActionHelper {
 	tag:string;
@@ -251,6 +252,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue"},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute an action when a music starts playing", jsonTest:{"type":"musicEvent","start":true, music:{ "title": "Mitchiri neko march", "artist": "Mitchiri neko fanfare", "album": "Mitchiri neko march", "cover": "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722", "duration": 192469 }}},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music stops playing", value:TriggerTypes.MUSIC_STOP, description:"Execute an action when a music stops playing", jsonTest:{"type":"musicEvent","start":false}},
+	{category:TriggerEventTypeCategories.TIMER, icon:"date", label:"Scheduled actions", value:TriggerTypes.SCHEDULE, isCategory:true, description:"Execute actions regularly or at specific date/time", noToggle:true},
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started with the command <mark>/timerStart</mark>", jsonTest:{"type":"timer","started":true,"markedAsRead":false,"data":{"startAt":1661865327865,"duration":0},"duration":"00","duration_ms":0}},
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <mark>/timerStop</mark>", jsonTest:{"type":"timer","started":false,"markedAsRead":false,"data":{"startAt":1661865327865,"duration":0},"duration":"00","duration_ms":0}},
 	{category:TriggerEventTypeCategories.TIMER, icon:"countdown", label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <mark>/countdown</mark>", jsonTest:{"type":"countdown","started":true,"data":{"timeoutRef":182,"startAt":1661864989574,"duration":600000},"tags":{"id":"00000000-0000-0000-0000-000000000003","tmi-sent-ts":"1661864989574"},"start":"30/08/2022 15h09","start_ms":1661864989574,"duration":"10:00","duration_ms":600000}},
@@ -261,7 +263,6 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", label:"Highlighted message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", jsonTest:{"type":"chatOverlayHighlight","message":"This is a test message for the chat highlight feature !","user":{"id":"29961813","login":"durss","display_name":"Durss","type":"","broadcaster_type":"affiliate","description":"Blablabla","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/c43305dd-d577-4369-b60b-df0a4acdb7d8-channel_offline_image-1920x1080.jpeg","view_count":15289,"created_at":"2012-04-21T23:01:18Z"},"id":"d97d6594-6cc4-4400-b4f4-e3b688263fa2","params":{"position":"bl"}}},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", label:"Chat alert", value:TriggerTypes.CHAT_ALERT, description:"Execute an action when the Chat Alert feature is triggered <i>(Parameters => Features => Enable chat alert)</i>", jsonTest:{"type":"chatAlert", message:{"type":"message","message":"ItsBoshyTime Read your chat !!! ItsBoshyTime","tags":{"badge-info":{"subscriber":"16"},"badges":{"broadcaster":"1","subscriber":"12"},"client-nonce":"f90438208ff604cfba00470d60f1bb5b","color":"#9ACD32","display-name":"Durss","emotes":{"133468":["0-11","32-43"]},"first-msg":false,"flags":null,"id":"00000000-0000-0000-0000-000000000002","mod":false,"returning-chatter":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1658344567683","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"133468:0-11,32-43","badge-info-raw":"subscriber/16","badges-raw":"broadcaster/1,subscriber/12","username":"durss","message-type":"chat"},"channel":"#durss","self":false}}},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"voicemod", label:"Voicemod - voice changed", value:TriggerTypes.VOICEMOD, description:"Execute an action when changing the voice effect on voicemod", jsonTest:{ type:"voicemod", voiceID: "nofx" }},
-	{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", label:"Scheduled actions", value:TriggerTypes.SCHEDULE, isCategory:true, description:"Execute actions regularly or at specific date/time", noToggle:true},
 ]
 
 export const TriggerMusicTypes = {
@@ -271,7 +272,8 @@ export const TriggerMusicTypes = {
 	RESUME_PLAYBACK:"4",
 	GET_CURRENT_TRACK:"5",
 	START_PLAYLIST:"6",
-}
+} as const;
+export type TriggerMusicTypesValue = typeof TriggerMusicTypes[keyof typeof TriggerMusicTypes];
 
 export const MusicTriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Add a track to the queue", value:TriggerMusicTypes.ADD_TRACK_TO_QUEUE},

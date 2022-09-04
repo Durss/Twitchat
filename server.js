@@ -15,9 +15,9 @@ const port = 3018;
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
-Logger.success("==============");
-Logger.success("Server started");
-Logger.success("==============");
+Logger.success("===========================");
+Logger.success("Server started on port "+port);
+Logger.success("===========================");
 
 
 if(!fs.existsSync(userDataFolder)) {

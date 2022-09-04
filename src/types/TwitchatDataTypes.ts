@@ -1,5 +1,5 @@
 import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
-import type { TriggerScheduleTypes } from "@/utils/TriggerActionData";
+import type { TriggerMusicTypesValue, TriggerScheduleTypes, TriggerTypesValue } from "@/utils/TriggerActionData";
 import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
 
@@ -92,7 +92,7 @@ export interface TriggerData {
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
 
 export interface TriggerScheduleData {
-	type:TriggerScheduleTypesValue;
+	type:TriggerScheduleTypesValue|"0";
 	repeatDuration:number;
 	repeatMinMessages:number;
 	dates:{daily:boolean, yearly:boolean, value:string}[];
@@ -113,20 +113,20 @@ export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bing
 
 export const TriggerEventTypeCategories = {
 	GLOBAL: 1,
-	USER: 2,
-	SUBITS: 3,
-	MOD: 4,
-	TWITCHAT: 5,
-	HYPETRAIN: 6,
-	GAMES: 7,
-	MUSIC: 8,
-	TIMER: 9,
+	TIMER: 2,
+	TWITCHAT: 3,
+	USER: 4,
+	SUBITS: 5,
+	MOD: 6,
+	HYPETRAIN: 7,
+	GAMES: 8,
+	MUSIC: 9,
 } as const;
 export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 export interface TriggerEventTypes extends ParameterDataListValue {
 	category:TriggerEventTypeCategoryValue;
 	label:string;
-	value:string;
+	value:TriggerTypesValue|"0";
 	icon:string,
 	description?:string,
 	isCategory?:boolean,

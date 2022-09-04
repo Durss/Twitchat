@@ -1,20 +1,19 @@
 <template>
-	<div  :class="'donorstate lvl_'+donorLevel">
-		<div class="title">
+	<div  :class="classes">
+		<div class="title" v-if="light === false">
 			<p class="outline">Thank you</p>
 			<p class="text">Thank you</p>
 		</div>
 
 		<div ref="heart" class="beatingHeart" @click="burstStars(true);">
-			<div class="level"><span class="small">level</span><br>{{donorLevel+1}}</div>
-			<!-- <img src="@/assets/icons/donor.svg" alt="heart"> -->
+			<div class="level"><span class="small" v-if="light === false">level</span><br v-if="light === false">{{donorLevel+1}}</div>
 			<svg class="image" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 208.6 202.5" xml:space="preserve">
 				<defs>
-					<linearGradient id="header-shape-gradient" x2="0.35" y2="1">
-						<stop offset="0%" stop-color="var(--donor-color-stop)" />
-						<stop offset="30%" stop-color="var(--donor-color-stop)" />
-						<stop offset="100%" stop-color="var(--donor-color-bot)" />
+					<linearGradient :id="'header-shape-gradient-'+donorLevel" x2="0.35" y2=".8">
+						<stop offset="0%" :stop-color="'var(--donor-color-'+donorLevel+'-stop)'" />
+						<stop offset="30%" :stop-color="'var(--donor-color-'+donorLevel+'-stop)'" />
+						<stop offset="100%" :stop-color="'var(--donor-color-'+donorLevel+'-bot)'" />
 					</linearGradient>
 				</defs>
 				<path class="heart_st0" d="M151.6,0c-19.6,0-37,9.9-47.2,25C94,9.9,76.7,0,57.1,0C25.6,0,0,25.6,0,57.1c0,44.2,96.1,145.4,104.3,145.4
@@ -60,8 +59,7 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"/>
 			</svg>
 		</div>
 	
-		<div class="stars">
-			<!-- <div class="star" v-for="s in stars" :style="getStarStyles(s)"></div> -->
+		<div class="stars" v-if="light === false">
 			<img src="@/assets/icons/follow.svg" alt="heart" class="star" v-for="s in stars" :style="getStarStyles(s)">
 		</div>
 	</div>
@@ -74,15 +72,33 @@ import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
-	props:{},
+	props:{
+		light:{
+			type:Boolean,
+			default:false,
+		},
+		level:{
+			type:Number,
+			default:-1,
+		}
+	},
 	components:{}
 })
 export default class DonorState extends Vue {
 
+	public light!:boolean;
+	public level!:number;
+
 	public disposed = false;
 	public stars:StarData[] = [];
+	public donorLevel:number = 0;
 	
-	public get donorLevel():number { return UserSession.instance.donorLevel; }
+	public get classes():string[] {
+		const res:string[] = ["donorstate"];
+		res.push(' lvl_'+this.donorLevel);
+		if(this.light !== false) res.push("light");
+		return res;
+	}
 	
 	public getStarStyles(s:StarData):StyleValue {
 		return {
@@ -92,6 +108,10 @@ export default class DonorState extends Vue {
 	}
 
 	public mounted():void {
+		this.donorLevel = this.level != -1? this.level : UserSession.instance.donorLevel;
+
+		if(this.light !== false) return;
+		
 		const heart = this.$refs.heart as HTMLDivElement;
 		gsap.fromTo(heart, {scale:1.2}, {duration:.35, scale:1, ease:"back.out", repeat:-1, repeatDelay:1.5, onRepeat:()=>{
 			this.burstStars();
@@ -105,6 +125,7 @@ export default class DonorState extends Vue {
 
 	public beforeUnmount():void {
 		this.disposed = true;
+		if(this.light !== false) return;
 		const heart = this.$refs.heart as HTMLDivElement;
 		gsap.killTweensOf(heart);
 	}
@@ -182,7 +203,6 @@ interface StarData {
 	padding-bottom: 3em;
 	border-radius: 1em;
 	position: relative;
-	margin-top: 1em;
 	// border-radius: 2em;
 	// border-bottom-left-radius: 10em;
 	// border-bottom-right-radius: 10em;
@@ -192,6 +212,31 @@ interface StarData {
 	height: 10em;
 	user-select: none;
 	filter: drop-shadow(0 0 .5em rgba(0,0,0,.25));
+
+	&.light {
+		filter: unset;
+		height: min-content;
+		padding: 0;
+		background: unset;
+		.beatingHeart {
+			height: 3em;
+			pointer-events: none;
+			position: relative;
+			top:0;
+			left:0;
+			transform: unset;
+			.image {
+				height: 100%;
+				cursor: pointer;
+				filter: drop-shadow(0 0 .2em rgba(0,0,0,.25));
+			}
+
+			.level {
+				font-size: 1.5em;
+				top:55%;
+			}
+		}
+	}
 	
 	.title {
 		.center();
@@ -286,47 +331,59 @@ interface StarData {
 		}
 	}
 	
+	#header-shape-gradient-2 {
+		--donor-color-2-bot: #fff8d3;
+		--donor-color-2-stop: #ffd900;
+	}
+	#header-shape-gradient-4 {
+		--donor-color-4-bot: #ffd900;
+		--donor-color-4-stop: #07ffc9;
+	}
+	#header-shape-gradient-5 {
+		--donor-color-5-bot: #07ffc9;
+		--donor-color-5-stop: #01d9ff;
+	}
+	#header-shape-gradient-6 {
+		--donor-color-6-bot: #01d9ff;
+		--donor-color-6-stop: #ff9900;
+	}
+	#header-shape-gradient-7 {
+		--donor-color-7-bot: #ff9900;
+		--donor-color-7-stop: #d400ff;
+	}
+	#header-shape-gradient-8 {
+		--donor-color-8-stop: #fa0060;
+		--donor-color-8-bot: #d400ff;
+	}
+	#header-shape-gradient-9 {
+		--donor-color-9-bot: #fa0060;
+		--donor-color-9-stop: #fadc34;
+	}
 
 	&.lvl_1 {
 		.beatingHeart>.image>.heart_st0{fill:#fff8b4;}
 	}
 	&.lvl_2 {
-		.beatingHeart>.image>.heart_st0{fill:#ffd900;}
+		.beatingHeart>.image>.heart_st0{
+			fill: url(#header-shape-gradient-2) #ffd900;
+		}
 	}
 	&.lvl_3 {
-		.beatingHeart>.image>.heart_st0{
-			fill: url(#header-shape-gradient) #ffd900;
-		}
-		#header-shape-gradient {
-			--donor-color-stop: #fff8d3;
-			--donor-color-bot: #ffe601;
-		}
+		.beatingHeart>.image>.heart_st0{fill:#ffd900;}
 	}
 	&.lvl_4 {
 		.beatingHeart>.image>.heart_st0{
-			fill: url(#header-shape-gradient) #ffd900;
-		}
-		#header-shape-gradient {
-			--donor-color-stop: #ffd900;
-			--donor-color-bot: #6efaff;
+			fill: url(#header-shape-gradient-4) #ffd900;
 		}
 	}
 	&.lvl_5 {
 		.beatingHeart>.image>.heart_st0{
-			fill: url(#header-shape-gradient) #ffd900;
-		}
-		#header-shape-gradient {
-			--donor-color-stop: #07ffc9;
-			--donor-color-bot: #01d9ff;
+			fill: url(#header-shape-gradient-5) #ffd900;
 		}
 	}
 	&.lvl_6 {
 		.beatingHeart>.image>.heart_st0{
-			fill: url(#header-shape-gradient) #ffd900;
-		}
-		#header-shape-gradient {
-			--donor-color-stop: #01d9ff;
-			--donor-color-bot: #ff9900;
+			fill: url(#header-shape-gradient-6) #ffd900;
 		}
 		.beatingHeart>.level {
 			color: rgba(0, 0, 0, .7);
@@ -334,39 +391,27 @@ interface StarData {
 	}
 	&.lvl_7 {
 		.beatingHeart>.image>.heart_st0{
-			fill: url(#header-shape-gradient) #ffd900;
-			}
-			#header-shape-gradient {
-				--donor-color-stop: #fad266;
-				--donor-color-bot: #ff0000;
-			}
-			.beatingHeart>.level {
-				color: @mainColor_light;
-			}
+			fill: url(#header-shape-gradient-7) #ffd900;
 		}
-		&.lvl_8 {
-			.beatingHeart>.image>.heart_st0{
-				fill: url(#header-shape-gradient) #ffd900;
-			}
-			#header-shape-gradient {
-				--donor-color-stop: #fa00af;
-				--donor-color-bot: #d400ff;
-			}
-			.beatingHeart>.level {
-				color: @mainColor_light;
-			}
+		.beatingHeart>.level {
+			color: @mainColor_light;
 		}
-		&.lvl_9 {
-			.beatingHeart>.image>.heart_st0{
-				fill: url(#header-shape-gradient) #fff;
-			}
-			.beatingHeart>.level {
-				color: @mainColor_light;
-			}
-			#header-shape-gradient {
-				--donor-color-stop: #f12c06;
-				--donor-color-bot: #faed34;
-			}
+	}
+	&.lvl_8 {
+		.beatingHeart>.image>.heart_st0{
+			fill: url(#header-shape-gradient-8) #ffd900;
 		}
+		.beatingHeart>.level {
+			color: @mainColor_light;
+		}
+	}
+	&.lvl_9 {
+		.beatingHeart>.image>.heart_st0{
+			fill: url(#header-shape-gradient-9) #fff;
+		}
+		.beatingHeart>.level {
+			color: @mainColor_light;
+		}
+	}
 }
 </style>

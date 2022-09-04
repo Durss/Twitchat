@@ -524,26 +524,26 @@ export default class PubSub extends EventDispatcher{
 				}
 				case "mod": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been added to your mods by "+localObj.created_by);
 					TriggerActionHandler.instance.onMessage({ type:"mod", user});
 					break;
 				}
 				case "unmod": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unbanned by "+localObj.created_by);
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unmod by "+localObj.created_by);
 					TriggerActionHandler.instance.onMessage({ type:"unmod", user});
 					break;
 				}
 				case "vip": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					TriggerActionHandler.instance.onMessage({ type:"vip", user});
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been vip by "+localObj.created_by);
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been added to VIPs by "+localObj.created_by);
 					break;
 				}
 				case "unvip": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					TriggerActionHandler.instance.onMessage({ type:"unvip", user});
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unvip by "+localObj.created_by);
+					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unVIP by "+localObj.created_by);
 					break;
 				}
 				case "raid": {

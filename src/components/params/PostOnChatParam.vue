@@ -1,7 +1,7 @@
 <template>
 	<div class="postonchatparam">
 
-		<ParamItem class="parameter" :paramData="enabledParam" ref="paramItem" :error="error != ''" />
+		<ParamItem clearToggle class="parameter" :paramData="enabledParam" ref="paramItem" :error="error != ''" />
 
 		<div v-if="error" class="errorMessage">{{error}}</div>
 		
@@ -32,6 +32,10 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		placeholders:Object,
 		icon:String,
 		noToggle:{
+			type:Boolean,
+			default:false,
+		},
+		clearToggle:{
 			type:Boolean,
 			default:false,
 		},

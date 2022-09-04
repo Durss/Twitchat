@@ -13,7 +13,7 @@
 					class="helpBt"
 				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
-				<ToggleButton class="toggleButton" :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" />
+				<ToggleButton class="toggleButton" :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" :clear="clearToggle" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -89,7 +89,7 @@
 			:paramData="c"
 			:childLevel="childLevel+1" />
 
-		<div class="child" ref="param_child_slot" v-if="showSlot">
+		<div class="child" ref="param_child_slot" v-if="showSlot && $slots.default">
 			<slot></slot>
 		</div>
 	</div>
@@ -125,6 +125,10 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 			type:Boolean,
 			default:false,
 		},
+		clearToggle:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
@@ -137,6 +141,7 @@ export default class ParamItem extends Vue {
 	
 	public error!:boolean;
 	public autofocus!:boolean;
+	public clearToggle!:boolean;
 	public childLevel!:number;
 	public paramData!:ParameterData;
 	public modelValue!:string|boolean|number|string[];

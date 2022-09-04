@@ -3,7 +3,7 @@
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
 		<div class="title">Add overlays to your stream</div>
 
-		<div class="unified">
+		<div class="unified" v-if="exchangeChannelAvailable">
 			Include all overlays in one single browser source:
 			<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
 		</div>
