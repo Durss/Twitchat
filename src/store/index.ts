@@ -35,12 +35,13 @@ import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessag
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
+import SchedulerHelper from '@/utils/SchedulerHelper';
 
 //TODO split that giant mess into sub stores
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 8,
+		latestUpdateIndex: 9,
 		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
@@ -125,6 +126,10 @@ const store = createStore({
 			shoutout: {
 				enabled:true,
 				message:"/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
+			},
+			twitchatAd: {
+				enabled:false,
+				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers, you should take a look at it.",
 			},
 		} as IBotMessage,
 		commands: [
@@ -303,7 +308,7 @@ const store = createStore({
 				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			} as {[key:string]:ParameterData},
 			appearance: {
-				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 600px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
+				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 450px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
 				splitViewVertical: 			{save:true, type:"toggle", value:false, label:"Split vertically", id:21, parent:13},
 				hideChat: 					{save:false, type:"toggle", value:false, label:"Hide chat (if you want only the activity feed on an OBS dock)", id:18, icon:"nochat_purple.svg"},
@@ -563,6 +568,7 @@ const store = createStore({
 					if(cb) cb(false);
 					return;
 				}
+				//Validate auth token
 				const userRes = await TwitchUtils.validateToken(json.access_token);
 				const status = (userRes as TwitchDataTypes.Error).status;
 				if(isNaN((userRes as TwitchDataTypes.Token).expires_in)
@@ -590,6 +596,22 @@ const store = createStore({
 				Store.access_token = json.access_token;
 				Store.set(Store.TWITCH_AUTH_TOKEN, json, false);
 				
+				//Check if user is part of the donors
+				try {
+					const options = {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": "Bearer "+UserSession.instance.access_token as string,
+						},
+					}
+					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
+					const donorJSON = await donorRes.json();
+					UserSession.instance.isDonor = donorJSON.data?.isDonor === true;
+					UserSession.instance.donorLevel = donorJSON.data?.level;
+				}catch(error) {}
+
+				//Get full user's info
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
 				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
 				if(currentUser) {
@@ -1364,20 +1386,22 @@ const store = createStore({
 		},
 
 		setTrigger(state, value:{key:string, data:TriggerData}) {
+			if(!value.key) return;
 			value.key = value.key.toLowerCase();
 
 			//remove incomplete entries
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
 					if(v.type == null) return false;
-					if(v.type == "obs") return v.sourceName?.length > 0;
-					if(v.type == "chat") return v.text?.length > 0;
+					if(v.type == "obs") return true;//v.sourceName?.length > 0;
+					if(v.type == "chat") return true;//v.text?.length > 0;
 					if(v.type == "music") return true;
 					if(v.type == "tts") return true;
 					if(v.type == "raffle") return true;
 					if(v.type == "bingo") return true;
 					if(v.type == "voicemod") return true;
 					if(v.type == "highlight") return true;
+					if(v.type == "trigger") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -1386,33 +1410,62 @@ const store = createStore({
 			}
 			let remove = false;
 			//Chat command specifics
-			if(value.key.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
-				if(value.data.chatCommand) {
-					//If command has been changed, cleanup the previous one from storage
+			if(value.key.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0
+			|| value.key.indexOf(TriggerTypes.SCHEDULE+"_") === 0) {
+				if(value.data.name) {
+					//If name has been changed, cleanup the previous one from storage
 					if(value.data.prevKey) {
-						delete state.triggers[value.data.prevKey];
+						delete state.triggers[value.data.prevKey.toLowerCase()];
+						//Update trigger dependencies if any is pointing
+						//to the old trigger's name
+						for (const key in state.triggers) {
+							if(key == value.key) continue;
+							const t = state.triggers[key];
+							for (let i = 0; i < t.actions.length; i++) {
+								const a = t.actions[i];
+								if(a.type == "trigger") {
+									//Found a trigger dep' pointing to the old trigger's name,
+									//update it with the new name
+									if(a.triggerKey === value.data.prevKey) {
+										a.triggerKey = value.key;
+									}
+								}
+							}
+						}
+						//If it is a schedule
+						if(value.key.split("_")[0] === TriggerTypes.SCHEDULE) {
+							//Remove old one from scheduling
+							SchedulerHelper.instance.unscheduleTrigger(value.data.prevKey);
+						}
 						delete value.data.prevKey;
 					}
-					if(value.data.actions.length == 0) remove = true;
+					// if(value.data.actions.length == 0) remove = true;
 				}else{
-					//Chat command not defined, don't save it
-					delete state.triggers[value.key];
+					//Name not defined, don't save it
+					delete state.triggers[value.key.toLowerCase()];
 					return;
 				}
 			}else{
 				if(value.data.actions.length == 0) remove = true;
 			}
 			if(remove) {
-				delete state.triggers[value.key];
+				delete state.triggers[value.key.toLowerCase()];
 			}else{
 				value.data.actions = cleanEmptyActions(value.data.actions);
-				state.triggers[value.key] = value.data;
+				state.triggers[value.key.toLowerCase()] = value.data;
 			}
+
+			//If it is a schedule trigger add it to the scheduler
+			if(value.key.split("_")[0] === TriggerTypes.SCHEDULE) {
+				SchedulerHelper.instance.scheduleTrigger(value.key, value.data.scheduleParams!);
+			}
+
 			Store.set(Store.TRIGGERS, state.triggers);
 			TriggerActionHandler.instance.triggers = state.triggers;
 		},
 
 		deleteTrigger(state, key:string) {
+			key = key.toLowerCase();
 			if(state.triggers[key]) {
 				delete state.triggers[key];
 				Store.set(Store.TRIGGERS, state.triggers);
@@ -1493,7 +1546,7 @@ const store = createStore({
 					type: "shoutout",
 					user:userInfos[0],
 					stream:channelInfo[0],
-				}
+				};
 				TriggerActionHandler.instance.onMessage(trigger)
 			}else{
 				//Warn user doesn't exist
@@ -1536,6 +1589,7 @@ const store = createStore({
 					duration:Date.now() - state.timerStart,
 				},
 			};
+			console.log(message);
 			TriggerActionHandler.instance.onMessage(message);
 		},
 
@@ -1877,8 +1931,8 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const type = getTwitchatMessageType(event.data as IRCEventData);
 
-				//Automod messages contents
 				if(type == TwitchatMessageType.MESSAGE) {
+					//Make sure message passes the automod rules
 					const messageData = event.data as IRCEventDataList.Message;
 					let rule = Utils.isAutomoded(messageData.message, messageData.tags);
 					if(rule) {
@@ -1888,6 +1942,7 @@ const store = createStore({
 						return;
 					}
 				}else {
+					//Make sure user name passes the automod rules
 					let username = "";
 					const messageData = event.data as IRCEventDataList.Highlight;
 					if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
@@ -1907,7 +1962,14 @@ const store = createStore({
 				
 				if(type == TwitchatMessageType.MESSAGE) {
 					const messageData = event.data as IRCEventDataList.Message;
-					const cmd = (messageData.message as string).split(" ")[0].trim().toLowerCase();
+					const cmd = (messageData.message as string).trim().split(" ")[0].toLowerCase();
+
+					if(messageData.sentLocally !== true) {
+						SchedulerHelper.instance.incrementMessageCount();
+					}
+					if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(messageData.message as string)) {
+						SchedulerHelper.instance.resetAdSchedule();
+					}
 					
 					//Is it a tracked user ?
 					const trackedUser = (state.trackedUsers as TrackedUser[]).find(v => v.user['user-id'] == messageData.tags['user-id']);
@@ -2504,6 +2566,8 @@ const store = createStore({
 					Utils.mergeRemoteObject(JSON.parse(automodParams), (state.automodParams as unknown) as JsonObject);
 					this.dispatch("setAutomodParams", state.automodParams);
 				}
+
+				SchedulerHelper.instance.start();
 			}
 			
 			//Initialise new toggle param for OBS connection.

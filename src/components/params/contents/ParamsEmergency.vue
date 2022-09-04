@@ -404,6 +404,9 @@ export default class ParamsEmergency extends Vue {
 						overflow: hidden;
 					}
 				}
+				:deep(input[type="number"]) {
+					width: 90px;
+				}
 			}
 		}
 	}

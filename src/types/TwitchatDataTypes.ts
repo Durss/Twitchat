@@ -1,7 +1,7 @@
 import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
+import type { TriggerMusicTypesValue, TriggerScheduleTypes, TriggerTypesValue } from "@/utils/TriggerActionData";
 import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
-
 
 export const ParamsContentType = {
 	APPEARANCE: "appearance",
@@ -31,6 +31,7 @@ export interface IBotMessage {
 	raffleJoin:BotMessageEntry;
 	raffleStart:BotMessageEntry;
 	shoutout:BotMessageEntry;
+	twitchatAd:BotMessageEntry;
 }
 export interface BotMessageEntry {
 	enabled:boolean;
@@ -75,11 +76,26 @@ export interface OBSMuteUnmuteCommands {
 
 export interface TriggerData {
 	enabled:boolean;
-	chatCommand?:string;
+	actions:TriggerActionTypes[];
+	name?:string;
 	prevKey?:string;
 	permissions?:PermissionsData;
 	cooldown?:{global:number, user:number};
-	actions:TriggerActionTypes[];
+	scheduleParams?:TriggerScheduleData;
+	/**
+	 * @deprecated Only here for typings on data migration. User "name" property
+	 */
+	chatCommand?:string
+}
+
+
+export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
+
+export interface TriggerScheduleData {
+	type:TriggerScheduleTypesValue|"0";
+	repeatDuration:number;
+	repeatMinMessages:number;
+	dates:{daily:boolean, yearly:boolean, value:string}[];
 }
 
 export type TriggerActionTypes =  TriggerActionEmptyData
@@ -91,25 +107,27 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionBingoData
 								| TriggerActionVoicemodData
 								| TriggerActionHighlightData
+								| TriggerActionTriggerData
 ;
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|null;
 
 export const TriggerEventTypeCategories = {
 	GLOBAL: 1,
-	USER: 2,
-	SUBITS: 3,
-	MOD: 4,
-	TWITCHAT: 5,
-	HYPETRAIN: 6,
-	GAMES: 7,
-	MUSIC: 8,
-	TIMER: 9,
+	TIMER: 2,
+	TWITCHAT: 3,
+	USER: 4,
+	SUBITS: 5,
+	MOD: 6,
+	HYPETRAIN: 7,
+	GAMES: 8,
+	MUSIC: 9,
 } as const;
 export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 export interface TriggerEventTypes extends ParameterDataListValue {
 	category:TriggerEventTypeCategoryValue;
 	label:string;
-	value:string;
+	value:TriggerTypesValue|"0";
+	icon:string,
 	description?:string,
 	isCategory?:boolean,
 	jsonTest?:unknown,
@@ -171,6 +189,11 @@ export interface TriggerActionHighlightData extends TriggerActionData{
 	text:string;
 }
 
+export interface TriggerActionTriggerData extends TriggerActionData{
+	type:"trigger";
+	triggerKey:string;
+}
+
 export const ChatMessageInfoDataType = {
 	AUTOMOD: "automod",
 	WHISPER: "whisper",
@@ -187,6 +210,7 @@ export interface ChatMessageInfoData {
 export interface ParameterDataListValue {
 	label:string;
 	value:string | number | boolean | undefined;
+	icon?:string;
 	[parameter: string]: unknown;
 }
 

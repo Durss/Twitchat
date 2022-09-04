@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { ParamsContentType, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type TriggerActionObsData } from '@/types/TwitchatDataTypes';
+import { ParamsContentType, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type TriggerActionObsData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
@@ -28,7 +28,7 @@ import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/Trigger
 	props:{
 		action:Object,
 		sources:Object,
-		event:String,
+		event:Object,
 	},
 	components:{
 		ParamItem,
@@ -39,7 +39,7 @@ export default class TriggerActionOBSEntry extends Vue {
 
 	public action!:TriggerActionObsData;
 	public sources!:OBSSourceItem[];
-	public event!:string;
+	public event!:TriggerEventTypes;
 
 	private showHideValues:ParameterDataListValue[] = [
 		{label:"Hide", value:false},
@@ -97,9 +97,9 @@ export default class TriggerActionOBSEntry extends Vue {
 	public async beforeMount():Promise<void> {
 		if(this.action.show == undefined) this.action.show = true;
 
-		this.text_conf.placeholderList = TriggerActionHelpers(this.event);
-		this.url_conf.placeholderList = TriggerActionHelpers(this.event);
-		this.media_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.text_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.url_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.media_conf.placeholderList = TriggerActionHelpers(this.event.value);
 
 		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
@@ -202,7 +202,7 @@ export default class TriggerActionOBSEntry extends Vue {
 
 	.paramitem  {
 		:deep(select), :deep(input) {
-			max-width: 200px;
+			width: 250px;
 		}
 	}
 

@@ -15,9 +15,9 @@ const port = 3018;
 const userDataFolder = "./userData/";
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
-Logger.success("==============");
-Logger.success("Server started");
-Logger.success("==============");
+Logger.success("===========================");
+Logger.success("Server started on port "+port);
+Logger.success("===========================");
 
 
 if(!fs.existsSync(userDataFolder)) {
@@ -69,12 +69,15 @@ http.createServer((request, response) => {
 				response.writeHead(200, {'Content-Type': 'application/javascript'});
 				response.end(txt);
 				return;
-
-				return;
 		
 			//Get/Set user data
 			}else if(endpoint == "/api/user") {
 				userData(request, response, body);
+				return;
+		
+			//Get/Set user data
+			}else if(endpoint == "/api/user/donor") {
+				isDonor(request, response, body);
 				return;
 		
 			//Get current chatters
@@ -376,7 +379,38 @@ async function userData(request, response, body) {
 			response.end(JSON.stringify({message, success:false}));
 		}
 	}
+}
 
+/**
+ * Gets if a user is part of the donors (create donors.json file with twitch UID array inside)
+ */
+async function isDonor(request, response, body) {
+	let userInfo = await getUserFromToken(request.headers.authorization);
+	if(!userInfo) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Invalid access token", success:false}));
+		return;
+	}
+
+	let user, level = -1;
+	if(fs.existsSync("donors.json")) {
+		let json = [];
+		try {
+			json = JSON.parse(fs.readFileSync("donors.json", "utf8"));
+		}catch(error){
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false, message:"Unable to load donors data file"}));
+			return;
+		}
+		user = json.hasOwnProperty(userInfo.user_id);
+		if(user) {
+			const levels = [0,20,30,50,80,100,200,300,400,500,999999];
+			level = levels.findIndex(v=> v >= json[userInfo.user_id]) - 1;
+		}
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:true, data:{isDonor:user != undefined && level > -1, level}}));
 }
 
 /**
@@ -391,7 +425,6 @@ async function getChatters(request, response) {
 	}
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify(chatters));
-
 }
 
 /**
@@ -729,7 +762,30 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						chatCommand: {type:"string", maxLength:100},
+						name: {type:"string", maxLength:100},
+						chatCommand: {type:"string", maxLength:100},//Deprecated
+						scheduleParams: {
+							type:"object",
+							properties: {
+								type: {type:"string", maxLength:100},
+								repeatDuration: {type:"number", minimum:0, maximum:48*60},
+								repeatMinMessages: {type:"number", minimum:0, maximum:9999},
+								dates:{
+									type:"array",
+									items: [
+										{
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												daily: {type:"boolean"},
+												yearly: {type:"boolean"},
+												value: {type:"string", maxLength:20},
+											}
+										}
+									]
+								}
+							}
+						},
 						permissions: {
 							type:"object",
 							properties: {
@@ -769,6 +825,7 @@ const UserDataSchema = {
 										confirmMessage: {type:"string", maxLength:500},
 										playlist: {type:"string", maxLength:500},
 										voiceID: {type:"string", maxLength:100},
+										triggerKey: {type:"string", maxLength:100},
 										raffleData: {
 											type: "object",
 											additionalProperties: false,
@@ -829,7 +886,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				raffleJoin: {
@@ -837,7 +894,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				raffle: {
@@ -845,7 +902,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				bingoStart: {
@@ -853,7 +910,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				bingo: {
@@ -861,7 +918,7 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
 					}
 				},
 				shoutout: {
@@ -869,7 +926,15 @@ const UserDataSchema = {
 					additionalProperties: false,
 					properties: {
 						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:1000},
+						message: {type:"string", maxLength:500},
+					}
+				},
+				twitchatAd: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:500},
 					}
 				},
 			}
@@ -978,6 +1043,7 @@ const UserDataSchema = {
 		leftColSize: {type:"number"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
+		donorLevel: {type:"number", minimum:-1, maximum:10},
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		ttsParams: {
 			type:"object",

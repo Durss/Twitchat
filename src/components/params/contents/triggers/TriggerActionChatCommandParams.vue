@@ -10,22 +10,14 @@
 		<div v-if="cmdNameConflict" class="cmdNameConflict">A command with this name already exists</div>
 
 		<ToggleBlock :open="false" class="row" small title="Users allowed to use this command">
-			<PermissionsForm v-model="actionData.permissions" />
+			<PermissionsForm v-model="triggerData.permissions" />
 		</ToggleBlock>
 
-		<ToggleBlock :open="false" class="row" small title="Cooldowns" v-if="actionData.cooldown">
-			<ParamItem class="cooldown" :paramData="param_globalCD" v-model="actionData.cooldown.global" />
-			<ParamItem class="cooldown" :paramData="param_userCD" v-model="actionData.cooldown.user" />
+		<ToggleBlock :open="false" class="row" small title="Cooldowns" v-if="triggerData.cooldown">
+			<ParamItem class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown.global" />
+			<ParamItem class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown.user" />
 		</ToggleBlock>
 
-		<!-- <Button type="button"
-			title="Delete"
-			class="saveBt"
-			v-if="isChange"
-			@click="save()"
-			:icon="$image('icons/save.svg')"
-			:disabled="param_cmd.value === ''"
-		/> -->
 	</ToggleBlock>
 </template>
 
@@ -42,7 +34,7 @@ import PermissionsForm from '../obs/PermissionsForm.vue';
 
 @Options({
 	props:{
-		actionData:Object,
+		triggerData:Object,
 	},
 	components:{
 		Button,
@@ -53,7 +45,7 @@ import PermissionsForm from '../obs/PermissionsForm.vue';
 })
 export default class TriggerActionChatCommandParams extends Vue {
 
-	public actionData!:TriggerData;
+	public triggerData!:TriggerData;
 
 	public cmdNameConflict = false;
 	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
@@ -63,8 +55,8 @@ export default class TriggerActionChatCommandParams extends Vue {
 	private originalCmd!:string;
 
 	public beforeMount():void {
-		if(!this.actionData.permissions) {
-			this.actionData.permissions = {
+		if(!this.triggerData.permissions) {
+			this.triggerData.permissions = {
 				broadcaster:true,
 				mods:true,
 				vips:true,
@@ -73,19 +65,19 @@ export default class TriggerActionChatCommandParams extends Vue {
 				users:"",
 			}
 		}
-		if(!this.actionData.cooldown) {
-			this.actionData.cooldown = {
+		if(!this.triggerData.cooldown) {
+			this.triggerData.cooldown = {
 				global:0,
 				user:0,
 			}
 		}
 		this.populate();
-		watch(()=> this.actionData, ()=> { this.populate(); }, { deep:true });
+		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
 	}
 
 	public populate():void {
 		this.param_cmd.value = 
-		this.originalCmd = this.actionData.chatCommand as string;
+		this.originalCmd = this.triggerData.name as string;
 	}
 
 	public onUpdateCommand():void {
@@ -98,17 +90,17 @@ export default class TriggerActionChatCommandParams extends Vue {
 				//Is a chat command?
 				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
 					const t = triggers[k] as TriggerData;
-					if(t.chatCommand == this.param_cmd.value) {
+					if(t.name?.toLowerCase() == (this.param_cmd.value as string).toLowerCase()) {
 						this.cmdNameConflict = true;
 						return;
 					}
 				}
 			}
-			this.actionData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.actionData.chatCommand;
+			this.triggerData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.triggerData.name;
 		}
 		//This triggers a save event that will clean the previous key
 		//based on the "prevKey" property value
-		this.actionData.chatCommand = this.param_cmd.value as string;
+		this.triggerData.name = this.param_cmd.value as string;
 	}
 
 }
@@ -116,9 +108,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 <style scoped lang="less">
 .TriggerActionchatcommandparams{
-	.title {
-		text-align: center;
-	}
 
 	.cmdNameConflict {
 		background-color: @mainColor_alert;
@@ -146,12 +135,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 				min-width: unset;
 			}
 		}
-	}
-
-	.saveBt {
-		display: block;
-		margin: auto;
-		margin-top: .5em;
 	}
 }
 </style>

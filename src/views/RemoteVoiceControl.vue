@@ -13,6 +13,10 @@
 			<OBSConnectForm  class="connectForm" />
 		</ToggleBlock>
 
+		<div class="block tuto">
+			<p>Create your voice commands on Twitchat under <strong>Parameters => Voice control</strong> section</p>
+		</div>
+
 		<VoiceControlForm class="block" v-if="connected" sttOnly />
 		
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
@@ -90,6 +94,10 @@ export default class RemoteVoiceControl extends Vue {
 				margin-top: 1em;
 				font-size: .8em;
 			}
+		}
+
+		&.tuto {
+			text-align: center;
 		}
 	}
 

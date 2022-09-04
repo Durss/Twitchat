@@ -16,7 +16,6 @@
 
 		<div>
 			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
-	
 			<div class="connectObs" v-if="!obsConnected">
 				<div>This features needs you to connect with OBS.</div>
 				<Button class="button" title="Connect with OBS" white @click="$emit('setContent', contentObs)" />
@@ -46,7 +45,7 @@ export default class ParamsVoiceBot extends Vue {
 	
 	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
 
-	public get obsConnected():boolean { return this.$router.currentRoute.value.name != "voice" || OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voicePageUrl():string {
 		let url = document.location.origin;
 		url += this.$router.resolve({name:"voice"}).href;

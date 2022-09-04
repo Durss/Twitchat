@@ -6,6 +6,12 @@
 
 		<ParamItem class="param" :paramData="$store.state.accountParams.syncDataWithServer" v-model="syncEnabled" />
 
+		<DonorState class="donorBadge" v-if="isDonor" />
+		<div class="badgesList" v-if="isDonor">
+			<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
+			<DonorState class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
+		</div>
+
 		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
 		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
 	</div>
@@ -19,6 +25,7 @@ import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
+import DonorState from "../../user/DonorState.vue";
 import ParamItem from '../ParamItem.vue';
 
 @Options({
@@ -26,6 +33,7 @@ import ParamItem from '../ParamItem.vue';
 	components:{
 		Button,
 		ParamItem,
+		DonorState,
 		ToggleBlock,
 	}
 })
@@ -33,11 +41,14 @@ export default class ParamsAccount extends Vue {
 
 	public showSuggestions = false;
 	public showObs = false;
+	public disposed = false;
 	public showCredits = true;
 	public syncEnabled = false;
 
 	public get canInstall():boolean { return StoreProxy.store.state.ahsInstaller != null || true; }
 	public get userName():string { return UserSession.instance.authToken.login; }
+	public get isDonor():boolean { return UserSession.instance.isDonor; }
+	public get donorLevel():number { return UserSession.instance.donorLevel; }
 	public get userPP():string {
 		let pp:string|undefined = UserSession.instance.user?.profile_image_url;
 		if(!pp) {
@@ -56,6 +67,10 @@ export default class ParamsAccount extends Vue {
 		watch(()=> this.syncEnabled, ()=> Store.set(Store.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
 	}
 
+	public beforeUnmount():void {
+		this.disposed = true;
+	}
+
 	public ahs():void {
 		if(!StoreProxy.store.state.ahsInstaller) return;
 		// Show the prompt
@@ -65,68 +80,51 @@ export default class ParamsAccount extends Vue {
 		// 	this.canInstall = false;
 		// })
 	}
-
 }
 </script>
 
 <style scoped lang="less">
 .paramsaccount{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	&>* {
+		margin-bottom: 1em;
+	}
+
 	.profilePic {
 		height: 4em;
 		width: 4em;
 		display: block;
-		margin: auto;
-		margin-bottom: 1em;
 		border-radius: 50%;
 	}
 	
 	.button {
-		margin: auto;
 		display: block;
-		margin-bottom: 5px;
 	}
 	
 	.title {
 		text-align: center;
-		margin-bottom: 1em;
 	}
 
 	.param {
-		margin: auto;
-		margin-bottom: 1em;
 		width: 300px;
 	}
 
-	.splitter {
-		text-align: center;
+	.donorBadge {
+		margin-top: 1em;
+	}
+
+	.badgesList {
+		margin-top: .5em;
 		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-
-		&:not(:first-child) {
-			margin-top: 20px;
-		}
-
-		p {
-			font-size: .85em;
-			margin-bottom: 5px;
-
-			.link {
-				&:not(:last-child) {
-					margin-right: 10px;
-				}
-				img {
-					height: 40px;
-				}
-			}
-
-			&.socials {
-				margin-top: 1em;
-			}
-		}
-
-		.discordBt {
-			margin: .5em 0;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 80%;
+		.badge {
+			margin: .25em;
+			height: 3em;
 		}
 	}
 }

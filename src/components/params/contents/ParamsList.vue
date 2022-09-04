@@ -3,16 +3,43 @@
 		<h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1>
 		<div class="row" v-for="(p) in params" :key="p.id">
 
-			<ParamItem :paramData="p" save />
+			<!-- Special case for twitchat ad label -->
+			<div class="row ad" v-if="p.id==13 && !isDonor">
+				<img src="@/assets/icons/twitchat.svg" alt="twitchat" style="height:2em;">
+				<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
+					@click="showAdInfo=true"
+					title="Disable this ad"
+					v-if="!showAdInfo" />
+				<div v-if="showAdInfo" class="donateDetails">
+					<p class="title">To disable this ad, make any donation :)</p>
+					<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
+					<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="$emit('setContent', contentSponsor)" title="Donate 💝" />
+				</div>
+				<PostOnChatParam
+					botMessageKey="twitchatAd"
+					:noToggle="true"
+					title="The following message will be posted on your chat every hour (if you received at least 50 messages)"
+				/>
+			</div>
+
+			<PostOnChatParam class="row ad"
+				clearToggle
+				v-if="p.id==13 && isDonor"
+				icon="twitchat.svg"
+				botMessageKey="twitchatAd"
+				title="Share a twitch link every hour on your chat (if you received at least 50 messages)"
+			/>
 
 			<!-- Special case for shoutout label -->
-			<PostOnChatParam class="row" v-if="p.id==6"
+			<PostOnChatParam class="row" v-if="p.id==13"
 				icon="shoutout_purple.svg"
 				botMessageKey="shoutout"
 				:noToggle="true"
 				title="Shoutout message"
 				:placeholders="soPlaceholders"
 			/>
+
+			<ParamItem :paramData="p" save />
 			
 			<transition
 				@enter="onShowItem"
@@ -51,6 +78,7 @@
 import { ParamsContentType, type ParameterCategory, type ParameterData, type ParamsContentStringType, type PlaceholderEntry } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
+import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -73,6 +101,10 @@ export default class ParamsList extends Vue {
 
 	public category!:ParameterCategory;
 	public filteredParams!:ParameterData[];
+
+	public showAdInfo:boolean = false;
+
+	public get isDonor():boolean { return UserSession.instance.isDonor; }
 
 	public get title():string {
 		switch(this.category) {
@@ -142,6 +174,7 @@ export default class ParamsList extends Vue {
 	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
 	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
 	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
+	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
 
 	public onShowItem(el:HTMLDivElement, done:()=>void):void {
 		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
@@ -172,54 +205,91 @@ export default class ParamsList extends Vue {
 			margin-right: .5em;
 		}
 	}
-	.row:not(:first-of-type) {
-		margin-top: 10px;
-	}
-	.row:not(:last-child) {
-		margin-bottom: 10px;
-	}
 
-	.info {
-		overflow: hidden;
-		padding-left: calc(1em + 10px);
-		img {
-			height: 1em;
-			vertical-align: middle;
+	.row {
+		:deep(input[type='range']) {
+			width: 100%;
+		}
+		&:not(:first-of-type) {
+			margin-top: 10px;
 		}
 
-		.label {
-			display: inline;
-			strong {
-				padding: .25em .5em;
-				border-radius: .5em;
-				font-size: .8em;
-				background: fade(@mainColor_normal, 15%);
+		&:not(:last-child) {
+			margin-bottom: 10px;
+		}
+
+		&.ad {
+			color: @mainColor_light;
+			background-color: @mainColor_normal_light;
+			padding: .5em;
+			border-radius: 1em;
+			img {
+				display: block;
+				margin: auto;
 			}
-		}
-
-		&.obsConnect {
-			.label {
-				color: @mainColor_warn;
+			.title {
+				text-align: center;
+				font-weight: bold;
 			}
-		}
-
-		&.pronouns, &.spoiler {
-			.label {
+			.details {
 				font-size: .8em;
 			}
+			.donateBt {
+				display: block;
+				margin: .5em auto;
+			}
+			.donateDetails {
+				display: block;
+				margin: .5em auto;
+			}
+			
+			a {
+				color:@mainColor_warn_extralight;
+			}
 		}
 
-		&.config {
-			// text-align: center;
-			// margin-top: -8px;
-
-			.button {
-				border: 1px solid @mainColor_normal;
-				border-top: none;
-				border-top-left-radius: 0;
-				border-top-right-radius: 0;
-				position: relative;
-				overflow: visible;
+		.info {
+			overflow: hidden;
+			padding-left: calc(1em + 10px);
+			img {
+				height: 1em;
+				vertical-align: middle;
+			}
+	
+			.label {
+				display: inline;
+				strong {
+					padding: .25em .5em;
+					border-radius: .5em;
+					font-size: .8em;
+					background: fade(@mainColor_normal, 15%);
+				}
+			}
+	
+			&.obsConnect {
+				.label {
+					color: @mainColor_warn;
+				}
+			}
+	
+			&.pronouns, &.spoiler {
+				.label {
+					font-size: .8em;
+				}
+			}
+	
+			&.config {
+				// text-align: center;
+				// margin-top: -8px;
+	
+				.button {
+					border: 1px solid @mainColor_normal;
+					border-top: none;
+					border-top-left-radius: 0;
+					border-top-right-radius: 0;
+					position: relative;
+					overflow: visible;
+				}
 			}
 		}
 	}

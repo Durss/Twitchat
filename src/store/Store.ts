@@ -47,6 +47,7 @@ export default class Store {
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
 	public static AUTOMOD_PARAMS:string = "automodParams";
+	public static DONOR_LEVEL:string = "donorLevel";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -128,6 +129,10 @@ export default class Store {
 		if(v=="13") {
 			this.cleanupOldData();
 			v = "14";
+		}
+		if(v=="14") {
+			this.migrateChatCommandTriggers();
+			v = "15";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -539,5 +544,24 @@ export default class Store {
 			params.readRafflePattern = params.readRafflePattern.replace(/\{USER\}/gi, "{WINNER}");
 			this.set(this.TTS_PARAMS, params);
 		}
+	}
+
+	/**
+	 * Changes the "chatCommand" trigger prop to more generic "name"
+	 */
+	private static migrateChatCommandTriggers():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
+		for (const key in triggers) {
+			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0
+			&& triggers[key].chatCommand) {
+				//Check if it's not full lowercased
+				triggers[key].name = triggers[key].chatCommand;
+				delete triggers[key].chatCommand
+			}
+		}
+
+		this.set("triggers", triggers);
 	}
 }

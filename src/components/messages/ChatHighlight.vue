@@ -181,8 +181,15 @@ export default class ChatHighlight extends Vue {
 				} else if(this.messageData.months) {
 					res += ` for ${this.messageData.months} months`;
 				}
+				let extras:string[] = [];
+				if(typeof this.messageData.tags["msg-param-multimonth-duration"] !== "boolean") {
+					extras.push(`for ${this.messageData.tags["msg-param-multimonth-duration"]} months in advance`);
+				}
 				if(typeof this.messageData.tags['msg-param-streak-months'] === "string") {
-					res += ` (${this.messageData.tags['msg-param-streak-months']} months streak)`;
+					extras.push(`${this.messageData.tags['msg-param-streak-months']} months streak`);
+				}
+				if(extras.length) {
+					res += " <i>("+extras.join(" ")+")</i>"
 				}
 				this.filtered = !StoreProxy.store.state.params.filters.showSubs.value;
 				break;
@@ -483,19 +490,18 @@ export default class ChatHighlight extends Vue {
 				vertical-align: middle;
 				object-fit: contain;
 			}
-			&::before {
+			&::before, &::after {
 				content: "“";
 				font-family: "Nunito";
+				font-style: normal;
 				font-size: 2em;
-				vertical-align: middle;
-				margin-right: 10px;
+				line-height: .25em;
+				vertical-align: text-bottom;
+				margin-right: .2em;
 			}
 			&::after {
 				content: "”";
-				font-family: "Nunito";
-				font-size: 2em;
-				vertical-align: middle;
-				margin-left: 6px;
+				margin-left: .2em;
 			}
 		}
 

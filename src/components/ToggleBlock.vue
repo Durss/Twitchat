@@ -191,7 +191,6 @@ export default class ToggleBlock extends Vue {
 
 		.content {
 			background-color: fade(@mainColor_normal, 10%);
-			padding: 0;
 			padding: .5em;
 			margin-left: 1.4em;
 			border-radius: 0;

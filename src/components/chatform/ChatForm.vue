@@ -628,6 +628,10 @@ export default class ChatForm extends Vue {
 			if(!params[0]) {
 				await IRCClient.instance.sendNotice("error", "Missing user name param");
 			}else{
+				if(parseInt(params[0]).toString() === params[0]) {
+					const user = await TwitchUtils.loadUserInfo([params[0]]);
+					params[0] = user[0].login;
+				}
 				StoreProxy.store.dispatch("openUserCard", params[0]);
 			}
 			this.message = "";

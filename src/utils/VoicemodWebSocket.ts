@@ -41,8 +41,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private _initResolver!: Function;
 	private _connecting!: boolean;
 	private _socket!: WebSocket;
-	private _voicesList!: VoicemodTypes.Voice[]|undefined;
-	private _memesList!: VoicemodTypes.Meme[]|undefined;
+	private _voicesList: VoicemodTypes.Voice[] = [];
+	private _memesList: VoicemodTypes.Meme[] = [];
 	private _currentVoiceEffect!: VoicemodTypes.Voice|null;
 	private _autoReconnect: boolean = false;
 	private _resetTimeout:number = -1;
@@ -208,7 +208,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param id		(optional) The "FileName" of the meme to activate
 	 */
 	public playMeme(name:string, id?:string):void {
-		if(!this._memesList) return;
+		if(!this._memesList || this._memesList.length == 0) return;
 		let fileID = "";
 		let rawName = name;
 		name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
@@ -321,13 +321,13 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				break;
 
 			case VoicemodWebSocket.ACTION_GET_VOICES:
-				this._voicesList = json.actionObject.allVoices;
+				this._voicesList = json.actionObject.allVoices ?? [];
 				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, json.actionObject.selectedVoice as string))
 				this.checkInitComplete();
 			break;
 			
 			case VoicemodWebSocket.ACTION_GET_MEMES:
-				this._memesList = json.actionObject.listOfMemes;
+				this._memesList = json.actionObject.listOfMemes ?? [];
 				this.checkInitComplete();
 				break;
 

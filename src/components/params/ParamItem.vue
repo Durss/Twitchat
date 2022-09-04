@@ -13,7 +13,7 @@
 					class="helpBt"
 				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
-				<ToggleButton class="toggleButton" :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" />
+				<ToggleButton class="toggleButton" :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" :clear="clearToggle" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -33,8 +33,8 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
+				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model.lazy="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
+				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model.lazy="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -88,6 +88,10 @@
 			:key="'child_'+index+c.id"
 			:paramData="c"
 			:childLevel="childLevel+1" />
+
+		<div class="child" ref="param_child_slot" v-if="showSlot && $slots.default">
+			<slot></slot>
+		</div>
 	</div>
 </template>
 
@@ -121,6 +125,10 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 			type:Boolean,
 			default:false,
 		},
+		clearToggle:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
@@ -133,11 +141,13 @@ export default class ParamItem extends Vue {
 	
 	public error!:boolean;
 	public autofocus!:boolean;
+	public clearToggle!:boolean;
 	public childLevel!:number;
 	public paramData!:ParameterData;
 	public modelValue!:string|boolean|number|string[];
 
 	public key:string = Math.random().toString();
+	public showSlot:boolean = false;
 	public children:ParameterData[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
@@ -223,17 +233,24 @@ export default class ParamItem extends Vue {
 
 	private async buildChildren():Promise<void> {
 		if(this.paramData.value === false){
-			if(this.children.length > 0) {
+			if(this.children.length > 0 || this.$refs.param_child_slot) {
 				//Hide transition
-				const childrenItems = this.$refs.param_child as Vue[];
-				const divs = childrenItems.map(v => v.$el);
+				let divs:HTMLDivElement[] = [];
+				if(this.$refs.param_child_slot) {
+					divs = [this.$refs.param_child_slot as HTMLDivElement];
+				}else{
+					const childrenItems = this.$refs.param_child as Vue[];
+					divs = childrenItems.map(v => v.$el);
+				}
 				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
 						onComplete:()=> {
+							this.showSlot = false;
 							this.children = [];
 						}});
 			}
 			return;
 		}
+
 		const list = StoreProxy.store.state.params;
 		let children:ParameterData[] = [];
 		for (const key in list) {
@@ -249,13 +266,21 @@ export default class ParamItem extends Vue {
 			children = children.concat(this.paramData.children);
 		}
 		
+		if(this.showSlot || this.children == children) return;
+		
 		this.children = children;
+		this.showSlot = true;
+		await this.$nextTick();
 
-		if(children.length > 0){
+		if(children.length > 0 || this.$refs.param_child_slot){
 			//Show transitions
-			await this.$nextTick();
-			const childrenItems = this.$refs.param_child as Vue[];
-			const divs = childrenItems.map(v => v.$el);
+			let divs:HTMLDivElement[] = [];
+			if(this.$refs.param_child_slot) {
+				divs = [this.$refs.param_child_slot as HTMLDivElement];
+			}else{
+				const childrenItems = this.$refs.param_child as Vue[];
+				divs = childrenItems.map(v => v.$el);
+			}
 			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
 		}
 	}
@@ -270,6 +295,8 @@ export default class ParamItem extends Vue {
 <style scoped lang="less">
 .paramitem{
 	overflow-y: clip;
+	border-left: 0 solid transparent;
+	transition: border-left .25s, padding-left .25s;
 
 	&.error {
 		border-left: .25em solid @mainColor_alert;
@@ -314,11 +341,12 @@ export default class ParamItem extends Vue {
 		&:hover {
 			background-color: fade(@mainColor_normal, 10%);
 		}
-		input, select, textarea {
+		textarea {
 			width: 100%;
-			}
+		}
 
 		.holder {
+			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -366,14 +394,6 @@ export default class ParamItem extends Vue {
 				cursor: pointer;
 			}
 
-			&.number {
-				label {
-					flex: 2 1;
-				}
-				input {
-					flex: 1 1;
-				}
-			}
 		}
 
 		:deep(.small) {
@@ -389,9 +409,14 @@ export default class ParamItem extends Vue {
 			}
 		}
 
+		input {
+			width: 100%;
+		}
+
 		textarea {
 			resize: vertical;
 			margin-top: .25em;
+			flex-grow: 1;
 		}
 
 		.browse {
@@ -406,9 +431,14 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		input, select, textarea {
-			width: 100%;
+		select {
+			max-width: 250px;
 		}
+
+		input, select, textarea{
+			transition: background-color .25s;
+		}
+
 	}
 
 	&.level_1,

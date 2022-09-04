@@ -110,6 +110,8 @@
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
+
+		<DonorState ref="donor" class="donorState" v-if="isDonor" @click="closeDonorCard()" />
 		
 		<UserCard />
 
@@ -167,6 +169,8 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import UserCard from '../components/user/UserCard.vue';
+import DonorState from '../components/user/DonorState.vue';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	components:{
@@ -177,6 +181,7 @@ import UserCard from '../components/user/UserCard.vue';
 		UserCard,
 		PollForm,
 		BingoForm,
+		DonorState,
 		Parameters,
 		RaffleForm,
 		TTUserList,
@@ -202,6 +207,7 @@ import UserCard from '../components/user/UserCard.vue';
 })
 export default class Chat extends Vue {
 
+	public isDonor = true;
 	public showFeed = false;
 	public showEmotes = false;
 	public showRewards = false;
@@ -312,7 +318,17 @@ export default class Chat extends Vue {
 	private resizeHandler!:(e:Event) => void;
 
 	public beforeMount():void {
+		//Check user reached a new donor level
+		let storeLevel = parseInt(Store.get(Store.DONOR_LEVEL))
+		const level = isNaN(storeLevel)? -1 : storeLevel;
+		this.isDonor = UserSession.instance.isDonor && UserSession.instance.donorLevel != level;
+		if(this.isDonor) {
+			Store.set(Store.DONOR_LEVEL, UserSession.instance.donorLevel);
+		}
+
+		//Define is store sync modal should be displayed
 		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
+
 		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
@@ -320,7 +336,7 @@ export default class Chat extends Vue {
 		
 		let size = parseFloat(Store.get(Store.LEFT_COL_SIZE));
 		if(isNaN(size)) size = .5;
-		this.leftColSize = size;
+		this.leftColSize = Math.min(.95, Math.max(.05,size));
 
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
@@ -416,6 +432,13 @@ export default class Chat extends Vue {
 		});
 	}
 
+	public mounted():void {
+		if(!this.isDonor) return;
+		//Show donor badge
+		const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
+		gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
+	}
+
 	public beforeUnmount():void {
 		this.disposed = true;
 		window.removeEventListener("resize", this.resizeHandler);
@@ -436,6 +459,14 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
+	}
+
+	public closeDonorCard():void {
+		//Show donor badge
+		const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
+		gsap.to(el, {bottom:"-350px", duration:1, ease:"back.in", onComplete:()=>{
+			this.isDonor = false;
+		}});
 	}
 
 	public clearChat():void {
@@ -568,7 +599,7 @@ export default class Chat extends Vue {
 	}
 
 	public onResize():void {
-		const value = document.body.clientWidth > 599;
+		const value = document.body.clientWidth > 449;
 		if(value != StoreProxy.store.state.canSplitView) {
 			StoreProxy.store.dispatch("canSplitView", value);
 		}
@@ -638,6 +669,8 @@ export default class Chat extends Vue {
 		}else{
 			this.leftColSize = (this.mouseX - 3) / window.innerWidth;
 		}
+		
+		this.leftColSize = Math.min(.95, Math.max(.05, this.leftColSize));
 
 		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
 
@@ -663,6 +696,14 @@ export default class Chat extends Vue {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+
+	.donorState {
+		.center();
+		position: absolute;
+		top: auto;
+		bottom: 0;
+		z-index: 10;
+	}
 
 	&.splitView {
 		.top {

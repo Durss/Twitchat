@@ -111,6 +111,10 @@ export default class OverlayTimer extends Vue {
 
 <style scoped lang="less">
 .overlaytimer{
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
 	display: flex;
 	flex-direction: row;
 	justify-content: center;

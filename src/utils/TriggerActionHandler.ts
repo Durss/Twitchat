@@ -1,4 +1,4 @@
-import type { BanTriggerData, ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, ShoutoutTriggerData, StreamInfoUpdate, TimeoutTriggerData, TriggerData, UnbanTriggerData, VoicemodTriggerData, VIPTriggerData, UnVIPTriggerData, ModTriggerData, UnmodTriggerData } from "@/types/TwitchatDataTypes";
+import type { BanTriggerData, ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, ShoutoutTriggerData, StreamInfoUpdate, TimeoutTriggerData, TriggerData, UnbanTriggerData, VoicemodTriggerData, VIPTriggerData, UnVIPTriggerData, ModTriggerData, UnmodTriggerData, TriggerActionChatData } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -9,7 +9,7 @@ import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
 import StoreProxy from "./StoreProxy";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes } from "./TriggerActionData";
+import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "./TriggerActionData";
 import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -61,6 +61,25 @@ export default class TriggerActionHandler {
 				this.executeNext();
 			}
 		}
+	}
+
+	public async parseScheduleTrigger(key:string):Promise<boolean> {
+		return await this.parseSteps(key, null, false, this.currentSpoolGUID, undefined, "schedule");
+	}
+
+	
+	
+	/*******************
+	* PRIVATE METHODS *
+	*******************/
+	private initialize():void {
+		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+			const data = (e.data as unknown) as ChatHighlightInfo;
+			if(data.message) {
+				data.type = "chatOverlayHighlight";
+				this.onMessage(data, false)
+			}
+		});
 	}
 	
 	private async executeNext(testMode = false):Promise<void>{
@@ -244,21 +263,6 @@ export default class TriggerActionHandler {
 		this.executeNext();
 	}
 
-	
-	
-	/*******************
-	* PRIVATE METHODS *
-	*******************/
-	private initialize():void {
-		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
-			const data = (e.data as unknown) as ChatHighlightInfo;
-			if(data.message) {
-				data.type = "chatOverlayHighlight";
-				this.onMessage(data, false)
-			}
-		});
-	}
-
 	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
@@ -430,7 +434,7 @@ export default class TriggerActionHandler {
 			hypeTrainApproach:TriggerTypes.HYPE_TRAIN_APPROACH,
 			hypeTrainStart:TriggerTypes.HYPE_TRAIN_START,
 			hypeTrainProgress:TriggerTypes.HYPE_TRAIN_PROGRESS,
-			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END,
+			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END as TriggerTypesValue,
 		}
 		if(message.state == "EXPIRE") {
 			idToType.hypeTrainEnd = TriggerTypes.HYPE_TRAIN_CANCELED;
@@ -450,33 +454,54 @@ export default class TriggerActionHandler {
 	 * 
 	 * @returns true if the trigger was executed
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string):Promise<boolean> {
+	private async parseSteps(eventType:string, message:MessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
-		const trigger = this.triggers[ eventType ];
-		// console.log("PARSE STEPS", eventType, trigger, message);
+		let trigger:TriggerData = this.triggers[ eventType ];
+		
+		//Special case for twitchat's ad, generate trigger data
+		if(eventType == TriggerTypes.TWITCHAT_AD) {
+			let text:string = StoreProxy.store.state.botMessages.twitchatAd.message;
+			//If no link is found on the message, force it at the begining
+			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
+				text = "twitchat.fr : "+text;
+			}
+			trigger = {
+				enabled:true,
+				actions:[
+					{
+						id:Math.random().toString(),
+						type:"chat",
+						delay:0,
+						text,
+					} as TriggerActionChatData
+				]
+			}
+		}
 		
 		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
 			return false;
 		}else{
+			// console.log("PARSE STEPS", eventType);
+			// console.log("PARSE STEPS", eventType, trigger, message);
 			const data = trigger as TriggerData;
 			if(!data.enabled) return false;
 			let canExecute = true;
 
 			if(data.permissions && data.cooldown) {
 				const m = message as IRCEventDataList.Message;
-				const uid = m.tags['user-id'];
+				const uid = m?.tags['user-id'];
 				const key = eventType+"_"+uid;
 				const now = Date.now();
 				
 				//check permissions
-				if(!Utils.checkPermissions(data.permissions, m.tags)) {
+				if(m && !Utils.checkPermissions(data.permissions, m.tags)) {
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any
-					if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
+					if(m && this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
 					else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
 	
-					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
+					if(m && this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
 					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
 				}
 			}
@@ -490,9 +515,11 @@ export default class TriggerActionHandler {
 			
 			if(canExecute) {
 				for (let i = 0; i < data.actions.length; i++) {
-					if(guid != this.currentSpoolGUID) return true;//Stop there, something asked to override the current exec sequence
+					if(autoExecuteNext && guid != this.currentSpoolGUID) {
+						return true;//Stop there, something asked to override the current exec sequence
+					}
 					const step = data.actions[i];
-					// console.log("Parse step", step);
+					// console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
@@ -518,7 +545,8 @@ export default class TriggerActionHandler {
 							//If requesting to show an highlighted message but the message
 							//is empty, force source to hide
 							if(eventType == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
-							&& message.type == "chatOverlayHighlight" && (!message.message || message.message.length===0)) {
+							&& message?.type == "chatOverlayHighlight"
+							&& (!message.message || message.message.length===0)) {
 								show = false;
 							}
 							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
@@ -539,7 +567,7 @@ export default class TriggerActionHandler {
 							if(subEvent) text = text.replace(subEvent, "").trim();
 							let user = null;
 							const m = message as IRCEventDataList.Message;
-							if(m.tags?.["user-id"]) {
+							if(m?.tags?.["user-id"]) {
 								[user] = await TwitchUtils.loadUserInfo([m.tags?.["user-id"] as string]);
 							}
 							const data = {
@@ -577,10 +605,21 @@ export default class TriggerActionHandler {
 							VoicemodWebSocket.instance.enableVoiceEffect(step.voiceID)
 						}
 					}else
+					
+					//Handle sub trigger action
+					if(step.type == "trigger") {
+						if(step.triggerKey) {
+							const trigger = this.triggers[step.triggerKey];
+							if(trigger) {
+								// console.log("Exect sub trigger", step.triggerKey);
+								await this.parseSteps(step.triggerKey, message, testMode, guid, undefined, undefined, false);
+							}
+						}
+					}else
 
 					//Handle music actions
 					if(step.type == "music") {
-						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message.type == "message") {
+						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message?.type == "message") {
 							const m = message.message.split(" ").splice(1).join(" ");
 							const data:MusicMessage = {
 								type:"music",
@@ -668,7 +707,7 @@ export default class TriggerActionHandler {
 						
 						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m:string = step.playlist;
-							if(message.type == "message") {
+							if(message?.type == "message") {
 								m = await this.parseText(eventType, message, m);
 							}
 							if(Config.instance.SPOTIFY_CONNECTED) {
@@ -696,10 +735,13 @@ export default class TriggerActionHandler {
 			// console.log("Steps parsed", actions);
 		}
 
-		//Remove item done
-		this.actionsSpool.shift();
-		if(this.actionsSpool.length > 0) {
-			this.executeNext();
+
+		if(autoExecuteNext) {
+			//Remove item done
+			this.actionsSpool.shift();
+			if(this.actionsSpool.length > 0) {
+				this.executeNext();
+			}
 		}
 
 		return true;
@@ -708,7 +750,8 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:MessageTypes, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
+	private async parseText(eventType:string, message:MessageTypes|null, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
+		if(!message) return src;
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);

@@ -15,6 +15,8 @@ export default class UserSession {
 	public emotesCacheHashmap:{[key:string]:TwitchDataTypes.Emote} = {};
 	public user:TwitchDataTypes.UserInfo| null = null;
 	public access_token:string|null = null;
+	public isDonor:boolean = false;
+	public donorLevel:number = 0;
 	public authToken = {
 		client_id: "",
 		login: "",
@@ -55,7 +57,7 @@ export default class UserSession {
 	}
 
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
-		const img = rewardImg;//new URL(`/src/assets/icons/reward_highlight.svg`, import.meta.url).href;
+		const img = rewardImg;
 		return {
 			broadcaster_name: UserSession.instance.user!.login,
 			broadcaster_login: UserSession.instance.user!.login,

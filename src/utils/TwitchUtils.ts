@@ -837,8 +837,10 @@ export default class TwitchUtils {
 	 * Gets a followings list
 	 * 
 	 * @param channelId channelId to get followings list
+	 * @param maxCount maximum followings to grabe
+	 * @param tempDataCallback optional callback method to get results as they're loading
 	 */
-	public static async getFollowings(channelId?:string|null, maxCount=-1):Promise<TwitchDataTypes.Following[]> {
+	public static async getFollowings(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
 		if(!channelId) channelId = UserSession.instance.authToken.user_id;
 		let list:TwitchDataTypes.Following[] = [];
 		let cursor:string|null = null;
@@ -853,6 +855,9 @@ export default class TwitchUtils {
 			cursor = null;
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
+			}
+			if(tempDataCallback) {
+				tempDataCallback(list);
 			}
 		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
 		return list;

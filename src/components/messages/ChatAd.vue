@@ -16,52 +16,56 @@
 			<div class="title">🎉 Latest updates 🎉</div>
 			<div class="version">Version {{appVersion}}</div>
 			<div class="infos">Use <mark>/updates</mark> command to open this back</div>
+			<div class="important">
+				<Splitter class="title">Important</Splitter>
+				<div class="details">
+					<p>Twitchat will now post a message on your chat to let your viewers know about it.</p>
+					<p>One message will be posted every hour if at least 50 messages have been received.</p>
+					<p>The message won't be posted if a link to Twitchat has been posted within the past hour so you can advertise about it by yourself.</p>
+					<Button title="Customize message" small :icon="$image('icons/edit.svg')" @click="openParamPage(contentAppearance)" />
+					<p class="spacing"><strong>Donors are not concerned</strong><br>If you donated, go under <a @click="openParamPage(contentAccount)">account section</a> to make sure you have the donor badge. If you don't see it, contact me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a> so I give it to you.</p>
+					<p>This feature is <strong>disabled for donors</strong> but you can enable it back if you'd still like to let your viewers know about Twitchat 💝</p>
+				</div>
+			</div>
 			<div class="content">
 				<ToggleBlock class="block new" title="New features" :icons="['new']">
 					<ul>
 						<li>
-							<img src="@/assets/icons/mod.svg" class="icon" />
-							<Button aria-label="open autmod params" small title="try it" @click.stop="openParamPage(contentAutomod)" />
-							<span><strong>Automod tool</strong> with that allows to delete messages or automatically block users if their names isn't appropriate. Users won't be able to bypass it with alternative chars like <mark>🆃🅆ｉ𝘁𝕔𝓱🅰🅣</mark></span>
+							<img src="@/assets/icons/overlay.svg" class="icon" />
+							<Button aria-label="open overlays params" small title="try it" @click.stop="openParamPage(contentOverlays)" />
+							<span><strong>Unified overlays</strong>. Include all the available overlays in one single browser source for a lesser memory footprint</span>
 						</li>
 						<li>
-							<img src="@/assets/icons/user.svg" class="icon" />
-							<Button aria-label="open viewer info" small title="try it" @click.stop="openViewerCard()" />
-							<span><strong>Viewer inspector</strong> to quickly check for a user's info. Just click a nickname or use <mark>/userinfo</mark> command</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/follow.svg" class="icon" />
-							<Button aria-label="open viewer params" small title="try it" @click.stop="openParamPage(contentEmergency)" />
-							<span><strong>Follow bot raid</strong> detection added to the emergency button options. It can automatically start an emergency if Twitchat detects such a raid.</span>
-						</li>
-						<li>
-							<img src="@/assets/icons/train.svg" class="icon" />
-							<Button aria-label="show hype summary example" small title="try it" @click.stop="simulateEvent('hypeTrainSummary')" />
-							<span><strong>Hype train summaries</strong> are now posted when an hype train completes.</span>
+							<img src="@/assets/icons/channelPoints.svg" class="icon" />
+							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
+							<span><strong>Highlight my message</strong> channel point reward available on the triggers section. Do anything you want when viewers use it!</span>
 						</li>
 						<li>
 							<img src="@/assets/icons/broadcast.svg" class="icon" />
 							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>9 new triggers</strong> available : ban/unban, vip/unvip, mod/unmod, timeout, shoutout, hype train cancelled</span>
+							<span><strong>1 new trigger</strong>: Repeat any actions regularly or execute them at specific dates (see: Triggers => Timers => <strong>Schedule actions</strong>)</span>
 						</li>
 						<li>
 							<img src="@/assets/icons/broadcast.svg" class="icon" />
 							<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-							<span><strong>1 new trigger action</strong> to send a message on the <strong>Message Highlight</strong> overlay from any trigger.</span>
+							<span><strong>1 new trigger action</strong>: Call another trigger from any trigger</span>
 						</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
-						<li><strong>Highlight my message</strong> reward now available on the channel point rewards list under the triggers section</li>
-						<li>If you click a nickname anywhere it will now open the user's details on the new viewer inspector</li>
-						<li>New <strong>Broadcaster</strong> permission everywhere you can set custom permissions <i>(ex: if you don't want your own messages to be read by TTS)</i></li>
+						<li>Users cannot spam follow/unfollow anymore. Only one notification will be displayed in such case.</li>
+						<li><Button aria-label="open triggers params" small title="try it" @click.stop="openViewerCard()" />User info now shows if user is streaming</li>
+						<li>Commulative months sub info now displayed <i>(if a viewer buys multiple months at once)</i></li>
+						<li>Open user card from their ID with the <mark>/userinfo</mark> command</li>
 					</ul>
 				</ToggleBlock>
 				<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 					<ul>
-						<li>Editing a stream info preset was renaming it with the stream's title.</li>
-						<li>The button to test the wheel overlay was broken.</li>
+						<li>Lots of minor fixes on the triggers parameters. Many "Test trigger" buttons weren't implemented</li>
+						<li>Overlays weren't working if used from an external browser</li>
+						<li>More stable voice control if running multiple twitchat instances</li>
+						<li>Test button of the Wheel overlay was broken</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -137,6 +141,7 @@ import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
+import Splitter from '../Splitter.vue';
 
 @Options({
 	props:{
@@ -144,6 +149,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 	},
 	components:{
 		Button,
+		Splitter,
 		ToggleBlock,
 		ChatTipAndTrickAd,
 	},
@@ -167,6 +173,8 @@ export default class ChatAd extends Vue {
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	
+	public get isDonor():boolean { return UserSession.instance.isDonor; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	
@@ -263,7 +271,7 @@ export default class ChatAd extends Vue {
 		height: 3em;
 	}
 
-	div>.title {
+	&>div>.title {
 		text-align: center;
 		background: @mainColor_normal;
 		color: @mainColor_light;
@@ -288,6 +296,27 @@ export default class ChatAd extends Vue {
 		font-size: 1.25em;
 		text-align: center;
 		padding-top: .5em;
+	}
+	
+	.important {
+		font-size: 1em;
+		padding: .5em;
+		.title {
+			font-size: 2em;
+			margin-bottom: .5em;
+		}
+		.details {
+			padding: 0 1em;
+			.spacing {
+				margin-top: 1em;
+			}
+			.button {
+				display: block;
+				margin: auto;
+				margin-top: .75em;
+				font-size: 1.25em;
+			}
+		}
 	}
 
 	.content {
