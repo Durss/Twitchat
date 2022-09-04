@@ -116,6 +116,17 @@ export default class SchedulerHelper {
 			}
 		}
 	}
+
+	/**
+	 * Resets the ad schedule
+	 */
+	public resetAdSchedule():void {
+		for (let i = 0; i < this._pendingTriggers.length; i++) {
+			const e = this._pendingTriggers[i];
+			e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000;
+			e.messageCount = 0;
+		}
+	}
 	
 	
 	
@@ -127,9 +138,12 @@ export default class SchedulerHelper {
 		
 		this._adSchedule = {
 			type:TriggerScheduleTypes.REGULAR_REPEAT,
-			repeatDuration:5,
+			repeatDuration:60,
 			repeatMinMessages:50,
 			dates:[],
+		}
+		if(this._adSchedule.repeatDuration != 60) {
+			StoreProxy.store.state.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
 	}

@@ -41,7 +41,7 @@ import SchedulerHelper from '@/utils/SchedulerHelper';
 
 const store = createStore({
 	state: {
-		latestUpdateIndex: 8,
+		latestUpdateIndex: 9,
 		refreshTokenTO: 5,
 		initComplete: false,
 		authenticated: false,
@@ -1966,6 +1966,9 @@ const store = createStore({
 
 					if(messageData.sentLocally !== true) {
 						SchedulerHelper.instance.incrementMessageCount();
+					}
+					if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(messageData.message as string)) {
+						SchedulerHelper.instance.resetAdSchedule();
 					}
 					
 					//Is it a tracked user ?
