@@ -336,7 +336,7 @@ export default class Chat extends Vue {
 		
 		let size = parseFloat(Store.get(Store.LEFT_COL_SIZE));
 		if(isNaN(size)) size = .5;
-		this.leftColSize = size;
+		this.leftColSize = Math.min(.95, Math.max(.05,size));
 
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
@@ -669,6 +669,8 @@ export default class Chat extends Vue {
 		}else{
 			this.leftColSize = (this.mouseX - 3) / window.innerWidth;
 		}
+		
+		this.leftColSize = Math.min(.95, Math.max(.05, this.leftColSize));
 
 		Store.set(Store.LEFT_COL_SIZE, this.leftColSize);
 
