@@ -135,6 +135,7 @@ export default class SchedulerHelper {
 			const e = this._pendingTriggers[i];
 			e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000;
 			e.messageCount = 0;
+			Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
 		}
 	}
 	
@@ -148,16 +149,16 @@ export default class SchedulerHelper {
 		
 		this._adSchedule = {
 			type:TriggerScheduleTypes.REGULAR_REPEAT,
-			repeatDuration:60,
-			repeatMinMessages:50,
+			repeatDuration:120,
+			repeatMinMessages:100,
 			dates:[],
 		}
 
 		//Just a fail safe to avoid deploying fucked up data on production !
-		if(this._adSchedule.repeatDuration != 60) {
+		if(this._adSchedule.repeatDuration < 120) {
 			StoreProxy.store.state.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 60!";
 		}else
-		if(this._adSchedule.repeatMinMessages != 50) {
+		if(this._adSchedule.repeatMinMessages < 100) {
 			StoreProxy.store.state.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 50!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
@@ -210,7 +211,7 @@ export default class SchedulerHelper {
 				
 				if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 					//Update anti-cheat
-					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date)
+					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
 				}
 				
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);

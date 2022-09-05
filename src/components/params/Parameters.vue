@@ -23,12 +23,12 @@
 						<div v-if="showAdInfo" class="donateDetails">
 							<p class="title">To disable this ad, make any donation :)</p>
 							<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
-							<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="$emit('setContent', contentSponsor)" title="Donate 💝" />
+							<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" title="Donate 💝" />
 						</div>
 						<PostOnChatParam
 							botMessageKey="twitchatAd"
 							:noToggle="true"
-							title="The following message will be posted on your chat every hour (if you received at least 50 messages)"
+							title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
 						/>
 					</div>
 				</div>
