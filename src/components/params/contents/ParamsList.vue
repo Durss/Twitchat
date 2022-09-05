@@ -3,42 +3,6 @@
 		<h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1>
 		<div class="row" v-for="(p) in params" :key="p.id">
 
-			<!-- Special case for twitchat ad label -->
-			<div class="row ad" v-if="p.id==13 && !isDonor">
-				<img src="@/assets/icons/twitchat.svg" alt="twitchat" style="height:2em;">
-				<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
-					@click="showAdInfo=true"
-					title="Disable this ad"
-					v-if="!showAdInfo" />
-				<div v-if="showAdInfo" class="donateDetails">
-					<p class="title">To disable this ad, make any donation :)</p>
-					<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
-					<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="$emit('setContent', contentSponsor)" title="Donate 💝" />
-				</div>
-				<PostOnChatParam
-					botMessageKey="twitchatAd"
-					:noToggle="true"
-					title="The following message will be posted on your chat every hour (if you received at least 50 messages)"
-				/>
-			</div>
-
-			<PostOnChatParam class="row ad"
-				clearToggle
-				v-if="p.id==13 && isDonor"
-				icon="twitchat.svg"
-				botMessageKey="twitchatAd"
-				title="Share a twitch link every hour on your chat (if you received at least 50 messages)"
-			/>
-
-			<!-- Special case for shoutout label -->
-			<PostOnChatParam class="row" v-if="p.id==13"
-				icon="shoutout_purple.svg"
-				botMessageKey="shoutout"
-				:noToggle="true"
-				title="Shoutout message"
-				:placeholders="soPlaceholders"
-			/>
-
 			<ParamItem :paramData="p" save />
 			
 			<transition
@@ -216,36 +180,6 @@ export default class ParamsList extends Vue {
 
 		&:not(:last-child) {
 			margin-bottom: 10px;
-		}
-
-		&.ad {
-			color: @mainColor_light;
-			background-color: @mainColor_normal_light;
-			padding: .5em;
-			border-radius: 1em;
-			img {
-				display: block;
-				margin: auto;
-			}
-			.title {
-				text-align: center;
-				font-weight: bold;
-			}
-			.details {
-				font-size: .8em;
-			}
-			.donateBt {
-				display: block;
-				margin: .5em auto;
-			}
-			.donateDetails {
-				display: block;
-				margin: .5em auto;
-			}
-			
-			a {
-				color:@mainColor_warn_extralight;
-			}
 		}
 
 		.info {

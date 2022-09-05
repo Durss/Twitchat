@@ -150,7 +150,7 @@
 			</template>
 		</draggable>
 
-		<div class="bottomCTAS" v-if="(!isSublist && currentEvent) || (isSublist && currentSubEvent)">
+		<div class="bottomCTAS" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
 			<Button :icon="$image('icons/add.svg')" title="Add action"
 				class="addBt"
 				@click="addAction()"
@@ -476,10 +476,10 @@ export default class ParamsTriggers extends Vue {
 			// console.log(this.triggerKey, this.triggerData);
 			StoreProxy.store.dispatch("setTrigger", { key:this.triggerKey, data:this.triggerData});
 		// }
-		if(this.isChatCmd || this.isSchedule) {
-			// Preselects the current subevent
-			await this.onSelectTrigger(true);
-		}
+		// if(this.isChatCmd || this.isSchedule) {
+		// 	// Preselects the current subevent
+		// 	await this.onSelectTrigger(true);
+		// }
 
 		//As we watch for any modifications on "actionCategory" and we
 		//modify it during the save process, we need to freeze the save

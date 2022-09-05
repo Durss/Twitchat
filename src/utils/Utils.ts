@@ -543,7 +543,7 @@ export default class Utils {
 			const rules = StoreProxy.store.state.automodParams.keywordsFilters as AutomodParamsKeywordFilterData[];
 			for (let i = 0; i < rules.length; i++) {
 				const r = rules[i];
-				if(!r.enabled) continue;//Rule disabled, skip it
+				if(!r.enabled || !r.regex || r.regex.length < 2) continue;//Rule disabled, skip it
 				
 				//Check if reg is valid
 				let reg!:RegExp, valid=true;

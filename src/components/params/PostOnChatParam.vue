@@ -63,7 +63,7 @@ export default class PostOnChatParam extends Vue {
 		const data					= StoreProxy.store.state.botMessages[ this.botMessageKey ];
 		this.textParam.value		= data.message;
 		this.enabledParam.label		= this.title;
-		this.enabledParam.value		= data.enabled;
+		this.enabledParam.value		= data.enabled || this.noToggle !== false;
 		this.enabledParam.children	= [this.textParam];
 		this.enabledParam.noInput	= this.noToggle;
 		if(this.icon) {

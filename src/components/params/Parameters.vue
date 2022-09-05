@@ -9,11 +9,30 @@
 			</div>
 
 			<div class="search" v-if="content == null">
-			<!-- <div class="search" v-if="isGenericListContent"> -->
 				<input type="text" placeholder="Search a parameter..." v-model="search" v-autofocus>
 			</div>
 			
 			<div class="content menu" v-if="content == null && !search">
+				<div class="ad" v-if="!isDonor">
+					<div class="row">
+						<img src="@/assets/icons/twitchat.svg" alt="twitchat" style="height:2em;">
+						<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
+							@click="showAdInfo=true"
+							title="Disable this ad"
+							v-if="!showAdInfo" />
+						<div v-if="showAdInfo" class="donateDetails">
+							<p class="title">To disable this ad, make any donation :)</p>
+							<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
+							<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="$emit('setContent', contentSponsor)" title="Donate 💝" />
+						</div>
+						<PostOnChatParam
+							botMessageKey="twitchatAd"
+							:noToggle="true"
+							title="The following message will be posted on your chat every hour (if you received at least 50 messages)"
+						/>
+					</div>
+				</div>
+
 				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent(contentFeatures)" />
 				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
 				<Button bounce white :icon="$image('icons/filters_purple.svg')" title="Filters" @click="setContent(contentFilters)" />
@@ -28,6 +47,15 @@
 				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
 				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
 				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
+
+				<div class="ad" v-if="isDonor">
+					<PostOnChatParam class="row"
+						clearToggle
+						icon="twitchat.svg"
+						botMessageKey="twitchatAd"
+						title="Share a Twitchat link every hour on your chat (if you received at least 50 messages)"
+					/>
+				</div>
 
 				<div class="version">v {{appVersion}}</div>
 			</div>
@@ -53,7 +81,6 @@
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 				</div>
-		
 			</div>
 		</div>
 	</div>
@@ -83,6 +110,8 @@ import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamItem from './ParamItem.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
+import UserSession from '@/utils/UserSession';
+import PostOnChatParam from './PostOnChatParam.vue';
 
 @Options({
 	props:{},
@@ -104,6 +133,7 @@ import ParamsAutomod from './contents/ParamsAutomod.vue';
 		ParamsVoiceBot,
 		ParamsVoicemod,
 		ParamsEmergency,
+		PostOnChatParam,
 		ParamsStreamdeck,
 	}
 })
@@ -114,9 +144,12 @@ export default class Parameters extends Vue {
 	public showMenu = false;
 	public filteredParams:ParameterData[] = [];
 	public content:ParamsContentStringType = null;
+	public showAdInfo:boolean = false;
 
 	private prevContent:ParamsContentStringType = null;
 	
+
+	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get contentAppearance():ParamsContentStringType { return ParamsContentType.APPEARANCE; } 
 	public get contentFilters():ParamsContentStringType { return ParamsContentType.FILTERS; } 
 	public get contentAccount():ParamsContentStringType { return ParamsContentType.ACCOUNT; } 
@@ -153,7 +186,9 @@ export default class Parameters extends Vue {
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
-			this.content = v.replace("CONTENT:", "") as ParamsContentStringType;
+			let pageId = v.replace("CONTENT:", "") as ParamsContentStringType;
+			if(pageId == ParamsContentType.MAIN_MENU) pageId = null;
+			this.content = this.content;
 
 		}else if(v.indexOf("SEARCH:") === 0) {
 			//Prefilled search
@@ -264,6 +299,42 @@ export default class Parameters extends Vue {
 		.head {
 			border-bottom: 1px solid @mainColor_normal;
 			padding-bottom: .5em;
+		}
+
+		.ad {
+			color: @mainColor_light;
+			background-color: @mainColor_normal_light;
+			margin: 0;
+			margin-top: 1em;
+			padding: 1em;
+			border-radius: 1em;
+			&:first-child {
+				margin-top: 0;
+				margin-bottom: .5em;
+			}
+			img {
+				display: block;
+				margin: auto;
+			}
+			.title {
+				text-align: center;
+				font-weight: bold;
+			}
+			.details {
+				font-size: .8em;
+			}
+			.donateBt {
+				display: block;
+				margin: .5em auto;
+			}
+			.donateDetails {
+				display: block;
+				margin: .5em auto;
+			}
+			
+			a {
+				color:@mainColor_warn_extralight;
+			}
 		}
 
 		.menu {

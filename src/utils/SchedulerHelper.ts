@@ -1,3 +1,4 @@
+import Store from "@/store/Store";
 import type { TriggerData, TriggerScheduleData } from "@/types/TwitchatDataTypes";
 import StoreProxy from "./StoreProxy";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
@@ -82,11 +83,20 @@ export default class SchedulerHelper {
 
 		switch(schedule.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
+				//Check if a date is stored on store and load it back.
+				//This avoids the possibility to have no ad by refreshing
+				//the page before the timer ends.
+				let date = parseInt(Store.get(Store.TWITCHAT_AD_NEXT_DATE));
+				const minDate = Date.now() + schedule.repeatDuration * 60 * 1000;
+				if(isNaN(date) || date > minDate) date = minDate;
 				this._pendingTriggers.push({
 					messageCount:0,
-					date:Date.now() + schedule.repeatDuration * 60 * 1000,
+					date,
 					triggerKey:key,
-				})
+				});
+				if(key === TriggerTypes.TWITCHAT_AD) {
+					Store.set(Store.TWITCHAT_AD_NEXT_DATE, date);
+				}
 				break;
 			}
 
@@ -142,8 +152,13 @@ export default class SchedulerHelper {
 			repeatMinMessages:50,
 			dates:[],
 		}
+
+		//Just a fail safe to avoid deploying fucked up data on production !
 		if(this._adSchedule.repeatDuration != 60) {
-			StoreProxy.store.state.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes!";
+			StoreProxy.store.state.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 60!";
+		}else
+		if(this._adSchedule.repeatMinMessages != 50) {
+			StoreProxy.store.state.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 50!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
 	}
@@ -190,8 +205,14 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000,
-				e.messageCount = 0,
+				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000;
+				e.messageCount = 0;
+				
+				if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+					//Update anti-cheat
+					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date)
+				}
+				
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}

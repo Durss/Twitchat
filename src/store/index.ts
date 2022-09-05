@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData, type AutomodParamsKeywordFilterData } from '../types/TwitchatDataTypes';
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
@@ -129,7 +129,7 @@ const store = createStore({
 			},
 			twitchatAd: {
 				enabled:false,
-				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers, you should take a look at it.",
+				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype",
 			},
 		} as IBotMessage,
 		commands: [
@@ -1931,31 +1931,33 @@ const store = createStore({
 			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
 				const type = getTwitchatMessageType(event.data as IRCEventData);
 
-				if(type == TwitchatMessageType.MESSAGE) {
-					//Make sure message passes the automod rules
-					const messageData = event.data as IRCEventDataList.Message;
-					let rule = Utils.isAutomoded(messageData.message, messageData.tags);
-					if(rule) {
-						messageData.ttAutomod = rule;
-						let id = messageData.tags.id as string;
-						IRCClient.instance.deleteMessage(id);
-						return;
-					}
-				}else {
-					//Make sure user name passes the automod rules
-					let username = "";
-					const messageData = event.data as IRCEventDataList.Highlight;
-					if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
-						username = messageData.username as string
-					}else if(type == TwitchatMessageType.BITS) {
-						username = messageData.tags.username as string;
-					}
-					if(username && messageData.message) {
-						let rule = Utils.isAutomoded(messageData.message, {username});
+				if(state.automodParams.enabled === true) {
+					const messageData = event.data as IRCEventDataList.Message | IRCEventDataList.Highlight;
+					if(type == TwitchatMessageType.MESSAGE) {
+						//Make sure message passes the automod rules
+						const m = (messageData as IRCEventDataList.Message);
+						let rule = Utils.isAutomoded(m.message, m.tags);
 						if(rule) {
 							messageData.ttAutomod = rule;
-							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
+							let id = messageData.tags.id as string;
+							IRCClient.instance.deleteMessage(id);
 							return;
+						}
+					}
+
+					//Make sure user name passes the automod rules
+					if(state.automodParams.banUserNames === true) {
+						let username = messageData.tags.username as string;
+						if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
+							username = (messageData as IRCEventDataList.Highlight).username as string
+						}
+						if(username) {
+							let rule = Utils.isAutomoded(username, {username});
+							if(rule) {
+								messageData.ttAutomod = rule;
+								IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
+								return;
+							}
 						}
 					}
 				}
@@ -2181,22 +2183,25 @@ const store = createStore({
 				}
 
 				if(state.automodParams.enabled === true
-				&& state.automodParams.banUserNames === true)
-				for (let i = 0; i < users.length; i++) {
-					const username = users[i];
-					const rule = Utils.isAutomoded(username, {username});
-					if(rule) {
-						IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
-						IRCClient.instance.sendHighlight({
-							channel: UserSession.instance.authToken.login,
-							type:"highlight",
-							username,
-							ttAutomod:rule,
-							tags:{
-								"tmi-sent-ts":Date.now().toString(),
-								"msg-id": "autoban_join",
-							},
-						});
+				&& state.automodParams.banUserNames === true) {
+
+					return;//TODO remove that !
+					for (let i = 0; i < users.length; i++) {
+						const username = users[i];
+						const rule = Utils.isAutomoded(username, {username});
+						if(rule != null) {
+							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule!.label}"`);
+							IRCClient.instance.sendHighlight({
+								channel: UserSession.instance.authToken.login,
+								type:"highlight",
+								username,
+								ttAutomod:rule as AutomodParamsKeywordFilterData,
+								tags:{
+									"tmi-sent-ts":Date.now().toString(),
+									"msg-id": "autoban_join",
+								},
+							});
+						}
 					}
 				}
 

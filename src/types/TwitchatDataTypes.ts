@@ -4,6 +4,7 @@ import type { ChatUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "./TwitchDataTypes";
 
 export const ParamsContentType = {
+	MAIN_MENU: "",
 	APPEARANCE: "appearance",
 	FILTERS: "filters",
 	ACCOUNT: "account",
