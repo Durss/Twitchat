@@ -8,6 +8,8 @@
 		</ToggleBlock>
 
 		<img src="@/assets/loader/loader.svg" alt="loading" class="loader" v-if="loading">
+
+		<div v-if="!triggerList || triggerList.length===0" class="noTrigger">You don't have any existing trigger yet</div>
 		
 		<vue-select class="item list" v-model="action.triggerKey"
 		v-if="triggerList?.length > 1"
@@ -224,10 +226,9 @@ export default class TriggerActionTriggerEntry extends Vue {
 	//.listIcon style is on index.less.
 	//Couldn't make it work from the template even in a unscoped tag
 
-	.info {
+	.info, .noTrigger {
 		overflow: hidden;
-		padding: .5em;
-		padding-left: 1em;
+		padding: .5em 1em;
 		background-color: @mainColor_light;
 		border-radius: .5em;
 		margin-bottom: .5em;
@@ -240,6 +241,14 @@ export default class TriggerActionTriggerEntry extends Vue {
 		.label {
 			display: inline;
 			color: @mainColor_warn;
+		}
+
+		&.noTrigger {
+			color: @mainColor_light;
+			background-color: @mainColor_alert;
+			text-align: center;
+			font-size: 1.1em;
+			margin: 1em;
 		}
 	}
 

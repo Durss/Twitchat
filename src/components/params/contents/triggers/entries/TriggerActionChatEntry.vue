@@ -34,7 +34,7 @@ export default class TriggerActionChatEntry extends Vue {
 		return (this.message_conf.value as string)
 			.trim()
 			.split(" ")[0]
-			.toLowerCase() === this.triggerKey.split("_")[1].toLowerCase()
+			.toLowerCase() === this.triggerKey?.split("_")[1]?.toLowerCase()
 	}
 
 	public beforeMount():void {
