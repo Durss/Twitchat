@@ -96,6 +96,8 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 
+		console.log(await this.obs.call("GetInputList"));
+
 		/* LIST ALL INPUT KINDS
 		const sources = await this.getSources();
 		const inputKinds:{[key:string]:boolean} = {}
@@ -173,7 +175,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async getSources():Promise<OBSSourceItem[]> {
 		if(!this.connected) return [];
-		
 		const scenes = await this.getScenes();
 		let sources:OBSSourceItem[] = [];
 		const idsDone:{[key:string]:boolean} = {};
@@ -186,6 +187,16 @@ export default class OBSWebsocket extends EventDispatcher {
 			sources = sources.concat(items);
 		}
 		return sources;
+	}
+	
+	/**
+	 * Get all the available inputs
+	 * 
+	 * @returns 
+	 */
+	public async getInputs():Promise<OBSInputItem[]> {
+		if(!this.connected) return [];
+		return ((await this.obs.call("GetInputList")).inputs as unknown) as OBSInputItem[];
 	}
 	
 	/**
@@ -385,6 +396,12 @@ export interface OBSSourceItem {
 	sceneItemIndex:number;
 	sourceName:string;
 	sourceType:OBSSourceType;
+}
+
+export interface OBSInputItem {
+	inputKind:OBSInputKind;
+	inputName:string;
+	unversionedInputKind:string;
 }
 
 export interface OBSFilter {
