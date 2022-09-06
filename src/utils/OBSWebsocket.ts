@@ -96,7 +96,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 
-		console.log(await this.obs.call("GetInputList"));
+		// console.log(await this.obs.call("GetInputList"));
 
 		/* LIST ALL INPUT KINDS
 		const sources = await this.getSources();
