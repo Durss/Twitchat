@@ -74,7 +74,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 export default class Gngngn extends Vue {
 
 	public get discordPath():string { return Config.instance.DISCORD_URL; }
-	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.2"; }
+	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.3"; }
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public mounted():void {

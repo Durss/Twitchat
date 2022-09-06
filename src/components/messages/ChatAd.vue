@@ -209,7 +209,7 @@ export default class ChatAd extends Vue {
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_AD_WARNING; }
-	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.2"; }
+	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.3"; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	
