@@ -64,6 +64,7 @@ http.createServer((request, response) => {
 
 			//Get latest script
 			}else if(endpoint == "/api/script") {
+				Logger.info("Serving script for cache bypass")
 				const file = fs.readdirSync("./dist/assets").find(v => /index\..*\.js/gi.test(v));
 				const txt = fs.readFileSync("./dist/assets/"+file, {encoding:"utf8"});
 				response.writeHead(200, {'Content-Type': 'application/javascript'});
