@@ -131,7 +131,6 @@
 			<Button aria-label="Close discord message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 			<div class="title">IMPORTANT MESSAGE</div>
 			<div class="content left">
-				{{appVersion}}
 				<img src="@/assets/icons/twitchat_purple.svg" alt="discord" class="icon">
 				<div v-if="isFreshAdWarning">This is a friendly reminder that, as stated in the previous update info, Twitchat will now send a message on your chat to let people know about it.</div>
 				<div v-if="!isFreshAdWarning">Twitchat is free for you to use but:</div>
