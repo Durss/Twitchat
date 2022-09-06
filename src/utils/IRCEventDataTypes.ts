@@ -1,8 +1,8 @@
-import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, DeleteUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from "tmi.js";
-import type { PubSubDataTypes } from "./PubSubDataTypes";
+import type { AutomodParamsKeywordFilterData, CountdownData, HypeTrainStateData, TimerData, TwitchatAdStringTypes } from "@/types/TwitchatDataTypes";
+import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData, RaffleEntry } from "./CommonDataTypes";
-import type { AutomodParamsKeywordFilterData, CountdownData, HypeTrainStateData, TimerData } from "@/types/TwitchatDataTypes";
+import type { PubSubDataTypes } from "./PubSubDataTypes";
 
 export type ChatMessageTypes = IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.TwitchatAd|IRCEventDataList.Whisper;
 
@@ -90,7 +90,7 @@ export namespace IRCEventDataList {
 			id: string
 		};
 		markedAsRead?:boolean;
-		contentID: number;
+		contentID: TwitchatAdStringTypes;
 		type: "ad";
 		[parameter: string]: unknown;
 	}

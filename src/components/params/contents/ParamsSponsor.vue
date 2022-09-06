@@ -4,6 +4,8 @@
 		<p>It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.</p>
 		<p><strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!</p>
 
+		<p class="important"><strong>IMPORTANT</strong>, I have no simple way to know your Twitch login from your donation info, <strong>please specify your Twitch login</strong> on your message when possible or <a href="https://twitch.tv/durss" target="_blank">send me a whisper on Twitch</a> so I can give you a shiny donor badge that allows you to disable the automatic ad message!</p>
+
 		<img src="@/assets/img/eating.gif" alt="eating" />
 
 		<div class="buttons">
@@ -73,6 +75,17 @@ export default class ParamsSponsor extends Vue {
 			:deep(.Icon) {
 				max-width: 2em;
 			}
+		}
+	}
+
+	.important {
+		color: @mainColor_alert;
+		background-color: @mainColor_alert_extralight;
+		font-size: .9em;
+		padding: .5em;
+		border-radius: .5em;
+		a {
+			color: @mainColor_highlight;
 		}
 	}
 }

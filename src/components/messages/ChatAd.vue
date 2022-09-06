@@ -56,7 +56,7 @@
 					<ul>
 						<li>Users cannot spam follow/unfollow anymore. Only one notification will be displayed in such case.</li>
 						<li><Button aria-label="open triggers params" small title="try it" @click.stop="openViewerCard()" />User info now shows if user is streaming</li>
-						<li>Commulative months sub info now displayed <i>(if a viewer buys multiple months at once)</i></li>
+						<li>Cumulative months sub info now displayed <i>(if a viewer buys multiple months at once)</i></li>
 						<li>Open user card from their ID with the <mark>/userinfo</mark> command</li>
 					</ul>
 				</ToggleBlock>
@@ -89,7 +89,7 @@
 			<div class="title">Join us on Discord</div>
 			<div class="content">
 				<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
-				<div>You have a feature suggestion or an issue to report?<br>join us on discord!</div>
+				<div>You have a feature suggestion or an issue to report?<br>Join us on discord!</div>
 			</div>
 			<div class="cta">
 				<Button :icon="$image('icons/discord.svg')"
@@ -124,6 +124,38 @@
 					target="_blank"
 					type="link"
 				/>
+			</div>
+		</div>
+
+		<div v-if="isAdWarning" class="discord">
+			<Button aria-label="Close discord message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+			<div class="title">IMPORTANT MESSAGE</div>
+			<div class="content left">
+				<img src="@/assets/icons/twitchat_purple.svg" alt="discord" class="icon">
+				<div>This is a friendly reminder that, as stated in the previous update info, Twitchat will now send a message on your chat to let people know about it.</div>
+				<div>A message will be sent every 2 hours only if you received at least 100 messages.</div>
+				<div>You can customize the ad message on the Parameters menu.</div>
+				<div>Or you can donate any amount to remove it</div>
+			</div>
+			<div class="cta">
+				<Button title="😡😡😡 THAT'S UNACCEPTABLE 😡😡😡" @click="openModal('gngngn')" />
+				<Button :icon="$image('icons/edit.svg')"
+					title="Customize message"
+					@click="openParamPage(contentMainMenu)"
+				/>
+				<Button :icon="$image('icons/follow.svg')"
+					title="Donate to remove"
+					@click="openParamPage(contentSponsor)"
+				/>
+			</div>
+		</div>
+
+		<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
+			<p>Are you sure you read the message?</p>
+			<p>It's important</p>
+			<div class="ctaConfirm">
+				<Button :loading="confirmDelay" title="Cancel" @click="showConfirm=false" small highlight />
+				<Button :loading="confirmDelay" title="Yes close" @click="deleteMessage()" small />
 			</div>
 		</div>
 	</div>
@@ -165,12 +197,15 @@ export default class ChatAd extends Vue {
 	public elgatoIcon:string = "";
 	public followIcon:string = "";
 	public kofiIcon:string = "";
+	public showConfirm:boolean = false;
+	public confirmDelay:boolean = false;
 
 	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
+	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_AD_WARNING; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	
@@ -238,8 +273,19 @@ export default class ChatAd extends Vue {
 				Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
 			}
 		}
+		if(this.isAdWarning) {
+			Store.set(Store.TWITCHAT_AD_WARNED, true);
+		}
 		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
+	}
+
+	public confirmGngngnClose():void {
+		this.showConfirm = true;
+		this.confirmDelay = true;
+		setTimeout(()=> {
+			this.confirmDelay = false;
+		}, 2000);
 	}
 
 	public openViewerCard():void {
@@ -263,6 +309,32 @@ export default class ChatAd extends Vue {
 
 	&>* {
 		color: @mainColor_normal;
+	}
+
+	.confirmClose {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: fade(@mainColor_dark, 70%);
+		backdrop-filter: blur(3px);
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		justify-content: center;
+		color: @mainColor_light;
+		font-size: 2em;
+		text-shadow: 1px 1px 1px @mainColor_dark;
+		text-align: center;
+		.ctaConfirm {
+			width: 100%;
+			max-width: 250px;
+			margin-top: .5em;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-evenly;
+		}
 	}
 
 	.closeBt {
@@ -322,11 +394,15 @@ export default class ChatAd extends Vue {
 
 	.content {
 		padding: .5em;
-		text-align: center;
+		&:not(.left) {
+			text-align: center;
+		}
 
 		.icon {
 			height: 4em;
 			width: 4em;
+			margin: 0 auto .5em auto;
+			display: block;
 		}
 
 		.block {

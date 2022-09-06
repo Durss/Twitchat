@@ -53,7 +53,7 @@
 						clearToggle
 						icon="twitchat.svg"
 						botMessageKey="twitchatAd"
-						title="Share a Twitchat link every hour on your chat (if you received at least 50 messages)"
+						title="Share a Twitchat link every 2 hours on your chat (if you received at least 100 messages)"
 					/>
 				</div>
 
@@ -188,7 +188,7 @@ export default class Parameters extends Vue {
 			//Requesting sponsor page
 			let pageId = v.replace("CONTENT:", "") as ParamsContentStringType;
 			if(pageId == ParamsContentType.MAIN_MENU) pageId = null;
-			this.content = this.content;
+			this.content = pageId;
 
 		}else if(v.indexOf("SEARCH:") === 0) {
 			//Prefilled search

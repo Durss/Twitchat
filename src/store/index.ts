@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData, type AutomodParamsKeywordFilterData } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData, type AutomodParamsKeywordFilterData, type TwitchatAdStringTypes } from '../types/TwitchatDataTypes';
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
@@ -663,9 +663,9 @@ const store = createStore({
 
 		confirm(state, payload) { state.confirm = payload; },
 
-		sendTwitchatAd(state, contentID = -1) {
+		sendTwitchatAd(state, contentID:TwitchatAdStringTypes = -1) {
 			if(contentID == -1) {
-				let possibleAds = [];
+				let possibleAds:TwitchatAdStringTypes[] = [];
 				possibleAds.push(TwitchatAdTypes.SPONSOR);
 				//Give more chances to hae anything but the "sponsor" ad
 				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
@@ -683,12 +683,12 @@ const store = createStore({
 					//Add 2 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
 					const len = 2*possibleAds.length;
-					for (let i = 0; i < len; i++) possibleAds.push(0);
+					for (let i = 0; i < len; i++) possibleAds.push(-1);
 				}
 		
 				contentID = Utils.pickRand(possibleAds);
 				// contentID = TwitchatAdTypes.UPDATES;//TODO comment this line
-				if(contentID == 0) return;
+				if(contentID == -1) return;
 			}
 
 			const list = state.chatMessages.concat();
@@ -2413,6 +2413,13 @@ const store = createStore({
 				const devmode = Store.get(Store.DEVMODE) === "true";
 				this.dispatch("toggleDevMode", devmode);
 				this.dispatch("sendTwitchatAd");
+				
+				if(!Store.get(Store.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
+					setTimeout(()=>{
+						this.dispatch("sendTwitchatAd", TwitchatAdTypes.TWITCHAT_AD_WARNING);
+					}, 5000)
+				}
+
 				authenticated = true;
 			}
 	

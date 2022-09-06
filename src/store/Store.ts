@@ -48,6 +48,7 @@ export default class Store {
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
 	public static AUTOMOD_PARAMS:string = "automodParams";
 	public static DONOR_LEVEL:string = "donorLevel";
+	public static TWITCHAT_AD_WARNED:string = "adWarned";
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
 
 	private static store:Storage;

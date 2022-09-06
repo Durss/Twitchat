@@ -1042,6 +1042,7 @@ const UserDataSchema = {
 		greetHeight: {type:"number"},
 		leftColSize: {type:"number"},
 		adNextTS: {type:"number"},
+		adWarned: {type:"boolean"},
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},

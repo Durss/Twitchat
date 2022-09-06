@@ -53,6 +53,7 @@
 			<div class="row">Did you know Twitchat exposes an API?</div>
 			<div class="row">If you're a developer, you can control and get events from Twitchat.</div>
 			<Button :icon="$image('icons/github_white.svg')"
+				style="display: inline-block;"
 				title="Read documentation"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
 				target="_blank"

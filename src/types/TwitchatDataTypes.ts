@@ -292,12 +292,15 @@ export interface PermissionsData {
 }
 
 export const TwitchatAdTypes = {
+	NONE:-1,
 	SPONSOR:1,
 	UPDATES:2,
 	TIP_AND_TRICK:3,
 	DISCORD:4,
 	UPDATE_WARNING:5,
-}
+	TWITCHAT_AD_WARNING:6,
+} as const;
+export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 
 export interface InstallHandler {
 	prompt:()=>void;

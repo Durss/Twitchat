@@ -112,8 +112,10 @@
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
 
 		<DonorState ref="donor" class="donorState" v-if="isDonor" @click="closeDonorCard()" />
-		
+
 		<UserCard />
+
+		<Gngngn v-if="currentModal == 'gngngn'" @close="currentModal = ''" />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -171,10 +173,12 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import UserCard from '../components/user/UserCard.vue';
 import DonorState from '../components/user/DonorState.vue';
 import UserSession from '@/utils/UserSession';
+import Gngngn from '../components/chatform/Gngngn.vue';
 
 @Options({
 	components:{
 		Button,
+		Gngngn,
 		NewUsers,
 		ChatForm,
 		UserList,
