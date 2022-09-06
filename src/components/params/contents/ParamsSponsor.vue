@@ -9,12 +9,12 @@
 		<img src="@/assets/img/eating.gif" alt="eating" />
 
 		<div class="buttons">
-			<Button big type="link" href="https://www.patreon.com/durss" target="_blank" title="Become a Patron" :icon="$image('icons/patreon_white.svg')" />
-			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Donate on Paypal" :icon="$image('icons/paypal_white.svg')" />
-			<Button big type="link" href="https://ko-fi.com/durss" target="_blank" title="Donate on Ko-fi" :icon="$image('icons/kofi_white.svg')" class="kofiBt" />
-			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Donate on Github" :icon="$image('icons/github_white.svg')" />
-			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank" title="Buy me a <i>coffee</i> grenadine" :icon="$image('icons/coffee_white.svg')" class="coffeeBt" />
-			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank" title="Subscribe on Twitch" :icon="$image('icons/twitch_white.svg')" />
+			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Donate on Paypal <i data-tooltip='Donation percent<br>I receive'>(95-100%)</i>" :icon="$image('icons/paypal_white.svg')" />
+			<Button big type="link" href="https://ko-fi.com/durss" target="_blank" title="Donate on Ko-fi <i data-tooltip='Donation percent<br>I receive'>(90%)</i>" :icon="$image('icons/kofi_white.svg')" class="kofiBt" />
+			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Donate on Github <i data-tooltip='Donation percent<br>I receive'>(90-100%)</i>" :icon="$image('icons/github_white.svg')" />
+			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank" title="Buy me a <span class='erase'>coffee</span> grenadine <i data-tooltip='Donation percent<br>I receive'>(90%)</i>" :icon="$image('icons/coffee_white.svg')" class="coffeeBt" />
+			<Button big type="link" href="https://www.patreon.com/durss" target="_blank" title="Become a Patron <i data-tooltip='Donation percent<br>I receive'>(80-85%)</i>" :icon="$image('icons/patreon_white.svg')" />
+			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank" title="Subscribe on Twitch <i data-tooltip='Donation percent<br>I receive'>(50%)</i>" :icon="$image('icons/twitch_white.svg')" />
 		</div>
 	</div>
 </template>
@@ -67,12 +67,21 @@ export default class ParamsSponsor extends Vue {
 			margin-bottom: .5em;
 			border-radius: 3em;
 			
+			:deep(.label) {
+				pointer-events: unset;
+			}
 			:deep(i) {
+				font-style: italic;
+				font-size: .7em;
+				display: block;
+			}
+			
+			:deep(.erase) {
 				text-decoration: line-through;
 				font-style: normal;
 				font-size: .8em;
 			}
-			:deep(.Icon) {
+			:deep(.icon) {
 				max-width: 2em;
 			}
 		}

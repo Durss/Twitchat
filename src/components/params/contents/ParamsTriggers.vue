@@ -354,7 +354,7 @@ export default class ParamsTriggers extends Vue {
 		catToLabel[ TriggerEventTypeCategories.SUBITS ] = "Sub & bits";
 		catToLabel[ TriggerEventTypeCategories.MOD ] = "Moderation actions";
 		catToLabel[ TriggerEventTypeCategories.TWITCHAT ] = "Twitchat";
-		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = "Hyper train";
+		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = "Hype train";
 		catToLabel[ TriggerEventTypeCategories.GAMES ] = "Games";
 		catToLabel[ TriggerEventTypeCategories.MUSIC ] = "Music";
 		catToLabel[ TriggerEventTypeCategories.TIMER ] = "Timers";
