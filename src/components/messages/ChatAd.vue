@@ -135,6 +135,7 @@
 				<div v-if="isFreshAdWarning">This is a friendly reminder that, as stated in the previous update info, Twitchat will now send a message on your chat to let people know about it.</div>
 				<div v-if="!isFreshAdWarning">Twitchat is free for you to use but:</div>
 				<div>A message with a link to Twitchat will be sent every 2 hours on your chat <i>(only if you received at least 100 messages during that timeframe)</i>.</div>
+				<div>The message won't be sent as long as a link to twitchat is sent by anyone on your chat during that 2h timeframe.</div>
 				<br>
 				<div>You can customize the message on the Parameters menu.</div>
 				<div>Or you can donate any amount to remove it</div>

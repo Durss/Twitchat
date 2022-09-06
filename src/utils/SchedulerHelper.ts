@@ -206,14 +206,20 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000;
-				e.messageCount = 0;
-				
+				let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+					//This is a trick to avoid sending the ad message multiple times
+					//if the user is using multiple instances of twitchat.
+					//The first one sent will reset the timer on the other instances.
+					//There's still a slight risk 2 instances send it almost at the
+					//same time but that's the easiest solution to handle that.
+					date += Math.random()*60;
 					//Update anti-cheat
 					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
 				}
 				
+				e.date = date;
+				e.messageCount = 0;
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}
