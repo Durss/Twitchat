@@ -2414,11 +2414,11 @@ const store = createStore({
 				this.dispatch("toggleDevMode", devmode);
 				this.dispatch("sendTwitchatAd");
 				
-				if(!Store.get(Store.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
+				// if(!Store.get(Store.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
 					setTimeout(()=>{
 						this.dispatch("sendTwitchatAd", TwitchatAdTypes.TWITCHAT_AD_WARNING);
 					}, 5000)
-				}
+				// }
 
 				authenticated = true;
 			}

@@ -131,10 +131,13 @@
 			<Button aria-label="Close discord message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 			<div class="title">IMPORTANT MESSAGE</div>
 			<div class="content left">
+				{{appVersion}}
 				<img src="@/assets/icons/twitchat_purple.svg" alt="discord" class="icon">
-				<div>This is a friendly reminder that, as stated in the previous update info, Twitchat will now send a message on your chat to let people know about it.</div>
-				<div>A message will be sent every 2 hours only if you received at least 100 messages.</div>
-				<div>You can customize the ad message on the Parameters menu.</div>
+				<div v-if="isFreshAdWarning">This is a friendly reminder that, as stated in the previous update info, Twitchat will now send a message on your chat to let people know about it.</div>
+				<div v-if="!isFreshAdWarning">Twitchat is free for you to use but:</div>
+				<div>A message with a link to Twitchat will be sent every 2 hours on your chat <i>(only if you received at least 100 messages during that timeframe)</i>.</div>
+				<br>
+				<div>You can customize the message on the Parameters menu.</div>
 				<div>Or you can donate any amount to remove it</div>
 			</div>
 			<div class="cta">
@@ -206,13 +209,14 @@ export default class ChatAd extends Vue {
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_AD_WARNING; }
+	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.2"; }
+
+	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 
-	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
-	
 	public get contentAppearance():ParamsContentStringType { return ParamsContentType.APPEARANCE; } 
 	public get contentFilters():ParamsContentStringType { return ParamsContentType.FILTERS; } 
 	public get contentAccount():ParamsContentStringType { return ParamsContentType.ACCOUNT; } 
