@@ -666,7 +666,9 @@ const store = createStore({
 		sendTwitchatAd(state, contentID:TwitchatAdStringTypes = -1) {
 			if(contentID == -1) {
 				let possibleAds:TwitchatAdStringTypes[] = [];
-				possibleAds.push(TwitchatAdTypes.SPONSOR);
+				if(!UserSession.instance.isDonor) {
+					possibleAds.push(TwitchatAdTypes.SPONSOR);
+				}
 				//Give more chances to hae anything but the "sponsor" ad
 				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
