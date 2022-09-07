@@ -616,7 +616,7 @@ export default class IRCClient extends EventDispatcher {
 		//Ignore commands
 		if(StoreProxy.store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
 			const blocked = StoreProxy.store.state.params.filters.blockedCommands.value as string;
-			if(blocked.length > 0) {
+			if(StoreProxy.store.state.params.filters.ignoreListCommands.value === true && blocked.length > 0) {
 				//Ignore specific commands
 				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
 				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))

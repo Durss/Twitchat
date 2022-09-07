@@ -24,14 +24,19 @@ export default class ChatAlertMessage extends Vue {
 
 	public mounted():void {
 		watch(() => StoreProxy.store.state.chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper) => {
+			console.log("OOOOKKKAAAAYY");
 			if(message && StoreProxy.store.state.chatAlertParams.message === true
 			&& StoreProxy.store.state.params.features.alertMode.value === true) {
 				let text = message.type == "whisper"? message.params[1] : message.message;
+				console.log(text);
 				//Allow custom parsing of emotes only if it's a message of ours sent from current IRC client
 				const customParsing = message.sentLocally === true;
+				console.log("Custom", customParsing);
+				console.log(message.tags['emotes-raw']);
 				let removeEmotes = !StoreProxy.store.state.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, message.tags['emotes-raw'], removeEmotes, customParsing);
 				let result = "";
+				console.log(chunks);
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
 					if(v.type == "text") {
@@ -46,6 +51,8 @@ export default class ChatAlertMessage extends Vue {
 						result += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
+				const cmd = StoreProxy.store.state.chatAlertParams.chatCmd as string;
+				result = result.replace(new RegExp("^"+cmd+" ?", "i"), "");
 				this.message = result;
 				this.user = message.tags.username as string;
 			}
@@ -84,7 +91,7 @@ export default class ChatAlertMessage extends Vue {
 		padding: 1em;
 		word-break: break-word;
 		:deep(.emote) {
-			height: 1em;
+			max-height: 1em;
 		}
 	}
 }

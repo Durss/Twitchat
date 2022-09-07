@@ -834,7 +834,7 @@ export default class ChatMessage extends Vue {
 		word-break: break-word;
 		:deep( .emote ) {
 			// width: 2em;
-			height: 2em;
+			max-height: 2em;
 			vertical-align: middle;
 			object-fit: contain;
 		}

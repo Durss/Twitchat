@@ -338,7 +338,7 @@ export default class OverlayChatHighlight extends Vue {
 				color:@mainColor_dark;
 				word-break: break-word;
 				:deep(.emote) {
-					height: 1.25em;
+					max-height: 1.25em;
 					vertical-align: middle;
 				}
 			}

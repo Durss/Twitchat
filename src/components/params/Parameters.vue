@@ -30,6 +30,16 @@
 							:noToggle="true"
 							title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
 						/>
+						<ToggleBlock class="tip" :open="false" title="Can this message be sent by nightbot / wizebot / ... ? " small>
+							Yes.<br>
+							<br>
+							By default the message is posted with your account.<br>
+							But you can configure any other bot to send that message if you wish.<br>
+							<br>
+							Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.<br>
+							<br>
+							The 2h timer starts when Twitchat is opened and reset to zero anytime a message containing <strong>twitchat.fr</strong> is received.
+						</ToggleBlock>
 					</div>
 				</div>
 
@@ -112,6 +122,7 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
 import UserSession from '@/utils/UserSession';
 import PostOnChatParam from './PostOnChatParam.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -123,6 +134,7 @@ import PostOnChatParam from './PostOnChatParam.vue';
 		ParamsList,
 		ParamsAbout,
 		ParamsAlert,
+		ToggleBlock,
 		ToggleButton,
 		ParamsAutomod,
 		ParamsSpoiler,
@@ -330,6 +342,9 @@ export default class Parameters extends Vue {
 			.donateDetails {
 				display: block;
 				margin: .5em auto;
+			}
+			.tip {
+				margin-top: 1em;
 			}
 			
 			a {

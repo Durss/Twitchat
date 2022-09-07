@@ -1,5 +1,6 @@
 import Store from "@/store/Store";
 import type { TriggerData, TriggerScheduleData } from "@/types/TwitchatDataTypes";
+import type { IRCEventDataList } from "./IRCEventDataTypes";
 import StoreProxy from "./StoreProxy";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
 import TriggerActionHandler from "./TriggerActionHandler";
@@ -14,6 +15,7 @@ export default class SchedulerHelper {
 	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
 	private _frameIndex:number = 0;
 	private _adSchedule?:TriggerScheduleData;
+	private _adScheduleTimeout?:number;
 	
 	constructor() {
 	
@@ -130,12 +132,27 @@ export default class SchedulerHelper {
 	/**
 	 * Resets the ad schedule
 	 */
-	public resetAdSchedule():void {
+	public resetAdSchedule(message:IRCEventDataList.Message):void {
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];
-			e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000;
-			e.messageCount = 0;
-			Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
+			//Search for the ad schedule
+			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+				const nextDate = e.date;
+				// console.log("ASK RESET", new Date(nextDate));
+				
+				//Wait 5min before the schedule happens and check if the message
+				//at the origin of the reset has been deleted or not.
+				//If the message has been deleted, ignore the schedule reset :)
+				clearTimeout(this._adScheduleTimeout);
+				this._adScheduleTimeout = setTimeout(()=> {
+					// console.log("Do reset. Deleted?"+message.deleted);
+					if(message.deleted) return;
+					e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000;
+					e.messageCount = 0;
+					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
+				}, Math.max(0,nextDate - Date.now() - 5*60*1000));
+				// console.log("Wait for", Math.max(0,nextDate - Date.now() - 5*60*1000));
+			}
 		}
 	}
 	

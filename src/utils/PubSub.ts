@@ -239,7 +239,7 @@ export default class PubSub extends EventDispatcher{
 
 	public async simulateFollowbotRaid():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
-		for (let i = 0; i < 50; i++) {
+		for (let i = 0; i < 400; i++) {
 			const id = Math.round(Math.random()*1000000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 			this.followingEvent({
@@ -247,7 +247,9 @@ export default class PubSub extends EventDispatcher{
 				username: login,
 				user_id:id.toString(),
 			}, true)
-			await Utils.promisedTimeout(Math.random()*300);
+			if(Math.random() > .5) {
+				await Utils.promisedTimeout(Math.random()*40);
+			}
 		}
 	}
 	
@@ -784,11 +786,13 @@ export default class PubSub extends EventDispatcher{
 
 		let blockList = [data];
 		this.lastRecentFollowers.push( data );
+		console.log(this.lastRecentFollowers);
 
 		if(this.lastRecentFollowers.length > 30
 		&& StoreProxy.store.state.emergencyModeEnabled !== true
 		&& StoreProxy.store.state.emergencyParams.enabled === true
 		&& StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot === true) {
+			console.log("START EMERGENCYYYYY !!!");
 			//Set all the past users in the block list to process them
 			blockList = this.lastRecentFollowers;
 			//Start emergency mode

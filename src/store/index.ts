@@ -1972,7 +1972,7 @@ const store = createStore({
 						SchedulerHelper.instance.incrementMessageCount();
 					}
 					if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(messageData.message as string)) {
-						SchedulerHelper.instance.resetAdSchedule();
+						SchedulerHelper.instance.resetAdSchedule(messageData);
 					}
 					
 					//Is it a tracked user ?
@@ -2127,8 +2127,6 @@ const store = createStore({
 							if(messageData.message.trim().toLowerCase().indexOf(state.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 								let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
 								//Remove command from message to make later things easier
-								const cmd = state.chatAlertParams.chatCmd as string;
-								mess.message = mess.message.replace(new RegExp("^"+cmd+" ?", "i"), "");
 								commit("executeChatAlert", mess);
 								let trigger:ChatAlertInfo = {
 									type:"chatAlert",

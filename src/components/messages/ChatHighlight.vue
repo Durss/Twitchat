@@ -485,8 +485,7 @@ export default class ChatHighlight extends Vue {
 			font-style: italic;
 			word-break: break-word;
 			:deep(.cheermote), :deep(.emote) {
-				width: 2em;
-				height: 2em;
+				max-height: 2em;
 				vertical-align: middle;
 				object-fit: contain;
 			}
