@@ -406,7 +406,7 @@ async function isDonor(request, response, body) {
 		user = json.hasOwnProperty(userInfo.user_id);
 		if(user) {
 			const levels = [0,20,30,50,80,100,200,300,400,500,999999];
-			level = levels.findIndex(v=> v >= json[userInfo.user_id]) - 1;
+			level = levels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 		}
 	}
 
