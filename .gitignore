@@ -3,7 +3,7 @@ node_modules
 /dist
 /userData
 credentials.json
-donors.json
+donors
 
 
 # local env files

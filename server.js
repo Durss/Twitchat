@@ -13,6 +13,11 @@ const Logger = require('./Logger.js').default;
 
 const port = 3018;
 const userDataFolder = "./userData/";
+const donorsDataFolder = "./donors/";
+const donorsList = donorsDataFolder + "donors.json";
+const donorsAnonStates = donorsDataFolder + "public_states.json";
+const donorsPublicList = donorsDataFolder + "public_cache.json";
+const donorsLevels = [0,20,30,50,80,100,200,300,400,500,999999];
 const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 
 Logger.success("===========================");
@@ -23,6 +28,25 @@ Logger.success("===========================");
 if(!fs.existsSync(userDataFolder)) {
 	fs.mkdirSync(userDataFolder);
 }
+
+if(!fs.existsSync(donorsDataFolder)) {
+	fs.mkdirSync(donorsDataFolder);
+}
+
+if(!fs.existsSync(donorsAnonStates)) {
+	fs.writeFileSync(donorsAnonStates, "{}", "utf-8");
+}
+
+if(!fs.existsSync(donorsPublicList)) {
+	fs.writeFileSync(donorsPublicList, "[]", "utf-8");
+}
+
+fs.watch(donorsList,()=> {
+	setTimeout(()=>{
+		updatePublicDonorsList();
+	}, 2000);
+});
+updatePublicDonorsList();
 
 http.createServer((request, response) => {
     let body = "";
@@ -76,9 +100,19 @@ http.createServer((request, response) => {
 				userData(request, response, body);
 				return;
 		
-			//Get/Set user data
+			//Get the donor state of the current user
 			}else if(endpoint == "/api/user/donor") {
 				isDonor(request, response, body);
+				return;
+		
+			//Set the anon donor state of the current user
+			}else if(endpoint == "/api/user/donor/anon") {
+				getSetAnonDonorState(request, response, body);
+				return;
+		
+			//Get all the donors list
+			}else if(endpoint == "/api/user/donor/all") {
+				getDonorList(request, response, body);
 				return;
 		
 			//Get current chatters
@@ -394,10 +428,10 @@ async function isDonor(request, response, body) {
 	}
 
 	let user, level = -1;
-	if(fs.existsSync("donors.json")) {
+	if(fs.existsSync( donorsList )) {
 		let json = [];
 		try {
-			json = JSON.parse(fs.readFileSync("donors.json", "utf8"));
+			json = JSON.parse(fs.readFileSync(donorsList, "utf8"));
 		}catch(error){
 			response.writeHead(404, {'Content-Type': 'application/json'});
 			response.end(JSON.stringify({success:false, message:"Unable to load donors data file"}));
@@ -405,13 +439,99 @@ async function isDonor(request, response, body) {
 		}
 		user = json.hasOwnProperty(userInfo.user_id);
 		if(user) {
-			const levels = [0,20,30,50,80,100,200,300,400,500,999999];
-			level = levels.findIndex(v=> v > json[userInfo.user_id]) - 1;
+			level = donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 		}
 	}
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify({success:true, data:{isDonor:user != undefined && level > -1, level}}));
+}
+
+/**
+ * Sets the anon donor state of the current user
+ */
+async function getSetAnonDonorState(request, response, body) {
+	//Get uer info
+	let userInfo = await getUserFromToken(request.headers.authorization);
+	if(!userInfo) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Invalid access token", success:false}));
+		return;
+	}
+
+	if(request.method == "GET") {
+		//Get current state
+		let json = {};
+		try {
+			json = JSON.parse(fs.readFileSync(donorsAnonStates, "utf8"));
+		}catch(error){
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false, message:"Unable to load anon donors state data file"}));
+			return;
+		}
+		
+		response.writeHead(200, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({success:true, data:{public:json[ userInfo.user_id ]}}));
+		return;
+	}else
+
+	if(request.method != "POST") {
+		//Invalid method
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Endpoint does not exists", success:false}));
+		return;
+	}
+
+	try {
+		body = JSON.parse(body);
+	}catch(error) {
+		response.writeHead(500, {'Content-Type': 'application/json'});
+		response.end(JSON.stringify({message:"Invalid body data", success:false}));
+		return;
+	}
+
+	if(fs.existsSync( donorsAnonStates )) {
+		let json = {};
+		try {
+			json = JSON.parse(fs.readFileSync(donorsAnonStates, "utf8"));
+		}catch(error){
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false, message:"Unable to load anon donors state data file"}));
+			return;
+		}
+
+		if(body.public === true) {
+			json[userInfo.user_id] = true;
+		}else{
+			delete json[userInfo.user_id];
+		}
+
+		fs.writeFileSync(donorsAnonStates, JSON.stringify(json), "utf8");
+		
+		updatePublicDonorsList();
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:true}));
+}
+
+/**
+ * Gets the public list of donors
+ */
+async function getDonorList(request, response, body) {
+	let json = [];
+	if(fs.existsSync(donorsPublicList)) {
+		try {
+			json = JSON.parse(fs.readFileSync(donorsPublicList, "utf8"));
+		}catch(error){
+			response.writeHead(404, {'Content-Type': 'application/json'});
+			response.end(JSON.stringify({success:false, message:"Unable to load donors data file"}));
+			return;
+		}
+	}
+
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	response.end(JSON.stringify({success:true, data:{list:json}}));
 }
 
 /**
@@ -668,7 +788,36 @@ async function getUserFromToken(token) {
 	}else{
 		return null;
 	}
+}
 
+function updatePublicDonorsList() {
+	try {
+		let donors = JSON.parse(fs.readFileSync(donorsList, "utf8"));
+		let anonStates = JSON.parse(fs.readFileSync(donorsAnonStates, "utf8"));
+		let res = [];
+		for (let uid in donors) {
+			const v = donors[uid];
+			if(anonStates[uid] !== true) uid = "-1";
+			res.push( {uid, v} );
+		}
+		res = res.filter(v=> v.v > .001)//I set 0,001 for people that's been offered donor badge. Ignore them
+		//Sort by donation
+		res.sort((a,b)=> {
+			if(a.v < b.v) return 1;
+			if(a.v > b.v) return -1;
+			return 0
+		});
+		res.forEach(e => {
+			e.v = donorsLevels.findIndex(v=> v > e.v) - 1;
+		})
+
+		fs.writeFileSync(donorsPublicList, JSON.stringify(res), "utf-8");
+
+	}catch(error){
+		console.log(error);
+		return false;
+	}
+	return true;
 }
 
 

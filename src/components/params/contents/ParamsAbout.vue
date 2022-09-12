@@ -13,7 +13,7 @@
 			<Button :icon="$image('icons/github_white.svg')" title="Read documentation" :href="apiURL" target="_blank" type="link" class="discordBt" />
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Send me money" :icons="['coin_purple']" :open="false">
+		<ToggleBlock class="block" title="Support Twitchat" :icons="['coin_purple']" :open="false">
 			<ParamsSponsor />
 		</ToggleBlock>
 
@@ -32,6 +32,10 @@
 			</p>
 		</ToggleBlock>
 
+		<ToggleBlock class="block" title="Donors list" :icons="['follow_purple']">
+			<ParamsDonorList />
+		</ToggleBlock>
+
 	</div>
 </template>
 
@@ -41,6 +45,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import Button from '@/components/Button.vue';
 import ParamsSponsor from './ParamsSponsor.vue';
 import Config from '@/utils/Config';
+import ParamsDonorList from './ParamsDonorList.vue';
 
 @Options({
 	props:{},
@@ -48,6 +53,7 @@ import Config from '@/utils/Config';
 		Button,
 		ToggleBlock,
 		ParamsSponsor,
+		ParamsDonorList,
 	}
 })
 export default class ParamsAbout extends Vue {

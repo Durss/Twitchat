@@ -360,6 +360,7 @@ const store = createStore({
 
 		accountParams: {
 			syncDataWithServer: { type:"toggle", value:false, label:"Sync parameters to server", id:401 },
+			publicDonation: { type:"toggle", value:false, label:"Make my donation public", id:402 },
 		} as IAccountParamsCategory,
 
 		confirm:{

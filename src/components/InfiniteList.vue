@@ -33,13 +33,18 @@ import { Options, Vue } from 'vue-class-component';
 			type:Number,
 			default:0
 		},
+		lockScroll:{
+			type:Boolean,
+			default:false
+		},
 		dataset:{
 			type: [Array],
 			default: [],
 			required: true,
 		},
 	},
-	components:{}
+	components:{},
+	emits:['update:scrollOffset'],
 })
 export default class InfiniteList extends Vue {
 
@@ -47,10 +52,12 @@ export default class InfiniteList extends Vue {
 	public itemMargin!:number;
 	public listHeight!:number;
 	public scrollOffset!:number;
+	public lockScroll!:boolean;
 	// public scrollOffset:number = 0;
 	public dataset!:unknown[];
 
 	public items:IListItem[] = [];
+	public scrollOffset_local:number = 0;
 	public renderDebounce!:number;
 
 	public getStyles(i:number):(StyleValue | undefined){
@@ -61,15 +68,22 @@ export default class InfiniteList extends Vue {
 	}
 
 	public mounted():void {
+		this.scrollOffset_local = this.scrollOffset;
 		watch(() => this.dataset, () => this.datasetUpdate());
 		watch(() => this.itemSize, () => this.scheduleRender());
 		watch(() => this.listHeight, () => this.scheduleRender());
-		watch(() => this.scrollOffset, () => this.scheduleRender());
+		watch(() => this.scrollOffset, () => {
+			if(this.scrollOffset_local === this.scrollOffset) return;//Avoid useless render
+			this.scrollOffset_local = this.scrollOffset;
+			this.scheduleRender();
+		});
 		this.scheduleRender();
 	}
 
 	public onWheel(e:WheelEvent):void {
-		this.scrollOffset += e.deltaY * .1;
+		this.scrollOffset_local += e.deltaY * .1;
+		e.preventDefault()
+		this.scheduleRender();
 	}
 
 	private datasetUpdate():void {
@@ -94,20 +108,30 @@ export default class InfiniteList extends Vue {
 			this.items = items;
 		}
 
+		if(this.lockScroll !== false) {
+			const maxY = this.dataset.length*(this.itemSize+this.itemMargin) - bounds.height;
+			if(this.scrollOffset_local < 0) this.scrollOffset_local = 0;
+			if(this.scrollOffset_local > maxY) this.scrollOffset_local = maxY;
+		}
+
 		const ih = (this.itemSize + this.itemMargin);
 		for (let i = 0; i < this.items.length; i++) {
 			const len = this.items.length;
-			let index:number = (i - this.scrollOffset/ih)%len;
+			let index:number = (i - this.scrollOffset_local/ih)%len;
 			if(index < -1) index += len;
 			let py:number = index * ih;
 			py -= ih;//offset all from one item to top to avoid a gap when scrolling to top	
 			
-			let dataIndex:number = Math.round((py+this.scrollOffset)/ih);
+			let dataIndex:number = Math.round((py+this.scrollOffset_local)/ih);
 			dataIndex = dataIndex % this.dataset.length;
 			if(dataIndex < 0) dataIndex += this.dataset.length;
 			
 			this.items[i].py = py;
 			this.items[i].data = this.dataset[dataIndex];
+		}
+
+		if(this.scrollOffset_local != this.scrollOffset) {
+			this.$emit("update:scrollOffset", this.scrollOffset_local);
 		}
 
 	}
