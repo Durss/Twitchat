@@ -55,8 +55,8 @@ export default class FFZUtils {
 		const chunks = message.split(/\s/);
 		for (let i = 0; i < chunks.length; i++) {
 			const txt = chunks[i];
-			if(this.globalEmotesHashmaps[txt.toLowerCase()]) {
-				const emote = this.globalEmotesHashmaps[txt.toLowerCase()];
+			if(this.globalEmotesHashmaps[txt]) {
+				const emote = this.globalEmotesHashmaps[txt];
 				if(emote && emotesDone[emote.name] !== true) {
 					allEmotes.push( emote );
 					emotesDone[emote.name] = true;
@@ -64,7 +64,7 @@ export default class FFZUtils {
 			}
 			//TODO parse only the emotes from the channel the message was posted to
 			for (const key in this.channelEmotesHashmaps) {
-				const emote = this.channelEmotesHashmaps[key][txt.toLowerCase()];
+				const emote = this.channelEmotesHashmaps[key][txt];
 				if(emote && emotesDone[emote.name] !== true) {
 					allEmotes.push( emote );
 					emotesDone[emote.name] = true;
@@ -117,13 +117,13 @@ export default class FFZUtils {
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):FFZEmote|null {
-		if(this.globalEmotesHashmaps[code.toLowerCase()]) {
-			return this.globalEmotesHashmaps[code.toLowerCase()];
+		if(this.globalEmotesHashmaps[code]) {
+			return this.globalEmotesHashmaps[code];
 		}
 		for (const key in this.channelEmotesHashmaps) {
 			const list = this.channelEmotesHashmaps[key];
-			if(this.channelEmotesHashmaps[key][code.toLowerCase()]) {
-				return this.channelEmotesHashmaps[key][code.toLowerCase()];
+			if(this.channelEmotesHashmaps[key][code]) {
+				return this.channelEmotesHashmaps[key][code];
 			}
 		}
 		return null;
@@ -170,7 +170,7 @@ export default class FFZUtils {
 				}
 				this.globalEmotes = emotes;
 				emotes.forEach(e => {
-					this.globalEmotesHashmaps[e.name.toLowerCase()] = e;
+					this.globalEmotesHashmaps[e.name] = e;
 				});
 			}
 		}catch(error) {
@@ -192,7 +192,7 @@ export default class FFZUtils {
 				this.channelEmotes[channelId] = emotes;
 				this.channelEmotesHashmaps[channelId] = {};
 				emotes.forEach(e => {
-					this.channelEmotesHashmaps[channelId][e.name.toLowerCase()] = e;
+					this.channelEmotesHashmaps[channelId][e.name] = e;
 				});
 			}
 		}catch(error) {

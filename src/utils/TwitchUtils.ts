@@ -181,8 +181,8 @@ export default class TwitchUtils {
 				const chunks = message.split(/\s/);
 				for (let i = 0; i < chunks.length; i++) {
 					const txt = chunks[i];
-					if(emoteListHashmap[txt.toLowerCase()]) {
-						emoteList.push( emoteListHashmap[txt.toLowerCase()] );
+					if(emoteListHashmap[txt]) {
+						emoteList.push( emoteListHashmap[txt] );
 					}
 				}
 				

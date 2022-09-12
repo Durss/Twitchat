@@ -50,7 +50,7 @@ export default class UserSession {
 
 		const hashmap:{[key:string]:TwitchDataTypes.Emote} = {};
 		value.forEach(e => {
-			hashmap[e.name.toLowerCase()] = e;
+			hashmap[e.name] = e;
 		});
 		this.emotesCacheHashmap = hashmap;
 		this._emotesCache = value;

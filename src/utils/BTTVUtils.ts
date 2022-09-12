@@ -56,8 +56,8 @@ export default class BTTVUtils {
 		const chunks = message.split(/\s/);
 		for (let i = 0; i < chunks.length; i++) {
 			const txt = chunks[i];
-			if(this.globalEmotesHashmaps[txt.toLowerCase()]) {
-				const emote = this.globalEmotesHashmaps[txt.toLowerCase()];
+			if(this.globalEmotesHashmaps[txt]) {
+				const emote = this.globalEmotesHashmaps[txt];
 				if(emote && emotesDone[emote.code] !== true) {
 					allEmotes.push( emote );
 					emotesDone[emote.code] = true;
@@ -65,7 +65,7 @@ export default class BTTVUtils {
 			}
 			//TODO parse only the emotes from the channel the message was posted to
 			for (const key in this.channelEmotesHashmaps) {
-				const emote = this.channelEmotesHashmaps[key][txt.toLowerCase()];
+				const emote = this.channelEmotesHashmaps[key][txt];
 				if(emote && emotesDone[emote.code] !== true) {
 					allEmotes.push( emote );
 					emotesDone[emote.code] = true;
@@ -118,13 +118,13 @@ export default class BTTVUtils {
 	 * @returns 
 	 */
 	public getEmoteFromCode(code:string):BTTVEmote|null {
-		if(this.globalEmotesHashmaps[code.toLowerCase()]) {
-			return this.globalEmotesHashmaps[code.toLowerCase()];
+		if(this.globalEmotesHashmaps[code]) {
+			return this.globalEmotesHashmaps[code];
 		}
 		for (const key in this.channelEmotesHashmaps) {
 			const list = this.channelEmotesHashmaps[key];
-			if(this.channelEmotesHashmaps[key][code.toLowerCase()]) {
-				return this.channelEmotesHashmaps[key][code.toLowerCase()];
+			if(this.channelEmotesHashmaps[key][code]) {
+				return this.channelEmotesHashmaps[key][code];
 			}
 		}
 		return null;
@@ -163,7 +163,7 @@ export default class BTTVUtils {
 			const json = (await res.json()) as BTTVEmote[];
 			this.globalEmotes = json;
 			json.forEach(e => {
-				this.globalEmotesHashmaps[e.code.toLowerCase()] = e;
+				this.globalEmotesHashmaps[e.code] = e;
 			});
 		}catch(error) {
 			//
@@ -184,7 +184,7 @@ export default class BTTVUtils {
 			this.channelEmotes[channelId] = emotes;
 			this.channelEmotesHashmaps[channelId] = {};
 			emotes.forEach(e => {
-				this.channelEmotesHashmaps[channelId][e.code.toLowerCase()] = e;
+				this.channelEmotesHashmaps[channelId][e.code] = e;
 			});
 		}catch(error) {
 			//
