@@ -50,6 +50,7 @@ export default class Store {
 	public static DONOR_LEVEL:string = "donorLevel";
 	public static TWITCHAT_AD_WARNED:string = "adWarned";
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
+	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -197,7 +198,6 @@ export default class Store {
 			for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
 				const el = backupAutomod.keywordsFilters[i];
 				if(!el.serverSync) {
-					console.log("Insert", el);
 					automod.keywordsFilters.splice(i, 0, el);
 				}
 			}
@@ -307,7 +307,12 @@ export default class Store {
 	 * @returns 
 	 */
 	public static set(key:string, value:JsonValue|unknown, save = true, saveDelay:number = 1500):void {
-		if(key == this.SYNC_DATA_TO_SERVER) this.syncToServer = value as boolean;
+		if(key == this.SYNC_DATA_TO_SERVER) {
+			this.syncToServer = value as boolean;
+			if(!this.dataImported) {
+				this.loadRemoteData();
+			}
+		}
 		
 		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
