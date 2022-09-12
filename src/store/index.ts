@@ -667,7 +667,7 @@ const store = createStore({
 		sendTwitchatAd(state, contentID:TwitchatAdStringTypes = -1) {
 			if(contentID == -1) {
 				let possibleAds:TwitchatAdStringTypes[] = [];
-				if(!UserSession.instance.isDonor) {
+				if(!UserSession.instance.isDonor || UserSession.instance.donorLevel < 2) {
 					possibleAds.push(TwitchatAdTypes.SPONSOR);
 				}
 				//Give more chances to hae anything but the "sponsor" ad
@@ -2418,6 +2418,11 @@ const store = createStore({
 				if(!Store.get(Store.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
 					setTimeout(()=>{
 						this.dispatch("sendTwitchatAd", TwitchatAdTypes.TWITCHAT_AD_WARNING);
+					}, 5000)
+				}else
+				if(!Store.get(Store.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && UserSession.instance.isDonor) {
+					setTimeout(()=>{
+						this.dispatch("sendTwitchatAd", TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 					}, 5000)
 				}
 

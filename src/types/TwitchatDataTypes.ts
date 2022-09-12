@@ -299,6 +299,7 @@ export const TwitchatAdTypes = {
 	DISCORD:4,
 	UPDATE_WARNING:5,
 	TWITCHAT_AD_WARNING:6,
+	TWITCHAT_SPONSOR_PUBLIC_PROMPT:7,
 } as const;
 export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 

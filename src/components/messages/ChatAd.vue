@@ -101,34 +101,8 @@
 			</div>
 		</div>
 
-		<div v-if="isUpdateWarning" class="discord">
-			<Button aria-label="Close discord message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-			<div class="title">Important</div>
-			<div class="content">
-				<img src="@/assets/icons/alert_purple.svg" alt="discord" class="icon">
-				<div>This update contains lots of deep changes in Twitchat's codebase.</div>
-				<div>It's been tested as best as possible but there are chances some issues have not been catched in the process.</div>
-				<br>
-				<div>If you experience even the slightest issue I'd greatly appreciate you take time to tell me either on Discord or Twitter.</div>
-			</div>
-			<div class="cta">
-				<Button :icon="$image('icons/discord.svg')"
-					title="Discord"
-					:href="discordURL"
-					target="_blank"
-					type="link"
-				/>
-				<Button :icon="$image('icons/twitter.svg')"
-					title="Twitter"
-					:href="discordURL"
-					target="_blank"
-					type="link"
-				/>
-			</div>
-		</div>
-
-		<div v-if="isAdWarning" class="discord">
-			<Button aria-label="Close discord message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+		<div v-if="isAdWarning" class="adWarning">
+			<Button aria-label="Close message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 			<div class="title">IMPORTANT MESSAGE</div>
 			<div class="content left">
 				<img src="@/assets/icons/twitchat_purple.svg" alt="discord" class="icon">
@@ -149,6 +123,26 @@
 				<Button :icon="$image('icons/follow.svg')"
 					title="Donate to remove"
 					@click="openParamPage(contentSponsor)"
+				/>
+			</div>
+		</div>
+
+		<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
+			<Button aria-label="Close message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+			<div class="title">❤ Hey lovely donator ❤</div>
+			<div class="content">
+				<img src="@/assets/icons/follow_purple.svg" alt="discord" class="icon">
+				<div>Thank you again for supporting Twitchat with your donation.</div>
+				<div>A list of all the donators is now visible under <a @click="openParamPage(contentAbout)">About section</a>.</div>
+				<div>Donation are anonymous by default but you can chose to make it public if you wish!</div>
+				<div v-if="madeDonationPublic"><br>Thank you ❤.<br>You can change your mind anytime under <a @click="openParamPage(contentAccount)">Account section</a>.</div>
+			</div>
+			<div class="cta">
+				<Button :icon="$image('icons/follow.svg')"
+					title="Make my donation public"
+					:loading="loading"
+					@click="makeDonationPublic()"
+					v-if="!madeDonationPublic"
 				/>
 			</div>
 		</div>
@@ -202,6 +196,8 @@ export default class ChatAd extends Vue {
 	public kofiIcon:string = "";
 	public showConfirm:boolean = false;
 	public confirmDelay:boolean = false;
+	public loading:boolean = false;
+	public madeDonationPublic:boolean = false;
 
 	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
@@ -209,6 +205,7 @@ export default class ChatAd extends Vue {
 	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_AD_WARNING; }
+	public get isSponsorPublicPrompt():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
 	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.3"; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
@@ -264,21 +261,14 @@ export default class ChatAd extends Vue {
 	public deleteMessage():void {
 		if(this.isUpdate) {
 			if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
-				//Push a message after closing the ad
-				// setTimeout(()=> {
-				// 	StoreProxy.store.dispatch("addChatMessage",{
-				// 	type:"ad",
-				// 		channel:"#"+UserSession.instance.authToken.login,
-				// 		markedAsRead:false,
-				// 		contentID:TwitchatAdTypes.UPDATE_WARNING,
-				// 		tags:{id:"twitchatAd"+Math.random()}
-				// 	});
-				// }, 1000);
 				Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
 			}
 		}
 		if(this.isAdWarning) {
 			Store.set(Store.TWITCHAT_AD_WARNED, true);
+		}
+		if(this.isSponsorPublicPrompt) {
+			Store.set(Store.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
 		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
 		this.$emit("delete");
@@ -298,6 +288,28 @@ export default class ChatAd extends Vue {
 
 	public async simulateEvent(code:string):Promise<void> {
 		IRCClient.instance.sendFakeEvent(code);
+	}
+
+	public async makeDonationPublic():Promise<void> {
+		this.loading = true;
+		try {
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": "Bearer "+UserSession.instance.access_token as string,
+				},
+				body: JSON.stringify({
+					public:true,
+				})
+			}
+			await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
+		}catch(error) {
+		}
+		this.loading = false;
+		this.madeDonationPublic = true;
+		console.log("ok");
+		Store.set(Store.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 	}
 
 }
