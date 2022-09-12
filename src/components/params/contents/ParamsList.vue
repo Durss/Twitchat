@@ -3,6 +3,15 @@
 		<h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1>
 		<div class="row" v-for="(p) in params" :key="p.id">
 
+			<!-- Special case for shoutout label -->
+			<PostOnChatParam class="row" v-if="p.id==13"
+				icon="shoutout_purple.svg"
+				botMessageKey="shoutout"
+				:noToggle="true"
+				title="Shoutout message"
+				:placeholders="soPlaceholders"
+			/>
+
 			<ParamItem :paramData="p" save />
 			
 			<transition
