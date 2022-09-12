@@ -14,6 +14,7 @@
 import { watch } from 'vue';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import gsap from 'gsap';
 
 @Options({
 	props:{
@@ -81,9 +82,11 @@ export default class InfiniteList extends Vue {
 	}
 
 	public onWheel(e:WheelEvent):void {
-		this.scrollOffset_local += e.deltaY * .1;
+		const scroll = this.scrollOffset_local + e.deltaY * .5;
+		gsap.to(this, {scrollOffset_local:scroll, duration:.2, onUpdate:()=>{
+			this.renderList();
+		}})
 		e.preventDefault()
-		this.scheduleRender();
 	}
 
 	private datasetUpdate():void {
