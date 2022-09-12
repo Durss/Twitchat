@@ -11,7 +11,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.greet-feed-read-all"
 		},
 		{
@@ -26,7 +26,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.greet-feed-read"
 		},
 		{
@@ -40,7 +40,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-read-all"
 		},
 		{
@@ -54,7 +54,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-read"
 		},
 		{
@@ -68,7 +68,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-pause"
 		},
 		{
@@ -82,7 +82,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-unpause"
 		},
 		{
@@ -96,7 +96,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-scroll-up"
 		},
 		{
@@ -110,7 +110,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-scroll-down"
 		},
 		{
@@ -124,7 +124,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.poll-toggle"
 		},
 		{
@@ -138,7 +138,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.prediction-toggle"
 		},
 		{
@@ -152,7 +152,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.bingo-toggle"
 		},
 		{
@@ -166,7 +166,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.raffle-toggle"
 		},
 		{
@@ -180,7 +180,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.activity-feed-toggle"
 		},
 		{
@@ -194,7 +194,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.viewers-count-toggle"
 		},
 		{
@@ -208,7 +208,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.mod-tools-toggle"
 		},
 		{
@@ -223,7 +223,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.censor-deleted-messages-toggle"
 		},
 		{
@@ -238,7 +238,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.shoutout"
 		},
 		{
@@ -252,7 +252,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.set-emergency-mode"
 		},
 		{
@@ -267,7 +267,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.stop-tts"
 		},
 		{
@@ -282,7 +282,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.enable-stt"
 		},
 		{
@@ -296,7 +296,7 @@
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": false,
+			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.disable-stt"
 		}
 	],
@@ -309,7 +309,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "1.1",
+	"Version": "1.2",
 	"OS": [
 		{
 			"Platform": "mac",

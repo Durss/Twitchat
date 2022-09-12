@@ -11,7 +11,7 @@
 		<div class="buttons">
 			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Donate on Paypal <i data-tooltip='Donation percent<br>I receive'>(95-100%)</i>" :icon="$image('icons/paypal_white.svg')" />
 			<Button big type="link" href="https://ko-fi.com/durss" target="_blank" title="Donate on Ko-fi <i data-tooltip='Donation percent<br>I receive'>(90%)</i>" :icon="$image('icons/kofi_white.svg')" class="kofiBt" />
-			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Donate on Github <i data-tooltip='Donation percent<br>I receive'>(90-100%)</i>" :icon="$image('icons/github_white.svg')" />
+			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Donate on Github <i data-tooltip='Donation percent<br>I receive'>(85-95%)</i>" :icon="$image('icons/github_white.svg')" />
 			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank" title="Buy me a <span class='erase'>coffee</span> grenadine <i data-tooltip='Donation percent<br>I receive'>(90%)</i>" :icon="$image('icons/coffee_white.svg')" class="coffeeBt" />
 			<Button big type="link" href="https://www.patreon.com/durss" target="_blank" title="Become a Patron <i data-tooltip='Donation percent<br>I receive'>(80-85%)</i>" :icon="$image('icons/patreon_white.svg')" />
 			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank" title="Subscribe on Twitch <i data-tooltip='Donation percent<br>I receive'>(50%)</i>" :icon="$image('icons/twitch_white.svg')" />

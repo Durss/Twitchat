@@ -601,7 +601,7 @@ If it does you'll receive the `TIMER_OVERLAY_PRESENCE` event.
 ```
 ## **SET_EMERGENCY_MODE**
 Starts or stops the emergency mode.
-If not JSON is given it will simply toggle the current state
+If no JSON is given it will simply toggle the current state
 ### JSON param *(optional)*
 ```typescript
 {
