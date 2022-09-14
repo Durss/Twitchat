@@ -33,26 +33,31 @@ export default class Utils {
 	/**
 	 * Copies a text to clipboard
 	 */
-	public static copyToClipboard(text: string): void {
-		navigator.clipboard.writeText(text);
-		// const el = document.createElement('textarea');
-		// el.value = text;
-		// el.setAttribute('readonly', '');
-		// el.style.position = 'absolute';
-		// el.style.left = '-9999px';
-		// document.body.appendChild(el);
-		// const sel = document.getSelection();
-		// const selected =
-		// 	sel && sel.rangeCount > 0
-		// 		? document.getSelection()?.getRangeAt(0)
-		// 		: false;
-		// el.select();
-		// document.execCommand('copy');
-		// document.body.removeChild(el);
-		// if (selected && sel) {
-		// 	sel.removeAllRanges();
-		// 	sel.addRange(selected);
-		// }
+	public static async copyToClipboard(text: string): Promise<void> {
+		try {
+			await navigator.clipboard.writeText(text);
+		}catch(error) {
+			//Fallback to old shitty solution for OBS as they did not allow
+			//the native way on chromium params when embedding it to OBS
+			const el = document.createElement('textarea');
+			el.value = text;
+			el.setAttribute('readonly', '');
+			el.style.position = 'absolute';
+			el.style.left = '-9999px';
+			document.body.appendChild(el);
+			const sel = document.getSelection();
+			const selected =
+				sel && sel.rangeCount > 0
+					? document.getSelection()?.getRangeAt(0)
+					: false;
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+			if (selected && sel) {
+				sel.removeAllRanges();
+				sel.addRange(selected);
+			}
+		}
 	}
 
 	public static getQueryParameterByName(name:string, url?:string):string|null {
