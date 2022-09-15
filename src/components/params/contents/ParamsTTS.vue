@@ -284,7 +284,7 @@ export default class ParamsTTS extends Vue {
 	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {
 		await this.$nextTick();
 		gsap.killTweensOf(el);
-		gsap.from(el, {height:0, margin:0, paddingTop:0, paddingBottom:0, duration:.5, ease:"sine.inOut", onComplete:()=>{
+		gsap.from(el, {height:0, margin:0, paddingTop:0, paddingBottom:0, duration:.5, ease:"sine.inOut", clearProps:"all", onComplete:()=>{
 			done();
 		}});
 	}

@@ -2,7 +2,7 @@
 	<div :class="classes" v-if="!obsConnected">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
-			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
+			<p class="label">This feature needs you to <a @click="$emit('setContent', contentObs)">connect with OBS</a></p>
 		</div>
 	</div>
 
@@ -12,6 +12,10 @@
 		<ParamItem class="item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
 		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
+		<div v-if="isMediaSource" class="security">
+			If using a placeholder on the Media file path, folder navigation chars like <mark>..</mark> and <mark>/</mark> will be removed for security reasons.
+			<br><u>Example</u>: if setting this as the path <mark>C:/sounds/{MESSAGE}.mp3</mark>, users won't be able to send <mark>../secretfolder/somesecretfile</mark>
+		</div>
 	</div>
 </template>
 
@@ -185,7 +189,6 @@ export default class TriggerActionOBSEntry extends Vue {
 	.info {
 		overflow: hidden;
 		padding: .5em;
-		padding-left: calc(1em + 10px);
 		background-color: @mainColor_light;
 		border-radius: .5em;
 		margin-bottom: .5em;
@@ -208,6 +211,19 @@ export default class TriggerActionOBSEntry extends Vue {
 
 	.item {
 		margin-bottom: .25em;
+	}
+
+	.security {
+		padding: 0 2em;
+		font-size: .8em;
+		mark {
+			font-weight: bold;
+			padding: .25em .5em;
+			border-radius: .5em;
+			line-height: 1.75em;
+			font-size: .9em;
+			background: fade(@mainColor_normal, 15%);
+		}
 	}
 }
 </style>

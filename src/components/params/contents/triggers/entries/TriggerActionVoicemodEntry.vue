@@ -2,7 +2,7 @@
 	<div class="triggeractionvoicemodentry" v-if="!vmConnected">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
-			<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentVM)">Voicemod tab</a></p>
+			<p class="label">This feature needs you to <a @click="$emit('setContent', contentVM)">connect with Voicemod</a></p>
 		</div>
 	</div>
 
@@ -57,7 +57,6 @@ export default class TriggerActionVoicemodEntry extends Vue {
 	.info {
 		overflow: hidden;
 		padding: .5em;
-		padding-left: calc(1em + 10px);
 		background-color: @mainColor_light;
 		border-radius: .5em;
 		margin-bottom: .5em;

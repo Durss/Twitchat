@@ -150,7 +150,7 @@ export default class TriggerActionHandler {
 			if(message.message) {
 				await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
 			}
-			
+
 			await this.handleChatMessage(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
 
 		}else if(message.type == "prediction") {
@@ -535,13 +535,16 @@ export default class TriggerActionHandler {
 							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 						}
 						if(step.url) {
+							//Last param of the parseText() forces urlEncode of the placeholder values to
+							//avoid URL injections.
 							const url = await this.parseText(eventType, message, step.url as string, true);
 							// console.log("URL", url);
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
 							// console.log("MEDIA");
-							const url = await this.parseText(eventType, message, step.mediaPath as string);
+							let url = await this.parseText(eventType, message, step.mediaPath as string);
+							url = url.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
 							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 						}
 			
