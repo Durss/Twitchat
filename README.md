@@ -1,5 +1,13 @@
 
 <div align="center">
+	<img src="https://shields.io/badge/vue-3-42b883?logo=Vue.js&labelColor=ffffff"> <img src="https://shields.io/badge/typescript-%3E=%204.5.4-3178c6?logo=TypeScript&labelColor=ffffff"> <img src="https://shields.io/badge/node-%3E=%2018.2.0-026e00?logo=node.js&labelColor=ffffff"> <img src="https://shields.io/badge/less-1d365d?logo=less&labelColor=ffffff&logoColor=000000">
+	<br>
+	<br>
+	<br>
+	<br>
+</div>
+
+<div align="center">
 	<a href="https://twitchat.fr" target="_blank">
 		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src/assets/logo.svg">
 	</a>
