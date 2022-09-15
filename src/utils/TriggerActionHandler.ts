@@ -150,6 +150,8 @@ export default class TriggerActionHandler {
 			if(message.message) {
 				await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
 			}
+			
+			await this.handleChatMessage(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
 
 		}else if(message.type == "prediction") {
 			if(await this.handlePrediction(message, testMode, this.currentSpoolGUID)) {
@@ -373,6 +375,11 @@ export default class TriggerActionHandler {
 		if(message.ttAutomod) return false;//Automoded message, ignore trigger
 		const cmd = message.message.trim().split(" ")[0].toLowerCase();
 		return await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
+	}
+	
+	private async handleChatMessage(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
+		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+		return await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, guid);
 	}
 	
 	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {

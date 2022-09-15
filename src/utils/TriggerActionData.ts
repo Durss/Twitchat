@@ -43,6 +43,7 @@ export const TriggerTypes = {
 	MOD:"39",
 	UNMOD:"40",
 	SCHEDULE:"41",
+	ANY_MESSAGE:"42",
 	TWITCHAT_AD:"ad",
 } as const;
 export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
@@ -55,19 +56,13 @@ export interface ITriggerActionHelper {
 
 export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	const map:{[key:string]:ITriggerActionHelper[]} = {}
-	map[TriggerTypes.FIRST_ALL_TIME] = [
+	map[TriggerTypes.ANY_MESSAGE] = 
+	map[TriggerTypes.FIRST_TODAY] = 
+	map[TriggerTypes.FIRST_ALL_TIME] = 
+	map[TriggerTypes.RETURNING_USER] = 
+	map[TriggerTypes.CHAT_COMMAND] = [
 		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-		{tag:"MESSAGE", desc:"Message content", pointer:"message"},
-	];
-	
-	map[TriggerTypes.FIRST_TODAY] = [
-		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-		{tag:"MESSAGE", desc:"Message content", pointer:"message"},
-	];
-	
-	map[TriggerTypes.RETURNING_USER] = [
-		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-		{tag:"MESSAGE", desc:"Message content", pointer:"message"},
+		{tag:"MESSAGE", desc:"Chat message content", pointer:"message"},
 	];
 	
 	map[TriggerTypes.POLL_RESULT] = [
@@ -87,11 +82,6 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [
 		{tag:"WINNER", desc:"Winner name", pointer:"winner.label"},
-	];
-	
-	map[TriggerTypes.CHAT_COMMAND] = [
-		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
-		{tag:"MESSAGE", desc:"Chat message content", pointer:"message"},
 	];
 	
 	map[TriggerTypes.SUB] = [
@@ -223,6 +213,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 
 export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:"Chat command", value:TriggerTypes.CHAT_COMMAND, isCategory:true, description:"Execute actions when sending a command on your chat", jsonTest:{"type":"message","message":"!test","tags":{"badge-info":{"subscriber":"13"},"badges":{"broadcaster":"1","subscriber":"12"},"color":"#9ACD32","display-name":"Durss","emote-sets":"","mod":false,"subscriber":true,"user-type":null,"badge-info-raw":"subscriber/13","badges-raw":"broadcaster/1,subscriber/12","username":"durss","emotes":{},"emotes-raw":null,"message-type":"chat","id":"00000000-0000-0000-0000-000000000004","tmi-sent-ts":"1650938130680", "user-id":"29961813"},"channel":"#durss","self":true}, noToggle:true},
+	{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:"Any message", value:TriggerTypes.ANY_MESSAGE, isCategory:false, description:"Execute actions everytime a message is received on chat", jsonTest:{"type":"message","message":"!test","tags":{"badge-info":{"subscriber":"13"},"badges":{"broadcaster":"1","subscriber":"12"},"color":"#9ACD32","display-name":"Durss","emote-sets":"","mod":false,"subscriber":true,"user-type":null,"badge-info-raw":"subscriber/13","badges-raw":"broadcaster/1,subscriber/12","username":"durss","emotes":{},"emotes-raw":null,"message-type":"chat","id":"00000000-0000-0000-0000-000000000004","tmi-sent-ts":"1650938130680", "user-id":"29961813"},"channel":"#durss","self":true}, noToggle:true},
 	{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:"Channel point reward", value:TriggerTypes.REWARD_REDEEM, isCategory:true, description:"Execute an action when the following channel point reward is redeemed<br><mark>{SUB_ITEM_NAME}</mark>", jsonTest:{"reward":{"timestamp":"2022-04-25T22:54:53.897356718Z","redemption":{"user":{"id":"29961813","login":"durss","display_name":"Durss"},"reward":{"id":"TEST_ID","channel_id":"29961813","title":"Text reward","prompt":"This is a reward description","cost":1000},"status":"UNFULFILLED","user_input":"Lorem ipsum dolor sit amet"}},"tags":{"username":"Durss","display-name":"Durss","id":"bdeddedd-6184-4b26-a74e-87a5ff99a1be","user-id":"29961813","tmi-sent-ts":"1650927293897","message-type":"chat","room-id":"29961813"},"type":"highlight"}, noToggle:true},
 	{category:TriggerEventTypeCategories.GLOBAL, icon:"info", label:"Stream info update", value:TriggerTypes.STREAM_INFO_UPDATE, description:"Execute an action when the stream info are updated", jsonTest:{"type":"streamInfoUpdate","title":"Building a wooden secret box https://box.durss.ninja","category":"Makers & Crafting"}},
 	{category:TriggerEventTypeCategories.USER, icon:"firstTime", label:"First message of a user all time", value:TriggerTypes.FIRST_ALL_TIME, description:"Execute an action when a user sends a message for the first time on your channel", jsonTest:{"type":"message","message":"This is my first message here !","tags":{"badges":{"premium":"1"},"client-nonce":"004c878edd9adf5b36717d6454db1b7c","color":"#9ACD32","display-name":"Durss","emote-only":true,"emotes":{},"first-msg":true,"flags":null,"id":"c5c54086-d0b5-4809-976a-254f4d206248","mod":false,"room-id":"121652526","subscriber":false,"tmi-sent-ts":"1642377332605","turbo":false,"user-id":"92203285","user-type":null,"emotes-raw":"","badge-info-raw":null,"badges-raw":"premium/1","username":"durss","message-type":"chat"},"channel":"#durss","self":false,}},
