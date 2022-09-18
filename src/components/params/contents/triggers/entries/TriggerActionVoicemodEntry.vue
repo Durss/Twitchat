@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterData, type ParamsContentStringType, type TriggerActionVoicemodData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -29,13 +29,13 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionVoicemodEntry extends Vue {
 	
-	public action!:TriggerActionVoicemodData;
-	public event!:TriggerEventTypes;
+	public action!:TwitchatDataTypes.TriggerActionVoicemodData;
+	public event!:TwitchatDataTypes.TriggerEventTypes;
 
-	public param_voiceList:ParameterData = {type:"list", label:"Voice", listValues:[], value:""}
+	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"Voice", listValues:[], value:""}
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
-	public get contentVM():ParamsContentStringType { return ParamsContentType.VOICEMOD; } 
+	public get contentVM():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.VOICEMOD; } 
 
 	public beforeMount():void {
 		// this.message_conf.placeholderList = TriggerActionHelpers(this.event);

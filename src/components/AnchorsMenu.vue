@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import type { AnchorData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -39,11 +39,11 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class AnchorsMenu extends Vue {
 
-	public items!:AnchorData[];
+	public items!:TwitchatDataTypes.AnchorData[];
 	public openAnimaton!:boolean;
 	public openDelay!:number;
 
-	public getClasses(a:AnchorData):string[] {
+	public getClasses(a:TwitchatDataTypes.AnchorData):string[] {
 		let res = ["item"];
 		if(a.selected) res.push("selected");
 		return res;
@@ -79,7 +79,7 @@ export default class AnchorsMenu extends Vue {
 		gsap.to(label, {duration:.25, padding:0, margin:0, width:0});
 	}
 
-	public selectItem(item:AnchorData):void {
+	public selectItem(item:TwitchatDataTypes.AnchorData):void {
 		for (let i = 0; i < this.items.length; i++) {
 			this.items[i].selected = false;
 		}

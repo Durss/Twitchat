@@ -45,7 +45,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventTypeCategories, type ParameterData, type TriggerData, type TriggerEventTypes, type TriggerScheduleTypesValue } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { ScheduleTriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
 import Utils from '@/utils/Utils';
@@ -67,29 +67,29 @@ import PermissionsForm from '../obs/PermissionsForm.vue';
 })
 export default class TriggerActionScheduleParams extends Vue {
 
-	public triggerData!:TriggerData;
+	public triggerData!:TwitchatDataTypes.TriggerData;
 
 	public nameConflict = false;
-	public param_name:ParameterData = { type:"text", value:"", label:"Schedule name", icon:"date_purple.svg", placeholder:"..." };
-	public param_action:ParameterData = { type:"list", value:"", label:"Schedule type", icon:"date_purple.svg" };
-	public param_repeatDurationCondition:ParameterData = { type:"toggle", value:false, label:"Time based repeat", icon:"timeout_purple.svg" };
-	public param_repeatDurationValue:ParameterData = { type:"number", value:0, label:"Execute every {VALUE} minutes", icon:"timeout_purple.svg", min:.1, max:48*60 };
-	public param_repeatMessageCondition:ParameterData = { type:"toggle", value:false, label:"Message based repeat", icon:"whispers_purple.svg" };
-	public param_repeatMessageValue:ParameterData = { type:"number", value:0, label:"Must receive at least {VALUE} message", icon:"whispers_purple.svg", min:1, max:9999 };
-	public params_daily:ParameterData[] = [];
-	public params_yearly:ParameterData[] = [];
+	public param_name:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Schedule name", icon:"date_purple.svg", placeholder:"..." };
+	public param_action:TwitchatDataTypes.ParameterData = { type:"list", value:"", label:"Schedule type", icon:"date_purple.svg" };
+	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Time based repeat", icon:"timeout_purple.svg" };
+	public param_repeatDurationValue:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"Execute every {VALUE} minutes", icon:"timeout_purple.svg", min:.1, max:48*60 };
+	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Message based repeat", icon:"whispers_purple.svg" };
+	public param_repeatMessageValue:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"Must receive at least {VALUE} message", icon:"whispers_purple.svg", min:1, max:9999 };
+	public params_daily:TwitchatDataTypes.ParameterData[] = [];
+	public params_yearly:TwitchatDataTypes.ParameterData[] = [];
 
 	private originalName!:string;
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TriggerEventTypes[] = [
-			{label:"Select an action...", icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
+		let events:TwitchatDataTypes.TriggerEventTypes[] = [
+			{label:"Select an action...", icon:"date", value:"0", category:TwitchatDataTypes.TriggerEventTypeCategories.TWITCHAT},
 		];
 		events = events.concat(ScheduleTriggerEvents);
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
-				type:events[1].value as TriggerScheduleTypesValue,
+				type:events[1].value as TwitchatDataTypes.TriggerScheduleTypesValue,
 				repeatDuration:30,
 				repeatMinMessages:100,
 				dates:[],
@@ -158,7 +158,7 @@ export default class TriggerActionScheduleParams extends Vue {
 			for (const k in triggers) {
 				//Is a schedule trigger?
 				if(k.indexOf(TriggerTypes.SCHEDULE+"_") === 0) {
-					const t = triggers[k] as TriggerData;
+					const t = triggers[k] as TwitchatDataTypes.TriggerData;
 					if(t.name?.toLowerCase() == (this.param_name.value as string).toLowerCase()) {
 						this.nameConflict = true;
 						return;

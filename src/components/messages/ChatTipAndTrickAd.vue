@@ -111,7 +111,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -128,17 +128,17 @@ export default class ChatTipAndTrickAd extends Vue {
 	public tipIndex = 11;
 	private maxIndex = this.tipIndex;
 
-	public get contentOverlays() { return ParamsContentType.OVERLAYS; }
-	public get contentTriggers() { return ParamsContentType.TRIGGERS; }
-	public get contentObs() { return ParamsContentType.OBS; }
-	public get contentStreamdeck() { return ParamsContentType.STREAMDECK; }
+	public get contentOverlays() { return TwitchatDataTypes.ParamsContentType.OVERLAYS; }
+	public get contentTriggers() { return TwitchatDataTypes.ParamsContentType.TRIGGERS; }
+	public get contentObs() { return TwitchatDataTypes.ParamsContentType.OBS; }
+	public get contentStreamdeck() { return TwitchatDataTypes.ParamsContentType.STREAMDECK; }
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
-	public openParam(modal:ParamsContentStringType):void { this.$emit("openParam", modal); }
+	public openParam(modal:TwitchatDataTypes.ParamsContentStringType):void { this.$emit("openParam", modal); }
 	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
 	public startTimer():void { StoreProxy.store.dispatch("startTimer"); }
 	public startCountdown():void { StoreProxy.store.dispatch("startCountdown", 2 * 60 * 1000); }

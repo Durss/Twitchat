@@ -1,4 +1,4 @@
-import type { AutomodParamsKeywordFilterData, CountdownData, HypeTrainStateData, TimerData, TwitchatAdStringTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { AnonSubGiftUpgradeUserstate, AnonSubGiftUserstate, ChatUserstate, MsgID, SubGiftUpgradeUserstate, SubGiftUserstate, SubMethods, SubUserstate } from "tmi.js";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import type { BingoData, RaffleData, RaffleEntry } from "./CommonDataTypes";
@@ -45,7 +45,7 @@ export namespace IRCEventDataList {
 		//Custom injected props
 		firstMessage: boolean;
 		automod?: PubSubDataTypes.AutomodData;
-		ttAutomod?: AutomodParamsKeywordFilterData;
+		ttAutomod?: TwitchatDataTypes.AutomodParamsKeywordFilterData;
 		reward?: PubSubDataTypes.RewardData;
 		answerTo?: Message;
 		answers?: Message[];
@@ -81,7 +81,7 @@ export namespace IRCEventDataList {
 		followBlocked?: boolean;
 		type: "highlight";
 		subgiftAdditionalRecipents?: string[];
-		ttAutomod?: AutomodParamsKeywordFilterData;
+		ttAutomod?: TwitchatDataTypes.AutomodParamsKeywordFilterData;
 	}
 
 	export interface TwitchatAd {
@@ -90,7 +90,7 @@ export namespace IRCEventDataList {
 			id: string
 		};
 		markedAsRead?:boolean;
-		contentID: TwitchatAdStringTypes;
+		contentID: TwitchatDataTypes.TwitchatAdStringTypes;
 		type: "ad";
 		[parameter: string]: unknown;
 	}
@@ -169,7 +169,7 @@ export namespace IRCEventDataList {
 		type: "countdown";
 		markedAsRead?:boolean;
 		started:boolean;
-		data: CountdownData;
+		data: TwitchatDataTypes.CountdownData;
 		tags: { id: string, "tmi-sent-ts": string };
 		start?:string;
 		start_ms?:number;
@@ -181,7 +181,7 @@ export namespace IRCEventDataList {
 		type: "timer";
 		markedAsRead?:boolean;
 		started:boolean;
-		data: TimerData;
+		data: TwitchatDataTypes.TimerData;
 		duration?:string;
 		duration_ms?:number;
 	}
@@ -190,7 +190,7 @@ export namespace IRCEventDataList {
 		type: "hype_train_end";
 		tags: { id: string, "tmi-sent-ts": string };
 		markedAsRead?: boolean;
-		train: HypeTrainStateData;
+		train: TwitchatDataTypes.HypeTrainStateData;
 		activities: ActivityFeedData[];
 	}
 

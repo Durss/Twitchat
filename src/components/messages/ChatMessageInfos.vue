@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
-import type { ChatMessageInfoData, ChatMessageInfoDataStringType } from "@/types/TwitchatDataTypes";
 
 @Options({
 	props:{
@@ -18,15 +18,15 @@ import type { ChatMessageInfoData, ChatMessageInfoDataStringType } from "@/types
 })
 export default class ChatMessageInfos extends Vue {
 
-	public infos!:ChatMessageInfoData[];
+	public infos!:TwitchatDataTypes.ChatMessageInfoData[];
 
 	public mounted():void {
 		
 	}
 
-	public getLabel(info:ChatMessageInfoData):string {
+	public getLabel(info:TwitchatDataTypes.ChatMessageInfoData):string {
 		if(info.label) return info.label;
-		const hashmap:{[key in ChatMessageInfoDataStringType]:string} = {
+		const hashmap:{[key in TwitchatDataTypes.ChatMessageInfoDataStringType]:string} = {
 			automod:"automod",
 			whisper:"whisper",
 			emergencyBlocked:"blocked",
@@ -35,7 +35,7 @@ export default class ChatMessageInfos extends Vue {
 		return info.type;
 	}
 
-	public getIcon(info:ChatMessageInfoData):string {
+	public getIcon(info:TwitchatDataTypes.ChatMessageInfoData):string {
 		const hashmap:{[key:string]:string} = {
 			emergencyBlocked:"emergency",
 		};

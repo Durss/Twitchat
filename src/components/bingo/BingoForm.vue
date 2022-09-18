@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import type { BingoConfig, ParameterData, PlaceholderEntry, TriggerActionBingoData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -93,15 +93,15 @@ export default class BingoForm extends Vue {
 
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
-	public action!:TriggerActionBingoData;
+	public action!:TwitchatDataTypes.TriggerActionBingoData;
 
 	public globalEmotes:TwitchDataTypes.Emote[] = [];
 	public guessNumber = true;
 	public guessEmote = false;
-	public minValue:ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
-	public maxValue:ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
-	public startPlaceholders:PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
-	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public minValue:TwitchatDataTypes.ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
+	public maxValue:TwitchatDataTypes.ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
+	public startPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
+	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 
 
 	public get classes():string[] {
@@ -110,7 +110,7 @@ export default class BingoForm extends Vue {
 		return res;
 	}
 
-	public get finalData():BingoConfig {
+	public get finalData():TwitchatDataTypes.BingoConfig {
 		return  {
 			guessNumber: this.guessNumber,
 			guessEmote: this.guessEmote,

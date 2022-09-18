@@ -314,12 +314,6 @@ export namespace TwitchDataTypes {
 		user_login: string;
 	}
 
-	export interface Pronoun {
-		id: string;
-		login: string;
-		pronoun_id: string
-	}
-
 	export interface StreamCategory {
 		id: string;
 		name: string;

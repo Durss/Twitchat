@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import type { ChatHighlightOverlayData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -41,7 +41,7 @@ export default class OverlayChatHighlight extends Vue {
 	public message:string = "";
 	public clipData:TwitchDataTypes.ClipInfo|null = null;
 	public user:TwitchDataTypes.UserInfo|null = null;
-	public params:ChatHighlightOverlayData|null = null;
+	public params:TwitchatDataTypes.ChatHighlightOverlayData|null = null;
 	public loadingClip:boolean = true;
 
 	private showMessageHandler!:(e:TwitchatEvent)=>void;
@@ -116,7 +116,7 @@ export default class OverlayChatHighlight extends Vue {
 	private async onShowMessage(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 
-		const data = (e.data as unknown) as {message:string, user:TwitchDataTypes.UserInfo, params:ChatHighlightOverlayData};
+		const data = (e.data as unknown) as {message:string, user:TwitchDataTypes.UserInfo, params:TwitchatDataTypes.ChatHighlightOverlayData};
 		this.message = data.message;
 		this.user = data.user;
 		this.params = data.params;
@@ -133,7 +133,7 @@ export default class OverlayChatHighlight extends Vue {
 	private async onShowClip(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 		
-		const data = (e.data as unknown) as {clip:TwitchDataTypes.ClipInfo, params:ChatHighlightOverlayData};
+		const data = (e.data as unknown) as {clip:TwitchDataTypes.ClipInfo, params:TwitchatDataTypes.ChatHighlightOverlayData};
 		this.clipData = data.clip;
 		this.params = data.params;
 		this.message = "";

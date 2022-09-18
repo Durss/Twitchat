@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -81,8 +81,8 @@ export default class HypeTrainState extends Vue {
 		return this.trainData.state == 'START' || this.trainData.state == 'PROGRESSING' || this.trainData.state == 'LEVEL_UP';
 	}
 
-	public get trainData():HypeTrainStateData {
-		return StoreProxy.store.state.hypeTrain as HypeTrainStateData;
+	public get trainData():TwitchatDataTypes.HypeTrainStateData {
+		return StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData;
 	}
 
 	public get duration():string {

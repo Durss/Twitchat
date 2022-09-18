@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
@@ -27,14 +27,14 @@ import ParamItem from '../../ParamItem.vue';
 })
 export default class OBSPermissions extends Vue {
 
-	public modelValue!:PermissionsData;
+	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
-	public param_broadcaster:ParameterData	= { type:"toggle", value:true, label:"Broadcaster", icon:"broadcaster_purple.svg" };
-	public param_mods:ParameterData			= { type:"toggle", value:true, label:"Moderators", icon:"mod_purple.svg" };
-	public param_vips:ParameterData			= { type:"toggle", value:false, label:"VIPs", icon:"vip_purple.svg" };
-	public param_subs:ParameterData			= { type:"toggle", value:false, label:"Subscribers", icon:"sub_purple.svg" };
-	public param_all:ParameterData			= { type:"toggle", value:false, label:"Everyone", icon:"user_purple.svg" };
-	public param_users:ParameterData		= { type:"text", value:"", label:"Specific users", longText:true, placeholder:"user1, user2, user3, ..." };
+	public param_broadcaster:TwitchatDataTypes.ParameterData	= { type:"toggle", value:true, label:"Broadcaster", icon:"broadcaster_purple.svg" };
+	public param_mods:TwitchatDataTypes.ParameterData			= { type:"toggle", value:true, label:"Moderators", icon:"mod_purple.svg" };
+	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"VIPs", icon:"vip_purple.svg" };
+	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"Subscribers", icon:"sub_purple.svg" };
+	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"Everyone", icon:"user_purple.svg" };
+	public param_users:TwitchatDataTypes.ParameterData		= { type:"text", value:"", label:"Specific users", longText:true, placeholder:"user1, user2, user3, ..." };
 
 	public get noSelection():boolean {
 		return this.modelValue.mods === false

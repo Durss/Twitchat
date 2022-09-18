@@ -161,7 +161,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Store from '@/store/Store';
-import { ParamsContentType, TwitchatAdTypes, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -171,6 +170,7 @@ import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import Splitter from '../Splitter.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -199,13 +199,13 @@ export default class ChatAd extends Vue {
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
 
-	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATE_WARNING; }
-	public get isSponsor():boolean { return this.messageData.contentID == TwitchatAdTypes.SPONSOR; }
-	public get isUpdate():boolean { return this.messageData.contentID == TwitchatAdTypes.UPDATES; }
-	public get isTip():boolean { return this.messageData.contentID == TwitchatAdTypes.TIP_AND_TRICK; }
-	public get isDiscord():boolean { return this.messageData.contentID == TwitchatAdTypes.DISCORD; }
-	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_AD_WARNING; }
-	public get isSponsorPublicPrompt():boolean { return this.messageData.contentID == TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
+	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
+	public get isSponsor():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
+	public get isUpdate():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
+	public get isTip():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
+	public get isDiscord():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
+	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
+	public get isSponsorPublicPrompt():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
 	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.3"; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
@@ -214,23 +214,23 @@ export default class ChatAd extends Vue {
 	
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 
-	public get contentAppearance():ParamsContentStringType { return ParamsContentType.APPEARANCE; } 
-	public get contentFilters():ParamsContentStringType { return ParamsContentType.FILTERS; } 
-	public get contentAccount():ParamsContentStringType { return ParamsContentType.ACCOUNT; } 
-	public get contentAbout():ParamsContentStringType { return ParamsContentType.ABOUT; } 
-	public get contentFeatures():ParamsContentStringType { return ParamsContentType.FEATURES; } 
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
-	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
-	public get contentStreamdeck():ParamsContentStringType { return ParamsContentType.STREAMDECK; } 
-	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
-	public get contentOverlays():ParamsContentStringType { return ParamsContentType.OVERLAYS; } 
-	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
-	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
-	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
-	public get contentTts():ParamsContentStringType { return ParamsContentType.TTS; } 
-	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
-	public get contentAutomod():ParamsContentStringType { return ParamsContentType.AUTOMOD; } 
-	public get contentMainMenu():ParamsContentStringType { return ParamsContentType.MAIN_MENU; } 
+	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.APPEARANCE; } 
+	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.FILTERS; } 
+	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ACCOUNT; } 
+	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ABOUT; } 
+	public get contentFeatures():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.FEATURES; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
+	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.SPONSOR; } 
+	public get contentStreamdeck():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.STREAMDECK; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
+	public get contentOverlays():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OVERLAYS; } 
+	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.EMERGENCY; } 
+	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ALERT; } 
+	public get contentTts():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TTS; } 
+	public get contentVoice():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.VOICE; } 
+	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.AUTOMOD; } 
+	public get contentMainMenu():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.MAIN_MENU; } 
 
 	public async getSvgIcon(name:string) {
 		const module = await import(`../../assets/icons/${name}.svg`);
@@ -246,7 +246,7 @@ export default class ChatAd extends Vue {
 		this.kofiIcon = await this.getSvgIcon("kofi");
 	}
 
-	public openParamPage(page:ParamsContentStringType):void {
+	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
 		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
 		StoreProxy.store.dispatch("showParams", true);
 	}

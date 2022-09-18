@@ -16,7 +16,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Store from '@/store/Store';
-import type { OBSMuteUnmuteCommands, ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
@@ -37,9 +37,9 @@ export default class OBSAudioSourceForm extends Vue {
 	public noAudioSource = false;
 	public loadingAudioSources = false;
 	public audioSources:OBSInputItem[] = [];
-	public obsAllowed_audioSources:ParameterData = { type:"list", value:"", listValues:[], label:"Audio source" };
-	public obsAllowed_muteCommand:ParameterData = { type:"text", value:"", label:"Mute command", placeholder:"!mute" };
-	public obsAllowed_unmuteCommand:ParameterData = { type:"text", value:"", label:"Unmute command", placeholder:"!unmute" };
+	public obsAllowed_audioSources:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], label:"Audio source" };
+	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Mute command", placeholder:"!mute" };
+	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Unmute command", placeholder:"!unmute" };
 
 	private defaultEntry = {label:"- none -", value:"- none -"};
 
@@ -57,7 +57,7 @@ export default class OBSAudioSourceForm extends Vue {
 		
 		let audioSource = this.obsAllowed_audioSources.value as string
 		if(audioSource === this.defaultEntry.value) audioSource = "";
-		const commands:OBSMuteUnmuteCommands = {
+		const commands:TwitchatDataTypes.OBSMuteUnmuteCommands = {
 			audioSourceName: audioSource,
 			muteCommand: this.obsAllowed_muteCommand.value as string,
 			unmuteCommand: this.obsAllowed_unmuteCommand.value as string,
@@ -67,7 +67,7 @@ export default class OBSAudioSourceForm extends Vue {
 
 	public async listAudioSources(manualCheck = false):Promise<void> {
 		const storeConfStr = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
-		let storeConf!:OBSMuteUnmuteCommands;
+		let storeConf!:TwitchatDataTypes.OBSMuteUnmuteCommands;
 		if(storeConfStr) {
 			storeConf = JSON.parse(storeConfStr);
 		}

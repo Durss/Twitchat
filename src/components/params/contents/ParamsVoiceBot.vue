@@ -31,7 +31,7 @@ import VoiceControlForm from '../../voice/VoiceControlForm.vue';
 import Button from '../../Button.vue';
 import VoiceController from '@/utils/VoiceController';
 import Config from '@/utils/Config';
-import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -43,7 +43,7 @@ import { ParamsContentType, type ParamsContentStringType } from '@/types/Twitcha
 })
 export default class ParamsVoiceBot extends Vue {
 	
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voicePageUrl():string {

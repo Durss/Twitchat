@@ -31,7 +31,7 @@ import VoiceController from '@/utils/VoiceController';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData, type AutomodParamsKeywordFilterData, type TwitchatAdStringTypes } from '../types/TwitchatDataTypes';
+import {TwitchatDataTypes} from '../types/TwitchatDataTypes';
 import Store from './Store';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import VoicemodEvent from '@/utils/VoicemodEvent';
@@ -50,7 +50,7 @@ const store = createStore({
 		canSplitView: false,
 		hasChannelPoints: false,
 		emergencyModeEnabled: false,
-		ahsInstaller: null as InstallHandler|null,
+		ahsInstaller: null as TwitchatDataTypes.InstallHandler|null,
 		alert: "",
 		tooltip: "",
 		userCard: "",
@@ -77,11 +77,11 @@ const store = createStore({
 			finalText:"",
 		},
 		raffle: null as RaffleData | null,
-		chatPoll: null as ChatPollData | null,
+		chatPoll: null as TwitchatDataTypes.ChatPollData | null,
 		bingo: null as BingoData | null,
 		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
 		whispersUnreadCount: 0 as number,
-		hypeTrain: {} as HypeTrainStateData,
+		hypeTrain: {} as TwitchatDataTypes.HypeTrainStateData,
 		raiding: null as PubSubDataTypes.RaidInfos|null,
 		realHistorySize: 5000,
 		followingStates: {} as {[key:string]:boolean},
@@ -91,16 +91,16 @@ const store = createStore({
 		communityBoostState: null as PubSubDataTypes.CommunityBoost|null,
 		tempStoreValue: null as unknown,
 		obsConnectionEnabled: null as boolean|null,
-		obsSceneCommands: [] as OBSSceneCommand[],
-		obsMuteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"} as OBSMuteUnmuteCommands,
-		obsCommandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as PermissionsData,
+		obsSceneCommands: [] as TwitchatDataTypes.OBSSceneCommand[],
+		obsMuteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"} as TwitchatDataTypes.OBSMuteUnmuteCommands,
+		obsCommandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as TwitchatDataTypes.PermissionsData,
 		spotifyAuthParams: null as SpotifyAuthResult|null,
 		spotifyAuthToken: null as SpotifyAuthToken|null,
 		deezerConnected: false,
-		triggers: {} as {[key:string]:TriggerData},
-		streamInfoPreset: [] as StreamInfoPreset[],
+		triggers: {} as {[key:string]:TwitchatDataTypes.TriggerData},
+		streamInfoPreset: [] as TwitchatDataTypes.StreamInfoPreset[],
 		timerStart: 0,
-		countdown: null as CountdownData|null,
+		countdown: null as TwitchatDataTypes.CountdownData|null,
 		lastRaiderLogin: null as string|null,
 		botMessages: {
 			raffleStart: {
@@ -131,7 +131,7 @@ const store = createStore({
 				enabled:false,
 				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype",
 			},
-		} as IBotMessage,
+		} as TwitchatDataTypes.IBotMessage,
 		commands: [
 			{
 				id:"updates",
@@ -285,7 +285,7 @@ const store = createStore({
 				cmd:"/unblock {user}",
 				details:"Unblock a user",
 			}
-		] as CommandData[],
+		] as TwitchatDataTypes.CommandData[],
 
 		params: {
 			features: {
@@ -306,7 +306,7 @@ const store = createStore({
 				notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user joins/leaves the chat", id:211, icon:"notification_purple.svg"},
 				stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 				showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
-			} as {[key:string]:ParameterData},
+			} as {[key:string]:TwitchatDataTypes.ParameterData},
 			appearance: {
 				splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 450px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 				splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
@@ -329,7 +329,7 @@ const store = createStore({
 				displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 				historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count ({VALUE})", min:50, max:500, step:50, id:8},
 				defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
-			} as {[key:string]:ParameterData},
+			} as {[key:string]:TwitchatDataTypes.ParameterData},
 			filters: {
 				showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
 				keepDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Keep deleted messages", id:113},
@@ -348,20 +348,20 @@ const store = createStore({
 				showFollow: 				{save:true, type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg", parent:112},
 				showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg", parent:112},
 				showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
-			} as {[key:string]:ParameterData},
-		} as IParameterCategory,
+			} as {[key:string]:TwitchatDataTypes.ParameterData},
+		} as TwitchatDataTypes.IParameterCategory,
 
 		roomStatusParams: {
 			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
 			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
-		} as IRoomStatusCategory,
+		} as TwitchatDataTypes.IRoomStatusCategory,
 
 		accountParams: {
 			syncDataWithServer: { type:"toggle", value:false, label:"Sync parameters to server", id:401 },
 			publicDonation: { type:"toggle", value:false, label:"Make my donation public", id:402 },
-		} as IAccountParamsCategory,
+		} as TwitchatDataTypes.IAccountParamsCategory,
 
 		confirm:{
 			title:"",
@@ -421,7 +421,7 @@ const store = createStore({
 				all:true,
 				users:""
 			},
-		} as TTSParamsData,
+		} as TwitchatDataTypes.TTSParamsData,
 
 		emergencyParams: {
 			enabled:false,
@@ -447,10 +447,10 @@ const store = createStore({
 			autoBlockFollows:false,
 			autoUnblockFollows:false,
 			autoEnableOnFollowbot:true,
-		} as EmergencyParamsData,
+		} as TwitchatDataTypes.EmergencyParamsData,
 
 		//Stores all the people that followed during an emergency
-		emergencyFollows: [] as EmergencyFollowerData[],
+		emergencyFollows: [] as TwitchatDataTypes.EmergencyFollowerData[],
 
 		spoilerParams: {
 			permissions:{
@@ -461,12 +461,12 @@ const store = createStore({
 				all:false,
 				users:""
 			},
-		} as SpoilerParamsData,
+		} as TwitchatDataTypes.SpoilerParamsData,
 
 		isChatMessageHighlighted: false,
 		chatHighlightOverlayParams: {
 			position:"bl",
-		} as ChatHighlightOverlayData,
+		} as TwitchatDataTypes.ChatHighlightOverlayData,
 		
 		chatAlertParams: {
 			chatCmd:"!alert",
@@ -482,7 +482,7 @@ const store = createStore({
 				all:false,
 				users:""
 			},
-		} as AlertParamsData,
+		} as TwitchatDataTypes.AlertParamsData,
 		chatAlert:null as IRCEventDataList.Message|IRCEventDataList.Whisper|null,
 		
 		musicPlayerParams: {
@@ -495,7 +495,7 @@ const store = createStore({
 			openFromLeft:false,
 			noScroll:false,
 			customInfoTemplate:"",
-		} as MusicPlayerParamsData,
+		} as TwitchatDataTypes.MusicPlayerParamsData,
 		
 		voicemodCurrentVoice:{
 			voiceID: "nofx",
@@ -515,7 +515,7 @@ const store = createStore({
 				all:false,
 				users:""
 			},
-		} as VoicemodParamsData,
+		} as TwitchatDataTypes.VoicemodParamsData,
 
 		automodParams: {
 			enabled:false,
@@ -529,7 +529,7 @@ const store = createStore({
 				all:false,
 				users:""
 			},
-		} as AutomodParamsData,
+		} as TwitchatDataTypes.AutomodParamsData,
 	},
 
 
@@ -664,24 +664,24 @@ const store = createStore({
 
 		confirm(state, payload) { state.confirm = payload; },
 
-		sendTwitchatAd(state, contentID:TwitchatAdStringTypes = -1) {
+		sendTwitchatAd(state, contentID:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
 			if(contentID == -1) {
-				let possibleAds:TwitchatAdStringTypes[] = [];
+				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(!UserSession.instance.isDonor || UserSession.instance.donorLevel < 2) {
-					possibleAds.push(TwitchatAdTypes.SPONSOR);
+					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
 				}
 				//Give more chances to hae anything but the "sponsor" ad
-				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
-				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
-				possibleAds.push(TwitchatAdTypes.TIP_AND_TRICK);
-				possibleAds.push(TwitchatAdTypes.DISCORD);
-				possibleAds.push(TwitchatAdTypes.DISCORD);
-				possibleAds.push(TwitchatAdTypes.DISCORD);
+				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
+				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
+				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
 
 				const lastUpdateRead = parseInt(Store.get(Store.UPDATE_INDEX));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < state.latestUpdateIndex) {
 					//Force last updates if any not read
-					possibleAds = [TwitchatAdTypes.UPDATES];
+					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
 				}else{
 					//Add 2 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
@@ -813,7 +813,7 @@ const store = createStore({
 				//Check for user's pronouns
 				if(state.params.features.showUserPronouns.value === true) {
 					if(uid && state.userPronouns[uid] == undefined && textMessage.tags.username) {
-						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchDataTypes.Pronoun | null) => {
+						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchatDataTypes.Pronoun | null) => {
 							if (res !== null) {
 								state.userPronouns[uid] = res.pronoun_id;
 							}else{
@@ -1005,10 +1005,10 @@ const store = createStore({
 			// const key = payload.key as "firstMessage";
 			// state.params[key] = payload.value;
 			for (const cat in state.params) {
-				const c = cat as ParameterCategory;
+				const c = cat as TwitchatDataTypes.ParameterCategory;
 				for (const key in state.params[c]) {
 					/* eslint-disable-next-line */
-					const v = state.params[c][key as ParameterCategory].value;
+					const v = state.params[c][key as TwitchatDataTypes.ParameterCategory].value;
 					Store.set("p:"+key, v);
 					if(key=="bttvEmotes") {
 						if(v === true) {
@@ -1091,7 +1091,7 @@ const store = createStore({
 			}
 		},
 		
-		setChatPoll(state, payload:ChatPollData) { state.chatPoll = payload; },
+		setChatPoll(state, payload:TwitchatDataTypes.ChatPollData) { state.chatPoll = payload; },
 
 		async startRaffle(state, payload:RaffleData) {
 			state.raffle = payload;
@@ -1228,7 +1228,7 @@ const store = createStore({
 			}
 		},
 
-		async startBingo(state, payload:BingoConfig) {
+		async startBingo(state, payload:TwitchatDataTypes.BingoConfig) {
 			const min = payload.min as number;
 			const max = payload.max as number;
 			
@@ -1300,7 +1300,7 @@ const store = createStore({
 			}
 		},
 
-		setHypeTrain(state, data:HypeTrainStateData) {
+		setHypeTrain(state, data:TwitchatDataTypes.HypeTrainStateData) {
 			state.hypeTrain = data;
 			if(data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5*60*1000;
@@ -1373,27 +1373,27 @@ const store = createStore({
 
 		setCommunityBoost(state, value:PubSubDataTypes.CommunityBoost) { state.communityBoostState = value; },
 
-		setOBSSceneCommands(state, value:OBSSceneCommand[]) {
+		setOBSSceneCommands(state, value:TwitchatDataTypes.OBSSceneCommand[]) {
 			state.obsSceneCommands = value;
 			Store.set(Store.OBS_CONF_SCENES, value);
 		},
 
-		setOBSMuteUnmuteCommands(state, value:OBSMuteUnmuteCommands) {
+		setOBSMuteUnmuteCommands(state, value:TwitchatDataTypes.OBSMuteUnmuteCommands) {
 			state.obsMuteUnmuteCommands = value;
 			Store.set(Store.OBS_CONF_MUTE_UNMUTE, value);
 		},
 
-		setObsCommandsPermissions(state, value:PermissionsData) {
+		setObsCommandsPermissions(state, value:TwitchatDataTypes.PermissionsData) {
 			state.obsCommandsPermissions = value;
 			Store.set(Store.OBS_CONF_PERMISSIONS, value);
 		},
 
-		setTrigger(state, value:{key:string, data:TriggerData}) {
+		setTrigger(state, value:{key:string, data:TwitchatDataTypes.TriggerData}) {
 			if(!value.key) return;
 			value.key = value.key.toLowerCase();
 
 			//remove incomplete entries
-			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
+			function cleanEmptyActions(actions:TwitchatDataTypes.TriggerActionTypes[]):TwitchatDataTypes.TriggerActionTypes[] {
 				return actions.filter(v=> {
 					if(v.type == null) return false;
 					if(v.type == "obs") return true;//v.sourceName?.length > 0;
@@ -1475,7 +1475,7 @@ const store = createStore({
 			}
 		},
 
-		updateBotMessage(state, value:{key:BotMessageField, enabled:boolean, message:string}) {
+		updateBotMessage(state, value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}) {
 			state.botMessages[value.key].enabled = value.enabled;
 			state.botMessages[value.key].message = value.message;
 			Store.set(Store.BOT_MESSAGES, state.botMessages);
@@ -1491,7 +1491,7 @@ const store = createStore({
 			Store.set("voiceActions", value);
 		},
 
-		ahsInstaller(state, value:InstallHandler) { state.ahsInstaller = value; },
+		ahsInstaller(state, value:TwitchatDataTypes.InstallHandler) { state.ahsInstaller = value; },
 
 		setSpotifyCredentials(state, value:{client:string, secret:string}) {
 			Store.set(Store.SPOTIFY_APP_PARAMS, value);
@@ -1545,7 +1545,7 @@ const store = createStore({
 				message = message.replace(/\{CATEGORY\}/gi, category);
 				await IRCClient.instance.sendMessage(message);
 				
-				const trigger:ShoutoutTriggerData = {
+				const trigger:TwitchatDataTypes.ShoutoutTriggerData = {
 					type: "shoutout",
 					user:userInfos[0],
 					stream:channelInfo[0],
@@ -1557,7 +1557,7 @@ const store = createStore({
 			}
 		},
 
-		saveStreamInfoPreset(state, preset:StreamInfoPreset) {
+		saveStreamInfoPreset(state, preset:TwitchatDataTypes.StreamInfoPreset) {
 			const index = state.streamInfoPreset.findIndex(v=> v.id == preset.id);
 			if(index > -1) {
 				//update existing preset
@@ -1569,7 +1569,7 @@ const store = createStore({
 			Store.set(Store.STREAM_INFO_PRESETS, state.streamInfoPreset);
 		},
 
-		deleteStreamInfoPreset(state, preset:StreamInfoPreset) {
+		deleteStreamInfoPreset(state, preset:TwitchatDataTypes.StreamInfoPreset) {
 			const index = state.streamInfoPreset.findIndex(v=> v.id == preset.id);
 			if(index > -1) {
 				//update existing preset
@@ -1628,7 +1628,7 @@ const store = createStore({
 			const message:IRCEventDataList.CountdownResult = {
 				type:"countdown",
 				started:true,
-				data:state.countdown as CountdownData,
+				data:state.countdown as TwitchatDataTypes.CountdownData,
 				tags: {
 					id:IRCClient.instance.getFakeGuid(),
 					"tmi-sent-ts": Date.now().toString()
@@ -1645,7 +1645,7 @@ const store = createStore({
 			const message:IRCEventDataList.CountdownResult = {
 				type:"countdown",
 				started:false,
-				data:JSON.parse(JSON.stringify(state.countdown)) as CountdownData,
+				data:JSON.parse(JSON.stringify(state.countdown)) as TwitchatDataTypes.CountdownData,
 				tags: {
 					id:IRCClient.instance.getFakeGuid(),
 					"tmi-sent-ts": Date.now().toString()
@@ -1660,28 +1660,28 @@ const store = createStore({
 			state.countdown = null;
 		},
 
-		setTTSParams(state, params:TTSParamsData) {
+		setTTSParams(state, params:TwitchatDataTypes.TTSParamsData) {
 			state.ttsParams = params;
 			Store.set(Store.TTS_PARAMS, params);
 			TTSUtils.instance.enabled = params.enabled;
 		},
 
-		setEmergencyParams(state, params:EmergencyParamsData) {
+		setEmergencyParams(state, params:TwitchatDataTypes.EmergencyParamsData) {
 			state.emergencyParams = params;
 			Store.set(Store.EMERGENCY_PARAMS, params);
 		},
 
-		setAlertParams(state, params:AlertParamsData) {
+		setAlertParams(state, params:TwitchatDataTypes.AlertParamsData) {
 			state.chatAlertParams = params;
 			Store.set(Store.ALERT_PARAMS, params);
 		},
 		
-		setChatHighlightOverlayParams(state, params:ChatHighlightOverlayData) {
+		setChatHighlightOverlayParams(state, params:TwitchatDataTypes.ChatHighlightOverlayData) {
 			state.chatHighlightOverlayParams = params;
 			Store.set(Store.CHAT_HIGHLIGHT_PARAMS, params);
 		},
 		
-		setSpoilerParams(state, params:SpoilerParamsData) {
+		setSpoilerParams(state, params:TwitchatDataTypes.SpoilerParamsData) {
 			state.spoilerParams = params;
 			Store.set(Store.SPOILER_PARAMS, params);
 		},
@@ -1711,7 +1711,7 @@ const store = createStore({
 				data = {message:result, user, params:state.chatHighlightOverlayParams};
 				state.isChatMessageHighlighted = true;
 
-				const clonedData:ChatHighlightInfo = JSON.parse(JSON.stringify(data));
+				const clonedData:TwitchatDataTypes.ChatHighlightInfo = JSON.parse(JSON.stringify(data));
 				clonedData.type = "chatOverlayHighlight";
 				TriggerActionHandler.instance.onMessage(clonedData);
 			}else{
@@ -1727,7 +1727,7 @@ const store = createStore({
 		setEmergencyMode(state, enable:boolean) {
 			let channel = IRCClient.instance.channel;
 			state.emergencyModeEnabled = enable;
-			const message:EmergencyModeInfo = {
+			const message:TwitchatDataTypes.EmergencyModeInfo = {
 				type: "emergencyMode",
 				enabled: enable,
 			}
@@ -1792,7 +1792,7 @@ const store = createStore({
 			state.chatAlert = null;
 		},
 
-		async addEmergencyFollower(state, payload:EmergencyFollowerData) {
+		async addEmergencyFollower(state, payload:TwitchatDataTypes.EmergencyFollowerData) {
 			state.emergencyFollows.push(payload);
 			Store.set(Store.EMERGENCY_FOLLOWERS, state.emergencyFollows);
 		},
@@ -1812,12 +1812,12 @@ const store = createStore({
 			})
 		},
 		
-		setVoicemodParams(state, payload:VoicemodParamsData) {
+		setVoicemodParams(state, payload:TwitchatDataTypes.VoicemodParamsData) {
 			state.voicemodParams = payload;
 			Store.set(Store.VOICEMOD_PARAMS, payload);
 		},
 		
-		setAutomodParams(state, payload:AutomodParamsData) {
+		setAutomodParams(state, payload:TwitchatDataTypes.AutomodParamsData) {
 			state.automodParams = payload;
 			Store.set(Store.AUTOMOD_PARAMS, payload);
 		},
@@ -1917,9 +1917,9 @@ const store = createStore({
 					json = JSON.parse(atob(queryParams));
 					for (const cat in state.params) {
 						//eslint-disable-next-line
-						const values = state.params[cat as ParameterCategory];
+						const values = state.params[cat as TwitchatDataTypes.ParameterCategory];
 						for (const key in values) {
-							const p = values[key] as ParameterData;
+							const p = values[key] as TwitchatDataTypes.ParameterData;
 							if(Object.prototype.hasOwnProperty.call(json, p.id as number)) {
 								p.value = json[p.id as number] as (string | number | boolean);
 							}
@@ -2061,7 +2061,7 @@ const store = createStore({
 					}
 	
 					//If there's a suggestion poll and the timer isn't over
-					const suggestionPoll = state.chatPoll as ChatPollData;
+					const suggestionPoll = state.chatPoll as TwitchatDataTypes.ChatPollData;
 					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000) {
 						if(cmd == suggestionPoll.command.toLowerCase().trim()) {
 							if(suggestionPoll.allowMultipleAnswers
@@ -2129,7 +2129,7 @@ const store = createStore({
 								let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
 								//Remove command from message to make later things easier
 								commit("executeChatAlert", mess);
-								let trigger:ChatAlertInfo = {
+								let trigger:TwitchatDataTypes.ChatAlertInfo = {
 									type:"chatAlert",
 									message:mess,
 								}
@@ -2196,7 +2196,7 @@ const store = createStore({
 								channel: UserSession.instance.authToken.login,
 								type:"highlight",
 								username,
-								ttAutomod:rule as AutomodParamsKeywordFilterData,
+								ttAutomod:rule as TwitchatDataTypes.AutomodParamsKeywordFilterData,
 								tags:{
 									"tmi-sent-ts":Date.now().toString(),
 									"msg-id": "autoban_join",
@@ -2316,9 +2316,9 @@ const store = createStore({
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in state.params) {
-				const values = state.params[cat as ParameterCategory];
+				const values = state.params[cat as TwitchatDataTypes.ParameterCategory];
 				for (const key in values) {
-					const p = values[key] as ParameterData;
+					const p = values[key] as TwitchatDataTypes.ParameterData;
 					if(uniqueIdsCheck[p.id as number] === true) {
 						state.alert = "Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"";
 						break;
@@ -2417,12 +2417,12 @@ const store = createStore({
 				
 				if(!Store.get(Store.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
 					setTimeout(()=>{
-						this.dispatch("sendTwitchatAd", TwitchatAdTypes.TWITCHAT_AD_WARNING);
+						this.dispatch("sendTwitchatAd", TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 					}, 5000)
 				}else
 				if(!Store.get(Store.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && UserSession.instance.isDonor) {
 					setTimeout(()=>{
-						this.dispatch("sendTwitchatAd", TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
+						this.dispatch("sendTwitchatAd", TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 					}, 5000)
 				}
 
@@ -2440,14 +2440,14 @@ const store = createStore({
 			//Loading parameters from local storage and pushing them to current store
 			const props = Store.getAll();
 			for (const cat in state.params) {
-				const c = cat as ParameterCategory;
+				const c = cat as TwitchatDataTypes.ParameterCategory;
 				for (const key in props) {
 					const k = key.replace(/^p:/gi, "");
 					if(props[key] == null) continue;
 					if(/^p:/gi.test(key) && k in state.params[c]) {
 						const v:string = props[key] as string;
 						/* eslint-disable-next-line */
-						const pointer = state.params[c][k as ParameterCategory];
+						const pointer = state.params[c][k as TwitchatDataTypes.ParameterCategory];
 						if(typeof pointer.value === 'boolean') {
 							pointer.value = (v == "true");
 						}
@@ -2707,7 +2707,7 @@ const store = createStore({
 		
 		ttsReadUser({commit}, payload:{username:string, read:boolean}) { commit("ttsReadUser", payload); },
 		
-		setChatPoll({commit}, payload:ChatPollData) { commit("setChatPoll", payload); },
+		setChatPoll({commit}, payload:TwitchatDataTypes.ChatPollData) { commit("setChatPoll", payload); },
 
 		startRaffle({commit}, payload:RaffleData) { commit("startRaffle", payload); },
 
@@ -2715,7 +2715,7 @@ const store = createStore({
 
 		onRaffleComplete({commit}, payload:{publish:boolean, winner:WheelItem}) { commit("onRaffleComplete", payload); },
 
-		startBingo({commit}, payload:BingoConfig) { commit("startBingo", payload); },
+		startBingo({commit}, payload:TwitchatDataTypes.BingoConfig) { commit("startBingo", payload); },
 
 		stopBingo({commit}) { commit("stopBingo"); },
 
@@ -2727,7 +2727,7 @@ const store = createStore({
 		
 		toggleDevMode({commit}, forcedState?:boolean) { commit("toggleDevMode", forcedState); },
 
-		setHypeTrain({commit}, data:HypeTrainStateData) { commit("setHypeTrain", data); },
+		setHypeTrain({commit}, data:TwitchatDataTypes.HypeTrainStateData) { commit("setHypeTrain", data); },
 
 		flagLowTrustMessage({commit}, data:PubSubDataTypes.LowTrustMessage) { commit("flagLowTrustMessage", {data:data}); },
 
@@ -2739,13 +2739,13 @@ const store = createStore({
 
 		setCommunityBoost({commit}, value:PubSubDataTypes.CommunityBoost) { commit("setCommunityBoost", value); },
 
-		setOBSSceneCommands({commit}, value:OBSSceneCommand[]) { commit("setOBSSceneCommands", value); },
+		setOBSSceneCommands({commit}, value:TwitchatDataTypes.OBSSceneCommand[]) { commit("setOBSSceneCommands", value); },
 
-		setOBSMuteUnmuteCommands({commit}, value:OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
+		setOBSMuteUnmuteCommands({commit}, value:TwitchatDataTypes.OBSMuteUnmuteCommands[]) { commit("setOBSMuteUnmuteCommands", value); },
 
-		setObsCommandsPermissions({commit}, value:PermissionsData) { commit("setObsCommandsPermissions", value); },
+		setObsCommandsPermissions({commit}, value:TwitchatDataTypes.PermissionsData) { commit("setObsCommandsPermissions", value); },
 
-		setTrigger({commit}, value:{key:string, data:TriggerActionObsData[]|TriggerData}) { commit("setTrigger", value); },
+		setTrigger({commit}, value:{key:string, data:TwitchatDataTypes.TriggerActionObsData[]|TwitchatDataTypes.TriggerData}) { commit("setTrigger", value); },
 
 		deleteTrigger({commit}, value:string) { commit("deleteTrigger", value); },
 
@@ -2755,7 +2755,7 @@ const store = createStore({
 
 		setVoiceActions({commit}, value:VoiceAction[]) { commit("setVoiceActions", value); },
 
-		ahsInstaller({commit}, value:InstallHandler) { commit("ahsInstaller", value); },
+		ahsInstaller({commit}, value:TwitchatDataTypes.InstallHandler) { commit("ahsInstaller", value); },
 
 		setSpotifyCredentials({commit}, value:{client:string, secret:string}) { commit("setSpotifyCredentials", value); },
 
@@ -2779,9 +2779,9 @@ const store = createStore({
 
 		shoutout({commit}, username:string) { commit("shoutout", username); },
 
-		saveStreamInfoPreset({commit}, preset:StreamInfoPreset) { commit("saveStreamInfoPreset", preset); },
+		saveStreamInfoPreset({commit}, preset:TwitchatDataTypes.StreamInfoPreset) { commit("saveStreamInfoPreset", preset); },
 		
-		deleteStreamInfoPreset({commit}, preset:StreamInfoPreset) { commit("deleteStreamInfoPreset", preset); },
+		deleteStreamInfoPreset({commit}, preset:TwitchatDataTypes.StreamInfoPreset) { commit("deleteStreamInfoPreset", preset); },
 		
 		startTimer({commit}) { commit("startTimer"); },
 		
@@ -2800,23 +2800,23 @@ const store = createStore({
 		
 		stopCountdown({commit}) { commit("stopCountdown"); },
 
-		setTTSParams({commit}, params:TTSParamsData) { commit("setTTSParams", params); },
+		setTTSParams({commit}, params:TwitchatDataTypes.TTSParamsData) { commit("setTTSParams", params); },
 		
-		setEmergencyParams({commit}, params:EmergencyParamsData) { commit("setEmergencyParams", params); },
+		setEmergencyParams({commit}, params:TwitchatDataTypes.EmergencyParamsData) { commit("setEmergencyParams", params); },
 		
-		setAlertParams({commit}, params:AlertParamsData) { commit("setAlertParams", params); },
+		setAlertParams({commit}, params:TwitchatDataTypes.AlertParamsData) { commit("setAlertParams", params); },
 		
-		setChatHighlightOverlayParams({commit}, params:ChatHighlightOverlayData) { commit("setChatHighlightOverlayParams", params); },
+		setChatHighlightOverlayParams({commit}, params:TwitchatDataTypes.ChatHighlightOverlayData) { commit("setChatHighlightOverlayParams", params); },
 		
 		highlightChatMessageOverlay({commit}, payload:IRCEventDataList.Message|null) { commit("highlightChatMessageOverlay", payload); },
 		
-		setSpoilerParams({commit}, params:SpoilerParamsData) { commit("setSpoilerParams", params); },
+		setSpoilerParams({commit}, params:TwitchatDataTypes.SpoilerParamsData) { commit("setSpoilerParams", params); },
 		
 		setEmergencyMode({commit}, enable:boolean) { commit("setEmergencyMode", enable); },
 
 		executeChatAlert({commit}, message:IRCEventDataList.Message|IRCEventDataList.Whisper) { commit("executeChatAlert", message); },
 
-		addEmergencyFollower({commit}, payload:EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
+		addEmergencyFollower({commit}, payload:TwitchatDataTypes.EmergencyFollowerData) { commit("addEmergencyFollower", payload); },
 		
 		clearEmergencyFollows({commit}) { commit("clearEmergencyFollows"); },
 		
@@ -2824,9 +2824,9 @@ const store = createStore({
 		
 		unpinMessage({commit}, message:IRCEventDataList.Message) { commit("unpinMessage", message); },
 		
-		setVoicemodParams({commit}, payload:VoicemodParamsData) { commit("setVoicemodParams", payload); },
+		setVoicemodParams({commit}, payload:TwitchatDataTypes.VoicemodParamsData) { commit("setVoicemodParams", payload); },
 		
-		setAutomodParams({commit}, payload:AutomodParamsData) { commit("setAutomodParams", payload); },
+		setAutomodParams({commit}, payload:TwitchatDataTypes.AutomodParamsData) { commit("setAutomodParams", payload); },
 	},
 	modules: {
 	}

@@ -36,7 +36,6 @@
 </template>
 
 <script lang="ts">
-import type { IRoomStatusCategory, ParameterData } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
@@ -46,6 +45,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import StoreProxy from '@/utils/StoreProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -77,7 +77,7 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():IRoomStatusCategory { return StoreProxy.store.state.roomStatusParams; }
+	public get params():TwitchatDataTypes.IRoomStatusCategory { return StoreProxy.store.state.roomStatusParams; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
@@ -154,7 +154,7 @@ export default class CommandHelper extends Vue {
 		IRCClient.instance.sendMessage("/unraid");
 	}
 
-	public onChangeParam(key:string, p:ParameterData):void {
+	public onChangeParam(key:string, p:TwitchatDataTypes.ParameterData):void {
 		let channel = IRCClient.instance.channel;
 		switch(key) {
 			case "emotesOnly": {

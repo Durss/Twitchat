@@ -38,15 +38,14 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterData, type ParamsContentStringType, type PermissionsData } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket, {type VoicemodTypes} from '@/utils/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
-import type { VoicemodParamsData } from '../../../types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import PermissionsForm from './obs/PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -63,10 +62,10 @@ export default class ParamsVoicemod extends Vue {
 	public connecting:boolean = false;
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
-	public voiceParams:ParameterData[] = [];
-	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
-	public param_voiceIndicator:ParameterData = {type:"toggle", label:"Show when a voice effect is active", value:true, example:"voicemod_reset.png"};
-	public permissions:PermissionsData = {
+	public voiceParams:TwitchatDataTypes.ParameterData[] = [];
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show when a voice effect is active", value:true, example:"voicemod_reset.png"};
+	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
 		vips: false,
@@ -75,7 +74,7 @@ export default class ParamsVoicemod extends Vue {
 		users: ""
 	}
 	
-	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public get holderStyles():StyleValue {
 		return {
@@ -131,7 +130,7 @@ export default class ParamsVoicemod extends Vue {
 	 */
 	public async populate():Promise<void> {
 		this.voices = VoicemodWebSocket.instance.voices;
-		const storeParams = StoreProxy.store.state.voicemodParams as VoicemodParamsData;
+		const storeParams = StoreProxy.store.state.voicemodParams as TwitchatDataTypes.VoicemodParamsData;
 
 		//Build hashmap for faster access
 		const voiceIdToCommand:{[key:string]:string} = {};
@@ -144,7 +143,7 @@ export default class ParamsVoicemod extends Vue {
 		for (let i = 0; i < loadTotal; i++) {
 			const v = this.voices[i];
 			VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID).then((img:string)=>{
-				const data:ParameterData = {
+				const data:TwitchatDataTypes.ParameterData = {
 					type: "text",
 					storage: v,
 					label: v.friendlyName,
@@ -176,7 +175,7 @@ export default class ParamsVoicemod extends Vue {
 			}
 		}
 
-		const data:VoicemodParamsData = {
+		const data:TwitchatDataTypes.VoicemodParamsData = {
 			enabled: this.param_enabled.value as boolean,
 			voiceIndicator: this.param_voiceIndicator.value as boolean,
 			chatCmdPerms:this.permissions,
@@ -189,7 +188,7 @@ export default class ParamsVoicemod extends Vue {
 	 * Prefills the forms
 	 */
 	private prefill():void {
-		const params:VoicemodParamsData = StoreProxy.store.state.voicemodParams;
+		const params:TwitchatDataTypes.VoicemodParamsData = StoreProxy.store.state.voicemodParams;
 		if(params.enabled === true) {
 			this.param_enabled.value = true;
 			this.param_voiceIndicator.value = params.voiceIndicator;

@@ -97,7 +97,6 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterCategory, type ParameterData, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -123,6 +122,7 @@ import ParamsAutomod from './contents/ParamsAutomod.vue';
 import UserSession from '@/utils/UserSession';
 import PostOnChatParam from './PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -154,31 +154,31 @@ export default class Parameters extends Vue {
 
 	public search = "";
 	public showMenu = false;
-	public filteredParams:ParameterData[] = [];
-	public content:ParamsContentStringType = null;
+	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
+	public content:TwitchatDataTypes.ParamsContentStringType = null;
 	public showAdInfo:boolean = false;
 
-	private prevContent:ParamsContentStringType = null;
+	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
 	
 
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
-	public get contentAppearance():ParamsContentStringType { return ParamsContentType.APPEARANCE; } 
-	public get contentFilters():ParamsContentStringType { return ParamsContentType.FILTERS; } 
-	public get contentAccount():ParamsContentStringType { return ParamsContentType.ACCOUNT; } 
-	public get contentAbout():ParamsContentStringType { return ParamsContentType.ABOUT; } 
-	public get contentFeatures():ParamsContentStringType { return ParamsContentType.FEATURES; } 
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
-	public get contentVoicemod():ParamsContentStringType { return ParamsContentType.VOICEMOD; } 
-	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
-	public get contentStreamdeck():ParamsContentStringType { return ParamsContentType.STREAMDECK; } 
-	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
-	public get contentOverlays():ParamsContentStringType { return ParamsContentType.OVERLAYS; } 
-	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
-	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
-	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
-	public get contentTts():ParamsContentStringType { return ParamsContentType.TTS; } 
-	public get contentVoice():ParamsContentStringType { return ParamsContentType.VOICE; } 
-	public get contentAutomod():ParamsContentStringType { return ParamsContentType.AUTOMOD; } 
+	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.APPEARANCE; } 
+	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.FILTERS; } 
+	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ACCOUNT; } 
+	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ABOUT; } 
+	public get contentFeatures():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.FEATURES; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
+	public get contentVoicemod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.VOICEMOD; } 
+	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.SPONSOR; } 
+	public get contentStreamdeck():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.STREAMDECK; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
+	public get contentOverlays():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OVERLAYS; } 
+	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.EMERGENCY; } 
+	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ALERT; } 
+	public get contentTts():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TTS; } 
+	public get contentVoice():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.VOICE; } 
+	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.AUTOMOD; } 
 
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -198,15 +198,15 @@ export default class Parameters extends Vue {
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
-			let pageId = v.replace("CONTENT:", "") as ParamsContentStringType;
-			if(pageId == ParamsContentType.MAIN_MENU) pageId = null;
+			let pageId = v.replace("CONTENT:", "") as TwitchatDataTypes.ParamsContentStringType;
+			if(pageId == TwitchatDataTypes.ParamsContentType.MAIN_MENU) pageId = null;
 			this.content = pageId;
 
 		}else if(v.indexOf("SEARCH:") === 0) {
 			//Prefilled search
 			const chunks = v.replace("SEARCH:", "").split(".");
 			if(chunks.length == 2) {
-				const cat = chunks[0] as ParameterCategory;
+				const cat = chunks[0] as TwitchatDataTypes.ParameterCategory;
 				const paramKey = chunks[1];
 				this.search = StoreProxy.store.state.params[cat][paramKey].label;
 			}
@@ -252,7 +252,7 @@ export default class Parameters extends Vue {
 		this.prevContent = null;
 	}
 
-	public setContent(id:ParamsContentStringType):void {
+	public setContent(id:TwitchatDataTypes.ParamsContentStringType):void {
 		this.prevContent = this.content;
 		if(id == this.content) {
 			//Refresh content if already active
@@ -273,9 +273,9 @@ export default class Parameters extends Vue {
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
 		for (const categoryID in StoreProxy.store.state.params) {
-			const category = StoreProxy.store.state.params[categoryID as ParameterCategory] as {[ley:string]:ParameterData};
+			const category = StoreProxy.store.state.params[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData};
 			for (const prop in category) {
-				const data:ParameterData = category[prop];
+				const data:TwitchatDataTypes.ParameterData = category[prop];
 				
 				//Already done (via its parent probably), ignore it
 				if(IDsDone[data.id as number] === true) continue;

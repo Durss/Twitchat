@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
@@ -33,7 +33,7 @@ import ParamItem from '../../ParamItem.vue';
 	}
 })
 export default class OBSScenes extends Vue {
-	public sceneParams:ParameterData[] = [];
+	public sceneParams:TwitchatDataTypes.ParameterData[] = [];
 
 	public mounted():void {
 		watch(()=> OBSWebsocket.instance.connected, () => { 

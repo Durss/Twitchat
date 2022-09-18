@@ -27,7 +27,6 @@
 </template>
 
 <script lang="ts">
-import { type ParameterData, type PermissionsData, type AlertParamsData, type ParamsContentStringType, ParamsContentType } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../ToggleBlock.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
@@ -37,6 +36,7 @@ import Button from '../../Button.vue';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import gsap from 'gsap';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -50,12 +50,12 @@ import gsap from 'gsap';
 })
 export default class ParamsAlert extends Vue {
 	
-	public param_chatCommand:ParameterData = {type:"text", label:"Chat command", value:"!alert"};
-	public param_message:ParameterData = {type:"toggle", label:"Show message on popin", value:true};
-	public param_shake:ParameterData = {type:"toggle", label:"Shake Twitchat", value:true};
-	public param_blink:ParameterData = {type:"toggle", label:"Blink Twitchat", value:false};
-	public param_sound:ParameterData = {type:"toggle", label:"Play sound", value:true};
-	public chatCommandPerms:PermissionsData = {
+	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"text", label:"Chat command", value:"!alert"};
+	public param_message:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show message on popin", value:true};
+	public param_shake:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Shake Twitchat", value:true};
+	public param_blink:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Blink Twitchat", value:false};
+	public param_sound:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Play sound", value:true};
+	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
 		vips:false,
@@ -64,7 +64,7 @@ export default class ParamsAlert extends Vue {
 		users:"",
 	};
 	
-	public get finalData():AlertParamsData {
+	public get finalData():TwitchatDataTypes.AlertParamsData {
 		return {
 			chatCmd: this.param_chatCommand.value as string,
 			shake: this.param_shake.value as boolean,
@@ -75,10 +75,10 @@ export default class ParamsAlert extends Vue {
 		};
 	}
 	
-	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
-		let params:AlertParamsData = JSON.parse(JSON.stringify(StoreProxy.store.state.chatAlertParams));
+		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(StoreProxy.store.state.chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
 			this.param_chatCommand.value = params.chatCmd;

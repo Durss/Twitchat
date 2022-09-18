@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import type { ChatHighlightOverlayData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -149,7 +149,7 @@ export default class OverlayParamsHighlight extends Vue {
 		}, 2000);
 
 		watch(()=>this.placement, ()=> {
-			const data:ChatHighlightOverlayData = {
+			const data:TwitchatDataTypes.ChatHighlightOverlayData = {
 				position:this.placement,
 			}
 			StoreProxy.store.dispatch("setChatHighlightOverlayParams", data);

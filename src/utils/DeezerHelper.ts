@@ -1,4 +1,4 @@
-import type { MusicMessage, MusicTriggerData } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import Config from "./Config";
 import DeezerHelperEvent from "./DeezerHelperEvent";
@@ -13,7 +13,7 @@ TODO : when closing the popin and opening it back the DZ.login() callback is cal
 */
 export default class DeezerHelper extends EventDispatcher{
 	
-	public currentTrack:MusicMessage|null = null;
+	public currentTrack:TwitchatDataTypes.MusicMessage|null = null;
 	public queue:DeezerQueueItem[] = [];
 	public userInteracted = false;
 	public currentTrackIndex = 0;
@@ -25,7 +25,7 @@ export default class DeezerHelper extends EventDispatcher{
 	private _searchPromise!:(value: DeezerTrack[] | PromiseLike<DeezerTrack[]>) => void;
 	private _createPromiseSuccess!:() => void;
 	private _createPromiseError!:() => void;
-	private _idToTrack:{[key:string]:MusicMessage} = {};
+	private _idToTrack:{[key:string]:TwitchatDataTypes.MusicMessage} = {};
 	private _forcePlay = true;
 	private _scriptElement!:HTMLScriptElement;
 	private _initCheckInterval!:number;
@@ -198,7 +198,7 @@ export default class DeezerHelper extends EventDispatcher{
 					this.playing = false;
 					
 					//Broadcast to the triggers
-					const triggerData:MusicTriggerData = {
+					const triggerData:TwitchatDataTypes.MusicTriggerData = {
 						type: "musicEvent",
 						start:false,
 					}
@@ -379,7 +379,7 @@ export default class DeezerHelper extends EventDispatcher{
 				cover: this.currentTrack.cover,
 			});
 
-			const triggerData:MusicTriggerData = {
+			const triggerData:TwitchatDataTypes.MusicTriggerData = {
 				type: "musicEvent",
 				start:true,
 				music:this.currentTrack,
@@ -394,7 +394,7 @@ export default class DeezerHelper extends EventDispatcher{
 		if (json.data && json.data.length > 0) {
 			for (let i = 0; i < json.data.length; i++) {
 				const track = json.data[i];
-				const music:MusicMessage =  {
+				const music:TwitchatDataTypes.MusicMessage =  {
 					type:"music",
 					title:track.title,
 					artist:track.artist.name,

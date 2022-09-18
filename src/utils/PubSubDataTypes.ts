@@ -589,4 +589,35 @@ export namespace PubSubDataTypes {
 		"reply-parent-user-id"?:string;
 		"reply-parent-user-login"?:string;
 	}
+
+	export interface ChannelPointChallengeContribution {
+        channel_id: string;
+        goal: {
+			id: string;
+			channel_id: string;
+			title: string;
+			description: string;
+			goal_type: string;
+			is_in_stock: boolean;
+			goal_amount: number;//Goal
+			points_contributed: number;//Progress
+			small_contribution: number;
+			per_stream_maximum_user_contribution: number;
+			status: string;
+			duration_days: number;
+			started_at: string;
+			ended_at: string;
+			background_color: string;
+			default_image: DefaultImage;
+			image: Image;
+		};
+        user: {
+			id: string;
+			login: string;
+			display_name: string;
+		};
+        amount: number;//This user event's contrib
+        stream_contribution: number;//This user's stream contrib
+        total_contribution: number;//this user's total contrib
+	}
 }

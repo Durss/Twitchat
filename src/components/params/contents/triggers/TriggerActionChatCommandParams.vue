@@ -24,7 +24,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ParameterData, TriggerData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { TriggerTypes } from '@/utils/TriggerActionData';
 import { watch } from '@vue/runtime-core';
@@ -45,12 +45,12 @@ import PermissionsForm from '../obs/PermissionsForm.vue';
 })
 export default class TriggerActionChatCommandParams extends Vue {
 
-	public triggerData!:TriggerData;
+	public triggerData!:TwitchatDataTypes.TriggerData;
 
 	public cmdNameConflict = false;
-	public param_cmd:ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
-	public param_globalCD:ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
-	public param_userCD:ParameterData = { type:"number", value:0, label:"User cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
+	public param_cmd:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
+	public param_globalCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
+	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"User cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
 
 	private originalCmd!:string;
 
@@ -89,7 +89,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 			for (const k in triggers) {
 				//Is a chat command?
 				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
-					const t = triggers[k] as TriggerData;
+					const t = triggers[k] as TwitchatDataTypes.TriggerData;
 					if(t.name?.toLowerCase() == (this.param_cmd.value as string).toLowerCase()) {
 						this.cmdNameConflict = true;
 						return;

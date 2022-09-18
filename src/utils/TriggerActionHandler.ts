@@ -1,4 +1,4 @@
-import type { BanTriggerData, ChatAlertInfo, ChatHighlightInfo, EmergencyModeInfo as EmergencyModeUpdate, HypeTrainTriggerData, MusicMessage, MusicTriggerData, ShoutoutTriggerData, StreamInfoUpdate, TimeoutTriggerData, TriggerData, UnbanTriggerData, VoicemodTriggerData, VIPTriggerData, UnVIPTriggerData, ModTriggerData, UnmodTriggerData, TriggerActionChatData } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./DeezerHelper";
@@ -28,7 +28,7 @@ export default class TriggerActionHandler {
 	private globalCooldowns:{[key:string]:number} = {};
 	private currentSpoolGUID = 0;
 
-	public triggers:{[key:string]:TriggerData} = {};
+	public triggers:{[key:string]:TwitchatDataTypes.TriggerData} = {};
 	public emergencyMode:boolean = false;
 	
 	constructor() {
@@ -74,7 +74,7 @@ export default class TriggerActionHandler {
 	*******************/
 	private initialize():void {
 		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
-			const data = (e.data as unknown) as ChatHighlightInfo;
+			const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 			if(data.message) {
 				data.type = "chatOverlayHighlight";
 				this.onMessage(data, false)
@@ -341,11 +341,11 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
-	private async handleStreamInfoUpdate(message:StreamInfoUpdate, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleStreamInfoUpdate(message:TwitchatDataTypes.StreamInfoUpdate, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, guid);
 	}
 	
-	private async handleEmergencyMode(message:EmergencyModeUpdate, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleEmergencyMode(message:TwitchatDataTypes.EmergencyModeInfo, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
 		return await this.parseSteps(type, message, testMode, guid);
 	}
@@ -358,11 +358,11 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
-	private async handleHighlightOverlay(message:ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleHighlightOverlay(message:TwitchatDataTypes.ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
 	}
 	
-	private async handleChatAlert(message:ChatAlertInfo, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleChatAlert(message:TwitchatDataTypes.ChatAlertInfo, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, guid);
 	}
 	
@@ -395,48 +395,48 @@ export default class TriggerActionHandler {
 		return false;
 	}
 	
-	private async handleMusicEvent(message:MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleMusicEvent(message:TwitchatDataTypes.MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		const event = message.start? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
 		return await this.parseSteps(event, message, testMode, guid);
 	}
 	
-	private async handleVoicemodEvent(message:VoicemodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleVoicemodEvent(message:TwitchatDataTypes.VoicemodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, guid);
 	}
 
-	private async handleBanEvent(message:BanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleBanEvent(message:TwitchatDataTypes.BanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.BAN, message, testMode, guid);
 	}
 
-	private async handleUnbanEvent(message:UnbanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleUnbanEvent(message:TwitchatDataTypes.UnbanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.UNBAN, message, testMode, guid);
 	}
 
-	private async handleModEvent(message:ModTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleModEvent(message:TwitchatDataTypes.ModTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.MOD, message, testMode, guid);
 	}
 
-	private async handleUnmodEvent(message:UnmodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleUnmodEvent(message:TwitchatDataTypes.UnmodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.UNMOD, message, testMode, guid);
 	}
 
-	private async handleVIPEvent(message:VIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleVIPEvent(message:TwitchatDataTypes.VIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.VIP, message, testMode, guid);
 	}
 
-	private async handleUnVIPEvent(message:UnVIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleUnVIPEvent(message:TwitchatDataTypes.UnVIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.UNVIP, message, testMode, guid);
 	}
 
-	private async handleTimeoutEvent(message:TimeoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleTimeoutEvent(message:TwitchatDataTypes.TimeoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, guid);
 	}
 	
-	private async handleShoutoutEvent(message:ShoutoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleShoutoutEvent(message:TwitchatDataTypes.ShoutoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, guid);
 	}
 	
-	private async handleHypeTrainEvent(message:HypeTrainTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleHypeTrainEvent(message:TwitchatDataTypes.HypeTrainTriggerData, testMode:boolean, guid:number):Promise<boolean> {
 		const idToType = {
 			hypeTrainApproach:TriggerTypes.HYPE_TRAIN_APPROACH,
 			hypeTrainStart:TriggerTypes.HYPE_TRAIN_START,
@@ -463,7 +463,7 @@ export default class TriggerActionHandler {
 	 */
 	private async parseSteps(eventType:string, message:MessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
-		let trigger:TriggerData = this.triggers[ eventType ];
+		let trigger:TwitchatDataTypes.TriggerData = this.triggers[ eventType ];
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
@@ -480,7 +480,7 @@ export default class TriggerActionHandler {
 						type:"chat",
 						delay:0,
 						text,
-					} as TriggerActionChatData
+					} as TwitchatDataTypes.TriggerActionChatData
 				]
 			}
 		}
@@ -490,7 +490,7 @@ export default class TriggerActionHandler {
 		}else{
 			// console.log("PARSE STEPS", eventType);
 			// console.log("PARSE STEPS", eventType, trigger, message);
-			const data = trigger as TriggerData;
+			const data = trigger as TwitchatDataTypes.TriggerData;
 			if(!data.enabled) return false;
 			let canExecute = true;
 
@@ -631,7 +631,7 @@ export default class TriggerActionHandler {
 					if(step.type == "music") {
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message?.type == "message") {
 							const m = message.message.split(" ").splice(1).join(" ");
-							const data:MusicMessage = {
+							const data:TwitchatDataTypes.MusicMessage = {
 								type:"music",
 								title:"",
 								artist:"",
@@ -871,20 +871,20 @@ type MessageTypes = IRCEventDataList.Message
 | IRCEventDataList.Leave
 | IRCEventDataList.TimerResult
 | IRCEventDataList.HypeTrainResult
-| MusicMessage
-| StreamInfoUpdate
-| EmergencyModeUpdate
-| ChatHighlightInfo
-| ChatAlertInfo
-| MusicTriggerData
-| HypeTrainTriggerData
-| VoicemodTriggerData
-| ShoutoutTriggerData
-| BanTriggerData
-| UnbanTriggerData
-| ModTriggerData
-| UnmodTriggerData
-| TimeoutTriggerData
-| VIPTriggerData
-| UnVIPTriggerData
+| TwitchatDataTypes.MusicMessage
+| TwitchatDataTypes.StreamInfoUpdate
+| TwitchatDataTypes.EmergencyModeInfo
+| TwitchatDataTypes.ChatHighlightInfo
+| TwitchatDataTypes.ChatAlertInfo
+| TwitchatDataTypes.MusicTriggerData
+| TwitchatDataTypes.HypeTrainTriggerData
+| TwitchatDataTypes.VoicemodTriggerData
+| TwitchatDataTypes.ShoutoutTriggerData
+| TwitchatDataTypes.BanTriggerData
+| TwitchatDataTypes.UnbanTriggerData
+| TwitchatDataTypes.ModTriggerData
+| TwitchatDataTypes.UnmodTriggerData
+| TwitchatDataTypes.TimeoutTriggerData
+| TwitchatDataTypes.VIPTriggerData
+| TwitchatDataTypes.UnVIPTriggerData
 ;

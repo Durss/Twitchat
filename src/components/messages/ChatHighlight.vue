@@ -48,7 +48,7 @@ import Button from '../Button.vue';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import ChatMessageInfos from './ChatMessageInfos.vue';
-import type { ChatMessageInfoData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import IRCClient from '@/utils/IRCClient';
 
@@ -79,7 +79,7 @@ export default class ChatHighlight extends Vue {
 	public moderating = false;
 	public canUnban = true;
 	public canBlock = true;
-	public badgeInfos:ChatMessageInfoData[] = [];
+	public badgeInfos:TwitchatDataTypes.ChatMessageInfoData[] = [];
 
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 

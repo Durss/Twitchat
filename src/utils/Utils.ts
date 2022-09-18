@@ -1,5 +1,5 @@
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { ChatUserstate } from 'tmi.js';
-import type { AutomodParamsKeywordFilterData, PermissionsData } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
 import StoreProxy from './StoreProxy';
 
@@ -175,7 +175,7 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static checkPermissions(permissions:PermissionsData, user:ChatUserstate):boolean {
+	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:ChatUserstate):boolean {
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
 		const mod = user.badges?.moderator != undefined || user.mod === true;
 		const vip = user.badges?.vip != undefined;
@@ -542,10 +542,10 @@ export default class Utils {
 	 * @param tags 
 	 * @returns 
 	 */
-	public static isAutomoded(mess:string, tags:ChatUserstate):AutomodParamsKeywordFilterData|null {
+	public static isAutomoded(mess:string, tags:ChatUserstate):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
 		if(StoreProxy.store.state.automodParams.enabled
 		&& !Utils.checkPermissions(StoreProxy.store.state.automodParams.exludedUsers, tags)) {
-			const rules = StoreProxy.store.state.automodParams.keywordsFilters as AutomodParamsKeywordFilterData[];
+			const rules = StoreProxy.store.state.automodParams.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
 			for (let i = 0; i < rules.length; i++) {
 				const r = rules[i];
 				if(!r.enabled || !r.regex || r.regex.length < 2) continue;//Rule disabled, skip it

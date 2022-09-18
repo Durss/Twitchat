@@ -30,12 +30,12 @@
 </template>
 
 <script lang="ts">
-import type { PermissionsData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import PermissionsForm from './obs/PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -46,7 +46,7 @@ import Splitter from '../../Splitter.vue';
 })
 export default class ParamsSpoiler extends Vue {
 
-	public chatCommandPerms:PermissionsData = {
+	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
 		vips:false,

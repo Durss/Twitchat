@@ -1,8 +1,8 @@
 import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
-import type { TriggerData, TriggerActionTypes, TTSParamsData, AutomodParamsData } from "../types/TwitchatDataTypes";
 import { TriggerTypes } from "@/utils/TriggerActionData";
 import StoreProxy from "@/utils/StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -184,7 +184,7 @@ export default class Store {
 	 * Replace local data by the given JSON
 	 */
 	public static loadFromJSON(json:any, fullOverwrite:boolean = false):void {
-		const backupAutomod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
+		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
 		for (const key in json.data) {
 			const value = json.data[key];
 			const str = typeof value == "string"? value : JSON.stringify(value);
@@ -194,7 +194,7 @@ export default class Store {
 		if(backupAutomod) {
 			//Make sure we don't loose unsynced automod rules
 			//(should think of a generic way of doing this..)
-			const automod:AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
+			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
 			for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
 				const el = backupAutomod.keywordsFilters[i];
 				if(!el.serverSync) {
@@ -243,7 +243,7 @@ export default class Store {
 				delete data.redirect;
 				
 				//Remove automod items the user asked not to sync to server
-				const automod = data.automodParams as AutomodParamsData;
+				const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
 				if(automod) {
 					for (let i = 0; i < automod.keywordsFilters.length; i++) {
 						if(!automod.keywordsFilters[i].serverSync) {
@@ -460,15 +460,15 @@ export default class Store {
 	private static migrateTriggers():void {
 		const sources = this.get("obsConf_sources");
 		if(sources) {
-			const actions:(TriggerActionTypes[]|TriggerData)[] = JSON.parse(sources);
+			const actions:(TwitchatDataTypes.TriggerActionTypes[]|TwitchatDataTypes.TriggerData)[] = JSON.parse(sources);
 			for (const key in actions) {
 				const a = actions[key];
 				let list = a;
 				//Is chat command trigger ?
 				if(!Array.isArray(a)) {
-					list = (a as TriggerData).actions;
+					list = (a as TwitchatDataTypes.TriggerData).actions;
 				}
-				const typedList = list as TriggerActionTypes[];
+				const typedList = list as TwitchatDataTypes.TriggerActionTypes[];
 				for (let i = 0; i < typedList.length; i++) {
 					typedList[i].type = "obs";
 
@@ -545,7 +545,7 @@ export default class Store {
 	 * Fixing wrong TTS placeholders
 	 */
 	private static fixTTSPlaceholders():void {
-		const params = JSON.parse(this.get(this.TTS_PARAMS)) as TTSParamsData;
+		const params = JSON.parse(this.get(this.TTS_PARAMS)) as TwitchatDataTypes.TTSParamsData;
 		if(params) {
 			params.readBingosPattern = params.readBingosPattern.replace(/\{USER\}/gi, "{WINNER}");
 			params.readRafflePattern = params.readRafflePattern.replace(/\{USER\}/gi, "{WINNER}");
@@ -559,7 +559,7 @@ export default class Store {
 	private static migrateChatCommandTriggers():void {
 		const txt = this.get("triggers");
 		if(!txt) return;
-		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
 			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0
 			&& triggers[key].chatCommand) {

@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import type { CountdownData, TimerData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
@@ -30,8 +30,8 @@ export default class OverlayTimer extends Vue {
 	public countdown:string = "";
 
 	private intervalUpdate:number = -1;
-	private timerData:TimerData|null = null;
-	private countdownData:CountdownData|null = null;
+	private timerData:TwitchatDataTypes.TimerData|null = null;
+	private countdownData:TwitchatDataTypes.CountdownData|null = null;
 	
 	private timerEventHandler!:(e:TwitchatEvent)=>void;
 	private countdownEventHandler!:(e:TwitchatEvent)=>void;
@@ -64,7 +64,7 @@ export default class OverlayTimer extends Vue {
 
 	public async onTimerEvent(e:TwitchatEvent):Promise<void> {
 		if(e.type == TwitchatEvent.TIMER_START) {
-			this.timerData = (e.data as unknown) as TimerData;
+			this.timerData = (e.data as unknown) as TwitchatDataTypes.TimerData;
 			this.computeValues();
 			await this.$nextTick();
 			gsap.from("#timer", {duration:.7, y:"-100%"});
@@ -78,7 +78,7 @@ export default class OverlayTimer extends Vue {
 
 	public async onCountdownEvent(e:TwitchatEvent):Promise<void> {
 		if(e.type == TwitchatEvent.COUNTDOWN_START) {
-			this.countdownData = (e.data as unknown) as CountdownData;
+			this.countdownData = (e.data as unknown) as TwitchatDataTypes.CountdownData;
 			this.computeValues();
 			await this.$nextTick();
 			gsap.from("#countdown", {duration:.7, y:"-100%"});

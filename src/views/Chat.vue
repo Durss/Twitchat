@@ -152,7 +152,6 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import Store from '@/store/Store';
-import type { AlertParamsData } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { BingoData, RaffleData } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -174,6 +173,7 @@ import UserCard from '../components/user/UserCard.vue';
 import DonorState from '../components/user/DonorState.vue';
 import UserSession from '@/utils/UserSession';
 import Gngngn from '../components/chatform/Gngngn.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	components:{
@@ -413,7 +413,7 @@ export default class Chat extends Vue {
 			if(value != null) {
 				if(StoreProxy.store.state.params.features.alertMode.value !== true) return;
 				
-				const params = StoreProxy.store.state.chatAlertParams as AlertParamsData;
+				const params = StoreProxy.store.state.chatAlertParams as TwitchatDataTypes.AlertParamsData;
 				gsap.killTweensOf(this.$el);
 				if(params.shake) {
 					gsap.fromTo(this.$el, {x:-10}, {duration:0.01, x:10, clearProps:"x", repeat:60});

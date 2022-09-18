@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import { ParamsContentType, type MusicMessage, type ParameterData, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import { Options, Vue } from 'vue-class-component';
@@ -54,6 +53,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -72,16 +72,16 @@ export default class OverlayParamsSpotify extends Vue {
 	public open = false;
 	public loading = false;
 	public authenticating = false;
-	public paramClient:ParameterData = {label:"Client ID", value:"", type:"text", fieldName:"spotifyClient"};
-	public paramSecret:ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
-	public currentTrack:MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
+	public paramClient:TwitchatDataTypes.ParameterData = {label:"Client ID", value:"", type:"text", fieldName:"spotifyClient"};
+	public paramSecret:TwitchatDataTypes.ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
+	public currentTrack:TwitchatDataTypes.MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get canConnect():boolean {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
 	}
 	
-	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public authenticate():void {
 		this.loading = true;

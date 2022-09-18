@@ -81,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type EmergencyParamsData, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type PermissionsData } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
@@ -103,28 +103,28 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 })
 export default class ParamsEmergency extends Vue {
 
-	public param_enable:ParameterData = {type:"toggle", label:"Enabled", value:false};
-	public param_chatCommand:ParameterData = {type:"text", label:"Chat command", value:"!emergency"};
-	public param_obsScene:ParameterData = {type:"list", label:"Switch to scene", value:""};
-	public param_autoTo:ParameterData = {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
-	public param_noTrigger:ParameterData = {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
-	public param_followersOnlyDuration:ParameterData = { type:"number", value:30, label:"Must follow your channel for (minutes)"};
-	public param_slowModeDuration:ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
-	public param_autoBlockFollowing:ParameterData = { type:"toggle", value:false, label:"Block follows", icon:"unfollow_purple.svg"};
-	public param_autoUnblockFollowing:ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg", tooltip:"Enable this if you just want<br>to remove users's follow<br>without restricting her/him<br>access to your channel"};
-	public param_autoEnableOnFollowbot:ParameterData = { type:"toggle", value:false, label:"Automatically start emergency mode on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
+	public param_enable:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"text", label:"Chat command", value:"!emergency"};
+	public param_obsScene:TwitchatDataTypes.ParameterData = {type:"list", label:"Switch to scene", value:""};
+	public param_autoTo:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
+	public param_noTrigger:TwitchatDataTypes.ParameterData = {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
+	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData = { type:"number", value:30, label:"Must follow your channel for (minutes)"};
+	public param_slowModeDuration:TwitchatDataTypes.ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
+	public param_autoBlockFollowing:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Block follows", icon:"unfollow_purple.svg"};
+	public param_autoUnblockFollowing:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg", tooltip:"Enable this if you just want<br>to remove users's follow<br>without restricting her/him<br>access to your channel"};
+	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Automatically start emergency mode on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
 	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
-	public selectedOBSScene:ParameterDataListValue|null = null;
+	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue|null = null;
 	public channelParams:{
-		emotesOnly:ParameterData;
-		followersOnly:ParameterData;
-		subsOnly:ParameterData;
-		slowMode:ParameterData;
-		autoTO:ParameterData;
-		noTrigger:ParameterData;
+		emotesOnly:TwitchatDataTypes.ParameterData;
+		followersOnly:TwitchatDataTypes.ParameterData;
+		subsOnly:TwitchatDataTypes.ParameterData;
+		slowMode:TwitchatDataTypes.ParameterData;
+		autoTO:TwitchatDataTypes.ParameterData;
+		noTrigger:TwitchatDataTypes.ParameterData;
 	}|null = null;
-	public chatCommandPerms:PermissionsData = {
+	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
 		vips:false,
@@ -141,7 +141,7 @@ export default class ParamsEmergency extends Vue {
 	}
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
 	
 	public get obsSources_filtered():OBSSourceItem[] {
 		let sources = this.obsSources.concat();
@@ -151,7 +151,7 @@ export default class ParamsEmergency extends Vue {
 		return sources;
 	}
 	
-	public get finalData():EmergencyParamsData {
+	public get finalData():TwitchatDataTypes.EmergencyParamsData {
 		return {
 			enabled:this.param_enable.value as boolean,
 			chatCmd:this.param_chatCommand.value as string,
@@ -245,7 +245,7 @@ export default class ParamsEmergency extends Vue {
 	private async listOBSScenes():Promise<void> {
 		if(!OBSWebsocket.instance.connected) return;
 
-		const list:ParameterDataListValue[] = [];
+		const list:TwitchatDataTypes.ParameterDataListValue[] = [];
 		const res = await OBSWebsocket.instance.getScenes();
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};

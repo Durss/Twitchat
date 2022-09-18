@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, ParameterDataListValue, TriggerActionHighlightData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -25,16 +25,16 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionHighlightEntry extends Vue {
 
-	public action!:TriggerActionHighlightData;
-	public event!:TriggerEventTypes;
+	public action!:TwitchatDataTypes.TriggerActionHighlightData;
+	public event!:TwitchatDataTypes.TriggerEventTypes;
 
-	private showHideValues:ParameterDataListValue[] = [
+	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
 		{label:"Hide", value:false},
 		{label:"Show", value:true},
 	];
 	
-	public show_conf:ParameterData = { label:"Highlight visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
-	public message_conf:ParameterData = { label:"Message to send on your stream", type:"text", longText:true, value:"", icon:"highlight_purple.svg", maxLength:500};
+	public show_conf:TwitchatDataTypes.ParameterData = { label:"Highlight visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
+	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to send on your stream", type:"text", longText:true, value:"", icon:"highlight_purple.svg", maxLength:500};
 	
 	public beforeMount():void {
 		if(this.action.show == undefined) this.action.show = true;

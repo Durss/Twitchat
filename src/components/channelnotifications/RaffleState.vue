@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import type { PlaceholderEntry, WheelData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import StoreProxy from '@/utils/StoreProxy';
@@ -64,7 +64,7 @@ export default class RaffleState extends Vue {
 	public picking = false;
 	public progressPercent = 0;
 	public raffleData:RaffleData = StoreProxy.store.state.raffle as RaffleData;
-	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists = false;
@@ -137,7 +137,7 @@ export default class RaffleState extends Vue {
 											label:v.label,
 										}
 									});
-			const data:WheelData = {
+			const data:TwitchatDataTypes.WheelData = {
 				items:list,
 				winner:winner.id,
 			}

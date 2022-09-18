@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { PlaceholderEntry } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -30,7 +30,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class PlaceholderSelector extends Vue {
 
-	public placeholders!:PlaceholderEntry[];
+	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
 	public modelValue!:string;
 

@@ -21,12 +21,12 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { ParamsContentType, type ParameterData, type ParameterDataListValue, type ParamsContentStringType, type TriggerActionObsData, type TriggerEventTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/TriggerActionData';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -41,27 +41,27 @@ import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/Trigger
 })
 export default class TriggerActionOBSEntry extends Vue {
 
-	public action!:TriggerActionObsData;
+	public action!:TwitchatDataTypes.TriggerActionObsData;
 	public sources!:OBSSourceItem[];
-	public event!:TriggerEventTypes;
+	public event!:TwitchatDataTypes.TriggerEventTypes;
 
-	private showHideValues:ParameterDataListValue[] = [
+	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
 		{label:"Hide", value:false},
 		{label:"Show", value:true},
 	];
 	
-	public show_conf:ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
-	public source_conf:ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
-	public filter_conf:ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
-	public text_conf:ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public url_conf:ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
-	public media_conf:ParameterData = { label:"Media file", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
+	public show_conf:TwitchatDataTypes.ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
+	public source_conf:TwitchatDataTypes.ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
+	public filter_conf:TwitchatDataTypes.ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
+	public text_conf:TwitchatDataTypes.ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public url_conf:TwitchatDataTypes.ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
+	public media_conf:TwitchatDataTypes.ParameterData = { label:"Media file", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 

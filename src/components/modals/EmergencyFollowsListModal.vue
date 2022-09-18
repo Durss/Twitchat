@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import type { EmergencyFollowerData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -55,7 +55,7 @@ import Button from '../Button.vue';
 })
 export default class EmergencyFollowsListModal extends Vue {
 
-	public get followers():EmergencyFollowerData[] { return StoreProxy.store.state.emergencyFollows; }
+	public get followers():TwitchatDataTypes.EmergencyFollowerData[] { return StoreProxy.store.state.emergencyFollows; }
 
 	public formatDate(date:number):string {
 		const d = new Date(date)
@@ -64,27 +64,27 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	private today:Date = new Date();
 
-	public openCard(follower:EmergencyFollowerData):void {
+	public openCard(follower:TwitchatDataTypes.EmergencyFollowerData):void {
 		StoreProxy.store.dispatch("openUserCard", follower.login);
 	}
 		
-	public async ban(follower:EmergencyFollowerData):Promise<void> {
+	public async ban(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
 		follower.banned = true;
 		await TwitchUtils.banUser(follower.uid, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
 	}
 		
-	public async unban(follower:EmergencyFollowerData):Promise<void> {
+	public async unban(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
 		delete follower.banned;
 		await TwitchUtils.unbanUser(follower.uid);
 	}
 	
-	public async block(follower:EmergencyFollowerData):Promise<void> {
+	public async block(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
 		follower.blocked = true;
 		follower.unblocked = false;
 		await TwitchUtils.blockUser(follower.uid, "spam");
 	}
 
-	public async unblock(follower:EmergencyFollowerData):Promise<void> {
+	public async unblock(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
 		follower.blocked = false;
 		follower.unblocked = true;
 		await TwitchUtils.unblockUser(follower.uid);

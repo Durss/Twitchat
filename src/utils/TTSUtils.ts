@@ -1,4 +1,4 @@
-import type { PlaceholderEntry, TTSParamsData } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
@@ -19,64 +19,64 @@ interface SpokenMessage {
 
 export default class TTSUtils {
 
-	public static placeholderMessages:PlaceholderEntry[] = [
+	public static placeholderMessages:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"User name" },
 			{ tag:"MESSAGE", desc:"User's message" },
 		];
 
-	public static placeholderNotices:PlaceholderEntry[] = [
+	public static placeholderNotices:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"MESSAGE", desc:"User's message" },
 		];
 
-	public static placeholderFollows:PlaceholderEntry[] = [
+	public static placeholderFollows:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"User name" },
 		];
 
-	public static placeholderSubs:PlaceholderEntry[] = [
+	public static placeholderSubs:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"User name" },
 			{ tag:"TIER", desc:"Sub tier" },
 			{ tag:"MESSAGE", desc:"User's message" },
 		];
 
-	public static placeholderSubgifts:PlaceholderEntry[] = [
+	public static placeholderSubgifts:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"Subgifter's name" },
 			{ tag:"TIER", desc:"Sub tier" },
 			{ tag:"COUNT", desc:"Sub gift count" },
 			{ tag:"RECIPIENTS", desc:"Sub gift recipients" },
 		];
 
-	public static placeholderRaids:PlaceholderEntry[] = [
+	public static placeholderRaids:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"User name" },
 			{ tag:"VIEWERS", desc:"Sub tier" },
 		];
 
-	public static placeholderRewards:PlaceholderEntry[] = [
+	public static placeholderRewards:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"User name" },
 			{ tag:"REWARD_NAME", desc:"Reward name" },
 			{ tag:"REWARD_DESC", desc:"Reward description" },
 		];
 
-	public static placeholderBits:PlaceholderEntry[] = [
+	public static placeholderBits:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"USER", desc:"User name" },
 			{ tag:"BITS", desc:"Bits sent" },
 			{ tag:"MESSAGE", desc:"User's message" },
 		];
 
-	public static placeholderPolls:PlaceholderEntry[] = [
+	public static placeholderPolls:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"TITLE", desc:"Poll title" },
 			{ tag:"WINNER", desc:"Winning choice" },
 		];
 
-	public static placeholderPredictions:PlaceholderEntry[] = [
+	public static placeholderPredictions:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"TITLE", desc:"Poll title" },
 			{ tag:"WINNER", desc:"Winning choice" },
 		];
 
-	public static placeholderRaffles:PlaceholderEntry[] = [
+	public static placeholderRaffles:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"WINNER", desc:"Winning user" },
 		];
 
-	public static placeholderBingo:PlaceholderEntry[] = [
+	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[] = [
 			{ tag:"WINNER", desc:"Winning user" },
 		];
 
@@ -266,7 +266,7 @@ export default class TTSUtils {
 	 * @returns 
 	 */
 	private async parseMessage(message:IRCEventData):Promise<void> {
-		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
+		const paramsTTS = StoreProxy.store.state.ttsParams as TwitchatDataTypes.TTSParamsData;
 		const type = getTwitchatMessageType(message);
 
 		// console.log("Read message type", type);
@@ -549,7 +549,7 @@ export default class TTSUtils {
 		if(this.pendingMessages.length === 0 || !this._enabled) return;
 
 		const message = this.pendingMessages[0];
-		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
+		const paramsTTS = StoreProxy.store.state.ttsParams as TwitchatDataTypes.TTSParamsData;
 		
 		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
 			//Timeout reached for this message, ignore it and

@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
@@ -102,10 +102,10 @@ export default class PollForm extends Vue {
 	public answer3 = "";
 	public answer4 = "";
 	public answer5 = "";
-	public extraVotesParam:ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
-	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
-	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};
-	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
+	public extraVotesParam:TwitchatDataTypes.ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
+	public bitsVoteParam:TwitchatDataTypes.ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
+	public pointsVoteParam:TwitchatDataTypes.ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};
+	public voteDuration:TwitchatDataTypes.ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
 

@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -82,7 +82,7 @@ export default class PredictionForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
-	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
+	public voteDuration:TwitchatDataTypes.ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
 

@@ -36,7 +36,7 @@ import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import Button from '../../../Button.vue';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -53,9 +53,9 @@ export default class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
-	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
-	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password" };
-	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
+	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
+	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 

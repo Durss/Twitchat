@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
@@ -61,7 +61,7 @@ export default class ParamsOverlays extends Vue {
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; }
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 
 }

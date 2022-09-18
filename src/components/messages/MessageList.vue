@@ -145,7 +145,6 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import type { PermissionsData } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
@@ -167,6 +166,7 @@ import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	components:{
@@ -239,7 +239,7 @@ export default class MessageList extends Vue {
 	public get readLabel():string {
 		if(!this.conversation[0].tags['display-name']) return "";
 		const username = this.conversation[0].tags['display-name']?.toLowerCase();
-		const permissions:PermissionsData = StoreProxy.store.state.ttsParams.ttsPerms;
+		const permissions:TwitchatDataTypes.PermissionsData = StoreProxy.store.state.ttsParams.ttsPerms;
 		let label = "";
 		if(permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
 			label = "Read future "+username+"'s messages";
@@ -394,7 +394,7 @@ export default class MessageList extends Vue {
 	public toggleReadUser():void {
 		if(!this.conversation[0].tags['display-name']) return;
 		const username = this.conversation[0].tags['display-name']?.toLowerCase();
-		const permissions:PermissionsData = StoreProxy.store.state.ttsParams.ttsPerms;
+		const permissions:TwitchatDataTypes.PermissionsData = StoreProxy.store.state.ttsParams.ttsPerms;
 		const read = permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1;
 		const payload = {username, read};
 		StoreProxy.store.dispatch("ttsReadUser", payload);

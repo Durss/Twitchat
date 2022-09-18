@@ -1,4 +1,4 @@
-import type { MusicMessage, MusicTriggerData } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import Config from "./Config";
@@ -17,13 +17,13 @@ import Utils from "./Utils";
 export default class SpotifyHelper extends EventDispatcher {
 	
 	public isPlaying = false;
-	public currentTrack!:MusicMessage;
+	public currentTrack!:TwitchatDataTypes.MusicMessage;
 
 	private static _instance:SpotifyHelper;
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
-	private _lastTrackInfo!:MusicMessage|null;
+	private _lastTrackInfo!:TwitchatDataTypes.MusicMessage|null;
 	private _headers!:{"Accept":string, "Content-Type":string, "Authorization":string};
 	private _clientID = "";
 	private _clientSecret = "";
@@ -303,7 +303,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
 				|| this._lastTrackInfo?.title != this.currentTrack.title
 				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
-					const triggerData:MusicTriggerData = {
+					const triggerData:TwitchatDataTypes.MusicTriggerData = {
 						type: "musicEvent",
 						start:true,
 						music:this.currentTrack,
@@ -332,7 +332,7 @@ export default class SpotifyHelper extends EventDispatcher {
 					});
 
 					//Broadcast to the triggers
-					const triggerData:MusicTriggerData = {
+					const triggerData:TwitchatDataTypes.MusicTriggerData = {
 						type: "musicEvent",
 						start:false,
 					}

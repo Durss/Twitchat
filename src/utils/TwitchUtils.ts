@@ -1,3 +1,4 @@
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
 import BTTVUtils from "./BTTVUtils";
@@ -929,8 +930,8 @@ export default class TwitchUtils {
 	/**
 	 * Get pronouns of a user
 	 */
-	public static async getPronouns(uid: string, username: string): Promise<TwitchDataTypes.Pronoun | null> {
-		const getPronounAlejo = async (): Promise<TwitchDataTypes.Pronoun | null> => {
+	public static async getPronouns(uid: string, username: string): Promise<TwitchatDataTypes.Pronoun | null> {
+		const getPronounAlejo = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
 			const res = await fetch(`https://pronouns.alejo.io/api/users/${username}`);
 			const data = await res.json();
 
@@ -943,7 +944,7 @@ export default class TwitchUtils {
 			return null;
 		};
 
-		const getPronounPronounDb = async (): Promise<TwitchDataTypes.Pronoun | null> => {
+		const getPronounPronounDb = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
 			const res = await fetch(`https://pronoundb.org/api/v1/lookup?platform=twitch&id=${uid}`);
 			const data = await res.json();
 
@@ -957,7 +958,7 @@ export default class TwitchUtils {
 			};
 		}
 
-		let pronoun:TwitchDataTypes.Pronoun | null = null;
+		let pronoun:TwitchatDataTypes.Pronoun | null = null;
 		try {
 			pronoun = await getPronounAlejo();
 		}catch(error) {

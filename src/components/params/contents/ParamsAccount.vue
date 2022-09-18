@@ -26,7 +26,7 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Store from '@/store/Store';
-import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
@@ -60,7 +60,7 @@ export default class ParamsAccount extends Vue {
 	public get userName():string { return UserSession.instance.authToken.login; }
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get donorLevel():number { return UserSession.instance.donorLevel; }
-	public get contentAbout():ParamsContentStringType { return ParamsContentType.ABOUT; } 
+	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ABOUT; } 
 	public get userPP():string {
 		let pp:string|undefined = UserSession.instance.user?.profile_image_url;
 		if(!pp) {

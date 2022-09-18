@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type ParameterCategory, type ParameterData, type ParamsContentStringType, type PlaceholderEntry } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
@@ -72,8 +72,8 @@ import PostOnChatParam from '../PostOnChatParam.vue';
 })
 export default class ParamsList extends Vue {
 
-	public category!:ParameterCategory;
-	public filteredParams!:ParameterData[];
+	public category!:TwitchatDataTypes.ParameterCategory;
+	public filteredParams!:TwitchatDataTypes.ParameterData[];
 
 	public showAdInfo:boolean = false;
 
@@ -103,7 +103,7 @@ export default class ParamsList extends Vue {
 		return OBSWebsocket.instance.connected;
 	}
 
-	public get soPlaceholders():PlaceholderEntry[] {
+	public get soPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
 		return [
 			{
 				tag:"USER",
@@ -124,8 +124,8 @@ export default class ParamsList extends Vue {
 		];
 	}
 
-	public get params():{[key:string]:ParameterData} {
-		let res:{[key:string]:ParameterData} = {};
+	public get params():{[key:string]:TwitchatDataTypes.ParameterData} {
+		let res:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 		if(this.filteredParams?.length > 0) {
 			for (let i = 0; i < this.filteredParams.length; i++) {
 				const p = this.filteredParams[i];
@@ -137,17 +137,17 @@ export default class ParamsList extends Vue {
 
 			for (const key in StoreProxy.store.state.params[this.category]) {
 				if(StoreProxy.store.state.params[this.category][key].parent) continue;
-				res[key] = (StoreProxy.store.state.params[this.category] as {[key:string]:ParameterData})[key] as ParameterData;
+				res[key] = (StoreProxy.store.state.params[this.category] as {[key:string]:TwitchatDataTypes.ParameterData})[key] as TwitchatDataTypes.ParameterData;
 			}
 		}
 		return res;
 	}
 	
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
-	public get contentEmergency():ParamsContentStringType { return ParamsContentType.EMERGENCY; } 
-	public get contentSpoiler():ParamsContentStringType { return ParamsContentType.SPOILER; } 
-	public get contentAlert():ParamsContentStringType { return ParamsContentType.ALERT; } 
-	public get contentSponsor():ParamsContentStringType { return ParamsContentType.SPONSOR; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
+	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.EMERGENCY; } 
+	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ALERT; } 
+	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.SPONSOR; } 
 
 	public onShowItem(el:HTMLDivElement, done:()=>void):void {
 		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{

@@ -22,8 +22,8 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
-import type { WheelData } from '@/types/TwitchatDataTypes';
 import type { WheelItem } from '@/utils/CommonDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -241,7 +241,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	}
 
 	public async onStartWheel(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as WheelData;
+		const data = (e.data as unknown) as TwitchatDataTypes.WheelData;
 		const winner = data.items.find(v=>v.id == data.winner);
 		if(!winner) {
 			console.log("Invalid winner ID", data.winner);

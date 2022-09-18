@@ -34,7 +34,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Splitter from '@/components/Splitter.vue';
-import { ParamsContentType, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Options, Vue } from 'vue-class-component';
 
@@ -48,7 +48,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ParamsStreamdeck extends Vue {
 	
-	public get contentObs():ParamsContentStringType { return ParamsContentType.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 

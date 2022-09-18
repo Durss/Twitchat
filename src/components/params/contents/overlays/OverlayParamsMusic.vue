@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import type { MusicPlayerParamsData, ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -47,21 +47,21 @@ import ParamItem from '../../ParamItem.vue';
 })
 export default class OverlayParamsMusic extends Vue {
 
-	public param_noScroll:ParameterData = {type:"toggle", label:"Disable scrolling", value:false};
-	public param_openFromLeft:ParameterData = {type:"toggle", label:"Open from left", value:false};
-	public param_autoHide:ParameterData = {type:"toggle", label:"Keep player visible if nothing is playing", value:false};
-	public param_autoHideErase:ParameterData = {type:"toggle", label:"Erase track infos when nothing is playing", value:true};
-	public param_showCover:ParameterData = {type:"toggle", label:"Show cover", value:true};
-	public param_showArtist:ParameterData = {type:"toggle", label:"Show artist", value:true};
-	public param_showTitle:ParameterData = {type:"toggle", label:"Show title", value:true};
-	public param_showProgress:ParameterData = {type:"toggle", label:"Show progress bar", value:true};
-	public param_customTemplateToggle:ParameterData = {type:"toggle", label:"Use custom template", value:true};
-	public param_customTemplate:ParameterData = {type:"text", label:"Template (HTML accepted)", value:"", longText:true, placeholderList:[{tag:"TITLE", desc:"track title"}, {tag:"ARTIST", desc:"track artist"}]};
+	public param_noScroll:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Disable scrolling", value:false};
+	public param_openFromLeft:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Open from left", value:false};
+	public param_autoHide:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Keep player visible if nothing is playing", value:false};
+	public param_autoHideErase:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Erase track infos when nothing is playing", value:true};
+	public param_showCover:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show cover", value:true};
+	public param_showArtist:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show artist", value:true};
+	public param_showTitle:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show title", value:true};
+	public param_showProgress:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show progress bar", value:true};
+	public param_customTemplateToggle:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Use custom template", value:true};
+	public param_customTemplate:TwitchatDataTypes.ParameterData = {type:"text", label:"Template (HTML accepted)", value:"", longText:true, placeholderList:[{tag:"TITLE", desc:"track title"}, {tag:"ARTIST", desc:"track artist"}]};
 	
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {
-		const params = StoreProxy.store.state.musicPlayerParams as MusicPlayerParamsData;
+		const params = StoreProxy.store.state.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		this.param_autoHide.children = [this.param_autoHideErase];
 		this.param_autoHideErase.value = params.erase;
 		this.param_customTemplateToggle.children = [this.param_customTemplate];

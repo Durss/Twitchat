@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import type { TriggerActionTriggerData, TriggerData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import StoreProxy from '@/utils/StoreProxy';
@@ -63,25 +63,25 @@ import ToggleBlock from '../../../../ToggleBlock.vue';
 })
 export default class TriggerActionTriggerEntry extends Vue {
 
-	public action!:TriggerActionTriggerData;
-	public event!:TriggerEventTypes;
-	public triggerData!:TriggerData;
+	public action!:TwitchatDataTypes.TriggerActionTriggerData;
+	public event!:TwitchatDataTypes.TriggerEventTypes;
+	public triggerData!:TwitchatDataTypes.TriggerData;
 	public triggerKey!:string;
 
 	public loading:boolean = true;
-	public dependencyLoopInfos:{event?:TriggerEventTypes, label:string}[] = [];
-	public triggerList:{triggerKey:string, label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
+	public dependencyLoopInfos:{event?:TwitchatDataTypes.TriggerEventTypes, label:string}[] = [];
+	public triggerList:{triggerKey:string, label:string, trigger:TwitchatDataTypes.TriggerData, info:TwitchatDataTypes.TriggerEventTypes}[] = [];
 	
 	private rewards:TwitchDataTypes.Reward[] = [];
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
-	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TriggerData}){ return option.triggerKey; }
+	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TwitchatDataTypes.TriggerData}){ return option.triggerKey; }
 
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerEventTypes):string {
+	public getIcon(e:TwitchatDataTypes.TriggerEventTypes):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) {
 			return e.icon as string;
@@ -103,11 +103,11 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateList():Promise<void> {
-		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.store.state.triggers;
 		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
-			const info:TriggerEventTypes|undefined = TriggerEvents.find(v=> v.value === mainKey);
+			const info:TwitchatDataTypes.TriggerEventTypes|undefined = TriggerEvents.find(v=> v.value === mainKey);
 			if(!info) continue;
 			if(info.isCategory) {
 				const subKey = key.split("_")[1];
@@ -189,9 +189,9 @@ export default class TriggerActionTriggerEntry extends Vue {
 		}
 	}
 
-	private recursiveLoopCheck(base?:TriggerData, key?:string):string[] {
+	private recursiveLoopCheck(base?:TwitchatDataTypes.TriggerData, key?:string):string[] {
 		if(!this.action.triggerKey) return [];
-		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.store.state.triggers;
 		let found:string[] = [];
 		if(!base) {
 			base = this.triggerData;

@@ -115,7 +115,7 @@
 
 <script lang="ts">
 import Store from '@/store/Store';
-import type { ParameterData, ParamsContentStringType, PlaceholderEntry, TriggerActionRaffleData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { RaffleData } from '@/utils/CommonDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
@@ -160,7 +160,7 @@ export default class RaffleForm extends Vue {
 	public voiceControl!:boolean;
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
-	public action!:TriggerActionRaffleData;
+	public action!:TwitchatDataTypes.TriggerActionRaffleData;
 
 	public pickingEntry = false;
 	public winner:TwitchDataTypes.Subscriber|null = null;
@@ -168,23 +168,23 @@ export default class RaffleForm extends Vue {
 
 	public mode:"chat"|"sub"|"manual" = "chat";
 
-	public command:ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
-	public enterDuration:ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
-	public maxUsersToggle:ParameterData = {label:"Limit users count", value:false, type:"toggle"};
-	public maxEntries:ParameterData = {label:"Max users count", value:10, type:"number", min:0, max:1000000};
-	public ponderateVotes:ParameterData = {label:"Ponderate votes (additional points given for every matching criteria)", value:false, type:"toggle"};
-	public ponderateVotes_vip:ParameterData = {label:"VIP", value:0, type:"number", min:0, max:100, icon:"vip_purple.svg"};
-	public ponderateVotes_sub:ParameterData = {label:"Subscriber", value:0, type:"number", min:0, max:100, icon:"sub_purple.svg"};
-	public ponderateVotes_subgift:ParameterData = {label:"Sub gifter", value:0, type:"number", min:0, max:100, icon:"gift_purple.svg"};
-	public ponderateVotes_follower:ParameterData = {label:"Follower", value:0, type:"number", min:0, max:100, icon:"follow_purple.svg"};
-	public subs_includeGifters:ParameterData = {label:"Include sub gifters (user not sub but that subgifted someone else)", value:true, type:"toggle", icon:"gift_purple.svg"};
-	public subs_excludeGifted:ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
-	public showCountdownOverlay:ParameterData = {label:"Show overlay countdown", value:false, type:"toggle", icon:"countdown_purple.svg"};
-	public customEntries:ParameterData = {label:"(Seperate entries with a coma or a line break)", value:"", type:"text", placeholder:"entry 1, entry 2, entry 3, ...", longText:true};
+	public command:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"Command", placeholder:"!raffle"};
+	public enterDuration:TwitchatDataTypes.ParameterData = {label:"Raffle duration (minutes)", value:10, type:"number", min:1, max:30};
+	public maxUsersToggle:TwitchatDataTypes.ParameterData = {label:"Limit users count", value:false, type:"toggle"};
+	public maxEntries:TwitchatDataTypes.ParameterData = {label:"Max users count", value:10, type:"number", min:0, max:1000000};
+	public ponderateVotes:TwitchatDataTypes.ParameterData = {label:"Ponderate votes (additional points given for every matching criteria)", value:false, type:"toggle"};
+	public ponderateVotes_vip:TwitchatDataTypes.ParameterData = {label:"VIP", value:0, type:"number", min:0, max:100, icon:"vip_purple.svg"};
+	public ponderateVotes_sub:TwitchatDataTypes.ParameterData = {label:"Subscriber", value:0, type:"number", min:0, max:100, icon:"sub_purple.svg"};
+	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData = {label:"Sub gifter", value:0, type:"number", min:0, max:100, icon:"gift_purple.svg"};
+	public ponderateVotes_follower:TwitchatDataTypes.ParameterData = {label:"Follower", value:0, type:"number", min:0, max:100, icon:"follow_purple.svg"};
+	public subs_includeGifters:TwitchatDataTypes.ParameterData = {label:"Include sub gifters (user not sub but that subgifted someone else)", value:true, type:"toggle", icon:"gift_purple.svg"};
+	public subs_excludeGifted:TwitchatDataTypes.ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
+	public showCountdownOverlay:TwitchatDataTypes.ParameterData = {label:"Show overlay countdown", value:false, type:"toggle", icon:"countdown_purple.svg"};
+	public customEntries:TwitchatDataTypes.ParameterData = {label:"(Seperate entries with a coma or a line break)", value:"", type:"text", placeholder:"entry 1, entry 2, entry 3, ...", longText:true};
 
-	public startPlaceholders:PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
-	public winnerPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
-	public joinPlaceholders:PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public startPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
+	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public joinPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
@@ -303,7 +303,7 @@ export default class RaffleForm extends Vue {
 		}
 	}
 	
-	public openParam(page:ParamsContentStringType):void {
+	public openParam(page:TwitchatDataTypes.ParamsContentStringType):void {
 		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
 		StoreProxy.store.dispatch("showParams", true);
 	}

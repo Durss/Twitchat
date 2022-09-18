@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import type { ChatPollData, ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -58,10 +58,10 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatPollForm extends Vue {
 	
-	public command:ParameterData = {type:"text", value:"!sugg", label:"Command", placeholder:"!sugg", maxLength:31};
-	public duration:ParameterData = {label:"Poll duration (minutes)", value:2, type:"number", min:1, max:30};
-	public multiAnswers:ParameterData = {label:"Users can submit multiple entries", value:false, type:"toggle"};
-	public permissions:PermissionsData = {
+	public command:TwitchatDataTypes.ParameterData = {type:"text", value:"!sugg", label:"Command", placeholder:"!sugg", maxLength:31};
+	public duration:TwitchatDataTypes.ParameterData = {label:"Poll duration (minutes)", value:2, type:"number", min:1, max:30};
+	public multiAnswers:TwitchatDataTypes.ParameterData = {label:"Users can submit multiple entries", value:false, type:"toggle"};
+	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
 		vips:true,
@@ -90,7 +90,7 @@ export default class ChatPollForm extends Vue {
 	}
 
 	public submitChatPoll():void {
-		const data:ChatPollData = {
+		const data:TwitchatDataTypes.ChatPollData = {
 			startTime:Date.now(),
 			command:(this.command.value as string).trim(),
 			duration:this.duration.value as number,

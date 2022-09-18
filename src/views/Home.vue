@@ -354,7 +354,7 @@ import Button from '@/components/Button.vue';
 import Store from '@/store/Store';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
-import type {AnchorData} from '@/types/TwitchatDataTypes';
+import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../components/Splitter.vue';
@@ -370,7 +370,7 @@ import AnchorsMenu from '../components/AnchorsMenu.vue';
 })
 export default class Home extends Vue {
 
-	public anchors:AnchorData[] = [];
+	public anchors:TwitchatDataTypes.AnchorData[] = [];
 
 	private index = 0;
 	private disposed = false;
@@ -390,7 +390,7 @@ export default class Home extends Vue {
 
 		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
 
-		let anchors:AnchorData[] = [];
+		let anchors:TwitchatDataTypes.AnchorData[] = [];
 		for(let i = 0; i < divs.length; i++) {
 			const div = divs[i] as HTMLDivElement
 			observer.observe(div);
@@ -434,7 +434,7 @@ export default class Home extends Vue {
 		window.location.href = url;
 	}
 
-	public onSelectAnchor(data:AnchorData):void {
+	public onSelectAnchor(data:TwitchatDataTypes.AnchorData):void {
 		const offsetY = (window.innerHeight - data.div.getBoundingClientRect().height) / 2;
 		const scrollable = (this.$el as HTMLDivElement).parentNode;
 		gsap.to(scrollable, {duration: 1, scrollTo: {y:data.div, offsetY}, ease:"sine.inOut"});
@@ -473,7 +473,7 @@ export default class Home extends Vue {
 
 		const center = window.innerHeight / 2;
 		let closestPosToCenter = 99999999;
-		let closestToCenter:AnchorData|null = null;
+		let closestToCenter:TwitchatDataTypes.AnchorData|null = null;
 		for (let i = 0; i < this.anchors.length; i++) {
 			const a = this.anchors[i];
 			const bounds = a.div.getBoundingClientRect();

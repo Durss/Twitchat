@@ -211,7 +211,6 @@
 </template>
 
 <script lang="ts">
-import { TwitchatAdTypes, type BingoConfig } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -235,6 +234,7 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import gsap from 'gsap';
 import Store from '@/store/Store';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -463,7 +463,7 @@ export default class ChatForm extends Vue {
 		if(cmd == "/bingo") {
 			//Open bingo form
 			if(params[0] == "number" || params[0] == "emote") {
-				const payload:BingoConfig = {
+				const payload:TwitchatDataTypes.BingoConfig = {
 					guessNumber: params[0] == "number",
 					guessEmote: params[0] == "emote",
 					min: 0,
@@ -548,7 +548,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/tip") {
-			StoreProxy.store.dispatch("sendTwitchatAd", TwitchatAdTypes.TIP_AND_TRICK);
+			StoreProxy.store.dispatch("sendTwitchatAd", TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 			this.message = "";
 		}else
 

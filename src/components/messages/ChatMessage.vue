@@ -105,8 +105,6 @@
 </template>
 
 <script lang="ts">
-import type { ChatMessageInfoData } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -124,6 +122,8 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from './ChatModTools.vue';
 import ChatMessageInfos from './ChatMessageInfos.vue';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	components:{
@@ -153,7 +153,7 @@ export default class ChatMessage extends Vue {
 	public badges:TwitchDataTypes.Badge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
-	public infoBadges:ChatMessageInfoData[] = [];
+	public infoBadges:TwitchatDataTypes.ChatMessageInfoData[] = [];
 
 	public get pronoun():string|null {
 		const key = StoreProxy.store.state.userPronouns[this.messageData.tags['user-id'] as string];
@@ -483,6 +483,9 @@ export default class ChatMessage extends Vue {
 						break;
 					case "sexuality_sex_or_gender":
 						textReasons.push("gender or sex hate");
+						break;
+					case "dating_and_sexting":
+						textReasons.push("sexual content");
 						break;
 					case "swearing":
 					case "aggression":

@@ -51,7 +51,7 @@ import WhispersState from './WhispersState.vue';
 import DeezerState from './DeezerState.vue';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { HypeTrainStateData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
@@ -81,7 +81,7 @@ export default class ChannelNotifications extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public get showRaid():boolean { return StoreProxy.store.state.raiding != null; }
-	public get showHypeTrain():boolean { return StoreProxy.store.state.params.filters.showHypeTrain.value as boolean && (StoreProxy.store.state.hypeTrain as HypeTrainStateData).level != undefined; }
+	public get showHypeTrain():boolean { return StoreProxy.store.state.params.filters.showHypeTrain.value as boolean && (StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData).level != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && (StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
 	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && StoreProxy.store.state.chatPoll != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && (StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }

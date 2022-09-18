@@ -49,8 +49,8 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
-import type { ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -66,8 +66,8 @@ export default class DataServerSyncModal extends Vue {
 	public isNewUser:boolean = true;
 	public loading:boolean = true;
 	public uploading:boolean = false;
-	public sync_param:ParameterData = JSON.parse(JSON.stringify(StoreProxy.store.state.accountParams.syncDataWithServer));
-	public upload_param:ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
+	public sync_param:TwitchatDataTypes.ParameterData = JSON.parse(JSON.stringify(StoreProxy.store.state.accountParams.syncDataWithServer));
+	public upload_param:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
 
 	public async mounted():Promise<void> {
 		gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});

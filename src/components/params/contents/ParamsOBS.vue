@@ -81,7 +81,7 @@
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Store from '@/store/Store';
-import type { ParameterData, PermissionsData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import StoreProxy from '@/utils/StoreProxy';
@@ -116,11 +116,11 @@ export default class ParamsOBS extends Vue {
 	public connectSuccess = false;
 	public showPermissions = false;
 	public openConnectForm = false;
-	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
-	public obsPort_conf:ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
-	public permissions:PermissionsData = {
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
 		vips: false,

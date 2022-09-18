@@ -51,7 +51,6 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -59,10 +58,10 @@ import ParamItem from '../params/ParamItem.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import TwitchUtils from '@/utils/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { StreamInfoPreset } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import ToggleBlock from '../ToggleBlock.vue';
 import StoreProxy from '@/utils/StoreProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -76,18 +75,18 @@ import StoreProxy from '@/utils/StoreProxy';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_title:ParameterData = {label:"Title", value:"", type:"text", placeholder:"title...", maxLength:140};
-	public param_savePreset:ParameterData = {label:"Save to presets", value:false, type:"toggle"};
-	public param_namePreset:ParameterData = {label:"Preset name", value:"", type:"text", placeholder:"name...", maxLength:50};
+	public param_title:TwitchatDataTypes.ParameterData = {label:"Title", value:"", type:"text", placeholder:"title...", maxLength:140};
+	public param_savePreset:TwitchatDataTypes.ParameterData = {label:"Save to presets", value:false, type:"toggle"};
+	public param_namePreset:TwitchatDataTypes.ParameterData = {label:"Preset name", value:"", type:"text", placeholder:"name...", maxLength:50};
 
 	public saving:boolean = false;
 	public loading:boolean = true;
 	public forceOpenForm:boolean = false;
 	public tags:TwitchDataTypes.StreamTag[] = [];
 	public categories:TwitchDataTypes.StreamCategory[] = [];
-	public presetEditing:StreamInfoPreset|null = null;
+	public presetEditing:TwitchatDataTypes.StreamInfoPreset|null = null;
 
-	public get presets():StreamInfoPreset[] {
+	public get presets():TwitchatDataTypes.StreamInfoPreset[] {
 		return StoreProxy.store.state.streamInfoPreset;
 	}
 
@@ -144,7 +143,7 @@ export default class StreamInfoForm extends Vue {
 	public async updateStreamInfo():Promise<void> {
 		this.saving = true;
 		if(this.param_savePreset.value === true || this.presetEditing) {
-			const preset:StreamInfoPreset = {
+			const preset:TwitchatDataTypes.StreamInfoPreset = {
 				name:this.param_namePreset.value as string,
 				id:crypto.randomUUID(),
 				title:this.param_title.value as string,
@@ -174,11 +173,11 @@ export default class StreamInfoForm extends Vue {
 		this.forceOpenForm = false;
 	}
 
-	public async deletePreset(p:StreamInfoPreset):Promise<void> {
+	public async deletePreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		StoreProxy.store.dispatch("deleteStreamInfoPreset", p);
 	}
 
-	public async editPreset(p:StreamInfoPreset):Promise<void> {
+	public async editPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.loading = true;
 		this.forceOpenForm = true;
 		this.presetEditing = p;
@@ -203,7 +202,7 @@ export default class StreamInfoForm extends Vue {
 		this.loading = false;
 	}
 
-	public async applyPreset(p:StreamInfoPreset):Promise<void> {
+	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		try {
 			await TwitchUtils.setStreamTags(p.tagIDs as string[]);

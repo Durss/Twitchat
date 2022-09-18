@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import type { MusicMessage, MusicPlayerParamsData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import StoreProxy from '@/utils/StoreProxy';
@@ -66,7 +66,7 @@ export default class OverlayMusicPlayer extends Vue {
 	public embed!:boolean;
 	public keepEmbedTransitions!:boolean;
 	public playbackPos!:number;
-	public staticTrackData!:MusicMessage;
+	public staticTrackData!:TwitchatDataTypes.MusicMessage;
 	
 	public artist = "";
 	public title = "";
@@ -75,7 +75,7 @@ export default class OverlayMusicPlayer extends Vue {
 	public progress = 0;
 	public isPlaying = false;
 	public resetScrolling = false;
-	public params:MusicPlayerParamsData|null = null;
+	public params:TwitchatDataTypes.MusicPlayerParamsData|null = null;
 
 	public get paused():boolean { return !DeezerHelper.instance.playing; }
 
@@ -104,8 +104,8 @@ export default class OverlayMusicPlayer extends Vue {
 
 	public mounted():void {
 		this.onTrackHandler = async (e:TwitchatEvent) => {
-			if(e.data && ((e.data as unknown) as {params:MusicPlayerParamsData}).params){
-				const obj = (e.data as unknown) as  { params:MusicPlayerParamsData }
+			if(e.data && ((e.data as unknown) as {params:TwitchatDataTypes.MusicPlayerParamsData}).params){
+				const obj = (e.data as unknown) as  { params:TwitchatDataTypes.MusicPlayerParamsData }
 				this.params = obj.params;
 			}
 			if((e.data as {trackName?:string}).trackName) {
@@ -118,7 +118,7 @@ export default class OverlayMusicPlayer extends Vue {
 								trackDuration:number,
 								trackPlaybackPos:number,
 								cover:string,
-								params:MusicPlayerParamsData,
+								params:TwitchatDataTypes.MusicPlayerParamsData,
 							}
 				this.artist = obj.artistName;
 				this.title = obj.trackName;
@@ -192,7 +192,7 @@ export default class OverlayMusicPlayer extends Vue {
 
 	private onTrackChangeLocal():void {
 		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
-		this.params = StoreProxy.store.state.musicPlayerParams as MusicPlayerParamsData;
+		this.params = StoreProxy.store.state.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		if(track) {
 			this.artist = track.artist;
 			this.title = track.title;

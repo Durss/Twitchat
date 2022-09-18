@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import type { BotMessageField, ParameterData, PlaceholderEntry } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -50,12 +50,12 @@ export default class PostOnChatParam extends Vue {
 	public icon!:string;
 	public title!:string;
 	public noToggle!:boolean;
-	public botMessageKey!:BotMessageField;
-	public placeholders!:PlaceholderEntry[];
+	public botMessageKey!:TwitchatDataTypes.BotMessageField;
+	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public error:string = "";
-	public enabledParam:ParameterData = { label:"", value:false, type:"toggle", maxLength:500};
-	public textParam:ParameterData = { label:"", value:"", type:"text", longText:true};
+	public enabledParam:TwitchatDataTypes.ParameterData = { label:"", value:false, type:"toggle", maxLength:500};
+	public textParam:TwitchatDataTypes.ParameterData = { label:"", value:"", type:"text", longText:true};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 

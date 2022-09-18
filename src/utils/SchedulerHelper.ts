@@ -1,5 +1,5 @@
 import Store from "@/store/Store";
-import type { TriggerData, TriggerScheduleData } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { IRCEventDataList } from "./IRCEventDataTypes";
 import StoreProxy from "./StoreProxy";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
@@ -14,7 +14,7 @@ export default class SchedulerHelper {
 	private static _instance:SchedulerHelper;
 	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
 	private _frameIndex:number = 0;
-	private _adSchedule?:TriggerScheduleData;
+	private _adSchedule?:TwitchatDataTypes.TriggerScheduleData;
 	private _adScheduleTimeout?:number;
 	
 	constructor() {
@@ -41,7 +41,7 @@ export default class SchedulerHelper {
 	 * Starts the scheduler
 	 */
 	public start():void {
-		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.store.state.triggers;
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			if(mainKey == TriggerTypes.SCHEDULE) {
@@ -77,7 +77,7 @@ export default class SchedulerHelper {
 	 * @param schedule 
 	 * @returns 
 	 */
-	public scheduleTrigger(key:string, schedule:TriggerScheduleData):void {
+	public scheduleTrigger(key:string, schedule:TwitchatDataTypes.TriggerScheduleData):void {
 		if(!schedule) return;
 
 		//Cleanup any previously scheduled trigger
@@ -191,7 +191,7 @@ export default class SchedulerHelper {
 		//is slowed down to 1 fps and tasks still executed in background
 		if(this._frameIndex++ < 60) return;
 		this._frameIndex = 0;
-		const triggers:{[key:string]:TriggerData} = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.store.state.triggers;
 
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];

@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import type { CommandData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
@@ -165,7 +165,7 @@ export default class AutocompleteChatForm extends Vue {
 			if(this.commands) {
 				const cmds = StoreProxy.store.state.commands;
 				for (let j = 0; j < cmds.length; j++) {
-					const e = cmds[j] as CommandData;
+					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
 						if(e.needTTS === true && !StoreProxy.store.state.ttsParams.enabled) continue;
 						if(e.needChannelPoints === true && !StoreProxy.store.state.hasChannelPoints) continue;

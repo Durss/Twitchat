@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterCategory, ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -143,12 +143,12 @@ export default class ParamItem extends Vue {
 	public autofocus!:boolean;
 	public clearToggle!:boolean;
 	public childLevel!:number;
-	public paramData!:ParameterData;
+	public paramData!:TwitchatDataTypes.ParameterData;
 	public modelValue!:string|boolean|number|string[];
 
 	public key:string = Math.random().toString();
 	public showSlot:boolean = false;
-	public children:ParameterData[] = [];
+	public children:TwitchatDataTypes.ParameterData[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
@@ -252,9 +252,9 @@ export default class ParamItem extends Vue {
 		}
 
 		const list = StoreProxy.store.state.params;
-		let children:ParameterData[] = [];
+		let children:TwitchatDataTypes.ParameterData[] = [];
 		for (const key in list) {
-			const params = list[key as ParameterCategory];
+			const params = list[key as TwitchatDataTypes.ParameterCategory];
 			for (const key2 in params) {
 				if(params[key2].parent != undefined && params[key2].parent == this.paramData.id) {
 					children.push(params[key2]);

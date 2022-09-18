@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData, TriggerActionChatData, TriggerEventTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -24,11 +24,11 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionChatEntry extends Vue {
 
-	public action!:TriggerActionChatData;
-	public event!:TriggerEventTypes;
+	public action!:TwitchatDataTypes.TriggerActionChatData;
+	public event!:TwitchatDataTypes.TriggerEventTypes;
 	public triggerKey!:string;
 	
-	public message_conf:ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
 		return (this.message_conf.value as string)

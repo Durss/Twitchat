@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import type { ParameterData } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import VoiceAction from '@/utils/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
@@ -36,7 +36,7 @@ export default class VoiceGlobalCommands extends Vue {
 
 	public open!:boolean;
 
-	public items:ParameterData[] = [];
+	public items:TwitchatDataTypes.ParameterData[] = [];
 	public itemsID:string[] = [];
 	public openLocal:boolean = false;
 	

@@ -78,7 +78,6 @@
 </template>
 
 <script lang="ts">
-import type { AutomodParamsData, AutomodParamsKeywordFilterData, ParameterData } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/utils/StoreProxy';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import { reactive, watch, type StyleValue } from 'vue';
@@ -88,6 +87,7 @@ import ParamItem from '../ParamItem.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
 import ToggleButton from '../../ToggleButton.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -102,14 +102,14 @@ import ToggleButton from '../../ToggleButton.vue';
 export default class ParamsAutomod extends Vue {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:ParameterData = {type:"toggle", label:"Enabled", value:false};
-	public param_banUserNames:ParameterData = {type:"toggle", label:"Ban users whose names match a mod rule", value:false};
-	public param_keywordsLabel:{[key:string]:ParameterData} = {};
-	public param_keywordsRegex:{[key:string]:ParameterData} = {};
-	public param_keywordsSync:{[key:string]:ParameterData} = {};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Ban users whose names match a mod rule", value:false};
+	public param_keywordsLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_keywordsRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_keywordsSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public keywordToValid:{[key:string]:boolean} = {};
 	public keywordToOpen:{[key:string]:boolean} = {};
-	public automodData!:AutomodParamsData;
+	public automodData!:TwitchatDataTypes.AutomodParamsData;
 
 	/**
 	 * Cleaned up test string with special chars replaced
@@ -119,8 +119,8 @@ export default class ParamsAutomod extends Vue {
 	/**
 	 * Check if the current test matches any of the rules
 	 */
-	public get blockedBy():AutomodParamsKeywordFilterData[] {
-		let matchedRules:AutomodParamsKeywordFilterData[] = [];
+	public get blockedBy():TwitchatDataTypes.AutomodParamsKeywordFilterData[] {
+		let matchedRules:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
 		for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
 			const f = this.automodData.keywordsFilters[i];
 			if(f.regex.length === 0) continue;
@@ -170,7 +170,7 @@ export default class ParamsAutomod extends Vue {
 	 * Add a rule
 	 */
 	public addRule():void {
-		const item:AutomodParamsKeywordFilterData = {
+		const item:TwitchatDataTypes.AutomodParamsKeywordFilterData = {
 			id:crypto.randomUUID(),
 			label:"",
 			regex:"",
@@ -184,7 +184,7 @@ export default class ParamsAutomod extends Vue {
 	/**
 	 * Delete a rule
 	 */
-	public deleteRule(rule:AutomodParamsKeywordFilterData):void {
+	public deleteRule(rule:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		this.$confirm("Delete rule?", "This cannot be undone").then(()=> {
 			for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
 				const f = this.automodData.keywordsFilters[i];
@@ -206,7 +206,7 @@ export default class ParamsAutomod extends Vue {
 	/**
 	 * Test if a regex is valid
 	 */
-	public onRegexChange(data:AutomodParamsKeywordFilterData):void {
+	public onRegexChange(data:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		let valid:boolean = true;
 		try {
 			new RegExp(data.regex, "gi");
@@ -216,7 +216,7 @@ export default class ParamsAutomod extends Vue {
 		this.keywordToValid[data.id] = valid;
 	}
 
-	private initRule(data:AutomodParamsKeywordFilterData):void {
+	private initRule(data:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		this.keywordToOpen[data.id]			= data.label.length === 0 || data.regex.length === 0;
 		this.keywordToValid[data.id]		= true;
 		this.param_keywordsLabel[data.id]	= {label:'Rule name', type:'text', value:'', maxLength:100};

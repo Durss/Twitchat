@@ -31,7 +31,6 @@
 </template>
 
 <script lang="ts">
-import { ParamsContentType, type MusicMessage, type ParamsContentStringType } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
@@ -39,6 +38,7 @@ import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{},
@@ -54,10 +54,10 @@ export default class OverlayParamsDeezer extends Vue {
 
 	public open = false;
 	public authenticating = false;
-	public currentTrack:MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
+	public currentTrack:TwitchatDataTypes.MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get deezerConnected():boolean { return StoreProxy.store.state.deezerConnected; }
-	public get contentTriggers():ParamsContentStringType { return ParamsContentType.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
