@@ -199,3 +199,10 @@ Run the following command:
 npm run streamdeck_package
 ```
 The file `fr.twitchat.streamDeckPlugin` should be built back.
+<br>
+<br>
+<br>
+
+# TODO
+- [ ] Make a MASSIVE refactoring to abstract twitch's data model throughout the codebase to make other services (youtube, tiktok, ...) easier to add to twitchat.
+- [ ] Review the filtering logic of the messages so they're not the ones responsible to decide their own visibility

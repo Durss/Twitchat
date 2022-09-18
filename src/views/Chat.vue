@@ -802,6 +802,9 @@ export default class Chat extends Vue {
 				left: auto;
 				right:0;
 			}
+			&.actions, &.emotes, &.devmode {
+				max-height: calc(100vh - 60px);
+			}
 		}
 		&.switchCols {
 			.contentWindows.tts {

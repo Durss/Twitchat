@@ -1,6 +1,6 @@
 import type { PlaceholderEntry, TTSParamsData } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
-import { getTwitchatMessageType, TwitchatMessageType, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
+import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
 import PubSub from "./PubSub";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
@@ -101,7 +101,6 @@ export default class TTSUtils {
 		};
 		
 		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
-			
 		
 		watch(() => StoreProxy.store.state.chatMessages, async (value) => {
 				//There should be no need to read more than 100 new messages at a time
@@ -111,6 +110,22 @@ export default class TTSUtils {
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
 					const m = StoreProxy.store.state.chatMessages[i] as IRCEventDataList.Message;
+					if(this.idsParsed[m.tags.id as string] !== true) {
+						this.idsParsed[m.tags.id as string] = true;
+						this.parseMessage(m);
+					}
+				}
+				return;
+		});
+		
+		watch(() => StoreProxy.store.state.activityFeed, async (value) => {
+				//There should be no need to read more than 100 new messages at a time
+				//Unless the chat is ultra spammy in which case we wouldn't notice
+				//messages are missing from the list anyway...
+				const len = StoreProxy.store.state.activityFeed.length;
+				let i = Math.max(0, len - 100);
+				for (; i < len; i++) {
+					const m = StoreProxy.store.state.activityFeed[i] as ActivityFeedData;
 					if(this.idsParsed[m.tags.id as string] !== true) {
 						this.idsParsed[m.tags.id as string] = true;
 						this.parseMessage(m);
@@ -254,8 +269,8 @@ export default class TTSUtils {
 		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
 		const type = getTwitchatMessageType(message);
 
-		// console.log("Read message type", type);
-		// console.log(message);
+		console.log("Read message type", type);
+		console.log(message);
 
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
