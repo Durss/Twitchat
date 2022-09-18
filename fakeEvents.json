@@ -307,7 +307,7 @@
 		}
 	},
 	"automod": {
-		"type": "automod",
+		"type": "message",
 		"message": "<mark>batard</mark>",
 		"tags": {
 			"username": "durssbot",
