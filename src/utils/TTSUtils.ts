@@ -269,8 +269,8 @@ export default class TTSUtils {
 		const paramsTTS = StoreProxy.store.state.ttsParams as TTSParamsData;
 		const type = getTwitchatMessageType(message);
 
-		console.log("Read message type", type);
-		console.log(message);
+		// console.log("Read message type", type);
+		// console.log(message);
 
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
