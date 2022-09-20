@@ -374,6 +374,7 @@ export default class Home extends Vue {
 
 	private index = 0;
 	private disposed = false;
+	private prevTs = 0;
 
 	public get hasAuthToken():boolean { return Store.get(Store.TWITCH_AUTH_TOKEN) != null; }
 	public get nextIndex():number { return this.index ++; }
@@ -390,6 +391,7 @@ export default class Home extends Vue {
 
 		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
 
+		//Opening transition of left anchors
 		let anchors:AnchorData[] = [];
 		for(let i = 0; i < divs.length; i++) {
 			const div = divs[i] as HTMLDivElement
@@ -403,6 +405,7 @@ export default class Home extends Vue {
 		}
 		this.anchors = anchors;
 
+		//Opening transition ATF elements
 		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
@@ -413,7 +416,8 @@ export default class Home extends Vue {
 							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
 		}
 
-		this.moveLetters();
+		this.prevTs = Date.now() - 60/1000;
+		this.moveLetters(Date.now());
 	}
 
 	public beforeUnmount():void {
@@ -467,10 +471,15 @@ export default class Home extends Vue {
 		}
 	}
 
-	private moveLetters():void {
+	private moveLetters(ts:number):void {
 		if(this.disposed) return
-		requestAnimationFrame(()=> this.moveLetters());
+		requestAnimationFrame((ts:number)=> this.moveLetters(ts));
 
+		const timeScale = (60/1000) * (ts - this.prevTs);
+		this.prevTs = ts;
+		if(timeScale <= 0) return;
+
+		//Select anchors at the left depending on the current scroll
 		const center = window.innerHeight / 2;
 		let closestPosToCenter = 99999999;
 		let closestToCenter:AnchorData|null = null;
@@ -487,6 +496,7 @@ export default class Home extends Vue {
 		}
 		if(closestToCenter) closestToCenter.selected = true;
 
+		//Make letters move up
 		const letters = this.$refs.letter as HTMLImageElement[];
 		for (let i = 0; i < letters.length; i++) {
 			const l = letters[i];
@@ -501,8 +511,8 @@ export default class Home extends Vue {
 			if(py < - pageH - 200) py = 200;
 			l.style.top = (py - i*.1)+"px";
 			let r = parseFloat(l.style.transform.replace(/.*rotate\(([0-9.]+)deg\).*/gi, "$1"));
-			if(i %2 == 0) r += .01 * i;
-			else  r -= .01 * i;
+			if(i %2 == 0) r += .01 * i * timeScale;
+			else  r -= .01 * i * timeScale;
 			l.style.transform = l.style.transform.replace(/[0-9.]+deg/gi, r+"deg")
 		}
 	}

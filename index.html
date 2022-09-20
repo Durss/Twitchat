@@ -296,9 +296,13 @@
 		let closeLoader = false;
 		let increment = Math.PI/4;
 		let incrementClose = 0;
+		let prevTs = Date.now();
 		//Animate loader
-		function renderFrame() {
+		function renderFrame(ts) {
 			if(!loader.parentNode) return;//Loader removed from stage
+
+			const timeScale = (60/1000) * (ts - prevTs);
+			prevTs = ts;
 
 			let visibleCount = 0;
 			for (let i = 0; i < letters.length; i++) {
@@ -328,10 +332,10 @@
 				l.style.zIndex = Math.round(scale*letters.length);
 				l.style.opacity = Math.max(0, o);
 				if(o > 0) visibleCount++;
-				increment += .0065;
+				increment += .0065 * timeScale;
 			}
 			if(visibleCount > 0) {
-				requestAnimationFrame(()=>renderFrame());
+				requestAnimationFrame((ts)=>renderFrame(ts));
 			}else{
 				loader.parentNode.removeChild(loader);
 			}
@@ -340,7 +344,7 @@
 		if(showLoader) {
 			document.body.style.backgroundColor = "#18181b";
 			loader.style.display = "block";
-			renderFrame();
+			renderFrame(Date.now());
 		}
 
 		function closeInitLoader() {

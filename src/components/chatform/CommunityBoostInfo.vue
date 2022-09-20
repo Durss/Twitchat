@@ -1,9 +1,9 @@
 <template>
-	<div class="communityboostinfo" data-tooltip="Channel boosted">
+	<div class="communityboostinfo" data-tooltip="Channel boosted" @click="smallMode=!smallMode">
 		<div class="col">
 			<img src="@/assets/icons/boost.svg" alt="boost">{{roundProgressPercent}}%
 		</div>
-		<div class="col count">
+		<div class="col count" v-if="!smallMode">
 			<p>{{roundProgressValue}}</p>
 			<p>{{target}}</p>
 		</div>
@@ -24,12 +24,12 @@ export default class CommunityBoostInfo extends Vue {
 
 	public interpolatedPercent = 0;
 	public interpolatedProgress = 0;
+	public smallMode = false;
 	
 	public get roundProgressPercent():number { return Math.floor(this.interpolatedPercent); }
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
 
 	public get progress():number {
-		console.log(StoreProxy.store.state.communityBoostState);
 		if(!StoreProxy.store.state.communityBoostState) return 0;
 		if(StoreProxy.store.state.communityBoostState.total_goal_progress != undefined) {
 			return StoreProxy.store.state.communityBoostState.total_goal_progress;
@@ -55,10 +55,11 @@ export default class CommunityBoostInfo extends Vue {
 	public mounted():void {
 		watch(()=>this.percent, () =>{
 			this.interpolate();
-		});
+		}, {deep:true});
 		this.interpolate();
 	}
 	public interpolate():void {
+		gsap.killTweensOf(this);
 		gsap.to(this, {duration:1, interpolatedPercent:this.percent, ease:"sine.inOut"});
 		gsap.to(this, {duration:1, interpolatedProgress:this.progress, ease:"sine.inOut"});
 	}
@@ -78,6 +79,8 @@ export default class CommunityBoostInfo extends Vue {
 	border-radius: 5px;
 	background-color: darken(#00f0f0, 20%);
 	font-family: 'Azeret';
+	cursor:pointer;
+
 	img {
 		height: .9em;
 		margin-right: 2px;
@@ -86,7 +89,7 @@ export default class CommunityBoostInfo extends Vue {
 	.count {
 		display: flex;
 		flex-direction: column;
-		font-size: 10px;
+		font-size: 9px;
 		margin-left: 5px;
 		align-items: center;
 		p:nth-child(2) {
