@@ -129,6 +129,13 @@ export default class TriggerActionHandler {
 					break;
 				}
 
+				case TwitchatMessageType.CHALLENGE_CONTRIBUTION: {
+					if(await this.handleChallengeContribution(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
+						return;
+					}
+					break;
+				}
+
 				case TwitchatMessageType.BITS: {
 					if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
 						return;
@@ -393,6 +400,12 @@ export default class TriggerActionHandler {
 			return await this.parseSteps(id, message, testMode, guid);
 		}
 		return false;
+	}
+	
+	private async handleChallengeContribution(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+		const complete = message.contribution!.goal.goal_amount !== message.contribution!.goal.points_contributed;
+		const event = complete? TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS : TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE;
+		return await this.parseSteps(event, message, testMode, guid);
 	}
 	
 	private async handleMusicEvent(message:MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {

@@ -273,8 +273,6 @@ export default class ChatHighlight extends Vue {
 				const localObj = this.messageData.contribution!;
 				this.isCommunityChallenge = true;
 				this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
-				console.log(localObj);
-				value = 100;
 				this.username = localObj.user.display_name;
 				res = "Contributed "+localObj.amount+"pts";
 				if(localObj.amount != localObj.total_contribution) {
@@ -580,7 +578,7 @@ export default class ChatHighlight extends Vue {
 		flex-direction: row;
 		align-items: center;
 		.values {
-			text-align: center;
+			text-align: right;
 			margin-right: .25em;
 			div:first-child {
 				border-bottom: 1px solid @mainColor_light;
