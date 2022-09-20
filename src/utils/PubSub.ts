@@ -112,6 +112,7 @@ export default class PubSub extends EventDispatcher{
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
+					subscriptions.push("community-boost-events-v1."+uid);//Get channel points rewards
 					// subscriptions.push("channel-ad-poll-update-events."+uid);
 					// subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
 					// subscriptions.push("polls."+uid);//Get prediction event//Get poll events

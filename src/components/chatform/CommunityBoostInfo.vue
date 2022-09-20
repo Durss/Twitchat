@@ -29,6 +29,7 @@ export default class CommunityBoostInfo extends Vue {
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
 
 	public get progress():number {
+		console.log(StoreProxy.store.state.communityBoostState);
 		if(!StoreProxy.store.state.communityBoostState) return 0;
 		if(StoreProxy.store.state.communityBoostState.total_goal_progress != undefined) {
 			return StoreProxy.store.state.communityBoostState.total_goal_progress;
@@ -53,9 +54,13 @@ export default class CommunityBoostInfo extends Vue {
 
 	public mounted():void {
 		watch(()=>this.percent, () =>{
-			gsap.to(this, {duration:1, interpolatedPercent:this.percent, ease:"sine.inOut"});
-			gsap.to(this, {duration:1, interpolatedProgress:this.progress, ease:"sine.inOut"});
+			this.interpolate();
 		});
+		this.interpolate();
+	}
+	public interpolate():void {
+		gsap.to(this, {duration:1, interpolatedPercent:this.percent, ease:"sine.inOut"});
+		gsap.to(this, {duration:1, interpolatedProgress:this.progress, ease:"sine.inOut"});
 	}
 }
 </script>
