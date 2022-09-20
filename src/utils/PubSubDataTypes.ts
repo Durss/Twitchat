@@ -257,10 +257,10 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface HypeTrainApproaching {
-        channel_id: string;
-        goal: number;
-        events_remaining_durations:{[key:string]:number};
-        level_one_rewards: {
+		channel_id: string;
+		goal: number;
+		events_remaining_durations:{[key:string]:number};
+		level_one_rewards: {
 			type: string;
 			id: string;
 			group_id: string;
@@ -268,10 +268,10 @@ export namespace PubSubDataTypes {
 			set_id: string;
 			token: string;
 		}[];
-        creator_color: string;
-        participants: string[];
-        approaching_hype_train_id: string;
-        is_boost_train: boolean;
+		creator_color: string;
+		participants: string[];
+		approaching_hype_train_id: string;
+		is_boost_train: boolean;
 	}
 
 	export interface HypeTrainStart {
@@ -494,11 +494,11 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface CommunityBoost {
-        channel_id: string;
+		channel_id: string;
 		total_goal_target:number;
 		total_goal_progress?:number;
 		ending_reason:"ORDER_STATE_FULFILLED";
-        boost_orders: {
+		boost_orders: {
 			ID: string;
 			State: "ORDER_STATE_DELIVERING" | "DELIVERING_ORDER" | "ORDER_STATE_FULFILLED";
 			GoalProgress: number;
@@ -588,5 +588,36 @@ export namespace PubSubDataTypes {
 		"reply-parent-msg-id"?:string;
 		"reply-parent-user-id"?:string;
 		"reply-parent-user-login"?:string;
+	}
+
+	export interface ChannelPointChallengeContribution {
+		channel_id: string;
+		goal: {
+			id: string;
+			channel_id: string;
+			title: string;
+			description: string;
+			goal_type: string;
+			is_in_stock: boolean;
+			goal_amount: number;//Goal
+			points_contributed: number;//Progress
+			small_contribution: number;
+			per_stream_maximum_user_contribution: number;
+			status: string;
+			duration_days: number;
+			started_at: string;
+			ended_at: string;
+			background_color: string;
+			default_image: DefaultImage;
+			image: Image;
+		};
+		user: {
+			id: string;
+			login: string;
+			display_name: string;
+		};
+		amount: number;//This user event's contrib
+		stream_contribution: number;//This user's stream contrib
+		total_contribution: number;//this user's total contrib
 	}
 }

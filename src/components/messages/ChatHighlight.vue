@@ -13,6 +13,7 @@
 			<div class="info" v-if="info" v-html="info"></div>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+
 			<div v-if="streamInfo" class="streamInfo">
 				<div class="head">Last stream infos</div>
 				<div class="title">{{streamInfo.title}}</div>
@@ -33,12 +34,19 @@
 			data-tooltip="Send a shoutout"
 			class="soButton"
 		/>
+
+		<div class="communityChallenge" v-if="isCommunityChallenge">
+			<div class="values">
+				<div>{{messageData.contribution!.goal.points_contributed}}</div>
+				<div>{{messageData.contribution!.goal.goal_amount}}</div>
+			</div>
+			<p>pts</p>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -79,6 +87,7 @@ export default class ChatHighlight extends Vue {
 	public moderating = false;
 	public canUnban = true;
 	public canBlock = true;
+	public isCommunityChallenge = false;
 	public badgeInfos:ChatMessageInfoData[] = [];
 
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
@@ -216,10 +225,10 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case TwitchatMessageType.REWARD: {
-				const localObj = this.messageData.reward as PubSubDataTypes.RewardData;
+				const localObj = this.messageData.reward!;
 				this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
 				this.messageText = "";
-				this.icon = this.$image('icons/sub.svg');
+				this.icon = this.$image('icons/channelPoints.svg');
 				this.username = localObj.redemption.user.display_name as string;
 				res = "";
 				res += ` redeemed the reward <strong>${localObj.redemption.reward.title}</strong>`;
@@ -256,6 +265,27 @@ export default class ChatHighlight extends Vue {
 						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 					this.messageText = result;
+				}
+				break;
+			}
+
+			case TwitchatMessageType.CHALLENGE_CONTRIBUTION: {
+				const localObj = this.messageData.contribution!;
+				this.isCommunityChallenge = true;
+				this.filtered = !StoreProxy.store.state.params.filters.showRewards.value;
+				console.log(localObj);
+				value = 100;
+				this.username = localObj.user.display_name;
+				res = "Contributed "+localObj.amount+"pts";
+				if(localObj.amount != localObj.total_contribution) {
+					res += " <i>("+localObj.total_contribution+"pts total)</i>";
+				}
+				res += " to the challenge \"<strong>"+localObj.goal.title+"</strong>\"";
+				this.icon = this.$image('icons/channelPoints.svg');
+				if(localObj.goal.image) {
+					this.icon = localObj.goal.image.url_2x as string;
+				}else if(localObj.goal.default_image){
+					this.icon = localObj.goal.default_image.url_2x as string;
 				}
 				break;
 			}
@@ -535,9 +565,26 @@ export default class ChatHighlight extends Vue {
 	}
 
 	.soButton {
+		min-width: 2.5em;
+		width: 2.5em;
 		:deep(.icon) {
 			height: 1.5em;
 			min-height: 1.5em;
+		}
+	}
+
+	.communityChallenge {
+		font-size: .8em;
+		color:@mainColor_light;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		.values {
+			text-align: center;
+			margin-right: .25em;
+			div:first-child {
+				border-bottom: 1px solid @mainColor_light;
+			}
 		}
 	}
 }

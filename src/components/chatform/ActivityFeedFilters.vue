@@ -129,6 +129,7 @@ export default class ActivityFeedFilters extends Vue {
 	display: flex;
 	flex-direction: column;
 	position: relative;
+	z-index: 1;
 
 	.list {
 		right: 0;

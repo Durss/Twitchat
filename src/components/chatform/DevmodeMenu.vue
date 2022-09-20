@@ -18,6 +18,7 @@
 			<Button small title="Subgift x20" @click="simulateEvent('subgiftx20')" :icon="$image('icons/gift.svg')" />
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
+			<Button small title="Challenge contribution" @click="simulateChallengeContribution()" :icon="$image('icons/channelPoints.svg')" />
 			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train summary" @click="simulateEvent('hypeTrainSummary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="$image('icons/train.svg')" />
@@ -29,7 +30,6 @@
 			<Button small title="Host" @click="simulateEvent('host')" :icon="$image('icons/raid.svg')" />
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="$image('icons/emote.svg')" />
 			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="$image('icons/shield.svg')" />
-			<Button small title="OBS-WS broadcast test" @click="obsWSBroadcast()" :icon="$image('icons/notification.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
@@ -127,12 +127,12 @@ export default class DevmodeMenu extends Vue {
 		this.generatingHistory = false;
 	}
 
-	public obsWSBroadcast():void {
-		PublicAPI.instance.broadcast("ACTIVITY_FEED_TOGGLE");
-	}
-
 	public simulateFollowbotRaid():void {
 		PubSub.instance.simulateFollowbotRaid();
+	}
+
+	public simulateChallengeContribution():void {
+		PubSub.instance.simulateChallengeContribution();
 	}
 
 }

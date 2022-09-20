@@ -74,6 +74,7 @@ export namespace IRCEventDataList {
 		viewers?: number;
 		"msg-id"?: MsgID;
 		reward?: PubSubDataTypes.RewardData;
+		contribution?: PubSubDataTypes.ChannelPointChallengeContribution;
 		//custom data
 		firstMessage?: boolean;
 		markedAsRead?:boolean;
@@ -276,6 +277,7 @@ export const TwitchatMessageType = {
 	AUTOBAN_JOIN:"autoban_join",
 	HYPE_TRAIN_END:"hype_train_end",
 	SUBGIFT_UPGRADE:"subgiftUpgrade",
+	CHALLENGE_CONTRIBUTION:"challengeContribution",
 	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
 	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 } as const;
@@ -336,6 +338,8 @@ export function getTwitchatMessageType(m: IRCEventData):TwitchatMessageStringTyp
 			type = TwitchatMessageType.SUB;
 		}else if(m.tags['message-type'] == "giftpaidupgrade") {
 			type = TwitchatMessageType.SUBGIFT_UPGRADE;
+		}else if(m.contribution) {
+			type = TwitchatMessageType.CHALLENGE_CONTRIBUTION;
 		}else if(m.reward) {
 			type = TwitchatMessageType.REWARD;
 		}else if(m.tags['msg-id'] == "follow") {

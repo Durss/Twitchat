@@ -165,6 +165,7 @@ export default class ActivityFeed extends Vue {
 			|| type == TwitchatMessageType.SUB_PRIME
 			|| type == TwitchatMessageType.SUBGIFT_UPGRADE) && showSubs) result.unshift(m);
 			else if(type == TwitchatMessageType.REWARD && showRewards) result.unshift(m);
+			else if(type == TwitchatMessageType.CHALLENGE_CONTRIBUTION && showRewards) result.unshift(m);
 			else if(type == TwitchatMessageType.RAID && showRaids) result.unshift(m);
 			else if(type == TwitchatMessageType.BITS && showBits) result.unshift(m);
 			else if(type == TwitchatMessageType.FOLLOW && showFollow) result.unshift(m);

@@ -108,14 +108,6 @@
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open dev mode options"
-					:icon="$image('icons/debug.svg')"
-					bounce
-					@click="$emit('update:showDevMenu',true);"
-					v-if="$store.state.devmode" />
-				</transition>
-
-				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
 					:icon="$image('icons/'+($store.state.cypherEnabled? 'lock.svg' : 'unlock.svg'))"
 					@click="toggleCypher()"
@@ -166,6 +158,14 @@
 					v-if="voiceBotConfigured"
 					:data-tooltip="voiceBotStarted? 'Stop voice bot' : 'Start voice bot'"
 					@click="toggleVoiceBot()" />
+				</transition>
+
+				<transition name="blink">
+				<Button aria-label="Open dev mode options"
+					:icon="$image('icons/debug.svg')"
+					bounce
+					@click="$emit('update:showDevMenu',true);"
+					v-if="$store.state.devmode" />
 				</transition>
 
 				<transition name="blink">
