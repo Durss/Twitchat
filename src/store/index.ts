@@ -2185,8 +2185,6 @@ const store = createStore({
 
 				if(state.automodParams.enabled === true
 				&& state.automodParams.banUserNames === true) {
-
-					return;//TODO remove that !
 					for (let i = 0; i < users.length; i++) {
 						const username = users[i];
 						const rule = Utils.isAutomoded(username, {username});
