@@ -531,6 +531,22 @@ export namespace PubSubDataTypes {
 		whitelisted_until: string
 	}
 
+	export interface WhisperSent {
+		message_id: string;
+		id: number;
+		thread_id: string;
+		body: string;
+		sent_ts: number;
+		from_id: number;
+		tags: IRCTagsExtended;
+		recipient: {
+			id: number;
+			username: string;
+			display_name: string;
+			color: string;
+		};
+	}
+
 	export interface ExtensionMessage {
 		id: string;
 		sent_at: string;
