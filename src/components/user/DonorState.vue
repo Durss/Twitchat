@@ -93,6 +93,8 @@ export default class DonorState extends Vue {
 	public stars:StarData[] = [];
 	public donorLevel:number = 0;
 	
+	private prevTs = 0;
+	
 	public get classes():string[] {
 		const res:string[] = ["donorstate"];
 		res.push(' lvl_'+this.donorLevel);
@@ -124,7 +126,8 @@ export default class DonorState extends Vue {
 			this.burstStars();
 		}});
 		
-		this.renderStars();
+		this.prevTs = Date.now();
+		this.renderStars(this.prevTs);
 	}
 
 	public beforeUnmount():void {
@@ -164,18 +167,21 @@ export default class DonorState extends Vue {
 		}
 	}
 
-	private renderStars():void {
+	private renderStars(ts:number):void {
 		if(this.disposed) return;
-		requestAnimationFrame(()=>this.renderStars())
+		requestAnimationFrame((ts:number)=>this.renderStars(ts));
+
+		const timeScale = (60/1000) * (ts - this.prevTs);
+		this.prevTs = ts;
 
 		for (let i = 0; i < this.stars.length; i++) {
 			const s = this.stars[i];
-			s.x += s.vx;
-			s.y += s.vy;
-			s.r += s.vr;
-			s.vx *= .94;
-			s.vy += s.iy;
-			s.a -= s.va;
+			s.x += s.vx * timeScale;
+			s.y += s.vy * timeScale;
+			s.r += s.vr * timeScale;
+			s.vx *= .94 * timeScale;
+			s.vy += s.iy * timeScale;
+			s.a -= s.va * timeScale;
 			if(s.a < .01) {
 				this.stars.splice(i, 1);
 				i--;

@@ -112,6 +112,7 @@ export default class PubSub extends EventDispatcher{
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
+					subscriptions.push("community-boost-events-v1."+uid);//Get channel points rewards
 					// subscriptions.push("channel-ad-poll-update-events."+uid);
 					// subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
 					// subscriptions.push("polls."+uid);//Get prediction event//Get poll events
@@ -205,7 +206,10 @@ export default class PubSub extends EventDispatcher{
 		this.parseEvent(PubsubJSON.BoostProgress2);
 		await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.BoostComplete);
+	}
 
+	public async simulateChallengeContribution():Promise<void> {
+		this.parseEvent(PubsubJSON.ChannelPointChallengeContribution);
 	}
 
 	public async simulateLowTrustUser():Promise<void> {
@@ -400,9 +404,8 @@ export default class PubSub extends EventDispatcher{
 
 		}else if(data.type == "community-goal-contribution") {
 			//Channel points challenge progress
-			//TODO
 			const contrib = (data.data as {timpestamp:string, contribution:PubSubDataTypes.ChannelPointChallengeContribution}).contribution
-			
+			this.communityChallengeContributionEvent(contrib)
 
 
 
@@ -656,6 +659,28 @@ export default class PubSub extends EventDispatcher{
 
 		const data:IRCEventDataList.Highlight = {
 			reward: localObj,
+			channel: IRCClient.instance.channel,
+			tags,
+			type:"highlight",
+		}
+		IRCClient.instance.sendHighlight(data);
+	}
+
+	/**
+	 * Community challenge contribution 
+	 */
+	private communityChallengeContributionEvent(localObj:PubSubDataTypes.ChannelPointChallengeContribution):void {
+		const tags:PubSubDataTypes.IRCTagsExtended = {
+			"username":localObj.user.display_name,
+			"display-name": localObj.user.display_name,
+			"user-id": localObj.user.id,
+			"tmi-sent-ts": Date.now().toString(),
+			"message-type": "chat",
+			"room-id": localObj.channel_id,
+		};
+
+		const data:IRCEventDataList.Highlight = {
+			contribution: localObj,
 			channel: IRCClient.instance.channel,
 			tags,
 			type:"highlight",

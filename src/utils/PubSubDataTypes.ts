@@ -257,10 +257,10 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface HypeTrainApproaching {
-        channel_id: string;
-        goal: number;
-        events_remaining_durations:{[key:string]:number};
-        level_one_rewards: {
+		channel_id: string;
+		goal: number;
+		events_remaining_durations:{[key:string]:number};
+		level_one_rewards: {
 			type: string;
 			id: string;
 			group_id: string;
@@ -268,10 +268,10 @@ export namespace PubSubDataTypes {
 			set_id: string;
 			token: string;
 		}[];
-        creator_color: string;
-        participants: string[];
-        approaching_hype_train_id: string;
-        is_boost_train: boolean;
+		creator_color: string;
+		participants: string[];
+		approaching_hype_train_id: string;
+		is_boost_train: boolean;
 	}
 
 	export interface HypeTrainStart {
@@ -494,11 +494,11 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface CommunityBoost {
-        channel_id: string;
+		channel_id: string;
 		total_goal_target:number;
 		total_goal_progress?:number;
 		ending_reason:"ORDER_STATE_FULFILLED";
-        boost_orders: {
+		boost_orders: {
 			ID: string;
 			State: "ORDER_STATE_DELIVERING" | "DELIVERING_ORDER" | "ORDER_STATE_FULFILLED";
 			GoalProgress: number;
@@ -591,8 +591,8 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface ChannelPointChallengeContribution {
-        channel_id: string;
-        goal: {
+		channel_id: string;
+		goal: {
 			id: string;
 			channel_id: string;
 			title: string;
@@ -611,13 +611,13 @@ export namespace PubSubDataTypes {
 			default_image: DefaultImage;
 			image: Image;
 		};
-        user: {
+		user: {
 			id: string;
 			login: string;
 			display_name: string;
 		};
-        amount: number;//This user event's contrib
-        stream_contribution: number;//This user's stream contrib
-        total_contribution: number;//this user's total contrib
+		amount: number;//This user event's contrib
+		stream_contribution: number;//This user's stream contrib
+		total_contribution: number;//this user's total contrib
 	}
 }
