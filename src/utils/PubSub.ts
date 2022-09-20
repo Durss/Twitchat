@@ -312,9 +312,15 @@ export default class PubSub extends EventDispatcher{
 
 
 
+		//sent when sending a whisper from anywhere
 		}else if(data.type == "whisper_sent") {
-			//TODO sent when sending a whisper from twitch interface, could be nice to
-			//handle to rebuild the full conversation on twitchat
+			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
+			const localObj = (data.data as unknown) as PubSubDataTypes.WhisperSent;
+			localObj.tags.username = localObj.tags.display_name;
+			localObj.tags["display-name"] = localObj.tags.display_name;//Thx twitch for your consistency
+			localObj.tags["user-id"] = localObj.from_id.toString();
+			localObj.tags["thread-id"] = localObj.thread_id;
+			IRCClient.instance.addWhisper(localObj.body, localObj.tags, localObj.recipient.display_name);
 
 
 
@@ -1088,7 +1094,7 @@ export default class PubSub extends EventDispatcher{
 	}
 	
 	/**
-	 * Called when whispers are read
+	 * Called when stream info are updated
 	 */
 	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo):void {
 		IRCClient.instance.sendNotice("broadcast_settings_update", "Stream info updated to <mark>\""+data.status+"\"</mark> in category <mark>\""+data.game+"\"</mark>");

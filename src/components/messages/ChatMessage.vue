@@ -73,6 +73,9 @@
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="$emit('mouseleave', $event)"
 				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}<i class="translation" v-if="translateUsername"> ({{messageData.tags["username"]}})</i></span>
+
+			<span @click.stop="openUserCard(recipient)"
+				class="login" v-if="recipient"> &gt; {{recipient}}</span>
 		</div>
 		
 		<span v-if="messageData.blockedUser !== true">: </span>
@@ -147,6 +150,7 @@ export default class ChatMessage extends Vue {
 	public enableWordHighlight!:boolean;
 	
 	public text = "";
+	public recipient = "";
 	public firstTime = false;
 	public automod:PubSubDataTypes.AutomodData | null = null;
 	public automodReasons = "";
@@ -406,15 +410,16 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Open a users' card
 	 */
-	public openUserCard():void {
+	public openUserCard(username?:string):void {
 		const message = this.messageData as IRCEventDataList.Message;
-		StoreProxy.store.dispatch("openUserCard", message.tags.username);
+		StoreProxy.store.dispatch("openUserCard", username ?? message.tags.username);
 	}
 
 	/**
 	 * Called when rolling over the nick name
 	 */
 	public hoverNickName(event:MouseEvent):void {
+		if(this.messageData.type == "whisper") return;
 		if(StoreProxy.store.state.params.features.userHistoryEnabled.value) {
 			this.$emit('showUserMessages', event, this.messageData);
 		}
@@ -498,6 +503,10 @@ export default class ChatMessage extends Vue {
 
 		let clipId = "";
 		let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
+		if(this.messageData.type == "whisper"
+		&& this.messageData.tags['user-id'] == UserSession.instance.user!.id) {
+			this.recipient = this.messageData.params[0];
+		}
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/i);
 			clipId = matches? matches[1] : "";

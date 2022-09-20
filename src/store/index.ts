@@ -2280,8 +2280,8 @@ const store = createStore({
 					state.whispers = whispers;
 					state.whispersUnreadCount ++;
 
-					if(state.params.features.showWhispersOnChat.value === true
-					&& data.raw != "") {//Don't show whispers we sent to someone, on the chat
+					if(state.params.features.showWhispersOnChat.value === true){
+					// && data.raw != "") {//Don't show whispers we sent to someone, on the chat
 						data.type = "whisper";
 						data.channel = IRCClient.instance.channel;
 						data.tags['tmi-sent-ts'] = Date.now().toString();

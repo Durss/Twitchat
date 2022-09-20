@@ -525,6 +525,22 @@ export default class IRCClient extends EventDispatcher {
 		this.dispatchEvent(new IRCEvent(IRCEvent.UNFILTERED_MESSAGE, data));
 	}
 
+	public addWhisper(message:string, tags:tmi.ChatUserstate, recipient:string):void {
+		//Create message structure
+		let data:IRCEventDataList.Whisper = {
+				type:"whisper",
+				params:[recipient, message],
+				tags,
+				channel:this.channel,
+				firstMessage:false,
+				raw: "",
+				command: "WHISPER",
+				timestamp: Date.now(),
+			};
+		
+		this.dispatchEvent(new IRCEvent(IRCEvent.WHISPER, data));
+	}
+
 	public addMessage(message:string, tags:tmi.ChatUserstate, self:boolean, automod?:PubSubDataTypes.AutomodData, channel?:string, sentLocally:boolean = false):void {
 		const login = tags.username as string;
 
@@ -538,14 +554,14 @@ export default class IRCClient extends EventDispatcher {
 
 		//Create message structure
 		let data:IRCEventDataList.Message = {
-												type:"message",
-												message,
-												tags,
-												channel:channel? channel : this.channel,
-												self,
-												firstMessage:false,
-												automod
-											};
+					type:"message",
+					message,
+					tags,
+					channel:channel? channel : this.channel,
+					self,
+					firstMessage:false,
+					automod
+				};
 		if(sentLocally) {
 			data.sentLocally = true;
 		}

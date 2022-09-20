@@ -120,7 +120,7 @@ export namespace IRCEventDataList {
 		type: "whisper";
 		raw: string;
 		channel: string;
-		command: string;
+		command: "WHISPER";
 		params: string[];//Contains user message
 		tags: ChatUserstate;
 		//custom data
