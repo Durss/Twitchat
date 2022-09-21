@@ -439,7 +439,7 @@ export const storeMain = defineStore('main', {
 			});
 
 			//Preload BTTV/FFS/7TV emotes onces IRC data are loaded
-			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
+			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, async () => {
 				if(sParams.appearance.bttvEmotes.value === true) {
 					BTTVUtils.instance.enable();
 				}else{
@@ -455,6 +455,7 @@ export const storeMain = defineStore('main', {
 				}else{
 					SevenTVUtils.instance.disable();
 				}
+				sUsers.loadMyFollowings();
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {

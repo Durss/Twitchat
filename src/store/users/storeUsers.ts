@@ -2,6 +2,8 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import { defineStore } from 'pinia';
 import type { ChatUserstate } from 'tmi.js';
 import { storeChat } from '../chat/storeChat';
@@ -15,6 +17,7 @@ export const storeUsers = defineStore('users', {
 		mods:[] as TwitchDataTypes.ModeratorUser[],
 		followingStates: {} as {[key:string]:boolean},
 		followingStatesByNames: {} as {[key:string]:boolean},
+		myFollowings: {} as {[key:string]:boolean},
 	}),
 
 
@@ -26,6 +29,15 @@ export const storeUsers = defineStore('users', {
 
 	actions: {
 		openUserCard(payload:string|null) { this.userCard = payload; },
+
+		async loadMyFollowings():Promise<void> {
+			const followings = await TwitchUtils.getFollowings(UserSession.instance.user?.id);
+			let hashmap:{[key:string]:boolean} = {};
+			followings.forEach(v => {
+				hashmap[v.to_id] = true;
+			});
+			this.myFollowings = hashmap;
+		},
 
 		setViewersList(users:string[]) {
 			//Dedupe users
