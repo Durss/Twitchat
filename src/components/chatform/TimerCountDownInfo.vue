@@ -1,6 +1,6 @@
 <template>
 	<div class="timercountdowninfo">
-		<div class="timer" v-if="$store.state.timerStart > 0"
+		<div class="timer" v-if="sTimer.timerStart > 0"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
 			<img src="@/assets/icons/timer.svg" alt="timer">
@@ -8,7 +8,7 @@
 			<div v-if="hoverTimer" @click="stopTimer()">STOP</div>
 		</div>
 
-		<div class="countdown" v-if="$store.state.countdown"
+		<div class="countdown" v-if="sTimer.countdown"
 		@mouseenter="hoverCountdown = true"
 		@mouseleave="hoverCountdown = false">
 			<img src="@/assets/icons/countdown.svg" alt="countdown">
@@ -34,9 +34,9 @@ export default class TimerCountDownInfo extends Vue {
 	public countdown:string = "";
 	public hoverTimer:boolean = false;
 	public hoverCountdown:boolean = false;
+	public sTimer = storeTimer();
 	
 	private interval:number = -1;
-	private sTimer = storeTimer();
 
 	public mounted():void {
 		this.interval = setInterval(()=> {

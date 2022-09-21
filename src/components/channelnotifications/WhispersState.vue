@@ -3,8 +3,8 @@
 		
 		<div class="whispers" v-if="selectedUser">
 			<div class="messages">
-				<div v-for="m in $store.state.whispers[selectedUser]" :key="m.raw" :class="messageClasses(m)">
-					<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{getTime(m)}}</span>
+				<div v-for="m in sChat.whispers[selectedUser]" :key="m.raw" :class="messageClasses(m)">
+					<span class="time" v-if="sParams.appearance.displayTime.value">{{getTime(m)}}</span>
 					<div v-html="parseMessage(m)"></div>
 				</div>
 			</div>
@@ -21,7 +21,7 @@
 
 		<div class="users">
 			<div class="user"
-			v-for="(u, uid) in $store.state.whispers"
+			v-for="(u, uid) in sChat.whispers"
 			:key="uid">
 				<Button class="login"
 					@click="selectUser(uid.toString())"
@@ -40,6 +40,7 @@
 
 <script lang="ts">
 import { storeChat } from '@/store/chat/storeChat';
+import { storeParams } from '@/store/params/storeParams';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -59,7 +60,9 @@ export default class WhispersState extends Vue {
 	public error = false;
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
-	private sChat = storeChat();
+	public sParams = storeParams();
+	public sChat = storeChat();
+
 
 	public get classes():string[] {
 		let res = ["whispersstate"];

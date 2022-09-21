@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" v-show="!filtered" @click.ctrl.stop.capture="copyJSON()">
-		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
 		<ChatMessageInfos :infos="badgeInfos" />
@@ -92,12 +92,12 @@ export default class ChatHighlight extends Vue {
 	public canBlock = true;
 	public isCommunityChallenge = false;
 	public badgeInfos:TwitchatDataTypes.ChatMessageInfoData[] = [];
-
+	public sMain = storeMain();
+	public sChat = storeChat();
+	public sUsers = storeUsers();
+	public sParams = storeParams();
+	
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
-	private sMain = storeMain();
-	private sChat = storeChat();
-	private sUsers = storeUsers();
-	private sParams = storeParams();
 
 	public get streamInfo():TwitchDataTypes.ChannelInfo|null {
 		if(this.sParams.features.raidStreamInfo.value === true) {

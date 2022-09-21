@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractionttsentry" v-if="!$store.state.ttsParams.enabled">
+	<div class="triggeractionttsentry" v-if="!sTTS.params.enabled">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<p class="label">This feature needs you to enable <a @click="$emit('setContent', contentTTS)">text to speech</a> feature</p>
@@ -12,6 +12,7 @@
 </template>
 
 <script lang="ts">
+import { storeTTS } from '@/store/tts/storeTTS';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';
@@ -33,6 +34,7 @@ export default class TriggerActionTTSEntry extends Vue {
 	public event!:TwitchatDataTypes.TriggerEventTypes;
 
 	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public sTTS = storeTTS();
 	
 	public get contentTTS():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TTS; }
 

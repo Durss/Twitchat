@@ -1,6 +1,6 @@
 <template>
 	<div class="chatpollresult" @click.ctrl="copyJSON()">
-		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{poll.title}}</div>

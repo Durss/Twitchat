@@ -43,8 +43,8 @@
 				<Button class="button" white @click="selectActionType('tts')"
 					title="Text to speech"
 					:icon="$image('icons/tts_purple.svg')"
-					:disabled="!$store.state.ttsParams.enabled"
-					:data-tooltip="$store.state.ttsParams.enabled? '' : 'This needs the <strong>text to speech</strong><br>feature to be enabled'"/>
+					:disabled="!sTTS.params.enabled"
+					:data-tooltip="sTTS.params.enabled? '' : 'This needs the <strong>text to speech</strong><br>feature to be enabled'"/>
 				
 				<Button class="button" white @click="selectActionType('music')"
 					title="Control music"
@@ -78,23 +78,24 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
-import { Options, Vue } from 'vue-class-component';
 import ParamItem from '@/components/params/ParamItem.vue';
-import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
-import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
-import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
-import Config from '@/utils/Config';
-import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import RaffleForm from '../../../raffle/RaffleForm.vue';
-import BingoForm from '../../../bingo/BingoForm.vue';
-import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
-import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
-import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
-import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import { storeTTS } from '@/store/tts/storeTTS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
+import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import { Options, Vue } from 'vue-class-component';
+import BingoForm from '../../../bingo/BingoForm.vue';
+import RaffleForm from '../../../raffle/RaffleForm.vue';
+import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
+import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
+import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
+import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
+import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
+import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
+import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 
 @Options({
 	props:{
@@ -135,6 +136,7 @@ export default class TriggerActionEntry extends Vue {
 	public opened = false;
 	public isError = false;
 	public delay_conf:TwitchatDataTypes.ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
+	public sTTS = storeTTS();
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }

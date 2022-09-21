@@ -18,7 +18,7 @@
 				/>
 
 				<ChatMessage
-					v-else-if="m.type == 'message' || (m.type == 'whisper' && $store.state.params.features.showWhispersOnChat.value)"
+					v-else-if="m.type == 'message' || (m.type == 'whisper' && sParams.features.showWhispersOnChat.value)"
 					class="message"
 					:messageData="m"
 					:lightMode="lightMode"
@@ -38,7 +38,7 @@
 					/>
 
 				<ChatHighlight
-					v-else-if="m.type == 'highlight' && ($store.state.params.filters.showNotifications.value || m.tags?.['msg-id']==='autoban_join')"
+					v-else-if="m.type == 'highlight' && (sParams.filters.showNotifications.value || m.tags?.['msg-id']==='autoban_join')"
 					class="message"
 					:messageData="m"
 					lightMode
@@ -49,7 +49,7 @@
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'poll' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'poll' && sParams.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
 				/>
@@ -57,7 +57,7 @@
 				<ChatPredictionResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'prediction' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'prediction' && sParams.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
 				/>
@@ -65,7 +65,7 @@
 				<ChatBingoResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'bingo' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'bingo' && sParams.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
 				/>
@@ -73,7 +73,7 @@
 				<ChatRaffleResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'raffle' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'raffle' && sParams.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
 				/>
@@ -81,7 +81,7 @@
 				<ChatCountdownResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'countdown' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'countdown' && sParams.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:countdownData="m"
 				/>
@@ -89,7 +89,7 @@
 				<ChatHypeTrainResult
 					class="message"
 					ref="message"
-					v-else-if="m.type == 'hype_train_end' && $store.state.params.filters.showNotifications.value"
+					v-else-if="m.type == 'hype_train_end' && sParams.filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:result="m" />
 
@@ -207,6 +207,7 @@ export default class MessageList extends Vue {
 	public conversationPos = 0;
 	public scrollAtBottom = true;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
+	public sParams = storeParams();
 
 	private disposed = false;
 	private holderOffsetY = 0;
@@ -220,7 +221,6 @@ export default class MessageList extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	private sTTS = storeTTS();
 	private sChat = storeChat();
-	private sParams = storeParams();
 
 	public get classes():string[] {
 		let res = ["messagelist"];

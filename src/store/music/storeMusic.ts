@@ -39,7 +39,7 @@ export const storeMusic = defineStore('music', {
 			SpotifyHelper.instance.setAppParams(value.client, value.secret)
 		},
 
-		setSpotifyAuthResult(value:SpotifyAuthResult) { this.spotifyAuthParams = value; },
+		setSpotifyAuthResult(value:SpotifyAuthResult|null) { this.spotifyAuthParams = value; },
 		
 		setSpotifyToken(value:SpotifyAuthToken|null) {
 			if(value && !value.expires_at) {

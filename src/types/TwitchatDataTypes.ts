@@ -59,6 +59,7 @@ export namespace TwitchatDataTypes {
 
 	export interface IAccountParamsCategory {
 		syncDataWithServer:ParameterData;
+		publicDonation:ParameterData;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
 

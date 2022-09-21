@@ -4,7 +4,7 @@
 
 		<div class="title">Connected as <strong>{{userName}}</strong></div>
 
-		<ParamItem class="param" :paramData="$store.state.accountParams.syncDataWithServer" v-model="syncEnabled" />
+		<ParamItem class="param" :paramData="sAccount.syncDataWithServer" v-model="syncEnabled" />
 
 		<div v-if="isDonor" class="donorHolder">
 			<DonorState class="donorBadge" />
@@ -14,7 +14,7 @@
 			</div>
 
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
-			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store.state.accountParams.publicDonation" v-model="publicDonation" />
+			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="sAccount.publicDonation" v-model="publicDonation" />
 			<div class="infos" v-if="publicDonation_loaded">Makes your login visible by everyone on the donor list under <a @click="$emit('setContent', contentAbout)">About section</a>.</div>
 		</div>
 
@@ -25,6 +25,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import { storeAccount } from '@/store/account/storeAccount';
 import { storeAuth } from '@/store/auth/storeAuth';
 import DataStore from '@/store/DataStore';
 import { storeMain } from '@/store/storeMain';
@@ -56,6 +57,7 @@ export default class ParamsAccount extends Vue {
 	public syncEnabled = false;
 	public publicDonation = false;
 	public publicDonation_loaded = false;
+	public sAccount = storeAccount();
 
 	private sMain = storeMain();
 	private sAuth = storeAuth();

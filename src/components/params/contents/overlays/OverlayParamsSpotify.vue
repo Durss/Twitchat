@@ -54,6 +54,8 @@ import ParamItem from '../../ParamItem.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { storeMusic } from '@/store/music/storeMusic';
+import { storeMain } from '@/store/storeMain';
 
 @Options({
 	props:{},
@@ -76,6 +78,9 @@ export default class OverlayParamsSpotify extends Vue {
 	public paramSecret:TwitchatDataTypes.ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
 	public currentTrack:TwitchatDataTypes.MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
+	private sMain = storeMain();
+	private sMusic = storeMusic();
+
 	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get canConnect():boolean {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
@@ -85,7 +90,7 @@ export default class OverlayParamsSpotify extends Vue {
 
 	public authenticate():void {
 		this.loading = true;
-		this.$store.dispatch("setSpotifyCredentials", {
+		this.sMusic.setSpotifyCredentials({
 			client: (this.paramClient.value as string).trim(),
 			secret: (this.paramSecret.value as string).trim(),
 		});
@@ -103,17 +108,17 @@ export default class OverlayParamsSpotify extends Vue {
 			this.paramSecret.value = p.secret;
 		}
 
-		if(this.$store.state.spotifyAuthParams) {
+		if(this.sMusic.spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
 
-			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+this.$store.state.spotifyAuthParams.csrf, {method:"POST"});
+			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+this.sMusic.spotifyAuthParams.csrf, {method:"POST"});
 			const csrf = await csrfRes.json();
 			if(!csrf.success) {
-				this.$store.state.alert = csrf.message;
+				this.sMain.alert = csrf.message;
 			}else{
 				try {
-					await SpotifyHelper.instance.authenticate(this.$store.state.spotifyAuthParams.code);
+					await SpotifyHelper.instance.authenticate(this.sMusic.spotifyAuthParams.code);
 				}catch(e:unknown) {
 					this.error = (e as {error:string, error_description:string}).error_description;
 				}
@@ -121,12 +126,12 @@ export default class OverlayParamsSpotify extends Vue {
 
 			this.authenticating = false;
 			this.loading = false;
-			this.$store.dispatch("setSpotifyAuthResult", null);
+			this.sMusic.setSpotifyAuthResult(null);
 		}
 	}
 
 	public disconnect():void {
-		this.$store.dispatch("setSpotifyToken", null);
+		this.sMusic.setSpotifyToken(null);
 	}
 
 }

@@ -371,8 +371,6 @@ import AnchorsMenu from '../components/AnchorsMenu.vue';
 export default class Home extends Vue {
 
 	public anchors:TwitchatDataTypes.AnchorData[] = [];
-	// public storeMainState = storeToRefs(storeMain());//Example
-	// public storeMainActions = storeMain();//Example
 
 	private index = 0;
 	private disposed = false;

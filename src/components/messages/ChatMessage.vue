@@ -34,11 +34,11 @@
 			<div class="header"><strong>Announcement</strong></div>
 		</div>
 
-		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos" v-if="messageData.blockedUser !== true">
 			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
-			<img v-if="!disableConversation && isConversation && $store.state.params.features.conversationsEnabled.value && !lightMode"
+			<img v-if="!disableConversation && isConversation && sParams.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
@@ -67,7 +67,7 @@
 			
 			<span class="pronoun"
 				:data-tooltip="pronounLabel"
-				v-if="pronoun && $store.state.params.features.showUserPronouns.value===true">{{pronoun}}</span>
+				v-if="pronoun && sParams.features.showUserPronouns.value===true">{{pronoun}}</span>
 			
 			<span @click.stop="openUserCard()"
 				@mouseenter="hoverNickName($event)"
@@ -108,6 +108,12 @@
 </template>
 
 <script lang="ts">
+import { storeChat } from '@/store/chat/storeChat';
+import { storeParams } from '@/store/params/storeParams';
+import { storeMain } from '@/store/storeMain';
+import { storeUsers } from '@/store/users/storeUsers';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -122,28 +128,8 @@ import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatModTools from './ChatModTools.vue';
 import ChatMessageInfos from './ChatMessageInfos.vue';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeTTS } from '@/store/tts/storeTTS';
-import { storeOBS } from '@/store/obs/storeOBS';
-import { storePoll } from '@/store/poll/storePoll';
-import { storeMain } from '@/store/storeMain';
-import { storeChat } from '@/store/chat/storeChat';
-import { storeAuth } from '@/store/auth/storeAuth';
-import { storeMusic } from '@/store/music/storeMusic';
-import { storeUsers } from '@/store/users/storeUsers';
-import { storeVoice } from '@/store/voice/storeVoice';
-import { storeBingo } from '@/store/bingo/storeBingo';
-import { storeTimer } from '@/store/timer/storeTimer';
-import { storeRaffle } from '@/store/raffle/storeRaffle';
-import { storeParams } from '@/store/params/storeParams';
-import { storeStream } from '@/store/stream/storeStream';
-import { storeAutomod } from '@/store/automod/storeAutomod';
-import { storeTriggers } from '@/store/triggers/storeTriggers';
-import { storeEmergency } from '@/store/emergency/storeEmergency';
-import { storePrediction } from '@/store/prediction/storePrediction';
+import ChatModTools from './ChatModTools.vue';
 
 @Options({
 	components:{
@@ -175,24 +161,11 @@ export default class ChatMessage extends Vue {
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
 	public infoBadges:TwitchatDataTypes.ChatMessageInfoData[] = [];
-	private sTTS = storeTTS();
-	private sOBS = storeOBS()
-	private sPoll = storePoll();
+	public sParams = storeParams();
+	
 	private sMain = storeMain();
 	private sChat = storeChat();
-	private sAuth = storeAuth();
-	private sMusic = storeMusic();
 	private sUsers = storeUsers();
-	private sVoice = storeVoice();
-	private sBingo = storeBingo();
-	private sTimer = storeTimer();
-	private sRaffle = storeRaffle();
-	private sParams = storeParams();
-	private sStream = storeStream();
-	private sAutmod = storeAutomod();
-	private sTriggers = storeTriggers();
-	private sEmergency = storeEmergency();
-	private sPrediction = storePrediction();
 
 	public get pronoun():string|null {
 		const key = this.sUsers.pronouns[this.messageData.tags['user-id'] as string];

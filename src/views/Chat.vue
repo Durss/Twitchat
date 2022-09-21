@@ -5,7 +5,7 @@
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
 					@showModal="(v:string) => currentModal = v"
-					:max="$store.state.params.appearance.historySize.value" />
+					:max="sParams.appearance.historySize.value" />
 					
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>
@@ -15,7 +15,7 @@
 			</div>
 
 			<div class="rightColumn" v-if="splitView" :style="rightStyles" ref="rightCol">
-				<NewUsers class="newUsers" v-if="$store.state.params.features.firstMessage.value" />
+				<NewUsers class="newUsers" v-if="sParams.features.firstMessage.value" />
 
 				<ActivityFeed class="activityFeed" listMode />
 
@@ -92,7 +92,7 @@
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
 
-		<NewUsers class="newUsers" v-if="!splitView && $store.state.params.features.firstMessage.value" />
+		<NewUsers class="newUsers" v-if="!splitView && sParams.features.firstMessage.value" />
 		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" />
 
 		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
@@ -105,7 +105,7 @@
 		<TTUserList :style="rightStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 		<PinedMessages :style="rightStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 		
-		<Parameters v-if="$store.state.showParams" />
+		<Parameters v-if="sMain.showParams" />
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
@@ -229,7 +229,7 @@ export default class Chat extends Vue {
 	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentNotificationContent = "";
-
+	
 	private disposed = false;
 	private mouseY = 0;
 	private mouseX = 0;
@@ -238,14 +238,14 @@ export default class Chat extends Vue {
 	private availHeight = 0;
 	private resizing = false;
 	private canStartAd = true;
-	private sPoll = storePoll();
-	private sMain = storeMain();
-	private sBingo = storeBingo();
-	private sRaffle = storeRaffle();
-	private sParams = storeParams();
-	private sStream = storeStream();
-	private sEmergency = storeEmergency();
-	private sPrediction = storePrediction();
+	public sPoll = storePoll();
+	public sMain = storeMain();
+	public sBingo = storeBingo();
+	public sRaffle = storeRaffle();
+	public sParams = storeParams();
+	public sStream = storeStream();
+	public sEmergency = storeEmergency();
+	public sPrediction = storePrediction();
 	
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;

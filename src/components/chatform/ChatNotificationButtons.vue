@@ -3,28 +3,28 @@
 	<Button :icon="$image('icons/poll.svg')"
 		bounce
 		@click="$emit('setCurrentNotification', 'poll')"
-		v-if="$store.state.currentPoll?.id" />
+		v-if="sPoll.data?.id" />
 
 	<Button :icon="$image('icons/prediction.svg')"
 		bounce
 		@click="$emit('setCurrentNotification', 'prediction')"
-		v-if="$store.state.currentPrediction?.id" />
+		v-if="sPrediction.data?.id" />
 
 	<Button :icon="$image('icons/magnet.svg')"
 		bounce
-		v-if="$store.state.trackedUsers.length > 0"
+		v-if="sUsers.trackedUsers.length > 0"
 		data-tooltip="View tracked users"
 		@click="$emit('setCurrentNotification', 'trackedUsers')" />
 
 	<Button :icon="$image('icons/ticket.svg')"
 		bounce
-		v-if="$store.state.raffle"
+		v-if="sRaffle.data"
 		data-tooltip="Raffle"
 		@click="$emit('setCurrentNotification', 'raffle')" />
 
 	<Button :icon="$image('icons/bingo.svg')"
 		bounce
-		v-if="$store.state.bingo"
+		v-if="sBingo.data"
 		data-tooltip="Bingo"
 		@click="$emit('setCurrentNotification', 'bingo')" />
 
@@ -37,11 +37,17 @@
 	<Button :icon="$image('icons/debug.svg')"
 		bounce
 		@click="$emit('update:showDevMenu',true);"
-		v-if="$store.state.devmode" />
+		v-if="sMain.devmode" />
 </template>
 
 <script lang="ts">
+import { storeBingo } from '@/store/bingo/storeBingo';
 import { storeChat } from '@/store/chat/storeChat';
+import { storePoll } from '@/store/poll/storePoll';
+import { storePrediction } from '@/store/prediction/storePrediction';
+import { storeRaffle } from '@/store/raffle/storeRaffle';
+import { storeMain } from '@/store/storeMain';
+import { storeUsers } from '@/store/users/storeUsers';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -66,9 +72,14 @@ export default class ChatNotificationButtons extends Vue {
 	public showRewards!:boolean;
 	public showDevMenu!:boolean;
 	public showCommands!:boolean;
+	public sMain = storeMain();
+	public sChat = storeChat();
+	public sPoll = storePoll();
+	public sUsers = storeUsers();
+	public sBingo = storeBingo();
+	public sRaffle = storeRaffle();
+	public sPrediction = storePrediction();
 	
-	private sChat = storeChat();
-
 	public get whispersAvailable():boolean {
 		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = this.sChat.whispers;
 		for (const key in this.sChat.whispers) {

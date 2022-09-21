@@ -20,7 +20,7 @@
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
 		</div>
-		<div class="raid" v-if="$store.state.raiding == null">
+		<div class="raid" v-if="sStream.raiding == null">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
@@ -29,7 +29,7 @@
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store.state.raiding.target_display_name}}</label>
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{sStream.raiding.target_display_name}}</label>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>
@@ -76,10 +76,10 @@ export default class CommandHelper extends Vue {
 	public raidUser = "";
 	public adCooldown = 0;
 	private adCooldownInterval = 0;
+	public sStream = storeStream();
 
 	private clickHandler!:(e:MouseEvent) => void;
 	private sPoll = storePoll();
-	private sStream = storeStream();
 	private sPrediction = storePrediction();
 	
 	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.sStream.roomStatusParams; }

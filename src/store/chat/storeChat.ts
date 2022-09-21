@@ -581,7 +581,7 @@ export const storeChat = defineStore('chat', {
 			this.whispers = whispers;
 		},
 
-		searchMessages(value:string) { this.$state.searchMessages = value; },
+		doSearchMessages(value:string) { this.$state.searchMessages = value; },
 
 		updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}) {
 			this.botMessages[value.key].enabled = value.enabled;

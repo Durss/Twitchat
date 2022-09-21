@@ -12,7 +12,7 @@
 		
 		<div class="users">
 			<div class="user"
-			v-for="u in $store.state.trackedUsers"
+			v-for="u in sUsers.trackedUsers"
 			:key="u.user['user-id']">
 				<Button class="login"
 					@click="selectUser(u)"
@@ -44,6 +44,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 export default class TrackedUsers extends Vue {
 
 	public selectedUser:TrackedUser | null = null;
+	public sUsers = storeUsers();
 
 	public get classes():string[] {
 		let res = ["trackedusers"];

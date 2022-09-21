@@ -35,7 +35,7 @@
 					:icon="$image('icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
-					v-if="$store.state.currentPoll?.id" />
+					v-if="sPoll.data?.id" />
 				</transition>
 
 				<transition name="blink">
@@ -43,7 +43,7 @@
 					:icon="$image('icons/chatPoll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'chatpoll')"
-					v-if="$store.state.chatPoll != null" />
+					v-if="sChatSuggestion.data != null" />
 				</transition>
 
 				<transition name="blink">
@@ -51,26 +51,26 @@
 					:icon="$image('icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
-					v-if="$store.state.currentPrediction?.id" />
+					v-if="sPrediction.data?.id" />
 				</transition>
 
 				<transition name="blink">
 				<Button aria-label="Open tracked users"
 					:icon="$image('icons/magnet.svg')"
 					bounce
-					v-if="$store.state.trackedUsers.length > 0"
+					v-if="sUsers.trackedUsers.length > 0"
 					data-tooltip="View tracked users"
 					@click="$emit('setCurrentNotification', 'trackedUsers')" />
 				</transition>
 
 				<transition name="blink">
-				<div class="whispers" v-if="$store.state.raffle && $store.state.raffle.mode == 'chat'">
+				<div class="whispers" v-if="sRaffle.data && sRaffle.data.mode == 'chat'">
 					<Button aria-label="Open current raffle"
 						:icon="$image('icons/ticket.svg')"
 						bounce
 						data-tooltip="Raffle"
 						@click="$emit('setCurrentNotification', 'raffle')" />
-					<div class="count" v-if="$store.state.raffle.entries.length > 0">{{$store.state.raffle.entries.length}}</div>
+					<div class="count" v-if="sRaffle.data.entries.length > 0">{{sRaffle.data.entries.length}}</div>
 				</div>
 				</transition>
 
@@ -78,7 +78,7 @@
 				<Button aria-label="Open current bingo"
 					:icon="$image('icons/bingo.svg')"
 					bounce
-					v-if="$store.state.bingo"
+					v-if="sBingo.data"
 					data-tooltip="Bingo"
 					@click="$emit('setCurrentNotification', 'bingo')" />
 				</transition>
@@ -91,25 +91,25 @@
 						small
 						data-tooltip="Whispers"
 						@click="$emit('setCurrentNotification', 'whispers')" />
-					<div class="count" v-if="$store.state.whispersUnreadCount > 0">{{$store.state.whispersUnreadCount}}</div>
+					<div class="count" v-if="sChat.whispersUnreadCount > 0">{{sChat.whispersUnreadCount}}</div>
 				</div>
 				</transition>
 
 				<transition name="blink">
-				<div class="pins" v-if="$store.state.pinedMessages.length > 0">
+				<div class="pins" v-if="sChat.pinedMessages.length > 0">
 					<Button aria-label="Open pined messages"
 						:icon="$image('icons/pin.svg')"
 						bounce
 						small
 						data-tooltip="Pined messages"
 						@click="$emit('pins')" />
-					<div class="count">{{$store.state.pinedMessages.length}}</div>
+					<div class="count">{{sChat.pinedMessages.length}}</div>
 				</div>
 				</transition>
 
 				<transition name="blink">
 				<Button aria-label="Toggle messages encryption"
-					:icon="$image('icons/'+($store.state.cypherEnabled? 'lock.svg' : 'unlock.svg'))"
+					:icon="$image('icons/'+(sMain.cypherEnabled? 'lock.svg' : 'unlock.svg'))"
 					@click="toggleCypher()"
 					v-if="cypherConfigured"
 					bounce
@@ -120,7 +120,7 @@
 				<Button aria-label="Open deezer player"
 					:icon="$image('icons/deezer.svg')"
 					bounce
-					v-if="$store.state.deezerConnected"
+					v-if="sMusic.deezerConnected"
 					data-tooltip="Deezer"
 					@click="$emit('setCurrentNotification', 'deezer')" />
 				</transition>
@@ -134,20 +134,20 @@
 					@click="removeChatHighlight()" />
 				</transition>
 
-				<CommunityBoostInfo v-if="$store.state.communityBoostState" />
+				<CommunityBoostInfo v-if="sStream.communityBoostState" />
 
-				<TimerCountDownInfo v-if="$store.state.countdown || $store.state.timerStart > 0" />
+				<TimerCountDownInfo v-if="sTimer.countdown || sTimer.timerStart > 0" />
 
 				<CommercialTimer v-if="isCommercial" />
 
-				<div v-if="$store.state.params.appearance.showViewersCount.value === true
-					&& $store.state.playbackState && $store.state.playbackState.viewers > 0"
+				<div v-if="sParams.appearance.showViewersCount.value === true
+					&& sStream.playbackState && sStream.playbackState.viewers > 0"
 					data-tooltip="Viewer count"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
 					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{$store.state.playbackState.viewers}}</p>
+					<p v-if="!censoredViewCount">{{sStream.playbackState.viewers}}</p>
 					<img src="@/assets/icons/user.svg" alt="viewers">
 				</div>
 
@@ -165,7 +165,7 @@
 					:icon="$image('icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
-					v-if="$store.state.devmode" />
+					v-if="sMain.devmode" />
 				</transition>
 
 				<transition name="blink">
@@ -173,7 +173,7 @@
 					v-if="emergencyButtonEnabled"
 					:icon="$image('icons/emergency.svg')"
 					bounce
-					:data-tooltip="$store.state.emergencyStarted? 'Stop emergency mode' : 'Start emergency'"
+					:data-tooltip="sEmergency.emergencyStarted? 'Stop emergency mode' : 'Start emergency'"
 					@click="toggleEmergencyMode()" />
 				</transition>
 
@@ -183,15 +183,15 @@
 				<transition name="slide">
 					<Button small class="muteBt" aria-label="mute text to speech"
 						:icon="$image('icons/mute.svg')"
-						v-if="$store.state.ttsSpeaking"
+						v-if="sTTS.speaking"
 						data-tooltip="Stop speaking"
 						@click="stopTTS()" />
 				</transition>
 
 				<transition name="slide">
 					<Button small class="voicemodBt" aria-label="Reset voice effect"
-						v-if="$store.state.voicemodParams.voiceIndicator && $store.state.voicemodCurrentVoice.voiceID != 'nofx'"
-						:icon="'data:image/png;base64,' + $store.state.voicemodCurrentVoice.image"
+						v-if="sVoice.voicemodParams.voiceIndicator && sVoice.voicemodCurrentVoice.voiceID != 'nofx'"
+						:icon="'data:image/png;base64,' + sVoice.voicemodCurrentVoice.image"
 						data-tooltip="Reset voice effect"
 						@click="resetVoiceEffect()" />
 				</transition>
@@ -211,14 +211,12 @@
 </template>
 
 <script lang="ts">
-import { storeAuth } from '@/store/auth/storeAuth';
-import { storeAutomod } from '@/store/automod/storeAutomod';
 import { storeBingo } from '@/store/bingo/storeBingo';
 import { storeChat } from '@/store/chat/storeChat';
+import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
 import DataStore from '@/store/DataStore';
 import { storeEmergency } from '@/store/emergency/storeEmergency';
 import { storeMusic } from '@/store/music/storeMusic';
-import { storeOBS } from '@/store/obs/storeOBS';
 import { storeParams } from '@/store/params/storeParams';
 import { storePoll } from '@/store/poll/storePoll';
 import { storePrediction } from '@/store/prediction/storePrediction';
@@ -226,7 +224,6 @@ import { storeRaffle } from '@/store/raffle/storeRaffle';
 import { storeMain } from '@/store/storeMain';
 import { storeStream } from '@/store/stream/storeStream';
 import { storeTimer } from '@/store/timer/storeTimer';
-import { storeTriggers } from '@/store/triggers/storeTriggers';
 import { storeTTS } from '@/store/tts/storeTTS';
 import { storeUsers } from '@/store/users/storeUsers';
 import { storeVoice } from '@/store/voice/storeVoice';
@@ -307,17 +304,21 @@ export default class ChatForm extends Vue {
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
 	public spamInterval = 0;
-
-	private sTTS = storeTTS();
-	private sMain = storeMain();
-	private sChat = storeChat();
-	private sUsers = storeUsers();
-	private sVoice = storeVoice();
-	private sBingo = storeBingo();
-	private sTimer = storeTimer();
-	private sParams = storeParams();
-	private sStream = storeStream();
-	private sEmergency = storeEmergency();
+	public sTTS = storeTTS();
+	public sMain = storeMain();
+	public sChat = storeChat();
+	public sPoll = storePoll();
+	public sMusic = storeMusic();
+	public sUsers = storeUsers();
+	public sVoice = storeVoice();
+	public sBingo = storeBingo();
+	public sTimer = storeTimer();
+	public sRaffle = storeRaffle();
+	public sParams = storeParams();
+	public sStream = storeStream();
+	public sEmergency = storeEmergency();
+	public sPrediction = storePrediction();
+	public sChatSuggestion = storeChatSuggestion();
 	
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -516,7 +517,7 @@ export default class ChatForm extends Vue {
 			//Search a for messages
 			const search = params.join(" ");
 			// this.$emit("search", search);
-			this.sChat.searchMessages(search);
+			this.sChat.doSearchMessages(search);
 			this.message = "";
 		}else
 

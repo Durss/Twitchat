@@ -1,6 +1,6 @@
 <template>
 	<div class="chatraffleresult" @click.ctrl="copyJSON()">
-		<span class="time" v-if="$store.state.params.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		<div>
 			<strong>{{raffleData.winner.label}}</strong> won the raffle
@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts">
+import { storeParams } from '@/store/params/storeParams';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -23,6 +24,7 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatRaffleResult extends Vue {
 
 	public raffleData!:IRCEventDataList.RaffleResult;
+	public sParams = storeParams();
 	
 	public get time():string {
 		const d = new Date(parseInt(this.raffleData.tags['tmi-sent-ts'] as string));

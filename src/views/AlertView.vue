@@ -25,7 +25,6 @@ export default class AlertView extends Vue {
 		});
 	}
 
-	// @Watch("$store.state.alert")
 	public async onWatchAlert():Promise<void> {
 		let mess = this.sMain.alert;
 		if(mess && mess.length > 0) {

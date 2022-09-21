@@ -7,7 +7,7 @@
 			</div>
 
 			<div class="list">
-				<div v-for="m in $store.state.pinedMessages" :key="m.tags.id" class="messageItem">
+				<div v-for="m in sChat.pinedMessages" :key="m.tags.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<Button aria-label="Highlight message"
 						:icon="$image('icons/highlight.svg')"
@@ -23,12 +23,12 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ChatMessage from '../messages/ChatMessage.vue';
-import Button from '../Button.vue';
+import { storeChat } from '@/store/chat/storeChat';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
-import { storeChat } from '@/store/chat/storeChat';
+import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
 
 @Options({
 	props:{},
@@ -41,7 +41,7 @@ import { storeChat } from '@/store/chat/storeChat';
 export default class PinedMessages extends Vue {
 	
 	public highlightLoading = false;
-	private sChat = storeChat();
+	public sChat = storeChat();
 
 	public mounted():void {
 	}

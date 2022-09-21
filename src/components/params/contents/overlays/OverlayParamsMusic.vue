@@ -16,13 +16,13 @@
 		</ToggleBlock>
 		
 		<div class="params">
-			<ParamItem :paramData="param_noScroll" v-model="$store.state.musicPlayerParams.noScroll" />
-			<ParamItem :paramData="param_openFromLeft" v-model="$store.state.musicPlayerParams.openFromLeft" />
-			<ParamItem :paramData="param_autoHide" v-model="$store.state.musicPlayerParams.autoHide" />
-			<ParamItem :paramData="param_showCover" v-model="$store.state.musicPlayerParams.showCover" />
-			<ParamItem :paramData="param_showArtist" v-model="$store.state.musicPlayerParams.showArtist" />
-			<ParamItem :paramData="param_showTitle" v-model="$store.state.musicPlayerParams.showTitle" />
-			<ParamItem :paramData="param_showProgress" v-model="$store.state.musicPlayerParams.showProgressbar" />
+			<ParamItem :paramData="param_noScroll" v-model="sMusic.musicPlayerParams.noScroll" />
+			<ParamItem :paramData="param_openFromLeft" v-model="sMusic.musicPlayerParams.openFromLeft" />
+			<ParamItem :paramData="param_autoHide" v-model="sMusic.musicPlayerParams.autoHide" />
+			<ParamItem :paramData="param_showCover" v-model="sMusic.musicPlayerParams.showCover" />
+			<ParamItem :paramData="param_showArtist" v-model="sMusic.musicPlayerParams.showArtist" />
+			<ParamItem :paramData="param_showTitle" v-model="sMusic.musicPlayerParams.showTitle" />
+			<ParamItem :paramData="param_showProgress" v-model="sMusic.musicPlayerParams.showProgressbar" />
 			<ParamItem :paramData="param_customTemplateToggle" />
 		</div>
 
@@ -57,9 +57,8 @@ export default class OverlayParamsMusic extends Vue {
 	public param_showProgress:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show progress bar", value:true};
 	public param_customTemplateToggle:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Use custom template", value:true};
 	public param_customTemplate:TwitchatDataTypes.ParameterData = {type:"text", label:"Template (HTML accepted)", value:"", longText:true, placeholderList:[{tag:"TITLE", desc:"track title"}, {tag:"ARTIST", desc:"track artist"}]};
+	public sMusic= storeMusic();
 
-	private sMusic = storeMusic();
-	
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {

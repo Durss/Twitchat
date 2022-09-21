@@ -13,7 +13,7 @@
 			</transition>
 
 			<transition name="slide">
-				<MessageSearch class="content" v-if="$store.state.searchMessages" />
+				<MessageSearch class="content" v-if="sChat.searchMessages" />
 			</transition>
 
 			<transition name="slide">
@@ -81,16 +81,16 @@ import WhispersState from './WhispersState.vue';
 export default class ChannelNotifications extends Vue {
 
 	public currentContent!:string;
-
+	public sChat = storeChat();
+	public sPoll = storePoll();
+	public sMusic = storeMusic();
+	public sBingo = storeBingo();
+	public sRaffle = storeRaffle();
+	public sStream = storeStream();
+	public sPrediction = storePrediction();
+	public sChatSuggestion = storeChatSuggestion();
+	
 	private clickHandler!:(e:MouseEvent) => void;
-	private sChat = storeChat();
-	private sPoll = storePoll();
-	private sMusic = storeMusic();
-	private sBingo = storeBingo();
-	private sRaffle = storeRaffle();
-	private sStream = storeStream();
-	private sPrediction = storePrediction();
-	private sChatSuggestion = storeChatSuggestion();
 
 	public get showRaid():boolean { return this.sStream.raiding != null; }
 	public get showHypeTrain():boolean { return this.sStream.hypeTrain != undefined; }
