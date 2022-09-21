@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
+import { storeTimer } from '@/store/timer/storeTimer';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -36,14 +36,15 @@ export default class TimerCountDownInfo extends Vue {
 	public hoverCountdown:boolean = false;
 	
 	private interval:number = -1;
+	private sTimer = storeTimer();
 
 	public mounted():void {
 		this.interval = setInterval(()=> {
 			this.computeValues();
 		}, 1000);
 		this.computeValues();
-		watch(() => StoreProxy.store.state.timerStart, () => this.computeValues() );
-		watch(() => StoreProxy.store.state.countdown, () => this.computeValues() );
+		watch(() => this.sTimer.timerStart, () => this.computeValues() );
+		watch(() => this.sTimer.countdown, () => this.computeValues() );
 	}
 
 	public beforeUnmount():void {
@@ -51,19 +52,19 @@ export default class TimerCountDownInfo extends Vue {
 	}
 
 	public computeValues():void {
-		if(StoreProxy.store.state.countdown) {
-			const ellapsed = Date.now() - StoreProxy.store.state.countdown.startAt;
-			const remaining = Math.ceil((StoreProxy.store.state.countdown.duration - ellapsed)/1000)*1000;
+		if(this.sTimer.countdown) {
+			const ellapsed = Date.now() - this.sTimer.countdown.startAt;
+			const remaining = Math.ceil((this.sTimer.countdown.duration - ellapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
-		if(StoreProxy.store.state.timerStart) {
-			let ellapsed = Math.floor((Date.now() - StoreProxy.store.state.timerStart as number)/1000)*1000;
+		if(this.sTimer.timerStart) {
+			let ellapsed = Math.floor((Date.now() - this.sTimer.timerStart as number)/1000)*1000;
 			this.timer = Utils.formatDuration(ellapsed);
 		}
 	}
 
-	public stopTimer():void { StoreProxy.store.dispatch("stopTimer") }
-	public stopCountdown():void { StoreProxy.store.dispatch("stopCountdown") }
+	public stopTimer():void { this.sTimer.stopTimer() }
+	public stopCountdown():void { this.sTimer.stopCountdown() }
 
 }
 </script>

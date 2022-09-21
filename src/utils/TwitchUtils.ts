@@ -1,3 +1,5 @@
+import { storePoll } from "@/store/poll/storePoll";
+import { storePrediction } from "@/store/prediction/storePrediction";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
@@ -5,7 +7,6 @@ import BTTVUtils from "./BTTVUtils";
 import Config from "./Config";
 import FFZUtils from "./FFZUtils";
 import SevenTVUtils from "./SevenTVUtils";
-import StoreProxy from "./StoreProxy";
 import UserSession from "./UserSession";
 import Utils from "./Utils";
 
@@ -487,7 +488,7 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
-			StoreProxy.store.dispatch("setPolls", {data:json.data});
+			storePoll().setPolls(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -504,7 +505,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.store.dispatch("setPolls", {data:json.data});
+			storePoll().setPolls(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -526,7 +527,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.store.dispatch("setPolls", {data:json.data});
+			storePoll().setPolls(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -555,7 +556,7 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
-			StoreProxy.store.dispatch("setPredictions", json.data);
+			storePrediction().setPredictions(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -572,7 +573,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.store.dispatch("setPredictions", json.data);
+			storePrediction().setPredictions(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -595,7 +596,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.store.dispatch("setPredictions", json.data);
+			storePrediction().setPredictions(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -654,7 +655,7 @@ export default class TwitchUtils {
 		//This means that every message sent from this interface must be
 		//parsed manually. Love it..
 		emotes.sort((a,b)=> b.name.length - a.name.length );
-		StoreProxy.store.dispatch("setEmotes", emotes);
+		UserSession.instance.emotesCache = emotes;
 		return emotes;
 	}
 

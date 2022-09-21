@@ -102,9 +102,10 @@
 </template>
 
 <script lang="ts">
+import { storeChat } from '@/store/chat/storeChat';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import UserSession from '@/utils/UserSession';
 import { LoremIpsum } from 'lorem-ipsum';
@@ -123,11 +124,12 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsHighlight extends Vue {
 	
 	public overlayExists = false;
-	public placement = StoreProxy.store.state.chatHighlightOverlayParams.position;
+	public placement = storeChat().chatHighlightOverlayParams.position;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
 	private overlayPresenceHandler!:()=>void;
+	private sChat = storeChat();
 	
 	public get overlayUrl():string { return this.$overlayURL("chathighlight"); }
 
@@ -152,7 +154,7 @@ export default class OverlayParamsHighlight extends Vue {
 			const data:TwitchatDataTypes.ChatHighlightOverlayData = {
 				position:this.placement,
 			}
-			StoreProxy.store.dispatch("setChatHighlightOverlayParams", data);
+			this.sChat.setChatHighlightOverlayParams(data);
 		})
 	}
 
@@ -167,7 +169,7 @@ export default class OverlayParamsHighlight extends Vue {
 			sentencesPerParagraph: { max: 3, min: 1 },
 			wordsPerSentence: { max: 16, min: 4 }
 		});
-		const message = {
+		const message:IRCEventDataList.Message = {
 			"type": "message",
 			"message": "imGlitch " + lorem.generateParagraphs(1),
 			"tags": {
@@ -178,7 +180,7 @@ export default class OverlayParamsHighlight extends Vue {
 				"display-name": UserSession.instance.user?.display_name,
 				"emotes": { "112290": [ "0-7" ] },
 				"first-msg": false,
-				"flags": null,
+				"flags": undefined,
 				"id": "2b6830f3-5ff2-4d39-8f4d-f70f0858c9e9",
 				"mod": false,
 				"returning-chatter": false,
@@ -187,7 +189,7 @@ export default class OverlayParamsHighlight extends Vue {
 				"tmi-sent-ts": "1657909756626",
 				"turbo": false,
 				"user-id": UserSession.instance.user?.id,
-				"user-type": null,
+				"user-type": undefined,
 				"emotes-raw": "112290:0-7",
 				"badge-info-raw": "subscriber/16",
 				"badges-raw": "broadcaster/1,subscriber/12",
@@ -196,8 +198,9 @@ export default class OverlayParamsHighlight extends Vue {
 			},
 			"channel": "#"+UserSession.instance.user?.login,
 			"self": false,
+			"firstMessage": false,
 		};
-		StoreProxy.store.dispatch("highlightChatMessageOverlay", message);
+		this.sChat.highlightChatMessageOverlay(message);
 	}
 
 }

@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
+import { storeTimer } from '@/store/timer/storeTimer';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -42,9 +42,11 @@ export default class OverlayParamsTimer extends Vue {
 	
 	public open = false;
 	public get overlayUrl():string { return this.$overlayURL("timer"); }
+
+	private sTimer = storeTimer();
 	
-	public startTimer():void { StoreProxy.store.dispatch("startTimer"); }
-	public startCountdown():void { StoreProxy.store.dispatch("startCountdown", 2 * 60 * 1000); }
+	public startTimer():void { this.sTimer.startTimer(); }
+	public startCountdown():void { this.sTimer.startCountdown(2 * 60 * 1000); }
 
 }
 </script>

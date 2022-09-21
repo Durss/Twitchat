@@ -506,19 +506,6 @@ export namespace PubSubDataTypes {
 		}[];
 	}
 
-	export interface DeletedMessage {
-		type: string;
-		moderation_action: string;
-		args: string[];
-		created_by: string;
-		created_by_user_id: string;
-		created_at: string;
-		msg_id: string;
-		target_user_id: string;
-		target_user_login: string;
-		from_automod: boolean;
-	}
-
 	export interface WhisperRead {
 		id: string,//receiverID_senderID
 		last_read: number,//index of the last message read

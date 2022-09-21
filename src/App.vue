@@ -10,7 +10,8 @@
 <script lang="ts">
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import StoreProxy from './utils/StoreProxy';
+import { storeParams } from './store/params/storeParams';
+import { storeMain } from './store/storeMain';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
@@ -26,11 +27,13 @@ import Tooltip from "./views/Tooltip.vue";
 export default class App extends Vue {
 
 	private resizeHandler!:() => void;
+	private sMain = storeMain();
+	private sParams = storeParams();
 
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.$route.meta.overflow === true) res.push("overflow");
-		res.push("messageSize_"+StoreProxy.store.state.params.appearance.defaultSize.value);
+		res.push("messageSize_"+this.sParams.appearance.defaultSize.value);
 		return res;
 	}
 
@@ -38,7 +41,7 @@ export default class App extends Vue {
 		this.resizeHandler = ()=> this.onWindowResize();
 		window.addEventListener("resize", this.resizeHandler);
 		this.onWindowResize();
-		watch(()=> StoreProxy.store.state.initComplete, ()=> this.hideMainLoader())
+		watch(()=> this.sMain.initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
 	}
 
@@ -53,7 +56,7 @@ export default class App extends Vue {
 	}
 
 	private hideMainLoader():void {
-		if(StoreProxy.store.state.initComplete === true) {
+		if(this.sMain.initComplete === true) {
 			//@ts-ignore
 			closeInitLoader();//Method declared on index.html
 		}

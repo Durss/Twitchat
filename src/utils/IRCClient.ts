@@ -1,4 +1,7 @@
-import Store from "@/store/Store";
+import DataStore from "@/store/DataStore";
+import { storeParams } from "@/store/params/storeParams";
+import { storeMain } from "@/store/storeMain";
+import { storeUsers } from "@/store/users/storeUsers";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import { LoremIpsum } from "lorem-ipsum";
 import * as tmi from "tmi.js";
@@ -11,7 +14,6 @@ import type { IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import SevenTVUtils from "./SevenTVUtils";
-import StoreProxy from "./StoreProxy";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import UserSession from "./UserSession";
@@ -45,6 +47,9 @@ export default class IRCClient extends EventDispatcher {
 	private partSpoolTimeout = -1;
 	private refreshingToken = false;
 	private increment = 0;
+	private sMain = storeMain();
+	private sUsers = storeUsers();
+	private sParams = storeParams();
 	
 	constructor() {
 		super();
@@ -136,7 +141,7 @@ export default class IRCClient extends EventDispatcher {
 				
 				//Preload previous "greet them" history from the last 8 hours
 				const expired_before = Date.now() - (1000 * 60 * 60 * 8);//Expire after 8 hours
-				let historyStr = Store.get(Store.GREET_HISTORY);
+				let historyStr = DataStore.get(DataStore.GREET_HISTORY);
 				let prevGreetHistory:{d:number,uid:string}[] = [];
 				this.greetHistory = [];
 				if(historyStr) {
@@ -149,7 +154,7 @@ export default class IRCClient extends EventDispatcher {
 						this.greetHistory.push(e);
 					}
 				}
-				Store.set(Store.GREET_HISTORY, this.greetHistory, true, 30000);//Avoid spamming server
+				DataStore.set(DataStore.GREET_HISTORY, this.greetHistory, true, 30000);//Avoid spamming server
 			}else{
 				//Anonymous authentication
 				this.client = new tmi.Client({
@@ -188,7 +193,7 @@ export default class IRCClient extends EventDispatcher {
 								}
 							}
 							this.onlineUsers.sort();
-							StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
+							this.sUsers.setViewersList(this.onlineUsers);
 						}
 					}
 				}else {
@@ -203,7 +208,7 @@ export default class IRCClient extends EventDispatcher {
 				
 				this.onlineUsers.push(user);
 				this.onlineUsers.sort();
-				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
+				this.sUsers.setViewersList(this.onlineUsers);
 			});
 			
 			this.client.on("part", (channel:string, user:string) => {
@@ -216,7 +221,7 @@ export default class IRCClient extends EventDispatcher {
 				if(this.botsLogins[user.toLowerCase()] !== true) {
 					this.userLeave(user, channel);
 				}
-				StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
+				this.sUsers.setViewersList(this.onlineUsers);
 			});
 
 			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {
@@ -272,7 +277,7 @@ export default class IRCClient extends EventDispatcher {
 				this.sendHighlight({type:"highlight", channel, tags, username, viewers});
 				
 				//If "highlight raider's messages for 5min" option is enabled
-				if(StoreProxy.store.state.params.features.raidHighlightUser.value == true) {
+				if(this.sParams.features.raidHighlightUser.value == true) {
 					//Get user ID as the user tracking feature needs it
 					const user = (await TwitchUtils.loadUserInfo(undefined, [username]))[0];
 					const message:IRCEventDataList.Message = {
@@ -287,10 +292,10 @@ export default class IRCClient extends EventDispatcher {
 					message.tags["display-name"] = user.display_name;
 					message.tags["user-id"] = user.id;
 					//Track the user
-					StoreProxy.store.dispatch("trackUser", message);
+					this.sUsers.trackUser(message);
 					//Untrack the user after 5 minutes
 					setTimeout(()=> {
-						StoreProxy.store.dispatch("untrackUser", message.tags);
+						this.sUsers.untrackUser(message.tags);
 					}, 5 * 60 * 1000);
 				}
 			});
@@ -352,7 +357,6 @@ export default class IRCClient extends EventDispatcher {
 						break;
 					}
 					case "USERSTATE": {
-						StoreProxy.store.dispatch("setUserState", data as tmi.UserNoticeState);
 						TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
 						
 						//If there are messages pending for their ID, give the oldest one
@@ -428,7 +432,7 @@ export default class IRCClient extends EventDispatcher {
 			await this.client.deletemessage(this.channel, id);
 		}catch(error) {
 			if(error === "bad_delete_message_error") {
-				StoreProxy.store.state.alert = "Cannot delete broadcaster or moderator's message !";
+				this.sMain.alert = "Cannot delete broadcaster or moderator's message !";
 			}
 		}
 	}
@@ -518,7 +522,7 @@ export default class IRCClient extends EventDispatcher {
 			data.firstMessage = true;
 			this.uidsGreeted[key] = true;
 			this.greetHistory.push({d:Date.now(), uid:key});
-			Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
+			DataStore.set(DataStore.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
 		}
 		
 		this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, data));
@@ -587,7 +591,7 @@ export default class IRCClient extends EventDispatcher {
 			this.greetHistory.push({d:Date.now(), uid});
 			this.uidsGreeted[uid] = true;
 			if(!this.idToExample["firstMessage"]) this.idToExample["firstMessage"] = data;
-			Store.set(Store.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
+			DataStore.set(DataStore.GREET_HISTORY, this.greetHistory.slice(-2000), true, 30000);//Avoid spamming server
 		}
 		
 		
@@ -610,29 +614,29 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		//Ignore /me messages if requested
-		if(StoreProxy.store.state.params.filters.showSlashMe.value === false && tags["message-type"] == "action") {
+		if(this.sParams.filters.showSlashMe.value === false && tags["message-type"] == "action") {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 			return;
 		}
 		//Ignore self if requested
-		if(StoreProxy.store.state.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
+		if(this.sParams.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}
 		//Ignore bot messages if requested
-		if(StoreProxy.store.state.params.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] === true) {
+		if(this.sParams.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] === true) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}
 		//Ignore custom users
-		if((StoreProxy.store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+		if((this.sParams.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 			return;
 		}
 		//Ignore commands
-		if(StoreProxy.store.state.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
-			const blocked = StoreProxy.store.state.params.filters.blockedCommands.value as string;
-			if(StoreProxy.store.state.params.filters.ignoreListCommands.value === true && blocked.length > 0) {
+		if(this.sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
+			const blocked = this.sParams.filters.blockedCommands.value as string;
+			if(this.sParams.filters.ignoreListCommands.value === true && blocked.length > 0) {
 				//Ignore specific commands
 				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
 				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
@@ -702,7 +706,7 @@ export default class IRCClient extends EventDispatcher {
 		if(index == -1) {
 			this.onlineUsers.push(loginLower);
 			this.onlineUsers.sort();
-			StoreProxy.store.dispatch("setViewersList", this.onlineUsers);
+			this.sUsers.setViewersList(this.onlineUsers);
 		}
 
 		//If user is part of the block list, flag the message

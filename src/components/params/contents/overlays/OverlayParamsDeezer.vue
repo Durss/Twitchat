@@ -32,13 +32,13 @@
 
 <script lang="ts">
 import DeezerHelper from '@/utils/DeezerHelper';
-import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { storeMusic } from '@/store/music/storeMusic';
 
 @Options({
 	props:{},
@@ -55,8 +55,9 @@ export default class OverlayParamsDeezer extends Vue {
 	public open = false;
 	public authenticating = false;
 	public currentTrack:TwitchatDataTypes.MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
+	private sMusic = storeMusic();
 
-	public get deezerConnected():boolean { return StoreProxy.store.state.deezerConnected; }
+	public get deezerConnected():boolean { return this.sMusic.deezerConnected; }
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
@@ -74,7 +75,7 @@ export default class OverlayParamsDeezer extends Vue {
 	}
 
 	public disconnect():void {
-		StoreProxy.store.dispatch("setDeezerConnected", false);
+		this.sMusic.setDeezerConnected(false);
 	}
 
 }

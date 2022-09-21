@@ -78,16 +78,16 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
+import { storeAutomod } from '@/store/automod/storeAutomod';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import { reactive, watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
-import ParamItem from '../ParamItem.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
 import ToggleButton from '../../ToggleButton.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ParamItem from '../ParamItem.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -110,6 +110,8 @@ export default class ParamsAutomod extends Vue {
 	public keywordToValid:{[key:string]:boolean} = {};
 	public keywordToOpen:{[key:string]:boolean} = {};
 	public automodData!:TwitchatDataTypes.AutomodParamsData;
+
+	private sAutomod = storeAutomod();
 
 	/**
 	 * Cleaned up test string with special chars replaced
@@ -150,7 +152,7 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	public beforeMount():void {
-		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.store.state.automodParams)));
+		this.automodData = reactive(JSON.parse(JSON.stringify(this.sAutomod.params)));
 		this.param_enabled.value = this.automodData.enabled;
 		this.param_banUserNames.value = this.automodData.banUserNames;
 		this.automodData.keywordsFilters.forEach(v=> {
@@ -200,7 +202,7 @@ export default class ParamsAutomod extends Vue {
 	 * Save automod params
 	 */
 	public save():void {
-		StoreProxy.store.dispatch("setAutomodParams", this.automodData);
+		this.sAutomod.setAutomodParams(this.automodData);
 	}
 
 	/**

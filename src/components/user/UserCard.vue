@@ -60,8 +60,9 @@
 </template>
 
 <script lang="ts">
+import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
@@ -70,7 +71,6 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from '../messages/ChatModTools.vue';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 
 @Options({
 	props:{},
@@ -86,7 +86,7 @@ export default class UserCard extends Vue {
 	public suspiciousFollowFrequency:boolean = false;
 	public loading:boolean = true;
 	public loadingFollowings:boolean = true;
-	public username:string = "";
+	public username:string|null = null;
 	public createDate:string = "";
 	public followDate:string = "";
 	public user:TwitchDataTypes.UserInfo|null = null;
@@ -95,12 +95,14 @@ export default class UserCard extends Vue {
 	public followings:TwitchDataTypes.Following[] = [];
 	public followInfo:TwitchDataTypes.Following|null = null;
 	// public subState:TwitchDataTypes.Subscriber|null = null;
+
+	private sUsers = storeUsers();
 	
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
 	public mounted():void {
-		watch(() => StoreProxy.store.state.userCard, () => {
-			this.username = StoreProxy.store.state.userCard;
+		watch(() => this.sUsers.userCard, () => {
+			this.username = this.sUsers.userCard;
 			if(this.username == null) return;
 			this.username = this.username.replace(/^@/g, "");
 			this.loadUserInfo();
@@ -111,12 +113,12 @@ export default class UserCard extends Vue {
 	}
 
 	public beforeUnmount():void {
-		StoreProxy.store.dispatch("openUserCard", null);
+		this.sUsers.openUserCard(null);
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
 	public close():void {
-		StoreProxy.store.dispatch("openUserCard", null);
+		this.sUsers.openUserCard(null);
 	}
 
 	public async loadUserInfo():Promise<void> {
@@ -129,7 +131,7 @@ export default class UserCard extends Vue {
 		this.followings = [];
 		this.loadingFollowings = true;
 		try {
-			const users = await TwitchUtils.loadUserInfo(undefined, [this.username]);
+			const users = await TwitchUtils.loadUserInfo(undefined, [this.username!]);
 			if(users.length > 0) {
 				this.user = users[0];
 				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([this.user.id]))[0];

@@ -54,7 +54,7 @@ export namespace IRCEventDataList {
 		blockedUser?: boolean;
 		lowTrust?: boolean;
 		deleted?: boolean;
-		deletedData?: PubSubDataTypes.DeletedMessage;
+		deletedData?: PubSubDataTypes.ModerationData;
 		occurrenceCount?: number;
 		highlightWord?: string;
 		hasMention?: boolean;

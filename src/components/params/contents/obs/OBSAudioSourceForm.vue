@@ -15,11 +15,11 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
+import { storeOBS } from '@/store/obs/storeOBS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -42,6 +42,7 @@ export default class OBSAudioSourceForm extends Vue {
 	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Unmute command", placeholder:"!unmute" };
 
 	private defaultEntry = {label:"- none -", value:"- none -"};
+	private sOBS = storeOBS()
 
 	public mounted():void {
 		watch(()=> OBSWebsocket.instance.connected, () => { 
@@ -62,11 +63,11 @@ export default class OBSAudioSourceForm extends Vue {
 			muteCommand: this.obsAllowed_muteCommand.value as string,
 			unmuteCommand: this.obsAllowed_unmuteCommand.value as string,
 		};
-		StoreProxy.store.dispatch("setOBSMuteUnmuteCommands", commands);
+		this.sOBS.setOBSMuteUnmuteCommands(commands);
 	}
 
 	public async listAudioSources(manualCheck = false):Promise<void> {
-		const storeConfStr = Store.get(Store.OBS_CONF_MUTE_UNMUTE);
+		const storeConfStr = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
 		let storeConf!:TwitchatDataTypes.OBSMuteUnmuteCommands;
 		if(storeConfStr) {
 			storeConf = JSON.parse(storeConfStr);
@@ -100,7 +101,7 @@ export default class OBSAudioSourceForm extends Vue {
 				this.obsAllowed_audioSources.value = storeConf.audioSourceName;
 			}
 
-			const storedState = StoreProxy.store.state.obsMuteUnmuteCommands;
+			const storedState = this.sOBS.muteUnmuteCommands;
 			if(storedState) {
 				this.obsAllowed_muteCommand.value = storedState.muteCommand;
 				this.obsAllowed_unmuteCommand.value = storedState.unmuteCommand;

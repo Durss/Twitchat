@@ -19,7 +19,7 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import StoreProxy from '@/utils/StoreProxy';
+import { storeStream } from '@/store/stream/storeStream';
 
 @Options({
 	props:{},
@@ -35,6 +35,7 @@ export default class RaidState extends Vue {
 	private timerDuration = 90000;
 	private timerStart = 0;
 	private timerInterval!:number;
+	private sStream = storeStream();
 
 	public async mounted():Promise<void> {
 		this.timerStart = Date.now();
@@ -42,8 +43,8 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(StoreProxy.store.state.raiding?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [StoreProxy.store.state.raiding?.target_login as string]))[0];
+		if(this.sStream.raiding?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [this.sStream.raiding?.target_login as string]))[0];
 		}
 	}
 
@@ -54,7 +55,7 @@ export default class RaidState extends Vue {
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
 		if(seconds <= 0) {
-			StoreProxy.store.dispatch("setRaiding", "");
+			this.sStream.setRaiding(undefined);
 			return;
 		}
 		this.timeLeft = Utils.formatDuration(seconds);

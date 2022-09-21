@@ -1,3 +1,7 @@
+import { storeBingo } from "@/store/bingo/storeBingo";
+import { storeChat } from "@/store/chat/storeChat";
+import { storeEmergency } from "@/store/emergency/storeEmergency";
+import { storeRaffle } from "@/store/raffle/storeRaffle";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
@@ -8,7 +12,6 @@ import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
-import StoreProxy from "./StoreProxy";
 import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "./TriggerActionData";
 import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
@@ -30,6 +33,11 @@ export default class TriggerActionHandler {
 
 	public triggers:{[key:string]:TwitchatDataTypes.TriggerData} = {};
 	public emergencyMode:boolean = false;
+
+	private sChat = storeChat();
+	private sBingo = storeBingo();
+	private sRaffle = storeRaffle();
+	private sEmergency = storeEmergency();
 	
 	constructor() {
 	
@@ -289,24 +297,24 @@ export default class TriggerActionHandler {
 	
 	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.ttAutomod) return false;//Automoded message, ignore trigger
-		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
+		if(this.emergencyMode && this.sEmergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
 	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.ttAutomod) return false;//Automoded message, ignore trigger
-		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
+		if(this.emergencyMode && this.sEmergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
 	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.ttAutomod) return false;//Automoded message, ignore trigger
-		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
+		if(this.emergencyMode && this.sEmergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
 	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode && StoreProxy.store.state.emergencyParams.noTriggers) return true;
+		if(this.emergencyMode && this.sEmergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
@@ -480,7 +488,7 @@ export default class TriggerActionHandler {
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
-			let text:string = StoreProxy.store.state.botMessages.twitchatAd.message;
+			let text:string = this.sChat.botMessages.twitchatAd.message;
 			//If no link is found on the message, force it at the begining
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
 				text = "twitchat.fr : "+text;
@@ -596,13 +604,13 @@ export default class TriggerActionHandler {
 							const data = {
 											message: text,
 											user,
-											params:StoreProxy.store.state.chatHighlightOverlayParams,
+											params:this.sChat.chatHighlightOverlayParams,
 										}
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject)
-							StoreProxy.store.state.isChatMessageHighlighted = true;
+							this.sChat.isChatMessageHighlighted = true;
 						}else{
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
-							StoreProxy.store.state.isChatMessageHighlighted = false;
+							this.sChat.isChatMessageHighlighted = false;
 						}
 					}else
 					
@@ -614,12 +622,12 @@ export default class TriggerActionHandler {
 					
 					//Handle raffle action
 					if(step.type == "raffle") {
-						StoreProxy.store.dispatch("startRaffle", JSON.parse(JSON.stringify(step.raffleData)));
+						this.sRaffle.startRaffle(JSON.parse(JSON.stringify(step.raffleData)));
 					}else
 					
 					//Handle bingo action
 					if(step.type == "bingo") {
-						StoreProxy.store.dispatch("startBingo", JSON.parse(JSON.stringify(step.bingoData)));
+						this.sBingo.startBingo(JSON.parse(JSON.stringify(step.bingoData)));
 					}else
 					
 					//Handle voicemod action

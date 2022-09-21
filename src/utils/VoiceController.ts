@@ -1,8 +1,8 @@
 import type SpeechRecognition from "@/ISpeechRecognition";
+import { storeVoice } from "@/store/voice/storeVoice";
 import type { JsonObject } from "type-fest";
 import { reactive, watch } from "vue";
 import PublicAPI from "./PublicAPI";
-import StoreProxy from "./StoreProxy";
 import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "./TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
@@ -28,6 +28,8 @@ export default class VoiceController {
 	private hashmapGlobalActions:{[key:string]:VoiceAction} = {};
 	private splitRegGlobalActions!:RegExp;
 	private triggersCountDone:number = 0;
+
+	private sVoice = storeVoice();
 
 	constructor() {
 	
@@ -72,7 +74,7 @@ export default class VoiceController {
 		//When using voice recognition from a remote page, we get 2 events broadcasted
 		//for temp and final text. We then use these events to execute the voice actions
 		if(this.remoteControlMode) {
-			watch(()=>StoreProxy.store.state.voiceActions, ()=> {
+			watch(()=>this.sVoice.voiceActions, ()=> {
 				this.buildHashmaps();
 			}, {deep:true});
 		}
@@ -198,7 +200,7 @@ export default class VoiceController {
 
 	private buildHashmaps():void {
 		type VAKeys = keyof typeof VoiceAction;
-		const actions:VoiceAction[] = StoreProxy.store.state.voiceActions;
+		const actions:VoiceAction[] = this.sVoice.voiceActions;
 		this.hashmap = {};
 		this.hashmapGlobalActions = {};
 

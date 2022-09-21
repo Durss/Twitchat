@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
+import { storeVoice } from '@/store/voice/storeVoice';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -23,15 +23,17 @@ export default class VoiceTranscript extends Vue {
 
 	public show:boolean = false;
 
+	private sVoice = storeVoice();
+
 	public get text():string {
-		if(StoreProxy.store.state.voiceText.rawTempText) return StoreProxy.store.state.voiceText.rawTempText;
-		return StoreProxy.store.state.voiceText.finalText;
+		if(this.sVoice.voiceText.rawTempText) return this.sVoice.voiceText.rawTempText;
+		return this.sVoice.voiceText.finalText;
 		// return "Cillum reprehenderit incididunt";
 		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
 	}
 
 	public mounted():void {
-		watch(()=> StoreProxy.store.state.voiceText.rawTempText, async ()=>{
+		watch(()=> this.sVoice.voiceText.rawTempText, async ()=>{
 			if(!this.show){
 				this.show = true;
 				await this.$nextTick();
@@ -40,7 +42,7 @@ export default class VoiceTranscript extends Vue {
 				gsap.to(holder, {duration:.25, y:"0%"});
 			}
 		});
-		watch(()=> StoreProxy.store.state.voiceText.finalText, async (value:string)=>{
+		watch(()=> this.sVoice.voiceText.finalText, async (value:string)=>{
 			if(value != "") {
 				this.hide();
 			}
@@ -52,7 +54,7 @@ export default class VoiceTranscript extends Vue {
 		
 		const holder = this.$refs.holder as HTMLDivElement;
 		gsap.killTweensOf(holder);
-		let len = StoreProxy.store.state.voiceText.finalText.length;
+		let len = this.sVoice.voiceText.finalText.length;
 		if(isNaN(len) || len < 0) len = 1;
 		const delay = force? 0 : Math.min(2, len * .025);
 		gsap.to(holder, {delay, duration:.25, y:"120%", clearProps:"all", onComplete:()=>{

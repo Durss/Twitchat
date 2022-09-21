@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts">
+import { storeUsers } from '@/store/users/storeUsers';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -57,7 +57,7 @@ export default class TrackedUsers extends Vue {
 	public untrackUser(user:TrackedUser):void {
 		this.$confirm("Untrack user?", "The history of this user will be lost.")
 		.then(()=> {
-			StoreProxy.store.dispatch('untrackUser', user.user);
+			storeUsers().untrackUser(user.user);
 			this.selectedUser = null;
 		}).catch(()=> {});
 	}

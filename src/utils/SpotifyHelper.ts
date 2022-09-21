@@ -1,3 +1,5 @@
+import { storeMusic } from "@/store/music/storeMusic";
+import { storeMain } from "@/store/storeMain";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
@@ -6,7 +8,6 @@ import { EventDispatcher } from "./EventDispatcher";
 import PublicAPI from "./PublicAPI";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
-import StoreProxy from "./StoreProxy";
 import TriggerActionHandler from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 import Utils from "./Utils";
@@ -28,6 +29,8 @@ export default class SpotifyHelper extends EventDispatcher {
 	private _clientID = "";
 	private _clientSecret = "";
 	private _playlistsCache:SearchPlaylistItem[] = [];
+	private _sMain = storeMain();
+	private _sMusic = storeMusic();
 
 	constructor() {
 		super();
@@ -318,7 +321,7 @@ export default class SpotifyHelper extends EventDispatcher {
 					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
 					cover: this.currentTrack.cover,
-					params: StoreProxy.store.state.musicPlayerParams,
+					params: this._sMusic.musicPlayerParams,
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
@@ -328,7 +331,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				//Broadcast to the overlays
 				if(this._lastTrackInfo != null) {
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
-						params: StoreProxy.store.state.musicPlayerParams,
+						params: this._sMusic.musicPlayerParams,
 					});
 
 					//Broadcast to the triggers
@@ -455,7 +458,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.store.state.alert = "Spotify requires you to first play some music before trying to use it from Twitchat"
+					this._sMain.alert = "Spotify requires you to first play some music before trying to use it from Twitchat"
 				}
 			}catch(error){}
 

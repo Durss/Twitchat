@@ -30,12 +30,12 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
+import { storeChat } from '@/store/chat/storeChat';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import PermissionsForm from './obs/PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PermissionsForm from './obs/PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -55,13 +55,15 @@ export default class ParamsSpoiler extends Vue {
 		users:"",
 	};
 
+	private sChat = storeChat();
+
 	public mounted():void {
-		if(StoreProxy.store.state.spoilerParams.permissions) {
-			this.chatCommandPerms = StoreProxy.store.state.spoilerParams.permissions;
+		if(this.sChat.spoilerParams.permissions) {
+			this.chatCommandPerms = this.sChat.spoilerParams.permissions;
 		}
 
 		watch(()=>this.chatCommandPerms, ()=> {
-			StoreProxy.store.dispatch("setSpoilerParams", {
+			this.sChat.setSpoilerParams({
 				permissions:this.chatCommandPerms
 			});
 		}, {deep:true})

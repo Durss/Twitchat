@@ -45,8 +45,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import { storeTriggers } from '@/store/triggers/storeTriggers';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import { ScheduleTriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -154,7 +154,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		//If command name has been changed
 		if(this.originalName != this.param_name.value) {
 			//Make sure no other schedule trigger has the same name
-			const triggers = StoreProxy.store.state.triggers;
+			const triggers = storeTriggers().triggers;
 			for (const k in triggers) {
 				//Is a schedule trigger?
 				if(k.indexOf(TriggerTypes.SCHEDULE+"_") === 0) {

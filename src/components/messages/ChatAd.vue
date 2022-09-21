@@ -160,17 +160,19 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import Splitter from '../Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { storeMain } from '@/store/storeMain';
+import { storeChat } from '@/store/chat/storeChat';
+import { storeUsers } from '@/store/users/storeUsers';
 
 @Options({
 	props:{
@@ -198,6 +200,9 @@ export default class ChatAd extends Vue {
 	public confirmDelay:boolean = false;
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
+	private sChat = storeChat();
+	private sMain = storeMain();
+	private sUsers = storeUsers();
 
 	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
@@ -247,30 +252,30 @@ export default class ChatAd extends Vue {
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
-		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
-		StoreProxy.store.dispatch("showParams", true);
+		this.sMain.tempStoreValue = "CONTENT:"+page;
+		this.sMain.setShowParams(true);
 	}
 
 	public openSpecificParam(id:string):void {
-		StoreProxy.store.state.tempStoreValue = "SEARCH:"+id;
-		StoreProxy.store.dispatch("showParams", true);
+		this.sMain.tempStoreValue = "SEARCH:"+id;
+		this.sMain.setShowParams(true);
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			if(Store.get(Store.UPDATE_INDEX) != (StoreProxy.store.state.latestUpdateIndex as number).toString()) {
-				Store.set(Store.UPDATE_INDEX, StoreProxy.store.state.latestUpdateIndex);
+			if(DataStore.get(DataStore.UPDATE_INDEX) != (this.sMain.latestUpdateIndex as number).toString()) {
+				DataStore.set(DataStore.UPDATE_INDEX, this.sMain.latestUpdateIndex);
 			}
 		}
 		if(this.isAdWarning) {
-			Store.set(Store.TWITCHAT_AD_WARNED, true);
+			DataStore.set(DataStore.TWITCHAT_AD_WARNED, true);
 		}
 		if(this.isSponsorPublicPrompt) {
-			Store.set(Store.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
+			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
-		StoreProxy.store.dispatch("delChatMessage", {messageId:this.messageData.tags.id});
+		this.sChat.delChatMessage(this.messageData.tags.id);
 		this.$emit("delete");
 	}
 
@@ -283,7 +288,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public openViewerCard():void {
-		StoreProxy.store.dispatch("openUserCard", UserSession.instance.user?.login);
+		this.sUsers.openUserCard(UserSession.instance.user!.login);
 	}
 
 	public async simulateEvent(code:string):Promise<void> {
@@ -309,7 +314,7 @@ export default class ChatAd extends Vue {
 		this.loading = false;
 		this.madeDonationPublic = true;
 		console.log("ok");
-		Store.set(Store.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
+		DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 	}
 
 }

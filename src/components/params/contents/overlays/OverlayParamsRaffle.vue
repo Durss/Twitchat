@@ -31,7 +31,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import type { JsonArray, JsonObject } from "type-fest";
+import type { JsonArray } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';

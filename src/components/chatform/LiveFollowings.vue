@@ -39,7 +39,8 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import StoreProxy from '@/utils/StoreProxy';
+import { storeParams } from '@/store/params/storeParams';
+import { storeMain } from '@/store/storeMain';
 
 @Options({
 	props:{},
@@ -53,7 +54,7 @@ export default class LiveFollowings extends Vue {
 	public loading = true;
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get splitView():boolean { return StoreProxy.store.state.params.appearance.splitView.value as boolean && StoreProxy.store.state.canSplitView; }
+	public get splitView():boolean { return storeParams().appearance.splitView.value as boolean && storeMain().canSplitView; }
 	public get classes():string[] {
 		const res = ["livefollowings"];
 		if(this.splitView) res.push("splitView");

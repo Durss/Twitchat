@@ -250,7 +250,7 @@ export namespace TwitchatDataTypes {
 		max:number;
 	}
 
-	export interface ChatPollData {
+	export interface ChatSuggestionData {
 		command:string;
 		startTime:number;
 		duration:number;
@@ -305,7 +305,7 @@ export namespace TwitchatDataTypes {
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 
-	export interface InstallHandler {
+	export interface InstallHandler extends Event {
 		prompt:()=>void;
 		userChoice:Promise<{outcome:"accepted"}>;
 	}
@@ -565,6 +565,16 @@ export namespace TwitchatDataTypes {
 		id: string;
 		login: string;
 		pronoun_id: string
+	}
+
+	export interface ConfirmData {
+		title:string,
+		description?:string,
+		confirmCallback?:()=>void,
+		cancelCallback?:()=>void,
+		yesLabel?:string,
+		noLabel?:string,
+		STTOrigin?:boolean,
 	}
 
 

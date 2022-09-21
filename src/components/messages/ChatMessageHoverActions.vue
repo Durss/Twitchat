@@ -39,8 +39,11 @@
 </template>
 
 <script lang="ts">
+import { storeChat } from '@/store/chat/storeChat';
+import { storeMain } from '@/store/storeMain';
+import { storeTTS } from '@/store/tts/storeTTS';
+import { storeUsers } from '@/store/users/storeUsers';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -60,43 +63,47 @@ export default class ChatMessageHoverActions extends Vue {
 	public messageData!:IRCEventDataList.Message;
 	public shoutoutLoading = false;
 	public highlightLoading = false;
+	private sTTS = storeTTS();
+	private sChat = storeChat();
+	private sMain = storeMain();
+	private sUsers = storeUsers();
 
 	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id; }
-	public get ttsEnabled():boolean { return StoreProxy.store.state.ttsParams.enabled; }
+	public get ttsEnabled():boolean { return this.sTTS.params.enabled; }
 
 	public trackUser():void {
-		StoreProxy.store.dispatch("trackUser", this.messageData);
+		this.sUsers.trackUser(this.messageData);
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await StoreProxy.store.dispatch("shoutout", this.messageData.tags['display-name'] as string);
+			await this.sChat.shoutout(this.messageData.tags['display-name'] as string);
 		}catch(error) {
-			StoreProxy.store.state.alert = "Shoutout failed :(";
+			this.sMain.alert = "Shoutout failed :(";
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
 	}
 
 	public ttsRead() {
-		StoreProxy.store.dispatch("ttsReadMessage", this.messageData);
+		this.sTTS.ttsReadMessage(this.messageData);
 	}
 	
 	public async chatHighlight():Promise<void> {
 		this.highlightLoading = true;
-		StoreProxy.store.dispatch("highlightChatMessageOverlay", this.messageData);
+		this.sChat.highlightChatMessageOverlay(this.messageData);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
 	}
 
 	public pinMessage():void {
-		const pins = StoreProxy.store.state.pinedMessages as IRCEventDataList.Message[]
+		const pins = this.sChat.pinedMessages as IRCEventDataList.Message[]
 		//Check if message is already pinned
 		if(pins.find(m => m.tags.id == this.messageData.tags.id)) {
-			StoreProxy.store.dispatch("unpinMessage", this.messageData);
+			this.sChat.unpinMessage(this.messageData);
 		}else{
-			StoreProxy.store.dispatch("pinMessage", this.messageData);
+			this.sChat.pinMessage(this.messageData);
 		}
 	}
 }

@@ -24,8 +24,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import { storeTriggers } from '@/store/triggers/storeTriggers';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import { TriggerTypes } from '@/utils/TriggerActionData';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -85,7 +85,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 		//If command name has been changed
 		if(this.originalCmd != this.param_cmd.value) {
 			//Make sure no other chat command has the same name
-			const triggers = StoreProxy.store.state.triggers;
+			const triggers = storeTriggers().triggers;
 			for (const k in triggers) {
 				//Is a chat command?
 				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {

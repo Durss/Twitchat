@@ -78,13 +78,15 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import Store from '@/store/Store';
+import { storeChat } from '@/store/chat/storeChat';
+import DataStore from '@/store/DataStore';
+import { storeParams } from '@/store/params/storeParams';
+import { storeMain } from '@/store/storeMain';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
 import type{ ChatMessageTypes, IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -125,6 +127,8 @@ export default class NewUsers extends Vue {
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private sChat = storeChat();
+	private sParams = storeParams();
 
 	public get styles():{[key:string]:string} {
 		if(!this.showList) return {"min-height":"unset"};
@@ -142,19 +146,19 @@ export default class NewUsers extends Vue {
 	}
 
 	public beforeMount():void {
-		const storeValue = Store.get(Store.GREET_AUTO_SCROLL_DOWN);
+		const storeValue = DataStore.get(DataStore.GREET_AUTO_SCROLL_DOWN);
 		if(storeValue == "true") this.scrollDownAuto = true;
-		let height = Store.get(Store.GREET_AUTO_HEIGHT)
+		let height = DataStore.get(DataStore.GREET_AUTO_HEIGHT)
 		if(height) this.windowHeight = parseFloat(height);
 
-		const autoDeleteStore = Store.get(Store.GREET_AUTO_DELETE_AFTER);
+		const autoDeleteStore = DataStore.get(DataStore.GREET_AUTO_DELETE_AFTER);
 		if(autoDeleteStore != null) {
 			this.autoDeleteAfter = parseInt(autoDeleteStore);
 		}
 
 		watch(()=>this.autoDeleteAfter, ()=>{
 			//Save new "auto delete after" value when changed
-			Store.set(Store.GREET_AUTO_DELETE_AFTER, this.autoDeleteAfter);
+			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.autoDeleteAfter);
 		});
 
 		//Automatically deletes messages after the configured delay
@@ -176,7 +180,7 @@ export default class NewUsers extends Vue {
 		//a hot reload during development
 		if(!Config.instance.IS_PROD) {
 			this.localMessages = this.localMessages.concat(
-				(StoreProxy.store.state.chatMessages as ChatMessageTypes[]).filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
+				(this.sChat.messages as ChatMessageTypes[]).filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
 				.splice(0,50);
 		}
 
@@ -232,7 +236,7 @@ export default class NewUsers extends Vue {
 		//Ignore bot messages
 		if(IRCClient.instance.botsLogins[login.toLowerCase()] === true) return;
 		//Ignore hidden users from params
-		if((StoreProxy.store.state.params.filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
+		if((this.sParams.filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
 		
 		if(m.firstMessage) this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
@@ -396,7 +400,7 @@ export default class NewUsers extends Vue {
 
 	public toggleScroll():void {
 		this.scrollDownAuto = !this.scrollDownAuto;
-		Store.set(Store.GREET_AUTO_SCROLL_DOWN, this.scrollDownAuto);
+		DataStore.set(DataStore.GREET_AUTO_SCROLL_DOWN, this.scrollDownAuto);
 		if(this.scrollDownAuto) {
 			this.scrollTo();
 		}
@@ -472,7 +476,7 @@ export default class NewUsers extends Vue {
 
 		const percent = prev-next;
 		this.showMaxHeight = percent*100 > 2 && boundsEl.height/bounds.height+.02 < maxHeight;
-		Store.set(Store.GREET_AUTO_HEIGHT, this.windowHeight);
+		DataStore.set(DataStore.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 
 }

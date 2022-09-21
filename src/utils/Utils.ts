@@ -1,7 +1,7 @@
+import { storeAutomod } from '@/store/automod/storeAutomod';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { ChatUserstate } from 'tmi.js';
 import type { JsonObject } from 'type-fest';
-import StoreProxy from './StoreProxy';
 
 /**
  * Created by Durss
@@ -543,9 +543,10 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static isAutomoded(mess:string, tags:ChatUserstate):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
-		if(StoreProxy.store.state.automodParams.enabled
-		&& !Utils.checkPermissions(StoreProxy.store.state.automodParams.exludedUsers, tags)) {
-			const rules = StoreProxy.store.state.automodParams.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
+		const sAutomod = storeAutomod();
+		if(sAutomod.params.enabled
+		&& !Utils.checkPermissions(sAutomod.params.exludedUsers, tags)) {
+			const rules = sAutomod.params.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
 			for (let i = 0; i < rules.length; i++) {
 				const r = rules[i];
 				if(!r.enabled || !r.regex || r.regex.length < 2) continue;//Rule disabled, skip it

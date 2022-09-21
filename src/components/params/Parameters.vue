@@ -97,7 +97,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -123,6 +122,8 @@ import UserSession from '@/utils/UserSession';
 import PostOnChatParam from './PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { storeMain } from '@/store/storeMain';
+import { storeParams } from '@/store/params/storeParams';
 
 @Options({
 	props:{},
@@ -179,6 +180,10 @@ export default class Parameters extends Vue {
 	public get contentTts():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TTS; } 
 	public get contentVoice():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.VOICE; } 
 	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.AUTOMOD; } 
+	
+
+	private sMain = storeMain();
+	private sParams = storeParams();
 
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -194,7 +199,7 @@ export default class Parameters extends Vue {
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public async beforeMount():Promise<void> {
-		const v = StoreProxy.store.state.tempStoreValue as string;
+		const v = this.sMain.tempStoreValue as string;
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
@@ -208,10 +213,10 @@ export default class Parameters extends Vue {
 			if(chunks.length == 2) {
 				const cat = chunks[0] as TwitchatDataTypes.ParameterCategory;
 				const paramKey = chunks[1];
-				this.search = StoreProxy.store.state.params[cat][paramKey].label;
+				this.search = this.sParams.$state[cat][paramKey].label;
 			}
 		}
-		StoreProxy.store.state.tempStoreValue = null;
+		this.sMain.tempStoreValue = null;
 	}
 
 	public async mounted():Promise<void> {
@@ -243,7 +248,7 @@ export default class Parameters extends Vue {
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 			this.showMenu = false;
 			this.filteredParams = [];
-			StoreProxy.store.dispatch("showParams", false);
+			this.sMain.setShowParams(false);
 		}});
 	}
 
@@ -272,8 +277,8 @@ export default class Parameters extends Vue {
 		this.filteredParams = [];
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
-		for (const categoryID in StoreProxy.store.state.params) {
-			const category = StoreProxy.store.state.params[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData};
+		for (const categoryID in this.sParams.$state) {
+			const category = this.sParams.$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData};
 			for (const prop in category) {
 				const data:TwitchatDataTypes.ParameterData = category[prop];
 				

@@ -35,12 +35,21 @@
 </template>
 
 <script lang="ts">
+import { storeBingo } from '@/store/bingo/storeBingo';
+import { storeChat } from '@/store/chat/storeChat';
+import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
+import { storeMusic } from '@/store/music/storeMusic';
+import { storePoll } from '@/store/poll/storePoll';
+import { storePrediction } from '@/store/prediction/storePrediction';
+import { storeRaffle } from '@/store/raffle/storeRaffle';
+import { storeStream } from '@/store/stream/storeStream';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import MessageSearch from '../chatform/MessageSearch.vue';
 import BingoState from './BingoState.vue';
 import ChatPollState from './ChatPollState.vue';
+import DeezerState from './DeezerState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
@@ -48,11 +57,6 @@ import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
-import DeezerState from './DeezerState.vue';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 
 @Options({
 	props:{
@@ -79,16 +83,24 @@ export default class ChannelNotifications extends Vue {
 	public currentContent!:string;
 
 	private clickHandler!:(e:MouseEvent) => void;
+	private sChat = storeChat();
+	private sPoll = storePoll();
+	private sMusic = storeMusic();
+	private sBingo = storeBingo();
+	private sRaffle = storeRaffle();
+	private sStream = storeStream();
+	private sPrediction = storePrediction();
+	private sChatSuggestion = storeChatSuggestion();
 
-	public get showRaid():boolean { return StoreProxy.store.state.raiding != null; }
-	public get showHypeTrain():boolean { return StoreProxy.store.state.params.filters.showHypeTrain.value as boolean && (StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData).level != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && (StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll)?.id != null; }
-	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && StoreProxy.store.state.chatPoll != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && (StoreProxy.store.state.currentPrediction as TwitchDataTypes.Prediction)?.id != null; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && StoreProxy.store.state.raffle != null && StoreProxy.store.state.raffle.mode == "chat"; }
-	public get showBingo():boolean { return this.currentContent == 'bingo' && StoreProxy.store.state.bingo != null; }
+	public get showRaid():boolean { return this.sStream.raiding != null; }
+	public get showHypeTrain():boolean { return this.sStream.hypeTrain != undefined; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && this.sPoll.data?.id != null; }
+	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && this.sChatSuggestion != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.sPrediction.data?.id != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.sRaffle.data != null && this.sRaffle.data.mode == "chat"; }
+	public get showBingo():boolean { return this.currentContent == 'bingo' && this.sBingo.data != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
-	public get showDeezer():boolean { return this.currentContent == 'deezer' && StoreProxy.store.state.deezerConnected; }
+	public get showDeezer():boolean { return this.currentContent == 'deezer' && this.sMusic.deezerConnected; }
 	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
 
 	public get showClose():boolean {
@@ -104,8 +116,8 @@ export default class ChannelNotifications extends Vue {
 	}
 
 	public get whispersAvailable():boolean {
-		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = StoreProxy.store.state.whispers;
-		for (const key in StoreProxy.store.state.whispers) {
+		const whispers = this.sChat.whispers;
+		for (const key in whispers) {
 			if (whispers[key].length > 0) return true;
 		}
 		return false;

@@ -114,11 +114,12 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
+import { storeRaffle } from '@/store/raffle/storeRaffle';
+import { storeMain } from '@/store/storeMain';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { RaffleData } from '@/utils/CommonDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
@@ -188,6 +189,8 @@ export default class RaffleForm extends Vue {
 	
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
+	private sMain = storeMain();
+	private sRaffle = storeRaffle();
 
 	/**
 	 * Gets subs filtered by the current filters
@@ -251,7 +254,7 @@ export default class RaffleForm extends Vue {
 			this.customEntries.value = this.action.raffleData.customEntries;
 		}
 		
-		this.showCountdownOverlay.value = Store.get(Store.RAFFLE_OVERLAY_COUNTDOWN) === "true";
+		this.showCountdownOverlay.value = DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 		this.maxUsersToggle.children = [this.maxEntries];
 		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
 
@@ -262,7 +265,7 @@ export default class RaffleForm extends Vue {
 		}
 		
 		watch(()=>this.showCountdownOverlay.value, ()=>{
-			Store.set(Store.RAFFLE_OVERLAY_COUNTDOWN, this.showCountdownOverlay.value)
+			DataStore.set(DataStore.RAFFLE_OVERLAY_COUNTDOWN, this.showCountdownOverlay.value)
 		})
 		
 		watch(()=>this.mode, ()=> this.onValueChange());
@@ -293,7 +296,7 @@ export default class RaffleForm extends Vue {
 	 */
 	public async submitForm():Promise<void> {
 		const payload:RaffleData = this.finalData;
-		StoreProxy.store.dispatch("startRaffle", payload);
+		this.sRaffle.startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();
 		}else{
@@ -304,8 +307,8 @@ export default class RaffleForm extends Vue {
 	}
 	
 	public openParam(page:TwitchatDataTypes.ParamsContentStringType):void {
-		StoreProxy.store.state.tempStoreValue = "CONTENT:"+page;
-		StoreProxy.store.dispatch("showParams", true);
+		this.sMain.tempStoreValue = "CONTENT:"+page;
+		this.sMain.setShowParams(true);
 	}
 
 	public onValueChange():void {

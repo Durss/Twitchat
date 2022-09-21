@@ -27,8 +27,8 @@ import { Options, Vue } from 'vue-class-component';
 import ChatMessage from '../messages/ChatMessage.vue';
 import Button from '../Button.vue';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
+import { storeChat } from '@/store/chat/storeChat';
 
 @Options({
 	props:{},
@@ -41,6 +41,7 @@ import Utils from '@/utils/Utils';
 export default class PinedMessages extends Vue {
 	
 	public highlightLoading = false;
+	private sChat = storeChat();
 
 	public mounted():void {
 	}
@@ -53,15 +54,15 @@ export default class PinedMessages extends Vue {
 	}
 
 	public async unpin(m:IRCEventDataList.Message):Promise<void> {
-		StoreProxy.store.dispatch("unpinMessage", m);
-		if(StoreProxy.store.state.pinedMessages.length === 0) {
+		this.sChat.unpinMessage(m);
+		if(this.sChat.pinedMessages.length === 0) {
 			this.close();
 		}
 	}
 	
 	public async chatHighlight(m:IRCEventDataList.Message):Promise<void> {
 		this.highlightLoading = true;
-		StoreProxy.store.dispatch("highlightChatMessageOverlay", m);
+		this.sChat.highlightChatMessageOverlay(m);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
 	}

@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts">
+import { storeBingo } from '@/store/bingo/storeBingo';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { BingoData } from '@/utils/CommonDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
@@ -43,15 +43,15 @@ export default class BingoState extends Vue {
 
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 
-	public get bingoData():BingoData {
-		return StoreProxy.store.state.bingo as BingoData;
-	}
+	private sBingo = storeBingo();
+
+	public get bingoData():BingoData { return this.sBingo.data!; }
 
 	public mounted():void {
 	}
 
 	public closeBingo():void {
-		StoreProxy.store.dispatch("stopBingo");
+		this.sBingo.stopBingo();
 		this.$emit("close");
 	}
 

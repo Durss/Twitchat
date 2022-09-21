@@ -25,10 +25,11 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import Store from '@/store/Store';
+import { storeAuth } from '@/store/auth/storeAuth';
+import DataStore from '@/store/DataStore';
+import { storeMain } from '@/store/storeMain';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -56,7 +57,10 @@ export default class ParamsAccount extends Vue {
 	public publicDonation = false;
 	public publicDonation_loaded = false;
 
-	public get canInstall():boolean { return StoreProxy.store.state.ahsInstaller != null || true; }
+	private sMain = storeMain();
+	private sAuth = storeAuth();
+
+	public get canInstall():boolean { return this.sMain.ahsInstaller != null || true; }
 	public get userName():string { return UserSession.instance.authToken.login; }
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get donorLevel():number { return UserSession.instance.donorLevel; }
@@ -70,14 +74,14 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public logout():void {
-		StoreProxy.store.dispatch('logout');
+		this.sAuth.logout();
 		this.$router.push({name:'logout'});
 	}
 
 	public async mounted():Promise<void> {
-		this.syncEnabled = Store.get(Store.SYNC_DATA_TO_SERVER) == "true";
-		this.publicDonation = Store.get(Store.SYNC_DATA_TO_SERVER) == "true";
-		watch(()=> this.syncEnabled, ()=> Store.set(Store.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
+		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
+		this.publicDonation = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
+		watch(()=> this.syncEnabled, ()=> DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
 
 		if(this.isDonor) {
 			//Load current anon state of the user's donation
@@ -107,13 +111,9 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public ahs():void {
-		if(!StoreProxy.store.state.ahsInstaller) return;
+		if(!this.sMain.ahsInstaller) return;
 		// Show the prompt
-		StoreProxy.store.state.ahsInstaller.prompt();
-		// // Wait for the user to respond to the prompt
-		// StoreProxy.store.state.ahsInstaller.userChoice.then((choiceResult) => {
-		// 	this.canInstall = false;
-		// })
+		this.sMain.ahsInstaller.prompt();
 	}
 
 	private async updateDonationState():Promise<void> {

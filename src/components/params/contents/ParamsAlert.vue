@@ -33,10 +33,11 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 import ParamItem from '../ParamItem.vue';
 import Splitter from '../../Splitter.vue';
 import Button from '../../Button.vue';
-import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import gsap from 'gsap';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { storeMain } from '@/store/storeMain';
+import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 
 @Options({
 	props:{},
@@ -63,6 +64,8 @@ export default class ParamsAlert extends Vue {
 		all:false,
 		users:"",
 	};
+
+	private sMain = storeMain();
 	
 	public get finalData():TwitchatDataTypes.AlertParamsData {
 		return {
@@ -78,7 +81,7 @@ export default class ParamsAlert extends Vue {
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
-		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(StoreProxy.store.state.chatAlertParams));
+		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.sMain.chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
 			this.param_chatCommand.value = params.chatCmd;
@@ -90,13 +93,12 @@ export default class ParamsAlert extends Vue {
 		}
 
 		watch(()=>this.finalData, ()=> {
-			StoreProxy.store.dispatch("setAlertParams", this.finalData);
+			this.sMain.setAlertParams(this.finalData);
 		}, {deep:true});
 	}
 
 	public testAlert():void {
-		// gsap.fromTo(document.body, {filter:"brightness(1)"}, {duration:0.2, filter:"brightness(10)", clearProps:"filter", repeat:10});
-		const message = {
+		const message:IRCEventDataList.Message = {
 			"type": "message",
 			"message": "ItsBoshyTime Read your chat !!! ItsBoshyTime",
 			"tags": {
@@ -117,7 +119,7 @@ export default class ParamsAlert extends Vue {
 					]
 				},
 				"first-msg": false,
-				"flags": null,
+				"flags": undefined,
 				"id": "00000000-0000-0000-0000-000000000002",
 				"mod": false,
 				"returning-chatter": false,
@@ -126,7 +128,7 @@ export default class ParamsAlert extends Vue {
 				"tmi-sent-ts": "1658344567683",
 				"turbo": false,
 				"user-id": "29961813",
-				"user-type": null,
+				"user-type": "",
 				"emotes-raw": "133468:0-11,32-43",
 				"badge-info-raw": "subscriber/16",
 				"badges-raw": "broadcaster/1,subscriber/12",
@@ -138,7 +140,7 @@ export default class ParamsAlert extends Vue {
 			"firstMessage": false,
 			"hasMention": false
 		}
-		StoreProxy.store.dispatch("executeChatAlert", message);
+		this.sMain.executeChatAlert(message);
 	}
 
 }

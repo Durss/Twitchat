@@ -18,7 +18,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
-import StoreProxy from '@/utils/StoreProxy';
+import { storeMain } from '@/store/storeMain';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -43,6 +43,8 @@ export default class Confirm extends Vue {
 	public submitPressed = false;
 	public voiceControl = false;
 
+	private sMain = storeMain();
+
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private voiceController!:FormVoiceControllHelper;
@@ -53,7 +55,7 @@ export default class Confirm extends Vue {
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("keydown", this.keyDownHandler);
-		watch(() => StoreProxy.store.state.confirm, async () => {
+		watch(() => this.sMain.confirm, async () => {
 			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
 		});
@@ -65,7 +67,7 @@ export default class Confirm extends Vue {
 	}
 
 	public onConfirmChanged():void {
-		let hidden = !StoreProxy.store.state.confirm || !StoreProxy.store.state.confirm.title;
+		let hidden = !this.sMain.confirm || !this.sMain.confirm.title;
 		
 		if(this.hidden == hidden) return;//No change, ignore
 		let holder = this.$refs.holder as HTMLElement;
@@ -73,11 +75,11 @@ export default class Confirm extends Vue {
 
 		if(!hidden) {
 			this.hidden = hidden;
-			this.title = StoreProxy.store.state.confirm.title;
-			this.description = StoreProxy.store.state.confirm.description;
-			this.yesLabel = StoreProxy.store.state.confirm.yesLabel || "Yes";
-			this.noLabel = StoreProxy.store.state.confirm.noLabel || "No";
-			this.voiceControl = StoreProxy.store.state.confirm.STTOrigin === true;
+			this.title = this.sMain.confirm.title;
+			this.description = this.sMain.confirm.description ?? "";
+			this.yesLabel = this.sMain.confirm.yesLabel ?? "Yes";
+			this.noLabel = this.sMain.confirm.noLabel ?? "No";
+			this.voiceControl = this.sMain.confirm.STTOrigin === true;
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
@@ -135,15 +137,15 @@ export default class Confirm extends Vue {
 	}
 
 	public answer(confirm = false):void {
-		if(!StoreProxy.store.state.confirm.title) return;
+		if(!this.sMain.confirm.title) return;
 		
 		if(confirm) {
-			if(StoreProxy.store.state.confirm.confirmCallback) {
-				StoreProxy.store.state.confirm.confirmCallback();
+			if(this.sMain.confirm.confirmCallback) {
+				this.sMain.confirm.confirmCallback();
 			}
 		}else{
-			if(StoreProxy.store.state.confirm.cancelCallback) {
-				StoreProxy.store.state.confirm.cancelCallback();
+			if(this.sMain.confirm.cancelCallback) {
+				this.sMain.confirm.cancelCallback();
 			}
 		}
 		const confirmData = {
@@ -154,7 +156,7 @@ export default class Confirm extends Vue {
 			confirmCallback : () => { /*ignore*/ },
 			cancelCallback : () =>  { /*ignore*/ }
 		}
-		StoreProxy.store.dispatch("confirm", confirmData);
+		this.sMain.confirm(confirmData);
 	}
 }
 </script>

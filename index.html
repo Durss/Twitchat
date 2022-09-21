@@ -95,12 +95,12 @@
 		function onLoadError(error, script) {
 			const SERVER_PORT = 3018;
 			const IS_PROD = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
-			let API_PATH = "/api";
+			let API_PATH = document.location.origin+"/api";
 			if(!IS_PROD) {
 				API_PATH = document.location.protocol+"//"+document.location.hostname+":"+SERVER_PORT+"/api";
 			}
 
-			const url = new URL(document.location.origin+API_PATH+"/script");
+			const url = new URL(API_PATH+"/script");
 			let date = parseInt(url.searchParams.get("ck"));
 			let counter = parseInt(url.searchParams.get("cki"));
 			if(isNaN(counter)) counter = 0;
@@ -112,6 +112,7 @@
 			//Stop spamming script refresh after 10 attempts
 			if(counter <= 10) {
 				setTimeout(()=>{
+					console.log(document.head);
 					document.head.removeChild(script);
 					let s = document.createElement('script');
 					s.defer = true;

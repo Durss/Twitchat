@@ -38,8 +38,8 @@
 </template>
 
 <script lang="ts">
+import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -56,7 +56,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		PermissionsForm,
 	}
 })
-export default class ChatPollForm extends Vue {
+export default class ChatSuggestionForm extends Vue {
 	
 	public command:TwitchatDataTypes.ParameterData = {type:"text", value:"!sugg", label:"Command", placeholder:"!sugg", maxLength:31};
 	public duration:TwitchatDataTypes.ParameterData = {label:"Poll duration (minutes)", value:2, type:"number", min:1, max:30};
@@ -90,7 +90,7 @@ export default class ChatPollForm extends Vue {
 	}
 
 	public submitChatPoll():void {
-		const data:TwitchatDataTypes.ChatPollData = {
+		const data:TwitchatDataTypes.ChatSuggestionData = {
 			startTime:Date.now(),
 			command:(this.command.value as string).trim(),
 			duration:this.duration.value as number,
@@ -98,7 +98,7 @@ export default class ChatPollForm extends Vue {
 			choices:[],
 			winners:[],
 		}
-		StoreProxy.store.dispatch("setChatPoll", data);
+		storeChatSuggestion().setChatSuggestion(data);
 		this.close();
 	}
 }

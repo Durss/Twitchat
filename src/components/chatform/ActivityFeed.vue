@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import { TwitchatMessageType, getTwitchatMessageType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -97,9 +97,9 @@ import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
-import StoreProxy from '@/utils/StoreProxy';
 import ChatHypeTrainResult from '../messages/ChatHypeTrainResult.vue';
 import Button from '../Button.vue';
+import { storeChat } from '@/store/chat/storeChat';
 
 @Options({
 	props:{
@@ -141,7 +141,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():ActivityFeedData[] {
-		const list = this.customActivities.length > 0? this.customActivities : (StoreProxy.store.state.activityFeed as ActivityFeedData[]);
+		const list = this.customActivities.length > 0? this.customActivities : (storeChat().activityFeed as ActivityFeedData[]);
 
 		const result:ActivityFeedData[] = [];
 
@@ -186,7 +186,7 @@ export default class ActivityFeed extends Vue {
 	}
 
 	public beforeMount():void {
-		const f = Store.get(Store.ACTIVITY_FEED_FILTERS);
+		const f = DataStore.get(DataStore.ACTIVITY_FEED_FILTERS);
 		let json:{[key:string]:boolean} = {};
 		try {
 			json = JSON.parse(f);
@@ -213,7 +213,7 @@ export default class ActivityFeed extends Vue {
 	public async mounted():Promise<void> {
 
 		watch(()=>this.filters, ()=> {
-			Store.set(Store.ACTIVITY_FEED_FILTERS, this.filters);
+			DataStore.set(DataStore.ACTIVITY_FEED_FILTERS, this.filters);
 		});
 
 		await this.$nextTick();

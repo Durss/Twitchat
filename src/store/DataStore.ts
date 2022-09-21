@@ -1,14 +1,16 @@
-import Config from "@/utils/Config";
-import type { JsonValue } from "type-fest";
-import { TriggerTypes } from "@/utils/TriggerActionData";
-import StoreProxy from "@/utils/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import { TriggerTypes } from "@/utils/TriggerActionData";
+import Utils from "@/utils/Utils";
+import type { JsonValue } from "type-fest";
+import { storeAuth } from "./auth/storeAuth";
+import { storeEmergency } from "./emergency/storeEmergency";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
  * Created : 18/10/2020 
  */
-export default class Store {
+export default class DataStore {
 	
 	public static access_token:string;
 	public static syncToServer:boolean = false;
@@ -94,7 +96,7 @@ export default class Store {
 			v = "5";
 		}
 		if(v=="5") {
-			Store.remove("p:showPollPredResults");
+			DataStore.remove("p:showPollPredResults");
 			v = "6";
 		}
 		if(v=="6") {
@@ -104,7 +106,7 @@ export default class Store {
 		if(v=="7") {
 			//Because of an old stupid version check, users could skip updates
 			//Trying to fix this here...
-			Store.remove("p:showPollPredResults");
+			DataStore.remove("p:showPollPredResults");
 			v = "8";
 		}
 		if(v=="8") {
@@ -184,7 +186,7 @@ export default class Store {
 	 * Replace local data by the given JSON
 	 */
 	public static loadFromJSON(json:any, fullOverwrite:boolean = false):void {
-		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
+		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
 		for (const key in json.data) {
 			const value = json.data[key];
 			const str = typeof value == "string"? value : JSON.stringify(value);
@@ -194,14 +196,14 @@ export default class Store {
 		if(backupAutomod) {
 			//Make sure we don't loose unsynced automod rules
 			//(should think of a generic way of doing this..)
-			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(Store.AUTOMOD_PARAMS));
+			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
 			for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
 				const el = backupAutomod.keywordsFilters[i];
 				if(!el.serverSync) {
 					automod.keywordsFilters.splice(i, 0, el);
 				}
 			}
-			this.set(Store.AUTOMOD_PARAMS, automod);
+			this.set(DataStore.AUTOMOD_PARAMS, automod);
 		}
 
 		this.rawStore = json.data;
@@ -258,9 +260,10 @@ export default class Store {
 				}
 				const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
 				if(res.status === 500) {
-					StoreProxy.store.dispatch("refreshAuthToken", ()=> {
+					storeAuth().refreshAuthToken(()=> {
 						//Try again
-						setTimeout(()=> { this.save(true); }, 2000);
+						Utils.promisedTimeout(2000);
+						this.save(true);
 					});
 				}
 				// const json = await res.json();
@@ -535,10 +538,10 @@ export default class Store {
 	 */
 	private static migrateEmergency():void {
 		const value = this.get("p:emergencyButton");
-		StoreProxy.store.state.emergencyParams.enabled = value === "true";
+		storeEmergency().params.enabled = value === "true";
 		this.remove("obsIp");
 		this.remove("p:emergencyButton");
-		this.set(this.EMERGENCY_PARAMS, StoreProxy.store.state.emergencyParams);
+		this.set(this.EMERGENCY_PARAMS, storeEmergency().params);
 	}
 
 	/**

@@ -47,9 +47,9 @@
 </template>
 
 <script lang="ts">
+import { storeMain } from '@/store/storeMain';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -86,6 +86,8 @@ export default class PredictionForm extends Vue {
 
 	private voiceController!:FormVoiceControllHelper;
 
+	private sMain = storeMain();
+
 	public get canSubmit():boolean {
 		return this.title.length > 1 && this.answers[0].length > 0 && this.answers[1].length > 0;
 	}
@@ -106,9 +108,9 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		if(StoreProxy.store.state.tempStoreValue) {
-			this.title = StoreProxy.store.state.tempStoreValue as string;
-			StoreProxy.store.state.tempStoreValue = null;
+		if(this.sMain.tempStoreValue) {
+			this.title = this.sMain.tempStoreValue as string;
+			this.sMain.tempStoreValue = null;
 		}
 	}
 

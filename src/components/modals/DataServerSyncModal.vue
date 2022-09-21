@@ -43,14 +43,15 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
-import StoreProxy from '@/utils/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { storeAccount } from '@/store/account/storeAccount';
+import { storeMain } from '@/store/storeMain';
 
 @Options({
 	props:{},
@@ -66,7 +67,7 @@ export default class DataServerSyncModal extends Vue {
 	public isNewUser:boolean = true;
 	public loading:boolean = true;
 	public uploading:boolean = false;
-	public sync_param:TwitchatDataTypes.ParameterData = JSON.parse(JSON.stringify(StoreProxy.store.state.accountParams.syncDataWithServer));
+	public sync_param:TwitchatDataTypes.ParameterData = JSON.parse(JSON.stringify(storeAccount().syncDataWithServer));
 	public upload_param:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
 
 	public async mounted():Promise<void> {
@@ -74,7 +75,7 @@ export default class DataServerSyncModal extends Vue {
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 
-		this.isNewUser = !await Store.loadRemoteData(false);
+		this.isNewUser = !await DataStore.loadRemoteData(false);
 		if(!this.isNewUser) {
 			this.sync_param.children = [this.upload_param];
 		}
@@ -92,11 +93,11 @@ export default class DataServerSyncModal extends Vue {
 	public async submit():Promise<void> {
 		this.uploading = true;
 		if(this.upload_param.value === true) {
-			await Store.save(true);
+			await DataStore.save(true);
 		}
-		await Store.loadRemoteData(true);
-		Store.set(Store.SYNC_DATA_TO_SERVER, this.sync_param.value);
-		StoreProxy.store.dispatch("loadDataFromStorage");
+		await DataStore.loadRemoteData(true);
+		DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.sync_param.value);
+		storeMain().loadDataFromStorage();
 		this.close();
 		this.uploading = false;
 	}
@@ -167,10 +168,6 @@ export default class DataServerSyncModal extends Vue {
 				padding: 1em;
 				border-radius: 1em;
 				font-size: 1.2em;
-
-				.param {
-					// width: 300px;
-				}
 
 				button:not(:first-child) {
 					margin-top: .5em;

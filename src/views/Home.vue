@@ -351,7 +351,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
@@ -371,12 +371,14 @@ import AnchorsMenu from '../components/AnchorsMenu.vue';
 export default class Home extends Vue {
 
 	public anchors:TwitchatDataTypes.AnchorData[] = [];
+	// public storeMainState = storeToRefs(storeMain());//Example
+	// public storeMainActions = storeMain();//Example
 
 	private index = 0;
 	private disposed = false;
 	private prevTs = 0;
 
-	public get hasAuthToken():boolean { return Store.get(Store.TWITCH_AUTH_TOKEN) != null; }
+	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null; }
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }

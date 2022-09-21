@@ -1,5 +1,6 @@
+import { storeMusic } from '@/store/music/storeMusic'
+import { storeMain } from '@/store/storeMain'
 import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
-import StoreProxy from '@/utils/StoreProxy'
 import Utils from '@/utils/Utils'
 import Chat from '@/views/Chat.vue'
 import ChatLight from '@/views/ChatLight.vue'
@@ -11,6 +12,7 @@ import RemoteVoiceControl from '@/views/RemoteVoiceControl.vue'
 import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
+
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -85,17 +87,19 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/spotify/auth',
 		name: 'spotify/auth',
 		redirect:() => {
+			const sMain = storeMain();
+			const sMusic = storeMusic();
 			if(!Utils.getQueryParameterByName("error")) {
-				StoreProxy.store.state.showParams = true;//Open params
-				StoreProxy.store.state.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
+				sMain.showParams = true;//Open params
+				sMain.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
 	
 				const params:SpotifyAuthResult = {
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				StoreProxy.store.dispatch("setSpotifyAuthResult", params)
+				sMusic.setSpotifyAuthResult(params);
 			}else{
-				StoreProxy.store.state.alert = "You refused to grant access to your Spotify account";
+				sMain.alert = "You refused to grant access to your Spotify account";
 			}
 			return {name:"chat"}
 		},

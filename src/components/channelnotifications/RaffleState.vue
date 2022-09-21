@@ -37,10 +37,11 @@
 </template>
 
 <script lang="ts">
+import { storeRaffle } from '@/store/raffle/storeRaffle';
+import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -63,11 +64,13 @@ export default class RaffleState extends Vue {
 
 	public picking = false;
 	public progressPercent = 0;
-	public raffleData:RaffleData = StoreProxy.store.state.raffle as RaffleData;
+	public raffleData:RaffleData = storeRaffle().data as RaffleData;
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists = false;
+	private sUsers = storeUsers();
+	private sRaffle = storeRaffle();
 
 	public mounted():void {
 		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();
@@ -87,7 +90,7 @@ export default class RaffleState extends Vue {
 	public closeRaffle():void {
 		this.$confirm("Close raffle", "All raffle entries will be lost")
 		.then(async ()=> {
-			StoreProxy.store.dispatch("stopRaffle");
+			this.sRaffle.stopRaffle();
 			this.$emit("close");
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 		}).catch(()=> {
@@ -96,7 +99,7 @@ export default class RaffleState extends Vue {
 	}
 
 	public openUserCard(user:RaffleEntry):void {
-		StoreProxy.store.dispatch("openUserCard", user.label);
+		this.sUsers.openUserCard(user.label);
 	}
 
 	public async pickWinner():Promise<void> {
@@ -150,7 +153,7 @@ export default class RaffleState extends Vue {
 				id:winner.id,
 				label:winner.label,
 			}
-			StoreProxy.store.dispatch("onRaffleComplete", {winner:winnerData});
+			this.sRaffle.onRaffleComplete(winnerData);
 		}
 
 		this.picking = false;

@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts">
+import { storeOBS } from '@/store/obs/storeOBS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -33,7 +33,10 @@ import ParamItem from '../../ParamItem.vue';
 	}
 })
 export default class OBSFilters extends Vue {
+	
 	public sceneParams:TwitchatDataTypes.ParameterData[] = [];
+	
+	private sOBS = storeOBS();
 
 	public mounted():void {
 		watch(()=> OBSWebsocket.instance.connected, () => { 
@@ -43,14 +46,14 @@ export default class OBSFilters extends Vue {
 	}
 
 	public onSceneCommandUpdate():void {
-		const params = this.sceneParams.map(v=> {return { scene:v.storage, command:v.value }});
-		StoreProxy.store.dispatch("setOBSSceneCommands", params);
+		const params = this.sceneParams.map(v=> {return { scene:v.storage as {sceneIndex:number, sceneName:string}, command:v.value as string }});
+		this.sOBS.setOBSSceneCommands(params);
 	}
 
 	private async listScenes():Promise<void> {
 		this.sceneParams = []
 		const res = await OBSWebsocket.instance.getScenes();
-		const storedScenes = StoreProxy.store.state.obsSceneCommands;
+		const storedScenes = this.sOBS.sceneCommands;
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};
 			const storedScene = storedScenes.find((s:{scene:{sceneName:string}}) => s.scene.sceneName === scene.sceneName);

@@ -9,11 +9,11 @@
 		<Button small @click="$emit('streamInfo'); close();" :icon="$image('icons/info.svg')" title="Stream info" bounce />
 
 		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!$store.state.hasChannelPoints" />
-			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!$store.state.hasChannelPoints" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!hasChannelPoints" />
 			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
 		</div>
 
@@ -36,16 +36,18 @@
 </template>
 
 <script lang="ts">
+import { storePoll } from '@/store/poll/storePoll';
+import { storePrediction } from '@/store/prediction/storePrediction';
+import { storeStream } from '@/store/stream/storeStream';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
-import StoreProxy from '@/utils/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
 	props:{
@@ -76,18 +78,26 @@ export default class CommandHelper extends Vue {
 	private adCooldownInterval = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
+	private sPoll = storePoll();
+	private sStream = storeStream();
+	private sPrediction = storePrediction();
 	
-	public get params():TwitchatDataTypes.IRoomStatusCategory { return StoreProxy.store.state.roomStatusParams; }
+	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.sStream.roomStatusParams; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
 
 	public get canCreatePrediction():boolean {
-		return StoreProxy.store.state.currentPrediction?.id == undefined && StoreProxy.store.state.hasChannelPoints === true;
+		return this.sPrediction.data?.id == undefined && this.hasChannelPoints === true;
 	}
+
+	public get hasChannelPoints():boolean {
+		return UserSession.instance.hasChannelPoints === true;
+	}
+
 	public get canCreatePoll():boolean {
-		if(!StoreProxy.store.state.hasChannelPoints) return false;
-		const poll = StoreProxy.store.state.currentPoll as TwitchDataTypes.Poll;
+		if(!this.hasChannelPoints) return false;
+		const poll = this.sPoll.data;
 		return poll == undefined || poll.status != "ACTIVE";
 	}
 

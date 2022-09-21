@@ -39,9 +39,9 @@
 </template>
 
 <script lang="ts">
+import { storeChat } from '@/store/chat/storeChat';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -59,6 +59,7 @@ export default class WhispersState extends Vue {
 	public error = false;
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
+	private sChat = storeChat();
 
 	public get classes():string[] {
 		let res = ["whispersstate"];
@@ -66,9 +67,9 @@ export default class WhispersState extends Vue {
 	}
 
 	public mounted():void {
-		StoreProxy.store.state.whispersUnreadCount = 0;
-		watch(() => StoreProxy.store.state.whispers, () => {
-			StoreProxy.store.state.whispersUnreadCount = 0;
+		this.sChat.whispersUnreadCount = 0;
+		watch(() => this.sChat.whispers, () => {
+			this.sChat.whispersUnreadCount = 0;
 		}, {deep:true})
 	}
 
@@ -112,7 +113,7 @@ export default class WhispersState extends Vue {
 		if(!this.whisper) return;
 
 		this.error = false;
-		const whispers = StoreProxy.store.state.whispers as {[key:string]:IRCEventDataList.Whisper[]};
+		const whispers = this.sChat.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 		const src = whispers[this.selectedUser as string][0];
 		
 		try {
@@ -125,7 +126,7 @@ export default class WhispersState extends Vue {
 	}
 
 	public deleteWhispers(user:string):void {
-		StoreProxy.store.dispatch("closeWhispers", user);
+		this.sChat.closeWhispers(user);
 		this.selectedUser = null;
 	}
 

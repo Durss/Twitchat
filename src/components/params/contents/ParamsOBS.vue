@@ -80,11 +80,12 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
+import { storeOBS } from '@/store/obs/storeOBS';
+import { storeMain } from '@/store/storeMain';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import StoreProxy from '@/utils/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -129,6 +130,9 @@ export default class ParamsOBS extends Vue {
 		users: ""
 	}
 
+	private sOBS = storeOBS();
+	private sMain = storeMain();
+
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public get holderStyles():StyleValue {
@@ -139,9 +143,9 @@ export default class ParamsOBS extends Vue {
 	}
 
 	public mounted():void {
-		const port = Store.get(Store.OBS_PORT);
-		const pass = Store.get(Store.OBS_PASS);
-		const ip = Store.get(Store.OBS_IP);
+		const port = DataStore.get(DataStore.OBS_PORT);
+		const pass = DataStore.get(DataStore.OBS_PASS);
+		const ip = DataStore.get(DataStore.OBS_IP);
 
 		if(port != undefined) this.obsPort_conf.value = port;
 		if(pass != undefined) this.obsPass_conf.value = pass;
@@ -154,9 +158,9 @@ export default class ParamsOBS extends Vue {
 			this.openConnectForm = true;
 		}
 		
-		this.param_enabled.value = StoreProxy.store.state.obsConnectionEnabled;
+		this.param_enabled.value = this.sOBS.connectionEnabled ?? false;
 
-		const storedPermissions = StoreProxy.store.state.obsCommandsPermissions;
+		const storedPermissions = this.sOBS.commandsPermissions;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
@@ -209,7 +213,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		StoreProxy.store.dispatch("setObsCommandsPermissions", this.permissions);
+		this.sOBS.setObsCommandsPermissions(this.permissions);
 	}
 
 	/**
@@ -217,11 +221,11 @@ export default class ParamsOBS extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		StoreProxy.store.state.obsConnectionEnabled = this.param_enabled.value;
-		Store.set(Store.OBS_PORT, this.obsPort_conf.value);
-		Store.set(Store.OBS_PASS, this.obsPass_conf.value);
-		Store.set(Store.OBS_IP, this.obsIP_conf.value);
-		Store.set(Store.OBS_CONNECTION_ENABLED, this.param_enabled.value);
+		this.sOBS.connectionEnabled = this.param_enabled.value as boolean;
+		DataStore.set(DataStore.OBS_PORT, this.obsPort_conf.value);
+		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
+		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);
+		DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.param_enabled.value);
 	}
 }
 </script>

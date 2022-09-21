@@ -1,3 +1,5 @@
+import { storeChat } from "@/store/chat/storeChat";
+import { storeTTS } from "@/store/tts/storeTTS";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
@@ -5,11 +7,9 @@ import PublicAPI from "./PublicAPI";
 import PubSub from "./PubSub";
 import type { PubSubDataTypes } from "./PubSubDataTypes";
 import PubSubEvent from "./PubSubEvent";
-import StoreProxy from "./StoreProxy";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
-
 
 interface SpokenMessage {
 	text: string,
@@ -89,6 +89,9 @@ export default class TTSUtils {
 	private stopTimeout:number = -1;
 	private idsParsed:{[key:string]:boolean} = {};
 
+	private sTTS = storeTTS();
+	private sChat = storeChat();
+
 	/********************
 	* HANDLERS          *
 	********************/
@@ -102,14 +105,14 @@ export default class TTSUtils {
 		
 		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
 		
-		watch(() => StoreProxy.store.state.chatMessages, async (value) => {
+		watch(() => this.sChat.messages, async (value) => {
 				//There should be no need to read more than 100 new messages at a time
 				//Unless the chat is ultra spammy in which case we wouldn't notice
 				//messages are missing from the list anyway...
-				const len = StoreProxy.store.state.chatMessages.length;
+				const len = this.sChat.messages.length;
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = StoreProxy.store.state.chatMessages[i] as IRCEventDataList.Message;
+					const m = this.sChat.messages[i] as IRCEventDataList.Message;
 					if(this.idsParsed[m.tags.id as string] !== true) {
 						this.idsParsed[m.tags.id as string] = true;
 						this.parseMessage(m);
@@ -118,14 +121,14 @@ export default class TTSUtils {
 				return;
 		});
 		
-		watch(() => StoreProxy.store.state.activityFeed, async (value) => {
+		watch(() => this.sChat.activityFeed, async (value) => {
 				//There should be no need to read more than 100 new messages at a time
 				//Unless the chat is ultra spammy in which case we wouldn't notice
 				//messages are missing from the list anyway...
-				const len = StoreProxy.store.state.activityFeed.length;
+				const len = this.sChat.activityFeed.length;
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = StoreProxy.store.state.activityFeed[i] as ActivityFeedData;
+					const m = this.sChat.activityFeed[i] as ActivityFeedData;
 					if(this.idsParsed[m.tags.id as string] !== true) {
 						this.idsParsed[m.tags.id as string] = true;
 						this.parseMessage(m);
@@ -205,7 +208,7 @@ export default class TTSUtils {
 
 		const m:SpokenMessage = {text, id, date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
-		if(StoreProxy.store.state.ttsSpeaking) {
+		if(this.sTTS.speaking) {
 			this.stop();
 		}else
 		if(this.pendingMessages.length == 1) {
@@ -266,7 +269,7 @@ export default class TTSUtils {
 	 * @returns 
 	 */
 	private async parseMessage(message:IRCEventData):Promise<void> {
-		const paramsTTS = StoreProxy.store.state.ttsParams as TwitchatDataTypes.TTSParamsData;
+		const paramsTTS = this.sTTS.params;
 		const type = getTwitchatMessageType(message);
 
 		// console.log("Read message type", type);
@@ -549,7 +552,7 @@ export default class TTSUtils {
 		if(this.pendingMessages.length === 0 || !this._enabled) return;
 
 		const message = this.pendingMessages[0];
-		const paramsTTS = StoreProxy.store.state.ttsParams as TwitchatDataTypes.TTSParamsData;
+		const paramsTTS = this.sTTS.params;
 		
 		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
 			//Timeout reached for this message, ignore it and
@@ -568,12 +571,12 @@ export default class TTSUtils {
 		mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
 		mess.lang = mess.voice.lang;
 		mess.onstart = (ev: SpeechSynthesisEvent) => {
-			StoreProxy.store.state.ttsSpeaking = true;
+			this.sTTS.speaking = true;
 		}
 		mess.onend = (ev: SpeechSynthesisEvent) => {
 			this.pendingMessages.shift();
 			clearTimeout(this.stopTimeout);
-			StoreProxy.store.state.ttsSpeaking = false;
+			this.sTTS.speaking = false;
 			this.readNextMessage();
 		}
 

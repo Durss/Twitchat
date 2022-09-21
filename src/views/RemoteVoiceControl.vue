@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -62,7 +62,7 @@ export default class RemoteVoiceControl extends Vue {
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public mounted():void {
-		this.showStorageModal = Store.get(Store.SYNC_DATA_TO_SERVER) == null;
+		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
 	}
 
 }

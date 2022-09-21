@@ -1,3 +1,12 @@
+import { storeAutomod } from '@/store/automod/storeAutomod';
+import { storeChat } from '@/store/chat/storeChat';
+import { storeEmergency } from '@/store/emergency/storeEmergency';
+import { storeParams } from '@/store/params/storeParams';
+import { storePoll } from '@/store/poll/storePoll';
+import { storePrediction } from '@/store/prediction/storePrediction';
+import { storeMain } from '@/store/storeMain';
+import { storeStream } from '@/store/stream/storeStream';
+import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
@@ -12,7 +21,6 @@ import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import PubSubEvent from "./PubSubEvent";
-import StoreProxy from "./StoreProxy";
 import TriggerActionHandler from "./TriggerActionHandler";
 import TwitchatEvent from "./TwitchatEvent";
 import UserSession from './UserSession';
@@ -33,6 +41,15 @@ export default class PubSub extends EventDispatcher{
 	private raidTimeout!:number;
 	private lastRecentFollowers:PubSubDataTypes.Following[] = [];
 	private followCache:{[key:string]:boolean} = {};
+	private sPoll = storePoll();
+	private sMain = storeMain();
+	private sChat = storeChat();
+	private sUsers = storeUsers();
+	private sAutmod = storeAutomod();
+	private sParams = storeParams();
+	private sStream = storeStream();
+	private sEmergency = storeEmergency();
+	private sPrediction = storePrediction();
 	
 	constructor() {
 		super();
@@ -133,7 +150,7 @@ export default class PubSub extends EventDispatcher{
 			const message = JSON.parse(e.data) as PubSubDataTypes.SocketMessage;
 			if(message.type != "PONG" && message.data) {
 				const data = JSON.parse(message.data.message);
-				if(StoreProxy.store.state.devmode) {
+				if(this.sMain.devmode) {
 					//Ignore viewers count to avoid massive logs
 					if(message.data.topic != "video-playback-by-id."+UserSession.instance.authToken.user_id) {
 						this.history.push(message);
@@ -304,10 +321,10 @@ export default class PubSub extends EventDispatcher{
 		}else if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
-				StoreProxy.store.dispatch("setPlaybackState", localObj);
+				this.sStream.setPlaybackState(localObj);
 			}else 
 			if(localObj.type == "stream-down") {
-				StoreProxy.store.dispatch("setPlaybackState", null);
+				this.sStream.setPlaybackState(undefined);
 			}
 
 
@@ -401,7 +418,7 @@ export default class PubSub extends EventDispatcher{
 
 		}else if(data.type == "reward-redeemed") {
 			//Manage rewards
-			if(StoreProxy.store.state.params.filters.showRewards.value) {
+			if(this.sParams.filters.showRewards.value) {
 				const localObj = data.data as  PubSubDataTypes.RewardData;
 				this.rewardEvent(localObj);
 			}
@@ -472,25 +489,25 @@ export default class PubSub extends EventDispatcher{
 
 
 		}else if(data.type == "raid_update_v2") {
-			StoreProxy.store.dispatch("setRaiding", data.raid);
+			this.sStream.setRaiding(data.raid);
 
 		}else if(data.type == "raid_go_v2") {
-			if(StoreProxy.store.state.params.features.stopStreamOnRaid.value === true) {
+			if(this.sParams.features.stopStreamOnRaid.value === true) {
 				clearTimeout(this.raidTimeout)
 				this.raidTimeout = setTimeout(() => {
 					OBSWebsocket.instance.stopStreaming();
 				}, 1000);
 			}
-			StoreProxy.store.dispatch("setRaiding", null);
+			this.sStream.setRaiding(undefined);
 
 
 
 		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression") {
-			StoreProxy.store.dispatch("setCommunityBoost", data.data as PubSubDataTypes.CommunityBoost);
+			this.sStream.setCommunityBoost(data.data as PubSubDataTypes.CommunityBoost);
 			
 		}else if(data.type == "community-boost-end") {
 			const boost = data.data as PubSubDataTypes.CommunityBoost;
-			StoreProxy.store.dispatch("setCommunityBoost", boost);
+			this.sStream.setCommunityBoost(boost);
 			IRCClient.instance.sendHighlight({
 				channel: UserSession.instance.authToken.login,
 				viewers: boost.total_goal_progress? boost.total_goal_progress : boost.boost_orders[0].GoalProgress,
@@ -503,7 +520,7 @@ export default class PubSub extends EventDispatcher{
 			
 			setTimeout(()=> {
 				//Automatically hide the boost after a few seconds
-				StoreProxy.store.dispatch("setCommunityBoost", null);
+				this.sStream.setCommunityBoost(undefined);
 			}, 30000);
 			
 
@@ -578,19 +595,17 @@ export default class PubSub extends EventDispatcher{
 						force_raid_now_seconds: 90,
 						viewer_count: 0,
 					};
-					StoreProxy.store.dispatch("setRaiding", infos);
+					this.sStream.setRaiding(infos);
 					break;
 				}
 				case "unraid": {
-					StoreProxy.store.dispatch("setRaiding", null);
+					this.sStream.setRaiding(undefined);
 					break;
 				}
 				case "delete": {
-					const data = {
-						messageId:localObj.args? localObj.args[2] : "",
-						deleteData:localObj,
-					}
-					StoreProxy.store.dispatch("delChatMessage", data);
+					const messageId = localObj.args? localObj.args[2] : "";
+					const deleteData = localObj;
+					this.sChat.delChatMessage(messageId, deleteData);
 					let messageID = "";
 					if(localObj.args && localObj.args.length > 2) messageID = localObj.args[2];
 					this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, messageID));
@@ -636,7 +651,7 @@ export default class PubSub extends EventDispatcher{
 		}else 
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
 			this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, localObj.message.id));
-			StoreProxy.store.dispatch("delChatMessage", {messageId:localObj.message.id});
+			this.sChat.delChatMessage(localObj.message.id);
 		}
 	}
 
@@ -646,7 +661,7 @@ export default class PubSub extends EventDispatcher{
 	 * @param localObj
 	 */
 	private lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):void {
-		StoreProxy.store.dispatch("flagLowTrustMessage", localObj);
+		this.sUsers.flagLowTrustMessage(localObj);
 	}
 
 	/**
@@ -732,7 +747,7 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
-		StoreProxy.store.dispatch("setPolls", {postOnChat:true, data:[poll]})
+		this.sPoll.setPolls([poll], true)
 	}
 
 	/**
@@ -783,7 +798,7 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
-		StoreProxy.store.dispatch("setPredictions", [prediction])
+		this.sPrediction.setPredictions([prediction])
 	}
 
 	/**
@@ -828,20 +843,20 @@ export default class PubSub extends EventDispatcher{
 		console.log(this.lastRecentFollowers);
 
 		if(this.lastRecentFollowers.length > 30
-		&& StoreProxy.store.state.emergencyModeEnabled !== true
-		&& StoreProxy.store.state.emergencyParams.enabled === true
-		&& StoreProxy.store.state.emergencyParams.autoEnableOnFollowbot === true) {
+		&& this.sEmergency.emergencyStarted !== true
+		&& this.sEmergency.params.enabled === true
+		&& this.sEmergency.params.autoEnableOnFollowbot === true) {
 			console.log("START EMERGENCYYYYY !!!");
 			//Set all the past users in the block list to process them
 			blockList = this.lastRecentFollowers;
 			//Start emergency mode
-			StoreProxy.store.dispatch("setEmergencyMode", true);
+			this.sEmergency.setEmergencyMode(true);
 		}
 
 
 		//If emergency mode is enabled and we asked to automatically block
 		//any new followser during that time, do it
-		if(StoreProxy.store.state.emergencyModeEnabled === true) {
+		if(this.sEmergency.emergencyStarted === true) {
 			for (let i = 0; i < blockList.length; i++) {
 				const event = blockList[i];
 				
@@ -852,7 +867,7 @@ export default class PubSub extends EventDispatcher{
 					blocked:false,
 					unblocked:false,
 				}
-				if(StoreProxy.store.state.emergencyParams.autoBlockFollows === true){
+				if(this.sEmergency.params.autoBlockFollows === true){
 					(event.message as IRCEventDataList.Highlight).followBlocked = true;
 					(async()=> {
 						let res = false;
@@ -863,26 +878,26 @@ export default class PubSub extends EventDispatcher{
 						}
 						followData.blocked = res;
 						//Unblock the user right away if requested
-						if(StoreProxy.store.state.emergencyParams.autoUnblockFollows === true) {
+						if(this.sEmergency.params.autoUnblockFollows === true) {
 							if(simulationMode===true) {
 								res = true;
 							}else{
 								res = await TwitchUtils.unblockUser(event.user_id);
 							}
 							followData.unblocked = res;
-							StoreProxy.store.dispatch("addEmergencyFollower", followData);
+							this.sEmergency.addEmergencyFollower(followData);
 						}else{
-							StoreProxy.store.dispatch("addEmergencyFollower", followData);
+							this.sEmergency.addEmergencyFollower(followData);
 						}
 					})();
 				}else{
-					StoreProxy.store.dispatch("addEmergencyFollower", followData);
+					this.sEmergency.addEmergencyFollower(followData);
 				}
 			}
 		}
 
 		let automoded = false;
-		if(StoreProxy.store.state.automodParams.banUserNames === true) {
+		if(this.sAutmod.params.banUserNames === true) {
 			let rule = Utils.isAutomoded(data.display_name, {username:data.username});
 			if(rule) {
 				(data.message as IRCEventDataList.Highlight).ttAutomod = rule;
@@ -910,23 +925,23 @@ export default class PubSub extends EventDispatcher{
 	 */
 	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching):void {
 		const key = Object.keys(data.events_remaining_durations)[0];
-		const wasAlreadyApproaching = Object.keys(StoreProxy.store.state.hypeTrain).length > 0;
+		const wasAlreadyApproaching = this.sStream.hypeTrain != undefined;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level:1,
 			currentValue:0,
 			goal:data.goal,
-			approached_at:StoreProxy.store.state.hypeTrain?.approached_at ?? Date.now(),
+			approached_at:this.sStream.hypeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
 			timeLeft:data.events_remaining_durations[key],
 			state: "APPROACHING",
 			is_boost_train:data.is_boost_train,
 		};
-		StoreProxy.store.dispatch("setHypeTrain", train);
+		this.sStream.setHypeTrain(train);
 
 		//Hide "hypetrain approaching" notification if expired
 		this.hypeTrainApproachingTimer = setTimeout(()=> {
-			StoreProxy.store.dispatch("setHypeTrain", {});
+			this.sStream.setHypeTrain(undefined);
 		}, train.timeLeft * 1000);
 
 		if(!wasAlreadyApproaching) {
@@ -949,7 +964,7 @@ export default class PubSub extends EventDispatcher{
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			approached_at:(StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData).approached_at,
+			approached_at:this.sStream.hypeTrain!.approached_at,
 			started_at:Date.now(),
 			updated_at:Date.now(),
 			timeLeft:data.progress.remaining_seconds,
@@ -961,7 +976,7 @@ export default class PubSub extends EventDispatcher{
 		//point of its timeline
 		if(!train.approached_at) train.approached_at = Date.now();
 		
-		StoreProxy.store.dispatch("setHypeTrain", train);
+		this.sStream.setHypeTrain(train);
 		const message:TwitchatDataTypes.HypeTrainTriggerData = {
 			type: "hypeTrainStart",
 			level:train.level,
@@ -980,7 +995,7 @@ export default class PubSub extends EventDispatcher{
 		//postepone the progress event in case it's followed by a LEVEL UP event to avoid
 		//having kind of two similar events
 		this.hypeTrainProgressTimer = setTimeout(()=> {
-			const storeTrain = StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData;
+			const storeTrain = this.sStream.hypeTrain!;
 			const prevLevel = storeTrain.level;
 			const prevValue = storeTrain.currentValue;
 			//Makes sure that if a progress event follows the LEVEL UP event, only
@@ -1007,7 +1022,7 @@ export default class PubSub extends EventDispatcher{
 			if(!train.approached_at) train.approached_at = Date.now();
 			if(!train.started_at) train.started_at = Date.now();
 			
-			StoreProxy.store.dispatch("setHypeTrain", train);
+			this.sStream.setHypeTrain(train);
 			const message:TwitchatDataTypes.HypeTrainTriggerData = {
 				type: "hypeTrainProgress",
 				level:train.level,
@@ -1028,8 +1043,8 @@ export default class PubSub extends EventDispatcher{
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			approached_at:(StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData).approached_at,
-			started_at:(StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData).started_at,
+			approached_at:this.sStream.hypeTrain!.approached_at,
+			started_at:this.sStream.hypeTrain!.started_at,
 			updated_at:Date.now(),
 			timeLeft:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
@@ -1041,7 +1056,7 @@ export default class PubSub extends EventDispatcher{
 		if(!train.approached_at) train.approached_at = Date.now();
 		if(!train.started_at) train.started_at = Date.now();
 
-		StoreProxy.store.dispatch("setHypeTrain", train);
+		this.sStream.setHypeTrain(train);
 		const message:TwitchatDataTypes.HypeTrainTriggerData = {
 			type: "hypeTrainProgress",
 			level:train.level,
@@ -1055,7 +1070,7 @@ export default class PubSub extends EventDispatcher{
 	 * @param data 
 	 */
 	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd):void {
-		const storeData:TwitchatDataTypes.HypeTrainStateData = StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData;
+		const storeData = this.sStream.hypeTrain!;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level: storeData.level,
 			currentValue: storeData.currentValue,
@@ -1067,11 +1082,11 @@ export default class PubSub extends EventDispatcher{
 			state: data.ending_reason,
 			is_boost_train: storeData.is_boost_train,
 		};
-		StoreProxy.store.dispatch("setHypeTrain", train);
+		this.sStream.setHypeTrain(train);
 		
 		setTimeout(()=> {
 			//Hide hype train popin
-			StoreProxy.store.dispatch("setHypeTrain", {});
+			this.sStream.setHypeTrain(undefined);
 		}, 10000)
 
 		let level = storeData.level;

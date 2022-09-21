@@ -39,8 +39,8 @@
 </template>
 
 <script lang="ts">
+import { storeStream } from '@/store/stream/storeStream';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -63,6 +63,8 @@ export default class HypeTrainState extends Vue {
 	public progressPercent = 0;
 	public disposed = false;
 
+	private sStream = storeStream();
+
 	public get boostMode():boolean {
 		return this.trainData.is_boost_train;
 	}
@@ -82,7 +84,8 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public get trainData():TwitchatDataTypes.HypeTrainStateData {
-		return StoreProxy.store.state.hypeTrain as TwitchatDataTypes.HypeTrainStateData;
+		//This view can't exist if no hype train is started, it's safe to force "!"
+		return this.sStream.hypeTrain!;
 	}
 
 	public get duration():string {
@@ -110,7 +113,7 @@ export default class HypeTrainState extends Vue {
 
 	public mounted():void {
 		this.dataChange();
-		watch(()=>StoreProxy.store.state.hypeTrain, ()=>this.dataChange());
+		watch(()=>this.sStream.hypeTrain, ()=>this.dataChange());
 
 		this.renderFrame();
 	}

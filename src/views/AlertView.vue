@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/utils/StoreProxy';
+import { storeMain } from '@/store/storeMain';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -15,17 +15,19 @@ export default class AlertView extends Vue {
 
 	public message = "";
 	public timeout!:number;
+	
+	private sMain = storeMain();
 
 	public mounted():void {
 		this.onWatchAlert();
-		watch(() => StoreProxy.store.state.alert, () => {
+		watch(() => this.sMain.alert, () => {
 			this.onWatchAlert();
 		});
 	}
 
 	// @Watch("$store.state.alert")
 	public async onWatchAlert():Promise<void> {
-		let mess = StoreProxy.store.state.alert;
+		let mess = this.sMain.alert;
 		if(mess && mess.length > 0) {
 			this.message = mess;
 			await this.$nextTick();
@@ -42,7 +44,7 @@ export default class AlertView extends Vue {
 
 	public close():void {
 		clearTimeout(this.timeout);
-		StoreProxy.store.state.alert = "";
+		this.sMain.alert = "";
 	}
 }
 </script>

@@ -39,7 +39,6 @@
 
 <script lang="ts">
 import IRCClient from '@/utils/IRCClient';
-import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';

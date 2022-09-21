@@ -66,7 +66,6 @@
 
 <script lang="ts">
 import PublicAPI from '@/utils/PublicAPI';
-import StoreProxy from '@/utils/StoreProxy';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
 import { watch } from 'vue';
@@ -75,6 +74,7 @@ import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 import draggable from 'vuedraggable';
+import { storeVoice } from '@/store/voice/storeVoice';
 
 @Options({
 	props:{
@@ -92,6 +92,8 @@ export default class VoiceTriggerList extends Vue {
 	public globalCommands:VoiceAction[] = [];
 	public openStates:{[id:string]:boolean} = {};
 	public globalCommandsOK:boolean = false;
+
+	private sVoice = storeVoice();
 	
 	private triggerHandler!:(e:TwitchatEvent)=>void;
 
@@ -99,7 +101,7 @@ export default class VoiceTriggerList extends Vue {
 
 	public mounted():void {
 		type VAKeys = keyof typeof VoiceAction;
-		this.actions = JSON.parse(JSON.stringify(StoreProxy.store.state.voiceActions));
+		this.actions = JSON.parse(JSON.stringify(this.sVoice.voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
@@ -239,7 +241,7 @@ export default class VoiceTriggerList extends Vue {
 		let list:VoiceAction[] = [];
 		list = list.concat(this.actions);
 		list = list.concat(this.globalCommands);
-		StoreProxy.store.dispatch("setVoiceActions", list);
+		this.sVoice.setVoiceActions(list);
 	}
 
 }

@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts">
+import { storeChat } from '@/store/chat/storeChat';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from './ParamItem.vue';
@@ -59,8 +59,10 @@ export default class PostOnChatParam extends Vue {
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
+	private sChat = storeChat();
+
 	public async mounted():Promise<void> {
-		const data					= StoreProxy.store.state.botMessages[ this.botMessageKey ];
+		const data					= this.sChat.botMessages[ this.botMessageKey ];
 		this.textParam.value		= data.message;
 		this.enabledParam.label		= this.title;
 		this.enabledParam.value		= data.enabled || this.noToggle !== false;
@@ -80,9 +82,11 @@ export default class PostOnChatParam extends Vue {
 	public async saveParams(saveToStore = true):Promise<void> {
 		//Avoid useless save on mount
 		if(saveToStore){
-			StoreProxy.store.dispatch("updateBotMessage", {key:this.botMessageKey,
-												enabled:this.enabledParam.value,
-												message:this.textParam.value});
+			this.sChat.updateBotMessage({
+											key:this.botMessageKey,
+											enabled:this.enabledParam.value as boolean,
+											message:this.textParam.value as string
+										});
 		}
 
 		this.error = ""

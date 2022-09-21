@@ -30,9 +30,9 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
+import { storeMusic } from '@/store/music/storeMusic';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -57,11 +57,13 @@ export default class OverlayParamsMusic extends Vue {
 	public param_showProgress:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show progress bar", value:true};
 	public param_customTemplateToggle:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Use custom template", value:true};
 	public param_customTemplate:TwitchatDataTypes.ParameterData = {type:"text", label:"Template (HTML accepted)", value:"", longText:true, placeholderList:[{tag:"TITLE", desc:"track title"}, {tag:"ARTIST", desc:"track artist"}]};
+
+	private sMusic = storeMusic();
 	
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {
-		const params = StoreProxy.store.state.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		const params = this.sMusic.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		this.param_autoHide.children = [this.param_autoHideErase];
 		this.param_autoHideErase.value = params.erase;
 		this.param_customTemplateToggle.children = [this.param_customTemplate];
@@ -72,7 +74,7 @@ export default class OverlayParamsMusic extends Vue {
 			this.saveData();
 		})
 
-		watch(() => StoreProxy.store.state.musicPlayerParams, () => {
+		watch(() => this.sMusic.musicPlayerParams, () => {
 			this.saveData();
 		},  {deep:true});
 
@@ -86,12 +88,12 @@ export default class OverlayParamsMusic extends Vue {
 	}
 
 	private saveData():void {
-		let template = this.param_customTemplate.value;
+		let template = this.param_customTemplate.value as string;
 		if(!this.param_customTemplateToggle.value) template = "";
-		StoreProxy.store.state.musicPlayerParams.customInfoTemplate = template;
-		StoreProxy.store.state.musicPlayerParams.erase = this.param_autoHideErase.value;
+		this.sMusic.musicPlayerParams.customInfoTemplate = template;
+		this.sMusic.musicPlayerParams.erase = this.param_autoHideErase.value as boolean;
 
-		Store.set(Store.MUSIC_PLAYER_PARAMS, StoreProxy.store.state.musicPlayerParams);
+		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.sMusic.musicPlayerParams);
 	}
 
 }

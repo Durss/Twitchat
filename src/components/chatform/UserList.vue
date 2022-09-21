@@ -41,8 +41,9 @@
 </template>
 
 <script lang="ts">
+import { storeParams } from '@/store/params/storeParams';
+import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -57,6 +58,8 @@ export default class UserList extends Vue {
 
 	public users:UserItem[] = [];
 	public showInfo:boolean = false;
+	private sUsers = storeUsers();
+	private sParams = storeParams();
 
 	public get broadcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
 
@@ -68,8 +71,8 @@ export default class UserList extends Vue {
 	
 	public userClasses(name:string):string[] {
 		let res = ["user"];
-		if(StoreProxy.store.state.params.appearance.highlightNonFollowers.value === true
-		&& StoreProxy.store.state.followingStatesByNames[name.toLowerCase()] === false) res.push("noFollow");
+		if(this.sParams.appearance.highlightNonFollowers.value === true
+		&& this.sUsers.followingStatesByNames[name.toLowerCase()] === false) res.push("noFollow");
 		return res;
 	}
 
@@ -79,7 +82,7 @@ export default class UserList extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.updateList();
-		watch(() => StoreProxy.store.state.onlineUsers, () => {
+		watch(() => this.sUsers.onlineUsers, () => {
 			this.updateList();
 		}, { deep: true });
 		this.open();
@@ -107,7 +110,7 @@ export default class UserList extends Vue {
 	}
 
 	public openUserCard(username:string):void {
-		StoreProxy.store.dispatch("openUserCard", username);
+		this.sUsers.openUserCard(username);
 	}
 
 	private open():void {
@@ -138,7 +141,7 @@ export default class UserList extends Vue {
 
 	private updateList():void {
 		let res:UserItem[] = [];
-		const users = StoreProxy.store.state.onlineUsers as string[];
+		const users = this.sUsers.onlineUsers as string[];
 		for (let j = 0; j < users.length; j++) {
 			const userName = users[j];
 			const userNameLow = userName?.toLowerCase();
@@ -147,7 +150,7 @@ export default class UserList extends Vue {
 				id:userNameLow,
 				broadcaster:userNameLow == UserSession.instance.authToken.login.toLowerCase(),
 				vip:false,
-				mod:(StoreProxy.store.state.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
+				mod:(this.sUsers.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,
 			});
 		}

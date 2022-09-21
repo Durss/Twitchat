@@ -25,9 +25,11 @@
 </template>
 
 <script lang="ts">
+import { storeChat } from '@/store/chat/storeChat';
+import { storeTTS } from '@/store/tts/storeTTS';
+import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -55,6 +57,10 @@ export default class AutocompleteChatForm extends Vue {
 
 	public selectedIndex = 0;
 	public filteredItems:ListItem[] = [];
+
+	private sTTS = storeTTS();
+	private sChat = storeChat();
+	private sUsers = storeUsers();
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
@@ -132,7 +138,7 @@ export default class AutocompleteChatForm extends Vue {
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			if(this.users) {
-				const users = StoreProxy.store.state.onlineUsers as string[];
+				const users = this.sUsers.onlineUsers;
 				for (let j = 0; j < users.length; j++) {
 					const userName = users[j];
 					if(userName.toLowerCase().indexOf(s) == 0) {
@@ -163,12 +169,12 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			if(this.commands) {
-				const cmds = StoreProxy.store.state.commands;
+				const cmds = this.sChat.commands;
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
-						if(e.needTTS === true && !StoreProxy.store.state.ttsParams.enabled) continue;
-						if(e.needChannelPoints === true && !StoreProxy.store.state.hasChannelPoints) continue;
+						if(e.needTTS === true && !this.sTTS.params.enabled) continue;
+						if(e.needChannelPoints === true && !UserSession.instance.hasChannelPoints) continue;
 						res.push({
 							type:"cmd",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),

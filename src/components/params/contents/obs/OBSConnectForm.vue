@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
@@ -60,9 +60,9 @@ export default class OBSConnectForm extends Vue {
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public mounted():void {
-		const port = Store.get("obsPort");
-		const pass = Store.get("obsPass");
-		const ip = Store.get("obsIP");
+		const port = DataStore.get("obsPort");
+		const pass = DataStore.get("obsPass");
+		const ip = DataStore.get("obsIP");
 		if(port) this.obsPort_conf.value = parseInt(port);
 		if(pass) this.obsPass_conf.value = pass;
 		if(ip) this.obsIP_conf.value = ip;
@@ -117,9 +117,9 @@ export default class OBSConnectForm extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		Store.set("obsPort", this.obsPort_conf.value);
-		Store.set("obsPass", this.obsPass_conf.value);
-		Store.set("obsIP", this.obsIP_conf.value);
+		DataStore.set("obsPort", this.obsPort_conf.value);
+		DataStore.set("obsPass", this.obsPass_conf.value);
+		DataStore.set("obsIP", this.obsIP_conf.value);
 	}
 
 }

@@ -42,8 +42,8 @@
 </template>
 
 <script lang="ts">
+import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/utils/StoreProxy';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -63,7 +63,9 @@ export default class ChatPollState extends Vue {
 	public loading = false;
 	public progressPercent = 0;
 
-	public get poll():TwitchatDataTypes.ChatPollData { return StoreProxy.store.state.chatPoll as TwitchatDataTypes.ChatPollData; }
+	private sChatSuggestion = storeChatSuggestion();
+
+	public get poll():TwitchatDataTypes.ChatSuggestionData { return this.sChatSuggestion.data!; }
 
 	public get entries():TwitchatDataTypes.ChatPollDataChoice[] {
 		let list = this.poll.choices;
@@ -85,7 +87,7 @@ export default class ChatPollState extends Vue {
 	}
 
 	public closePoll():void {
-		StoreProxy.store.dispatch("setChatPoll", null);
+		this.sChatSuggestion.setChatSuggestion(null);
 	}
 
 }

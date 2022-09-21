@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
+import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import { Options, Vue } from 'vue-class-component';
@@ -95,7 +95,7 @@ export default class OverlayParamsSpotify extends Vue {
 	public async mounted():Promise<void> {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
 		
-		const spotifyAppParams = Store.get(Store.SPOTIFY_APP_PARAMS);
+		const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
 		if(spotifyAppParams) {
 			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);
 			SpotifyHelper.instance.setAppParams(p.client, p.secret);

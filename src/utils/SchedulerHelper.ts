@@ -1,7 +1,9 @@
-import Store from "@/store/Store";
+import { storeChat } from "@/store/chat/storeChat";
+import DataStore from "@/store/DataStore";
+import { storeMain } from "@/store/storeMain";
+import { storeTriggers } from "@/store/triggers/storeTriggers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { IRCEventDataList } from "./IRCEventDataTypes";
-import StoreProxy from "./StoreProxy";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
 import TriggerActionHandler from "./TriggerActionHandler";
 import UserSession from "./UserSession";
@@ -16,6 +18,9 @@ export default class SchedulerHelper {
 	private _frameIndex:number = 0;
 	private _adSchedule?:TwitchatDataTypes.TriggerScheduleData;
 	private _adScheduleTimeout?:number;
+	private _sMain = storeMain();
+	private _sChat = storeChat();
+	private _sTriggers = storeTriggers();
 	
 	constructor() {
 	
@@ -41,7 +46,7 @@ export default class SchedulerHelper {
 	 * Starts the scheduler
 	 */
 	public start():void {
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = this._sTriggers.triggers;
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			if(mainKey == TriggerTypes.SCHEDULE) {
@@ -88,7 +93,7 @@ export default class SchedulerHelper {
 				//Check if a date is stored on store and load it back.
 				//This avoids the possibility to have no ad by refreshing
 				//the page before the timer ends.
-				let date = parseInt(Store.get(Store.TWITCHAT_AD_NEXT_DATE));
+				let date = parseInt(DataStore.get(DataStore.TWITCHAT_AD_NEXT_DATE));
 				const minDate = Date.now() + schedule.repeatDuration * 60 * 1000;
 				if(isNaN(date) || date > minDate) date = minDate;
 				this._pendingTriggers.push({
@@ -97,7 +102,7 @@ export default class SchedulerHelper {
 					triggerKey:key,
 				});
 				if(key === TriggerTypes.TWITCHAT_AD) {
-					Store.set(Store.TWITCHAT_AD_NEXT_DATE, date);
+					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, date);
 				}
 				break;
 			}
@@ -149,7 +154,7 @@ export default class SchedulerHelper {
 					if(message.deleted) return;
 					e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000;
 					e.messageCount = 0;
-					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
+					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				}, Math.max(0,nextDate - Date.now() - 5*60*1000));
 				// console.log("Wait for", Math.max(0,nextDate - Date.now() - 5*60*1000));
 			}
@@ -173,10 +178,10 @@ export default class SchedulerHelper {
 
 		//Just a fail safe to avoid deploying fucked up data on production !
 		if(this._adSchedule.repeatDuration < 120) {
-			StoreProxy.store.state.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 60!";
+			this._sMain.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 60!";
 		}else
 		if(this._adSchedule.repeatMinMessages < 100) {
-			StoreProxy.store.state.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 50!";
+			this._sMain.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 50!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
 	}
@@ -191,7 +196,7 @@ export default class SchedulerHelper {
 		//is slowed down to 1 fps and tasks still executed in background
 		if(this._frameIndex++ < 60) return;
 		this._frameIndex = 0;
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.store.state.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = this._sTriggers.triggers;
 
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];
@@ -199,7 +204,7 @@ export default class SchedulerHelper {
 			let schedule = trigger?.scheduleParams;
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
-				if(UserSession.instance.isDonor && !StoreProxy.store.state.botMessages.twitchatAd.enabled) return;
+				if(UserSession.instance.isDonor && !this._sChat.botMessages.twitchatAd.enabled) return;
 				schedule = this._adSchedule;
 			}
 			if(!schedule) continue;
@@ -232,7 +237,7 @@ export default class SchedulerHelper {
 					//same time but that's the easiest solution to handle that.
 					date += Math.random()*60;
 					//Update anti-cheat
-					Store.set(Store.TWITCHAT_AD_NEXT_DATE, e.date);
+					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				}
 				
 				e.date = date;

@@ -16,8 +16,8 @@
 </template>
 
 <script lang="ts">
-import Store from '@/store/Store';
-import StoreProxy from '@/utils/StoreProxy';
+import DataStore from '@/store/DataStore';
+import { storeVoice } from '@/store/voice/storeVoice';
 import VoiceController from '@/utils/VoiceController';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -51,16 +51,18 @@ export default class VoiceControlForm extends Vue {
 
 	public lang:string = "";
 
+	private sVoice = storeVoice();
+
 	public get started():boolean { return VoiceController.instance.started; }
-	public get tempText():string { return this.sttOnly === false? StoreProxy.store.state.voiceText.tempText : VoiceController.instance.tempText; }
-	public get finalText():string { return this.sttOnly === false? StoreProxy.store.state.voiceText.finalText : VoiceController.instance.finalText; }
+	public get tempText():string { return this.sttOnly === false? this.sVoice.voiceText.tempText : VoiceController.instance.tempText; }
+	public get finalText():string { return this.sttOnly === false? this.sVoice.voiceText.finalText : VoiceController.instance.finalText; }
 
 	public beforeMount():void {
 		let userLang = navigator.language;
 		//@ts-ignore
 		if(!userLang) userLang = navigator.userLanguage; 
 		if(userLang.length == 2) userLang = userLang + "-" + userLang.toUpperCase();
-		if(Store.get("voiceLang")) userLang = Store.get("voiceLang");
+		if(DataStore.get("voiceLang")) userLang = DataStore.get("voiceLang");
 		this.lang = userLang;
 
 		watch(()=>this.lang, ()=> this.updateLang());
@@ -77,7 +79,7 @@ export default class VoiceControlForm extends Vue {
 
 	private updateLang():void {
 		VoiceController.instance.lang = this.lang;
-		StoreProxy.store.dispatch("setVoiceLang", this.lang);
+		this.sVoice.setVoiceLang(this.lang);
 	}
 
 }
