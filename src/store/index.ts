@@ -1,6 +1,5 @@
 import router from '@/router';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import { getTwitchatMessageType, TwitchatMessageType, type ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import type { BingoData, RaffleData, RaffleEntry, TrackedUser, WheelItem } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
@@ -10,32 +9,33 @@ import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
 import type { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { getTwitchatMessageType, TwitchatMessageType, type ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import SchedulerHelper from '@/utils/SchedulerHelper';
 import SevenTVUtils from '@/utils/SevenTVUtils';
 import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import SpotifyHelperEvent from '@/utils/SpotifyHelperEvent';
 import { TriggerTypes } from '@/utils/TriggerActionData';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import TTSUtils from '@/utils/TTSUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import TTSUtils from '@/utils/TTSUtils';
 import type VoiceAction from '@/utils/VoiceAction';
 import VoiceController from '@/utils/VoiceController';
+import VoicemodEvent from '@/utils/VoicemodEvent';
+import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
-import { TwitchatAdTypes, type AlertParamsData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type VoicemodParamsData, type ShoutoutTriggerData, type AutomodParamsData, type AutomodParamsKeywordFilterData, type TwitchatAdStringTypes } from '../types/TwitchatDataTypes';
+import { TwitchatAdTypes, type AlertParamsData, type AutomodParamsData, type AutomodParamsKeywordFilterData, type BingoConfig, type BotMessageField, type ChatAlertInfo, type ChatHighlightInfo, type ChatHighlightOverlayData, type ChatPollData, type CommandData, type CountdownData, type EmergencyFollowerData, type EmergencyModeInfo, type EmergencyParamsData, type HypeTrainStateData, type IAccountParamsCategory, type IBotMessage, type InstallHandler, type IParameterCategory, type IRoomStatusCategory, type MusicPlayerParamsData, type OBSMuteUnmuteCommands, type OBSSceneCommand, type ParameterCategory, type ParameterData, type PermissionsData, type ShoutoutTriggerData, type SpoilerParamsData, type StreamInfoPreset, type TriggerActionObsData, type TriggerActionTypes, type TriggerData, type TTSParamsData, type TwitchatAdStringTypes, type VoicemodParamsData } from '../types/TwitchatDataTypes';
 import Store from './Store';
-import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
-import VoicemodEvent from '@/utils/VoicemodEvent';
-import SchedulerHelper from '@/utils/SchedulerHelper';
 
 //TODO split that giant mess into sub stores
 
@@ -70,6 +70,7 @@ const store = createStore({
 		trackedUsers: [] as TrackedUser[],
 		onlineUsers: [] as string[],
 		voiceActions: [] as VoiceAction[],
+		myFollowings: {} as {[key:string]:boolean},
 		voiceLang: "en-US",
 		voiceText: {
 			tempText:"",
@@ -2148,7 +2149,7 @@ const store = createStore({
 				TriggerActionHandler.instance.onMessage(event.data as IRCEventData);
 			});
 
-			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, () => {
+			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, async () => {
 				if(state.params.appearance.bttvEmotes.value === true) {
 					BTTVUtils.instance.enable();
 				}else{
@@ -2164,6 +2165,12 @@ const store = createStore({
 				}else{
 					SevenTVUtils.instance.disable();
 				}
+				const followings = await TwitchUtils.getFollowings(UserSession.instance.user?.id);
+				let hashmap:{[key:string]:boolean} = {};
+				followings.forEach(v => {
+					hashmap[v.to_id] = true;
+				});
+				state.myFollowings = hashmap;
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {

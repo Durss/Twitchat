@@ -41,6 +41,7 @@
 			
 			<div class="followings">
 				<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
+				<div class="commonFollow">{{commonFollowCount}} followings in common</div>
 				<transition name="scale">
 					<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
 				</transition>
@@ -49,7 +50,7 @@
 				<div v-if="suspiciousFollowFrequency" class="warn">This user has or has had a suspicious following behavior</div>
 
 				<div class="list" v-if="!errorFollowings" ref="list">
-					<div v-for="u in followings" class="user">
+					<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
 						<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
 						<div class="date">{{u.followed_at}}</div>
 					</div>
@@ -94,12 +95,15 @@ export default class UserCard extends Vue {
 	public fakeModMessage:IRCEventDataList.Message|null = null;
 	public followings:TwitchDataTypes.Following[] = [];
 	public followInfo:TwitchDataTypes.Following|null = null;
+	public myFollowings:{[key:string]:boolean} = {};
+	public commonFollowCount:number = 0;
 	// public subState:TwitchDataTypes.Subscriber|null = null;
 	
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
 	public mounted():void {
 		watch(() => StoreProxy.store.state.userCard, () => {
+			this.myFollowings = StoreProxy.store.state.myFollowings;
 			this.username = StoreProxy.store.state.userCard;
 			if(this.username == null) return;
 			this.username = this.username.replace(/^@/g, "");
@@ -128,6 +132,7 @@ export default class UserCard extends Vue {
 		this.followInfo = null;
 		this.followings = [];
 		this.loadingFollowings = true;
+		this.commonFollowCount = 0;
 		try {
 			const users = await TwitchUtils.loadUserInfo(undefined, [this.username]);
 			if(users.length > 0) {
@@ -166,12 +171,15 @@ export default class UserCard extends Vue {
 				this.followings = await TwitchUtils.getFollowings(this.user.id, -1, async(list)=> {
 					const firstPage = this.followings.length == 0;
 					this.followings = list;
+					this.commonFollowCount = 0;
+					this.computeCommonFollows();
 					if(firstPage) {
 						await this.$nextTick();
 						gsap.from(this.$refs.list as HTMLDivElement, {duration:.5, height:0, ease:"sin.inOut"});
 					}
 				});
 				this.checkFollowBotting();
+				this.computeCommonFollows();
 			}catch(error) {
 				this.errorFollowings = true;
 			}
@@ -199,6 +207,15 @@ export default class UserCard extends Vue {
 	public copyID():void {
 		Utils.copyToClipboard(this.user!.id);
 		gsap.from(this.$refs.userID as HTMLDivElement, {scale:1.5, ease:"back.out"});
+	}
+
+	public computeCommonFollows():void {
+		this.commonFollowCount = 0;
+		for (let i = 0; i < this.followings.length; i++) {
+			if(this.myFollowings[this.followings[i].to_id] === true) {
+				this.commonFollowCount ++;
+			}
+		}
 	}
 
 	/**
@@ -439,6 +456,15 @@ export default class UserCard extends Vue {
 				}
 			}
 
+			.commonFollow {
+				font-size: .8em;
+				text-align: center;
+				font-style: italic;
+				margin: .5em 0;
+				background-color: fade(@mainColor_normal, 10%);
+				align-self: center;
+			}
+
 			.warn {
 				margin: .5em auto;
 			}
@@ -472,7 +498,12 @@ export default class UserCard extends Vue {
 				.user {
 					display: flex;
 					flex-direction: column;
-					margin: .1em;
+					padding: .1em;
+
+					&.common {
+						background-color: fade(@mainColor_normal, 10%);
+					}
+
 					.login {
 						display: inline-block;
 						text-overflow: ellipsis;
