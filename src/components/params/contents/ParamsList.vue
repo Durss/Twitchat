@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import UserSession from '@/utils/UserSession';
@@ -76,8 +76,6 @@ export default class ParamsList extends Vue {
 	public filteredParams!:TwitchatDataTypes.ParameterData[];
 
 	public showAdInfo:boolean = false;
-
-	private sParams = storeParams();
 
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 
@@ -137,9 +135,9 @@ export default class ParamsList extends Vue {
 		}else{
 			if(!this.category) return {};
 
-			for (const key in this.sParams.$state[this.category]) {
-				if(this.sParams.$state[this.category][key].parent) continue;
-				res[key] = (this.sParams.$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData})[key] as TwitchatDataTypes.ParameterData;
+			for (const key in StoreProxy.params.$state[this.category]) {
+				if(StoreProxy.params.$state[this.category][key].parent) continue;
+				res[key] = (StoreProxy.params.$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData})[key] as TwitchatDataTypes.ParameterData;
 			}
 		}
 		return res;

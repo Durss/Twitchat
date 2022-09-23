@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { storeTriggers } from '@/store/triggers/storeTriggers';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
@@ -74,8 +74,6 @@ export default class TriggerActionTriggerEntry extends Vue {
 	
 	private rewards:TwitchDataTypes.Reward[] = [];
 
-	private sTriggers = storeTriggers();
-
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TwitchatDataTypes.TriggerData}){ return option.triggerKey; }
@@ -105,7 +103,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateList():Promise<void> {
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = this.sTriggers.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.triggers.triggers;
 		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
@@ -193,7 +191,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	private recursiveLoopCheck(base?:TwitchatDataTypes.TriggerData, key?:string):string[] {
 		if(!this.action.triggerKey) return [];
-		const triggers = this.sTriggers.triggers;
+		const triggers = StoreProxy.triggers.triggers;
 		let found:string[] = [];
 		if(!base) {
 			base = this.triggerData;

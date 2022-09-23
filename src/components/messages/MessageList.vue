@@ -18,7 +18,7 @@
 				/>
 
 				<ChatMessage
-					v-else-if="m.type == 'message' || (m.type == 'whisper' && sParams.features.showWhispersOnChat.value)"
+					v-else-if="m.type == 'message' || (m.type == 'whisper' && $store('params').features.showWhispersOnChat.value)"
 					class="message"
 					:messageData="m"
 					:lightMode="lightMode"
@@ -38,7 +38,7 @@
 					/>
 
 				<ChatHighlight
-					v-else-if="m.type == 'highlight' && (sParams.filters.showNotifications.value || m.tags?.['msg-id']==='autoban_join')"
+					v-else-if="m.type == 'highlight' && ($store('params').filters.showNotifications.value || m.tags?.['msg-id']==='autoban_join')"
 					class="message"
 					:messageData="m"
 					lightMode
@@ -49,7 +49,7 @@
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'poll' && sParams.filters.showNotifications.value"
+					v-else-if="m.type == 'poll' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
 				/>
@@ -57,7 +57,7 @@
 				<ChatPredictionResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'prediction' && sParams.filters.showNotifications.value"
+					v-else-if="m.type == 'prediction' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
 				/>
@@ -65,7 +65,7 @@
 				<ChatBingoResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'bingo' && sParams.filters.showNotifications.value"
+					v-else-if="m.type == 'bingo' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
 				/>
@@ -73,7 +73,7 @@
 				<ChatRaffleResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'raffle' && sParams.filters.showNotifications.value"
+					v-else-if="m.type == 'raffle' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
 				/>
@@ -81,7 +81,7 @@
 				<ChatCountdownResult
 					class="message"
 					:ref="'message_'+m.tags.id"
-					v-else-if="m.type == 'countdown' && sParams.filters.showNotifications.value"
+					v-else-if="m.type == 'countdown' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:countdownData="m"
 				/>
@@ -89,7 +89,7 @@
 				<ChatHypeTrainResult
 					class="message"
 					ref="message"
-					v-else-if="m.type == 'hype_train_end' && sParams.filters.showNotifications.value"
+					v-else-if="m.type == 'hype_train_end' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:result="m" />
 
@@ -147,6 +147,7 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import { storeChat } from '@/store/chat/storeChat';
 import { storeParams } from '@/store/params/storeParams';
+import StoreProxy from '@/store/StoreProxy';
 import { storeTTS } from '@/store/tts/storeTTS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -207,7 +208,6 @@ export default class MessageList extends Vue {
 	public conversationPos = 0;
 	public scrollAtBottom = true;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
-	public sParams = storeParams();
 
 	private disposed = false;
 	private holderOffsetY = 0;
@@ -219,8 +219,6 @@ export default class MessageList extends Vue {
 	private prevTouchMove!:TouchEvent;
 	private deleteMessageHandler!:(e:PubSubEvent)=>void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
-	private sTTS = storeTTS();
-	private sChat = storeChat();
 
 	public get classes():string[] {
 		let res = ["messagelist"];
@@ -244,7 +242,7 @@ export default class MessageList extends Vue {
 	public get readLabel():string {
 		if(!this.conversation[0].tags['display-name']) return "";
 		const username = this.conversation[0].tags['display-name']?.toLowerCase();
-		const permissions:TwitchatDataTypes.PermissionsData = this.sTTS.params.ttsPerms;
+		const permissions:TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
 		let label = "";
 		if(permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
 			label = "Read future "+username+"'s messages";
@@ -255,25 +253,25 @@ export default class MessageList extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.localMessages = this.sChat.messages.concat().slice(-this.max);
+		this.localMessages = StoreProxy.chat.messages.concat().slice(-this.max);
 		for (let i = 0; i < this.localMessages.length; i++) {
 			this.idDisplayed[this.localMessages[i].tags.id as string] = true;
 		}
 		
-		watch(() => this.sChat.messages, async (value) => {
+		watch(() => StoreProxy.chat.messages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
-				const len = this.sChat.messages.length;
+				const len = StoreProxy.chat.messages.length;
 				//There should be no need to read more than 100 new messages at a time
 				//Unless the chat is ultra spammy in which case we wouldn't notice
 				//messages are missing from the list anyway...
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = this.sChat.messages[i] as IRCEventDataList.Message;
+					const m = StoreProxy.chat.messages[i] as IRCEventDataList.Message;
 					if(this.idDisplayed[m.tags.id as string] !== true) {
 						this.idDisplayed[m.tags.id as string] = true;
 						this.pendingMessages.push(m);
@@ -291,7 +289,7 @@ export default class MessageList extends Vue {
 			this.scrollToPrevMessage();
 		});
 
-		watch(()=>this.sParams.appearance.defaultSize.value, async ()=> {
+		watch(()=>StoreProxy.params.appearance.defaultSize.value, async ()=> {
 			await this.$nextTick();
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -326,7 +324,7 @@ export default class MessageList extends Vue {
 	}
 
 	public async onHoverList():Promise<void> {
-		if(this.lightMode || !this.sParams.features.lockAutoScroll.value) return;
+		if(this.lightMode || !StoreProxy.params.features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
 
@@ -363,7 +361,7 @@ export default class MessageList extends Vue {
 		let messageID = "";
 		
 		messageID = e.data as string;
-		const keepDeletedMessages = this.sParams.filters.keepDeletedMessages.value;
+		const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
 
 		if(this.pendingMessages.length > 0) {
 			let index = this.pendingMessages.findIndex(v => v.tags.id === messageID);
@@ -399,10 +397,10 @@ export default class MessageList extends Vue {
 	public toggleReadUser():void {
 		if(!this.conversation[0].tags['display-name']) return;
 		const username = this.conversation[0].tags['display-name']?.toLowerCase();
-		const permissions:TwitchatDataTypes.PermissionsData = this.sTTS.params.ttsPerms;
+		const permissions:TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
 		const read = permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1;
 		const payload = {username, read};
-		this.sTTS.ttsReadUser(payload);
+		StoreProxy.tts.ttsReadUser(payload);
 	}
 
 	/**
@@ -704,8 +702,8 @@ export default class MessageList extends Vue {
 			this.conversationMode = false;
 	
 			let messageList:IRCEventDataList.Message[] = [];
-			for (let i = 0; i < this.sChat.messages.length; i++) {
-				const mess = this.sChat.messages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
+			for (let i = 0; i < StoreProxy.chat.messages.length; i++) {
+				const mess = StoreProxy.chat.messages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
 				if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
 					messageList.push(mess);
 					if(messageList.length > 100) break;//Limit to 100 for perf reasons
@@ -760,7 +758,7 @@ export default class MessageList extends Vue {
 			const target = event.target as HTMLElement;
 			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
 		}
-		if(this.sParams.features.markAsRead.value !== true) return;
+		if(StoreProxy.params.features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {
 			this.prevMarkedReadItem.markedAsRead = false;

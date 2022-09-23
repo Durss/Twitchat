@@ -1,5 +1,4 @@
-import { storeMusic } from '@/store/music/storeMusic'
-import { storeMain } from '@/store/storeMain'
+import StoreProxy from '@/store/StoreProxy'
 import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
 import Utils from '@/utils/Utils'
 import Chat from '@/views/Chat.vue'
@@ -87,8 +86,8 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/spotify/auth',
 		name: 'spotify/auth',
 		redirect:() => {
-			const sMain = storeMain();
-			const sMusic = storeMusic();
+			const sMain = StoreProxy.main;
+			const sMusic = StoreProxy.music;
 			if(!Utils.getQueryParameterByName("error")) {
 				sMain.showParams = true;//Open params
 				sMain.tempStoreValue = "CONTENT:overlays";//Set default param tab to open

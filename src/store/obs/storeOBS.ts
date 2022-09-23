@@ -18,8 +18,6 @@ export const storeOBS = defineStore('obs', {
 
 
 	actions: {
-
-
 		setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]) {
 			this.sceneCommands = value;
 			DataStore.set(DataStore.OBS_CONF_SCENES, value);

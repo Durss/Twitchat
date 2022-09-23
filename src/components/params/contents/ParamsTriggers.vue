@@ -161,26 +161,25 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import StoreProxy from '@/store/StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { TriggerEvents, TriggerTypes } from '@/utils/TriggerActionData';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
+import ToggleBlock from '../../ToggleBlock.vue';
+import ToggleButton from '../../ToggleButton.vue';
 import TriggerActionChatCommandParams from './triggers/TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './triggers/TriggerActionEntry.vue';
-import ToggleButton from '../../ToggleButton.vue';
-import ToggleBlock from '../../ToggleBlock.vue';
-import UserSession from '@/utils/UserSession';
 import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeTriggers } from '@/store/triggers/storeTriggers';
-import { storeMain } from '@/store/storeMain';
 
 @Options({
 	props:{},
@@ -213,9 +212,6 @@ export default class ParamsTriggers extends Vue {
 						enabled:true,
 						actions:[],
 					};
-
-	private sMain = storeMain();
-	private sTriggers = storeTriggers();
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
@@ -314,8 +310,8 @@ export default class ParamsTriggers extends Vue {
 			key = this.currentEvent!.value+"_"+key;
 		}
 		
-		if(this.sTriggers.triggers[key]) {
-			const trigger = JSON.parse(JSON.stringify(this.sTriggers.triggers[key]));
+		if(StoreProxy.triggers.triggers[key]) {
+			const trigger = JSON.parse(JSON.stringify(StoreProxy.triggers.triggers[key]));
 			let list = trigger as TwitchatDataTypes.TriggerData;
 			return e.noToggle !== true && list.actions.length > 0;
 		}
@@ -339,7 +335,7 @@ export default class ParamsTriggers extends Vue {
 		}
 		//Define select states
 		events.forEach(v=>{
-			const enabled = this.sTriggers.triggers[v.value]?.enabled;
+			const enabled = StoreProxy.triggers.triggers[v.value]?.enabled;
 			v.enabled = enabled !== false;
 		})
 
@@ -478,7 +474,7 @@ export default class ParamsTriggers extends Vue {
 		//has the minimum necessary data defined
 		// if(this.canTestAction) {
 			// console.log(this.triggerKey, this.triggerData);
-			this.sTriggers.setTrigger(this.triggerKey, this.triggerData);
+			StoreProxy.triggers.setTrigger(this.triggerKey, this.triggerData);
 		// }
 		// if(this.isChatCmd || this.isSchedule) {
 		// 	// Preselects the current subevent
@@ -522,7 +518,7 @@ export default class ParamsTriggers extends Vue {
 	public deleteTrigger():void {
 		this.$confirm("Delete trigger ?").then(()=> {
 			//Delete trigger from storage
-			this.sTriggers.deleteTrigger(this.triggerKey);
+			StoreProxy.triggers.deleteTrigger(this.triggerKey);
 			//Reset menu selection
 			if(this.isSublist) {
 				this.currentSubEvent = null;
@@ -543,10 +539,10 @@ export default class ParamsTriggers extends Vue {
 		if(this.currentEvent) {
 			key = this.currentEvent.value+"_"+(e.value as string).toLowerCase();
 		}
-		if(this.sTriggers.triggers[key]) {
-			const trigger = this.sTriggers.triggers[key];
+		if(StoreProxy.triggers.triggers[key]) {
+			const trigger = StoreProxy.triggers.triggers[key];
 			trigger.enabled = e.enabled as boolean;
-			this.sTriggers.setTrigger(key, trigger);
+			StoreProxy.triggers.setTrigger(key, trigger);
 		}
 	}
 
@@ -580,7 +576,7 @@ export default class ParamsTriggers extends Vue {
 				}
 				else
 				{
-					const triggers = this.sTriggers.triggers;
+					const triggers = StoreProxy.triggers.triggers;
 					//Search for all command triggers
 					const commandList:TwitchatDataTypes.TriggerData[] = [];
 					for (const k in triggers) {
@@ -603,8 +599,8 @@ export default class ParamsTriggers extends Vue {
 						this.currentSubEvent = select;
 					}
 				}
-			}else if(this.sTriggers.triggers[key.toLowerCase()]){
-				const trigger = JSON.parse(JSON.stringify(this.sTriggers.triggers[key.toLowerCase()]));//Avoid modifying the original data
+			}else if(StoreProxy.triggers.triggers[key.toLowerCase()]){
+				const trigger = JSON.parse(JSON.stringify(StoreProxy.triggers.triggers[key.toLowerCase()]));//Avoid modifying the original data
 				this.actionList = (trigger as TwitchatDataTypes.TriggerData).actions;
 			}else{
 				this.actionList = [];
@@ -612,7 +608,7 @@ export default class ParamsTriggers extends Vue {
 
 			if(!this.isSublist && this.actionList.length == 0) {
 				this.addAction();
-				// this.sTriggers.triggers[this.triggerKey].enabled = true;
+				// StoreProxy.triggers.triggers[this.triggerKey].enabled = true;
 			}
 		}
 	}
@@ -629,9 +625,9 @@ export default class ParamsTriggers extends Vue {
 		}
 		
 		//Load actions for the selected sub event
-		let json = this.sTriggers.triggers[key];
+		let json = StoreProxy.triggers.triggers[key];
 		if(json) {
-			const trigger = JSON.parse(JSON.stringify(this.sTriggers.triggers[key]));//Avoid modifying the original data
+			const trigger = JSON.parse(JSON.stringify(StoreProxy.triggers.triggers[key]));//Avoid modifying the original data
 			this.triggerData = trigger as TwitchatDataTypes.TriggerData;
 			this.actionList = this.triggerData.actions;
 
@@ -653,7 +649,7 @@ export default class ParamsTriggers extends Vue {
 			this.rewards = await TwitchUtils.loadRewards(true);
 		}catch(error) {
 			this.rewards = [];
-			this.sMain.alert = "An error occurred while loading your rewards";
+			StoreProxy.main.alert = "An error occurred while loading your rewards";
 			this.showLoading = false;
 			return;
 		}
@@ -668,7 +664,7 @@ export default class ParamsTriggers extends Vue {
 			if(a.title.toLowerCase() > b.title.toLowerCase()) return 1;
 			return 0;
 		}).map((v):TwitchatDataTypes.ParameterDataListValue => {
-			const enabled = this.sTriggers.triggers[TriggerTypes.REWARD_REDEEM+"_"+v.id]?.enabled;
+			const enabled = StoreProxy.triggers.triggers[TriggerTypes.REWARD_REDEEM+"_"+v.id]?.enabled;
 			return {
 				label:v.title+(v.cost> 0? "<span class='cost'>("+v.cost+")</span>" : ""),
 				value:v.id,

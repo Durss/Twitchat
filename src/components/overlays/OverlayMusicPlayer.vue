@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { storeMusic } from '@/store/music/storeMusic';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
@@ -41,8 +41,8 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import { Vue3Marquee } from 'vue3-marquee'
-import 'vue3-marquee/dist/style.css'
+import { Vue3Marquee } from 'vue3-marquee';
+import 'vue3-marquee/dist/style.css';
 
 @Options({
 	props:{
@@ -80,7 +80,6 @@ export default class OverlayMusicPlayer extends Vue {
 	public get paused():boolean { return !DeezerHelper.instance.playing; }
 
 	private onTrackHandler!:(e:TwitchatEvent) => void;
-	private sMusic = storeMusic();
 
 	public get classes():string[] {
 		let res = ["overlaymusicplayer"];
@@ -175,7 +174,7 @@ export default class OverlayMusicPlayer extends Vue {
 			//Called when seeking
 			watch(()=>DeezerHelper.instance.playbackPos, ()=> this.updateEmbedProgress());
 			//Called when seeking
-			watch(()=>this.sMusic.musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
+			watch(()=>StoreProxy.music.musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
 			this.onTrackChangeLocal();
 		}
 	}
@@ -193,7 +192,7 @@ export default class OverlayMusicPlayer extends Vue {
 
 	private onTrackChangeLocal():void {
 		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
-		this.params = this.sMusic.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		this.params = StoreProxy.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		if(track) {
 			this.artist = track.artist;
 			this.title = track.title;

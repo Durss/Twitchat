@@ -1,6 +1,6 @@
 <template>
 	<div class="timercountdowninfo">
-		<div class="timer" v-if="sTimer.timerStart > 0"
+		<div class="timer" v-if="$store('timer').timerStart > 0"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
 			<img src="@/assets/icons/timer.svg" alt="timer">
@@ -8,7 +8,7 @@
 			<div v-if="hoverTimer" @click="stopTimer()">STOP</div>
 		</div>
 
-		<div class="countdown" v-if="sTimer.countdown"
+		<div class="countdown" v-if="$store('timer').countdown"
 		@mouseenter="hoverCountdown = true"
 		@mouseleave="hoverCountdown = false">
 			<img src="@/assets/icons/countdown.svg" alt="countdown">
@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { storeTimer } from '@/store/timer/storeTimer';
+import StoreProxy from '@/store/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -34,7 +34,6 @@ export default class TimerCountDownInfo extends Vue {
 	public countdown:string = "";
 	public hoverTimer:boolean = false;
 	public hoverCountdown:boolean = false;
-	public sTimer = storeTimer();
 	
 	private interval:number = -1;
 
@@ -43,8 +42,8 @@ export default class TimerCountDownInfo extends Vue {
 			this.computeValues();
 		}, 1000);
 		this.computeValues();
-		watch(() => this.sTimer.timerStart, () => this.computeValues() );
-		watch(() => this.sTimer.countdown, () => this.computeValues() );
+		watch(() => StoreProxy.timer.timerStart, () => this.computeValues() );
+		watch(() => StoreProxy.timer.countdown, () => this.computeValues() );
 	}
 
 	public beforeUnmount():void {
@@ -52,19 +51,19 @@ export default class TimerCountDownInfo extends Vue {
 	}
 
 	public computeValues():void {
-		if(this.sTimer.countdown) {
-			const ellapsed = Date.now() - this.sTimer.countdown.startAt;
-			const remaining = Math.ceil((this.sTimer.countdown.duration - ellapsed)/1000)*1000;
+		if(StoreProxy.timer.countdown) {
+			const ellapsed = Date.now() - StoreProxy.timer.countdown.startAt;
+			const remaining = Math.ceil((StoreProxy.timer.countdown.duration - ellapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
-		if(this.sTimer.timerStart) {
-			let ellapsed = Math.floor((Date.now() - this.sTimer.timerStart as number)/1000)*1000;
+		if(StoreProxy.timer.timerStart) {
+			let ellapsed = Math.floor((Date.now() - StoreProxy.timer.timerStart as number)/1000)*1000;
 			this.timer = Utils.formatDuration(ellapsed);
 		}
 	}
 
-	public stopTimer():void { this.sTimer.stopTimer() }
-	public stopCountdown():void { this.sTimer.stopCountdown() }
+	public stopTimer():void { StoreProxy.timer.stopTimer() }
+	public stopCountdown():void { StoreProxy.timer.stopCountdown() }
 
 }
 </script>

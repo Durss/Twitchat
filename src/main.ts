@@ -16,9 +16,23 @@ import { storeAuth } from './store/auth/storeAuth';
 import { storeAutomod } from './store/automod/storeAutomod';
 import { storeBingo } from './store/bingo/storeBingo';
 import { storeChat } from './store/chat/storeChat';
+import { storeChatSuggestion } from './store/chatSugg/storeChatSuggestion';
 import DataStore from './store/DataStore';
+import { storeEmergency } from './store/emergency/storeEmergency';
+import { storeMusic } from './store/music/storeMusic';
+import { storeOBS } from './store/obs/storeOBS';
+import { storeParams } from './store/params/storeParams';
+import { storePoll } from './store/poll/storePoll';
+import { storePrediction } from './store/prediction/storePrediction';
+import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeMain } from './store/storeMain';
 import StoreProxy from './store/StoreProxy';
+import { storeStream } from './store/stream/storeStream';
+import { storeTimer } from './store/timer/storeTimer';
+import { storeTriggers } from './store/triggers/storeTriggers';
+import { storeTTS } from './store/tts/storeTTS';
+import { storeUsers } from './store/users/storeUsers';
+import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Utils from './utils/Utils';
 
@@ -129,6 +143,54 @@ const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width
 	return () => popper.destroy()
 }
 
+/**
+ * Global helper to place a dropdown list
+ */
+const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice") => {
+	// main
+	// account
+	// auth
+	// automod
+	// bingo
+	// chat
+	// chatSuggestion
+	// emergency
+	// music
+	// obs
+	// params
+	// poll
+	// prediction
+	// raffle
+	// stream
+	// timer
+	// triggers
+	// tts
+	// users
+	// voice
+	console.log("GET STORE", id);
+	switch(id) {
+		case "main": return StoreProxy.main;
+		case "account": return StoreProxy.account;
+		case "auth": return StoreProxy.auth;
+		case "automod": return StoreProxy.automod;
+		case "bingo": return StoreProxy.bingo;
+		case "chat": return StoreProxy.chat;
+		case "chatSuggestion": return StoreProxy.chatSuggestion;
+		case "emergency": return StoreProxy.emergency;
+		case "music": return StoreProxy.music;
+		case "obs": return StoreProxy.obs;
+		case "params": return StoreProxy.params;
+		case "poll": return StoreProxy.poll;
+		case "prediction": return StoreProxy.prediction;
+		case "raffle": return StoreProxy.raffle;
+		case "stream": return StoreProxy.stream;
+		case "timer": return StoreProxy.timer;
+		case "triggers": return StoreProxy.triggers;
+		case "tts": return StoreProxy.tts;
+		case "users": return StoreProxy.users;
+		case "voice": return StoreProxy.voice;
+	}
+}
 
 DataStore.init();
 
@@ -138,6 +200,7 @@ const app = createApp(App)
 .component("country-flag", CountryFlag)
 .component("vue-select", VueSelect)
 .provide("$image", image)
+.provide("$store", storeAccess)
 .provide("$confirm", confirm)
 .provide("$overlayURL", overlayURL)
 .provide("$placeDropdown", placeDropdown)
@@ -158,16 +221,31 @@ app.config.globalProperties.$image = image;
 app.config.globalProperties.$confirm = confirm;
 app.config.globalProperties.$overlayURL = overlayURL;
 app.config.globalProperties.$placeDropdown = placeDropdown;
-app.mount('#app')
 
 StoreProxy.main = storeMain();
-StoreProxy.auth = storeAuth();
-StoreProxy.chat = storeChat();
-StoreProxy.bingo = storeBingo();
-StoreProxy.automod = storeAutomod();
 StoreProxy.account = storeAccount();
+StoreProxy.auth = storeAuth();
+StoreProxy.automod = storeAutomod();
+StoreProxy.bingo = storeBingo();
+StoreProxy.chat = storeChat();
+StoreProxy.chatSuggestion = storeChatSuggestion();
+StoreProxy.emergency = storeEmergency();
+StoreProxy.music = storeMusic();
+StoreProxy.obs = storeOBS();
+StoreProxy.params = storeParams();
+StoreProxy.poll = storePoll();
+StoreProxy.prediction = storePrediction();
+StoreProxy.raffle = storeRaffle();
+StoreProxy.stream = storeStream();
+StoreProxy.timer = storeTimer();
+StoreProxy.triggers = storeTriggers();
+StoreProxy.tts = storeTTS();
+StoreProxy.users = storeUsers();
+StoreProxy.voice = storeVoice();
 
 window.addEventListener("beforeinstallprompt", (e:Event)=> {
 	e.preventDefault();
-	storeMain().setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
+	StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 });
+
+app.mount('#app')

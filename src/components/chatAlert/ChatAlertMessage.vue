@@ -6,8 +6,7 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
-import { storeMain } from '@/store/storeMain';
+import StoreProxy from '@/store/StoreProxy';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -22,20 +21,18 @@ export default class ChatAlertMessage extends Vue {
 
 	public message:string|null = null;
 	public user:string|null = null;
-	private sMain = storeMain();
-	private sParams = storeParams();
 
 	public mounted():void {
-		watch(() => this.sMain.chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper|null) => {
-			if(message && this.sMain.chatAlertParams.message === true
-			&& this.sParams.features.alertMode.value === true) {
+		watch(() => StoreProxy.main.chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper|null) => {
+			if(message && StoreProxy.main.chatAlertParams.message === true
+			&& StoreProxy.params.features.alertMode.value === true) {
 				let text = message.type == "whisper"? message.params[1] : message.message;
 				console.log(text);
 				//Allow custom parsing of emotes only if it's a message of ours sent from current IRC client
 				const customParsing = message.sentLocally === true;
 				console.log("Custom", customParsing);
 				console.log(message.tags['emotes-raw']);
-				let removeEmotes = !this.sParams.appearance.showEmotes.value;
+				let removeEmotes = !StoreProxy.params.appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, message.tags['emotes-raw'], removeEmotes, customParsing);
 				let result = "";
 				console.log(chunks);
@@ -53,7 +50,7 @@ export default class ChatAlertMessage extends Vue {
 						result += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
-				const cmd = this.sMain.chatAlertParams.chatCmd as string;
+				const cmd = StoreProxy.main.chatAlertParams.chatCmd as string;
 				result = result.replace(new RegExp("^"+cmd+" ?", "i"), "");
 				this.message = result;
 				this.user = message.tags.username as string;

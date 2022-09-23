@@ -3,8 +3,8 @@
 		
 		<div class="whispers" v-if="selectedUser">
 			<div class="messages">
-				<div v-for="m in sChat.whispers[selectedUser]" :key="m.raw" :class="messageClasses(m)">
-					<span class="time" v-if="sParams.appearance.displayTime.value">{{getTime(m)}}</span>
+				<div v-for="m in $store('chat').whispers[selectedUser]" :key="m.raw" :class="messageClasses(m)">
+					<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
 					<div v-html="parseMessage(m)"></div>
 				</div>
 			</div>
@@ -21,7 +21,7 @@
 
 		<div class="users">
 			<div class="user"
-			v-for="(u, uid) in sChat.whispers"
+			v-for="(u, uid) in $store('chat').whispers"
 			:key="uid">
 				<Button class="login"
 					@click="selectUser(uid.toString())"
@@ -39,8 +39,7 @@
 </template>
 
 <script lang="ts">
-import { storeChat } from '@/store/chat/storeChat';
-import { storeParams } from '@/store/params/storeParams';
+import StoreProxy from '@/store/StoreProxy';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -60,9 +59,6 @@ export default class WhispersState extends Vue {
 	public error = false;
 	public whisper:string | null = null;
 	public selectedUser:string | null = null;
-	public sParams = storeParams();
-	public sChat = storeChat();
-
 
 	public get classes():string[] {
 		let res = ["whispersstate"];
@@ -70,9 +66,9 @@ export default class WhispersState extends Vue {
 	}
 
 	public mounted():void {
-		this.sChat.whispersUnreadCount = 0;
-		watch(() => this.sChat.whispers, () => {
-			this.sChat.whispersUnreadCount = 0;
+		StoreProxy.chat.whispersUnreadCount = 0;
+		watch(() => StoreProxy.chat.whispers, () => {
+			StoreProxy.chat.whispersUnreadCount = 0;
 		}, {deep:true})
 	}
 
@@ -116,7 +112,7 @@ export default class WhispersState extends Vue {
 		if(!this.whisper) return;
 
 		this.error = false;
-		const whispers = this.sChat.whispers as {[key:string]:IRCEventDataList.Whisper[]};
+		const whispers = StoreProxy.chat.whispers as {[key:string]:IRCEventDataList.Whisper[]};
 		const src = whispers[this.selectedUser as string][0];
 		
 		try {
@@ -129,7 +125,7 @@ export default class WhispersState extends Vue {
 	}
 
 	public deleteWhispers(user:string):void {
-		this.sChat.closeWhispers(user);
+		StoreProxy.chat.closeWhispers(user);
 		this.selectedUser = null;
 	}
 

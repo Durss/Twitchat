@@ -84,22 +84,22 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import { TwitchatMessageType, getTwitchatMessageType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/store/StoreProxy';
+import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
 import ChatBingoResult from '../messages/ChatBingoResult.vue';
+import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';
+import ChatHypeTrainResult from '../messages/ChatHypeTrainResult.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 import ChatNotice from '../messages/ChatNotice.vue';
 import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
-import ChatCountdownResult from '../messages/ChatCountdownResult.vue';
-import ChatHypeTrainResult from '../messages/ChatHypeTrainResult.vue';
-import Button from '../Button.vue';
-import { storeChat } from '@/store/chat/storeChat';
 
 @Options({
 	props:{
@@ -141,7 +141,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():ActivityFeedData[] {
-		const list = this.customActivities.length > 0? this.customActivities : (storeChat().activityFeed as ActivityFeedData[]);
+		const list = this.customActivities.length > 0? this.customActivities : (StoreProxy.chat.activityFeed as ActivityFeedData[]);
 
 		const result:ActivityFeedData[] = [];
 

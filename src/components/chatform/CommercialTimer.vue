@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { storeStream } from '@/store/stream/storeStream';
+import StoreProxy from '@/store/StoreProxy';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -18,7 +18,6 @@ export default class CommercialTimer extends Vue {
 	public timeLeft = 0;
 
 	private interval!:number;
-	private sStream = storeStream();
 
 	public mounted():void {
 		this.refreshTimer();
@@ -30,10 +29,10 @@ export default class CommercialTimer extends Vue {
 	}
 
 	public refreshTimer():void {
-		this.timeLeft = Math.round((this.sStream.commercialEnd - Date.now())/1000);
+		this.timeLeft = Math.round((StoreProxy.stream.commercialEnd - Date.now())/1000);
 		if(this.timeLeft < 0) {
 			this.timeLeft = 0;
-			this.sStream.setCommercialEnd(0);
+			StoreProxy.stream.setCommercialEnd(0);
 		}
 	}
 

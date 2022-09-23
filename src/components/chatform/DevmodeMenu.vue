@@ -58,7 +58,6 @@ export default class DevmodeMenu extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-
 	public async mounted():Promise<void> {
 		await this.$nextTick();
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);

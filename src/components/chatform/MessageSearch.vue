@@ -30,6 +30,7 @@
 
 <script lang="ts">
 import { storeChat } from '@/store/chat/storeChat';
+import StoreProxy from '@/store/StoreProxy';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -48,7 +49,6 @@ export default class MessageSearch extends Vue {
 
 	public search = "";
 	public messages:IRCEventDataList.Message[] = [];
-	private sChat = storeChat();
 
 	public get classes():string[] {
 		let res = ["messagesearch"];
@@ -57,25 +57,25 @@ export default class MessageSearch extends Vue {
 	}
 
 	public mounted():void {
-		watch(() => this.sChat.searchMessages, () => {
+		watch(() => StoreProxy.chat.searchMessages, () => {
 			this.updateList();
 		});
 		this.updateList();
 	}
 
 	private async updateList():Promise<void> {
-		if(this.search != this.sChat.searchMessages) {
+		if(this.search != StoreProxy.chat.searchMessages) {
 			//If search has changed clear all current results
 			//to make sure items are properly updated.
 			//If an item from the prev search is still there
 			//with the new search, the highlight wouldn't be
 			//updated if we wouldn't remove it first.
-			this.search = this.sChat.searchMessages;
+			this.search = StoreProxy.chat.searchMessages;
 			this.messages = [];
 			await this.$nextTick();
 		}
 
-		const list = this.sChat.messages.concat();
+		const list = StoreProxy.chat.messages.concat();
 		const result:IRCEventDataList.Message[] = [];
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i] as IRCEventDataList.Message;
@@ -92,7 +92,7 @@ export default class MessageSearch extends Vue {
 	}
 
 	public close():void {
-		this.sChat.searchMessages("");
+		StoreProxy.chat.doSearchMessages("");
 	}
 
 }

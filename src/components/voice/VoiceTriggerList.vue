@@ -75,6 +75,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 import draggable from 'vuedraggable';
 import { storeVoice } from '@/store/voice/storeVoice';
+import StoreProxy from '@/store/StoreProxy';
 
 @Options({
 	props:{
@@ -93,15 +94,13 @@ export default class VoiceTriggerList extends Vue {
 	public openStates:{[id:string]:boolean} = {};
 	public globalCommandsOK:boolean = false;
 
-	private sVoice = storeVoice();
-	
 	private triggerHandler!:(e:TwitchatEvent)=>void;
 
 	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
 	public mounted():void {
 		type VAKeys = keyof typeof VoiceAction;
-		this.actions = JSON.parse(JSON.stringify(this.sVoice.voiceActions));
+		this.actions = JSON.parse(JSON.stringify(StoreProxy.voice.voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
@@ -241,7 +240,7 @@ export default class VoiceTriggerList extends Vue {
 		let list:VoiceAction[] = [];
 		list = list.concat(this.actions);
 		list = list.concat(this.globalCommands);
-		this.sVoice.setVoiceActions(list);
+		StoreProxy.voice.setVoiceActions(list);
 	}
 
 }

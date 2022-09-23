@@ -43,8 +43,8 @@
 				<Button class="button" white @click="selectActionType('tts')"
 					title="Text to speech"
 					:icon="$image('icons/tts_purple.svg')"
-					:disabled="!sTTS.params.enabled"
-					:data-tooltip="sTTS.params.enabled? '' : 'This needs the <strong>text to speech</strong><br>feature to be enabled'"/>
+					:disabled="!$store('tts').params.enabled"
+					:data-tooltip="$store('tts').params.enabled? '' : 'This needs the <strong>text to speech</strong><br>feature to be enabled'"/>
 				
 				<Button class="button" white @click="selectActionType('music')"
 					title="Control music"
@@ -80,7 +80,6 @@
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { storeTTS } from '@/store/tts/storeTTS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -136,7 +135,6 @@ export default class TriggerActionEntry extends Vue {
 	public opened = false;
 	public isError = false;
 	public delay_conf:TwitchatDataTypes.ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
-	public sTTS = storeTTS();
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }

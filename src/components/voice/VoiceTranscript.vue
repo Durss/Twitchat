@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { storeVoice } from '@/store/voice/storeVoice';
+import StoreProxy from '@/store/StoreProxy';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -23,17 +23,15 @@ export default class VoiceTranscript extends Vue {
 
 	public show:boolean = false;
 
-	private sVoice = storeVoice();
-
 	public get text():string {
-		if(this.sVoice.voiceText.rawTempText) return this.sVoice.voiceText.rawTempText;
-		return this.sVoice.voiceText.finalText;
+		if(StoreProxy.voice.voiceText.rawTempText) return StoreProxy.voice.voiceText.rawTempText;
+		return StoreProxy.voice.voiceText.finalText;
 		// return "Cillum reprehenderit incididunt";
 		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
 	}
 
 	public mounted():void {
-		watch(()=> this.sVoice.voiceText.rawTempText, async ()=>{
+		watch(()=> StoreProxy.voice.voiceText.rawTempText, async ()=>{
 			if(!this.show){
 				this.show = true;
 				await this.$nextTick();
@@ -42,7 +40,7 @@ export default class VoiceTranscript extends Vue {
 				gsap.to(holder, {duration:.25, y:"0%"});
 			}
 		});
-		watch(()=> this.sVoice.voiceText.finalText, async (value:string)=>{
+		watch(()=> StoreProxy.voice.voiceText.finalText, async (value:string)=>{
 			if(value != "") {
 				this.hide();
 			}
@@ -54,7 +52,7 @@ export default class VoiceTranscript extends Vue {
 		
 		const holder = this.$refs.holder as HTMLDivElement;
 		gsap.killTweensOf(holder);
-		let len = this.sVoice.voiceText.finalText.length;
+		let len = StoreProxy.voice.voiceText.finalText.length;
 		if(isNaN(len) || len < 0) len = 1;
 		const delay = force? 0 : Math.min(2, len * .025);
 		gsap.to(holder, {delay, duration:.25, y:"120%", clearProps:"all", onComplete:()=>{

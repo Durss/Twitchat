@@ -7,7 +7,7 @@
 			</div>
 
 			<div class="list">
-				<div v-for="m in sChat.pinedMessages" :key="m.tags.id" class="messageItem">
+				<div v-for="m in $store('chat').pinedMessages" :key="m.tags.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<Button aria-label="Highlight message"
 						:icon="$image('icons/highlight.svg')"
@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { storeChat } from '@/store/chat/storeChat';
+import StoreProxy from '@/store/StoreProxy';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -41,7 +41,6 @@ import ChatMessage from '../messages/ChatMessage.vue';
 export default class PinedMessages extends Vue {
 	
 	public highlightLoading = false;
-	public sChat = storeChat();
 
 	public mounted():void {
 	}
@@ -54,15 +53,15 @@ export default class PinedMessages extends Vue {
 	}
 
 	public async unpin(m:IRCEventDataList.Message):Promise<void> {
-		this.sChat.unpinMessage(m);
-		if(this.sChat.pinedMessages.length === 0) {
+		StoreProxy.chat.unpinMessage(m);
+		if(StoreProxy.chat.pinedMessages.length === 0) {
 			this.close();
 		}
 	}
 	
 	public async chatHighlight(m:IRCEventDataList.Message):Promise<void> {
 		this.highlightLoading = true;
-		this.sChat.highlightChatMessageOverlay(m);
+		StoreProxy.chat.highlightChatMessageOverlay(m);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
 	}

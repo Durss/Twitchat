@@ -1,5 +1,4 @@
-import { storePoll } from "@/store/poll/storePoll";
-import { storePrediction } from "@/store/prediction/storePrediction";
+import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
@@ -488,7 +487,7 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
-			storePoll().setPolls(json.data);
+			StoreProxy.poll.setPolls(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -505,7 +504,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			storePoll().setPolls(json.data);
+			StoreProxy.poll.setPolls(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -527,7 +526,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			storePoll().setPolls(json.data);
+			StoreProxy.poll.setPolls(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -556,7 +555,7 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
-			storePrediction().setPredictions(json.data);
+			StoreProxy.prediction.setPredictions(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -573,7 +572,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.authToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			storePrediction().setPredictions(json.data);
+			StoreProxy.prediction.setPredictions(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -596,7 +595,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			storePrediction().setPredictions(json.data);
+			StoreProxy.prediction.setPredictions(json.data);
 			return json.data;
 		}
 		throw(json);

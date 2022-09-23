@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import MessageList from '@/components/messages/MessageList.vue';
-import { storeChat } from '@/store/chat/storeChat';
+import StoreProxy from '@/store/StoreProxy';
 import IRCClient from '@/utils/IRCClient';
 import { Options, Vue } from 'vue-class-component';
 
@@ -25,7 +25,7 @@ export default class ChatLight extends Vue {
 
 	public mounted():void {
 		IRCClient.instance.connect(this.$route.params.login as string);
-		storeChat().realHistorySize = this.maxSize;//Reduces memory footprint
+		StoreProxy.chat.realHistorySize = this.maxSize;//Reduces memory footprint
 	}
 }
 </script>

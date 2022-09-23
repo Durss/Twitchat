@@ -161,18 +161,16 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
+import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
-import Splitter from '../Splitter.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeMain } from '@/store/storeMain';
-import { storeChat } from '@/store/chat/storeChat';
-import { storeUsers } from '@/store/users/storeUsers';
 
 @Options({
 	props:{
@@ -200,9 +198,6 @@ export default class ChatAd extends Vue {
 	public confirmDelay:boolean = false;
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
-	private sChat = storeChat();
-	private sMain = storeMain();
-	private sUsers = storeUsers();
 
 	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
@@ -252,21 +247,21 @@ export default class ChatAd extends Vue {
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
-		this.sMain.tempStoreValue = "CONTENT:"+page;
-		this.sMain.setShowParams(true);
+		StoreProxy.main.tempStoreValue = "CONTENT:"+page;
+		StoreProxy.main.setShowParams(true);
 	}
 
 	public openSpecificParam(id:string):void {
-		this.sMain.tempStoreValue = "SEARCH:"+id;
-		this.sMain.setShowParams(true);
+		StoreProxy.main.tempStoreValue = "SEARCH:"+id;
+		StoreProxy.main.setShowParams(true);
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			if(DataStore.get(DataStore.UPDATE_INDEX) != (this.sMain.latestUpdateIndex as number).toString()) {
-				DataStore.set(DataStore.UPDATE_INDEX, this.sMain.latestUpdateIndex);
+			if(DataStore.get(DataStore.UPDATE_INDEX) != (StoreProxy.main.latestUpdateIndex as number).toString()) {
+				DataStore.set(DataStore.UPDATE_INDEX, StoreProxy.main.latestUpdateIndex);
 			}
 		}
 		if(this.isAdWarning) {
@@ -275,7 +270,7 @@ export default class ChatAd extends Vue {
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
-		this.sChat.delChatMessage(this.messageData.tags.id);
+		StoreProxy.chat.delChatMessage(this.messageData.tags.id);
 		this.$emit("delete");
 	}
 
@@ -288,7 +283,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public openViewerCard():void {
-		this.sUsers.openUserCard(UserSession.instance.user!.login);
+		StoreProxy.users.openUserCard(UserSession.instance.user!.login);
 	}
 
 	public async simulateEvent(code:string):Promise<void> {

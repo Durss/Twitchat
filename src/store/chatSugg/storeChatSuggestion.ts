@@ -14,7 +14,6 @@ export const storeChatSuggestion = defineStore('chatSuggestion', {
 
 
 	actions: {
-		
 		setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null) { this.data = payload; },
 	},
 })

@@ -46,12 +46,12 @@
 </template>
 
 <script lang="ts">
-import TwitchUtils from '@/utils/TwitchUtils';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
-import UserSession from '@/utils/UserSession';
-import { storeChat } from '@/store/chat/storeChat';
 
 @Options({
 	props:{},
@@ -64,7 +64,6 @@ export default class EmoteSelector extends Vue {
 	public filter = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
-	private sChat = storeChat();
 
 	public get filteredEmotes():TwitchDataTypes.Emote[] {
 		let res:TwitchDataTypes.Emote[] = [];
@@ -82,8 +81,8 @@ export default class EmoteSelector extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(Object.keys(this.sChat.emoteSelectorCache).length > 0) {
-			this.users = this.sChat.emoteSelectorCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
+		if(Object.keys(StoreProxy.chat.emoteSelectorCache).length > 0) {
+			this.users = StoreProxy.chat.emoteSelectorCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
 		}else{
 
 			const emotes = await TwitchUtils.getEmotes();
@@ -137,7 +136,7 @@ export default class EmoteSelector extends Vue {
 			}
 	
 			//Save it to storage to avoid loading everything back again
-			this.sChat.setEmoteSelectorCache(sets);
+			StoreProxy.chat.setEmoteSelectorCache(sets);
 			this.users = sets;
 		}
 

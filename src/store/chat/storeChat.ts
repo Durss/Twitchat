@@ -13,10 +13,7 @@ import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
 import { defineStore } from 'pinia'
 import type { JsonObject } from 'type-fest'
-import { storeParams } from '../params/storeParams'
-import { storeMain } from '../storeMain'
-import { storeStream } from '../stream/storeStream'
-import { storeUsers } from '../users/storeUsers'
+import StoreProxy from '../StoreProxy'
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -255,7 +252,7 @@ export const storeChat = defineStore('chat', {
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
 
 				const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
-				if(isNaN(lastUpdateRead) || lastUpdateRead < storeMain().latestUpdateIndex) {
+				if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
 					//Force last updates if any not read
 					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
 				}else{
@@ -283,8 +280,8 @@ export const storeChat = defineStore('chat', {
 
 		
 		async addChatMessage(payload:IRCEventData) {
-			const sParams = storeParams();
-			const sUsers = storeUsers();
+			const sParams = StoreProxy.params;
+			const sUsers = StoreProxy.users;
 
 			let messages = this.messages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper)[];
 			
@@ -338,7 +335,7 @@ export const storeChat = defineStore('chat', {
 
 				//If it's a subgift, merge it with potential previous ones
 				if(payload.type == "highlight" && payload.tags["msg-id"] == "raid") {
-					storeStream().lastRaiderLogin = payload.username as string;
+					StoreProxy.stream.lastRaiderLogin = payload.username as string;
 				}
 
 				//Search in the last 50 messages if this message has already been sent
@@ -514,7 +511,7 @@ export const storeChat = defineStore('chat', {
 		},
 		
 		delChatMessage(messageId:string, deleteData?:PubSubDataTypes.ModerationData) { 
-			const keepDeletedMessages = storeParams().filters.keepDeletedMessages.value;
+			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
 			const list = (this.messages.concat() as (IRCEventDataList.Message | IRCEventDataList.TwitchatAd)[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
@@ -548,7 +545,7 @@ export const storeChat = defineStore('chat', {
 
 		delUserMessages(username:string) {
 			username = username.toLowerCase()
-			const keepDeletedMessages = storeParams().filters.keepDeletedMessages.value;
+			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
 			const list = (this.messages.concat() as IRCEventDataList.Message[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
@@ -613,7 +610,7 @@ export const storeChat = defineStore('chat', {
 				TriggerActionHandler.instance.onMessage(trigger)
 			}else{
 				//Warn user doesn't exist
-				storeMain().alert = "User "+username+" doesn't exist.";
+				StoreProxy.main.alert = "User "+username+" doesn't exist.";
 			}
 		},
 		

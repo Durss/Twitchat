@@ -34,7 +34,7 @@ export default class OBSPermissions extends Vue {
 	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"VIPs", icon:"vip_purple.svg" };
 	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"Subscribers", icon:"sub_purple.svg" };
 	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"Everyone", icon:"user_purple.svg" };
-	public param_users:TwitchatDataTypes.ParameterData		= { type:"text", value:"", label:"Specific users", longText:true, placeholder:"user1, user2, user3, ..." };
+	public param_users:TwitchatDataTypes.ParameterData			= { type:"text", value:"", label:"Specific users", longText:true, placeholder:"user1, user2, user3, ..." };
 
 	public get noSelection():boolean {
 		return this.modelValue.mods === false

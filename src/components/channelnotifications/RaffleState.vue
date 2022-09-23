@@ -37,8 +37,7 @@
 </template>
 
 <script lang="ts">
-import { storeRaffle } from '@/store/raffle/storeRaffle';
-import { storeUsers } from '@/store/users/storeUsers';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -64,13 +63,11 @@ export default class RaffleState extends Vue {
 
 	public picking = false;
 	public progressPercent = 0;
-	public raffleData:RaffleData = storeRaffle().data as RaffleData;
+	public raffleData:RaffleData = StoreProxy.raffle.data as RaffleData;
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists = false;
-	private sUsers = storeUsers();
-	private sRaffle = storeRaffle();
 
 	public mounted():void {
 		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();
@@ -90,7 +87,7 @@ export default class RaffleState extends Vue {
 	public closeRaffle():void {
 		this.$confirm("Close raffle", "All raffle entries will be lost")
 		.then(async ()=> {
-			this.sRaffle.stopRaffle();
+			StoreProxy.raffle.stopRaffle();
 			this.$emit("close");
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 		}).catch(()=> {
@@ -99,7 +96,7 @@ export default class RaffleState extends Vue {
 	}
 
 	public openUserCard(user:RaffleEntry):void {
-		this.sUsers.openUserCard(user.label);
+		StoreProxy.users.openUserCard(user.label);
 	}
 
 	public async pickWinner():Promise<void> {
@@ -153,7 +150,7 @@ export default class RaffleState extends Vue {
 				id:winner.id,
 				label:winner.label,
 			}
-			this.sRaffle.onRaffleComplete(winnerData);
+			StoreProxy.raffle.onRaffleComplete(winnerData);
 		}
 
 		this.picking = false;

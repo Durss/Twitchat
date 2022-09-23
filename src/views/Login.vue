@@ -80,9 +80,9 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { storeAuth } from '@/store/auth/storeAuth';
 import DataStore from '@/store/DataStore';
 import { storeMain } from '@/store/storeMain';
+import StoreProxy from '@/store/StoreProxy';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -102,9 +102,6 @@ export default class Login extends Vue {
 	public showPermissions = false;
 	public oAuthURL = "";
 
-	private sMain = storeMain();
-	private sAuth = storeAuth();
-	
 	private scopeToInfos:{[key:string]:string} = {
 		"chat:read": "Read your chat",
 		"chat:edit": "Write on your chat",
@@ -142,7 +139,7 @@ export default class Login extends Vue {
 	}
 
 	public get newScopes():string[] {
-		return this.sAuth.newScopeToRequest.map((v:string) => {
+		return StoreProxy.auth.newScopeToRequest.map((v:string) => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});
@@ -165,13 +162,13 @@ export default class Login extends Vue {
 				const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
-					this.sMain.alert = csrf.message;
+					StoreProxy.main.alert = csrf.message;
 					this.authenticating = false;
 				}else{
-					this.sAuth.authenticate({code, cb:(success:boolean)=> {
+					StoreProxy.auth.authenticate({code, cb:(success:boolean)=> {
 						this.authenticating = false;
 						//Make sure data are properly loaded from server/localstorage
-						this.sMain.loadDataFromStorage(true);
+						StoreProxy.main.loadDataFromStorage(true);
 						if(success) {
 							redirect = DataStore.get("redirect");
 							DataStore.remove("redirect");
@@ -181,13 +178,13 @@ export default class Login extends Vue {
 								this.$router.push({name:"chat"});
 							}
 						}else{
-							this.sMain.alert = "Invalid credentials";
+							StoreProxy.main.alert = "Invalid credentials";
 							this.authenticating = false;
 						}
 					}});
 				}
 			}else{
-				this.sMain.alert = "You refused access to the Twitch application.";
+				StoreProxy.main.alert = "You refused access to the Twitch application.";
 				this.authenticating = false;
 			}
 		}
@@ -204,7 +201,7 @@ export default class Login extends Vue {
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {
-			this.sMain.alert = "An error occured while generating a CSRF token";
+			StoreProxy.main.alert = "An error occured while generating a CSRF token";
 		}
 		this.generatingCSRF = false;
 	}

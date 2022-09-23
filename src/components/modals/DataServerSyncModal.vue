@@ -44,14 +44,13 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeAccount } from '@/store/account/storeAccount';
-import { storeMain } from '@/store/storeMain';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
 	props:{},
@@ -67,7 +66,7 @@ export default class DataServerSyncModal extends Vue {
 	public isNewUser:boolean = true;
 	public loading:boolean = true;
 	public uploading:boolean = false;
-	public sync_param:TwitchatDataTypes.ParameterData = JSON.parse(JSON.stringify(storeAccount().syncDataWithServer));
+	public sync_param:TwitchatDataTypes.ParameterData = JSON.parse(JSON.stringify(StoreProxy.account.syncDataWithServer));
 	public upload_param:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
 
 	public async mounted():Promise<void> {
@@ -97,7 +96,7 @@ export default class DataServerSyncModal extends Vue {
 		}
 		await DataStore.loadRemoteData(true);
 		DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.sync_param.value);
-		storeMain().loadDataFromStorage();
+		StoreProxy.main.loadDataFromStorage();
 		this.close();
 		this.uploading = false;
 	}

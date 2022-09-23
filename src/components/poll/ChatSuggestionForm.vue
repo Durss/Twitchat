@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -98,7 +98,7 @@ export default class ChatSuggestionForm extends Vue {
 			choices:[],
 			winners:[],
 		}
-		storeChatSuggestion().setChatSuggestion(data);
+		StoreProxy.chatSuggestion.setChatSuggestion(data);
 		this.close();
 	}
 }

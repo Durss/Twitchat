@@ -82,6 +82,7 @@ import { storeChat } from '@/store/chat/storeChat';
 import DataStore from '@/store/DataStore';
 import { storeParams } from '@/store/params/storeParams';
 import { storeMain } from '@/store/storeMain';
+import StoreProxy from '@/store/StoreProxy';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
 import IRCEvent from '@/utils/IRCEvent';
@@ -127,8 +128,6 @@ export default class NewUsers extends Vue {
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
-	private sChat = storeChat();
-	private sParams = storeParams();
 
 	public get styles():{[key:string]:string} {
 		if(!this.showList) return {"min-height":"unset"};
@@ -180,7 +179,7 @@ export default class NewUsers extends Vue {
 		//a hot reload during development
 		if(!Config.instance.IS_PROD) {
 			this.localMessages = this.localMessages.concat(
-				(this.sChat.messages as ChatMessageTypes[]).filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
+				(StoreProxy.chat.messages as ChatMessageTypes[]).filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
 				.splice(0,50);
 		}
 
@@ -236,7 +235,7 @@ export default class NewUsers extends Vue {
 		//Ignore bot messages
 		if(IRCClient.instance.botsLogins[login.toLowerCase()] === true) return;
 		//Ignore hidden users from params
-		if((this.sParams.filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
+		if((StoreProxy.params.filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
 		
 		if(m.firstMessage) this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {

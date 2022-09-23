@@ -26,9 +26,8 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { storeAccount } from '@/store/account/storeAccount';
-import { storeAuth } from '@/store/auth/storeAuth';
 import DataStore from '@/store/DataStore';
-import { storeMain } from '@/store/storeMain';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import UserSession from '@/utils/UserSession';
@@ -59,10 +58,7 @@ export default class ParamsAccount extends Vue {
 	public publicDonation_loaded = false;
 	public sAccount = storeAccount();
 
-	private sMain = storeMain();
-	private sAuth = storeAuth();
-
-	public get canInstall():boolean { return this.sMain.ahsInstaller != null || true; }
+	public get canInstall():boolean { return StoreProxy.main.ahsInstaller != null || true; }
 	public get userName():string { return UserSession.instance.authToken.login; }
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get donorLevel():number { return UserSession.instance.donorLevel; }
@@ -76,7 +72,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public logout():void {
-		this.sAuth.logout();
+		StoreProxy.auth.logout();
 		this.$router.push({name:'logout'});
 	}
 
@@ -113,9 +109,9 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public ahs():void {
-		if(!this.sMain.ahsInstaller) return;
+		if(!StoreProxy.main.ahsInstaller) return;
 		// Show the prompt
-		this.sMain.ahsInstaller.prompt();
+		StoreProxy.main.ahsInstaller.prompt();
 	}
 
 	private async updateDonationState():Promise<void> {

@@ -16,13 +16,13 @@
 		</ToggleBlock>
 		
 		<div class="params">
-			<ParamItem :paramData="param_noScroll" v-model="sMusic.musicPlayerParams.noScroll" />
-			<ParamItem :paramData="param_openFromLeft" v-model="sMusic.musicPlayerParams.openFromLeft" />
-			<ParamItem :paramData="param_autoHide" v-model="sMusic.musicPlayerParams.autoHide" />
-			<ParamItem :paramData="param_showCover" v-model="sMusic.musicPlayerParams.showCover" />
-			<ParamItem :paramData="param_showArtist" v-model="sMusic.musicPlayerParams.showArtist" />
-			<ParamItem :paramData="param_showTitle" v-model="sMusic.musicPlayerParams.showTitle" />
-			<ParamItem :paramData="param_showProgress" v-model="sMusic.musicPlayerParams.showProgressbar" />
+			<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />
+			<ParamItem :paramData="param_openFromLeft" v-model="$store('music').musicPlayerParams.openFromLeft" />
+			<ParamItem :paramData="param_autoHide" v-model="$store('music').musicPlayerParams.autoHide" />
+			<ParamItem :paramData="param_showCover" v-model="$store('music').musicPlayerParams.showCover" />
+			<ParamItem :paramData="param_showArtist" v-model="$store('music').musicPlayerParams.showArtist" />
+			<ParamItem :paramData="param_showTitle" v-model="$store('music').musicPlayerParams.showTitle" />
+			<ParamItem :paramData="param_showProgress" v-model="$store('music').musicPlayerParams.showProgressbar" />
 			<ParamItem :paramData="param_customTemplateToggle" />
 		</div>
 
@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import { storeMusic } from '@/store/music/storeMusic';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -57,12 +57,11 @@ export default class OverlayParamsMusic extends Vue {
 	public param_showProgress:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show progress bar", value:true};
 	public param_customTemplateToggle:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Use custom template", value:true};
 	public param_customTemplate:TwitchatDataTypes.ParameterData = {type:"text", label:"Template (HTML accepted)", value:"", longText:true, placeholderList:[{tag:"TITLE", desc:"track title"}, {tag:"ARTIST", desc:"track artist"}]};
-	public sMusic= storeMusic();
 
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {
-		const params = this.sMusic.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		const params = StoreProxy.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		this.param_autoHide.children = [this.param_autoHideErase];
 		this.param_autoHideErase.value = params.erase;
 		this.param_customTemplateToggle.children = [this.param_customTemplate];
@@ -73,7 +72,7 @@ export default class OverlayParamsMusic extends Vue {
 			this.saveData();
 		})
 
-		watch(() => this.sMusic.musicPlayerParams, () => {
+		watch(() => StoreProxy.music.musicPlayerParams, () => {
 			this.saveData();
 		},  {deep:true});
 
@@ -89,10 +88,10 @@ export default class OverlayParamsMusic extends Vue {
 	private saveData():void {
 		let template = this.param_customTemplate.value as string;
 		if(!this.param_customTemplateToggle.value) template = "";
-		this.sMusic.musicPlayerParams.customInfoTemplate = template;
-		this.sMusic.musicPlayerParams.erase = this.param_autoHideErase.value as boolean;
+		StoreProxy.music.musicPlayerParams.customInfoTemplate = template;
+		StoreProxy.music.musicPlayerParams.erase = this.param_autoHideErase.value as boolean;
 
-		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.sMusic.musicPlayerParams);
+		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, StoreProxy.music.musicPlayerParams);
 	}
 
 }

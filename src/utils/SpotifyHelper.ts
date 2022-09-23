@@ -1,5 +1,4 @@
-import { storeMusic } from "@/store/music/storeMusic";
-import { storeMain } from "@/store/storeMain";
+import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
@@ -29,8 +28,6 @@ export default class SpotifyHelper extends EventDispatcher {
 	private _clientID = "";
 	private _clientSecret = "";
 	private _playlistsCache:SearchPlaylistItem[] = [];
-	private _sMain = storeMain();
-	private _sMusic = storeMusic();
 
 	constructor() {
 		super();
@@ -321,7 +318,7 @@ export default class SpotifyHelper extends EventDispatcher {
 					trackDuration: this.currentTrack.duration,
 					trackPlaybackPos: json.progress_ms,
 					cover: this.currentTrack.cover,
-					params: this._sMusic.musicPlayerParams,
+					params: StoreProxy.music.musicPlayerParams,
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
@@ -331,7 +328,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				//Broadcast to the overlays
 				if(this._lastTrackInfo != null) {
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
-						params: this._sMusic.musicPlayerParams,
+						params: (StoreProxy.music.musicPlayerParams as unknown) as JsonObject,
 					});
 
 					//Broadcast to the triggers
@@ -458,7 +455,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					this._sMain.alert = "Spotify requires you to first play some music before trying to use it from Twitchat"
+					StoreProxy.main.alert = "Spotify requires you to first play some music before trying to use it from Twitchat"
 				}
 			}catch(error){}
 

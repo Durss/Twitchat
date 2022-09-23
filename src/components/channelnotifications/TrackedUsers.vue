@@ -12,7 +12,7 @@
 		
 		<div class="users">
 			<div class="user"
-			v-for="u in sUsers.trackedUsers"
+			v-for="u in $store('users').trackedUsers"
 			:key="u.user['user-id']">
 				<Button class="login"
 					@click="selectUser(u)"
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { storeUsers } from '@/store/users/storeUsers';
+import StoreProxy from '@/store/StoreProxy';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -44,7 +44,6 @@ import ChatMessage from '../messages/ChatMessage.vue';
 export default class TrackedUsers extends Vue {
 
 	public selectedUser:TrackedUser | null = null;
-	public sUsers = storeUsers();
 
 	public get classes():string[] {
 		let res = ["trackedusers"];
@@ -58,7 +57,7 @@ export default class TrackedUsers extends Vue {
 	public untrackUser(user:TrackedUser):void {
 		this.$confirm("Untrack user?", "The history of this user will be lost.")
 		.then(()=> {
-			storeUsers().untrackUser(user.user);
+			StoreProxy.users.untrackUser(user.user);
 			this.selectedUser = null;
 		}).catch(()=> {});
 	}

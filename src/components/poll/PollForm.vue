@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
-import { storeMain } from '@/store/storeMain';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
@@ -108,7 +108,6 @@ export default class PollForm extends Vue {
 	public voteDuration:TwitchatDataTypes.ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
-	private sMain = storeMain();
 
 	public get answers():string[] {
 		let res = [];
@@ -121,9 +120,9 @@ export default class PollForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		if(this.sMain.tempStoreValue) {
-			this.title = this.sMain.tempStoreValue as string;
-			this.sMain.tempStoreValue = null;
+		if(StoreProxy.main.tempStoreValue) {
+			this.title = StoreProxy.main.tempStoreValue as string;
+			StoreProxy.main.tempStoreValue = null;
 		}
 	}
 

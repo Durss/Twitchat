@@ -4,7 +4,7 @@ import IRCClient from '@/utils/IRCClient';
 import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes'
 import { defineStore } from 'pinia'
-import { storeChat } from '../chat/storeChat';
+import StoreProxy from '../StoreProxy';
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -35,15 +35,14 @@ export const storeStream = defineStore('stream', {
 		setRaiding(infos:PubSubDataTypes.RaidInfos|undefined) {this.raiding = infos; },
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
-			const sChat = storeChat();
 			this.hypeTrain = data;
 			
 			if(data && data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5*60*1000;
 				const offset = data.approached_at;
 				const activities:ActivityFeedData[] = [];
-				for (let i = 0; i < sChat.activityFeed.length; i++) {
-					const el = sChat.activityFeed[i];
+				for (let i = 0; i < StoreProxy.chat.activityFeed.length; i++) {
+					const el = StoreProxy.chat.activityFeed[i];
 					if(!el.tags['tmi-sent-ts']) continue;
 					let timestamp = el.tags['tmi-sent-ts'];
 					//If receiving a timestamp, convert it to number as the Date constructor
@@ -73,7 +72,7 @@ export const storeStream = defineStore('stream', {
 							"tmi-sent-ts": Date.now().toString()
 						},
 					}
-					sChat.addChatMessage(res);
+					StoreProxy.chat.addChatMessage(res);
 				}
 			}
 		},

@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import { storeVoice } from '@/store/voice/storeVoice';
+import StoreProxy from '@/store/StoreProxy';
 import VoiceController from '@/utils/VoiceController';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -51,11 +51,9 @@ export default class VoiceControlForm extends Vue {
 
 	public lang:string = "";
 
-	private sVoice = storeVoice();
-
 	public get started():boolean { return VoiceController.instance.started; }
-	public get tempText():string { return this.sttOnly === false? this.sVoice.voiceText.tempText : VoiceController.instance.tempText; }
-	public get finalText():string { return this.sttOnly === false? this.sVoice.voiceText.finalText : VoiceController.instance.finalText; }
+	public get tempText():string { return this.sttOnly === false? StoreProxy.voice.voiceText.tempText : VoiceController.instance.tempText; }
+	public get finalText():string { return this.sttOnly === false? StoreProxy.voice.voiceText.finalText : VoiceController.instance.finalText; }
 
 	public beforeMount():void {
 		let userLang = navigator.language;
@@ -79,7 +77,7 @@ export default class VoiceControlForm extends Vue {
 
 	private updateLang():void {
 		VoiceController.instance.lang = this.lang;
-		this.sVoice.setVoiceLang(this.lang);
+		StoreProxy.voice.setVoiceLang(this.lang);
 	}
 
 }

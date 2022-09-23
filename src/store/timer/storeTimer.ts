@@ -6,7 +6,7 @@ import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import { defineStore } from 'pinia'
 import type { JsonObject } from 'type-fest';
-import { storeChat } from '../chat/storeChat';
+import StoreProxy from '../StoreProxy';
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
@@ -104,7 +104,7 @@ export const storeTimer = defineStore('timer', {
 				},
 			};
 			TriggerActionHandler.instance.onMessage(message);
-			storeChat().addChatMessage(message);
+			StoreProxy.chat.addChatMessage(message);
 
 			const data = { startAt:this.countdown?.startAt, duration:this.countdown?.duration };
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);

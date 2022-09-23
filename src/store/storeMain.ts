@@ -27,42 +27,8 @@ import VoicemodEvent from '@/utils/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import { defineStore } from 'pinia';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import { storeAuth } from './auth/storeAuth';
-import { storeAutomod } from './automod/storeAutomod';
-import { storeBingo } from './bingo/storeBingo';
-import { storeChat } from './chat/storeChat';
-import { storeChatSuggestion } from './chatSugg/storeChatSuggestion';
 import DataStore from './DataStore';
-import { storeEmergency } from './emergency/storeEmergency';
-import { storeMusic } from './music/storeMusic';
-import { storeOBS } from './obs/storeOBS';
-import { storeParams } from './params/storeParams';
-import { storeRaffle } from './raffle/storeRaffle';
-import { storeStream } from './stream/storeStream';
-import { storeTimer } from './timer/storeTimer';
-import { storeTriggers } from './triggers/storeTriggers';
-import { storeTTS } from './tts/storeTTS';
-import { storeUsers } from './users/storeUsers';
-import { storeVoice } from './voice/storeVoice';
-
-// const sOBS = storeOBS();
-// const sTTS = storeTTS();
-// const sChat = storeChat();
-// const sPoll = storePoll();
-// const sAuth = storeAuth();
-// const sTimer = storeTimer();
-// const sUsers = storeUsers();
-// const sVoice = storeVoice();
-// const sMusic = storeMusic();
-// const sBingo = storeBingo();
-// const sStream = storeStream();
-// const sRaffle = storeRaffle();
-// const sParams = storeParams();
-// const sTriggers = storeTriggers();
-// const sAutomod = storeAutomod();
-// const sEmergency = storeEmergency();
-// const sChatSugg = storeChatSuggestion();
-// const sPrediction = storePrediction();
+import StoreProxy from './StoreProxy';
 
 export const storeMain = defineStore('main', {
 	state: () => ({
@@ -115,20 +81,20 @@ export const storeMain = defineStore('main', {
 
 		async startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}) {
 			let jsonConfigs;
-			const sOBS = storeOBS();
-			const sChat = storeChat();
-			const sAuth = storeAuth();
-			const sTimer = storeTimer();
-			const sUsers = storeUsers();
-			const sVoice = storeVoice();
-			const sMusic = storeMusic();
-			const sBingo = storeBingo();
-			const sStream = storeStream();
-			const sRaffle = storeRaffle();
-			const sParams = storeParams();
-			const sAutomod = storeAutomod();
-			const sEmergency = storeEmergency();
-			const sChatSugg = storeChatSuggestion();
+			const sOBS = StoreProxy.obs;
+			const sChat = StoreProxy.chat;
+			const sAuth = StoreProxy.auth;
+			const sTimer = StoreProxy.timer;
+			const sUsers = StoreProxy.users;
+			const sVoice = StoreProxy.voice;
+			const sMusic = StoreProxy.music;
+			const sBingo = StoreProxy.bingo;
+			const sStream = StoreProxy.stream;
+			const sRaffle = StoreProxy.raffle;
+			const sParams = StoreProxy.params;
+			const sAutomod = StoreProxy.automod;
+			const sEmergency = StoreProxy.emergency;
+			const sChatSugg = StoreProxy.chatSuggestion;
 
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
@@ -158,11 +124,11 @@ export const storeMain = defineStore('main', {
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
 				const data = (e.data as unknown) as {winner:WheelItem};
-				storeRaffle().onRaffleComplete(data.winner);
+				StoreProxy.raffle.onRaffleComplete(data.winner);
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-				const login = storeStream().lastRaiderLogin;
+				const login = StoreProxy.stream.lastRaiderLogin;
 				if(login) {
 					sChat.shoutout(login);
 				}else{
@@ -726,16 +692,16 @@ export const storeMain = defineStore('main', {
 		},
 		
 		loadDataFromStorage(authenticated:boolean = false) {
-			const sOBS = storeOBS();
-			const sTTS = storeTTS();
-			const sChat = storeChat();
-			const sVoice = storeVoice();
-			const sMusic = storeMusic();
-			const sStream = storeStream();
-			const sParams = storeParams();
-			const sTriggers = storeTriggers();
-			const sAutomod = storeAutomod();
-			const sEmergency = storeEmergency();
+			const sOBS = StoreProxy.obs;
+			const sTTS = StoreProxy.tts;
+			const sChat = StoreProxy.chat;
+			const sVoice = StoreProxy.voice;
+			const sMusic = StoreProxy.music;
+			const sStream = StoreProxy.stream;
+			const sParams = StoreProxy.params;
+			const sTriggers = StoreProxy.triggers;
+			const sAutomod = StoreProxy.automod;
+			const sEmergency = StoreProxy.emergency;
 			//Loading parameters from local storage and pushing them to current store
 			const props = DataStore.getAll();
 			for (const cat in sParams.$state) {

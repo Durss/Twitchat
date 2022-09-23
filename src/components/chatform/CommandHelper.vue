@@ -20,7 +20,7 @@
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
 		</div>
-		<div class="raid" v-if="sStream.raiding == null">
+		<div class="raid" v-if="$store('stream').raiding == null">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
@@ -29,16 +29,14 @@
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{sStream.raiding.target_display_name}}</label>
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').raiding?.target_display_name}}</label>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { storePoll } from '@/store/poll/storePoll';
-import { storePrediction } from '@/store/prediction/storePrediction';
-import { storeStream } from '@/store/stream/storeStream';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import UserSession from '@/utils/UserSession';
@@ -76,19 +74,16 @@ export default class CommandHelper extends Vue {
 	public raidUser = "";
 	public adCooldown = 0;
 	private adCooldownInterval = 0;
-	public sStream = storeStream();
 
 	private clickHandler!:(e:MouseEvent) => void;
-	private sPoll = storePoll();
-	private sPrediction = storePrediction();
 	
-	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.sStream.roomStatusParams; }
+	public get params():TwitchatDataTypes.IRoomStatusCategory { return StoreProxy.stream.roomStatusParams; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
 
 	public get canCreatePrediction():boolean {
-		return this.sPrediction.data?.id == undefined && this.hasChannelPoints === true;
+		return StoreProxy.prediction.data?.id == undefined && this.hasChannelPoints === true;
 	}
 
 	public get hasChannelPoints():boolean {
@@ -97,7 +92,7 @@ export default class CommandHelper extends Vue {
 
 	public get canCreatePoll():boolean {
 		if(!this.hasChannelPoints) return false;
-		const poll = this.sPoll.data;
+		const poll = StoreProxy.poll.data;
 		return poll == undefined || poll.status != "ACTIVE";
 	}
 

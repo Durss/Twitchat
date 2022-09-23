@@ -39,9 +39,7 @@
 </template>
 
 <script lang="ts">
-import { storeEmergency } from '@/store/emergency/storeEmergency';
-import { storeParams } from '@/store/params/storeParams';
-import { storeUsers } from '@/store/users/storeUsers';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -56,11 +54,8 @@ import Button from '../Button.vue';
 	emits:["close"]
 })
 export default class EmergencyFollowsListModal extends Vue {
-	
-	private sUsers = storeUsers();
-	private sEmergency = storeEmergency();
 
-	public get followers():TwitchatDataTypes.EmergencyFollowerData[] { return this.sEmergency.follows; }
+	public get followers():TwitchatDataTypes.EmergencyFollowerData[] { return StoreProxy.emergency.follows; }
 
 	public formatDate(date:number):string {
 		const d = new Date(date)
@@ -70,7 +65,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	private today:Date = new Date();
 
 	public openCard(follower:TwitchatDataTypes.EmergencyFollowerData):void {
-		this.sUsers.openUserCard(follower.login);
+		StoreProxy.users.openUserCard(follower.login);
 	}
 		
 	public async ban(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
@@ -100,7 +95,7 @@ export default class EmergencyFollowsListModal extends Vue {
 		label += "You'll still be able to find the "
 		label += "<a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">list of all blocked users here</a>";
 		this.$confirm("Complete review?", label).then(()=>{
-			this.sEmergency.clearEmergencyFollows();
+			StoreProxy.emergency.clearEmergencyFollows();
 		}).catch(()=>{/*ignore*/});
 	}
 

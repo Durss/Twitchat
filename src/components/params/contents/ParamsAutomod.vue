@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { storeAutomod } from '@/store/automod/storeAutomod';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import { reactive, watch, type StyleValue } from 'vue';
@@ -110,8 +110,6 @@ export default class ParamsAutomod extends Vue {
 	public keywordToValid:{[key:string]:boolean} = {};
 	public keywordToOpen:{[key:string]:boolean} = {};
 	public automodData!:TwitchatDataTypes.AutomodParamsData;
-
-	private sAutomod = storeAutomod();
 
 	/**
 	 * Cleaned up test string with special chars replaced
@@ -152,7 +150,7 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	public beforeMount():void {
-		this.automodData = reactive(JSON.parse(JSON.stringify(this.sAutomod.params)));
+		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.automod.params)));
 		this.param_enabled.value = this.automodData.enabled;
 		this.param_banUserNames.value = this.automodData.banUserNames;
 		this.automodData.keywordsFilters.forEach(v=> {
@@ -202,7 +200,7 @@ export default class ParamsAutomod extends Vue {
 	 * Save automod params
 	 */
 	public save():void {
-		this.sAutomod.setAutomodParams(this.automodData);
+		StoreProxy.automod.setAutomodParams(this.automodData);
 	}
 
 	/**

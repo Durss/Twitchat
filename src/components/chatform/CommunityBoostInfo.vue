@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { storeStream } from '@/store/stream/storeStream';
+import StoreProxy from '@/store/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -25,32 +25,30 @@ export default class CommunityBoostInfo extends Vue {
 	public interpolatedPercent = 0;
 	public interpolatedProgress = 0;
 	public smallMode = false;
-
-	private sStream = storeStream();
 	
 	public get roundProgressPercent():number { return Math.floor(this.interpolatedPercent); }
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
 
 	public get progress():number {
-		if(!this.sStream.communityBoostState) return 0;
-		if(this.sStream.communityBoostState.total_goal_progress != undefined) {
-			return this.sStream.communityBoostState.total_goal_progress;
+		if(!StoreProxy.stream.communityBoostState) return 0;
+		if(StoreProxy.stream.communityBoostState.total_goal_progress != undefined) {
+			return StoreProxy.stream.communityBoostState.total_goal_progress;
 		}
-		const order = this.sStream.communityBoostState.boost_orders[0];
+		const order = StoreProxy.stream.communityBoostState.boost_orders[0];
 		return order.GoalProgress;
 	}
 
 	public get target():number {
-		if(!this.sStream.communityBoostState) return 0;
-		if(this.sStream.communityBoostState.total_goal_target != undefined) {
-			return this.sStream.communityBoostState.total_goal_target;
+		if(!StoreProxy.stream.communityBoostState) return 0;
+		if(StoreProxy.stream.communityBoostState.total_goal_target != undefined) {
+			return StoreProxy.stream.communityBoostState.total_goal_target;
 		}
-		const order = this.sStream.communityBoostState.boost_orders[0];
+		const order = StoreProxy.stream.communityBoostState.boost_orders[0];
 		return order.GoalTarget;
 	}
 
 	public get percent():number {
-		if(!this.sStream.communityBoostState) return 0;
+		if(!StoreProxy.stream.communityBoostState) return 0;
 		return Math.round(this.progress/this.target * 100);
 	}
 

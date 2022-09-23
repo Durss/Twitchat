@@ -13,13 +13,13 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import { storeStream } from '@/store/stream/storeStream';
 
 @Options({
 	props:{},
@@ -35,9 +35,8 @@ export default class RaidState extends Vue {
 	private timerDuration = 90000;
 	private timerStart = 0;
 	private timerInterval!:number;
-	private sStream = storeStream();
 
-	public get raidInfo() { return this.sStream.raiding!; }
+	public get raidInfo() { return StoreProxy.stream.raiding!; }
 
 	public async mounted():Promise<void> {
 		this.timerStart = Date.now();
@@ -45,8 +44,8 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(this.sStream.raiding?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [this.sStream.raiding?.target_login as string]))[0];
+		if(StoreProxy.stream.raiding?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [StoreProxy.stream.raiding?.target_login as string]))[0];
 		}
 	}
 
@@ -57,7 +56,7 @@ export default class RaidState extends Vue {
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
 		if(seconds <= 0) {
-			this.sStream.setRaiding(undefined);
+			StoreProxy.stream.setRaiding(undefined);
 			return;
 		}
 		this.timeLeft = Utils.formatDuration(seconds);

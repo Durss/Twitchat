@@ -3,7 +3,7 @@ import IRCClient from '@/utils/IRCClient';
 import type { ActivityFeedData, IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import { defineStore } from 'pinia'
-import { storeChat } from '../chat/storeChat';
+import StoreProxy from '../StoreProxy';
 
 
 export const storePoll = defineStore('poll', {
@@ -21,8 +21,7 @@ export const storePoll = defineStore('poll', {
 	actions: {
 
 		setPolls(data:TwitchDataTypes.Poll[], postOnChat?:boolean) {
-			const sChat = storeChat();
-			const list = sChat.activityFeed as ActivityFeedData[];
+			const list = StoreProxy.chat.activityFeed as ActivityFeedData[];
 			if(postOnChat === true) {
 				const poll = data[0];
 				if(poll.status == "COMPLETED" || poll.status == "TERMINATED") {
@@ -35,7 +34,7 @@ export const storePoll = defineStore('poll', {
 							markedAsRead:false,
 							data:poll
 						};
-						sChat.addChatMessage(m);
+						StoreProxy.chat.addChatMessage(m);
 						TriggerActionHandler.instance.onMessage(m);
 					}
 				}

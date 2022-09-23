@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import { storeChat } from '@/store/chat/storeChat';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -124,12 +124,11 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsHighlight extends Vue {
 	
 	public overlayExists = false;
-	public placement = storeChat().chatHighlightOverlayParams.position;
+	public placement = StoreProxy.chat.chatHighlightOverlayParams.position;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
 	private overlayPresenceHandler!:()=>void;
-	private sChat = storeChat();
 	
 	public get overlayUrl():string { return this.$overlayURL("chathighlight"); }
 
@@ -154,7 +153,7 @@ export default class OverlayParamsHighlight extends Vue {
 			const data:TwitchatDataTypes.ChatHighlightOverlayData = {
 				position:this.placement,
 			}
-			this.sChat.setChatHighlightOverlayParams(data);
+			StoreProxy.chat.setChatHighlightOverlayParams(data);
 		})
 	}
 
@@ -200,7 +199,7 @@ export default class OverlayParamsHighlight extends Vue {
 			"self": false,
 			"firstMessage": false,
 		};
-		this.sChat.highlightChatMessageOverlay(message);
+		StoreProxy.chat.highlightChatMessageOverlay(message);
 	}
 
 }

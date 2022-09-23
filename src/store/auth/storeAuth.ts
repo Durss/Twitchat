@@ -8,8 +8,7 @@ import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import { defineStore } from 'pinia';
 import DataStore from "@/store/DataStore";
-import { storeMain } from '../storeMain';
-import { storeUsers } from "../users/storeUsers";
+import StoreProxy from "../StoreProxy";
 
 interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean}
 
@@ -111,7 +110,7 @@ export const storeAuth = defineStore('auth', {
 					PubSub.instance.connect();
 				}
 				this.authenticated = true;
-				const sUsers = storeUsers();
+				const sUsers = StoreProxy.users;
 				sUsers.mods = await TwitchUtils.getModerators();
 				sUsers.followingStates[UserSession.instance.authToken.user_id] = true;
 				sUsers.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
@@ -133,7 +132,7 @@ export const storeAuth = defineStore('auth', {
 				console.log(error);
 				this.authenticated = false;
 				DataStore.remove("oAuthToken");
-				storeMain().alert = "Authentication failed";
+				StoreProxy.main.alert = "Authentication failed";
 				if(cb) cb(false);
 				router.push({name: 'login'});//Redirect to login if connection failed
 			}

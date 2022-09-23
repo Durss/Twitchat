@@ -27,17 +27,16 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ToggleBlock from '../../ToggleBlock.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
-import ParamItem from '../ParamItem.vue';
-import Splitter from '../../Splitter.vue';
-import Button from '../../Button.vue';
-import { watch } from 'vue';
-import gsap from 'gsap';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeMain } from '@/store/storeMain';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { watch } from 'vue';
+import { Options, Vue } from 'vue-class-component';
+import Button from '../../Button.vue';
+import Splitter from '../../Splitter.vue';
+import ToggleBlock from '../../ToggleBlock.vue';
+import ParamItem from '../ParamItem.vue';
+import PermissionsForm from './obs/PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -64,8 +63,6 @@ export default class ParamsAlert extends Vue {
 		all:false,
 		users:"",
 	};
-
-	private sMain = storeMain();
 	
 	public get finalData():TwitchatDataTypes.AlertParamsData {
 		return {
@@ -81,7 +78,7 @@ export default class ParamsAlert extends Vue {
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
-		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.sMain.chatAlertParams));
+		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(StoreProxy.main.chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
 			this.param_chatCommand.value = params.chatCmd;
@@ -93,7 +90,7 @@ export default class ParamsAlert extends Vue {
 		}
 
 		watch(()=>this.finalData, ()=> {
-			this.sMain.setAlertParams(this.finalData);
+			StoreProxy.main.setAlertParams(this.finalData);
 		}, {deep:true});
 	}
 
@@ -140,7 +137,7 @@ export default class ParamsAlert extends Vue {
 			"firstMessage": false,
 			"hasMention": false
 		}
-		this.sMain.executeChatAlert(message);
+		StoreProxy.main.executeChatAlert(message);
 	}
 
 }

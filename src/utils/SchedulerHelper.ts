@@ -1,7 +1,5 @@
-import { storeChat } from "@/store/chat/storeChat";
 import DataStore from "@/store/DataStore";
-import { storeMain } from "@/store/storeMain";
-import { storeTriggers } from "@/store/triggers/storeTriggers";
+import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { IRCEventDataList } from "./IRCEventDataTypes";
 import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
@@ -18,9 +16,6 @@ export default class SchedulerHelper {
 	private _frameIndex:number = 0;
 	private _adSchedule?:TwitchatDataTypes.TriggerScheduleData;
 	private _adScheduleTimeout?:number;
-	private _sMain = storeMain();
-	private _sChat = storeChat();
-	private _sTriggers = storeTriggers();
 	
 	constructor() {
 	
@@ -46,7 +41,7 @@ export default class SchedulerHelper {
 	 * Starts the scheduler
 	 */
 	public start():void {
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = this._sTriggers.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.triggers.triggers;
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			if(mainKey == TriggerTypes.SCHEDULE) {
@@ -178,10 +173,10 @@ export default class SchedulerHelper {
 
 		//Just a fail safe to avoid deploying fucked up data on production !
 		if(this._adSchedule.repeatDuration < 120) {
-			this._sMain.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 60!";
+			StoreProxy.main.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 60!";
 		}else
 		if(this._adSchedule.repeatMinMessages < 100) {
-			this._sMain.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 50!";
+			StoreProxy.main.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 50!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
 	}
@@ -196,7 +191,7 @@ export default class SchedulerHelper {
 		//is slowed down to 1 fps and tasks still executed in background
 		if(this._frameIndex++ < 60) return;
 		this._frameIndex = 0;
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = this._sTriggers.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.triggers.triggers;
 
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];
@@ -204,7 +199,7 @@ export default class SchedulerHelper {
 			let schedule = trigger?.scheduleParams;
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
-				if(UserSession.instance.isDonor && !this._sChat.botMessages.twitchatAd.enabled) return;
+				if(UserSession.instance.isDonor && !StoreProxy.chat.botMessages.twitchatAd.enabled) return;
 				schedule = this._adSchedule;
 			}
 			if(!schedule) continue;

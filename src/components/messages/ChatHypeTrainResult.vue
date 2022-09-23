@@ -1,6 +1,6 @@
 <template>
 	<div class="chathypetrainresult" @click.ctrl="copyJSON()">
-		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/train.svg" alt="icon" class="icon">
 		<div class="infoHolder">
 			<strong>Hype Train completed at <mark>level {{result.train.level}}</mark> <mark>{{reachPercent}}%</mark></strong>

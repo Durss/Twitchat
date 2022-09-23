@@ -61,6 +61,7 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -99,15 +100,13 @@ export default class UserCard extends Vue {
 	public commonFollowCount:number = 0;
 	// public subState:TwitchDataTypes.Subscriber|null = null;
 
-	private sUsers = storeUsers();
-	
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
 	public mounted():void {
 		const sUsers = storeUsers();
-		watch(() => this.sUsers.userCard, () => {
+		watch(() => StoreProxy.users.userCard, () => {
 			this.myFollowings = sUsers.myFollowings;
-			this.username = this.sUsers.userCard;
+			this.username = StoreProxy.users.userCard;
 			if(this.username == null) return;
 			this.username = this.username.replace(/^@/g, "");
 			this.loadUserInfo();
@@ -118,12 +117,12 @@ export default class UserCard extends Vue {
 	}
 
 	public beforeUnmount():void {
-		this.sUsers.openUserCard(null);
+		StoreProxy.users.openUserCard(null);
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
 	public close():void {
-		this.sUsers.openUserCard(null);
+		StoreProxy.users.openUserCard(null);
 	}
 
 	public async loadUserInfo():Promise<void> {

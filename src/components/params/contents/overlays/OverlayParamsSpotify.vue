@@ -45,17 +45,16 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
+import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
-import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeMusic } from '@/store/music/storeMusic';
-import { storeMain } from '@/store/storeMain';
 
 @Options({
 	props:{},
@@ -78,9 +77,6 @@ export default class OverlayParamsSpotify extends Vue {
 	public paramSecret:TwitchatDataTypes.ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
 	public currentTrack:TwitchatDataTypes.MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
-	private sMain = storeMain();
-	private sMusic = storeMusic();
-
 	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get canConnect():boolean {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
@@ -90,7 +86,7 @@ export default class OverlayParamsSpotify extends Vue {
 
 	public authenticate():void {
 		this.loading = true;
-		this.sMusic.setSpotifyCredentials({
+		StoreProxy.music.setSpotifyCredentials({
 			client: (this.paramClient.value as string).trim(),
 			secret: (this.paramSecret.value as string).trim(),
 		});
@@ -108,17 +104,17 @@ export default class OverlayParamsSpotify extends Vue {
 			this.paramSecret.value = p.secret;
 		}
 
-		if(this.sMusic.spotifyAuthParams) {
+		if(StoreProxy.music.spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
 
-			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+this.sMusic.spotifyAuthParams.csrf, {method:"POST"});
+			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+StoreProxy.music.spotifyAuthParams.csrf, {method:"POST"});
 			const csrf = await csrfRes.json();
 			if(!csrf.success) {
-				this.sMain.alert = csrf.message;
+				StoreProxy.main.alert = csrf.message;
 			}else{
 				try {
-					await SpotifyHelper.instance.authenticate(this.sMusic.spotifyAuthParams.code);
+					await SpotifyHelper.instance.authenticate(StoreProxy.music.spotifyAuthParams.code);
 				}catch(e:unknown) {
 					this.error = (e as {error:string, error_description:string}).error_description;
 				}
@@ -126,12 +122,12 @@ export default class OverlayParamsSpotify extends Vue {
 
 			this.authenticating = false;
 			this.loading = false;
-			this.sMusic.setSpotifyAuthResult(null);
+			StoreProxy.music.setSpotifyAuthResult(null);
 		}
 	}
 
 	public disconnect():void {
-		this.sMusic.setSpotifyToken(null);
+		StoreProxy.music.setSpotifyToken(null);
 	}
 
 }

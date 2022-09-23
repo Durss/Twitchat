@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" @click.ctrl.stop="copyJSON()">
-		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 		<span class="message" v-html="text"></span>
@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -25,7 +24,6 @@ export default class ChatNotice extends Vue {
 	
 	public messageData!:IRCEventDataList.Notice;
 	public icon = "infos";
-	public sParams = storeParams();
 
 	/**
 	 * Gets text message with parsed emotes

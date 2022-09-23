@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import { storeBingo } from '@/store/bingo/storeBingo';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -102,8 +102,6 @@ export default class BingoForm extends Vue {
 	public maxValue:TwitchatDataTypes.ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
 	public startPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
-
-	private sBingo = storeBingo();
 
 	public get classes():string[] {
 		const res = ["bingoform"];
@@ -154,7 +152,7 @@ export default class BingoForm extends Vue {
 	 * Start a bingo
 	 */
 	public onSubmit():void {
-		this.sBingo.startBingo(this.finalData);
+		StoreProxy.bingo.startBingo(this.finalData);
 		this.close();
 	}
 

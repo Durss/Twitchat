@@ -5,6 +5,7 @@ import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
 import { storeAuth } from "./auth/storeAuth";
 import { storeEmergency } from "./emergency/storeEmergency";
+import StoreProxy from "./StoreProxy";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -260,7 +261,7 @@ export default class DataStore {
 				}
 				const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
 				if(res.status === 500) {
-					storeAuth().refreshAuthToken(()=> {
+					StoreProxy.auth.refreshAuthToken(()=> {
 						//Try again
 						Utils.promisedTimeout(2000);
 						this.save(true);
@@ -538,10 +539,10 @@ export default class DataStore {
 	 */
 	private static migrateEmergency():void {
 		const value = this.get("p:emergencyButton");
-		storeEmergency().params.enabled = value === "true";
+		StoreProxy.emergency.params.enabled = value === "true";
 		this.remove("obsIp");
 		this.remove("p:emergencyButton");
-		this.set(this.EMERGENCY_PARAMS, storeEmergency().params);
+		this.set(this.EMERGENCY_PARAMS, StoreProxy.emergency.params);
 	}
 
 	/**

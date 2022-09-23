@@ -1,6 +1,6 @@
 <template>
 	<div class="chatcountdownresult" @click.ctrl="copyJSON()">
-		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/countdown.svg" alt="icon" class="icon">
 		<div>
 			<strong>{{duration}}</strong> countdown complete !
@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -24,7 +23,6 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatCountdownResult extends Vue {
 
 	public countdownData!:IRCEventDataList.CountdownResult;
-	public sParams = storeParams();
 	
 	public get time():string {
 		const d = new Date(parseInt(this.countdownData.tags['tmi-sent-ts'] as string));

@@ -1,7 +1,5 @@
 import DataStore from "@/store/DataStore";
-import { storeParams } from "@/store/params/storeParams";
-import { storeMain } from "@/store/storeMain";
-import { storeUsers } from "@/store/users/storeUsers";
+import StoreProxy from "@/store/StoreProxy";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import { LoremIpsum } from "lorem-ipsum";
 import * as tmi from "tmi.js";
@@ -47,9 +45,6 @@ export default class IRCClient extends EventDispatcher {
 	private partSpoolTimeout = -1;
 	private refreshingToken = false;
 	private increment = 0;
-	private sMain = storeMain();
-	private sUsers = storeUsers();
-	private sParams = storeParams();
 	
 	constructor() {
 		super();
@@ -193,7 +188,7 @@ export default class IRCClient extends EventDispatcher {
 								}
 							}
 							this.onlineUsers.sort();
-							this.sUsers.setViewersList(this.onlineUsers);
+							StoreProxy.users.setViewersList(this.onlineUsers);
 						}
 					}
 				}else {
@@ -208,7 +203,7 @@ export default class IRCClient extends EventDispatcher {
 				
 				this.onlineUsers.push(user);
 				this.onlineUsers.sort();
-				this.sUsers.setViewersList(this.onlineUsers);
+				StoreProxy.users.setViewersList(this.onlineUsers);
 			});
 			
 			this.client.on("part", (channel:string, user:string) => {
@@ -221,7 +216,7 @@ export default class IRCClient extends EventDispatcher {
 				if(this.botsLogins[user.toLowerCase()] !== true) {
 					this.userLeave(user, channel);
 				}
-				this.sUsers.setViewersList(this.onlineUsers);
+				StoreProxy.users.setViewersList(this.onlineUsers);
 			});
 
 			this.client.on('cheer', async (channel:string, tags:tmi.ChatUserstate, message:string) => {
@@ -277,7 +272,7 @@ export default class IRCClient extends EventDispatcher {
 				this.sendHighlight({type:"highlight", channel, tags, username, viewers});
 				
 				//If "highlight raider's messages for 5min" option is enabled
-				if(this.sParams.features.raidHighlightUser.value == true) {
+				if(StoreProxy.params.features.raidHighlightUser.value == true) {
 					//Get user ID as the user tracking feature needs it
 					const user = (await TwitchUtils.loadUserInfo(undefined, [username]))[0];
 					const message:IRCEventDataList.Message = {
@@ -292,10 +287,10 @@ export default class IRCClient extends EventDispatcher {
 					message.tags["display-name"] = user.display_name;
 					message.tags["user-id"] = user.id;
 					//Track the user
-					this.sUsers.trackUser(message);
+					StoreProxy.users.trackUser(message);
 					//Untrack the user after 5 minutes
 					setTimeout(()=> {
-						this.sUsers.untrackUser(message.tags);
+						StoreProxy.users.untrackUser(message.tags);
 					}, 5 * 60 * 1000);
 				}
 			});
@@ -432,7 +427,7 @@ export default class IRCClient extends EventDispatcher {
 			await this.client.deletemessage(this.channel, id);
 		}catch(error) {
 			if(error === "bad_delete_message_error") {
-				this.sMain.alert = "Cannot delete broadcaster or moderator's message !";
+				StoreProxy.main.alert = "Cannot delete broadcaster or moderator's message !";
 			}
 		}
 	}
@@ -614,29 +609,29 @@ export default class IRCClient extends EventDispatcher {
 		}
 		
 		//Ignore /me messages if requested
-		if(this.sParams.filters.showSlashMe.value === false && tags["message-type"] == "action") {
+		if(StoreProxy.params.filters.showSlashMe.value === false && tags["message-type"] == "action") {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 			return;
 		}
 		//Ignore self if requested
-		if(this.sParams.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
+		if(StoreProxy.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}
 		//Ignore bot messages if requested
-		if(this.sParams.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] === true) {
+		if(StoreProxy.params.filters.showBots.value === false && this.botsLogins[login.toLowerCase()] === true) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 			return;
 		}
 		//Ignore custom users
-		if((this.sParams.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
+		if((StoreProxy.params.filters.hideUsers.value as string).toLowerCase().indexOf((tags.username as string).toLowerCase()) > -1) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 			return;
 		}
 		//Ignore commands
-		if(this.sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
-			const blocked = this.sParams.filters.blockedCommands.value as string;
-			if(this.sParams.filters.ignoreListCommands.value === true && blocked.length > 0) {
+		if(StoreProxy.params.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message)) {
+			const blocked = StoreProxy.params.filters.blockedCommands.value as string;
+			if(StoreProxy.params.filters.ignoreListCommands.value === true && blocked.length > 0) {
 				//Ignore specific commands
 				let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
 				blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
@@ -706,7 +701,7 @@ export default class IRCClient extends EventDispatcher {
 		if(index == -1) {
 			this.onlineUsers.push(loginLower);
 			this.onlineUsers.sort();
-			this.sUsers.setViewersList(this.onlineUsers);
+			StoreProxy.users.setViewersList(this.onlineUsers);
 		}
 
 		//If user is part of the block list, flag the message

@@ -52,8 +52,7 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
-import { storeMain } from '@/store/storeMain';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -82,10 +81,8 @@ export default class TTUserList extends Vue {
 	public activeLast30days:number = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
-	private sMain = storeMain();
-	private sParams = storeParams();
 	
-	public get splitView():boolean { return this.sParams.appearance.splitView.value as boolean && this.sMain.canSplitView; }
+	public get splitView():boolean { return StoreProxy.params.appearance.splitView.value as boolean && StoreProxy.main.canSplitView; }
 	public get classes():string[] {
 		const res = ["ttuserlist"];
 		if(this.splitView) res.push("splitView");
@@ -98,7 +95,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public beforeMount():void {
-		this.token = this.sMain.tempStoreValue as string;
+		this.token = StoreProxy.main.tempStoreValue as string;
 	}
 
 	public mounted():void {
@@ -172,11 +169,11 @@ export default class TTUserList extends Vue {
 				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
-				this.sMain.alert = json.message;
+				StoreProxy.main.alert = json.message;
 				this.$emit("close");
 			}
 		}catch(err:unknown) {
-			this.sMain.alert = "An error occured while loading users<br>";
+			StoreProxy.main.alert = "An error occured while loading users<br>";
 		}
 		this.loading = false;
 	}

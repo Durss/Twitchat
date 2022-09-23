@@ -1,9 +1,9 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import FFZUtils from '@/utils/FFZUtils';
 import SevenTVUtils from '@/utils/SevenTVUtils';
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -78,14 +78,12 @@ export const storeParams = defineStore('params', {
 
 
 	actions: {
-
 		updateParams() {
-			const sParams = storeParams();
-			for (const cat in sParams.$state) {
+			for (const cat in this.$state) {
 				const c = cat as TwitchatDataTypes.ParameterCategory;
-				for (const key in sParams[c]) {
+				for (const key in this[c]) {
 					/* eslint-disable-next-line */
-					const v = sParams[c][key as TwitchatDataTypes.ParameterCategory].value;
+					const v = this[c][key as TwitchatDataTypes.ParameterCategory].value;
 					DataStore.set("p:"+key, v);
 					if(key=="bttvEmotes") {
 						if(v === true) {

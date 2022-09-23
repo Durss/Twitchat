@@ -1,4 +1,4 @@
-import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes'
+import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -6,10 +6,9 @@ import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import type { JsonObject } from 'type-fest';
-import { storeChat } from '../chat/storeChat';
-import { storeTimer } from '../timer/storeTimer';
+import StoreProxy from '../StoreProxy';
 
 export const storeRaffle = defineStore('raffle', {
 	state: () => ({
@@ -27,7 +26,6 @@ export const storeRaffle = defineStore('raffle', {
 
 		async startRaffle(payload:RaffleData) {
 			this.data = payload;
-			const sChat = storeChat();
 			
 			let overlayAvailable = false;
 			const callback = (e:TwitchatEvent) => {overlayAvailable = true;}
@@ -42,11 +40,11 @@ export const storeRaffle = defineStore('raffle', {
 				case "chat": {
 					//Start countdown if requested
 					if(payload.showCountdownOverlay) {
-						storeTimer().startCountdown(payload.duration * 1000 * 60);
+						StoreProxy.timer.startCountdown(payload.duration * 1000 * 60);
 					}
 					//Announce start on chat
-					if(sChat.botMessages.raffleStart.enabled) {
-						let message = sChat.botMessages.raffleStart.message;
+					if(StoreProxy.chat.botMessages.raffleStart.enabled) {
+						let message = StoreProxy.chat.botMessages.raffleStart.message;
 						message = message.replace(/\{CMD\}/gi, payload.command);
 						IRCClient.instance.sendMessage(message);
 					}
@@ -145,12 +143,11 @@ export const storeRaffle = defineStore('raffle', {
 				tags:IRCClient.instance.getFakeTags(),
 			}
 			TriggerActionHandler.instance.onMessage(message);
-			storeChat().addChatMessage(message);
+			StoreProxy.chat.addChatMessage(message);
 
-			const sChat = storeChat();
 			//Post result on chat
-			if(sChat.botMessages.raffle.enabled) {
-				let message = sChat.botMessages.raffle.message;
+			if(StoreProxy.chat.botMessages.raffle.enabled) {
+				let message = StoreProxy.chat.botMessages.raffle.message;
 				let label = winner.label;
 				message = message.replace(/\{USER\}/gi, label);
 				IRCClient.instance.sendMessage(message);

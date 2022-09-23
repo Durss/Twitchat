@@ -1,6 +1,6 @@
 <template>
 	<div class="chatbingoresult" @click.ctrl="copyJSON()">
-		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
+		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
 		<div>
 			<strong>{{bingoData.data.winners[0]["display-name"]}}</strong> won the bingo with answer
@@ -11,7 +11,6 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -26,7 +25,6 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatBingoResult extends Vue {
 
 	public bingoData!:IRCEventDataList.BingoResult;
-	public sParams = storeParams();
 
 	public get time():string {
 		const d = new Date(parseInt(this.bingoData.tags['tmi-sent-ts'] as string));

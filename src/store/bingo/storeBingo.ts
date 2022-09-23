@@ -4,7 +4,7 @@ import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore } from 'pinia'
-import { storeChat } from '../chat/storeChat';
+import StoreProxy from '../StoreProxy';
 
 export const storeBingo = defineStore('bingo', {
 	state: () => ({
@@ -22,7 +22,7 @@ export const storeBingo = defineStore('bingo', {
 		async startBingo(payload:TwitchatDataTypes.BingoConfig) {
 			const min = payload.min as number;
 			const max = payload.max as number;
-			const sChat = storeChat();
+			const sChat = StoreProxy.chat;
 			
 			let emotes = await TwitchUtils.getEmotes();
 			emotes = emotes.filter(v => v.emote_type == "globals");
