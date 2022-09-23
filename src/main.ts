@@ -11,9 +11,14 @@ import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
 import App from './App.vue';
 import './less/index.less';
 import router from './router';
+import { storeAccount } from './store/account/storeAccount';
 import { storeAuth } from './store/auth/storeAuth';
+import { storeAutomod } from './store/automod/storeAutomod';
+import { storeBingo } from './store/bingo/storeBingo';
+import { storeChat } from './store/chat/storeChat';
 import DataStore from './store/DataStore';
 import { storeMain } from './store/storeMain';
+import StoreProxy from './store/StoreProxy';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Utils from './utils/Utils';
 
@@ -154,6 +159,13 @@ app.config.globalProperties.$confirm = confirm;
 app.config.globalProperties.$overlayURL = overlayURL;
 app.config.globalProperties.$placeDropdown = placeDropdown;
 app.mount('#app')
+
+StoreProxy.main = storeMain();
+StoreProxy.auth = storeAuth();
+StoreProxy.chat = storeChat();
+StoreProxy.bingo = storeBingo();
+StoreProxy.automod = storeAutomod();
+StoreProxy.account = storeAccount();
 
 window.addEventListener("beforeinstallprompt", (e:Event)=> {
 	e.preventDefault();
