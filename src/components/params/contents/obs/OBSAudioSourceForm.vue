@@ -16,8 +16,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
-import { storeOBS } from '@/store/obs/storeOBS';
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -63,7 +61,7 @@ export default class OBSAudioSourceForm extends Vue {
 			muteCommand: this.obsAllowed_muteCommand.value as string,
 			unmuteCommand: this.obsAllowed_unmuteCommand.value as string,
 		};
-		StoreProxy.obs.setOBSMuteUnmuteCommands(commands);
+		this.$store("obs").setOBSMuteUnmuteCommands(commands);
 	}
 
 	public async listAudioSources(manualCheck = false):Promise<void> {
@@ -101,7 +99,7 @@ export default class OBSAudioSourceForm extends Vue {
 				this.obsAllowed_audioSources.value = storeConf.audioSourceName;
 			}
 
-			const storedState = StoreProxy.obs.muteUnmuteCommands;
+			const storedState = this.$store("obs").muteUnmuteCommands;
 			if(storedState) {
 				this.obsAllowed_muteCommand.value = storedState.muteCommand;
 				this.obsAllowed_unmuteCommand.value = storedState.unmuteCommand;

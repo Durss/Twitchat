@@ -2,31 +2,30 @@ import type { IAccountActions, IAccountState, IAuthActions, IAuthState, IAutomod
 
 declare module '@vue/runtime-core' {
 	interface IStore {
-		(id:"account"):(IAccountState & IAccountActions);
-		(id:"auth"):(IAuthState & IAuthActions);
-		(id:"automod"):(IAutomodState & IAutomodActions);
-		(id:"bingo"):(IBingoState & IBingoActions);
-		(id:"chat"):(IChatState & IChatActions);
-		(id:"chatSuggestion"):(IChatSuggestionState & IChatSuggestionActions);
-		(id:"emergency"):(IEmergencyState & IEmergencyActions);
-		(id:"music"):(IMusicState & IMusicActions);
-		(id:"obs"):(IOBSState & IOBSActions);
-		(id:"params"):(IParamsState & IParamsActions);
-		(id:"poll"):(IPollState & IPollActions);
-		(id:"prediction"):(IPredictionState & IPredictionActions);
-		(id:"raffle"):(IRaffleState & IRaffleActions);
-		(id:"stream"):(IStreamState & IStreamActions);
-		(id:"timer"):(ITimerState & ITimerActions);
-		(id:"triggers"):(ITriggersState & ITriggersActions);
-		(id:"tts"):(ITTSState & ITTSActions);
-		(id:"users"):(IUsersState & IUsersActions);
-		(id:"voice"):(IVoiceState & IVoiceActions);
-		(id:"main"):(IMainState & IMainActions);
+		(id:"account"):(IAccountState & IAccountActions) & {$state:IAccountState};
+		(id:"auth"):(IAuthState & IAuthActions) & {$state:IAuthState};
+		(id:"automod"):(IAutomodState & IAutomodActions) & {$state:IAutomodState};
+		(id:"bingo"):(IBingoState & IBingoActions) & {$state:IBingoState};
+		(id:"chat"):(IChatState & IChatActions) & {$state:IChatState};
+		(id:"chatSuggestion"):(IChatSuggestionState & IChatSuggestionActions) & {$state:IChatSuggestionState};
+		(id:"emergency"):(IEmergencyState & IEmergencyActions) & {$state:IEmergencyState};
+		(id:"music"):(IMusicState & IMusicActions) & {$state:IMusicState};
+		(id:"obs"):(IOBSState & IOBSActions) & {$state:IOBSState };
+		(id:"params"):(IParamsState & IParamsActions) & {$state:IParamsState};
+		(id:"poll"):(IPollState & IPollActions) & {$state:IPollState};
+		(id:"prediction"):(IPredictionState & IPredictionActions) & {$state:IPredictionState};
+		(id:"raffle"):(IRaffleState & IRaffleActions) & {$state:IRaffleState};
+		(id:"stream"):(IStreamState & IStreamActions) & {$state:IStreamState};
+		(id:"timer"):(ITimerState & ITimerActions) & {$state:ITimerState};
+		(id:"triggers"):(ITriggersState & ITriggersActions) & {$state:ITriggersState};
+		(id:"tts"):(ITTSState & ITTSActions) & {$state:ITTSState };
+		(id:"users"):(IUsersState & IUsersActions) & {$state:IUsersState};
+		(id:"voice"):(IVoiceState & IVoiceActions) & {$state:IVoiceState};
+		(id:"main"):(IMainState & IMainActions) & {$state:IMainState};
 	}
 
 	interface ComponentCustomProperties {
 		$store: IStore,
-		$store2: (test:boolean)=>string,
 		$image: (path:string) => string,
 		$placeDropdown: (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => void,
 		$overlayURL: (id:string) => string,

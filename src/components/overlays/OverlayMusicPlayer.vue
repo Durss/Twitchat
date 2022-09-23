@@ -33,7 +33,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
@@ -174,7 +173,7 @@ export default class OverlayMusicPlayer extends Vue {
 			//Called when seeking
 			watch(()=>DeezerHelper.instance.playbackPos, ()=> this.updateEmbedProgress());
 			//Called when seeking
-			watch(()=>StoreProxy.music.musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
+			watch(()=>this.$store("music").musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
 			this.onTrackChangeLocal();
 		}
 	}
@@ -192,7 +191,7 @@ export default class OverlayMusicPlayer extends Vue {
 
 	private onTrackChangeLocal():void {
 		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
-		this.params = StoreProxy.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		this.params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		if(track) {
 			this.artist = track.artist;
 			this.title = track.title;

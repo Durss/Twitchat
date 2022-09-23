@@ -102,7 +102,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -124,7 +123,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsHighlight extends Vue {
 	
 	public overlayExists = false;
-	public placement = StoreProxy.chat.chatHighlightOverlayParams.position;
+	public placement = this.$store("chat").chatHighlightOverlayParams.position;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
@@ -153,7 +152,7 @@ export default class OverlayParamsHighlight extends Vue {
 			const data:TwitchatDataTypes.ChatHighlightOverlayData = {
 				position:this.placement,
 			}
-			StoreProxy.chat.setChatHighlightOverlayParams(data);
+			this.$store("chat").setChatHighlightOverlayParams(data);
 		})
 	}
 
@@ -199,7 +198,7 @@ export default class OverlayParamsHighlight extends Vue {
 			"self": false,
 			"firstMessage": false,
 		};
-		StoreProxy.chat.highlightChatMessageOverlay(message);
+		this.$store("chat").highlightChatMessageOverlay(message);
 	}
 
 }

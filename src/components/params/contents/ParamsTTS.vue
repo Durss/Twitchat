@@ -63,8 +63,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
-import { storeTTS } from '@/store/tts/storeTTS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
 import gsap from 'gsap';
@@ -201,7 +199,7 @@ export default class ParamsTTS extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		let params: TwitchatDataTypes.TTSParamsData = StoreProxy.tts.params;
+		let params: TwitchatDataTypes.TTSParamsData = this.$store("tts").params;
 		
 		this.setVoices();
 
@@ -273,7 +271,7 @@ export default class ParamsTTS extends Vue {
 		this.param_inactivityPeriodToggle.value = this.param_inactivityPeriod.value as number > 0;
 
 		watch(()=>this.finalData, ()=> {
-			StoreProxy.tts.setTTSParams(this.finalData);
+			this.$store("tts").setTTSParams(this.finalData);
 		}, {deep:true});
 		
 	}

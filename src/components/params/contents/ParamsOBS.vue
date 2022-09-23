@@ -81,7 +81,6 @@
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -154,9 +153,9 @@ export default class ParamsOBS extends Vue {
 			this.openConnectForm = true;
 		}
 		
-		this.param_enabled.value = StoreProxy.obs.connectionEnabled ?? false;
+		this.param_enabled.value = this.$store("obs").connectionEnabled ?? false;
 
-		const storedPermissions = StoreProxy.obs.commandsPermissions;
+		const storedPermissions = this.$store("obs").commandsPermissions;
 		this.permissions.mods = storedPermissions.mods;
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
@@ -209,7 +208,7 @@ export default class ParamsOBS extends Vue {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		StoreProxy.obs.setObsCommandsPermissions(this.permissions);
+		this.$store("obs").setObsCommandsPermissions(this.permissions);
 	}
 
 	/**
@@ -217,7 +216,7 @@ export default class ParamsOBS extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		StoreProxy.obs.connectionEnabled = this.param_enabled.value as boolean;
+		this.$store("obs").connectionEnabled = this.param_enabled.value as boolean;
 		DataStore.set(DataStore.OBS_PORT, this.obsPort_conf.value);
 		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
 		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);

@@ -25,7 +25,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import UserSession from '@/utils/UserSession';
@@ -132,7 +131,7 @@ export default class AutocompleteChatForm extends Vue {
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			if(this.users) {
-				const users = StoreProxy.users.onlineUsers;
+				const users = this.$store("users").onlineUsers;
 				for (let j = 0; j < users.length; j++) {
 					const userName = users[j];
 					if(userName.toLowerCase().indexOf(s) == 0) {
@@ -163,11 +162,11 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			if(this.commands) {
-				const cmds = StoreProxy.chat.commands;
+				const cmds = this.$store("chat").commands;
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
-						if(e.needTTS === true && !StoreProxy.tts.params.enabled) continue;
+						if(e.needTTS === true && !this.$store("tts").params.enabled) continue;
 						if(e.needChannelPoints === true && !UserSession.instance.hasChannelPoints) continue;
 						res.push({
 							type:"cmd",

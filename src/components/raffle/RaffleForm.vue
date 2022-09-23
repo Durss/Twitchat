@@ -115,7 +115,6 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { RaffleData } from '@/utils/CommonDataTypes';
@@ -293,7 +292,7 @@ export default class RaffleForm extends Vue {
 	 */
 	public async submitForm():Promise<void> {
 		const payload:RaffleData = this.finalData;
-		StoreProxy.raffle.startRaffle(payload);
+		this.$store("raffle").startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();
 		}else{
@@ -304,8 +303,8 @@ export default class RaffleForm extends Vue {
 	}
 	
 	public openParam(page:TwitchatDataTypes.ParamsContentStringType):void {
-		StoreProxy.main.tempStoreValue = "CONTENT:"+page;
-		StoreProxy.main.setShowParams(true);
+		this.$store("main").tempStoreValue = "CONTENT:"+page;
+		this.$store("main").setShowParams(true);
 	}
 
 	public onValueChange():void {

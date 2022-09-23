@@ -46,7 +46,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
@@ -81,8 +80,8 @@ export default class EmoteSelector extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(Object.keys(StoreProxy.chat.emoteSelectorCache).length > 0) {
-			this.users = StoreProxy.chat.emoteSelectorCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
+		if(Object.keys(this.$store("chat").emoteSelectorCache).length > 0) {
+			this.users = this.$store("chat").emoteSelectorCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
 		}else{
 
 			const emotes = await TwitchUtils.getEmotes();
@@ -136,7 +135,7 @@ export default class EmoteSelector extends Vue {
 			}
 	
 			//Save it to storage to avoid loading everything back again
-			StoreProxy.chat.setEmoteSelectorCache(sets);
+			this.$store("chat").setEmoteSelectorCache(sets);
 			this.users = sets;
 		}
 

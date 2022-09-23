@@ -96,7 +96,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -197,7 +196,7 @@ export default class ParamItem extends Vue {
 		
 		watch(() => this.paramData.value, () => {
 			if(this.paramData.save === true) {
-				StoreProxy.params.updateParams()
+				this.$store("params").updateParams()
 			}
 			this.$emit("update:modelValue", this.paramData.value);
 			this.$emit("change");
@@ -250,7 +249,7 @@ export default class ParamItem extends Vue {
 			return;
 		}
 
-		const list = StoreProxy.params.$state;
+		const list = this.$store("params").$state;
 		let children:TwitchatDataTypes.ParameterData[] = [];
 		for (const key in list) {
 			const params = list[key as TwitchatDataTypes.ParameterCategory];

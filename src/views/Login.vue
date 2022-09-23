@@ -81,8 +81,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
-import { storeMain } from '@/store/storeMain';
-import StoreProxy from '@/store/StoreProxy';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -139,7 +137,7 @@ export default class Login extends Vue {
 	}
 
 	public get newScopes():string[] {
-		return StoreProxy.auth.newScopeToRequest.map((v:string) => {
+		return this.$store("auth").newScopeToRequest.map((v:string) => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});
@@ -162,13 +160,13 @@ export default class Login extends Vue {
 				const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
-					StoreProxy.main.alert = csrf.message;
+					this.$store("main").alert = csrf.message;
 					this.authenticating = false;
 				}else{
-					StoreProxy.auth.authenticate({code, cb:(success:boolean)=> {
+					this.$store("auth").authenticate({code, cb:(success:boolean)=> {
 						this.authenticating = false;
 						//Make sure data are properly loaded from server/localstorage
-						StoreProxy.main.loadDataFromStorage(true);
+						this.$store("main").loadDataFromStorage(true);
 						if(success) {
 							redirect = DataStore.get("redirect");
 							DataStore.remove("redirect");
@@ -178,13 +176,13 @@ export default class Login extends Vue {
 								this.$router.push({name:"chat"});
 							}
 						}else{
-							StoreProxy.main.alert = "Invalid credentials";
+							this.$store("main").alert = "Invalid credentials";
 							this.authenticating = false;
 						}
 					}});
 				}
 			}else{
-				StoreProxy.main.alert = "You refused access to the Twitch application.";
+				this.$store("main").alert = "You refused access to the Twitch application.";
 				this.authenticating = false;
 			}
 		}
@@ -201,7 +199,7 @@ export default class Login extends Vue {
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {
-			StoreProxy.main.alert = "An error occured while generating a CSRF token";
+			this.$store("main").alert = "An error occured while generating a CSRF token";
 		}
 		this.generatingCSRF = false;
 	}

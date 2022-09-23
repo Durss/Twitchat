@@ -27,7 +27,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import { watch } from 'vue';
@@ -78,7 +77,7 @@ export default class ParamsAlert extends Vue {
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
-		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(StoreProxy.main.chatAlertParams));
+		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store("main").chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
 			this.param_chatCommand.value = params.chatCmd;
@@ -90,7 +89,7 @@ export default class ParamsAlert extends Vue {
 		}
 
 		watch(()=>this.finalData, ()=> {
-			StoreProxy.main.setAlertParams(this.finalData);
+			this.$store("main").setAlertParams(this.finalData);
 		}, {deep:true});
 	}
 
@@ -137,7 +136,7 @@ export default class ParamsAlert extends Vue {
 			"firstMessage": false,
 			"hasMention": false
 		}
-		StoreProxy.main.executeChatAlert(message);
+		this.$store("main").executeChatAlert(message);
 	}
 
 }

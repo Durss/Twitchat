@@ -4,7 +4,7 @@
 
 		<div class="title">Connected as <strong>{{userName}}</strong></div>
 
-		<ParamItem class="param" :paramData="sAccount.syncDataWithServer" v-model="syncEnabled" />
+		<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
 
 		<div v-if="isDonor" class="donorHolder">
 			<DonorState class="donorBadge" />
@@ -14,7 +14,7 @@
 			</div>
 
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
-			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="sAccount.publicDonation" v-model="publicDonation" />
+			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
 			<div class="infos" v-if="publicDonation_loaded">Makes your login visible by everyone on the donor list under <a @click="$emit('setContent', contentAbout)">About section</a>.</div>
 		</div>
 
@@ -25,9 +25,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { storeAccount } from '@/store/account/storeAccount';
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import UserSession from '@/utils/UserSession';
@@ -56,9 +54,8 @@ export default class ParamsAccount extends Vue {
 	public syncEnabled = false;
 	public publicDonation = false;
 	public publicDonation_loaded = false;
-	public sAccount = storeAccount();
 
-	public get canInstall():boolean { return StoreProxy.main.ahsInstaller != null || true; }
+	public get canInstall():boolean { return this.$store("main").ahsInstaller != null || true; }
 	public get userName():string { return UserSession.instance.authToken.login; }
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get donorLevel():number { return UserSession.instance.donorLevel; }
@@ -72,7 +69,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public logout():void {
-		StoreProxy.auth.logout();
+		this.$store("auth").logout();
 		this.$router.push({name:'logout'});
 	}
 
@@ -109,9 +106,10 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public ahs():void {
-		if(!StoreProxy.main.ahsInstaller) return;
+		const ahsInstaller = this.$store("main").ahsInstaller;
+		if(!ahsInstaller) return;
 		// Show the prompt
-		StoreProxy.main.ahsInstaller.prompt();
+		ahsInstaller.prompt();
 	}
 
 	private async updateDonationState():Promise<void> {

@@ -39,7 +39,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
@@ -62,41 +61,41 @@ export default class ChatMessageHoverActions extends Vue {
 	public highlightLoading = false;
 
 	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id; }
-	public get ttsEnabled():boolean { return StoreProxy.tts.params.enabled; }
+	public get ttsEnabled():boolean { return this.$store("tts").params.enabled; }
 
 	public trackUser():void {
-		StoreProxy.users.trackUser(this.messageData);
+		this.$store("users").trackUser(this.messageData);
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await StoreProxy.chat.shoutout(this.messageData.tags['display-name'] as string);
+			await this.$store("chat").shoutout(this.messageData.tags['display-name'] as string);
 		}catch(error) {
-			StoreProxy.main.alert = "Shoutout failed :(";
+			this.$store("main").alert = "Shoutout failed :(";
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
 	}
 
 	public ttsRead() {
-		StoreProxy.tts.ttsReadMessage(this.messageData);
+		this.$store("tts").ttsReadMessage(this.messageData);
 	}
 	
 	public async chatHighlight():Promise<void> {
 		this.highlightLoading = true;
-		StoreProxy.chat.highlightChatMessageOverlay(this.messageData);
+		this.$store("chat").highlightChatMessageOverlay(this.messageData);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
 	}
 
 	public pinMessage():void {
-		const pins = StoreProxy.chat.pinedMessages as IRCEventDataList.Message[]
+		const pins = this.$store("chat").pinedMessages as IRCEventDataList.Message[]
 		//Check if message is already pinned
 		if(pins.find(m => m.tags.id == this.messageData.tags.id)) {
-			StoreProxy.chat.unpinMessage(this.messageData);
+			this.$store("chat").unpinMessage(this.messageData);
 		}else{
-			StoreProxy.chat.pinMessage(this.messageData);
+			this.$store("chat").pinMessage(this.messageData);
 		}
 	}
 }

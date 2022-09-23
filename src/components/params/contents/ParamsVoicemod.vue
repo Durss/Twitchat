@@ -38,15 +38,13 @@
 </template>
 
 <script lang="ts">
-import VoicemodWebSocket, {type VoicemodTypes} from '@/utils/VoicemodWebSocket';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
-import Splitter from '../../Splitter.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { storeVoice } from '@/store/voice/storeVoice';
-import StoreProxy from '@/store/StoreProxy';
 
 @Options({
 	props:{},
@@ -131,7 +129,7 @@ export default class ParamsVoicemod extends Vue {
 	 */
 	public async populate():Promise<void> {
 		this.voices = VoicemodWebSocket.instance.voices;
-		const storeParams = StoreProxy.voice.voicemodParams as TwitchatDataTypes.VoicemodParamsData;
+		const storeParams = this.$store("voice").voicemodParams as TwitchatDataTypes.VoicemodParamsData;
 
 		//Build hashmap for faster access
 		const voiceIdToCommand:{[key:string]:string} = {};
@@ -182,14 +180,14 @@ export default class ParamsVoicemod extends Vue {
 			chatCmdPerms:this.permissions,
 			commandToVoiceID,
 		}
-		StoreProxy.voice.setVoicemodParams(data);
+		this.$store("voice").setVoicemodParams(data);
 	}
 
 	/**
 	 * Prefills the forms
 	 */
 	private prefill():void {
-		const params:TwitchatDataTypes.VoicemodParamsData = StoreProxy.voice.voicemodParams;
+		const params:TwitchatDataTypes.VoicemodParamsData = this.$store("voice").voicemodParams;
 		if(params.enabled === true) {
 			this.param_enabled.value = true;
 			this.param_voiceIndicator.value = params.voiceIndicator;

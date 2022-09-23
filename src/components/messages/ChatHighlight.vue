@@ -46,7 +46,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
@@ -93,7 +92,7 @@ export default class ChatHighlight extends Vue {
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
 	public get streamInfo():TwitchDataTypes.ChannelInfo|null {
-		if(StoreProxy.params.features.raidStreamInfo.value === true) {
+		if(this.$store("params").features.raidStreamInfo.value === true) {
 			return this.pStreamInfo;
 		}
 		return null;
@@ -102,7 +101,7 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
-		if(StoreProxy.users.trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
+		if(this.$store("users").trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
 		return res;
 	}
 
@@ -130,7 +129,7 @@ export default class ChatHighlight extends Vue {
 				this.icon = this.$image('icons/follow.svg');
 				this.username = this.messageData.username as string;
 				res = `followed your channel!`;
-				this.filtered = !StoreProxy.params.filters.showFollow.value;
+				this.filtered = !this.$store("params").filters.showFollow.value;
 				break;
 
 			case TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED:
@@ -152,13 +151,13 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatMessageType.RAID:
 				value = this.messageData.viewers as number;
-				this.filtered = !StoreProxy.params.filters.showRaids.value;
+				this.filtered = !this.$store("params").filters.showRaids.value;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
 				this.username = this.messageData.username as string;
 				res = `is raiding with a party of ${this.messageData.viewers}.`;
 
-				if(StoreProxy.params.features.raidStreamInfo.value === true) {
+				if(this.$store("params").features.raidStreamInfo.value === true) {
 					this.loadLastStreamInfos()
 				}
 				break;
@@ -168,7 +167,7 @@ export default class ChatHighlight extends Vue {
 				this.username = this.messageData.tags.username as string;
 				res = `sent <strong>${value}</strong> bits`;
 				this.icon = this.$image('icons/bits.svg');
-				this.filtered = !StoreProxy.params.filters.showCheers.value;
+				this.filtered = !this.$store("params").filters.showCheers.value;
 				break;
 
 			case TwitchatMessageType.SUB:
@@ -200,7 +199,7 @@ export default class ChatHighlight extends Vue {
 				if(extras.length) {
 					res += " <i>("+extras.join(" ")+")</i>"
 				}
-				this.filtered = !StoreProxy.params.filters.showSubs.value;
+				this.filtered = !this.$store("params").filters.showSubs.value;
 				break;
 
 			case TwitchatMessageType.SUBGIFT:
@@ -218,7 +217,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case TwitchatMessageType.SUBGIFT_UPGRADE:
-				this.filtered = !StoreProxy.params.filters.showSubs.value;
+				this.filtered = !this.$store("params").filters.showSubs.value;
 				this.icon = this.$image('icons/sub.svg');
 				this.username = this.messageData.username as string;
 				res = `is continuing the Gift Sub they got from <strong>${this.messageData.sender}</strong>`;
@@ -226,7 +225,7 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatMessageType.REWARD: {
 				const localObj = this.messageData.reward!;
-				this.filtered = !StoreProxy.params.filters.showRewards.value;
+				this.filtered = !this.$store("params").filters.showRewards.value;
 				this.messageText = "";
 				this.icon = this.$image('icons/channelPoints.svg');
 				this.username = localObj.redemption.user.display_name as string;
@@ -241,7 +240,7 @@ export default class ChatHighlight extends Vue {
 					this.icon = this.messageData.reward?.redemption.reward.default_image.url_2x as string;
 				}
 				if(this.messageData.reward?.redemption.reward.prompt) {
-					if(StoreProxy.params.filters.showRewardsInfos.value === true) {
+					if(this.$store("params").filters.showRewardsInfos.value === true) {
 						this.info = this.messageData.reward?.redemption.reward.prompt;
 					}
 				}
@@ -272,7 +271,7 @@ export default class ChatHighlight extends Vue {
 			case TwitchatMessageType.CHALLENGE_CONTRIBUTION: {
 				const localObj = this.messageData.contribution!;
 				this.isCommunityChallenge = true;
-				this.filtered = !StoreProxy.params.filters.showRewards.value;
+				this.filtered = !this.$store("params").filters.showRewards.value;
 				this.username = localObj.user.display_name;
 				res = "Contributed "+localObj.amount+"pts";
 				if(localObj.amount != localObj.total_contribution) {
@@ -298,7 +297,7 @@ export default class ChatHighlight extends Vue {
 			try {
 				//Allow custom parsing of emotes only if it's a reward to avoid killing performances.
 				const customParsing = this.messageData.reward != null;
-				let removeEmotes = !StoreProxy.params.appearance.showEmotes.value;
+				let removeEmotes = !this.$store("params").appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				for (let i = 0; i < chunks.length; i++) {
@@ -358,9 +357,9 @@ export default class ChatHighlight extends Vue {
 		this.shoutoutLoading = true;
 		if(this.messageData.viewers != undefined) {
 			try {
-				await StoreProxy.chat.shoutout(this.messageData.username as string);
+				await this.$store("chat").shoutout(this.messageData.username as string);
 			}catch(error) {
-				StoreProxy.main.alert = "Shoutout failed :(";
+				this.$store("main").alert = "Shoutout failed :(";
 				console.log(error);
 			}
 		}
@@ -368,7 +367,7 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public openUserCard():void {
-		StoreProxy.users.openUserCard(this.username);
+		this.$store("users").openUserCard(this.username);
 	}
 
 	public async unbanUser():Promise<void> {

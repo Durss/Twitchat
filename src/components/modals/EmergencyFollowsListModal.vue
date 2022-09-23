@@ -39,7 +39,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -55,7 +54,7 @@ import Button from '../Button.vue';
 })
 export default class EmergencyFollowsListModal extends Vue {
 
-	public get followers():TwitchatDataTypes.EmergencyFollowerData[] { return StoreProxy.emergency.follows; }
+	public get followers():TwitchatDataTypes.EmergencyFollowerData[] { return this.$store("emergency").follows; }
 
 	public formatDate(date:number):string {
 		const d = new Date(date)
@@ -65,7 +64,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	private today:Date = new Date();
 
 	public openCard(follower:TwitchatDataTypes.EmergencyFollowerData):void {
-		StoreProxy.users.openUserCard(follower.login);
+		this.$store("users").openUserCard(follower.login);
 	}
 		
 	public async ban(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
@@ -95,7 +94,7 @@ export default class EmergencyFollowsListModal extends Vue {
 		label += "You'll still be able to find the "
 		label += "<a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">list of all blocked users here</a>";
 		this.$confirm("Complete review?", label).then(()=>{
-			StoreProxy.emergency.clearEmergencyFollows();
+			this.$store("emergency").clearEmergencyFollows();
 		}).catch(()=>{/*ignore*/});
 	}
 

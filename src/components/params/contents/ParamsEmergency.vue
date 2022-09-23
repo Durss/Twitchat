@@ -81,7 +81,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import gsap from 'gsap';
@@ -173,47 +172,47 @@ export default class ParamsEmergency extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		let params = JSON.parse(JSON.stringify(StoreProxy.stream.roomStatusParams));
+		let params = JSON.parse(JSON.stringify(this.$store("stream").roomStatusParams));
 		params.followersOnly.children = [this.param_followersOnlyDuration]
 		params.slowMode.children = [this.param_slowModeDuration]
 		params["noTrigger"] = this.param_noTrigger,
 		params["autoTO"] = this.param_autoTo,
 		this.channelParams = params;
-		this.param_enable.value = StoreProxy.emergency.params.enabled;
+		this.param_enable.value = this.$store("emergency").params.enabled;
 		this.param_autoBlockFollowing.children = [this.param_autoUnblockFollowing];
 		if(this.channelParams) {
 			//Prefill forms from storage
-			this.channelParams.autoTO.value = StoreProxy.emergency.params.toUsers;
-			this.channelParams.noTrigger.value = StoreProxy.emergency.params.noTriggers;
-			this.channelParams.emotesOnly.value = StoreProxy.emergency.params.emotesOnly;
-			this.channelParams.subsOnly.value = StoreProxy.emergency.params.subOnly;
-			this.channelParams.slowMode.value = StoreProxy.emergency.params.slowMode;
-			this.channelParams.followersOnly.value = StoreProxy.emergency.params.followOnly;
-			this.param_followersOnlyDuration.value = StoreProxy.emergency.params.followOnlyDuration;
-			this.param_slowModeDuration.value = StoreProxy.emergency.params.slowModeDuration;
+			this.channelParams.autoTO.value = this.$store("emergency").params.toUsers;
+			this.channelParams.noTrigger.value = this.$store("emergency").params.noTriggers;
+			this.channelParams.emotesOnly.value = this.$store("emergency").params.emotesOnly;
+			this.channelParams.subsOnly.value = this.$store("emergency").params.subOnly;
+			this.channelParams.slowMode.value = this.$store("emergency").params.slowMode;
+			this.channelParams.followersOnly.value = this.$store("emergency").params.followOnly;
+			this.param_followersOnlyDuration.value = this.$store("emergency").params.followOnlyDuration;
+			this.param_slowModeDuration.value = this.$store("emergency").params.slowModeDuration;
 		}
-		if(StoreProxy.emergency.params.chatCmd) {
-			this.param_chatCommand.value = StoreProxy.emergency.params.chatCmd;
+		if(this.$store("emergency").params.chatCmd) {
+			this.param_chatCommand.value = this.$store("emergency").params.chatCmd;
 		}
-		if(StoreProxy.emergency.params.chatCmdPerms) {
-			this.chatCommandPerms = StoreProxy.emergency.params.chatCmdPerms;
+		if(this.$store("emergency").params.chatCmdPerms) {
+			this.chatCommandPerms = this.$store("emergency").params.chatCmdPerms;
 		}
 		
-		if(StoreProxy.emergency.params.autoBlockFollows != undefined) {
-			this.param_autoBlockFollowing.value = StoreProxy.emergency.params.autoBlockFollows;
+		if(this.$store("emergency").params.autoBlockFollows != undefined) {
+			this.param_autoBlockFollowing.value = this.$store("emergency").params.autoBlockFollows;
 		}
-		if(StoreProxy.emergency.params.autoUnblockFollows != undefined) {
-			this.param_autoUnblockFollowing.value = StoreProxy.emergency.params.autoUnblockFollows;
+		if(this.$store("emergency").params.autoUnblockFollows != undefined) {
+			this.param_autoUnblockFollowing.value = this.$store("emergency").params.autoUnblockFollows;
 		}
-		if(StoreProxy.emergency.params.autoEnableOnFollowbot != undefined) {
-			this.param_autoEnableOnFollowbot.value = StoreProxy.emergency.params.autoEnableOnFollowbot;
+		if(this.$store("emergency").params.autoEnableOnFollowbot != undefined) {
+			this.param_autoEnableOnFollowbot.value = this.$store("emergency").params.autoEnableOnFollowbot;
 		}
 
 		await this.listOBSScenes();
 		await this.listOBSSources();
 
 		watch(()=>this.finalData, ()=> {
-			StoreProxy.emergency.setEmergencyParams(this.finalData);
+			this.$store("emergency").setEmergencyParams(this.finalData);
 		}, {deep:true});
 		
 		watch(()=> OBSWebsocket.instance.connected, () => { 
@@ -259,7 +258,7 @@ export default class ParamsEmergency extends Vue {
 
 		this.param_obsScene.listValues = list;
 		//Prefill form from storage
-		this.selectedOBSScene = list.find(v=>v.value == StoreProxy.emergency.params.obsScene) ?? null;
+		this.selectedOBSScene = list.find(v=>v.value == this.$store("emergency").params.obsScene) ?? null;
 	}
 
 	/**
@@ -281,7 +280,7 @@ export default class ParamsEmergency extends Vue {
 		const list = [];
 		for (let i = 0; i < this.obsSources.length; i++) {
 			const el = this.obsSources[i];
-			if((StoreProxy.emergency.params.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
+			if((this.$store("emergency").params.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
 				list.push(el);
 			}
 		}

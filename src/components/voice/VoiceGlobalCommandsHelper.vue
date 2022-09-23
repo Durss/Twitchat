@@ -12,7 +12,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import VoiceAction from '@/utils/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
 
@@ -32,7 +31,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 	public actions:{label:string, action:VoiceAction}[] = [];
 
 	public mounted():void {
-		// const actions = StoreProxy.voice.voiceActions;
+		// const actions = this.$store("voice").voiceActions;
 		type VAKeys = keyof typeof VoiceAction;
 		const actions = Object.keys(VoiceAction);
 
@@ -43,7 +42,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 			if(!isGlobal) continue;//Ignore non global commands
 			
 			const id:string = VoiceAction[a as VAKeys] as string;
-			const action = (StoreProxy.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
+			const action = (this.$store("voice").voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action) {
 				if(this.confirmMode === false
 				|| (this.confirmMode && (id == VoiceAction.SUBMIT || id == VoiceAction.CANCEL))) {

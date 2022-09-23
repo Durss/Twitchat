@@ -13,7 +13,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -36,7 +35,7 @@ export default class RaidState extends Vue {
 	private timerStart = 0;
 	private timerInterval!:number;
 
-	public get raidInfo() { return StoreProxy.stream.raiding!; }
+	public get raidInfo() { return this.$store("stream").raiding!; }
 
 	public async mounted():Promise<void> {
 		this.timerStart = Date.now();
@@ -44,8 +43,8 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(StoreProxy.stream.raiding?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [StoreProxy.stream.raiding?.target_login as string]))[0];
+		if(this.$store("stream").raiding?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [this.$store("stream").raiding?.target_login as string]))[0];
 		}
 	}
 
@@ -56,7 +55,7 @@ export default class RaidState extends Vue {
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
 		if(seconds <= 0) {
-			StoreProxy.stream.setRaiding(undefined);
+			this.$store("stream").setRaiding(undefined);
 			return;
 		}
 		this.timeLeft = Utils.formatDuration(seconds);

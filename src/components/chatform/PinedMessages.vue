@@ -23,7 +23,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -53,15 +52,15 @@ export default class PinedMessages extends Vue {
 	}
 
 	public async unpin(m:IRCEventDataList.Message):Promise<void> {
-		StoreProxy.chat.unpinMessage(m);
-		if(StoreProxy.chat.pinedMessages.length === 0) {
+		this.$store("chat").unpinMessage(m);
+		if(this.$store("chat").pinedMessages.length === 0) {
 			this.close();
 		}
 	}
 	
 	public async chatHighlight(m:IRCEventDataList.Message):Promise<void> {
 		this.highlightLoading = true;
-		StoreProxy.chat.highlightChatMessageOverlay(m);
+		this.$store("chat").highlightChatMessageOverlay(m);
 		await Utils.promisedTimeout(1000);
 		this.highlightLoading = false;
 	}

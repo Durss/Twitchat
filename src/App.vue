@@ -8,9 +8,8 @@
 </template>
 
 <script lang="ts">
-import { watch } from 'vue';
+import { getCurrentInstance, inject, watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import StoreProxy from './store/StoreProxy';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
@@ -30,7 +29,7 @@ export default class App extends Vue {
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.$route.meta.overflow === true) res.push("overflow");
-		res.push("messageSize_"+StoreProxy.params.appearance.defaultSize.value);
+		res.push("messageSize_"+this.$store("params").appearance.defaultSize.value);
 		return res;
 	}
 
@@ -38,7 +37,7 @@ export default class App extends Vue {
 		this.resizeHandler = ()=> this.onWindowResize();
 		window.addEventListener("resize", this.resizeHandler);
 		this.onWindowResize();
-		watch(()=> StoreProxy.main.initComplete, ()=> this.hideMainLoader())
+		watch(()=> this.$store("main").initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
 	}
 
@@ -53,7 +52,7 @@ export default class App extends Vue {
 	}
 
 	private hideMainLoader():void {
-		if(StoreProxy.main.initComplete === true) {
+		if(this.$store("main").initComplete === true) {
 			//@ts-ignore
 			closeInitLoader();//Method declared on index.html
 		}

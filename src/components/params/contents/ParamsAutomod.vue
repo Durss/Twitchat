@@ -78,7 +78,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import { reactive, watch, type StyleValue } from 'vue';
@@ -150,7 +149,7 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	public beforeMount():void {
-		this.automodData = reactive(JSON.parse(JSON.stringify(StoreProxy.automod.params)));
+		this.automodData = reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
 		this.param_enabled.value = this.automodData.enabled;
 		this.param_banUserNames.value = this.automodData.banUserNames;
 		this.automodData.keywordsFilters.forEach(v=> {
@@ -200,7 +199,7 @@ export default class ParamsAutomod extends Vue {
 	 * Save automod params
 	 */
 	public save():void {
-		StoreProxy.automod.setAutomodParams(this.automodData);
+		this.$store("automod").setAutomodParams(this.automodData);
 	}
 
 	/**

@@ -13,7 +13,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
@@ -47,7 +46,7 @@ export default class Tooltip extends Vue {
 		document.addEventListener('mousemove', this.mouseMoveHandler);
 		document.addEventListener('mouseup', this.mouseUpHandler);
 		
-		watch(() => StoreProxy.main.tooltip, (val:string) => {
+		watch(() => this.$store("main").tooltip, (val:string) => {
 			let data = val;
 			if(data) {
 				this.show(data);
@@ -113,7 +112,7 @@ export default class Tooltip extends Vue {
 	 * @param e
 	 */
 	private onMouseUp():void {
-		if(this.opened) StoreProxy.main.closeTooltip();
+		if(this.opened) this.$store("main").closeTooltip();
 	}
 
 	/**
@@ -133,10 +132,10 @@ export default class Tooltip extends Vue {
 			if(target && target != document.body) {
 				let mess = target.dataset.tooltip;
 				if(mess && mess != this.message) {
-					StoreProxy.main.openTooltip(mess);
+					this.$store("main").openTooltip(mess);
 				}
 			}else if(this.opened) {
-				StoreProxy.main.closeTooltip();
+				this.$store("main").closeTooltip();
 			}
 		}
 
@@ -166,7 +165,7 @@ export default class Tooltip extends Vue {
 			}
 			if(!t || !t.parentNode) {
 				this.currentTarget = null;
-				StoreProxy.main.closeTooltip();
+				this.$store("main").closeTooltip();
 			}
 		}
 	}

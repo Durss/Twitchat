@@ -145,10 +145,6 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import { storeChat } from '@/store/chat/storeChat';
-import { storeParams } from '@/store/params/storeParams';
-import StoreProxy from '@/store/StoreProxy';
-import { storeTTS } from '@/store/tts/storeTTS';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -242,7 +238,7 @@ export default class MessageList extends Vue {
 	public get readLabel():string {
 		if(!this.conversation[0].tags['display-name']) return "";
 		const username = this.conversation[0].tags['display-name']?.toLowerCase();
-		const permissions:TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
+		const permissions:TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
 		if(permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
 			label = "Read future "+username+"'s messages";
@@ -253,25 +249,25 @@ export default class MessageList extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.localMessages = StoreProxy.chat.messages.concat().slice(-this.max);
+		this.localMessages = this.$store("chat").messages.concat().slice(-this.max);
 		for (let i = 0; i < this.localMessages.length; i++) {
 			this.idDisplayed[this.localMessages[i].tags.id as string] = true;
 		}
 		
-		watch(() => StoreProxy.chat.messages, async (value) => {
+		watch(() => this.$store("chat").messages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
-				const len = StoreProxy.chat.messages.length;
+				const len = this.$store("chat").messages.length;
 				//There should be no need to read more than 100 new messages at a time
 				//Unless the chat is ultra spammy in which case we wouldn't notice
 				//messages are missing from the list anyway...
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = StoreProxy.chat.messages[i] as IRCEventDataList.Message;
+					const m = this.$store("chat").messages[i] as IRCEventDataList.Message;
 					if(this.idDisplayed[m.tags.id as string] !== true) {
 						this.idDisplayed[m.tags.id as string] = true;
 						this.pendingMessages.push(m);
@@ -289,7 +285,7 @@ export default class MessageList extends Vue {
 			this.scrollToPrevMessage();
 		});
 
-		watch(()=>StoreProxy.params.appearance.defaultSize.value, async ()=> {
+		watch(()=>this.$store("params").appearance.defaultSize.value, async ()=> {
 			await this.$nextTick();
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -324,7 +320,7 @@ export default class MessageList extends Vue {
 	}
 
 	public async onHoverList():Promise<void> {
-		if(this.lightMode || !StoreProxy.params.features.lockAutoScroll.value) return;
+		if(this.lightMode || !this.$store("params").features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
 
@@ -361,7 +357,7 @@ export default class MessageList extends Vue {
 		let messageID = "";
 		
 		messageID = e.data as string;
-		const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
+		const keepDeletedMessages = this.$store("params").filters.keepDeletedMessages.value;
 
 		if(this.pendingMessages.length > 0) {
 			let index = this.pendingMessages.findIndex(v => v.tags.id === messageID);
@@ -397,10 +393,10 @@ export default class MessageList extends Vue {
 	public toggleReadUser():void {
 		if(!this.conversation[0].tags['display-name']) return;
 		const username = this.conversation[0].tags['display-name']?.toLowerCase();
-		const permissions:TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
+		const permissions:TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		const read = permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1;
 		const payload = {username, read};
-		StoreProxy.tts.ttsReadUser(payload);
+		this.$store("tts").ttsReadUser(payload);
 	}
 
 	/**
@@ -702,8 +698,8 @@ export default class MessageList extends Vue {
 			this.conversationMode = false;
 	
 			let messageList:IRCEventDataList.Message[] = [];
-			for (let i = 0; i < StoreProxy.chat.messages.length; i++) {
-				const mess = StoreProxy.chat.messages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
+			for (let i = 0; i < this.$store("chat").messages.length; i++) {
+				const mess = this.$store("chat").messages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
 				if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
 					messageList.push(mess);
 					if(messageList.length > 100) break;//Limit to 100 for perf reasons
@@ -758,7 +754,7 @@ export default class MessageList extends Vue {
 			const target = event.target as HTMLElement;
 			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
 		}
-		if(StoreProxy.params.features.markAsRead.value !== true) return;
+		if(this.$store("params").features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if(this.prevMarkedReadItem && this.prevMarkedReadItem != m) {
 			this.prevMarkedReadItem.markedAsRead = false;

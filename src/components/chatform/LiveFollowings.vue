@@ -32,7 +32,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -53,7 +52,7 @@ export default class LiveFollowings extends Vue {
 	public loading = true;
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get splitView():boolean { return StoreProxy.params.appearance.splitView.value as boolean && StoreProxy.main.canSplitView; }
+	public get splitView():boolean { return this.$store("params").appearance.splitView.value as boolean && this.$store("main").canSplitView; }
 	public get classes():string[] {
 		const res = ["livefollowings"];
 		if(this.splitView) res.push("splitView");

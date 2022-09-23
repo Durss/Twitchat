@@ -15,7 +15,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -61,7 +60,7 @@ export default class PostOnChatParam extends Vue {
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
 	public async mounted():Promise<void> {
-		const data					= StoreProxy.chat.botMessages[ this.botMessageKey ];
+		const data					= this.$store("chat").botMessages[ this.botMessageKey ];
 		this.textParam.value		= data.message;
 		this.enabledParam.label		= this.title;
 		this.enabledParam.value		= data.enabled || this.noToggle !== false;
@@ -81,7 +80,7 @@ export default class PostOnChatParam extends Vue {
 	public async saveParams(saveToStore = true):Promise<void> {
 		//Avoid useless save on mount
 		if(saveToStore){
-			StoreProxy.chat.updateBotMessage({
+			this.$store("chat").updateBotMessage({
 											key:this.botMessageKey,
 											enabled:this.enabledParam.value as boolean,
 											message:this.textParam.value as string

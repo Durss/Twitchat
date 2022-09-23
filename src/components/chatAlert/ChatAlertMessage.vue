@@ -6,7 +6,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -23,16 +22,16 @@ export default class ChatAlertMessage extends Vue {
 	public user:string|null = null;
 
 	public mounted():void {
-		watch(() => StoreProxy.main.chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper|null) => {
-			if(message && StoreProxy.main.chatAlertParams.message === true
-			&& StoreProxy.params.features.alertMode.value === true) {
+		watch(() => this.$store("main").chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper|null) => {
+			if(message && this.$store("main").chatAlertParams.message === true
+			&& this.$store("params").features.alertMode.value === true) {
 				let text = message.type == "whisper"? message.params[1] : message.message;
 				console.log(text);
 				//Allow custom parsing of emotes only if it's a message of ours sent from current IRC client
 				const customParsing = message.sentLocally === true;
 				console.log("Custom", customParsing);
 				console.log(message.tags['emotes-raw']);
-				let removeEmotes = !StoreProxy.params.appearance.showEmotes.value;
+				let removeEmotes = !this.$store("params").appearance.showEmotes.value;
 				let chunks = TwitchUtils.parseEmotes(text, message.tags['emotes-raw'], removeEmotes, customParsing);
 				let result = "";
 				console.log(chunks);
@@ -50,7 +49,7 @@ export default class ChatAlertMessage extends Vue {
 						result += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
 					}
 				}
-				const cmd = StoreProxy.main.chatAlertParams.chatCmd as string;
+				const cmd = this.$store("main").chatAlertParams.chatCmd as string;
 				result = result.replace(new RegExp("^"+cmd+" ?", "i"), "");
 				this.message = result;
 				this.user = message.tags.username as string;

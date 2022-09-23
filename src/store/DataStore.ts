@@ -3,8 +3,6 @@ import Config from "@/utils/Config";
 import { TriggerTypes } from "@/utils/TriggerActionData";
 import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
-import { storeAuth } from "./auth/storeAuth";
-import { storeEmergency } from "./emergency/storeEmergency";
 import StoreProxy from "./StoreProxy";
 
 /**

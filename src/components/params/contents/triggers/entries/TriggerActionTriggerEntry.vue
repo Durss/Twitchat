@@ -39,7 +39,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
@@ -103,7 +102,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateList():Promise<void> {
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.triggers.triggers;
+		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = this.$store("triggers").triggers;
 		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
@@ -191,7 +190,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	private recursiveLoopCheck(base?:TwitchatDataTypes.TriggerData, key?:string):string[] {
 		if(!this.action.triggerKey) return [];
-		const triggers = StoreProxy.triggers.triggers;
+		const triggers = this.$store("triggers").triggers;
 		let found:string[] = [];
 		if(!base) {
 			base = this.triggerData;

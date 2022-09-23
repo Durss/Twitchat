@@ -39,7 +39,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -83,7 +82,7 @@ export default class HypeTrainState extends Vue {
 
 	public get trainData():TwitchatDataTypes.HypeTrainStateData {
 		//This view can't exist if no hype train is started, it's safe to force "!"
-		return StoreProxy.stream.hypeTrain!;
+		return this.$store("stream").hypeTrain!;
 	}
 
 	public get duration():string {
@@ -111,7 +110,7 @@ export default class HypeTrainState extends Vue {
 
 	public mounted():void {
 		this.dataChange();
-		watch(()=>StoreProxy.stream.hypeTrain, ()=>this.dataChange());
+		watch(()=>this.$store("stream").hypeTrain, ()=>this.dataChange());
 
 		this.renderFrame();
 	}

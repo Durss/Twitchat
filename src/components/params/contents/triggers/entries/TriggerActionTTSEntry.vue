@@ -12,7 +12,6 @@
 </template>
 
 <script lang="ts">
-import { storeTTS } from '@/store/tts/storeTTS';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers } from '@/utils/TriggerActionData';
 import { Options, Vue } from 'vue-class-component';

@@ -41,7 +41,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
@@ -68,8 +67,8 @@ export default class UserList extends Vue {
 	
 	public userClasses(name:string):string[] {
 		let res = ["user"];
-		if(StoreProxy.params.appearance.highlightNonFollowers.value === true
-		&& StoreProxy.users.followingStatesByNames[name.toLowerCase()] === false) res.push("noFollow");
+		if(this.$store("params").appearance.highlightNonFollowers.value === true
+		&& this.$store("users").followingStatesByNames[name.toLowerCase()] === false) res.push("noFollow");
 		return res;
 	}
 
@@ -79,7 +78,7 @@ export default class UserList extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.updateList();
-		watch(() => StoreProxy.users.onlineUsers, () => {
+		watch(() => this.$store("users").onlineUsers, () => {
 			this.updateList();
 		}, { deep: true });
 		this.open();
@@ -107,7 +106,7 @@ export default class UserList extends Vue {
 	}
 
 	public openUserCard(username:string):void {
-		StoreProxy.users.openUserCard(username);
+		this.$store("users").openUserCard(username);
 	}
 
 	private open():void {
@@ -138,7 +137,7 @@ export default class UserList extends Vue {
 
 	private updateList():void {
 		let res:UserItem[] = [];
-		const users = StoreProxy.users.onlineUsers as string[];
+		const users = this.$store("users").onlineUsers as string[];
 		for (let j = 0; j < users.length; j++) {
 			const userName = users[j];
 			const userNameLow = userName?.toLowerCase();
@@ -147,7 +146,7 @@ export default class UserList extends Vue {
 				id:userNameLow,
 				broadcaster:userNameLow == UserSession.instance.authToken.login.toLowerCase(),
 				vip:false,
-				mod:(StoreProxy.users.mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
+				mod:(this.$store("users").mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
 				sub:false,
 			});
 		}

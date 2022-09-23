@@ -61,7 +61,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -104,9 +103,9 @@ export default class UserCard extends Vue {
 
 	public mounted():void {
 		const sUsers = storeUsers();
-		watch(() => StoreProxy.users.userCard, () => {
+		watch(() => this.$store("users").userCard, () => {
 			this.myFollowings = sUsers.myFollowings;
-			this.username = StoreProxy.users.userCard;
+			this.username = this.$store("users").userCard;
 			if(this.username == null) return;
 			this.username = this.username.replace(/^@/g, "");
 			this.loadUserInfo();
@@ -117,12 +116,12 @@ export default class UserCard extends Vue {
 	}
 
 	public beforeUnmount():void {
-		StoreProxy.users.openUserCard(null);
+		this.$store("users").openUserCard(null);
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
 	public close():void {
-		StoreProxy.users.openUserCard(null);
+		this.$store("users").openUserCard(null);
 	}
 
 	public async loadUserInfo():Promise<void> {

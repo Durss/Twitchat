@@ -35,7 +35,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
@@ -58,7 +57,7 @@ export default class PredictionState extends Vue {
 	private disposed = false;
 
 	public get prediction():TwitchDataTypes.Prediction {
-		return StoreProxy.prediction.data;
+		return this.$store("prediction").data;
 	}
 
 	public get classes():string[] {
@@ -114,7 +113,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				StoreProxy.main.alert = "An error occurred while chosing prediction's outcome";
+				this.$store("main").alert = "An error occurred while chosing prediction's outcome";
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -130,7 +129,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				StoreProxy.main.alert = "An error occurred while deleting the prediction";
+				this.$store("main").alert = "An error occurred while deleting the prediction";
 			}
 			this.loading = false;
 		}).catch(()=> {

@@ -52,7 +52,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -82,7 +81,7 @@ export default class TTUserList extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get splitView():boolean { return StoreProxy.params.appearance.splitView.value as boolean && StoreProxy.main.canSplitView; }
+	public get splitView():boolean { return this.$store("params").appearance.splitView.value as boolean && this.$store("main").canSplitView; }
 	public get classes():string[] {
 		const res = ["ttuserlist"];
 		if(this.splitView) res.push("splitView");
@@ -95,7 +94,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public beforeMount():void {
-		this.token = StoreProxy.main.tempStoreValue as string;
+		this.token = this.$store("main").tempStoreValue as string;
 	}
 
 	public mounted():void {
@@ -169,11 +168,11 @@ export default class TTUserList extends Vue {
 				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
-				StoreProxy.main.alert = json.message;
+				this.$store("main").alert = json.message;
 				this.$emit("close");
 			}
 		}catch(err:unknown) {
-			StoreProxy.main.alert = "An error occured while loading users<br>";
+			this.$store("main").alert = "An error occured while loading users<br>";
 		}
 		this.loading = false;
 	}

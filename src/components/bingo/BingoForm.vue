@@ -59,7 +59,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -152,7 +151,7 @@ export default class BingoForm extends Vue {
 	 * Start a bingo
 	 */
 	public onSubmit():void {
-		StoreProxy.bingo.startBingo(this.finalData);
+		this.$store("bingo").startBingo(this.finalData);
 		this.close();
 	}
 

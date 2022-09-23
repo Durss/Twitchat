@@ -12,7 +12,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoiceAction from '@/utils/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
@@ -41,7 +40,7 @@ export default class VoiceGlobalCommands extends Vue {
 	public openLocal:boolean = false;
 
 	public mounted():void {
-		// const actions = StoreProxy.voice.voiceActions;
+		// const actions = this.$store("voice").voiceActions;
 		const actions = Object.keys(VoiceAction);
 		this.openLocal = this.open;
 		type VAKeys = keyof typeof VoiceAction;
@@ -54,7 +53,7 @@ export default class VoiceGlobalCommands extends Vue {
 
 			const id:string = VoiceAction[a as VAKeys] as string;
 			let text = "";
-			const action = (StoreProxy.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
+			const action = (this.$store("voice").voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action?.sentences) text = action.sentences;
 
 			this.items.push({

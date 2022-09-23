@@ -28,7 +28,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -57,7 +56,7 @@ export default class TrackedUsers extends Vue {
 	public untrackUser(user:TrackedUser):void {
 		this.$confirm("Untrack user?", "The history of this user will be lost.")
 		.then(()=> {
-			StoreProxy.users.untrackUser(user.user);
+			this.$store("users").untrackUser(user.user);
 			this.selectedUser = null;
 		}).catch(()=> {});
 	}

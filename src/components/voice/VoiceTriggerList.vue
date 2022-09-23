@@ -70,12 +70,10 @@ import TwitchatEvent from '@/utils/TwitchatEvent';
 import VoiceAction from '@/utils/VoiceAction';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import draggable from 'vuedraggable';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
-import draggable from 'vuedraggable';
-import { storeVoice } from '@/store/voice/storeVoice';
-import StoreProxy from '@/store/StoreProxy';
 
 @Options({
 	props:{
@@ -100,7 +98,7 @@ export default class VoiceTriggerList extends Vue {
 
 	public mounted():void {
 		type VAKeys = keyof typeof VoiceAction;
-		this.actions = JSON.parse(JSON.stringify(StoreProxy.voice.voiceActions));
+		this.actions = JSON.parse(JSON.stringify(this.$store("voice").voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
@@ -240,7 +238,7 @@ export default class VoiceTriggerList extends Vue {
 		let list:VoiceAction[] = [];
 		list = list.concat(this.actions);
 		list = list.concat(this.globalCommands);
-		StoreProxy.voice.setVoiceActions(list);
+		this.$store("voice").setVoiceActions(list);
 	}
 
 }

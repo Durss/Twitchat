@@ -161,7 +161,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
@@ -247,21 +246,21 @@ export default class ChatAd extends Vue {
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
-		StoreProxy.main.tempStoreValue = "CONTENT:"+page;
-		StoreProxy.main.setShowParams(true);
+		this.$store("main").tempStoreValue = "CONTENT:"+page;
+		this.$store("main").setShowParams(true);
 	}
 
 	public openSpecificParam(id:string):void {
-		StoreProxy.main.tempStoreValue = "SEARCH:"+id;
-		StoreProxy.main.setShowParams(true);
+		this.$store("main").tempStoreValue = "SEARCH:"+id;
+		this.$store("main").setShowParams(true);
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			if(DataStore.get(DataStore.UPDATE_INDEX) != (StoreProxy.main.latestUpdateIndex as number).toString()) {
-				DataStore.set(DataStore.UPDATE_INDEX, StoreProxy.main.latestUpdateIndex);
+			if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
+				DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
 			}
 		}
 		if(this.isAdWarning) {
@@ -270,7 +269,7 @@ export default class ChatAd extends Vue {
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
-		StoreProxy.chat.delChatMessage(this.messageData.tags.id);
+		this.$store("chat").delChatMessage(this.messageData.tags.id);
 		this.$emit("delete");
 	}
 
@@ -283,7 +282,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public openViewerCard():void {
-		StoreProxy.users.openUserCard(UserSession.instance.user!.login);
+		this.$store("users").openUserCard(UserSession.instance.user!.login);
 	}
 
 	public async simulateEvent(code:string):Promise<void> {

@@ -18,7 +18,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
@@ -45,13 +44,13 @@ export default class OBSFilters extends Vue {
 
 	public onSceneCommandUpdate():void {
 		const params = this.sceneParams.map(v=> {return { scene:v.storage as {sceneIndex:number, sceneName:string}, command:v.value as string }});
-		StoreProxy.obs.setOBSSceneCommands(params);
+		this.$store("obs").setOBSSceneCommands(params);
 	}
 
 	private async listScenes():Promise<void> {
 		this.sceneParams = []
 		const res = await OBSWebsocket.instance.getScenes();
-		const storedScenes = StoreProxy.obs.sceneCommands;
+		const storedScenes = this.$store("obs").sceneCommands;
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};
 			const storedScene = storedScenes.find((s:{scene:{sceneName:string}}) => s.scene.sceneName === scene.sceneName);

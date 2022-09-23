@@ -167,7 +167,6 @@ const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSu
 	// tts
 	// users
 	// voice
-	console.log("GET STORE", id);
 	switch(id) {
 		case "main": return StoreProxy.main;
 		case "account": return StoreProxy.account;
@@ -218,6 +217,7 @@ const app = createApp(App)
 	}
 });
 app.config.globalProperties.$image = image;
+app.config.globalProperties.$store = storeAccess;
 app.config.globalProperties.$confirm = confirm;
 app.config.globalProperties.$overlayURL = overlayURL;
 app.config.globalProperties.$placeDropdown = placeDropdown;

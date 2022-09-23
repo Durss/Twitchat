@@ -35,7 +35,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -77,15 +76,15 @@ export default class ChannelNotifications extends Vue {
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get showRaid():boolean { return StoreProxy.stream.raiding != null; }
-	public get showHypeTrain():boolean { return StoreProxy.stream.hypeTrain != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && StoreProxy.poll.data?.id != null; }
-	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && StoreProxy.chatSuggestion.data != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && StoreProxy.prediction.data?.id != null; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && StoreProxy.raffle.data != null && StoreProxy.raffle.data.mode == "chat"; }
-	public get showBingo():boolean { return this.currentContent == 'bingo' && StoreProxy.bingo.data != null; }
+	public get showRaid():boolean { return this.$store("stream").raiding != null; }
+	public get showHypeTrain():boolean { return this.$store("stream").hypeTrain != undefined; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store("poll").data?.id != null; }
+	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && this.$store("chatSuggestion").data != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store("prediction").data?.id != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store("raffle").data != null && this.$store("raffle").data!.mode == "chat"; }
+	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store("bingo").data != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
-	public get showDeezer():boolean { return this.currentContent == 'deezer' && StoreProxy.music.deezerConnected; }
+	public get showDeezer():boolean { return this.currentContent == 'deezer' && this.$store("music").deezerConnected; }
 	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
 
 	public get showClose():boolean {
@@ -101,7 +100,7 @@ export default class ChannelNotifications extends Vue {
 	}
 
 	public get whispersAvailable():boolean {
-		const whispers = StoreProxy.chat.whispers;
+		const whispers = this.$store("chat").whispers;
 		for (const key in whispers) {
 			if (whispers[key].length > 0) return true;
 		}

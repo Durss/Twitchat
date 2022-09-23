@@ -152,7 +152,6 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import IRCClient from '@/utils/IRCClient';
@@ -236,17 +235,17 @@ export default class Chat extends Vue {
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
-	public get splitView():boolean { return StoreProxy.params.appearance.splitView.value as boolean && StoreProxy.main.canSplitView && !this.hideChat; }
-	public get splitViewVertical():boolean { return StoreProxy.params.appearance.splitViewVertical.value as boolean && StoreProxy.main.canSplitView && !this.hideChat; }
-	public get hideChat():boolean { return StoreProxy.params.appearance.hideChat.value as boolean; }
+	public get splitView():boolean { return this.$store("params").appearance.splitView.value as boolean && this.$store("main").canSplitView && !this.hideChat; }
+	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean && this.$store("main").canSplitView && !this.hideChat; }
+	public get hideChat():boolean { return this.$store("params").appearance.hideChat.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
-	public get showEmergencyFollows():boolean { return StoreProxy.emergency.follows.length > 0 && !StoreProxy.emergency.emergencyStarted; }
+	public get showEmergencyFollows():boolean { return this.$store("emergency").follows.length > 0 && !this.$store("emergency").emergencyStarted; }
 
 	public get classes():string[] {
 		const res = ["chat"];
 		if(this.splitView) {
 			res.push("splitView");
-			if(StoreProxy.params.appearance.splitViewSwitch.value === true) {
+			if(this.$store("params").appearance.splitViewSwitch.value === true) {
 				res.push("switchCols");
 			}
 			if(this.splitViewVertical) res.push("splitVertical")
@@ -258,7 +257,7 @@ export default class Chat extends Vue {
 		if(!this.splitView) return {};
 		
 		let size = this.leftColSize;
-		if(StoreProxy.params.appearance.splitViewSwitch.value === true) {
+		if(this.$store("params").appearance.splitViewSwitch.value === true) {
 			size = 1-size;
 		}
 		if(this.splitViewVertical) {
@@ -282,7 +281,7 @@ export default class Chat extends Vue {
 		if(!this.splitView) return {};
 		
 		let size = this.leftColSize;
-		const switchCols = StoreProxy.params.appearance.splitViewSwitch.value === true;
+		const switchCols = this.$store("params").appearance.splitViewSwitch.value === true;
 		if(!switchCols) {
 			size = 1-size;
 		}
@@ -308,7 +307,7 @@ export default class Chat extends Vue {
 
 	public get ttsStyles():{[key:string]:string} {
 		let res:{[key:string]:string} = {};
-		if(this.splitView && this.splitViewVertical && StoreProxy.params.appearance.splitViewSwitch.value === true) {
+		if(this.splitView && this.splitViewVertical && this.$store("params").appearance.splitViewSwitch.value === true) {
 			res.top = this.splitterPosY+"px";
 		}else if(!this.splitViewVertical){
 			res = this.rightStyles;
@@ -376,28 +375,28 @@ export default class Chat extends Vue {
 		this.renderFrame();
 
 		//Auto opens the prediction status if pending for completion
-		watch(() => StoreProxy.prediction.data, (newValue, prevValue) => {
-			let prediction = StoreProxy.prediction.data;
+		watch(() => this.$store("prediction").data, (newValue, prevValue) => {
+			let prediction = this.$store("prediction").data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.status == "LOCKED" || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
-		watch(() => StoreProxy.poll.data, (newValue, prevValue) => {
-			let poll = StoreProxy.poll.data;
+		watch(() => this.$store("poll").data, (newValue, prevValue) => {
+			let poll = this.$store("poll").data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && poll.status == "COMPLETED" || isNew) this.setCurrentNotification("poll");
 		});
 
 		//Auto opens the bingo status when created
-		watch(() => StoreProxy.bingo.data, () => {
-			let bingo = StoreProxy.bingo.data;
+		watch(() => this.$store("bingo").data, () => {
+			let bingo = this.$store("bingo").data;
 			if(bingo) this.setCurrentNotification("bingo");
 		});
 
 		//Auto opens the raffle status when created
-		watch(() => StoreProxy.raffle.data, () => {
-			let raffle = StoreProxy.raffle.data;
+		watch(() => this.$store("raffle").data, () => {
+			let raffle = this.$store("raffle").data;
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
 		});
 
@@ -406,11 +405,11 @@ export default class Chat extends Vue {
 		})
 
 		//Handle chat alert feature
-		watch(() => StoreProxy.main.chatAlert, async () => {
-			if(StoreProxy.main.chatAlert != null) {
-				if(StoreProxy.params.features.alertMode.value !== true) return;
+		watch(() => this.$store("main").chatAlert, async () => {
+			if(this.$store("main").chatAlert != null) {
+				if(this.$store("params").features.alertMode.value !== true) return;
 				
-				const params = StoreProxy.main.chatAlertParams;
+				const params = this.$store("main").chatAlertParams;
 				gsap.killTweensOf(this.$el);
 				if(params.shake) {
 					gsap.fromTo(this.$el, {x:-10}, {duration:0.01, x:10, clearProps:"x", repeat:60});
@@ -487,18 +486,18 @@ export default class Chat extends Vue {
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
 			case TwitchatEvent.ACTIVITY_FEED_TOGGLE: this.showFeed = !this.showFeed; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
-				StoreProxy.params.appearance.showViewersCount.value = !StoreProxy.params.appearance.showViewersCount.value;
-				StoreProxy.params.updateParams()
+				this.$store("params").appearance.showViewersCount.value = !this.$store("params").appearance.showViewersCount.value;
+				this.$store("params").updateParams()
 				break;
 
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
-				StoreProxy.params.features.showModTools.value = !StoreProxy.params.features.showModTools.value;
-				StoreProxy.params.updateParams()
+				this.$store("params").features.showModTools.value = !this.$store("params").features.showModTools.value;
+				this.$store("params").updateParams()
 				break;
 
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
-				StoreProxy.params.filters.censorDeletedMessages.value = !StoreProxy.params.filters.censorDeletedMessages.value;
-				StoreProxy.params.updateParams()
+				this.$store("params").filters.censorDeletedMessages.value = !this.$store("params").filters.censorDeletedMessages.value;
+				this.$store("params").updateParams()
 				break;
 
 			case TwitchatEvent.CREATE_POLL:
@@ -507,11 +506,11 @@ export default class Chat extends Vue {
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.STOP_POLL:{
-				const poll = StoreProxy.poll.data;
+				const poll = this.$store("poll").data;
 				try {
 					await TwitchUtils.endPoll(poll.id);
 				}catch(error) {
-					StoreProxy.main.alert = "An error occurred while deleting the poll";
+					this.$store("main").alert = "An error occurred while deleting the poll";
 				}
 				break;
 			}
@@ -522,11 +521,11 @@ export default class Chat extends Vue {
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.STOP_PREDICTION:{
-				const prediction = StoreProxy.prediction.data;
+				const prediction = this.$store("prediction").data;
 				try {
 					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					StoreProxy.main.alert = "An error occurred while deleting the prediction";
+					this.$store("main").alert = "An error occurred while deleting the prediction";
 				}
 				break;
 			}
@@ -539,7 +538,7 @@ export default class Chat extends Vue {
 			case TwitchatEvent.STOP_RAFFLE:{
 				this.$confirm("Close raffle", "All raffle entries will be lost", undefined, undefined, undefined, true)
 				.then(async ()=> {
-					StoreProxy.raffle.stopRaffle();
+					this.$store("raffle").stopRaffle();
 				}).catch(()=> {
 					//ignore
 				});
@@ -548,11 +547,11 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.START_EMERGENCY:
 				this.$confirm("Enable emergency mode ?", undefined, undefined, undefined, undefined, true).then(()=>{
-					StoreProxy.emergency.setEmergencyMode(true);
+					this.$store("emergency").setEmergencyMode(true);
 				}).catch(()=>{});
 				break;
 				case TwitchatEvent.STOP_EMERGENCY:{
-				StoreProxy.emergency.setEmergencyMode(false);
+				this.$store("emergency").setEmergencyMode(false);
 				break;
 			}
 		}
@@ -588,21 +587,21 @@ export default class Chat extends Vue {
 						this.canStartAd = true;
 						this.startAdCooldown = 0;
 					}, this.startAdCooldown);
-					StoreProxy.stream.setCommercialEnd( Date.now() + res.length * 1000 );
+					this.$store("stream").setCommercialEnd( Date.now() + res.length * 1000 );
 				}
 			}catch(error) {
 				const e = (error as unknown) as {error:string, message:string, status:number}
 				console.log(error);
 				IRCClient.instance.sendNotice("commercial", e.message);
-				// StoreProxy.store.state.alert = "An unknown error occured when starting commercial"
+				// this.$store("store").state.alert = "An unknown error occured when starting commercial"
 			}
 		}).catch(()=>{/*ignore*/});
 	}
 
 	public onResize():void {
 		const value = document.body.clientWidth > 449;
-		if(value != StoreProxy.main.canSplitView) {
-			StoreProxy.main.setCanSplitView(value);
+		if(value != this.$store("main").canSplitView) {
+			this.$store("main").setCanSplitView(value);
 		}
 	}
 

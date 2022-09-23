@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/SpotifyHelper';
@@ -86,7 +85,7 @@ export default class OverlayParamsSpotify extends Vue {
 
 	public authenticate():void {
 		this.loading = true;
-		StoreProxy.music.setSpotifyCredentials({
+		this.$store("music").setSpotifyCredentials({
 			client: (this.paramClient.value as string).trim(),
 			secret: (this.paramSecret.value as string).trim(),
 		});
@@ -104,17 +103,18 @@ export default class OverlayParamsSpotify extends Vue {
 			this.paramSecret.value = p.secret;
 		}
 
-		if(StoreProxy.music.spotifyAuthParams) {
+		const spotifyAuthParams = this.$store("music").spotifyAuthParams
+		if(spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
 
-			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+StoreProxy.music.spotifyAuthParams.csrf, {method:"POST"});
+			const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+spotifyAuthParams.csrf, {method:"POST"});
 			const csrf = await csrfRes.json();
 			if(!csrf.success) {
-				StoreProxy.main.alert = csrf.message;
+				this.$store("main").alert = csrf.message;
 			}else{
 				try {
-					await SpotifyHelper.instance.authenticate(StoreProxy.music.spotifyAuthParams.code);
+					await SpotifyHelper.instance.authenticate(spotifyAuthParams.code);
 				}catch(e:unknown) {
 					this.error = (e as {error:string, error_description:string}).error_description;
 				}
@@ -122,12 +122,12 @@ export default class OverlayParamsSpotify extends Vue {
 
 			this.authenticating = false;
 			this.loading = false;
-			StoreProxy.music.setSpotifyAuthResult(null);
+			this.$store("music").setSpotifyAuthResult(null);
 		}
 	}
 
 	public disconnect():void {
-		StoreProxy.music.setSpotifyToken(null);
+		this.$store("music").setSpotifyToken(null);
 	}
 
 }

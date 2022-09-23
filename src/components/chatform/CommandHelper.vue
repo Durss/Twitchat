@@ -36,7 +36,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import UserSession from '@/utils/UserSession';
@@ -77,13 +76,13 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():TwitchatDataTypes.IRoomStatusCategory { return StoreProxy.stream.roomStatusParams; }
+	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.$store("stream").roomStatusParams; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
 
 	public get canCreatePrediction():boolean {
-		return StoreProxy.prediction.data?.id == undefined && this.hasChannelPoints === true;
+		return this.$store("prediction").data?.id == undefined && this.hasChannelPoints === true;
 	}
 
 	public get hasChannelPoints():boolean {
@@ -92,7 +91,7 @@ export default class CommandHelper extends Vue {
 
 	public get canCreatePoll():boolean {
 		if(!this.hasChannelPoints) return false;
-		const poll = StoreProxy.poll.data;
+		const poll = this.$store("poll").data;
 		return poll == undefined || poll.status != "ACTIVE";
 	}
 

@@ -18,7 +18,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
-import StoreProxy from '@/store/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -53,7 +52,7 @@ export default class Confirm extends Vue {
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("keydown", this.keyDownHandler);
-		watch(() => StoreProxy.main.confirm, async () => {
+		watch(() => this.$store("main").confirm, async () => {
 			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
 		});
@@ -65,7 +64,7 @@ export default class Confirm extends Vue {
 	}
 
 	public onConfirmChanged():void {
-		let hidden = !StoreProxy.main.confirm || !StoreProxy.main.confirm.title;
+		let hidden = !this.$store("main").confirm || !this.$store("main").confirm.title;
 		
 		if(this.hidden == hidden) return;//No change, ignore
 		let holder = this.$refs.holder as HTMLElement;
@@ -73,11 +72,11 @@ export default class Confirm extends Vue {
 
 		if(!hidden) {
 			this.hidden = hidden;
-			this.title = StoreProxy.main.confirm.title;
-			this.description = StoreProxy.main.confirm.description ?? "";
-			this.yesLabel = StoreProxy.main.confirm.yesLabel ?? "Yes";
-			this.noLabel = StoreProxy.main.confirm.noLabel ?? "No";
-			this.voiceControl = StoreProxy.main.confirm.STTOrigin === true;
+			this.title = this.$store("main").confirm.title;
+			this.description = this.$store("main").confirm.description ?? "";
+			this.yesLabel = this.$store("main").confirm.yesLabel ?? "Yes";
+			this.noLabel = this.$store("main").confirm.noLabel ?? "No";
+			this.voiceControl = this.$store("main").confirm.STTOrigin === true;
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
@@ -135,15 +134,15 @@ export default class Confirm extends Vue {
 	}
 
 	public answer(confirm = false):void {
-		if(!StoreProxy.main.confirm.title) return;
+		if(!this.$store("main").confirm.title) return;
 		
 		if(confirm) {
-			if(StoreProxy.main.confirm.confirmCallback) {
-				StoreProxy.main.confirm.confirmCallback();
+			if(this.$store("main").confirm.confirmCallback) {
+				this.$store("main").confirm.confirmCallback!();
 			}
 		}else{
-			if(StoreProxy.main.confirm.cancelCallback) {
-				StoreProxy.main.confirm.cancelCallback();
+			if(this.$store("main").confirm.cancelCallback) {
+				this.$store("main").confirm.cancelCallback!();
 			}
 		}
 		const confirmData = {
@@ -154,7 +153,7 @@ export default class Confirm extends Vue {
 			confirmCallback : () => { /*ignore*/ },
 			cancelCallback : () =>  { /*ignore*/ }
 		}
-		StoreProxy.main.confirm(confirmData);
+		this.$store("main").confirm(confirmData);
 	}
 }
 </script>

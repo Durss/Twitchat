@@ -31,7 +31,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/DeezerHelper';
 import { Options, Vue } from 'vue-class-component';
@@ -56,7 +55,7 @@ export default class OverlayParamsDeezer extends Vue {
 	public authenticating = false;
 	public currentTrack:TwitchatDataTypes.MusicMessage = {type:"music",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
-	public get deezerConnected():boolean { return StoreProxy.music.deezerConnected; }
+	public get deezerConnected():boolean { return this.$store("music").deezerConnected; }
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
 
 	public mounted():void {
@@ -74,7 +73,7 @@ export default class OverlayParamsDeezer extends Vue {
 	}
 
 	public disconnect():void {
-		StoreProxy.music.setDeezerConnected(false);
+		this.$store("music").setDeezerConnected(false);
 	}
 
 }

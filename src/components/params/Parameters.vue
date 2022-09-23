@@ -97,7 +97,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
@@ -159,7 +158,6 @@ export default class Parameters extends Vue {
 	public showAdInfo:boolean = false;
 
 	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
-	
 
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.APPEARANCE; } 
@@ -194,7 +192,7 @@ export default class Parameters extends Vue {
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public async beforeMount():Promise<void> {
-		const v = StoreProxy.main.tempStoreValue as string;
+		const v = this.$store("main").tempStoreValue as string;
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
@@ -208,10 +206,10 @@ export default class Parameters extends Vue {
 			if(chunks.length == 2) {
 				const cat = chunks[0] as TwitchatDataTypes.ParameterCategory;
 				const paramKey = chunks[1];
-				this.search = StoreProxy.params.$state[cat][paramKey].label;
+				this.search = this.$store("params").$state[cat][paramKey].label;
 			}
 		}
-		StoreProxy.main.tempStoreValue = null;
+		this.$store("main").tempStoreValue = null;
 	}
 
 	public async mounted():Promise<void> {
@@ -243,7 +241,7 @@ export default class Parameters extends Vue {
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 			this.showMenu = false;
 			this.filteredParams = [];
-			StoreProxy.main.setShowParams(false);
+			this.$store("main").setShowParams(false);
 		}});
 	}
 
@@ -272,8 +270,8 @@ export default class Parameters extends Vue {
 		this.filteredParams = [];
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
-		for (const categoryID in StoreProxy.params.$state) {
-			const category = StoreProxy.params.$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData};
+		for (const categoryID in this.$store("params").$state) {
+			const category = this.$store("params").$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData};
 			for (const prop in category) {
 				const data:TwitchatDataTypes.ParameterData = category[prop];
 				

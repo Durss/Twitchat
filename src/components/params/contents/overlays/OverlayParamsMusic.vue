@@ -31,7 +31,6 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -61,7 +60,7 @@ export default class OverlayParamsMusic extends Vue {
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
 	public mounted():void {
-		const params = StoreProxy.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		const params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		this.param_autoHide.children = [this.param_autoHideErase];
 		this.param_autoHideErase.value = params.erase;
 		this.param_customTemplateToggle.children = [this.param_customTemplate];
@@ -72,7 +71,7 @@ export default class OverlayParamsMusic extends Vue {
 			this.saveData();
 		})
 
-		watch(() => StoreProxy.music.musicPlayerParams, () => {
+		watch(() => this.$store("music").musicPlayerParams, () => {
 			this.saveData();
 		},  {deep:true});
 
@@ -88,10 +87,10 @@ export default class OverlayParamsMusic extends Vue {
 	private saveData():void {
 		let template = this.param_customTemplate.value as string;
 		if(!this.param_customTemplateToggle.value) template = "";
-		StoreProxy.music.musicPlayerParams.customInfoTemplate = template;
-		StoreProxy.music.musicPlayerParams.erase = this.param_autoHideErase.value as boolean;
+		this.$store("music").musicPlayerParams.customInfoTemplate = template;
+		this.$store("music").musicPlayerParams.erase = this.param_autoHideErase.value as boolean;
 
-		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, StoreProxy.music.musicPlayerParams);
+		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.$store("music").musicPlayerParams);
 	}
 
 }

@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -42,8 +41,8 @@ export default class TimerCountDownInfo extends Vue {
 			this.computeValues();
 		}, 1000);
 		this.computeValues();
-		watch(() => StoreProxy.timer.timerStart, () => this.computeValues() );
-		watch(() => StoreProxy.timer.countdown, () => this.computeValues() );
+		watch(() => this.$store("timer").timerStart, () => this.computeValues() );
+		watch(() => this.$store("timer").countdown, () => this.computeValues() );
 	}
 
 	public beforeUnmount():void {
@@ -51,19 +50,20 @@ export default class TimerCountDownInfo extends Vue {
 	}
 
 	public computeValues():void {
-		if(StoreProxy.timer.countdown) {
-			const ellapsed = Date.now() - StoreProxy.timer.countdown.startAt;
-			const remaining = Math.ceil((StoreProxy.timer.countdown.duration - ellapsed)/1000)*1000;
+		const countdown = this.$store("timer").countdown;
+		if(countdown) {
+			const ellapsed = Date.now() - countdown.startAt;
+			const remaining = Math.ceil((countdown.duration - ellapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
-		if(StoreProxy.timer.timerStart) {
-			let ellapsed = Math.floor((Date.now() - StoreProxy.timer.timerStart as number)/1000)*1000;
+		if(this.$store("timer").timerStart) {
+			let ellapsed = Math.floor((Date.now() - this.$store("timer").timerStart as number)/1000)*1000;
 			this.timer = Utils.formatDuration(ellapsed);
 		}
 	}
 
-	public stopTimer():void { StoreProxy.timer.stopTimer() }
-	public stopCountdown():void { StoreProxy.timer.stopCountdown() }
+	public stopTimer():void { this.$store("timer").stopTimer() }
+	public stopCountdown():void { this.$store("timer").stopCountdown() }
 
 }
 </script>

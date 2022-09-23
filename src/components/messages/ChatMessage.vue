@@ -108,11 +108,6 @@
 </template>
 
 <script lang="ts">
-import { storeChat } from '@/store/chat/storeChat';
-import { storeParams } from '@/store/params/storeParams';
-import { storeMain } from '@/store/storeMain';
-import StoreProxy from '@/store/StoreProxy';
-import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
@@ -164,7 +159,7 @@ export default class ChatMessage extends Vue {
 	public infoBadges:TwitchatDataTypes.ChatMessageInfoData[] = [];
 
 	public get pronoun():string|null {
-		const key = StoreProxy.users.pronouns[this.messageData.tags['user-id'] as string];
+		const key = this.$store("users").pronouns[this.messageData.tags['user-id'] as string];
 		if(!key || typeof key != "string") return null;
 		const hashmap:{[key:string]:string} = {
 			// https://pronouns.alejo.io
@@ -205,10 +200,10 @@ export default class ChatMessage extends Vue {
 	}
 
 	/**
-	 * Get users' pronouns
-	 */
+	* Get users' pronouns
+	*/
 	public get pronounLabel(): string | null {
-		const key = StoreProxy.users.pronouns[this.messageData.tags['user-id'] as string];
+		const key = this.$store("users").pronouns[this.messageData.tags['user-id'] as string];
 		if(!key || typeof key != "string") return null;
 
 		const hashmap: {[key: string]: string} = {
@@ -238,20 +233,20 @@ export default class ChatMessage extends Vue {
 	}
 	
 	public get showNofollow():boolean{
-		if(StoreProxy.params.appearance.highlightNonFollowers.value === true) {
+		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
 			const uid = this.messageData.tags['user-id'] as string;
-			if(uid && StoreProxy.users.followingStates[uid] === false) return true;
+			if(uid && this.$store("users").followingStates[uid] === false) return true;
 		}
 		return false
 	}
 
 	/**
-	 * Get replacement text if message has been deleted
-	 */
+	* Get replacement text if message has been deleted
+	*/
 	public get deletedMessage():string {
 		if(this.messageData.type != "message") return "";
 
-		const censor = (StoreProxy.params.filters.censorDeletedMessages.value===true)
+		const censor = (this.$store("params").filters.censorDeletedMessages.value===true)
 		if(this.messageData.deletedData) {
 			return censor ? "<deleted by "+this.messageData.deletedData.created_by+">" : "";
 		}else if(this.messageData.deleted){
@@ -272,7 +267,7 @@ export default class ChatMessage extends Vue {
 		}else{
 			if(message.deleted) {
 				res.push("deleted");
-				if(StoreProxy.params.filters.censorDeletedMessages.value===true) res.push("censor");
+				if(this.$store("params").filters.censorDeletedMessages.value===true) res.push("censor");
 			}
 			if(message.lowTrust) res.push("lowTrust");
 			if(message.cyphered) res.push("cyphered");
@@ -280,14 +275,14 @@ export default class ChatMessage extends Vue {
 		if(this.showNofollow) res.push("noFollow");
 		if(message.tags['message-type'] == "action") res.push("slashMe");
 		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
-		if((StoreProxy.users.trackedUsers as TrackedUser[]).findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1
+		if((this.$store("users").trackedUsers as TrackedUser[]).findIndex(v=>v.user['user-id'] == message.tags["user-id"]) != -1
 		&& !this.lightMode) res.push("tracked");
 		if(this.isAnnouncement) {
 			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
 			res.push("announcement", color);
 		}
 		
-		if(StoreProxy.params.features.spoilersEnabled.value === true) {
+		if(this.$store("params").features.spoilersEnabled.value === true) {
 			let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
 			if(text.indexOf("||") == 0) res.push("spoiler");
 		}
@@ -296,9 +291,9 @@ export default class ChatMessage extends Vue {
 			if(message.type == "message" && message.hasMention) res.push("mention");
 			
 			//Set highlight
-			if(message.tags.mod && StoreProxy.params.appearance.highlightMods.value) res.push("highlightMods");
-			else if(message.tags.badges?.vip && StoreProxy.params.appearance.highlightVips.value) res.push("highlightVips");
-			else if(message.tags.subscriber && StoreProxy.params.appearance.highlightSubs.value) res.push("highlightSubs");
+			if(message.tags.mod && this.$store("params").appearance.highlightMods.value) res.push("highlightMods");
+			else if(message.tags.badges?.vip && this.$store("params").appearance.highlightVips.value) res.push("highlightVips");
+			else if(message.tags.subscriber && this.$store("params").appearance.highlightSubs.value) res.push("highlightSubs");
 		}
 
 		return res;
@@ -306,9 +301,9 @@ export default class ChatMessage extends Vue {
 
 	public get showModTools():boolean {
 		if(this.lightMode) return false;
-		if(StoreProxy.params.features.showModTools.value === false) return false;
+		if(this.$store("params").features.showModTools.value === false) return false;
 		const message = this.messageData as IRCEventDataList.Message;
-		return (StoreProxy.users.mods as TwitchDataTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
+		return (this.$store("users").mods as TwitchDataTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
 			||
 		(
 			message.channel.replace(/^#/gi, "").toLowerCase() == UserSession.instance.authToken.login.toLowerCase()//TODO set actual channel id not the user id
@@ -335,7 +330,7 @@ export default class ChatMessage extends Vue {
 	 * mostly non-latin chars
 	 */
 	public get translateUsername():boolean {
-		if(StoreProxy.params.appearance.translateNames.value !== true) return false;
+		if(this.$store("params").appearance.translateNames.value !== true) return false;
 
 		const dname = (this.messageData.tags['display-name'] as string).toLowerCase();
 		const uname = (this.messageData.tags['username'] as string).toLowerCase();
@@ -371,8 +366,8 @@ export default class ChatMessage extends Vue {
 	 */
 	public get filteredBadges():TwitchDataTypes.Badge[] {
 		let res:TwitchDataTypes.Badge[] = [];
-		if(StoreProxy.params.appearance.showBadges.value
-		&& !StoreProxy.params.appearance.minimalistBadges.value) {
+		if(this.$store("params").appearance.showBadges.value
+		&& !this.$store("params").appearance.minimalistBadges.value) {
 			try {
 				const message = this.messageData as IRCEventDataList.Message;
 				const channelID:string = message.tags['room-id'] as string;
@@ -390,8 +385,8 @@ export default class ChatMessage extends Vue {
 	public get miniBadges():{label:string, class?:string}[] {
 		let badges:{label:string, class?:string}[] = [];
 		const message = this.messageData as IRCEventDataList.Message;
-		if(StoreProxy.params.appearance.showBadges.value
-		&& StoreProxy.params.appearance.minimalistBadges.value
+		if(this.$store("params").appearance.showBadges.value
+		&& this.$store("params").appearance.minimalistBadges.value
 		&& message.tags.badges) {
 			if(message.tags.badges.predictions) {
 				const label = message.tags["badge-info"]? message.tags["badge-info"].predictions as string : "Prediction";
@@ -416,7 +411,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public openUserCard(username?:string):void {
 		const message = this.messageData as IRCEventDataList.Message;
-		StoreProxy.users.openUserCard(username ?? message.tags.username as string);
+		this.$store("users").openUserCard(username ?? message.tags.username as string);
 	}
 
 	/**
@@ -424,7 +419,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public hoverNickName(event:MouseEvent):void {
 		if(this.messageData.type == "whisper") return;
-		if(StoreProxy.params.features.userHistoryEnabled.value) {
+		if(this.$store("params").features.userHistoryEnabled.value) {
 			this.$emit('showUserMessages', event, this.messageData);
 		}
 	}
@@ -551,11 +546,11 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData as IRCEventDataList.Message;
 		let success = await TwitchUtils.modMessage(accept, message.tags.id as string);
 		if(!success) {
-			StoreProxy.main.alert = "Woops... something went wrong :(...";
+			this.$store("main").alert = "Woops... something went wrong :(...";
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.
-			StoreProxy.chat.delChatMessage(message.tags.id as string);
+			this.$store("chat").delChatMessage(message.tags.id as string);
 		}
 	}
 
@@ -564,12 +559,12 @@ export default class ChatMessage extends Vue {
 	 */
 	public parseText(text:string):string {
 		let result:string;
-		const doHighlight = StoreProxy.params.appearance.highlightMentions.value;
+		const doHighlight = this.$store("params").appearance.highlightMentions.value;
 		const highlightLogin = UserSession.instance.authToken.login;
 		const mess = this.messageData;
 		if(!text) return "";
 		try {
-			let removeEmotes = !StoreProxy.params.appearance.showEmotes.value;
+			let removeEmotes = !this.$store("params").appearance.showEmotes.value;
 			if((mess as IRCEventDataList.Message).automod) {
 				result = text;
 				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
@@ -602,13 +597,13 @@ export default class ChatMessage extends Vue {
 						url = url.replace(/2x$/gi, "3x");//7TV format
 						url = url.replace(/1$/gi, "4");//FFZ format
 						
-						if(StoreProxy.params.appearance.defaultSize.value as number >= 6) {
+						if(this.$store("params").appearance.defaultSize.value as number >= 6) {
 							v.value = v.value.replace(/1.0$/gi, "3.0");
 							v.value = v.value.replace(/1x$/gi, "4x");//BTTV format
 							v.value = v.value.replace(/2x$/gi, "4x");//7TV format
 							v.value = v.value.replace(/1$/gi, "4");//FFZ format
 						}else
-						if(StoreProxy.params.appearance.defaultSize.value as number >= 3) {
+						if(this.$store("params").appearance.defaultSize.value as number >= 3) {
 							v.value = v.value.replace(/1.0$/gi, "2.0");
 							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
 							v.value = v.value.replace(/1$/gi, "2");//FFZ format
@@ -662,7 +657,7 @@ export default class ChatMessage extends Vue {
 		this.clipHighlightLoading = true;
 		const data = {
 			clip:this.clipInfo,
-			params:StoreProxy.chat.chatHighlightOverlayParams,
+			params:this.$store("chat").chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		await Utils.promisedTimeout(2000);

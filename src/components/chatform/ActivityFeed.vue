@@ -84,7 +84,6 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData } from '@/utils/IRCEventDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -141,7 +140,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():ActivityFeedData[] {
-		const list = this.customActivities.length > 0? this.customActivities : (StoreProxy.chat.activityFeed as ActivityFeedData[]);
+		const list = this.customActivities.length > 0? this.customActivities : (this.$store("chat").activityFeed as ActivityFeedData[]);
 
 		const result:ActivityFeedData[] = [];
 
