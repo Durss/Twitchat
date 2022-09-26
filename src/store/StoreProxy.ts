@@ -127,7 +127,7 @@ export interface IChatState {
 	searchMessages:string;
 	realHistorySize:number;
 	whispersUnreadCount:number;
-	messages:ChatMessageTypes[];
+	messages:TwitchatDataTypes.ChatMessageTypes[];
 	pinedMessages:IRCEventDataList.Message[];
 	activityFeed:ActivityFeedData[];
 	emoteSelectorCache:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
@@ -345,6 +345,8 @@ export interface IUsersState {
 }
 
 export interface IUsersActions {
+	getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser|undefined;
+	addUser(user:TwitchatDataTypes.TwitchatUser):void;
 	openUserCard(payload:string|null):void;
 	loadMyFollowings():Promise<void>;
 	setViewersList(users:string[]):void;

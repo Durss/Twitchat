@@ -581,46 +581,107 @@ export namespace TwitchatDataTypes {
 
 
 
+	//The following should be on TwitchatDataTypes.ts but as it's using a ref to
+	//ActivityFeedData from here, and this class is using a reference to TwitchatDataTypes,
+	//if these types were on TwitchatDataTypes.ts we would get a circular dependency issue.
+	//The only way to fix these circular import issues would be to have ALL types declared
+	//on one single file. But i'd rather not do that.
+	export const TwitchatMessageType = {
+		BAN:"ban",
+		RAID:"raid",
+		POLL:"poll",
+		JOIN:"join",
+		CHEER:"cheer",
+		LEAVE:"leave",
+		BINGO:"bingo",
+		RAFFLE:"raffle",
+		REWARD:"reward",
+		MESSAGE:"message",
+		TIMEOUT:"timeout",
+		WHISPER:"whisper",
+		FOLLOWING:"following",
+		COUNTDOWN:"countdown",
+		CLEAR_CHAT:"clear_chat",
+		DISCONNECT:"disconnect",
+		PREDICTION:"prediction",
+		SUBSCRIPTION:"subscription",
+		AUTOBAN_JOIN:"autoban_join",
+		HYPE_TRAIN_SUMMARY:"hype_train_summary",
+		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
+		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
+		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
+	} as const;
+
+	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
+	type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
+
 	//NEW DATA TYPES FOR FULL REFACTOR
 
-	interface AbstractTwitchatMessage {
+	export interface AbstractTwitchatMessage {
+		type:TwitchatMessageStringType;
 		id: string;
+		date: number;
 		channel_id: string;
 	}
 
+	export type ChatSource = "twitch"|"youtube"|"tiktok"|"facebook";
+
 	export interface TwitchatUser {
-		id:string;
+		source:ChatSource;
 		login:string;
-		is_following:boolean;
-		is_blocked:boolean;
-		is_banned:boolean;
+		displayName:string;
+		id?:string;
+		is_following?:boolean;
+		is_blocked?:boolean;
+		is_banned?:boolean;
 	}
 
-	export interface TwitchatMessageData extends AbstractTwitchatMessage {
-		source:"twitch"|"youtube"|"tiktok"|"facebook";
+	export type ChatMessageTypes = MessageChatData |
+									MessageWhisperData |
+									MessagePollData |
+									MessagePredictionData |
+									MessageFollowingData |
+									MessageSubscriptionData |
+									MessageCheerData |
+									MessageRewardRedeemData |
+									MessageCommunityChallengeContributionData |
+									MessageHypeTrainSummaryData |
+									MessageHypeTrainCooledDownData |
+									MessageCommunityBoostData |
+									MessageRaidData |
+									MessageJoinData |
+									MessageLeaveData |
+									messageBanData |
+									MessageTimeoutData |
+									MessageDisconnectData |
+									MessageClearChatData |
+									MessageRaffleData |
+									MessageBingoData |
+									MessageCountdownData |
+									MessageAutobanJoinData
+
+	export interface MessageChatData extends AbstractTwitchatMessage {
+		type:"message";
+		source:ChatSource;
 		user: TwitchatUser;
-		text:string;
-		htmlText:string;
+		message:string;
+		message_html:string;
 		todayFirst: boolean;
 		
 		ttAutomod?: AutomodParamsKeywordFilterData;
-		answerTo?: TwitchatMessageData;
-		answers?: TwitchatMessageData[];
+		answersTo?: MessageChatData;
+		answers?: MessageChatData[];
 		cyphered?: boolean;
 		markedAsRead?:boolean;
 		deleted?: boolean;
 		deletedData?: {
-			deleter:{
-				login:string;
-				id:string;
-			};
+			deleter:TwitchatUser;
 		};
 		occurrenceCount?: number;
 		highlightWord?: string;
 		hasMention?: boolean;
 		
 		twitch_automod?: PubSubDataTypes.AutomodData;
-		twitch_reward?: PubSubDataTypes.RewardData;
 		twitch_isFirstMessage?:boolean;
 		twitch_isReturning?:boolean;
 		twitch_isPresentation?:boolean;
@@ -629,7 +690,17 @@ export namespace TwitchatDataTypes {
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
 	}
 
-	export interface Poll extends AbstractTwitchatMessage {
+	export interface MessageWhisperData extends AbstractTwitchatMessage {
+		type:"whisper";
+		source:ChatSource;
+		from: TwitchatUser;
+		to: TwitchatUser;
+		message:string;
+		message_html:string;
+	}
+
+	export interface MessagePollData extends AbstractTwitchatMessage {
+		type:"poll";
 		title: string;
 		choices: {
 			id: string;
@@ -641,7 +712,8 @@ export namespace TwitchatDataTypes {
 		ended_at?: string;
 	}
 
-	export interface Prediction extends AbstractTwitchatMessage {
+	export interface MessagePredictionData extends AbstractTwitchatMessage {
+		type:"prediction";
 		title: string;
 		duration: number;
 		outcomes: {
@@ -656,12 +728,14 @@ export namespace TwitchatDataTypes {
 		winning_outcome_id?: string;
 	}
 
-	export interface Following extends AbstractTwitchatMessage {
+	export interface MessageFollowingData extends AbstractTwitchatMessage {
+		type:"following";
 		user:TwitchatUser;
 		followed_at: string;
 	}
 
-	export interface Subscriber extends AbstractTwitchatMessage {
+	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
+		type:"subscription";
 		user: TwitchatUser;//User subscribing or gifting the sub
 		tier: "1"|"2"|"3"|"prime";
 		is_gift: boolean;
@@ -669,31 +743,116 @@ export namespace TwitchatDataTypes {
 		is_resub: boolean;
 		gift_recipients?: TwitchatUser[];
 		months:number;//Number of months the user subscribed for
+		streakMonths:number;//Number of consecutive months the user has been subscribed for
 		totalSubDuration:number;//Number of months the user has been subscribed for
+		message?:string;
 	}
 
-	export interface Cheer extends AbstractTwitchatMessage {
+	export interface MessageCheerData extends AbstractTwitchatMessage {
+		type:"cheer";
 		bits: number;
 		user: TwitchatUser;
+		message: string;
 	}
 
-	export interface RewardRedeem extends AbstractTwitchatMessage {
+	export interface MessageRewardRedeemData extends AbstractTwitchatMessage {
+		type:"reward";
 		user: TwitchatUser;
 		reward: {
 			title:string;
 			cost:number;
 			description:string;
 		};
-		user_input:string;
+		message?:string;
 	}
 
-	export interface HypeTrainSummary extends AbstractTwitchatMessage {
+	export interface MessageCommunityChallengeContributionData extends AbstractTwitchatMessage {
+		type:"community_challenge_contribution";
+		user: TwitchatUser;
+		contribution: number;
+		stream_contribution?:number;//This user's stream contribution
+		total_contribution?:number;//this user's total contribution
+		challenge: {
+			title:string;
+			goal:number;
+			progress:number;
+			description?:string;
+			icon?:string;
+		}
+	}
+
+	export interface MessageHypeTrainSummaryData extends AbstractTwitchatMessage {
+		type:"hype_train_summary";
 		train: HypeTrainStateData;
-		activities: (Subscriber|Cheer)[];
+		activities: (MessageSubscriptionData|MessageCheerData)[];
 	}
 
-	export interface Raid extends AbstractTwitchatMessage {
+	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
+		type:"hype_train_cooled_down";
+	}
+
+	export interface MessageCommunityBoostData extends AbstractTwitchatMessage {
+		type:"community_boost_complete";
+		viewers:number;
+	}
+
+	export interface MessageRaidData extends AbstractTwitchatMessage {
+		type:"raid";
 		user:TwitchatUser;
 		viewers:number;
+	}
+
+	export interface MessageJoinData extends AbstractTwitchatMessage {
+		type:"join";
+		users:TwitchatUser[];
+	}
+
+	export interface MessageLeaveData extends AbstractTwitchatMessage {
+		type:"leave";
+		users:TwitchatUser[];
+	}
+
+	export interface messageBanData extends AbstractTwitchatMessage {
+		type:"ban";
+		user:TwitchatUser;
+		reason:string;
+	}
+
+	export interface MessageTimeoutData extends AbstractTwitchatMessage {
+		type:"timeout";
+		user:TwitchatUser;
+		reason:string;
+		duration_s:number;
+	}
+
+	export interface MessageDisconnectData extends AbstractTwitchatMessage {
+		type:"disconnect";
+		reason:string;
+	}
+
+	export interface MessageClearChatData extends AbstractTwitchatMessage {
+		type:"clear_chat";
+	}
+
+	export interface MessageRaffleData extends AbstractTwitchatMessage {
+		type:"raffle";
+		raffleData:RaffleData;
+	}
+
+	export interface MessageBingoData extends AbstractTwitchatMessage {
+		type:"bingo";
+		user:TwitchatUser;
+		bingoData:BingoConfig;
+	}
+
+	export interface MessageCountdownData extends AbstractTwitchatMessage {
+		type:"countdown";
+		data:CountdownData;
+	}
+
+	export interface MessageAutobanJoinData extends AbstractTwitchatMessage {
+		type:"autoban_join";
+		user:TwitchatUser;
+		rule:TwitchatDataTypes.AutomodParamsKeywordFilterData;
 	}
 }

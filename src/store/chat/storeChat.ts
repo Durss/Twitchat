@@ -20,7 +20,7 @@ export const storeChat = defineStore('chat', {
 		searchMessages: "",
 		realHistorySize: 5000,
 		whispersUnreadCount: 0 as number,
-		messages: [] as ChatMessageTypes[],
+		messages: [] as TwitchatDataTypes.ChatMessageTypes[],
 		pinedMessages: [] as IRCEventDataList.Message[],
 		activityFeed: [] as ActivityFeedData[],
 		emoteSelectorCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],

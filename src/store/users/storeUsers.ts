@@ -1,3 +1,4 @@
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -10,11 +11,12 @@ import { storeChat } from '../chat/storeChat';
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
+		users: [] as TwitchatDataTypes.TwitchatUser[],
 		userCard: null as string|null,
-		pronouns: {} as {[key:string]:string|boolean},
 		onlineUsers: [] as string[],
 		trackedUsers: [] as TrackedUser[],
 		mods:[] as TwitchDataTypes.ModeratorUser[],
+		pronouns: {} as {[key:string]:string|boolean},
 		followingStates: {} as {[key:string]:boolean},
 		followingStatesByNames: {} as {[key:string]:boolean},
 		myFollowings: {} as {[key:string]:boolean},
@@ -28,6 +30,31 @@ export const storeUsers = defineStore('users', {
 
 
 	actions: {
+		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser|undefined {
+			let user:TwitchatDataTypes.TwitchatUser|undefined;
+			//Don't use "users.find(...)", perfs are much lower than good old for loop
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.source != source) continue;
+				if(u.id === id) { user = u; break; }
+				if(u.login === login) { user = u; break; }
+			}
+			//Create user if enough given info
+			if(!user && id && login) {
+				if(!displayName) displayName = login;
+				user = { source, id, login, displayName };
+				this.users.push(user);
+			}
+			return user;
+		},
+
+		addUser(user:TwitchatDataTypes.TwitchatUser):void {
+			const exists = this.getUserFrom(user.source, user.id, user.login);
+			if(!exists) {
+				this.users.push(user);
+			}
+		},
+
 		openUserCard(payload:string|null) { this.userCard = payload; },
 
 		async loadMyFollowings():Promise<void> {

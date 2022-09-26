@@ -7,6 +7,11 @@ import type { JsonObject } from 'type-fest';
  * Created by Durss
  */
 export default class Utils {
+
+	public static getUUID():string {
+		let uuid = crypto.randomUUID();
+		return uuid;
+	}
 		
 	/**
 	 * Picks random entry
@@ -105,7 +110,6 @@ export default class Utils {
 		if(replaceBy.length === 0) {
 			res = res.replace(/href='(?!https?)(\/\/)?(.*?)'/gi, "href='https://$2'");
 		}
-		// res = res.replace(/(\.|,)$/gi, "");
 		return res;
 	}
 

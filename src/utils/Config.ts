@@ -58,7 +58,7 @@ export default class Config {
 	 * PubSub events from
 	 */
 	public get debugChans():string[] {
-		return ["dazjdm"];
+		// return ["dazjdm"];
 		return [];
 	}
 

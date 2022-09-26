@@ -252,34 +252,34 @@ export namespace IRCEventDataList {
 //The only way to fix these circular import issues would be to have ALL types declared
 //on one single file. But i'd rather not do that.
 export const TwitchatMessageType = {
-	BAN:"ban",
-	SUB:"sub",
-	BITS:"bits",
-	RAID:"raid",
-	POLL:"poll",
-	HOST:"host",
-	JOIN:"join",
-	LEAVE:"leave",
-	BINGO:"bingo",
-	RAFFLE:"raffle",
+	BAN:"ban",//==========
+	SUB:"sub",//==========
+	BITS:"bits",//==========
+	RAID:"raid",//==========
+	POLL:"poll",//==========
+	HOST:"host",//DEPRECATED
+	JOIN:"join",//==========
+	LEAVE:"leave",//==========
+	BINGO:"bingo",//==========
+	RAFFLE:"raffle",//==========
 	NOTICE:"notice",
-	REWARD:"reward",
-	FOLLOW:"follow",
-	MESSAGE:"message",
+	REWARD:"reward",//==========
+	FOLLOW:"follow",//==========
+	MESSAGE:"message",//==========
 	WHISPER:"whisper",
-	SUBGIFT:"subgift",
-	TIMEOUT:"timeout",
-	SUB_PRIME:"prime",
-	COUNTDOWN:"countdown",
+	SUBGIFT:"subgift",//==========
+	TIMEOUT:"timeout",//==========
+	SUB_PRIME:"prime",//==========
+	COUNTDOWN:"countdown",//==========
 	COMMERCIAL:"commercial",
 	ROOM_STATE:"roomState",
-	PREDICTION:"prediction",
-	AUTOBAN_JOIN:"autoban_join",
-	HYPE_TRAIN_END:"hype_train_end",
-	SUBGIFT_UPGRADE:"subgiftUpgrade",
-	CHALLENGE_CONTRIBUTION:"challengeContribution",
-	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",
-	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
+	PREDICTION:"prediction",//==========
+	AUTOBAN_JOIN:"autoban_join",//==========
+	HYPE_TRAIN_END:"hype_train_end",//==========
+	SUBGIFT_UPGRADE:"subgiftUpgrade",//==========
+	CHALLENGE_CONTRIBUTION:"challengeContribution",//==========
+	HYPE_TRAIN_COOLDOWN_EXPIRED:"hype_cooldown_expired",//==========
+	COMMUNITY_BOOST_COMPLETE:"community_boost_complete",//==========
 } as const;
 
 //Dynamically type TwitchatMessageStringType from TwitchatMessageType values
