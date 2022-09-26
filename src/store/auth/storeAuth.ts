@@ -6,9 +6,11 @@ import PubSub from "@/utils/PubSub";
 import TwitchUtils from "@/utils/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
-import { defineStore } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import DataStore from "@/store/DataStore";
-import StoreProxy from "../StoreProxy";
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
+import type { UnwrapRef } from "vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean}
 
@@ -17,12 +19,14 @@ export const storeAuth = defineStore('auth', {
 		refreshTokenTO: 0,
 		authenticated: false,
 		newScopeToRequest: [] as string[],
-	}),
+	} as IAuthState),
 	
 	
 	
 	getters: {
-	},
+	} as IAuthGetters
+	& ThisType<UnwrapRef<IAuthState> & _StoreWithGetters<IAuthGetters> & PiniaCustomProperties>
+	& _GettersTree<IAuthState>,
 	
 	
 	
@@ -144,5 +148,11 @@ export const storeAuth = defineStore('auth', {
 			DataStore.remove("oAuthToken");
 			IRCClient.instance.disconnect();
 		},
-	},
+	} as IAuthActions
+	& ThisType<IAuthActions
+		& UnwrapRef<IAuthState>
+		& _StoreWithState<"auth", IAuthState, IAuthGetters, IAuthActions>
+		& _StoreWithGetters<IAuthGetters>
+		& PiniaCustomProperties
+	>,
 })

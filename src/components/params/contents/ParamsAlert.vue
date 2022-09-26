@@ -89,7 +89,7 @@ export default class ParamsAlert extends Vue {
 		}
 
 		watch(()=>this.finalData, ()=> {
-			this.$store("main").setAlertParams(this.finalData);
+			this.$store("main").setChatAlertParams(this.finalData);
 		}, {deep:true});
 	}
 

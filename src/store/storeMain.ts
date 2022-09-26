@@ -25,26 +25,27 @@ import Utils from '@/utils/Utils';
 import VoiceController from '@/utils/VoiceController';
 import VoicemodEvent from '@/utils/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
-import { defineStore } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
+import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
-import StoreProxy from './StoreProxy';
+import StoreProxy, { type IMainActions, type IMainState, type IMainGetters } from './StoreProxy';
 
-export const storeMain = defineStore('main', {
+export const storeMain = defineStore("main", {
 	state: () => ({
 		latestUpdateIndex: 9,
 		initComplete: false,
 		showParams: false,
 		devmode: false,
 		canSplitView: false,
-		ahsInstaller: null as TwitchatDataTypes.InstallHandler|null,
+		ahsInstaller: null,
 		alert:"",
 		tooltip: "",
 		cypherKey: "",
 		cypherEnabled: false,
-		tempStoreValue: null as unknown,
+		tempStoreValue: null,
 
-		confirm:{
+		confirmData:{
 			title:"",
 			description:"",
 			confirmCallback:()=>{ },
@@ -52,7 +53,7 @@ export const storeMain = defineStore('main', {
 			yesLabel:"",
 			noLabel:"",
 			STTOrigin:false,
-		} as TwitchatDataTypes.ConfirmData,
+		},
 		
 		chatAlertParams: {
 			chatCmd:"!alert",
@@ -68,13 +69,15 @@ export const storeMain = defineStore('main', {
 				all:false,
 				users:""
 			},
-		} as TwitchatDataTypes.AlertParamsData,
-		chatAlert:null as IRCEventDataList.Message|IRCEventDataList.Whisper|null,
-	}),
+		},
+		chatAlert:null,
+	} as IMainState),
 	
 
 	getters: {
-	},		
+	} as IMainGetters
+		& ThisType<UnwrapRef<IMainState> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
+		& _GettersTree<IMainState>,
 
 	
 	actions: {
@@ -367,8 +370,8 @@ export const storeMain = defineStore('main', {
 							if(cmd.indexOf("!spoiler") === 0) {
 								//Search for original message the user answered to
 								for (let i = 0; i < sChat.messages.length; i++) {
-									const c = sChat.messages[i] as IRCEventDataList.Message;
-									if(c.tags.id === messageData.tags["reply-parent-msg-id"]) {
+									const c = sChat.messages[i];
+									if(c.type==="message" && c.id === messageData.tags["reply-parent-msg-id"]) {
 										c.message = "|| "+c.message;
 										break;
 									}
@@ -884,7 +887,9 @@ export const storeMain = defineStore('main', {
 			}
 		},
 
-		confirm(payload:TwitchatDataTypes.ConfirmData) { this.$state.confirm = payload; },
+		showAlert(message:string) { this.alert = message; },
+
+		confirm(payload:TwitchatDataTypes.ConfirmData) { this.confirmData = payload; },
 
 		openTooltip(payload:string) { this.tooltip = payload; },
 		
@@ -920,7 +925,7 @@ export const storeMain = defineStore('main', {
 
 		setAhsInstaller(value:TwitchatDataTypes.InstallHandler) { this.$state.ahsInstaller = value; },
 
-		setAlertParams(params:TwitchatDataTypes.AlertParamsData) {
+		setChatAlertParams(params:TwitchatDataTypes.AlertParamsData) {
 			this.chatAlertParams = params;
 			DataStore.set(DataStore.ALERT_PARAMS, params);
 		},
@@ -930,5 +935,5 @@ export const storeMain = defineStore('main', {
 			await Utils.promisedTimeout(50);
 			this.chatAlert = null;
 		},
-	}
+	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })

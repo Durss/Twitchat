@@ -2,18 +2,21 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes'
 import IRCClient from '@/utils/IRCClient';
 import type { ActivityFeedData, IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import { defineStore } from 'pinia'
-import StoreProxy from '../StoreProxy';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IPredictionActions, type IPredictionGetters, type IPredictionState } from '../StoreProxy';
 
 export const storePrediction = defineStore('prediction', {
 	state: () => ({
-		data: {} as TwitchDataTypes.Prediction,
-	}),
+		data: null,
+	} as IPredictionState),
 
 
 
 	getters: {
-	},
+	} as IPredictionGetters
+	& ThisType<UnwrapRef<IPredictionState> & _StoreWithGetters<IPredictionGetters> & PiniaCustomProperties>
+	& _GettersTree<IPredictionState>,
 
 
 
@@ -40,5 +43,11 @@ export const storePrediction = defineStore('prediction', {
 				return (v.status == "ACTIVE" || v.status == "LOCKED");
 			}) as  TwitchDataTypes.Prediction;
 		},
-	},
+	} as IPredictionActions
+	& ThisType<IPredictionActions
+		& UnwrapRef<IPredictionState>
+		& _StoreWithState<"prediction", IPredictionState, IPredictionGetters, IPredictionActions>
+		& _StoreWithGetters<IPredictionGetters>
+		& PiniaCustomProperties
+	>,
 })

@@ -4,20 +4,23 @@ import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest';
-import StoreProxy from '../StoreProxy';
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
 		timerStart: 0,
 		countdown: null as TwitchatDataTypes.CountdownData|null,
-	}),
+	} as ITimerState),
 
 
 
 	getters: {
-	},
+	} as ITimerGetters
+	& ThisType<UnwrapRef<ITimerState> & _StoreWithGetters<ITimerGetters> & PiniaCustomProperties>
+	& _GettersTree<ITimerState>,
 
 
 
@@ -111,5 +114,11 @@ export const storeTimer = defineStore('timer', {
 
 			this.countdown = null;
 		},
-	},
+	} as ITimerActions
+	& ThisType<ITimerActions
+		& UnwrapRef<ITimerState>
+		& _StoreWithState<"timer", ITimerState, ITimerGetters, ITimerActions>
+		& _StoreWithGetters<ITimerGetters>
+		& PiniaCustomProperties
+	>,
 })

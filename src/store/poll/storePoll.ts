@@ -2,19 +2,22 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes'
 import IRCClient from '@/utils/IRCClient';
 import type { ActivityFeedData, IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import { defineStore } from 'pinia'
-import StoreProxy from '../StoreProxy';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from '../StoreProxy';
 
 
 export const storePoll = defineStore('poll', {
 	state: () => ({
-		data: {} as TwitchDataTypes.Poll,
-	}),
+		data: null,
+	} as IPollState),
 
 
 
 	getters: {
-	},
+	} as IPollGetters
+	& ThisType<UnwrapRef<IPollState> & _StoreWithGetters<IPollGetters> & PiniaCustomProperties>
+	& _GettersTree<IPollState>,
 
 
 
@@ -44,5 +47,11 @@ export const storePoll = defineStore('poll', {
 				return (v.status == "ACTIVE" || v.status == "COMPLETED" || v.status == "TERMINATED");
 			}) as  TwitchDataTypes.Poll;
 		},
-	},
+	} as IPollActions
+	& ThisType<IPollActions
+		& UnwrapRef<IPollState>
+		& _StoreWithState<"poll", IPollState, IPollGetters, IPollActions>
+		& _StoreWithGetters<IPollGetters>
+		& PiniaCustomProperties
+	>,
 })

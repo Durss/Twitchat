@@ -1,19 +1,23 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import { defineStore } from 'pinia'
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import type { IOBSActions, IOBSGetters, IOBSState } from '../StoreProxy';
 
 export const storeOBS = defineStore('obs', {
 	state: () => ({
-		connectionEnabled: null as boolean|null,
-		sceneCommands: [] as TwitchatDataTypes.OBSSceneCommand[],
-		muteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"} as TwitchatDataTypes.OBSMuteUnmuteCommands,
-		commandsPermissions: {mods:false, vips:false, subs:false, all:false, users:""} as TwitchatDataTypes.PermissionsData,
-	}),
+		connectionEnabled: null,
+		sceneCommands: [],
+		muteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"},
+		commandsPermissions: {broadcaster:true, mods:false, vips:false, subs:false, all:false, users:""},
+	} as IOBSState),
 
 
 
 	getters: {
-	},
+	} as IOBSGetters
+	& ThisType<UnwrapRef<IOBSState> & _StoreWithGetters<IOBSGetters> & PiniaCustomProperties>
+	& _GettersTree<IOBSState>,
 
 
 
@@ -32,5 +36,11 @@ export const storeOBS = defineStore('obs', {
 			this.commandsPermissions = value;
 			DataStore.set(DataStore.OBS_CONF_PERMISSIONS, value);
 		},
-	},
+	} as IOBSActions
+	& ThisType<IOBSActions
+		& UnwrapRef<IOBSState>
+		& _StoreWithState<"obs", IOBSState, IOBSGetters, IOBSActions>
+		& _StoreWithGetters<IOBSGetters>
+		& PiniaCustomProperties
+	>,
 })

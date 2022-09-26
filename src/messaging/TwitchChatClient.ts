@@ -149,6 +149,50 @@ export default class TwitchClient extends EventDispatcher {
 		//Removing all of them to avoid that...
 		text = text.replace(/^\\+/gi, "");
 
+		if(text.charAt(0) == "/") {
+			const chunks = text.split(/\s/gi);
+			let cmd = chunks[0].toLowerCase();
+			if(cmd.indexOf("/announce")) {
+				const color = cmd.replace("/announce", "");
+				if(["blue","green","orange","purple","primary"].indexOf(color) === -1) {
+					StoreProxy.main.setChatAlertParams
+				}
+				cmd = "/announce";
+				chunks.splice(1,0, color);
+			}
+			switch(cmd) {
+				case "/announce": TwitchUtils.sendAnnouncement(chunks[1], chunks[0]); break;
+				case "/ban": break;
+				case "/unban": break;
+				case "/clear": break;
+				case "/color": break;
+				case "/commercial": break;
+				case "/delete": break;
+				case "/emoteonly": break;
+				case "/emoteonlyoff": break;
+				case "/followers": break;
+				case "/followersoff": break;
+				case "/marker": break;
+				case "/mod": break;
+				case "/mods": break;
+				case "/unmod": break;
+				case "/raid": break;
+				case "/unraid": break;
+				case "/slow": break;
+				case "/slowoff": break;
+				case "/subscribers": break;
+				case "/subscribersoff": break;
+				case "/timeout": break;
+				case "/untimeout": break;
+				case "/uniquechat": break;
+				case "/uniquechatoff": break;
+				case "/vip": break;
+				case "/vips": break;
+				case "/unvip": break;
+				case "/w": break;
+			}
+		}
+
 		this._client.say(UserSession.instance.twitchUser!.login, text);
 	}
 
@@ -492,9 +536,6 @@ export default class TwitchClient extends EventDispatcher {
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {
-		//TODO handle whispers
-		//TODO handle message IDs
-
 		//TMI parses the "badges" and "badge-info" props right AFTER dispatching
 		//the "raw_message" event.
 		//Let's wait a frame so the props are parsed

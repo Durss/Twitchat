@@ -3,17 +3,21 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import { TriggerTypes } from '@/utils/TriggerActionData';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue';
+import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
-		triggers: {} as {[key:string]:TwitchatDataTypes.TriggerData},
-	}),
+		triggers: {},
+	} as ITriggersState),
 
 
 
 	getters: {
-	},
+	} as ITriggersGetters
+	& ThisType<UnwrapRef<ITriggersState> & _StoreWithGetters<ITriggersGetters> & PiniaCustomProperties>
+	& _GettersTree<ITriggersState>,
 
 
 
@@ -104,5 +108,11 @@ export const storeTriggers = defineStore('triggers', {
 				DataStore.set(DataStore.TRIGGERS, this.triggers);
 			}
 		},
-	},
+	} as ITriggersActions
+	& ThisType<ITriggersActions
+		& UnwrapRef<ITriggersState>
+		& _StoreWithState<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>
+		& _StoreWithGetters<ITriggersGetters>
+		& PiniaCustomProperties
+	>,
 })

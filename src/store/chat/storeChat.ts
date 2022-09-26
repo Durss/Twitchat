@@ -11,20 +11,21 @@ import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin'
 import TwitchUtils from '@/utils/TwitchUtils'
 import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest'
-import StoreProxy from '../StoreProxy'
+import type { UnwrapRef } from 'vue'
+import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
 		searchMessages: "",
 		realHistorySize: 5000,
-		whispersUnreadCount: 0 as number,
-		messages: [] as TwitchatDataTypes.ChatMessageTypes[],
-		pinedMessages: [] as IRCEventDataList.Message[],
-		activityFeed: [] as ActivityFeedData[],
-		emoteSelectorCache: {} as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
-		whispers: {} as  {[key:string]:IRCEventDataList.Whisper[]},
+		whispersUnreadCount: 0,
+		messages: [],
+		pinedMessages: [],
+		activityFeed: [],
+		emoteSelectorCache: [],
+		whispers: {},
 		
 		botMessages: {
 			raffleStart: {
@@ -55,7 +56,7 @@ export const storeChat = defineStore('chat', {
 				enabled:false,
 				message:"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype",
 			},
-		} as TwitchatDataTypes.IBotMessage,
+		},
 		commands: [
 			{
 				id:"updates",
@@ -209,7 +210,7 @@ export const storeChat = defineStore('chat', {
 				cmd:"/unblock {user}",
 				details:"Unblock a user",
 			}
-		] as TwitchatDataTypes.CommandData[],
+		],
 
 		spoilerParams: {
 			permissions:{
@@ -220,18 +221,20 @@ export const storeChat = defineStore('chat', {
 				all:false,
 				users:""
 			},
-		} as TwitchatDataTypes.SpoilerParamsData,
+		},
 
 		isChatMessageHighlighted: false,
 		chatHighlightOverlayParams: {
 			position:"bl",
-		} as TwitchatDataTypes.ChatHighlightOverlayData,
-	}),
+		},
+	} as IChatState),
 
 
 
 	getters: {
-	},
+	} as IChatGetters
+	& ThisType<UnwrapRef<IChatState> & _StoreWithGetters<IChatGetters> & PiniaCustomProperties>
+	& _GettersTree<IChatState>,
 
 
 
@@ -671,5 +674,11 @@ export const storeChat = defineStore('chat', {
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject);
 		},
-	},
+	} as IChatActions
+	& ThisType<IChatActions
+		& UnwrapRef<IChatState>
+		& _StoreWithState<"chat", IChatState, IChatGetters, IChatActions>
+		& _StoreWithGetters<IChatGetters>
+		& PiniaCustomProperties
+	>,
 })

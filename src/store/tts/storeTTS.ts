@@ -3,7 +3,9 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import IRCClient from '@/utils/IRCClient';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue';
+import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
 
 export const storeTTS = defineStore('tts', {
 	state: () => ({
@@ -56,13 +58,15 @@ export const storeTTS = defineStore('tts', {
 				all:true,
 				users:""
 			},
-		} as TwitchatDataTypes.TTSParamsData,
-	}),
+		},
+	} as ITTSState),
 
 
 
 	getters: {
-	},
+	} as ITTSGetters
+	& ThisType<UnwrapRef<ITTSState> & _StoreWithGetters<ITTSGetters> & PiniaCustomProperties>
+	& _GettersTree<ITTSState>,
 
 
 
@@ -95,5 +99,11 @@ export const storeTTS = defineStore('tts', {
 			DataStore.set(DataStore.TTS_PARAMS, params);
 			TTSUtils.instance.enabled = params.enabled;
 		},
-	},
+	} as ITTSActions
+	& ThisType<ITTSActions
+		& UnwrapRef<ITTSState>
+		& _StoreWithState<"tts", ITTSState, ITTSGetters, ITTSActions>
+		& _StoreWithGetters<ITTSGetters>
+		& PiniaCustomProperties
+	>,
 })

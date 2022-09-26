@@ -5,27 +5,31 @@ import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
-import { defineStore } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { ChatUserstate } from 'tmi.js';
+import type { UnwrapRef } from 'vue';
 import { storeChat } from '../chat/storeChat';
+import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
-		users: [] as TwitchatDataTypes.TwitchatUser[],
-		userCard: null as string|null,
-		onlineUsers: [] as string[],
-		trackedUsers: [] as TrackedUser[],
-		mods:[] as TwitchDataTypes.ModeratorUser[],
-		pronouns: {} as {[key:string]:string|boolean},
-		followingStates: {} as {[key:string]:boolean},
-		followingStatesByNames: {} as {[key:string]:boolean},
-		myFollowings: {} as {[key:string]:boolean},
-	}),
+		users: [],
+		userCard: null,
+		onlineUsers: [],
+		trackedUsers: [],
+		mods:[],
+		pronouns: {},
+		followingStates: {},
+		followingStatesByNames: {},
+		myFollowings: {},
+	} as IUsersState),
 
 
 
 	getters: {
-	},
+	} as IUsersGetters
+	& ThisType<UnwrapRef<IUsersState> & _StoreWithGetters<IUsersGetters> & PiniaCustomProperties>
+	& _GettersTree<IUsersState>,
 
 
 
@@ -155,5 +159,11 @@ export const storeUsers = defineStore('users', {
 				this.trackedUsers.splice(index, 1);
 			}
 		},
-	},
+	} as IUsersActions
+	& ThisType<IUsersActions
+		& UnwrapRef<IUsersState>
+		& _StoreWithState<"users", IUsersState, IUsersGetters, IUsersActions>
+		& _StoreWithGetters<IUsersGetters>
+		& PiniaCustomProperties
+	>,
 })

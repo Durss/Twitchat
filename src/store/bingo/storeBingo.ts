@@ -1,20 +1,23 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { BingoData } from '@/utils/CommonDataTypes'
+import type { BingoData } from '@/utils/CommonDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { defineStore } from 'pinia'
-import StoreProxy from '../StoreProxy';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IBingoActions, type IBingoGetters, type IBingoState } from '../StoreProxy';
 
 export const storeBingo = defineStore('bingo', {
 	state: () => ({
 		data: null as BingoData | null,
-	}),
+	} as IBingoState),
 
 
 
 	getters: {
-	},
+	} as IBingoGetters
+	& ThisType<UnwrapRef<IBingoState> & _StoreWithGetters<IBingoGetters> & PiniaCustomProperties>
+	& _GettersTree<IBingoState>,
 
 
 
@@ -50,5 +53,11 @@ export const storeBingo = defineStore('bingo', {
 		},
 
 		stopBingo() { this.data = null; },
-	},
+	} as IBingoActions
+	& ThisType<IBingoActions
+		& UnwrapRef<IBingoState>
+		& _StoreWithState<"bingo", IBingoState, IBingoGetters, IBingoActions>
+		& _StoreWithGetters<IBingoGetters>
+		& PiniaCustomProperties
+	>,
 })

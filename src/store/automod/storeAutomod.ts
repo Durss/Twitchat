@@ -1,6 +1,8 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import { defineStore } from 'pinia'
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import type { IAutomodActions, IAutomodGetters, IAutomodState } from '../StoreProxy';
 
 export const storeAutomod = defineStore('automod', {
 	state: () => ({
@@ -16,13 +18,15 @@ export const storeAutomod = defineStore('automod', {
 				all:false,
 				users:""
 			},
-		} as TwitchatDataTypes.AutomodParamsData
-	}),
+		}
+	} as IAutomodState),
 
 
 
 	getters: {
-	},
+	} as IAutomodGetters
+	& ThisType<UnwrapRef<IAutomodState> & _StoreWithGetters<IAutomodGetters> & PiniaCustomProperties>
+	& _GettersTree<IAutomodState>,
 
 
 
@@ -31,5 +35,11 @@ export const storeAutomod = defineStore('automod', {
 			this.params = payload;
 			DataStore.set(DataStore.AUTOMOD_PARAMS, payload);
 		},
-	},
+	} as IAutomodActions
+	& ThisType<IAutomodActions
+		& UnwrapRef<IAutomodState>
+		& _StoreWithState<"automod", IAutomodState, IAutomodGetters, IAutomodActions>
+		& _StoreWithGetters<IAutomodGetters>
+		& PiniaCustomProperties
+	>,
 })

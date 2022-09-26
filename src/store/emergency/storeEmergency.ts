@@ -1,11 +1,13 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 
 export const storeEmergency = defineStore('emergency', {
 	state: () => ({
@@ -35,17 +37,19 @@ export const storeEmergency = defineStore('emergency', {
 			autoBlockFollows:false,
 			autoUnblockFollows:false,
 			autoEnableOnFollowbot:true,
-		} as TwitchatDataTypes.EmergencyParamsData,
+		},
 
 		//Stores all the people that followed during an emergency
-		follows: [] as TwitchatDataTypes.EmergencyFollowerData[],
+		follows: [],
 
-	}),
+	} as IEmergencyState),
 
 
 
 	getters: {
-	},
+	} as IEmergencyGetters
+	& ThisType<UnwrapRef<IEmergencyState> & _StoreWithGetters<IEmergencyGetters> & PiniaCustomProperties>
+	& _GettersTree<IEmergencyState>,
 
 
 
@@ -126,5 +130,11 @@ export const storeEmergency = defineStore('emergency', {
 			this.follows.splice(0)
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
 		},
-	},
+	} as IEmergencyActions
+	& ThisType<IEmergencyActions
+		& UnwrapRef<IEmergencyState>
+		& _StoreWithState<"emergency", IEmergencyState, IEmergencyGetters, IEmergencyActions>
+		& _StoreWithGetters<IEmergencyGetters>
+		& PiniaCustomProperties
+	>,
 })

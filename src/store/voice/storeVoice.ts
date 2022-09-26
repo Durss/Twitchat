@@ -2,7 +2,9 @@ import DataStore from '@/store/DataStore'
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type VoiceAction from '@/utils/VoiceAction'
 import type { VoicemodTypes } from '@/utils/VoicemodWebSocket'
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue'
+import type { IVoiceActions, IVoiceGetters, IVoiceState } from '../StoreProxy'
 
 export const storeVoice = defineStore('voice', {
 	state: () => ({
@@ -18,7 +20,7 @@ export const storeVoice = defineStore('voice', {
 			voiceID: "nofx",
 			friendlyName: "clean",
 			image:"",
-		} as VoicemodTypes.Voice,
+		},
 
 		voicemodParams: {
 			enabled:false,
@@ -32,13 +34,15 @@ export const storeVoice = defineStore('voice', {
 				all:false,
 				users:""
 			},
-		} as TwitchatDataTypes.VoicemodParamsData,
-	}),
+		},
+	} as IVoiceState),
 
 
 
 	getters: {
-	},
+	} as IVoiceGetters
+	& ThisType<UnwrapRef<IVoiceState> & _StoreWithGetters<IVoiceGetters> & PiniaCustomProperties>
+	& _GettersTree<IVoiceState>,
 
 
 
@@ -57,5 +61,11 @@ export const storeVoice = defineStore('voice', {
 			this.voicemodParams = payload;
 			DataStore.set(DataStore.VOICEMOD_PARAMS, payload);
 		},
-	},
+	} as IVoiceActions
+	& ThisType<IVoiceActions
+		& UnwrapRef<IVoiceState>
+		& _StoreWithState<"voice", IVoiceState, IVoiceGetters, IVoiceActions>
+		& _StoreWithGetters<IVoiceGetters>
+		& PiniaCustomProperties
+	>,
 })

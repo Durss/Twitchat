@@ -3,17 +3,18 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import IRCClient from '@/utils/IRCClient';
 import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes'
-import { defineStore } from 'pinia'
-import StoreProxy from '../StoreProxy';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
-		hypeTrain: undefined as TwitchatDataTypes.HypeTrainStateData|undefined,
-		raiding: undefined as PubSubDataTypes.RaidInfos|undefined,
-		playbackState: undefined as PubSubDataTypes.PlaybackInfo|undefined,
-		communityBoostState: undefined as PubSubDataTypes.CommunityBoost|undefined,
-		streamInfoPreset: [] as TwitchatDataTypes.StreamInfoPreset[],
-		lastRaiderLogin: undefined as string|undefined,
+		hypeTrain: undefined,
+		raiding: undefined,
+		playbackState: undefined,
+		communityBoostState: undefined,
+		streamInfoPreset: [],
+		lastRaiderLogin: undefined,
 		commercialEnd: 0,//Date.now() + 120000,
 
 		roomStatusParams: {
@@ -21,13 +22,15 @@ export const storeStream = defineStore('stream', {
 			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
 			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
 			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
-		} as TwitchatDataTypes.IRoomStatusCategory,
-	}),
+		},
+	} as IStreamState),
 
 
 
 	getters: {
-	},
+	} as IStreamGetters
+	& ThisType<UnwrapRef<IStreamState> & _StoreWithGetters<IStreamGetters> & PiniaCustomProperties>
+	& _GettersTree<IStreamState>,
 
 
 
@@ -112,5 +115,11 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 		
-	},
+	} as IStreamActions
+	& ThisType<IStreamActions
+		& UnwrapRef<IStreamState>
+		& _StoreWithState<"stream", IStreamState, IStreamGetters, IStreamActions>
+		& _StoreWithGetters<IStreamGetters>
+		& PiniaCustomProperties
+	>,
 })

@@ -3,7 +3,9 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import FFZUtils from '@/utils/FFZUtils';
 import SevenTVUtils from '@/utils/SevenTVUtils';
-import { defineStore } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -25,7 +27,7 @@ export const storeParams = defineStore('params', {
 			notifyJoinLeave:			{save:true, type:"toggle", value:false, label:"Notify when a user joins/leaves the chat", id:211, icon:"notification_purple.svg"},
 			stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 			showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
-		} as {[key:string]:TwitchatDataTypes.ParameterData},
+		},
 		appearance: {
 			splitView: 					{save:true, type:"toggle", value:true, label:"Split view if page is more than 450px wide (chat on left, notif/activities/greet on right)", id:13, icon:"split_purple.svg"},
 			splitViewSwitch: 			{save:true, type:"toggle", value:false, label:"Switch columns", id:15, parent:13},
@@ -48,7 +50,7 @@ export const storeParams = defineStore('params', {
 			displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 			historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count ({VALUE})", min:50, max:500, step:50, id:8},
 			defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
-		} as {[key:string]:TwitchatDataTypes.ParameterData},
+		},
 		filters: {
 			showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
 			keepDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Keep deleted messages", id:113},
@@ -67,13 +69,15 @@ export const storeParams = defineStore('params', {
 			showFollow: 				{save:true, type:"toggle", value:true, label:"Show follow alerts", id:109, icon:"follow_purple.svg", parent:112},
 			showHypeTrain: 				{save:true, type:"toggle", value:true, label:"Show hype train alerts", id:111, icon:"train_purple.svg", parent:112},
 			showNotifications:	 		{save:true, type:"toggle", value:true, label:"Show notifications on chat (sub,raid,poll,bingo,...)", id:112, icon:"notification_purple.svg", example:"pollPredOnChat.png"},
-		} as {[key:string]:TwitchatDataTypes.ParameterData},
-	} as TwitchatDataTypes.IParameterCategory),
+		},
+	} as IParamsState),
 
 
 
 	getters: {
-	},
+	} as IParamsGetters
+	& ThisType<UnwrapRef<IParamsState> & _StoreWithGetters<IParamsGetters> & PiniaCustomProperties>
+	& _GettersTree<IParamsState>,
 
 
 
@@ -109,5 +113,11 @@ export const storeParams = defineStore('params', {
 				}
 			}
 		},
-	},
+	} as IParamsActions
+	& ThisType<IParamsActions
+		& UnwrapRef<IParamsState>
+		& _StoreWithState<"params", IParamsState, IParamsGetters, IParamsActions>
+		& _StoreWithGetters<IParamsGetters>
+		& PiniaCustomProperties
+	>,
 })

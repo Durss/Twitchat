@@ -111,7 +111,7 @@ const confirm = <T>(title: string,
 				reject(data);
 			}
 		}
-		storeMain().confirm(confirmData);
+		storeMain().confirmData(confirmData);
 	});
 	return prom;
 }

@@ -6,19 +6,22 @@ import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { defineStore } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
-import StoreProxy from '../StoreProxy';
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 
 export const storeRaffle = defineStore('raffle', {
 	state: () => ({
-		data: null as RaffleData | null,
-	}),
+		data: null,
+	} as IRaffleState),
 
 
 
 	getters: {
-	},
+	} as IRaffleGetters
+	& ThisType<UnwrapRef<IRaffleState> & _StoreWithGetters<IRaffleGetters> & PiniaCustomProperties>
+	& _GettersTree<IRaffleState>,
 
 
 
@@ -158,5 +161,11 @@ export const storeRaffle = defineStore('raffle', {
 				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, (winner as unknown) as JsonObject);
 			}
 		},
-	},
+	} as IRaffleActions
+	& ThisType<IRaffleActions
+		& UnwrapRef<IRaffleState>
+		& _StoreWithState<"raffle", IRaffleState, IRaffleGetters, IRaffleActions>
+		& _StoreWithGetters<IRaffleGetters>
+		& PiniaCustomProperties
+	>,
 })

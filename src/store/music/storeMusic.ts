@@ -4,12 +4,14 @@ import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes'
 import SpotifyHelper from '@/utils/SpotifyHelper';
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import type { UnwrapRef } from 'vue';
+import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
 
 export const storeMusic = defineStore('music', {
 	state: () => ({
-		spotifyAuthParams: null as SpotifyAuthResult|null,
-		spotifyAuthToken: null as SpotifyAuthToken|null,
+		spotifyAuthParams: null,
+		spotifyAuthToken: null,
 
 		deezerConnected: false,
 		
@@ -23,13 +25,15 @@ export const storeMusic = defineStore('music', {
 			openFromLeft:false,
 			noScroll:false,
 			customInfoTemplate:"",
-		} as TwitchatDataTypes.MusicPlayerParamsData,
-	}),
+		},
+	} as IMusicState),
 
 
 
 	getters: {
-	},
+	} as IMusicGetters
+	& ThisType<UnwrapRef<IMusicState> & _StoreWithGetters<IMusicGetters> & PiniaCustomProperties>
+	& _GettersTree<IMusicState>,
 
 
 
@@ -66,5 +70,11 @@ export const storeMusic = defineStore('music', {
 				DeezerHelper.instance.dispose();
 			}
 		},
-	},
+	} as IMusicActions
+	& ThisType<IMusicActions
+		& UnwrapRef<IMusicState>
+		& _StoreWithState<"music", IMusicState, IMusicGetters, IMusicActions>
+		& _StoreWithGetters<IMusicGetters>
+		& PiniaCustomProperties
+	>,
 })

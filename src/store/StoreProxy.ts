@@ -49,14 +49,18 @@ export interface IMainState {
 	cypherKey: string;
 	cypherEnabled: boolean;
 	tempStoreValue: unknown;
-	confirm:TwitchatDataTypes.ConfirmData;
+	confirmData:TwitchatDataTypes.ConfirmData;
 	chatAlertParams: TwitchatDataTypes.AlertParamsData;
 	chatAlert:IRCEventDataList.Message|IRCEventDataList.Whisper|null;
+}
+
+export interface IMainGetters {
 }
 
 export interface IMainActions {
 	startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}):Promise<void>
 	loadDataFromStorage(authenticated?:boolean):void;
+	showAlert(message:string):void;
 	confirm(payload:TwitchatDataTypes.ConfirmData):void;
 	openTooltip(payload:string):void;
 	closeTooltip():void;
@@ -66,7 +70,7 @@ export interface IMainActions {
 	toggleDevMode(forcedState?:boolean):void;
 	setCanSplitView(value:boolean):void;
 	setAhsInstaller(value:TwitchatDataTypes.InstallHandler):void;
-	setAlertParams(params:TwitchatDataTypes.AlertParamsData):void;
+	setChatAlertParams(params:TwitchatDataTypes.AlertParamsData):void;
 	executeChatAlert(message:IRCEventDataList.Message|IRCEventDataList.Whisper):Promise<void>;
 }
 
@@ -76,6 +80,9 @@ export interface IMainActions {
 export interface IAccountState {
 	syncDataWithServer:TwitchatDataTypes.ParameterData;
 	publicDonation:TwitchatDataTypes.ParameterData;
+}
+
+export interface IAccountGetters {
 }
 
 export interface IAccountActions {
@@ -88,6 +95,9 @@ export interface IAuthState {
 	refreshTokenTO: number;
 	authenticated: boolean;
 	newScopeToRequest: string[];
+}
+
+export interface IAuthGetters {
 }
 
 export interface IAuthActions {
@@ -103,6 +113,9 @@ export interface IAutomodState {
 	params:TwitchatDataTypes.AutomodParamsData;
 }
 
+export interface IAutomodGetters {
+}
+
 export interface IAutomodActions {
 	setAutomodParams(payload:TwitchatDataTypes.AutomodParamsData):void;
 }
@@ -112,6 +125,9 @@ export interface IAutomodActions {
 
 export interface IBingoState {
 	data:BingoData | null;
+}
+
+export interface IBingoGetters {
 }
 
 export interface IBingoActions {
@@ -139,6 +155,9 @@ export interface IChatState {
 	chatHighlightOverlayParams: TwitchatDataTypes.ChatHighlightOverlayData;
 }
 
+export interface IChatGetters {
+}
+
 export interface IChatActions {
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;
 	addChatMessage(payload:IRCEventData):Promise<void>;
@@ -163,6 +182,9 @@ export interface IChatSuggestionState {
 	data: TwitchatDataTypes.ChatSuggestionData | null,
 }
 
+export interface IChatSuggestionGetters {
+}
+
 export interface IChatSuggestionActions {
 	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void,
 	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void,
@@ -175,6 +197,9 @@ export interface IEmergencyState {
 	emergencyStarted:boolean,
 	params:TwitchatDataTypes.EmergencyParamsData,
 	follows: TwitchatDataTypes.EmergencyFollowerData[],
+}
+
+export interface IEmergencyGetters {
 }
 
 export interface IEmergencyActions {
@@ -194,6 +219,9 @@ export interface IMusicState {
 	musicPlayerParams:TwitchatDataTypes.MusicPlayerParamsData,
 }
 
+export interface IMusicGetters {
+}
+
 export interface IMusicActions {
 	setSpotifyCredentials(value:{client:string, secret:string}):void;
 	setSpotifyAuthResult(value:SpotifyAuthResult|null):void;
@@ -211,6 +239,9 @@ export interface IOBSState {
 	commandsPermissions:TwitchatDataTypes.PermissionsData,
 }
 
+export interface IOBSGetters {
+}
+
 export interface IOBSActions {
 	setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]):void;
 	setOBSMuteUnmuteCommands(value:TwitchatDataTypes.OBSMuteUnmuteCommands):void;
@@ -226,6 +257,9 @@ export interface IParamsState {
 	filters:{[key:string]:TwitchatDataTypes.ParameterData};
 }
 
+export interface IParamsGetters {
+}
+
 export interface IParamsActions {
 	updateParams():void;
 }
@@ -234,7 +268,10 @@ export interface IParamsActions {
 
 
 export interface IPollState {
-	data:TwitchDataTypes.Poll,
+	data:TwitchDataTypes.Poll | null,
+}
+
+export interface IPollGetters {
 }
 
 export interface IPollActions {
@@ -245,7 +282,10 @@ export interface IPollActions {
 
 
 export interface IPredictionState {
-	data:TwitchDataTypes.Prediction;
+	data:TwitchDataTypes.Prediction | null;
+}
+
+export interface IPredictionGetters {
 }
 
 export interface IPredictionActions {
@@ -257,6 +297,9 @@ export interface IPredictionActions {
 
 export interface IRaffleState {
 	data:RaffleData|null;
+}
+
+export interface IRaffleGetters {
 }
 
 export interface IRaffleActions {
@@ -279,6 +322,9 @@ export interface IStreamState {
 	roomStatusParams:TwitchatDataTypes.IRoomStatusCategory;
 }
 
+export interface IStreamGetters {
+}
+
 export interface IStreamActions {
 	setRaiding(infos:PubSubDataTypes.RaidInfos|undefined):void;
 	setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined):void;
@@ -297,6 +343,9 @@ export interface ITimerState {
 	countdown: TwitchatDataTypes.CountdownData|null;
 }
 
+export interface ITimerGetters {
+}
+
 export interface ITimerActions {
 	startTimer():void;
 	stopTimer():void;
@@ -309,6 +358,9 @@ export interface ITimerActions {
 
 export interface ITriggersState {
 	triggers: {[key:string]:TwitchatDataTypes.TriggerData};
+}
+
+export interface ITriggersGetters {
 }
 
 export interface ITriggersActions {
@@ -324,6 +376,9 @@ export interface ITTSState {
 	params:TwitchatDataTypes.TTSParamsData,
 }
 
+export interface ITTSGetters {
+}
+
 export interface ITTSActions {
 	ttsReadMessage(payload:IRCEventDataList.Message):void
 	ttsReadUser(payload:{username:string, read:boolean}):void
@@ -334,6 +389,7 @@ export interface ITTSActions {
 
 
 export interface IUsersState {
+	users: TwitchatDataTypes.TwitchatUser[];
 	userCard: string|null;
 	pronouns: {[key:string]:string|boolean};
 	onlineUsers: string[];
@@ -342,6 +398,9 @@ export interface IUsersState {
 	followingStates: {[key:string]:boolean};
 	followingStatesByNames: {[key:string]:boolean};
 	myFollowings: {[key:string]:boolean};
+}
+
+export interface IUsersGetters {
 }
 
 export interface IUsersActions {
@@ -368,6 +427,9 @@ export interface IVoiceState {
 	},
 	voicemodCurrentVoice:VoicemodTypes.Voice,
 	voicemodParams:TwitchatDataTypes.VoicemodParamsData,
+}
+
+export interface IVoiceGetters {
 }
 
 export interface IVoiceActions {
