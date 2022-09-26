@@ -451,7 +451,7 @@ export const storeMain = defineStore("main", {
 						if(rule != null) {
 							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule!.label}"`);
 							IRCClient.instance.sendHighlight({
-								channel: UserSession.instance.authToken.login,
+								channel: UserSession.instance.twitchAuthToken.login,
 								type:"highlight",
 								username,
 								ttAutomod:rule as TwitchatDataTypes.AutomodParamsKeywordFilterData,

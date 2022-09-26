@@ -455,7 +455,7 @@ export default class IRCClient extends EventDispatcher {
 				const tags = this.selfTags? JSON.parse(JSON.stringify(this.selfTags)) : this.getFakeTags();
 				tags.username = this.login;
 				tags["display-name"] = this.login;
-				tags["user-id"] = UserSession.instance.authToken.user_id;
+				tags["user-id"] = UserSession.instance.twitchAuthToken.user_id;
 				tags.id = this.getFakeGuid(1);
 				this.addMessage(message, tags, true, undefined, this.channel);
 			}
@@ -548,7 +548,7 @@ export default class IRCClient extends EventDispatcher {
 		if(login == this.login) {
 			if(!this.selfTags) this.selfTags = JSON.parse(JSON.stringify(tags));
 			//Darn TMI doesn't send back the user ID when message is sent from this client
-			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.authToken.user_id;
+			if(!tags["user-id"]) tags["user-id"] = UserSession.instance.twitchAuthToken.user_id;
 		}
 
 		//Create message structure
@@ -614,7 +614,7 @@ export default class IRCClient extends EventDispatcher {
 			return;
 		}
 		//Ignore self if requested
-		if(StoreProxy.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.authToken.user_id) {
+		if(StoreProxy.params.filters.showSelf.value === false && tags["user-id"] == UserSession.instance.twitchAuthToken.user_id) {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 			return;
 		}

@@ -196,7 +196,7 @@ export default class UserCard extends Vue {
 	public openViewerCard():void {
 		let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 		width=350,height=500,left=100,top=100`;
-		const url ="https://www.twitch.tv/popout/"+UserSession.instance.authToken.login+"/viewercard/"+this.username;
+		const url ="https://www.twitch.tv/popout/"+UserSession.instwitchAuthTokenhToken.login+"/viewercard/"+this.username;
 		window.open(url, 'profilePage', params);
 	}
 

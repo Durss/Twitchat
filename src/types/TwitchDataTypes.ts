@@ -350,4 +350,12 @@ export namespace TwitchDataTypes {
 		user_login:string;
 		display_name:string;
 	}
+
+	export interface RoomSettingsUpdate {
+		subOnly?:boolean;
+		emotesOnly?:boolean;
+		followOnly?:number|false;
+		chatDelay?:number;
+		slowMode?:number;
+	}
 }

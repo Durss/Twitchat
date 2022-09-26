@@ -60,7 +60,7 @@ export default class ChatMessageHoverActions extends Vue {
 	public shoutoutLoading = false;
 	public highlightLoading = false;
 
-	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.authToken.user_id; }
+	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.twitchAuthToken.user_id; }
 	public get ttsEnabled():boolean { return this.$store("tts").params.enabled; }
 
 	public trackUser():void {

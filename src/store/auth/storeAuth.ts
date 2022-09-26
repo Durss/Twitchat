@@ -63,10 +63,10 @@ export const storeAuth = defineStore('auth', {
 				&& status != 200) throw("invalid token");
 	
 				UserSession.instance.access_token = json.access_token;
-				UserSession.instance.authToken = userRes as TwitchDataTypes.Token;
+				UserSession.instance.twitchAuthToken = userRes as TwitchDataTypes.Token;
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
-					if(UserSession.instance.authToken.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
+					if(UserSession.instance.twitchAuthToken.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
 						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
 						this.authenticated = false;
 						UserSession.instance.authResult = null;
@@ -78,7 +78,7 @@ export const storeAuth = defineStore('auth', {
 					return;
 				}
 				if(!json.expires_at) {
-					json.expires_at = Date.now() + UserSession.instance.authToken.expires_in*1000;
+					json.expires_at = Date.now() + UserSession.instance.twitchAuthToken.expires_in*1000;
 				}
 				UserSession.instance.authResult = json;
 				DataStore.access_token = json.access_token;
@@ -100,8 +100,8 @@ export const storeAuth = defineStore('auth', {
 				}catch(error) {}
 	
 				//Get full user's info
-				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
-				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
+				const users = await TwitchUtils.loadUserInfo([UserSession.instance.twitchAuthToken.user_id]);
+				const currentUser = users.find(v => v.id == UserSession.instance.twitchAuthToken.user_id);
 				if(currentUser) {
 					UserSession.instance.twitchUser = currentUser;
 				}
@@ -110,17 +110,17 @@ export const storeAuth = defineStore('auth', {
 					//If we were authenticated, simply update the token on IRC
 					IRCClient.instance.updateToken(json.access_token);
 				}else{
-					IRCClient.instance.connect(UserSession.instance.authToken.login, UserSession.instance.access_token as string);
+					IRCClient.instance.connect(UserSession.instance.twitchAuthToken.login, UserSession.instance.access_token as string);
 					PubSub.instance.connect();
 				}
 				this.authenticated = true;
 				const sUsers = StoreProxy.users;
 				sUsers.mods = await TwitchUtils.getModerators();
-				sUsers.followingStates[UserSession.instance.authToken.user_id] = true;
-				sUsers.followingStatesByNames[UserSession.instance.authToken.login.toLowerCase()] = true;
+				sUsers.followingStates[UserSession.instance.twitchAuthToken.user_id] = true;
+				sUsers.followingStatesByNames[UserSession.instance.twitchAuthToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
 	
-				const expire = UserSession.instance.authToken.expires_in;
+				const expire = UserSession.instance.twitchAuthToken.expires_in;
 				let delay = Math.max(0, expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
 				//Refresh at least every 3h
 				const maxDelay = 1000 * 60 * 60 * 3;

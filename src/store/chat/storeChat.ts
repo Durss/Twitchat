@@ -273,7 +273,7 @@ export const storeChat = defineStore('chat', {
 			const list = this.messages.concat();
 			list .push( {
 				type:"ad",
-				channel:"#"+UserSession.instance.authToken.login,
+				channel:"#"+UserSession.instance.twitchAuthToken.login,
 				markedAsRead:false,
 				contentID,
 				tags:{id:"twitchatAd"+Math.random()}
@@ -478,8 +478,8 @@ export const storeChat = defineStore('chat', {
 
 				//Check if the message contains a mention
 				if(textMessage.message && sParams.appearance.highlightMentions.value === true) {
-					textMessage.hasMention = UserSession.instance.authToken.login != null
-					&& new RegExp("(^| |@)("+UserSession.instance.authToken.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
+					textMessage.hasMention = UserSession.instance.twitchAuthToken.login != null
+					&& new RegExp("(^| |@)("+UserSession.instance.twitchAuthToken.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
 					if(textMessage.hasMention) {
 						//Broadcast to OBS-Ws
 						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});

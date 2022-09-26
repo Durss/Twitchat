@@ -69,7 +69,7 @@ export default class PubSub extends EventDispatcher{
 				this.ping();
 			}, 60000*2.5);
 
-			const uid = UserSession.instance.authToken.user_id;
+			const uid = UserSession.instance.twitchAuthToken.user_id;
 			const subscriptions = [
 				"channel-points-channel-v1."+uid,
 				"chat_moderator_actions."+uid+"."+uid,
@@ -96,7 +96,7 @@ export default class PubSub extends EventDispatcher{
 				// "user-properties-update."+uid,
 				// "onsite-notifications."+uid,
 
-				"low-trust-users."+UserSession.instance.authToken.user_id+"."+UserSession.instance.authToken.user_id,
+				"low-trust-users."+UserSession.instance.twitchAuthToken.user_id+"."+UserSession.instance.twitchAuthToken.user_id,
 				// "stream-change-v1."+UserSession.instance.authToken.user_id,
 			];
 
@@ -135,7 +135,7 @@ export default class PubSub extends EventDispatcher{
 				const data = JSON.parse(message.data.message);
 				if(StoreProxy.main.devmode) {
 					//Ignore viewers count to avoid massive logs
-					if(message.data.topic != "video-playback-by-id."+UserSession.instance.authToken.user_id) {
+					if(message.data.topic != "video-playback-by-id."+UserSession.instance.twitchAuthToken.user_id) {
 						this.history.push(message);
 					}
 				}
@@ -374,7 +374,7 @@ export default class PubSub extends EventDispatcher{
 
 		}else if(data.type == "hype-train-cooldown-expiration") {
 			IRCClient.instance.sendHighlight({
-				channel: UserSession.instance.authToken.login,
+				channel: UserSession.instance.twitchAuthToken.login,
 				type:"highlight",
 				tags:{
 					"tmi-sent-ts":Date.now().toString(),
@@ -446,7 +446,7 @@ export default class PubSub extends EventDispatcher{
 					"user-id": mess.sender.extension_client_id,
 					"tmi-sent-ts": new Date(mess.sent_at).getTime().toString(),
 					"message-type": "chat",
-					"room-id": UserSession.instance.authToken.user_id,
+					"room-id": UserSession.instance.twitchAuthToken.user_id,
 					"badges": badges,
 				};
 				IRCClient.instance.addMessage(mess.content.text, tags, false);
@@ -492,7 +492,7 @@ export default class PubSub extends EventDispatcher{
 			const boost = data.data as PubSubDataTypes.CommunityBoost;
 			StoreProxy.stream.setCommunityBoost(boost);
 			IRCClient.instance.sendHighlight({
-				channel: UserSession.instance.authToken.login,
+				channel: UserSession.instance.twitchAuthToken.login,
 				viewers: boost.total_goal_progress? boost.total_goal_progress : boost.boost_orders[0].GoalProgress,
 				type:"highlight",
 				tags:{
@@ -568,8 +568,8 @@ export default class PubSub extends EventDispatcher{
 				case "raid": {
 					const infos:PubSubDataTypes.RaidInfos = {
 						id: IRCClient.instance.getFakeGuid(),
-						creator_id: UserSession.instance.authToken.user_id,
-						source_id: UserSession.instance.authToken.user_id,
+						creator_id: UserSession.instance.twitchAuthToken.user_id,
+						source_id: UserSession.instance.twitchAuthToken.user_id,
 						target_id: "",
 						target_login: localObj.args? localObj.args[0] : "",
 						target_display_name: localObj.args? localObj.args[0] : "",
@@ -715,8 +715,8 @@ export default class PubSub extends EventDispatcher{
 		const poll:TwitchDataTypes.Poll = {
 			id: localObj.poll.poll_id,
 			broadcaster_id: localObj.poll.owned_by,
-			broadcaster_name: UserSession.instance.authToken.login,
-			broadcaster_login: UserSession.instance.authToken.login,
+			broadcaster_name: UserSession.instance.twitchAuthToken.login,
+			broadcaster_login: UserSession.instance.twitchAuthToken.login,
 			title: localObj.poll.title,
 			choices: choices,
 			bits_voting_enabled: localObj.poll.settings.bits_votes.is_enabled,

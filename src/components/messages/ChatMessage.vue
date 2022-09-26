@@ -306,8 +306,8 @@ export default class ChatMessage extends Vue {
 		return (this.$store("users").mods as TwitchDataTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
 			||
 		(
-			message.channel.replace(/^#/gi, "").toLowerCase() == UserSession.instance.authToken.login.toLowerCase()//TODO set actual channel id not the user id
-			&& message.tags.username?.toLowerCase() != UserSession.instance.authToken.login.toLowerCase()
+			message.channel.replace(/^#/gi, "").toLowerCase() == UserSession.instance.twitchAuthToken.login.toLowerCase()//TODO set actual channel id not the user id
+			&& message.tags.username?.toLowerCase() != UserSession.instance.twitchAuthToken.login.toLowerCase()
 		);
 	}
 
@@ -560,7 +560,7 @@ export default class ChatMessage extends Vue {
 	public parseText(text:string):string {
 		let result:string;
 		const doHighlight = this.$store("params").appearance.highlightMentions.value;
-		const highlightLogin = UserSession.instance.authToken.login;
+		const highlightLogin = UserSession.instwitchAuthTokenhToken.login;
 		const mess = this.messageData;
 		if(!text) return "";
 		try {

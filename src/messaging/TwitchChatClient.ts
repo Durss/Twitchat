@@ -1,5 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import TwitchCypherPlugin from "@/utils/TwitchCypherPlugin";
 import TwitchUtils from "@/utils/TwitchUtils";
@@ -141,7 +142,7 @@ export default class TwitchClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public sendMessage(text:string):void {
+	public async sendMessage(text:string):Promise<void> {
 			
 		//Workaround to a weird behavior of TMI.js.
 		//If the message starts by a "\" it's properly sent on all
@@ -151,45 +152,82 @@ export default class TwitchClient extends EventDispatcher {
 
 		if(text.charAt(0) == "/") {
 			const chunks = text.split(/\s/gi);
-			let cmd = chunks[0].toLowerCase();
+			let cmd = (chunks.shift() as string).toLowerCase();
 			if(cmd.indexOf("/announce")) {
-				const color = cmd.replace("/announce", "");
+				let color = cmd.replace("/announce", "");
+				if(color.length === 0) color = "primary";
 				if(["blue","green","orange","purple","primary"].indexOf(color) === -1) {
-					StoreProxy.main.setChatAlertParams
+					StoreProxy.main.showAlert("Invalid announcement color");
+					return;
 				}
 				cmd = "/announce";
-				chunks.splice(1,0, color);
+				chunks.unshift(color);
 			}
+
+			async function getUserFromLogin(login:string):Promise<TwitchDataTypes.UserInfo|null>{
+				let res:TwitchDataTypes.UserInfo[];
+				try {
+					res = await TwitchUtils.loadUserInfo(undefined, [login])
+				}catch(error) {
+					StoreProxy.main.showAlert("User @"+login+" not found on Twitch.");
+					return null;
+				}
+				return res[0];
+			}
+
 			switch(cmd) {
-				case "/announce": TwitchUtils.sendAnnouncement(chunks[1], chunks[0]); break;
-				case "/ban": break;
-				case "/unban": break;
-				case "/clear": break;
-				case "/color": break;
-				case "/commercial": break;
-				case "/delete": break;
-				case "/emoteonly": break;
-				case "/emoteonlyoff": break;
-				case "/followers": break;
-				case "/followersoff": break;
-				case "/marker": break;
-				case "/mod": break;
-				case "/mods": break;
-				case "/unmod": break;
-				case "/raid": break;
-				case "/unraid": break;
-				case "/slow": break;
-				case "/slowoff": break;
-				case "/subscribers": break;
-				case "/subscribersoff": break;
-				case "/timeout": break;
-				case "/untimeout": break;
-				case "/uniquechat": break;
-				case "/uniquechatoff": break;
-				case "/vip": break;
-				case "/vips": break;
-				case "/unvip": break;
-				case "/w": break;
+				case "/announce": TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
+				case "/ban":{
+					const user = await getUserFromLogin(chunks[0]);
+					if(user) TwitchUtils.banUser(user.id, undefined, chunks.splice(1).join(" "));
+					return;
+				}
+				case "/unban": {
+					const user = await getUserFromLogin(chunks[0]);
+					if(user) TwitchUtils.unbanUser(user.id);
+					return;
+				}
+				case "/timeout":{
+					const user = await getUserFromLogin(chunks[0]);
+					if(user) TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
+					return;
+				}
+				case "/untimeout": {
+					const user = await getUserFromLogin(chunks[0]);
+					if(user) TwitchUtils.unbanUser(user.id);
+					return;
+				}
+				case "/commercial": TwitchUtils.startCommercial(parseInt(chunks[0])); return;
+				case "/delete": TwitchUtils.deleteMessages(chunks[0]); return;
+				case "/clear": TwitchUtils.deleteMessages(); return;
+				case "/color": TwitchUtils.setColor(chunks[0]); return;
+				case "/emoteonly": TwitchUtils.setRoomSettings({emotesOnly:true}); return;
+				case "/emoteonlyoff": TwitchUtils.setRoomSettings({emotesOnly:false}); return;
+				case "/followers": TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); return;
+				case "/followersoff": TwitchUtils.setRoomSettings({followOnly:0}); return;
+				case "/slow": TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); return;
+				case "/slowoff": TwitchUtils.setRoomSettings({slowMode:0}); return;
+				case "/subscribers": TwitchUtils.setRoomSettings({subOnly:true}); return;
+				case "/subscribersoff": TwitchUtils.setRoomSettings({subOnly:false}); return;
+				case "/mod": TwitchUtils.addRemoveModerator(false, undefined, chunks[0]); return;
+				case "/unmod": TwitchUtils.addRemoveModerator(true, undefined, chunks[0]); return;
+				case "/raid": TwitchUtils.raidChannel(chunks[0]); return;
+				case "/unraid": TwitchUtils.raidCancel(); return;
+				case "/vip": TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return;
+				case "/unvip": TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return;
+				case "/whiser":
+				case "/w": {
+					const login = chunks[0];
+					TwitchUtils.whisper(chunks.splice(1).join(" "), login);
+					return;
+				}
+				
+				//TODO
+				case "/uniquechat": return;
+				case "/uniquechatoff": return;
+				case "/marker": return;
+				case "/mods": return;
+				case "/vips": return;
 			}
 		}
 
@@ -393,8 +431,8 @@ export default class TwitchClient extends EventDispatcher {
 
 		//Check if the message contains a mention
 		if(message && StoreProxy.params.appearance.highlightMentions.value === true) {
-			data.hasMention = UserSession.instance.authToken.login != null && 
-							new RegExp("(^| |@)("+UserSession.instance.authToken.login+")($|\\s)", "gim")
+			data.hasMention = UserSession.instance.twitchAuthToken.login != null && 
+							new RegExp("(^| |@)("+UserSession.instance.twitchAuthToken.login+")($|\\s)", "gim")
 							.test(message);
 		}
 		
