@@ -621,10 +621,9 @@ export namespace TwitchatDataTypes {
 		type:TwitchatMessageStringType;
 		id: string;
 		date: number;
-		channel_id: string;
 	}
 
-	export type ChatSource = "twitch"|"youtube"|"tiktok"|"facebook";
+	export type ChatSource = "twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 
 	export interface TwitchatUser {
 		source:ChatSource;
@@ -634,6 +633,7 @@ export namespace TwitchatDataTypes {
 		is_following?:boolean;
 		is_blocked?:boolean;
 		is_banned?:boolean;
+		temporary?:boolean;//true when the details are loading
 	}
 
 	export type ChatMessageTypes = MessageChatData |
@@ -661,13 +661,14 @@ export namespace TwitchatDataTypes {
 									MessageAutobanJoinData
 
 	export interface MessageChatData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"message";
 		source:ChatSource;
 		user: TwitchatUser;
 		message:string;
 		message_html:string;
-		todayFirst: boolean;
 		
+		todayFirst?: boolean;
 		ttAutomod?: AutomodParamsKeywordFilterData;
 		answersTo?: MessageChatData;
 		answers?: MessageChatData[];
@@ -682,6 +683,7 @@ export namespace TwitchatDataTypes {
 		hasMention?: boolean;
 		
 		twitch_automod?: PubSubDataTypes.AutomodData;
+		twitch_isSlashMe?:boolean;
 		twitch_isFirstMessage?:boolean;
 		twitch_isReturning?:boolean;
 		twitch_isPresentation?:boolean;
@@ -700,6 +702,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessagePollData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"poll";
 		title: string;
 		choices: {
@@ -713,6 +716,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessagePredictionData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"prediction";
 		title: string;
 		duration: number;
@@ -729,12 +733,14 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageFollowingData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"following";
 		user:TwitchatUser;
 		followed_at: string;
 	}
 
 	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"subscription";
 		user: TwitchatUser;//User subscribing or gifting the sub
 		tier: "1"|"2"|"3"|"prime";
@@ -749,6 +755,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageCheerData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"cheer";
 		bits: number;
 		user: TwitchatUser;
@@ -756,6 +763,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageRewardRedeemData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"reward";
 		user: TwitchatUser;
 		reward: {
@@ -767,6 +775,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageCommunityChallengeContributionData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"community_challenge_contribution";
 		user: TwitchatUser;
 		contribution: number;
@@ -782,43 +791,51 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageHypeTrainSummaryData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"hype_train_summary";
 		train: HypeTrainStateData;
 		activities: (MessageSubscriptionData|MessageCheerData)[];
 	}
 
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"hype_train_cooled_down";
 	}
 
 	export interface MessageCommunityBoostData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"community_boost_complete";
 		viewers:number;
 	}
 
 	export interface MessageRaidData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"raid";
 		user:TwitchatUser;
 		viewers:number;
 	}
 
 	export interface MessageJoinData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"join";
 		users:TwitchatUser[];
 	}
 
 	export interface MessageLeaveData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"leave";
 		users:TwitchatUser[];
 	}
 
 	export interface messageBanData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"ban";
 		user:TwitchatUser;
 		reason:string;
 	}
 
 	export interface MessageTimeoutData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"timeout";
 		user:TwitchatUser;
 		reason:string;
@@ -831,6 +848,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageClearChatData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"clear_chat";
 	}
 
@@ -851,6 +869,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageAutobanJoinData extends AbstractTwitchatMessage {
+		channel_id: string;
 		type:"autoban_join";
 		user:TwitchatUser;
 		rule:TwitchatDataTypes.AutomodParamsKeywordFilterData;

@@ -99,7 +99,7 @@ export const storeAuth = defineStore('auth', {
 				const users = await TwitchUtils.loadUserInfo([UserSession.instance.authToken.user_id]);
 				const currentUser = users.find(v => v.id == UserSession.instance.authToken.user_id);
 				if(currentUser) {
-					UserSession.instance.user = currentUser;
+					UserSession.instance.twitchUser = currentUser;
 				}
 				
 				if(this.authenticated) {

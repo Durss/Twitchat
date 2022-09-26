@@ -282,7 +282,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public openViewerCard():void {
-		this.$store("users").openUserCard(UserSession.instance.user!.login);
+		this.$store("users").openUserCard(UserSession.instance.twitchUser!.login);
 	}
 
 	public async simulateEvent(code:string):Promise<void> {

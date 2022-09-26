@@ -148,7 +148,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Replaces emotes by image tags on the message
+	 * Splits the message in chunks of type emote" and "text"
 	 */
 	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):TwitchDataTypes.ParseMessageChunk[] {
 
@@ -317,6 +317,29 @@ export default class TwitchUtils {
 		result.push( {type:"text", value: Array.from(message).slice(cursor).join("")} );
 		
 		return result;
+	}
+
+	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static parseEmotesToHTML(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
+		const emoteChunks = TwitchUtils.parseEmotes(message, emotes, removeEmotes, customParsing);
+		let message_html = "";
+		for (let i = 0; i < emoteChunks.length; i++) {
+			const v = emoteChunks[i];
+			if(v.type == "text") {
+				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				message_html += Utils.parseURLs(v.value);
+			}else if(v.type == "emote") {
+				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+				url = url.replace(/1x$/gi, "3x");//BTTV format
+				url = url.replace(/2x$/gi, "3x");//7TV format
+				url = url.replace(/1$/gi, "4");//FFZ format
+				let tt = "<img src='"+url+"' width='112' height='112' class='emote'><br><center>"+v.label+"</center>";
+				message_html += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
+			}
+		}
+		return message_html;
 	}
 
 	/**

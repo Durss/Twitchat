@@ -30,9 +30,22 @@ export const storeUsers = defineStore('users', {
 
 
 	actions: {
+		/**
+		 * Gets a user by their source from their ID nor login.
+		 * It registers the user on the local DB "this.users" to get them back later.
+		 * If only the login is given, the user's data are loaded asynchronously from
+		 * remote API then added to the local DB while returning a temporary user object.
+		 * 
+		 * @param source 
+		 * @param id 
+		 * @param login 
+		 * @param displayName 
+		 * @returns 
+		 */
 		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser|undefined {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
-			//Don't use "users.find(...)", perfs are much lower than good old for loop
+			//Don't use "users.find(...)", perfs are much lower than good old for() loop
+			//find() takes ~10-15ms for 1M users VS ~3-4ms for the for() loop
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.source != source) continue;
@@ -44,6 +57,22 @@ export const storeUsers = defineStore('users', {
 				if(!displayName) displayName = login;
 				user = { source, id, login, displayName };
 				this.users.push(user);
+			}
+			//If we don't have enough info, create a temp user object and load
+			//its details from the API then register it if found.
+			if(!user && (login || id)) {
+				user = { source, id:id??"", login:login??"", displayName:login??"", temporary:true};
+				if(source == "twitch") {
+					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
+						if(res.length > 0) {
+							user!.id = res[0].id;
+							user!.login = res[0].login;
+							user!.displayName = res[0].display_name;
+							delete user!.temporary;
+							this.users.push(user!);
+						}
+					});
+				}
 			}
 			return user;
 		},
@@ -58,7 +87,7 @@ export const storeUsers = defineStore('users', {
 		openUserCard(payload:string|null) { this.userCard = payload; },
 
 		async loadMyFollowings():Promise<void> {
-			const followings = await TwitchUtils.getFollowings(UserSession.instance.user?.id);
+			const followings = await TwitchUtils.getFollowings(UserSession.instance.twitchUser?.id);
 			let hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => {
 				hashmap[v.to_id] = true;
@@ -90,9 +119,9 @@ export const storeUsers = defineStore('users', {
 
 			const list = sChat.messages;
 			for (let i = 0; i < list.length; i++) {
-				const m = list[i] as IRCEventDataList.Message;
-				if(m.tags.id == data.message_id) {
-					m.lowTrust = true;
+				const m = list[i];
+				if(m.id == data.message_id && m.type == "message") {
+					m.twitch_isLowTrust = true;
 					return;
 				}
 			}

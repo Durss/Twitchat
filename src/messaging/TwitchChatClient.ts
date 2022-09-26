@@ -20,6 +20,7 @@ export default class TwitchClient extends EventDispatcher {
 	private _connectedAnonymously:boolean = false;
 	private _connectTimeout:number = -1;
 	private _connectedChannels:string[] = [];
+	private queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
 	
 	constructor() {
 		super();
@@ -136,6 +137,20 @@ export default class TwitchClient extends EventDispatcher {
 			this._client.disconnect();
 		}
 	}
+	
+	/**
+	 * Disconnect from all channels and cut IRC connection
+	 */
+	public sendMessage(text:string):void {
+			
+		//Workaround to a weird behavior of TMI.js.
+		//If the message starts by a "\" it's properly sent on all
+		//connected clients, but never sent back to the sender.
+		//Removing all of them to avoid that...
+		text = text.replace(/^\\+/gi, "");
+
+		this._client.say(UserSession.instance.twitchUser!.login, text);
+	}
 
 	
 	
@@ -161,6 +176,7 @@ export default class TwitchClient extends EventDispatcher {
 	 * Create events handlers
 	 */
 	private createHandlers():void {
+		this._client.on('message', this.message);
 		this._client.on("join", this.onJoin);
 		this._client.on("part", this.onLeave);
 		this._client.on('cheer', this.onCheer);
@@ -176,7 +192,6 @@ export default class TwitchClient extends EventDispatcher {
 		this._client.on("disconnected", this.disconnected);
 		this._client.on("clearchat", this.clearchat);
 		this._client.on('raw_message', this.raw_message);
-		this._client.on('message', this.message);
 	}
 
 	/**
@@ -202,6 +217,8 @@ export default class TwitchClient extends EventDispatcher {
 			displayName: login,
 		}
 		//Search if a user with this name and source exists on store
+		//If no user exists a temporary user object will be returned and
+		//populated asynchronously via an API call
 		const storeUser = StoreProxy.users.getUserFrom("twitch", undefined, login);
 		return storeUser ?? res;
 	}
@@ -233,6 +250,122 @@ export default class TwitchClient extends EventDispatcher {
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) ?? 1000)/1000).toString() as ("1"|"2"|"3");
 		if(message) res.message = message;
 		return res;
+	}
+
+	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
+		if(!tags.id) {
+			//When sending a message from the current client, IRC never send it back to us.
+			//TMI tries to make this transparent by firing the "message" event but
+			//it won't populate the data with the actual ID of the message.
+			//To workaround this issue, we just store the message on a queue, and
+			//wait for a NOTICE event that gives us the message ID in which case
+			//we pop the message from the queue
+			this.queuedMessages.push({message, tags, self, channel});
+			return;
+		}
+
+		if(tags["message-type"] != "chat" && tags["message-type"] != "action") return;
+
+		const data:TwitchatDataTypes.MessageChatData = {
+			id:Utils.getUUID(),
+			type:"message",
+			channel_id:channel,
+			date:Date.now(),
+
+			source:"twitch",
+			user: this.getUserFromTags(tags),
+			message:message,
+			message_html:"",
+		};
+
+		data.message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
+				
+		// If message is an answer, set original message's ref to the answer
+		// Called when using the "answer feature" on twitch chat
+		if(tags["reply-parent-msg-id"]) {
+			const messages = StoreProxy.chat.messages;
+			//Search for original message the user answered to
+			for (let i = 0; i < messages.length; i++) {
+				let m = messages[i];
+				if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
+				if(m.id === tags["reply-parent-msg-id"]) {
+					if(m.answersTo) m = m.answersTo;
+					if(!m.answers) m.answers = [];
+					m.answers.push( data );
+					data.answersTo = m;
+					break;
+				}
+			}
+		}else{
+			//If there's a mention, search for last messages within
+			//a max timeframe to find if the message may be a reply to
+			//a message that was sent by the mentionned user
+			if(/@\w/gi.test(message)) {
+				// console.log("Mention found");
+				const ts = Date.now();
+				const messages = StoreProxy.chat.messages;
+				const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
+				const matches = message.match(/@\w+/gi) as RegExpMatchArray;
+				for (let i = 0; i < matches.length; i++) {
+					const match = matches[i].replace("@", "").toLowerCase();
+					// console.log("Search for message from ", match);
+					const candidates = messages.filter(m => {
+						if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return false;
+						return m.user.login == match
+					}) as TwitchatDataTypes.MessageChatData[];
+					//Search for oldest matching candidate
+					for (let j = 0; j < candidates.length; j++) {
+						const c = candidates[j];
+						// console.log("Found candidate", c);
+						if(ts - c.date < timeframe) {
+							// console.log("Timeframe is OK !");
+							if(c.answers) {
+								//If it's the root message of a conversation
+								c.answers.push( data );
+								data.answersTo = c;
+							}else if(c.answersTo && c.answersTo.answers) {
+								//If the messages answers to a message itself answering to another message
+								c.answersTo.answers.push( data );
+								data.answersTo = c.answersTo;
+							}else{
+								//If message answers to a message not from a conversation
+								data.answersTo = c;
+								if(!c.answers) c.answers = [];
+								c.answers.push( data );
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+				
+		//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
+		if(TwitchCypherPlugin.instance.isCyperCandidate(message)) {
+			const original = message;
+			message = await TwitchCypherPlugin.instance.decrypt(original);
+			data.cyphered = message != original;
+		}
+
+		//Check if the message contains a mention
+		if(message && StoreProxy.params.appearance.highlightMentions.value === true) {
+			data.hasMention = UserSession.instance.authToken.login != null && 
+							new RegExp("(^| |@)("+UserSession.instance.authToken.login+")($|\\s)", "gim")
+							.test(message);
+		}
+		
+	
+		data.twitch_isSlashMe		= tags["message-type"] === "action";
+		data.twitch_isReturning		= tags["returning-chatter"] === true;
+		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
+		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
+		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
+
+		if(data.twitch_isHighlighted) {
+			//TODO create a reward redeem notification
+		}
+
+		this.dispatchEvent(new ChatClientEvent("MESSAGE", data));
 	}
 
 	private onJoin(channel:string, user:string):void {
@@ -344,7 +477,6 @@ export default class TwitchClient extends EventDispatcher {
 		this.dispatchEvent(new ChatClientEvent("DISCONNECT", {
 			type:"disconnect",
 			id:Utils.getUUID(),
-			channel_id:"",
 			date:Date.now(),
 			reason
 		}));
@@ -359,125 +491,90 @@ export default class TwitchClient extends EventDispatcher {
 		}));
 	}
 
-	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
-		const data:TwitchatDataTypes.MessageChatData = {
-			id:Utils.getUUID(),
-			type:"message",
-			channel_id:channel,
-			date:Date.now(),
-
-			source:"twitch",
-			user: this.getUserFromTags(tags),
-			message:message,
-			message_html:"",
-			todayFirst:false,//Overwritten later, just here to comply with typings
-		};
-
-		const emoteChunks = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
-		let message_html = "";
-		for (let i = 0; i < emoteChunks.length; i++) {
-			const v = emoteChunks[i];
-			if(v.type == "text") {
-				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				message_html += Utils.parseURLs(v.value);
-			}else if(v.type == "emote") {
-				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-				url = url.replace(/1x$/gi, "3x");//BTTV format
-				url = url.replace(/2x$/gi, "3x");//7TV format
-				url = url.replace(/1$/gi, "4");//FFZ format
-				let tt = "<img src='"+url+"' width='112' height='112' class='emote'><br><center>"+v.label+"</center>";
-				message_html += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
-			}
-		}
-		data.message_html = message_html;
-				
-		// If message is an answer, set original message's ref to the answer
-		// Called when using the "answer feature" on twitch chat
-		if(tags["reply-parent-msg-id"]) {
-			const messages = StoreProxy.chat.messages;
-			//Search for original message the user answered to
-			for (let i = 0; i < messages.length; i++) {
-				let m = messages[i];
-				if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
-				if(m.id === tags["reply-parent-msg-id"]) {
-					if(m.answersTo) m = m.answersTo;
-					if(!m.answers) m.answers = [];
-					m.answers.push( data );
-					data.answersTo = m;
-					break;
-				}
-			}
-		}else{
-			//If there's a mention, search for last messages within
-			//a max timeframe to find if the message may be a reply to
-			//a message that was sent by the mentionned user
-			if(/@\w/gi.test(message)) {
-				// console.log("Mention found");
-				const ts = Date.now();
-				const messages = StoreProxy.chat.messages;
-				const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
-				const matches = message.match(/@\w+/gi) as RegExpMatchArray;
-				for (let i = 0; i < matches.length; i++) {
-					const match = matches[i].replace("@", "").toLowerCase();
-					// console.log("Search for message from ", match);
-					const candidates = messages.filter(m => {
-						if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return false;
-						return m.user.login == match
-					}) as TwitchatDataTypes.MessageChatData[];
-					//Search for oldest matching candidate
-					for (let j = 0; j < candidates.length; j++) {
-						const c = candidates[j];
-						// console.log("Found candidate", c);
-						if(ts - c.date < timeframe) {
-							// console.log("Timeframe is OK !");
-							if(c.answers) {
-								//If it's the root message of a conversation
-								c.answers.push( data );
-								data.answersTo = c;
-							}else if(c.answersTo && c.answersTo.answers) {
-								//If the messages answers to a message itself answering to another message
-								c.answersTo.answers.push( data );
-								data.answersTo = c.answersTo;
-							}else{
-								//If message answers to a message not from a conversation
-								data.answersTo = c;
-								if(!c.answers) c.answers = [];
-								c.answers.push( data );
-							}
-							break;
-						}
-					}
-				}
-			}
-		}
-				
-		//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-		if(TwitchCypherPlugin.instance.isCyperCandidate(message)) {
-			const original = message;
-			message = await TwitchCypherPlugin.instance.decrypt(original);
-			data.cyphered = message != original;
-		}
-
-		//Check if the message contains a mention
-		if(message && StoreProxy.params.appearance.highlightMentions.value === true) {
-			data.hasMention = UserSession.instance.authToken.login != null && 
-							new RegExp("(^| |@)("+UserSession.instance.authToken.login+")($|\\s)", "gim")
-							.test(message);
-		}
-		
-	
-		data.twitch_isReturning		= tags["returning-chatter"] === true;
-		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
-		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
-		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
-
-		this.dispatchEvent(new ChatClientEvent("MESSAGE", data));
-	}
-
-	private raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):void {
-		//TODO handle /announcements
+	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {
 		//TODO handle whispers
 		//TODO handle message IDs
+
+		//TMI parses the "badges" and "badge-info" props right AFTER dispatching
+		//the "raw_message" event.
+		//Let's wait a frame so the props are parsed
+		await Utils.promisedTimeout(0);
+		switch(data.command) {
+			case "USERNOTICE": {
+				//Handle announcement messages
+				if(((data.tags as tmi.ChatUserstate)["msg-id"] as unknown) === "announcement") {
+					const params = data.params as string[];
+					const tags = data.tags as tmi.ChatUserstate;
+					tags.username = tags.login;
+
+					this.message(params[0], tags, params[1], false);
+				}
+				break;
+			}
+
+			case "WHISPER": {
+				//Not using the client.on("whisper") helper as it does not provides
+				//the receiver. Here we get everything.
+				const [toLogin, message] = (data as {params:string[]}).params;
+				const tags = data.tags as tmi.ChatUserstate;
+				const eventData:TwitchatDataTypes.MessageWhisperData = {
+					id:Utils.getUUID(),
+					type:"whisper",
+					date:Date.now(),
+		
+					source:"twitch",
+					from: this.getUserFromTags(tags),
+					to: this.getUserFromLogin(toLogin),
+					message:message,
+					message_html:TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]),
+				};
+		
+				this.dispatchEvent(new ChatClientEvent("WHISPER", eventData));
+				break;
+			}
+
+			case "USERSTATE": {
+				TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
+				
+				//If there are messages pending for their ID, give the oldest one the received ID
+				if((data as tmi.UserNoticeState).tags.id && this.queuedMessages.length > 0) {
+					const m = this.queuedMessages.shift();
+					if(m) {
+						(m.tags as tmi.ChatUserstate).id = (data as tmi.UserNoticeState).tags.id;
+						(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
+						this.message(m.channel, m.tags as tmi.ChatUserstate, m.message, m.self);
+					}
+				}
+				break;
+			}
+
+			// case "ROOMSTATE": {
+			// 	if((data.params as string[])[0] == this.channel) {
+			// 		this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
+			// 	}
+			// 	break;
+			// }
+
+			//Using this instead of the "notice" event from TMI as it's not
+			//fired for many notices whereas here we get them all
+			// case "NOTICE": {
+			// 	let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
+				
+			// 	if(!message) {
+			// 		if(msgid.indexOf("bad_delete_message_error") > -1) {
+			// 			message = "You cannot delete this message.";
+			// 		}
+			// 		if(msgid.indexOf("authentication failed") > -1) {
+			// 			console.log(data);
+			// 			message = "Authentication failed. Refreshing token and trying again...";
+			// 			//TODO
+			// 		}
+			// 	}
+			// 	this.sendNotice(msgid as tmi.MsgID, message);
+			// 	break;
+			// }
+			default: break;
+		}
 	}
 
 }

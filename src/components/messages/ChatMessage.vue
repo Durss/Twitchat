@@ -506,7 +506,7 @@ export default class ChatMessage extends Vue {
 		let clipId = "";
 		let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
 		if(this.messageData.type == "whisper"
-		&& this.messageData.tags['user-id'] == UserSession.instance.user!.id) {
+		&& this.messageData.tags['user-id'] == UserSession.instance.twitchUser!.id) {
 			this.recipient = this.messageData.params[0];
 		}
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {

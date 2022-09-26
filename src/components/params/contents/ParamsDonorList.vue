@@ -64,7 +64,7 @@ export default class ParamsDonorList extends Vue {
 
 	public get isDonor():boolean { return UserSession.instance.isDonor; }
 	public get donorLevel():number { return UserSession.instance.donorLevel; }
-	public get userName():string { return UserSession.instance.user!.display_name; }
+	public get userName():string { return UserSession.instance.twitchUser!.display_name; }
 
 	public mounted():void {
 		this.loadList();
@@ -112,7 +112,7 @@ export default class ParamsDonorList extends Vue {
 
 	private computeStats():void {
 		const lvl2Count:{[key:number]:number} = {};
-		const meUID = UserSession.instance.user!.id;
+		const meUID = UserSession.instance.twitchUser!.id;
 		for (let i = 0; i < this.localList.length; i++) {
 			const e = this.localList[i];
 			if(!lvl2Count[e.v]) lvl2Count[e.v] = 0;

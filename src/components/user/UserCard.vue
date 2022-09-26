@@ -147,7 +147,7 @@ export default class UserCard extends Vue {
 				// this.subState = await TwitchUtils.getSubscriptionState(this.user.id);//needs a new scope
 				this.fakeModMessage = {
 					type: "message",
-					channel: "#"+UserSession.instance.user?.login,
+					channel: "#"+UserSession.instance.twitchUser?.login,
 					message: "",
 					tags: {
 						username:this.user.login,

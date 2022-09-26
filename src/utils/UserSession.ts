@@ -13,7 +13,7 @@ export default class UserSession {
 	public authResult:TwitchDataTypes.AuthTokenResult|null = null;
 	//keys are lowercased version of the emotes codes
 	public emotesCacheHashmap:{[key:string]:TwitchDataTypes.Emote} = {};
-	public user:TwitchDataTypes.UserInfo| null = null;
+	public twitchUser:TwitchDataTypes.UserInfo| null = null;
 	public access_token:string|null = null;
 	public isDonor:boolean = false;
 	public donorLevel:number = 0;
@@ -42,7 +42,7 @@ export default class UserSession {
 	}
 
 	public get hasChannelPoints():boolean {
-		return this.user?.broadcaster_type != "";
+		return this.twitchUser?.broadcaster_type != "";
 	}
 	public get emotesCache():TwitchDataTypes.Emote[]|null { return this._emotesCache; }
 	public set emotesCache(value:TwitchDataTypes.Emote[]|null) {
@@ -59,9 +59,9 @@ export default class UserSession {
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
 		const img = rewardImg;
 		return {
-			broadcaster_name: UserSession.instance.user!.login,
-			broadcaster_login: UserSession.instance.user!.login,
-			broadcaster_id: UserSession.instance.user!.id,
+			broadcaster_name: UserSession.instance.twitchUser!.login,
+			broadcaster_login: UserSession.instance.twitchUser!.login,
+			broadcaster_id: UserSession.instance.twitchUser!.id,
 			id: "highlighted-message",
 			image:{
 				url_1x:img,

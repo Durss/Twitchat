@@ -4,6 +4,7 @@ import { Event } from '@/utils/EventDispatcher';
 export default class ChatClientEvent extends Event {
 
 	public static MESSAGE = "MESSAGE";
+	public static WHISPER = "WHISPER";
 	public static SUB = "SUB";
 	public static CHEER = "CHEER";
 	public static JOIN = "JOIN";
@@ -15,6 +16,7 @@ export default class ChatClientEvent extends Event {
 	public static CLEAR_CHAT = "CLEAR_CHAT";
 
 	public data!:	TwitchatDataTypes.MessageChatData |
+					TwitchatDataTypes.MessageWhisperData |
 					TwitchatDataTypes.MessageSubscriptionData |
 					TwitchatDataTypes.MessageCheerData |
 					TwitchatDataTypes.MessageJoinData |
@@ -27,6 +29,7 @@ export default class ChatClientEvent extends Event {
 					;
 	
 	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
+	constructor(type:"WHISPER", data:TwitchatDataTypes.MessageWhisperData);
 	constructor(type:"CHEER", data:TwitchatDataTypes.MessageCheerData);
 	constructor(type:"JOIN", data:TwitchatDataTypes.MessageJoinData);
 	constructor(type:"LEAVE", data:TwitchatDataTypes.MessageLeaveData);

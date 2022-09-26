@@ -61,7 +61,7 @@ export default class ParamsAccount extends Vue {
 	public get donorLevel():number { return UserSession.instance.donorLevel; }
 	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ABOUT; } 
 	public get userPP():string {
-		let pp:string|undefined = UserSession.instance.user?.profile_image_url;
+		let pp:string|undefined = UserSession.instance.twitchUser?.profile_image_url;
 		if(!pp) {
 			pp = this.$image("icons/user_purple.svg");
 		}
