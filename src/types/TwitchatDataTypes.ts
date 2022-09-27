@@ -787,6 +787,7 @@ export namespace TwitchatDataTypes {
 		bits: number;
 		user: TwitchatUser;
 		message: string;
+		message_html: string;
 	}
 
 	export interface MessageRewardRedeemData extends AbstractTwitchatMessage {

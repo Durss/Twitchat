@@ -503,7 +503,9 @@ export default class TwitchChatClient extends EventDispatcher {
 		}));
 	}
 
-	private onCheer(channel:string, tags:tmi.ChatUserstate, message:string):void {
+	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
+		let message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
+		message_html = await TwitchUtils.parseCheermotes(message_html, UserSession.instance.twitchUser!.id);
 		this.dispatchEvent(new ChatClientEvent("CHEER", {
 			source:"twitch",
 			type:"cheer",
@@ -513,6 +515,7 @@ export default class TwitchChatClient extends EventDispatcher {
 			user:this.getUserFromTags(tags),
 			bits:parseFloat(tags.bits as string) ?? -1,
 			message,
+			message_html,
 		}));
 	}
 

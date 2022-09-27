@@ -2,13 +2,11 @@ import { storeChat } from "@/store/chat/storeChat";
 import { storeTTS } from "@/store/tts/storeTTS";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
-import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
 import PubSub from "./PubSub";
-import type { PubSubDataTypes } from "./PubSubDataTypes";
 import PubSubEvent from "./PubSubEvent";
 import TwitchatEvent from "./TwitchatEvent";
-import TwitchUtils from "./TwitchUtils";
+import UserSession from "./UserSession";
 import Utils from "./Utils";
 
 interface SpokenMessage {
@@ -189,15 +187,7 @@ export default class TTSUtils {
     }
 
 	/**
-	 * Reads a twitchat message
-	 * @param message 
-	 */
-	public read(message: IRCEventDataList.Message):void {
-		this.parseMessage(message);
-	}
-
-	/**
-	 * Reads a string message now.
+	 * Reads a message now.
 	 * Stops any currently playing message and add it next on the queue
 	 * @param message 
 	 */
@@ -246,6 +236,15 @@ export default class TTSUtils {
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = crypto.randomUUID();
 
+		const paramsTTS = this.sTTS.params;
+		//If requested to only read after a certain inactivity duration and
+		//that duration has not passed yet, don't read the message
+		if (paramsTTS.inactivityPeriod > 0
+		&& (Date.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
+			this.lastMessageTime = Date.now();
+			return;
+		}
+
 		const m:SpokenMessage = {message, id, date: Date.now()};
 
 		if (this.pendingMessages.length == 0) {
@@ -268,262 +267,210 @@ export default class TTSUtils {
 	 * @param message 
 	 * @returns 
 	 */
-	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
+	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<string> {
 		const paramsTTS = this.sTTS.params;
 
 		// console.log("Read message type", type);
 		// console.log(message);
 
-		//If requested to only read after a certain inactivity duration and
-		//that duration has not passed yet, don't read the message
-		if (paramsTTS.inactivityPeriod > 0
-		&& (Date.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
-			this.lastMessageTime = Date.now();
-			return;
-		}
-		this.lastMessageTime = Date.now();
-
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readMessages) return;
+				if(!paramsTTS.readMessages) return "";
 
 				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, m.user)) return;
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user)) return "";
 				//Ignore automoded messages
-				if(message.twitch_automod) return;
+				if(message.twitch_automod) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<[>]*?>/gi, "");//Remove all HTML tags
-				}
-				if(paramsTTS.maxLength > 0) {
-					mess = mess.substring(0, paramsTTS.maxLength);
+					mess = message.message_html.replace(/<[^>]*?>/gi, "");//Remove all HTML tags
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
+				}
+				if(paramsTTS.maxLength > 0) {
+					mess = mess.substring(0, paramsTTS.maxLength);
 				}
 				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
-				this.addMessageToQueue(txt, message.user.id);
-				break;
+				return txt;
 			}
 
-			case TwitchatMessageType.WHISPER: {
+			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readWhispers) return;
+				if(!paramsTTS.readWhispers) return "";
 
-				const m = message as IRCEventDataList.Whisper;
 				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, m.tags)) return;
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.from)) return "";
 
 				//Don't read our answers
-				if(m.isAnswer === true) return;
+				if(message.from.id === UserSession.instance.twitchUser!.id) return "";
 
-				let mess: string = m.params[1];
-				if(paramsTTS.maxLength > 0) {
-					mess = mess.substring(0, paramsTTS.maxLength);
-				}
+				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = TwitchUtils.parseEmotes(mess, m.tags["emotes-raw"], true).map(elem=>elem.value).join(', ');
+					mess = message.message_html.replace(/<[^>]*?>/gi, "");//Remove all HTML tags
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
 				}
-				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string)
-				txt = txt.replace(/\{MESSAGE\}/gi, mess)
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
-			}
-
-			case TwitchatMessageType.BAN:
-			case TwitchatMessageType.COMMERCIAL:
-			case TwitchatMessageType.LEAVE:
-			case TwitchatMessageType.JOIN:
-			case TwitchatMessageType.HOST:
-			case TwitchatMessageType.ROOM_STATE:
-			case TwitchatMessageType.NOTICE: {
-				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readNotices) return;
-
-				const m = message as IRCEventDataList.Notice;
-				if(!m.message) return;
-
-				let mess: string = m.message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
-				let txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
-			}
-
-			case TwitchatMessageType.FOLLOW: {
-				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readFollow) return;
-
-				const m = message as IRCEventDataList.Highlight;
-				
-				let txt = paramsTTS.readFollowPattern.replace(/\{USER\}/gi, m.username as string);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
-			}
-
-			case TwitchatMessageType.SUB:
-			case TwitchatMessageType.SUB_PRIME:
-			case TwitchatMessageType.SUBGIFT_UPGRADE: {
-				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readSubs) return;
-
-				const m = message as IRCEventDataList.Highlight;
-				const tier = TwitchatMessageType.SUB_PRIME? "prime" : (parseInt(m.methods?.plan as string)/1000).toString();
-				
-				let txt = paramsTTS.readSubsPattern.replace(/\{USER\}/gi, m.username as string);
-				txt = txt.replace(/\{MESSAGE\}/gi, m.message ?? "");
-				txt = txt.replace(/\{TIER\}/gi, tier);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
-			}
-
-			case TwitchatMessageType.SUBGIFT: {
-				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readSubgifts) return;
-
-				const m = message as IRCEventDataList.Highlight;
-				const tier = (parseInt(m.methods?.plan as string)/1000).toString();
-				let prevCount = (m.subgiftAdditionalRecipents?.length ?? 0) + 1;
-
-				//Wait a little for potential subgift streak to complete
-				const checkComplete = () => {
-					let recipients = [m.recipient];
-					if(m.subgiftAdditionalRecipents && m.subgiftAdditionalRecipents.length > 0) {
-						recipients = recipients.concat(m.subgiftAdditionalRecipents);
-					}
-					
-					//If count has changed, wait a little there might be more subgifts coming
-					if(prevCount != recipients.length) {
-						prevCount = recipients.length;
-						return;
-					}
-	
-					let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
-					txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.join(', ').replace(/,\s([^,]*)$/, " and$1"));
-					txt = txt.replace(/\{TIER\}/gi, tier);
-					txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
-					this.addMessageToQueue(txt, m.tags.id as string);
-					clearInterval(checkCompleteInterval);
+				if(paramsTTS.maxLength > 0) {
+					mess = mess.substring(0, paramsTTS.maxLength);
 				}
-
-				const checkCompleteInterval = setInterval(()=>checkComplete(), 500);
-				break;
+				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, message.from.displayName)
+				txt = txt.replace(/\{MESSAGE\}/gi, mess)
+				return txt;
 			}
 
-			case TwitchatMessageType.BITS: {
+			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readBits) return;
+				if(!paramsTTS.readNotices) return "";
 
-				const m = message as IRCEventDataList.Highlight;
-				const bits = parseInt(m.tags.bits as string);
+				if(!message.message) return "";
+
+				let mess: string = message.message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
+				let txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
+				return txt;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+				//Stop if didn't ask to read this kind of message
+				if(!paramsTTS.readFollow) return "";
+
+				let txt = paramsTTS.readFollowPattern.replace(/\{USER\}/gi, message.user.displayName);
+				return txt;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+				if(!message.is_gift) {
+					//Stop if didn't ask to read this kind of message
+					if(!paramsTTS.readSubs) return "";
+					
+					let txt = paramsTTS.readSubsPattern.replace(/\{USER\}/gi, message.user.displayName);
+					txt = txt.replace(/\{MESSAGE\}/gi, message.message ?? "");
+					txt = txt.replace(/\{TIER\}/gi, message.tier);
+					return txt;
+				}else{
+					//Stop if didn't ask to read this kind of message
+					if(!paramsTTS.readSubgifts) return "";
+	
+					return new Promise((resolve) => {
+						let prevCount = (message.gift_recipients?.length ?? 0) + 1;
+		
+						//Wait a little for potential subgift streak to complete
+						const checkComplete = () => {
+							let recipients = message.gift_recipients ?? [];
+							
+							//If count has changed, wait a little there might be more subgifts coming
+							if(prevCount != recipients.length) {
+								prevCount = recipients.length;
+								return;
+							}
+			
+							clearInterval(checkCompleteInterval);
+
+							let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, message.user.displayName);
+							txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.join(', ').replace(/,\s([^,]*)$/, " and$1"));
+							txt = txt.replace(/\{TIER\}/gi, message.tier);
+							txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
+							resolve(txt);
+						}
+		
+						const checkCompleteInterval = setInterval(()=>checkComplete(), 500);
+					})
+				}
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+				//Stop if didn't ask to read this kind of message
+				if(!paramsTTS.readBits) return "";
+
+				const bits = message.bits;
 				
 				//Has enough bits been sent ?
-				if(bits < paramsTTS.readBitsMinAmount) return;
+				if(bits < paramsTTS.readBitsMinAmount) return "";
 				
-				let mess: string = m.message as string;
+				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					//Remove emotes
-					mess = TwitchUtils.parseEmotes(mess, m.tags["emotes-raw"], true).map(elem=>elem.value).join(', ');
-					//Remove cheermotes
-					mess = await TwitchUtils.parseCheermotes(mess, m.tags["room-id"] as string, true);
+					mess = message.message_html.replace(/<[^>]*>/gim, "");//Strip HTML tags;
 				}
-				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
+				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, message.user.displayName);
 				txt = txt.replace(/\{BITS\}/gi, bits.toString());
 				txt = txt.replace(/\{MESSAGE\}/gi, mess);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
+				return txt;
 			}
 
-			case TwitchatMessageType.RAID: {
+			case TwitchatDataTypes.TwitchatMessageType.RAID: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readRaids) return;
+				if(!paramsTTS.readRaids) return "";
 
-				const m = message as IRCEventDataList.Highlight;
-				
-				let txt = paramsTTS.readRaidsPattern.replace(/\{USER\}/gi, m.username as string);
-				txt = txt.replace(/\{VIEWERS\}/gi, (m.viewers as number).toString());
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
+				let txt = paramsTTS.readRaidsPattern.replace(/\{USER\}/gi, message.user.displayName);
+				txt = txt.replace(/\{VIEWERS\}/gi, (message.viewers).toString());
+				return txt;
 			}
 
-			case TwitchatMessageType.REWARD: {
+			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readRewards) return;
+				if(!paramsTTS.readRewards) return "";
 
-				const m = message as IRCEventDataList.Highlight;
-				
-				const reward = (m.reward as PubSubDataTypes.RewardData).redemption.reward;
-				let txt = paramsTTS.readRewardsPattern.replace(/\{USER\}/gi, m.tags["display-name"] as string);
-				txt = txt.replace(/\{REWARD_NAME\}/gi, reward.title);
-				txt = txt.replace(/\{REWARD_DESC\}/gi, reward.prompt);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
+				let txt = paramsTTS.readRewardsPattern.replace(/\{USER\}/gi, message.user.displayName);
+				txt = txt.replace(/\{REWARD_NAME\}/gi, message.reward.title);
+				txt = txt.replace(/\{REWARD_DESC\}/gi, message.reward.description);
+				return txt;
 			}
 
-			case TwitchatMessageType.POLL: {
+			case TwitchatDataTypes.TwitchatMessageType.POLL: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readPolls) return;
-
-				const m = message as IRCEventDataList.PollResult;
 				let winner = "";
 				let max = 0;
-				m.data.choices.forEach(v =>{
+				message.choices.forEach(v =>{
 					if(v.votes > max) {
 						max = v.votes;
 						winner = v.title;
 					}
 				})
-				let txt = paramsTTS.readPollsPattern.replace(/\{TITLE\}/gi, m.data.title);
+				let txt = paramsTTS.readPollsPattern.replace(/\{TITLE\}/gi, message.title);
 				txt = txt.replace(/\{WINNER\}/gi, winner);
-				this.addMessageToQueue(txt, m.tags.id);
-				break;
+				return txt;
 			}
 
-			case TwitchatMessageType.PREDICTION: {
+			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readPredictions) return;
+				if(!paramsTTS.readPredictions) return "";
 
-				const m = message as IRCEventDataList.PredictionResult;
 				let winner = "";
-				m.data.outcomes.forEach(v =>{
-					if(v.id == m.data.winning_outcome_id) {
+				message.outcomes.forEach(v =>{
+					if(v.id == message.winning_outcome_id) {
 						winner = v.title;
 					}
 				})
 				
-				let txt = paramsTTS.readPredictionsPattern.replace(/\{TITLE\}/gi, m.data.title);
+				let txt = paramsTTS.readPredictionsPattern.replace(/\{TITLE\}/gi, message.title);
 				txt = txt.replace(/\{WINNER\}/gi, winner);
-				this.addMessageToQueue(txt, m.tags.id);
-				break;
+				return txt;
 			}
 
-			case TwitchatMessageType.BINGO: {
+			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readBingos) return;
+				if(!paramsTTS.readBingos) return "";
 
-				const m = message as IRCEventDataList.BingoResult;
-				
-				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, m.winner as string);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
+				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, message.user.displayName);
+				return txt;
 			}
 
-			case TwitchatMessageType.RAFFLE: {
+			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readRaffle) return;
+				if(!paramsTTS.readRaffle) return "";
+				if(!message.raffleData.winners) return "";
+				if(message.raffleData.winners.length === 0) return "";
 
-				const m = message as IRCEventDataList.RaffleResult;
-				
-				let txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, m.winner.label);
-				this.addMessageToQueue(txt, m.tags.id as string);
-				break;
+				let txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, message.raffleData.winners[0].label);
+				return txt;
 			}
 		}
+		
+		return "";
 	}
 
 	/**
@@ -541,13 +488,13 @@ export default class TTSUtils {
 
 	/**
 	 * Read the next pending message
-	 * @param str 
 	 */
-	private readNextMessage():void {
+	private async readNextMessage():Promise<void> {
 		if(this.pendingMessages.length === 0 || !this._enabled) return;
 
 		const message = this.pendingMessages[0];
 		const paramsTTS = this.sTTS.params;
+		this.lastMessageTime = Date.now();
 		
 		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
 			//Timeout reached for this message, ignore it and
@@ -559,7 +506,8 @@ export default class TTSUtils {
 			return;
 		}
 		
-		const mess = new SpeechSynthesisUtterance(message.text);
+		const text = await this.parseMessage(message.message);
+		const mess = new SpeechSynthesisUtterance(text);
 		mess.rate = paramsTTS.rate;
 		mess.pitch = paramsTTS.pitch;
 		mess.volume = paramsTTS.volume;
