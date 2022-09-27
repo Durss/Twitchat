@@ -5,9 +5,6 @@ import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import DeezerHelperEvent from '@/utils/DeezerHelperEvent';
 import FFZUtils from '@/utils/FFZUtils';
-import IRCClient from '@/utils/IRCClient';
-import IRCEvent from '@/utils/IRCEvent';
-import { getTwitchatMessageType, TwitchatMessageType, type IRCEventData, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -131,11 +128,11 @@ export const storeMain = defineStore("main", {
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-				const login = StoreProxy.stream.lastRaider;
-				if(login) {
-					sChat.shoutout(login);
+				const raider = sStream.lastRaider;
+				if(raider) {
+					sChat.shoutout("twitch", raider);
 				}else{
-					this.alert = "You have not been raided yet"
+					this.showAlert("You have not been raided yet");
 				}
 			});
 			

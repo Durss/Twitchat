@@ -166,7 +166,7 @@ export interface IChatActions {
 	closeWhispers( userID:string):void;
 	doSearchMessages(value:string):void;
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
-	shoutout(source:TwitchatDataTypes.ChatSource, username:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	shoutout(source:TwitchatDataTypes.ChatSource, user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightOverlayData):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
 	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;

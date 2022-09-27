@@ -370,8 +370,31 @@ export default class TwitchChatClient extends EventDispatcher {
 			this.queuedMessages.push({message, tags, self, channel});
 			return;
 		}
+		
+		
+		//This line avoids an edge case issue.
+		//If the current TMI client sends messages super fast (some ms between each message),
+		//the tags property is not updated for the later messages that will receive
+		//the exact same tags instance (not only the same values).
+		//This makes multiple messages sharing the same ID which can cause
+		//issues with VueJS keyed items (ex: on v-for loops) that would share
+		//the same value which is not allowed
+		tags = JSON.parse(JSON.stringify(tags));
 
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action") return;
+
+		const user = this.getUserFromTags(tags);
+		
+		//User has no color giver her/him a random one
+		if(!tags.color) {
+			let color = this.userToColor[login];
+			if(!color) {
+				color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
+				this.userToColor[login]	= color;
+			}
+			user.displayName
+			user.color = color;
+		}
 
 		const data:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
@@ -380,7 +403,7 @@ export default class TwitchChatClient extends EventDispatcher {
 			date:Date.now(),
 
 			source:"twitch",
-			user: this.getUserFromTags(tags),
+			user,
 			message:message,
 			message_html:"",
 		};

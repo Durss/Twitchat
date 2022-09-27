@@ -648,6 +648,7 @@ export namespace TwitchatDataTypes {
 		source:ChatSource;
 		login:string;
 		displayName:string;
+		color?:string;
 		avatarPath?:string;
 		id?:string;
 		is_following?:boolean;
