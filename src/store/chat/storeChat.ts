@@ -1,13 +1,10 @@
+import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes'
-import IRCClient from '@/utils/IRCClient'
-import type { ActivityFeedData, ChatMessageTypes, IRCEventData, IRCEventDataList } from '@/utils/IRCEventDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
 import TwitchatEvent from '@/utils/TwitchatEvent'
-import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin'
 import TwitchUtils from '@/utils/TwitchUtils'
 import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
@@ -91,6 +88,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"userinfo",
 				cmd:"/userinfo {user}",
+				alias:"/user {user}",
 				details:"Opens a user's profile info",
 			},
 			{
@@ -240,8 +238,8 @@ export const storeChat = defineStore('chat', {
 
 	actions: {
 
-		sendTwitchatAd(contentID:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
-			if(contentID == -1) {
+		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
+			if(adType == -1) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(!UserSession.instance.isDonor || UserSession.instance.donorLevel < 2) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
@@ -265,38 +263,30 @@ export const storeChat = defineStore('chat', {
 					for (let i = 0; i < len; i++) possibleAds.push(-1);
 				}
 		
-				contentID = Utils.pickRand(possibleAds);
+				adType = Utils.pickRand(possibleAds);
 				// contentID = TwitchatAdTypes.UPDATES;//TODO comment this line
-				if(contentID == -1) return;
+				if(adType == -1) return;
 			}
 
 			const list = this.messages.concat();
 			list .push( {
-				type:"ad",
-				channel:"#"+UserSession.instance.twitchAuthToken.login,
-				markedAsRead:false,
-				contentID,
-				tags:{id:"twitchatAd"+Math.random()}
+				source:"twitch",
+				id:crypto.randomUUID(),
+				date:Date.now(),
+				type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
+				adType,
 			} );
 			this.messages = list;
 		},
 
 		
-		async addChatMessage(payload:IRCEventData) {
+		async addMessage(message:TwitchatDataTypes.ChatMessageTypes) {
 			const sParams = StoreProxy.params;
+			const sStream = StoreProxy.stream;
 			const sUsers = StoreProxy.users;
 
-			let messages = this.messages.concat() as (IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper)[];
+			let messages = this.messages.concat();
 			
-			const message = payload as IRCEventDataList.Message|IRCEventDataList.Highlight|IRCEventDataList.Whisper
-			const uid:string|undefined = message?.tags['user-id'];
-			const messageStr = message.type == "whisper"? message.params[1] : message.message;
-			const wsMessage = {
-				channel:message.channel,
-				message:messageStr as string,
-				tags:message.tags,
-			}
-
 			//Limit history size
 			// const maxMessages = sParams.appearance.historySize.value;
 			const maxMessages = this.realHistorySize;
@@ -305,236 +295,142 @@ export const storeChat = defineStore('chat', {
 				this.messages = messages;
 			}
 
-			if(payload.type == "notice") {
-				if((payload as IRCEventDataList.Notice).msgid == "usage_host") {
-					const raids = (messages as IRCEventDataList.Highlight[]).filter(v => v.viewers != undefined);
-					for (let i = 0; i < raids.length; i++) {
-						if(raids[i].username?.toLowerCase() == (payload as IRCEventDataList.Notice).username?.toLowerCase()) {
-							console.log("Already raided ! Ignore host event");
-							return;
-						}
-					}
-				}
-			}else{
-				
-				const textMessage = payload as IRCEventDataList.Message;
+			//If it's a raid, save it so we can do an SO with dedicated streamdeck button
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.RAID) sStream.lastRaider = message.user;
 
-				//If it's a subgift, merge it with potential previous ones
-				if(payload.type == "highlight" && payload.recipient) {
-					for (let i = 0; i < messages.length; i++) {
-						const m = messages[i];
-						if(m.type != "highlight") continue;
-						//If the message is a subgift from the same user and happened
-						//in the last 5s, merge it.
-						if(m.methods?.plan && m.tags.login == payload.tags.login
-						&& Date.now() - parseInt(m.tags['tmi-sent-ts'] as string) < 5000) {
-							if(!m.subgiftAdditionalRecipents) m.subgiftAdditionalRecipents = [];
-							m.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
-							m.subgiftAdditionalRecipents.push(payload.recipient as string);
-							return;
-						}
-					}
-				}
+			//If it's a follow event, flag user as a follower
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) sUsers.flagAsFollower(message.user);
 
-				//If it's a subgift, merge it with potential previous ones
-				if(payload.type == "highlight" && payload.tags["msg-id"] == "raid") {
-					StoreProxy.stream.lastRaiderLogin = payload.username as string;
+			//If it's a subgift, merge it with potential previous ones
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
+				for (let i = 0; i < messages.length; i++) {
+					const m = messages[i];
+					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) continue;
+					//If the message is a subgift from the same user and happened
+					//in the last 5s, merge it.
+					if(m.tier && m.user.id == message.user.id
+					&& Date.now() - m.date < 5000) {
+						if(!m.gift_recipients) m.gift_recipients = [];
+						m.date = Date.now();//Update timestamp
+						m.gift_recipients.push(message.gift_recipients![0]);
+						return;
+					}
 				}
+			}
 
-				//Search in the last 50 messages if this message has already been sent
-				//If so, just increment the previous one
-				if(sParams.features.groupIdenticalMessage.value === true) {
-					const len = messages.length;
-					const end = Math.max(0, len - 50);
-					for (let i = len-1; i > end; i--) {
-						const mess = messages[i];
-						const messageStr = mess.type == "whisper"? mess.params[1] : mess.message;
-						if(mess.type == "message"
-						&& uid == mess.tags['user-id']
-						&& (parseInt(mess.tags['tmi-sent-ts'] as string) > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
-						&& textMessage.message == messageStr) {
-							if(!mess.occurrenceCount) mess.occurrenceCount = 0;
-							mess.occurrenceCount ++;
-							mess.tags['tmi-sent-ts'] = Date.now().toString();//Update timestamp
-							messages.splice(i, 1);
-							messages.push(mess);
-							this.messages = messages;	
-							return;
-						}
-					}
-				}
-				
-				//Check if user is following
-				if(sParams.appearance.highlightNonFollowers.value === true) {
-					if(uid && sUsers.followingStates[uid] == undefined) {
-						TwitchUtils.getFollowState(uid, textMessage.tags['room-id']).then((res:boolean) => {
-							sUsers.followingStates[uid] = res;
-							sUsers.followingStatesByNames[message.tags.username?.toLowerCase()] = res;
-						}).catch(()=>{/*ignore*/})
-					}
-				}
-
-				//If it's a follow event, flag user as a follower
-				if(payload.type == "highlight") {
-					if(payload.tags['msg-id'] == "follow") {
-						sUsers.followingStates[payload.tags['user-id'] as string] = true;
-						sUsers.followingStatesByNames[message.tags.username?.toLowerCase()] = true;
-					}
-				}
-				
-				//Check for user's pronouns
-				if(sParams.features.showUserPronouns.value === true) {
-					if(uid && sUsers.pronouns[uid] == undefined && textMessage.tags.username) {
-						TwitchUtils.getPronouns(uid, textMessage.tags.username).then((res: TwitchatDataTypes.Pronoun | null) => {
-							if (res !== null) {
-								sUsers.pronouns[uid] = res.pronoun_id;
-							}else{
-								sUsers.pronouns[uid] = false;
-							}
-								
-						}).catch(()=>{/*ignore*/})
-					}
-				}
-				
-				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-				if(TwitchCypherPlugin.instance.isCyperCandidate(textMessage.message)) {
-					const original = textMessage.message;
-					textMessage.message = await TwitchCypherPlugin.instance.decrypt(textMessage.message);
-					textMessage.cyphered = textMessage.message != original;
-				}
-				
-				//If message is an answer, set original message's ref to the answer
-				//Called when using the "answer feature" on twitch chat
-				if(textMessage.tags && textMessage.tags["reply-parent-msg-id"]) {
-					let original:IRCEventDataList.Message | null = null;
-					const reply:IRCEventDataList.Message | null = textMessage;
-					//Search for original message the user answered to
-					for (let i = 0; i < messages.length; i++) {
-						const c = messages[i] as IRCEventDataList.Message;
-						if(c.tags.id === textMessage.tags["reply-parent-msg-id"]) {
-							original = c;
-							break;
-						}
-					}
-	
-					if(reply && original) {
-						if(original.answerTo) {
-							reply.answerTo = original.answerTo;
-							if(original.answerTo.answers) {
-								original.answerTo.answers.push( textMessage );
-							}
-						}else{
-							reply.answerTo = original;
-							if(!original.answers) original.answers = [];
-							original.answers.push( textMessage );
-						}
-					}
-				}else{
-					//If there's a mention, search for last messages within
-					//a max timeframe to find if the message may be a reply to
-					//a message that was sent by the mentionned user
-					if(/@\w/gi.test(textMessage.message)) {
-						// console.log("Mention found");
-						const ts = Date.now();
-						const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
-						const matches = textMessage.message.match(/@\w+/gi) as RegExpMatchArray;
-						for (let i = 0; i < matches.length; i++) {
-							const match = matches[i].replace("@", "").toLowerCase();
-							// console.log("Search for message from ", match);
-							const candidates = messages.filter(m => m.tags.username == match);
-							//Search for oldest matching candidate
-							for (let j = 0; j < candidates.length; j++) {
-								const c = candidates[j] as IRCEventDataList.Message;
-								// console.log("Found candidate", c);
-								if(ts - parseInt(c.tags['tmi-sent-ts'] as string) < timeframe) {
-									// console.log("Timeframe is OK !");
-									if(c.answers) {
-										//If it's the root message of a conversation
-										c.answers.push( textMessage );
-										textMessage.answerTo = c;
-									}else if(c.answerTo && c.answerTo.answers) {
-										//If the messages answers to a message itself answering to another message
-										c.answerTo.answers.push( textMessage );
-										textMessage.answerTo = c.answerTo;
-									}else{
-										//If message answers to a message not from a conversation
-										textMessage.answerTo = c;
-										if(!c.answers) c.answers = [];
-										c.answers.push( textMessage );
-									}
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				//If it's a text message and user isn't a follower, broadcast to WS
-				if(payload.type == "message" && uid) {
-					if(sUsers.followingStates[uid] === false) {
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
-					}
-				}
-
-				//Check if the message contains a mention
-				if(textMessage.message && sParams.appearance.highlightMentions.value === true) {
-					textMessage.hasMention = UserSession.instance.twitchAuthToken.login != null
-					&& new RegExp("(^| |@)("+UserSession.instance.twitchAuthToken.login.toLowerCase()+")($|\\s)", "gim").test(textMessage.message.toLowerCase());
-					if(textMessage.hasMention) {
-						//Broadcast to OBS-Ws
-						PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
+			//Search in the last 50 messages if this message has already been sent
+			//If so, just increment the previous one
+			if(sParams.features.groupIdenticalMessage.value === true && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				const len = messages.length;
+				const end = Math.max(0, len - 50);
+				for (let i = len-1; i > end; i--) {
+					const m = messages[i];
+					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
+					if(m.user.id == message.user.id
+					&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
+					&& message.message.toLowerCase() == m.message.toLowerCase()) {
+						if(!m.occurrenceCount) m.occurrenceCount = 0;
+						m.occurrenceCount ++;
+						//Update timestamp
+						m.date = Date.now();
+						//Bring it back to bottom
+						messages.splice(i, 1);
+						messages.push(m);
+						this.messages = messages;	
+						return;
 					}
 				}
 			}
 
 			//If it's a text message and user isn't a follower, broadcast to WS
-			if(message.firstMessage === true)		PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
-			//If it's a text message and it's the all-time first message
-			if(message.tags['first-msg'] === true)	PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			&& message.user.id
+			&& sUsers.followingStates[message.user.id] === false) {
+				//TODO Broadcast to OBS-ws
+				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
+			}
+
+			//Check if the message contains a mention
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.hasMention) {
+				//TODO Broadcast to OBS-ws
+				// PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
+			}
+
+			//If it's the first message today for this user
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.todayFirst === true) {
+				//TODO Broadcast to OBS-ws
+				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
+			}
+
+			//If it's the first message all time of the user
+			if(message.type == "message" && message.twitch_isFirstMessage) {
+				//TODO Broadcast to OBS-ws
+				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
+			}
+			
+			//Is it a tracked user ?
+			if(message.type == "message") {
+				const trackedUser = sUsers.trackedUsers.find(v => v.user.id == message.user.id);
+				if(trackedUser) {
+					trackedUser.messages.push(message);
+				}
+			}
 
 			//Push some messages to activity feed
-			if(payload.type == "highlight"
-			|| payload.type == "poll"
-			|| payload.type == "prediction"
-			|| payload.type == "bingo"
-			|| payload.type == "raffle"
-			|| payload.type == "countdown"
-			|| payload.type == "hype_train_end"
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.POLL
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.TIMEOUT
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.BAN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.PREDICTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.BINGO
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAFFLE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.COUNTDOWN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY
 			|| (
 				sParams.features.keepHighlightMyMessages.value === true
-				&& payload.type == "message"
-				&& (payload as IRCEventDataList.Message).tags["msg-id"] === "highlighted-message"
-			)
-			|| (payload as IRCEventDataList.Commercial).tags["msg-id"] === "commercial") {
-				this.activityFeed.push(payload as ActivityFeedData);
+				&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& message.twitch_isHighlighted
+			)) {
+				this.activityFeed.push(message);
 			}
 
 			messages.push( message );
 			this.messages = messages;
 		},
 		
-		delChatMessage(messageId:string, deleteData?:PubSubDataTypes.ModerationData) { 
+		delChatMessage(messageId:string, deleter?:TwitchatDataTypes.TwitchatUser) { 
+			const list = this.messages.concat();
 			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
-			const list = (this.messages.concat() as (IRCEventDataList.Message | IRCEventDataList.TwitchatAd)[]);
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
-				if(messageId == m.tags.id) {
-					if(m.type == "ad") {
+				if(messageId == m.id) {
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 						//Called if closing an ad
 						list.splice(i, 1);
-					}else{
-						//Broadcast to OBS-ws
-						const wsMessage = {
-							channel:m.channel,
-							message:m.message,
-							tags:m.tags,
-						}
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+					}else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						//TODO Broadcast to OBS-ws
+						// const wsMessage = {
+						// 	channel:m.channel,
+						// 	message:m.message,
+						// 	tags:m.tags,
+						// }
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 	
-						if(keepDeletedMessages === true && !m.automod) {
-							//Just flag as deleted so its render is faded
+						if(!m.twitch_automod//Don't keep automod form message
+						&& keepDeletedMessages === true) {
+							//Just flag as deleted but keep it
 							m.deleted = true;
-							m.deletedData = deleteData;
+							if(deleter) {
+								m.deletedData = { deleter };
+							}
 						}else{
 							//Remove message from list
 							list.splice(i, 1);
@@ -546,24 +442,24 @@ export const storeChat = defineStore('chat', {
 			this.messages = list;
 		},
 
-		delUserMessages(username:string) {
-			username = username.toLowerCase()
+		delUserMessages(uid:string) {
 			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
-			const list = (this.messages.concat() as IRCEventDataList.Message[]);
+			const list = this.messages.concat();
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
-				if(m.tags.username?.toLowerCase() == username && m.type == "message") {
-					//Broadcast to OBS-ws
-					const wsMessage = {
-						channel:list[i].channel,
-						message:list[i].message,
-						tags:list[i].tags,
-					}
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& m.user.id == uid) {
+					//TODO Broadcast to OBS-ws
+					// const wsMessage = {
+					// 	channel:list[i].channel,
+					// 	message:list[i].message,
+					// 	tags:list[i].tags,
+					// }
+					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 
 					//Delete message from list
 					if(keepDeletedMessages === true) {
-						list[i].deleted = true;
+						m.deleted = true;
 					}else{
 						list.splice(i, 1);
 						i--;
@@ -573,12 +469,10 @@ export const storeChat = defineStore('chat', {
 			this.messages = list;
 		},
 
-		setEmoteSelectorCache(payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },
+		setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },
 
 		closeWhispers( userID:string) {
-			const whispers = this.whispers as {[key:string]:IRCEventDataList.Whisper[]};
-			delete whispers[userID];
-			this.whispers = whispers;
+			delete this.whispers[userID];
 		},
 
 		doSearchMessages(value:string) { this.$state.searchMessages = value; },
@@ -589,31 +483,42 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.BOT_MESSAGES, this.botMessages);
 		},
 
-		async shoutout(username:string) {
-			username = username.trim().replace(/^@/gi, "");
-			const userInfos = await TwitchUtils.loadUserInfo(undefined, [username]);
-			if(userInfos?.length > 0) {
-				const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
-				let message = this.botMessages.shoutout.message
-				let streamTitle = channelInfo[0].title;
-				let category = channelInfo[0].game_name;
-				if(!streamTitle) streamTitle = "no stream found"
-				if(!category) category = "no stream found"
-				message = message.replace(/\{USER\}/gi, userInfos[0].display_name);
-				message = message.replace(/\{URL\}/gi, "twitch.tv/"+userInfos[0].login);
-				message = message.replace(/\{TITLE\}/gi, streamTitle);
-				message = message.replace(/\{CATEGORY\}/gi, category);
-				await IRCClient.instance.sendMessage(message);
+		async shoutout(source:TwitchatDataTypes.ChatSource, user:TwitchatDataTypes.TwitchatUser) {
+			let message:string|null = null;
+			let streamTitle = "";
+			let streamCategory = "";
+			if(source == "twitch") {
+				const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
+				if(userInfos?.length > 0) {
+					const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
+					message = this.botMessages.shoutout.message;
+					streamTitle = channelInfo[0].title;
+					streamCategory = channelInfo[0].game_name;
+					if(!streamTitle) streamTitle = "no stream found"
+					if(!streamCategory) streamCategory = "no stream found"
+					message = message.replace(/\{USER\}/gi, userInfos[0].display_name);
+					message = message.replace(/\{URL\}/gi, "twitch.tv/"+userInfos[0].login);
+					message = message.replace(/\{TITLE\}/gi, streamTitle);
+					message = message.replace(/\{CATEGORY\}/gi, streamCategory);
+				}
+			}
+			if(message){
+				await MessengerProxy.instance.sendMessage(message);
 				
-				const trigger:TwitchatDataTypes.ShoutoutTriggerData = {
-					type: "shoutout",
-					user:userInfos[0],
-					stream:channelInfo[0],
-				};
-				TriggerActionHandler.instance.onMessage(trigger)
+				if(user) {
+					const trigger:TwitchatDataTypes.ShoutoutTriggerData = {
+						type: "shoutout",
+						user,
+						stream:{
+							title:streamTitle,
+							category:streamCategory,
+						},
+					};
+					TriggerActionHandler.instance.onMessage(trigger)
+				}
 			}else{
 				//Warn user doesn't exist
-				StoreProxy.main.alert = "User "+username+" doesn't exist.";
+				StoreProxy.main.alert = "User "+user+" doesn't exist.";
 			}
 		},
 		
@@ -627,39 +532,33 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.SPOILER_PARAMS, params);
 		},
 		
-		pinMessage(message:IRCEventDataList.Message) { this.pinedMessages.push(message); },
+		pinMessage(message:TwitchatDataTypes.ChatMessageTypes) { this.pinedMessages.push(message); },
 		
-		unpinMessage(message:IRCEventDataList.Message) {
+		unpinMessage(message:TwitchatDataTypes.ChatMessageTypes) {
 			this.pinedMessages.forEach((v, index)=> {
-				if(v.tags.id == message.tags.id) {
+				if(v.id == message.id) {
 					this.pinedMessages.splice(index, 1);
 				}
 			})
 		},
 		
-		async highlightChatMessageOverlay(payload:IRCEventDataList.Message|null) {
-			let data:unknown = null;
-			if(payload) {
-				let [user] = await TwitchUtils.loadUserInfo([payload.tags['user-id'] as string]);
-				//Allow custom parsing of emotes only if it's a message of ours sent
-				//from current IRC client
-				const customParsing = payload.sentLocally;
-				const chunks = TwitchUtils.parseEmotes(payload.message, payload.tags['emotes-raw'], false, customParsing);
-				let result = "";
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-					{}	let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-						url = url.replace(/1x$/gi, "3x");//BTTV format
-						url = url.replace(/2x$/gi, "3x");//7TV format
-						url = url.replace(/1$/gi, "4");//FFZ format
-						result += "<img src='"+url+"' class='emote'>";
-					}
+		async highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null) {
+			let data:TwitchatDataTypes.ChatHighlightInfo|null = null;
+			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
+				if(message.source == "twitch"
+				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
+					//Get user info
+					let [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);
+					message.user.avatarPath = twitchUser.profile_image_url;
+					//Populate more info just in case some are missing
+					message.user.login = twitchUser.login;
+					message.user.displayName = twitchUser.display_name;
 				}
-				data = {message:result, user, params:this.chatHighlightOverlayParams};
+				data = {
+					message:message.message_html,
+					user:message.user,
+					params:this.chatHighlightOverlayParams
+				};
 				this.isChatMessageHighlighted = true;
 
 				const clonedData:TwitchatDataTypes.ChatHighlightInfo = JSON.parse(JSON.stringify(data));
@@ -667,9 +566,6 @@ export const storeChat = defineStore('chat', {
 				TriggerActionHandler.instance.onMessage(clonedData);
 			}else{
 				this.isChatMessageHighlighted = false;
-
-				// const clonedData:ChatHighlightInfo = {type: "chatOverlayHighlight"};
-				// TriggerActionHandler.instance.onMessage(clonedData);
 			}
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject);

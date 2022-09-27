@@ -1,10 +1,9 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
-import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes'
+import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes';
 import SpotifyHelper from '@/utils/SpotifyHelper';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
 

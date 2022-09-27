@@ -1,7 +1,5 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
@@ -10,6 +8,7 @@ import type { ChatUserstate } from 'tmi.js';
 import type { UnwrapRef } from 'vue';
 import { storeChat } from '../chat/storeChat';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
@@ -18,7 +17,6 @@ export const storeUsers = defineStore('users', {
 		onlineUsers: [],
 		trackedUsers: [],
 		mods:[],
-		pronouns: {},
 		followingStates: {},
 		followingStatesByNames: {},
 		myFollowings: {},
@@ -46,7 +44,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser|undefined {
+		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser|undefined {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Don't use "users.find(...)", perfs are much lower than good old for() loop
 			//find() takes ~10-15ms for 1M users VS ~3-4ms for the for() loop
@@ -74,11 +72,54 @@ export const storeUsers = defineStore('users', {
 							user!.displayName = res[0].display_name;
 							delete user!.temporary;
 							this.users.push(user!);
+							this.checkFollowerState(user!);
+							this.checkPronouns(user!);
 						}
 					});
 				}
 			}
+			if(user) {
+				this.checkFollowerState(user);
+				this.checkPronouns(user);
+				if(isMod) user.is_moderator = true;
+				if(isVIP) user.is_vip = true;
+				if(isSub) user.is_subscriber = true;
+				if(isBoradcaster) user.is_broadcaster = true;
+			}
 			return user;
+		},
+
+		//Check if user is following
+		checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void {
+			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
+				if(this.followingStates[user.id] == undefined) {
+					TwitchUtils.getFollowState(user.id, UserSession.instance.twitchUser!.id).then((res:boolean) => {
+						this.followingStates[user.id!] = res;
+						this.followingStatesByNames[user.login.toLowerCase()] = res;
+					}).catch(()=>{/*ignore*/})
+				}
+			}
+		},
+
+		//Check for user's pronouns
+		checkPronouns(user:TwitchatDataTypes.TwitchatUser):void {
+			if(!user.id || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return;
+			TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
+				if (res !== null) {
+					user.pronouns = res.pronoun_id;
+				}else{
+					user.pronouns = false;
+				}
+					
+			}).catch(()=>{/*ignore*/})
+			
+		},
+
+		flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void {
+			if(user.id && user.login) {
+				this.followingStates[user.id!] = true;
+				this.followingStatesByNames[user.login.toLowerCase()] = true;
+			}
 		},
 
 		addUser(user:TwitchatDataTypes.TwitchatUser):void {
@@ -140,16 +181,18 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		trackUser(payload:IRCEventDataList.Message) {
-			const list = this.trackedUsers as TrackedUser[];
-			const index = list.findIndex(v=>v.user['user-id'] == payload.tags['user-id']);
+		trackUser(user:TwitchatDataTypes.TwitchatUser):{user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}|null {
+			const index = this.trackedUsers.findIndex(v=>v.user.id == user.id);
 			if(index == -1) {
 				//Was not tracked, track the user
-				this.trackedUsers.push({user:payload.tags, messages:[payload]});
+				const data = {user, messages:[]};
+				this.trackedUsers.push(data);
+				return data;
 			}else{
 				//User was already tracked, untrack her/him
-				list.splice(index,1);
+				this.trackedUsers.splice(index,1);
 			}
+			return null;
 		},
 
 		untrackUser(payload:ChatUserstate) {

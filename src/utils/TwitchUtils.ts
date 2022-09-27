@@ -419,7 +419,6 @@ export default class TwitchUtils {
 			const param = ids ? "id" : "login";
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"users?"+params;
-			const access_token = UserSession.instance.authResult?.access_token;
 			const result = await fetch(url, {headers:this.headers});
 			const json = await result.json();
 			users = users.concat(json.data);
@@ -509,7 +508,7 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
-			StoreProxy.poll.setPolls(json.data);
+			StoreProxy.poll.setCurrentPoll(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -526,7 +525,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.twitchAuthToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.poll.setPolls(json.data);
+			StoreProxy.poll.setCurrentPoll(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -548,7 +547,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.poll.setPolls(json.data);
+			StoreProxy.poll.setCurrentPoll(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -577,7 +576,7 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
-			StoreProxy.prediction.setPredictions(json.data);
+			StoreProxy.prediction.setPrediction(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -594,7 +593,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.twitchAuthToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.prediction.setPredictions(json.data);
+			StoreProxy.prediction.setPrediction(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -617,7 +616,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.prediction.setPredictions(json.data);
+			StoreProxy.prediction.setPrediction(json.data);
 			return json.data;
 		}
 		throw(json);

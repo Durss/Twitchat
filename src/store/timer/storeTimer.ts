@@ -1,6 +1,4 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -11,7 +9,7 @@ import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } 
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
-		timerStart: 0,
+		timerStart: -1,
 		countdown: null as TwitchatDataTypes.CountdownData|null,
 	} as ITimerState),
 
@@ -31,16 +29,14 @@ export const storeTimer = defineStore('timer', {
 			const data = { startAt:this.timerStart };
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, data);
 
-			const message:IRCEventDataList.TimerResult = {
+			const message:TwitchatDataTypes.MessageTimerData = {
 				type:"timer",
+				source:"twitchat",
 				started:true,
-				markedAsRead:false,
-				data:{
-					startAt:Date.now(),
-					duration:Date.now() - this.timerStart,
-				},
+				id:crypto.randomUUID(),
+				date:Date.now(),
+				startAt:Date.now(),
 			};
-			console.log(message);
 			TriggerActionHandler.instance.onMessage(message);
 		},
 
@@ -48,14 +44,14 @@ export const storeTimer = defineStore('timer', {
 			const data = { startAt:this.timerStart, stopAt:Date.now() };
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, data);
 
-			const message:IRCEventDataList.TimerResult = {
+			const message:TwitchatDataTypes.MessageTimerData = {
 				type:"timer",
-				started:false,
-				markedAsRead:false,
-				data:{
-					startAt:Date.now(),
-					duration:Date.now() - this.timerStart,
-				},
+				source:"twitchat",
+				started:true,
+				id:crypto.randomUUID(),
+				date:Date.now(),
+				startAt:Date.now(),
+				duration:Date.now() - this.timerStart,
 			};
 			TriggerActionHandler.instance.onMessage(message);
 
@@ -77,14 +73,22 @@ export const storeTimer = defineStore('timer', {
 				duration:duration,
 			};
 
-			const message:IRCEventDataList.CountdownResult = {
+			// const message:IRCEventDataList.CountdownResult = {
+			// 	type:"countdown",
+			// 	started:true,
+			// 	data:this.countdown as TwitchatDataTypes.CountdownData,
+			// 	tags: {
+			// 		id:IRCClient.instance.getFakeGuid(),
+			// 		"tmi-sent-ts": Date.now().toString()
+			// 	},
+			// };
+
+			const message:TwitchatDataTypes.MessageCountdownData = {
 				type:"countdown",
-				started:true,
-				data:this.countdown as TwitchatDataTypes.CountdownData,
-				tags: {
-					id:IRCClient.instance.getFakeGuid(),
-					"tmi-sent-ts": Date.now().toString()
-				},
+				source:"twitchat",
+				id:crypto.randomUUID(),
+				date:Date.now(),
+				data:this.countdown,
 			};
 			TriggerActionHandler.instance.onMessage(message);
 			
@@ -95,22 +99,20 @@ export const storeTimer = defineStore('timer', {
 		stopCountdown() {
 			if(this.countdown) {
 				clearTimeout(this.countdown.timeoutRef);
+				
+				const message:TwitchatDataTypes.MessageCountdownData = {
+					type:"countdown",
+					source:"twitchat",
+					id:crypto.randomUUID(),
+					date:Date.now(),
+					data:this.countdown,
+				};
+				StoreProxy.chat.addMessage(message);
+				TriggerActionHandler.instance.onMessage(message);
+	
+				const data = { startAt:this.countdown?.startAt, duration:this.countdown?.duration };
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
 			}
-
-			const message:IRCEventDataList.CountdownResult = {
-				type:"countdown",
-				started:false,
-				data:JSON.parse(JSON.stringify(this.countdown)) as TwitchatDataTypes.CountdownData,
-				tags: {
-					id:IRCClient.instance.getFakeGuid(),
-					"tmi-sent-ts": Date.now().toString()
-				},
-			};
-			TriggerActionHandler.instance.onMessage(message);
-			StoreProxy.chat.addChatMessage(message);
-
-			const data = { startAt:this.countdown?.startAt, duration:this.countdown?.duration };
-			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
 
 			this.countdown = null;
 		},

@@ -6,9 +6,8 @@ import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import type { TwitchDataTypes } from '../types/TwitchDataTypes';
+import Config from './Config';
 import { EventDispatcher } from "./EventDispatcher";
-import IRCClient from "./IRCClient";
-import type { IRCEventDataList } from './IRCEventDataTypes';
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { PubSubDataTypes } from './PubSubDataTypes';
@@ -21,7 +20,7 @@ import Utils from "./Utils";
 /**
 * Created : 13/01/2022 
 */
-export default class PubSub extends EventDispatcher{
+export default class PubSub extends EventDispatcher {
 
 	private static _instance:PubSub;
 	private socket!:WebSocket;
@@ -101,10 +100,9 @@ export default class PubSub extends EventDispatcher{
 			];
 
 			
-			if(IRCClient.instance.debugChans.length > 0) {
+			if(Config.instance.debugChans.length > 0) {
 				//Subscribe to someone else's channel points
-				let chans = IRCClient.instance.debugChans;
-				const users = await TwitchUtils.loadUserInfo(undefined, chans);
+				const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.source=="twitch").map(v=>v.login));
 				const uids = users.map(v=> v.id);
 				for (let i = 0; i < uids.length; i++) {
 					const uid = uids[i];
@@ -730,7 +728,7 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
-		StoreProxy.poll.setPolls([poll], true)
+		StoreProxy.poll.setCurrentPoll([poll], true)
 	}
 
 	/**
@@ -781,7 +779,7 @@ export default class PubSub extends EventDispatcher{
 		};
 
 		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
-		StoreProxy.prediction.setPredictions([prediction])
+		StoreProxy.prediction.setPrediction([prediction])
 	}
 
 	/**

@@ -1,11 +1,11 @@
 <template>
 	<div class="overlaychathighlight">
 		<div :class="classes" ref="holder" id="highlight_holder" v-if="params && !clipData">
-			<div class="profilePic" id="highlight_avatar" v-if="user">
-				<img :src="user.profile_image_url">
+			<div class="profilePic" id="highlight_avatar" v-if="user?.avatarPath">
+				<img :src="user.avatarPath">
 			</div>
 			<div class="infos" id="highlight_infos">
-				<div class="login" id="highlight_login" v-if="user">{{user.display_name}}</div>
+				<div class="login" id="highlight_login" v-if="user">{{user.displayName}}</div>
 				<div class="message" id="highlight_message" v-html="message"></div>
 			</div>
 		</div>
@@ -40,7 +40,7 @@ export default class OverlayChatHighlight extends Vue {
 
 	public message:string = "";
 	public clipData:TwitchDataTypes.ClipInfo|null = null;
-	public user:TwitchDataTypes.UserInfo|null = null;
+	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public params:TwitchatDataTypes.ChatHighlightOverlayData|null = null;
 	public loadingClip:boolean = true;
 
@@ -116,7 +116,7 @@ export default class OverlayChatHighlight extends Vue {
 	private async onShowMessage(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 
-		const data = (e.data as unknown) as {message:string, user:TwitchDataTypes.UserInfo, params:TwitchatDataTypes.ChatHighlightOverlayData};
+		const data = (e.data as unknown) as {message:string, user:TwitchatDataTypes.TwitchatUser, params:TwitchatDataTypes.ChatHighlightOverlayData};
 		this.message = data.message;
 		this.user = data.user;
 		this.params = data.params;

@@ -2,7 +2,6 @@ import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
 import type { PubSubDataTypes } from "@/utils/PubSubDataTypes";
 import type { TriggerScheduleTypes, TriggerTypesValue } from "@/utils/TriggerActionData";
 import type { ChatUserstate } from "tmi.js";
-import type { TwitchDataTypes } from "./TwitchDataTypes";
 
 export namespace TwitchatDataTypes {
 	export const ParamsContentType = {
@@ -280,6 +279,7 @@ export namespace TwitchatDataTypes {
 	export interface CommandData {
 		id:string;
 		cmd:string;
+		alias:string;
 		details:string;
 		needChannelPoints?:boolean;
 		needTTS?:boolean;
@@ -434,9 +434,9 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface ChatHighlightInfo {
-		type:"chatOverlayHighlight",
+		type?:"chatOverlayHighlight",
 		message?:string,
-		user?:TwitchDataTypes.UserInfo,
+		user?:TwitchatDataTypes.TwitchatUser,
 		params?:ChatHighlightOverlayData,
 	}
 
@@ -522,8 +522,11 @@ export namespace TwitchatDataTypes {
 
 	export interface ShoutoutTriggerData {
 		type:"shoutout";
-		user:TwitchDataTypes.UserInfo;
-		stream:TwitchDataTypes.ChannelInfo;
+		user:TwitchatDataTypes.TwitchatUser;
+		stream:{
+			title: string;
+			category: string;
+		};
 	}
 
 	export interface BanTriggerData {
@@ -591,11 +594,13 @@ export namespace TwitchatDataTypes {
 		RAID:"raid",
 		POLL:"poll",
 		JOIN:"join",
-		CHEER:"cheer",
 		LEAVE:"leave",
+		CHEER:"cheer",
+		TIMER:"timer",
 		BINGO:"bingo",
 		RAFFLE:"raffle",
 		REWARD:"reward",
+		NOTICE:"notice",
 		MESSAGE:"message",
 		TIMEOUT:"timeout",
 		WHISPER:"whisper",
@@ -604,6 +609,7 @@ export namespace TwitchatDataTypes {
 		CLEAR_CHAT:"clear_chat",
 		DISCONNECT:"disconnect",
 		PREDICTION:"prediction",
+		TWITCHAT_AD:"twitchatAd",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
@@ -613,7 +619,19 @@ export namespace TwitchatDataTypes {
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
-	type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
+	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
+
+
+	export const TwitchatNoticeType = {
+		TTS:"tts",
+		ONLINE:"online",
+		UNNKNOWN:"unknown",
+		EMERGENCY_MODE:"emergencyMode",
+		COMMERCIAL_START:"commercialStart",
+		COMMERCIAL_COMPLETE:"commercialComplete",
+	}
+	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
+
 
 	//NEW DATA TYPES FOR FULL REFACTOR
 
@@ -621,19 +639,26 @@ export namespace TwitchatDataTypes {
 		type:TwitchatMessageStringType;
 		id: string;
 		date: number;
+		source:ChatSource;
 	}
 
-	export type ChatSource = "twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
+	export type ChatSource = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 
 	export interface TwitchatUser {
 		source:ChatSource;
 		login:string;
 		displayName:string;
+		avatarPath?:string;
 		id?:string;
 		is_following?:boolean;
 		is_blocked?:boolean;
 		is_banned?:boolean;
+		is_vip?:boolean;
+		is_moderator?:boolean;
+		is_broadcaster?:boolean;
+		is_subscriber?:boolean;
 		temporary?:boolean;//true when the details are loading
+		pronouns?:string|false;
 	}
 
 	export type ChatMessageTypes = MessageChatData |
@@ -658,12 +683,15 @@ export namespace TwitchatDataTypes {
 									MessageRaffleData |
 									MessageBingoData |
 									MessageCountdownData |
-									MessageAutobanJoinData
+									MessageAutobanJoinData |
+									MessageTwitchatAdData |
+									MessageTimerData |
+									MessageNoticeData
+	;
 
 	export interface MessageChatData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"message";
-		source:ChatSource;
 		user: TwitchatUser;
 		message:string;
 		message_html:string;
@@ -694,7 +722,6 @@ export namespace TwitchatDataTypes {
 
 	export interface MessageWhisperData extends AbstractTwitchatMessage {
 		type:"whisper";
-		source:ChatSource;
 		from: TwitchatUser;
 		to: TwitchatUser;
 		message:string;
@@ -868,10 +895,29 @@ export namespace TwitchatDataTypes {
 		data:CountdownData;
 	}
 
+	export interface MessageTimerData extends AbstractTwitchatMessage {
+		type:"timer";
+		started:boolean,
+		startAt:number;
+		duration?:number;
+	}
+
+	export interface MessageNoticeData extends AbstractTwitchatMessage {
+		channel_id?: string;
+		type:"notice";
+		noticeId:TwitchatNoticeStringType;
+		message:string;
+	}
+
 	export interface MessageAutobanJoinData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"autoban_join";
 		user:TwitchatUser;
 		rule:TwitchatDataTypes.AutomodParamsKeywordFilterData;
+	}
+
+	export interface MessageTwitchatAdData extends AbstractTwitchatMessage {
+		type:"twitchatAd";
+		adType:TwitchatAdStringTypes;
 	}
 }

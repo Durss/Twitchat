@@ -12,9 +12,9 @@ import ChatClientEvent from "./ChatClientEvent";
 /**
 * Created : 25/09/2022 
 */
-export default class TwitchClient extends EventDispatcher {
+export default class TwitchChatClient extends EventDispatcher {
 
-	private static _instance:TwitchClient;
+	private static _instance:TwitchChatClient;
 	private _client!:tmi.Client;
 	private _credentials:{token:string, username:string}|null = null;
 	private _reconnecting:boolean = false;
@@ -30,12 +30,12 @@ export default class TwitchClient extends EventDispatcher {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():TwitchClient {
-		if(!TwitchClient._instance) {
-			TwitchClient._instance = new TwitchClient();
-			TwitchClient._instance.initialize();
+	static get instance():TwitchChatClient {
+		if(!TwitchChatClient._instance) {
+			TwitchChatClient._instance = new TwitchChatClient();
+			TwitchChatClient._instance.initialize();
 		}
-		return TwitchClient._instance;
+		return TwitchChatClient._instance;
 	}
 
 	/**
@@ -61,9 +61,9 @@ export default class TwitchClient extends EventDispatcher {
 		if(this._connectedChannels.findIndex(v=>v === channel) > -1) return;
 		
 		this._connectedChannels.push(channel);
-		clearTimeout(this._connectTimeout);
-
+		
 		//Debounce connection calls if calling it for multiple channels at once
+		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(()=>{
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
@@ -143,7 +143,6 @@ export default class TwitchClient extends EventDispatcher {
 	 * Disconnect from all channels and cut IRC connection
 	 */
 	public async sendMessage(text:string):Promise<void> {
-			
 		//Workaround to a weird behavior of TMI.js.
 		//If the message starts by a "\" it's properly sent on all
 		//connected clients, but never sent back to the sender.
@@ -175,53 +174,74 @@ export default class TwitchClient extends EventDispatcher {
 				return res[0];
 			}
 
+			let prom!:Promise<boolean>;
+
 			switch(cmd) {
-				case "/announce": TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
+				case "/announce": prom = TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) TwitchUtils.banUser(user.id, undefined, chunks.splice(1).join(" "));
-					return;
+					if(user) prom = TwitchUtils.banUser(user.id, undefined, chunks.splice(1).join(" "));
+					break;
 				}
 				case "/unban": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) TwitchUtils.unbanUser(user.id);
-					return;
+					if(user) prom = TwitchUtils.unbanUser(user.id);
+					break;
 				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
-					return;
+					if(user) prom = TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
+					break;
 				}
 				case "/untimeout": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) TwitchUtils.unbanUser(user.id);
-					return;
+					if(user) prom = TwitchUtils.unbanUser(user.id);
+					break;
 				}
-				case "/commercial": TwitchUtils.startCommercial(parseInt(chunks[0])); return;
-				case "/delete": TwitchUtils.deleteMessages(chunks[0]); return;
-				case "/clear": TwitchUtils.deleteMessages(); return;
-				case "/color": TwitchUtils.setColor(chunks[0]); return;
-				case "/emoteonly": TwitchUtils.setRoomSettings({emotesOnly:true}); return;
-				case "/emoteonlyoff": TwitchUtils.setRoomSettings({emotesOnly:false}); return;
-				case "/followers": TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); return;
-				case "/followersoff": TwitchUtils.setRoomSettings({followOnly:0}); return;
-				case "/slow": TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); return;
-				case "/slowoff": TwitchUtils.setRoomSettings({slowMode:0}); return;
-				case "/subscribers": TwitchUtils.setRoomSettings({subOnly:true}); return;
-				case "/subscribersoff": TwitchUtils.setRoomSettings({subOnly:false}); return;
-				case "/mod": TwitchUtils.addRemoveModerator(false, undefined, chunks[0]); return;
-				case "/unmod": TwitchUtils.addRemoveModerator(true, undefined, chunks[0]); return;
-				case "/raid": TwitchUtils.raidChannel(chunks[0]); return;
-				case "/unraid": TwitchUtils.raidCancel(); return;
-				case "/vip": TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return;
-				case "/unvip": TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return;
+				case "/commercial": TwitchUtils.startCommercial(parseInt(chunks[0])); break;
+				// this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
+				// 	try {
+				// 		const res = await TwitchUtils.startCommercial(duration);
+				// 		if(res.length > 0) {
+				// 			this.canStartAd = false;
+				// 			this.startAdCooldown = Date.now() + res.retry_after * 1000;
+				// 			setTimeout(()=>{
+				// 				this.canStartAd = true;
+				// 				this.startAdCooldown = 0;
+				// 			}, this.startAdCooldown);
+				// 			this.$store("stream").setCommercialEnd( Date.now() + res.length * 1000 );
+				// 		}
+				// 	}catch(error) {
+				// 		const e = (error as unknown) as {error:string, message:string, status:number}
+				// 		console.log(error);
+				// 		IRCClient.instance.sendNotice("commercial", e.message);
+				// 		// this.$store("store").state.alert = "An unknown error occured when starting commercial"
+				// 	}
+				// }).catch(()=>{/*ignore*/});
+				case "/delete": prom = TwitchUtils.deleteMessages(chunks[0]); break;
+				case "/clear": prom = TwitchUtils.deleteMessages(); break;
+				case "/color": prom = TwitchUtils.setColor(chunks[0]); break;
+				case "/emoteonly": prom = TwitchUtils.setRoomSettings({emotesOnly:true}); break;
+				case "/emoteonlyoff": prom = TwitchUtils.setRoomSettings({emotesOnly:false}); break;
+				case "/followers": prom = TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); break;
+				case "/followersoff": prom = TwitchUtils.setRoomSettings({followOnly:0}); break;
+				case "/slow": prom = TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); break;
+				case "/slowoff": prom = TwitchUtils.setRoomSettings({slowMode:0}); break;
+				case "/subscribers": prom = TwitchUtils.setRoomSettings({subOnly:true}); break;
+				case "/subscribersoff": prom = TwitchUtils.setRoomSettings({subOnly:false}); break;
+				case "/mod": prom = TwitchUtils.addRemoveModerator(false, undefined, chunks[0]); break;
+				case "/unmod": prom = TwitchUtils.addRemoveModerator(true, undefined, chunks[0]); break;
+				case "/raid": prom = TwitchUtils.raidChannel(chunks[0]); break;
+				case "/unraid": prom = TwitchUtils.raidCancel(); break;
+				case "/vip": prom = TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); break;
+				case "/unvip": prom = TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); break;
 				case "/whiser":
 				case "/w": {
 					const login = chunks[0];
-					TwitchUtils.whisper(chunks.splice(1).join(" "), login);
-					return;
+					prom = TwitchUtils.whisper(chunks.splice(1).join(" "), login);
+					break;
 				}
-				
+
 				//TODO
 				case "/uniquechat": return;
 				case "/uniquechatoff": return;
@@ -283,7 +303,11 @@ export default class TwitchClient extends EventDispatcher {
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate):TwitchatDataTypes.TwitchatUser {
 		const login = tags.username ?? tags["display-name"];
-		return StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"])!;
+		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
+		const isVip = tags.badges?.vip != undefined;
+		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
+		const isBroadcaster = tags.badges?.broadcaster != undefined;
+		return StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"], isMod, isVip, isBroadcaster, isSub)!;
 	}
 
 	/**
@@ -316,9 +340,10 @@ export default class TwitchClient extends EventDispatcher {
 	 */
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		let res:TwitchatDataTypes.MessageSubscriptionData = {
+			source:"twitch",
 			type:"subscription",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
 			tier: "1",
@@ -351,7 +376,7 @@ export default class TwitchClient extends EventDispatcher {
 		const data:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			type:"message",
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 
 			source:"twitch",
@@ -434,9 +459,11 @@ export default class TwitchClient extends EventDispatcher {
 			data.hasMention = UserSession.instance.twitchAuthToken.login != null && 
 							new RegExp("(^| |@)("+UserSession.instance.twitchAuthToken.login+")($|\\s)", "gim")
 							.test(message);
+			if(data.hasMention) {
+				data.highlightWord = UserSession.instance.twitchAuthToken.login;
+			}
 		}
 		
-	
 		data.twitch_isSlashMe		= tags["message-type"] === "action";
 		data.twitch_isReturning		= tags["returning-chatter"] === true;
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
@@ -451,10 +478,15 @@ export default class TwitchClient extends EventDispatcher {
 	}
 
 	private onJoin(channel:string, user:string):void {
+		if(user == UserSession.instance.twitchUser?.login.toLowerCase() && !this._reconnecting) {
+			this.notice(TwitchatDataTypes.TwitchatNoticeType.ONLINE, "Welcome to the chat room "+channel+"!", channel);
+			this._reconnecting = false;
+		}
 		this.dispatchEvent(new ChatClientEvent("JOIN", {
+			source:"twitch",
 			type:"join",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 			users:[this.getUserFromLogin(user)],
 		}));
@@ -462,9 +494,10 @@ export default class TwitchClient extends EventDispatcher {
 
 	private onLeave(channel:string, user:string):void {
 		this.dispatchEvent(new ChatClientEvent("LEAVE", {
+			source:"twitch",
 			type:"leave",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 			users:[this.getUserFromLogin(user)],
 		}));
@@ -472,9 +505,10 @@ export default class TwitchClient extends EventDispatcher {
 
 	private onCheer(channel:string, tags:tmi.ChatUserstate, message:string):void {
 		this.dispatchEvent(new ChatClientEvent("CHEER", {
+			source:"twitch",
 			type:"cheer",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
 			bits:parseFloat(tags.bits as string) ?? -1,
@@ -523,9 +557,10 @@ export default class TwitchClient extends EventDispatcher {
 
 	private ban(channel: string, username: string, reason: string):void {
 		this.dispatchEvent(new ChatClientEvent("BAN", {
+			source:"twitch",
 			type:"ban",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 			user:this.getUserFromLogin(username),
 			reason,
@@ -534,9 +569,10 @@ export default class TwitchClient extends EventDispatcher {
 
 	private timeout(channel: string, username: string, reason: string, duration: number):void {
 		this.dispatchEvent(new ChatClientEvent("TIMEOUT", {
+			source:"twitch",
 			type:"timeout",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 			user:this.getUserFromLogin(username),
 			duration_s:duration,
@@ -546,9 +582,10 @@ export default class TwitchClient extends EventDispatcher {
 
 	private raided(channel: string, username: string, viewers: number):void {
 		this.dispatchEvent(new ChatClientEvent("RAID", {
+			source:"twitch",
 			type:"raid",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 			user:this.getUserFromLogin(username),
 			viewers
@@ -557,6 +594,7 @@ export default class TwitchClient extends EventDispatcher {
 	
 	private disconnected(reason:string):void {
 		this.dispatchEvent(new ChatClientEvent("DISCONNECT", {
+			source:"twitch",
 			type:"disconnect",
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -566,9 +604,10 @@ export default class TwitchClient extends EventDispatcher {
 
 	private clearchat(channel:string):void {
 		this.dispatchEvent(new ChatClientEvent("CLEAR_CHAT", {
+			source:"twitch",
 			type:"clear_chat",
 			id:Utils.getUUID(),
-			channel_id:channel,
+			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 		}));
 	}
@@ -636,24 +675,38 @@ export default class TwitchClient extends EventDispatcher {
 
 			//Using this instead of the "notice" event from TMI as it's not
 			//fired for many notices whereas here we get them all
-			// case "NOTICE": {
-			// 	let [msgid, , , , message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
+			case "NOTICE": {
+				let [msgid, url, cmd, channel, message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 				
-			// 	if(!message) {
-			// 		if(msgid.indexOf("bad_delete_message_error") > -1) {
-			// 			message = "You cannot delete this message.";
-			// 		}
-			// 		if(msgid.indexOf("authentication failed") > -1) {
-			// 			console.log(data);
-			// 			message = "Authentication failed. Refreshing token and trying again...";
-			// 			//TODO
-			// 		}
-			// 	}
-			// 	this.sendNotice(msgid as tmi.MsgID, message);
-			// 	break;
-			// }
+				if(!message) {
+					if(msgid.indexOf("bad_delete_message_error") > -1) {
+						message = "You cannot delete this message.";
+					}
+					if(msgid.indexOf("authentication failed") > -1) {
+						message = "Authentication failed. Refreshing token and trying again...";
+						this.dispatchEvent(new ChatClientEvent("REFRESH_TOKEN"));
+					}
+				}
+				if(message) {
+					this.notice(msgid, message, channel);
+				}
+				break;
+			}
 			default: break;
 		}
+	}
+
+	private notice(id:TwitchatDataTypes.TwitchatNoticeStringType, channel:string, message:string):void {
+		const eventData:TwitchatDataTypes.MessageNoticeData = {
+			channel_id: channel,
+			id:Utils.getUUID(),
+			type:"notice",
+			date:Date.now(),
+			source:"twitch",
+			message:message,
+			noticeId:id,
+		};
+		this.dispatchEvent(new ChatClientEvent("NOTICE", eventData));
 	}
 
 }

@@ -179,18 +179,14 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:ChatUserstate):boolean {
+	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser):boolean {
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
-		const mod = user.badges?.moderator != undefined || user.mod === true;
-		const vip = user.badges?.vip != undefined;
-		const sub = user.badges?.subscriber != undefined || user.subscriber === true;
-		const broadcaster = user.badges?.broadcaster != undefined;
-		const allowed = (permissions.mods && mod) ||
-						(permissions.vips && vip) ||
-						(permissions.subs && sub) ||
-						(permissions.broadcaster !== false && broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
+		const allowed = (permissions.mods && user.is_moderator) ||
+						(permissions.vips && user.is_vip) ||
+						(permissions.subs && user.is_subscriber) ||
+						(permissions.broadcaster !== false && user.is_broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
 						permissions.all ||
-						allowedUsers?.indexOf((user.username ?? user['display-name'] as string).toLowerCase()) != -1;
+						allowedUsers?.indexOf(user.login.toLowerCase()) != -1;
 		return allowed;
 	}
 
@@ -546,9 +542,9 @@ export default class Utils {
 	 * @param tags 
 	 * @returns 
 	 */
-	public static isAutomoded(mess:string, tags:ChatUserstate):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
+	public static isAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
 		if(StoreProxy.automod.params.enabled
-		&& !Utils.checkPermissions(StoreProxy.automod.params.exludedUsers, tags)) {
+		&& !Utils.checkPermissions(StoreProxy.automod.params.exludedUsers, user)) {
 			const rules = StoreProxy.automod.params.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
 			for (let i = 0; i < rules.length; i++) {
 				const r = rules[i];

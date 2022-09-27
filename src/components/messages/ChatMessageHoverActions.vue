@@ -39,6 +39,7 @@
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
@@ -56,21 +57,24 @@ import Button from '../Button.vue';
 })
 export default class ChatMessageHoverActions extends Vue {
 
-	public messageData!:IRCEventDataList.Message;
+	public messageData!:TwitchatDataTypes.MessageChatData;
 	public shoutoutLoading = false;
 	public highlightLoading = false;
 
-	public get isBroadcaster():boolean { return this.messageData.tags['user-id'] == UserSession.instance.twitchAuthToken.user_id; }
+	public get isBroadcaster():boolean { return this.messageData.user.id == UserSession.instance.twitchAuthToken.user_id; }
 	public get ttsEnabled():boolean { return this.$store("tts").params.enabled; }
 
 	public trackUser():void {
-		this.$store("users").trackUser(this.messageData);
+		let data = this.$store("users").trackUser(this.messageData.user);
+		if(data) {
+			data.messages.push(this.messageData);
+		}
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("chat").shoutout(this.messageData.tags['display-name'] as string);
+			await this.$store("chat").shoutout(this.messageData.source, this.messageData.user);
 		}catch(error) {
 			this.$store("main").alert = "Shoutout failed :(";
 			console.log(error);

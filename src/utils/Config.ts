@@ -1,3 +1,4 @@
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 
 /**
@@ -57,8 +58,10 @@ export default class Config {
 	 * Add twitch logins to connect to their chats and get some
 	 * PubSub events from
 	 */
-	public get debugChans():string[] {
-		// return ["dazjdm"];
+	public get debugChans():{source:TwitchatDataTypes.ChatSource, login:string}[] {
+		return [
+			{source:"twitch", login:"dazjdm"}
+		];
 		return [];
 	}
 

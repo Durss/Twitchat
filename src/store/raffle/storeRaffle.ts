@@ -1,6 +1,6 @@
+import MessengerProxy from '@/messaging/MessengerProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
-import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -49,7 +49,7 @@ export const storeRaffle = defineStore('raffle', {
 					if(StoreProxy.chat.botMessages.raffleStart.enabled) {
 						let message = StoreProxy.chat.botMessages.raffleStart.message;
 						message = message.replace(/\{CMD\}/gi, payload.command);
-						IRCClient.instance.sendMessage(message);
+						MessengerProxy.instance.sendMessage(message);
 					}
 					break;
 				}
@@ -132,6 +132,7 @@ export const storeRaffle = defineStore('raffle', {
 		onRaffleComplete(winner:WheelItem, publish:boolean = false) {
 			// this.raffle = null;
 			if(!this.data) return;
+
 			const winnerLoc = this.data.entries.find(v=> v.id == winner.id);
 			if(!winnerLoc) return;
 
@@ -139,21 +140,21 @@ export const storeRaffle = defineStore('raffle', {
 			this.data.winners.push(winnerLoc);
 			
 			//Execute triggers
-			const message:IRCEventDataList.RaffleResult = {
+			const message:TwitchatDataTypes.MessageRaffleData = {
 				type:"raffle",
-				data:this.data as RaffleData,
-				winner:winnerLoc,
-				tags:IRCClient.instance.getFakeTags(),
+				source:"twitchat",
+				id:crypto.randomUUID(),
+				date:Date.now(),
+				raffleData:this.data,
 			}
 			TriggerActionHandler.instance.onMessage(message);
-			StoreProxy.chat.addChatMessage(message);
+			StoreProxy.chat.addMessage(message);
 
 			//Post result on chat
 			if(StoreProxy.chat.botMessages.raffle.enabled) {
 				let message = StoreProxy.chat.botMessages.raffle.message;
-				let label = winner.label;
-				message = message.replace(/\{USER\}/gi, label);
-				IRCClient.instance.sendMessage(message);
+				message = message.replace(/\{USER\}/gi, winner.label);
+				MessengerProxy.instance.sendMessage(message);
 			}
 
 			//Publish the result on the public API

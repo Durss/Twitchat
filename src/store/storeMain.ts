@@ -131,7 +131,7 @@ export const storeMain = defineStore("main", {
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-				const login = StoreProxy.stream.lastRaiderLogin;
+				const login = StoreProxy.stream.lastRaider;
 				if(login) {
 					sChat.shoutout(login);
 				}else{
@@ -312,7 +312,7 @@ export const storeMain = defineStore("main", {
 								winner,
 								tags:IRCClient.instance.getFakeTags(),
 							}
-							sChat.addChatMessage(payload);
+							sChat.addMessage(payload);
 							TriggerActionHandler.instance.onMessage(payload);
 						}
 					}
@@ -502,15 +502,15 @@ export const storeMain = defineStore("main", {
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
-				sChat.addChatMessage(event.data as IRCEventData);
+				sChat.addMessage(event.data as IRCEventData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.NOTICE, (event:IRCEvent) => {
-				sChat.addChatMessage(event.data as IRCEventData);
+				sChat.addMessage(event.data as IRCEventData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, (event:IRCEvent) => {
-				sChat.addChatMessage(event.data as IRCEventData);
+				sChat.addMessage(event.data as IRCEventData);
 			});
 
 			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
@@ -543,7 +543,7 @@ export const storeMain = defineStore("main", {
 						data.type = "whisper";
 						data.channel = IRCClient.instance.channel;
 						data.tags['tmi-sent-ts'] = Date.now().toString();
-						sChat.addChatMessage(data);
+						sChat.addMessage(data);
 					}
 
 					//Broadcast to OBS-ws

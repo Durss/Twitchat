@@ -1,11 +1,10 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import TTSUtils from '@/utils/TTSUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue';
 import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 export const storeTTS = defineStore('tts', {
 	state: () => ({
@@ -72,8 +71,8 @@ export const storeTTS = defineStore('tts', {
 
 	actions: {
 
-		ttsReadMessage(payload:IRCEventDataList.Message) {
-			TTSUtils.instance.readNow(payload.message);
+		ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes) {
+			TTSUtils.instance.readNow(message);
 		},
 
 		ttsReadUser(payload:{username:string, read:boolean}) {
@@ -88,9 +87,23 @@ export const storeTTS = defineStore('tts', {
 			list = list.filter(v => v.trim().length > 2);
 			this.params.ttsPerms.users = list.join(",");
 			if(payload.read) {
-				IRCClient.instance.sendNotice("tts", "User <mark>"+payload.username+"</mark>'s messages will be read out loud.");
+				StoreProxy.chat.addMessage({
+					type:"notice",
+					id:crypto.randomUUID(),
+					date:Date.now(),
+					source:"twitchat",
+					message:"User <mark>"+payload.username+"</mark>'s messages will be read out loud.",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
+				});
 			}else{
-				IRCClient.instance.sendNotice("tts", "User <mark>"+payload.username+"</mark>'s messages will not be read out loud anymore.");
+				StoreProxy.chat.addMessage({
+					type:"notice",
+					id:crypto.randomUUID(),
+					date:Date.now(),
+					source:"twitchat",
+					message:"User <mark>"+payload.username+"</mark>'s messages won't be read out loud anymore.",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
+				});
 			}
 		},
 

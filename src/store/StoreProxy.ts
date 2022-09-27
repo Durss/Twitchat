@@ -1,7 +1,7 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
-import type { BingoData, RaffleData, TrackedUser, WheelItem } from "@/utils/CommonDataTypes";
-import type { ActivityFeedData, ChatMessageTypes, IRCEventData, IRCEventDataList } from "@/utils/IRCEventDataTypes";
+import type { BingoData, RaffleData, WheelItem } from "@/utils/CommonDataTypes";
+import type { IRCEventDataList } from "@/utils/IRCEventDataTypes";
 import type { PubSubDataTypes } from "@/utils/PubSubDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/SpotifyDataTypes";
 import type VoiceAction from "@/utils/VoiceAction";
@@ -14,26 +14,26 @@ import type { ChatUserstate } from "tmi.js";
 */
 export default class StoreProxy {
 	
-	public static account:IAccountState & IAccountActions & {$state:IAccountState};
-	public static auth:IAuthState & IAuthActions & {$state:IAuthState};
-	public static automod:IAutomodState & IAutomodActions & {$state:IAutomodState};
-	public static bingo:IBingoState & IBingoActions & {$state:IBingoState};
-	public static chat:IChatState & IChatActions & {$state:IChatState};
-	public static chatSuggestion:IChatSuggestionState & IChatSuggestionActions & {$state:IChatSuggestionState};
-	public static emergency:IEmergencyState & IEmergencyActions & {$state:IEmergencyState};
-	public static music:IMusicState & IMusicActions & {$state:IMusicState};
-	public static obs:IOBSState & IOBSActions & {$state:IOBSState };
-	public static params:IParamsState & IParamsActions & {$state:IParamsState};
-	public static poll:IPollState & IPollActions & {$state:IPollState};
-	public static prediction:IPredictionState & IPredictionActions & {$state:IPredictionState};
-	public static raffle:IRaffleState & IRaffleActions & {$state:IRaffleState};
-	public static stream:IStreamState & IStreamActions & {$state:IStreamState};
-	public static timer:ITimerState & ITimerActions & {$state:ITimerState};
-	public static triggers:ITriggersState & ITriggersActions & {$state:ITriggersState};
-	public static tts:ITTSState & ITTSActions & {$state:ITTSState };
-	public static users:IUsersState & IUsersActions & {$state:IUsersState};
-	public static voice:IVoiceState & IVoiceActions & {$state:IVoiceState};
-	public static main:IMainState & IMainActions & {$state:IMainState};
+	public static account:IAccountState & IAccountGetters & IAccountActions & {$state:IAccountState};
+	public static auth:IAuthState & IAuthGetters & IAuthActions & {$state:IAuthState};
+	public static automod:IAutomodState & IAutomodGetters & IAutomodActions & {$state:IAutomodState};
+	public static bingo:IBingoState & IBingoGetters & IBingoActions & {$state:IBingoState};
+	public static chat:IChatState & IChatGetters & IChatActions & {$state:IChatState};
+	public static chatSuggestion:IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions & {$state:IChatSuggestionState};
+	public static emergency:IEmergencyState & IEmergencyGetters & IEmergencyActions & {$state:IEmergencyState};
+	public static music:IMusicState & IMusicGetters & IMusicActions & {$state:IMusicState};
+	public static obs:IOBSState & IOBSGetters & IOBSActions & {$state:IOBSState };
+	public static params:IParamsState & IParamsGetters & IParamsActions & {$state:IParamsState};
+	public static poll:IPollState & IPollGetters & IPollActions & {$state:IPollState};
+	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState};
+	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState};
+	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState};
+	public static timer:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState};
+	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState};
+	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState };
+	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState};
+	public static voice:IVoiceState & IVoiceGetters & IVoiceActions & {$state:IVoiceState};
+	public static main:IMainState & IMainGetters & IMainActions & {$state:IMainState};
 	
 }
 
@@ -139,14 +139,13 @@ export interface IBingoActions {
 
 
 export interface IChatState {
-
 	searchMessages:string;
 	realHistorySize:number;
 	whispersUnreadCount:number;
 	messages:TwitchatDataTypes.ChatMessageTypes[];
-	pinedMessages:IRCEventDataList.Message[];
-	activityFeed:ActivityFeedData[];
-	emoteSelectorCache:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[],
+	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
+	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
+	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[],
 	whispers:{[key:string]:IRCEventDataList.Whisper[]};
 	botMessages:TwitchatDataTypes.IBotMessage,
 	commands:TwitchatDataTypes.CommandData[],
@@ -160,19 +159,19 @@ export interface IChatGetters {
 
 export interface IChatActions {
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;
-	addChatMessage(payload:IRCEventData):Promise<void>;
-	delChatMessage(messageId:string, deleteData?:PubSubDataTypes.ModerationData):void;
-	delUserMessages(username:string):void;
-	setEmoteSelectorCache(payload:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[]):void;
+	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	delChatMessage(messageId:string, deleteData?:TwitchatDataTypes.TwitchatUser):void;
+	delUserMessages(uid:string):void;
+	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;
 	doSearchMessages(value:string):void;
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
-	shoutout(username:string):Promise<void>;
+	shoutout(source:TwitchatDataTypes.ChatSource, username:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightOverlayData):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
-	pinMessage(message:IRCEventDataList.Message):void;
-	unpinMessage(message:IRCEventDataList.Message):void;
-	highlightChatMessageOverlay(payload:IRCEventDataList.Message|null):Promise<void>;
+	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
+	unpinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
+	highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null):Promise<void>;
 }
 
 
@@ -204,7 +203,7 @@ export interface IEmergencyGetters {
 
 export interface IEmergencyActions {
 	setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData):void;
-	setEmergencyMode(enable:boolean):void;
+	setEmergencyMode(enable:boolean):Promise<void>;
 	addEmergencyFollower(payload:TwitchatDataTypes.EmergencyFollowerData):Promise<void>;
 	clearEmergencyFollows():Promise<void>;
 }
@@ -268,28 +267,28 @@ export interface IParamsActions {
 
 
 export interface IPollState {
-	data:TwitchDataTypes.Poll | null,
+	data:TwitchatDataTypes.MessagePollData | null,
 }
 
 export interface IPollGetters {
 }
 
 export interface IPollActions {
-	setPolls(data:TwitchDataTypes.Poll[], postOnChat?:boolean):void;
+	setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean):void;
 }
 
 
 
 
 export interface IPredictionState {
-	data:TwitchDataTypes.Prediction | null;
+	data:TwitchatDataTypes.MessagePredictionData | null;
 }
 
 export interface IPredictionGetters {
 }
 
 export interface IPredictionActions {
-	setPredictions(payload:TwitchDataTypes.Prediction[]):void;
+	setPrediction(payload:TwitchatDataTypes.MessagePredictionData):void;
 }
 
 
@@ -313,11 +312,11 @@ export interface IRaffleActions {
 
 export interface IStreamState {
 	hypeTrain: TwitchatDataTypes.HypeTrainStateData|undefined;
-	raiding: PubSubDataTypes.RaidInfos|undefined;
+	raiding: TwitchatDataTypes.MessageRaidData|undefined;
 	playbackState: PubSubDataTypes.PlaybackInfo|undefined;
 	communityBoostState: PubSubDataTypes.CommunityBoost|undefined;
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
-	lastRaiderLogin: string|undefined;
+	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
 	commercialEnd: number;
 	roomStatusParams:TwitchatDataTypes.IRoomStatusCategory;
 }
@@ -380,7 +379,7 @@ export interface ITTSGetters {
 }
 
 export interface ITTSActions {
-	ttsReadMessage(payload:IRCEventDataList.Message):void
+	ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes):void
 	ttsReadUser(payload:{username:string, read:boolean}):void
 	setTTSParams(params:TwitchatDataTypes.TTSParamsData):void
 }
@@ -391,9 +390,8 @@ export interface ITTSActions {
 export interface IUsersState {
 	users: TwitchatDataTypes.TwitchatUser[];
 	userCard: string|null;
-	pronouns: {[key:string]:string|boolean};
 	onlineUsers: string[];
-	trackedUsers: TrackedUser[];
+	trackedUsers: {user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}[];
 	mods: TwitchDataTypes.ModeratorUser[];
 	followingStates: {[key:string]:boolean};
 	followingStatesByNames: {[key:string]:boolean};
@@ -404,13 +402,16 @@ export interface IUsersGetters {
 }
 
 export interface IUsersActions {
-	getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser|undefined;
+	getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser|undefined;
+	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void;
+	checkPronouns(user:TwitchatDataTypes.TwitchatUser):void;
+	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;
 	addUser(user:TwitchatDataTypes.TwitchatUser):void;
 	openUserCard(payload:string|null):void;
 	loadMyFollowings():Promise<void>;
 	setViewersList(users:string[]):void;
 	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
-	trackUser(payload:IRCEventDataList.Message):void;
+	trackUser(payload:TwitchatDataTypes.TwitchatUser):{user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}|null;
 	untrackUser(payload:ChatUserstate):void;
 }
 

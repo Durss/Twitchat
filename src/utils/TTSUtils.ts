@@ -1,6 +1,6 @@
 import { storeChat } from "@/store/chat/storeChat";
 import { storeTTS } from "@/store/tts/storeTTS";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventData, type IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
@@ -12,7 +12,7 @@ import TwitchUtils from "./TwitchUtils";
 import Utils from "./Utils";
 
 interface SpokenMessage {
-	text: string,
+	message: TwitchatDataTypes.ChatMessageTypes,
 	date: number,
 	id: string,
 }
@@ -112,9 +112,9 @@ export default class TTSUtils {
 				const len = this.sChat.messages.length;
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = this.sChat.messages[i] as IRCEventDataList.Message;
-					if(this.idsParsed[m.tags.id as string] !== true) {
-						this.idsParsed[m.tags.id as string] = true;
+					const m = this.sChat.messages[i];
+					if(this.idsParsed[m.id as string] !== true) {
+						this.idsParsed[m.id as string] = true;
 						this.parseMessage(m);
 					}
 				}
@@ -128,9 +128,9 @@ export default class TTSUtils {
 				const len = this.sChat.activityFeed.length;
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = this.sChat.activityFeed[i] as ActivityFeedData;
-					if(this.idsParsed[m.tags.id as string] !== true) {
-						this.idsParsed[m.tags.id as string] = true;
+					const m = this.sChat.activityFeed[i];
+					if(this.idsParsed[m.id as string] !== true) {
+						this.idsParsed[m.id as string] = true;
 						this.parseMessage(m);
 					}
 				}
@@ -199,14 +199,14 @@ export default class TTSUtils {
 	/**
 	 * Reads a string message now.
 	 * Stops any currently playing message and add it next on the queue
-	 * @param text 
+	 * @param message 
 	 */
-	public readNow(text: string, id?:string):void {
-		if (!this._enabled || text.length == 0) return;
+	public readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string):void {
+		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = crypto.randomUUID();
 
-		const m:SpokenMessage = {text, id, date: Date.now()};
+		const m:SpokenMessage = {message, id, date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
 		if(this.sTTS.speaking) {
 			this.stop();
@@ -220,12 +220,12 @@ export default class TTSUtils {
 	 * Reads a string message after the current one.
 	 * @param text 
 	 */
-	public readNext(text: string, id?:string):void {
-		if (!this._enabled || text.length == 0) return;
+	public readNext(message: TwitchatDataTypes.ChatMessageTypes, id?:string):void {
+		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = crypto.randomUUID();
 		
-		const m:SpokenMessage = {text, id, date: Date.now()};
+		const m:SpokenMessage = {message, id, date: Date.now()};
 		if(this.pendingMessages.length == 0) {
 			this.pendingMessages.push(m);
 			this.readNextMessage();
@@ -241,12 +241,12 @@ export default class TTSUtils {
 	 * @param id 
 	 * @returns 
 	 */
-	public async addMessageToQueue(text: string, id?:string):Promise<void> {
-		if (!this._enabled || text.length == 0) return;
+	public async addMessageToQueue(message:TwitchatDataTypes.ChatMessageTypes, id?:string):Promise<void> {
+		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = crypto.randomUUID();
 
-		const m:SpokenMessage = {text, id, date: Date.now()};
+		const m:SpokenMessage = {message, id, date: Date.now()};
 
 		if (this.pendingMessages.length == 0) {
 			this.pendingMessages.push(m)
@@ -268,9 +268,8 @@ export default class TTSUtils {
 	 * @param message 
 	 * @returns 
 	 */
-	private async parseMessage(message:IRCEventData):Promise<void> {
+	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
 		const paramsTTS = this.sTTS.params;
-		const type = getTwitchatMessageType(message);
 
 		// console.log("Read message type", type);
 		// console.log(message);
@@ -284,33 +283,29 @@ export default class TTSUtils {
 		}
 		this.lastMessageTime = Date.now();
 
-		switch(type) {
-			case TwitchatMessageType.MESSAGE:{
+		switch(message.type) {
+			case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readMessages) return;
 
-				const m = message as IRCEventDataList.Message;
 				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, m.tags)) return;
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, m.user)) return;
 				//Ignore automoded messages
-				if(m.automod) return;
+				if(message.twitch_automod) return;
 
-				let mess: string = m.message;
+				let mess: string = message.message;
+				if(paramsTTS.removeEmotes===true) {
+					mess = message.message_html.replace(/<[>]*?>/gi, "");//Remove all HTML tags
+				}
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.substring(0, paramsTTS.maxLength);
-				}
-				if(paramsTTS.removeEmotes===true) {
-					//Allow custom parsing of emotes only if it's a message of ours sent
-					//from current IRC client
-					const customParsing = m.sentLocally;
-					mess = TwitchUtils.parseEmotes(mess, m.tags["emotes-raw"], true, customParsing).map(elem=>elem.value).join(', ');
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
 				}
-				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, m.tags["display-name"] as string)
+				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
-				this.addMessageToQueue(txt, m.tags.id as string);
+				this.addMessageToQueue(txt, message.user.id);
 				break;
 			}
 

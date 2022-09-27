@@ -14,8 +14,9 @@ export default class ChatClientEvent extends Event {
 	public static RAID = "RAID";
 	public static DISCONNECT = "DISCONNECT";
 	public static CLEAR_CHAT = "CLEAR_CHAT";
+	public static REFRESH_TOKEN = "REFRESH_TOKEN";
 
-	public data!:	TwitchatDataTypes.MessageChatData |
+	public data?:	TwitchatDataTypes.MessageChatData |
 					TwitchatDataTypes.MessageWhisperData |
 					TwitchatDataTypes.MessageSubscriptionData |
 					TwitchatDataTypes.MessageCheerData |
@@ -25,7 +26,8 @@ export default class ChatClientEvent extends Event {
 					TwitchatDataTypes.MessageTimeoutData |
 					TwitchatDataTypes.MessageRaidData |
 					TwitchatDataTypes.MessageDisconnectData |
-					TwitchatDataTypes.MessageClearChatData
+					TwitchatDataTypes.MessageClearChatData |
+					TwitchatDataTypes.MessageNoticeData
 					;
 	
 	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
@@ -39,6 +41,8 @@ export default class ChatClientEvent extends Event {
 	constructor(type:"DISCONNECT", data:TwitchatDataTypes.MessageDisconnectData);
 	constructor(type:"CLEAR_CHAT", data:TwitchatDataTypes.MessageClearChatData);
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
+	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
+	constructor(type:"REFRESH_TOKEN");
 	
 	constructor(...params:any[]) {
 		super(params[0]);

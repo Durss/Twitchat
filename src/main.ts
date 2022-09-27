@@ -43,8 +43,8 @@ gsap.registerPlugin(ScrollToPlugin);
  * Add route guards for login
  */
 router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-	const sMain = storeMain();
-	const sAuth = storeAuth();
+	const sMain = StoreProxy.main;
+	const sAuth = StoreProxy.auth;
 	const needAuth = to.meta.needAuth !== false;
 	const transparent = to.meta.noBG;
 	if(transparent) {
@@ -111,7 +111,7 @@ const confirm = <T>(title: string,
 				reject(data);
 			}
 		}
-		storeMain().confirmData(confirmData);
+		StoreProxy.main.confirm(confirmData);
 	});
 	return prom;
 }

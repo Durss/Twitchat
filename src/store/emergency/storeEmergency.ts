@@ -1,14 +1,17 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import IRCClient from '@/utils/IRCClient';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchUtils from '@/utils/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
+//TODO makes this platform agnostic
 export const storeEmergency = defineStore('emergency', {
 	state: () => ({
 		emergencyStarted:false,
@@ -59,29 +62,37 @@ export const storeEmergency = defineStore('emergency', {
 			DataStore.set(DataStore.EMERGENCY_PARAMS, params);
 		},
 
-		setEmergencyMode(enable:boolean) {
-			let channel = IRCClient.instance.channel;
+		async setEmergencyMode(enable:boolean):Promise<void> {
 			this.emergencyStarted = enable;
 			const message:TwitchatDataTypes.EmergencyModeInfo = {
 				type: "emergencyMode",
 				enabled: enable,
 			}
 			TriggerActionHandler.instance.onMessage(message);
-			IRCClient.instance.sendNotice("emergencyMode", "Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>");
+			StoreProxy.chat.addMessage({
+				id:crypto.randomUUID(),
+				type:"notice",
+				date:Date.now(),
+				source:"twitchat",
+				message:"Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>",
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
+			})
 
 			if(enable) {
 				//ENABLE EMERGENCY MODE
-				if(this.params.slowMode) IRCClient.instance.client.slow(channel, 10);
-				if(this.params.emotesOnly) IRCClient.instance.client.emoteonly(channel);
-				if(this.params.subOnly) IRCClient.instance.client.subscribers(channel);
-				if(this.params.followOnly) IRCClient.instance.client.followersonly(channel, this.params.followOnlyDuration);
+				let roomSettings:TwitchDataTypes.RoomSettingsUpdate = {};
+				if(this.params.slowMode) roomSettings.slowMode = this.params.slowModeDuration;
+				if(this.params.emotesOnly) roomSettings.emotesOnly = true;
+				if(this.params.subOnly) roomSettings.subOnly = true;
+				if(this.params.followOnly) roomSettings.followOnly = this.params.followOnlyDuration;
+				if(Object.keys(roomSettings).length > 0) {
+					TwitchUtils.setRoomSettings(roomSettings);
+				}
 				if(this.params.toUsers) {
-					const users = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
 					for (let i = 0; i < users.length; i++) {
-						const u = users[i];
-						if(u.length > 2) {
-							IRCClient.instance.client.timeout(channel, u, 600);
-						}
+						TwitchUtils.banUser(users[i].id, 600, "Timed out because the emergency mode has been triggers on Twitchat");
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
@@ -95,17 +106,19 @@ export const storeEmergency = defineStore('emergency', {
 			}else{
 				//DISABLE EMERGENCY MODE
 				//Unset all changes
-				if(this.params.slowMode) IRCClient.instance.client.slowoff(channel);
-				if(this.params.emotesOnly) IRCClient.instance.client.emoteonlyoff(channel);
-				if(this.params.subOnly) IRCClient.instance.client.subscribersoff(channel);
-				if(this.params.followOnly) IRCClient.instance.client.followersonlyoff(channel);
+				let roomSettings:TwitchDataTypes.RoomSettingsUpdate = {};
+				if(this.params.slowMode) roomSettings.slowMode = 0;
+				if(this.params.emotesOnly) roomSettings.emotesOnly = false;
+				if(this.params.subOnly) roomSettings.subOnly = false;
+				if(this.params.followOnly) roomSettings.followOnly = false;
+				if(Object.keys(roomSettings).length > 0) {
+					TwitchUtils.setRoomSettings(roomSettings);
+				}
 				if(this.params.toUsers) {
-					const users = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
 					for (let i = 0; i < users.length; i++) {
-						const u = users[i];
-						if(u.length > 2) {
-							IRCClient.instance.client.unban(channel, u);
-						}
+						TwitchUtils.unbanUser(users[i].id);
 					}
 				}
 				if(this.params.obsSources) {

@@ -1,6 +1,6 @@
+import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { BingoData } from '@/utils/CommonDataTypes';
-import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -48,7 +48,7 @@ export const storeBingo = defineStore('bingo', {
 					goal += " a number between "+min+" and "+max+" included";
 				}
 				message = message.replace(/\{GOAL\}/gi, goal as string);
-				IRCClient.instance.sendMessage(message);
+				MessengerProxy.instance.sendMessage(message);
 			}
 		},
 

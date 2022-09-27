@@ -1,8 +1,7 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import IRCClient from '@/utils/IRCClient';
-import { getTwitchatMessageType, TwitchatMessageType, type ActivityFeedData, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import UserSession from '@/utils/UserSession';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
@@ -14,7 +13,7 @@ export const storeStream = defineStore('stream', {
 		playbackState: undefined,
 		communityBoostState: undefined,
 		streamInfoPreset: [],
-		lastRaiderLogin: undefined,
+		lastRaider: undefined,
 		commercialEnd: 0,//Date.now() + 120000,
 
 		roomStatusParams: {
@@ -35,7 +34,7 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
-		setRaiding(infos:PubSubDataTypes.RaidInfos|undefined) {this.raiding = infos; },
+		setRaiding(infos:TwitchatDataTypes.MessageRaidData|undefined) {this.raiding = infos; },
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
 			this.hypeTrain = data;
@@ -43,39 +42,29 @@ export const storeStream = defineStore('stream', {
 			if(data && data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5*60*1000;
 				const offset = data.approached_at;
-				const activities:ActivityFeedData[] = [];
+				const activities:(TwitchatDataTypes.MessageSubscriptionData|TwitchatDataTypes.MessageCheerData)[] = [];
+				//Search for all the sub and cheer events within the hype train time frame
 				for (let i = 0; i < StoreProxy.chat.activityFeed.length; i++) {
-					const el = StoreProxy.chat.activityFeed[i];
-					if(!el.tags['tmi-sent-ts']) continue;
-					let timestamp = el.tags['tmi-sent-ts'];
-					//If receiving a timestamp, convert it to number as the Date constructor
-					//accept either a number or a fully formated date/time string but not
-					//a timestamp string
-					const ts = parseInt(timestamp).toString() == timestamp? parseInt(timestamp) : timestamp;
-					const date = new Date(ts).getTime();
-					const type = getTwitchatMessageType(el);
-					if(type == TwitchatMessageType.BITS
-					|| type == TwitchatMessageType.SUB
-					|| type == TwitchatMessageType.SUB_PRIME
-					|| type == TwitchatMessageType.SUBGIFT
-					|| type == TwitchatMessageType.SUBGIFT_UPGRADE) {
-						if(date > offset - threshold) {
-							activities.push( el );
+					const m = StoreProxy.chat.activityFeed[i];
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+					|| m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+						if(m.date > offset - threshold) {
+							activities.push( m );
 						}
 					}
 				}
 				
 				if(activities.length > 0) {
-					const res:IRCEventDataList.HypeTrainResult = {
-						type:"hype_train_end",
+					const res:TwitchatDataTypes.MessageHypeTrainSummaryData = {
+						type:"hype_train_summary",
+						channel_id:UserSession.instance.twitchUser!.login,
 						train:data,
-						activities,
-						tags: {
-							id:IRCClient.instance.getFakeGuid(),
-							"tmi-sent-ts": Date.now().toString()
-						},
+						id:crypto.randomUUID(),
+						date:Date.now(),
+						source:"twitch",
+						activities:activities,
 					}
-					StoreProxy.chat.addChatMessage(res);
+					StoreProxy.chat.addMessage(res);
 				}
 			}
 		},
@@ -108,10 +97,24 @@ export const storeStream = defineStore('stream', {
 		setCommercialEnd(date:number) {
 			this.commercialEnd = date;
 			if(date === 0) {
-				IRCClient.instance.sendNotice("commercial", "Commercial break complete");
+				StoreProxy.chat.addMessage({
+					type:"notice",
+					id:crypto.randomUUID(),
+					date:Date.now(),
+					source:"twitch",
+					message:"Commercial break complete",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
+				});
 			}else{
-				const duration = Math.round((date - Date.now())/1000)
-				IRCClient.instance.sendNotice("commercial", "A commercial just started for "+duration+" seconds");
+				const duration = Math.round((date - Date.now())/1000);
+				StoreProxy.chat.addMessage({
+					type:"notice",
+					id:crypto.randomUUID(),
+					date:Date.now(),
+					source:"twitch",
+					message:"A commercial just started for "+duration+" seconds",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
+				});
 			}
 		},
 		

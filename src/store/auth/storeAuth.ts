@@ -1,19 +1,20 @@
+import MessengerProxy from "@/messaging/MessengerProxy";
+import TwitchChatClient from "@/messaging/TwitchChatClient";
 import router from "@/router";
+import DataStore from "@/store/DataStore";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
 import Config from "@/utils/Config";
-import IRCClient from "@/utils/IRCClient";
 import PubSub from "@/utils/PubSub";
 import TwitchUtils from "@/utils/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import DataStore from "@/store/DataStore";
-import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 import type { UnwrapRef } from "vue";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 
 interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean}
 
+//TODO makes this platform agnostic
 export const storeAuth = defineStore('auth', {
 	state: () => ({
 		refreshTokenTO: 0,
@@ -108,9 +109,9 @@ export const storeAuth = defineStore('auth', {
 				
 				if(this.authenticated) {
 					//If we were authenticated, simply update the token on IRC
-					IRCClient.instance.updateToken(json.access_token);
+					TwitchChatClient.instance.refreshToken(json.access_token);
 				}else{
-					IRCClient.instance.connect(UserSession.instance.twitchAuthToken.login, UserSession.instance.access_token as string);
+					MessengerProxy.instance.connect();
 					PubSub.instance.connect();
 				}
 				this.authenticated = true;
@@ -146,7 +147,7 @@ export const storeAuth = defineStore('auth', {
 			UserSession.instance.authResult = null;
 			this.authenticated = false;
 			DataStore.remove("oAuthToken");
-			IRCClient.instance.disconnect();
+			MessengerProxy.instance.disconnect();
 		},
 	} as IAuthActions
 	& ThisType<IAuthActions
