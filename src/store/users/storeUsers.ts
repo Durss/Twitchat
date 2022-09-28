@@ -1,4 +1,5 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -10,13 +11,22 @@ import { storeChat } from '../chat/storeChat';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
+let unbanFlagTimeouts:{[key:string]:number} = {};
+
 export const storeUsers = defineStore('users', {
 	state: () => ({
 		users: [],
 		userCard: null,
 		onlineUsers: [],
 		trackedUsers: [],
-		mods:[],
+		blockedUsers: {
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+		},
 		followingStates: {},
 		followingStatesByNames: {},
 		myFollowings: {},
@@ -44,8 +54,9 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser|undefined {
+		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
+			//Search for the requested user
 			//Don't use "users.find(...)", perfs are much lower than good old for() loop
 			//find() takes ~10-15ms for 1M users VS ~3-4ms for the for() loop
 			for (let i = 0; i < this.users.length; i++) {
@@ -57,36 +68,137 @@ export const storeUsers = defineStore('users', {
 			//Create user if enough given info
 			if(!user && id && login) {
 				if(!displayName) displayName = login;
-				user = { source, id, login, displayName };
+				user = { source, id, login, displayName, greeted:false, online:true };
+				if(this.blockedUsers[source][id] === true) {
+					user.is_blocked = true;
+				}
 				this.users.push(user);
 			}
 			//If we don't have enough info, create a temp user object and load
 			//its details from the API then register it if found.
 			if(!user && (login || id)) {
-				user = { source, id:id??"", login:login??"", displayName:login??"", temporary:true};
+				user = { source, id:id??"", login:login??"", displayName:login??"", temporary:true, greeted:false, online:true};
 				if(source == "twitch") {
 					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
+						//This just makes the rest of the code know that the user
+						//actually exists as it cannot be undefined anymore once
+						//we're here.
+						user = user!;
+
 						if(res.length > 0) {
-							user!.id = res[0].id;
-							user!.login = res[0].login;
-							user!.displayName = res[0].display_name;
-							delete user!.temporary;
-							this.users.push(user!);
-							this.checkFollowerState(user!);
-							this.checkPronouns(user!);
+							user.id = res[0].id;
+							user.login = res[0].login;
+							user.displayName = res[0].display_name;
+							if(this.blockedUsers[source][user.id] === true) {
+								user.is_blocked = true;
+							}
+							delete user.temporary;
+							this.users.push(user);
+							this.checkFollowerState(user);
+							this.checkPronouns(user);
 						}
 					});
 				}
 			}
-			if(user) {
-				this.checkFollowerState(user);
-				this.checkPronouns(user);
-				if(isMod) user.is_moderator = true;
-				if(isVIP) user.is_vip = true;
-				if(isSub) user.is_subscriber = true;
-				if(isBoradcaster) user.is_broadcaster = true;
-			}
+			
+			//This just makes the rest of the code know that the user
+			//actually exists as it cannot be undefined anymore once
+			//we're here.
+			user = user!;
+
+			this.checkFollowerState(user);
+			this.checkPronouns(user);
+			if(isMod) user.is_moderator = true;
+			if(isVIP) user.is_vip = true;
+			if(isSub) user.is_subscriber = true;
+			if(isBoradcaster) user.is_broadcaster = true;
 			return user;
+		},
+
+		async initBlockedUsers():Promise<void> {
+			//Get list of all blocked users and build a hashmap out of it
+			try {
+				const blockedUsers = await TwitchUtils.getBlockedUsers();
+				for (let i = 0; i < blockedUsers.length; i++) {
+					this.blockedUsers["twitch"][ blockedUsers[i].user_id ] = true;
+				}
+			}catch(error) {/*ignore*/}
+		},
+
+		flagMod(source:TwitchatDataTypes.ChatSource, uid:string):void {
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && source == u.source) {
+					this.users[i].is_moderator = true;
+					break;
+				}
+			}
+		},
+		
+		flagUnmod(source:TwitchatDataTypes.ChatSource, uid:string):void {
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && source == u.source) {
+					this.users[i].is_moderator = false;
+					break;
+				}
+			}
+		},
+
+		flagBlocked(source:TwitchatDataTypes.ChatSource, uid:string):void {
+			this.blockedUsers[source][uid] = true;
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && source == u.source) {
+					this.users[i].is_blocked = true;
+					break;
+				}
+			}
+		},
+		
+		flagUnblocked(source:TwitchatDataTypes.ChatSource, uid:string):void {
+			delete this.blockedUsers[source][uid];
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && source == u.source) {
+					this.users[i].is_blocked = false;
+					break;
+				}
+			}
+		},
+
+		flagBanned(source:TwitchatDataTypes.ChatSource, uid:string, duration_s?:number):void {
+			this.blockedUsers[source][uid] = true;
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && source == u.source) {
+					this.users[i].is_banned = true;
+					break;
+				}
+			}
+			if(unbanFlagTimeouts[uid]) {
+				clearTimeout(unbanFlagTimeouts[uid]);
+			}
+			if(duration_s != undefined) {
+				//Auto unflag the user once timeout expires
+				unbanFlagTimeouts[uid] = setTimeout(()=> {
+					StoreProxy.users.flagUnbanned("twitch", uid);
+				}, duration_s*1000)
+			}
+		},
+		
+		flagUnbanned(source:TwitchatDataTypes.ChatSource, uid:string):void {
+			delete this.blockedUsers[source][uid];
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && source == u.source) {
+					this.users[i].is_banned = false;
+					break;
+				}
+			}
+			if(unbanFlagTimeouts[uid]) {
+				clearTimeout(unbanFlagTimeouts[uid]);
+			}
 		},
 
 		//Check if user is following

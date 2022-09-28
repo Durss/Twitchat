@@ -627,6 +627,7 @@ export namespace TwitchatDataTypes {
 		ONLINE:"online",
 		UNNKNOWN:"unknown",
 		EMERGENCY_MODE:"emergencyMode",
+		COMMERCIAL_ERROR:"commercialError",
 		COMMERCIAL_START:"commercialStart",
 		COMMERCIAL_COMPLETE:"commercialComplete",
 	}
@@ -648,6 +649,8 @@ export namespace TwitchatDataTypes {
 		source:ChatSource;
 		login:string;
 		displayName:string;
+		greeted:boolean;
+		online:boolean;
 		color?:string;
 		avatarPath?:string;
 		id?:string;
@@ -658,8 +661,8 @@ export namespace TwitchatDataTypes {
 		is_moderator?:boolean;
 		is_broadcaster?:boolean;
 		is_subscriber?:boolean;
-		temporary?:boolean;//true when the details are loading
 		pronouns?:string|false;
+		temporary?:boolean;//true when the details are loading
 	}
 
 	export type ChatMessageTypes = MessageChatData |
@@ -801,6 +804,7 @@ export namespace TwitchatDataTypes {
 			description:string;
 		};
 		message?:string;
+		message_html?:string;
 	}
 
 	export interface MessageCommunityChallengeContributionData extends AbstractTwitchatMessage {

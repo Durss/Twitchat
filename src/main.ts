@@ -97,23 +97,7 @@ const confirm = <T>(title: string,
 	yesLabel?:string,
 	noLabel?:string,
 	STTOrigin?:boolean): Promise<T|undefined> => {
-	const prom = <Promise<T|undefined>>new Promise((resolve, reject) => {
-		const confirmData = {
-			title,
-			description,
-			yesLabel,
-			noLabel,
-			STTOrigin,
-			confirmCallback : () => {
-				resolve(data);
-			},
-			cancelCallback : () => {
-				reject(data);
-			}
-		}
-		StoreProxy.main.confirm(confirmData);
-	});
-	return prom;
+	return StoreProxy.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
 }
 
 /**

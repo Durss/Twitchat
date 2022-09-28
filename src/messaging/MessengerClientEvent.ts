@@ -1,7 +1,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Event } from '@/utils/EventDispatcher';
 
-export default class ChatClientEvent extends Event {
+export default class MessengerClientEvent extends Event {
 
 	public static MESSAGE = "MESSAGE";
 	public static WHISPER = "WHISPER";
@@ -15,6 +15,7 @@ export default class ChatClientEvent extends Event {
 	public static DISCONNECT = "DISCONNECT";
 	public static CLEAR_CHAT = "CLEAR_CHAT";
 	public static REFRESH_TOKEN = "REFRESH_TOKEN";
+	public static REWARD = "REWARD";
 
 	public data?:	TwitchatDataTypes.MessageChatData |
 					TwitchatDataTypes.MessageWhisperData |
@@ -27,6 +28,7 @@ export default class ChatClientEvent extends Event {
 					TwitchatDataTypes.MessageRaidData |
 					TwitchatDataTypes.MessageDisconnectData |
 					TwitchatDataTypes.MessageClearChatData |
+					TwitchatDataTypes.MessageRewardRedeemData |
 					TwitchatDataTypes.MessageNoticeData
 					;
 	
@@ -42,6 +44,7 @@ export default class ChatClientEvent extends Event {
 	constructor(type:"CLEAR_CHAT", data:TwitchatDataTypes.MessageClearChatData);
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
 	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
+	constructor(type:"REWARD", data:TwitchatDataTypes.MessageRewardRedeemData);
 	constructor(type:"REFRESH_TOKEN");
 	
 	constructor(...params:any[]) {

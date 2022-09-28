@@ -7,20 +7,21 @@ import TwitchUtils from "@/utils/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
-import ChatClientEvent from "./ChatClientEvent";
+import MessengerClientEvent from "./MessengerClientEvent";
 
 /**
 * Created : 25/09/2022 
 */
-export default class TwitchChatClient extends EventDispatcher {
+export default class TwitchMessengerClient extends EventDispatcher {
 
-	private static _instance:TwitchChatClient;
+	private static _instance:TwitchMessengerClient;
 	private _client!:tmi.Client;
 	private _credentials:{token:string, username:string}|null = null;
 	private _reconnecting:boolean = false;
 	private _connectedAnonymously:boolean = false;
 	private _connectTimeout:number = -1;
 	private _connectedChannels:string[] = [];
+	private _blockedUsers:{[key:string]:boolean} = {};
 	private queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
 	
 	constructor() {
@@ -30,12 +31,12 @@ export default class TwitchChatClient extends EventDispatcher {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():TwitchChatClient {
-		if(!TwitchChatClient._instance) {
-			TwitchChatClient._instance = new TwitchChatClient();
-			TwitchChatClient._instance.initialize();
+	static get instance():TwitchMessengerClient {
+		if(!TwitchMessengerClient._instance) {
+			TwitchMessengerClient._instance = new TwitchMessengerClient();
+			TwitchMessengerClient._instance.initialize();
 		}
-		return TwitchChatClient._instance;
+		return TwitchMessengerClient._instance;
 	}
 
 	/**
@@ -44,6 +45,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	public set credentials(value:{token:string, username:string}) {
 		this._credentials = value;
 		this.connectToChannel(value.username);
+		this.loadBlockedUsers();
 	}
 	
 	
@@ -188,6 +190,16 @@ export default class TwitchChatClient extends EventDispatcher {
 					if(user) prom = TwitchUtils.unbanUser(user.id);
 					break;
 				}
+				case "/block":{
+					const user = await getUserFromLogin(chunks[0]);
+					if(user) prom = TwitchUtils.blockUser(user.id);
+					break;
+				}
+				case "/unblock": {
+					const user = await getUserFromLogin(chunks[0]);
+					if(user) prom = TwitchUtils.unblockUser(user.id);
+					break;
+				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) prom = TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
@@ -198,26 +210,21 @@ export default class TwitchChatClient extends EventDispatcher {
 					if(user) prom = TwitchUtils.unbanUser(user.id);
 					break;
 				}
-				case "/commercial": TwitchUtils.startCommercial(parseInt(chunks[0])); break;
-				// this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
-				// 	try {
-				// 		const res = await TwitchUtils.startCommercial(duration);
-				// 		if(res.length > 0) {
-				// 			this.canStartAd = false;
-				// 			this.startAdCooldown = Date.now() + res.retry_after * 1000;
-				// 			setTimeout(()=>{
-				// 				this.canStartAd = true;
-				// 				this.startAdCooldown = 0;
-				// 			}, this.startAdCooldown);
-				// 			this.$store("stream").setCommercialEnd( Date.now() + res.length * 1000 );
-				// 		}
-				// 	}catch(error) {
-				// 		const e = (error as unknown) as {error:string, message:string, status:number}
-				// 		console.log(error);
-				// 		IRCClient.instance.sendNotice("commercial", e.message);
-				// 		// this.$store("store").state.alert = "An unknown error occured when starting commercial"
-				// 	}
-				// }).catch(()=>{/*ignore*/});
+				case "/commercial": {
+					let duration = parseInt(chunks[0]);
+					StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
+						try {
+							const res = await TwitchUtils.startCommercial(duration);
+							if(res.length > 0) {
+								StoreProxy.stream.setCommercialEnd( Date.now() + res.length * 1000 );
+							}
+						}catch(error) {
+							const e = (error as unknown) as {error:string, message:string, status:number}
+							console.log(error);
+							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, e.message, UserSession.instance.twitchUser!.login);
+						}
+					}).catch(()=>{/*ignore*/});
+				}
 				case "/delete": prom = TwitchUtils.deleteMessages(chunks[0]); break;
 				case "/clear": prom = TwitchUtils.deleteMessages(); break;
 				case "/color": prom = TwitchUtils.setColor(chunks[0]); break;
@@ -297,6 +304,20 @@ export default class TwitchChatClient extends EventDispatcher {
 	}
 
 	/**
+	 * Loads list of blocked users
+	 */
+	private async loadBlockedUsers():Promise<void> {
+		//Get list of all blocked users and build a hashmap out of it
+		try {
+			const blockedUsers = await TwitchUtils.getBlockedUsers();
+			this._blockedUsers = {};
+			for (let i = 0; i < blockedUsers.length; i++) {
+				this._blockedUsers[ blockedUsers[i].user_id ] = true;
+			}
+		}catch(error) {/*ignore*/}
+	}
+
+	/**
 	 * Gets a user object from IRC tags
 	 * @param tags 
 	 * @returns 
@@ -317,16 +338,10 @@ export default class TwitchChatClient extends EventDispatcher {
 	 * @returns 
 	 */
 	private getUserFromLogin(login:string):TwitchatDataTypes.TwitchatUser {
-		const res:TwitchatDataTypes.TwitchatUser = {
-			source:"twitch",
-			login: login,
-			displayName: login,
-		}
 		//Search if a user with this name and source exists on store
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
-		const storeUser = StoreProxy.users.getUserFrom("twitch", undefined, login);
-		return storeUser ?? res;
+		return StoreProxy.users.getUserFrom("twitch", undefined, login);
 	}
 	
 	/**
@@ -385,15 +400,10 @@ export default class TwitchChatClient extends EventDispatcher {
 
 		const user = this.getUserFromTags(tags);
 		
-		//User has no color giver her/him a random one
-		if(!tags.color) {
-			let color = this.userToColor[login];
-			if(!color) {
-				color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
-				this.userToColor[login]	= color;
-			}
-			user.displayName
-			user.color = color;
+		if(!user.color) user.color = tags.color;
+		//User has no color give them a random one
+		if(!user.color) {
+			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 		}
 
 		const data:TwitchatDataTypes.MessageChatData = {
@@ -406,6 +416,7 @@ export default class TwitchChatClient extends EventDispatcher {
 			user,
 			message:message,
 			message_html:"",
+			todayFirst:user.greeted===false,
 		};
 
 		data.message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
@@ -493,11 +504,27 @@ export default class TwitchChatClient extends EventDispatcher {
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
 
+		//Send reward redeem message if the message comes from an "highlight my message" reward
 		if(data.twitch_isHighlighted) {
-			//TODO create a reward redeem notification
+			const reward:TwitchatDataTypes.MessageRewardRedeemData = {
+				channel_id: data.channel_id,
+				date: data.date,
+				id:crypto.randomUUID(),
+				source:"twitch",
+				type:"reward",
+				user: data.user,
+				reward: {
+					title:"Highlight my message",
+					cost:-1,
+					description:"",
+				},
+				message:data.message,
+				message_html:data.message_html,
+			}
+			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
 		}
 
-		this.dispatchEvent(new ChatClientEvent("MESSAGE", data));
+		this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
 	}
 
 	private onJoin(channel:string, user:string):void {
@@ -505,7 +532,7 @@ export default class TwitchChatClient extends EventDispatcher {
 			this.notice(TwitchatDataTypes.TwitchatNoticeType.ONLINE, "Welcome to the chat room "+channel+"!", channel);
 			this._reconnecting = false;
 		}
-		this.dispatchEvent(new ChatClientEvent("JOIN", {
+		this.dispatchEvent(new MessengerClientEvent("JOIN", {
 			source:"twitch",
 			type:"join",
 			id:Utils.getUUID(),
@@ -516,7 +543,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	}
 
 	private onLeave(channel:string, user:string):void {
-		this.dispatchEvent(new ChatClientEvent("LEAVE", {
+		this.dispatchEvent(new MessengerClientEvent("LEAVE", {
 			source:"twitch",
 			type:"leave",
 			id:Utils.getUUID(),
@@ -529,7 +556,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
 		let message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
 		message_html = await TwitchUtils.parseCheermotes(message_html, UserSession.instance.twitchUser!.id);
-		this.dispatchEvent(new ChatClientEvent("CHEER", {
+		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			source:"twitch",
 			type:"cheer",
 			id:Utils.getUUID(),
@@ -546,19 +573,19 @@ export default class TwitchChatClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods, message);
 		data.is_resub = true;
 		data.months = months;
-		this.dispatchEvent(new ChatClientEvent("SUB", data));
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 
 	private subscription(channel: string, username: string, methods: tmi.SubMethods, message: string, tags: tmi.SubUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods, message);
-		this.dispatchEvent(new ChatClientEvent("SUB", data));
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.gift_recipients = [this.getUserFromLogin(recipient)];
-		this.dispatchEvent(new ChatClientEvent("SUB", data));
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
 	private anonsubgift(channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate):void {
@@ -566,23 +593,23 @@ export default class TwitchChatClient extends EventDispatcher {
 		data.is_gift = true;
 		data.streakMonths = streakMonths
 		data.gift_recipients = [this.getUserFromLogin(recipient)];
-		this.dispatchEvent(new ChatClientEvent("SUB", data));
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
 	private giftpaidupgrade(channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
-		this.dispatchEvent(new ChatClientEvent("SUB", data));
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
 	private anongiftpaidupgrade(channel: string, username: string, tags: tmi.AnonSubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
-		this.dispatchEvent(new ChatClientEvent("SUB", data));
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 
 	private ban(channel: string, username: string, reason: string):void {
-		this.dispatchEvent(new ChatClientEvent("BAN", {
+		this.dispatchEvent(new MessengerClientEvent("BAN", {
 			source:"twitch",
 			type:"ban",
 			id:Utils.getUUID(),
@@ -594,7 +621,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	}
 
 	private timeout(channel: string, username: string, reason: string, duration: number):void {
-		this.dispatchEvent(new ChatClientEvent("TIMEOUT", {
+		this.dispatchEvent(new MessengerClientEvent("TIMEOUT", {
 			source:"twitch",
 			type:"timeout",
 			id:Utils.getUUID(),
@@ -607,7 +634,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	}
 
 	private raided(channel: string, username: string, viewers: number):void {
-		this.dispatchEvent(new ChatClientEvent("RAID", {
+		this.dispatchEvent(new MessengerClientEvent("RAID", {
 			source:"twitch",
 			type:"raid",
 			id:Utils.getUUID(),
@@ -619,7 +646,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	}
 	
 	private disconnected(reason:string):void {
-		this.dispatchEvent(new ChatClientEvent("DISCONNECT", {
+		this.dispatchEvent(new MessengerClientEvent("DISCONNECT", {
 			source:"twitch",
 			type:"disconnect",
 			id:Utils.getUUID(),
@@ -629,7 +656,7 @@ export default class TwitchChatClient extends EventDispatcher {
 	}
 
 	private clearchat(channel:string):void {
-		this.dispatchEvent(new ChatClientEvent("CLEAR_CHAT", {
+		this.dispatchEvent(new MessengerClientEvent("CLEAR_CHAT", {
 			source:"twitch",
 			type:"clear_chat",
 			id:Utils.getUUID(),
@@ -673,7 +700,7 @@ export default class TwitchChatClient extends EventDispatcher {
 					message_html:TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]),
 				};
 		
-				this.dispatchEvent(new ChatClientEvent("WHISPER", eventData));
+				this.dispatchEvent(new MessengerClientEvent("WHISPER", eventData));
 				break;
 			}
 
@@ -710,7 +737,7 @@ export default class TwitchChatClient extends EventDispatcher {
 					}
 					if(msgid.indexOf("authentication failed") > -1) {
 						message = "Authentication failed. Refreshing token and trying again...";
-						this.dispatchEvent(new ChatClientEvent("REFRESH_TOKEN"));
+						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
 					}
 				}
 				if(message) {
@@ -732,7 +759,7 @@ export default class TwitchChatClient extends EventDispatcher {
 			message:message,
 			noticeId:id,
 		};
-		this.dispatchEvent(new ChatClientEvent("NOTICE", eventData));
+		this.dispatchEvent(new MessengerClientEvent("NOTICE", eventData));
 	}
 
 }

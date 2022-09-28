@@ -886,7 +886,23 @@ export const storeMain = defineStore("main", {
 
 		showAlert(message:string) { this.alert = message; },
 
-		confirm(payload:TwitchatDataTypes.ConfirmData) { this.confirmData = payload; },
+		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {
+			return <Promise<T|undefined>>new Promise((resolve, reject) => {
+				this.confirmData = {
+					title,
+					description,
+					yesLabel,
+					noLabel,
+					STTOrigin,
+					confirmCallback : () => {
+						resolve(data);
+					},
+					cancelCallback : () => {
+						reject(data);
+					}
+				}
+			});
+		},
 
 		openTooltip(payload:string) { this.tooltip = payload; },
 		

@@ -61,7 +61,7 @@ export interface IMainActions {
 	startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}):Promise<void>
 	loadDataFromStorage(authenticated?:boolean):void;
 	showAlert(message:string):void;
-	confirm(payload:TwitchatDataTypes.ConfirmData):void;
+	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
 	openTooltip(payload:string):void;
 	closeTooltip():void;
 	setShowParams(payload:boolean):void;
@@ -392,7 +392,7 @@ export interface IUsersState {
 	userCard: string|null;
 	onlineUsers: string[];
 	trackedUsers: {user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}[];
-	mods: TwitchDataTypes.ModeratorUser[];
+	blockedUsers: {[key in TwitchatDataTypes.ChatSource]:{[key:string]:boolean}};
 	followingStates: {[key:string]:boolean};
 	followingStatesByNames: {[key:string]:boolean};
 	myFollowings: {[key:string]:boolean};
@@ -402,7 +402,14 @@ export interface IUsersGetters {
 }
 
 export interface IUsersActions {
-	getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser|undefined;
+	getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser;
+	initBlockedUsers():Promise<void>;
+	flagMod(source:TwitchatDataTypes.ChatSource, uid:string):void;
+	flagUnmod(source:TwitchatDataTypes.ChatSource, uid:string):void;
+	flagBlocked(source:TwitchatDataTypes.ChatSource, uid:string):void;
+	flagUnblocked(source:TwitchatDataTypes.ChatSource, uid:string):void;
+	flagBanned(source:TwitchatDataTypes.ChatSource, uid:string, duration_s?:number):void;
+	flagUnbanned(source:TwitchatDataTypes.ChatSource, uid:string):void;
 	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void;
 	checkPronouns(user:TwitchatDataTypes.TwitchatUser):void;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;

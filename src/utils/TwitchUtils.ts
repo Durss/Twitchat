@@ -1193,6 +1193,8 @@ export default class TwitchUtils {
 	 * Bans a user
 	 */
 	public static async banUser(uid:string, duration?:number, reason?:string):Promise<boolean> {
+		if(duration != undefined && duration === 0) return false;
+
 		const body:{[key:string]:string|number} = {
 			user_id:uid,
 		};
@@ -1210,6 +1212,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
+			StoreProxy.users.flagBanned("twitch", uid, duration);
 			return true;
 		}else{
 			return false;
@@ -1231,6 +1234,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
+			StoreProxy.users.flagUnbanned("twitch", uid);
 			return true;
 		}else{
 			return false;
@@ -1251,6 +1255,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
+			StoreProxy.users.flagBlocked("twitch", uid);
 			return true;
 		}else{
 			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
@@ -1282,6 +1287,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
+			StoreProxy.users.flagUnblocked("twitch", uid);
 			return true;
 		}else{
 			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
@@ -1459,26 +1465,31 @@ export default class TwitchUtils {
 	/**
 	 * Add or remove a channel moderator
 	 */
-	public static async addRemoveModerator(removeMode:boolean, userId?:string, login?:string):Promise<boolean> {
-		if(!userId && login) {
+	public static async addRemoveModerator(removeMod:boolean, uid?:string, login?:string):Promise<boolean> {
+		if(!uid && login) {
 			try {
-				userId = (await this.loadUserInfo(undefined, [login]))[0].id;
+				uid = (await this.loadUserInfo(undefined, [login]))[0].id;
 			}catch(error) {
 				return false;
 			}
 		}
 		
-		if(!userId) return false;
+		if(!uid) return false;
 
 		const options = {
-			method:removeMode? "DELETE" : "POST",
+			method:removeMod? "DELETE" : "POST",
 			headers: this.headers,
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/moderators");
 		url.searchParams.append("broadcaster_id", UserSession.instance.twitchAuthToken.user_id);
-		url.searchParams.append("user_id", userId);
+		url.searchParams.append("user_id", uid);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
+			if(removeMod) {
+				StoreProxy.users.flagUnmod("twitch", uid);
+			}else{
+				StoreProxy.users.flagMod("twitch", uid);
+			}
 			return true;
 		}else{
 			return false;

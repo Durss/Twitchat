@@ -1,5 +1,5 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
-import TwitchChatClient from "@/messaging/TwitchChatClient";
+import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
@@ -109,14 +109,17 @@ export const storeAuth = defineStore('auth', {
 				
 				if(this.authenticated) {
 					//If we were authenticated, simply update the token on IRC
-					TwitchChatClient.instance.refreshToken(json.access_token);
+					TwitchMessengerClient.instance.refreshToken(json.access_token);
 				}else{
 					MessengerProxy.instance.connect();
 					PubSub.instance.connect();
 				}
+				
 				this.authenticated = true;
+
 				const sUsers = StoreProxy.users;
-				sUsers.mods = await TwitchUtils.getModerators();
+				sUsers.initBlockedUsers();
+				//Set us as a follower of our own channel
 				sUsers.followingStates[UserSession.instance.twitchAuthToken.user_id] = true;
 				sUsers.followingStatesByNames[UserSession.instance.twitchAuthToken.login.toLowerCase()] = true;
 				if(cb) cb(true);
