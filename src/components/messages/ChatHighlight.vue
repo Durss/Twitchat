@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="!filtered" @click.ctrl.stop.capture="copyJSON()">
+	<div :class="classes" @click.ctrl.stop.capture="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
@@ -35,10 +35,10 @@
 			class="soButton"
 		/>
 
-		<div class="communityChallenge" v-if="isCommunityChallenge">
+		<div class="communityChallenge" v-if="messageData.type === 'community_challenge_contribution'">
 			<div class="values">
-				<div>{{messageData.contribution!.goal.points_contributed}}</div>
-				<div>{{messageData.contribution!.goal.goal_amount}}</div>
+				<div>{{messageData.challenge.progress}}</div>
+				<div>{{messageData.challenge.goal}}</div>
 			</div>
 			<p>pts</p>
 		</div>
@@ -46,11 +46,9 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { TrackedUser } from '@/utils/CommonDataTypes';
 import IRCClient from '@/utils/IRCClient';
-import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -72,13 +70,12 @@ import ChatMessageInfos from './ChatMessageInfos.vue';
 })
 export default class ChatHighlight extends Vue {
 	
-	public messageData!:IRCEventDataList.Highlight;
+	public messageData!:TwitchatDataTypes.ChatMessageTypes;
 	public lightMode!:boolean;
 	public messageText = '';
 	public info = "";
 	public icon = "";
 	public username = "";
-	public filtered = false;
 	public isRaid = false;
 	public shoutoutLoading = false;
 	public loading = false;
@@ -86,7 +83,6 @@ export default class ChatHighlight extends Vue {
 	public moderating = false;
 	public canUnban = true;
 	public canBlock = true;
-	public isCommunityChallenge = false;
 	public badgeInfos:TwitchatDataTypes.ChatMessageInfoData[] = [];
 	
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
@@ -101,60 +97,52 @@ export default class ChatHighlight extends Vue {
 	public get classes():string[] {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
-		if(this.$store("users").trackedUsers.findIndex((v: TrackedUser)=>v.user['user-id'] == this.messageData.tags["user-id"]) != -1) res.push("tracked");
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			const uid = this.messageData.user.id;
+			if(this.$store("users").trackedUsers.findIndex((v)=>v.user.id == uid) != -1) res.push("tracked");
+		}
 		return res;
 	}
 
 	public get time():string {
-		const message = this.messageData as IRCEventDataList.Highlight;
-		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public get reason():string {
 		let value:number|"prime" = 0;
 		this.info = "";
-		let type = getTwitchatMessageType(this.messageData);
-
-		if(type == null) {
-			console.warn("Unhandled highlight");
-			console.log(this.messageData);
-			this.filtered = true;
-			return "";
-		}
 
 		let res = "";
-		switch(type) {
-			case TwitchatMessageType.FOLLOW:
+		switch(this.messageData.type) {
+			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:
 				this.icon = this.$image('icons/follow.svg');
-				this.username = this.messageData.username as string;
+				this.username = this.messageData.user.displayName;
 				res = `followed your channel!`;
-				this.filtered = !this.$store("params").filters.showFollow.value;
 				break;
 
-			case TwitchatMessageType.HYPE_TRAIN_COOLDOWN_EXPIRED:
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 				this.icon = this.$image('icons/train.svg');
 				res = "Hype train can be started again!";
 				break;
 
-			case TwitchatMessageType.AUTOBAN_JOIN:
+			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
 				this.icon = this.$image('icons/mod.svg');
-				this.username = this.messageData.username as string;
-				res = "has been banned by automod after joining the chat as their nickname matches the following rule: \"<i>"+this.messageData.ttAutomod?.label+"</i>\"";
+				this.username = this.messageData.user.displayName;
+				res = "has been banned by automod after joining the chat as their nickname matches the following rule: \"<i>"+this.messageData.rule.label+"</i>\"";
 				this.allowUnban = true;
 				break;
 
-			case TwitchatMessageType.COMMUNITY_BOOST_COMPLETE:
+			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE:
 				this.icon = this.$image('icons/boost.svg');
 				res = `Your channel has been boosted to ${this.messageData.viewers} people`;
 				break;
 
-			case TwitchatMessageType.RAID:
+			case TwitchatDataTypes.TwitchatMessageType.RAID:
 				value = this.messageData.viewers as number;
-				this.filtered = !this.$store("params").filters.showRaids.value;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
-				this.username = this.messageData.username as string;
+				this.username = this.messageData.user.displayName;
 				res = `is raiding with a party of ${this.messageData.viewers}.`;
 
 				if(this.$store("params").features.raidStreamInfo.value === true) {
@@ -162,90 +150,76 @@ export default class ChatHighlight extends Vue {
 				}
 				break;
 
-			case TwitchatMessageType.BITS:
-				value = this.messageData.tags.bits;
-				this.username = this.messageData.tags.username as string;
+			case TwitchatDataTypes.TwitchatMessageType.CHEER:
+				value = this.messageData.bits;
+				this.username = this.messageData.user.displayName;
 				res = `sent <strong>${value}</strong> bits`;
 				this.icon = this.$image('icons/bits.svg');
-				this.filtered = !this.$store("params").filters.showCheers.value;
 				break;
 
-			case TwitchatMessageType.SUB:
-			case TwitchatMessageType.SUB_PRIME:
-				const isResub = this.messageData.tags["msg-id"] === "resub";
-				const method = isResub ? "resubscribed" : "subscribed";
-				this.username = this.messageData.username as string;
-				if(type == TwitchatMessageType.SUB_PRIME) {
-					res = `${method} with Prime`;
-					this.icon = this.$image('icons/prime.svg');
-				}else{
-					value = parseInt(this.messageData.methods?.plan as string)/1000;
-					res = `${method} at Tier ${value}`;
+			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
+				if(this.messageData.is_gift) {
+
+					this.icon = this.$image('icons/gift.svg');
+					value = this.messageData.tier;
+					this.username = this.messageData.user.displayName;
+					if(this.messageData.gift_recipients && this.messageData.gift_recipients.length > 0) {
+						const recipientsStr = `<strong>${this.messageData.gift_recipients.join("</strong>, <strong>")}</strong>`;
+						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to ${recipientsStr}`;
+					}
+
+				}else if(this.messageData.is_giftUpgrade) {
 					this.icon = this.$image('icons/sub.svg');
-				}
+					this.username = this.messageData.user.displayName;
+					res = `is continuing the Gift Sub they got from <strong>${this.messageData.gift_upgradeSender!.displayName}</strong>`;
 
-				if(typeof this.messageData.tags["msg-param-cumulative-months"] === "string") {
-					res += ` for ${this.messageData.tags["msg-param-cumulative-months"]} months`;
-				} else if(this.messageData.months) {
-					res += ` for ${this.messageData.months} months`;
-				}
-				let extras:string[] = [];
-				if(typeof this.messageData.tags["msg-param-multimonth-duration"] !== "boolean") {
-					extras.push(`for ${this.messageData.tags["msg-param-multimonth-duration"]} months in advance`);
-				}
-				if(typeof this.messageData.tags['msg-param-streak-months'] === "string") {
-					extras.push(`${this.messageData.tags['msg-param-streak-months']} months streak`);
-				}
-				if(extras.length) {
-					res += " <i>("+extras.join(" ")+")</i>"
-				}
-				this.filtered = !this.$store("params").filters.showSubs.value;
-				break;
-
-			case TwitchatMessageType.SUBGIFT:
-				this.icon = this.$image('icons/gift.svg');
-				value = parseInt(this.messageData.methods?.plan as string)/1000;
-				this.username = this.messageData.username as string;
-				if(this.messageData.subgiftAdditionalRecipents && this.messageData.subgiftAdditionalRecipents.length > 0) {
-					const recipients = [this.messageData.recipient].concat(this.messageData.subgiftAdditionalRecipents);
-					const recipientsStr = `<strong>${recipients.join("</strong>, <strong>")}</strong>`;
-
-					res = `gifted <strong>${(this.messageData.subgiftAdditionalRecipents?.length+1)}</strong> Tier ${value} to ${recipientsStr}`;
 				}else{
-					res = `gifted a Tier ${value} to <strong>${this.messageData.recipient}</strong>`;
-				}
-				break;
-
-			case TwitchatMessageType.SUBGIFT_UPGRADE:
-				this.filtered = !this.$store("params").filters.showSubs.value;
-				this.icon = this.$image('icons/sub.svg');
-				this.username = this.messageData.username as string;
-				res = `is continuing the Gift Sub they got from <strong>${this.messageData.sender}</strong>`;
-				break;
-
-			case TwitchatMessageType.REWARD: {
-				const localObj = this.messageData.reward!;
-				this.filtered = !this.$store("params").filters.showRewards.value;
-				this.messageText = "";
-				this.icon = this.$image('icons/channelPoints.svg');
-				this.username = localObj.redemption.user.display_name as string;
-				res = "";
-				res += ` redeemed the reward <strong>${localObj.redemption.reward.title}</strong>`;
-				if(localObj.redemption.reward.cost > -1) {//It's set to -1 for "highlight my message" reward
-					res += ` <span class='small'>(${localObj.redemption.reward.cost} pts)</span>`;
-				}
-				if(this.messageData.reward?.redemption.reward.image) {
-					this.icon = this.messageData.reward?.redemption.reward.image.url_2x as string;
-				}else{
-					this.icon = this.messageData.reward?.redemption.reward.default_image.url_2x as string;
-				}
-				if(this.messageData.reward?.redemption.reward.prompt) {
-					if(this.$store("params").filters.showRewardsInfos.value === true) {
-						this.info = this.messageData.reward?.redemption.reward.prompt;
+					const method = this.messageData.is_resub ? "resubscribed" : "subscribed";
+					this.username = this.messageData.user.displayName;
+					if(this.messageData.tier == "prime") {
+						res = `${method} with Prime`;
+						this.icon = this.$image('icons/prime.svg');
+					}else{
+						value = this.messageData.tier;
+						res = `${method} at Tier ${value}`;
+						this.icon = this.$image('icons/sub.svg');
+					}
+	
+					if(typeof this.messageData.totalSubDuration === "string") {
+						res += ` for ${this.messageData.totalSubDuration} months`;
+					} else {
+						res += ` for 1 month`;
+					}
+					let extras:string[] = [];
+					if(typeof this.messageData.months) {
+						extras.push(`for ${this.messageData.months} months in advance`);
+					}
+					if(typeof this.messageData.streakMonths === "string") {
+						extras.push(`${this.messageData.streakMonths} months streak`);
+					}
+					if(extras.length) {
+						res += " <i>("+extras.join(" ")+")</i>"
 					}
 				}
-				if(this.messageData.reward?.redemption.user_input) {
-					this.messageText += this.messageData.reward?.redemption.user_input;
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+				this.messageText = "";
+				this.icon = this.$image('icons/channelPoints.svg');
+				this.username = this.messageData.user.displayName;
+				res = "";
+				res += ` redeemed the reward <strong>${this.messageData.reward.title}</strong>`;
+				if(this.messageData.reward.cost > -1) {//It's set to -1 for "highlight my message" reward
+					res += ` <span class='small'>(${this.messageData.reward.cost} pts)</span>`;
+				}
+				const img = this.messageData.reward.icon;
+				this.icon = img.hd ?? img.sd;
+				if(this.messageData.reward.description && this.$store("params").filters.showRewardsInfos.value === true) {
+					this.info = this.messageData.reward.description;
+				}
+				if(this.messageData.message) {
+					this.messageText += this.messageData.message;
 				}
 				
 				let chunks = TwitchUtils.parseEmotes(this.messageText, "", false, true);
@@ -268,22 +242,16 @@ export default class ChatHighlight extends Vue {
 				break;
 			}
 
-			case TwitchatMessageType.CHALLENGE_CONTRIBUTION: {
-				const localObj = this.messageData.contribution!;
-				this.isCommunityChallenge = true;
-				this.filtered = !this.$store("params").filters.showRewards.value;
-				this.username = localObj.user.display_name;
-				res = "Contributed "+localObj.amount+"pts";
-				if(localObj.amount != localObj.total_contribution) {
-					res += " <i>("+localObj.total_contribution+"pts total)</i>";
+			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
+				this.username = this.messageData.user.displayName;
+				res = "Contributed "+this.messageData.contribution+"pts";
+				if(this.messageData.contribution != this.messageData.total_contribution) {
+					res += " <i>("+this.messageData.total_contribution+"pts total)</i>";
 				}
-				res += " to the challenge \"<strong>"+localObj.goal.title+"</strong>\"";
+				res += " to the challenge \"<strong>"+this.messageData.challenge.title+"</strong>\"";
 				this.icon = this.$image('icons/channelPoints.svg');
-				if(localObj.goal.image) {
-					this.icon = localObj.goal.image.url_2x as string;
-				}else if(localObj.goal.default_image){
-					this.icon = localObj.goal.default_image.url_2x as string;
-				}
+				const img = this.messageData.challenge.icon;
+				if(img) this.icon = img.hd ?? img.sd;
 				break;
 			}
 		}
@@ -291,61 +259,40 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		let result = "";
-		let text = this.messageData.message;
-		if(text) {
-			try {
-				//Allow custom parsing of emotes only if it's a reward to avoid killing performances.
-				const customParsing = this.messageData.reward != null;
-				let removeEmotes = !this.$store("params").appearance.showEmotes.value;
-				let chunks = TwitchUtils.parseEmotes(text, this.messageData.tags['emotes-raw'], removeEmotes, customParsing);
-				result = "";
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-						url = url.replace(/1x$/gi, "3x");//BTTV format
-						url = url.replace(/2x$/gi, "3x");//7TV format
-						url = url.replace(/1$/gi, "4");//FFZ format
-						let tt = "<img src='"+url+"' width='112' height='112'><br><center>"+v.label+"</center>";
-						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-					}
-				}
-			}catch(error) {
-				console.log(error);
-				console.log(this.messageData);
-				result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		switch(this.messageData.type) {
+			case TwitchatDataTypes.TwitchatMessageType.CHEER:
+			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: 
+			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+				this.messageText = this.messageData.message_html ?? this.messageData.message ?? "";
+				this.$emit("ariaMessage", this.reason+" "+this.messageText);
+				break;
 			}
 
-			if(this.messageData.tags.bits) {
-				this.messageText = await TwitchUtils.parseCheermotes(result, this.messageData.tags['room-id'] as string);
-			}else{
-				this.messageText = result;
-			}
-			
-			this.$emit("ariaMessage", this.reason+" "+this.messageText);
-		}
-
-
-		//Add twitchat's automod badge
-		if(this.messageData.ttAutomod) {
-			this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messageData.ttAutomod.label});
-		}
-
-		if(this.messageData.followBlocked) {
-			this.badgeInfos.push({ type:"emergencyBlocked" });
-		}else{
-			//Watch for change so it updates in case of a follow bot raid
-			watch(()=>this.messageData.followBlocked, ()=> {
-				if(this.messageData.followBlocked) {
-					this.badgeInfos.push({ type:"emergencyBlocked" })
+			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+				//Add twitchat's automod badge
+				if(this.messageData.ttAutomod) {
+					this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messageData.ttAutomod.label});
 				}
-			});
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+				if(this.messageData.blocked === true) {
+					this.badgeInfos.push({ type:"emergencyBlocked" });
+				}else{
+					let message = this.messageData;
+					//Watch for change so it updates in case of a follow bot raid
+					watch(()=>message.blocked, ()=> {
+						if(message.blocked) {
+							this.badgeInfos.push({ type:"emergencyBlocked" })
+						}
+					});
+				}
+				break;
+			}
 		}
 	}
+
 
 	public copyJSON():void {
 		console.log(this.messageData);
@@ -354,10 +301,12 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public async shoutout():Promise<void> {
+		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
+
 		this.shoutoutLoading = true;
 		if(this.messageData.viewers != undefined) {
 			try {
-				await this.$store("chat").shoutout(this.messageData.username as string);
+				await this.$store("chat").shoutout(this.messageData.user);
 			}catch(error) {
 				this.$store("main").alert = "Shoutout failed :(";
 				console.log(error);
@@ -390,11 +339,11 @@ export default class ChatHighlight extends Vue {
 	}
 
 	private async loadLastStreamInfos():Promise<void> {
+		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
 		this.loading = true;
 		this.pStreamInfo = null;
 		try {
-			const users = await TwitchUtils.loadUserInfo(undefined, [this.messageData.username as string]);
-			const streams = await TwitchUtils.loadChannelInfo([users[0].id]);
+			const streams = await TwitchUtils.loadChannelInfo([this.messageData.user.id!]);
 			if(streams && streams.length > 0) {
 				this.pStreamInfo = streams[0];
 			}

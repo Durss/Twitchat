@@ -1,6 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { ChatUserstate } from 'tmi.js';
 import type { JsonObject } from 'type-fest';
 
 /**
@@ -9,8 +8,7 @@ import type { JsonObject } from 'type-fest';
 export default class Utils {
 
 	public static getUUID():string {
-		let uuid = crypto.randomUUID();
-		return uuid;
+		return crypto.randomUUID();
 	}
 		
 	/**

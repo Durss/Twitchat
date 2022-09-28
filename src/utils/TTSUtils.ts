@@ -113,7 +113,7 @@ export default class TTSUtils {
 					const m = this.sChat.messages[i];
 					if(this.idsParsed[m.id as string] !== true) {
 						this.idsParsed[m.id as string] = true;
-						this.parseMessage(m);
+						this.addMessageToQueue(m);
 					}
 				}
 				return;
@@ -129,7 +129,7 @@ export default class TTSUtils {
 					const m = this.sChat.activityFeed[i];
 					if(this.idsParsed[m.id as string] !== true) {
 						this.idsParsed[m.id as string] = true;
-						this.parseMessage(m);
+						this.addMessageToQueue(m);
 					}
 				}
 				return;
@@ -194,7 +194,7 @@ export default class TTSUtils {
 	public readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string):void {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
-		if(!id) id = crypto.randomUUID();
+		if(!id) id = Utils.getUUID();
 
 		const m:SpokenMessage = {message, id, date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
@@ -213,7 +213,7 @@ export default class TTSUtils {
 	public readNext(message: TwitchatDataTypes.ChatMessageTypes, id?:string):void {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
-		if(!id) id = crypto.randomUUID();
+		if(!id) id = Utils.getUUID();
 		
 		const m:SpokenMessage = {message, id, date: Date.now()};
 		if(this.pendingMessages.length == 0) {
@@ -234,7 +234,7 @@ export default class TTSUtils {
 	public async addMessageToQueue(message:TwitchatDataTypes.ChatMessageTypes, id?:string):Promise<void> {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
-		if(!id) id = crypto.randomUUID();
+		if(!id) id = Utils.getUUID();
 
 		const paramsTTS = this.sTTS.params;
 		//If requested to only read after a certain inactivity duration and
@@ -507,28 +507,32 @@ export default class TTSUtils {
 		}
 		
 		const text = await this.parseMessage(message.message);
-		const mess = new SpeechSynthesisUtterance(text);
-		mess.rate = paramsTTS.rate;
-		mess.pitch = paramsTTS.pitch;
-		mess.volume = paramsTTS.volume;
-		mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
-		mess.lang = mess.voice.lang;
-		mess.onstart = (ev: SpeechSynthesisEvent) => {
-			this.sTTS.speaking = true;
-		}
-		mess.onend = (ev: SpeechSynthesisEvent) => {
-			this.pendingMessages.shift();
-			clearTimeout(this.stopTimeout);
-			this.sTTS.speaking = false;
+		if(text.length > 0) {
+			const mess = new SpeechSynthesisUtterance(text);
+			mess.rate = paramsTTS.rate;
+			mess.pitch = paramsTTS.pitch;
+			mess.volume = paramsTTS.volume;
+			mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
+			mess.lang = mess.voice.lang;
+			mess.onstart = (ev: SpeechSynthesisEvent) => {
+				this.sTTS.speaking = true;
+			}
+			mess.onend = (ev: SpeechSynthesisEvent) => {
+				this.pendingMessages.shift();
+				clearTimeout(this.stopTimeout);
+				this.sTTS.speaking = false;
+				this.readNextMessage();
+			}
+	
+			window.speechSynthesis.speak(mess);
+	
+			if(paramsTTS.maxDuration > 0) {
+				this.stopTimeout = setTimeout(()=> {
+					window.speechSynthesis.cancel();
+				}, paramsTTS.maxDuration * 1000);
+			}
+		}else{
 			this.readNextMessage();
-		}
-
-		window.speechSynthesis.speak(mess);
-
-		if(paramsTTS.maxDuration > 0) {
-			this.stopTimeout = setTimeout(()=> {
-				window.speechSynthesis.cancel();
-			}, paramsTTS.maxDuration * 1000);
 		}
 	}
 

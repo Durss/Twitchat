@@ -80,6 +80,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
+import Utils from '@/utils/Utils';
 import { reactive, watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -170,7 +171,7 @@ export default class ParamsAutomod extends Vue {
 	 */
 	public addRule():void {
 		const item:TwitchatDataTypes.AutomodParamsKeywordFilterData = {
-			id:crypto.randomUUID(),
+			id:Utils.getUUID(),
 			label:"",
 			regex:"",
 			enabled:true,

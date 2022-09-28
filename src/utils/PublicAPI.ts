@@ -4,6 +4,7 @@ import { EventDispatcher } from "./EventDispatcher";
 import OBSWebsocket from "./OBSWebsocket";
 import type { TwitchatActionType, TwitchatEventType } from "./TwitchatEvent";
 import TwitchatEvent from "./TwitchatEvent";
+import Utils from "./Utils";
 
 /**
 * Created : 14/04/2022 
@@ -63,7 +64,7 @@ export default class PublicAPI extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
 		// console.log("Broadcasting", type, data);
 		if(!data) data = {};
-		data.id = crypto.randomUUID();
+		data.id = Utils.getUUID();
 		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
 
 		//Broadcast to other browser's tabs

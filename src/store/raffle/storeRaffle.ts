@@ -142,8 +142,8 @@ export const storeRaffle = defineStore('raffle', {
 			//Execute triggers
 			const message:TwitchatDataTypes.MessageRaffleData = {
 				type:"raffle",
-				source:"twitchat",
-				id:crypto.randomUUID(),
+				platform:"twitchat",
+				id:Utils.getUUID(),
 				date:Date.now(),
 				raffleData:this.data,
 			}

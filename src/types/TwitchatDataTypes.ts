@@ -640,13 +640,18 @@ export namespace TwitchatDataTypes {
 		type:TwitchatMessageStringType;
 		id: string;
 		date: number;
-		source:ChatSource;
+		platform:ChatPlatform;
 	}
 
-	export type ChatSource = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
+	export interface TwitchatImage {
+		sd:string;
+		hd?:string;
+	}
+
+	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 
 	export interface TwitchatUser {
-		source:ChatSource;
+		platform:ChatPlatform;
 		login:string;
 		displayName:string;
 		greeted:boolean;
@@ -768,21 +773,24 @@ export namespace TwitchatDataTypes {
 		type:"following";
 		user:TwitchatUser;
 		followed_at: string;
+		blocked?:boolean;//If twitchat's automod strikes
 	}
 
 	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"subscription";
 		user: TwitchatUser;//User subscribing or gifting the sub
-		tier: "1"|"2"|"3"|"prime";
+		tier: 1|2|3|"prime";
 		is_gift: boolean;
 		is_giftUpgrade: boolean;
 		is_resub: boolean;
+		gift_upgradeSender?: TwitchatUser;
 		gift_recipients?: TwitchatUser[];
 		months:number;//Number of months the user subscribed for
 		streakMonths:number;//Number of consecutive months the user has been subscribed for
 		totalSubDuration:number;//Number of months the user has been subscribed for
 		message?:string;
+		message_html?:string;
 	}
 
 	export interface MessageCheerData extends AbstractTwitchatMessage {
@@ -802,6 +810,7 @@ export namespace TwitchatDataTypes {
 			title:string;
 			cost:number;
 			description:string;
+			icon:TwitchatImage;
 		};
 		message?:string;
 		message_html?:string;
@@ -819,7 +828,7 @@ export namespace TwitchatDataTypes {
 			goal:number;
 			progress:number;
 			description?:string;
-			icon?:string;
+			icon?:TwitchatImage;
 		}
 	}
 

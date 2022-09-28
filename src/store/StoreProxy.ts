@@ -144,7 +144,6 @@ export interface IChatState {
 	whispersUnreadCount:number;
 	messages:TwitchatDataTypes.ChatMessageTypes[];
 	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
-	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[],
 	whispers:{[key:string]:IRCEventDataList.Whisper[]};
 	botMessages:TwitchatDataTypes.IBotMessage,
@@ -166,7 +165,7 @@ export interface IChatActions {
 	closeWhispers( userID:string):void;
 	doSearchMessages(value:string):void;
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
-	shoutout(source:TwitchatDataTypes.ChatSource, user:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightOverlayData):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
 	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
@@ -390,33 +389,33 @@ export interface ITTSActions {
 export interface IUsersState {
 	users: TwitchatDataTypes.TwitchatUser[];
 	userCard: string|null;
-	onlineUsers: string[];
 	trackedUsers: {user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}[];
-	blockedUsers: {[key in TwitchatDataTypes.ChatSource]:{[key:string]:boolean}};
-	followingStates: {[key:string]:boolean};
-	followingStatesByNames: {[key:string]:boolean};
-	myFollowings: {[key:string]:boolean};
+	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	followingStates: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	followingStatesByNames: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 }
 
 export interface IUsersGetters {
 }
 
 export interface IUsersActions {
-	getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
-	flagMod(source:TwitchatDataTypes.ChatSource, uid:string):void;
-	flagUnmod(source:TwitchatDataTypes.ChatSource, uid:string):void;
-	flagBlocked(source:TwitchatDataTypes.ChatSource, uid:string):void;
-	flagUnblocked(source:TwitchatDataTypes.ChatSource, uid:string):void;
-	flagBanned(source:TwitchatDataTypes.ChatSource, uid:string, duration_s?:number):void;
-	flagUnbanned(source:TwitchatDataTypes.ChatSource, uid:string):void;
+	flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
+	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
+	flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
+	flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
+	flagBanned(platform:TwitchatDataTypes.ChatPlatform, uid:string, duration_s?:number):void;
+	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
+	flagOnlineUSers(users:TwitchatDataTypes.TwitchatUser[]):void;
+	flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[]):void;
 	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void;
 	checkPronouns(user:TwitchatDataTypes.TwitchatUser):void;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;
 	addUser(user:TwitchatDataTypes.TwitchatUser):void;
 	openUserCard(payload:string|null):void;
 	loadMyFollowings():Promise<void>;
-	setViewersList(users:string[]):void;
 	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
 	trackUser(payload:TwitchatDataTypes.TwitchatUser):{user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}|null;
 	untrackUser(payload:ChatUserstate):void;

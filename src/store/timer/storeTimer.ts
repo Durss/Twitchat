@@ -2,6 +2,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
@@ -31,9 +32,9 @@ export const storeTimer = defineStore('timer', {
 
 			const message:TwitchatDataTypes.MessageTimerData = {
 				type:"timer",
-				source:"twitchat",
+				platform:"twitchat",
 				started:true,
-				id:crypto.randomUUID(),
+				id:Utils.getUUID(),
 				date:Date.now(),
 				startAt:Date.now(),
 			};
@@ -46,9 +47,9 @@ export const storeTimer = defineStore('timer', {
 
 			const message:TwitchatDataTypes.MessageTimerData = {
 				type:"timer",
-				source:"twitchat",
+				platform:"twitchat",
 				started:true,
-				id:crypto.randomUUID(),
+				id:Utils.getUUID(),
 				date:Date.now(),
 				startAt:Date.now(),
 				duration:Date.now() - this.timerStart,
@@ -85,8 +86,8 @@ export const storeTimer = defineStore('timer', {
 
 			const message:TwitchatDataTypes.MessageCountdownData = {
 				type:"countdown",
-				source:"twitchat",
-				id:crypto.randomUUID(),
+				platform:"twitchat",
+				id:Utils.getUUID(),
 				date:Date.now(),
 				data:this.countdown,
 			};
@@ -102,8 +103,8 @@ export const storeTimer = defineStore('timer', {
 				
 				const message:TwitchatDataTypes.MessageCountdownData = {
 					type:"countdown",
-					source:"twitchat",
-					id:crypto.randomUUID(),
+					platform:"twitchat",
+					id:Utils.getUUID(),
 					date:Date.now(),
 					data:this.countdown,
 				};

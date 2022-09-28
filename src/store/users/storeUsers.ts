@@ -1,5 +1,4 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
@@ -27,9 +26,30 @@ export const storeUsers = defineStore('users', {
 			tiktok:{},
 			facebook:{},
 		},
-		followingStates: {},
-		followingStatesByNames: {},
-		myFollowings: {},
+		followingStates:{
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+		},
+		followingStatesByNames:{
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+		},
+		myFollowings:{
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+		},
 	} as IUsersState),
 
 
@@ -48,28 +68,28 @@ export const storeUsers = defineStore('users', {
 		 * If only the login is given, the user's data are loaded asynchronously from
 		 * remote API then added to the local DB while returning a temporary user object.
 		 * 
-		 * @param source 
+		 * @param platform 
 		 * @param id 
 		 * @param login 
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(source:TwitchatDataTypes.ChatSource, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user
 			//Don't use "users.find(...)", perfs are much lower than good old for() loop
 			//find() takes ~10-15ms for 1M users VS ~3-4ms for the for() loop
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.source != source) continue;
+				if(u.platform != platform) continue;
 				if(u.id === id) { user = u; break; }
 				if(u.login === login) { user = u; break; }
 			}
 			//Create user if enough given info
 			if(!user && id && login) {
 				if(!displayName) displayName = login;
-				user = { source, id, login, displayName, greeted:false, online:true };
-				if(this.blockedUsers[source][id] === true) {
+				user = { platform: platform, id, login, displayName, greeted:false, online:true };
+				if(this.blockedUsers[platform][id] === true) {
 					user.is_blocked = true;
 				}
 				this.users.push(user);
@@ -77,8 +97,8 @@ export const storeUsers = defineStore('users', {
 			//If we don't have enough info, create a temp user object and load
 			//its details from the API then register it if found.
 			if(!user && (login || id)) {
-				user = { source, id:id??"", login:login??"", displayName:login??"", temporary:true, greeted:false, online:true};
-				if(source == "twitch") {
+				user = { platform: platform, id:id??"", login:login??"", displayName:login??"", temporary:true, greeted:false, online:true};
+				if(platform == "twitch") {
 					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
 						//This just makes the rest of the code know that the user
 						//actually exists as it cannot be undefined anymore once
@@ -89,7 +109,7 @@ export const storeUsers = defineStore('users', {
 							user.id = res[0].id;
 							user.login = res[0].login;
 							user.displayName = res[0].display_name;
-							if(this.blockedUsers[source][user.id] === true) {
+							if(this.blockedUsers[platform][user.id] === true) {
 								user.is_blocked = true;
 							}
 							delete user.temporary;
@@ -125,53 +145,53 @@ export const storeUsers = defineStore('users', {
 			}catch(error) {/*ignore*/}
 		},
 
-		flagMod(source:TwitchatDataTypes.ChatSource, uid:string):void {
+		flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && source == u.source) {
+				if(u.id === uid && platform == u.platform) {
 					this.users[i].is_moderator = true;
 					break;
 				}
 			}
 		},
 		
-		flagUnmod(source:TwitchatDataTypes.ChatSource, uid:string):void {
+		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && source == u.source) {
+				if(u.id === uid && platform == u.platform) {
 					this.users[i].is_moderator = false;
 					break;
 				}
 			}
 		},
 
-		flagBlocked(source:TwitchatDataTypes.ChatSource, uid:string):void {
-			this.blockedUsers[source][uid] = true;
+		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && source == u.source) {
+				if(u.id === uid && platform == u.platform) {
 					this.users[i].is_blocked = true;
 					break;
 				}
 			}
 		},
 		
-		flagUnblocked(source:TwitchatDataTypes.ChatSource, uid:string):void {
-			delete this.blockedUsers[source][uid];
+		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && source == u.source) {
+				if(u.id === uid && platform == u.platform) {
 					this.users[i].is_blocked = false;
 					break;
 				}
 			}
 		},
 
-		flagBanned(source:TwitchatDataTypes.ChatSource, uid:string, duration_s?:number):void {
-			this.blockedUsers[source][uid] = true;
+		flagBanned(platform:TwitchatDataTypes.ChatPlatform, uid:string, duration_s?:number):void {
+			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && source == u.source) {
+				if(u.id === uid && platform == u.platform) {
 					this.users[i].is_banned = true;
 					break;
 				}
@@ -187,11 +207,11 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 		
-		flagUnbanned(source:TwitchatDataTypes.ChatSource, uid:string):void {
-			delete this.blockedUsers[source][uid];
+		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && source == u.source) {
+				if(u.id === uid && platform == u.platform) {
 					this.users[i].is_banned = false;
 					break;
 				}
@@ -201,13 +221,25 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
+		flagOnlineUSers(users:TwitchatDataTypes.TwitchatUser[]):void{
+			for (let i = 0; i < users.length; i++) {
+				users[i].online = true;
+			}
+		},
+
+		flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[]):void{
+			for (let i = 0; i < users.length; i++) {
+				users[i].online = false;
+			}
+		},
+
 		//Check if user is following
 		checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void {
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
-				if(this.followingStates[user.id] == undefined) {
+				if(this.followingStates[user.platform][user.id] == undefined) {
 					TwitchUtils.getFollowState(user.id, UserSession.instance.twitchUser!.id).then((res:boolean) => {
-						this.followingStates[user.id!] = res;
-						this.followingStatesByNames[user.login.toLowerCase()] = res;
+						this.followingStates[user.platform][user.id!] = res;
+						this.followingStatesByNames[user.platform][user.login.toLowerCase()] = res;
 					}).catch(()=>{/*ignore*/})
 				}
 			}
@@ -229,13 +261,13 @@ export const storeUsers = defineStore('users', {
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void {
 			if(user.id && user.login) {
-				this.followingStates[user.id!] = true;
-				this.followingStatesByNames[user.login.toLowerCase()] = true;
+				this.followingStates[user.platform][user.id!] = true;
+				this.followingStatesByNames[user.platform][user.login.toLowerCase()] = true;
 			}
 		},
 
 		addUser(user:TwitchatDataTypes.TwitchatUser):void {
-			const exists = this.getUserFrom(user.source, user.id, user.login);
+			const exists = this.getUserFrom(user.platform, user.id, user.login);
 			if(!exists) {
 				this.users.push(user);
 			}
@@ -249,24 +281,7 @@ export const storeUsers = defineStore('users', {
 			followings.forEach(v => {
 				hashmap[v.to_id] = true;
 			});
-			this.myFollowings = hashmap;
-		},
-
-		setViewersList(users:string[]) {
-			//Dedupe users
-			const list:string[] = [];
-			const done:{[key:string]:boolean} = {};
-			for (let i = 0; i < users.length; i++) {
-				const user = users[i];
-				if(!done[user]) {
-					list.push(user);
-					done[user] = true;
-				}
-			}
-			this.onlineUsers.splice(0, this.onlineUsers.length);//cleanup prev users
-			this.onlineUsers = this.onlineUsers.concat(list);//Add new users
-			//Don't just do "this.onlineUsers = users" or the arrays's reference/reactivity
-			//accross the app would be broken
+			this.myFollowings["twitch"] = hashmap;
 		},
 
 		flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number) {

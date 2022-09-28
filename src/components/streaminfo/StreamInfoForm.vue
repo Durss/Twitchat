@@ -144,7 +144,7 @@ export default class StreamInfoForm extends Vue {
 		if(this.param_savePreset.value === true || this.presetEditing) {
 			const preset:TwitchatDataTypes.StreamInfoPreset = {
 				name:this.param_namePreset.value as string,
-				id:crypto.randomUUID(),
+				id:Utils.getUUID(),
 				title:this.param_title.value as string,
 			}
 			if(this.categories.length >0) preset.categoryID = this.categories[0].id

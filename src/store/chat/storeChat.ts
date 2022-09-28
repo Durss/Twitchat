@@ -20,7 +20,6 @@ export const storeChat = defineStore('chat', {
 		whispersUnreadCount: 0,
 		messages: [],
 		pinedMessages: [],
-		activityFeed: [],
 		emoteSelectorCache: [],
 		whispers: {},
 		
@@ -270,8 +269,8 @@ export const storeChat = defineStore('chat', {
 
 			const list = this.messages.concat();
 			list .push( {
-				source:"twitch",
-				id:crypto.randomUUID(),
+				platform:"twitch",
+				id:Utils.getUUID(),
 				date:Date.now(),
 				type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 				adType,
@@ -288,7 +287,6 @@ export const storeChat = defineStore('chat', {
 			let messages = this.messages.concat();
 			
 			//Limit history size
-			// const maxMessages = sParams.appearance.historySize.value;
 			const maxMessages = this.realHistorySize;
 			if(messages.length >= maxMessages) {
 				messages = messages.slice(-maxMessages);
@@ -305,14 +303,16 @@ export const storeChat = defineStore('chat', {
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
 				for (let i = 0; i < messages.length; i++) {
 					const m = messages[i];
-					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) continue;
+					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
 					//If the message is a subgift from the same user and happened
 					//in the last 5s, merge it.
 					if(m.tier && m.user.id == message.user.id
 					&& Date.now() - m.date < 5000) {
 						if(!m.gift_recipients) m.gift_recipients = [];
 						m.date = Date.now();//Update timestamp
-						m.gift_recipients.push(message.gift_recipients![0]);
+						for (let i = 0; i < message.gift_recipients.length; i++) {
+							m.gift_recipients.push(message.gift_recipients[i]);
+						}
 						return;
 					}
 				}
@@ -345,7 +345,7 @@ export const storeChat = defineStore('chat', {
 			//If it's a text message and user isn't a follower, broadcast to WS
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			&& message.user.id
-			&& sUsers.followingStates[message.user.id] === false) {
+			&& sUsers.followingStates[message.user.platform][message.user.id] === false) {
 				//TODO Broadcast to OBS-ws
 				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
 			}
@@ -363,43 +363,64 @@ export const storeChat = defineStore('chat', {
 			}
 
 			//If it's the first message all time of the user
-			if(message.type == "message" && message.twitch_isFirstMessage) {
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.twitch_isFirstMessage) {
 				//TODO Broadcast to OBS-ws
 				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 			}
 			
+			//Ignore commands
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && 
+			sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message.message)) {
+				const blocked = sParams.filters.blockedCommands.value as string;
+				if(sParams.filters.ignoreListCommands.value === true && blocked.length > 0) {
+					//Ignore specific commands
+					let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
+					blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
+					const cmd = message.message.split(" ")[0].substring(1).trim().toLowerCase();
+					if(blockedList.indexOf(cmd) > -1) {
+						//TODO Broadcast to OBS-ws
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+						return;
+					}
+				}else{
+					//Ignore all commands
+					//TODO Broadcast to OBS-ws
+					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+					return;
+				}
+			}
+			
 			//Is it a tracked user ?
-			if(message.type == "message") {
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const trackedUser = sUsers.trackedUsers.find(v => v.user.id == message.user.id);
 				if(trackedUser) {
 					trackedUser.messages.push(message);
 				}
 			}
-
-			//Push some messages to activity feed
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.POLL
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.TIMEOUT
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.BAN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.PREDICTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.BINGO
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAFFLE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.COUNTDOWN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY
-			|| (
-				sParams.features.keepHighlightMyMessages.value === true
-				&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& message.twitch_isHighlighted
-			)) {
-				this.activityFeed.push(message);
+			
+			//People joined the chat, check if any needs to be autobaned
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
+				for (let i = 0; i < message.users.length; i++) {
+					const user = message.users[i];
+					const rule = Utils.isAutomoded(user.displayName, user);
+					if(rule != null) {
+						MessengerProxy.instance.sendMessage(user.platform, )
+						if(user.platform == "twitch") {
+							TwitchUtils.banUser(user.id!, undefined, `banned by Twitchat's automod because nickname matched mod rule "${rule!.label}"`);
+						}
+						//Most message on chat to alert the stream
+						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
+							platform:"twitchat",
+							channel_id: "twitchat",
+							type:"autoban_join",
+							date:Date.now(),
+							id:Utils.getUUID(),
+							user,
+							rule:rule,
+						};
+						this.addMessage(mess);
+					}
+				}
 			}
 
 			messages.push( message );
@@ -483,11 +504,11 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.BOT_MESSAGES, this.botMessages);
 		},
 
-		async shoutout(source:TwitchatDataTypes.ChatSource, user:TwitchatDataTypes.TwitchatUser) {
+		async shoutout(user:TwitchatDataTypes.TwitchatUser) {
 			let message:string|null = null;
 			let streamTitle = "";
 			let streamCategory = "";
-			if(source == "twitch") {
+			if(user.platform == "twitch") {
 				const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
 				if(userInfos?.length > 0) {
 					const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
@@ -545,7 +566,7 @@ export const storeChat = defineStore('chat', {
 		async highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null) {
 			let data:TwitchatDataTypes.ChatHighlightInfo|null = null;
 			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
-				if(message.source == "twitch"
+				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
 					//Get user info
 					let [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);

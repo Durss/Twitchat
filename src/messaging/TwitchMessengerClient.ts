@@ -8,6 +8,7 @@ import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
+import rewardImg from '@/assets/icons/reward_highlight.svg';
 
 /**
 * Created : 25/09/2022 
@@ -355,13 +356,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		let res:TwitchatDataTypes.MessageSubscriptionData = {
-			source:"twitch",
+			platform:"twitch",
 			type:"subscription",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
-			tier: "1",
+			tier: 1,
 			is_gift: false,
 			is_giftUpgrade: false,
 			is_resub: false,
@@ -369,8 +370,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			streakMonths:typeof tags["msg-param-streak-months"] == "string"? parseInt(tags["msg-param-streak-months"]) : -1,
 			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : -1,
 		}
-		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) ?? 1000)/1000).toString() as ("1"|"2"|"3");
-		if(message) res.message = message;
+		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) ?? 1000)/1000) as (1|2|3);
+		if(message) {
+			res.message = message;
+			res.message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
+		}
 		return res;
 	}
 
@@ -412,7 +416,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 
-			source:"twitch",
+			platform:"twitch",
 			user,
 			message:message,
 			message_html:"",
@@ -509,14 +513,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const reward:TwitchatDataTypes.MessageRewardRedeemData = {
 				channel_id: data.channel_id,
 				date: data.date,
-				id:crypto.randomUUID(),
-				source:"twitch",
+				id:Utils.getUUID(),
+				platform:"twitch",
 				type:"reward",
 				user: data.user,
 				reward: {
 					title:"Highlight my message",
 					cost:-1,
 					description:"",
+					icon:{
+						sd:rewardImg,
+					}
 				},
 				message:data.message,
 				message_html:data.message_html,
@@ -533,7 +540,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._reconnecting = false;
 		}
 		this.dispatchEvent(new MessengerClientEvent("JOIN", {
-			source:"twitch",
+			platform:"twitch",
 			type:"join",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -544,7 +551,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private onLeave(channel:string, user:string):void {
 		this.dispatchEvent(new MessengerClientEvent("LEAVE", {
-			source:"twitch",
+			platform:"twitch",
 			type:"leave",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -557,7 +564,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		let message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
 		message_html = await TwitchUtils.parseCheermotes(message_html, UserSession.instance.twitchUser!.id);
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
-			source:"twitch",
+			platform:"twitch",
 			type:"cheer",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -599,6 +606,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private giftpaidupgrade(channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
+		data.gift_upgradeSender = this.getUserFromLogin(username);
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -610,7 +618,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private ban(channel: string, username: string, reason: string):void {
 		this.dispatchEvent(new MessengerClientEvent("BAN", {
-			source:"twitch",
+			platform:"twitch",
 			type:"ban",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -622,7 +630,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private timeout(channel: string, username: string, reason: string, duration: number):void {
 		this.dispatchEvent(new MessengerClientEvent("TIMEOUT", {
-			source:"twitch",
+			platform:"twitch",
 			type:"timeout",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -635,7 +643,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private raided(channel: string, username: string, viewers: number):void {
 		this.dispatchEvent(new MessengerClientEvent("RAID", {
-			source:"twitch",
+			platform:"twitch",
 			type:"raid",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -647,7 +655,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	
 	private disconnected(reason:string):void {
 		this.dispatchEvent(new MessengerClientEvent("DISCONNECT", {
-			source:"twitch",
+			platform:"twitch",
 			type:"disconnect",
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -657,7 +665,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private clearchat(channel:string):void {
 		this.dispatchEvent(new MessengerClientEvent("CLEAR_CHAT", {
-			source:"twitch",
+			platform:"twitch",
 			type:"clear_chat",
 			id:Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
@@ -693,7 +701,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					type:"whisper",
 					date:Date.now(),
 		
-					source:"twitch",
+					platform:"twitch",
 					from: this.getUserFromTags(tags),
 					to: this.getUserFromLogin(toLogin),
 					message:message,
@@ -755,7 +763,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			id:Utils.getUUID(),
 			type:"notice",
 			date:Date.now(),
-			source:"twitch",
+			platform:"twitch",
 			message:message,
 			noticeId:id,
 		};

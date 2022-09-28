@@ -1,5 +1,6 @@
 import { reactive } from "vue";
 import { EventDispatcher } from "./EventDispatcher";
+import Utils from "./Utils";
 import VoicemodEvent from "./VoicemodEvent";
 
 /**
@@ -272,7 +273,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Sends a data to Voicemod
 	 */
 	private send(actionType: string, data?:any):void {
-		let uuid = crypto.randomUUID();
+		let uuid = Utils.getUUID();
 		let json:any = {
 			"actionID": uuid,
 			"actionType": actionType,

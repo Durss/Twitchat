@@ -1,6 +1,7 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import TTSUtils from '@/utils/TTSUtils';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue';
 import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
@@ -89,18 +90,18 @@ export const storeTTS = defineStore('tts', {
 			if(payload.read) {
 				StoreProxy.chat.addMessage({
 					type:"notice",
-					id:crypto.randomUUID(),
+					id:Utils.getUUID(),
 					date:Date.now(),
-					source:"twitchat",
+					platform:"twitchat",
 					message:"User <mark>"+payload.username+"</mark>'s messages will be read out loud.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});
 			}else{
 				StoreProxy.chat.addMessage({
 					type:"notice",
-					id:crypto.randomUUID(),
+					id:Utils.getUUID(),
 					date:Date.now(),
-					source:"twitchat",
+					platform:"twitchat",
 					message:"User <mark>"+payload.username+"</mark>'s messages won't be read out loud anymore.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});

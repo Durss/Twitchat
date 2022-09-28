@@ -6,6 +6,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
@@ -70,10 +71,10 @@ export const storeEmergency = defineStore('emergency', {
 			}
 			TriggerActionHandler.instance.onMessage(message);
 			StoreProxy.chat.addMessage({
-				id:crypto.randomUUID(),
+				id:Utils.getUUID(),
 				type:"notice",
 				date:Date.now(),
-				source:"twitchat",
+				platform:"twitchat",
 				message:"Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>",
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
 			})

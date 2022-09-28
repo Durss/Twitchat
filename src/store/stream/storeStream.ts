@@ -2,6 +2,7 @@ import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
@@ -44,8 +45,8 @@ export const storeStream = defineStore('stream', {
 				const offset = data.approached_at;
 				const activities:(TwitchatDataTypes.MessageSubscriptionData|TwitchatDataTypes.MessageCheerData)[] = [];
 				//Search for all the sub and cheer events within the hype train time frame
-				for (let i = 0; i < StoreProxy.chat.activityFeed.length; i++) {
-					const m = StoreProxy.chat.activityFeed[i];
+				for (let i = 0; i < StoreProxy.chat.messages.length; i++) {
+					const m = StoreProxy.chat.messages[i];
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 					|| m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						if(m.date > offset - threshold) {
@@ -59,9 +60,9 @@ export const storeStream = defineStore('stream', {
 						type:"hype_train_summary",
 						channel_id:UserSession.instance.twitchUser!.login,
 						train:data,
-						id:crypto.randomUUID(),
+						id:Utils.getUUID(),
 						date:Date.now(),
-						source:"twitch",
+						platform:"twitch",
 						activities:activities,
 					}
 					StoreProxy.chat.addMessage(res);
@@ -99,9 +100,9 @@ export const storeStream = defineStore('stream', {
 			if(date === 0) {
 				StoreProxy.chat.addMessage({
 					type:"notice",
-					id:crypto.randomUUID(),
+					id:Utils.getUUID(),
 					date:Date.now(),
-					source:"twitch",
+					platform:"twitch",
 					message:"Commercial break complete",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
 				});
@@ -109,9 +110,9 @@ export const storeStream = defineStore('stream', {
 				const duration = Math.round((date - Date.now())/1000);
 				StoreProxy.chat.addMessage({
 					type:"notice",
-					id:crypto.randomUUID(),
+					id:Utils.getUUID(),
 					date:Date.now(),
-					source:"twitch",
+					platform:"twitch",
 					message:"A commercial just started for "+duration+" seconds",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
 				});
