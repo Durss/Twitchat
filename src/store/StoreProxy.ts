@@ -388,7 +388,7 @@ export interface ITTSActions {
 
 export interface IUsersState {
 	users: TwitchatDataTypes.TwitchatUser[];
-	userCard: string|null;
+	userCard: TwitchatDataTypes.TwitchatUser|null;
 	trackedUsers: {user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}[];
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	followingStates: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
@@ -414,7 +414,7 @@ export interface IUsersActions {
 	checkPronouns(user:TwitchatDataTypes.TwitchatUser):void;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;
 	addUser(user:TwitchatDataTypes.TwitchatUser):void;
-	openUserCard(payload:string|null):void;
+	openUserCard(user:TwitchatDataTypes.TwitchatUser|null):void;
 	loadMyFollowings():Promise<void>;
 	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
 	trackUser(payload:TwitchatDataTypes.TwitchatUser):{user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}|null;

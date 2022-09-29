@@ -323,7 +323,7 @@ export default class PubSub extends EventDispatcher {
 				id:Utils.getUUID(),
 				platform:"twitch",
 				type:"whisper",
-				from: StoreProxy.users.getUserFrom("twitch", localObj.from_id.toString()),
+				user: StoreProxy.users.getUserFrom("twitch", localObj.from_id.toString()),
 				to: StoreProxy.users.getUserFrom("twitch", localObj.recipient.id.toString()),
 				message: localObj.body,
 				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
@@ -1124,7 +1124,7 @@ export default class PubSub extends EventDispatcher {
 			noticeId: TwitchatDataTypes.TwitchatNoticeType.BROADCAST_SETTINGS_UPDATE,
 		};
 		StoreProxy.chat.addMessage(m);
-		
+
 		const message:TwitchatDataTypes.StreamInfoUpdate = {
 			type: "streamInfoUpdate",
 			title:data.status,

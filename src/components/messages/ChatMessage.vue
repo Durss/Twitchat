@@ -7,12 +7,12 @@
 
 		<div v-if="isPresentation" class="header">
 			<img src="@/assets/icons/presentation.svg" alt="new" class="icon">
-			<p>Welcome on this channel <strong>{{messageData.tags["display-name"]}}</strong></p>
+			<p>Welcome on this channel <strong>{{messageData.user.displayName}}</strong></p>
 		</div>
 
 		<div v-if="isReturning" class="header">
 			<img src="@/assets/icons/returning.svg" alt="new" class="icon">
-			<p><strong>{{messageData.tags["display-name"]}}</strong> is returning after chatting twice the last 30 days</p>
+			<p><strong>{{messageData.user.displayName}}</strong> is returning after chatting twice the last 30 days</p>
 		</div>
 
 		<div v-if="automod" class="automod">
@@ -24,7 +24,7 @@
 			</div>
 		</div>
 		
-		<div v-if="messageData.type == 'message' && messageData.lowTrust" class="lowTrust">
+		<div v-if="messageData.type == 'message' && messageData.twitch_isLowTrust" class="lowTrust">
 			<img src="@/assets/icons/shield.svg">
 			<div class="header"><strong>Suspicious user</strong></div>
 		</div>
@@ -36,7 +36,7 @@
 
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
-		<div class="infos" v-if="messageData.blockedUser !== true">
+		<div class="infos" v-if="messageData.user.is_blocked !== true">
 			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
 			<img v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
@@ -49,7 +49,7 @@
 
 			<ChatMessageInfos class="infoBadges" :infos="infoBadges" />
 			
-			<img :src="b.image_url_1x" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
+			<img :src="b.icon.sd" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 
 			<span class="miniBadges" v-if="miniBadges.length > 0">
 				<span class="badge" v-for="(b,index) in miniBadges"
@@ -69,25 +69,25 @@
 				:data-tooltip="pronounLabel"
 				v-if="pronoun && $store('params').features.showUserPronouns.value===true">{{pronoun}}</span>
 			
-			<span @click.stop="openUserCard()"
+			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="$emit('mouseleave', $event)"
-				class="login" :style="loginStyles">{{messageData.tags["display-name"]}}<i class="translation" v-if="translateUsername"> ({{messageData.tags["username"]}})</i></span>
+				class="login" :style="loginStyles">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.displayName}})</i></span>
 
-			<span @click.stop="openUserCard(recipient)"
-				class="login" v-if="recipient"> &gt; {{recipient}}</span>
+			<span v-if="recipient" class="login"
+			@click.stop="openUserCard(recipient!)"> &gt; {{recipient}}</span>
 		</div>
 		
-		<span v-if="messageData.blockedUser !== true">: </span>
-		<span class="message" v-if="messageData.blockedUser !== true">
+		<span v-if="messageData.user.is_blocked !== true">: </span>
+		<span class="message" v-if="messageData.user.is_blocked !== true">
 			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
 
-		<div v-if="messageData.blockedUser === true" class="blockedMessage" @click.stop="messageData.blockedUser = false">This message has been sent by a blocked user. Click to reveal.</div>
+		<div v-if="messageData.user.is_blocked === true" class="blockedMessage" @click.stop="messageData.user.is_blocked = false">This message has been sent by a blocked user. Click to reveal.</div>
 		
-		<br v-if="clipInfo && messageData.blockedUser !== true">
-		<div v-if="clipInfo && messageData.blockedUser !== true" class="clip" @click.stop="openClip()">
+		<br v-if="clipInfo && messageData.user.is_blocked !== true">
+		<div v-if="clipInfo && messageData.user.is_blocked !== true" class="clip" @click.stop="openClip()">
 			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
 			<div class="infos">
 				<div class="title">{{clipInfo.title}}</div>
@@ -108,7 +108,7 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
@@ -143,24 +143,24 @@ import ChatModTools from './ChatModTools.vue';
 })
 export default class ChatMessage extends Vue {
 
-	public messageData!:IRCEventDataList.Message|IRCEventDataList.Whisper;
+	public messageData!:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
 	
 	public text = "";
-	public recipient = "";
+	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public firstTime = false;
-	public automod:PubSubDataTypes.AutomodData | null = null;
+	public automod:TwitchatDataTypes.AutomodParamsKeywordFilterData | null = null;
 	public automodReasons = "";
-	public badges:TwitchDataTypes.Badge[] = [];
+	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
 	public infoBadges:TwitchatDataTypes.ChatMessageInfoData[] = [];
 
 	public get pronoun():string|null {
-		const key = this.$store("users").pronouns[this.messageData.tags['user-id'] as string];
-		if(!key || typeof key != "string") return null;
+		const pronouns = this.messageData.user.pronouns;
+		if(!pronouns || typeof pronouns != "string") return null;
 		const hashmap:{[key:string]:string} = {
 			// https://pronouns.alejo.io
 			"aeaer" : "Ae/Aer",
@@ -195,16 +195,16 @@ export default class ChatMessage extends Vue {
 			"ts": "they/she",
 			"tt": "they/them",
 		};
-		const res = hashmap[key];
-		return res? res : key;
+		const res = hashmap[pronouns];
+		return res? res : pronouns;
 	}
 
 	/**
 	* Get users' pronouns
 	*/
 	public get pronounLabel(): string | null {
-		const key = this.$store("users").pronouns[this.messageData.tags['user-id'] as string];
-		if(!key || typeof key != "string") return null;
+		const pronouns = this.messageData.user.pronouns;
+		if(!pronouns || typeof pronouns != "string") return null;
 
 		const hashmap: {[key: string]: string} = {
 			// https://pronoundb.org
@@ -214,28 +214,33 @@ export default class ChatMessage extends Vue {
 			"avoid": "Avoid pronouns, use my name",
 		};
 
-		return hashmap[key];
+		return hashmap[pronouns];
 	}
 
 	public get isAnnouncement():boolean {
-		const message = this.messageData as IRCEventDataList.Message;
-		return message.tags["msg-id"] == "announcement";
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			return this.messageData.twitch_announcementColor != undefined;
+		}
+		return false;
 	}
 
 	public get isPresentation():boolean {
-		const message = this.messageData as IRCEventDataList.Message;
-		return message.tags["msg-id"] == "user-intro";
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			return this.messageData.twitch_isPresentation != undefined;
+		}
+		return false;
 	}
 
 	public get isReturning():boolean {
-		const message = this.messageData as IRCEventDataList.Message;
-		return message.tags["returning-chatter"] == true;
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			return this.messageData.twitch_isReturning != undefined;
+		}
+		return false;
 	}
 	
 	public get showNofollow():boolean{
 		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
-			const uid = this.messageData.tags['user-id'] as string;
-			if(uid && this.$store("users").followingStates[uid] === false) return true;
+			return true;
 		}
 		return false
 	}
@@ -248,7 +253,7 @@ export default class ChatMessage extends Vue {
 
 		const censor = (this.$store("params").filters.censorDeletedMessages.value===true)
 		if(this.messageData.deletedData) {
-			return censor ? "<deleted by "+this.messageData.deletedData.created_by+">" : "";
+			return censor ? "<deleted by "+this.messageData.deletedData.deleter.displayName+">" : "";
 		}else if(this.messageData.deleted){
 			return censor ? "<message deleted>" : "";
 		}
@@ -259,41 +264,43 @@ export default class ChatMessage extends Vue {
 		let res = ["chatmessage"];
 		const message = this.messageData;
 
-		if(this.messageData.blockedUser) res.push("blockedUser");
-		if(this.automod) res.push("automod");
-		if(this.firstTime || this.isPresentation || this.isReturning) res.push("firstTimeOnChannel");
-		if(message.type == "whisper") {
+		if(message.cyphered)					res.push("cyphered");
+		if(this.automod)						res.push("automod");
+		if(this.messageData.user.is_blocked)	res.push("blockedUser");
+		if(this.firstTime
+			|| this.isPresentation
+			|| this.isReturning)				res.push("firstTimeOnChannel");
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			res.push("whisper");
 		}else{
 			if(message.deleted) {
 				res.push("deleted");
 				if(this.$store("params").filters.censorDeletedMessages.value===true) res.push("censor");
 			}
-			if(message.lowTrust) res.push("lowTrust");
-			if(message.cyphered) res.push("cyphered");
+			if(message.twitch_isLowTrust)		res.push("lowTrust");
+			if(message.twitch_isSlashMe)		res.push("slashMe");
+			if(message.twitch_isHighlighted)	res.push("highlighted");
 		}
 		if(this.showNofollow) res.push("noFollow");
-		if(message.tags['message-type'] == "action") res.push("slashMe");
-		if(message.tags["msg-id"] === "highlighted-message") res.push("highlighted");
-		if(this.$store("users").trackedUsers.findIndex(v=>v.user.id == message.tags["user-id"]) != -1
-		&& !this.lightMode) res.push("tracked");
+		if(this.$store("users").trackedUsers
+			.findIndex(v=>v.user.id == message.user.id) != -1
+			&& !this.lightMode)					res.push("tracked");
+
 		if(this.isAnnouncement) {
-			const color = message.tags["msg-param-color"]? message.tags["msg-param-color"].toLowerCase() : "primary";
+			const color = (message as TwitchatDataTypes.MessageChatData).twitch_announcementColor!;
 			res.push("announcement", color);
 		}
 		
 		if(this.$store("params").features.spoilersEnabled.value === true) {
-			let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
-			if(text.indexOf("||") == 0) res.push("spoiler");
+			if(this.messageData.message.indexOf("||") == 0) res.push("spoiler");
 		}
 
 		if(!this.lightMode) {
 			if(message.type == "message" && message.hasMention) res.push("mention");
 			
-			//Set highlight
-			if(message.tags.mod && this.$store("params").appearance.highlightMods.value) res.push("highlightMods");
-			else if(message.tags.badges?.vip && this.$store("params").appearance.highlightVips.value) res.push("highlightVips");
-			else if(message.tags.subscriber && this.$store("params").appearance.highlightSubs.value) res.push("highlightSubs");
+			if(message.user.is_moderator && this.$store("params").appearance.highlightMods.value)		res.push("highlightMods");
+			else if(message.user.is_vip && this.$store("params").appearance.highlightVips.value)		res.push("highlightVips");
+			else if(message.user.is_subscriber && this.$store("params").appearance.highlightSubs.value)	res.push("highlightSubs");
 		}
 
 		return res;
@@ -302,18 +309,11 @@ export default class ChatMessage extends Vue {
 	public get showModTools():boolean {
 		if(this.lightMode) return false;
 		if(this.$store("params").features.showModTools.value === false) return false;
-		const message = this.messageData as IRCEventDataList.Message;
-		return (this.$store("users").mods as TwitchDataTypes.ModeratorUser[]).findIndex(v=> v.user_id == message.tags['user-id']) > -1
-			||
-		(
-			message.channel.replace(/^#/gi, "").toLowerCase() == UserSession.instance.twitchAuthToken.login.toLowerCase()//TODO set actual channel id not the user id
-			&& message.tags.username?.toLowerCase() != UserSession.instance.twitchAuthToken.login.toLowerCase()
-		);
+		return this.messageData.user.is_moderator===true || this.messageData.user.is_broadcaster===true;
 	}
 
 	public get time():string {
-		const message = this.messageData as IRCEventDataList.Message;
-		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
@@ -322,7 +322,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public get isConversation():boolean {
 		if(this.messageData.type == "whisper") return false;
-		return this.messageData.answers != undefined || this.messageData.answerTo != undefined;
+		return this.messageData.answers != undefined || this.messageData.answersTo != undefined;
 	}
 
 	/**
@@ -332,8 +332,8 @@ export default class ChatMessage extends Vue {
 	public get translateUsername():boolean {
 		if(this.$store("params").appearance.translateNames.value !== true) return false;
 
-		const dname = (this.messageData.tags['display-name'] as string).toLowerCase();
-		const uname = (this.messageData.tags['username'] as string).toLowerCase();
+		const dname = this.messageData.user.displayName.toLowerCase();
+		const uname = this.messageData.user.login.toLowerCase();
 		//If display name is different from username and at least half of the
 		//display name's chars ar not latin chars, translate it
 		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
@@ -343,10 +343,9 @@ export default class ChatMessage extends Vue {
 	 * Set login color
 	 */
 	public get loginStyles():StyleValue {
-		const message = this.messageData as IRCEventDataList.Message;
 		let color = 0xb454ff;
-		if(message.tags.color) {
-			color = parseInt(message.tags.color.replace("#", ""), 16);
+		if(this.messageData.user.color) {
+			color = parseInt(this.messageData.user.color.replace("#", ""), 16);
 		}
 		const hsl = Utils.rgb2hsl(color);
 		const minL = this.isPresentation || this.isAnnouncement || this.firstTime || this.isReturning? .75 : .65;
@@ -364,14 +363,15 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Get badges images
 	 */
-	public get filteredBadges():TwitchDataTypes.Badge[] {
-		let res:TwitchDataTypes.Badge[] = [];
+	public get filteredBadges():TwitchatDataTypes.TwitchatUserBadge[] {
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
+		
+		let res:TwitchatDataTypes.TwitchatUserBadge[] = [];
 		if(this.$store("params").appearance.showBadges.value
-		&& !this.$store("params").appearance.minimalistBadges.value) {
+		&& !this.$store("params").appearance.minimalistBadges.value
+		&& this.messageData.user.badges) {
 			try {
-				const message = this.messageData as IRCEventDataList.Message;
-				const channelID:string = message.tags['room-id'] as string;
-				res = TwitchUtils.getBadgesImagesFromRawBadges(channelID, message.tags.badges);
+				res = this.messageData.user.badges;
 			}catch(error){
 				res = [];
 			}
@@ -383,25 +383,39 @@ export default class ChatMessage extends Vue {
 	 * Displays minimalist badges
 	 */
 	public get miniBadges():{label:string, class?:string}[] {
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
+		
 		let badges:{label:string, class?:string}[] = [];
-		const message = this.messageData as IRCEventDataList.Message;
+		const message = this.messageData;
+
 		if(this.$store("params").appearance.showBadges.value
 		&& this.$store("params").appearance.minimalistBadges.value
-		&& message.tags.badges) {
-			if(message.tags.badges.predictions) {
-				const label = message.tags["badge-info"]? message.tags["badge-info"].predictions as string : "Prediction";
-				if(message.tags.badges.predictions.indexOf("pink") > -1) badges.push({label, class:"prediction pink"});
-				if(message.tags.badges.predictions.indexOf("blue") > -1) badges.push({label, class:"prediction blue"});
+		&& message.user.badges) {
+			for (let i = 0; i < message.user.badges.length; i++) {
+				const b = message.user.badges[i];
+				switch(b.id) {
+					case "predictions": {
+						//TODO color probably won't work
+						const color = b.title && b.title.indexOf("pink") > -1? "pink" : "blue";
+						badges.push({label:b.title??"Prediction", class:"prediction "+color});
+						break;
+					}
+					case "subscriber": {
+						if(message.user.is_broadcaster !== true) {
+							badges.push({label:"Sub", class:"subscriber"});
+						}
+						break;
+					}
+					case "vip":			badges.push({label:"VIP", class:"vip"}); break;
+					case "premium":		badges.push({label:"Prime", class:"premium"}); break;
+					case "moderator":	badges.push({label:"Moderator", class:"moderator"}); break;
+					case "staff":		badges.push({label:"Twitch staff", class:"staff"}); break;
+					case "broadcaster":	badges.push({label:"Broadcaster", class:"broadcaster"}); break;
+					case "partner":		badges.push({label:"Partner", class:"partner"}); break;
+					case "founder":		badges.push({label:"Founder", class:"founder"}); break;
+					case "ambassador":	badges.push({label:"Ambassador", class:"ambassador"}); break;
+				}
 			}
-			if(message.tags.badges.vip) badges.push({label:"VIP", class:"vip"});
-			if(message.tags.badges.subscriber && !message.tags.badges?.broadcaster) badges.push({label:"Sub", class:"subscriber"});
-			if(message.tags.badges.premium) badges.push({label:"Prime", class:"premium"});
-			if(message.tags.badges.moderator) badges.push({label:"Moderator", class:"moderator"});
-			if(message.tags.badges.staff) badges.push({label:"Twitch staff", class:"staff"});
-			if(message.tags.badges.broadcaster) badges.push({label:"Broadcaster", class:"broadcaster"});
-			if(message.tags.badges.partner) badges.push({label:"Partner", class:"partner"});
-			if(message.tags.badges.founder) badges.push({label:"Founder", class:"founder"});
-			if(message.tags.badges.ambassador) badges.push({label:"Ambassador", class:"ambassador"});
 		}
 		return badges;
 	}
@@ -409,9 +423,8 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Open a users' card
 	 */
-	public openUserCard(username?:string):void {
-		const message = this.messageData as IRCEventDataList.Message;
-		this.$store("users").openUserCard(username ?? message.tags.username as string);
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
 	}
 
 	/**
@@ -433,13 +446,13 @@ export default class ChatMessage extends Vue {
 			console.log(this.messageData);
 		}else{
 			const answersBckp = this.messageData.answers;
-			const answerToBckp = this.messageData.answerTo;
+			const answerToBckp = this.messageData.answersTo;
 			this.messageData.answers = undefined;
-			this.messageData.answerTo = undefined;
+			this.messageData.answersTo = undefined;
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
 			this.messageData.answers = answersBckp;
-			this.messageData.answerTo = answerToBckp;
+			this.messageData.answersTo = answerToBckp;
 		}
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
@@ -448,66 +461,26 @@ export default class ChatMessage extends Vue {
 	 * Called when component is mounted
 	 */
 	public mounted():void {
-		const mess = this.messageData as IRCEventDataList.Message;
+		const mess = this.messageData;
 		
-		/* eslint-disable-next-line */
-		this.firstTime = mess.tags['first-msg'] === true && !this.isPresentation;
-
-		//Add twitchat's automod badge
-		if(mess.ttAutomod) {
-			this.infoBadges.push({type:"automod", tooltip:"<strong>Rule:</strong> "+mess.ttAutomod.label});
-		}
-
-		//Add whisper badge
-		if(this.messageData.type == 'whisper') {
+		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.infoBadges.push({type:"whisper"});
-		}
-
-		//Manage automod content
-		if(!this.lightMode && mess.automod) {
-			this.automod = mess.automod;
-			let reasons:string[] = [];
-			for (let i = 0; i < mess.automod.message.content.fragments.length; i++) {
-				const f = mess.automod.message.content.fragments[i];
-				if(!f.automod) continue;
-				for (const key in f.automod.topics) {
-					if(reasons.indexOf(key) == -1) reasons.push(key);
-				}
+		}else{
+			this.firstTime = mess.twitch_isFirstMessage === true;
+			//Add twitchat's automod badge
+			if(mess.automod) {
+				this.infoBadges.push({type:"automod", tooltip:"<strong>Rule:</strong> "+mess.automod.label});
 			}
-
-			let textReasons:string[] = [];
-			for (let i = 0; i < reasons.length; i++) {
-				const r = reasons[i];
-				switch(r) {
-					case "race_ethnicity_or_religion":
-						textReasons.push("racism or religion hatred");
-						break;
-					case "sex_based_terms":
-						textReasons.push("sexual content");
-						break;
-					case "sexuality_sex_or_gender":
-						textReasons.push("gender or sex hate");
-						break;
-					case "dating_and_sexting":
-						textReasons.push("sexual content");
-						break;
-					case "swearing":
-					case "aggression":
-					case "disability":
-					case "misoginy":
-					case "bullying":
-					default:
-						textReasons.push(r);
-				}
+			//Manage twitch automod content
+			if(!this.lightMode && mess.twitch_automod) {
+				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 			}
-			this.automodReasons = textReasons.join(", ");
 		}
 
 		let clipId = "";
-		let text = this.messageData.type == "whisper"? this.messageData.params[1] : this.messageData.message;
-		if(this.messageData.type == "whisper"
-		&& this.messageData.tags['user-id'] == UserSession.instance.twitchUser!.id) {
-			this.recipient = this.messageData.params[0];
+		let text = this.messageData.message_html;
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			this.recipient = this.messageData.to;
 		}
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/i);
@@ -527,11 +500,17 @@ export default class ChatMessage extends Vue {
 				if(clip) {
 					this.clipInfo = clip;
 				}
-			})()
+			})();
 		}
+		
 
-		this.text = this.parseText(text);
-		this.$emit("ariaMessage", this.text);
+		if(this.$store("params").appearance.showEmotes.value !== true) {
+			this.text = this.messageData.message;
+		}else{
+			const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
+			this.text = this.messageData.message_html.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
+		}
+		this.$emit("ariaMessage", this.messageData.message);
 
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
 			await this.$nextTick();
@@ -543,86 +522,14 @@ export default class ChatMessage extends Vue {
 	 * Accept or reject an automoded chat message
 	 */
 	public async modMessage(accept:boolean):Promise<void> {
-		const message = this.messageData as IRCEventDataList.Message;
-		let success = await TwitchUtils.modMessage(accept, message.tags.id as string);
+		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
 		if(!success) {
 			this.$store("main").alert = "Woops... something went wrong :(...";
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.
-			this.$store("chat").deleteMessage(message.tags.id as string);
+			this.$store("chat").deleteMessage(this.messageData.id);
 		}
-	}
-
-	/**
-	 * Gets text message with parsed emotes
-	 */
-	public parseText(text:string):string {
-		let result:string;
-		const doHighlight = this.$store("params").appearance.highlightMentions.value;
-		const highlightLogin = UserSession.instwitchAuthTokenhToken.login;
-		const mess = this.messageData;
-		if(!text) return "";
-		try {
-			let removeEmotes = !this.$store("params").appearance.showEmotes.value;
-			if((mess as IRCEventDataList.Message).automod) {
-				result = text;
-				result = result.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				result = result.replace(/&lt;(\/)?mark&gt;/gi, "<$1mark>");//Reset <mark> tags used to highlight banned words on automod messages
-			}else{
-				//Allow custom parsing of emotes only if it's a message of ours sent
-				//from current IRC client
-				const customParsing = mess.sentLocally;
-				let chunks = TwitchUtils.parseEmotesToChunks(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
-				result = "";
-				
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-
-						//If search for a message by a keyword, highlight it
-						if(this.enableWordHighlight && this.messageData.highlightWord) {
-							v.value = v.value.replace(new RegExp("("+this.messageData.highlightWord+")", "gim"), "<span class='highlightedWord'>$1</span>");
-						}
-
-						//If requested to highlight mentions, highlight them
-						if(doHighlight) {
-							v.value = v.value.replace(new RegExp("(^| |@)("+highlightLogin+")( |$)", "gim"), "$1<span class='highlightedWord'>$2</span>$3");
-						}
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-						url = url.replace(/1x$/gi, "3x");//BTTV format
-						url = url.replace(/2x$/gi, "3x");//7TV format
-						url = url.replace(/1$/gi, "4");//FFZ format
-						
-						if(this.$store("params").appearance.defaultSize.value as number >= 6) {
-							v.value = v.value.replace(/1.0$/gi, "3.0");
-							v.value = v.value.replace(/1x$/gi, "4x");//BTTV format
-							v.value = v.value.replace(/2x$/gi, "4x");//7TV format
-							v.value = v.value.replace(/1$/gi, "4");//FFZ format
-						}else
-						if(this.$store("params").appearance.defaultSize.value as number >= 3) {
-							v.value = v.value.replace(/1.0$/gi, "2.0");
-							v.value = v.value.replace(/1x$/gi, "2x");//BTTV format
-							v.value = v.value.replace(/1$/gi, "2");//FFZ format
-						}
-						let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.label+"</center>";
-						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-					}
-				}
-			}
-		}catch(error) {
-			console.log(error);
-			console.log(mess);
-			result = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		}
-
-		const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
-		result = result.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
-		
-		return result;
 	}
 
 	/**

@@ -1,8 +1,8 @@
 <template>
 	<div class="raidstate">
-		<img v-if="user" :src="user.profile_image_url" alt="avatar" class="avatar">
+		<img v-if="user && user.avatarPath" :src="user.avatarPath" alt="avatar" class="avatar">
 		<div>
-			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">Raiding <strong>{{raidInfo.target_display_name}}</strong> with <strong>{{raidInfo.viewer_count}}</strong> viewers<span class="timer">({{timeLeft}}s)</span>
+			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">Raiding <strong>{{raidInfo.user.displayName}}</strong> with <strong>{{raidInfo.viewerCount}}</strong> viewers<span class="timer">({{timeLeft}}s)</span>
 		</div>
 
 		<!-- <Button class="startBt" type="button" :icon="$image('icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
@@ -13,9 +13,8 @@
 </template>
 
 <script lang="ts">
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import IRCClient from '@/utils/IRCClient';
-import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -29,7 +28,7 @@ import Button from '../Button.vue';
 export default class RaidState extends Vue {
 
 	public timeLeft = "";
-	public user:TwitchDataTypes.UserInfo|null = null;
+	public user:TwitchatDataTypes.TwitchatUser|null = null;
 
 	private timerDuration = 90000;
 	private timerStart = 0;
@@ -43,8 +42,9 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(this.$store("stream").currentRaid?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [this.$store("stream").currentRaid?.target_login as string]))[0];
+		const raid = this.$store("stream").currentRaid;
+		if(raid) {
+			this.user = raid.user;
 		}
 	}
 

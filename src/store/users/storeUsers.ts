@@ -275,7 +275,7 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		openUserCard(payload:string|null) { this.userCard = payload; },
+		openUserCard(user:TwitchatDataTypes.TwitchatUser) { this.userCard = user; },
 
 		async loadMyFollowings():Promise<void> {
 			const followings = await TwitchUtils.getFollowings(UserSession.instance.twitchUser?.id);

@@ -7,7 +7,7 @@
 		
 		<div class="messageHolder">
 			<span class="reason">
-				<span class="username" v-if="username" @click="openUserCard()">{{username}}</span>
+				<span class="username" v-if="user" @click="openUserCard()">{{user}}</span>
 				<span class="text" v-html="reason"></span>
 			</span>
 			<div class="info" v-if="info" v-html="info"></div>
@@ -75,7 +75,7 @@ export default class ChatHighlight extends Vue {
 	public messageText = '';
 	public info = "";
 	public icon = "";
-	public username = "";
+	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public isRaid = false;
 	public shoutoutLoading = false;
 	public loading = false;
@@ -117,7 +117,7 @@ export default class ChatHighlight extends Vue {
 		switch(this.messageData.type) {
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:
 				this.icon = this.$image('icons/follow.svg');
-				this.username = this.messageData.user.displayName;
+				this.user = this.messageData.user;
 				res = `followed your channel!`;
 				break;
 
@@ -128,7 +128,7 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
 				this.icon = this.$image('icons/mod.svg');
-				this.username = this.messageData.user.displayName;
+				this.user = this.messageData.user;
 				res = "has been banned by automod after joining the chat as their nickname matches the following rule: \"<i>"+this.messageData.rule.label+"</i>\"";
 				this.allowUnban = true;
 				break;
@@ -142,7 +142,7 @@ export default class ChatHighlight extends Vue {
 				value = this.messageData.viewers as number;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
-				this.username = this.messageData.user.displayName;
+				this.user = this.messageData.user;
 				res = `is raiding with a party of ${this.messageData.viewers}.`;
 
 				if(this.$store("params").features.raidStreamInfo.value === true) {
@@ -152,7 +152,7 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER:
 				value = this.messageData.bits;
-				this.username = this.messageData.user.displayName;
+				this.user = this.messageData.user;
 				res = `sent <strong>${value}</strong> bits`;
 				this.icon = this.$image('icons/bits.svg');
 				break;
@@ -162,7 +162,7 @@ export default class ChatHighlight extends Vue {
 
 					this.icon = this.$image('icons/gift.svg');
 					value = this.messageData.tier;
-					this.username = this.messageData.user.displayName;
+					this.user = this.messageData.user;
 					if(this.messageData.gift_recipients && this.messageData.gift_recipients.length > 0) {
 						const recipientsStr = `<strong>${this.messageData.gift_recipients.join("</strong>, <strong>")}</strong>`;
 						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to ${recipientsStr}`;
@@ -170,12 +170,12 @@ export default class ChatHighlight extends Vue {
 
 				}else if(this.messageData.is_giftUpgrade) {
 					this.icon = this.$image('icons/sub.svg');
-					this.username = this.messageData.user.displayName;
+					this.user = this.messageData.user;
 					res = `is continuing the Gift Sub they got from <strong>${this.messageData.gift_upgradeSender!.displayName}</strong>`;
 
 				}else{
 					const method = this.messageData.is_resub ? "resubscribed" : "subscribed";
-					this.username = this.messageData.user.displayName;
+					this.user = this.messageData.user;
 					if(this.messageData.tier == "prime") {
 						res = `${method} with Prime`;
 						this.icon = this.$image('icons/prime.svg');
@@ -207,7 +207,7 @@ export default class ChatHighlight extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				this.messageText = "";
 				this.icon = this.$image('icons/channelPoints.svg');
-				this.username = this.messageData.user.displayName;
+				this.user = this.messageData.user;
 				res = "";
 				res += ` redeemed the reward <strong>${this.messageData.reward.title}</strong>`;
 				if(this.messageData.reward.cost > -1) {//It's set to -1 for "highlight my message" reward
@@ -243,7 +243,7 @@ export default class ChatHighlight extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
-				this.username = this.messageData.user.displayName;
+				this.user = this.messageData.user;
 				res = "Contributed "+this.messageData.contribution+"pts";
 				if(this.messageData.contribution != this.messageData.total_contribution) {
 					res += " <i>("+this.messageData.total_contribution+"pts total)</i>";
@@ -270,8 +270,8 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Add twitchat's automod badge
-				if(this.messautomodtAutomod) {
-					this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messautomodtAutomod.label});
+				if(this.messageData.automod) {
+					this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messageData.automod.label});
 				}
 				break;
 			}
@@ -316,12 +316,12 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.username);
+		this.$store("users").openUserCard(this.user);
 	}
 
 	public async unbanUser():Promise<void> {
 		this.moderating = true;
-		await IRCClient.instance.sendMessage(`/unban ${this.username}`);
+		await IRCClient.instance.sendMessage(`/unban ${this.user}`);
 		this.moderating = false;
 		this.canUnban = false;
 	}
@@ -329,7 +329,7 @@ export default class ChatHighlight extends Vue {
 	public async blockUser():Promise<void> {
 		this.moderating = true;
 		try {
-			const user = await TwitchUtils.loadUserInfo(undefined, [this.username]);
+			const user = await TwitchUtils.loadUserInfo([this.user!.id]);
 			if(user?.length > 0) {
 				await TwitchUtils.blockUser(user[0].id)
 			}

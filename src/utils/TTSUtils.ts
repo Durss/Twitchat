@@ -303,10 +303,10 @@ export default class TTSUtils {
 				if(!paramsTTS.readWhispers) return "";
 
 				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.from)) return "";
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user)) return "";
 
 				//Don't read our answers
-				if(message.from.id === UserSession.instance.twitchUser!.id) return "";
+				if(message.user.id === UserSession.instance.twitchUser!.id) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
@@ -318,7 +318,7 @@ export default class TTSUtils {
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.substring(0, paramsTTS.maxLength);
 				}
-				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, message.from.displayName)
+				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
 				return txt;
 			}

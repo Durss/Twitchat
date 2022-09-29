@@ -336,14 +336,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 			for (let i = 0; i < parsedBadges.length; i++) {
 				const b = parsedBadges[i];
+				if(!tags["badge-info"]) tags["badge-info"] = {};
 				badges.push({
 					icon:{
-						sd:b.image_url_1x,
-						hd:b.image_url_4x,
+						sd: b.image_url_1x,
+						hd: b.image_url_4x,
 					},
-					id:b.id,
-					title:b.title,
-				})
+					id: b.id,
+					title: tags["badge-info"][b.id] ?? b.title,
+				});
 			}
 			user.badges = badges;
 		}
@@ -720,7 +721,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					date:Date.now(),
 		
 					platform:"twitch",
-					from: this.getUserFromTags(tags),
+					user: this.getUserFromTags(tags),
 					to: this.getUserFromLogin(toLogin),
 					message:message,
 					message_html:TwitchUtils.parseEmotes(message, tags["emotes-raw"]),

@@ -320,7 +320,8 @@ export const storeChat = defineStore('chat', {
 
 			//Search in the last 50 messages if this message has already been sent
 			//If so, just increment the previous one
-			if(sParams.features.groupIdenticalMessage.value === true && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(sParams.features.groupIdenticalMessage.value === true &&
+			(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
 				const len = messages.length;
 				const end = Math.max(0, len - 50);
 				for (let i = len-1; i > end; i--) {
@@ -328,7 +329,8 @@ export const storeChat = defineStore('chat', {
 					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 					if(m.user.id == message.user.id
 					&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
-					&& message.message.toLowerCase() == m.message.toLowerCase()) {
+					&& message.message.toLowerCase() == m.message.toLowerCase()
+					&& message.type == m.type) {
 						if(!m.occurrenceCount) m.occurrenceCount = 0;
 						m.occurrenceCount ++;
 						//Update timestamp

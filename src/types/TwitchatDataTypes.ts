@@ -751,10 +751,13 @@ export namespace TwitchatDataTypes {
 
 	export interface MessageWhisperData extends AbstractTwitchatMessage {
 		type:"whisper";
-		from: TwitchatUser;
+		user: TwitchatUser;
 		to: TwitchatUser;
 		message:string;
 		message_html:string;
+		occurrenceCount?: number;
+		markedAsRead?:boolean;
+		cyphered?: boolean;
 	}
 
 	export interface MessagePollDataChoice {
