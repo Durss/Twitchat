@@ -406,7 +406,7 @@ export const storeChat = defineStore('chat', {
 					if(rule != null) {
 						MessengerProxy.instance.sendMessage(user.platform, )
 						if(user.platform == "twitch") {
-							TwitchUtils.banUser(user.id!, undefined, `banned by Twitchat's automod because nickname matched mod rule "${rule!.label}"`);
+							TwitchUtils.banUser(user.id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
 						}
 						//Most message on chat to alert the stream
 						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
@@ -427,7 +427,7 @@ export const storeChat = defineStore('chat', {
 			this.messages = messages;
 		},
 		
-		delChatMessage(messageId:string, deleter?:TwitchatDataTypes.TwitchatUser) { 
+		deleteMessage(messageId:string, deleter?:TwitchatDataTypes.TwitchatUser) { 
 			const list = this.messages.concat();
 			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
 			for (let i = 0; i < list.length; i++) {

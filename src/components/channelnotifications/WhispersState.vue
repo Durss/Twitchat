@@ -88,7 +88,7 @@ export default class WhispersState extends Vue {
 
 	public parseMessage(whisper:IRCEventDataList.Whisper):string {
 		const message = whisper.params[1];
-		const chunks = TwitchUtils.parseEmotes(message, whisper.tags['emotes-raw']);
+		const chunks = TwitchUtils.parseEmotesToChunks(message, whisper.tags['emotes-raw']);
 		let result = "";
 		for (let i = 0; i < chunks.length; i++) {
 			const v = chunks[i];

@@ -212,7 +212,7 @@ export const storeMain = defineStore("main", {
 							let rule = Utils.isAutomoded(username, {username});
 							if(rule) {
 								messageData.ttAutomod = rule;
-								IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
+								IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched an automod rule`);
 								return;
 							}
 						}
@@ -324,7 +324,7 @@ export const storeMain = defineStore("main", {
 								if(text.length > 0) {
 									suggestionPoll.choices.push({
 										user: messageData.tags,
-										text
+										label: text
 									});
 								}
 							}
@@ -446,7 +446,7 @@ export const storeMain = defineStore("main", {
 						const username = users[i];
 						const rule = Utils.isAutomoded(username, {username});
 						if(rule != null) {
-							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule!.label}"`);
+							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched an automod rule`);
 							IRCClient.instance.sendHighlight({
 								channel: UserSession.instance.twitchAuthToken.login,
 								type:"highlight",

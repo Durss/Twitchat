@@ -1,8 +1,7 @@
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
-import type { ChatUserstate } from "tmi.js";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import type { TwitchDataTypes } from '../types/TwitchDataTypes';
@@ -30,7 +29,7 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainProgressTimer!:number;
 	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
-	private lastRecentFollowers:PubSubDataTypes.Following[] = [];
+	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
 	private followCache:{[key:string]:boolean} = {};
 	
 	constructor() {
@@ -102,7 +101,7 @@ export default class PubSub extends EventDispatcher {
 			
 			if(Config.instance.debugChans.length > 0) {
 				//Subscribe to someone else's channel points
-				const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.source=="twitch").map(v=>v.login));
+				const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
 				const uids = users.map(v=> v.id);
 				for (let i = 0; i < uids.length; i++) {
 					const uid = uids[i];
@@ -211,29 +210,18 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	public async simulateLowTrustUser():Promise<void> {
-		const m = PubsubJSON.LowTrustMessage;
-		m.data.message_id = IRCClient.instance.getFakeGuid();
-
-		//Send fake message on tchat to flag it afterwards
-		const tags:ChatUserstate = {
-			'message-type': "chat",
-			username: m.data.low_trust_user.sender.login,
-			color: m.data.low_trust_user.sender.chat_color,
-			"display-name": m.data.low_trust_user.sender.display_name,
-			id: m.data.message_id,
-			mod: false,
-			turbo: false,
-			'emotes-raw': "",
-			'badges-raw': "",
-			'badge-info-raw': "",
-			"room-id": m.data.low_trust_user.channel_id,
-			subscriber: false,
-			'user-type': "",
-			"user-id": m.data.low_trust_user.sender.user_id,
-			"tmi-sent-ts": Date.now().toString(),
-		};
-
-		IRCClient.instance.addMessage(m.data.message_content.fragments[0].text, tags, false);
+		const m: TwitchatDataTypes.MessageChatData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:"twitchat",
+			type:"message",
+			user: StoreProxy.users.getUserFrom("twitch", UserSession.instance.twitchUser!.id),
+			message:"This is a message sent by a low trusted user",
+			message_html:"This is a message sent by a low trusted user",
+			twitch_isLowTrust:true,
+		}
+		StoreProxy.chat.addMessage(m)
 
 		//Flag mesage as low trust
 		this.parseEvent(m);
@@ -248,7 +236,7 @@ export default class PubSub extends EventDispatcher {
 				display_name: login,
 				username: login,
 				user_id:id.toString(),
-			}, true)
+			}, true, "debug")
 			if(Math.random() > .5) {
 				await Utils.promisedTimeout(Math.random()*40);
 			}
@@ -292,10 +280,14 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubDataTypes.RaidInfos}, topic?:string):void {
+		let channelId:string = "debug";
+		if(topic) {
+			channelId = channelId.replace(/.*(\.|-)([0-9]+).*/g, "$2");
+		}
 		
 		if(topic && /following\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Following;
-			this.followingEvent(localObj);
+			this.followingEvent(localObj, false, channelId);
 
 
 
@@ -318,7 +310,25 @@ export default class PubSub extends EventDispatcher {
 			localObj.tags["display-name"] = localObj.tags.display_name;//Thx twitch for your consistency
 			localObj.tags["user-id"] = localObj.from_id.toString();
 			localObj.tags["thread-id"] = localObj.thread_id;
-			IRCClient.instance.addWhisper(localObj.body, localObj.tags, localObj.recipient.display_name);
+
+			let emotes:string = "";
+			if(localObj.tags.emotes) {
+				//Convert parsed emote data to raw data expected by the parser
+				const list = (localObj.tags.emotes as unknown) as {emote_id:string, start:number, end:number}[];
+				emotes = TwitchUtils.parsedEmoteDataToRawEmoteData(list);
+			}
+
+			const whisper:TwitchatDataTypes.MessageWhisperData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				platform:"twitch",
+				type:"whisper",
+				from: StoreProxy.users.getUserFrom("twitch", localObj.from_id.toString()),
+				to: StoreProxy.users.getUserFrom("twitch", localObj.recipient.id.toString()),
+				message: localObj.body,
+				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
+			}
+			StoreProxy.chat.addMessage(whisper)
 
 
 
@@ -335,7 +345,7 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "broadcast_settings_update") {
-			this.streamInfoUpdate(data as PubSubDataTypes.StreamInfo);
+			this.streamInfoUpdate(data as PubSubDataTypes.StreamInfo, channelId);
 
 
 
@@ -371,19 +381,19 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "hype-train-cooldown-expiration") {
-			IRCClient.instance.sendHighlight({
-				channel: UserSession.instance.twitchAuthToken.login,
-				type:"highlight",
-				tags:{
-					"tmi-sent-ts":Date.now().toString(),
-					"msg-id": "hype_cooldown_expired",
-				},
-			});
+			const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:channelId,
+				type:"hype_train_cooled_down",
+			};
+			StoreProxy.chat.addMessage(m)
 
 
 
 		}else if(data.type == "automod_caught_message") {
-			this.automodEvent(data.data as  PubSubDataTypes.AutomodData);
+			this.automodEvent(data.data as  PubSubDataTypes.AutomodData, channelId);
 
 
 
@@ -401,7 +411,7 @@ export default class PubSub extends EventDispatcher {
 			//Manage rewards
 			if(StoreProxy.params.filters.showRewards.value) {
 				const localObj = data.data as  PubSubDataTypes.RewardData;
-				this.rewardEvent(localObj);
+				this.rewardEvent(localObj, channelId);
 			}
 
 
@@ -409,7 +419,7 @@ export default class PubSub extends EventDispatcher {
 		}else if(data.type == "community-goal-contribution") {
 			//Channel points challenge progress
 			const contrib = (data.data as {timpestamp:string, contribution:PubSubDataTypes.ChannelPointChallengeContribution}).contribution
-			this.communityChallengeContributionEvent(contrib)
+			this.communityChallengeContributionEvent(contrib);
 
 
 
@@ -436,25 +446,28 @@ export default class PubSub extends EventDispatcher {
 					const b = mess.sender.badges[i];
 					badges[b.id] = b.version;
 				}
-				const tags:PubSubDataTypes.IRCTagsExtended = {
-					"username": mess.sender.display_name,
-					"color": mess.sender.chat_color,
-					"display-name": mess.sender.display_name,
-					"id": mess.id,
-					"user-id": mess.sender.extension_client_id,
-					"tmi-sent-ts": new Date(mess.sent_at).getTime().toString(),
-					"message-type": "chat",
-					"room-id": UserSession.instance.twitchAuthToken.user_id,
-					"badges": badges,
+
+				const user = StoreProxy.users.getUserFrom("twitch", undefined, undefined, mess.sender.display_name);
+				user.color = mess.sender.chat_color;
+
+				const m:TwitchatDataTypes.MessageChatData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id:channelId,
+					type:"message",
+					user,
+					message:mess.content.text,
+					message_html:TwitchUtils.parseEmotes(mess.content.text, undefined, false, true),
 				};
-				IRCClient.instance.addMessage(mess.content.text, tags, false);
+				StoreProxy.chat.addMessage(m);
 			}
 
 
 
 		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
 			const localObj = data.data as PubSubDataTypes.PollData;
-			this.pollEvent(localObj)
+			this.pollEvent(localObj, channelId, data.type == "POLL_COMPLETE");
 
 
 
@@ -469,8 +482,16 @@ export default class PubSub extends EventDispatcher {
 
 
 
-		}else if(data.type == "raid_update_v2") {
-			StoreProxy.stream.setRaiding(data.raid);
+		}else if(data.type == "raid_update_v2" && data.raid) {
+			const currentRaidInfo = StoreProxy.stream.currentRaid;
+			const m:TwitchatDataTypes.RaidInfo = {
+				channel_id: channelId,
+				user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", data.raid.target_id),
+				viewerCount: data.raid.viewer_count,
+				startedAt:currentRaidInfo?.startedAt ?? Date.now(),
+				timerDuration_s:currentRaidInfo?.timerDuration_s ?? 90,
+			};
+			StoreProxy.stream.setRaiding(m);
 
 		}else if(data.type == "raid_go_v2") {
 			if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
@@ -483,98 +504,99 @@ export default class PubSub extends EventDispatcher {
 
 
 
-		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression") {
-			StoreProxy.stream.setCommunityBoost(data.data as PubSubDataTypes.CommunityBoost);
-			
-		}else if(data.type == "community-boost-end") {
+		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression" || data.type == "community-boost-end") {
 			const boost = data.data as PubSubDataTypes.CommunityBoost;
-			StoreProxy.stream.setCommunityBoost(boost);
-			IRCClient.instance.sendHighlight({
-				channel: UserSession.instance.twitchAuthToken.login,
-				viewers: boost.total_goal_progress? boost.total_goal_progress : boost.boost_orders[0].GoalProgress,
-				type:"highlight",
-				tags:{
-					"tmi-sent-ts":Date.now().toString(),
-					"msg-id": "community_boost_complete",
-				},
-			});
+			const m:TwitchatDataTypes.CommunityBoost = {
+				channel_id:boost.channel_id,
+				progress:boost.total_goal_progress ?? StoreProxy.stream.communityBoostState?.progress ?? 0,
+				goal:boost.total_goal_target,
+			};
+			StoreProxy.stream.setCommunityBoost(m);
 			
-			setTimeout(()=> {
-				//Automatically hide the boost after a few seconds
-				StoreProxy.stream.setCommunityBoost(undefined);
-			}, 30000);
+			if(data.type == "community-boost-end") {
+				setTimeout(()=> {
+					//Automatically hide the boost after a few seconds
+					StoreProxy.stream.setCommunityBoost(undefined);
+				}, 15000);
+			}
 			
 
 			
 		}else if(data.type == "moderation_action") {
 			//Manage moderation actions
 			const localObj = data.data as PubSubDataTypes.ModerationData;
+			let noticeId:string|null = null;
+			let noticeText:string|null = null;
 			switch(localObj.moderation_action) {
 				case "clear": {
-					IRCClient.instance.sendNotice("usage_clear", "Chat cleared by "+localObj.created_by);
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.CLEAR_CHAT;
+					noticeText = "Chat cleared by "+localObj.created_by;
 					break;
 				}
 				case "timeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
 					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
-					IRCClient.instance.sendNotice("timeout_success", localObj.created_by+" has banned "+user+" for "+duration+" seconds");
-					TriggerActionHandler.instance.onMessage({ type:"timeout", duration:parseInt(duration), user});
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
+					noticeText = localObj.created_by+" has banned "+user+" for "+duration+" seconds";
+					TriggerActionHandler.instance.onMessage({ type:"ban", user});
 					break;
 				}
 				case "untimeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
-					IRCClient.instance.sendNotice("timeout_success", localObj.created_by+" has removed temporary ban from "+user);
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNTIMEOUT;
+					noticeText = localObj.created_by+" has removed temporary ban from "+user;
 					TriggerActionHandler.instance.onMessage({ type:"unban", user});
 					break;
 				}
 				case "ban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
+					noticeText = "User "+user+" has been banned by "+localObj.created_by;
 					TriggerActionHandler.instance.onMessage({ type:"ban", user});
 					break;
 				}
 				case "unban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unbanned by "+localObj.created_by);
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
+					noticeText = "User "+user+" has been unbanned by "+localObj.created_by;
 					TriggerActionHandler.instance.onMessage({ type:"unban", user});
 					break;
 				}
 				case "mod": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been added to your mods by "+localObj.created_by);
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.MOD;
+					noticeText = "User "+user+" has been added to your mods by "+localObj.created_by;
 					TriggerActionHandler.instance.onMessage({ type:"mod", user});
 					break;
 				}
 				case "unmod": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unmod by "+localObj.created_by);
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNMOD;
+					noticeText = "User "+user+" has been unmod by "+localObj.created_by;
 					TriggerActionHandler.instance.onMessage({ type:"unmod", user});
 					break;
 				}
 				case "vip": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
+					noticeText = "User "+user+" has been added to VIPs by "+localObj.created_by;
 					TriggerActionHandler.instance.onMessage({ type:"vip", user});
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been added to VIPs by "+localObj.created_by);
 					break;
 				}
 				case "unvip": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNVIP;
+					noticeText = "User "+user+" has been unVIP by "+localObj.created_by;
 					TriggerActionHandler.instance.onMessage({ type:"unvip", user});
-					IRCClient.instance.sendNotice("ban_success", "User "+user+" has been unVIP by "+localObj.created_by);
 					break;
 				}
 				case "raid": {
-					const infos:PubSubDataTypes.RaidInfos = {
-						id: IRCClient.instance.getFakeGuid(),
-						creator_id: UserSession.instance.twitchAuthToken.user_id,
-						source_id: UserSession.instance.twitchAuthToken.user_id,
-						target_id: "",
-						target_login: localObj.args? localObj.args[0] : "",
-						target_display_name: localObj.args? localObj.args[0] : "",
-						target_profile_image: "",
-						transition_jitter_seconds: 1,
-						force_raid_now_seconds: 90,
-						viewer_count: 0,
+					const infos:TwitchatDataTypes.RaidInfo = {
+						channel_id: channelId,
+						user: StoreProxy.users.getUserFrom("twitch", undefined, localObj.args![0] as string),
+						viewerCount: 0,
+						startedAt:Date.now(),
+						timerDuration_s:90,
 					};
 					StoreProxy.stream.setRaiding(infos);
 					break;
@@ -584,17 +606,27 @@ export default class PubSub extends EventDispatcher {
 					break;
 				}
 				case "delete": {
-					const messageId = localObj.args? localObj.args[2] : "";
-					const deleteData = localObj;
-					StoreProxy.chat.delChatMessage(messageId, deleteData);
-					let messageID = "";
-					if(localObj.args && localObj.args.length > 2) messageID = localObj.args[2];
-					this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, messageID));
+					const [login, message, messageId] = localObj.args!;
+					const deleter = StoreProxy.users.getUserFrom("twitch", localObj.created_by_user_id);
+					StoreProxy.chat.deleteMessage(messageId, deleter);
 					break;
 				}
 				default:
 					console.log("Unhandled event type: "+localObj.moderation_action);
 					break;
+			}
+
+			if(noticeId && noticeText) {
+				const m:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id:channelId,
+					type:"notice",
+					message:noticeText,
+					noticeId,
+				};
+				StoreProxy.chat.addMessage(m);
 			}
 		}
 	}
@@ -603,36 +635,51 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a message is held by automod
 	 * @param localObj
 	 */
-	private automodEvent(localObj:PubSubDataTypes.AutomodData):void {
+	private automodEvent(localObj:PubSubDataTypes.AutomodData, channelId:string):void {
 		if(localObj.status == "PENDING") {
-			const tags:PubSubDataTypes.IRCTagsExtended = {
-				"username":localObj.message.sender.login,
-				"color": localObj.message.sender.chat_color,
-				"display-name": localObj.message.sender.display_name,
-				"id": localObj.message.id,
-				"user-id": localObj.message.sender.user_id,
-				"tmi-sent-ts": new Date(localObj.message.sent_at).getTime().toString(),
-				"message-type": "chat",
-				"room-id": localObj.message.sender.user_id,
-			};
+			let reasons:string[] = [];
+			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
+				const f = localObj.message.content.fragments[i];
+				if(!f.automod) continue;
+				for (const key in f.automod.topics) {
+					if(reasons.indexOf(key) == -1) reasons.push(key);
+				}
+			}
+
+			//Rebuild message
 			let textMessage = "";
 			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 				const el = localObj.message.content.fragments[i];
 				if(el.automod != undefined) textMessage += "<mark>"
-				//Avoid XSS attack
 				if(el.emoticon) {
 					textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
 				}else{
+					//Avoid XSS attack
 					textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 				}
 				if(el.automod != undefined) textMessage += "</mark>"
 			}
-			
-			IRCClient.instance.addMessage(textMessage, tags, false, localObj);
+
+			let user = localObj.message.sender;
+			const userData = StoreProxy.users.getUserFrom("twitch", user.user_id, user.login, user.display_name);
+			userData.color = user.chat_color;
+			const m:TwitchatDataTypes.MessageChatData = {
+				id:localObj.message.id,
+				channel_id:channelId,
+				date:Date.now(),
+				type:"message",
+				platform:"twitch",
+				user:userData,
+				message:textMessage.replace(/<[^>]*>/gi, ""),
+				message_html:textMessage,
+				twitch_automod:{ reasons },
+			}
+			StoreProxy.chat.addMessage(m);
+
 		}else 
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
-			this.dispatchEvent(new PubSubEvent(PubSubEvent.DELETE_MESSAGE, localObj.message.id));
-			StoreProxy.chat.delChatMessage(localObj.message.id);
+			//Delete it even if allowed as it's actually sent back via IRC
+			StoreProxy.chat.deleteMessage(localObj.message.id);
 		}
 	}
 
@@ -648,188 +695,166 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a user redeems a reward
 	 */
-	private rewardEvent(localObj:PubSubDataTypes.RewardData):void {
-		const tags:PubSubDataTypes.IRCTagsExtended = {
-			"username":localObj.redemption.user.display_name,
-			"display-name": localObj.redemption.user.display_name,
-			"id": localObj.redemption.id,
-			"user-id": localObj.redemption.user.id,
-			"tmi-sent-ts": new Date(localObj.timestamp).getTime().toString(),
-			"message-type": "chat",
-			"room-id": localObj.redemption.channel_id,
+	private rewardEvent(localObj:PubSubDataTypes.RewardData, channelId:string):void {
+		const img = localObj.redemption.reward.image ?? localObj.redemption.reward.default_image;
+		const m:TwitchatDataTypes.MessageRewardRedeemData = {
+			id:localObj.redemption.id,
+			channel_id:channelId,
+			date:Date.now(),
+			type:"reward",
+			platform:"twitch",
+			reward:{
+				title:localObj.redemption.reward.title,
+				cost:localObj.redemption.reward.cost,
+				description:localObj.redemption.reward.prompt,
+				icon:{
+					sd:img.url_2x,
+					hd:img.url_4x,
+				},
+			},
+			user:StoreProxy.users.getUserFrom("twitch", localObj.redemption.user.id),
 		};
-
-		const data:IRCEventDataList.Highlight = {
-			reward: localObj,
-			channel: IRCClient.instance.channel,
-			tags,
-			type:"highlight",
+		if(localObj.redemption.user_input) {
+			m.message		= localObj.redemption.user_input;
+			m.message_html	= TwitchUtils.parseEmotes(localObj.redemption.user_input, undefined, false, true);
 		}
-		IRCClient.instance.sendHighlight(data);
+		StoreProxy.chat.addMessage(m);
 	}
 
 	/**
 	 * Community challenge contribution 
 	 */
 	private communityChallengeContributionEvent(localObj:PubSubDataTypes.ChannelPointChallengeContribution):void {
-		const tags:PubSubDataTypes.IRCTagsExtended = {
-			"username":localObj.user.display_name,
-			"display-name": localObj.user.display_name,
-			"user-id": localObj.user.id,
-			"tmi-sent-ts": Date.now().toString(),
-			"message-type": "chat",
-			"room-id": localObj.channel_id,
+		const img = localObj.goal.image ?? localObj.goal.default_image;
+		const m:TwitchatDataTypes.MessageCommunityChallengeContributionData =  {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id: localObj.channel_id,
+			type:"community_challenge_contribution",
+			user: StoreProxy.users.getUserFrom("twitch", localObj.user.id, localObj.user.login, localObj.user.display_name),
+			contribution: localObj.amount,
+			stream_contribution:localObj.stream_contribution,
+			total_contribution:localObj.total_contribution,
+			challenge: {
+				title:localObj.goal.title,
+				goal:localObj.goal.goal_amount,
+				progress:localObj.goal.points_contributed,
+				description:localObj.goal.description,
+				icon:{
+					sd:img.url_2x,
+					hd:img.url_4x,
+				},
+			}
 		};
-
-		const data:IRCEventDataList.Highlight = {
-			contribution: localObj,
-			channel: IRCClient.instance.channel,
-			tags,
-			type:"highlight",
-		}
-		IRCClient.instance.sendHighlight(data);
+		StoreProxy.chat.addMessage(m);
 	}
 
 	/**
 	 * Called when a poll event occurs (create/update/close)
 	 * @param localObj
 	 */
-	private pollEvent(localObj:PubSubDataTypes.PollData):void {
-		//convert data to API style format
-		const choices:TwitchDataTypes.PollChoice[] = [];
+	private pollEvent(localObj:PubSubDataTypes.PollData, channelId:string, postOnChat:boolean):void {
+		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 		for (let i = 0; i < localObj.poll.choices.length; i++) {
 			const c = localObj.poll.choices[i];
-			const votes = c.votes.total;
-			// if(c.votes.channel_points) votes += c.votes.channel_points;
-			// if(c.votes.bits) votes += c.votes.bits;
 			choices.push({
 				id: c.choice_id,
-				title: c.title,
-				votes: votes,
-				channel_points_votes: c.votes.channel_points,
-				bits_votes: c.votes.bits,
+				label: c.title,
+				votes: c.votes.total,
 			})
 		}
-		const poll:TwitchDataTypes.Poll = {
-			id: localObj.poll.poll_id,
-			broadcaster_id: localObj.poll.owned_by,
-			broadcaster_name: UserSession.instance.twitchAuthToken.login,
-			broadcaster_login: UserSession.instance.twitchAuthToken.login,
+		const poll:TwitchatDataTypes.MessagePollData = {
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			channel_id: channelId,
+			type:"poll",
 			title: localObj.poll.title,
-			choices: choices,
-			bits_voting_enabled: localObj.poll.settings.bits_votes.is_enabled,
-			bits_per_vote: localObj.poll.settings.bits_votes.cost,
-			channel_points_voting_enabled: localObj.poll.settings.channel_points_votes.is_enabled,
-			channel_points_per_vote: localObj.poll.settings.channel_points_votes.cost,
-			status: localObj.poll.status as "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODERATED" | "INVALID",
-			duration: localObj.poll.duration_seconds,
+			choices,
+			duration_s: localObj.poll.duration_seconds,
 			started_at: localObj.poll.started_at,
 			ended_at: localObj.poll.ended_at,
 		};
 
+		StoreProxy.poll.setCurrentPoll(poll, postOnChat);
 		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
-		StoreProxy.poll.setCurrentPoll([poll], true)
 	}
 
 	/**
 	 * Called when a prediction event occurs (create/update/close)
 	 */
 	private predictionEvent(localObj:PubSubDataTypes.PredictionData):void {
-	
-		// convert data to API style format
-		const outcomes:TwitchDataTypes.PredictionOutcome[] = [];
+		let outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 		for (let i = 0; i < localObj.event.outcomes.length; i++) {
 			const c = localObj.event.outcomes[i];
-			const top_predictors:TwitchDataTypes.PredictionPredictor[] = [];
-			for (let j = 0; j < c.top_predictors.length; j++) {
-				const p = c.top_predictors[j];
-				top_predictors.push({
-					id:p.id,
-					name:p.user_display_name,
-					login:p.user_display_name,
-					channel_points_used:p.points,
-					channel_points_won:p.result?.points_won,
-				})
-			}
 			outcomes.push({
 				id: c.id,
-				title: c.title,
-				users: c.total_users,
-				channel_points: c.total_points,
-				color:c.color,
-				top_predictors,
+				label: c.title,
+				votes: c.total_points,
+				voters: c.top_predictors.map(v=> StoreProxy.users.getUserFrom("twitch", v.user_id, undefined, v.user_display_name)),
 			})
 		}
-		if(localObj.event.status == "RESOLVE_PENDING") {
-			localObj.event.status = "LOCKED";
-		}
-		const prediction:TwitchDataTypes.Prediction = {
-			id: localObj.event.id,
-			broadcaster_id: localObj.event.created_by.user_id,
-			broadcaster_name: localObj.event.created_by.user_display_name,
-			broadcaster_login: localObj.event.created_by.user_display_name,
+		const prediction:TwitchatDataTypes.MessagePredictionData = {
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			channel_id: localObj.event.channel_id,
+			type:"prediction",
 			title: localObj.event.title,
-			winning_outcome_id: "TODO",
-			outcomes: outcomes,
-			prediction_window: localObj.event.prediction_window_seconds,
-			status: localObj.event.status as "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED",
-			created_at: localObj.event.created_at,
-			ended_at: localObj.event.ended_at,
-			locked_at: localObj.event.locked_at,
+			outcomes,
+			pendingAnswer: localObj.event.status === "RESOLVE_PENDING",
+			started_at: new Date(localObj.event.created_at).getTime(),
+			duration_s: localObj.event.prediction_window_seconds,
 		};
+		if(localObj.event.ended_at) {
+			prediction.ended_at = new Date(localObj.event.ended_at).getTime()
+		}
+		if(localObj.event.winning_outcome_id) {
+			prediction.winning_outcome_id = localObj.event.winning_outcome_id;
+		}
 
 		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
-		StoreProxy.prediction.setPrediction([prediction])
+		StoreProxy.prediction.setPrediction(prediction)
 	}
 
 	/**
 	 * Called when having a new follower
 	 */
-	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false):void {
-		data.follow_date = Date.now();
-
+	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false, channelId:string):void {
 		if(this.followCache[data.username] === true) return;
 		this.followCache[data.username] = true;
 
-		data.message = reactive({
-			channel: IRCClient.instance.channel,
-			tags:{
-				"username":data.display_name,
-				"user-id":data.user_id,
-				"tmi-sent-ts": Date.now().toString(),
-				"msg-id": "follow",
-			},
-			username: data.display_name,
-			followBlocked:false,
-			"type": "highlight",
-		} as IRCEventDataList.Highlight);
-
+		const message:TwitchatDataTypes.MessageFollowingData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id: channelId,
+			type:"following",
+			user: StoreProxy.users.getUserFrom("twitch", data.user_id, data.username, data.display_name),
+			followed_at: Date.now(),
+		};
+		
+		this.lastRecentFollowers.push( message );
 		if(this.lastRecentFollowers.length > 1) {
 			//duration between 2 follow events to consider them as a follow streak
 			const minDuration = 500;
-			let dateOffset:number = this.lastRecentFollowers[0].follow_date as number;
+			let dateOffset:number = this.lastRecentFollowers[0].followed_at;
 			for (let i = 1; i < this.lastRecentFollowers.length; i++) {
 				const f = this.lastRecentFollowers[i];
 				//more than the minDuration has past, reset the streak
-				if((f.follow_date as number) - dateOffset > minDuration) {
+				if(f.followed_at - dateOffset > minDuration) {
 					this.lastRecentFollowers = [];
 					break;
 				}
-				dateOffset = f.follow_date as number;
+				dateOffset = f.followed_at;
 			}
 		}
-
-		let blockList = [data];
-		this.lastRecentFollowers.push( data );
-		console.log(this.lastRecentFollowers);
 
 		if(this.lastRecentFollowers.length > 30
 		&& StoreProxy.emergency.emergencyStarted !== true
 		&& StoreProxy.emergency.params.enabled === true
 		&& StoreProxy.emergency.params.autoEnableOnFollowbot === true) {
-			console.log("START EMERGENCYYYYY !!!");
-			//Set all the past users in the block list to process them
-			blockList = this.lastRecentFollowers;
 			//Start emergency mode
 			StoreProxy.emergency.setEmergencyMode(true);
 		}
@@ -838,38 +863,30 @@ export default class PubSub extends EventDispatcher {
 		//If emergency mode is enabled and we asked to automatically block
 		//any new followser during that time, do it
 		if(StoreProxy.emergency.emergencyStarted === true) {
-			for (let i = 0; i < blockList.length; i++) {
-				const event = blockList[i];
+			for (let i = 0; i < this.lastRecentFollowers.length; i++) {
+				const followData = this.lastRecentFollowers[i];
 				
-				const followData:TwitchatDataTypes.EmergencyFollowerData = {
-					uid:event.user_id,
-					login:event.display_name,
-					date:Date.now(),
-					blocked:false,
-					unblocked:false,
-				}
 				if(StoreProxy.emergency.params.autoBlockFollows === true){
-					(event.message as IRCEventDataList.Highlight).followBlocked = true;
+					message.blocked = true;
 					(async()=> {
 						let res = false;
 						if(simulationMode===true) {
 							res = true;
 						}else{
-							res = await TwitchUtils.blockUser(event.user_id, "spam");
+							res = await TwitchUtils.blockUser(message.user.id, "spam");
 						}
 						followData.blocked = res;
+
 						//Unblock the user right away if requested
 						if(StoreProxy.emergency.params.autoUnblockFollows === true) {
 							if(simulationMode===true) {
 								res = true;
 							}else{
-								res = await TwitchUtils.unblockUser(event.user_id);
+								res = await TwitchUtils.unblockUser(message.user.id);
 							}
-							followData.unblocked = res;
-							StoreProxy.emergency.addEmergencyFollower(followData);
-						}else{
-							StoreProxy.emergency.addEmergencyFollower(followData);
+							followData.blocked = !res;
 						}
+						StoreProxy.emergency.addEmergencyFollower(followData);
 					})();
 				}else{
 					StoreProxy.emergency.addEmergencyFollower(followData);
@@ -879,25 +896,23 @@ export default class PubSub extends EventDispatcher {
 
 		let automoded = false;
 		if(StoreProxy.automod.params.banUserNames === true) {
-			let rule = Utils.isAutomoded(data.display_name, {username:data.username});
+			let rule = Utils.isAutomoded(data.display_name, message.user);
 			if(rule) {
-				(data.message as IRCEventDataList.Highlight).ttAutomod = rule;
+				message.automod = rule;
 				automoded = true;
-				IRCClient.instance.sendMessage(`/ban ${data.username} banned by Twitchat's automod after following the channel because nickname matched mod rule "${rule.label}"`);
+				TwitchUtils.banUser(message.user.id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
+				
+				//TODO Broadcast to OBS-ws
+				// const wsMessage = {
+				// 	display_name: data.display_name,
+				// 	username: data.username,
+				// 	user_id: data.user_id,
+				// }
+				// PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 			}
 		}
 
-		IRCClient.instance.sendHighlight(data.message as IRCEventDataList.Highlight);
-
-		if(!automoded) {
-			//Broadcast to OBS-ws
-			const wsMessage = {
-				display_name: data.display_name,
-				username: data.username,
-				user_id: data.user_id,
-			}
-			PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
-		}
+		StoreProxy.chat.addMessage(message);
 	}
 
 	/**
@@ -917,6 +932,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft:data.events_remaining_durations[key],
 			state: "APPROACHING",
 			is_boost_train:data.is_boost_train,
+			is_new_record:false,
 		};
 		StoreProxy.stream.setHypeTrain(train);
 
@@ -951,6 +967,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft:data.progress.remaining_seconds,
 			state: "START",
 			is_boost_train:data.is_boost_train,
+			is_new_record:false,
 		};
 		
 		//This line makes debug easier if I wanna start the train at any
@@ -996,12 +1013,13 @@ export default class PubSub extends EventDispatcher {
 				timeLeft:data.progress.remaining_seconds,
 				state: "PROGRESSING",
 				is_boost_train:data.is_boost_train,
+				is_new_record:data.is_large_event,
 			};
 			
 			//This line makes debug easier if I wanna start the train at any
 			//point of its timeline
-			if(!train.approached_at) train.approached_at = Date.now();
-			if(!train.started_at) train.started_at = Date.now();
+			if(!train.approached_at)	train.approached_at = Date.now();
+			if(!train.started_at)		train.started_at = Date.now();
 			
 			StoreProxy.stream.setHypeTrain(train);
 			const message:TwitchatDataTypes.HypeTrainTriggerData = {
@@ -1020,16 +1038,18 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
 		clearTimeout(this.hypeTrainProgressTimer);
+		const storeData = StoreProxy.stream.hypeTrain!;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			approached_at:StoreProxy.stream.hypeTrain!.approached_at,
-			started_at:StoreProxy.stream.hypeTrain!.started_at,
+			approached_at:storeData.approached_at,
+			started_at:storeData.started_at,
 			updated_at:Date.now(),
 			timeLeft:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
+			is_new_record:storeData.is_new_record,
 		};
 
 		//This line makes debug easier if I wanna start the train at any
@@ -1062,6 +1082,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft: storeData.timeLeft,
 			state: data.ending_reason,
 			is_boost_train: storeData.is_boost_train,
+			is_new_record:storeData.is_new_record,
 		};
 		StoreProxy.stream.setHypeTrain(train);
 		
@@ -1092,8 +1113,18 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when stream info are updated
 	 */
-	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo):void {
-		IRCClient.instance.sendNotice("broadcast_settings_update", "Stream info updated to <mark>\""+data.status+"\"</mark> in category <mark>\""+data.game+"\"</mark>");
+	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo, channelId:string):void {
+		const m:TwitchatDataTypes.MessageNoticeData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:channelId,
+			type:"notice",
+			message:"Stream info updated to <mark>\""+data.status+"\"</mark> in category <mark>\""+data.game+"\"</mark>",
+			noticeId: TwitchatDataTypes.TwitchatNoticeType.BROADCAST_SETTINGS_UPDATE,
+		};
+		StoreProxy.chat.addMessage(m);
+		
 		const message:TwitchatDataTypes.StreamInfoUpdate = {
 			type: "streamInfoUpdate",
 			title:data.status,
@@ -1129,6 +1160,8 @@ namespace PubsubJSON {
 	export const ChatRichEmbed = {"type":"chat_rich_embed","data":{"message_id":"7210d939-72b7-44a1-b711-4030c12088a4","request_url":"https://clips.twitch.tv/BumblingTriangularWitchMrDestructoid-QqRP6nMJmsWqb8B2","author_name":"Durss","thumbnail_url":"https://clips-media-assets2.twitch.tv/77t1WEKkT-pzCZrFqm_Adg/AT-cm%7C77t1WEKkT-pzCZrFqm_Adg-preview-86x45.jpg","title":"Live chill","twitch_metadata":{"clip_metadata":{"game":"Art","channel_display_name":"EncreMecanique","slug":"BumblingTriangularWitchMrDestructoid-QqRP6nMJmsWqb8B2","id":"3965327491","broadcaster_id":"190145142","curator_id":"29961813"}}}};
 	export const RoomStatusUpdate = {"type":"updated_room","data":{"room":{"channel_id":"29961813","modes":{"followers_only_duration_minutes":30,"emote_only_mode_enabled":false,"r9k_mode_enabled":false,"subscribers_only_mode_enabled":false,"verified_only_mode_enabled":true,"slow_mode_duration_seconds":null,"slow_mode_set_at":"0001-01-01T00:00:00Z","account_verification_options":{"subscribers_exempt":true,"moderators_exempt":true,"vips_exempt":true,"phone_verification_mode":0,"email_verification_mode":2,"partial_phone_verification_config":{"restrict_first_time_chatters":true,"restrict_based_on_follower_age":true,"restrict_based_on_account_age":true,"minimum_follower_age_in_minutes":1440,"minimum_account_age_in_minutes":10080},"partial_email_verification_config":{"restrict_first_time_chatters":true,"restrict_based_on_follower_age":true,"restrict_based_on_account_age":true,"minimum_follower_age_in_minutes":1440,"minimum_account_age_in_minutes":10080}}},"rules":["Sois un amour de princesse ❤"]}}};
 	export const ChannelPointChallengeContribution = {"type":"community-goal-contribution","data":{"timestamp":"2022-09-18T19:09:02.474511122Z","contribution":{"channel_id":"29961813","goal":{"id":"b34f2f91-89d7-4342-b221-b1cbc4e0d5c6","channel_id":"29961813","title":"My awesome challenge","description":"This is the channel point challenge description","goal_type":"CREATOR","is_in_stock":true,"goal_amount":100000,"points_contributed":10800,"small_contribution":250,"per_stream_maximum_user_contribution":2000,"status":"STARTED","duration_days":30,"started_at":"2022-09-16T17:00:49.967911644Z","ended_at":"2022-10-16T17:00:49.967911644Z","background_color":"#FF38DB","default_image":{"url_1x":"https://static-cdn.jtvnw.net/community-goal-images/default-1.png","url_2x":"https://static-cdn.jtvnw.net/community-goal-images/default-2.png","url_4x":"https://static-cdn.jtvnw.net/community-goal-images/default-4.png"},"image":{"url_1x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-1.png","url_2x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-2.png","url_4x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-4.png"}},"user":{"id":"29961813","login":"durss","display_name":"durss"},"amount":800,"stream_contribution":800,"total_contribution":800}}};
+	export const ExtensionMessage = {"type":"extension_message","data":{"id":"08ed2f63-3c3b-42f4-8c9b-a8cdd62fa241","sent_at":"2022-09-28T18:29:25.593540319Z","content":{"text":"DurssBot SLAPPED A What the Duck? STICKER FOR 0 Bits","fragments":[{"text":"DurssBot SLAPPED A What the Duck? STICKER FOR 0 Bits"}]},"sender":{"extension_client_id":"5tbyqce941455yffg7fzg36tp6or8p","extension_version":"4.3.4","display_name":"Stream Stickers","chat_color":"#5f9ea0","badges":[{"id":"extension","version":"1"}]}}};
+	export const FollowEvent = {"display_name":"DurssBot","username":"durssbot","user_id":"647389082"};
 
 	export const RealHypeTrainData =[
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.180847952","message":"{\"type\":\"hype-train-approaching\",\"data\":{\"channel_id\":\"402890635\",\"goal\":3,\"events_remaining_durations\":{\"1\":261},\"level_one_rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"}],\"creator_color\":\"00DADA\",\"participants\":[\"117971644\",\"661245368\"],\"approaching_hype_train_id\":\"50ced304-5348-4481-b4b2-de74d7203677\",\"is_boost_train\":false}}"}},

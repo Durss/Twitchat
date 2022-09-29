@@ -31,21 +31,13 @@ export default class CommunityBoostInfo extends Vue {
 	public get progress():number {
 		let communityBoostState = this.$store("stream").communityBoostState;
 		if(!communityBoostState) return 0;
-		if(communityBoostState.total_goal_progress != undefined) {
-			return communityBoostState.total_goal_progress;
-		}
-		const order = communityBoostState.boost_orders[0];
-		return order.GoalProgress;
+		return communityBoostState.progress;
 	}
 
 	public get target():number {
 		let communityBoostState = this.$store("stream").communityBoostState;
 		if(!communityBoostState) return 0;
-		if(communityBoostState.total_goal_target != undefined) {
-			return communityBoostState.total_goal_target;
-		}
-		const order = communityBoostState.boost_orders[0];
-		return order.GoalTarget;
+		return communityBoostState.goal;
 	}
 
 	public get percent():number {

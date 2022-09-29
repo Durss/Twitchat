@@ -135,7 +135,7 @@ export const storeEmergency = defineStore('emergency', {
 			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
 		},
 
-		async addEmergencyFollower(payload:TwitchatDataTypes.EmergencyFollowerData) {
+		async addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
 			this.follows.push(payload);
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
 		},

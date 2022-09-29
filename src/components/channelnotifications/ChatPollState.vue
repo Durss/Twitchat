@@ -10,19 +10,19 @@
 			<div class="holder">
 				<div class="choice" v-for="(c,index) in poll.choices" :key="c.user['user-id']+'_'+index">
 					<div class="username">{{c.user['display-name']}}</div>
-					<div class="text">{{c.text}}</div>
+					<div class="text">{{c.label}}</div>
 				</div>
 				<div class="choice win" v-for="(c,index) in poll.winners" :key="c.user['user-id']+'_'+index">
 					<img src="@/assets/icons/checkmark_white.svg" alt="check">
 					<div class="username">{{c.user['display-name']}}</div>
-					<div class="text">{{c.text}}</div>
+					<div class="text">{{c.label}}</div>
 				</div>
 			</div>
 		</ToggleBlock>
 
 		<div class="row winner" v-if="poll.winners.length > 0">
 			<span class="user">{{poll.winners[0].user['display-name']}}</span>
-			<span class="message">{{poll.winners[0].text}}</span>
+			<span class="message">{{poll.winners[0].label}}</span>
 		</div>
 
 		<div class="actions">

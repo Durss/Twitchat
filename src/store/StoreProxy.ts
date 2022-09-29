@@ -159,7 +159,7 @@ export interface IChatGetters {
 export interface IChatActions {
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;
 	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
-	delChatMessage(messageId:string, deleteData?:TwitchatDataTypes.TwitchatUser):void;
+	deleteMessage(messageId:string, deleteData?:TwitchatDataTypes.TwitchatUser):void;
 	delUserMessages(uid:string):void;
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;
@@ -194,7 +194,7 @@ export interface IChatSuggestionActions {
 export interface IEmergencyState {
 	emergencyStarted:boolean,
 	params:TwitchatDataTypes.EmergencyParamsData,
-	follows: TwitchatDataTypes.EmergencyFollowerData[],
+	follows: TwitchatDataTypes.MessageFollowingData[],
 }
 
 export interface IEmergencyGetters {
@@ -203,7 +203,7 @@ export interface IEmergencyGetters {
 export interface IEmergencyActions {
 	setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData):void;
 	setEmergencyMode(enable:boolean):Promise<void>;
-	addEmergencyFollower(payload:TwitchatDataTypes.EmergencyFollowerData):Promise<void>;
+	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):Promise<void>;
 	clearEmergencyFollows():Promise<void>;
 }
 
@@ -311,9 +311,9 @@ export interface IRaffleActions {
 
 export interface IStreamState {
 	hypeTrain: TwitchatDataTypes.HypeTrainStateData|undefined;
-	raiding: TwitchatDataTypes.MessageRaidData|undefined;
+	currentRaid: TwitchatDataTypes.RaidInfo|undefined;
 	playbackState: PubSubDataTypes.PlaybackInfo|undefined;
-	communityBoostState: PubSubDataTypes.CommunityBoost|undefined;
+	communityBoostState: TwitchatDataTypes.CommunityBoost|undefined;
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
 	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
 	commercialEnd: number;
@@ -324,10 +324,10 @@ export interface IStreamGetters {
 }
 
 export interface IStreamActions {
-	setRaiding(infos:PubSubDataTypes.RaidInfos|undefined):void;
+	setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined):void;
 	setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined):void;
 	setPlaybackState(value:PubSubDataTypes.PlaybackInfo|undefined):void;
-	setCommunityBoost(value:PubSubDataTypes.CommunityBoost|undefined):void;
+	setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined):void;
 	saveStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	deleteStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	setCommercialEnd(date:number):void;

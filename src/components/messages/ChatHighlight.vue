@@ -222,7 +222,7 @@ export default class ChatHighlight extends Vue {
 					this.messageText += this.messageData.message;
 				}
 				
-				let chunks = TwitchUtils.parseEmotes(this.messageText, "", false, true);
+				let chunks = TwitchUtils.parseEmotesToChunks(this.messageText, "", false, true);
 				let result = "";
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];
@@ -270,8 +270,8 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Add twitchat's automod badge
-				if(this.messageData.ttAutomod) {
-					this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messageData.ttAutomod.label});
+				if(this.messautomodtAutomod) {
+					this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messautomodtAutomod.label});
 				}
 				break;
 			}
@@ -343,7 +343,7 @@ export default class ChatHighlight extends Vue {
 		this.loading = true;
 		this.pStreamInfo = null;
 		try {
-			const streams = await TwitchUtils.loadChannelInfo([this.messageData.user.id!]);
+			const streams = await TwitchUtils.loadChannelInfo([this.messageData.user.id]);
 			if(streams && streams.length > 0) {
 				this.pStreamInfo = streams[0];
 			}

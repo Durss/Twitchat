@@ -58,9 +58,9 @@ export default class Config {
 	 * Add twitch logins to connect to their chats and get some
 	 * PubSub events from
 	 */
-	public get debugChans():{source:TwitchatDataTypes.ChatPlatform, login:string}[] {
+	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		return [
-			{source:"twitch", login:"dazjdm"}
+			{platform:"twitch", login:"dazjdm"}
 		];
 		return [];
 	}

@@ -810,7 +810,7 @@ export default class TriggerActionHandler {
 				//Parse emotes
 				const isReward = (message as IRCEventDataList.Highlight).reward != undefined;
 				const customParsing = m.sentLocally === true || isReward;
-				const chunks = TwitchUtils.parseEmotes(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
+				const chunks = TwitchUtils.parseEmotesToChunks(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
 				let cleanMessage = ""
 				//only keep text chunks to remove emotes
 				for (let i = 0; i < chunks.length; i++) {

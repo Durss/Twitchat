@@ -349,7 +349,7 @@ export default class TTSUtils {
 					
 					let txt = paramsTTS.readSubsPattern.replace(/\{USER\}/gi, message.user.displayName);
 					txt = txt.replace(/\{MESSAGE\}/gi, message.message ?? "");
-					txt = txt.replace(/\{TIER\}/gi, message.tier);
+					txt = txt.replace(/\{TIER\}/gi, message.tier.toString());
 					return txt;
 				}else{
 					//Stop if didn't ask to read this kind of message
@@ -372,7 +372,7 @@ export default class TTSUtils {
 
 							let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, message.user.displayName);
 							txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.join(', ').replace(/,\s([^,]*)$/, " and$1"));
-							txt = txt.replace(/\{TIER\}/gi, message.tier);
+							txt = txt.replace(/\{TIER\}/gi, message.tier.toString());
 							txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
 							resolve(txt);
 						}
@@ -427,7 +427,7 @@ export default class TTSUtils {
 				message.choices.forEach(v =>{
 					if(v.votes > max) {
 						max = v.votes;
-						winner = v.title;
+						winner = v.label;
 					}
 				})
 				let txt = paramsTTS.readPollsPattern.replace(/\{TITLE\}/gi, message.title);
@@ -442,7 +442,7 @@ export default class TTSUtils {
 				let winner = "";
 				message.outcomes.forEach(v =>{
 					if(v.id == message.winning_outcome_id) {
-						winner = v.title;
+						winner = v.label;
 					}
 				})
 				

@@ -260,8 +260,9 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface ChatPollDataChoice {
+		id:string;
 		user:ChatUserstate;
-		text:string;
+		label:string;
 	}
 
 	export interface HypeTrainStateData {
@@ -274,6 +275,7 @@ export namespace TwitchatDataTypes {
 		timeLeft:number;
 		state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 		is_boost_train:boolean;
+		is_new_record:boolean;
 	}
 
 	export interface CommandData {
@@ -626,10 +628,21 @@ export namespace TwitchatDataTypes {
 		TTS:"tts",
 		ONLINE:"online",
 		UNNKNOWN:"unknown",
+		CLEAR_CHAT:"clearChat",
+		TIMEOUT:"timeout",
+		UNTIMEOUT:"untimeout",
+		BAN:"ban",
+		UNBAN:"unban",
+		MOD:"mod",
+		UNMOD:"unmod",
+		VIP:"vip",
+		UNVIP:"unvip",
+		MESSAGE_DELETE:"messageDelete",
 		EMERGENCY_MODE:"emergencyMode",
 		COMMERCIAL_ERROR:"commercialError",
 		COMMERCIAL_START:"commercialStart",
 		COMMERCIAL_COMPLETE:"commercialComplete",
+		BROADCAST_SETTINGS_UPDATE:"broadcastSettingsUpdate",
 	}
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
@@ -658,7 +671,7 @@ export namespace TwitchatDataTypes {
 		online:boolean;
 		color?:string;
 		avatarPath?:string;
-		id?:string;
+		id:string;
 		is_following?:boolean;
 		is_blocked?:boolean;
 		is_banned?:boolean;
@@ -667,7 +680,14 @@ export namespace TwitchatDataTypes {
 		is_broadcaster?:boolean;
 		is_subscriber?:boolean;
 		pronouns?:string|false;
+		badges?:TwitchatUserBadge[];
 		temporary?:boolean;//true when the details are loading
+	}
+
+	export interface TwitchatUserBadge {
+		icon:TwitchatImage;
+		id:string;
+		title?:string;
 	}
 
 	export type ChatMessageTypes = MessageChatData |
@@ -706,7 +726,7 @@ export namespace TwitchatDataTypes {
 		message_html:string;
 		
 		todayFirst?: boolean;
-		ttAutomod?: AutomodParamsKeywordFilterData;
+		automod?: AutomodParamsKeywordFilterData;
 		answersTo?: MessageChatData;
 		answers?: MessageChatData[];
 		cyphered?: boolean;
@@ -719,7 +739,7 @@ export namespace TwitchatDataTypes {
 		highlightWord?: string;
 		hasMention?: boolean;
 		
-		twitch_automod?: PubSubDataTypes.AutomodData;
+		twitch_automod?: TwitchatDataTypes.AutomodData;
 		twitch_isSlashMe?:boolean;
 		twitch_isFirstMessage?:boolean;
 		twitch_isReturning?:boolean;
@@ -737,34 +757,37 @@ export namespace TwitchatDataTypes {
 		message_html:string;
 	}
 
+	export interface MessagePollDataChoice {
+		id: string;
+		label: string;
+		votes: number;
+	}
 	export interface MessagePollData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"poll";
 		title: string;
-		choices: {
-			id: string;
-			title: string;
-			votes: number;
-		}[];
-		duration: number;
+		choices: MessagePollDataChoice[];
+		duration_s: number;
 		started_at: string;
 		ended_at?: string;
 	}
 
+
+	export interface MessagePredictionDataOutcome {
+		id: string;
+		label: string;
+		votes: number;
+		voters: TwitchatUser[];
+	}
 	export interface MessagePredictionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"prediction";
 		title: string;
-		duration: number;
-		outcomes: {
-			id: string;
-			title: string;
-			voters: number;
-			votes: number;
-		}[];
+		duration_s: number;
+		outcomes: MessagePredictionDataOutcome[];
 		pendingAnswer: boolean;
-		started_at: string;
-		ended_at?: string;
+		started_at: number;
+		ended_at?: number;
 		winning_outcome_id?: string;
 	}
 
@@ -772,7 +795,8 @@ export namespace TwitchatDataTypes {
 		channel_id: string;
 		type:"following";
 		user:TwitchatUser;
-		followed_at: string;
+		followed_at: number;
+		automod?: AutomodParamsKeywordFilterData;
 		blocked?:boolean;//If twitchat's automod strikes
 	}
 
@@ -934,5 +958,36 @@ export namespace TwitchatDataTypes {
 	export interface MessageTwitchatAdData extends AbstractTwitchatMessage {
 		type:"twitchatAd";
 		adType:TwitchatAdStringTypes;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+	export interface RaidInfo {
+		channel_id: string;
+		user:TwitchatUser;
+		viewerCount: number;
+		startedAt:number;
+		timerDuration_s:number;
+	}
+
+	export interface CommunityBoost {
+		channel_id: string;
+		goal:number;
+		progress:number;
+	}
+
+	export interface AutomodData {
+		reasons:string[];
 	}
 }

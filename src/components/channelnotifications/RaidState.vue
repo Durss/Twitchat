@@ -35,7 +35,7 @@ export default class RaidState extends Vue {
 	private timerStart = 0;
 	private timerInterval!:number;
 
-	public get raidInfo() { return this.$store("stream").raiding!; }
+	public get raidInfo() { return this.$store("stream").currentRaid!; }
 
 	public async mounted():Promise<void> {
 		this.timerStart = Date.now();
@@ -43,8 +43,8 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 		
-		if(this.$store("stream").raiding?.target_login) {
-			this.user = (await TwitchUtils.loadUserInfo(undefined, [this.$store("stream").raiding?.target_login as string]))[0];
+		if(this.$store("stream").currentRaid?.target_login) {
+			this.user = (await TwitchUtils.loadUserInfo(undefined, [this.$store("stream").currentRaid?.target_login as string]))[0];
 		}
 	}
 

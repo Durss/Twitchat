@@ -550,7 +550,7 @@ export default class ChatMessage extends Vue {
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.
-			this.$store("chat").delChatMessage(message.tags.id as string);
+			this.$store("chat").deleteMessage(message.tags.id as string);
 		}
 	}
 
@@ -573,7 +573,7 @@ export default class ChatMessage extends Vue {
 				//Allow custom parsing of emotes only if it's a message of ours sent
 				//from current IRC client
 				const customParsing = mess.sentLocally;
-				let chunks = TwitchUtils.parseEmotes(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
+				let chunks = TwitchUtils.parseEmotesToChunks(text, mess.tags['emotes-raw'], removeEmotes, customParsing);
 				result = "";
 				
 				for (let i = 0; i < chunks.length; i++) {

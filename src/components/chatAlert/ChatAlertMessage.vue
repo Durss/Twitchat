@@ -32,7 +32,7 @@ export default class ChatAlertMessage extends Vue {
 				console.log("Custom", customParsing);
 				console.log(message.tags['emotes-raw']);
 				let removeEmotes = !this.$store("params").appearance.showEmotes.value;
-				let chunks = TwitchUtils.parseEmotes(text, message.tags['emotes-raw'], removeEmotes, customParsing);
+				let chunks = TwitchUtils.parseEmotesToChunks(text, message.tags['emotes-raw'], removeEmotes, customParsing);
 				let result = "";
 				console.log(chunks);
 				for (let i = 0; i < chunks.length; i++) {

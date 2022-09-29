@@ -150,7 +150,7 @@ export default class TwitchUtils {
 	/**
 	 * Splits the message in chunks of type emote" and "text"
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):TwitchDataTypes.ParseMessageChunk[] {
+	public static parseEmotesToChunks(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):TwitchDataTypes.ParseMessageChunk[] {
 
 		function getProtectedRange(emotes:string):boolean[] {
 			const protectedRanges:boolean[] = [];
@@ -322,8 +322,8 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotesToHTML(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
-		const emoteChunks = TwitchUtils.parseEmotes(message, emotes, removeEmotes, customParsing);
+	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
+		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {
 			const v = emoteChunks[i];
@@ -340,6 +340,30 @@ export default class TwitchUtils {
 			}
 		}
 		return message_html;
+	}
+
+	/**
+	 * Converts parsed emote data to raw IRC compatible emote data.
+	 * PubSub only returns parsed emote data but the parser expect
+	 * raw IRC data to work. This method allows to convert one format
+	 * to the other.
+	 * 
+	 * @param data 
+	 * @returns 
+	 */
+	public static parsedEmoteDataToRawEmoteData(data:{emote_id:string, start:number, end:number}[]):string {
+		let result:string = "";
+		const hashmap:{[key:string]:string[]} = {};
+		for (let i = 0; i < data.length; i++) {
+			const e = data[i];
+			if(!hashmap[e.emote_id]) hashmap[e.emote_id] = [];
+			hashmap[e.emote_id].push(e.start+"-"+e.end);
+		}
+		for (const emote in hashmap) {
+			if(result.length > 0) result += "/";
+			result += emote+":"+hashmap[emote].join(",")
+		}
+		return result;
 	}
 
 	/**

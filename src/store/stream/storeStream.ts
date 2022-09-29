@@ -10,7 +10,7 @@ import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState
 export const storeStream = defineStore('stream', {
 	state: () => ({
 		hypeTrain: undefined,
-		raiding: undefined,
+		currentRaid: undefined,
 		playbackState: undefined,
 		communityBoostState: undefined,
 		streamInfoPreset: [],
@@ -35,7 +35,7 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
-		setRaiding(infos:TwitchatDataTypes.MessageRaidData|undefined) {this.raiding = infos; },
+		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) { this.currentRaid = infos; },
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
 			this.hypeTrain = data;
@@ -72,7 +72,7 @@ export const storeStream = defineStore('stream', {
 
 		setPlaybackState(value:PubSubDataTypes.PlaybackInfo|undefined) { this.playbackState = value; },
 
-		setCommunityBoost(value:PubSubDataTypes.CommunityBoost|undefined) { this.communityBoostState = value; },
+		setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined) { this.communityBoostState = value; },
 
 		saveStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset) {
 			const index = this.streamInfoPreset.findIndex(v=> v.id == preset.id);

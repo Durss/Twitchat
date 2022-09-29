@@ -3,6 +3,7 @@ import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { ChatUserstate } from 'tmi.js';
 import type { UnwrapRef } from 'vue';
@@ -84,6 +85,7 @@ export const storeUsers = defineStore('users', {
 				if(u.platform != platform) continue;
 				if(u.id === id) { user = u; break; }
 				if(u.login === login) { user = u; break; }
+				if(u.displayName === displayName) { user = u; break; }
 			}
 			//Create user if enough given info
 			if(!user && id && login) {
@@ -96,9 +98,9 @@ export const storeUsers = defineStore('users', {
 			}
 			//If we don't have enough info, create a temp user object and load
 			//its details from the API then register it if found.
-			if(!user && (login || id)) {
-				user = { platform: platform, id:id??"", login:login??"", displayName:login??"", temporary:true, greeted:false, online:true};
-				if(platform == "twitch") {
+			if(!user && (login || id || displayName)) {
+				user = { platform: platform, id:id??"temporary_"+Utils.getUUID(), login:login??displayName??"", displayName:displayName??login??"", temporary:true, greeted:false, online:true};
+				if(platform == "twitch" && (login || id)) {
 					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
 						//This just makes the rest of the code know that the user
 						//actually exists as it cannot be undefined anymore once
@@ -238,7 +240,7 @@ export const storeUsers = defineStore('users', {
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
 				if(this.followingStates[user.platform][user.id] == undefined) {
 					TwitchUtils.getFollowState(user.id, UserSession.instance.twitchUser!.id).then((res:boolean) => {
-						this.followingStates[user.platform][user.id!] = res;
+						this.followingStates[user.platform][user.id] = res;
 						this.followingStatesByNames[user.platform][user.login.toLowerCase()] = res;
 					}).catch(()=>{/*ignore*/})
 				}
@@ -261,7 +263,7 @@ export const storeUsers = defineStore('users', {
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void {
 			if(user.id && user.login) {
-				this.followingStates[user.platform][user.id!] = true;
+				this.followingStates[user.platform][user.id] = true;
 				this.followingStatesByNames[user.platform][user.login.toLowerCase()] = true;
 			}
 		},

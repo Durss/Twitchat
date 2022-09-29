@@ -1694,7 +1694,7 @@ const store = createStore({
 				//Allow custom parsing of emotes only if it's a message of ours sent
 				//from current IRC client
 				const customParsing = payload.sentLocally;
-				const chunks = TwitchUtils.parseEmotes(payload.message, payload.tags['emotes-raw'], false, customParsing);
+				const chunks = TwitchUtils.parseEmotesToChunks(payload.message, payload.tags['emotes-raw'], false, customParsing);
 				let result = "";
 				for (let i = 0; i < chunks.length; i++) {
 					const v = chunks[i];

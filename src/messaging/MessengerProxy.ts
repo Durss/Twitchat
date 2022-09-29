@@ -2,6 +2,7 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import type { Event } from "@/utils/EventDispatcher";
+import TwitchUtils from "@/utils/TwitchUtils";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient"
@@ -41,12 +42,16 @@ export default class MessengerProxy {
 		if(!targets || targets.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(message);
 	}
 
-	public connect():void {
-		const twitchChannels = Config.instance.debugChans.filter(v=>v.source == "twitch");
+	public async connect():Promise<void> {
+		const twitchChannels = Config.instance.debugChans.filter(v=>v.platform == "twitch");
 		for (let i = 0; i < twitchChannels.length; i++) {
 			//It's safe to spam this method as it has inner debounce
 			TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
 		}
+		const users = await TwitchUtils.loadUserInfo(undefined, twitchChannels.map(v=>v.login));
+		users.forEach(v=> {
+			TwitchUtils.loadUserBadges(v.id);
+		})
 	}
 
 	public disconnect():void {

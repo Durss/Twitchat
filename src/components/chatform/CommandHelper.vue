@@ -20,7 +20,7 @@
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
 		</div>
-		<div class="raid" v-if="$store('stream').raiding == null">
+		<div class="raid" v-if="$store('stream').currentRaid == null">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
@@ -29,7 +29,7 @@
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
 		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').raiding?.target_display_name}}</label>
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid?.target_display_name}}</label>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 	</div>

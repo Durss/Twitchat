@@ -329,7 +329,25 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isVip = tags.badges?.vip != undefined;
 		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
 		const isBroadcaster = tags.badges?.broadcaster != undefined;
-		return StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"], isMod, isVip, isBroadcaster, isSub)!;
+		const user = StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"], isMod, isVip, isBroadcaster, isSub);
+		
+		if(tags.badges && tags["room-id"] && !user.badges) {
+			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"]!, tags.badges);
+			const badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
+			for (let i = 0; i < parsedBadges.length; i++) {
+				const b = parsedBadges[i];
+				badges.push({
+					icon:{
+						sd:b.image_url_1x,
+						hd:b.image_url_4x,
+					},
+					id:b.id,
+					title:b.title,
+				})
+			}
+			user.badges = badges;
+		}
+		return user;
 	}
 
 	/**
@@ -373,7 +391,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) ?? 1000)/1000) as (1|2|3);
 		if(message) {
 			res.message = message;
-			res.message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
+			res.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
 		}
 		return res;
 	}
@@ -423,7 +441,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			todayFirst:user.greeted===false,
 		};
 
-		data.message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
+		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
 				
 		// If message is an answer, set original message's ref to the answer
 		// Called when using the "answer feature" on twitch chat
@@ -561,7 +579,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
-		let message_html = TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]);
+		let message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
 		message_html = await TwitchUtils.parseCheermotes(message_html, UserSession.instance.twitchUser!.id);
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
@@ -705,7 +723,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					from: this.getUserFromTags(tags),
 					to: this.getUserFromLogin(toLogin),
 					message:message,
-					message_html:TwitchUtils.parseEmotesToHTML(message, tags["emotes-raw"]),
+					message_html:TwitchUtils.parseEmotes(message, tags["emotes-raw"]),
 				};
 		
 				this.dispatchEvent(new MessengerClientEvent("WHISPER", eventData));

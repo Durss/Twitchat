@@ -14,9 +14,6 @@ export namespace PubSubDataTypes {
 		display_name: string;
 		username: string;
 		user_id:string;
-		//Custom data added
-		message?:unknown;//actual type is "IRCEventDataList.Highlight" but it's set as unknown to avoid circular imports
-		follow_date?:number;
 	}
 
 	export interface PlaybackInfo {
@@ -395,6 +392,7 @@ export namespace PubSubDataTypes {
 		quantity: number;
 		progress: HypeProgressInfo;
 		is_boost_train:boolean;
+		is_large_event:boolean;//Seems to mean "new all-time record"
 	}
 
 	export interface HypeTrainConductorUpdate {
