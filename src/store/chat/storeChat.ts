@@ -3,6 +3,7 @@ import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
+import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
 import TwitchatEvent from '@/utils/TwitchatEvent'
 import TwitchUtils from '@/utils/TwitchUtils'
@@ -283,6 +284,7 @@ export const storeChat = defineStore('chat', {
 			const sParams = StoreProxy.params;
 			const sStream = StoreProxy.stream;
 			const sUsers = StoreProxy.users;
+			const sAutomod = StoreProxy.automod;
 
 			let messages = this.messages.concat();
 			
@@ -321,7 +323,8 @@ export const storeChat = defineStore('chat', {
 			//Search in the last 50 messages if this message has already been sent
 			//If so, just increment the previous one
 			if(sParams.features.groupIdenticalMessage.value === true &&
-			(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
+			(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
 				const len = messages.length;
 				const end = Math.max(0, len - 50);
 				for (let i = len-1; i > end; i--) {
@@ -370,27 +373,36 @@ export const storeChat = defineStore('chat', {
 				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 			}
 			
-			//Ignore commands
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && 
-			sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message.message)) {
-				const blocked = sParams.filters.blockedCommands.value as string;
-				if(sParams.filters.ignoreListCommands.value === true && blocked.length > 0) {
-					//Ignore specific commands
-					let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
-					blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
-					const cmd = message.message.split(" ")[0].substring(1).trim().toLowerCase();
-					if(blockedList.indexOf(cmd) > -1) {
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				//Reset ad schedule if necessary
+				if(!message.user.is_broadcaster) {
+					SchedulerHelper.instance.incrementMessageCount();
+				}
+				if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
+					SchedulerHelper.instance.resetAdSchedule(message);
+				}
+
+				//Ignore commands
+				if(sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message.message)) {
+					const blocked = sParams.filters.blockedCommands.value as string;
+					if(sParams.filters.ignoreListCommands.value === true && blocked.length > 0) {
+						//Ignore specific commands
+						let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
+						blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
+						const cmd = message.message.split(" ")[0].substring(1).trim().toLowerCase();
+						if(blockedList.indexOf(cmd) > -1) {
+							//TODO Broadcast to OBS-ws
+							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+							return;
+						}
+					}else{
+						//Ignore all commands
 						//TODO Broadcast to OBS-ws
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 						return;
 					}
-				}else{
-					//Ignore all commands
-					//TODO Broadcast to OBS-ws
-					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
-					return;
 				}
-			}
+			} 
 			
 			//Is it a tracked user ?
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -421,6 +433,57 @@ export const storeChat = defineStore('chat', {
 							rule:rule,
 						};
 						this.addMessage(mess);
+					}
+				}
+			}
+
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
+				//TODO Broadcast to OBS-ws
+				// const wsMessage = {
+				// 	display_name: data.display_name,
+				// 	username: data.username,
+				// 	user_id: data.user_id,
+				// }
+				// PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+			}
+
+			if(sAutomod.params.enabled === true) {
+				if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+				|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+				|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+				|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+					if(sAutomod.params.banUserNames === true && !message.user.is_banned) {
+						let rule = Utils.isAutomoded(message.user.displayName, message.user);
+						if(rule) {
+							if(message.user.platform == "twitch") {
+								message.user.is_banned = true;
+								TwitchUtils.banUser(message.user.id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
+							}
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+								message.automod = rule;
+							}
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
+								message.blocked = true;
+							}
+							return;
+						}
+					}
+					//If message contains text
+					if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+					&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
+					&& message.message) {
+						let rule = Utils.isAutomoded(message.message, message.user);
+						if(rule) {
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+								message.automod = rule;
+								if(message.user.platform == "twitch") {
+									TwitchUtils.deleteMessages(message.id);
+								}
+							}
+							return;
+						}
 					}
 				}
 			}

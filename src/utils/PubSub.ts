@@ -894,24 +894,6 @@ export default class PubSub extends EventDispatcher {
 			}
 		}
 
-		let automoded = false;
-		if(StoreProxy.automod.params.banUserNames === true) {
-			let rule = Utils.isAutomoded(data.display_name, message.user);
-			if(rule) {
-				message.automod = rule;
-				automoded = true;
-				TwitchUtils.banUser(message.user.id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
-				
-				//TODO Broadcast to OBS-ws
-				// const wsMessage = {
-				// 	display_name: data.display_name,
-				// 	username: data.username,
-				// 	user_id: data.user_id,
-				// }
-				// PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
-			}
-		}
-
 		StoreProxy.chat.addMessage(message);
 	}
 

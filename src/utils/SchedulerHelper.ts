@@ -85,12 +85,14 @@ export default class SchedulerHelper {
 
 		switch(schedule.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
-				//Check if a date is stored on store and load it back.
-				//This avoids the possibility to have no ad by refreshing
-				//the page before the timer ends.
-				let date = parseInt(DataStore.get(DataStore.TWITCHAT_AD_NEXT_DATE));
-				const minDate = Date.now() + schedule.repeatDuration * 60 * 1000;
-				if(isNaN(date) || date > minDate) date = minDate;
+				let date = Date.now() + schedule.repeatDuration * 60 * 1000;
+				if(key === TriggerTypes.TWITCHAT_AD) {
+					//Check if a date is stored on store and load it back.
+					//This avoids the possibility to have no ad by refreshing
+					//the page before the timer ends.
+					let sDate = parseInt(DataStore.get(DataStore.TWITCHAT_AD_NEXT_DATE));
+					if(!isNaN(sDate)) date = sDate;
+				}
 				this._pendingTriggers.push({
 					messageCount:0,
 					date,
@@ -132,7 +134,7 @@ export default class SchedulerHelper {
 	/**
 	 * Resets the ad schedule
 	 */
-	public resetAdSchedule(message:IRCEventDataList.Message):void {
+	public resetAdSchedule(message:TwitchatDataTypes.MessageChatData):void {
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];
 			//Search for the ad schedule
@@ -140,8 +142,8 @@ export default class SchedulerHelper {
 				const nextDate = e.date;
 				// console.log("ASK RESET", new Date(nextDate));
 				
-				//Wait 5min before the schedule happens and check if the message
-				//at the origin of the reset has been deleted or not.
+				//Wait 5min before the schedule happens and check if the last
+				//message at the origin of the reset has been deleted or not.
 				//If the message has been deleted, ignore the schedule reset :)
 				clearTimeout(this._adScheduleTimeout);
 				this._adScheduleTimeout = setTimeout(()=> {
@@ -223,20 +225,21 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
-				if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
-					//This is a trick to avoid sending the ad message multiple times
-					//if the user is using multiple instances of twitchat.
-					//The first one sent will reset the timer on the other instances.
-					//There's still a slight risk 2 instances send it almost at the
-					//same time but that's the easiest solution to handle that.
-					date += Math.random()*60;
-					//Update anti-cheat
-					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
-				}
+				//[EDIT] don't do that reset, just wait for the message to come back
+				// let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
+				// if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+				// 	//This is a trick to avoid sending the ad message multiple times
+				// 	//if the user is using multiple instances of twitchat.
+				// 	//The first one sent will reset the timer on the other instances.
+				// 	//There's still a slight risk 2 instances send it almost at the
+				// 	//same time but that's the easiest solution to handle that.
+				// 	date += Math.random()*60;
+				// 	//Update anti-cheat
+				// 	DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
+				// }
 				
-				e.date = date;
-				e.messageCount = 0;
+				// e.date = date;
+				// e.messageCount = 0;
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}
