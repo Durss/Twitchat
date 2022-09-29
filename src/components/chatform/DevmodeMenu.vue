@@ -2,6 +2,7 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
+			<Button small title="Elevated message" @click="simulateEvent('elevatedMessage')" :icon="$image('icons/elevated.svg')" />
 			<Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" />
 			<Button small title="Join" @click="simulateEvent('join')" :icon="$image('icons/coin.svg')" />
 			<Button small title="Leave" @click="simulateEvent('leave')" :icon="$image('icons/coin.svg')" />

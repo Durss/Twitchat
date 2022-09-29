@@ -110,6 +110,43 @@
 		"self": false,
 		"firstMessage": true
 	},
+	"elevatedMessage": {
+		"type": "message",
+		"message": "This is an elevated message !",
+		"tags": {
+			"badge-info": null,
+			"badges": {
+				"premium": "1"
+			},
+			"client-nonce": "004c878edd9adf5b36717d6454db1b7c",
+			"color": "#B22222",
+			"display-name": "Durss",
+			"emote-only": true,
+			"emotes": {},
+			"first-msg": false,
+			"flags": null,
+			"id": "c5c54086-d0b5-4809-976a-254f4d206248",
+			"mod": false,
+			"room-id": "121652526",
+			"subscriber": false,
+			"tmi-sent-ts": "1642377332605",
+			"turbo": false,
+			"user-id": "92203285",
+			"user-type": null,
+			"emotes-raw": "",
+			"badge-info-raw": null,
+			"badges-raw": "premium/1",
+			"username": "tenix025",
+			"message-type": "chat",
+			"pinned-chat-paid-amount":500,
+			"pinned-chat-paid-canonical-amount":5,
+			"pinned-chat-paid-currency":"USD",
+			"pinned-chat-paid-exponent":2
+			
+		},
+		"channel": "#littlebigwhale",
+		"self": false
+	},
 	"returningUser": {
 		"type": "message",
 		"message": "Hey i'm baaaaack it's been a whiiiiiile",

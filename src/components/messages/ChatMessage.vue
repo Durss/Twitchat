@@ -15,6 +15,11 @@
 			<p><strong>{{messageData.tags["display-name"]}}</strong> is returning after chatting twice the last 30 days</p>
 		</div>
 
+		<div v-if="isElevated" class="header">
+			<img src="@/assets/icons/elevated.svg" alt="new" class="icon">
+			<p><strong>{{messageData.tags["display-name"]}}</strong> elevated this message for {{elevatedDuration}}</p>
+		</div>
+
 		<div v-if="automod" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
@@ -232,6 +237,18 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData as IRCEventDataList.Message;
 		return message.tags["returning-chatter"] == true;
 	}
+
+	public get isElevated():boolean {
+		const message = this.messageData as IRCEventDataList.Message;
+		return typeof message.tags["pinned-chat-paid-canonical-amount"] == "number";
+	}
+
+	public get elevatedDuration():string {
+		const amount = this.messageData.tags["pinned-chat-paid-canonical-amount"] as number;
+		const duration = {"5":30, "10":60, "25":90, "50":120, "100":150}[amount] ?? 30;
+		console.log(duration);
+		return Utils.formatDuration(duration*1000)+"s";
+	}
 	
 	public get showNofollow():boolean{
 		if(StoreProxy.store.state.params.appearance.highlightNonFollowers.value === true) {
@@ -262,7 +279,7 @@ export default class ChatMessage extends Vue {
 
 		if(this.messageData.blockedUser) res.push("blockedUser");
 		if(this.automod) res.push("automod");
-		if(this.firstTime || this.isPresentation || this.isReturning) res.push("firstTimeOnChannel");
+		if(this.firstTime || this.isPresentation || this.isReturning || this.isElevated) res.push("firstTimeOnChannel");
 		if(message.type == "whisper") {
 			res.push("whisper");
 		}else{

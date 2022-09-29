@@ -71,6 +71,7 @@ const store = createStore({
 		onlineUsers: [] as string[],
 		voiceActions: [] as VoiceAction[],
 		myFollowings: {} as {[key:string]:boolean},
+		elevatedMessages: [] as IRCEventDataList.Message[],
 		voiceLang: "en-US",
 		voiceText: {
 			tempText:"",
@@ -921,6 +922,11 @@ const store = createStore({
 			//If it's a text message and it's the all-time first message
 			if(message.tags['first-msg'] === true)	PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 
+			const elevated = typeof message.tags["pinned-chat-paid-canonical-amount"] == "number";
+			// if(elevated) {
+			// 	state.elevatedMessages.push(payload);
+			// }
+
 			//Push some messages to activity feed
 			if(payload.type == "highlight"
 			|| payload.type == "poll"
@@ -933,6 +939,9 @@ const store = createStore({
 				state.params.features.keepHighlightMyMessages.value === true
 				&& payload.type == "message"
 				&& (payload as IRCEventDataList.Message).tags["msg-id"] === "highlighted-message"
+			)
+			|| (
+				payload.type == "message" && elevated
 			)
 			|| (payload as IRCEventDataList.Commercial).tags["msg-id"] === "commercial") {
 				state.activityFeed.push(payload as ActivityFeedData);
