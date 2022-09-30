@@ -26,7 +26,6 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.messageBanData |
 					TwitchatDataTypes.MessageTimeoutData |
 					TwitchatDataTypes.MessageRaidData |
-					TwitchatDataTypes.MessageDisconnectData |
 					TwitchatDataTypes.MessageClearChatData |
 					TwitchatDataTypes.MessageRewardRedeemData |
 					TwitchatDataTypes.MessageNoticeData
@@ -40,7 +39,6 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"BAN", data:TwitchatDataTypes.messageBanData);
 	constructor(type:"TIMEOUT", data:TwitchatDataTypes.MessageTimeoutData);
 	constructor(type:"RAID", data:TwitchatDataTypes.MessageRaidData);
-	constructor(type:"DISCONNECT", data:TwitchatDataTypes.MessageDisconnectData);
 	constructor(type:"CLEAR_CHAT", data:TwitchatDataTypes.MessageClearChatData);
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
 	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);

@@ -9,6 +9,7 @@ import TwitchatEvent from '@/utils/TwitchatEvent'
 import TwitchUtils from '@/utils/TwitchUtils'
 import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
+import VoicemodWebSocket from '@/utils/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest'
 import type { UnwrapRef } from 'vue'
@@ -285,6 +286,31 @@ export const storeChat = defineStore('chat', {
 			const sStream = StoreProxy.stream;
 			const sUsers = StoreProxy.users;
 			const sAutomod = StoreProxy.automod;
+			const sRaffle = StoreProxy.raffle;
+			const sBingo = StoreProxy.bingo;
+			const sChatSuggestion = StoreProxy.chatSuggestion;
+			const sOBS = StoreProxy.obs;
+			const sEmergency = StoreProxy.emergency;
+			const sMain = StoreProxy.main;
+			const sVoice = StoreProxy.voice;
+			
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT) {
+				this.messages = [];
+				return;
+			}
+			
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+				//TODO Broadcast to OBS-ws
+				// const wsUser = {
+				// 	id: data.tags['user-id'],
+				// 	login: data.tags.username,
+				// 	color: data.tags.color,
+				// 	badges: data.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
+				// 	'display-name': data.tags['display-name'],
+				// 	'message-id': data.tags['message-id'],
+				// }
+				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+			}
 
 			let messages = this.messages.concat();
 			
@@ -346,32 +372,6 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 			}
-
-			//If it's a text message and user isn't a follower, broadcast to WS
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			&& message.user.id
-			&& sUsers.followingStates[message.user.platform][message.user.id] === false) {
-				//TODO Broadcast to OBS-ws
-				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
-			}
-
-			//Check if the message contains a mention
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.hasMention) {
-				//TODO Broadcast to OBS-ws
-				// PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
-			}
-
-			//If it's the first message today for this user
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.todayFirst === true) {
-				//TODO Broadcast to OBS-ws
-				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
-			}
-
-			//If it's the first message all time of the user
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.twitch_isFirstMessage) {
-				//TODO Broadcast to OBS-ws
-				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
-			}
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				//Reset ad schedule if necessary
@@ -380,6 +380,30 @@ export const storeChat = defineStore('chat', {
 				}
 				if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
 					SchedulerHelper.instance.resetAdSchedule(message);
+				}
+
+				//If it's a text message and user isn't a follower, broadcast to WS
+				if(message.user.id && sUsers.followingStates[message.user.platform][message.user.id] === false) {
+					//TODO Broadcast to OBS-ws
+					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
+				}
+	
+				//Check if the message contains a mention
+				if(message.hasMention) {
+					//TODO Broadcast to OBS-ws
+					// PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
+				}
+	
+				//If it's the first message today for this user
+				if(message.todayFirst === true) {
+					//TODO Broadcast to OBS-ws
+					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
+				}
+	
+				//If it's the first message all time of the user
+				if(message.twitch_isFirstMessage) {
+					//TODO Broadcast to OBS-ws
+					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 				}
 
 				//Ignore commands
@@ -402,14 +426,67 @@ export const storeChat = defineStore('chat', {
 						return;
 					}
 				}
-			} 
-			
-			//Is it a tracked user ?
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+
 				const trackedUser = sUsers.trackedUsers.find(v => v.user.id == message.user.id);
 				if(trackedUser) {
 					trackedUser.messages.push(message);
 				}
+				
+				const cmd = message.message.trim().split(" ")[0].toLowerCase();
+
+				//If a raffle is in progress, check if the user can enter
+				const raffle = sRaffle.data;
+				if(raffle && raffle.mode == "chat" && cmd == raffle.command.trim().toLowerCase()) {
+					sRaffle.checkRaffleJoin(message);
+				}
+
+				//If a raffle is in progress, check if the user can enter
+				if(sBingo.data?.winners?.length == 0) {
+					sBingo.checkBingoWinner(message);
+				}
+	
+				//If there's a suggestion poll and the timer isn't over
+				const suggestionPoll = sChatSuggestion.data;
+				if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
+					sChatSuggestion.addChatSuggestion(message);
+				}
+
+				//Handle OBS commands
+				sOBS.handleChatCommand(message, cmd);
+				
+				//Handle Emergency commands
+				sEmergency.handleChatCommand(message, cmd);
+				
+				//Handle spoiler command
+				if(message.answersTo && Utils.checkPermissions(this.spoilerParams.permissions, message.user)) {
+					const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
+					if(cmd.indexOf("!spoiler") === 0) {
+						message.answersTo.spoiler = true;
+					}
+				}
+
+				//check if it's a chat alert command
+				if(sParams.features.alertMode.value === true && 
+				Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user)) {
+					if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
+						//Remove command from message to make later things easier
+						sMain.chatAlert = message;
+						let trigger:TwitchatDataTypes.ChatAlertInfo = {
+							type:"chatAlert",
+							message:message,
+						}
+						TriggerActionHandler.instance.onMessage(trigger);
+					}
+				}
+				
+				//Check if it's a voicemod command
+				if(sVoice.voicemodParams.enabled
+				&& sVoice.voicemodParams.commandToVoiceID[cmd]
+				&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user)) {
+					VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
+				}
+
+				TriggerActionHandler.instance.onMessage(message);
 			}
 			
 			//People joined the chat, check if any needs to be autobaned
@@ -455,6 +532,7 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 					if(sAutomod.params.banUserNames === true && !message.user.is_banned) {
+						//Check if nickname passes the automod
 						let rule = Utils.isAutomoded(message.user.displayName, message.user);
 						if(rule) {
 							if(message.user.platform == "twitch") {
@@ -470,7 +548,8 @@ export const storeChat = defineStore('chat', {
 							return;
 						}
 					}
-					//If message contains text
+
+					//Check if message passes the automod
 					if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 					&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
 					&& message.message) {

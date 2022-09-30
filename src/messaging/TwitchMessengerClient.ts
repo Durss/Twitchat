@@ -146,6 +146,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * Disconnect from all channels and cut IRC connection
 	 */
 	public async sendMessage(text:string):Promise<void> {
+		//TMI.js doesn't send the message back to their sender if sending
+		//it just after receiving a message (same frame).
+		//If we didn't wait for a frame, the message would be sent properly
+		//to viewers, but wouldn't appear on this chat.
+		//To make sure this isn't a problem through the app we always wait
+		//a frame before sending the message
+		await Utils.promisedTimeout(0);
+
 		//Workaround to a weird behavior of TMI.js.
 		//If the message starts by a "\" it's properly sent on all
 		//connected clients, but never sent back to the sender.
@@ -328,8 +336,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip = tags.badges?.vip != undefined;
 		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
+		const isSubGifter = tags.badges && tags.badges["sub-gifter"] != undefined;
 		const isBroadcaster = tags.badges?.broadcaster != undefined;
-		const user = StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"], isMod, isVip, isBroadcaster, isSub);
+		const user = StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"], isMod, isVip, isBroadcaster, isSub, isSubGifter);
 		
 		if(tags.badges && tags["room-id"] && !user.badges) {
 			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"]!, tags.badges);
@@ -377,7 +386,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		let res:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",
 			type:"subscription",
-			id:Utils.getUUID(),
+			id:tags.id ?? Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
@@ -430,7 +439,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 
 		const data:TwitchatDataTypes.MessageChatData = {
-			id:Utils.getUUID(),
+			id:tags.id!,
 			type:"message",
 			channel_id:channel.replace("#", ""),
 			date:Date.now(),
@@ -585,7 +594,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
 			type:"cheer",
-			id:Utils.getUUID(),
+			id:tags.id ?? Utils.getUUID(),
 			channel_id:channel.replace("#", ""),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
@@ -673,13 +682,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 	
 	private disconnected(reason:string):void {
-		this.dispatchEvent(new MessengerClientEvent("DISCONNECT", {
-			platform:"twitch",
-			type:"disconnect",
+		const eventData:TwitchatDataTypes.MessageNoticeData = {
+			channel_id: "twitchat",
 			id:Utils.getUUID(),
+			type:"notice",
 			date:Date.now(),
-			reason
-		}));
+			platform:"twitch",
+			message:"You have been disconnected from the chat :(",
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.OFFLINE,
+		};
+		this.dispatchEvent(new MessengerClientEvent("NOTICE", eventData));
 	}
 
 	private clearchat(channel:string):void {
@@ -746,12 +758,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				break;
 			}
 
-			// case "ROOMSTATE": {
-			// 	if((data.params as string[])[0] == this.channel) {
-			// 		this.dispatchEvent(new IRCEvent(IRCEvent.ROOMSTATE, (data as unknown) as IRCEventDataList.RoomState));
-			// 	}
-			// 	break;
-			// }
+			case "ROOMSTATE": {
+				const roomstate = (data as unknown) as TwitchDataTypes.RoomState;
+				//TODO check if this still works
+				if(roomstate.params[0].replace("#", "") == UserSession.instance.twitchUser?.login) {
+					const sStream = StoreProxy.stream;
+					const params = sStream.roomStatusParams.twitch;
+					if(!params) return;
+					if(roomstate.tags['emote-only'] != undefined) params.emotesOnly.value = roomstate.tags['emote-only'] != false;
+					if(roomstate.tags['subs-only'] != undefined) params.subsOnly.value = roomstate.tags['subs-only'] != false;
+					if(roomstate.tags['followers-only'] != undefined) params.followersOnly.value = parseInt(roomstate.tags['followers-only']) > -1;
+					if(roomstate.tags.slow != undefined) params.slowMode.value = roomstate.tags.slow != false;
+				}
+				break;
+			}
 
 			//Using this instead of the "notice" event from TMI as it's not
 			//fired for many notices whereas here we get them all

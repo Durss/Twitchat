@@ -17,11 +17,19 @@ export const storeStream = defineStore('stream', {
 		lastRaider: undefined,
 		commercialEnd: 0,//Date.now() + 120000,
 
-		roomStatusParams: {
-			followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
-			subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
-			emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
-			slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
+		roomStatusParams:{
+			twitchat:undefined,
+			twitch:
+			{
+				followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
+				subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
+				emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
+				slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
+			},
+			instagram:undefined,
+			youtube:undefined,
+			tiktok:undefined,
+			facebook:undefined,
 		},
 	} as IStreamState),
 

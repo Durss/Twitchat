@@ -1,14 +1,11 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import BTTVUtils from '@/utils/BTTVUtils';
 import type { WheelItem } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/DeezerHelper';
 import DeezerHelperEvent from '@/utils/DeezerHelperEvent';
-import FFZUtils from '@/utils/FFZUtils';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import SevenTVUtils from '@/utils/SevenTVUtils';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import SpotifyHelperEvent from '@/utils/SpotifyHelperEvent';
 import { TriggerTypes } from '@/utils/TriggerActionData';
@@ -23,10 +20,10 @@ import VoiceController from '@/utils/VoiceController';
 import VoicemodEvent from '@/utils/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
-import StoreProxy, { type IMainActions, type IMainState, type IMainGetters } from './StoreProxy';
+import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -130,7 +127,7 @@ export const storeMain = defineStore("main", {
 			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
 				const raider = sStream.lastRaider;
 				if(raider) {
-					sChat.shoutout("twitch", raider);
+					sChat.shoutout(raider);
 				}else{
 					this.showAlert("You have not been raided yet");
 				}
@@ -184,389 +181,6 @@ export const storeMain = defineStore("main", {
 					//ignore
 				}
 			}
-
-			IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, async (event:IRCEvent) => {
-				const type = getTwitchatMessageType(event.data as IRCEventData);
-
-				if(sAutomod.params.enabled === true) {
-					const messageData = event.data as IRCEventDataList.Message | IRCEventDataList.Highlight;
-					if(type == TwitchatMessageType.MESSAGE) {
-						//Make sure message passes the automod rules
-						const m = (messageData as IRCEventDataList.Message);
-						let rule = Utils.isAutomoded(m.message, m.tags);
-						if(rule) {
-							messageData.ttAutomod = rule;
-							let id = messageData.tags.id as string;
-							IRCClient.instance.deleteMessage(id);
-							return;
-						}
-					}
-
-					//Make sure user name passes the automod rules
-					if(sAutomod.params.banUserNames === true) {
-						let username = messageData.tags.username as string;
-						if(type == TwitchatMessageType.SUB || type == TwitchatMessageType.SUB_PRIME) {
-							username = (messageData as IRCEventDataList.Highlight).username as string
-						}
-						if(username) {
-							let rule = Utils.isAutomoded(username, {username});
-							if(rule) {
-								messageData.ttAutomod = rule;
-								IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched an automod rule`);
-								return;
-							}
-						}
-					}
-				}
-				
-				if(type == TwitchatMessageType.MESSAGE) {
-					const messageData = event.data as IRCEventDataList.Message;
-					const cmd = (messageData.message as string).trim().split(" ")[0].toLowerCase();
-
-					if(messageData.sentLocally !== true) {
-						SchedulerHelper.instance.incrementMessageCount();
-					}
-					if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(messageData.message as string)) {
-						SchedulerHelper.instance.resetAdSchedule(messageData);
-					}
-					
-					//Is it a tracked user ?
-					const trackedUser = sUsers.trackedUsers.find(v => v.user['user-id'] == messageData.tags['user-id']);
-					if(trackedUser) {
-						if(!trackedUser.messages) trackedUser.messages = [];
-						trackedUser.messages.push(messageData);
-					}
-
-					//If a raffle is in progress, check if the user can enter
-					const raffle = sRaffle.data;
-					if(raffle && raffle.mode == "chat"
-					&& messageData.type == TwitchatMessageType.MESSAGE
-					&& cmd == raffle.command.trim().toLowerCase()) {
-						const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
-						//Check if within time frame and max users count isn't reached and that user
-						//hasn't already entered
-						if(ellapsed <= raffle.duration * 60000
-						&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)
-						&& !raffle.entries.find(v=>v.id == messageData.tags['user-id'])) {
-							let score = 1;
-							const user = messageData.tags;
-							//Apply ratios if any is defined
-							if(raffle.vipRatio > 0 && user.badges?.vip) score += raffle.vipRatio;
-							if(raffle.subRatio > 0 && user.badges?.subscriber)  score += raffle.subRatio;
-							if(raffle.subgitRatio > 0 && user.badges?.['sub-gifter'])  score += raffle.subgitRatio;
-							if(raffle.followRatio > 0) {
-								//Check if user is following
-								const uid = user['user-id'] as string;
-								if(uid && sUsers.followingStates[uid] == undefined) {
-									const res = await TwitchUtils.getFollowState(uid, user['room-id'])
-									sUsers.followingStates[uid] = res != undefined;
-									sUsers.followingStatesByNames[(user.username ?? user['display-name'] as string)?.toLowerCase()] = res;
-								}
-								if(sUsers.followingStates[uid] === true) score += raffle.followRatio;
-							}
-							raffle.entries.push( {
-								score,
-								label:user['display-name'] ?? user.username ?? "missing login",
-								id:user['user-id'] as string,
-							} );
-							
-							if(sChat.botMessages.raffleJoin.enabled) {
-								let message = sChat.botMessages.raffleJoin.message;
-								message = message.replace(/\{USER\}/gi, messageData.tags['display-name'] as string)
-								IRCClient.instance.sendMessage(message);
-							}
-						}
-					}
-	
-					//If a bingo's in progress, check if the user won it
-					const bingo = sBingo.data;
-					if(bingo && messageData.message && bingo.winners.length == 0) {
-						let win = bingo.numberValue && parseInt(messageData.message) == bingo.numberValue;
-						win ||= bingo.emoteValue
-						&& messageData.message.trim().toLowerCase().indexOf(bingo.emoteValue.name.toLowerCase()) === 0;
-						if(win) {
-							const winner = messageData.tags['display-name'] as string;
-							bingo.winners = [messageData.tags];
-							if(sChat.botMessages.bingo.enabled) {
-								//TMI.js never cease to amaze me.
-								//It doesn't send the message back to the sender if sending
-								//it just after receiving a message.
-								//If we didn't wait for a frame, the message would be sent properly
-								//but wouldn't appear on this chat.
-								setTimeout(()=> {
-									if(sChat.botMessages.bingo.enabled) {
-										let message = sChat.botMessages.bingo.message;
-										message = message.replace(/\{USER\}/gi, winner)
-										IRCClient.instance.sendMessage(message);
-									}
-								},0);
-							}
-	
-							//Post result on chat
-							const payload:IRCEventDataList.BingoResult = {
-								type:"bingo",
-								data:sBingo.data!,
-								winner,
-								tags:IRCClient.instance.getFakeTags(),
-							}
-							sChat.addMessage(payload);
-							TriggerActionHandler.instance.onMessage(payload);
-						}
-					}
-	
-					//If there's a suggestion poll and the timer isn't over
-					const suggestionPoll = sChatSugg.data as TwitchatDataTypes.ChatSuggestionData;
-					if(suggestionPoll && Date.now() - suggestionPoll.startTime < suggestionPoll.duration * 60 * 1000) {
-						if(cmd == suggestionPoll.command.toLowerCase().trim()) {
-							if(suggestionPoll.allowMultipleAnswers
-							|| suggestionPoll.choices.findIndex(v=>v.user['user-id'] == messageData.tags['user-id'])==-1) {
-								const text = messageData.message.replace(cmd, "").trim();
-								if(text.length > 0) {
-									suggestionPoll.choices.push({
-										user: messageData.tags,
-										label: text
-									});
-								}
-							}
-						}
-					}
-	
-					if(messageData.type == "message" && cmd && messageData.tags.username) {
-						//check if it's a command to control an OBS scene
-						if(Utils.checkPermissions(sOBS.commandsPermissions, messageData.tags)) {
-							for (let i = 0; i < sOBS.sceneCommands.length; i++) {
-								const scene = sOBS.sceneCommands[i];
-								if(scene.command.trim().toLowerCase() == cmd) {
-									OBSWebsocket.instance.setCurrentScene(scene.scene.sceneName);
-								}
-							}
-	
-							const audioSourceName = sOBS.muteUnmuteCommands?.audioSourceName;
-							if(audioSourceName) {
-								//Check if it's a command to mute/unmute an audio source
-								if(cmd == sOBS.muteUnmuteCommands!.muteCommand) {
-									OBSWebsocket.instance.setMuteState(audioSourceName, true);
-								}
-								if(cmd == sOBS.muteUnmuteCommands!.unmuteCommand) {
-									OBSWebsocket.instance.setMuteState(audioSourceName, false);
-								}
-							}
-						}
-						
-						//check if its a command to start the emergency mode
-						if(Utils.checkPermissions(sEmergency.params.chatCmdPerms, messageData.tags)) {
-							const cmd = messageData.message.trim().toLowerCase();
-							if(cmd===sEmergency.params.chatCmd.trim()) {
-								sEmergency.setEmergencyMode(true);
-							}
-						}
-	
-						//check if its a spoiler request
-						if(messageData.tags["reply-parent-msg-id"] && Utils.checkPermissions(sChat.spoilerParams.permissions, messageData.tags)) {
-							const cmd = messageData.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
-							if(cmd.indexOf("!spoiler") === 0) {
-								//Search for original message the user answered to
-								for (let i = 0; i < sChat.messages.length; i++) {
-									const c = sChat.messages[i];
-									if(c.type==="message" && c.id === messageData.tags["reply-parent-msg-id"]) {
-										c.message = "|| "+c.message;
-										break;
-									}
-								}
-							}
-						}
-	
-						//check if it's a chat alert command
-						if(Utils.checkPermissions(this.chatAlertParams.permissions, messageData.tags)
-						&& sParams.features.alertMode.value === true) {
-							if(messageData.message.trim().toLowerCase().indexOf(this.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
-								let mess:IRCEventDataList.Message = JSON.parse(JSON.stringify(messageData));
-								//Remove command from message to make later things easier
-								this.executeChatAlert(mess);
-								let trigger:TwitchatDataTypes.ChatAlertInfo = {
-									type:"chatAlert",
-									message:mess,
-								}
-								TriggerActionHandler.instance.onMessage(trigger);
-							}
-						}
-						
-						//Check if it's a voicemod command
-						if(Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, messageData.tags)
-						&& sVoice.voicemodParams.commandToVoiceID[cmd]) {
-							VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
-						}
-					}
-				}
-
-				TriggerActionHandler.instance.onMessage(event.data as IRCEventData);
-			});
-
-			//Preload BTTV/FFS/7TV emotes onces IRC data are loaded
-			IRCClient.instance.addEventListener(IRCEvent.BADGES_LOADED, async () => {
-				if(sParams.appearance.bttvEmotes.value === true) {
-					BTTVUtils.instance.enable();
-				}else{
-					BTTVUtils.instance.disable();
-				}
-				if(sParams.appearance.ffzEmotes.value === true) {
-					FFZUtils.instance.enable();
-				}else{
-					FFZUtils.instance.disable();
-				}
-				if(sParams.appearance.sevenTVEmotes.value === true) {
-					SevenTVUtils.instance.enable();
-				}else{
-					SevenTVUtils.instance.disable();
-				}
-				sUsers.loadMyFollowings();
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.JOIN, async (event:IRCEvent) => {
-				const data = event.data as IRCEventDataList.JoinLeaveList;
-				const users = data.users;
-
-				if(sParams.features.notifyJoinLeave.value === true) {
-					const usersClone = users.concat();
-					const join = usersClone.splice(0, 30);
-					let message = "<mark>"+join.join("</mark>, <mark>")+"</mark>";
-					if(usersClone.length > 0) {
-						message += " and <mark>"+usersClone.length+"</mark> more";
-					}else{
-						message = message.replace(/,([^,]*)$/, " and$1");
-					}
-					message += " joined the chat room";
-					IRCClient.instance.sendNotice("online", message, data.channel);
-				}
-
-				if(sAutomod.params.enabled === true
-				&& sAutomod.params.banUserNames === true) {
-
-					for (let i = 0; i < users.length; i++) {
-						const username = users[i];
-						const rule = Utils.isAutomoded(username, {username});
-						if(rule != null) {
-							IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched an automod rule`);
-							IRCClient.instance.sendHighlight({
-								channel: UserSession.instance.twitchAuthToken.login,
-								type:"highlight",
-								username,
-								ttAutomod:rule as TwitchatDataTypes.AutomodParamsKeywordFilterData,
-								tags:{
-									"tmi-sent-ts":Date.now().toString(),
-									"msg-id": "autoban_join",
-								},
-							});
-						}
-					}
-				}
-
-				//If non followers highlight option is enabled, get follow state of
-				//all the users that joined
-				if(sParams.appearance.highlightNonFollowers.value === true) {
-					const channelInfos = await TwitchUtils.loadUserInfo(undefined, [data.channel.replace("#", "")]);
-					const usersFull = await TwitchUtils.loadUserInfo(undefined, users);
-					for (let i = 0; i < usersFull.length; i++) {
-						const uid = usersFull[i].id;
-						if(uid && sUsers.followingStates[uid] == undefined) {
-							try {
-								const follows:boolean = await TwitchUtils.getFollowState(uid, channelInfos[0].id);
-								sUsers.followingStates[uid] = follows;
-								sUsers.followingStatesByNames[usersFull[i].login.toLowerCase()] = follows;
-							}catch(error) {
-								/*ignore*/
-								console.log("error checking follow state", error)
-							}
-						}
-					}
-				}
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.LEAVE, async (event:IRCEvent) => {
-				if(sParams.features.notifyJoinLeave.value === true) {
-					const data = event.data as IRCEventDataList.JoinLeaveList;
-					const users = data.users;
-					const leave = users.splice(0, 30);
-					let message = "<mark>"+leave.join("</mark>, <mark>")+"</mark>";
-					if(users.length > 0) {
-						message += " and <mark>"+users.length+"</mark> more";
-					}else{
-						message = message.replace(/,([^,]*)$/, " and$1");
-					}
-					message += " left the chat room";
-					IRCClient.instance.sendNotice("offline", message, data.channel);
-				}
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.MESSAGE, (event:IRCEvent) => {
-				sChat.addMessage(event.data as IRCEventData);
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.NOTICE, (event:IRCEvent) => {
-				sChat.addMessage(event.data as IRCEventData);
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.HIGHLIGHT, (event:IRCEvent) => {
-				sChat.addMessage(event.data as IRCEventData);
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.BAN, (event:IRCEvent) => {
-				const data = (event.data as IRCEventDataList.Ban);
-				sChat.delUserMessages(data.username!);
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.TIMEOUT, (event:IRCEvent) => {
-				const data = (event.data as IRCEventDataList.Timeout);
-				sChat.delUserMessages(data.username!);
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.CLEARCHAT, () => {
-				sChat.messages = [];
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.WHISPER, (event:IRCEvent) => {
-				if(sParams.features.receiveWhispers.value === true) {
-					const data = event.data as IRCEventDataList.Whisper;
-					const uid = data.tags['user-id'] as string;
-					const whispers = sChat.whispers as {[key:string]:IRCEventDataList.Whisper[]};
-					if(!whispers[uid]) whispers[uid] = [];
-					data.timestamp = Date.now();
-					whispers[uid].push(data);
-					sChat.whispers = whispers;
-					sChat.whispersUnreadCount ++;
-
-					if(sParams.features.showWhispersOnChat.value === true){
-					// && data.raw != "") {//Don't show whispers we sent to someone, on the chat
-						data.type = "whisper";
-						data.channel = IRCClient.instance.channel;
-						data.tags['tmi-sent-ts'] = Date.now().toString();
-						sChat.addMessage(data);
-					}
-
-					//Broadcast to OBS-ws
-					const wsUser = {
-						id: data.tags['user-id'],
-						login: data.tags.username,
-						color: data.tags.color,
-						badges: data.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
-						'display-name': data.tags['display-name'],
-						'message-id': data.tags['message-id'],
-					}
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-				}
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.ROOMSTATE, (event:IRCEvent) => {
-				const data = event.data as IRCEventDataList.RoomState
-				if(data.tags['emote-only'] != undefined) sStream.roomStatusParams.emotesOnly.value = data.tags['emote-only'] != false;
-				if(data.tags['subs-only'] != undefined) sStream.roomStatusParams.subsOnly.value = data.tags['subs-only'] != false;
-				if(data.tags['followers-only'] != undefined) sStream.roomStatusParams.followersOnly.value = parseInt(data.tags['followers-only']) > -1;
-				if(data.tags.slow != undefined) sStream.roomStatusParams.slowMode.value = data.tags.slow != false;
-			});
-
-			IRCClient.instance.addEventListener(IRCEvent.REFRESH_TOKEN, (event:IRCEvent) => {
-				sAuth.authenticate({});
-			});
 
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
@@ -930,7 +544,15 @@ export const storeMain = defineStore("main", {
 				DataStore.set(DataStore.DEVMODE, this.devmode);
 			}
 			if(notify) {
-				IRCClient.instance.sendNotice("devmode", "Developer mode "+(this.devmode?"enabled":"disabled"));
+				const message:TwitchatDataTypes.MessageNoticeData = {
+					id: Utils.getUUID(),
+					date: Date.now(),
+					platform: "twitchat",
+					type:"notice",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.DEVMODE,
+					message:"Developer mode "+(this.devmode?"enabled":"disabled"),
+				}
+				StoreProxy.chat.addMessage(message);
 			}
 		},
 
@@ -943,7 +565,7 @@ export const storeMain = defineStore("main", {
 			DataStore.set(DataStore.ALERT_PARAMS, params);
 		},
 
-		async executeChatAlert(message:IRCEventDataList.Message|IRCEventDataList.Whisper) {
+		async executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null) {
 			this.chatAlert = message;
 			await Utils.promisedTimeout(50);
 			this.chatAlert = null;

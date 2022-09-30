@@ -1,7 +1,10 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import BTTVUtils from "@/utils/BTTVUtils";
 import Config from "@/utils/Config";
 import type { Event } from "@/utils/EventDispatcher";
+import FFZUtils from "@/utils/FFZUtils";
+import SevenTVUtils from "@/utils/SevenTVUtils";
 import TwitchUtils from "@/utils/TwitchUtils";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
@@ -38,8 +41,8 @@ export default class MessengerProxy {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public sendMessage(message:string, targets?:TwitchatDataTypes.ChatPlatform[]):void {
-		if(!targets || targets.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(message);
+	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[]):void {
+		if(!targetPlatforms || targetPlatforms.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(message);
 	}
 
 	public async connect():Promise<void> {
@@ -48,10 +51,35 @@ export default class MessengerProxy {
 			//It's safe to spam this method as it has inner debounce
 			TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
 		}
-		const users = await TwitchUtils.loadUserInfo(undefined, twitchChannels.map(v=>v.login));
-		users.forEach(v=> {
-			TwitchUtils.loadUserBadges(v.id);
-		})
+
+		if(twitchChannels.length > 0) {
+			const users = await TwitchUtils.loadUserInfo(undefined, twitchChannels.map(v=>v.login));
+			users.forEach(v=> {
+				TwitchUtils.loadUserBadges(v.id);
+				TwitchUtils.loadCheermoteList(v.id);
+				BTTVUtils.instance.addChannel(v.id);
+				FFZUtils.instance.addChannel(v.id);
+				SevenTVUtils.instance.addChannel(v.id);
+			});
+			
+			const sParams = StoreProxy.params;
+			if(sParams.appearance.bttvEmotes.value === true) {
+				BTTVUtils.instance.enable();
+			}else{
+				BTTVUtils.instance.disable();
+			}
+			if(sParams.appearance.ffzEmotes.value === true) {
+				FFZUtils.instance.enable();
+			}else{
+				FFZUtils.instance.disable();
+			}
+			if(sParams.appearance.sevenTVEmotes.value === true) {
+				SevenTVUtils.instance.enable();
+			}else{
+				SevenTVUtils.instance.disable();
+			}
+			StoreProxy.users.loadMyFollowings();
+		}
 	}
 
 	public disconnect():void {
@@ -73,10 +101,10 @@ export default class MessengerProxy {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.RAID, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.DISCONNECT, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.CLEAR_CHAT, (e:MessengerClientEvent)=> this.onMessage(e));
-		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REWARD, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.JOIN, (e:MessengerClientEvent)=> this.onJoinLeave(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.LEAVE, (e:MessengerClientEvent)=> this.onJoinLeave(e));
+		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onRefreshToken(e));
 	}
 
 	private onMessage(e:MessengerClientEvent):void {
@@ -131,5 +159,12 @@ export default class MessengerProxy {
 				this.leaveSpool = [];
 			}, 1000);
 		}
+	}
+
+	/**
+	 * Called when requesting to refresh auth token
+	 */
+	private onRefreshToken(e:MessengerClientEvent):void {
+		StoreProxy.auth.authenticate({forceRefresh:true});
 	}
 }

@@ -358,4 +358,24 @@ export namespace TwitchDataTypes {
 		chatDelay?:number;
 		slowMode?:number;
 	}
+
+	export interface RoomState {
+		type: "notice";
+		raw: string;
+		prefix: string;
+		command: string;
+		params: string[];
+		msgid:"followers_on"|"followers_off"|"subs_on"|"subs_off"|"emote_only_on"|"emote_only_off"|"slow_on"|"slow_off"
+		tags: {
+			"emote-only": boolean;
+			"followers-only": string;
+			r9k: boolean;
+			rituals: boolean;
+			"room-id": string;
+			slow: boolean;
+			"subs-only": boolean;
+			channel: string;
+		};
+		markedAsRead?:boolean;
+	}
 }

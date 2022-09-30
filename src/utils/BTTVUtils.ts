@@ -38,7 +38,9 @@ export default class BTTVUtils {
 	 */
 	public addChannel(channelId:string):void {
 		this.channelList.push(channelId);
-		this.emotesLoaded = false;
+		if(this.enabled) {
+			this.loadChannelEmotes(channelId);
+		}
 	}
 
 	/**

@@ -162,6 +162,43 @@ export const storeRaffle = defineStore('raffle', {
 				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, (winner as unknown) as JsonObject);
 			}
 		},
+
+		async checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void> {
+			if(!this.data) return;
+
+			const sUsers = StoreProxy.users;
+			const sChat = StoreProxy.chat;
+			const raffle = this.data;
+			const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
+			//Check if within time frame and max users count isn't reached and that user
+			//hasn't already entered
+			if(ellapsed <= raffle.duration * 60000
+			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)
+			&& !raffle.entries.find(v=>v.id == message.user.id)) {
+				let score = 1;
+				const user = message.user;
+				//Apply ratios if any is defined
+				if(raffle.vipRatio > 0 && user.is_vip)			score += raffle.vipRatio;
+				if(raffle.subRatio > 0 && user.is_subscriber)	score += raffle.subRatio;
+				if(raffle.subgitRatio > 0 && user.is_gifter)	score += raffle.subgitRatio;
+				if(raffle.followRatio > 0) {
+					//Check if user is following
+					if(user.is_following === undefined) sUsers.checkFollowerState(user);
+					if(user.is_following === true) score += raffle.followRatio;
+				}
+				raffle.entries.push( {
+					score,
+					label:user.displayName,
+					id:user.id,
+				} );
+				
+				if(sChat.botMessages.raffleJoin.enabled) {
+					let message = sChat.botMessages.raffleJoin.message;
+					message = message.replace(/\{USER\}/gi, user.displayName)
+					MessengerProxy.instance.sendMessage(message, [user.platform]);
+				}
+			}
+		}
 	} as IRaffleActions
 	& ThisType<IRaffleActions
 		& UnwrapRef<IRaffleState>

@@ -1,6 +1,6 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
-import type { BingoData, RaffleData, WheelItem } from "@/utils/CommonDataTypes";
+import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
 import type { IRCEventDataList } from "@/utils/IRCEventDataTypes";
 import type { PubSubDataTypes } from "@/utils/PubSubDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/SpotifyDataTypes";
@@ -51,7 +51,7 @@ export interface IMainState {
 	tempStoreValue: unknown;
 	confirmData:TwitchatDataTypes.ConfirmData;
 	chatAlertParams: TwitchatDataTypes.AlertParamsData;
-	chatAlert:IRCEventDataList.Message|IRCEventDataList.Whisper|null;
+	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
 }
 
 export interface IMainGetters {
@@ -71,7 +71,7 @@ export interface IMainActions {
 	setCanSplitView(value:boolean):void;
 	setAhsInstaller(value:TwitchatDataTypes.InstallHandler):void;
 	setChatAlertParams(params:TwitchatDataTypes.AlertParamsData):void;
-	executeChatAlert(message:IRCEventDataList.Message|IRCEventDataList.Whisper):Promise<void>;
+	executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null):Promise<void>;
 }
 
 
@@ -124,7 +124,7 @@ export interface IAutomodActions {
 
 
 export interface IBingoState {
-	data:BingoData | null;
+	data:TwitchatDataTypes.BingoConfig | null;
 }
 
 export interface IBingoGetters {
@@ -133,6 +133,7 @@ export interface IBingoGetters {
 export interface IBingoActions {
 	startBingo(payload:TwitchatDataTypes.BingoConfig):void;
 	stopBingo():void;
+	checkBingoWinner(message:TwitchatDataTypes.MessageChatData):void;
 }
 
 
@@ -184,8 +185,8 @@ export interface IChatSuggestionGetters {
 }
 
 export interface IChatSuggestionActions {
-	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void,
-	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void,
+	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void;
+	addChatSuggestion(message:TwitchatDataTypes.MessageChatData):void;
 }
 
 
@@ -203,8 +204,9 @@ export interface IEmergencyGetters {
 export interface IEmergencyActions {
 	setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData):void;
 	setEmergencyMode(enable:boolean):Promise<void>;
-	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):Promise<void>;
-	clearEmergencyFollows():Promise<void>;
+	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
+	clearEmergencyFollows():void;
+	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd:string):void;
 }
 
 
@@ -244,6 +246,7 @@ export interface IOBSActions {
 	setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]):void;
 	setOBSMuteUnmuteCommands(value:TwitchatDataTypes.OBSMuteUnmuteCommands):void;
 	setObsCommandsPermissions(value:TwitchatDataTypes.PermissionsData):void;
+	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):void;
 }
 
 
@@ -304,6 +307,7 @@ export interface IRaffleActions {
 	startRaffle(payload:RaffleData):Promise<void>;
 	stopRaffle():void;
 	onRaffleComplete(winner:WheelItem, publish?:boolean):void;
+	checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void>;
 }
 
 
@@ -317,7 +321,7 @@ export interface IStreamState {
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
 	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
 	commercialEnd: number;
-	roomStatusParams:TwitchatDataTypes.IRoomStatusCategory;
+	roomStatusParams:{[key in TwitchatDataTypes.ChatPlatform]:TwitchatDataTypes.IRoomStatusCategory|undefined};
 }
 
 export interface IStreamGetters {
@@ -391,8 +395,6 @@ export interface IUsersState {
 	userCard: TwitchatDataTypes.TwitchatUser|null;
 	trackedUsers: {user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}[];
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
-	followingStates: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
-	followingStatesByNames: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 }
 
@@ -400,7 +402,7 @@ export interface IUsersGetters {
 }
 
 export interface IUsersActions {
-	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean, isSubGifter?:boolean):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
@@ -410,7 +412,7 @@ export interface IUsersActions {
 	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	flagOnlineUSers(users:TwitchatDataTypes.TwitchatUser[]):void;
 	flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[]):void;
-	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void;
+	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):Promise<boolean>;
 	checkPronouns(user:TwitchatDataTypes.TwitchatUser):void;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;
 	addUser(user:TwitchatDataTypes.TwitchatUser):void;

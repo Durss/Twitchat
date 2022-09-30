@@ -64,7 +64,7 @@ export default class ChatPollState extends Vue {
 
 	public get poll():TwitchatDataTypes.ChatSuggestionData { return this.$store("chatSuggestion").data!; }
 
-	public get entries():TwitchatDataTypes.ChatPollDataChoice[] {
+	public get entries():TwitchatDataTypes.ChatSuggestionDataChoice[] {
 		let list = this.poll.choices;
 		list = list.concat(this.poll.winners);
 		return list;

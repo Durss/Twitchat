@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -22,15 +22,14 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatNotice extends Vue {
 	
-	public messageData!:IRCEventDataList.Notice;
+	public messageData!:TwitchatDataTypes.MessageNoticeData;
 	public icon = "infos";
 
 	/**
 	 * Gets text message with parsed emotes
 	 */
 	public get text():string {
-		const mess = this.messageData as IRCEventDataList.Notice;
-		let text = mess.message;
+		let text = this.messageData.message;
 		if(text){
 			text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 			text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");//Allow <strong> tags
@@ -44,26 +43,22 @@ export default class ChatNotice extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatnotice"];
-		if(this.messageData.msgid == "offline"
-		|| this.messageData.msgid == "error") res.push("alert");
-		if(this.messageData.msgid == "emergencyMode") res.push("emergency");
+		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.OFFLINE
+		|| this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
+		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) res.push("emergency");
 		return res;
 	}
 
 	public get time():string {
-		const message = this.messageData as IRCEventDataList.Notice;
-		const d = new Date(parseInt(message.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public mounted():void {
-		switch(this.messageData.tags["msg-id"]) {
-			case "online": this.icon = "enter"; break;
-			case "offline": this.icon = "leave"; break;
-			case "emergencyMode": this.icon = "emergency"; break;
-		}
-		if(this.messageData.msgid == "error") {
-			this.icon = "infos_red"
+		switch(this.messageData.noticeId) {
+			case TwitchatDataTypes.TwitchatNoticeType.ONLINE:			this.icon = "enter"; break;
+			case TwitchatDataTypes.TwitchatNoticeType.OFFLINE:			this.icon = "leave"; break;
+			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
 		}
 		this.$emit("ariaMessage", this.text);
 	}

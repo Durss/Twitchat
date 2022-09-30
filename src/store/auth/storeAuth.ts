@@ -117,11 +117,7 @@ export const storeAuth = defineStore('auth', {
 				
 				this.authenticated = true;
 
-				const sUsers = StoreProxy.users;
-				sUsers.initBlockedUsers();
-				//Set us as a follower of our own channel
-				sUsers.followingStates[UserSession.instance.twitchAuthToken.user_id] = true;
-				sUsers.followingStatesByNames[UserSession.instance.twitchAuthToken.login.toLowerCase()] = true;
+				StoreProxy.users.initBlockedUsers();
 				if(cb) cb(true);
 	
 				const expire = UserSession.instance.twitchAuthToken.expires_in;

@@ -27,22 +27,6 @@ export const storeUsers = defineStore('users', {
 			tiktok:{},
 			facebook:{},
 		},
-		followingStates:{
-			twitchat:{},
-			twitch:{},
-			instagram:{},
-			youtube:{},
-			tiktok:{},
-			facebook:{},
-		},
-		followingStatesByNames:{
-			twitchat:{},
-			twitch:{},
-			instagram:{},
-			youtube:{},
-			tiktok:{},
-			facebook:{},
-		},
 		myFollowings:{
 			twitchat:{},
 			twitch:{},
@@ -75,7 +59,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBroadcaster?:boolean, isSub?:boolean, isSubGifter?:boolean):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user
 			//Don't use "users.find(...)", perfs are much lower than good old for() loop
@@ -133,7 +117,8 @@ export const storeUsers = defineStore('users', {
 			if(isMod) user.is_moderator = true;
 			if(isVIP) user.is_vip = true;
 			if(isSub) user.is_subscriber = true;
-			if(isBoradcaster) user.is_broadcaster = true;
+			if(isBroadcaster) user.is_broadcaster = true;
+			if(isSubGifter) user.is_gifter = true;
 			return user;
 		},
 
@@ -236,15 +221,17 @@ export const storeUsers = defineStore('users', {
 		},
 
 		//Check if user is following
-		checkFollowerState(user:TwitchatDataTypes.TwitchatUser):void {
+		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser):Promise<boolean> {
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
-				if(this.followingStates[user.platform][user.id] == undefined) {
-					TwitchUtils.getFollowState(user.id, UserSession.instance.twitchUser!.id).then((res:boolean) => {
-						this.followingStates[user.platform][user.id] = res;
-						this.followingStatesByNames[user.platform][user.login.toLowerCase()] = res;
-					}).catch(()=>{/*ignore*/})
+				if(user.is_following == undefined) {
+					try {
+						const res = await TwitchUtils.getFollowState(user.id, UserSession.instance.twitchUser!.id)
+						user.is_following = res;
+						return true;
+					}catch(error){};
 				}
 			}
+			return false;
 		},
 
 		//Check for user's pronouns
@@ -262,10 +249,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void {
-			if(user.id && user.login) {
-				this.followingStates[user.platform][user.id] = true;
-				this.followingStatesByNames[user.platform][user.login.toLowerCase()] = true;
-			}
+			user.is_following = true;
 		},
 
 		addUser(user:TwitchatDataTypes.TwitchatUser):void {
@@ -280,9 +264,7 @@ export const storeUsers = defineStore('users', {
 		async loadMyFollowings():Promise<void> {
 			const followings = await TwitchUtils.getFollowings(UserSession.instance.twitchUser?.id);
 			let hashmap:{[key:string]:boolean} = {};
-			followings.forEach(v => {
-				hashmap[v.to_id] = true;
-			});
+			followings.forEach(v => { hashmap[v.to_id] = true; });
 			this.myFollowings["twitch"] = hashmap;
 		},
 

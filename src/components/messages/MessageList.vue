@@ -6,14 +6,21 @@
 	@touchmove="onTouchMove($event)">
 		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
-			<div v-for="m in localMessages" :key="m.tags.id" ref="message" class="subHolder"
+			<div v-for="m in localMessages" :key="m.id" ref="message" class="subHolder"
 			@click="toggleMarkRead(m, $event)">
 				<ChatAd class="message"
 					:messageData="m"
-					v-if="m.type == 'ad' && !lightMode"
+					v-if="m.type == 'twitchatAd' && !lightMode"
 					@showModal="(v:string)=>$emit('showModal', v)"
 					@delete="forceDelete(m)"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+				/>
+
+				<ChatJoinLeave class="message"
+					:messageData="m"
+					v-if="m.type == 'join' || m.type == 'leave' && !lightMode"
+					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 				/>
 
@@ -25,7 +32,7 @@
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
 					@mouseleave="onMouseLeave()"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 					
@@ -33,7 +40,7 @@
 					v-else-if="m.type == 'notice'"
 					class="message"
 					:messageData="m"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 
@@ -42,13 +49,13 @@
 					class="message"
 					:messageData="m"
 					lightMode
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 
 				<ChatPollResult
 					class="message"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'poll' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
@@ -56,7 +63,7 @@
 
 				<ChatPredictionResult
 					class="message"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'prediction' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
@@ -64,7 +71,7 @@
 
 				<ChatBingoResult
 					class="message"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'bingo' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
@@ -72,7 +79,7 @@
 
 				<ChatRaffleResult
 					class="message"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'raffle' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
@@ -80,7 +87,7 @@
 
 				<ChatCountdownResult
 					class="message"
-					:ref="'message_'+m.tags.id"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'countdown' && $store('params').filters.showNotifications.value"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:countdownData="m"
@@ -122,7 +129,7 @@
 			<div class="messages" ref="conversationMessages">
 				<ChatMessage
 					v-for="m in conversation"
-					:key="m.tags.id"
+					:key="m.id"
 					class="message"
 					:messageData="m"
 					disableConversation
@@ -149,7 +156,6 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import PubSub from '@/utils/PubSub';
-import PubSubEvent from '@/utils/PubSubEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -166,6 +172,7 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatJoinLeave from './ChatJoinLeave.vue';
 
 @Options({
 	components:{
@@ -195,8 +202,8 @@ export default class MessageList extends Vue {
 
 	public max!: number;
 	public lightMode!:boolean;
-	public localMessages:MessageTypes[] = [];
-	public pendingMessages:MessageTypes[] = [];
+	public localMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
+	public pendingMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation:IRCEventDataList.Message[] = [];
 	public ariaMessage = "";
 	public ariaMessageTimeout = -1;
@@ -257,6 +264,8 @@ export default class MessageList extends Vue {
 		watch(() => this.$store("chat").messages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
+
+			// sParams.features.notifyJoinLeave.value//TODO handle this filter
 			
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
@@ -268,8 +277,8 @@ export default class MessageList extends Vue {
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
 					const m = this.$store("chat").messages[i] as IRCEventDataList.Message;
-					if(this.idDisplayed[m.tags.id as string] !== true) {
-						this.idDisplayed[m.tags.id as string] = true;
+					if(this.idDisplayed[m.id as string] !== true) {
+						this.idDisplayed[m.id as string] = true;
 						this.pendingMessages.push(m);
 					}
 				}
@@ -605,7 +614,7 @@ export default class MessageList extends Vue {
 		if(this.pendingMessages.length == 0) return;
 		
 		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
-		this.idDisplayed[m.tags.id as string] = true;
+		this.idDisplayed[m.id as string] = true;
 		this.localMessages.push( m );
 		if(this.localMessages.length > this.max) {
 			this.localMessages = this.localMessages.slice(-this.max);
@@ -641,7 +650,7 @@ export default class MessageList extends Vue {
 
 		//Check if last marked as read message is still there
 		if(this.prevMarkedReadItem) {
-			if((this.$refs["message_"+this.prevMarkedReadItem.tags.id] as Vue[]).length == 0) {
+			if((this.$refs["message_"+this.prevMarkedReadItem.id] as Vue[]).length == 0) {
 				this.prevMarkedReadItem = null;
 			}
 		}
@@ -786,7 +795,7 @@ export default class MessageList extends Vue {
 	public forceDelete(m:IRCEventDataList.TwitchatAd):void {
 		for (let i = 0; i < this.localMessages.length; i++) {
 			const el = this.localMessages[i];
-			if(el.tags.id == m.tags.id) {
+			if(el.tags.id == m.id) {
 				this.localMessages.splice(i, 1);
 				i--;
 			}

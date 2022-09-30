@@ -1,3 +1,4 @@
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { ChatUserstate } from "tmi.js";
 
 /**
@@ -12,27 +13,6 @@ import type { ChatUserstate } from "tmi.js";
  * trying to avoid that...
  */
 
-export interface BingoData {
-	guessNumber:boolean;
-	guessEmote:boolean;
-	numberValue:number;
-	emoteValue: {
-		id: string;
-		name: string;
-		images: {
-			url_1x: string;
-			url_2x: string;
-			url_4x: string;
-		};
-		emote_type: string;
-		emote_set_id: string;
-		owner_id: string;
-		format: "static" | "animated";
-		scale: "1.0" | "2.0" | "3.0";
-		theme_mode: "light" | "dark";
-	};
-	winners:ChatUserstate[];
-}
 
 export interface RaffleData {
 	mode:"chat"|"sub"|"manual";

@@ -4,6 +4,9 @@ import type { TriggerScheduleTypes, TriggerTypesValue } from "@/utils/TriggerAct
 import type { ChatUserstate } from "tmi.js";
 
 export namespace TwitchatDataTypes {
+
+	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
+	
 	export const ParamsContentType = {
 		MAIN_MENU: "",
 		APPEARANCE: "appearance",
@@ -248,6 +251,12 @@ export namespace TwitchatDataTypes {
 		guessEmote:boolean;
 		min:number;
 		max:number;
+		numberValue?:number;
+		emoteValue?:{[key in ChatPlatform]:{
+			code:string,
+			image:TwitchatImage,
+		}|undefined};
+		winners?:TwitchatDataTypes.TwitchatUser[];
 	}
 
 	export interface ChatSuggestionData {
@@ -255,13 +264,13 @@ export namespace TwitchatDataTypes {
 		startTime:number;
 		duration:number;
 		allowMultipleAnswers:boolean;
-		choices:ChatPollDataChoice[];
-		winners:ChatPollDataChoice[];
+		choices:ChatSuggestionDataChoice[];
+		winners:ChatSuggestionDataChoice[];
 	}
 
-	export interface ChatPollDataChoice {
+	export interface ChatSuggestionDataChoice {
 		id:string;
-		user:ChatUserstate;
+		user:TwitchatDataTypes.TwitchatUser;
 		label:string;
 	}
 
@@ -460,7 +469,7 @@ export namespace TwitchatDataTypes {
 
 	export interface ChatAlertInfo {
 		type:"chatAlert",
-		message:unknown,//The proper type should be IRCEventDataList.Message; but to avoid circular imports i've set it to unknown -_-
+		message:MessageChatData,
 	}
 
 	export interface AnchorData {
@@ -627,6 +636,7 @@ export namespace TwitchatDataTypes {
 	export const TwitchatNoticeType = {
 		TTS:"tts",
 		ONLINE:"online",
+		OFFLINE:"offline",
 		UNNKNOWN:"unknown",
 		CLEAR_CHAT:"clearChat",
 		TIMEOUT:"timeout",
@@ -643,6 +653,7 @@ export namespace TwitchatDataTypes {
 		COMMERCIAL_START:"commercialStart",
 		COMMERCIAL_COMPLETE:"commercialComplete",
 		BROADCAST_SETTINGS_UPDATE:"broadcastSettingsUpdate",
+		DEVMODE:"devMode",
 	}
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
@@ -661,8 +672,6 @@ export namespace TwitchatDataTypes {
 		hd?:string;
 	}
 
-	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
-
 	export interface TwitchatUser {
 		platform:ChatPlatform;
 		login:string;
@@ -679,6 +688,7 @@ export namespace TwitchatDataTypes {
 		is_moderator?:boolean;
 		is_broadcaster?:boolean;
 		is_subscriber?:boolean;
+		is_gifter?:boolean;
 		pronouns?:string|false;
 		badges?:TwitchatUserBadge[];
 		temporary?:boolean;//true when the details are loading
@@ -707,7 +717,6 @@ export namespace TwitchatDataTypes {
 									MessageLeaveData |
 									messageBanData |
 									MessageTimeoutData |
-									MessageDisconnectData |
 									MessageClearChatData |
 									MessageRaffleData |
 									MessageBingoData |
@@ -738,6 +747,7 @@ export namespace TwitchatDataTypes {
 		occurrenceCount?: number;
 		highlightWord?: string;
 		hasMention?: boolean;
+		spoiler?: boolean;
 		
 		twitch_automod?: TwitchatDataTypes.AutomodData;
 		twitch_isSlashMe?:boolean;
@@ -909,11 +919,6 @@ export namespace TwitchatDataTypes {
 		user:TwitchatUser;
 		reason:string;
 		duration_s:number;
-	}
-
-	export interface MessageDisconnectData extends AbstractTwitchatMessage {
-		type:"disconnect";
-		reason:string;
 	}
 
 	export interface MessageClearChatData extends AbstractTwitchatMessage {

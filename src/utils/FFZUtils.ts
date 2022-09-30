@@ -37,7 +37,9 @@ export default class FFZUtils {
 	 */
 	public addChannel(channelId:string):void {
 		this.channelList.push(channelId);
-		this.emotesLoaded = false;
+		if(this.enabled) {
+			this.loadChannelEmotes(channelId);
+		}
 	}
 
 	/**

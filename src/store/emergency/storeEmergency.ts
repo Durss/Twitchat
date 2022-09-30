@@ -135,14 +135,27 @@ export const storeEmergency = defineStore('emergency', {
 			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
 		},
 
-		async addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
+		addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
 			this.follows.push(payload);
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
 		},
 
-		async clearEmergencyFollows() {
-			this.follows.splice(0)
+		clearEmergencyFollows() {
+			this.follows.splice(0);
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
+		},
+
+		handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string) {
+			if(!this.params.enabled) return;
+			if(!cmd) cmd = message.message.trim().split(" ")[0].toLowerCase();
+			if(cmd?.length < 2) return;
+
+			//check if its a command to start the emergency mode
+			if(Utils.checkPermissions(this.params.chatCmdPerms, message.user)) {
+				if(cmd === this.params.chatCmd.trim()) {
+					this.setEmergencyMode(true);
+				}
+			}
 		},
 	} as IEmergencyActions
 	& ThisType<IEmergencyActions

@@ -91,16 +91,16 @@ export default class SchedulerHelper {
 					//This avoids the possibility to have no ad by refreshing
 					//the page before the timer ends.
 					let sDate = parseInt(DataStore.get(DataStore.TWITCHAT_AD_NEXT_DATE));
-					if(!isNaN(sDate)) date = sDate;
+					if(!isNaN(sDate)) {
+						date = Math.max(60000, Math.min(date, sDate));
+						DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, date);
+					}
 				}
 				this._pendingTriggers.push({
 					messageCount:0,
 					date,
 					triggerKey:key,
 				});
-				if(key === TriggerTypes.TWITCHAT_AD) {
-					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, date);
-				}
 				break;
 			}
 
@@ -226,6 +226,7 @@ export default class SchedulerHelper {
 
 			if(execute) {
 				//[EDIT] don't do that reset, just wait for the message to come back
+				//that will reset the schedule because it contains the link
 				// let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				// if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				// 	//This is a trick to avoid sending the ad message multiple times
