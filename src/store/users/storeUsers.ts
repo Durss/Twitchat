@@ -1,5 +1,4 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TrackedUser } from '@/utils/CommonDataTypes';
 import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
@@ -17,8 +16,6 @@ export const storeUsers = defineStore('users', {
 	state: () => ({
 		users: [],
 		userCard: null,
-		onlineUsers: [],
-		trackedUsers: [],
 		blockedUsers: {
 			twitchat:{},
 			twitch:{},
@@ -74,7 +71,7 @@ export const storeUsers = defineStore('users', {
 			//Create user if enough given info
 			if(!user && id && login) {
 				if(!displayName) displayName = login;
-				user = { platform: platform, id, login, displayName, greeted:false, online:true };
+				user = { platform, id, login, displayName, greeted:false, online:true, messageHistory:[] };
 				if(this.blockedUsers[platform][id] === true) {
 					user.is_blocked = true;
 				}
@@ -83,7 +80,16 @@ export const storeUsers = defineStore('users', {
 			//If we don't have enough info, create a temp user object and load
 			//its details from the API then register it if found.
 			if(!user && (login || id || displayName)) {
-				user = { platform: platform, id:id??"temporary_"+Utils.getUUID(), login:login??displayName??"", displayName:displayName??login??"", temporary:true, greeted:false, online:true};
+				user = {
+						platform:platform,
+						id:id??"temporary_"+Utils.getUUID(),
+						login:login??displayName??"",
+						displayName:displayName??login??"",
+						greeted:false,
+						online:true,
+						messageHistory:[],
+						temporary:true,
+					};
 				if(platform == "twitch" && (login || id)) {
 					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
 						//This just makes the rest of the code know that the user
@@ -114,6 +120,7 @@ export const storeUsers = defineStore('users', {
 
 			this.checkFollowerState(user);
 			this.checkPronouns(user);
+			user.is_tracked = false;
 			if(isMod) user.is_moderator = true;
 			if(isVIP) user.is_vip = true;
 			if(isSub) user.is_subscriber = true;
@@ -292,27 +299,10 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		trackUser(user:TwitchatDataTypes.TwitchatUser):{user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}|null {
-			const index = this.trackedUsers.findIndex(v=>v.user.id == user.id);
-			if(index == -1) {
-				//Was not tracked, track the user
-				const data = {user, messages:[]};
-				this.trackedUsers.push(data);
-				return data;
-			}else{
-				//User was already tracked, untrack her/him
-				this.trackedUsers.splice(index,1);
-			}
-			return null;
-		},
+		trackUser(user:TwitchatDataTypes.TwitchatUser):void { user.is_tracked = true; },
 
-		untrackUser(payload:ChatUserstate) {
-			const list = this.trackedUsers as TrackedUser[];
-			const index = list.findIndex(v=>v.user['user-id'] == payload['user-id']);
-			if(index != -1) {
-				this.trackedUsers.splice(index, 1);
-			}
-		},
+		untrackUser(user:TwitchatDataTypes.TwitchatUser):void { user.is_tracked = false; },
+
 	} as IUsersActions
 	& ThisType<IUsersActions
 		& UnwrapRef<IUsersState>

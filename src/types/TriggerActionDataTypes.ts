@@ -1,5 +1,5 @@
 import {TwitchatDataTypes} from "@/types/TwitchatDataTypes";
-import Config from "./Config";
+import Config from "../utils/Config";
 
 export const TriggerTypes = {
 	FIRST_ALL_TIME:"1",

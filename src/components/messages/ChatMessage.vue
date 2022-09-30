@@ -110,13 +110,9 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { TrackedUser } from '@/utils/CommonDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -263,9 +259,11 @@ export default class ChatMessage extends Vue {
 	public get classes():string[] {
 		let res = ["chatmessage"];
 		const message = this.messageData;
+		const sParams = this.$store("params");
 
 		if(message.cyphered)					res.push("cyphered");
 		if(this.automod)						res.push("automod");
+		if(this.showNofollow)					res.push("noFollow");
 		if(this.messageData.user.is_blocked)	res.push("blockedUser");
 		if(this.firstTime
 			|| this.isPresentation
@@ -275,32 +273,30 @@ export default class ChatMessage extends Vue {
 		}else{
 			if(message.deleted) {
 				res.push("deleted");
-				if(this.$store("params").filters.censorDeletedMessages.value===true) res.push("censor");
+				if(sParams.filters.censorDeletedMessages.value===true) res.push("censor");
 			}
 			if(message.twitch_isLowTrust)		res.push("lowTrust");
 			if(message.twitch_isSlashMe)		res.push("slashMe");
 			if(message.twitch_isHighlighted)	res.push("highlighted");
 		}
-		if(this.showNofollow) res.push("noFollow");
-		if(this.$store("users").trackedUsers
-			.findIndex(v=>v.user.id == message.user.id) != -1
-			&& !this.lightMode)					res.push("tracked");
+		if(!this.lightMode &&
+			this.messageData.user.is_tracked)	res.push("tracked");
 
 		if(this.isAnnouncement) {
 			const color = (message as TwitchatDataTypes.MessageChatData).twitch_announcementColor!;
 			res.push("announcement", color);
 		}
 		
-		if(this.$store("params").features.spoilersEnabled.value === true) {
-			if(this.messageData.message.indexOf("||") == 0) res.push("spoiler");
+		if(sParams.features.spoilersEnabled.value === true) {
+			if(this.messageData.spoiler === true) res.push("spoiler");
 		}
 
 		if(!this.lightMode) {
 			if(message.type == "message" && message.hasMention) res.push("mention");
 			
-			if(message.user.is_moderator && this.$store("params").appearance.highlightMods.value)		res.push("highlightMods");
-			else if(message.user.is_vip && this.$store("params").appearance.highlightVips.value)		res.push("highlightVips");
-			else if(message.user.is_subscriber && this.$store("params").appearance.highlightSubs.value)	res.push("highlightSubs");
+			if(message.user.is_moderator && sParams.appearance.highlightMods.value)			res.push("highlightMods");
+			else if(message.user.is_vip && sParams.appearance.highlightVips.value)			res.push("highlightVips");
+			else if(message.user.is_subscriber && sParams.appearance.highlightSubs.value)	res.push("highlightSubs");
 		}
 
 		return res;

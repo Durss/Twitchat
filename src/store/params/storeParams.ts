@@ -1,8 +1,8 @@
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import BTTVUtils from '@/utils/BTTVUtils';
-import FFZUtils from '@/utils/FFZUtils';
-import SevenTVUtils from '@/utils/SevenTVUtils';
+import BTTVUtils from '@/utils/emotes/BTTVUtils';
+import FFZUtils from '@/utils/emotes/FFZUtils';
+import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';

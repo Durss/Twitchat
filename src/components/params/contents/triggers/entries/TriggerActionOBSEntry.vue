@@ -25,7 +25,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import { TriggerActionHelpers, type ITriggerActionHelper } from '@/utils/TriggerActionData';
+import { TriggerActionHelpers, type ITriggerActionHelper } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({

@@ -33,7 +33,6 @@
 
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -116,7 +115,7 @@ export default class LiveFollowings extends Vue {
 
 	public raid(s:TwitchDataTypes.StreamInfo):void {
 		this.$confirm("Raid ?", "Are you sure you want to raid " + s.user_login + " ?").then(async () => {
-			IRCClient.instance.sendMessage("/raid "+s.user_login);
+			TwitchUtils.raidChannel(s.user_login);
 			this.close();
 		}).catch(()=> { });
 	}

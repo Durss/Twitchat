@@ -1,14 +1,13 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import BTTVUtils from "@/utils/BTTVUtils";
 import Config from "@/utils/Config";
-import type { Event } from "@/utils/EventDispatcher";
-import FFZUtils from "@/utils/FFZUtils";
-import SevenTVUtils from "@/utils/SevenTVUtils";
+import BTTVUtils from "@/utils/emotes/BTTVUtils";
+import FFZUtils from "@/utils/emotes/FFZUtils";
+import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import TwitchUtils from "@/utils/TwitchUtils";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
-import TwitchMessengerClient from "./TwitchMessengerClient"
+import TwitchMessengerClient from "./TwitchMessengerClient";
 /**
 * Created : 26/09/2022 
 */

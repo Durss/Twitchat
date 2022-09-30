@@ -2,12 +2,12 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../types/TwitchDataTypes";
-import BTTVUtils from "./BTTVUtils";
+import BTTVUtils from "./emotes/BTTVUtils";
 import Config from "./Config";
-import FFZUtils from "./FFZUtils";
-import SevenTVUtils from "./SevenTVUtils";
 import UserSession from "./UserSession";
 import Utils from "./Utils";
+import FFZUtils from "./emotes/FFZUtils";
+import SevenTVUtils from "./emotes/SevenTVUtils";
 
 /**
 * Created : 19/01/2021 

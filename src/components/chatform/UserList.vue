@@ -13,36 +13,35 @@
 		<div class="users broadcaster" v-if="broadcaster.length > 0">
 			<div class="title">Broadcaster <i>({{broadcaster.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users mods" v-if="mods.length > 0">
 			<div class="title">Moderators <i>({{mods.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 		
 		<div class="users vips" v-if="vips.length > 0">
 			<div class="title">VIPs <i>({{vips.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 
 		<div class="users simple" v-if="simple.length > 0">
 			<div class="title">Users <i>({{simple.length}})</i></div>
 			<div class="list">
-				<a :class="userClasses(u.login)" @click="openUserCard(u.login)" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
+				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import UserSession from '@/utils/UserSession';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -54,21 +53,21 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class UserList extends Vue {
 
-	public users:UserItem[] = [];
+	public users:TwitchatDataTypes.TwitchatUser[] = [];
 	public showInfo:boolean = false;
 
-	public get broadcaster():UserItem[] { return this.users.filter(u=>u.broadcaster); }
+	public get broadcaster():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.is_broadcaster); }
 
-	public get mods():UserItem[] { return this.users.filter(u=>u.mod); }
+	public get mods():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.is_moderator); }
 
-	public get vips():UserItem[] { return this.users.filter(u=>u.vip); }
+	public get vips():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.is_vip); }
 
-	public get simple():UserItem[] { return this.users.filter(u=>{ return !u.mod && !u.broadcaster && !u.vip; }); }
+	public get simple():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>{ return !u.is_moderator && !u.is_broadcaster && !u.is_vip; }); }
 	
-	public userClasses(name:string):string[] {
+	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
 		if(this.$store("params").appearance.highlightNonFollowers.value === true
-		&& this.$store("users").followingStatesByNames[name.toLowerCase()] === false) res.push("noFollow");
+		&& user.is_following === false) res.push("noFollow");
 		return res;
 	}
 
@@ -78,7 +77,7 @@ export default class UserList extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.updateList();
-		watch(() => this.$store("users").onlineUsers, () => {
+		watch(() => this.$store("users").users, () => {
 			this.updateList();
 		}, { deep: true });
 		this.open();
@@ -105,8 +104,8 @@ export default class UserList extends Vue {
 		}
 	}
 
-	public openUserCard(username:string):void {
-		this.$store("users").openUserCard(username);
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
 	}
 
 	private open():void {
@@ -136,30 +135,22 @@ export default class UserList extends Vue {
 	}
 
 	private updateList():void {
-		let res:UserItem[] = [];
-		const users = this.$store("users").onlineUsers as string[];
+		let res:TwitchatDataTypes.TwitchatUser[] = [];
+		const users = this.$store("users").users;
 		for (let j = 0; j < users.length; j++) {
-			const userName = users[j];
-			const userNameLow = userName?.toLowerCase();
-			res.push({
-				login:userName,
-				id:userNameLow,
-				broadcaster:userNameLow == UserSession.instance.twitchAuthToken.login.toLowerCase(),
-				vip:false,
-				mod:(this.$store("users").mods as TwitchDataTypes.ModeratorUser[]).find(m => m.user_login === userNameLow) !== undefined,
-				sub:false,
-			});
+			const user = users[j];
+			if(user.online) res.push(user);
 		}
 
 		res.sort((a,b) => {
-			if(a.broadcaster && !b.broadcaster) return -1;
-			if(b.broadcaster && !a.broadcaster) return  1;
-			if(a.mod && !b.mod) return -1;
-			if(b.mod && !a.mod) return  1;
-			if(a.vip && !b.vip) return -1;
-			if(b.vip && !a.vip) return  1;
-			if(a.login > b.login ) return 1;
-			if(a.login < b.login ) return -1;
+			if(a.is_broadcaster && !b.is_broadcaster) return -1;
+			if(b.is_broadcaster && !a.is_broadcaster) return  1;
+			if(a.is_moderator && !b.is_moderator) return -1;
+			if(b.is_moderator && !a.is_moderator) return  1;
+			if(a.is_vip && !b.is_vip) return -1;
+			if(b.is_vip && !a.is_vip) return  1;
+			if(a.displayName > b.displayName ) return 1;
+			if(a.displayName < b.displayName ) return -1;
 			return 0;
 		});
 

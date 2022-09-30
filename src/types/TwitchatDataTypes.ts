@@ -1,12 +1,11 @@
 import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
-import type { PubSubDataTypes } from "@/utils/PubSubDataTypes";
-import type { TriggerScheduleTypes, TriggerTypesValue } from "@/utils/TriggerActionData";
-import type { ChatUserstate } from "tmi.js";
+import type { TriggerScheduleTypes, TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 
 export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
+	//Parameters content types
 	export const ParamsContentType = {
 		MAIN_MENU: "",
 		APPEARANCE: "appearance",
@@ -29,6 +28,7 @@ export namespace TwitchatDataTypes {
 	} as const;
 	export type ParamsContentStringType = typeof ParamsContentType[keyof typeof ParamsContentType]|null;
 
+	//Bot messages types
 	export interface IBotMessage {
 		bingo:BotMessageEntry;
 		bingoStart:BotMessageEntry;
@@ -44,6 +44,7 @@ export namespace TwitchatDataTypes {
 	}
 	export type BotMessageField = keyof IBotMessage;
 
+	//Room status types
 	export interface IRoomStatusCategory {
 		emotesOnly:ParameterData;
 		followersOnly:ParameterData;
@@ -52,6 +53,7 @@ export namespace TwitchatDataTypes {
 	}
 	export type RoomStatusCategory = keyof IRoomStatusCategory;
 
+	//Generic parameter categories types
 	export interface IParameterCategory {
 		appearance:{[key:string]:ParameterData};
 		filters:{[key:string]:ParameterData};
@@ -59,13 +61,14 @@ export namespace TwitchatDataTypes {
 	}
 	export type ParameterCategory = keyof IParameterCategory;
 
+	//Account params types
 	export interface IAccountParamsCategory {
 		syncDataWithServer:ParameterData;
 		publicDonation:ParameterData;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
 
-
+	//OBS chat command scene control
 	export interface OBSSceneCommand {
 		scene:{
 			sceneIndex:number;
@@ -74,6 +77,7 @@ export namespace TwitchatDataTypes {
 		command:string;
 	}
 
+	//OBS chat command mute control
 	export interface OBSMuteUnmuteCommands {
 		audioSourceName:string;
 		muteCommand:string;
@@ -681,6 +685,7 @@ export namespace TwitchatDataTypes {
 		color?:string;
 		avatarPath?:string;
 		id:string;
+		is_tracked?:boolean;
 		is_following?:boolean;
 		is_blocked?:boolean;
 		is_banned?:boolean;
@@ -692,6 +697,7 @@ export namespace TwitchatDataTypes {
 		pronouns?:string|false;
 		badges?:TwitchatUserBadge[];
 		temporary?:boolean;//true when the details are loading
+		messageHistory:ChatMessageTypes[];
 	}
 
 	export interface TwitchatUserBadge {
@@ -768,6 +774,7 @@ export namespace TwitchatDataTypes {
 		occurrenceCount?: number;
 		markedAsRead?:boolean;
 		cyphered?: boolean;
+		spoiler?: boolean;
 	}
 
 	export interface MessagePollDataChoice {

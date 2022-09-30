@@ -12,10 +12,10 @@
 		<div class="messages" v-if="messages.length > 0">
 			<ChatMessage
 				v-for="m in messages"
-				:key="m.tags.id"
+				:key="m.id"
 				class="message"
 				:messageData="m"
-				:ref="'message_'+m.tags.id"
+				:ref="'message_'+m.id"
 				:lightMode="true"
 				:disableConversation="true"
 				:enableWordHighlight="true"
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -46,7 +46,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 export default class MessageSearch extends Vue {
 
 	public search = "";
-	public messages:IRCEventDataList.Message[] = [];
+	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 
 	public get classes():string[] {
 		let res = ["messagesearch"];
@@ -74,15 +74,15 @@ export default class MessageSearch extends Vue {
 		}
 
 		const list = this.$store("chat").messages.concat();
-		const result:IRCEventDataList.Message[] = [];
+		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
 		for (let i = 0; i < list.length; i++) {
-			const m = list[i] as IRCEventDataList.Message;
+			const m = list[i];
 			if(m.type != "message") continue;
 			//Remove any HTML tag to avoid wrong search results
 			// const text = m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
 			const text = m.message.replace(/<[^>]*?>/gi, "");//TODO make sure that simpler version acts as expected
 			if(new RegExp(this.search, "gim").test(text)
-			|| m.tags['display-name']?.toLowerCase() == this.search.toLowerCase()) {
+			|| m.user.displayName.toLowerCase() == this.search.toLowerCase()) {
 				m.highlightWord = this.search;
 				result.push(m);
 			}

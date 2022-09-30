@@ -9,7 +9,7 @@ import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./SpotifyDataTypes";
 import SpotifyHelper from "./SpotifyHelper";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "./TriggerActionData";
+import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
 import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./TwitchUtils";
@@ -185,7 +185,7 @@ export default class TriggerActionHandler {
 				return;
 			}
 
-		}else if(message.type == "streamInfoUpdate") {
+		}else if(message.type == "streamInfoUpdate") {//Notice TwitchatDataTypes.TwitchatNoticeType.BROADCAST_SETTINGS_UPDATE
 			if(await this.handleStreamInfoUpdate(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
@@ -866,25 +866,7 @@ export default class TriggerActionHandler {
 		return res;
 	}
 }
-type MessageTypes = IRCEventDataList.Message
-| IRCEventDataList.Timeout
-| IRCEventDataList.Ban
-| IRCEventDataList.Notice
-| IRCEventDataList.Highlight
-| IRCEventDataList.Hosted
-| IRCEventDataList.RoomState
-| IRCEventDataList.Whisper
-| IRCEventDataList.PollResult
-| IRCEventDataList.PredictionResult
-| IRCEventDataList.BingoResult
-| IRCEventDataList.RaffleResult
-| IRCEventDataList.Commercial
-| IRCEventDataList.CountdownResult
-| IRCEventDataList.Join
-| IRCEventDataList.Leave
-| IRCEventDataList.TimerResult
-| IRCEventDataList.HypeTrainResult
-| TwitchatDataTypes.MusicMessage
+type MessageTypes = TwitchatDataTypes.ChatMessageTypes
 | TwitchatDataTypes.StreamInfoUpdate
 | TwitchatDataTypes.EmergencyModeInfo
 | TwitchatDataTypes.ChatHighlightInfo

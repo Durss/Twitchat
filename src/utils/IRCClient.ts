@@ -4,7 +4,7 @@ import { EventDispatcher } from "@/utils/EventDispatcher";
 import { LoremIpsum } from "lorem-ipsum";
 import * as tmi from "tmi.js";
 import { reactive } from 'vue';
-import BTTVUtils from "./BTTVUtils";
+import BTTVUtils from "./emotes/BTTVUtils";
 import Config from "./Config";
 import FFZUtils from "./FFZUtils";
 import IRCEvent from "./IRCEvent";

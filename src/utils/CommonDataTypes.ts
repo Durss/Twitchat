@@ -40,8 +40,3 @@ export interface WheelItem {
 export interface RaffleEntry extends WheelItem {
 	score:number;
 }
-
-export interface TrackedUser {
-	user:ChatUserstate;
-	messages:unknown[];//The proper type should be IRCEventDataList.Message[]; but to avoid circular imports i've set it to unknown -_-
-}

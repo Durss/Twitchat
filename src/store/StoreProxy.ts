@@ -393,7 +393,6 @@ export interface ITTSActions {
 export interface IUsersState {
 	users: TwitchatDataTypes.TwitchatUser[];
 	userCard: TwitchatDataTypes.TwitchatUser|null;
-	trackedUsers: {user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}[];
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 }
@@ -419,8 +418,8 @@ export interface IUsersActions {
 	openUserCard(user:TwitchatDataTypes.TwitchatUser|null):void;
 	loadMyFollowings():Promise<void>;
 	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
-	trackUser(payload:TwitchatDataTypes.TwitchatUser):{user:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageChatData[]}|null;
-	untrackUser(payload:ChatUserstate):void;
+	trackUser(user:TwitchatDataTypes.TwitchatUser):void;
+	untrackUser(user:TwitchatDataTypes.TwitchatUser):void;
 }
 
 

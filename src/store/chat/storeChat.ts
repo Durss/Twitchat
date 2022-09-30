@@ -383,7 +383,7 @@ export const storeChat = defineStore('chat', {
 				}
 
 				//If it's a text message and user isn't a follower, broadcast to WS
-				if(message.user.id && sUsers.followingStates[message.user.platform][message.user.id] === false) {
+				if(message.user.is_following) {
 					//TODO Broadcast to OBS-ws
 					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
 				}
@@ -426,11 +426,6 @@ export const storeChat = defineStore('chat', {
 						return;
 					}
 				}
-
-				const trackedUser = sUsers.trackedUsers.find(v => v.user.id == message.user.id);
-				if(trackedUser) {
-					trackedUser.messages.push(message);
-				}
 				
 				const cmd = message.message.trim().split(" ")[0].toLowerCase();
 
@@ -464,6 +459,9 @@ export const storeChat = defineStore('chat', {
 						message.answersTo.spoiler = true;
 					}
 				}
+
+				//Flag as spoiler
+				if(message.message.indexOf("||") == 0) message.spoiler = true;
 
 				//check if it's a chat alert command
 				if(sParams.features.alertMode.value === true && 
@@ -531,6 +529,8 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+					message.user.messageHistory.push(message);
+
 					if(sAutomod.params.banUserNames === true && !message.user.is_banned) {
 						//Check if nickname passes the automod
 						let rule = Utils.isAutomoded(message.user.displayName, message.user);
@@ -539,12 +539,17 @@ export const storeChat = defineStore('chat', {
 								message.user.is_banned = true;
 								TwitchUtils.banUser(message.user.id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 							}
-							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-								message.automod = rule;
-							}
-							if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
-								message.blocked = true;
-							}
+							//Most message on chat to alert the stream
+							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
+								platform:"twitchat",
+								channel_id: "twitchat",
+								type:"autoban_join",
+								date:Date.now(),
+								id:Utils.getUUID(),
+								user:message.user,
+								rule:rule,
+							};
+							this.addMessage(mess);
 							return;
 						}
 					}
@@ -561,7 +566,6 @@ export const storeChat = defineStore('chat', {
 									TwitchUtils.deleteMessages(message.id);
 								}
 							}
-							return;
 						}
 					}
 				}

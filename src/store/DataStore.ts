@@ -1,6 +1,6 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
-import { TriggerTypes } from "@/utils/TriggerActionData";
+import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";

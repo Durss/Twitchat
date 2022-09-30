@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="messages" v-if="selectedUser">
-			<ChatMessage v-for="(m, index) in selectedUser.messages" :key="index"
+			<ChatMessage v-for="(m, index) in selectedUser.messageHistory" :key="index"
 				:messageData="m"
 				:lightMode="true"
 				:disableConversation="true"
@@ -12,11 +12,11 @@
 		
 		<div class="users">
 			<div class="user"
-			v-for="u in $store('users').trackedUsers"
-			:key="u.user['user-id']">
+			v-for="u in trackedUsers"
+			:key="u.id">
 				<Button class="login"
 					@click="selectUser(u)"
-					:title="'('+u.messages.length+') '+u.user['display-name']"
+					:title="'('+u.messageHistory.length+') '+u.displayName"
 					bounce />
 				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import type { TrackedUser } from '@/utils/CommonDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -42,23 +42,28 @@ import ChatMessage from '../messages/ChatMessage.vue';
 })
 export default class TrackedUsers extends Vue {
 
-	public selectedUser:TrackedUser | null = null;
+	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
 
 	public get classes():string[] {
 		let res = ["trackedusers"];
 		return res;
 	}
 
-	public selectUser(user:TrackedUser):void {
+	public get trackedUsers():TwitchatDataTypes.TwitchatUser[] {
+		const res = [];
+		for (let i = 0; i < this.$store("users").users.length; i++) {
+			const u = this.$store("users").users[i];
+			if(u.is_tracked) res.push(u);
+		}
+		return res;
+	}
+
+	public selectUser(user:TwitchatDataTypes.TwitchatUser):void {
 		this.selectedUser = user;
 	}
 
-	public untrackUser(user:TrackedUser):void {
-		this.$confirm("Untrack user?", "The history of this user will be lost.")
-		.then(()=> {
-			this.$store("users").untrackUser(user.user);
-			this.selectedUser = null;
-		}).catch(()=> {});
+	public untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
+		user.is_tracked = false;
 	}
 
 }

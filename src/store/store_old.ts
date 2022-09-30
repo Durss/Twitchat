@@ -19,7 +19,7 @@ import SevenTVUtils from '@/utils/SevenTVUtils';
 import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes';
 import SpotifyHelper from '@/utils/SpotifyHelper';
 import SpotifyHelperEvent from '@/utils/SpotifyHelperEvent';
-import { TriggerTypes } from '@/utils/TriggerActionData';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';

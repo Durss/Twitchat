@@ -7,7 +7,7 @@
 			</div>
 
 			<div class="list">
-				<div v-for="m in $store('chat').pinedMessages" :key="m.tags.id" class="messageItem">
+				<div v-for="m in $store('chat').pinedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<Button aria-label="Highlight message"
 						:icon="$image('icons/highlight.svg')"
@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -51,14 +51,14 @@ export default class PinedMessages extends Vue {
 		this.$emit('close');
 	}
 
-	public async unpin(m:IRCEventDataList.Message):Promise<void> {
+	public async unpin(m:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
 		this.$store("chat").unpinMessage(m);
 		if(this.$store("chat").pinedMessages.length === 0) {
 			this.close();
 		}
 	}
 	
-	public async chatHighlight(m:IRCEventDataList.Message):Promise<void> {
+	public async chatHighlight(m:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
 		this.highlightLoading = true;
 		this.$store("chat").highlightChatMessageOverlay(m);
 		await Utils.promisedTimeout(1000);

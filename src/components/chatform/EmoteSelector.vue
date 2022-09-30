@@ -46,6 +46,7 @@
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
@@ -59,7 +60,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class EmoteSelector extends Vue {
 
-	public users:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[] = [];
+	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[] = [];
 	public filter = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
@@ -81,7 +82,7 @@ export default class EmoteSelector extends Vue {
 
 	public async mounted():Promise<void> {
 		if(Object.keys(this.$store("chat").emoteSelectorCache).length > 0) {
-			this.users = this.$store("chat").emoteSelectorCache as {user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[];
+			this.users = this.$store("chat").emoteSelectorCache;
 		}else{
 
 			const emotes = await TwitchUtils.getEmotes();
@@ -121,13 +122,13 @@ export default class EmoteSelector extends Vue {
 			});
 	
 			//Build emotes list for each sorted user
-			const sets:{user:TwitchDataTypes.UserInfo, emotes:TwitchDataTypes.Emote[]}[] = [];
+			const sets:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[] = [];
 			for (let i = 0; i < emotes.length; i++) {
 				const e = emotes[i];
 				const index = uidToIndex[e.owner_id];
 				if(!sets[ index ]) {
 					sets[ index ] = {
-						user:userList.find(v => v.id == e.owner_id) as TwitchDataTypes.UserInfo,
+						user:userList.find(v => v.id == e.owner_id),
 						emotes: [],
 					}
 				}

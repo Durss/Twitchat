@@ -55,7 +55,6 @@
 				<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 					<ul>
 						<li>Users cannot spam follow/unfollow anymore. Only one notification will be displayed in such case.</li>
-						<li><Button aria-label="open triggers params" small title="try it" @click.stop="openViewerCard()" />User info now shows if user is streaming</li>
 						<li>Cumulative months sub info now displayed <i>(if a viewer buys multiple months at once)</i></li>
 						<li>Open user card from their ID with the <mark>/userinfo</mark> command</li>
 					</ul>
@@ -279,10 +278,6 @@ export default class ChatAd extends Vue {
 		setTimeout(()=> {
 			this.confirmDelay = false;
 		}, 2000);
-	}
-
-	public openViewerCard():void {
-		this.$store("users").openUserCard(UserSession.instance.twitchUser!.login);
 	}
 
 	public async simulateEvent(code:string):Promise<void> {

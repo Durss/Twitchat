@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerActionHelpers } from '@/utils/TriggerActionData';
+import { TriggerActionHelpers } from '@/types/TriggerActionDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 

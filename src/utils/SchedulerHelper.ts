@@ -2,7 +2,7 @@ import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { IRCEventDataList } from "./IRCEventDataTypes";
-import { TriggerScheduleTypes, TriggerTypes } from "./TriggerActionData";
+import { TriggerScheduleTypes, TriggerTypes } from "../types/TriggerActionDataTypes";
 import TriggerActionHandler from "./TriggerActionHandler";
 import UserSession from "./UserSession";
 

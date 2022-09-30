@@ -1,12 +1,12 @@
 <template>
 	<div class="ChatMessageHoverActions">
-		<Button :aria-label="'Track '+messageData.tags.username+' messages'"
+		<Button :aria-label="'Track '+messageData.user.displayName+' messages'"
 			bounce
 			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
-			@click="trackUser()"
+			@click="toggleTrackUser()"
 			/>
-		<Button :aria-label="'Shoutout '+messageData.tags.username"
+		<Button :aria-label="'Shoutout '+messageData.user.displayName"
 			bounce
 			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
@@ -40,7 +40,6 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -64,17 +63,18 @@ export default class ChatMessageHoverActions extends Vue {
 	public get isBroadcaster():boolean { return this.messageData.user.id == UserSession.instance.twitchAuthToken.user_id; }
 	public get ttsEnabled():boolean { return this.$store("tts").params.enabled; }
 
-	public trackUser():void {
-		let data = this.$store("users").trackUser(this.messageData.user);
-		if(data) {
-			data.messages.push(this.messageData);
+	public toggleTrackUser():void {
+		if(this.messageData.user.is_tracked) {
+			this.$store("users").untrackUser(this.messageData.user);
+		}else{
+			this.$store("users").trackUser(this.messageData.user);
 		}
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("chat").shoutout(this.messageData.platform, this.messageData.user);
+			await this.$store("chat").shoutout(this.messageData.user);
 		}catch(error) {
 			this.$store("main").alert = "Shoutout failed :(";
 			console.log(error);
@@ -94,9 +94,9 @@ export default class ChatMessageHoverActions extends Vue {
 	}
 
 	public pinMessage():void {
-		const pins = this.$store("chat").pinedMessages as IRCEventDataList.Message[]
+		const pins = this.$store("chat").pinedMessages;
 		//Check if message is already pinned
-		if(pins.find(m => m.tags.id == this.messageData.tags.id)) {
+		if(pins.find(m => m.id == this.messageData.id)) {
 			this.$store("chat").unpinMessage(this.messageData);
 		}else{
 			this.$store("chat").pinMessage(this.messageData);

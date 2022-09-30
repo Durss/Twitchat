@@ -48,7 +48,6 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import IRCClient from '@/utils/IRCClient';
 import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -69,8 +68,16 @@ import ChatMessageInfos from './ChatMessageInfos.vue';
 	emits:["ariaMessage"]
 })
 export default class ChatHighlight extends Vue {
-	
-	public messageData!:TwitchatDataTypes.ChatMessageTypes;
+	public messageData!:TwitchatDataTypes.MessageChatData
+	| TwitchatDataTypes.MessageFollowingData
+	| TwitchatDataTypes.MessageHypeTrainCooledDownData
+	| TwitchatDataTypes.MessageCommunityBoostData
+	| TwitchatDataTypes.MessageRaidData
+	| TwitchatDataTypes.MessageCheerData
+	| TwitchatDataTypes.MessageSubscriptionData
+	| TwitchatDataTypes.MessageRewardRedeemData
+	| TwitchatDataTypes.MessageAutobanJoinData
+	| TwitchatDataTypes.MessageCommunityChallengeContributionData;
 	public lightMode!:boolean;
 	public messageText = '';
 	public info = "";
@@ -98,8 +105,7 @@ export default class ChatHighlight extends Vue {
 		let res = ["chathighlight"];
 		if(this.lightMode) res.push("light");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			const uid = this.messageData.user.id;
-			if(this.$store("users").trackedUsers.findIndex((v)=>v.user.id == uid) != -1) res.push("tracked");
+			if(this.messageData.user.is_tracked) res.push("tracked");
 		}
 		return res;
 	}
@@ -320,8 +326,12 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public async unbanUser():Promise<void> {
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN) return;
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) return;
 		this.moderating = true;
-		await IRCClient.instance.sendMessage(`/unban ${this.user}`);
+		if(this.messageData.user.platform == "twitch") {
+			await TwitchUtils.unbanUser(this.messageData.user.id);
+		}
 		this.moderating = false;
 		this.canUnban = false;
 	}
