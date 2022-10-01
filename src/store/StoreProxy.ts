@@ -146,7 +146,8 @@ export interface IChatState {
 	messages:TwitchatDataTypes.ChatMessageTypes[];
 	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
 	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[],
-	whispers:{[key:string]:IRCEventDataList.Whisper[]};
+	whispers:{[key:string]:TwitchatDataTypes.MessageWhisperData[]};
+	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 	botMessages:TwitchatDataTypes.IBotMessage,
 	commands:TwitchatDataTypes.CommandData[],
 	spoilerParams:TwitchatDataTypes.SpoilerParamsData,

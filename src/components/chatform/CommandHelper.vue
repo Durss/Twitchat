@@ -20,7 +20,11 @@
 		<div v-for="(p,key) in params" :key="key">
 			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
 		</div>
-		<div class="raid" v-if="$store('stream').currentRaid == null">
+		<div class="raid" v-if="$store('stream').currentRaid">
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
+			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
+		</div>
+		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
@@ -28,16 +32,13 @@
 			</form>
 			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
 		</div>
-		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid?.target_display_name}}</label>
-			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
-		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import IRCClient from '@/utils/IRCClient';
+import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -76,7 +77,7 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.$store("stream").roomStatusParams; }
+	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.$store("stream").roomStatusParams["twitch"]!; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
@@ -91,8 +92,7 @@ export default class CommandHelper extends Vue {
 
 	public get canCreatePoll():boolean {
 		if(!this.hasChannelPoints) return false;
-		const poll = this.$store("poll").data;
-		return poll == undefined || poll.status != "ACTIVE";
+		return this.$store("poll").data == null;
 	}
 
 	public async mounted():Promise<void> {
@@ -149,39 +149,36 @@ export default class CommandHelper extends Vue {
 		await Utils.promisedTimeout(100);
 		
 		this.$confirm("Raid ?", "Are you sure you want to raid " + this.raidUser + " ?").then(async () => {
-			IRCClient.instance.sendMessage("/raid "+this.raidUser);
+			TwitchUtils.raidChannel(this.raidUser);
 			this.raidUser = "";
 		}).catch(()=> { });
 	}
 
 	public cancelRaid():void {
-		IRCClient.instance.sendMessage("/unraid");
+		TwitchUtils.raidCancel();
 	}
 
 	public onChangeParam(key:string, p:TwitchatDataTypes.ParameterData):void {
-		let channel = IRCClient.instance.channel;
+		let settings:TwitchDataTypes.RoomSettingsUpdate = {};
 		switch(key) {
 			case "emotesOnly": {
-				if(p.value) IRCClient.instance.client.emoteonly(channel);
-				else  IRCClient.instance.client.emoteonlyoff(channel)
+				settings.emotesOnly = p.value === true;
 				break;
 			}
 			case "followersOnly": {
-				if(p.value) IRCClient.instance.client.followersonly(channel);
-				else  IRCClient.instance.client.followersonlyoff(channel)
+				settings.followOnly = p.value === true? 30 : false;
 				break;
 			}
 			case "subsOnly": {
-				if(p.value) IRCClient.instance.client.subscribers(channel);
-				else  IRCClient.instance.client.subscribersoff(channel)
+				settings.subOnly = p.value === true;
 				break;
 			}
 			case "slowMode": {
-				if(p.value) IRCClient.instance.client.slow(channel, 5);
-				else  IRCClient.instance.client.slowoff(channel)
+				settings.slowMode = p.value === true? 5 : 0;
 				break;
 			}
 		}
+		TwitchUtils.setRoomSettings(settings);
 	}
 
 	public openLiveFollowings():void {

@@ -333,13 +333,30 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate):TwitchatDataTypes.TwitchatUser {
 		const login = tags.username ?? tags["display-name"];
+		
+		const user = StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"]);
+
 		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip = tags.badges?.vip != undefined;
 		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
 		const isSubGifter = tags.badges && tags.badges["sub-gifter"] != undefined;
 		const isBroadcaster = tags.badges?.broadcaster != undefined;
-		const user = StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"], isMod, isVip, isBroadcaster, isSub, isSubGifter);
+		const isPartner = tags.badges?.partner != undefined;
+
+		user.is_partner = false;
+		user.is_affiliate = false;
+		if(isMod) user.is_moderator = true;
+		if(isVip) user.is_vip = true;
+		if(isSub) user.is_subscriber = true;
+		if(isSubGifter) user.is_gifter = true;
+		if(isBroadcaster) user.is_broadcaster = true;
+		if(isPartner) {
+			user.is_partner = true;
+			user.is_affiliate = true;
+		}
 		
+		user.online = true;
+
 		if(tags.badges && tags["room-id"] && !user.badges) {
 			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"]!, tags.badges);
 			const badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
@@ -441,12 +458,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data:TwitchatDataTypes.MessageChatData = {
 			id:tags.id!,
 			type:"message",
+			platform:"twitch",
 			channel_id:channel.replace("#", ""),
 			date:Date.now(),
 
-			platform:"twitch",
 			user,
-			message:message,
+			message,
+			answers:[],
 			message_html:"",
 			todayFirst:user.greeted===false,
 		};
@@ -535,6 +553,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
+		let pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
+		if(pinAmount) {
+			data.elevatedInfo	= {amount:pinAmount, duration_s:{"5":30, "10":60, "25":90, "50":120, "100":150}[pinAmount] ?? 30};
+		}
 
 		//Send reward redeem message if the message comes from an "highlight my message" reward
 		if(data.twitch_isHighlighted) {

@@ -94,8 +94,9 @@ export default class RaffleState extends Vue {
 		});
 	}
 
-	public openUserCard(user:RaffleEntry):void {
-		this.$store("users").openUserCard(user.label);
+	public openUserCard(entry:RaffleEntry):void {
+		const user = this.$store("users").getUserFrom("twitch", entry.id)
+		this.$store("users").openUserCard(user);
 	}
 
 	public async pickWinner():Promise<void> {

@@ -4,8 +4,7 @@
 		
 		<ProgressBar class="progress"
 			:percent="progressPercent"
-			:duration="poll.duration*1000"
-			v-if="poll.status == 'ACTIVE'" />
+			:duration="poll.duration_s*1000" />
 		
 		<div class="choices">
 			<div v-for="(c, index) in poll.choices"
@@ -13,18 +12,18 @@
 				:style="getAnswerStyles(c)"
 				:class="getAnswerClasses(c)"
 			>
-				<div>{{c.title}}</div>
+				<div>{{c.label}}</div>
 				<div>{{getPercent(c)}}% ({{c.votes}})</div>
 			</div>
 		</div>
 		<div class="actions">
-			<Button title="End poll" @click="endPoll()" :loading="loading" v-if="poll.status == 'ACTIVE'" />
+			<Button title="End poll" @click="endPoll()" :loading="loading" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -43,11 +42,11 @@ export default class PollState extends Vue {
 	public loading = false;
 	public progressPercent = 0;
 
-	public get poll():TwitchDataTypes.Poll {
-		return this.$store("poll").data;
+	public get poll():TwitchatDataTypes.MessagePollData {
+		return this.$store("poll").data!;
 	}
 
-	public getPercent(c:TwitchDataTypes.PollChoice):number {
+	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice):number {
 		let totalVotes = 0;
 		if(this.poll) {
 			for (let i = 0; i < this.poll.choices.length; i++) {
@@ -57,21 +56,19 @@ export default class PollState extends Vue {
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchDataTypes.PollChoice):{[key:string]:string} {
+	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):{[key:string]:string} {
 		let res:{[key:string]:string} = {};
 		res.backgroundSize = `${this.getPercent(c)}% 100%`;
 		return res;
 	}
 
-	public getAnswerClasses(c:TwitchDataTypes.PollChoice):string[] {
+	public getAnswerClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
 		let res:string[] = ["choice"];
-		
-		if(this.poll.status != "ACTIVE") {
-			let max = 0;
-			this.poll.choices.forEach(v => { max = Math.max(max, v.votes); });
-			if(c.votes == max) res.push("win");
-			else res.push("lose");
-		}
+	
+		let max = 0;
+		this.poll.choices.forEach(v => { max = Math.max(max, v.votes); });
+		if(c.votes == max) res.push("win");
+		else res.push("lose");
 
 		return res;
 	}
@@ -79,16 +76,11 @@ export default class PollState extends Vue {
 	public mounted():void {
 		// this.loadPolls();
 		const ellapsed = new Date().getTime() - new Date(this.poll.started_at).getTime();
-		const duration = this.poll.duration*1000;
+		const duration = this.poll.duration_s*1000;
 		const timeLeft = duration - ellapsed
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 	}
-
-	// private async loadPolls():Promise<void> {
-	// 	if(this.disposed) return;
-	// 	await TwitchUtils.getPolls();//This actually automatically refresh the storage
-	// }
 
 	public beforeUnmount():void {
 		
@@ -109,11 +101,6 @@ export default class PollState extends Vue {
 			this.loading = false;
 		});
 	}
-
-	// public async vote(c:TwitchTypes.PollChoice, index:number):Promise<void> {
-		//Doesn't work, it's just a custom command catched locally by twitch :(
-		// IRCClient.instance.sendMessage("/vote " + index);
-	// }
 
 }
 </script>

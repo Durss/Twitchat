@@ -56,7 +56,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBroadcaster?:boolean, isSub?:boolean, isSubGifter?:boolean):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user
 			//Don't use "users.find(...)", perfs are much lower than good old for() loop
@@ -71,46 +71,24 @@ export const storeUsers = defineStore('users', {
 			//Create user if enough given info
 			if(!user && id && login) {
 				if(!displayName) displayName = login;
-				user = { platform, id, login, displayName, greeted:false, online:true, messageHistory:[] };
+				user = { platform, id, login, displayName, greeted:false, online:false, messageHistory:[] };
 				if(this.blockedUsers[platform][id] === true) {
 					user.is_blocked = true;
 				}
-				this.users.push(user);
 			}
 			//If we don't have enough info, create a temp user object and load
 			//its details from the API then register it if found.
 			if(!user && (login || id || displayName)) {
 				user = {
-						platform:platform,
-						id:id??"temporary_"+Utils.getUUID(),
-						login:login??displayName??"",
-						displayName:displayName??login??"",
-						greeted:false,
-						online:true,
-						messageHistory:[],
-						temporary:true,
-					};
-				if(platform == "twitch" && (login || id)) {
-					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
-						//This just makes the rest of the code know that the user
-						//actually exists as it cannot be undefined anymore once
-						//we're here.
-						user = user!;
-
-						if(res.length > 0) {
-							user.id = res[0].id;
-							user.login = res[0].login;
-							user.displayName = res[0].display_name;
-							if(this.blockedUsers[platform][user.id] === true) {
-								user.is_blocked = true;
-							}
-							delete user.temporary;
-							this.users.push(user);
-							this.checkFollowerState(user);
-							this.checkPronouns(user);
-						}
-					});
-				}
+					platform:platform,
+					id:id??"temporary_"+Utils.getUUID(),
+					login:login??displayName??"",
+					displayName:displayName??login??"",
+					greeted:false,
+					online:false,
+					messageHistory:[],
+					temporary:true,
+				};
 			}
 			
 			//This just makes the rest of the code know that the user
@@ -118,14 +96,45 @@ export const storeUsers = defineStore('users', {
 			//we're here.
 			user = user!;
 
-			this.checkFollowerState(user);
-			this.checkPronouns(user);
+			if(platform == "twitch") {
+				if(this.blockedUsers[platform][user.id] === true) {
+					user.is_blocked = true;
+				}
+				//Wait half a second to let time to external code to populate the
+				//object with more details like in TwitchMessengerClient that calls
+				//this method, then populates the is_partner and is_affiliate and
+				//other fields from IRC tags which avoids the need to get the users
+				//details via an API call.
+				setTimeout(()=> {
+					if(!super.temporary) {
+						if(user!.is_partner != undefined) return;
+						if(user!.is_affiliate != undefined) return;
+					}
+					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
+						user = user!;
+						if(res.length > 0) {
+							user.id = res[0].id;
+							user.login = res[0].login;
+							user.displayName = res[0].display_name;
+							user.is_partner = res[0].broadcaster_type == "partner";
+							user.is_affiliate = user.is_partner || res[0].broadcaster_type == "affiliate";
+							if(user.temporary) {
+								delete user.temporary;
+								this.users.push(user);
+								this.checkFollowerState(user);
+								this.checkPronouns(user);
+							}
+						}
+					});
+				}, 500);
+			}
+
+			if(!user.temporary) {
+				this.users.push(user);
+				this.checkFollowerState(user);
+				this.checkPronouns(user);
+			}
 			user.is_tracked = false;
-			if(isMod) user.is_moderator = true;
-			if(isVIP) user.is_vip = true;
-			if(isSub) user.is_subscriber = true;
-			if(isBroadcaster) user.is_broadcaster = true;
-			if(isSubGifter) user.is_gifter = true;
 			return user;
 		},
 

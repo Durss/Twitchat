@@ -639,6 +639,8 @@ export namespace TwitchatDataTypes {
 
 	export const TwitchatNoticeType = {
 		TTS:"tts",
+		APP_VERSION:"appVersion",
+		ERROR:"error",
 		ONLINE:"online",
 		OFFLINE:"offline",
 		UNNKNOWN:"unknown",
@@ -649,14 +651,15 @@ export namespace TwitchatDataTypes {
 		UNBAN:"unban",
 		MOD:"mod",
 		UNMOD:"unmod",
+		UNBLOCK:"unblock",
 		VIP:"vip",
 		UNVIP:"unvip",
-		MESSAGE_DELETE:"messageDelete",
 		EMERGENCY_MODE:"emergencyMode",
 		COMMERCIAL_ERROR:"commercialError",
 		COMMERCIAL_START:"commercialStart",
 		COMMERCIAL_COMPLETE:"commercialComplete",
 		BROADCAST_SETTINGS_UPDATE:"broadcastSettingsUpdate",
+		CYPHER_KEY:"devcypherKey",
 		DEVMODE:"devMode",
 	}
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
@@ -693,6 +696,8 @@ export namespace TwitchatDataTypes {
 		is_moderator?:boolean;
 		is_broadcaster?:boolean;
 		is_subscriber?:boolean;
+		is_partner?:boolean;
+		is_affiliate?:boolean;
 		is_gifter?:boolean;
 		pronouns?:string|false;
 		badges?:TwitchatUserBadge[];
@@ -739,11 +744,11 @@ export namespace TwitchatDataTypes {
 		user: TwitchatUser;
 		message:string;
 		message_html:string;
+		answers: MessageChatData[];
 		
 		todayFirst?: boolean;
 		automod?: AutomodParamsKeywordFilterData;
 		answersTo?: MessageChatData;
-		answers?: MessageChatData[];
 		cyphered?: boolean;
 		markedAsRead?:boolean;
 		deleted?: boolean;
@@ -754,6 +759,7 @@ export namespace TwitchatDataTypes {
 		highlightWord?: string;
 		hasMention?: boolean;
 		spoiler?: boolean;
+		elevatedInfo?:{duration_s:number, amount:number};
 		
 		twitch_automod?: TwitchatDataTypes.AutomodData;
 		twitch_isSlashMe?:boolean;

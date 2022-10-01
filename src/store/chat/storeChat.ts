@@ -21,9 +21,10 @@ export const storeChat = defineStore('chat', {
 		realHistorySize: 5000,
 		whispersUnreadCount: 0,
 		messages: [],
+		activityFeed: [],
 		pinedMessages: [],
-		emoteSelectorCache: [],
 		whispers: {},
+		emoteSelectorCache: [],
 		
 		botMessages: {
 			raffleStart: {
@@ -300,6 +301,10 @@ export const storeChat = defineStore('chat', {
 			}
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+				//TODO sending a whisper increments the unread count and creates a conversation with ourself, fix that
+				if(!this.whispers[message.user.id]) this.whispers[message.user.id] = [];
+				this.whispers[message.user.id].push(message);
+				this.whispersUnreadCount ++;
 				//TODO Broadcast to OBS-ws
 				// const wsUser = {
 				// 	id: data.tags['user-id'],
@@ -571,6 +576,35 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 
+			//Messages to push on activity feed
+			const activityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
+				TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
+				TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_START,
+				TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR,
+				TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE,
+			]
+			if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && (message.twitch_isHighlighted || message.elevatedInfo))
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.POLL
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.BINGO
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.COUNTDOWN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.PREDICTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAFFLE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && 
+					activityFeedNoticeTypes.includes(message.noticeId)
+				)//Don't user indexOf() instead of includes(). Performances are MUCH better
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+				this.activityFeed.push(message);
+			}
+
 			messages.push( message );
 			this.messages = messages;
 		},
@@ -652,11 +686,11 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.BOT_MESSAGES, this.botMessages);
 		},
 
-		async shoutout(user:TwitchatDataTypes.TwitchatUser) {
+		async shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			let message:string|null = null;
 			let streamTitle = "";
 			let streamCategory = "";
-			if(user.platform == "twitch") {
+			if(user && user.platform == "twitch") {
 				const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
 				if(userInfos?.length > 0) {
 					const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);

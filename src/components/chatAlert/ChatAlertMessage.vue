@@ -6,9 +6,6 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import TwitchUtils from '@/utils/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 
@@ -22,37 +19,14 @@ export default class ChatAlertMessage extends Vue {
 	public user:string|null = null;
 
 	public mounted():void {
-		watch(() => this.$store("main").chatAlert, async (message:IRCEventDataList.Message|IRCEventDataList.Whisper|null) => {
+		watch(() => this.$store("main").chatAlert, async (message) => {
 			if(message && this.$store("main").chatAlertParams.message === true
 			&& this.$store("params").features.alertMode.value === true) {
-				let text = message.type == "whisper"? message.params[1] : message.message;
-				console.log(text);
-				//Allow custom parsing of emotes only if it's a message of ours sent from current IRC client
-				const customParsing = message.sentLocally === true;
-				console.log("Custom", customParsing);
-				console.log(message.tags['emotes-raw']);
-				let removeEmotes = !this.$store("params").appearance.showEmotes.value;
-				let chunks = TwitchUtils.parseEmotesToChunks(text, message.tags['emotes-raw'], removeEmotes, customParsing);
-				let result = "";
-				console.log(chunks);
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-						url = url.replace(/1x$/gi, "3x");//BTTV format
-						url = url.replace(/2x$/gi, "3x");//7TV format
-						url = url.replace(/1$/gi, "4");//FFZ format
-						let tt = "<img src='"+url+"' width='112' height='112'><br><center>"+v.label+"</center>";
-						result += "<img src='"+url+"' data-tooltip=\""+tt+"\" class='emote'>";
-					}
-				}
+				let mess = this.$store("params").appearance.showEmotes.value? message.message_html : message.message;
 				const cmd = this.$store("main").chatAlertParams.chatCmd as string;
-				result = result.replace(new RegExp("^"+cmd+" ?", "i"), "");
-				this.message = result;
-				this.user = message.tags.username as string;
+				mess = mess.replace(new RegExp("^"+cmd+" ?", "i"), "");
+				this.message = mess;
+				this.user = message.user.displayName;
 			}
 		})
 	}

@@ -20,7 +20,7 @@
 
 		<transition name="fade">
 			<div v-if="connectError" @click="connectError = false" class="error">
-				<div>Unable to connect with OBS. Double check the port and password and make sure you installed <a :href="obswsInstaller" target="_blank">OBS-websocket plugin (v5)</a></div>
+				<div>Unable to connect with OBS. Double check the port and password and make sure you have OBS 28 or installed <a :href="obswsInstaller" target="_blank">OBS-websocket plugin (v5)</a></div>
 				<div v-if="obsIP_conf.value != '127.0.0.1'">You may want to set the IP to <strong>127.0.0.1</strong> instead of what OBS shows you</div>
 			</div>
 		</transition>

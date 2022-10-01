@@ -26,8 +26,8 @@
 		<div class="list" v-if="users.length > 0 && !filter">
 			<div v-for="u in users" :key="u.user.id" class="item">
 				<div class="head">
-					<img :src="u.user.profile_image_url" alt="profile pic" class="avatar">
-					<div class="login">{{u.user.display_name}}</div>
+					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
+					<div class="login">{{u.user.avatarPath}}</div>
 				</div>
 				<div class="emotes">
 					<img
@@ -91,9 +91,15 @@ export default class EmoteSelector extends Vue {
 			//Remove users with wrong IDs (like "twitch")
 			users = users.filter(v => parseInt(v.owner_id).toString() === v.owner_id)
 			//Load all users details to get their names
-			const userList = await TwitchUtils.loadUserInfo(users.map(v => v.owner_id));
+			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner_id));
+			const userList:TwitchatDataTypes.TwitchatUser[] = [];
+			for (let i = 0; i < tmpList.length; i++) {
+				const u = tmpList[i];
+				userList.push(this.$store("users").getUserFrom("twitch", u.id, u.login, u.display_name));
+			}
+			
 			//Sort them by name
-			userList.sort((a, b) => a.display_name > b.display_name?  1 : -1);
+			userList.sort((a, b) => a.displayName > b.displayName?  1 : -1);
 			//Bring self to top
 			userList.sort(a => a.id === UserSession.instance.twitchAuthToken.user_id?  -1 : 0);
 			//Build a fast access object to know the index of a user from its ID.
@@ -102,23 +108,21 @@ export default class EmoteSelector extends Vue {
 				uidToIndex[ userList[i].id ] = i;
 				if(userList[i].login.toLowerCase() === "qa_tw_partner") {
 					userList[i].login = "unlocked";
-					userList[i].display_name = "Unlocked";
+					userList[i].displayName = "Unlocked";
 				}
 			}
 	
 			//Add global emotes
 			uidToIndex["0"] = userList.length;
 			userList.push({
-				broadcaster_type: "partner",
-				created_at: "2018-05-29T19:45:23Z",
-				description: "",
-				display_name: "Global",
-				id: "0",
-				login: "global",
-				offline_image_url: "",
-				profile_image_url: this.$image("icons/emote.svg"),
-				type: "",
-				view_count: 0,
+				platform:"twitch",
+				login:"global",
+				displayName:"Global",
+				avatarPath:this.$image("icons/emote.svg"),
+				id:"0",
+				greeted:true,
+				online:false,
+				messageHistory:[],
 			});
 	
 			//Build emotes list for each sorted user
@@ -128,7 +132,7 @@ export default class EmoteSelector extends Vue {
 				const index = uidToIndex[e.owner_id];
 				if(!sets[ index ]) {
 					sets[ index ] = {
-						user:userList.find(v => v.id == e.owner_id),
+						user:userList.find(v => v.id == e.owner_id)!,
 						emotes: [],
 					}
 				}

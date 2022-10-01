@@ -4,38 +4,38 @@
 		
 		<ProgressBar class="progress"
 			:percent="progressPercent"
-			:duration="prediction.prediction_window*1000"
-			v-if="prediction.status == 'ACTIVE'" />
+			:duration="prediction.duration_s*1000"
+			v-if="!prediction.pendingAnswer" />
 		
-		<div class="outcomeTitle" v-if="prediction.status == 'LOCKED'"><span class="arrow">⤺</span> Choose outcome</div>
+		<div class="outcomeTitle" v-if="prediction.pendingAnswer"><span class="arrow">⤺</span> Choose outcome</div>
 		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
-				<div class="color" v-if="prediction.status != 'LOCKED'"></div>
+				<div class="color" v-if="prediction.pendingAnswer"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
 					:icon="$image('icons/checkmark_white.svg')"
-					v-if="prediction.status == 'LOCKED'"
+					v-if="prediction.pendingAnswer"
 					:loading="loading" />
 				<div class="bar" :style="getAnswerStyles(c)">
-					<div>{{c.title}}</div>
+					<div>{{c.label}}</div>
 					<div class="details">
 						<span class="percent">{{getPercent(c)}}%</span>
-						<span class="votes"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{c.users}}</span>
-						<span class="points"><img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">{{c.channel_points}}</span>
+						<span class="votes"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{c.voters.length}}</span>
+						<span class="points"><img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">{{c.votes}}</span>
 					</div>
 				</div>
 			</div>
 		</div>
 		<div class="actions">
-			<Button title="Delete prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.status == 'ACTIVE'" />
-			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.status == 'LOCKED'" />
+			<Button title="Delete prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.pendingAnswer" />
+			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.pendingAnswer" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -56,8 +56,8 @@ export default class PredictionState extends Vue {
 	
 	private disposed = false;
 
-	public get prediction():TwitchDataTypes.Prediction {
-		return this.$store("prediction").data;
+	public get prediction():TwitchatDataTypes.MessagePredictionData {
+		return this.$store("prediction").data!;
 	}
 
 	public get classes():string[] {
@@ -66,17 +66,17 @@ export default class PredictionState extends Vue {
 		return res;
 	}
 
-	public getPercent(c:TwitchDataTypes.PredictionOutcome):number {
+	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome):number {
 		let totalVotes = 0;
 		if(this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
-				totalVotes += this.prediction.outcomes[i].channel_points;
+				totalVotes += this.prediction.outcomes[i].votes;
 			}
 		}
-		return Math.round(c.channel_points/Math.max(1,totalVotes) * 100);
+		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchDataTypes.PredictionOutcome):{[key:string]:string} {
+	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):{[key:string]:string} {
 		return {
 			backgroundSize: `${this.getPercent(c)}% 100%`,
 		}
@@ -85,8 +85,8 @@ export default class PredictionState extends Vue {
 	public mounted():void {
 		this.loadPredictions();
 
-		const ellapsed = new Date().getTime() - new Date(this.prediction.created_at).getTime();
-		const duration = this.prediction.prediction_window*1000;
+		const ellapsed = new Date().getTime() - this.prediction.started_at;
+		const duration = this.prediction.duration_s*1000;
 		const timeLeft = duration - ellapsed
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
@@ -105,9 +105,9 @@ export default class PredictionState extends Vue {
 		this.disposed = true;
 	}
 
-	public setOutcome(c:TwitchDataTypes.PredictionOutcome):void {
+	public setOutcome(c:TwitchatDataTypes.MessagePredictionDataOutcome):void {
 		this.loading = true;
-		this.$confirm("\""+c.title+"\" wins?", "Do you confirm this outcome?")
+		this.$confirm("\""+c.label+"\" wins?", "Do you confirm this outcome?")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.id, c.id);

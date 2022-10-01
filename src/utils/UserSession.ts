@@ -1,7 +1,6 @@
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
 import { reactive } from "vue";
 import rewardImg from '@/assets/icons/reward_highlight.svg';
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
 * Created : 17/06/2022 
@@ -14,7 +13,7 @@ export default class UserSession {
 	public authResult:TwitchDataTypes.AuthTokenResult|null = null;
 	//keys are lowercased version of the emotes codes
 	public emotesCacheHashmap:{[key:string]:TwitchDataTypes.Emote} = {};
-	public twitchUser:TwitchatDataTypes.TwitchatUser| null = null;
+	public twitchUser:TwitchDataTypes.UserInfo| null = null;
 	public access_token:string|null = null;
 	public isDonor:boolean = false;
 	public donorLevel:number = 0;

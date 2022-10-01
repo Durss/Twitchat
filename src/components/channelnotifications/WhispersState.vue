@@ -3,9 +3,9 @@
 		
 		<div class="whispers" v-if="selectedUser">
 			<div class="messages">
-				<div v-for="m in $store('chat').whispers[selectedUser]" :key="m.raw" :class="messageClasses(m)">
+				<div v-for="m in $store('chat').whispers[selectedUser.id]" :key="m.id" :class="messageClasses(m)">
 					<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
-					<div v-html="parseMessage(m)"></div>
+					<div v-html="m.message_html"></div>
 				</div>
 			</div>
 
@@ -21,13 +21,13 @@
 
 		<div class="users">
 			<div class="user"
-			v-for="(u, uid) in $store('chat').whispers"
+			v-for="(w, uid) in $store('chat').whispers"
 			:key="uid">
 				<Button class="login"
-					@click="selectUser(uid.toString())"
-					:title="'('+u.length+') '+u[0].tags['display-name']"
+					@click="selectUser(w[0].user)"
+					:title="'('+w.length+') '+w[0].user.displayName"
 					bounce
-					:data-tooltip="u[0].tags['display-name']" />
+					:data-tooltip="w[0].user.displayName" />
 					
 				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
@@ -39,9 +39,9 @@
 </template>
 
 <script lang="ts">
-import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -57,7 +57,7 @@ export default class WhispersState extends Vue {
 
 	public error = false;
 	public whisper:string | null = null;
-	public selectedUser:string | null = null;
+	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
 
 	public get classes():string[] {
 		let res = ["whispersstate"];
@@ -71,51 +71,28 @@ export default class WhispersState extends Vue {
 		}, {deep:true})
 	}
 
-	public messageClasses(whisper:IRCEventDataList.Whisper):string[] {
+	public messageClasses(whisper:TwitchatDataTypes.MessageWhisperData):string[] {
 		let classes:string[] = ["message"];
-		if(whisper.isAnswer) classes.push("isMe");
+		if(whisper.user.id == UserSession.instance.twitchUser!.id) classes.push("isMe");
 		return classes;
 	}
 
-	public getTime(whisper:IRCEventDataList.Whisper):string {
-		const d = new Date(whisper.timestamp);
+	public getTime(whisper:TwitchatDataTypes.MessageWhisperData):string {
+		const d = new Date(whisper.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
-	public selectUser(user:string):void {
+	public selectUser(user:TwitchatDataTypes.TwitchatUser):void {
 		this.selectedUser = user;
 	}
 
-	public parseMessage(whisper:IRCEventDataList.Whisper):string {
-		const message = whisper.params[1];
-		const chunks = TwitchUtils.parseEmotesToChunks(message, whisper.tags['emotes-raw']);
-		let result = "";
-		for (let i = 0; i < chunks.length; i++) {
-			const v = chunks[i];
-			if(v.type == "text") {
-				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				result += Utils.parseURLs(v.value);
-			}else if(v.type == "emote") {
-				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-				url = url.replace(/1x$/gi, "3x");//BTTV format
-				url = url.replace(/2x$/gi, "3x");//7TV format
-				url = url.replace(/1$/gi, "4");//FFZ format
-				let tt = "<img src='"+url+"' height='112' width='112'><br><center>"+v.label+"</center>";
-				result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-			}
-		}
-		return result;
-	}
-
 	public async sendWhisper():Promise<void> {
-		if(!this.whisper) return;
+		if(!this.whisper || !this.selectedUser) return;
 
 		this.error = false;
-		const whispers = this.$store("chat").whispers as {[key:string]:IRCEventDataList.Whisper[]};
-		const src = whispers[this.selectedUser as string][0];
 		
 		try {
-			await IRCClient.instance.whisper(src, this.whisper);
+			await TwitchUtils.whisper(this.whisper, undefined, this.selectedUser.id);
 		}catch(error) {
 			this.error = true;
 		}

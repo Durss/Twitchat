@@ -713,6 +713,7 @@ export default class PubSub extends EventDispatcher {
 			},
 			user:StoreProxy.users.getUserFrom("twitch", localObj.redemption.user.id),
 		};
+		m.user.online = true;
 		if(localObj.redemption.user_input) {
 			m.message		= localObj.redemption.user_input;
 			m.message_html	= TwitchUtils.parseEmotes(localObj.redemption.user_input, undefined, false, true);
@@ -746,6 +747,7 @@ export default class PubSub extends EventDispatcher {
 				},
 			}
 		};
+		m.user.online = true;
 		StoreProxy.chat.addMessage(m);
 	}
 
@@ -791,7 +793,11 @@ export default class PubSub extends EventDispatcher {
 				id: c.id,
 				label: c.title,
 				votes: c.total_points,
-				voters: c.top_predictors.map(v=> StoreProxy.users.getUserFrom("twitch", v.user_id, undefined, v.user_display_name)),
+				voters: c.top_predictors.map(v=>{
+					const u = StoreProxy.users.getUserFrom("twitch", v.user_id, undefined, v.user_display_name);
+					u.online = true;
+					return u;
+				}),
 			})
 		}
 		const prediction:TwitchatDataTypes.MessagePredictionData = {
@@ -833,6 +839,7 @@ export default class PubSub extends EventDispatcher {
 			user: StoreProxy.users.getUserFrom("twitch", data.user_id, data.username, data.display_name),
 			followed_at: Date.now(),
 		};
+		message.user.online = true;
 		
 		this.lastRecentFollowers.push( message );
 		if(this.lastRecentFollowers.length > 1) {

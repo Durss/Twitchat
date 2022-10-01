@@ -6,12 +6,12 @@
 		
 		<div class="emote" v-if="bingoData.guessEmote">
 			Emote to find
-			<img :src="bingoData.emoteValue.images.url_2x">
-			<span class="code">({{bingoData.emoteValue.name}})</span>
+			<img :src="bingoData.emoteValue?.twitch?.image.hd">
+			<span class="code">({{bingoData.emoteValue?.twitch?.image}})</span>
 		</div>
 
-		<div class="winner" v-if="bingoData.winners?.length > 0">
-			🎉 {{bingoData.winners[0]["display-name"]}} won 🎉
+		<div class="winner" v-if="bingoData.winners && bingoData.winners.length > 0">
+			🎉 {{bingoData.winners[0].displayName}} won 🎉
 		</div>
 
 		<PostOnChatParam class="postChat" botMessageKey="bingo" :placeholders="winnerPlaceholders" />
@@ -26,7 +26,6 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { BingoData } from '@/utils/CommonDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
@@ -42,7 +41,7 @@ export default class BingoState extends Vue {
 
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 
-	public get bingoData():BingoData { return this.$store("bingo").data!; }
+	public get bingoData():TwitchatDataTypes.BingoConfig { return this.$store("bingo").data!; }
 
 	public mounted():void {
 	}

@@ -38,7 +38,6 @@
 </template>
 
 <script lang="ts">
-import IRCClient from '@/utils/IRCClient';
 import PubSub from '@/utils/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -107,11 +106,13 @@ export default class DevmodeMenu extends Vue {
 			PubSub.instance.simulateCommunityBoost();
 		}else if(code == "subgiftx20") {
 			for (let i = 0; i < 20; i++) {
-				IRCClient.instance.sendFakeEvent("subgift");
+				//TODO update fakeEvents.json and replace these lines
+				// IRCClient.instance.sendFakeEvent("subgift");
 				await Utils.promisedTimeout(60);
 			}
 		}else{
-			IRCClient.instance.sendFakeEvent(code);
+			//TODO update fakeEvents.json and replace these lines
+			// IRCClient.instance.sendFakeEvent(code);
 		}
 	}
 

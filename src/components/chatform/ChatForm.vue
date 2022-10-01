@@ -58,7 +58,7 @@
 				<Button aria-label="Open tracked users"
 					:icon="$image('icons/magnet.svg')"
 					bounce
-					v-if="$store('users').trackedUsers.length > 0"
+					v-if="trackedUserCount > 0"
 					data-tooltip="View tracked users"
 					@click="$emit('setCurrentNotification', 'trackedUsers')" />
 				</transition>
@@ -211,16 +211,17 @@
 </template>
 
 <script lang="ts">
+import MessengerProxy from '@/messaging/MessengerProxy';
+import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
-import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
 import TwitchUtils from '@/utils/TwitchUtils';
 import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import VoiceAction from '@/utils/VoiceAction';
 import VoiceController from '@/utils/VoiceController';
 import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
@@ -327,27 +328,37 @@ export default class ChatForm extends Vue {
 	}
 
 	public get onlineUsersTooltip():string {
-		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+this.$store("users").onlineUsers.length.toString();
+		let followCount = 0;
+		let onlineCount = 0;
+		const users = this.$store("users").users;
+		for (let i = 0; i < users.length; i++) {
+			if(users[i].is_following === true) followCount ++;
+			if(users[i].online === true) onlineCount ++;
+		}
+		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
 		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
-			let followCount = 0;
-			const followState = this.$store("users").followingStatesByNames;
-			for (let i = 0; i < this.$store("users").onlineUsers.length; i++) {
-				const u = this.$store("users").onlineUsers[i];
-				if(followState[u.toLowerCase()] === true) followCount ++;
-			}
-			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount.toString();
-			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(this.$store("users").onlineUsers.length - followCount).toString();
+			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount;
+			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
 		}
 		return res;
 	}
 
 	public get whispersAvailable():boolean {
-		const whispers:{[key:string]:IRCEventDataList.Whisper[]} = this.$store("chat").whispers;
-		for (const key in this.$store("chat").whispers) {
+		const whispers = this.$store("chat").whispers;
+		for (const key in whispers) {
 			if (whispers[key].length > 0) return true;
 		}
 		return false;
+	}
+
+	public get trackedUserCount():number {
+		let count = 0;
+		const users = this.$store('users').users;
+		for (let i = 0; i < users.length; i++) {
+			if(users[i].is_tracked) count ++;
+		}
+		return count;
 	}
 
 	public get classes():string[] {
@@ -363,8 +374,8 @@ export default class ChatForm extends Vue {
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 	
 	public get showFeedBt():boolean {
-		return this.$store("chat").activityFeed?.length > 0
-		&& (!this.$store("main").canSplitView || !this.$store("params").appearance.splitView.value);
+		return (!this.$store("main").canSplitView || !this.$store("params").appearance.splitView.value)
+		&& this.$store("chat").activityFeed?.length > 0;
 	}
 
 	public async mounted():Promise<void> {
@@ -419,6 +430,9 @@ export default class ChatForm extends Vue {
 
 		const params = this.message.split(" ");
 		const cmd = params.shift()?.toLowerCase();
+		const sChat = this.$store("chat");
+		let noticeId:TwitchatDataTypes.TwitchatNoticeStringType|undefined;
+		let noticeMessage:string|undefined;
 
 		if(cmd == "/devmode") {
 			this.message = "";
@@ -487,14 +501,15 @@ export default class ChatForm extends Vue {
 			//Search a for messages
 			const search = params.join(" ");
 			// this.$emit("search", search);
-			this.$store("chat").doSearchMessages(search);
+			sChat.doSearchMessages(search);
 			this.message = "";
 		}else
 
-		if(cmd == "/so") {
+		if(cmd == "/so" || cmd == "/shoutout") {
 			this.message = "...";
+			const user = await this.$store("users").getUserFrom("twitch", params[0]);
 			//Make a shoutout
-			await this.$store("chat").shoutout(params[0]);
+			await sChat.shoutout(user);
 			this.message = "";
 		}else
 
@@ -511,23 +526,30 @@ export default class ChatForm extends Vue {
 			});
 			
 			this.spamInterval = window.setInterval(()=> {
-				const tags = IRCClient.instance.getFakeTags();
 				const id = Math.round(Math.random()*1000);
-				tags.username = "FakeUser"+id;//UserSession.instance.authToken.login;
-				tags["display-name"] = tags.username;
-				tags["user-id"] = id.toString();//UserSession.instance.authToken.user_id;
-				tags.color = "#"+(id*id*id*id*id).toString().substring(0,8);
 				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*2) + 1);
-				if(this.$store("chat").messages.length > 0 && Math.random() < .5) {
-					for (let i = 0; i < this.$store("chat").messages.length; i++) {
-						const m = this.$store("chat").messages[i];
+				const mess:TwitchatDataTypes.MessageChatData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					user: this.$store("users").getUserFrom("twitch", id.toString()),
+					channel_id:UserSession.instance.twitchUser!.login,
+					type:"message",
+					message,
+					message_html:message,
+					answers:[],
+				};
+				const messageList = sChat.messages;
+				if(messageList.length > 0 && Math.random() < .5) {
+					for (let i = 0; i < messageList.length; i++) {
+						const m = messageList[i];
 						if(m.type == "message") {
-							tags["reply-parent-msg-id"] = m.tags.id;
+							mess.answersTo = m;
+							m.answers.push(mess);
 							break;
 						}
 					}
 				}
-				IRCClient.instance.addMessage(message, tags, false)
 			}, 250);
 			this.message = "";
 		}else
@@ -543,12 +565,12 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/updates") {
-			this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+			sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 			this.message = "";
 		}else
 
 		if(cmd == "/tip") {
-			this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+			sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 			this.message = "";
 		}else
 
@@ -600,11 +622,13 @@ export default class ChatForm extends Vue {
 			this.loading = true;
 			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
 			if(users.length == 0) {
-				await IRCClient.instance.sendNotice("error", "User <mark>"+params[0]+"</mark> not found...");
+				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+				noticeMessage = "User <mark>"+params[0]+"</mark> not found...";
 			}else{
 				let res = await TwitchUtils.blockUser(users[0].id);
 				if(res === true) {
-					await IRCClient.instance.sendNotice("block", "User <mark>"+users[0].login+"</mark> blocked");
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+					noticeMessage = "User <mark>"+users[0].login+"</mark> blocked";
 				}
 			}
 			this.loading = false;
@@ -615,24 +639,28 @@ export default class ChatForm extends Vue {
 			this.loading = true;
 			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
 			if(users.length == 0) {
-				await IRCClient.instance.sendNotice("error", "User <mark>"+params[0]+"</mark> not found...");
+				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+				noticeMessage = "User <mark>"+params[0]+"</mark> not found...";
 			}else{
 				let res = await TwitchUtils.unblockUser(users[0].id);
 				if(res === true) {
-					await IRCClient.instance.sendNotice("unblock", "User <mark>"+users[0].login+"</mark> unblocked");
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBLOCK;
+					noticeMessage = "User <mark>"+users[0].login+"</mark> unblocked";
 				}
 			}this.loading = false;
 		}else
 		
 		if(cmd == "/userinfo") {
 			if(!params[0]) {
-				await IRCClient.instance.sendNotice("error", "Missing user name param");
+				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+				noticeMessage = "Missing user name param";
 			}else{
 				if(parseInt(params[0]).toString() === params[0]) {
 					const user = await TwitchUtils.loadUserInfo([params[0]]);
 					params[0] = user[0].login;
 				}
-				this.$store("users").openUserCard(params[0]);
+				const user = this.$store("users").getUserFrom("twitch", undefined, params[0]);
+				this.$store("users").openUserCard( user );
 			}
 			this.message = "";
 		}else
@@ -640,7 +668,8 @@ export default class ChatForm extends Vue {
 		if(cmd == "/cypherkey") {
 			//Secret feature
 			this.$store("main").setCypherKey(params[0]);
-			IRCClient.instance.sendNotice("cypher", "Cypher key successfully configured !");
+			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
+			noticeMessage = "Cypher key successfully configured !";
 			this.message = "";
 		}else
 
@@ -648,19 +677,21 @@ export default class ChatForm extends Vue {
 			//Secret feature
 			this.$store("main").setCypherEnabled(false);
 			TwitchCypherPlugin.instance.cypherKey = "";
-			IRCClient.instance.sendNotice("cypher", "Cypher key removed successfully.");
+			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
+			noticeMessage = "Cypher key removed successfully.";
 			this.message = "";
 		}else
 		
 		if(cmd == "/version") {
-			//Secret feature
-			IRCClient.instance.sendNotice("version", "Twitchat version "+import.meta.env.PACKAGE_VERSION);
+			//App version
+			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
+			noticeMessage = "Twitchat version "+import.meta.env.PACKAGE_VERSION;
 			this.message = "";
 		}else
 		
 		if(cmd == "/deletemessage") {
 			//Delete a chat message from its ID
-			IRCClient.instance.deleteMessage(params[0]);
+			TwitchUtils.deleteMessages(params[0])
 			this.message = "";
 		}else
 		
@@ -668,7 +699,9 @@ export default class ChatForm extends Vue {
 			//Allows to display a message on chat from its raw JSON
 			console.log(params.join(""));
 			try {
-				IRCClient.instance.sendFakeEvent(undefined, JSON.parse(params.join("")));
+				//TODO
+				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+				noticeMessage = "This command needs to be migrated to new Twitchat's data model...";
 			}catch(error) {
 				this.$store("main").alert = "Invalid or missing JSON";
 			}
@@ -681,7 +714,8 @@ export default class ChatForm extends Vue {
 			try {
 				const user = await TwitchUtils.loadUserInfo(undefined, [username]);
 				if(user.length == 0) {
-					IRCClient.instance.sendNotice("error", "User <mark>"+username+"</mark> not found...");
+					noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+					noticeMessage = "User <mark>"+username+"</mark> not found...";
 					this.loading = false;
 					return;
 				}
@@ -747,11 +781,23 @@ export default class ChatForm extends Vue {
 				}
 				let mess = this.message;
 				this.message = "";
-				await IRCClient.instance.sendMessage(mess);
+				await TwitchMessengerClient.instance.sendMessage(mess);
 			}catch(error) {
 				console.log(error);
 				this.error = true;
 			}
+		}
+
+		if(noticeId && noticeMessage) {
+			const notice:TwitchatDataTypes.MessageNoticeData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				type:"notice",
+				platform:"twitchat",
+				noticeId:noticeId,
+				message:noticeMessage,
+			}
+			sChat.addMessage(notice);
 		}
 	}
 

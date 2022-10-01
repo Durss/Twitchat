@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import IRCClient from '@/utils/IRCClient';
+import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -62,7 +62,7 @@ export default class RaidState extends Vue {
 	}
 
 	public cancelRaid():void {
-		IRCClient.instance.sendMessage("/unraid");
+		TwitchUtils.raidCancel();
 	}
 
 }

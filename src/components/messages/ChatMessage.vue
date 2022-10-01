@@ -443,7 +443,7 @@ export default class ChatMessage extends Vue {
 		}else{
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
-			this.messageData.answers = undefined;
+			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);

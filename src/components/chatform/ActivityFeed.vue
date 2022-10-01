@@ -177,13 +177,16 @@ export default class ActivityFeed extends Vue {
 			else if(type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY) result.unshift(m);
 			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) result.unshift(m);
 			else if(type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN) result.unshift(m);
-			else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& this.$store("params").features.keepHighlightMyMessages.value === true
-				&& m.twitch_isHighlighted) result.unshift(m);
-			else if(m.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && (
-				m.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_START ||
-				m.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR ||
-				m.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE )) result.unshift(m);
+			else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+				(
+				//It's an highlighted message
+				(this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted)
+				//It's an elevated message
+				|| m.elevatedInfo
+				)
+			) result.unshift(m);
+			//Notice types are whitelisted on storeChat.ts
+			else if(m.type == TwitchatDataTypes.TwitchatMessageType.NOTICE) result.unshift(m);
 		}
 		
 		return result;
