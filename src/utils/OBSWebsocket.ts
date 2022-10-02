@@ -70,6 +70,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion:1});
 			this.connected = true;
 		}catch(error) {
+			console.log(error);
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
 				this.reconnectTimeout = setTimeout(()=> {
