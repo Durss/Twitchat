@@ -4,7 +4,6 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { ChatUserstate } from 'tmi.js';
 import type { UnwrapRef } from 'vue';
 import { storeChat } from '../chat/storeChat';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
@@ -32,6 +31,14 @@ export const storeUsers = defineStore('users', {
 			tiktok:{},
 			facebook:{},
 		},
+		knownBots: {
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+		}
 	} as IUsersState),
 
 
@@ -44,6 +51,14 @@ export const storeUsers = defineStore('users', {
 
 
 	actions: {
+		/**
+		 * Registers the bots hashmap of a platform
+		 * Maps a lowercased login to a boolean (true)
+		 */
+		setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void {
+			this.knownBots[platform] = hashmap;
+		},
+
 		/**
 		 * Gets a user by their source from their ID nor login.
 		 * It registers the user on the local DB "this.users" to get them back later.
@@ -107,6 +122,9 @@ export const storeUsers = defineStore('users', {
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
 				setTimeout(()=> {
+					//User not pending for necessary data loading, check if the
+					//partner/affiliate state is defined, if so, just stop there
+					//Otherwise, load full info from API
 					if(!super.temporary) {
 						if(user!.is_partner != undefined) return;
 						if(user!.is_affiliate != undefined) return;
@@ -130,6 +148,9 @@ export const storeUsers = defineStore('users', {
 					});
 				}, 500);
 			}
+			
+			//Attribute a random color to the user (overwrite that externally if necessary)
+			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 
 			if(!user.temporary) {
 				this.users.push(user);

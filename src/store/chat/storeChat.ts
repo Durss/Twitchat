@@ -411,27 +411,6 @@ export const storeChat = defineStore('chat', {
 					//TODO Broadcast to OBS-ws
 					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
 				}
-
-				//Ignore commands
-				if(sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(message.message)) {
-					const blocked = sParams.filters.blockedCommands.value as string;
-					if(sParams.filters.ignoreListCommands.value === true && blocked.length > 0) {
-						//Ignore specific commands
-						let blockedList = blocked.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
-						blockedList = blockedList.map(v=>v.replace(/^!/gi, ""))
-						const cmd = message.message.split(" ")[0].substring(1).trim().toLowerCase();
-						if(blockedList.indexOf(cmd) > -1) {
-							//TODO Broadcast to OBS-ws
-							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
-							return;
-						}
-					}else{
-						//Ignore all commands
-						//TODO Broadcast to OBS-ws
-						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
-						return;
-					}
-				}
 				
 				const cmd = message.message.trim().split(" ")[0].toLowerCase();
 
@@ -598,6 +577,7 @@ export const storeChat = defineStore('chat', {
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(messageId == m.id) {
+					m.deleted = true;
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 						//Called if closing an ad
 						list.splice(i, 1);
@@ -613,7 +593,6 @@ export const storeChat = defineStore('chat', {
 						if(!m.twitch_automod//Don't keep automod form message
 						&& keepDeletedMessages === true) {
 							//Just flag as deleted but keep it
-							m.deleted = true;
 							if(deleter) {
 								m.deletedData = { deleter };
 							}

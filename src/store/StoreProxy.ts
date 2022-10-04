@@ -393,12 +393,14 @@ export interface IUsersState {
 	userCard: TwitchatDataTypes.TwitchatUser|null;
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	knownBots: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 }
 
 export interface IUsersGetters {
 }
 
 export interface IUsersActions {
+	setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void;
 	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;

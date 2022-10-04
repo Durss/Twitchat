@@ -118,7 +118,6 @@ Here are the types signatures used on the above examples
 export type TwitchatEventType =
 	"MESSAGE_READ"
 	| "MESSAGE_NON_FOLLOWER"
-	| "MESSAGE_FILTERED"
 	| "MESSAGE_DELETED"
 	| "MESSAGE_FIRST"
 	| "MESSAGE_FIRST_ALL_TIME"
@@ -199,16 +198,6 @@ Poll results, sub/bits/.. alerts, notices, etc... won't fire this event
 ```
 ## **MESSAGE_NON_FOLLOWER**
 Sent when a non-follower sends a message
-```typescript
-{
-	channel:string,
-	message:string,
-	tags:any,//IRC tags data
-}
-```
-## **MESSAGE_FILTERED**
-Sent when a message is filtered out.
-If you don't want commands to be displayed on the chat, anytime a command is sent this event will be fired.
 ```typescript
 {
 	channel:string,

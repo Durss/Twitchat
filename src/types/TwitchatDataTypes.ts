@@ -694,9 +694,10 @@ export namespace TwitchatDataTypes {
 
 	export interface AbstractTwitchatMessage {
 		type:TwitchatMessageStringType;
-		id: string;
-		date: number;
+		id:string;
+		date:number;
 		platform:ChatPlatform;
+		deleted?:boolean;
 		markedAsRead?:boolean;
 	}
 
@@ -804,7 +805,6 @@ export namespace TwitchatDataTypes {
 		automod?: AutomodParamsKeywordFilterData;
 		answersTo?: MessageChatData;
 		cyphered?: boolean;
-		deleted?: boolean;
 		deletedData?: {
 			deleter:TwitchatUser;
 		};

@@ -91,7 +91,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						},
 					});
 				}
-				this.createHandlers();
+				this.initialize();
 			}else{
 				//Already connected to IRC, add channel to the list
 				//and reconnect IRC client
@@ -276,24 +276,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-	private initialize():void {
-		
-	}
-
-	/**
-	 * Refresh IRC connection
-	 * Called after updating the token or the channels list
-	 */
-	private async reconnect():Promise<void> {
-		this._reconnecting = true;
-		await this._client.disconnect();
-		await this._client.connect();
-	}
-
-	/**
-	 * Create events handlers
-	 */
-	private createHandlers():void {
+	private async initialize():Promise<void> {
 		this._client.on('message', this.message);
 		this._client.on("join", this.onJoin);
 		this._client.on("part", this.onLeave);
@@ -310,6 +293,29 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on("disconnected", this.disconnected);
 		this._client.on("clearchat", this.clearchat);
 		this._client.on('raw_message', this.raw_message);
+
+		let hashmap:{[key:string]:boolean} = {};
+		try {
+			//Load bots list
+			const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
+			const json = await res.json();
+			(json.bots as string[][]).forEach(b => hashmap[ b[0].toLowerCase() ] = true);
+		}catch(error) {
+			//Fallback in case twitchinsights dies someday
+			["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
+			.forEach(b => hashmap[ b[0].toLowerCase() ] = true);
+		}
+		StoreProxy.users.setBotsMap("twitch", hashmap);
+	}
+
+	/**
+	 * Refresh IRC connection
+	 * Called after updating the token or the channels list
+	 */
+	private async reconnect():Promise<void> {
+		this._reconnecting = true;
+		await this._client.disconnect();
+		await this._client.connect();
 	}
 
 	/**
@@ -334,28 +340,29 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate):TwitchatDataTypes.TwitchatUser {
 		const login = tags.username ?? tags["display-name"];
 		
-		const user = StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"]);
+		const user			= StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"]);
+		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
+		const isVip			= tags.badges?.vip != undefined;
+		const isSub			= tags.badges?.subscriber != undefined || tags.subscriber === true;
+		const isSubGifter	= tags.badges && tags.badges["sub-gifter"] != undefined;
+		const isBroadcaster	= tags.badges?.broadcaster != undefined;
+		const isPartner		= tags.badges?.partner != undefined;
 
-		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
-		const isVip = tags.badges?.vip != undefined;
-		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
-		const isSubGifter = tags.badges && tags.badges["sub-gifter"] != undefined;
-		const isBroadcaster = tags.badges?.broadcaster != undefined;
-		const isPartner = tags.badges?.partner != undefined;
-
-		user.is_partner = false;
-		user.is_affiliate = false;
-		if(isMod) user.is_moderator = true;
-		if(isVip) user.is_vip = true;
-		if(isSub) user.is_subscriber = true;
-		if(isSubGifter) user.is_gifter = true;
-		if(isBroadcaster) user.is_broadcaster = true;
+		user.online			= true;
+		user.is_partner		= false;
+		user.is_affiliate	= false;
+		
+		if(tags.color)		user.color = tags.color;
+		if(isMod)			user.is_moderator = true;
+		if(isVip)			user.is_vip = true;
+		if(isSub)			user.is_subscriber = true;
+		if(isSubGifter)		user.is_gifter = true;
+		if(isBroadcaster)	user.is_broadcaster = true;
 		if(isPartner) {
-			user.is_partner = true;
-			user.is_affiliate = true;
+			user.is_partner		= true;
+			user.is_affiliate	= true;
 		}
 		
-		user.online = true;
 
 		if(tags.badges && tags["room-id"] && !user.badges) {
 			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"]!, tags.badges);
@@ -445,15 +452,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//the same value which is not allowed
 		tags = JSON.parse(JSON.stringify(tags));
 
+		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action") return;
 
+		//Ignore rewards with text, they are also sent to PubSub with more info
+		if(tags["custom-reward-id"]) return;
+
 		const user = this.getUserFromTags(tags);
-		
-		if(!user.color) user.color = tags.color;
-		//User has no color give them a random one
-		if(!user.color) {
-			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
-		}
 
 		const data:TwitchatDataTypes.MessageChatData = {
 			id:tags.id!,

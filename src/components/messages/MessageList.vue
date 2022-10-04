@@ -6,13 +6,12 @@
 	@touchmove="onTouchMove($event)">
 		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 		<div class="holder" ref="messageHolder" :style="holderStyles">
-			<div v-for="m in localMessages" :key="m.id" ref="message" class="subHolder"
+			<div v-for="m in filteredMessages" :key="m.id" ref="message" class="subHolder"
 			@click="toggleMarkRead(m, $event)">
 				<ChatAd class="message"
 					:messageData="m"
 					v-if="m.type == 'twitchatAd' && !lightMode"
 					@showModal="(v:string)=>$emit('showModal', v)"
-					@delete="forceDelete(m)"
 					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 				/>
@@ -25,7 +24,7 @@
 				/>
 
 				<ChatMessage
-					v-else-if="m.type == 'message' || (m.type == 'whisper' && $store('params').features.showWhispersOnChat.value)"
+					v-else-if="m.type == 'message' || m.type == 'whisper'"
 					class="message"
 					:messageData="m"
 					:lightMode="lightMode"
@@ -44,19 +43,10 @@
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					/>
 
-				<ChatHighlight
-					v-else-if="m.type == 'highlight' && ($store('params').filters.showNotifications.value || m.tags?.['msg-id']==='autoban_join')"
-					class="message"
-					:messageData="m"
-					lightMode
-					:ref="'message_'+m.id"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					/>
-
 				<ChatPollResult
 					class="message"
 					:ref="'message_'+m.id"
-					v-else-if="m.type == 'poll' && $store('params').filters.showNotifications.value"
+					v-else-if="m.type == 'poll'"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:pollData="m"
 				/>
@@ -64,7 +54,7 @@
 				<ChatPredictionResult
 					class="message"
 					:ref="'message_'+m.id"
-					v-else-if="m.type == 'prediction' && $store('params').filters.showNotifications.value"
+					v-else-if="m.type == 'prediction'"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:predictionData="m"
 				/>
@@ -72,7 +62,7 @@
 				<ChatBingoResult
 					class="message"
 					:ref="'message_'+m.id"
-					v-else-if="m.type == 'bingo' && $store('params').filters.showNotifications.value"
+					v-else-if="m.type == 'bingo'"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:bingoData="m"
 				/>
@@ -80,7 +70,7 @@
 				<ChatRaffleResult
 					class="message"
 					:ref="'message_'+m.id"
-					v-else-if="m.type == 'raffle' && $store('params').filters.showNotifications.value"
+					v-else-if="m.type == 'raffle'"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:raffleData="m"
 				/>
@@ -88,7 +78,7 @@
 				<ChatCountdownResult
 					class="message"
 					:ref="'message_'+m.id"
-					v-else-if="m.type == 'countdown' && $store('params').filters.showNotifications.value"
+					v-else-if="m.type == 'countdown'"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:countdownData="m"
 				/>
@@ -96,14 +86,23 @@
 				<ChatHypeTrainResult
 					class="message"
 					ref="message"
-					v-else-if="m.type == 'hype_train_end' && $store('params').filters.showNotifications.value"
+					v-else-if="m.type == 'hype_train_summary'"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:result="m" />
+
+				<ChatHighlight
+					v-else
+					class="message"
+					:messageData="m"
+					lightMode
+					:ref="'message_'+m.id"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					/>
 
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
-				v-if="!lightMode && m.type == 'message' && !m.blockedUser && m.type == 'message'">
+				v-if="!lightMode && m.type == 'message' && !m.user.is_blocked">
 					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 				</div>
 			</div>
@@ -123,7 +122,7 @@
 		>
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
-				<h1 v-if="!conversationMode">{{conversation[0].tags['display-name']}} history</h1>
+				<h1 v-if="!conversationMode">{{conversation[0].user.displayName}} history</h1>
 				<Button class="button" aria-label="close conversation" :icon="$image('icons/cross_white.svg')" @click="onMouseLeave()" />
 			</div>
 			<div class="messages" ref="conversationMessages">
@@ -144,7 +143,7 @@
 				small bounce />
 		</div>
 
-		<div v-if="localMessages.length == 0 && !lightMode" class="noMessage">
+		<div v-if="filteredMessages.length == 0 && !lightMode" class="noMessage">
 			<div class="gradient"></div>
 		</div>
 	</div>
@@ -152,10 +151,11 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import PubSub from '@/utils/twitch/PubSub';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
@@ -171,7 +171,6 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
-import ChatJoinLeave from './ChatJoinLeave.vue';
 
 @Options({
 	components:{
@@ -253,18 +252,145 @@ export default class MessageList extends Vue {
 		return label;
 	}
 
+	public get filteredMessages():TwitchatDataTypes.ChatMessageTypes[] {
+		const sParams = StoreProxy.params;
+		const sUsers = StoreProxy.users;
+		const messages = this.localMessages.concat();
+		const meUID = UserSession.instance.twitchUser!.id;
+		const blockedCmds = sParams.filters.blockedCommands.value as string;
+		let blockedSpecificCmds = blockedCmds.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
+		blockedSpecificCmds = blockedSpecificCmds.map(v=>v.replace(/^!/gi, ""))//Remove "!" at the beginning
+		for (let i = 0; i < messages.length; i++) {
+			const m = messages[i];
+			
+			if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.deleted === true) {
+				messages.splice(i, 1);
+				continue;
+			}
+			
+			switch(m.type) {
+				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
+					//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
+					if(this.lightMode && (m.automod || m.deleted || m.user.is_blocked)) {
+						messages.splice(i, 1);
+					}else
+					//Ignore deleted messages if requested
+					if(sParams.filters.keepDeletedMessages.value === false && m.deleted) {
+						messages.splice(i, 1);
+					}else
+					//Ignore /me messages if requested
+					if(sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
+						messages.splice(i, 1);
+					}else
+					//Ignore self if requested
+					if(sParams.filters.showSelf.value === false && m.user.id == meUID) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
+						messages.splice(i, 1);
+					}else
+					//Ignore bot messages if requested
+					if(sParams.filters.showBots.value === false
+					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
+						messages.splice(i, 1);
+					}else
+					//Ignore custom users
+					if((sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
+						messages.splice(i, 1);
+					}else
+							
+					//Ignore commands
+					if(sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
+						if(sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
+							//Ignore specific commands
+							const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
+							if(blockedSpecificCmds.includes(cmd)) {
+								//TODO Broadcast to OBS-ws
+								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+								messages.splice(i, 1);
+							}
+						}else{
+							//Ignore all commands
+							//TODO Broadcast to OBS-ws
+							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+							messages.splice(i, 1);
+						}
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.WHISPER:{
+					if(sParams.features.showWhispersOnChat.value === false ) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
+					if(sParams.filters.showNotifications.value === false 
+					|| sParams.filters.showSubs.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.REWARD:{
+					if(sParams.filters.showNotifications.value === false 
+					|| sParams.filters.showRewards.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CHEER:{
+					if(sParams.filters.showNotifications.value === false 
+					|| sParams.filters.showCheers.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:{
+					if(sParams.filters.showNotifications.value === false 
+					|| sParams.filters.showFollow.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.RAID:{
+					if(sParams.filters.showNotifications.value === false 
+					|| sParams.filters.showRaids.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:{
+					if(sParams.filters.showNotifications.value === false 
+					|| sParams.filters.showHypeTrain.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.JOIN:
+				case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
+					if(sParams.features.notifyJoinLeave.value === false) {
+						messages.splice(i, 1);
+					}
+				}
+			}
+		}
+
+		return messages;
+	}
+
 	public async mounted():Promise<void> {
 		this.localMessages = this.$store("chat").messages.concat().slice(-this.max);
 		for (let i = 0; i < this.localMessages.length; i++) {
 			this.idDisplayed[this.localMessages[i].id as string] = true;
 		}
 		
+		//Listen for new messages
 		watch(() => this.$store("chat").messages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 
-			// sParams.features.notifyJoinLeave.value//TODO handle this filter
-			
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
@@ -284,7 +410,6 @@ export default class MessageList extends Vue {
 			}
 			
 			this.localMessages = value.concat().slice(-this.max);
-			this.filterMessages();
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].id as string] = true;
 			}
@@ -299,7 +424,6 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY = maxScroll;
 		})
 
-		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
@@ -316,7 +440,6 @@ export default class MessageList extends Vue {
 	public beforeUnmount():void {
 		this.disposed = true;
 
-		PubSub.instance.removeEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -348,48 +471,6 @@ export default class MessageList extends Vue {
 
 		if(this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
 			this.lockScroll = false;
-		}
-	}
-
-	/**
-	 * Called when a message is deleted
-	 * Messages are automatically deleted from the store collection
-	 * but if we scroll up to lock the messages, it switches to a
-	 * local history that's not linked anymore to the main collection.
-	 * If the message is added to that history, it won't be deleted
-	 * automatically, hence, we need this to do it.
-	 */
-	public onDeleteMessage(e:PubSubEvent):void {
-		let messageID = "";
-		
-		messageID = e.data as string;
-		const keepDeletedMessages = this.$store("params").filters.keepDeletedMessages.value;
-
-		if(this.pendingMessages.length > 0) {
-			let index = this.pendingMessages.findIndex(v => v.id === messageID);
-			if(index > -1) {
-				const m = this.pendingMessages[index];
-				if(m.type == "message") {
-					if(keepDeletedMessages === true && !m.automod) {
-						m.deleted = true;
-					}else{
-						this.pendingMessages.splice(index, 1);
-					}
-				}
-			}
-		}
-
-		//Remove deleted message from currently displayed messages
-		let index = this.localMessages.findIndex(v => { return v.id === messageID });
-		if(index > -1) {
-			const m = this.localMessages[index];
-			if(m.type == "message") {
-				if(keepDeletedMessages === true && !m.automod) {
-					m.deleted = true;
-				}else{
-					this.localMessages.splice(index, 1);
-				}
-			}
 		}
 	}
 
@@ -461,7 +542,6 @@ export default class MessageList extends Vue {
 		let messages = this.pendingMessages.slice(-this.max);
 		this.pendingMessages = [];
 		this.localMessages = this.localMessages.concat(messages).slice(-this.max);
-		this.filterMessages();
 		
 		//Scroll toi bottom
 		const el = this.$refs.messageHolder as HTMLDivElement;
@@ -473,20 +553,6 @@ export default class MessageList extends Vue {
 		}});
 	}
 
-	/**
-	 * Filters out messages for the chat light (overlay)
-	 */
-	private filterMessages():void {
-		if(!this.lightMode) return;
-
-		for (let i = 0; i < this.localMessages.length; i++) {
-			const m = this.localMessages[i];
-			if(m.type != "message" || m.automod || m.deleted || (this.lightMode && m.user.is_blocked)) {
-				this.localMessages.splice(i, 1);
-				i--;
-			}
-		}
-	}
 
 	/**
 	 * If hovering and scrolling down with wheel, load next message
@@ -770,25 +836,6 @@ export default class MessageList extends Vue {
 				message:m.message,
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});
-		}
-	}
-
-	/**
-	 * This is a warkaround a tricky issue.
-	 * When a messages is deleted by the storage, it's automatically
-	 * delete from this list, EXCEPT if the chat is paused
-	 * For common chay messages there's something that actually deletes the
-	 * messages (see onDeleteMessage method) but this won't work for
-	 * TwitchatAds as they're running outside IRC context.
-	 * This "forceDelete" method handles that deletion
-	 */
-	public forceDelete(m:TwitchatDataTypes.MessageTwitchatAdData):void {
-		for (let i = 0; i < this.localMessages.length; i++) {
-			const el = this.localMessages[i];
-			if(el.id == m.id) {
-				this.localMessages.splice(i, 1);
-				i--;
-			}
 		}
 	}
 }
