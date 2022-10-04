@@ -18,8 +18,9 @@
 </template>
 
 <script lang="ts">
-import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import StoreProxy from '@/store/StoreProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -43,35 +44,35 @@ export default class ChatModTools extends Vue {
 	public canDelete!:boolean;
 	public canBlock!:boolean;
 
-	public messageData!:IRCEventDataList.Message;
+	public messageData!:TwitchatDataTypes.MessageChatData;
 	public showToOptions = false;
 
 	private closeTimeout = 0;
 
 	public banUser():void {
-		this.$confirm("Ban "+(this.messageData.tags['display-name'] ?? this.messageData.tags.username), "Are you sure you want to ban this user ?")
+		this.$confirm("Ban "+(this.messageData.user.displayName), "Are you sure you want to ban this user ?")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			IRCClient.instance.sendMessage(`/ban ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])} manually banned from Twitchat`);
+			TwitchUtils.banUser(this.messageData.user.id, undefined, "manually banned from Twitchat");
 		})
 	}
 
 	public blockUser():void {
-		this.$confirm("Block "+(this.messageData.tags['display-name'] ?? this.messageData.tags.username), "Are you sure you want to block this user ?<br>She/He will be removed from your followers.")
+		this.$confirm("Block "+(this.messageData.user.displayName), "Are you sure you want to block this user ?<br>They will be removed from your followers.")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			IRCClient.instance.sendMessage(`/block ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])}`);
+			TwitchUtils.blockUser(this.messageData.user.id);
 		})
 	}
 
 	public timeoutUser(duration:number):void {
 		this.$emit('deleteUser', this.messageData);
-		IRCClient.instance.sendMessage(`/timeout ${(this.messageData.tags.username ?? this.messageData.tags['display-name'])} ${duration}`);
+		TwitchUtils.banUser(this.messageData.user.id, duration);
 	}
 
 	public deleteMessage():void {
 		this.$emit('deleteMessage', this.messageData);
-		IRCClient.instance.deleteMessage(this.messageData.tags.id as string);
+		StoreProxy.chat.deleteMessage(this.messageData.id);
 	}
 
 	public async openToOptions():Promise<void> {

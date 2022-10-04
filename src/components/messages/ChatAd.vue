@@ -163,7 +163,6 @@ import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import IRCClient from '@/utils/IRCClient';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../Splitter.vue';
@@ -184,7 +183,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 })
 export default class ChatAd extends Vue {
 
-	public messageData!:IRCEventDataList.TwitchatAd;
+	public messageData!:TwitchatDataTypes.MessageTwitchatAdData;
 	
 	public voiceIcon:string = "";
 	public ttsIcon:string = "";
@@ -197,13 +196,13 @@ export default class ChatAd extends Vue {
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
 
-	public get isUpdateWarning():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
-	public get isSponsor():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
-	public get isUpdate():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
-	public get isTip():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
-	public get isDiscord():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
-	public get isAdWarning():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
-	public get isSponsorPublicPrompt():boolean { return this.messageData.contentID == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
+	public get isUpdateWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
+	public get isSponsor():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
+	public get isUpdate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
+	public get isTip():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
+	public get isDiscord():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
+	public get isAdWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
+	public get isSponsorPublicPrompt():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
 	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.3"; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
@@ -268,7 +267,7 @@ export default class ChatAd extends Vue {
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
-		this.$store("chat").deleteMessage(this.messageData.tags.id);
+		this.$store("chat").deleteMessage(this.messageData.id);
 		this.$emit("delete");
 	}
 

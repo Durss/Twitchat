@@ -1,10 +1,10 @@
 /**
 * Created : 19/01/2022 
 */
-export default class TwitchCypherPlugin {
+export default class ChatCypherPlugin {
 	
 	
-	private static _instance:TwitchCypherPlugin;
+	private static _instance:ChatCypherPlugin;
 	private _cypherKey = "";
     private buff_to_base64 = (buff:number[]) => btoa(String.fromCharCode.apply(null, buff));
     private base64_to_buf = (b64:string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
@@ -20,11 +20,11 @@ export default class TwitchCypherPlugin {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():TwitchCypherPlugin {
-		if(!TwitchCypherPlugin._instance) {
-			TwitchCypherPlugin._instance = new TwitchCypherPlugin();
+	static get instance():ChatCypherPlugin {
+		if(!ChatCypherPlugin._instance) {
+			ChatCypherPlugin._instance = new ChatCypherPlugin();
 		}
-		return TwitchCypherPlugin._instance;
+		return ChatCypherPlugin._instance;
 	}
 
 	public set cypherKey(value:string) {

@@ -6,10 +6,10 @@ import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
 import TwitchatEvent from '@/utils/TwitchatEvent'
-import TwitchUtils from '@/utils/TwitchUtils'
+import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
-import VoicemodWebSocket from '@/utils/VoicemodWebSocket'
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest'
 import type { UnwrapRef } from 'vue'
@@ -317,13 +317,14 @@ export const storeChat = defineStore('chat', {
 				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 			}
 
+			//make a copy to avoid triggering external watchers on temporary
+			//modifications
 			let messages = this.messages.concat();
 			
 			//Limit history size
 			const maxMessages = this.realHistorySize;
 			if(messages.length >= maxMessages) {
 				messages = messages.slice(-maxMessages);
-				this.messages = messages;
 			}
 
 			//If it's a raid, save it so we can do an SO with dedicated streamdeck button
@@ -577,31 +578,13 @@ export const storeChat = defineStore('chat', {
 			}
 
 			//Messages to push on activity feed
-			const activityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
-				TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
-				TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_START,
-				TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR,
-				TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE,
-			]
-			if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && (message.twitch_isHighlighted || message.elevatedInfo))
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.POLL
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.BINGO
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.COUNTDOWN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.PREDICTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAFFLE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && 
-					activityFeedNoticeTypes.includes(message.noticeId)
-				)//Don't user indexOf() instead of includes(). Performances are MUCH better
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+			//Don't use indexOf() instead of includes(). Performances are MUCH better with includes (like 12x faster)
+			if(TwitchatDataTypes.ActivityFeedMessageTypes.includes(message.type)
+			//Special case for highlighted and elevated messages
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && (message.twitch_isHighlighted || message.elevatedInfo))
+			//Special case for notice types
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && TwitchatDataTypes.ActivityFeedNoticeTypes.includes(message.noticeId))
+			) {
 				this.activityFeed.push(message);
 			}
 

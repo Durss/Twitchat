@@ -54,7 +54,7 @@
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';

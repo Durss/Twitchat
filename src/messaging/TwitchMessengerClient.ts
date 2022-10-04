@@ -2,8 +2,8 @@ import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
 import { EventDispatcher } from "@/utils/EventDispatcher";
-import TwitchCypherPlugin from "@/utils/TwitchCypherPlugin";
-import TwitchUtils from "@/utils/TwitchUtils";
+import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
@@ -532,9 +532,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 				
 		//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-		if(TwitchCypherPlugin.instance.isCyperCandidate(message)) {
+		if(ChatCypherPlugin.instance.isCyperCandidate(message)) {
 			const original = message;
-			message = await TwitchCypherPlugin.instance.decrypt(original);
+			message = await ChatCypherPlugin.instance.decrypt(original);
 			data.cyphered = message != original;
 		}
 
@@ -568,6 +568,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				type:"reward",
 				user: data.user,
 				reward: {
+					id:"highlighted-message",
 					title:"Highlight my message",
 					cost:-1,
 					description:"",

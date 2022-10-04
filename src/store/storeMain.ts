@@ -1,24 +1,23 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { WheelItem } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
-import DeezerHelper from '@/utils/DeezerHelper';
-import DeezerHelperEvent from '@/utils/DeezerHelperEvent';
+import DeezerHelper from '@/utils/music/DeezerHelper';
+import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import SpotifyHelper from '@/utils/SpotifyHelper';
-import SpotifyHelperEvent from '@/utils/SpotifyHelperEvent';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import SpotifyHelperEvent from '@/utils/music/SpotifyHelperEvent';
 import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
-import TwitchUtils from '@/utils/TwitchUtils';
+import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import VoiceController from '@/utils/VoiceController';
-import VoicemodEvent from '@/utils/VoicemodEvent';
-import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import VoiceController from '@/utils/voice/VoiceController';
+import VoicemodEvent from '@/utils/voice/VoicemodEvent';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
@@ -120,7 +119,7 @@ export const storeMain = defineStore("main", {
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-				const data = (e.data as unknown) as {winner:WheelItem};
+				const data = (e.data as unknown) as {winner:TwitchatDataTypes.WheelItem};
 				StoreProxy.raffle.onRaffleComplete(data.winner);
 			});
 
@@ -213,7 +212,7 @@ export const storeMain = defineStore("main", {
 			let authenticated = false;
 			if(token && payload.authenticate) {
 				const cypherKey = DataStore.get(DataStore.CYPHER_KEY)
-				TwitchCypherPlugin.instance.initialize(cypherKey);
+				ChatCypherPlugin.instance.initialize(cypherKey);
 				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
 					sMusic.setSpotifyToken(e.token!);
 				});
@@ -526,7 +525,7 @@ export const storeMain = defineStore("main", {
 		
 		setCypherKey(payload:string) {
 			this.cypherKey = payload;
-			TwitchCypherPlugin.instance.cypherKey = payload;
+			ChatCypherPlugin.instance.cypherKey = payload;
 			DataStore.set(DataStore.CYPHER_KEY, payload);
 		},
 

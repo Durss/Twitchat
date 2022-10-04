@@ -1,17 +1,17 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
 import type { JsonObject } from "type-fest";
-import Config from './Config';
-import { EventDispatcher } from "./EventDispatcher";
-import OBSWebsocket from "./OBSWebsocket";
-import PublicAPI from "./PublicAPI";
+import Config from '../Config';
+import { EventDispatcher } from "../EventDispatcher";
+import OBSWebsocket from "../OBSWebsocket";
+import PublicAPI from "../PublicAPI";
 import type { PubSubDataTypes } from './PubSubDataTypes';
-import TriggerActionHandler from "./TriggerActionHandler";
-import TwitchatEvent from "./TwitchatEvent";
-import UserSession from './UserSession';
-import Utils from "./Utils";
+import TriggerActionHandler from "../TriggerActionHandler";
+import TwitchatEvent from "../TwitchatEvent";
+import UserSession from '../UserSession';
+import Utils from "../Utils";
 
 /**
 * Created : 13/01/2022 
@@ -215,6 +215,7 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			channel_id:"twitchat",
 			type:"message",
+			answers:[],
 			user: StoreProxy.users.getUserFrom("twitch", UserSession.instance.twitchUser!.id),
 			message:"This is a message sent by a low trusted user",
 			message_html:"This is a message sent by a low trusted user",
@@ -455,6 +456,7 @@ export default class PubSub extends EventDispatcher {
 					platform:"twitch",
 					channel_id:channelId,
 					type:"message",
+					answers:[],
 					user,
 					message:mess.content.text,
 					message_html:TwitchUtils.parseEmotes(mess.content.text, undefined, false, true),
@@ -669,6 +671,7 @@ export default class PubSub extends EventDispatcher {
 				type:"message",
 				platform:"twitch",
 				user:userData,
+				answers:[],
 				message:textMessage.replace(/<[^>]*>/gi, ""),
 				message_html:textMessage,
 				twitch_automod:{ reasons },
@@ -703,6 +706,7 @@ export default class PubSub extends EventDispatcher {
 			type:"reward",
 			platform:"twitch",
 			reward:{
+				id:localObj.redemption.reward.id,
 				title:localObj.redemption.reward.title,
 				cost:localObj.redemption.reward.cost,
 				description:localObj.redemption.reward.prompt,

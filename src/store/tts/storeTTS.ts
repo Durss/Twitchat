@@ -76,24 +76,24 @@ export const storeTTS = defineStore('tts', {
 			TTSUtils.instance.readNow(message);
 		},
 
-		ttsReadUser(payload:{username:string, read:boolean}) {
+		ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean) {
 			let list = this.params.ttsPerms.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-			payload.username = payload.username.toLowerCase().replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi, "").trim();
-			const index = list.indexOf(payload.username)
+			
+			const index = list.indexOf(user.login);
 			if(index > -1) {
-				if(!payload.read) list.splice(index, 1);
-			}else if(payload.read){
-				list.push(payload.username);
+				if(!read) list.splice(index, 1);
+			}else if(read){
+				list.push(user.login);
 			}
 			list = list.filter(v => v.trim().length > 2);
 			this.params.ttsPerms.users = list.join(",");
-			if(payload.read) {
+			if(read) {
 				StoreProxy.chat.addMessage({
 					type:"notice",
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitchat",
-					message:"User <mark>"+payload.username+"</mark>'s messages will be read out loud.",
+					message:"User <mark>"+user.displayName+"</mark>'s messages will be read out loud.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});
 			}else{
@@ -102,7 +102,7 @@ export const storeTTS = defineStore('tts', {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitchat",
-					message:"User <mark>"+payload.username+"</mark>'s messages won't be read out loud anymore.",
+					message:"User <mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});
 			}

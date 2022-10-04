@@ -153,11 +153,11 @@ import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
-import DeezerHelper from '@/utils/DeezerHelper';
+import DeezerHelper from '@/utils/music/DeezerHelper';
 import IRCClient from '@/utils/IRCClient';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -377,15 +377,17 @@ export default class Chat extends Vue {
 		//Auto opens the prediction status if pending for completion
 		watch(() => this.$store("prediction").data, (newValue, prevValue) => {
 			let prediction = this.$store("prediction").data;
+			//TODO make sure auto open on prediciton end works
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-			if(prediction && prediction.status == "LOCKED" || isNew) this.setCurrentNotification("prediction");
+			if(prediction && prediction.pendingAnswer || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
 		watch(() => this.$store("poll").data, (newValue, prevValue) => {
 			let poll = this.$store("poll").data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-			if(poll && poll.status == "COMPLETED" || isNew) this.setCurrentNotification("poll");
+			//TODO make sure auto open works when creating new poll
+			if(poll || isNew) this.setCurrentNotification("poll");
 		});
 
 		//Auto opens the bingo status when created
@@ -507,6 +509,7 @@ export default class Chat extends Vue {
 				break;
 			case TwitchatEvent.STOP_POLL:{
 				const poll = this.$store("poll").data;
+				if(!poll) return;
 				try {
 					await TwitchUtils.endPoll(poll.id);
 				}catch(error) {
@@ -522,6 +525,7 @@ export default class Chat extends Vue {
 				break;
 			case TwitchatEvent.STOP_PREDICTION:{
 				const prediction = this.$store("prediction").data;
+				if(!prediction) return;
 				try {
 					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {

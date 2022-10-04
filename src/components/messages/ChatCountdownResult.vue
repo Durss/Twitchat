@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -22,10 +22,10 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatCountdownResult extends Vue {
 
-	public countdownData!:IRCEventDataList.CountdownResult;
+	public countdownData!:TwitchatDataTypes.MessageCountdownData;
 	
 	public get time():string {
-		const d = new Date(parseInt(this.countdownData.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.countdownData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 	

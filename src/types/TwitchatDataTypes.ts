@@ -1,4 +1,3 @@
-import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
 import type { TriggerScheduleTypes, TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 
 export namespace TwitchatDataTypes {
@@ -263,6 +262,32 @@ export namespace TwitchatDataTypes {
 		winners?:TwitchatDataTypes.TwitchatUser[];
 	}
 
+	export interface RaffleData {
+		mode:"chat"|"sub"|"manual";
+		command:string;
+		duration:number;
+		maxEntries:number;
+		created_at:number;
+		entries:RaffleEntry[];
+		vipRatio:number;
+		followRatio:number;
+		subRatio:number;
+		subgitRatio:number;
+		subMode_includeGifters:boolean;
+		subMode_excludeGifted:boolean;
+		showCountdownOverlay:boolean;
+		customEntries:string;
+		winners?:RaffleEntry[];
+	}
+	export interface RaffleEntry extends WheelItem {
+		score:number;
+	}
+	
+	export interface WheelItem {
+		id:string;
+		label:string;
+	}
+	
 	export interface ChatSuggestionData {
 		command:string;
 		startTime:number;
@@ -672,6 +697,7 @@ export namespace TwitchatDataTypes {
 		id: string;
 		date: number;
 		platform:ChatPlatform;
+		markedAsRead?:boolean;
 	}
 
 	export interface TwitchatImage {
@@ -738,6 +764,34 @@ export namespace TwitchatDataTypes {
 									MessageNoticeData
 	;
 
+	export const DeletableMessageTypes:TwitchatMessageStringType[] = [
+		TwitchatMessageType.MESSAGE,
+	];
+	export const ActivityFeedMessageTypes:TwitchatMessageStringType[] = [
+		TwitchatMessageType.POLL,
+		TwitchatMessageType.BINGO,
+		TwitchatMessageType.COUNTDOWN,
+		TwitchatMessageType.PREDICTION,
+		TwitchatMessageType.RAFFLE,
+		TwitchatMessageType.CHEER,
+		TwitchatMessageType.SUBSCRIPTION,
+		TwitchatMessageType.REWARD,
+		TwitchatMessageType.AUTOBAN_JOIN,
+		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
+		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
+		TwitchatMessageType.FOLLOWING,
+		TwitchatMessageType.RAID,
+	];
+
+	export const ActivityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
+		TwitchatNoticeType.EMERGENCY_MODE,
+		TwitchatNoticeType.COMMERCIAL_START,
+		TwitchatNoticeType.COMMERCIAL_ERROR,
+		TwitchatNoticeType.COMMERCIAL_COMPLETE,
+	];
+
 	export interface MessageChatData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"message";
@@ -750,7 +804,6 @@ export namespace TwitchatDataTypes {
 		automod?: AutomodParamsKeywordFilterData;
 		answersTo?: MessageChatData;
 		cyphered?: boolean;
-		markedAsRead?:boolean;
 		deleted?: boolean;
 		deletedData?: {
 			deleter:TwitchatUser;
@@ -778,7 +831,6 @@ export namespace TwitchatDataTypes {
 		message:string;
 		message_html:string;
 		occurrenceCount?: number;
-		markedAsRead?:boolean;
 		cyphered?: boolean;
 		spoiler?: boolean;
 	}
@@ -797,7 +849,6 @@ export namespace TwitchatDataTypes {
 		started_at: string;
 		ended_at?: string;
 	}
-
 
 	export interface MessagePredictionDataOutcome {
 		id: string;
@@ -857,6 +908,7 @@ export namespace TwitchatDataTypes {
 		type:"reward";
 		user: TwitchatUser;
 		reward: {
+			id:string;
 			title:string;
 			cost:number;
 			description:string;

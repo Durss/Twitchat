@@ -29,7 +29,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Options, Vue } from 'vue-class-component';
 import VoiceControlForm from '../../voice/VoiceControlForm.vue';
 import Button from '../../Button.vue';
-import VoiceController from '@/utils/VoiceController';
+import VoiceController from '@/utils/voice/VoiceController';
 import Config from '@/utils/Config';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 

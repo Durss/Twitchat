@@ -1,7 +1,7 @@
 import PublicAPI from '@/utils/PublicAPI';
 import type { TwitchatActionType } from '@/utils/TwitchatEvent';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import VoiceAction from '@/utils/VoiceAction';
+import VoiceAction from '@/utils/voice/VoiceAction';
 import gsap from 'gsap';
 
 /**

@@ -164,11 +164,10 @@ import Button from '@/components/Button.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { TriggerEvents, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -496,14 +495,19 @@ export default class ParamsTriggers extends Vue {
 		const entry = TriggerEvents.find(v=>v.value == key);
 		
 		if(entry?.jsonTest) {
-			const json = entry.jsonTest as IRCEventDataList.Message;
+			const json = entry.jsonTest as TwitchatDataTypes.ChatMessageTypes;
 			if(key == TriggerTypes.REWARD_REDEEM) {
 				//Push current reward ID to the test JSON data
-				if(json.reward) json.reward.redemption.reward.id = this.currentSubEvent?.value as string;
+				if(json.type == TwitchatDataTypes.TwitchatMessageType.REWARD && json.reward) {
+					const m = json as TwitchatDataTypes.MessageRewardRedeemData;
+					m.reward.id = this.currentSubEvent?.value as string;
+					//TODO make sure the test button for reward triggers still work after I removed the "TEST_ID" on TriggerActionHandler
+				}
 			}
 			if(key == TriggerTypes.CHAT_COMMAND) {
 				//Push current command to the test JSON data
-				json.message = this.triggerData.name + " lorem ipsum";
+				const m = json as TwitchatDataTypes.MessageChatData;
+				m.message = this.triggerData.name + " lorem ipsum dolor sit amet.";
 			}
 			TriggerActionHandler.instance.onMessage(json, true);
 		}else if(this.isSchedule) {

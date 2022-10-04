@@ -67,7 +67,7 @@
 <script lang="ts">
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import VoiceAction from '@/utils/VoiceAction';
+import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';

@@ -3,14 +3,14 @@
 		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{raffleData.winner.label}}</strong> won the raffle
+			<strong>{{raffleData.raffleData.winners![0].label}}</strong> won the raffle
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import { storeParams } from '@/store/params/storeParams';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -23,11 +23,11 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatRaffleResult extends Vue {
 
-	public raffleData!:IRCEventDataList.RaffleResult;
+	public raffleData!:TwitchatDataTypes.MessageRaffleData;
 	public sParams = storeParams();
 	
 	public get time():string {
-		const d = new Date(parseInt(this.raffleData.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.raffleData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 

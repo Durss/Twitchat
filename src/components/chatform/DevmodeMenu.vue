@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import PubSub from '@/utils/PubSub';
+import PubSub from '@/utils/twitch/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';

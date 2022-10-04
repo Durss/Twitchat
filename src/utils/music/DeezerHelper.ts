@@ -1,11 +1,11 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
-import Config from "./Config";
+import Config from "../Config";
 import DeezerHelperEvent from "./DeezerHelperEvent";
-import { EventDispatcher } from "./EventDispatcher";
-import PublicAPI from "./PublicAPI";
-import TriggerActionHandler from "./TriggerActionHandler";
-import TwitchatEvent from "./TwitchatEvent";
+import { EventDispatcher } from "../EventDispatcher";
+import PublicAPI from "../PublicAPI";
+import TriggerActionHandler from "../TriggerActionHandler";
+import TwitchatEvent from "../TwitchatEvent";
 
 /**
 * Created : 23/05/2022 

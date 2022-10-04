@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 

@@ -2,8 +2,8 @@ import type SpeechRecognition from "@/ISpeechRecognition";
 import { storeVoice } from "@/store/voice/storeVoice";
 import type { JsonObject } from "type-fest";
 import { reactive, watch } from "vue";
-import PublicAPI from "./PublicAPI";
-import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "./TwitchatEvent";
+import PublicAPI from "../PublicAPI";
+import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "../TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**

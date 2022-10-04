@@ -103,10 +103,10 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -167,37 +167,20 @@ export default class OverlayParamsHighlight extends Vue {
 			sentencesPerParagraph: { max: 3, min: 1 },
 			wordsPerSentence: { max: 16, min: 4 }
 		});
-		const message:IRCEventDataList.Message = {
-			"type": "message",
-			"message": "imGlitch " + lorem.generateParagraphs(1),
-			"tags": {
-				"badge-info": { "subscriber": "16" },
-				"badges": { "broadcaster": "1", "subscriber": "12" },
-				"client-nonce": "7c5bec730ea702eb4397fa901185c5eb",
-				"color": "#9ACD32",
-				"display-name": UserSession.instance.twitchUser?.display_name,
-				"emotes": { "112290": [ "0-7" ] },
-				"first-msg": false,
-				"flags": undefined,
-				"id": "2b6830f3-5ff2-4d39-8f4d-f70f0858c9e9",
-				"mod": false,
-				"returning-chatter": false,
-				"room-id": UserSession.instance.twitchUser?.id,
-				"subscriber": true,
-				"tmi-sent-ts": "1657909756626",
-				"turbo": false,
-				"user-id": UserSession.instance.twitchUser?.id,
-				"user-type": undefined,
-				"emotes-raw": "112290:0-7",
-				"badge-info-raw": "subscriber/16",
-				"badges-raw": "broadcaster/1,subscriber/12",
-				"username": UserSession.instance.twitchUser?.login,
-				"message-type": "chat"
-			},
-			"channel": "#"+UserSession.instance.twitchUser?.login,
-			"self": false,
-			"firstMessage": false,
-		};
+		//TODO make sure it works
+		const uid = UserSession.instance.twitchUser!.id;
+		const text = lorem.generateParagraphs(1);
+		const message:TwitchatDataTypes.MessageChatData = {
+			id:Utils.getUUID(),
+			platform:"twitch",
+			date: Date.now(),
+			type: "message",
+			user: this.$store("users").getUserFrom("twitch", uid),
+			answers: [],
+			channel_id:uid,
+			message: text,
+			message_html: text,
+		}
 		this.$store("chat").highlightChatMessageOverlay(message);
 	}
 

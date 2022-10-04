@@ -3,8 +3,6 @@ import { storeTTS } from "@/store/tts/storeTTS";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import PublicAPI from "./PublicAPI";
-import PubSub from "./PubSub";
-import PubSubEvent from "./PubSubEvent";
 import TwitchatEvent from "./TwitchatEvent";
 import UserSession from "./UserSession";
 import Utils from "./Utils";
@@ -93,15 +91,11 @@ export default class TTSUtils {
 	/********************
 	* HANDLERS          *
 	********************/
-	private deleteMessageHandler!:(e:PubSubEvent)=>void;
-	
 	constructor() {
 		this.voices = window.speechSynthesis.getVoices();
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
 			this.voices = window.speechSynthesis.getVoices();
 		};
-		
-		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
 		
 		watch(() => this.sChat.messages, async (value) => {
 				//There should be no need to read more than 100 new messages at a time
@@ -155,12 +149,9 @@ export default class TTSUtils {
 	 * Enable/Disable TTS
 	 */
 	public set enabled(value: boolean) {
-		if (value && !this._enabled) {
-			PubSub.instance.addEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		} else if (!value && this._enabled) {
+		if (!value && this._enabled) {
 			this.stop();
 			this.pendingMessages = [];
-			PubSub.instance.removeEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		}
 		this._enabled = value;
 	}
@@ -474,33 +465,31 @@ export default class TTSUtils {
 	}
 
 	/**
-	 * Called if a message is deleted
-	 * Remove it from the queue
-	 */
-	private onDeleteMessage(e:PubSubEvent):void {
-		let messageID = e.data as string;
-
-		let index = this.pendingMessages.findIndex(v => v.id === messageID);
-		if(index > -1) {
-			this.pendingMessages.splice(index, 1);
-		}
-	}
-
-	/**
 	 * Read the next pending message
 	 */
 	private async readNextMessage():Promise<void> {
 		if(this.pendingMessages.length === 0 || !this._enabled) return;
 
 		const message = this.pendingMessages[0];
+		let skipMessage = false;
+
+		//Message deleted?
+		if(TwitchatDataTypes.DeletableMessageTypes.includes(message.message.type)) {
+			const m = message.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing.Couldn't find a cleaner way
+			if(m.deleted == true) skipMessage = true;
+		}
 		const paramsTTS = this.sTTS.params;
 		this.lastMessageTime = Date.now();
 		
+		//Timeout reached for this message?
 		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
-			//Timeout reached for this message, ignore it and
-			//process the next one
+			skipMessage = true;
+		}
+
+		if(skipMessage) {
+			//Should ignore the message? Ignore it andprocess the next one
 			this.pendingMessages.shift();
-			//Settimout is here to avoid potential recursion overflow
+			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
 			setTimeout(() => { this.readNextMessage(); }, 10);
 			return;

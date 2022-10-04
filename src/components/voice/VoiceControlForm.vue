@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import VoiceController from '@/utils/VoiceController';
+import VoiceController from '@/utils/voice/VoiceController';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';

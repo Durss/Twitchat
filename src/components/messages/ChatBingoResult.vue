@@ -3,15 +3,15 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{bingoData.data.winners[0]["display-name"]}}</strong> won the bingo with answer
-			<img class="answer emote" :src="bingoData.data.emoteValue.images.url_2x" v-if="bingoData.data.guessEmote">
-			<strong class="answer" v-else>{{bingoData.data.numberValue}}</strong>
+			<strong>{{bingoData.bingoData.winners![0].displayName}}</strong> won the bingo with answer
+			<img class="answer emote" :src="bingoData.bingoData.emoteValue?.twitch?.image.hd" v-if="bingoData.bingoData.guessEmote">
+			<strong class="answer" v-else>{{bingoData.bingoData.numberValue}}</strong>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -24,10 +24,10 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatBingoResult extends Vue {
 
-	public bingoData!:IRCEventDataList.BingoResult;
+	public bingoData!:TwitchatDataTypes.MessageBingoData;
 
 	public get time():string {
-		const d = new Date(parseInt(this.bingoData.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.bingoData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 

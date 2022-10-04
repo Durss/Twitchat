@@ -3,23 +3,23 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
 		<div class="content">
-			<div class="title">{{prediction.title}}</div>
+			<div class="title">{{predictionData.title}}</div>
 			<div class="outcomes">
-				<div v-for="o in prediction.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
+				<div v-for="o in predictionData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div class="outcomeTitle">
 						<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
-						{{o.title}}
+						{{o.label}}
 					</div>
 					<div class="barCell">
 						<div :style="getOutcomeStyles(o)" class="bar">
 							<div class="percent">{{getOutcomePercent(o)}}%</div>
 							<div class="users">
 								<img src="@/assets/icons/user.svg" alt="user" class="icon">
-								{{o.users}}
+								{{o.voters.length}}
 							</div>
 							<div class="points">
 								<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
-								{{o.channel_points}}
+								{{o.votes}}
 							</div>
 						</div>
 					</div>
@@ -30,11 +30,10 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Options, Vue } from 'vue-class-component';
 import gsap from 'gsap';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
@@ -43,35 +42,32 @@ import gsap from 'gsap';
 	components:{}
 })
 export default class ChatPredictionResult extends Vue {
-	public predictionData!:IRCEventDataList.PredictionResult;
 
-	public get prediction():TwitchDataTypes.Prediction {
-		return this.predictionData.data;
-	}
+	public predictionData!:TwitchatDataTypes.MessagePredictionData;
 
 	public get time():string {
-		const d = new Date(parseInt(this.predictionData.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.predictionData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
-	public getOutcomeClasses(o:TwitchDataTypes.PredictionOutcome):string[] {
+	public getOutcomeClasses(o:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		const res = ["outcome"];
-		if(this.prediction.winning_outcome_id === o.id) res.push("winner");
-		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
+		if(this.predictionData.winning_outcome_id === o.id) res.push("winner");
+		if(this.predictionData.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
 
-	public getOutcomePercent(o:TwitchDataTypes.PredictionOutcome):number {
+	public getOutcomePercent(o:TwitchatDataTypes.MessagePredictionDataOutcome):number {
 		let totalVotes = 0;
-		if(this.prediction) {
-			for (let i = 0; i < this.prediction.outcomes.length; i++) {
-				totalVotes += this.prediction.outcomes[i].channel_points;
+		if(this.predictionData) {
+			for (let i = 0; i < this.predictionData.outcomes.length; i++) {
+				totalVotes += this.predictionData.outcomes[i].votes;
 			}
 		}
-		return Math.round(o.channel_points/Math.max(1,totalVotes) * 100);
+		return Math.round(o.votes/Math.max(1,totalVotes) * 100);
 	}
 
-	public getOutcomeStyles(o:TwitchDataTypes.PredictionOutcome):{[key:string]:string} {
+	public getOutcomeStyles(o:TwitchatDataTypes.MessagePredictionDataOutcome):{[key:string]:string} {
 		const percent = this.getOutcomePercent(o);
 		return {
 			backgroundSize: `${percent}% 100%`,

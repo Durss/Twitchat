@@ -22,7 +22,6 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
-import type { WheelItem } from '@/utils/CommonDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
@@ -33,7 +32,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 export default class OverlaysRaffleWheel extends Vue {
 
-	public itemList:WheelItem[] = [];
+	public itemList:TwitchatDataTypes.WheelItem[] = [];
 	public itemSize = 50;
 	public scrollOffset = 0;
 	public listHeight = 100;
@@ -44,7 +43,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	private animStep = 0;
 	private frameIndex = 0;
 	private selectedItemIndex = 0;
-	private winnerData!:WheelItem;
+	private winnerData!:TwitchatDataTypes.WheelItem;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
 	private resizeHandler!:()=>void;

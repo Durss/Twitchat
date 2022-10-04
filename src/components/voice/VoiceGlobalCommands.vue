@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import VoiceAction from '@/utils/VoiceAction';
+import VoiceAction from '@/utils/voice/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';

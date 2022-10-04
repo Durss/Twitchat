@@ -43,7 +43,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import { TriggerEvents, TriggerTypes } from '@/types/TriggerActionDataTypes';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';

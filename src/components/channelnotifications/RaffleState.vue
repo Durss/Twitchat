@@ -38,7 +38,6 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
@@ -62,7 +61,7 @@ export default class RaffleState extends Vue {
 
 	public picking = false;
 	public progressPercent = 0;
-	public raffleData:RaffleData = this.$store("raffle").data as RaffleData;
+	public raffleData:TwitchatDataTypes.RaffleData = this.$store("raffle").data!;
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
@@ -94,13 +93,13 @@ export default class RaffleState extends Vue {
 		});
 	}
 
-	public openUserCard(entry:RaffleEntry):void {
+	public openUserCard(entry:TwitchatDataTypes.RaffleEntry):void {
 		const user = this.$store("users").getUserFrom("twitch", entry.id)
 		this.$store("users").openUserCard(user);
 	}
 
 	public async pickWinner():Promise<void> {
-		let winner:RaffleEntry;
+		let winner:TwitchatDataTypes.RaffleEntry;
 		this.picking = true;
 		
 		const list = [];
@@ -131,7 +130,7 @@ export default class RaffleState extends Vue {
 
 		//A wheel overlay exists, send it data and wait for it to complete
 		if(this.wheelOverlayExists){
-			const list:WheelItem[] = this.raffleData.entries.map((v:RaffleEntry):WheelItem=>{
+			const list:TwitchatDataTypes.WheelItem[] = this.raffleData.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.WheelItem=>{
 										return {
 											id:v.id,
 											label:v.label,
@@ -146,7 +145,7 @@ export default class RaffleState extends Vue {
 		}else{
 
 			//no wheel overlay found, just announce the winner
-			const winnerData:WheelItem = {
+			const winnerData:TwitchatDataTypes.WheelItem = {
 				id:winner.id,
 				label:winner.label,
 			}

@@ -2,14 +2,14 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
-import Config from "./Config";
-import { EventDispatcher } from "./EventDispatcher";
-import PublicAPI from "./PublicAPI";
+import Config from "@/utils/Config";
+import { EventDispatcher } from "@/utils/EventDispatcher";
+import PublicAPI from "@/utils/PublicAPI";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
-import TriggerActionHandler from "./TriggerActionHandler";
-import TwitchatEvent from "./TwitchatEvent";
-import Utils from "./Utils";
+import TriggerActionHandler from "@/utils/TriggerActionHandler";
+import TwitchatEvent from "@/utils/TwitchatEvent";
+import Utils from "@/utils/Utils";
 
 /**
 * Created : 23/05/2022 

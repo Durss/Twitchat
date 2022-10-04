@@ -26,10 +26,10 @@
 </template>
 
 <script lang="ts">
-import type { WheelItem } from '@/utils/CommonDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
 import Utils from '@/utils/Utils';
 import type { JsonArray } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
@@ -82,7 +82,7 @@ export default class OverlayParamsRaffle extends Vue {
 	public async testWheel():Promise<void> {
 		this.loading = true;
 		const followers = await TwitchUtils.getFollowers(null, 500);
-		const items:WheelItem[] = followers.map(v=> {
+		const items:TwitchatDataTypes.WheelItem[] = followers.map(v=> {
 			return {id:v.from_id, label:v.from_name, data:v};
 		});
 		const data = {

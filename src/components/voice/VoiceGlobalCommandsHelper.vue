@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import VoiceAction from '@/utils/VoiceAction';
+import VoiceAction from '@/utils/voice/VoiceAction';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({

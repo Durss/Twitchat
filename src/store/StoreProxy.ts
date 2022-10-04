@@ -1,12 +1,9 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
-import type { RaffleData, WheelItem } from "@/utils/CommonDataTypes";
-import type { IRCEventDataList } from "@/utils/IRCEventDataTypes";
-import type { PubSubDataTypes } from "@/utils/PubSubDataTypes";
-import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/SpotifyDataTypes";
-import type VoiceAction from "@/utils/VoiceAction";
-import type { VoicemodTypes } from "@/utils/VoicemodWebSocket";
-import type { ChatUserstate } from "tmi.js";
+import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
+import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
+import type VoiceAction from "@/utils/voice/VoiceAction";
+import type { VoicemodTypes } from "@/utils/voice/VoicemodWebSocket";
 
 /**
 * Created : 23/09/2022 
@@ -298,16 +295,16 @@ export interface IPredictionActions {
 
 
 export interface IRaffleState {
-	data:RaffleData|null;
+	data:TwitchatDataTypes.RaffleData|null;
 }
 
 export interface IRaffleGetters {
 }
 
 export interface IRaffleActions {
-	startRaffle(payload:RaffleData):Promise<void>;
+	startRaffle(payload:TwitchatDataTypes.RaffleData):Promise<void>;
 	stopRaffle():void;
-	onRaffleComplete(winner:WheelItem, publish?:boolean):void;
+	onRaffleComplete(winner:TwitchatDataTypes.WheelItem, publish?:boolean):void;
 	checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void>;
 }
 
@@ -384,7 +381,7 @@ export interface ITTSGetters {
 
 export interface ITTSActions {
 	ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes):void
-	ttsReadUser(payload:{username:string, read:boolean}):void
+	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean):void
 	setTTSParams(params:TwitchatDataTypes.TTSParamsData):void
 }
 
@@ -402,7 +399,7 @@ export interface IUsersGetters {
 }
 
 export interface IUsersActions {
-	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, isMod?:boolean, isVIP?:boolean, isBoradcaster?:boolean, isSub?:boolean, isSubGifter?:boolean):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
@@ -413,7 +410,7 @@ export interface IUsersActions {
 	flagOnlineUSers(users:TwitchatDataTypes.TwitchatUser[]):void;
 	flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[]):void;
 	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):Promise<boolean>;
-	checkPronouns(user:TwitchatDataTypes.TwitchatUser):void;
+	checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;
 	addUser(user:TwitchatDataTypes.TwitchatUser):void;
 	openUserCard(user:TwitchatDataTypes.TwitchatUser|null):void;

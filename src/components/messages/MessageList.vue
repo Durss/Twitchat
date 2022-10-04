@@ -152,10 +152,9 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import PubSub from '@/utils/PubSub';
+import PubSub from '@/utils/twitch/PubSub';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -204,7 +203,7 @@ export default class MessageList extends Vue {
 	public lightMode!:boolean;
 	public localMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
-	public conversation:IRCEventDataList.Message[] = [];
+	public conversation:TwitchatDataTypes.MessageChatData[] = [];
 	public ariaMessage = "";
 	public ariaMessageTimeout = -1;
 	public lockScroll = false;
@@ -214,13 +213,12 @@ export default class MessageList extends Vue {
 
 	private disposed = false;
 	private holderOffsetY = 0;
-	private prevMarkedReadItem:MessageTypes | null = null;
+	private prevMarkedReadItem:TwitchatDataTypes.ChatMessageTypes | null = null;
 	private virtualScrollY = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
 	private prevTouchMove!:TouchEvent;
-	private deleteMessageHandler!:(e:PubSubEvent)=>void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get classes():string[] {
@@ -243,8 +241,8 @@ export default class MessageList extends Vue {
 	}
 
 	public get readLabel():string {
-		if(!this.conversation[0].tags['display-name']) return "";
-		const username = this.conversation[0].tags['display-name']?.toLowerCase();
+		if(!this.conversation[0].user.displayName) return "";
+		const username = this.conversation[0].user.displayName.toLowerCase();
 		const permissions:TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
 		if(permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
@@ -258,7 +256,7 @@ export default class MessageList extends Vue {
 	public async mounted():Promise<void> {
 		this.localMessages = this.$store("chat").messages.concat().slice(-this.max);
 		for (let i = 0; i < this.localMessages.length; i++) {
-			this.idDisplayed[this.localMessages[i].tags.id as string] = true;
+			this.idDisplayed[this.localMessages[i].id as string] = true;
 		}
 		
 		watch(() => this.$store("chat").messages, async (value) => {
@@ -276,7 +274,7 @@ export default class MessageList extends Vue {
 				//messages are missing from the list anyway...
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = this.$store("chat").messages[i] as IRCEventDataList.Message;
+					const m = this.$store("chat").messages[i];
 					if(this.idDisplayed[m.id as string] !== true) {
 						this.idDisplayed[m.id as string] = true;
 						this.pendingMessages.push(m);
@@ -288,7 +286,7 @@ export default class MessageList extends Vue {
 			this.localMessages = value.concat().slice(-this.max);
 			this.filterMessages();
 			for (let i = 0; i < value.length; i++) {
-				this.idDisplayed[value[i].tags.id as string] = true;
+				this.idDisplayed[value[i].id as string] = true;
 			}
 
 			this.scrollToPrevMessage();
@@ -304,7 +302,6 @@ export default class MessageList extends Vue {
 		this.deleteMessageHandler = (e:PubSubEvent)=> this.onDeleteMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
-		PubSub.instance.addEventListener(PubSubEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -369,7 +366,7 @@ export default class MessageList extends Vue {
 		const keepDeletedMessages = this.$store("params").filters.keepDeletedMessages.value;
 
 		if(this.pendingMessages.length > 0) {
-			let index = this.pendingMessages.findIndex(v => v.tags.id === messageID);
+			let index = this.pendingMessages.findIndex(v => v.id === messageID);
 			if(index > -1) {
 				const m = this.pendingMessages[index];
 				if(m.type == "message") {
@@ -383,7 +380,7 @@ export default class MessageList extends Vue {
 		}
 
 		//Remove deleted message from currently displayed messages
-		let index = this.localMessages.findIndex(v => { return v.tags.id === messageID });
+		let index = this.localMessages.findIndex(v => { return v.id === messageID });
 		if(index > -1) {
 			const m = this.localMessages[index];
 			if(m.type == "message") {
@@ -400,12 +397,10 @@ export default class MessageList extends Vue {
 	 * Toggles whether the TTS should read this user's messages
 	 */
 	public toggleReadUser():void {
-		if(!this.conversation[0].tags['display-name']) return;
-		const username = this.conversation[0].tags['display-name']?.toLowerCase();
+		const username = this.conversation[0].user.login?.toLowerCase();
 		const permissions:TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		const read = permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1;
-		const payload = {username, read};
-		this.$store("tts").ttsReadUser(payload);
+		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
 	}
 
 	/**
@@ -419,7 +414,6 @@ export default class MessageList extends Vue {
 			case TwitchatEvent.CHAT_FEED_READ: {
 				if(readCount === 0) readCount = 1;
 				const offset = this.localMessages.findIndex(v => {
-					if(v.type == "ad") return;
 					return v.markedAsRead === true
 				})
 				if(offset > -1) readCount += offset;
@@ -431,9 +425,7 @@ export default class MessageList extends Vue {
 				}
 				if(readCount < 0) readCount = 0;
 				const m = this.localMessages[readCount];
-				if(m.type != "ad") {
-					this.toggleMarkRead(m);
-				}
+				this.toggleMarkRead(m);
 				break;
 			}
 			case TwitchatEvent.CHAT_FEED_PAUSE:{
@@ -489,7 +481,7 @@ export default class MessageList extends Vue {
 
 		for (let i = 0; i < this.localMessages.length; i++) {
 			const m = this.localMessages[i];
-			if(m.type != "message" || m.automod || m.deleted || (this.lightMode && m.blockedUser)) {
+			if(m.type != "message" || m.automod || m.deleted || (this.lightMode && m.user.is_blocked)) {
 				this.localMessages.splice(i, 1);
 				i--;
 			}
@@ -613,8 +605,8 @@ export default class MessageList extends Vue {
 	private showNextPendingMessage(wheelOrigin = false):void {
 		if(this.pendingMessages.length == 0) return;
 		
-		const m = this.pendingMessages.shift() as IRCEventDataList.Message;
-		this.idDisplayed[m.id as string] = true;
+		const m = this.pendingMessages.shift()!;
+		this.idDisplayed[m.id] = true;
 		this.localMessages.push( m );
 		if(this.localMessages.length > this.max) {
 			this.localMessages = this.localMessages.slice(-this.max);
@@ -680,17 +672,17 @@ export default class MessageList extends Vue {
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
-	public async openConversation(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
-		if(this.lightMode || !m || (!m.answerTo && !m.answers)) return;
+	public async openConversation(event:MouseEvent, m:TwitchatDataTypes.MessageChatData):Promise<void> {
+		if(this.lightMode || !m || (!m.answersTo && !m.answers)) return;
 
 		this.conversationMode = true;
 
 		if(m.answers) {
 			this.conversation = m.answers.concat();
 			this.conversation.unshift( m );
-		}else if(m.answerTo) {
-			this.conversation = (m.answerTo.answers as IRCEventDataList.Message[]).concat();
-			this.conversation.unshift( m.answerTo );
+		}else if(m.answersTo) {
+			this.conversation = m.answersTo.answers.concat();
+			this.conversation.unshift( m.answersTo );
 		}
 		await this.$nextTick();
 		this.openConversationHolder(event);
@@ -699,17 +691,17 @@ export default class MessageList extends Vue {
 	/**
 	 * Called to open a user's messages history
 	 */
-	public async openUserHistory(event:MouseEvent, m:IRCEventDataList.Message):Promise<void> {
+	public async openUserHistory(event:MouseEvent, m:TwitchatDataTypes.MessageChatData):Promise<void> {
 		if(this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
 		this.openConvTimeout = setTimeout(async ()=> {
 			this.conversationMode = false;
 	
-			let messageList:IRCEventDataList.Message[] = [];
+			let messageList:TwitchatDataTypes.MessageChatData[] = [];
 			for (let i = 0; i < this.$store("chat").messages.length; i++) {
-				const mess = this.$store("chat").messages[i] as (IRCEventDataList.Message|IRCEventDataList.Highlight);
-				if(mess.type == "message" && mess.tags['user-id'] == m.tags['user-id']) {
+				const mess = this.$store("chat").messages[i];
+				if(mess.type == "message" && mess.user.id == m.user.id) {
 					messageList.push(mess);
 					if(messageList.length > 100) break;//Limit to 100 for perf reasons
 				}
@@ -756,9 +748,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Called on a message is clicked
 	 */
-	public toggleMarkRead(m:MessageTypes, event?:MouseEvent):void {
-		if(m.type == "ad") return;
-
+	public toggleMarkRead(m:TwitchatDataTypes.ChatMessageTypes, event?:MouseEvent):void {
 		if(event) {
 			const target = event.target as HTMLElement;
 			if(target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
@@ -772,12 +762,12 @@ export default class MessageList extends Vue {
 			this.prevMarkedReadItem = m;
 		}
 
-		if(m.type == "message" || m.type == "whisper") {
-			const messageStr = m.type == "whisper"? m.params[1] : m.message;
+		if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			//TODO broadcast message
 			const message = {
-				channel:m.channel as string,
-				message:messageStr as string,
-				tags:m.tags,
+				channel: m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? m.channel_id : m.to.login,
+				message:m.message,
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});
 		}
@@ -786,33 +776,22 @@ export default class MessageList extends Vue {
 	/**
 	 * This is a warkaround a tricky issue.
 	 * When a messages is deleted by the storage, it's automatically
-	 * delete from this list, EXCEPT if the mouse is over the chat.
-	 * For IRC messages there's something actually deletes the messages
-	 * (see onDeleteMessage method) but this won't work for TwitchatAds
-	 * as they're running outside IRC context.
+	 * delete from this list, EXCEPT if the chat is paused
+	 * For common chay messages there's something that actually deletes the
+	 * messages (see onDeleteMessage method) but this won't work for
+	 * TwitchatAds as they're running outside IRC context.
 	 * This "forceDelete" method handles that deletion
 	 */
-	public forceDelete(m:IRCEventDataList.TwitchatAd):void {
+	public forceDelete(m:TwitchatDataTypes.MessageTwitchatAdData):void {
 		for (let i = 0; i < this.localMessages.length; i++) {
 			const el = this.localMessages[i];
-			if(el.tags.id == m.id) {
+			if(el.id == m.id) {
 				this.localMessages.splice(i, 1);
 				i--;
 			}
 		}
 	}
 }
-type MessageTypes = IRCEventDataList.Highlight
-				|  IRCEventDataList.PollResult
-				|  IRCEventDataList.PredictionResult
-				|  IRCEventDataList.BingoResult
-				|  IRCEventDataList.RaffleResult
-				|  IRCEventDataList.Message
-				|  IRCEventDataList.Commercial
-				|  IRCEventDataList.TwitchatAd
-				|  IRCEventDataList.Whisper
-				|  IRCEventDataList.CountdownResult
-				|  IRCEventDataList.HypeTrainResult
 ;
 </script>
 

@@ -1,6 +1,6 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'

@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
+import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/voice/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';

@@ -3,10 +3,10 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
-			<div class="title">{{poll.title}}</div>
+			<div class="title">{{pollData.title}}</div>
 			<div class="choices">
-				<div v-for="o in poll.choices" :key="o.id" class="choice">
-					<div class="choiceTitle">{{o.title}}</div>
+				<div v-for="o in pollData.choices" :key="o.id" class="choice">
+					<div class="choiceTitle">{{o.label}}</div>
 					<div class="barCell">
 						<div class="bar" :style="getChoiceStyles(o)">
 							<div class="users">
@@ -22,11 +22,10 @@
 </template>
 
 <script lang="ts">
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Options, Vue } from 'vue-class-component';
 import gsap from 'gsap';
+import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
@@ -36,22 +35,18 @@ import gsap from 'gsap';
 })
 export default class ChatPollResult extends Vue {
 
-	public pollData!:IRCEventDataList.PollResult;
-
-	public get poll():TwitchDataTypes.Poll {
-		return this.pollData.data;
-	}
+	public pollData!:TwitchatDataTypes.MessagePollData;
 
 	public get time():string {
-		const d = new Date(parseInt(this.pollData.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.pollData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
-	public getChoiceStyles(o:TwitchDataTypes.PollChoice):{[key:string]:string} {
+	public getChoiceStyles(o:TwitchatDataTypes.MessagePollDataChoice):{[key:string]:string} {
 		let totalVotes = 0;
-		if(this.poll) {
-			for (let i = 0; i < this.poll.choices.length; i++) {
-				totalVotes += this.poll.choices[i].votes;
+		if(this.pollData.choices) {
+			for (let i = 0; i < this.pollData.choices.length; i++) {
+				totalVotes += this.pollData.choices[i].votes;
 			}
 		}
 		const percent = o.votes/Math.max(1,totalVotes);

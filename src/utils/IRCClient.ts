@@ -10,10 +10,10 @@ import FFZUtils from "./FFZUtils";
 import IRCEvent from "./IRCEvent";
 import type { IRCEventDataList } from "./IRCEventDataTypes";
 import PublicAPI from "./PublicAPI";
-import type { PubSubDataTypes } from "./PubSubDataTypes";
+import type { PubSubDataTypes } from "./twitch/PubSubDataTypes";
 import SevenTVUtils from "./SevenTVUtils";
 import TwitchatEvent from "./TwitchatEvent";
-import TwitchUtils from "./TwitchUtils";
+import TwitchUtils from "./twitch/TwitchUtils";
 import UserSession from "./UserSession";
 import Utils from "./Utils";
 

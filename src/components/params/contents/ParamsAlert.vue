@@ -28,7 +28,8 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -94,47 +95,19 @@ export default class ParamsAlert extends Vue {
 	}
 
 	public testAlert():void {
-		const message:IRCEventDataList.Message = {
-			"type": "message",
-			"message": "ItsBoshyTime Read your chat !!! ItsBoshyTime",
-			"tags": {
-				"badge-info": {
-					"subscriber": "16"
-				},
-				"badges": {
-					"broadcaster": "1",
-					"subscriber": "12"
-				},
-				"client-nonce": "f90438208ff604cfba00470d60f1bb5b",
-				"color": "#9ACD32",
-				"display-name": "Durss",
-				"emotes": {
-					"133468": [
-						"0-11",
-						"32-43"
-					]
-				},
-				"first-msg": false,
-				"flags": undefined,
-				"id": "00000000-0000-0000-0000-000000000002",
-				"mod": false,
-				"returning-chatter": false,
-				"room-id": "29961813",
-				"subscriber": true,
-				"tmi-sent-ts": "1658344567683",
-				"turbo": false,
-				"user-id": "29961813",
-				"user-type": "",
-				"emotes-raw": "133468:0-11,32-43",
-				"badge-info-raw": "subscriber/16",
-				"badges-raw": "broadcaster/1,subscriber/12",
-				"username": "durss",
-				"message-type": "chat"
-			},
-			"channel": "#durss",
-			"self": false,
-			"firstMessage": false,
-			"hasMention": false
+		//TODO make sure it works
+		const uid = UserSession.instance.twitchUser!.id;
+		const emoteTag = `<img src="https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/1.0" data-tooltip="<img src='https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/3.0' height='112' width='112'><br><center>ItsBoshyTime</center>" class="emote">`;
+		const message:TwitchatDataTypes.MessageChatData = {
+			id:Utils.getUUID(),
+			platform:"twitch",
+			date: Date.now(),
+			type: "message",
+			user: this.$store("users").getUserFrom("twitch", uid),
+			answers: [],
+			channel_id:uid,
+			message: "ItsBoshyTime Read your chat !!! ItsBoshyTime",
+			message_html: emoteTag+" Read your chat !!! "+emoteTag,
 		}
 		this.$store("main").executeChatAlert(message);
 	}

@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from '@/utils/IRCEventDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -50,7 +50,7 @@ import Button from '../Button.vue';
 export default class ChatHypeTrainResult extends Vue {
 
 	public filtering!:boolean;
-	public result!:IRCEventDataList.HypeTrainResult;
+	public result!:TwitchatDataTypes.MessageHypeTrainSummaryData;
 
 	public reachPercent:number = 0;
 	public subs:number = 0;
@@ -59,7 +59,7 @@ export default class ChatHypeTrainResult extends Vue {
 	public bits:number = 0;
 	
 	public get time():string {
-		const d = new Date(parseInt(this.result.tags['tmi-sent-ts'] as string));
+		const d = new Date(this.result.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
@@ -74,21 +74,21 @@ export default class ChatHypeTrainResult extends Vue {
 		this.reachPercent = Math.round(this.result.train.currentValue / this.result.train.goal * 100);
 		for (let i = 0; i < this.result.activities.length; i++) {
 			const el = this.result.activities[i];
-			const type = getTwitchatMessageType(el);
-			switch(type) {
-				case TwitchatMessageType.SUB:
-				case TwitchatMessageType.SUBGIFT_UPGRADE: this.subs ++; break;
-				case TwitchatMessageType.SUB_PRIME: this.primes++; break;
-				case TwitchatMessageType.SUBGIFT: {
-					let count = 1;
-					const subgiftAdditionalRecipents = (el as IRCEventDataList.Highlight).subgiftAdditionalRecipents
-					if(subgiftAdditionalRecipents) {
-						count += subgiftAdditionalRecipents.length;
+			switch(el.type) {
+				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
+					if(el.tier == "prime") this.primes ++;
+					else if(el.is_gift) {
+						let count = el.gift_recipients!.length ?? 1;
+						this.subgifts += count;
+					}else {
+						this.subs ++;
 					}
-					this.subgifts += count;
 					break;
 				}
-				case TwitchatMessageType.BITS: this.bits += parseInt((el as IRCEventDataList.Highlight).tags.bits as string); break;
+				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+					this.bits += el.bits;
+					break;
+				}
 			}
 		}
 	}

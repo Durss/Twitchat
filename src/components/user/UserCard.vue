@@ -1,11 +1,11 @@
 <template>
-	<div class="usercard" v-if="username">
+	<div class="usercard" v-if="user">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
 			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
-				<div class="title">{{username}}</div>
+				<div class="title">{{user.displayName}}</div>
 				<img src="@/assets/loader/loader.svg" alt="loader" class="loader">
 			</div>
 		</div>
@@ -13,18 +13,18 @@
 		<div class="holder" ref="holder" v-else-if="error">
 			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
-				<div class="title">{{username}}</div>
+				<div class="title">{{user.displayName}}</div>
 			</div>
 
 			<div class="error">Something went wrong while loading user's profile...</div>
 		</div>
 
-		<div class="holder" ref="holder" v-else-if="!loading && !error && user">
+		<div class="holder" ref="holder" v-else-if="!loading && !error">
 			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
-				<img :src="user?.profile_image_url" alt="avatar" class="avatar" ref="avatar">
+				<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 				<div class="live" v-if="currentStream">LIVE</div>
-				<div class="title">{{user.display_name}}</div>
+				<div class="title">{{user.displayName}}</div>
 				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" data-tooltip="Account creation date"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				<div class="date" data-tooltip="Follows you since" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="account creation date" class="icon">{{followDate}}</div>
@@ -37,7 +37,7 @@
 				<Button title="viewer card" small :icon="$image('icons/newtab.svg')" @click="openViewerCard()" />
 			</div>
 
-			<div class="description" v-if="user.description">{{user.description}}</div>
+			<div class="description" v-if="userDescription">{{userDescription}}</div>
 			
 			<div class="followings">
 				<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
@@ -62,9 +62,9 @@
 
 <script lang="ts">
 import { storeUsers } from '@/store/users/storeUsers';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { IRCEventDataList } from '@/utils/IRCEventDataTypes';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -87,12 +87,12 @@ export default class UserCard extends Vue {
 	public suspiciousFollowFrequency:boolean = false;
 	public loading:boolean = true;
 	public loadingFollowings:boolean = true;
-	public username:string|null = null;
 	public createDate:string = "";
 	public followDate:string = "";
-	public user:TwitchDataTypes.UserInfo|null = null;
+	public userDescription:string = "";
+	public user:TwitchatDataTypes.TwitchatUser|null = null;
+	public fakeModMessage:TwitchatDataTypes.MessageChatData|null = null;
 	public currentStream:TwitchDataTypes.StreamInfo|null = null;
-	public fakeModMessage:IRCEventDataList.Message|null = null;
 	public followings:TwitchDataTypes.Following[] = [];
 	public followInfo:TwitchDataTypes.Following|null = null;
 	public myFollowings:{[key:string]:boolean} = {};
@@ -104,11 +104,8 @@ export default class UserCard extends Vue {
 	public mounted():void {
 		const sUsers = storeUsers();
 		watch(() => this.$store("users").userCard, () => {
-			this.myFollowings = sUsers.myFollowings;
-			this.username = this.$store("users").userCard;
-			if(this.username == null) return;
-			this.username = this.username.replace(/^@/g, "");
-			this.loadUserInfo();
+			this.myFollowings = sUsers.myFollowings.twitchat;
+			this.user = this.$store("users").userCard;
 		});
 
 		this.keyUpHandler = (e:KeyboardEvent):void => this.onKeyUp(e);
@@ -135,26 +132,28 @@ export default class UserCard extends Vue {
 		this.loadingFollowings = true;
 		this.commonFollowCount = 0;
 		try {
-			const users = await TwitchUtils.loadUserInfo(undefined, [this.username!]);
+			this.user = this.user!;
+			const users = await TwitchUtils.loadUserInfo([this.user!.id]);
 			if(users.length > 0) {
-				this.user = users[0];
+				const u = users[0];
 				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([this.user.id]))[0];
-				this.createDate = Utils.formatDate(new Date(this.user.created_at));
+				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.followInfo = await TwitchUtils.getFollowInfo(this.user.id);
+				this.userDescription = u.description;
 				if(this.followInfo) {
 					this.followDate = Utils.formatDate(new Date(this.followInfo.followed_at));
 				}
 				// this.subState = await TwitchUtils.getSubscriptionState(this.user.id);//needs a new scope
 				this.fakeModMessage = {
+					id:Utils.getUUID(),
+					platform:"twitch",
+					date:Date.now(),
 					type: "message",
-					channel: "#"+UserSession.instance.twitchUser?.login,
+					user:this.user,
+					channel_id: UserSession.instance.twitchUser!.login,
 					message: "",
-					tags: {
-						username:this.user.login,
-						"display-name":this.user.display_name,
-					},
-					self: false,
-					firstMessage: false,
+					message_html: "",
+					answers:[],
 				}
 			}else{
 				this.error = true;
@@ -196,12 +195,12 @@ export default class UserCard extends Vue {
 	public openViewerCard():void {
 		let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 		width=350,height=500,left=100,top=100`;
-		const url ="https://www.twitch.tv/popout/"+UserSession.instwitchAuthTokenhToken.login+"/viewercard/"+this.username;
+		const url ="https://www.twitch.tv/popout/"+UserSession.instance.twitchUser!.login+"/viewercard/"+this.user!.login;
 		window.open(url, 'profilePage', params);
 	}
 
 	public openTwitchPage():void {
-		const url = "https://www.twitch.tv/"+this.username;
+		const url = "https://www.twitch.tv/"+this.user!.login;
 		window.open(url, '_blank');
 	}
 

@@ -82,7 +82,7 @@
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';

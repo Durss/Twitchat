@@ -2,19 +2,19 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
-import DeezerHelper from "./DeezerHelper";
+import DeezerHelper from "./music/DeezerHelper";
 import IRCClient from "./IRCClient";
 import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from "./IRCEventDataTypes";
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
-import type { SearchTrackItem } from "./SpotifyDataTypes";
-import SpotifyHelper from "./SpotifyHelper";
+import type { SearchTrackItem } from "./music/SpotifyDataTypes";
+import SpotifyHelper from "./music/SpotifyHelper";
 import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
 import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
-import TwitchUtils from "./TwitchUtils";
+import TwitchUtils from "./twitch/TwitchUtils";
 import Utils from "./Utils";
-import VoicemodWebSocket from "./VoicemodWebSocket";
+import VoicemodWebSocket from "./voice/VoicemodWebSocket";
 
 /**
 * Created : 22/04/2022 
@@ -392,11 +392,11 @@ export default class TriggerActionHandler {
 	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.reward) {
 			let id = message.reward.redemption.reward.id;
-			if(id == "TEST_ID") {
-				id = TriggerTypes.REWARD_REDEEM;
-			}else{
+			// if(id == "TEST_ID") {
+			// 	id = TriggerTypes.REWARD_REDEEM;
+			// }else{
 				id = TriggerTypes.REWARD_REDEEM+"_"+id;
-			}
+			// }
 			return await this.parseSteps(id, message, testMode, guid);
 		}
 		return false;

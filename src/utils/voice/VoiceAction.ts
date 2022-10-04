@@ -1,4 +1,4 @@
-import type { TwitchatActionType } from "./TwitchatEvent";
+import type { TwitchatActionType } from "../TwitchatEvent";
 
 /**
 * Created : 10/05/2022 

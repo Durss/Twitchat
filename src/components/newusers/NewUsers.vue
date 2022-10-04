@@ -43,7 +43,7 @@
 			@leave="(el, done)=>leave(el, done)"
 		> -->
 		<div class="messageList" v-if="showList" ref="messageList">
-			<div v-for="(m,index) in localMessages" :key="m.tags.id">
+			<div v-for="(m,index) in localMessages" :key="m.id">
 				<ChatMessage
 					class="message"
 					ref="message"
@@ -52,18 +52,6 @@
 					:data-index="index"
 					:lightMode="true"
 					:disableConversation="true"
-					@mouseover="onMouseOver($event, index)"
-					@mouseout="onMouseOut()"
-					@click="deleteMessage(m, index)"
-					@click.right.prevent="deleteMessage(m, index, true)" />
-
-				<ChatHighlight
-					class="message"
-					ref="message"
-					v-if="m.type == 'highlight'"
-					:messageData="m"
-					:data-index="index"
-					:lightMode="true"
 					@mouseover="onMouseOver($event, index)"
 					@mouseout="onMouseOut()"
 					@click="deleteMessage(m, index)"
@@ -79,12 +67,11 @@
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import DataStore from '@/store/DataStore';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import IRCClient from '@/utils/IRCClient';
-import IRCEvent from '@/utils/IRCEvent';
-import type { ChatMessageTypes, IRCEventDataList } from '@/utils/IRCEventDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
+import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -112,7 +99,7 @@ export default class NewUsers extends Vue {
 	public windowHeight = .3;
 	public maxHeightPos = 0;
 	public maxHeightSize = 0;
-	public localMessages:(IRCEventDataList.Message | IRCEventDataList.Highlight)[] = [];
+	public localMessages:(TwitchatDataTypes.MessageChatData)[] = [];
 
 	private disposed = false;
 	private resizing = false;
@@ -122,7 +109,6 @@ export default class NewUsers extends Vue {
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
-	private messageHandler!:(e:IRCEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get styles():{[key:string]:string} {
@@ -151,9 +137,14 @@ export default class NewUsers extends Vue {
 			this.autoDeleteAfter = parseInt(autoDeleteStore);
 		}
 
+		//Save new "auto delete after" value when changed
 		watch(()=>this.autoDeleteAfter, ()=>{
-			//Save new "auto delete after" value when changed
 			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.autoDeleteAfter);
+		});
+
+		//Called when new message is received
+		watch(()=>this.$store("chat").messages, ()=>{
+			this.onMessage()
 		});
 
 		//Automatically deletes messages after the configured delay
@@ -163,7 +154,7 @@ export default class NewUsers extends Vue {
 			const clearTimeoffset = Date.now() - this.autoDeleteAfter * 1000;
 			for (let i = 0; i < this.localMessages.length; i++) {
 				const m = this.localMessages[i];
-				if(parseInt(m.tags['tmi-sent-ts'] as string) < clearTimeoffset) {
+				if(m.date < clearTimeoffset) {
 					this.localMessages.splice(i, 1);
 					i--;
 				}
@@ -174,12 +165,10 @@ export default class NewUsers extends Vue {
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
 		if(!Config.instance.IS_PROD) {
-			this.localMessages = this.localMessages.concat(
-				(this.$store("chat").messages as ChatMessageTypes[]).filter(m => m.type == "message" || m.type == "highlight") as (IRCEventDataList.Message | IRCEventDataList.Highlight)[])
-				.splice(0,50);
+			const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.MessageChatData[];
+			this.localMessages = this.localMessages.concat(history).splice(0,50);
 		}
 
-		this.messageHandler = (e:IRCEvent) => this.onMessage(e);
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
@@ -188,7 +177,6 @@ export default class NewUsers extends Vue {
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
-		IRCClient.instance.addEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 		this.renderFrame();
@@ -201,7 +189,6 @@ export default class NewUsers extends Vue {
 		document.removeEventListener("touchend", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
-		IRCClient.instance.removeEventListener(IRCEvent.UNFILTERED_MESSAGE, this.messageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 	}
@@ -216,24 +203,21 @@ export default class NewUsers extends Vue {
 	/**
 	 * Called when a new message is received
 	 */
-	private async onMessage(e:IRCEvent):Promise<void> {
+	private async onMessage():Promise<void> {
 		const maxLength = 100;
-		const m = e.data as (IRCEventDataList.Message | IRCEventDataList.Highlight);
+		const list = this.$store("chat").messages;
+		const m = list[list.length - 1]; //TODO make sure we're not skipping messages. Is the watcher triggered for EVERY message or by batch?
 		
-		if(m.type != "message" && m.type != "highlight") return;
-		if(m.type == "highlight" && m.viewers) return;//Ignore raids
-		if(m.blockedUser === true) return;//Ignore blocked users
-		let login:string = m.tags.login? m.tags.login : m.tags.username;
-		if(!login) return;
-		login = login.toLowerCase();
+		if(m.type != "message") return;
+		if(m.user.is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
-		if(login == m.channel.substring(1)) return;
-		//Ignore bot messages
-		if(IRCClient.instance.botsLogins[login.toLowerCase()] === true) return;
+		if(m.user.id == UserSession.instance.twitchUser!.id) return;
+		//TODO Ignore bot messages
+		// if(IRCClient.instance.botsLogins[login.toLowerCase()] === true) return;
 		//Ignore hidden users from params
-		if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(login) > -1) return;
+		if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(m.user.login.toLowerCase()) > -1) return;
 		
-		if(m.firstMessage) this.localMessages.push(m);
+		if(m.todayFirst) this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
 			this.localMessages = this.localMessages.slice(-maxLength);
 		}
@@ -264,7 +248,6 @@ export default class NewUsers extends Vue {
 		
 		for (let i = 0; i < readCount; i++) {
 			if(this.localMessages.length === 0) break;
-			this.localMessages[0].firstMessage = false;
 			this.localMessages.splice(0, 1);
 		}
 	}
@@ -273,19 +256,17 @@ export default class NewUsers extends Vue {
 	 * Called when clicking a message
 	 * Either removes a streak of messages or one single message
 	 */
-	public deleteMessage(m:IRCEventDataList.Message|IRCEventDataList.Highlight, index:number, singleMode = false):void {
+	public deleteMessage(m:TwitchatDataTypes.MessageChatData, index:number, singleMode = false):void {
 		if(!this.streakMode || singleMode) {
 			let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
 			this.indexOffset = parseInt(el.$el.dataset.index as string);
-			m.firstMessage = false;
 			this.localMessages.splice(index, 1);
 		}else{
 			this.indexOffset = 0;
 			this.overIndex = -1;
 			let messages = this.localMessages;
-			let index = messages.findIndex(v => v.tags.id == m.tags.id);
+			let index = messages.findIndex(v => v.id == m.id);
 			for (let i = 0; i < index+1; i++) {
-				messages[0].firstMessage = false;
 				messages.splice(0, 1);
 			}
 		}
@@ -299,14 +280,7 @@ export default class NewUsers extends Vue {
 		//while confirming the clear, these new messages are kept
 		let deleteCount = this.localMessages.length;
 		this.$confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
-			for (let i = 0; i < deleteCount; i++) {
-				if(this.localMessages[i].firstMessage) {
-					this.localMessages[i].firstMessage = false;
-					this.localMessages.splice(i, 1);
-					i--;
-					deleteCount--;
-				}
-			}
+			this.localMessages.splice(0, deleteCount);
 		});
 	}
 
@@ -320,8 +294,8 @@ export default class NewUsers extends Vue {
 			for (let i = 0; i <= index; i++) {
 				const item = this.localMessages[i];
 				if(!item) continue;
-				if(!this.highlightState[item.tags.id as string]) {
-					this.highlightState[item.tags.id as string] = true;
+				if(!this.highlightState[item.id]) {
+					this.highlightState[item.id] = true;
 					//Why the hell do I use inline styles this way instead of
 					//doing it the Vue way by simply updating a prop set
 					//to the component so it automatically updates when updating
@@ -336,7 +310,7 @@ export default class NewUsers extends Vue {
 				
 			}
 		}else{
-			this.highlightState[this.localMessages[index].tags.id as string] = true;
+			this.highlightState[this.localMessages[index].id as string] = true;
 			let color = Utils.getLessVars().mainColor_light as string;
 			color = color.replace(/\)/gi, ", .1)");
 			(items[index].$el as HTMLDivElement).style.background = color as string;
@@ -377,7 +351,7 @@ export default class NewUsers extends Vue {
 		this.overIndex = -1;
 		let items = this.$refs.message as Vue[];
 		for (let i = 0; i < this.localMessages.length; i++) {
-			const id = this.localMessages[i].tags.id as string;
+			const id = this.localMessages[i].id;
 			if(this.highlightState[id] === true) {
 				this.highlightState[id] = false;
 				(items[i].$el as HTMLDivElement).removeAttribute("style");

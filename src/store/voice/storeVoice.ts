@@ -1,6 +1,6 @@
 import DataStore from '@/store/DataStore'
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import type VoiceAction from '@/utils/VoiceAction'
+import type VoiceAction from '@/utils/voice/VoiceAction'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IVoiceActions, IVoiceGetters, IVoiceState } from '../StoreProxy'

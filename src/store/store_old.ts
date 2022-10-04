@@ -3,7 +3,7 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import BTTVUtils from '@/utils/BTTVUtils';
 import type { BingoData, RaffleData, RaffleEntry, TrackedUser, WheelItem } from '@/utils/CommonDataTypes';
 import Config from '@/utils/Config';
-import DeezerHelper from '@/utils/DeezerHelper';
+import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/DeezerHelperEvent';
 import FFZUtils from '@/utils/FFZUtils';
 import IRCClient from '@/utils/IRCClient';
@@ -12,8 +12,8 @@ import type { ActivityFeedData, IRCEventData, IRCEventDataList } from '@/utils/I
 import { getTwitchatMessageType, TwitchatMessageType, type ChatMessageTypes } from '@/utils/IRCEventDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
-import PubSub from '@/utils/PubSub';
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
+import PubSub from '@/utils/twitch/PubSub';
+import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import SevenTVUtils from '@/utils/SevenTVUtils';
 import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/SpotifyDataTypes';
@@ -23,14 +23,14 @@ import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchCypherPlugin from '@/utils/TwitchCypherPlugin';
-import TwitchUtils from '@/utils/TwitchUtils';
+import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import type VoiceAction from '@/utils/VoiceAction';
-import VoiceController from '@/utils/VoiceController';
-import VoicemodEvent from '@/utils/VoicemodEvent';
-import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/VoicemodWebSocket';
+import type VoiceAction from '@/utils/voice/VoiceAction';
+import VoiceController from '@/utils/voice/VoiceController';
+import VoicemodEvent from '@/utils/voice/VoicemodEvent';
+import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/voice/VoicemodWebSocket';
 import type { ChatUserstate, UserNoticeState } from 'tmi.js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { createStore } from 'vuex';
@@ -826,9 +826,9 @@ const store = createStore({
 				}
 				
 				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-				if(TwitchCypherPlugin.instance.isCyperCandidate(textMessage.message)) {
+				if(ChatCypherPlugin.instance.isCyperCandidate(textMessage.message)) {
 					const original = textMessage.message;
-					textMessage.message = await TwitchCypherPlugin.instance.decrypt(textMessage.message);
+					textMessage.message = await ChatCypherPlugin.instance.decrypt(textMessage.message);
 					textMessage.cyphered = textMessage.message != original;
 				}
 				
@@ -1038,7 +1038,7 @@ const store = createStore({
 		
 		setCypherKey(state, payload:string) {
 			state.cypherKey = payload;
-			TwitchCypherPlugin.instance.cypherKey = payload;
+			ChatCypherPlugin.instance.cypherKey = payload;
 			Store.set(Store.CYPHER_KEY, payload);
 		},
 
@@ -2349,7 +2349,7 @@ const store = createStore({
 			let authenticated = false;
 			if(token && payload.authenticate) {
 				const cypherKey = Store.get(Store.CYPHER_KEY)
-				TwitchCypherPlugin.instance.initialize(cypherKey);
+				ChatCypherPlugin.instance.initialize(cypherKey);
 				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
 					this.dispatch("setSpotifyToken", e.token);
 				});

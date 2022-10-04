@@ -1,6 +1,6 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { PubSubDataTypes } from '@/utils/PubSubDataTypes';
-import TwitchUtils from '@/utils/TwitchUtils';
+import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -56,7 +56,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user
 			//Don't use "users.find(...)", perfs are much lower than good old for() loop
@@ -96,10 +96,11 @@ export const storeUsers = defineStore('users', {
 			//we're here.
 			user = user!;
 
+			if(this.blockedUsers[platform][user.id] === true) {
+				user.is_blocked = true;
+			}
+
 			if(platform == "twitch") {
-				if(this.blockedUsers[platform][user.id] === true) {
-					user.is_blocked = true;
-				}
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
@@ -110,7 +111,7 @@ export const storeUsers = defineStore('users', {
 						if(user!.is_partner != undefined) return;
 						if(user!.is_affiliate != undefined) return;
 					}
-					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(res => {
+					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(async (res) => {
 						user = user!;
 						if(res.length > 0) {
 							user.id = res[0].id;
@@ -121,9 +122,10 @@ export const storeUsers = defineStore('users', {
 							if(user.temporary) {
 								delete user.temporary;
 								this.users.push(user);
-								this.checkFollowerState(user);
-								this.checkPronouns(user);
+								await this.checkFollowerState(user);
+								await this.checkPronouns(user);
 							}
+							if(loadCallback) loadCallback(user);
 						}
 					});
 				}, 500);
@@ -251,16 +253,21 @@ export const storeUsers = defineStore('users', {
 		},
 
 		//Check for user's pronouns
-		checkPronouns(user:TwitchatDataTypes.TwitchatUser):void {
-			if(!user.id || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return;
-			TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
-				if (res !== null) {
-					user.pronouns = res.pronoun_id;
-				}else{
-					user.pronouns = false;
-				}
-					
-			}).catch(()=>{/*ignore*/})
+		checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+			if(!user.id || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
+			return new Promise((resolve, reject)=> {
+				TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
+					if (res !== null) {
+						user.pronouns = res.pronoun_id;
+					}else{
+						user.pronouns = false;
+					}
+					resolve();
+				}).catch(()=>{
+					/*ignore*/
+					resolve();
+				});
+			});
 			
 		},
 

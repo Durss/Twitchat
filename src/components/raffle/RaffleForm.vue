@@ -117,8 +117,7 @@
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
-import type { RaffleData } from '@/utils/CommonDataTypes';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -206,7 +205,7 @@ export default class RaffleForm extends Vue {
 		return res;
 	}
 
-	public get finalData():RaffleData {
+	public get finalData():TwitchatDataTypes.RaffleData {
 		const cmd = this.command.value? this.command.value as string : "!raffle";
 
 		return  {
@@ -291,7 +290,7 @@ export default class RaffleForm extends Vue {
 	 * Create a chat raffle
 	 */
 	public async submitForm():Promise<void> {
-		const payload:RaffleData = this.finalData;
+		const payload:TwitchatDataTypes.RaffleData = this.finalData;
 		this.$store("raffle").startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();

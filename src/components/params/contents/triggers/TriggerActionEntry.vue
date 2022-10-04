@@ -84,7 +84,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import VoicemodWebSocket from '@/utils/VoicemodWebSocket';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { Options, Vue } from 'vue-class-component';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';

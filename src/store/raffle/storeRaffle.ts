@@ -1,10 +1,9 @@
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { RaffleData, RaffleEntry, WheelItem } from '@/utils/CommonDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import TwitchUtils from '@/utils/TwitchUtils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
@@ -27,7 +26,7 @@ export const storeRaffle = defineStore('raffle', {
 
 	actions: {
 
-		async startRaffle(payload:RaffleData) {
+		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
 			this.data = payload;
 			
 			let overlayAvailable = false;
@@ -70,7 +69,7 @@ export const storeRaffle = defineStore('raffle', {
 						return true;
 					});
 					
-					const items:RaffleEntry[] = subs.map(v=>{
+					const items:TwitchatDataTypes.RaffleEntry[] = subs.map(v=>{
 						return {
 							id:v.user_id,
 							label:v.user_name,
@@ -82,11 +81,11 @@ export const storeRaffle = defineStore('raffle', {
 					if(overlayAvailable) {
 						//A wheel overlay exists, ask it to animate
 						const winner = Utils.pickRand(items).id;
-						const data:{items:WheelItem[], winner:string} = { items, winner };
+						const data:{items:TwitchatDataTypes.WheelItem[], winner:string} = { items, winner };
 						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 					}else{
 						//No wheel overlay found, announce on chat
-						const winner:WheelItem = Utils.pickRand(items);
+						const winner:TwitchatDataTypes.WheelItem = Utils.pickRand(items);
 						this.onRaffleComplete(winner, true)
 					}
 					break;
@@ -103,7 +102,7 @@ export const storeRaffle = defineStore('raffle', {
 					}else{
 						customEntries = ["invalid custom entries"];
 					}
-					const items:RaffleEntry[] = customEntries.map(v=> {
+					const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
 						return {
 							id:(id++).toString(),
 							label:v,
@@ -115,11 +114,11 @@ export const storeRaffle = defineStore('raffle', {
 					if(overlayAvailable) {
 						//A wheel overlay exists, ask it to animate
 						const winner = Utils.pickRand(items).id;
-						const data:{items:WheelItem[], winner:string} = { items, winner };
+						const data:{items:TwitchatDataTypes.WheelItem[], winner:string} = { items, winner };
 						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 					}else{
 						//No wheel overlay found, announce on chat
-						const winner:WheelItem = Utils.pickRand(items);
+						const winner:TwitchatDataTypes.WheelItem = Utils.pickRand(items);
 						this.onRaffleComplete(winner, true);
 					}
 					break;
@@ -129,7 +128,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		stopRaffle() { this.data = null; },
 
-		onRaffleComplete(winner:WheelItem, publish:boolean = false) {
+		onRaffleComplete(winner:TwitchatDataTypes.WheelItem, publish:boolean = false) {
 			// this.raffle = null;
 			if(!this.data) return;
 
