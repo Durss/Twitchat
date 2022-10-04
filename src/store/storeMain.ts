@@ -1,18 +1,18 @@
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import SpotifyHelperEvent from '@/utils/music/SpotifyHelperEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import SpotifyHelperEvent from '@/utils/music/SpotifyHelperEvent';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
-import TwitchatEvent from '@/utils/TwitchatEvent';
-import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -37,17 +37,7 @@ export const storeMain = defineStore("main", {
 		cypherKey: "",
 		cypherEnabled: false,
 		tempStoreValue: null,
-
-		confirmData:{
-			title:"",
-			description:"",
-			confirmCallback:()=>{ },
-			cancelCallback:()=>{ },
-			yesLabel:"",
-			noLabel:"",
-			STTOrigin:false,
-		},
-		
+		confirmData:null,
 		chatAlertParams: {
 			chatCmd:"!alert",
 			message:true,
@@ -516,6 +506,8 @@ export const storeMain = defineStore("main", {
 				}
 			});
 		},
+
+		closeConfirm():void { this.confirmData = null; },
 
 		openTooltip(payload:string) { this.tooltip = payload; },
 		

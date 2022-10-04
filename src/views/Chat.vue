@@ -154,7 +154,6 @@ import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
-import IRCClient from '@/utils/IRCClient';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -170,6 +169,9 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
+import StoreProxy from '@/store/StoreProxy';
 
 @Options({
 	components:{
@@ -472,7 +474,7 @@ export default class Chat extends Vue {
 	}
 
 	public clearChat():void {
-		IRCClient.instance.client.clear(IRCClient.instance.channel);
+		TwitchUtils.deleteMessages();
 	}
 
 	/**
@@ -596,7 +598,16 @@ export default class Chat extends Vue {
 			}catch(error) {
 				const e = (error as unknown) as {error:string, message:string, status:number}
 				console.log(error);
-				IRCClient.instance.sendNotice("commercial", e.message);
+				
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:"notice",
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:"An error occured whens tarting the commercial : " + e.message,
+				}
+				StoreProxy.chat.addMessage(notice);
 				// this.$store("store").state.alert = "An unknown error occured when starting commercial"
 			}
 		}).catch(()=>{/*ignore*/});

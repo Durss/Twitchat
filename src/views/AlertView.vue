@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts">
-import { storeMain } from '@/store/storeMain';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -16,8 +15,6 @@ export default class AlertView extends Vue {
 	public message = "";
 	public timeout!:number;
 	
-	private sMain = storeMain();
-
 	public mounted():void {
 		this.onWatchAlert();
 		watch(() => this.$store("main").alert, () => {

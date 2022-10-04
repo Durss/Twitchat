@@ -42,7 +42,7 @@
 				<ParamItem class="item" :paramData="param_volume" />
 				<ParamItem class="item" :paramData="param_rate" />
 				<ParamItem class="item" :paramData="param_pitch" />
-				<form @submit.prevent="test()">
+				<form @submit.prevent="testVoice()">
 					<input class="item center" type="text" v-model="testStr" placeholder="message...">
 					<Button class="item center" title="Test" :icon="$image('icons/tts.svg')" type="submit" />
 				</form>
@@ -63,8 +63,11 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
+import UserSession from '@/utils/UserSession';
+import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -276,8 +279,19 @@ export default class ParamsTTS extends Vue {
 		
 	}
 
-	public test():void {
-		TTSUtils.instance.readNow(this.testStr);
+	public testVoice():void {
+		const m:TwitchatDataTypes.MessageChatData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitchat",
+			channel_id: "xxxx",
+			type:"message",
+			user: StoreProxy.users.getUserFrom("twitch", UserSession.instance.twitchUser!.id),
+			message: this.testStr,
+			message_html: this.testStr,
+			answers: [],
+		};
+		TTSUtils.instance.readNow(m);
 	}
 
 	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {

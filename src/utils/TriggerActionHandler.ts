@@ -3,8 +3,6 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./music/DeezerHelper";
-import IRCClient from "./IRCClient";
-import { getTwitchatMessageType, TwitchatMessageType, type IRCEventDataList } from "./IRCEventDataTypes";
 import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./music/SpotifyDataTypes";

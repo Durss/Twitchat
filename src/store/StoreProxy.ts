@@ -46,7 +46,7 @@ export interface IMainState {
 	cypherKey: string;
 	cypherEnabled: boolean;
 	tempStoreValue: unknown;
-	confirmData:TwitchatDataTypes.ConfirmData;
+	confirmData:TwitchatDataTypes.ConfirmData|null;
 	chatAlertParams: TwitchatDataTypes.AlertParamsData;
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
 }
@@ -59,6 +59,7 @@ export interface IMainActions {
 	loadDataFromStorage(authenticated?:boolean):void;
 	showAlert(message:string):void;
 	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
+	closeConfirm():void;
 	openTooltip(payload:string):void;
 	closeTooltip():void;
 	setShowParams(payload:boolean):void;

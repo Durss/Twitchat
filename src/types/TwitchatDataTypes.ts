@@ -464,15 +464,6 @@ export namespace TwitchatDataTypes {
 		obsSources:string[];
 	}
 
-	export interface EmergencyFollowerData {
-		uid:string;
-		login:string;
-		date:number;
-		blocked:boolean;
-		unblocked:boolean;
-		banned?:boolean;
-	}
-
 	export interface ChatHighlightInfo {
 		type?:"chatOverlayHighlight",
 		message?:string,

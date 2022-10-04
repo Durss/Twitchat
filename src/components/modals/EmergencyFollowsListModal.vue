@@ -4,26 +4,26 @@
 		<div class="holder" ref="holder">
 			<img src="@/assets/icons/emergency_purple.svg" alt="emergency" class="icon">
 			<div class="head">
-				<span class="title">Review {{followers.length}} follower(s)</span>
+				<span class="title">Review {{follow.length}} follower(s)</span>
 			</div>
 			<div class="content">
 				<div>Here is a list of all the users that followed you during the emergency:</div>
 				<div class="list">
 					<ul>
-						<li v-for="follower in followers" class="user">
+						<li v-for="follower in follow" class="user">
 							<div class="infos">
 								<span class="date">{{ formatDate(follower.date) }}</span>
-								<a class="name" data-tooltip="Open profile" :href="'https://twitch.tv/'+follower.login" target="_blank">{{ follower.login }}</a>
-								<img class="icon" data-tooltip="User has<br>been banned" v-if="follower.banned" src="@/assets/icons/ban_purple.svg" alt="banned">
-								<img class="icon" data-tooltip="User has<br>been blocked" v-if="follower.blocked" src="@/assets/icons/block_purple.svg" alt="blocked">
-								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.unblocked" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
+								<a class="name" data-tooltip="Open profile" :href="'https://twitch.tv/'+follower.user.login" target="_blank">{{ follower.user.displayName }}</a>
+								<img class="icon" data-tooltip="User has<br>been banned" v-if="follower.user.is_banned" src="@/assets/icons/ban_purple.svg" alt="banned">
+								<img class="icon" data-tooltip="User has<br>been blocked" v-if="follower.user.is_blocked === true" src="@/assets/icons/block_purple.svg" alt="blocked">
+								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.user.is_blocked === false" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
 							</div>
 							<div class="ctas">
 								<Button class="cardBt" small data-tooltip="Open viewer details" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
-								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.banned !== true" highlight :icon="$image('icons/ban.svg')" />
-								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.banned === true" :icon="$image('icons/unban.svg')" />
-								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.unblocked" highlight :icon="$image('icons/block.svg')" />
-								<Button small @click="unblock(follower)" data-tooltip="Unblock user" v-if="follower.blocked && !follower.unblocked" :icon="$image('icons/unblock.svg')" />
+								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.user.is_banned !== true" highlight :icon="$image('icons/ban.svg')" />
+								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.user.is_banned === true" :icon="$image('icons/unban.svg')" />
+								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.user.is_blocked !== true" highlight :icon="$image('icons/block.svg')" />
+								<Button small @click="unblock(follower)" data-tooltip="Unblock user" v-if="follower.blocked && follower.user.is_blocked === true" :icon="$image('icons/unblock.svg')" />
 							</div>
 						</li>
 					</ul>
@@ -54,7 +54,7 @@ import Button from '../Button.vue';
 })
 export default class EmergencyFollowsListModal extends Vue {
 
-	public get followers():TwitchatDataTypes.EmergencyFollowerData[] { return this.$store("emergency").follows; }
+	public get follow():TwitchatDataTypes.MessageFollowingData[] { return this.$store("emergency").follows; }
 
 	public formatDate(date:number):string {
 		const d = new Date(date)
@@ -63,30 +63,28 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	private today:Date = new Date();
 
-	public openCard(follower:TwitchatDataTypes.EmergencyFollowerData):void {
-		this.$store("users").openUserCard(follower.login);
+	public openCard(follower:TwitchatDataTypes.MessageFollowingData):void {
+		this.$store("users").openUserCard(follower.user);
 	}
 		
-	public async ban(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
-		follower.banned = true;
-		await TwitchUtils.banUser(follower.uid, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
+	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
+		follow.user.is_banned = true;
+		await TwitchUtils.banUser(follow.user.id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
 	}
 		
-	public async unban(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
-		delete follower.banned;
-		await TwitchUtils.unbanUser(follower.uid);
+	public async unban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
+		delete follow.user.is_banned;
+		await TwitchUtils.unbanUser(follow.user.id);
 	}
 	
-	public async block(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
-		follower.blocked = true;
-		follower.unblocked = false;
-		await TwitchUtils.blockUser(follower.uid, "spam");
+	public async block(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
+		follow.user.is_blocked = true;
+		await TwitchUtils.blockUser(follow.user.id, "spam");
 	}
 
-	public async unblock(follower:TwitchatDataTypes.EmergencyFollowerData):Promise<void> {
-		follower.blocked = false;
-		follower.unblocked = true;
-		await TwitchUtils.unblockUser(follower.uid);
+	public async unblock(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
+		follow.user.is_blocked = false;
+		await TwitchUtils.unblockUser(follow.user.id);
 	}
 
 	public clearList():void {
@@ -106,14 +104,14 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	public copyList():void {
 		let csv = "Date,User ID, Login, Blocked, Unblocked, Banned\n";
-		const len = this.followers.length;
+		const len = this.follow.length;
 		for (let i = 0; i < len; i++) {
-			csv += this.followers[i].date;
-			csv += "," + this.followers[i].uid;
-			csv += "," + this.followers[i].login;
-			csv += "," + (this.followers[i].blocked? 1 : 0);
-			csv += "," + (this.followers[i].unblocked? 1 : 0);
-			csv += "," + (this.followers[i].banned? 1 : 0);
+			csv += this.follow[i].date;
+			csv += "," + this.follow[i].user.id;
+			csv += "," + this.follow[i].user.login;
+			csv += "," + (this.follow[i].user.is_blocked === true? 1 : 0);
+			csv += "," + (this.follow[i].user.is_blocked === false? 1 : 0);
+			csv += "," + (this.follow[i].user.is_banned? 1 : 0);
 			if(i < len -1) csv += "\n";
 		}
 		Utils.copyToClipboard(csv);

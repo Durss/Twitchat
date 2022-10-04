@@ -162,7 +162,6 @@ import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import IRCClient from '@/utils/IRCClient';
 import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../Splitter.vue';
@@ -280,7 +279,8 @@ export default class ChatAd extends Vue {
 	}
 
 	public async simulateEvent(code:string):Promise<void> {
-		IRCClient.instance.sendFakeEvent(code);
+		// IRCClient.instance.sendFakeEvent(code);
+		//TODO migrate JSONs
 	}
 
 	public async makeDonationPublic():Promise<void> {

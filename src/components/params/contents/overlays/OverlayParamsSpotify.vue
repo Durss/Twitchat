@@ -47,7 +47,7 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import SpotifyHelper from '@/utils/SpotifyHelper';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';

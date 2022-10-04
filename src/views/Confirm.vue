@@ -1,15 +1,15 @@
 <template>
-	<div :class="(hidden? 'hidden ' : '') + 'confirmView'">
+	<div class="confirmView" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
-			<div class="title" v-html="title"></div>
+			<div class="title" v-html="confirmData.title"></div>
 			
 			<VoiceGlobalCommandsHelper v-if="voiceControl" :confirmMode="true" />
 
-			<div class="description" v-html="description"></div>
+			<div class="description" v-html="confirmData.description"></div>
 			<div class="buttons">
-				<Button class="cancel" type="cancel" @click.stop="answer()" :title="noLabel" alert />
-				<Button class="confirm" @click.stop="answer(true)" :title="yesLabel" />
+				<Button class="cancel" type="cancel" @click.stop="answer()" :title="confirmData.noLabel ?? 'No'" alert />
+				<Button class="confirm" @click.stop="answer(true)" :title="confirmData.yesLabel ?? 'Yes'" />
 			</div>
 		</div>
 	</div>
@@ -18,6 +18,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -32,16 +33,12 @@ import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHe
 	}
 })
 export default class Confirm extends Vue {
-
 	
-	public title = "";
-	public description = "";
-	public yesLabel = "";
-	public noLabel = "";
-	public hidden = true;
+	public confirmData:TwitchatDataTypes.ConfirmData|null = null;
 	public submitPressed = false;
 	public voiceControl = false;
-
+	
+	private hidden = true;
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private voiceController!:FormVoiceControllHelper;
@@ -64,19 +61,18 @@ export default class Confirm extends Vue {
 	}
 
 	public onConfirmChanged():void {
-		let hidden = !this.$store("main").confirm || !this.$store("main").confirm.title;
+		const d = this.$store("main").confirmData;
 		
+		let hidden = d == null;
 		if(this.hidden == hidden) return;//No change, ignore
+
 		let holder = this.$refs.holder as HTMLElement;
 		let dimmer = this.$refs.dimmer as HTMLElement;
 
 		if(!hidden) {
+			this.confirmData = d;
 			this.hidden = hidden;
-			this.title = this.$store("main").confirm.title;
-			this.description = this.$store("main").confirm.description ?? "";
-			this.yesLabel = this.$store("main").confirm.yesLabel ?? "Yes";
-			this.noLabel = this.$store("main").confirm.noLabel ?? "No";
-			this.voiceControl = this.$store("main").confirm.STTOrigin === true;
+			this.voiceControl = d!.STTOrigin === true;
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
@@ -134,26 +130,19 @@ export default class Confirm extends Vue {
 	}
 
 	public answer(confirm = false):void {
-		if(!this.$store("main").confirm.title) return;
+		const d = this.$store("main").confirmData;
+		if(!d) return;
 		
 		if(confirm) {
-			if(this.$store("main").confirm.confirmCallback) {
-				this.$store("main").confirm.confirmCallback!();
+			if(d.confirmCallback) {
+				d.confirmCallback!();
 			}
 		}else{
-			if(this.$store("main").confirm.cancelCallback) {
-				this.$store("main").confirm.cancelCallback!();
+			if(d.cancelCallback) {
+				d.cancelCallback!();
 			}
 		}
-		const confirmData = {
-			title:"",
-			description:"",
-			yesLabel:"",
-			noLabel:"",
-			confirmCallback : () => { /*ignore*/ },
-			cancelCallback : () =>  { /*ignore*/ }
-		}
-		this.$store("main").confirm(confirmData);
+		this.$store("main").closeConfirm();
 	}
 }
 </script>
@@ -168,9 +157,6 @@ export default class Confirm extends Vue {
 	width: 100%;
 	height: 100%;
 
-	&.hidden {
-		display: none;
-	}
 	.dimmer {
 		backdrop-filter: blur(2px);
 		background-color: rgba(0,0,0,.7);

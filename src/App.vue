@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { getCurrentInstance, inject, watch } from 'vue';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";

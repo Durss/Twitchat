@@ -131,9 +131,9 @@ export default class AutocompleteChatForm extends Vue {
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			if(this.users) {
-				const users = this.$store("users").onlineUsers;
+				const users = this.$store("users").users.filter(v=>v.online === true);
 				for (let j = 0; j < users.length; j++) {
-					const userName = users[j];
+					const userName = users[j].displayName;
 					if(userName.toLowerCase().indexOf(s) == 0) {
 						res.push({
 							type:"user",
