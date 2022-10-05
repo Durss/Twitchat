@@ -465,7 +465,7 @@ export default class TwitchUtils {
 	/**
 	 * Create a poll
 	 */
-	public static async createPoll(question:string, answers:string[], duration:number, bitsPerVote = 0, pointsPerVote = 0):Promise<TwitchDataTypes.Poll[]> {
+	public static async createPoll(question:string, answers:string[], duration:number, pointsPerVote = 0):Promise<TwitchDataTypes.Poll[]> {
 		const options = {
 			method:"POST",
 			headers: this.headers,
@@ -474,8 +474,6 @@ export default class TwitchUtils {
 				title:question,
 				choices:answers.map(v => {return {title:v}}),
 				duration,
-				bits_voting_enabled:bitsPerVote > 0,
-				bits_per_vote:bitsPerVote,
 				channel_points_voting_enabled:pointsPerVote > 0,
 				channel_points_per_vote:pointsPerVote,
 			})

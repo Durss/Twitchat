@@ -723,8 +723,6 @@ export default class PubSub extends EventDispatcher{
 			broadcaster_login: UserSession.instance.authToken.login,
 			title: localObj.poll.title,
 			choices: choices,
-			bits_voting_enabled: localObj.poll.settings.bits_votes.is_enabled,
-			bits_per_vote: localObj.poll.settings.bits_votes.cost,
 			channel_points_voting_enabled: localObj.poll.settings.channel_points_votes.is_enabled,
 			channel_points_per_vote: localObj.poll.settings.channel_points_votes.cost,
 			status: localObj.poll.status as "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODERATED" | "INVALID",

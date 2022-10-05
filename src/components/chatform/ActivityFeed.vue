@@ -208,6 +208,7 @@ export default class ActivityFeed extends Vue {
 			}
 		}
 		if(f) this.filters = json;
+		if(!this.filters) this.filters = {};
 	}
 
 	public async mounted():Promise<void> {
@@ -315,14 +316,13 @@ export default class ActivityFeed extends Vue {
 	.noActivity {
 		font-style: italic;
 		color: @mainColor_light;
-		font-size: 12px;
+		font-size: .8em;
 		text-align: center;
 		margin: 15px 0;
 		opacity: .5;
 	}
 
 	.messageList{
-		font-size: 12px;
 		max-height: 50vh;
 		min-height: 30px;
 		overflow-y: auto;

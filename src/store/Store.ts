@@ -51,6 +51,7 @@ export default class Store {
 	public static TWITCHAT_AD_WARNED:string = "adWarned";
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
 	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
+	public static INTERFACE_SCALE:string = "interfaceScale";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -239,6 +240,7 @@ export default class Store {
 				//Things unnecessary to save server side
 				delete data[this.GREET_HISTORY];
 				delete data[this.SYNC_DATA_TO_SERVER];
+				delete data[this.INTERFACE_SCALE];
 				delete data.deezerEnabled;
 				delete data.redirect;
 				

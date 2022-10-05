@@ -45,9 +45,6 @@
 						<ParamItem :paramData="extraVotesParam" />
 					</div>
 					<div class="row inline right" v-if="extraVotesParam.value === true">
-						<ParamItem :paramData="bitsVoteParam" />
-					</div>
-					<div class="row inline right" v-if="extraVotesParam.value === true">
 						<ParamItem :paramData="pointsVoteParam" />
 					</div>
 					<div class="row">
@@ -103,7 +100,6 @@ export default class PollForm extends Vue {
 	public answer4 = "";
 	public answer5 = "";
 	public extraVotesParam:ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
-	public bitsVoteParam:ParameterData = {label:"Bits per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public pointsVoteParam:ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};
 	public voteDuration:ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
 
@@ -158,7 +154,6 @@ export default class PollForm extends Vue {
 			await TwitchUtils.createPoll(this.title,
 									this.answers,
 									this.voteDuration.value as number * 60,
-									this.bitsVoteParam.value as number,
 									this.pointsVoteParam.value as number);
 		}catch(error:unknown) {
 			this.loading = false;

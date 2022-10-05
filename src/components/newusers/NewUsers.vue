@@ -502,13 +502,13 @@ export default class NewUsers extends Vue {
 
 			.count {
 				// font-style: italic;
-				font-size: 16px;
+				font-size: .65em;
 				font-weight: normal;
 			}
 		}
 		.clearBt, .scrollBt {
-			height: 25px;
-			width: 25px;
+			height: 1.5em;
+			width: 1.5em;
 			padding: 3px;
 			border-radius: 5px;
 		}
@@ -524,9 +524,9 @@ export default class NewUsers extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			font-size: .8em;
 
 			label {
-				font-size: 16px;
 				margin: 0;
 				margin-right: 5px;
 				color: @mainColor_light;
@@ -537,7 +537,7 @@ export default class NewUsers extends Vue {
 				}
 			}
 			select {
-				font-size: 14px;
+				font-size: .8em;
 				padding: 0px 2px;
 				border-radius: 5px;
 			}
