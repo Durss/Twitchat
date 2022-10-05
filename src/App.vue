@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" :style="styles">
 		<router-view />
 		<Confirm />
 		<Alert />
@@ -8,8 +8,9 @@
 </template>
 
 <script lang="ts">
-import { watch } from 'vue';
+import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import DataStore from './store/DataStore';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
@@ -24,7 +25,11 @@ import Tooltip from "./views/Tooltip.vue";
 })
 export default class App extends Vue {
 
+	public scale:number = 1.25;
+	
+	public defaultScale:number = 1.25;
 	private resizeHandler!:() => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 
 	public get classes():string[] {
 		let res = ["app"];
@@ -33,9 +38,24 @@ export default class App extends Vue {
 		return res;
 	}
 
+	public get styles():StyleValue {
+		let res:StyleValue = {};
+		if(this.scale != 1 && !isNaN(this.scale)) {
+			res.fontSize = Math.min(2.95, Math.max(.95, this.scale))+"em";
+		}
+		return res;
+	}
+
 	public mounted():void {
+		const scale = DataStore.get(DataStore.INTERFACE_SCALE);
+		if(scale) {
+			this.scale = parseFloat(scale);
+			if(isNaN(this.scale)) this.scale = 1;
+		}
 		this.resizeHandler = ()=> this.onWindowResize();
+		this.keyDownHandler = (e)=> this.onKeyDown(e);
 		window.addEventListener("resize", this.resizeHandler);
+		window.addEventListener("keydown", this.keyDownHandler);
 		this.onWindowResize();
 		watch(()=> this.$store("main").initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
@@ -43,12 +63,24 @@ export default class App extends Vue {
 
 	public beforeUnmount():void {
 		window.removeEventListener("resize", this.resizeHandler);
+		window.removeEventListener("keydown", this.keyDownHandler);
 	}
 
 	private onWindowResize():void {
 		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
 		//Here we calculate the actual page height and set it as a CSS var.
 		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
+	}
+
+	private onKeyDown(e:KeyboardEvent):void {
+		if(!e.shiftKey && e.key !== "Insert") return;
+		let scale = this.scale;
+		if(e.key === "=" || e.key === "+") scale += .1;
+		if(e.key === "6") scale -= .1;
+		if(e.key === "0" || e.key === "Insert") scale = this.defaultScale;
+		scale = Math.min(2.95, Math.max(.95, scale));
+		this.scale = scale;
+		DataStore.set(DataStore.INTERFACE_SCALE, scale, false);
 	}
 
 	private hideMainLoader():void {
@@ -65,46 +97,46 @@ export default class App extends Vue {
 .app{
 	width: 100%;
 	height: var(--vh);
-	font-size: 20px;
+	font-size: 1.25em;
 	overflow: hidden;
-
+	
 	&.overflow {
 		overflow: auto;
 	}
 
 	&.messageSize_1 {
 		:root & {
-			--messageSize: 11px;
+			--messageSize: .55em;
 		}
 	}
 	&.messageSize_2 {
 		:root & {
-			--messageSize: 13px;
+			--messageSize: .65em;
 		}
 	}
 	&.messageSize_3 {
 		:root & {
-			--messageSize: 18px;
+			--messageSize: .9em;
 		}
 	}
 	&.messageSize_4 {
 		:root & {
-			--messageSize: 24px;
+			--messageSize: 1.25em;
 		}
 	}
 	&.messageSize_5 {
 		:root & {
-			--messageSize: 30px;
+			--messageSize: 1.5em;
 		}
 	}
 	&.messageSize_6 {
 		:root & {
-			--messageSize: 40px;
+			--messageSize: 2em;
 		}
 	}
 	&.messageSize_7 {
 		:root & {
-			--messageSize: 50px;
+			--messageSize: 2.5em;
 		}
 	}
 }

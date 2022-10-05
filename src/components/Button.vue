@@ -200,7 +200,7 @@ export default class Button extends Vue {
 	user-select: none;
 	cursor: pointer;
 	border: none;
-	padding: 5px 10px;
+	padding: .25em .8em;
 	font-size: 1em;
 	color: @mainColor_light;
 	background-color: @mainColor_normal;
@@ -210,7 +210,7 @@ export default class Button extends Vue {
 	border-radius: @border_radius;
 	will-change: transform;
 	text-decoration: none;
-	min-height: calc(1em + 10px);
+	min-height: calc(1em + .5em);
 
 	&:hover {
 		color: @mainColor_light;
@@ -254,7 +254,7 @@ export default class Button extends Vue {
 
 	&.noTitle {
 		margin: 0;
-		padding: 7px;
+		padding: .35em;
 		.icon {
 			height: 100%;
 			max-height: 1em;
@@ -264,14 +264,14 @@ export default class Button extends Vue {
 		}
 
 		&.big {
-			padding: 19px;
+			padding: .9em;
 			font-size: 1.25em;
 		}
 	}
 
 	&.checkbox {
 		background: none;
-		padding: 0px;
+		padding: 0;
 		border-radius: 0;
 		margin: 0;
 		display: inline-block;
@@ -301,10 +301,10 @@ export default class Button extends Vue {
 
 		.checkmark {
 			border: 1px solid @mainColor_normal;
-			border-radius: 4px;
+			border-radius: .25em;
 			padding: 0;
-			width: 15px;
-			height: 15px;
+			width: 1em;
+			height: 1em;
 			box-sizing: border-box;
 			display: flex;
 			align-items: center;
@@ -318,7 +318,7 @@ export default class Button extends Vue {
 
 		.label {
 			flex-grow: 1;
-			margin-left: 7px;
+			margin-left: .35em;
 			justify-self: flex-start;
 			text-align: left;
 			width: max-content;
@@ -337,7 +337,7 @@ export default class Button extends Vue {
 	.icon {
 		max-height: 1em;
 		height: 1em;
-		margin-right: 10px;
+		margin-right: .5em;
 		vertical-align: text-top;
 	}
 
@@ -345,8 +345,8 @@ export default class Button extends Vue {
 		.center;
 		position: absolute;
 		vertical-align: middle;
-		height: 25px;
-		width: 25px;
+		height: 1.5em;
+		width: 1.5em;
 	}
 
 	.label {
@@ -401,14 +401,14 @@ export default class Button extends Vue {
 	&.big {
 		padding: .5em 1em;
 		font-size: 1.25em;
-		min-height: calc(1.25em + 40px);
+		min-height: calc(1.25em + 2em);
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
 				.checkmark {
-					border-radius: 13px;
-					width: 40px;
-					height: 40px;
+					border-radius: 1em;
+					width: 2em;
+					height: 2em;
 				}
 			}
 		}
@@ -419,21 +419,21 @@ export default class Button extends Vue {
 	}
 
 	&.small {
-		padding: 4px;
-		border-radius: 5px;
+		padding: .2em;
+		border-radius: .3em;
 		font-size: .85em;
-		min-height: calc(.85em + 8px);
+		min-height: calc(.85em + .1em);
 		&:not(.noTitle) {
 			.icon {
-				margin-right: 3px;
+				margin-right: .1em;
 			}
 		}
 		&.checkbox {
 			padding: 0;
 			.checkboxContent {
 				.checkmark {
-					width: 18px;
-					height: 18px;
+					width: .8em;
+					height: .8em;
 				}
 			}
 		}
@@ -487,13 +487,13 @@ export default class Button extends Vue {
 @media only screen and (max-width: 500px) {
 	.button {
 		&.noTitle.big, &.big {
-			padding: 12px;
+			padding: .5em;
 			font-size: 1.2em;
-			min-height: calc(1.2em + 12px);
+			min-height: calc(1.2em + .5em);
 		}
 		&:not(.big) {
 			font-size: .85em;
-			min-height: calc(.85em + 12px);
+			min-height: calc(.85em + .5em);
 		}
 	}
 }

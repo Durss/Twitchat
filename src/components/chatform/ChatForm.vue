@@ -957,7 +957,7 @@ export default class ChatForm extends Vue {
 
 <style scoped lang="less">
 .chatform{
-	@height: 40px;
+	@height: 2em;
 	display: flex;
 	flex-direction: row;
 	min-height: @height;
@@ -993,17 +993,17 @@ export default class ChatForm extends Vue {
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
 		background-color: @mainColor_dark_extralight;
-		padding: 5px;
-		border-radius: 5px;
+		padding: .25em;
+		border-radius: .25em;
 
 		.leftForm {
 			height: 100%;
 			display: flex;
 			flex-direction: row;
 			.button {
-				width: 30px;
-				height: 30px;
-				border-radius: 5px;
+				width: 1.5em;
+				height: 1.5em;
+				border-radius: .25em;
 				background: none;
 			}
 		}
@@ -1021,7 +1021,7 @@ export default class ChatForm extends Vue {
 			}
 
 			input {
-				min-width: 50px;
+				min-width: 4em;
 				//These 2 following lines seems stupide AF but they allow 
 				//the input to autosize to it's min length
 				width: 0%;
@@ -1036,7 +1036,7 @@ export default class ChatForm extends Vue {
 				cursor: pointer;
 				text-align: center;
 				flex-grow: 1;
-				font-size: 18px;
+				font-size: 1em;
 				color: #ff0000;
 			}
 
@@ -1047,9 +1047,9 @@ export default class ChatForm extends Vue {
 					top: 0;
 					right: 0;
 					transform: translate(20%, -50%);
-					border-radius: 20px;
-					font-size: 10px;
-					padding: 2px 5px;
+					border-radius: 1em;
+					font-size: .55em;
+					padding: .25em .5em;
 					font-weight: bold;
 					color: @mainColor_dark;
 					background-color: @mainColor_warn;
@@ -1088,14 +1088,15 @@ export default class ChatForm extends Vue {
 				align-items: center;
 				white-space: nowrap;
 				color: @mainColor_light;
-				margin-left: 5px;
-				font-size: 14px;
-				padding: 5px;
-				border-radius: 5px;
 				background-color: rgba(255,255,255,.25);
+				
+				margin-left: .25em;
+				border-radius: .5em;
+				font-size: .7em;
+				padding: .35em;
 				img {
 					height: .7em;
-					margin-left: 2px;
+					margin-left: .1em;
 				}
 			}
 		}

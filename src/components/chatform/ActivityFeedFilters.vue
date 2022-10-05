@@ -146,7 +146,7 @@ export default class ActivityFeedFilters extends Vue {
 			vertical-align: middle;
 			margin-bottom: 3px;
 			label {
-				font-size: 14px;
+				font-size: .7em;
 				color: @mainColor_light;
 				flex-grow: 1;
 				margin: 0;

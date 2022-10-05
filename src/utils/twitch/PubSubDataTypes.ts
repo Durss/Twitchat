@@ -83,10 +83,6 @@ export namespace PubSubDataTypes {
 				multi_choice: {is_enabled: boolean;};
 				subscriber_only: {is_enabled: boolean;};
 				subscriber_multiplier: {is_enabled: boolean;};
-				bits_votes: {
-					is_enabled: boolean;
-					cost: number;
-				};
 				channel_points_votes: {
 					is_enabled: boolean;
 					cost: number;
