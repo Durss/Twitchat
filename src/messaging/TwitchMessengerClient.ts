@@ -22,8 +22,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedAnonymously:boolean = false;
 	private _connectTimeout:number = -1;
 	private _connectedChannels:string[] = [];
+	private _channelLoginToId:{[key:string]:string} = {};
 	private _blockedUsers:{[key:string]:boolean} = {};
-	private queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
+	private _queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
 	
 	constructor() {
 		super();
@@ -67,30 +68,29 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
-		this._connectTimeout = setTimeout(()=>{
+		this._connectTimeout = setTimeout(async ()=>{
+			const chans = await TwitchUtils.loadChannelInfo(this._connectedChannels);
+			chans.forEach(v=> {
+				this._channelLoginToId[v.broadcaster_login] = v.broadcaster_id;
+			})
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
 				//channels with specified credentials
+				let options:tmi.Options = {
+					options: { debug: false, skipUpdatingEmotesets:true, },
+					connection: { reconnect: true, maxReconnectInverval:2000 },
+					channels:this._connectedChannels.concat(),
+				};
 				if(!this._credentials) {
 					//not token given, anonymous authentication
-					this._client = new tmi.Client({
-						options: { debug: false, skipUpdatingEmotesets:true, },
-						connection: { reconnect: true, maxReconnectInverval:2000 },
-						channels:this._connectedChannels.concat(),
-					});
 					this._connectedAnonymously = true;
 				}else{
-					//Token exists, authenticate
-					this._client = new tmi.Client({
-						options: { debug: false, skipUpdatingEmotesets:true, },
-						connection: { reconnect: true, maxReconnectInverval:2000 },
-						channels:this._connectedChannels.concat(),
-						identity: {
-							username: this.credentials.username,
-							password: "oauth:"+this._credentials?.token,
-						},
-					});
+					options.identity = {
+						username: this.credentials.username,
+						password: "oauth:"+this._credentials?.token,
+					};
 				}
+				this._client = new tmi.Client(options);
 				this.initialize();
 			}else{
 				//Already connected to IRC, add channel to the list
@@ -230,7 +230,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						}catch(error) {
 							const e = (error as unknown) as {error:string, message:string, status:number}
 							console.log(error);
-							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, e.message, UserSession.instance.twitchUser!.login);
+							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, UserSession.instance.twitchUser!.id, e.message);
 						}
 					}).catch(()=>{/*ignore*/});
 				}
@@ -384,6 +384,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return user;
 	}
 
+	private getChannelID(login:string):string {
+		login = login.replace("#", "");
+		return this._channelLoginToId[login];
+	}
+
 	/**
 	 * Gets a user object from its login
 	 * 
@@ -411,7 +416,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"subscription",
 			id:tags.id ?? Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
 			tier: 1,
@@ -438,7 +443,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//To workaround this issue, we just store the message on a queue, and
 			//wait for a NOTICE event that gives us the message ID in which case
 			//we pop the message from the queue
-			this.queuedMessages.push({message, tags, self, channel});
+			this._queuedMessages.push({message, tags, self, channel});
 			return;
 		}
 		
@@ -464,7 +469,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			id:tags.id!,
 			type:"message",
 			platform:"twitch",
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 
 			user,
@@ -592,14 +597,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private onJoin(channel:string, user:string):void {
 		if(user == UserSession.instance.twitchUser?.login.toLowerCase() && !this._reconnecting) {
-			this.notice(TwitchatDataTypes.TwitchatNoticeType.ONLINE, "Welcome to the chat room "+channel+"!", channel);
+			this.notice(TwitchatDataTypes.TwitchatNoticeType.ONLINE, channel, "Welcome to the chat room "+channel+"!");
 			this._reconnecting = false;
 		}
 		this.dispatchEvent(new MessengerClientEvent("JOIN", {
 			platform:"twitch",
 			type:"join",
 			id:Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 			users:[this.getUserFromLogin(user)],
 		}));
@@ -610,7 +615,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"leave",
 			id:Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 			users:[this.getUserFromLogin(user)],
 		}));
@@ -623,7 +628,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"cheer",
 			id:tags.id ?? Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags),
 			bits:parseFloat(tags.bits as string) ?? -1,
@@ -677,7 +682,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"ban",
 			id:Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 			user:this.getUserFromLogin(username),
 			reason,
@@ -689,7 +694,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"timeout",
 			id:Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 			user:this.getUserFromLogin(username),
 			duration_s:duration,
@@ -702,7 +707,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"raid",
 			id:Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 			user:this.getUserFromLogin(username),
 			viewers
@@ -727,7 +732,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			type:"clear_chat",
 			id:Utils.getUUID(),
-			channel_id:channel.replace("#", ""),
+			channel_id:this.getChannelID(channel),
 			date:Date.now(),
 		}));
 	}
@@ -775,8 +780,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
 				
 				//If there are messages pending for their ID, give the oldest one the received ID
-				if((data as tmi.UserNoticeState).tags.id && this.queuedMessages.length > 0) {
-					const m = this.queuedMessages.shift();
+				if((data as tmi.UserNoticeState).tags.id && this._queuedMessages.length > 0) {
+					const m = this._queuedMessages.shift();
 					if(m) {
 						(m.tags as tmi.ChatUserstate).id = (data as tmi.UserNoticeState).tags.id;
 						(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
@@ -805,18 +810,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//fired for many notices whereas here we get them all
 			case "NOTICE": {
 				let [msgid, url, cmd, channel, message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
-				
+				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
 					if(msgid.indexOf("bad_delete_message_error") > -1) {
 						message = "You cannot delete this message.";
+						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					}
 					if(msgid.indexOf("authentication failed") > -1) {
 						message = "Authentication failed. Refreshing token and trying again...";
 						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
+						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					}
 				}
 				if(message) {
-					this.notice(msgid, message, channel);
+					this.notice(noticeId, channel, message);
 				}
 				break;
 			}
@@ -826,7 +833,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private notice(id:TwitchatDataTypes.TwitchatNoticeStringType, channel:string, message:string):void {
 		const eventData:TwitchatDataTypes.MessageNoticeData = {
-			channel_id: channel,
+			channel_id: this.getChannelID(channel),
 			id:Utils.getUUID(),
 			type:"notice",
 			date:Date.now(),

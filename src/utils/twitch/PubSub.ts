@@ -7,11 +7,11 @@ import Config from '../Config';
 import { EventDispatcher } from "../EventDispatcher";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
-import type { PubSubDataTypes } from './PubSubDataTypes';
 import TriggerActionHandler from "../TriggerActionHandler";
 import TwitchatEvent from "../TwitchatEvent";
 import UserSession from '../UserSession';
 import Utils from "../Utils";
+import type { PubSubDataTypes } from './PubSubDataTypes';
 
 /**
 * Created : 13/01/2022 
@@ -356,27 +356,27 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "hype-train-approaching") {
-			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
+			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching, channelId);
 
 
 
 		}else if(data.type == "hype-train-start") {
-			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart);
+			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart, channelId);
 
 
 
 		}else if(data.type == "hype-train-progression") {
-			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress);
+			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
 
 
 
 		}else if(data.type == "hype-train-level-up") {
-			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp);
+			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
 
 
 
 		}else if(data.type == "hype-train-end") {
-			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd);
+			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
 
 
 
@@ -424,16 +424,34 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "moderator_added") {
-			const user = (data.data as PubSubDataTypes.ModeratorAdded).target_user_login;
-			// IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
-			TriggerActionHandler.instance.onMessage({ type:"mod", user});
+			const localObj = data.data as PubSubDataTypes.ModeratorAdded;
+			const m:TwitchatDataTypes.MessageNoticeData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:channelId,
+				type:"notice",
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+				message: "User "+localObj.target_user_login+" has been added to your mods by "+localObj.created_by,
+			};
+			StoreProxy.chat.addMessage(m);
+			TriggerActionHandler.instance.onMessage(m);
 
 
 
 		}else if(data.type == "vip_added") {
-			const user = (data.data as PubSubDataTypes.VIPAdded).target_user_login;
-			// IRCClient.instance.sendNotice("ban_success", "User "+user+" has been banned by "+localObj.created_by);
-			TriggerActionHandler.instance.onMessage({ type:"vip", user});
+			const localObj = data.data as PubSubDataTypes.VIPAdded;
+			const m:TwitchatDataTypes.MessageNoticeData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:channelId,
+				type:"notice",
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+				message: "User "+localObj.target_user_login+" has been added to your VIPS by "+localObj.created_by,
+			};
+			StoreProxy.chat.addMessage(m);
+			TriggerActionHandler.instance.onMessage(m);
 
 
 
@@ -526,7 +544,7 @@ export default class PubSub extends EventDispatcher {
 		}else if(data.type == "moderation_action") {
 			//Manage moderation actions
 			const localObj = data.data as PubSubDataTypes.ModerationData;
-			let noticeId:string|null = null;
+			let noticeId:TwitchatDataTypes.TwitchatNoticeStringType|null = null;
 			let noticeText:string|null = null;
 			switch(localObj.moderation_action) {
 				case "clear": {
@@ -539,56 +557,48 @@ export default class PubSub extends EventDispatcher {
 					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
 					noticeText = localObj.created_by+" has banned "+user+" for "+duration+" seconds";
-					TriggerActionHandler.instance.onMessage({ type:"ban", user});
 					break;
 				}
 				case "untimeout": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNTIMEOUT;
 					noticeText = localObj.created_by+" has removed temporary ban from "+user;
-					TriggerActionHandler.instance.onMessage({ type:"unban", user});
 					break;
 				}
 				case "ban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
 					noticeText = "User "+user+" has been banned by "+localObj.created_by;
-					TriggerActionHandler.instance.onMessage({ type:"ban", user});
 					break;
 				}
 				case "unban": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
 					noticeText = "User "+user+" has been unbanned by "+localObj.created_by;
-					TriggerActionHandler.instance.onMessage({ type:"unban", user});
 					break;
 				}
 				case "mod": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.MOD;
 					noticeText = "User "+user+" has been added to your mods by "+localObj.created_by;
-					TriggerActionHandler.instance.onMessage({ type:"mod", user});
 					break;
 				}
 				case "unmod": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNMOD;
 					noticeText = "User "+user+" has been unmod by "+localObj.created_by;
-					TriggerActionHandler.instance.onMessage({ type:"unmod", user});
 					break;
 				}
 				case "vip": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
 					noticeText = "User "+user+" has been added to VIPs by "+localObj.created_by;
-					TriggerActionHandler.instance.onMessage({ type:"vip", user});
 					break;
 				}
 				case "unvip": {
 					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNVIP;
 					noticeText = "User "+user+" has been unVIP by "+localObj.created_by;
-					TriggerActionHandler.instance.onMessage({ type:"unvip", user});
 					break;
 				}
 				case "raid": {
@@ -628,6 +638,7 @@ export default class PubSub extends EventDispatcher {
 					noticeId,
 				};
 				StoreProxy.chat.addMessage(m);
+				TriggerActionHandler.instance.onMessage(m);
 			}
 		}
 	}
@@ -911,7 +922,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train approaches
 	 * @param data 
 	 */
-	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching):void {
+	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching, channelId:string):void {
 		const key = Object.keys(data.events_remaining_durations)[0];
 		const wasAlreadyApproaching = StoreProxy.stream.hypeTrain != undefined;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
@@ -934,12 +945,17 @@ export default class PubSub extends EventDispatcher {
 		}, train.timeLeft * 1000);
 
 		if(!wasAlreadyApproaching) {
-			const message:TwitchatDataTypes.HypeTrainTriggerData = {
-				type: "hypeTrainApproach",
+			const message:TwitchatDataTypes.MessageHypeTrainEventData = {
+				channel_id:channelId,
+				platform:"twitch",
+				date:Date.now(),
+				id:Utils.getUUID(),
+				type: "hype_train_approaching",
+				train,
 				level:0,
 				percent:0,
 			}
-			TriggerActionHandler.instance.onMessage(message)
+			TriggerActionHandler.instance.onMessage(message);
 		}
 	}
 
@@ -947,7 +963,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train starts
 	 * @param data 
 	 */
-	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart):void {
+	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level:data.progress.level.value,
@@ -967,19 +983,24 @@ export default class PubSub extends EventDispatcher {
 		if(!train.approached_at) train.approached_at = Date.now();
 		
 		StoreProxy.stream.setHypeTrain(train);
-		const message:TwitchatDataTypes.HypeTrainTriggerData = {
-			type: "hypeTrainStart",
+		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
+			channel_id:channelId,
+			platform:"twitch",
+			date:Date.now(),
+			id:Utils.getUUID(),
+			type: "hype_train_start",
+			train,
 			level:train.level,
 			percent:Math.round(train.currentValue/train.goal * 100),
 		}
-		TriggerActionHandler.instance.onMessage(message)
+		TriggerActionHandler.instance.onMessage(message);
 	}
 	
 	/**
 	 * Called when a hype train is progressing (new sub/bits)
 	 * @param data 
 	 */
-	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress):void {
+	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
 		clearTimeout(this.hypeTrainProgressTimer);
 		//postepone the progress event in case it's followed by a LEVEL UP event to avoid
@@ -1014,20 +1035,25 @@ export default class PubSub extends EventDispatcher {
 			if(!train.started_at)		train.started_at = Date.now();
 			
 			StoreProxy.stream.setHypeTrain(train);
-			const message:TwitchatDataTypes.HypeTrainTriggerData = {
-				type: "hypeTrainProgress",
+			const message:TwitchatDataTypes.MessageHypeTrainEventData = {
+				channel_id:channelId,
+				platform:"twitch",
+				date:Date.now(),
+				id:Utils.getUUID(),
+				type: "hype_train_progress",
+				train,
 				level:train.level,
 				percent:Math.round(train.currentValue/train.goal * 100),
 			}
-			TriggerActionHandler.instance.onMessage(message)
-		}, 200)
+			TriggerActionHandler.instance.onMessage(message);
+		}, 1000)
 	}
 	
 	/**
 	 * Called when a hype train levels up
 	 * @param data 
 	 */
-	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp):void {
+	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
 		clearTimeout(this.hypeTrainProgressTimer);
 		const storeData = StoreProxy.stream.hypeTrain!;
@@ -1050,19 +1076,25 @@ export default class PubSub extends EventDispatcher {
 		if(!train.started_at) train.started_at = Date.now();
 
 		StoreProxy.stream.setHypeTrain(train);
-		const message:TwitchatDataTypes.HypeTrainTriggerData = {
-			type: "hypeTrainProgress",
+		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
+			channel_id:channelId,
+			platform:"twitch",
+			date:Date.now(),
+			id:Utils.getUUID(),
+			type: "hype_train_progress",
+			train,
 			level:train.level,
 			percent:Math.round(train.currentValue/train.goal * 100),
 		}
-		TriggerActionHandler.instance.onMessage(message)
+		TriggerActionHandler.instance.onMessage(message);
 	}
 	
 	/**
 	 * Called when a hype train completes or expires
 	 * @param data 
 	 */
-	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd):void {
+	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd, channelId:string):void {
+		data.ending_reason
 		const storeData = StoreProxy.stream.hypeTrain!;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level: storeData.level,
@@ -1083,15 +1115,20 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.stream.setHypeTrain(undefined);
 		}, 10000)
 
-		let level = storeData.level;
-		if(storeData.currentValue < storeData.goal) level --;
-		const message:TwitchatDataTypes.HypeTrainTriggerData = {
-			type: "hypeTrainEnd",
-			level,
-			state:data.ending_reason,
+		//Remove one level if 100% not reached
+		// let level = storeData.level;
+		// if(storeData.currentValue < storeData.goal) level --;
+		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
+			channel_id:channelId,
+			platform:"twitch",
+			date:Date.now(),
+			id:Utils.getUUID(),
+			type: data.ending_reason == "COMPLETED"? "hype_train_complete" : "hype_train_cancel",
+			train,
+			level:storeData.level,
 			percent:Math.round(storeData.currentValue/storeData.goal * 100),
 		}
-		TriggerActionHandler.instance.onMessage(message)
+		TriggerActionHandler.instance.onMessage(message);
 	}
 	
 	/**
@@ -1106,22 +1143,18 @@ export default class PubSub extends EventDispatcher {
 	 * Called when stream info are updated
 	 */
 	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo, channelId:string):void {
-		const m:TwitchatDataTypes.MessageNoticeData = {
+		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
 			channel_id:channelId,
 			type:"notice",
-			message:"Stream info updated to <mark>\""+data.status+"\"</mark> in category <mark>\""+data.game+"\"</mark>",
-			noticeId: TwitchatDataTypes.TwitchatNoticeType.BROADCAST_SETTINGS_UPDATE,
-		};
-		StoreProxy.chat.addMessage(m);
-
-		const message:TwitchatDataTypes.StreamInfoUpdate = {
-			type: "streamInfoUpdate",
+			message:"Stream title changed to \""+data.status+"\"",
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
 			title:data.status,
 			category:data.game,
 		}
+		StoreProxy.chat.addMessage(message);
 		TriggerActionHandler.instance.onMessage(message);
 	}
 }

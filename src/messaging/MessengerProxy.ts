@@ -41,7 +41,8 @@ export default class MessengerProxy {
 	* PUBLIC METHODS *
 	******************/
 	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[]):void {
-		if(!targetPlatforms || targetPlatforms.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(message);
+		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
+		if(!hasPlatform || targetPlatforms.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(message);
 	}
 
 	public async connect():Promise<void> {

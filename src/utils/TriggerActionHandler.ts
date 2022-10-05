@@ -1,5 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import Config from "./Config";
 import DeezerHelper from "./music/DeezerHelper";
@@ -13,6 +13,7 @@ import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./twitch/TwitchUtils";
 import Utils from "./Utils";
 import VoicemodWebSocket from "./voice/VoicemodWebSocket";
+import MessengerProxy from "@/messaging/MessengerProxy";
 
 /**
 * Created : 22/04/2022 
@@ -21,7 +22,7 @@ export default class TriggerActionHandler {
 
 	private static _instance:TriggerActionHandler;
 
-	private actionsSpool:MessageTypes[] = [];
+	private actionsSpool:TwitchatDataTypes.ChatMessageTypes[] = [];
 	private userCooldowns:{[key:string]:number} = {};
 	private globalCooldowns:{[key:string]:number} = {};
 	private currentSpoolGUID = 0;
@@ -49,7 +50,7 @@ export default class TriggerActionHandler {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public onMessage(message:MessageTypes, testMode = false):void {
+	public onMessage(message:TwitchatDataTypes.ChatMessageTypes, testMode = false):void {
 		if(testMode) {
 			this.actionsSpool = [message];
 			this.executeNext(testMode);
@@ -75,7 +76,7 @@ export default class TriggerActionHandler {
 			const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 			if(data.message) {
 				data.type = "chatOverlayHighlight";
-				this.onMessage(data, false)
+				this.handleHighlightOverlay(data, false, ++this.currentSpoolGUID);
 			}
 		});
 	}
@@ -87,169 +88,193 @@ export default class TriggerActionHandler {
 
 		// console.log("Execute next", message);
 
-		if((message.type == "message" || message.type == "highlight")) {
-			const type = getTwitchatMessageType(message);
-			switch(type) {
-				case TwitchatMessageType.FOLLOW: {
-					if(await this.handleFollower(message, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
+		switch(message.type) {
+			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+				//Only trigger one of "first ever", "first today" or "returning" trigger
+				if(message.twitch_isFirstMessage === true) {
+					await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID);
+				}else
+				if(message.todayFirst === true) {
+					await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID);
+				}else
+				if(message.twitch_isReturning === true) {
+					await this.handleReturningChatter(message, testMode, this.currentSpoolGUID);
 				}
 
-				case TwitchatMessageType.SUB: 
-				case TwitchatMessageType.SUB_PRIME: 
-				case TwitchatMessageType.SUBGIFT_UPGRADE: {
-					if(await this.handleSub(message, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
+				if(message.message) {
+					await this.handleChatCmd(message, testMode, this.currentSpoolGUID);
 				}
-				
-				case TwitchatMessageType.SUBGIFT: {
+
+				await this.handleChatMessage(message, testMode, this.currentSpoolGUID);
+				break;
+			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+				if(await this.handleFollower(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+				if(message.is_gift) {
 					if(await this.handleSubgift(message, testMode, this.currentSpoolGUID)) {
 						return;
 					}
-					break;
-				}
-
-				case TwitchatMessageType.RAID: {
-					if(await this.handleRaid(message, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
-				}
-
-				case TwitchatMessageType.REWARD: {
-					if(await this.handleReward(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
-				}
-
-				case TwitchatMessageType.CHALLENGE_CONTRIBUTION: {
-					if(await this.handleChallengeContribution(message as IRCEventDataList.Highlight, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
-				}
-
-				case TwitchatMessageType.BITS: {
-					if(await this.handleBits(message, testMode, this.currentSpoolGUID)) {
-						return;
-					}
-					break;
-				}
-			}
-
-			if(message.tags["first-msg"] === true) {
-				await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID);
-			}else
-			if(message.firstMessage === true) {
-				await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID);
-			}else
-			if(message.tags["returning-chatter"] === true) {
-				await this.handleReturningChatter(message, testMode, this.currentSpoolGUID);
-			}
-
-			if(message.message) {
-				await this.handleChatCmd(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
-			}
-
-			await this.handleChatMessage(message as IRCEventDataList.Message, testMode, this.currentSpoolGUID);
-
-		}else if(message.type == "prediction") {
-			if(await this.handlePrediction(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-		
-		}else if(message.type == "poll") {
-			if(await this.handlePoll(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-		
-		}else if(message.type == "bingo") {
-			if(await this.handleBingo(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "raffle") {
-			if(await this.handleRaffle(message, testMode, this.currentSpoolGUID)) {
-				return;
+				}else
+				if(await this.handleSub(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
 			}
 			
-		}else if(message.type == "countdown") {
-			if(await this.handleCountdown(message, testMode, this.currentSpoolGUID)) {
-				return;
+			case TwitchatDataTypes.TwitchatMessageType.RAID: {
+				if(await this.handleRaid(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+				if(await this.handleReward(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
 			}
 
-		}else if(message.type == "streamInfoUpdate") {//Notice TwitchatDataTypes.TwitchatNoticeType.BROADCAST_SETTINGS_UPDATE
-			if(await this.handleStreamInfoUpdate(message, testMode, this.currentSpoolGUID)) {
-				return;
+			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
+				if(await this.handleChallengeContribution(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
 			}
 
-		}else if(message.type == "emergencyMode") {
-			if(await this.handleEmergencyMode(message, testMode, this.currentSpoolGUID)) {
-				return;
+			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+				if(await this.handleCheer(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
 			}
 
-		}else if(message.type == "timer") {
-			if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
-				return;
+			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
+				if(await this.handlePrediction(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
 			}
 
-		}else if(message.type == "chatOverlayHighlight") {
-			if(await this.handleHighlightOverlay(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-		
-		}else if(message.type == "chatAlert") {
-			if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
-				return;
+			case TwitchatDataTypes.TwitchatMessageType.POLL: {
+				if(await this.handlePoll(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
 			}
 
-		}else if(message.type == "musicEvent") {
+			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
+				if(await this.handleBingo(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
+				if(await this.handleRaffle(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
+				if(await this.handleCountdown(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
+				if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
+				if(await this.handleBingo(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT: {
+				if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			// case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
+			// 	if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
+			// 		return;
+			// 	}break;
+			// }
+
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS:
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL:
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE: {
+				if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+
+			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+				switch(message.noticeId) {
+					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
+						if(await this.handleStreamInfoUpdate(message as TwitchatDataTypes.MessageStreamInfoUpdate, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
+						if(await this.handleEmergencyMode(message as TwitchatDataTypes.MessageEmergencyModeInfo, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.BAN:{
+						if(await this.handleBanEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.UNBAN:{
+						if(await this.handleUnbanEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.MOD:{
+						if(await this.handleModEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.UNMOD:{
+						if(await this.handleUnmodEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.VIP:{
+						if(await this.handleVIPEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.UNVIP:{
+						if(await this.handleUnVIPEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT:{
+						if(await this.handleTimeoutEvent(message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
+				}
+				break;
+			}
+		}
+
+
+		if(message.type == "musicEvent") {
 			if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
 
 		}else if(message.type == "voicemod") {
 			if(await this.handleVoicemodEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "ban") {
-			if(await this.handleBanEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "unban") {
-			if(await this.handleUnbanEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "mod") {
-			if(await this.handleModEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "unmod") {
-			if(await this.handleUnmodEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "vip") {
-			if(await this.handleVIPEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "unvip") {
-			if(await this.handleUnVIPEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "timeout") {
-			if(await this.handleTimeoutEvent(message, testMode, this.currentSpoolGUID)) {
 				return;
 			}
 
@@ -270,126 +295,118 @@ export default class TriggerActionHandler {
 		this.executeNext();
 	}
 
-	private async handleFirstMessageEver(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleFirstMessageEver(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
 	}
 	
-	private async handleFirstMessageToday(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleFirstMessageToday(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
 	}
 	
-	private async handleReturningChatter(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleReturningChatter(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, guid);
 	}
 	
-	private async handleBits(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleCheer(message:TwitchatDataTypes.MessageCheerData, testMode:boolean, guid:number):Promise<boolean> {
 		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
 	}
 	
-	private async handleFollower(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleFollower(message:TwitchatDataTypes.MessageFollowingData, testMode:boolean, guid:number):Promise<boolean> {
 		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
 	}
 	
-	private async handleSub(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleSub(message:TwitchatDataTypes.MessageSubscriptionData, testMode:boolean, guid:number):Promise<boolean> {
 		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
 	}
 	
-	private async handleSubgift(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleSubgift(message:TwitchatDataTypes.MessageSubscriptionData, testMode:boolean, guid:number):Promise<boolean> {
 		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
 		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
 	}
 	
-	private async handlePoll(message:IRCEventDataList.PollResult, testMode:boolean, guid:number):Promise<boolean> {
-		let winnerVotes = -1;
-		message.data.choices.forEach(v=>{
-			if(v.votes > winnerVotes) {
-				winnerVotes = v.votes;
-				message.winner = v.title;
-			}
-		});
+	private async handlePoll(message:TwitchatDataTypes.MessagePollData, testMode:boolean, guid:number):Promise<boolean> {
+		// let winnerVotes = -1;
+		// message.data.choices.forEach(v=>{
+		// 	if(v.votes > winnerVotes) {
+		// 		winnerVotes = v.votes;
+		// 		message.winner = v.title;
+		// 	}
+		// });
+		//TODO remap the above
 		return await this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, guid);
 	}
 	
-	private async handlePrediction(message:IRCEventDataList.PredictionResult, testMode:boolean, guid:number):Promise<boolean> {
-		message.data.outcomes.forEach(v=>{
-			if(v.id == message.data.winning_outcome_id) {
-				message.winner = v.title;
-			}
-		});
+	private async handlePrediction(message:TwitchatDataTypes.MessagePredictionData, testMode:boolean, guid:number):Promise<boolean> {
+		// message.data.outcomes.forEach(v=>{
+		// 	if(v.id == message.data.winning_outcome_id) {
+		// 		message.winner = v.title;
+		// 	}
+		// });
+		//TODO remap the above
 		return await this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, guid);
 	}
 	
-	private async handleBingo(message:IRCEventDataList.BingoResult, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleBingo(message:TwitchatDataTypes.MessageBingoData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, guid);
 	}
 	
-	private async handleRaffle(message:IRCEventDataList.RaffleResult, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleRaffle(message:TwitchatDataTypes.MessageRaffleData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
 	}
 	
-	private async handleCountdown(message:IRCEventDataList.CountdownResult, testMode:boolean, guid:number):Promise<boolean> {
-		const type = message.started? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
+	private async handleCountdown(message:TwitchatDataTypes.MessageCountdownData, testMode:boolean, guid:number):Promise<boolean> {
+		const type = message.countdown? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
 		//Create placeholder pointers
-		message.start = Utils.formatDate(new Date(message.data.startAt));
-		message.start_ms = message.data.startAt;
-		message.duration = Utils.formatDuration(message.data.duration);
-		message.duration_ms = message.data.duration;
+		// message.start = Utils.formatDate(new Date(message.countdown.startAt));
+		// message.start_ms = message.countdown.startAt;
+		// message.duration = Utils.formatDuration(message.countdown.duration);
+		// message.duration_ms = message.countdown.duration;
+		//TODO remap the above
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
-	private async handleStreamInfoUpdate(message:TwitchatDataTypes.StreamInfoUpdate, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleStreamInfoUpdate(message:TwitchatDataTypes.MessageStreamInfoUpdate, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, guid);
 	}
 	
-	private async handleEmergencyMode(message:TwitchatDataTypes.EmergencyModeInfo, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleEmergencyMode(message:TwitchatDataTypes.MessageEmergencyModeInfo, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
-	private async handleTimer(message:IRCEventDataList.TimerResult, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleTimer(message:TwitchatDataTypes.MessageTimerData, testMode:boolean, guid:number):Promise<boolean> {
 		const type = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
 		//Create placeholder pointers
-		message.duration = Utils.formatDuration(message.data.duration as number);
-		message.duration_ms = message.data.duration;
+		// message.duration = Utils.formatDuration(message.data.duration as number);
+		// message.duration_ms = message.data.duration;
+		//TODO remap the above
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
-	private async handleHighlightOverlay(message:TwitchatDataTypes.ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
-	}
-	
-	private async handleChatAlert(message:TwitchatDataTypes.ChatAlertInfo, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleChatAlert(message:TwitchatDataTypes.MessageChatAlert, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, guid);
 	}
 	
-	private async handleRaid(message:IRCEventDataList.Message|IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleRaid(message:TwitchatDataTypes.MessageRaidData, testMode:boolean, guid:number):Promise<boolean> {
 		if(this.emergencyMode) return true;
 		return await this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
 	}
 	
-	private async handleChatCmd(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleChatCmd(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
 		const cmd = message.message.trim().split(" ")[0].toLowerCase();
 		return await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
 	}
 	
-	private async handleChatMessage(message:IRCEventDataList.Message, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.ttAutomod) return false;//Automoded message, ignore trigger
+	private async handleChatMessage(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, guid);
 	}
 	
-	private async handleReward(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleReward(message:TwitchatDataTypes.MessageRewardRedeemData, testMode:boolean, guid:number):Promise<boolean> {
 		if(message.reward) {
-			let id = message.reward.redemption.reward.id;
+			let id = message.reward.id;
 			// if(id == "TEST_ID") {
 			// 	id = TriggerTypes.REWARD_REDEEM;
 			// }else{
@@ -400,10 +417,61 @@ export default class TriggerActionHandler {
 		return false;
 	}
 	
-	private async handleChallengeContribution(message:IRCEventDataList.Highlight, testMode:boolean, guid:number):Promise<boolean> {
-		const complete = message.contribution!.goal.goal_amount !== message.contribution!.goal.points_contributed;
-		const event = complete? TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS : TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE;
+	private async handleChallengeContribution(message:TwitchatDataTypes.MessageCommunityChallengeContributionData, testMode:boolean, guid:number):Promise<boolean> {
+		const complete = message.challenge.goal === message.challenge.progress;
+		const event = complete? TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE : TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS;
 		return await this.parseSteps(event, message, testMode, guid);
+	}
+
+	private async handleBanEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.BAN, message, testMode, guid);
+	}
+
+	private async handleUnbanEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.UNBAN, message, testMode, guid);
+	}
+
+	private async handleModEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.MOD, message, testMode, guid);
+	}
+
+	private async handleUnmodEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.UNMOD, message, testMode, guid);
+	}
+
+	private async handleVIPEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.VIP, message, testMode, guid);
+	}
+
+	private async handleUnVIPEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.UNVIP, message, testMode, guid);
+	}
+
+	private async handleTimeoutEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, guid);
+	}
+	
+	private async handleHypeTrainEvent(message:TwitchatDataTypes.MessageHypeTrainEventData, testMode:boolean, guid:number):Promise<boolean> {
+		let triggerType!:TriggerTypesValue;
+		switch(message.type) {
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING: triggerType = TriggerTypes.HYPE_TRAIN_APPROACH; break;
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START: triggerType = TriggerTypes.HYPE_TRAIN_START; break;
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS: triggerType = TriggerTypes.HYPE_TRAIN_PROGRESS; break;
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL: triggerType = TriggerTypes.HYPE_TRAIN_CANCELED; break;
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE: triggerType = TriggerTypes.HYPE_TRAIN_END; break;
+		}
+		if(triggerType) {
+			return await this.parseSteps(triggerType, message, testMode, guid, undefined, "hypetrain");
+		}
+		return false;
+	}
+	
+	private async handleShoutoutEvent(message:TwitchatDataTypes.ShoutoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, guid);
+	}
+	
+	private async handleHighlightOverlay(message:TwitchatDataTypes.ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
+		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
 	}
 	
 	private async handleMusicEvent(message:TwitchatDataTypes.MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
@@ -415,55 +483,6 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, guid);
 	}
 
-	private async handleBanEvent(message:TwitchatDataTypes.BanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.BAN, message, testMode, guid);
-	}
-
-	private async handleUnbanEvent(message:TwitchatDataTypes.UnbanTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.UNBAN, message, testMode, guid);
-	}
-
-	private async handleModEvent(message:TwitchatDataTypes.ModTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.MOD, message, testMode, guid);
-	}
-
-	private async handleUnmodEvent(message:TwitchatDataTypes.UnmodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.UNMOD, message, testMode, guid);
-	}
-
-	private async handleVIPEvent(message:TwitchatDataTypes.VIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.VIP, message, testMode, guid);
-	}
-
-	private async handleUnVIPEvent(message:TwitchatDataTypes.UnVIPTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.UNVIP, message, testMode, guid);
-	}
-
-	private async handleTimeoutEvent(message:TwitchatDataTypes.TimeoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, guid);
-	}
-	
-	private async handleShoutoutEvent(message:TwitchatDataTypes.ShoutoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, guid);
-	}
-	
-	private async handleHypeTrainEvent(message:TwitchatDataTypes.HypeTrainTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		const idToType = {
-			hypeTrainApproach:TriggerTypes.HYPE_TRAIN_APPROACH,
-			hypeTrainStart:TriggerTypes.HYPE_TRAIN_START,
-			hypeTrainProgress:TriggerTypes.HYPE_TRAIN_PROGRESS,
-			hypeTrainEnd:TriggerTypes.HYPE_TRAIN_END as TriggerTypesValue,
-		}
-		if(message.state == "EXPIRE") {
-			idToType.hypeTrainEnd = TriggerTypes.HYPE_TRAIN_CANCELED;
-		}
-		const event = idToType[message.type];
-		if(event) {
-			return await this.parseSteps(event, message, testMode, guid, undefined, "hypetrain");
-		}
-		return false;
-	}
-
 	/**
 	 * Executes the steps of the trigger
 	 * 
@@ -472,7 +491,7 @@ export default class TriggerActionHandler {
 	 * 
 	 * @returns true if the trigger was executed
 	 */
-	private async parseSteps(eventType:string, message:MessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
+	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		let trigger:TwitchatDataTypes.TriggerData = this.triggers[ eventType ];
 		
@@ -481,7 +500,7 @@ export default class TriggerActionHandler {
 			let text:string = StoreProxy.chat.botMessages.twitchatAd.message;
 			//If no link is found on the message, force it at the begining
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
-				text = "twitchat.fr : "+text;
+				text = "Checkout twitchat.fr : "+text;
 			}
 			trigger = {
 				enabled:true,
@@ -505,21 +524,19 @@ export default class TriggerActionHandler {
 			if(!data.enabled) return false;
 			let canExecute = true;
 
-			if(data.permissions && data.cooldown) {
-				const m = message as IRCEventDataList.Message;
-				const uid = m?.tags['user-id'];
-				const key = eventType+"_"+uid;
+			if(data.permissions && data.cooldown && message?.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				const key = eventType+"_"+message.user.id;
 				const now = Date.now();
 				
 				//check permissions
-				if(m && !Utils.checkPermissions(data.permissions, m.tags)) {
+				if(!Utils.checkPermissions(data.permissions, message.user)) {
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any
-					if(m && this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
+					if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
 					else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
 	
-					if(m && this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
+					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
 					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
 				}
 			}
@@ -530,7 +547,7 @@ export default class TriggerActionHandler {
 			// console.log(data);
 			// console.log(message);
 			// console.log(canExecute);
-			
+
 			if(canExecute) {
 				for (let i = 0; i < data.actions.length; i++) {
 					if(autoExecuteNext && guid != this.currentSpoolGUID) {
@@ -577,7 +594,9 @@ export default class TriggerActionHandler {
 					//Handle Chat action
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
-						IRCClient.instance.sendMessage(text);
+						const platforms:TwitchatDataTypes.ChatPlatform[] = [];
+						if(message?.platform) platforms.push(message.platform);
+						MessengerProxy.instance.sendMessage(text, platforms);
 					}else
 					
 					//Handle highlight action
@@ -587,7 +606,7 @@ export default class TriggerActionHandler {
 							//Remove command name from message
 							if(subEvent) text = text.replace(subEvent, "").trim();
 							let user = null;
-							const m = message as IRCEventDataList.Message;
+							const m = message as TwitchatDataTypes.Message;
 							if(m?.tags?.["user-id"]) {
 								[user] = await TwitchUtils.loadUserInfo([m.tags?.["user-id"] as string]);
 							}
@@ -694,7 +713,7 @@ export default class TriggerActionHandler {
 									if(subEvent) m = m.replace(subEvent, "").trim();
 									data.message = m;
 									const chatMessage = await this.parseText(eventType, data, step.confirmMessage);
-									IRCClient.instance.sendMessage(chatMessage);
+									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}
 						}else
@@ -804,9 +823,9 @@ export default class TriggerActionHandler {
 			}else
 
 			if(h.tag === "MESSAGE" && value) {
-				const m = message as IRCEventDataList.Message;
+				const m = message as TwitchatDataTypes.Message;
 				//Parse emotes
-				const isReward = (message as IRCEventDataList.Highlight).reward != undefined;
+				const isReward = (message as TwitchatDataTypes.Highlight).reward != undefined;
 				const customParsing = m.sentLocally === true || isReward;
 				const chunks = TwitchUtils.parseEmotesToChunks(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
 				let cleanMessage = ""
@@ -844,8 +863,8 @@ export default class TriggerActionHandler {
 			
 			if(value && eventType === TriggerTypes.BITS && h.tag === "MESSAGE") {
 				//Parse cheermotes
-				const m = message as IRCEventDataList.Highlight;
-				value = await TwitchUtils.parseCheermotes(value as string, m.tags['room-id'] as string);
+				const m = message as TwitchatDataTypes.MessageCheerData;
+				value = await TwitchUtils.parseCheermotes(value as string, m.channel_id);
 			}
 
 			if(value && typeof value == "string") {
@@ -864,20 +883,3 @@ export default class TriggerActionHandler {
 		return res;
 	}
 }
-type MessageTypes = TwitchatDataTypes.ChatMessageTypes
-| TwitchatDataTypes.StreamInfoUpdate
-| TwitchatDataTypes.EmergencyModeInfo
-| TwitchatDataTypes.ChatHighlightInfo
-| TwitchatDataTypes.ChatAlertInfo
-| TwitchatDataTypes.MusicTriggerData
-| TwitchatDataTypes.HypeTrainTriggerData
-| TwitchatDataTypes.VoicemodTriggerData
-| TwitchatDataTypes.ShoutoutTriggerData
-| TwitchatDataTypes.BanTriggerData
-| TwitchatDataTypes.UnbanTriggerData
-| TwitchatDataTypes.ModTriggerData
-| TwitchatDataTypes.UnmodTriggerData
-| TwitchatDataTypes.TimeoutTriggerData
-| TwitchatDataTypes.VIPTriggerData
-| TwitchatDataTypes.UnVIPTriggerData
-;

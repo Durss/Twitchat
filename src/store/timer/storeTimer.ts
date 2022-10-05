@@ -89,7 +89,7 @@ export const storeTimer = defineStore('timer', {
 				platform:"twitchat",
 				id:Utils.getUUID(),
 				date:Date.now(),
-				data:this.countdown,
+				countdown:this.countdown,
 			};
 			TriggerActionHandler.instance.onMessage(message);
 			
@@ -106,7 +106,7 @@ export const storeTimer = defineStore('timer', {
 					platform:"twitchat",
 					id:Utils.getUUID(),
 					date:Date.now(),
-					data:this.countdown,
+					countdown:this.countdown,
 				};
 				StoreProxy.chat.addMessage(message);
 				TriggerActionHandler.instance.onMessage(message);

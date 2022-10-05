@@ -10,7 +10,7 @@
 			@click="toggleMarkRead(m, $event)">
 				<ChatAd class="message"
 					:messageData="m"
-					v-if="m.type == 'twitchatAd' && !lightMode"
+					v-if="m.type == 'twitchat_ad' && !lightMode"
 					@showModal="(v:string)=>$emit('showModal', v)"
 					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
@@ -832,7 +832,7 @@ export default class MessageList extends Vue {
 		|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			//TODO broadcast message
 			const message = {
-				channel: m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? m.channel_id : m.to.login,
+				channel: m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? m.channel_id : m.to.id,
 				message:m.message,
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, {manual:event!=null, selected:m.markedAsRead === true, message});

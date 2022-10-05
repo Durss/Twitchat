@@ -150,7 +150,7 @@ export interface IChatState {
 	commands:TwitchatDataTypes.CommandData[],
 	spoilerParams:TwitchatDataTypes.SpoilerParamsData,
 	isChatMessageHighlighted: boolean;
-	chatHighlightOverlayParams: TwitchatDataTypes.ChatHighlightOverlayData;
+	chatHighlightOverlayParams: TwitchatDataTypes.ChatHighlightParams;
 }
 
 export interface IChatGetters {
@@ -166,7 +166,7 @@ export interface IChatActions {
 	doSearchMessages(value:string):void;
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
 	shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
-	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightOverlayData):void;
+	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
 	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
 	unpinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;

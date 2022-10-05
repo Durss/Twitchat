@@ -12,7 +12,7 @@
 		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-if="clipData" v-show="!loadingClip">
 			<iframe
 				id="clip_player"
-				:src="clipData.embed_url+'&autoplay=true&parent=twitchat.fr&parent=localhost'"
+				:src="clipData.url"
 				width="990"
 				height="557"
 				allowfullscreen
@@ -25,7 +25,6 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
@@ -39,9 +38,9 @@ import { Options, Vue } from 'vue-class-component';
 export default class OverlayChatHighlight extends Vue {
 
 	public message:string = "";
-	public clipData:TwitchDataTypes.ClipInfo|null = null;
+	public clipData:TwitchatDataTypes.ClipInfo|null = null;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
-	public params:TwitchatDataTypes.ChatHighlightOverlayData|null = null;
+	public params:TwitchatDataTypes.ChatHighlightParams|null = null;
 	public loadingClip:boolean = true;
 
 	private showMessageHandler!:(e:TwitchatEvent)=>void;
@@ -116,10 +115,10 @@ export default class OverlayChatHighlight extends Vue {
 	private async onShowMessage(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 
-		const data = (e.data as unknown) as {message:string, user:TwitchatDataTypes.TwitchatUser, params:TwitchatDataTypes.ChatHighlightOverlayData};
-		this.message = data.message;
-		this.user = data.user;
-		this.params = data.params;
+		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
+		this.message = data.message!;
+		this.user = data.user!;
+		this.params = data.params!;
 		this.clipData = null;
 		this.loadingClip = true;
 		this.clipPercent = 0;
@@ -133,9 +132,9 @@ export default class OverlayChatHighlight extends Vue {
 	private async onShowClip(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 		
-		const data = (e.data as unknown) as {clip:TwitchDataTypes.ClipInfo, params:TwitchatDataTypes.ChatHighlightOverlayData};
-		this.clipData = data.clip;
-		this.params = data.params;
+		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
+		this.clipData = data.clip!;
+		this.params = data.params!;
 		this.message = "";
 		this.user = null;
 		this.clipPercent = 0;

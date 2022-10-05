@@ -66,7 +66,7 @@ export const storeStream = defineStore('stream', {
 				if(activities.length > 0) {
 					const res:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						type:"hype_train_summary",
-						channel_id:UserSession.instance.twitchUser!.login,
+						channel_id:UserSession.instance.twitchUser!.id,
 						train:data,
 						id:Utils.getUUID(),
 						date:Date.now(),

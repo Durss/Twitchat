@@ -454,8 +454,11 @@ export const storeChat = defineStore('chat', {
 					if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 						//Remove command from message to make later things easier
 						sMain.chatAlert = message;
-						let trigger:TwitchatDataTypes.ChatAlertInfo = {
-							type:"chatAlert",
+						let trigger:TwitchatDataTypes.MessageChatAlert = {
+							date:Date.now(),
+							id:Utils.getUUID(),
+							platform:message.platform,
+							type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
 							message:message,
 						}
 						TriggerActionHandler.instance.onMessage(trigger);
@@ -687,7 +690,7 @@ export const storeChat = defineStore('chat', {
 			}
 		},
 		
-		setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightOverlayData) {
+		setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams) {
 			this.chatHighlightOverlayParams = params;
 			DataStore.set(DataStore.CHAT_HIGHLIGHT_PARAMS, params);
 		},
@@ -726,9 +729,7 @@ export const storeChat = defineStore('chat', {
 				};
 				this.isChatMessageHighlighted = true;
 
-				const clonedData:TwitchatDataTypes.ChatHighlightInfo = JSON.parse(JSON.stringify(data));
-				clonedData.type = "chatOverlayHighlight";
-				TriggerActionHandler.instance.onMessage(clonedData);
+				TriggerActionHandler.instance.onMessage(data);
 			}else{
 				this.isChatMessageHighlighted = false;
 			}

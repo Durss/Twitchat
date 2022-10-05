@@ -150,7 +150,7 @@ export default class UserCard extends Vue {
 					date:Date.now(),
 					type: "message",
 					user:this.user,
-					channel_id: UserSession.instance.twitchUser!.login,
+					channel_id: UserSession.instance.twitchUser!.id,
 					message: "",
 					message_html: "",
 					answers:[],

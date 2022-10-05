@@ -558,8 +558,11 @@ export default class ChatMessage extends Vue {
 	 */
 	public async clipHighlight():Promise<void> {
 		this.clipHighlightLoading = true;
-		const data = {
-			clip:this.clipInfo,
+		const data:TwitchatDataTypes.ChatHighlightInfo = {
+			clip:{
+				url:this.clipInfo!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+				duration:this.clipInfo!.duration,
+			},
 			params:this.$store("chat").chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);

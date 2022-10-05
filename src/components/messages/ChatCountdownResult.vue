@@ -30,7 +30,7 @@ export default class ChatCountdownResult extends Vue {
 	}
 	
 	public get duration():string {
-		return Utils.formatDuration(this.countdownData.data.duration)+"s";
+		return Utils.formatDuration(this.countdownData.countdown.duration)+"s";
 	}
 
 	public copyJSON():void {

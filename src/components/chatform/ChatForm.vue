@@ -533,7 +533,7 @@ export default class ChatForm extends Vue {
 					date:Date.now(),
 					platform:"twitch",
 					user: this.$store("users").getUserFrom("twitch", id.toString()),
-					channel_id:UserSession.instance.twitchUser!.login,
+					channel_id:UserSession.instance.twitchUser!.id,
 					type:"message",
 					message,
 					message_html:message,

@@ -149,7 +149,7 @@ export default class OverlayParamsHighlight extends Vue {
 		}, 2000);
 
 		watch(()=>this.placement, ()=> {
-			const data:TwitchatDataTypes.ChatHighlightOverlayData = {
+			const data:TwitchatDataTypes.ChatHighlightParams = {
 				position:this.placement,
 			}
 			this.$store("chat").setChatHighlightOverlayParams(data);

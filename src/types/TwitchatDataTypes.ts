@@ -364,18 +364,7 @@ export namespace TwitchatDataTypes {
 		cover:string,
 		duration:number,
 		url:string,
-		[parameter: string]: unknown;//This is here to avoid lint errors on dynamic pointers
-	}
-
-	export interface StreamInfoUpdate {
-		type:"streamInfoUpdate",
-		title:string,
-		category:string,
-	}
-
-	export interface EmergencyModeInfo {
-		type:"emergencyMode",
-		enabled:boolean,
+		// [parameter: string]: unknown;//This is here to avoid lint errors on dynamic pointers
 	}
 
 	export interface PlaceholderEntry {
@@ -467,12 +456,16 @@ export namespace TwitchatDataTypes {
 	export interface ChatHighlightInfo {
 		type?:"chatOverlayHighlight",
 		message?:string,
-		user?:TwitchatDataTypes.TwitchatUser,
-		params?:ChatHighlightOverlayData,
+		user?:TwitchatUser,
+		clip?:ClipInfo,
+		params?:ChatHighlightParams,
 	}
-
-	export interface ChatHighlightOverlayData {
+	export interface ChatHighlightParams {
 		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	}
+	export interface ClipInfo {
+		duration:number;
+		url:string;
 	}
 
 	export interface SpoilerParamsData {
@@ -485,11 +478,6 @@ export namespace TwitchatDataTypes {
 		shake:boolean;
 		sound:boolean;
 		message:boolean;
-	}
-
-	export interface ChatAlertInfo {
-		type:"chatAlert",
-		message:MessageChatData,
 	}
 
 	export interface AnchorData {
@@ -515,13 +503,6 @@ export namespace TwitchatDataTypes {
 		type:"musicEvent";
 		start:boolean;
 		music?:MusicMessage;
-	}
-
-	export interface HypeTrainTriggerData {
-		type:"hypeTrainApproach"|"hypeTrainStart"|"hypeTrainProgress"|"hypeTrainEnd";
-		level:number;
-		percent:number;
-		state?:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 	}
 
 	export interface VoicemodParamsData {
@@ -558,42 +539,6 @@ export namespace TwitchatDataTypes {
 			title: string;
 			category: string;
 		};
-	}
-
-	export interface BanTriggerData {
-		type:"ban";
-		user:string;
-	}
-
-	export interface UnbanTriggerData {
-		type:"unban";
-		user:string;
-	}
-
-	export interface ModTriggerData {
-		type:"mod";
-		user:string;
-	}
-
-	export interface UnmodTriggerData {
-		type:"unmod";
-		user:string;
-	}
-
-	export interface VIPTriggerData {
-		type:"vip";
-		user:string;
-	}
-
-	export interface UnVIPTriggerData {
-		type:"unvip";
-		user:string;
-	}
-
-	export interface TimeoutTriggerData {
-		type:"timeout";
-		user:string;
-		duration:number;
 	}
 
 	export interface Pronoun {
@@ -638,12 +583,18 @@ export namespace TwitchatDataTypes {
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
 		CLEAR_CHAT:"clear_chat",
+		CHAT_ALERT:"chat_alert",
 		DISCONNECT:"disconnect",
 		PREDICTION:"prediction",
-		TWITCHAT_AD:"twitchatAd",
+		TWITCHAT_AD:"twitchat_ad",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		HYPE_TRAIN_START:"hype_train_start",
+		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
+		HYPE_TRAIN_PROGRESS:"hype_train_progress",
+		HYPE_TRAIN_COMPLETE:"hype_train_complete",
+		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
@@ -655,6 +606,7 @@ export namespace TwitchatDataTypes {
 
 	export const TwitchatNoticeType = {
 		TTS:"tts",
+		GENERIC:"generic",
 		APP_VERSION:"appVersion",
 		ERROR:"error",
 		ONLINE:"online",
@@ -674,10 +626,10 @@ export namespace TwitchatDataTypes {
 		COMMERCIAL_ERROR:"commercialError",
 		COMMERCIAL_START:"commercialStart",
 		COMMERCIAL_COMPLETE:"commercialComplete",
-		BROADCAST_SETTINGS_UPDATE:"broadcastSettingsUpdate",
+		STREAM_INFO_UPDATE:"stream_info_update",
 		CYPHER_KEY:"devcypherKey",
 		DEVMODE:"devMode",
-	}
+	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
 
@@ -753,6 +705,10 @@ export namespace TwitchatDataTypes {
 									MessageAutobanJoinData |
 									MessageTwitchatAdData |
 									MessageTimerData |
+									MessageStreamInfoUpdate |
+									MessageEmergencyModeInfo |
+									MessageHypeTrainEventData |
+									MessageChatAlert |
 									MessageNoticeData
 	;
 
@@ -807,9 +763,9 @@ export namespace TwitchatDataTypes {
 		
 		twitch_automod?: TwitchatDataTypes.AutomodData;
 		twitch_isSlashMe?:boolean;
-		twitch_isFirstMessage?:boolean;
-		twitch_isReturning?:boolean;
-		twitch_isPresentation?:boolean;
+		twitch_isFirstMessage?:boolean;//True if first message ever on this channel
+		twitch_isReturning?:boolean;//True if new user coming back
+		twitch_isPresentation?:boolean;//True if user used the presentation feature
 		twitch_isLowTrust?: boolean;//True when user is flagged as suspicious
 		twitch_isHighlighted?: boolean;//True when using "hihglight my message" reward
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
@@ -932,6 +888,14 @@ export namespace TwitchatDataTypes {
 		activities: (MessageSubscriptionData|MessageCheerData)[];
 	}
 
+	export interface MessageHypeTrainEventData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"hype_train_approaching"|"hype_train_start"|"hype_train_cancel"|"hype_train_progress"|"hype_train_complete";
+		train: HypeTrainStateData;
+		level:number;
+		percent:number;
+	}
+
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_cooled_down";
@@ -995,7 +959,7 @@ export namespace TwitchatDataTypes {
 
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
 		type:"countdown";
-		data:CountdownData;
+		countdown:CountdownData;
 	}
 
 	export interface MessageTimerData extends AbstractTwitchatMessage {
@@ -1020,9 +984,26 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageTwitchatAdData extends AbstractTwitchatMessage {
-		type:"twitchatAd";
+		type:"twitchat_ad";
 		adType:TwitchatAdStringTypes;
 	}
+
+	export interface MessageStreamInfoUpdate extends MessageNoticeData {
+		noticeId:"stream_info_update",
+		title:string,
+		category:string,
+	}
+
+	export interface MessageEmergencyModeInfo extends MessageNoticeData{
+		noticeId:"emergencyMode",
+		enabled:boolean,
+	}
+
+	export interface MessageChatAlert extends AbstractTwitchatMessage{
+		type:"chat_alert",
+		message:MessageChatData,
+	}
+
 
 
 
