@@ -67,6 +67,7 @@
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
@@ -212,8 +213,8 @@ export default class NewUsers extends Vue {
 		if(m.user.is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
 		if(m.user.id == UserSession.instance.twitchUser!.id) return;
-		//TODO Ignore bot messages
-		// if(IRCClient.instance.botsLogins[login.toLowerCase()] === true) return;
+		//Ignore bot messages
+		if(StoreProxy.users.knownBots[m.platform][m.user.login.toLowerCase()] === true) return;
 		//Ignore hidden users from params
 		if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(m.user.login.toLowerCase()) > -1) return;
 		

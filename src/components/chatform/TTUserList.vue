@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';

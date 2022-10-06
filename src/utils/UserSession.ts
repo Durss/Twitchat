@@ -1,4 +1,4 @@
-import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { reactive } from "vue";
 import rewardImg from '@/assets/icons/reward_highlight.svg';
 

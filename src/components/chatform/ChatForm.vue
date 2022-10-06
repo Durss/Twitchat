@@ -215,7 +215,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';

@@ -8,9 +8,7 @@ export default class FFZUtils {
 	private enabled = false;
 	private emotesLoaded = false;
 	private channelList:string[] = [];
-	private globalEmotes:FFZEmote[] = [];
 	private globalEmotesHashmaps:{[key:string]:FFZEmote} = {};
-	private channelEmotes:{[key:string]:FFZEmote[]} = {};
 	private channelEmotesHashmaps:{[key:string]:{[key:string]:FFZEmote}} = {};
 	
 	constructor() {
@@ -170,7 +168,6 @@ export default class FFZUtils {
 						emotes = emotes.concat(json.sets[key].emoticons)
 					}
 				}
-				this.globalEmotes = emotes;
 				emotes.forEach(e => {
 					this.globalEmotesHashmaps[e.name] = e;
 				});
@@ -191,7 +188,6 @@ export default class FFZUtils {
 						emotes = emotes.concat(json.sets[key].emoticons)
 					}
 				}
-				this.channelEmotes[channelId] = emotes;
 				this.channelEmotesHashmaps[channelId] = {};
 				emotes.forEach(e => {
 					this.channelEmotesHashmaps[channelId][e.name] = e;

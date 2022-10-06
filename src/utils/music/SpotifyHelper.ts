@@ -17,13 +17,13 @@ import Utils from "@/utils/Utils";
 export default class SpotifyHelper extends EventDispatcher {
 	
 	public isPlaying = false;
-	public currentTrack!:TwitchatDataTypes.MusicMessage;
+	public currentTrack!:TwitchatDataTypes.MusicTrackData;
 
 	private static _instance:SpotifyHelper;
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
-	private _lastTrackInfo!:TwitchatDataTypes.MusicMessage|null;
+	private _lastTrackInfo!:TwitchatDataTypes.MusicTrackData|null;
 	private _headers!:{"Accept":string, "Content-Type":string, "Authorization":string};
 	private _clientID = "";
 	private _clientSecret = "";
@@ -281,7 +281,6 @@ export default class SpotifyHelper extends EventDispatcher {
 
 		if(json?.item) {
 			this.currentTrack = {
-				type:"music",
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
 				album:json.item.album? json.item.album.name : "",
@@ -303,11 +302,13 @@ export default class SpotifyHelper extends EventDispatcher {
 				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
 				|| this._lastTrackInfo?.title != this.currentTrack.title
 				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
-					const triggerData:TwitchatDataTypes.MusicTriggerData = {
-						type: "musicEvent",
-						start:true,
-						music:this.currentTrack,
-					}
+					const triggerData:TwitchatDataTypes.MessageMusicStartData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type: "music_start",
+						platform:"twitchat",
+						track:this.currentTrack
+					};
 					TriggerActionHandler.instance.onMessage(triggerData);
 				}
 				
@@ -332,10 +333,13 @@ export default class SpotifyHelper extends EventDispatcher {
 					});
 
 					//Broadcast to the triggers
-					const triggerData:TwitchatDataTypes.MusicTriggerData = {
-						type: "musicEvent",
-						start:false,
-					}
+					const triggerData:TwitchatDataTypes.MessageMusicStopData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type: "music_stop",
+						platform:"twitchat",
+						track:this.currentTrack
+					};
 					TriggerActionHandler.instance.onMessage(triggerData);
 
 					this._lastTrackInfo = null;

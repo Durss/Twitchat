@@ -1,7 +1,7 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { Badges } from "tmi.js";
-import type { TwitchDataTypes } from "../../types/TwitchDataTypes";
+import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import BTTVUtils from "../emotes/BTTVUtils";
 import Config from "../Config";
 import UserSession from "../UserSession";

@@ -14,6 +14,7 @@ import TwitchUtils from "./twitch/TwitchUtils";
 import Utils from "./Utils";
 import VoicemodWebSocket from "./voice/VoicemodWebSocket";
 import MessengerProxy from "@/messaging/MessengerProxy";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -64,7 +65,11 @@ export default class TriggerActionHandler {
 	}
 
 	public async parseScheduleTrigger(key:string):Promise<boolean> {
-		return await this.parseSteps(key, null, false, this.currentSpoolGUID, undefined, "schedule");
+		//This fake message is just here to comply with parseSteps() signature.
+		//It's actually not used. I could only set the second param as optional
+		//but I prefer keeping it mandatory as the only exception to that is this call.
+		const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"x", date:Date.now(), type:"notice", noticeId:"error", message:"",platform:"twitchat" };
+		return await this.parseSteps(key, fakeMessage, false, ++this.currentSpoolGUID, undefined, "schedule");
 	}
 
 	
@@ -83,7 +88,7 @@ export default class TriggerActionHandler {
 					type:"chat_highlight",
 					info:data,
 				}
-				this.handleHighlightOverlay(message, false, ++this.currentSpoolGUID);
+				this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, false, ++this.currentSpoolGUID);
 			}
 		});
 	}
@@ -105,127 +110,134 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Only trigger one of "first ever", "first today" or "returning" trigger
 				if(message.twitch_isFirstMessage === true) {
-					await this.handleFirstMessageEver(message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, this.currentSpoolGUID);
 				}else
 				if(message.todayFirst === true) {
-					await this.handleFirstMessageToday(message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, this.currentSpoolGUID);
 				}else
 				if(message.twitch_isReturning === true) {
-					await this.handleReturningChatter(message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, this.currentSpoolGUID);
 				}
 
 				if(message.message) {
-					await this.handleChatCmd(message, testMode, this.currentSpoolGUID);
+					const cmd = message.message.trim().split(" ")[0].toLowerCase();
+					await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, this.currentSpoolGUID, cmd);
 				}
 
-				await this.handleChatMessage(message, testMode, this.currentSpoolGUID);
+				await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, this.currentSpoolGUID);
 				break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-				if(await this.handleFollower(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 				if(message.is_gift) {
-					if(await this.handleSubgift(message, testMode, this.currentSpoolGUID)) {
+					if(await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, this.currentSpoolGUID)) {
 						return;
 					}
 				}else
-				if(await this.handleSub(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.SUB, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
-				if(await this.handleRaid(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.RAID, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				if(await this.handleReward(message, testMode, this.currentSpoolGUID)) {
+				let id = message.reward.id;
+				if(await this.parseSteps(TriggerTypes.REWARD_REDEEM, message, testMode, this.currentSpoolGUID, id)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
-				if(await this.handleChallengeContribution(message, testMode, this.currentSpoolGUID)) {
+				const complete = message.challenge.goal === message.challenge.progress;
+				const event = complete? TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE : TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS;
+				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-				if(await this.handleCheer(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.CHEER, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
-				if(await this.handlePrediction(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
-				if(await this.handlePoll(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				if(await this.handleBingo(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
-				if(await this.handleRaffle(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
-				if(await this.handleCountdown(message, testMode, this.currentSpoolGUID)) {
+				const event = message.countdown? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
+				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
-				if(await this.handleTimer(message, testMode, this.currentSpoolGUID)) {
+				const event = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
+				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				if(await this.handleBingo(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT: {
-				if(await this.handleChatAlert(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
-				if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
+				const event = message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_START? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
+				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.VOICEMOD: {
-				if(await this.handleVoicemodEvent(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-				if(await this.handleShoutoutEvent(message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
@@ -236,8 +248,16 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL:
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE: {
-				if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE:
+				{
+				const map:Partial<{[key in TwitchatDataTypes.TwitchatMessageStringType]:TriggerTypesValue}> = {}
+				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = TriggerTypes.HYPE_TRAIN_COOLDOWN;
+				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING] = TriggerTypes.HYPE_TRAIN_APPROACHING;
+				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START] = TriggerTypes.HYPE_TRAIN_START;
+				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS] = TriggerTypes.HYPE_TRAIN_PROGRESS;
+				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL] = TriggerTypes.HYPE_TRAIN_CANCELED;
+				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE] = TriggerTypes.HYPE_TRAIN_END;
+				if(await this.parseSteps(map[message.type]!, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
@@ -246,47 +266,49 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
-						if(await this.handleStreamInfoUpdate(message as TwitchatDataTypes.MessageStreamInfoUpdate, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
-						if(await this.handleEmergencyMode(message as TwitchatDataTypes.MessageEmergencyModeInfo, testMode, this.currentSpoolGUID)) {
+						const m = message as TwitchatDataTypes.MessageEmergencyModeInfo;
+						const event = m.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
+						if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.BAN:{
-						if(await this.handleBanEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.BAN, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNBAN:{
-						if(await this.handleUnbanEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.UNBAN, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.MOD:{
-						if(await this.handleModEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.MOD, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNMOD:{
-						if(await this.handleUnmodEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.UNMOD, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.VIP:{
-						if(await this.handleVIPEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.VIP, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNVIP:{
-						if(await this.handleUnVIPEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.UNVIP, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT:{
-						if(await this.handleTimeoutEvent(message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
@@ -300,194 +322,6 @@ export default class TriggerActionHandler {
 		this.executeNext();
 	}
 
-	private async handleFirstMessageEver(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, guid);
-	}
-	
-	private async handleFirstMessageToday(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, guid);
-	}
-	
-	private async handleReturningChatter(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, guid);
-	}
-	
-	private async handleCheer(message:TwitchatDataTypes.MessageCheerData, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
-		return await this.parseSteps(TriggerTypes.BITS, message, testMode, guid);
-	}
-	
-	private async handleFollower(message:TwitchatDataTypes.MessageFollowingData, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
-		return await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, guid);
-	}
-	
-	private async handleSub(message:TwitchatDataTypes.MessageSubscriptionData, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
-		return await this.parseSteps(TriggerTypes.SUB, message, testMode, guid);
-	}
-	
-	private async handleSubgift(message:TwitchatDataTypes.MessageSubscriptionData, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode && StoreProxy.emergency.params.noTriggers) return true;
-		return await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, guid);
-	}
-	
-	private async handlePoll(message:TwitchatDataTypes.MessagePollData, testMode:boolean, guid:number):Promise<boolean> {
-		// let winnerVotes = -1;
-		// message.data.choices.forEach(v=>{
-		// 	if(v.votes > winnerVotes) {
-		// 		winnerVotes = v.votes;
-		// 		message.winner = v.title;
-		// 	}
-		// });
-		//TODO remap the above
-		return await this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, guid);
-	}
-	
-	private async handlePrediction(message:TwitchatDataTypes.MessagePredictionData, testMode:boolean, guid:number):Promise<boolean> {
-		// message.data.outcomes.forEach(v=>{
-		// 	if(v.id == message.data.winning_outcome_id) {
-		// 		message.winner = v.title;
-		// 	}
-		// });
-		//TODO remap the above
-		return await this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, guid);
-	}
-	
-	private async handleBingo(message:TwitchatDataTypes.MessageBingoData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, guid);
-	}
-	
-	private async handleRaffle(message:TwitchatDataTypes.MessageRaffleData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, guid);
-	}
-	
-	private async handleCountdown(message:TwitchatDataTypes.MessageCountdownData, testMode:boolean, guid:number):Promise<boolean> {
-		const type = message.countdown? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
-		//Create placeholder pointers
-		// message.start = Utils.formatDate(new Date(message.countdown.startAt));
-		// message.start_ms = message.countdown.startAt;
-		// message.duration = Utils.formatDuration(message.countdown.duration);
-		// message.duration_ms = message.countdown.duration;
-		//TODO remap the above
-		return await this.parseSteps(type, message, testMode, guid);
-	}
-	
-	private async handleStreamInfoUpdate(message:TwitchatDataTypes.MessageStreamInfoUpdate, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, guid);
-	}
-	
-	private async handleEmergencyMode(message:TwitchatDataTypes.MessageEmergencyModeInfo, testMode:boolean, guid:number):Promise<boolean> {
-		const type = message.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
-		return await this.parseSteps(type, message, testMode, guid);
-	}
-	
-	private async handleTimer(message:TwitchatDataTypes.MessageTimerData, testMode:boolean, guid:number):Promise<boolean> {
-		const type = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
-		//Create placeholder pointers
-		// message.duration = Utils.formatDuration(message.data.duration as number);
-		// message.duration_ms = message.data.duration;
-		//TODO remap the above
-		return await this.parseSteps(type, message, testMode, guid);
-	}
-	
-	private async handleChatAlert(message:TwitchatDataTypes.MessageChatAlertData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, guid);
-	}
-	
-	private async handleRaid(message:TwitchatDataTypes.MessageRaidData, testMode:boolean, guid:number):Promise<boolean> {
-		if(this.emergencyMode) return true;
-		return await this.parseSteps(TriggerTypes.RAID, message, testMode, guid);
-	}
-	
-	private async handleChatCmd(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
-		const cmd = message.message.trim().split(" ")[0].toLowerCase();
-		return await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, guid, cmd);
-	}
-	
-	private async handleChatMessage(message:TwitchatDataTypes.MessageChatData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, guid);
-	}
-	
-	private async handleReward(message:TwitchatDataTypes.MessageRewardRedeemData, testMode:boolean, guid:number):Promise<boolean> {
-		if(message.reward) {
-			let id = message.reward.id;
-			// if(id == "TEST_ID") {
-			// 	id = TriggerTypes.REWARD_REDEEM;
-			// }else{
-				id = TriggerTypes.REWARD_REDEEM+"_"+id;
-			// }
-			return await this.parseSteps(id, message, testMode, guid);
-		}
-		return false;
-	}
-	
-	private async handleChallengeContribution(message:TwitchatDataTypes.MessageCommunityChallengeContributionData, testMode:boolean, guid:number):Promise<boolean> {
-		const complete = message.challenge.goal === message.challenge.progress;
-		const event = complete? TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE : TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS;
-		return await this.parseSteps(event, message, testMode, guid);
-	}
-
-	private async handleBanEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.BAN, message, testMode, guid);
-	}
-
-	private async handleUnbanEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.UNBAN, message, testMode, guid);
-	}
-
-	private async handleModEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.MOD, message, testMode, guid);
-	}
-
-	private async handleUnmodEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.UNMOD, message, testMode, guid);
-	}
-
-	private async handleVIPEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.VIP, message, testMode, guid);
-	}
-
-	private async handleUnVIPEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.UNVIP, message, testMode, guid);
-	}
-
-	private async handleTimeoutEvent(message:TwitchatDataTypes.MessageNoticeData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, guid);
-	}
-	
-	private async handleHypeTrainEvent(message:TwitchatDataTypes.MessageHypeTrainEventData|TwitchatDataTypes.MessageHypeTrainCooledDownData|TwitchatDataTypes.MessageHypeTrainSummaryData, testMode:boolean, guid:number):Promise<boolean> {
-		let triggerType!:TriggerTypesValue;
-		switch(message.type) {
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: triggerType = TriggerTypes.HYPE_TRAIN_COOLDOWN; break;
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING: triggerType = TriggerTypes.HYPE_TRAIN_APPROACH; break;
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START: triggerType = TriggerTypes.HYPE_TRAIN_START; break;
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS: triggerType = TriggerTypes.HYPE_TRAIN_PROGRESS; break;
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL: triggerType = TriggerTypes.HYPE_TRAIN_CANCELED; break;
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE: triggerType = TriggerTypes.HYPE_TRAIN_END; break;
-		}
-		if(triggerType) {
-			return await this.parseSteps(triggerType, message, testMode, guid, undefined, "hypetrain");
-		}
-		return false;
-	}
-	
-	private async handleShoutoutEvent(message:TwitchatDataTypes.MessageShoutoutData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, guid);
-	}
-	
-	private async handleHighlightOverlay(message:TwitchatDataTypes.MessageChatHighlightData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
-	}
-	
-	private async handleMusicEvent(message:TwitchatDataTypes.MessageMusicStartData|TwitchatDataTypes.MessageMusicStopData, testMode:boolean, guid:number):Promise<boolean> {
-		const event = message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_START? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
-		return await this.parseSteps(event, message, testMode, guid);
-	}
-	
-	private async handleVoicemodEvent(message:TwitchatDataTypes.MessageVoicemodData, testMode:boolean, guid:number):Promise<boolean> {
-		return await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, guid);
-	}
 
 	/**
 	 * Executes the steps of the trigger
@@ -497,7 +331,7 @@ export default class TriggerActionHandler {
 	 * 
 	 * @returns true if the trigger was executed
 	 */
-	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
+	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		let trigger:TriggerData = this.triggers[ eventType ];
 		
@@ -516,7 +350,7 @@ export default class TriggerActionHandler {
 						type:"chat",
 						delay:0,
 						text,
-					} as TriggerActionChatData
+					}
 				]
 			}
 		}
@@ -530,7 +364,7 @@ export default class TriggerActionHandler {
 			if(!data.enabled) return false;
 			let canExecute = true;
 
-			if(data.permissions && data.cooldown && message?.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(data.permissions && data.cooldown && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const key = eventType+"_"+message.user.id;
 				const now = Date.now();
 				
@@ -589,7 +423,7 @@ export default class TriggerActionHandler {
 							//If requesting to show an highlighted message but the message
 							//is empty, force source to hide
 							if(eventType == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
-							&& message?.type == "chat_highlight"
+							&& message.type == "chat_highlight"
 							&& (!message.info.message || message.info.message.length===0)) {
 								show = false;
 							}
@@ -601,7 +435,7 @@ export default class TriggerActionHandler {
 					if(step.type == "chat") {
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
 						const platforms:TwitchatDataTypes.ChatPlatform[] = [];
-						if(message?.platform) platforms.push(message.platform);
+						if(message.platform) platforms.push(message.platform);
 						MessengerProxy.instance.sendMessage(text, platforms);
 					}else
 					
@@ -657,33 +491,32 @@ export default class TriggerActionHandler {
 
 					//Handle music actions
 					if(step.type == "music") {
-						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message?.type == "message") {
-							const m = message.message.split(" ").splice(1).join(" ");
-							const data:TwitchatDataTypes.MusicTrackData = {
-								title:"",
-								artist:"",
-								album:"",
-								cover:"",
-								duration:0,
-								url:"",
-							};
+						//Adding a track to the queue
+						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
+							//Convert placeholders if any
+							let m = await this.parseText(eventType, message, step.track);
+							let data:TwitchatDataTypes.MusicTrackData|null = null;
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
+									//Full URL specified, extract the ID from it
 									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
 									const id = chunks[2];
 									track = await SpotifyHelper.instance.getTrackByID(id);
 								}else{
+									//No URL given, send earch to API
 									track = await SpotifyHelper.instance.searchTrack(m);
 								}
 								if(track) {
 									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
-										data.title = track.name;
-										data.artist = track.artists[0].name;
-										data.album = track.album.name;
-										data.cover = track.album.images[0].url;
-										data.duration = track.duration_ms;
-										data.url = track.external_urls.spotify;
+										data = {
+											title:track.name,
+											artist:track.artists[0].name,
+											album:track.album.name,
+											cover:track.album.images[0].url,
+											duration:track.duration_ms,
+											url:track.external_urls.spotify,
+										};
 									}
 								}
 							}
@@ -692,30 +525,41 @@ export default class TriggerActionHandler {
 								if(tracks) {
 									const track = tracks[0];
 									DeezerHelper.instance.addToQueue(track);
-									data.title = track.title;
-									data.artist = track.artist.name;
-									data.album = track.album.title;
-									data.cover = track.album.cover_medium;
-									data.duration = track.duration;
-									data.url = track.link;
+									data = {
+										title:track.title,
+										artist:track.artist.name,
+										album:track.album.title,
+										cover:track.album.cover_medium,
+										duration:track.duration,
+										url:track.link,
+									};
 								}
 							}
-							if(data.title) {
-								let trigger:TwitchatDataTypes.MessageMusicStartData = {
+
+							//A track has been found and added
+							if(data) {
+								let trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 									id:Utils.getUUID(),
 									date:Date.now(),
 									platform:"twitchat",
-									type:"music_start",
+									type:"music_added_to_queue",
 									track:data,
 								}
 								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (message as unknown) as JsonObject);
+								//Execute "TRACK_ADDED_TO_QUEUE" to queue trigger
 								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
+
+								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
-									let m = message.message;
-									//Remove command name from message
-									if(subEvent) m = m.replace(subEvent, "").trim();
-									data.message = m;
-									const chatMessage = await this.parseText(eventType, data, step.confirmMessage);
+									let m = step.confirmMessage;
+									const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
+										id:Utils.getUUID(),
+										date:Date.now(),
+										platform:"twitchat",
+										type:"music_added_to_queue",
+										track:data,
+									}
+									const chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, false, subEvent);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}
@@ -750,7 +594,7 @@ export default class TriggerActionHandler {
 						
 						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m:string = step.playlist;
-							if(message?.type == "message") {
+							if(message.type == "message") {
 								m = await this.parseText(eventType, message, m);
 							}
 							if(Config.instance.SPOTIFY_CONNECTED) {
@@ -762,7 +606,7 @@ export default class TriggerActionHandler {
 								const success = await SpotifyHelper.instance.startPlaylist(id, m);
 								if(!success) {
 									let platforms:TwitchatDataTypes.ChatPlatform[] = [];
-									if(message?.platform) platforms.push(message.platform);
+									if(message.platform) platforms.push(message.platform);
 									MessengerProxy.instance.sendMessage("Playlist not found", platforms);
 								}
 							}
@@ -795,21 +639,24 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes|null, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
-		if(!message) return src;
+	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
+		//No placeholders for this event type, just send back the source text
 		if(!helpers) return res;
 		
 		for (let i = 0; i < helpers.length; i++) {
 			const h = helpers[i];
 			const chunks:string[] = h.pointer.split(".");
-			let value = message as unknown;
+			let root = message as unknown;
+			let value:string;
 			try {
+				//Dynamically search for the requested prop's value within the object
 				for (let i = 0; i < chunks.length; i++) {
-					value = (value as {[key:string]:unknown})[chunks[i]];
+					root = (root as {[key:string]:unknown})[chunks[i]];
 				}
+				value = root as string;
 			}catch(error) {
 				console.warn("Unable to find pointer for helper", h);
 				value = "";
@@ -819,71 +666,73 @@ export default class TriggerActionHandler {
 			
 			h.tag = h.tag.toUpperCase();
 
-			if(h.tag === "SUB_TIER") {
-				if(!isNaN(value as number) && (value as number) > 0) {
-					value = Math.round((value as number)/1000)
-				}else{
-					value = 1;//Fallback just in case but shouldn't be necessary
-				}
-			}else
+			// if(h.tag === "SUB_TIER") {
+			// 	if(!isNaN(value as number) && (value as number) > 0) {
+			// 		value = Math.round((value as number)/1000)
+			// 	}else{
+			// 		value = 1;//Fallback just in case but shouldn't be necessary
+			// 	}
+			// }else
 
-			if(h.tag === "MESSAGE" && value) {
-				const m = message as TwitchatDataTypes.Message;
-				//Parse emotes
-				const isReward = (message as TwitchatDataTypes.Highlight).reward != undefined;
-				const customParsing = m.sentLocally === true || isReward;
-				const chunks = TwitchUtils.parseEmotesToChunks(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
-				let cleanMessage = ""
-				//only keep text chunks to remove emotes
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						cleanMessage += v.value+" ";
-					}else
-					if((keepEmotes === true || isReward) && v.type == "emote") {
-						cleanMessage += "<img src=\""+v.value+"\" class=\"emote\">";
-					}
-				}
-				if(!subEvent) subEvent = "";
-				//Remove command from final text
-				value = cleanMessage.replace(new RegExp(subEvent, "i"), "").trim();
-			}
+			// if(h.tag === "MESSAGE" && value) {
+			// 	const m = message as TwitchatDataTypes.Message;
+			// 	//Parse emotes
+			// 	const isReward = (message as TwitchatDataTypes.Highlight).reward != undefined;
+			// 	const customParsing = m.sentLocally === true || isReward;
+			// 	const chunks = TwitchUtils.parseEmotesToChunks(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
+			// 	let cleanMessage = ""
+			// 	//only keep text chunks to remove emotes
+			// 	for (let i = 0; i < chunks.length; i++) {
+			// 		const v = chunks[i];
+			// 		if(v.type == "text") {
+			// 			cleanMessage += v.value+" ";
+			// 		}else
+			// 		if((keepEmotes === true || isReward) && v.type == "emote") {
+			// 			cleanMessage += "<img src=\""+v.value+"\" class=\"emote\">";
+			// 		}
+			// 	}
+			// 	if(!subEvent) subEvent = "";
+			// 	//Remove command from final text
+			// 	value = cleanMessage.replace(new RegExp(subEvent, "i"), "").trim();
+			// }
 
 			//If it's a music placeholder for the ADDED TO QUEUE event
 			//replace it by the current music info
 			if(eventType == TriggerTypes.TRACK_ADDED_TO_QUEUE && h.tag.indexOf("CURRENT_TRACK") == 0) {
-				if(message.type == "music_start") {
-					value = message[h.pointer];
+				if(message.type === TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE && message.track != null) {
+					//If we just added a track to the queue, we already have the track info and
+					//want to use that instead of the currently playing one
+					value = message.track[h.pointer as TwitchatDataTypes.MusicTrackDataKeys].toString();
 				}else{
-
+					//Go get currently playing track
 					if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
-						value = SpotifyHelper.instance.currentTrack[h.pointer];
+						value = SpotifyHelper.instance.currentTrack[h.pointer as TwitchatDataTypes.MusicTrackDataKeys].toString();
 					}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
-						value = DeezerHelper.instance.currentTrack[h.pointer];
+						value = DeezerHelper.instance.currentTrack[h.pointer as TwitchatDataTypes.MusicTrackDataKeys].toString();
 					}else{
 						value = "-none-";
 					}
 				}
 			}
 			
-			if(value && eventType === TriggerTypes.BITS && h.tag === "MESSAGE") {
-				//Parse cheermotes
-				const m = message as TwitchatDataTypes.MessageCheerData;
-				value = await TwitchUtils.parseCheermotes(value as string, m.channel_id);
-			}
+			// if(value && eventType === TriggerTypes.CHEER && h.tag === "MESSAGE") {
+			// 	//Parse cheermotes
+			// 	const m = message as TwitchatDataTypes.MessageCheerData;
+			// 	value = await TwitchUtils.parseCheermotes(value as string, m.channel_id);
+			// }
 
-			if(value && typeof value == "string") {
-				//Strip HTML tags (removes emotes and cheermotes)
-				if(!keepEmotes) {
-					value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
-				}
+			// if(value && typeof value == "string") {
+			// 	//Strip HTML tags (removes emotes and cheermotes)
+			// 	if(!keepEmotes) {
+			// 		value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+			// 	}
 				
-				if(urlEncode) {
-					value = encodeURIComponent(value as string);
-				}
-			}
-			if(value == undefined) value = "";
-			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value as string);
+			// 	if(urlEncode) {
+			// 		value = encodeURIComponent(value as string);
+			// 	}
+			// }
+			//TODO test what all the commented stuff above breaks. Because it will :(
+			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
 		}
 		return res;
 	}

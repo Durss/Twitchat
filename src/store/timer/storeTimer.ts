@@ -74,16 +74,6 @@ export const storeTimer = defineStore('timer', {
 				duration:duration,
 			};
 
-			// const message:IRCEventDataList.CountdownResult = {
-			// 	type:"countdown",
-			// 	started:true,
-			// 	data:this.countdown as TwitchatDataTypes.CountdownData,
-			// 	tags: {
-			// 		id:IRCClient.instance.getFakeGuid(),
-			// 		"tmi-sent-ts": Date.now().toString()
-			// 	},
-			// };
-
 			const message:TwitchatDataTypes.MessageCountdownData = {
 				type:"countdown",
 				platform:"twitchat",

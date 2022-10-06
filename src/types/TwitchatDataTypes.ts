@@ -257,6 +257,7 @@ export namespace TwitchatDataTypes {
 		duration:number;
 		url:string;
 	}
+	export type MusicTrackDataKeys = keyof MusicTrackData;
 
 	export interface ChatHighlightInfo {
 		message?:string,
@@ -513,6 +514,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
+		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
@@ -520,7 +522,7 @@ export namespace TwitchatDataTypes {
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
-	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType]|null;
+	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
 
 
 	export const TwitchatNoticeType = {
@@ -581,6 +583,7 @@ export namespace TwitchatDataTypes {
 									MessageChatAlertData |
 									MessageMusicStopData |
 									MessageMusicStartData |
+									MessageMusicAddedToQueueData |
 									MessageShoutoutData |
 									MessageVoicemodData |
 									MessageChatHighlightData |
@@ -895,7 +898,12 @@ export namespace TwitchatDataTypes {
 
 	export interface MessageMusicStopData extends AbstractTwitchatMessage {
 		type:"music_stop";
-		track:MusicTrackData;
+		track:MusicTrackData|null;
+	}
+
+	export interface MessageMusicAddedToQueueData extends AbstractTwitchatMessage {
+		type:"music_added_to_queue";
+		track:MusicTrackData|null;
 	}
 
 	export interface MessageVoicemodData extends AbstractTwitchatMessage {

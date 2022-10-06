@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy'
-import type { SpotifyAuthResult } from '@/utils/SpotifyDataTypes'
+import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
 import Utils from '@/utils/Utils'
 import Chat from '@/views/Chat.vue'
 import ChatLight from '@/views/ChatLight.vue'

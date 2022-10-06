@@ -217,7 +217,16 @@ export const storeMain = defineStore("main", {
 					this.alert = "Deezer authentication failed";
 				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
-					TriggerActionHandler.instance.onMessage({ type:"voicemod", voiceID: e.voiceID });
+					//Execute trigger
+					const trigger:TwitchatDataTypes.MessageVoicemodData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type:"voicemod",
+						platform:"twitchat",
+						voiceID:e.voiceID,
+					}
+					TriggerActionHandler.instance.onMessage(trigger);
+
 					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
 						const v = VoicemodWebSocket.instance.voices[i];
 						if(v.voiceID == e.voiceID) {

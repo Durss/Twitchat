@@ -2,7 +2,7 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
-import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
 import PubSub from "@/utils/twitch/PubSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";

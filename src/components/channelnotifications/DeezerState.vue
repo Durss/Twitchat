@@ -79,7 +79,7 @@ export default class DeezerState extends Vue {
 	// public search_param:ParameterData = {type:"text", value:"salut", label:"Search track", placeholder:"search..."};
 	public searchResults:DeezerTrack[] = [];
 
-	public get currentTrack():TwitchatDataTypes.MusicMessage|null { return DeezerHelper.instance.currentTrack; }
+	public get currentTrack():TwitchatDataTypes.MusicTrackData|null { return DeezerHelper.instance.currentTrack; }
 	public get queue():DeezerQueueItem[] { return DeezerHelper.instance.queue; }
 	public get playing():boolean { return DeezerHelper.instance.playing; }
 

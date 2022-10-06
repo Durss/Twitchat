@@ -1,5 +1,6 @@
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -61,39 +62,31 @@ export const storeBingo = defineStore('bingo', {
 
 			const sChat = StoreProxy.chat;
 			const bingo = this.data;
-			let win = bingo.numberValue && parseInt(message.message) == bingo.numberValue;
-			win ||= bingo.emoteValue && bingo.emoteValue[message.user.platform]
-					&& message.message.trim().toLowerCase().indexOf(bingo.emoteValue[message.user.platform]!.code.toLowerCase()) === 0;
+			const num = bingo.numberValue;
+			const emote = bingo.emoteValue && bingo.emoteValue[message.user.platform];
+			let win = parseInt(message.message) == num;
+			win ||= emote != undefined && message.message.trim().toLowerCase().indexOf(emote.code.toLowerCase()) === 0;
 			if(win) {
+				//Someone won
 				bingo.winners = [message.user];
 				if(sChat.botMessages.bingo.enabled) {
+					//Post on chat if requested
 					let txt = sChat.botMessages.bingo.message;
 					txt = txt.replace(/\{USER\}/gi, message.user.displayName);
 					MessengerProxy.instance.sendMessage(txt, [message.user.platform]);
 				}
 
-				// const m:TwitchatDataTypes.MessageBingoData = {
-				// 	id:Utils.getUUID(),
-				// 	date:Date.now(),
-				// 	platform:"twitchat",
-				// 	type:"bingo",
-				// 	user:message.user,
-				// 	bingoData:{
-				// 		guessNumber:bingo.guessNumber,
-				// 		guessEmote:bingo.guessEmote,
-				// 		min:bingo.,
-				// 		max:,
-				// 	},
-				// }
-				// //Post result on chat
-				// const payload:IRCEventDataList.BingoResult = {
-				// 	type:"bingo",
-				// 	data:sBingo.data!,
-				// 	winner,
-				// 	tags:IRCClient.instance.getFakeTags(),
-				// }
-				// sChat.addMessage(payload);
-				// TriggerActionHandler.instance.onMessage(payload);
+				//Notify broadcaster and execute trigger
+				const m:TwitchatDataTypes.MessageBingoData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:"bingo",
+					user:message.user,
+					bingoData:bingo,
+				}
+				sChat.addMessage(m);
+				TriggerActionHandler.instance.onMessage(m);
 			}
 		},
 	} as IBingoActions

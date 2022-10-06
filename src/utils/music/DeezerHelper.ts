@@ -1,11 +1,12 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import Config from "../Config";
-import DeezerHelperEvent from "./DeezerHelperEvent";
 import { EventDispatcher } from "../EventDispatcher";
 import PublicAPI from "../PublicAPI";
 import TriggerActionHandler from "../TriggerActionHandler";
 import TwitchatEvent from "../TwitchatEvent";
+import Utils from "../Utils";
+import DeezerHelperEvent from "./DeezerHelperEvent";
 
 /**
 * Created : 23/05/2022 
@@ -13,7 +14,7 @@ TODO : when closing the popin and opening it back the DZ.login() callback is cal
 */
 export default class DeezerHelper extends EventDispatcher{
 	
-	public currentTrack:TwitchatDataTypes.MusicMessage|null = null;
+	public currentTrack:TwitchatDataTypes.MusicTrackData|null = null;
 	public queue:DeezerQueueItem[] = [];
 	public userInteracted = false;
 	public currentTrackIndex = 0;
@@ -25,7 +26,7 @@ export default class DeezerHelper extends EventDispatcher{
 	private _searchPromise!:(value: DeezerTrack[] | PromiseLike<DeezerTrack[]>) => void;
 	private _createPromiseSuccess!:() => void;
 	private _createPromiseError!:() => void;
-	private _idToTrack:{[key:string]:TwitchatDataTypes.MusicMessage} = {};
+	private _idToTrack:{[key:string]:TwitchatDataTypes.MusicTrackData} = {};
 	private _forcePlay = true;
 	private _scriptElement!:HTMLScriptElement;
 	private _initCheckInterval!:number;
@@ -198,9 +199,12 @@ export default class DeezerHelper extends EventDispatcher{
 					this.playing = false;
 					
 					//Broadcast to the triggers
-					const triggerData:TwitchatDataTypes.MusicTriggerData = {
-						type: "musicEvent",
-						start:false,
+					const triggerData:TwitchatDataTypes.MessageMusicStopData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type: "music_stop",
+						platform:"twitchat",
+						track:this.currentTrack
 					}
 					TriggerActionHandler.instance.onMessage(triggerData);
 				});
@@ -379,11 +383,13 @@ export default class DeezerHelper extends EventDispatcher{
 				cover: this.currentTrack.cover,
 			});
 
-			const triggerData:TwitchatDataTypes.MusicTriggerData = {
-				type: "musicEvent",
-				start:true,
-				music:this.currentTrack,
-			}
+			const triggerData:TwitchatDataTypes.MessageMusicStartData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				type: "music_start",
+				platform:"twitchat",
+				track:this.currentTrack
+			};
 			TriggerActionHandler.instance.onMessage(triggerData);
 		}
 	}
@@ -394,8 +400,7 @@ export default class DeezerHelper extends EventDispatcher{
 		if (json.data && json.data.length > 0) {
 			for (let i = 0; i < json.data.length; i++) {
 				const track = json.data[i];
-				const music:TwitchatDataTypes.MusicMessage =  {
-					type:"music",
+				const music:TwitchatDataTypes.MusicTrackData =  {
 					title:track.title,
 					artist:track.artist.name,
 					album:track.album.title,

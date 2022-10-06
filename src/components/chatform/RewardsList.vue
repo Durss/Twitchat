@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';

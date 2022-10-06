@@ -1,6 +1,6 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
@@ -65,19 +65,17 @@ export const storeEmergency = defineStore('emergency', {
 
 		async setEmergencyMode(enable:boolean):Promise<void> {
 			this.emergencyStarted = enable;
-			const message:TwitchatDataTypes.EmergencyModeInfo = {
-				type: "emergencyMode",
-				enabled: enable,
-			}
-			TriggerActionHandler.instance.onMessage(message);
-			StoreProxy.chat.addMessage({
+			const message:TwitchatDataTypes.MessageEmergencyModeInfo = {
 				id:Utils.getUUID(),
-				type:"notice",
 				date:Date.now(),
 				platform:"twitchat",
-				message:"Emergency mode <mark>"+(enable?'enabled':'disabled')+"</mark>",
+				type: "notice",
+				message:"Emergency "+(enable? "enabled" : "disabled"),
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
-			})
+				enabled: enable,
+			};
+			TriggerActionHandler.instance.onMessage(message);
+			StoreProxy.chat.addMessage(message);
 
 			if(enable) {
 				//ENABLE EMERGENCY MODE

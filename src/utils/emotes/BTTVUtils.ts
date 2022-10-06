@@ -9,9 +9,7 @@ export default class BTTVUtils {
 	private enabled = false;
 	private emotesLoaded = false;
 	private channelList:string[] = [];
-	private globalEmotes:BTTVEmote[] = [];
 	private globalEmotesHashmaps:{[key:string]:BTTVEmote} = {};
-	private channelEmotes:{[key:string]:BTTVEmote[]} = {};
 	private channelEmotesHashmaps:{[key:string]:{[key:string]:BTTVEmote}} = {};
 	
 	constructor() {
@@ -163,7 +161,6 @@ export default class BTTVUtils {
 		try {
 			const res = await fetch("https://api.betterttv.net/3/cached/emotes/global");
 			const json = (await res.json()) as BTTVEmote[];
-			this.globalEmotes = json;
 			json.forEach(e => {
 				this.globalEmotesHashmaps[e.code] = e;
 			});
@@ -183,7 +180,6 @@ export default class BTTVUtils {
 			if(json.sharedEmotes) {
 				emotes = emotes.concat(json.sharedEmotes);
 			}
-			this.channelEmotes[channelId] = emotes;
 			this.channelEmotesHashmaps[channelId] = {};
 			emotes.forEach(e => {
 				this.channelEmotesHashmaps[channelId][e.code] = e;

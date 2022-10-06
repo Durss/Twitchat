@@ -134,7 +134,7 @@ export const TriggerTypes = {
 	CHAT_COMMAND:"7",
 	SUB:"8",
 	SUBGIFT:"9",
-	BITS:"10",
+	CHEER:"10",
 	FOLLOW:"11",
 	RAID:"12",
 	REWARD_REDEEM:"13",
@@ -151,7 +151,7 @@ export const TriggerTypes = {
 	HIGHLIGHT_CHAT_MESSAGE:"22",
 	CHAT_ALERT:"23",
 	HYPE_TRAIN_COOLDOWN:"45",
-	HYPE_TRAIN_APPROACH:"26",
+	HYPE_TRAIN_APPROACHING:"26",
 	HYPE_TRAIN_START:"27",
 	HYPE_TRAIN_PROGRESS:"28",
 	HYPE_TRAIN_END:"29",
@@ -223,7 +223,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"SUB_TIER", desc:"Sub tier 1, 2 or 3", pointer:"methods.plan"},
 	];
 	
-	map[TriggerTypes.BITS] = [
+	map[TriggerTypes.CHEER] = [
 		{tag:"USER", desc:"User name", pointer:"tags.display-name"},
 		{tag:"BITS", desc:"Number of bits", pointer:"tags.bits"},
 		{tag:"MESSAGE", desc:"Message of the user", pointer:"message"},
@@ -246,20 +246,13 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"MESSAGE", desc:"User message if any", pointer:"reward.redemption.user_input"},
 	];
 	
+	map[TriggerTypes.MUSIC_START] = 
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
 		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"artist"},
 		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"title"},
 		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"album"},
 		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"cover"},
 		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
-	];
-	
-	map[TriggerTypes.MUSIC_START] = [
-		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"music.artist"},
-		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"music.title"},
-		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"music.album"},
-		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"music.cover"},
-		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"music.url"},
 	];
 	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
@@ -372,8 +365,8 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.GAMES, icon:"bingo", label:"Bingo result", value:TriggerTypes.BINGO_RESULT, description:"Execute an action when a bingo completes", jsonTest:{"type":"bingo","data":{"guessNumber":true,"guessEmote":false,"numberValue":6,"opened":true,"winners":[{"badge-info":{"subscriber":"13"},"badges":{"broadcaster":"1","subscriber":"12"},"color":"#9ACD32","display-name":"Durss","emote-sets":"","mod":false,"subscriber":true,"user-type":null,"badge-info-raw":"subscriber/13","badges-raw":"broadcaster/1,subscriber/12","username":"durss","emotes":{},"emotes-raw":null,"message-type":"chat","id":"00000000-0000-0000-0000-000000000005","tmi-sent-ts":"1650674495186"}]},"tags":{"id":"00000000-0000-0000-0000-000000000006","tmi-sent-ts":"1650674495236"},"winner":{"badge-info":{"subscriber":"13"},"badges":{"broadcaster":"1","subscriber":"12"},"color":"#9ACD32","display-name":"Durss","emote-sets":"","mod":false,"subscriber":true,"user-type":null,"badge-info-raw":"subscriber/13","badges-raw":"broadcaster/1,subscriber/12","username":"durss","emotes":{},"emotes-raw":null,"message-type":"chat","id":"00000000-0000-0000-0000-000000000005","tmi-sent-ts":"1650674495186"}}},
 	{category:TriggerEventTypeCategories.SUBITS, icon:"sub", label:"Sub", value:TriggerTypes.SUB, description:"Execute an action when someone subscribes to the channel", jsonTest:{"type":"highlight","channel":"#durss","username":"Durss","methods":{"prime":true,"plan":"Prime","planName":"Be a Little Whale !"},"tags":{"badge-info":{"subscriber":"0"},"badges":{"subscriber":"0","premium":"1"},"color":"#9ACD32","display-name":"Durss","emotes":null,"flags":null,"id":"639779e0-37b0-4e31-9045-2ee8f21f0b34","login":"durss","mod":false,"msg-id":"sub","msg-param-cumulative-months":true,"msg-param-months":false,"msg-param-multimonth-duration":false,"msg-param-multimonth-tenure":false,"msg-param-should-share-streak":false,"msg-param-sub-plan-name":"Be a Little Whale !","msg-param-sub-plan":"Prime","msg-param-was-gifted":"false","room-id":"121652526","subscriber":true,"system-msg":"durss subscribed with Prime.","tmi-sent-ts":"1642377377050","user-id":"29961813","user-type":null,"emotes-raw":null,"badge-info-raw":"subscriber/0","badges-raw":"subscriber/0,premium/1","message-type":"sub"},"message":"Woop wooooooop !"}},
 	{category:TriggerEventTypeCategories.SUBITS, icon:"gift", label:"Subgift", value:TriggerTypes.SUBGIFT, description:"Execute an action when someones subgifts someone else", jsonTest:{"type":"highlight","channel":"#durss","username":"Durss","methods":{"prime":false,"plan":"3000","planName":"SUBSCRIBER"},"months":0,"tags":{"badge-info":{"subscriber":"12"},"badges":{"subscriber":"3012","sub-gifter":"5"},"color":"#9ACD32","display-name":"Durss","emotes":null,"flags":null,"id":"51e48d26-836b-409c-ac7f-708e84ccc5b1","login":"durss","mod":false,"msg-id":"subgift","msg-param-gift-months":true,"msg-param-months":true,"msg-param-origin-id":"cf 8a 7f a4 b1 9f ac e4 9f bc ac c8 c2 30 b3 5d 0c 84 c7 b1","msg-param-recipient-display-name":"Durssbot","msg-param-recipient-id":"452550058","msg-param-recipient-user-name":"Durssbot","msg-param-sender-count":false,"msg-param-sub-plan-name":"SUBSCRIBER","msg-param-sub-plan":"1000","room-id":"29961813","subscriber":true,"system-msg":"durss gifted a Tier 1 sub to Durssbot!","tmi-sent-ts":"1642377361661","user-id":"156668532","user-type":null,"emotes-raw":null,"badge-info-raw":"subscriber/12","badges-raw":"subscriber/3012,sub-gifter/5","message-type":"subgift"},"recipient":"Durssbot",}},
-	{category:TriggerEventTypeCategories.SUBITS, icon:"bits", label:"Bits", value:TriggerTypes.BITS, description:"Execute an action when someone sends bits", jsonTest:{"type":"highlight","channel":"#durss","tags":{"badge-info":{"subscriber":"1"},"badges":{"subscriber":"0"},"bits":"51275","color":"#9ACD32","display-name":"Durss","emotes":{},"first-msg":false,"flags":null,"id":"2a1279df-d092-4f87-a2bc-a9123d64f39c","mod":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1642379087259","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"","badge-info-raw":"subscriber/1","badges-raw":"subscriber/0","username":"durss","message-type":"chat"},"message":"Here are 51275 bits for you! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100"}},
-	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train approach", value:TriggerTypes.HYPE_TRAIN_APPROACH, description:"Execute an action when a hype train approaches", jsonTest:{type:"hypeTrainApproach", level:0, percent:0}},
+	{category:TriggerEventTypeCategories.SUBITS, icon:"bits", label:"Bits", value:TriggerTypes.CHEER, description:"Execute an action when someone sends bits", jsonTest:{"type":"highlight","channel":"#durss","tags":{"badge-info":{"subscriber":"1"},"badges":{"subscriber":"0"},"bits":"51275","color":"#9ACD32","display-name":"Durss","emotes":{},"first-msg":false,"flags":null,"id":"2a1279df-d092-4f87-a2bc-a9123d64f39c","mod":false,"room-id":"29961813","subscriber":true,"tmi-sent-ts":"1642379087259","turbo":false,"user-id":"29961813","user-type":null,"emotes-raw":"","badge-info-raw":"subscriber/1","badges-raw":"subscriber/0","username":"durss","message-type":"chat"},"message":"Here are 51275 bits for you! Cheer1050 Cheer25 Corgo50000 Anon100 Muxy100"}},
+	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train approach", value:TriggerTypes.HYPE_TRAIN_APPROACHING, description:"Execute an action when a hype train approaches", jsonTest:{type:"hypeTrainApproach", level:0, percent:0}},
 	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train start", value:TriggerTypes.HYPE_TRAIN_START, description:"Execute an action when a hype train starts", jsonTest:{type:"hypeTrainStart", level:1, percent:30}},
 	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train progress", value:TriggerTypes.HYPE_TRAIN_PROGRESS, description:"Execute an action when a hype train progresses", jsonTest:{type:"hypeTrainProgress", level:2, percent:83}},
 	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train end", value:TriggerTypes.HYPE_TRAIN_END, description:"Execute an action when a hype train ends", jsonTest:{type:"hypeTrainEnd", level:3, percent:10}},

@@ -9,9 +9,7 @@ export default class SevenTVUtils {
 	private enabled = false;
 	private emotesLoaded = false;
 	private channelList:string[] = [];
-	private globalEmotes:SevenTVEmote[] = [];
 	private globalEmotesHashmaps:{[key:string]:SevenTVEmote} = {};
-	private channelEmotes:{[key:string]:SevenTVEmote[]} = {};
 	private channelEmotesHashmaps:{[key:string]:{[key:string]:SevenTVEmote}} = {};
 	
 	constructor() {
@@ -164,7 +162,6 @@ export default class SevenTVUtils {
 		try {
 			const res = await fetch("https://api.7tv.app/v2/emotes/global");
 			const json = (await res.json()) as SevenTVEmote[];
-			this.globalEmotes = json;
 			json.forEach(e => {
 				this.globalEmotesHashmaps[e.name] = e;
 			});
@@ -177,7 +174,6 @@ export default class SevenTVUtils {
 		try {
 			const res = await fetch("https://api.7tv.app/v2/users/"+channelId+"/emotes");
 			const json = (await res.json()) as SevenTVEmote[];
-			this.channelEmotes[channelId] = json;
 			this.channelEmotesHashmaps[channelId] = {};
 			json.forEach(e => {
 				this.channelEmotesHashmaps[channelId][e.name] = e;

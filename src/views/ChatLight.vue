@@ -8,7 +8,6 @@
 
 <script lang="ts">
 import MessageList from '@/components/messages/MessageList.vue';
-import IRCClient from '@/utils/IRCClient';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -23,7 +22,6 @@ export default class ChatLight extends Vue {
 	public maxSize = 50;
 
 	public mounted():void {
-		IRCClient.instance.connect(this.$route.params.login as string);
 		this.$store("chat").realHistorySize = this.maxSize;//Reduces memory footprint
 	}
 }

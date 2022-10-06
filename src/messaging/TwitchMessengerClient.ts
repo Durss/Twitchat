@@ -1,6 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";

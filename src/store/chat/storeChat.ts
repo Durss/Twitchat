@@ -1,7 +1,7 @@
 import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import type { TwitchDataTypes } from '@/types/TwitchDataTypes'
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
