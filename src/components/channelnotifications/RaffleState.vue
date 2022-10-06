@@ -130,7 +130,7 @@ export default class RaffleState extends Vue {
 
 		//A wheel overlay exists, send it data and wait for it to complete
 		if(this.wheelOverlayExists){
-			const list:TwitchatDataTypes.WheelItem[] = this.raffleData.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.WheelItem=>{
+			const list:TwitchatDataTypes.EntryItem[] = this.raffleData.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
 										return {
 											id:v.id,
 											label:v.label,
@@ -145,7 +145,7 @@ export default class RaffleState extends Vue {
 		}else{
 
 			//no wheel overlay found, just announce the winner
-			const winnerData:TwitchatDataTypes.WheelItem = {
+			const winnerData:TwitchatDataTypes.EntryItem = {
 				id:winner.id,
 				label:winner.label,
 			}

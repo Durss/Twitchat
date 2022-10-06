@@ -1,9 +1,8 @@
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import { TriggerTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
 
@@ -22,12 +21,12 @@ export const storeTriggers = defineStore('triggers', {
 
 
 	actions: {
-		setTrigger(key:string, data:TwitchatDataTypes.TriggerData) {
+		setTrigger(key:string, data:TriggerData) {
 			if(!key) return;
 			key = key.toLowerCase();
 
 			//remove incomplete entries
-			function cleanEmptyActions(actions:TwitchatDataTypes.TriggerActionTypes[]):TwitchatDataTypes.TriggerActionTypes[] {
+			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
 					if(v.type == null) return false;
 					if(v.type == "obs") return true;//v.sourceName?.length > 0;

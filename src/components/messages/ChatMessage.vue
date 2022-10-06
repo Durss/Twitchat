@@ -152,7 +152,7 @@ export default class ChatMessage extends Vue {
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
-	public infoBadges:TwitchatDataTypes.ChatMessageInfoData[] = [];
+	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 
 	public get pronoun():string|null {
 		const pronouns = this.messageData.user.pronouns;

@@ -397,7 +397,7 @@ export default class TTSUtils {
 				if(!paramsTTS.readRaids) return "";
 
 				let txt = paramsTTS.readRaidsPattern.replace(/\{USER\}/gi, message.user.displayName);
-				txt = txt.replace(/\{VIEWERS\}/gi, (message.viewers).toString());
+				txt = txt.replace(/\{VIEWERS\}/gi, (message.raid.viewerCount).toString());
 				return txt;
 			}
 

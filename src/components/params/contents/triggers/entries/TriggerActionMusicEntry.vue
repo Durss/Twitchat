@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts">
+import { MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import { MusicTriggerEvents, TriggerActionHelpers, TriggerMusicTypes } from '@/types/TriggerActionDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -43,8 +43,8 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionMusicEntry extends Vue {
 
-	public action!:TwitchatDataTypes.TriggerActionMusicEntryData;
-	public event!:TwitchatDataTypes.TriggerEventTypes;
+	public action!:TriggerActionMusicEntryData;
+	public event!:TriggerEventTypes;
 
 	public actions_conf:TwitchatDataTypes.ParameterData = { label:"Action", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:TwitchatDataTypes.ParameterData = { label:"Track (name or URL)", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
@@ -58,8 +58,8 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	public mounted():void {
 		//List all available trigger types
-		let events:TwitchatDataTypes.TriggerEventTypes[] = [
-			{label:"Select an action...", icon:"music", value:"0", category:TwitchatDataTypes.TriggerEventTypeCategories.MUSIC},
+		let events:TriggerEventTypes[] = [
+			{label:"Select an action...", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
 		];
 		events = events.concat(MusicTriggerEvents);
 		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;

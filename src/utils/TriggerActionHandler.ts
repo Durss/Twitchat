@@ -7,7 +7,7 @@ import OBSWebsocket from "./OBSWebsocket";
 import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./music/SpotifyDataTypes";
 import SpotifyHelper from "./music/SpotifyHelper";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
+import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerActionChatData, type TriggerData, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
 import TTSUtils from "./TTSUtils";
 import TwitchatEvent from "./TwitchatEvent";
 import TwitchUtils from "./twitch/TwitchUtils";
@@ -17,6 +17,7 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 
 /**
 * Created : 22/04/2022 
+TODO remove the mapping message type => trigger type via method calls and replace it by a hashmap
 */
 export default class TriggerActionHandler {
 
@@ -27,7 +28,7 @@ export default class TriggerActionHandler {
 	private globalCooldowns:{[key:string]:number} = {};
 	private currentSpoolGUID = 0;
 
-	public triggers:{[key:string]:TwitchatDataTypes.TriggerData} = {};
+	public triggers:{[key:string]:TriggerData} = {};
 	public emergencyMode:boolean = false;
 	
 	constructor() {
@@ -75,12 +76,24 @@ export default class TriggerActionHandler {
 		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 			const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 			if(data.message) {
-				data.type = "chatOverlayHighlight";
-				this.handleHighlightOverlay(data, false, ++this.currentSpoolGUID);
+				const message:TwitchatDataTypes.MessageChatHighlightData = {
+					date:Date.now(),
+					id:Utils.getUUID(),
+					platform:"twitchat",
+					type:"chat_highlight",
+					info:data,
+				}
+				this.handleHighlightOverlay(message, false, ++this.currentSpoolGUID);
 			}
 		});
 	}
 	
+	/**
+	 * Executes the next pending trigger
+	 * 
+	 * @param testMode 
+	 * @returns 
+	 */
 	private async executeNext(testMode = false):Promise<void>{
 		this.currentSpoolGUID ++;
 		const message = this.actionsSpool[0];
@@ -198,12 +211,27 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
-			// case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
-			// 	if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
-			// 		return;
-			// 	}break;
-			// }
+			case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
+			case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
+				if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
 
+			case TwitchatDataTypes.TwitchatMessageType.VOICEMOD: {
+				if(await this.handleVoicemodEvent(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
+				if(await this.handleShoutoutEvent(message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS:
@@ -264,29 +292,6 @@ export default class TriggerActionHandler {
 					}
 				}
 				break;
-			}
-		}
-
-
-		if(message.type == "musicEvent") {
-			if(await this.handleMusicEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "voicemod") {
-			if(await this.handleVoicemodEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "shoutout") {
-			if(await this.handleShoutoutEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
-			}
-
-		}else if(message.type == "hypeTrainApproach" || message.type == "hypeTrainStart"
-		|| message.type == "hypeTrainProgress" || message.type == "hypeTrainEnd") {
-			if(await this.handleHypeTrainEvent(message, testMode, this.currentSpoolGUID)) {
-				return;
 			}
 		}
 
@@ -386,7 +391,7 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(type, message, testMode, guid);
 	}
 	
-	private async handleChatAlert(message:TwitchatDataTypes.MessageChatAlert, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleChatAlert(message:TwitchatDataTypes.MessageChatAlertData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, guid);
 	}
 	
@@ -451,9 +456,10 @@ export default class TriggerActionHandler {
 		return await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, guid);
 	}
 	
-	private async handleHypeTrainEvent(message:TwitchatDataTypes.MessageHypeTrainEventData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleHypeTrainEvent(message:TwitchatDataTypes.MessageHypeTrainEventData|TwitchatDataTypes.MessageHypeTrainCooledDownData|TwitchatDataTypes.MessageHypeTrainSummaryData, testMode:boolean, guid:number):Promise<boolean> {
 		let triggerType!:TriggerTypesValue;
 		switch(message.type) {
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: triggerType = TriggerTypes.HYPE_TRAIN_COOLDOWN; break;
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING: triggerType = TriggerTypes.HYPE_TRAIN_APPROACH; break;
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START: triggerType = TriggerTypes.HYPE_TRAIN_START; break;
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS: triggerType = TriggerTypes.HYPE_TRAIN_PROGRESS; break;
@@ -466,20 +472,20 @@ export default class TriggerActionHandler {
 		return false;
 	}
 	
-	private async handleShoutoutEvent(message:TwitchatDataTypes.ShoutoutTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleShoutoutEvent(message:TwitchatDataTypes.MessageShoutoutData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, guid);
 	}
 	
-	private async handleHighlightOverlay(message:TwitchatDataTypes.ChatHighlightInfo, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleHighlightOverlay(message:TwitchatDataTypes.MessageChatHighlightData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, guid);
 	}
 	
-	private async handleMusicEvent(message:TwitchatDataTypes.MusicTriggerData, testMode:boolean, guid:number):Promise<boolean> {
-		const event = message.start? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
+	private async handleMusicEvent(message:TwitchatDataTypes.MessageMusicStartData|TwitchatDataTypes.MessageMusicStopData, testMode:boolean, guid:number):Promise<boolean> {
+		const event = message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_START? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
 		return await this.parseSteps(event, message, testMode, guid);
 	}
 	
-	private async handleVoicemodEvent(message:TwitchatDataTypes.VoicemodTriggerData, testMode:boolean, guid:number):Promise<boolean> {
+	private async handleVoicemodEvent(message:TwitchatDataTypes.MessageVoicemodData, testMode:boolean, guid:number):Promise<boolean> {
 		return await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, guid);
 	}
 
@@ -493,7 +499,7 @@ export default class TriggerActionHandler {
 	 */
 	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes|null, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
-		let trigger:TwitchatDataTypes.TriggerData = this.triggers[ eventType ];
+		let trigger:TriggerData = this.triggers[ eventType ];
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
@@ -510,7 +516,7 @@ export default class TriggerActionHandler {
 						type:"chat",
 						delay:0,
 						text,
-					} as TwitchatDataTypes.TriggerActionChatData
+					} as TriggerActionChatData
 				]
 			}
 		}
@@ -520,7 +526,7 @@ export default class TriggerActionHandler {
 		}else{
 			// console.log("PARSE STEPS", eventType);
 			// console.log("PARSE STEPS", eventType, trigger, message);
-			const data = trigger as TwitchatDataTypes.TriggerData;
+			const data = trigger as TriggerData;
 			if(!data.enabled) return false;
 			let canExecute = true;
 
@@ -583,8 +589,8 @@ export default class TriggerActionHandler {
 							//If requesting to show an highlighted message but the message
 							//is empty, force source to hide
 							if(eventType == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
-							&& message?.type == "chatOverlayHighlight"
-							&& (!message.message || message.message.length===0)) {
+							&& message?.type == "chat_highlight"
+							&& (!message.info.message || message.info.message.length===0)) {
 								show = false;
 							}
 							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
@@ -606,16 +612,9 @@ export default class TriggerActionHandler {
 							//Remove command name from message
 							if(subEvent) text = text.replace(subEvent, "").trim();
 							let user = null;
-							const m = message as TwitchatDataTypes.Message;
-							if(m?.tags?.["user-id"]) {
-								[user] = await TwitchUtils.loadUserInfo([m.tags?.["user-id"] as string]);
-							}
-							const data = {
-											message: text,
-											user,
-											params:StoreProxy.chat.chatHighlightOverlayParams,
-										}
-							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (data as unknown) as JsonObject)
+							const m = message as TwitchatDataTypes.MessageChatHighlightData;
+							//TODO this event is probably broken
+							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (m as unknown) as JsonObject)
 							StoreProxy.chat.isChatMessageHighlighted = true;
 						}else{
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
@@ -624,9 +623,8 @@ export default class TriggerActionHandler {
 					}else
 					
 					//Handle TTS action
-					if(step.type == "tts") {
-						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
-						TTSUtils.instance.readNext(text, ttsID ?? eventType);
+					if(step.type == "tts" && message) {
+						TTSUtils.instance.readNext(message, ttsID ?? eventType);
 					}else
 					
 					//Handle raffle action
@@ -661,15 +659,13 @@ export default class TriggerActionHandler {
 					if(step.type == "music") {
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE && message?.type == "message") {
 							const m = message.message.split(" ").splice(1).join(" ");
-							const data:TwitchatDataTypes.MusicMessage = {
-								type:"music",
+							const data:TwitchatDataTypes.MusicTrackData = {
 								title:"",
 								artist:"",
 								album:"",
 								cover:"",
 								duration:0,
 								url:"",
-								tags:message.tags,
 							};
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let track:SearchTrackItem|null = null;
@@ -705,8 +701,15 @@ export default class TriggerActionHandler {
 								}
 							}
 							if(data.title) {
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, data as JsonObject);
-								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, data, false, guid);
+								let trigger:TwitchatDataTypes.MessageMusicStartData = {
+									id:Utils.getUUID(),
+									date:Date.now(),
+									platform:"twitchat",
+									type:"music_start",
+									track:data,
+								}
+								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (message as unknown) as JsonObject);
+								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
 								if(step.confirmMessage) {
 									let m = message.message;
 									//Remove command name from message
@@ -758,7 +761,9 @@ export default class TriggerActionHandler {
 								}
 								const success = await SpotifyHelper.instance.startPlaylist(id, m);
 								if(!success) {
-									IRCClient.instance.sendMessage("Playlist not found");
+									let platforms:TwitchatDataTypes.ChatPlatform[] = [];
+									if(message?.platform) platforms.push(message.platform);
+									MessengerProxy.instance.sendMessage("Playlist not found", platforms);
 								}
 							}
 							// if(Config.instance.DEEZER_CONNECTED) {
@@ -790,7 +795,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:MessageTypes|null, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
+	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes|null, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
 		if(!message) return src;
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
@@ -847,7 +852,7 @@ export default class TriggerActionHandler {
 			//If it's a music placeholder for the ADDED TO QUEUE event
 			//replace it by the current music info
 			if(eventType == TriggerTypes.TRACK_ADDED_TO_QUEUE && h.tag.indexOf("CURRENT_TRACK") == 0) {
-				if(message.type == "music") {
+				if(message.type == "music_start") {
 					value = message[h.pointer];
 				}else{
 

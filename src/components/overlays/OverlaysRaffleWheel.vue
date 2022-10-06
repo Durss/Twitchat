@@ -32,7 +32,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 export default class OverlaysRaffleWheel extends Vue {
 
-	public itemList:TwitchatDataTypes.WheelItem[] = [];
+	public itemList:TwitchatDataTypes.EntryItem[] = [];
 	public itemSize = 50;
 	public scrollOffset = 0;
 	public listHeight = 100;
@@ -43,7 +43,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	private animStep = 0;
 	private frameIndex = 0;
 	private selectedItemIndex = 0;
-	private winnerData!:TwitchatDataTypes.WheelItem;
+	private winnerData!:TwitchatDataTypes.EntryItem;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
 	private resizeHandler!:()=>void;

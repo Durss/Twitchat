@@ -81,11 +81,11 @@ export const storeRaffle = defineStore('raffle', {
 					if(overlayAvailable) {
 						//A wheel overlay exists, ask it to animate
 						const winner = Utils.pickRand(items).id;
-						const data:{items:TwitchatDataTypes.WheelItem[], winner:string} = { items, winner };
+						const data:{items:TwitchatDataTypes.EntryItem[], winner:string} = { items, winner };
 						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 					}else{
 						//No wheel overlay found, announce on chat
-						const winner:TwitchatDataTypes.WheelItem = Utils.pickRand(items);
+						const winner:TwitchatDataTypes.EntryItem = Utils.pickRand(items);
 						this.onRaffleComplete(winner, true)
 					}
 					break;
@@ -114,11 +114,11 @@ export const storeRaffle = defineStore('raffle', {
 					if(overlayAvailable) {
 						//A wheel overlay exists, ask it to animate
 						const winner = Utils.pickRand(items).id;
-						const data:{items:TwitchatDataTypes.WheelItem[], winner:string} = { items, winner };
+						const data:{items:TwitchatDataTypes.EntryItem[], winner:string} = { items, winner };
 						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 					}else{
 						//No wheel overlay found, announce on chat
-						const winner:TwitchatDataTypes.WheelItem = Utils.pickRand(items);
+						const winner:TwitchatDataTypes.EntryItem = Utils.pickRand(items);
 						this.onRaffleComplete(winner, true);
 					}
 					break;
@@ -128,7 +128,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		stopRaffle() { this.data = null; },
 
-		onRaffleComplete(winner:TwitchatDataTypes.WheelItem, publish:boolean = false) {
+		onRaffleComplete(winner:TwitchatDataTypes.EntryItem, publish:boolean = false) {
 			// this.raffle = null;
 			if(!this.data) return;
 

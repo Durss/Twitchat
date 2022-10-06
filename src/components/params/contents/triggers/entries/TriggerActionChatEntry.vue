@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts">
+import { TriggerActionHelpers, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerActionHelpers } from '@/types/TriggerActionDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -24,8 +24,8 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionChatEntry extends Vue {
 
-	public action!:TwitchatDataTypes.TriggerActionChatData;
-	public event!:TwitchatDataTypes.TriggerEventTypes;
+	public action!:TriggerActionChatData;
+	public event!:TriggerEventTypes;
 	public triggerKey!:string;
 	
 	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };

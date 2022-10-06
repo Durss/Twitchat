@@ -161,11 +161,11 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
-import { TriggerEvents, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
@@ -194,19 +194,19 @@ import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.
 })
 export default class ParamsTriggers extends Vue {
 
-	public currentEvent:TwitchatDataTypes.TriggerEventTypes|null = null;
+	public currentEvent:TriggerEventTypes|null = null;
 	public currentSubEvent:TwitchatDataTypes.ParameterDataListValue|null = null;
-	public eventsList:TwitchatDataTypes.TriggerEventTypes[] = [];
+	public eventsList:TriggerEventTypes[] = [];
 	public subeventsList:TwitchatDataTypes.ParameterDataListValue[] = [];
-	public eventCategories:{label:string, icon:string, events:TwitchatDataTypes.TriggerEventTypes[]}[] = [];
-	public actionList:TwitchatDataTypes.TriggerActionTypes[] = [];
+	public eventCategories:{label:string, icon:string, events:TriggerEventTypes[]}[] = [];
+	public actionList:TriggerActionTypes[] = [];
 	public sources:OBSSourceItem[] = [];
 	public canSave = true;
 	public syncing = false;
 	public isSublist = false;
 	public showLoading = false;
 	public rewards:TwitchDataTypes.Reward[] = [];
-	public triggerData:TwitchatDataTypes.TriggerData = {
+	public triggerData:TriggerData = {
 						enabled:true,
 						actions:[],
 					};
@@ -261,7 +261,7 @@ export default class ParamsTriggers extends Vue {
 	 */
 	public get triggerDescription():string|null {
 		const value = this.currentEvent?.value as string;
-		const item = this.eventsList.find(v => v.value == value) as TwitchatDataTypes.TriggerEventTypes|null;
+		const item = this.eventsList.find(v => v.value == value) as TriggerEventTypes|null;
 		if(item) {
 			let desc = item.description as string;
 			if(this.currentSubEvent) {
@@ -282,7 +282,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getSubListClasses(e:TwitchatDataTypes.TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):string[] {
+	public getSubListClasses(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):string[] {
 		const res = ["triggerBt", "subItem"];
 		if(this.getIcon(e)) res.push("hasIcon");
 		return res;
@@ -291,7 +291,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TwitchatDataTypes.TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):string {
+	public getIcon(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) {
 			return e.icon as string;
@@ -302,7 +302,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Get if a trigger entry can be toggled
 	 */
-	public canToggle(e:TwitchatDataTypes.TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):boolean {
+	public canToggle(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):boolean {
 		let key = e.value as string;
 		if(this.isSublist) {
 			key = this.currentEvent!.value+"_"+key;
@@ -310,7 +310,7 @@ export default class ParamsTriggers extends Vue {
 		
 		if(this.$store("triggers").triggers[key]) {
 			const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key]));
-			let list = trigger as TwitchatDataTypes.TriggerData;
+			let list = trigger as TriggerData;
 			return e.noToggle !== true && list.actions.length > 0;
 		}
 
@@ -326,7 +326,7 @@ export default class ParamsTriggers extends Vue {
 		await this.listSources();
 
 		//List all available trigger types
-		let events:TwitchatDataTypes.TriggerEventTypes[] = [];
+		let events:TriggerEventTypes[] = [];
 		events = events.concat(TriggerEvents);
 		if(!Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
 			events = events.filter(v => v.value != TriggerTypes.TRACK_ADDED_TO_QUEUE);
@@ -345,28 +345,28 @@ export default class ParamsTriggers extends Vue {
 
 		this.eventCategories = [];
 		let currCat = events[0].category;
-		let catEvents:TwitchatDataTypes.TriggerEventTypes[] = [];
+		let catEvents:TriggerEventTypes[] = [];
 		const catToLabel:{[key:number]:string} = {};
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.GLOBAL ] = "Chat - Channel points - Stream";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.USER ] = "User event";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.SUBITS ] = "Sub & bits";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.MOD ] = "Moderation actions";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.TWITCHAT ] = "Twitchat";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.HYPETRAIN ] = "Hype train";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.GAMES ] = "Games";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.MUSIC ] = "Music";
-		catToLabel[ TwitchatDataTypes.TriggerEventTypeCategories.TIMER ] = "Timers";
+		catToLabel[ TriggerEventTypeCategories.GLOBAL ] = "Chat - Channel points - Stream";
+		catToLabel[ TriggerEventTypeCategories.USER ] = "User event";
+		catToLabel[ TriggerEventTypeCategories.SUBITS ] = "Sub & bits";
+		catToLabel[ TriggerEventTypeCategories.MOD ] = "Moderation actions";
+		catToLabel[ TriggerEventTypeCategories.TWITCHAT ] = "Twitchat";
+		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = "Hype train";
+		catToLabel[ TriggerEventTypeCategories.GAMES ] = "Games";
+		catToLabel[ TriggerEventTypeCategories.MUSIC ] = "Music";
+		catToLabel[ TriggerEventTypeCategories.TIMER ] = "Timers";
 		
 		const catToIcon:{[key:number]:string} = {};
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.USER ] = "user_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.SUBITS ] = "coin_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.MOD ] = "mod_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.TWITCHAT ] = "twitchat_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.HYPETRAIN ] = "train_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.GAMES ] = "ticket_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.MUSIC ] = "music_purple";
-		catToIcon[ TwitchatDataTypes.TriggerEventTypeCategories.TIMER ] = "timer_purple";
+		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
+		catToIcon[ TriggerEventTypeCategories.USER ] = "user_purple";
+		catToIcon[ TriggerEventTypeCategories.SUBITS ] = "coin_purple";
+		catToIcon[ TriggerEventTypeCategories.MOD ] = "mod_purple";
+		catToIcon[ TriggerEventTypeCategories.TWITCHAT ] = "twitchat_purple";
+		catToIcon[ TriggerEventTypeCategories.HYPETRAIN ] = "train_purple";
+		catToIcon[ TriggerEventTypeCategories.GAMES ] = "ticket_purple";
+		catToIcon[ TriggerEventTypeCategories.MUSIC ] = "music_purple";
+		catToIcon[ TriggerEventTypeCategories.TIMER ] = "timer_purple";
 
 		for (let i = 0; i < events.length; i++) {
 			const ev = events[i];
@@ -452,8 +452,8 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Called when duplicating an action item
 	 */
-	public duplicateAction(action:TwitchatDataTypes.TriggerActionTypes, index:number):void {
-		const clone:TwitchatDataTypes.TriggerActionTypes = JSON.parse(JSON.stringify(action));
+	public duplicateAction(action:TriggerActionTypes, index:number):void {
+		const clone:TriggerActionTypes = JSON.parse(JSON.stringify(action));
 		clone.id = Math.random().toString();//Avoid duplicate keys
 		this.actionList.splice(index, 0, clone);
 	}
@@ -536,7 +536,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Toggle a trigger
 	 */
-	public onToggleEnable(e:TwitchatDataTypes.TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue|null):void {
+	public onToggleEnable(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue|null):void {
 		if(!e) return;
 		let key = e.value as string;
 		if(this.currentEvent) {
@@ -581,9 +581,9 @@ export default class ParamsTriggers extends Vue {
 				{
 					const triggers = this.$store("triggers").triggers;
 					//Search for all command triggers
-					const commandList:TwitchatDataTypes.TriggerData[] = [];
+					const commandList:TriggerData[] = [];
 					for (const k in triggers) {
-						if(k.indexOf(key+"_") === 0) commandList.push(triggers[k] as TwitchatDataTypes.TriggerData);
+						if(k.indexOf(key+"_") === 0) commandList.push(triggers[k] as TriggerData);
 					}
 					this.subeventsList = commandList.sort((a,b)=> {
 						if(!a.name || !b.name) return 0
@@ -604,7 +604,7 @@ export default class ParamsTriggers extends Vue {
 				}
 			}else if(this.$store("triggers").triggers[key.toLowerCase()]){
 				const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key.toLowerCase()]));//Avoid modifying the original data
-				this.actionList = (trigger as TwitchatDataTypes.TriggerData).actions;
+				this.actionList = (trigger as TriggerData).actions;
 			}else{
 				this.actionList = [];
 			}
@@ -631,7 +631,7 @@ export default class ParamsTriggers extends Vue {
 		let json = this.$store("triggers").triggers[key];
 		if(json) {
 			const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key]));//Avoid modifying the original data
-			this.triggerData = trigger as TwitchatDataTypes.TriggerData;
+			this.triggerData = trigger as TriggerData;
 			this.actionList = this.triggerData.actions;
 
 		}else if(this.isSublist){

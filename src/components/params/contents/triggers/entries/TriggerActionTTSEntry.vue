@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts">
+import { TriggerActionHelpers, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerActionHelpers } from '@/types/TriggerActionDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -29,8 +29,8 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionTTSEntry extends Vue {
 	
-	public action!:TwitchatDataTypes.TriggerActionChatData;
-	public event!:TwitchatDataTypes.TriggerEventTypes;
+	public action!:TriggerActionChatData;
+	public event!:TriggerEventTypes;
 
 	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	

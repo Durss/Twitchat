@@ -5,8 +5,8 @@ import type { TwitchDataTypes } from '@/types/TwitchDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
-import TwitchatEvent from '@/utils/TwitchatEvent'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
+import TwitchatEvent from '@/utils/TwitchatEvent'
 import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
@@ -454,7 +454,7 @@ export const storeChat = defineStore('chat', {
 					if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 						//Remove command from message to make later things easier
 						sMain.chatAlert = message;
-						let trigger:TwitchatDataTypes.MessageChatAlert = {
+						let trigger:TwitchatDataTypes.MessageChatAlertData = {
 							date:Date.now(),
 							id:Utils.getUUID(),
 							platform:message.platform,
@@ -674,7 +674,10 @@ export const storeChat = defineStore('chat', {
 				await MessengerProxy.instance.sendMessage(message);
 				
 				if(user) {
-					const trigger:TwitchatDataTypes.ShoutoutTriggerData = {
+					const trigger:TwitchatDataTypes.MessageShoutoutData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:user.platform,
 						type: "shoutout",
 						user,
 						stream:{
@@ -729,7 +732,14 @@ export const storeChat = defineStore('chat', {
 				};
 				this.isChatMessageHighlighted = true;
 
-				TriggerActionHandler.instance.onMessage(data);
+				const trigger:TwitchatDataTypes.MessageChatHighlightData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:message.user.platform,
+					type: "chat_highlight",
+					info:message,
+				};
+				TriggerActionHandler.instance.onMessage(trigger);
 			}else{
 				this.isChatMessageHighlighted = false;
 			}

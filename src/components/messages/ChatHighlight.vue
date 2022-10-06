@@ -90,7 +90,7 @@ export default class ChatHighlight extends Vue {
 	public moderating = false;
 	public canUnban = true;
 	public canBlock = true;
-	public badgeInfos:TwitchatDataTypes.ChatMessageInfoData[] = [];
+	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
 	
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
@@ -145,11 +145,11 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID:
-				value = this.messageData.viewers as number;
+				value = this.messageData.raid.viewerCount;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
 				this.user = this.messageData.user;
-				res = `is raiding with a party of ${this.messageData.viewers}.`;
+				res = `is raiding with a party of ${value}.`;
 
 				if(this.$store("params").features.raidStreamInfo.value === true) {
 					this.loadLastStreamInfos()
@@ -310,13 +310,11 @@ export default class ChatHighlight extends Vue {
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
 
 		this.shoutoutLoading = true;
-		if(this.messageData.viewers != undefined) {
-			try {
-				await this.$store("chat").shoutout(this.messageData.user);
-			}catch(error) {
-				this.$store("main").alert = "Shoutout failed :(";
-				console.log(error);
-			}
+		try {
+			await this.$store("chat").shoutout(this.messageData.user);
+		}catch(error) {
+			this.$store("main").alert = "Shoutout failed :(";
+			console.log(error);
 		}
 		this.shoutoutLoading = false;
 	}

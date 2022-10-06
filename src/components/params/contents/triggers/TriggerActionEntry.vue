@@ -80,6 +80,7 @@
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import type { TriggerActionStringTypes, TriggerActionTypes, TriggerData, TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -124,13 +125,13 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 })
 export default class TriggerActionEntry extends Vue {
 
-	public action!:TwitchatDataTypes.TriggerActionTypes;
-	public triggerData!:TwitchatDataTypes.TriggerData;
+	public action!:TriggerActionTypes;
+	public triggerData!:TriggerData;
+	public event!:TriggerEventTypes;
 	public sources!:OBSSourceItem[];
 	public triggerKey!:string;
 	public index!:number;
 	public totalItems!:number;
-	public event!:TwitchatDataTypes.TriggerEventTypes;
 
 	public opened = false;
 	public isError = false;
@@ -227,7 +228,7 @@ export default class TriggerActionEntry extends Vue {
 		this.$emit("update");
 	}
 
-	public selectActionType(type:TwitchatDataTypes.TriggerActionStringTypes):void {
+	public selectActionType(type:TriggerActionStringTypes):void {
 		this.action.type = type;
 	}
 

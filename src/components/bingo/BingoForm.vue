@@ -59,6 +59,7 @@
 </template>
 
 <script lang="ts">
+import type { TriggerActionBingoData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -92,7 +93,7 @@ export default class BingoForm extends Vue {
 
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
-	public action!:TwitchatDataTypes.TriggerActionBingoData;
+	public action!:TriggerActionBingoData;
 
 	public globalEmotes:TwitchDataTypes.Emote[] = [];
 	public guessNumber = true;

@@ -1,3 +1,4 @@
+import type { TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
@@ -305,7 +306,7 @@ export interface IRaffleGetters {
 export interface IRaffleActions {
 	startRaffle(payload:TwitchatDataTypes.RaffleData):Promise<void>;
 	stopRaffle():void;
-	onRaffleComplete(winner:TwitchatDataTypes.WheelItem, publish?:boolean):void;
+	onRaffleComplete(winner:TwitchatDataTypes.EntryItem, publish?:boolean):void;
 	checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void>;
 }
 
@@ -358,14 +359,14 @@ export interface ITimerActions {
 
 
 export interface ITriggersState {
-	triggers: {[key:string]:TwitchatDataTypes.TriggerData};
+	triggers: {[key:string]:TriggerData};
 }
 
 export interface ITriggersGetters {
 }
 
 export interface ITriggersActions {
-	setTrigger(key:string, data:TwitchatDataTypes.TriggerData):void;
+	setTrigger(key:string, data:TriggerData):void;
 	deleteTrigger(key:string):void;
 }
 

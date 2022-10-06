@@ -1,6 +1,6 @@
+import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
-import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
@@ -464,15 +464,15 @@ export default class DataStore {
 	private static migrateTriggers():void {
 		const sources = this.get("obsConf_sources");
 		if(sources) {
-			const actions:(TwitchatDataTypes.TriggerActionTypes[]|TwitchatDataTypes.TriggerData)[] = JSON.parse(sources);
+			const actions:(TriggerActionTypes[]|TriggerData)[] = JSON.parse(sources);
 			for (const key in actions) {
 				const a = actions[key];
 				let list = a;
 				//Is chat command trigger ?
 				if(!Array.isArray(a)) {
-					list = (a as TwitchatDataTypes.TriggerData).actions;
+					list = (a as TriggerData).actions;
 				}
-				const typedList = list as TwitchatDataTypes.TriggerActionTypes[];
+				const typedList = list as TriggerActionTypes[];
 				for (let i = 0; i < typedList.length; i++) {
 					typedList[i].type = "obs";
 
@@ -563,7 +563,7 @@ export default class DataStore {
 	private static migrateChatCommandTriggers():void {
 		const txt = this.get("triggers");
 		if(!txt) return;
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = JSON.parse(txt);
+		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
 			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0
 			&& triggers[key].chatCommand) {

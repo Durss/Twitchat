@@ -45,8 +45,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { ScheduleTriggerEvents, TriggerTypes } from '@/types/TriggerActionDataTypes';
+import { ScheduleTriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerScheduleTypesValue } from '@/types/TriggerActionDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -66,7 +66,7 @@ import PermissionsForm from '../obs/PermissionsForm.vue';
 })
 export default class TriggerActionScheduleParams extends Vue {
 
-	public triggerData!:TwitchatDataTypes.TriggerData;
+	public triggerData!:TriggerData;
 
 	public nameConflict = false;
 	public param_name:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Schedule name", icon:"date_purple.svg", placeholder:"..." };
@@ -82,13 +82,13 @@ export default class TriggerActionScheduleParams extends Vue {
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TwitchatDataTypes.TriggerEventTypes[] = [
-			{label:"Select an action...", icon:"date", value:"0", category:TwitchatDataTypes.TriggerEventTypeCategories.TWITCHAT},
+		let events:TriggerEventTypes[] = [
+			{label:"Select an action...", icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
 		];
 		events = events.concat(ScheduleTriggerEvents);
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
-				type:events[1].value as TwitchatDataTypes.TriggerScheduleTypesValue,
+				type:events[1].value as TriggerScheduleTypesValue,
 				repeatDuration:30,
 				repeatMinMessages:100,
 				dates:[],
@@ -157,7 +157,7 @@ export default class TriggerActionScheduleParams extends Vue {
 			for (const k in triggers) {
 				//Is a schedule trigger?
 				if(k.indexOf(TriggerTypes.SCHEDULE+"_") === 0) {
-					const t = triggers[k] as TwitchatDataTypes.TriggerData;
+					const t = triggers[k] as TriggerData;
 					if(t.name?.toLowerCase() == (this.param_name.value as string).toLowerCase()) {
 						this.nameConflict = true;
 						return;

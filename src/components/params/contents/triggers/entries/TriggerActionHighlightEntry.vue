@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerActionHelpers } from '@/types/TriggerActionDataTypes';
+import { TriggerActionHelpers, type TriggerActionHighlightData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -25,8 +25,8 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionHighlightEntry extends Vue {
 
-	public action!:TwitchatDataTypes.TriggerActionHighlightData;
-	public event!:TwitchatDataTypes.TriggerEventTypes;
+	public action!:TriggerActionHighlightData;
+	public event!:TriggerEventTypes;
 
 	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
 		{label:"Hide", value:false},

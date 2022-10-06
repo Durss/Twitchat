@@ -137,6 +137,7 @@ export const storeUsers = defineStore('users', {
 							user.displayName = res[0].display_name;
 							user.is_partner = res[0].broadcaster_type == "partner";
 							user.is_affiliate = user.is_partner || res[0].broadcaster_type == "affiliate";
+							user.avatarPath = res[0].profile_image_url;
 							if(user.temporary) {
 								delete user.temporary;
 								this.users.push(user);

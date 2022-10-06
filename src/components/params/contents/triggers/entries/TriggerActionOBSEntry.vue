@@ -25,7 +25,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
-import { TriggerActionHelpers, type ITriggerActionHelper } from '@/types/TriggerActionDataTypes';
+import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionObsData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Options({
@@ -41,9 +41,9 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 export default class TriggerActionOBSEntry extends Vue {
 
-	public action!:TwitchatDataTypes.TriggerActionObsData;
+	public action!:TriggerActionObsData;
 	public sources!:OBSSourceItem[];
-	public event!:TwitchatDataTypes.TriggerEventTypes;
+	public event!:TriggerEventTypes;
 
 	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
 		{label:"Hide", value:false},

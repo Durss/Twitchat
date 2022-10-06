@@ -115,6 +115,7 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
+import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -158,7 +159,7 @@ export default class RaffleForm extends Vue {
 	public voiceControl!:boolean;
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
-	public action!:TwitchatDataTypes.TriggerActionRaffleData;
+	public action!:TriggerActionRaffleData;
 
 	public pickingEntry = false;
 	public winner:TwitchDataTypes.Subscriber|null = null;

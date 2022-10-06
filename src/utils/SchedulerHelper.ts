@@ -1,7 +1,7 @@
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { TriggerScheduleTypes, TriggerTypes } from "../types/TriggerActionDataTypes";
+import { TriggerScheduleTypes, TriggerTypes, type TriggerData, type TriggerScheduleData } from "../types/TriggerActionDataTypes";
 import TriggerActionHandler from "./TriggerActionHandler";
 import UserSession from "./UserSession";
 
@@ -13,7 +13,7 @@ export default class SchedulerHelper {
 	private static _instance:SchedulerHelper;
 	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
 	private _frameIndex:number = 0;
-	private _adSchedule?:TwitchatDataTypes.TriggerScheduleData;
+	private _adSchedule?:TriggerScheduleData;
 	private _adScheduleTimeout?:number;
 	
 	constructor() {
@@ -40,7 +40,7 @@ export default class SchedulerHelper {
 	 * Starts the scheduler
 	 */
 	public start():void {
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.triggers.triggers;
+		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
 			if(mainKey == TriggerTypes.SCHEDULE) {
@@ -76,7 +76,7 @@ export default class SchedulerHelper {
 	 * @param schedule 
 	 * @returns 
 	 */
-	public scheduleTrigger(key:string, schedule:TwitchatDataTypes.TriggerScheduleData):void {
+	public scheduleTrigger(key:string, schedule:TriggerScheduleData):void {
 		if(!schedule) return;
 
 		//Cleanup any previously scheduled trigger
@@ -192,7 +192,7 @@ export default class SchedulerHelper {
 		//is slowed down to 1 fps and tasks still executed in background
 		if(this._frameIndex++ < 60) return;
 		this._frameIndex = 0;
-		const triggers:{[key:string]:TwitchatDataTypes.TriggerData} = StoreProxy.triggers.triggers;
+		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
 
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];

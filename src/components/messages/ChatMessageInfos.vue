@@ -18,15 +18,15 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatMessageInfos extends Vue {
 
-	public infos!:TwitchatDataTypes.ChatMessageInfoData[];
+	public infos!:TwitchatDataTypes.MessageBadgeData[];
 
 	public mounted():void {
 		
 	}
 
-	public getLabel(info:TwitchatDataTypes.ChatMessageInfoData):string {
+	public getLabel(info:TwitchatDataTypes.MessageBadgeData):string {
 		if(info.label) return info.label;
-		const hashmap:{[key in TwitchatDataTypes.ChatMessageInfoDataStringType]:string} = {
+		const hashmap:{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string} = {
 			automod:"automod",
 			whisper:"whisper",
 			emergencyBlocked:"blocked",
@@ -35,7 +35,7 @@ export default class ChatMessageInfos extends Vue {
 		return info.type;
 	}
 
-	public getIcon(info:TwitchatDataTypes.ChatMessageInfoData):string {
+	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:{[key:string]:string} = {
 			emergencyBlocked:"emergency",
 		};

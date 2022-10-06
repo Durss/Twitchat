@@ -443,6 +443,12 @@ async function isDonor(request, response, body) {
 		}
 	}
 
+	//Update user's storage file to get a little idea on how many people use twitchat
+	const userFilePath = userDataFolder + userInfo.user_id+".json";
+	if(fs.existsSync(userFilePath)) {
+		fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
+	}
+
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(JSON.stringify({success:true, data:{isDonor:user != undefined && level > -1, level}}));
 }

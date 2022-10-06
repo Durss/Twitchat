@@ -1,4 +1,3 @@
-import type { TriggerScheduleTypes, TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 
 export namespace TwitchatDataTypes {
 
@@ -83,134 +82,21 @@ export namespace TwitchatDataTypes {
 		unmuteCommand:string;
 	}
 
-	export interface TriggerData {
-		enabled:boolean;
-		actions:TriggerActionTypes[];
-		name?:string;
-		prevKey?:string;
-		permissions?:PermissionsData;
-		cooldown?:{global:number, user:number};
-		scheduleParams?:TriggerScheduleData;
-		/**
-		 * @deprecated Only here for typings on data migration. User "name" property
-		 */
-		chatCommand?:string
-	}
 
 
-	export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
-
-	export interface TriggerScheduleData {
-		type:TriggerScheduleTypesValue|"0";
-		repeatDuration:number;
-		repeatMinMessages:number;
-		dates:{daily:boolean, yearly:boolean, value:string}[];
-	}
-
-	export type TriggerActionTypes =  TriggerActionEmptyData
-									| TriggerActionObsData
-									| TriggerActionChatData
-									| TriggerActionTTSData
-									| TriggerActionMusicEntryData
-									| TriggerActionRaffleData
-									| TriggerActionBingoData
-									| TriggerActionVoicemodData
-									| TriggerActionHighlightData
-									| TriggerActionTriggerData
-	;
-	export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|null;
-
-	export const TriggerEventTypeCategories = {
-		GLOBAL: 1,
-		TIMER: 2,
-		TWITCHAT: 3,
-		USER: 4,
-		SUBITS: 5,
-		MOD: 6,
-		HYPETRAIN: 7,
-		GAMES: 8,
-		MUSIC: 9,
-	} as const;
-	export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
-	export interface TriggerEventTypes extends ParameterDataListValue {
-		category:TriggerEventTypeCategoryValue;
-		label:string;
-		value:TriggerTypesValue|"0";
-		icon:string,
-		description?:string,
-		isCategory?:boolean,
-		jsonTest?:unknown,
-	}
-
-	export interface TriggerActionData {
-		id:string;
-		delay:number;
-	}
-	export interface TriggerActionEmptyData extends TriggerActionData{
-		type:null;
-	}
-	export interface TriggerActionObsData extends TriggerActionData{
-		type:"obs";
-		sourceName:string;
-		filterName?:string;
-		show:boolean;
-		text?:string;
-		url?:string;
-		mediaPath?:string;
-	}
-
-	export interface TriggerActionChatData extends TriggerActionData{
-		type:"chat";
-		text:string;
-	}
-
-	export interface TriggerActionTTSData extends TriggerActionData{
-		type:"tts";
-		text:string;
-	}
-
-	export interface TriggerActionRaffleData extends TriggerActionData{
-		type:"raffle";
-		raffleData:RaffleData;
-	}
-
-	export interface TriggerActionBingoData extends TriggerActionData{
-		type:"bingo";
-		bingoData:BingoConfig;
-	}
-
-	export interface TriggerActionVoicemodData extends TriggerActionData{
-		type:"voicemod";
-		voiceID:string;
-	}
-
-	export interface TriggerActionMusicEntryData extends TriggerActionData{
-		type:"music";
-		musicAction:string;
-		track:string;
-		confirmMessage:string;
-		playlist:string;
-	}
-
-	export interface TriggerActionHighlightData extends TriggerActionData{
-		type:"highlight";
-		show:boolean;
-		text:string;
-	}
-
-	export interface TriggerActionTriggerData extends TriggerActionData{
-		type:"trigger";
-		triggerKey:string;
-	}
-
-	export const ChatMessageInfoDataType = {
+	/**
+	 * Data type for messages badges.
+	 * These are info displayed on the left of some messages
+	 * to indicate things like "whisper" or "automoded" info
+	 */
+	export const MessageBadgeDataType = {
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
 		EMERGENCY_BLOCKED: "emergencyBlocked",
 	} as const;
-	export type ChatMessageInfoDataStringType = typeof ChatMessageInfoDataType[keyof typeof ChatMessageInfoDataType];
-	export interface ChatMessageInfoData {
-		type:ChatMessageInfoDataStringType;
+	export type MessageBadgeDataStringType = typeof MessageBadgeDataType[keyof typeof MessageBadgeDataType];
+	export interface MessageBadgeData {
+		type:MessageBadgeDataStringType;
 		label?:string;
 		tooltip?:string;
 	}
@@ -279,13 +165,8 @@ export namespace TwitchatDataTypes {
 		customEntries:string;
 		winners?:RaffleEntry[];
 	}
-	export interface RaffleEntry extends WheelItem {
+	export interface RaffleEntry extends EntryItem {
 		score:number;
-	}
-	
-	export interface WheelItem {
-		id:string;
-		label:string;
 	}
 	
 	export interface ChatSuggestionData {
@@ -315,6 +196,11 @@ export namespace TwitchatDataTypes {
 		is_boost_train:boolean;
 		is_new_record:boolean;
 	}
+	
+	export interface EntryItem {
+		id:string;
+		label:string;
+	}
 
 	export interface CommandData {
 		id:string;
@@ -334,37 +220,9 @@ export namespace TwitchatDataTypes {
 		users:string;
 	}
 
-	export const TwitchatAdTypes = {
-		NONE:-1,
-		SPONSOR:1,
-		UPDATES:2,
-		TIP_AND_TRICK:3,
-		DISCORD:4,
-		UPDATE_WARNING:5,
-		TWITCHAT_AD_WARNING:6,
-		TWITCHAT_SPONSOR_PUBLIC_PROMPT:7,
-	} as const;
-	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
-
-	export interface InstallHandler extends Event {
-		prompt:()=>void;
-		userChoice:Promise<{outcome:"accepted"}>;
-	}
-
 	export interface WheelData {
-		items:WheelItem[];
+		items:EntryItem[];
 		winner:string;
-	}
-
-	export interface MusicMessage {
-		type:"music",
-		title:string,
-		artist:string,
-		album:string,
-		cover:string,
-		duration:number,
-		url:string,
-		// [parameter: string]: unknown;//This is here to avoid lint errors on dynamic pointers
 	}
 
 	export interface PlaceholderEntry {
@@ -389,6 +247,46 @@ export namespace TwitchatDataTypes {
 	export interface TimerData {
 		startAt:number;
 		duration?:number;
+	}
+
+	export interface MusicTrackData {
+		title:string;
+		artist:string;
+		album:string;
+		cover:string;
+		duration:number;
+		url:string;
+	}
+
+	export interface ChatHighlightInfo {
+		message?:string,
+		user?:TwitchatUser,
+		clip?:ClipInfo,
+		params?:ChatHighlightParams,
+	}
+	export interface ChatHighlightParams {
+		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	}
+	export interface ClipInfo {
+		duration:number;
+		url:string;
+	}
+
+	export const TwitchatAdTypes = {
+		NONE:-1,
+		SPONSOR:1,
+		UPDATES:2,
+		TIP_AND_TRICK:3,
+		DISCORD:4,
+		UPDATE_WARNING:5,
+		TWITCHAT_AD_WARNING:6,
+		TWITCHAT_SPONSOR_PUBLIC_PROMPT:7,
+	} as const;
+	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
+
+	export interface InstallHandler extends Event {
+		prompt:()=>void;
+		userChoice:Promise<{outcome:"accepted"}>;
 	}
 
 	export interface TTSParamsData {
@@ -453,21 +351,6 @@ export namespace TwitchatDataTypes {
 		obsSources:string[];
 	}
 
-	export interface ChatHighlightInfo {
-		type?:"chatOverlayHighlight",
-		message?:string,
-		user?:TwitchatUser,
-		clip?:ClipInfo,
-		params?:ChatHighlightParams,
-	}
-	export interface ChatHighlightParams {
-		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
-	}
-	export interface ClipInfo {
-		duration:number;
-		url:string;
-	}
-
 	export interface SpoilerParamsData {
 		permissions:PermissionsData;
 	}
@@ -499,12 +382,6 @@ export namespace TwitchatDataTypes {
 		customInfoTemplate:string;
 	}
 
-	export interface MusicTriggerData {
-		type:"musicEvent";
-		start:boolean;
-		music?:MusicMessage;
-	}
-
 	export interface VoicemodParamsData {
 		enabled:boolean;
 		voiceIndicator:boolean;
@@ -512,10 +389,6 @@ export namespace TwitchatDataTypes {
 		chatCmdPerms:PermissionsData;
 	}
 
-	export interface VoicemodTriggerData {
-		type:"voicemod";
-		voiceID?:string;
-	}
 
 	export interface AutomodParamsData {
 		enabled:boolean;
@@ -530,15 +403,6 @@ export namespace TwitchatDataTypes {
 		label:string;
 		regex:string;
 		serverSync:boolean;
-	}
-
-	export interface ShoutoutTriggerData {
-		type:"shoutout";
-		user:TwitchatDataTypes.TwitchatUser;
-		stream:{
-			title: string;
-			category: string;
-		};
 	}
 
 	export interface Pronoun {
@@ -557,14 +421,64 @@ export namespace TwitchatDataTypes {
 		STTOrigin?:boolean,
 	}
 
+	export interface TwitchatImage {
+		sd:string;
+		hd?:string;
+	}
+
+	export interface TwitchatUser {
+		platform:ChatPlatform;
+		login:string;
+		displayName:string;
+		greeted:boolean;
+		online:boolean;
+		color?:string;
+		avatarPath?:string;
+		id:string;
+		is_tracked?:boolean;
+		is_following?:boolean;
+		is_blocked?:boolean;
+		is_banned?:boolean;
+		is_vip?:boolean;
+		is_moderator?:boolean;
+		is_broadcaster?:boolean;
+		is_subscriber?:boolean;
+		is_partner?:boolean;
+		is_affiliate?:boolean;
+		is_gifter?:boolean;
+		pronouns?:string|false;
+		badges?:TwitchatUserBadge[];
+		temporary?:boolean;//true when the details are loading
+		messageHistory:ChatMessageTypes[];
+	}
+
+	export interface TwitchatUserBadge {
+		icon:TwitchatImage;
+		id:string;
+		title?:string;
+	}	
+
+	export interface RaidInfo {
+		channel_id: string;
+		user:TwitchatUser;
+		viewerCount: number;
+		startedAt:number;
+		timerDuration_s:number;
+	}
+
+	export interface CommunityBoost {
+		channel_id: string;
+		goal:number;
+		progress:number;
+	}
+
+	export interface AutomodData {
+		reasons:string[];
+	}
 
 
 
-	//The following should be on TwitchatDataTypes.ts but as it's using a ref to
-	//ActivityFeedData from here, and this class is using a reference to TwitchatDataTypes,
-	//if these types were on TwitchatDataTypes.ts we would get a circular dependency issue.
-	//The only way to fix these circular import issues would be to have ALL types declared
-	//on one single file. But i'd rather not do that.
+
 	export const TwitchatMessageType = {
 		BAN:"ban",
 		RAID:"raid",
@@ -580,15 +494,20 @@ export namespace TwitchatDataTypes {
 		MESSAGE:"message",
 		TIMEOUT:"timeout",
 		WHISPER:"whisper",
+		SHOUTOUT:"shoutout",
+		VOICEMOD:"voicemod",
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
 		CLEAR_CHAT:"clear_chat",
 		CHAT_ALERT:"chat_alert",
 		DISCONNECT:"disconnect",
 		PREDICTION:"prediction",
+		MUSIC_STOP:"music_stop",
+		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		CHAT_HIGHLIGHT:"chat_highlight",
 		HYPE_TRAIN_START:"hype_train_start",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
@@ -632,55 +551,6 @@ export namespace TwitchatDataTypes {
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
-
-	//NEW DATA TYPES FOR FULL REFACTOR
-
-	export interface AbstractTwitchatMessage {
-		type:TwitchatMessageStringType;
-		id:string;
-		date:number;
-		platform:ChatPlatform;
-		deleted?:boolean;
-		markedAsRead?:boolean;
-	}
-
-	export interface TwitchatImage {
-		sd:string;
-		hd?:string;
-	}
-
-	export interface TwitchatUser {
-		platform:ChatPlatform;
-		login:string;
-		displayName:string;
-		greeted:boolean;
-		online:boolean;
-		color?:string;
-		avatarPath?:string;
-		id:string;
-		is_tracked?:boolean;
-		is_following?:boolean;
-		is_blocked?:boolean;
-		is_banned?:boolean;
-		is_vip?:boolean;
-		is_moderator?:boolean;
-		is_broadcaster?:boolean;
-		is_subscriber?:boolean;
-		is_partner?:boolean;
-		is_affiliate?:boolean;
-		is_gifter?:boolean;
-		pronouns?:string|false;
-		badges?:TwitchatUserBadge[];
-		temporary?:boolean;//true when the details are loading
-		messageHistory:ChatMessageTypes[];
-	}
-
-	export interface TwitchatUserBadge {
-		icon:TwitchatImage;
-		id:string;
-		title?:string;
-	}
-
 	export type ChatMessageTypes = MessageChatData |
 									MessageWhisperData |
 									MessagePollData |
@@ -708,7 +578,12 @@ export namespace TwitchatDataTypes {
 									MessageStreamInfoUpdate |
 									MessageEmergencyModeInfo |
 									MessageHypeTrainEventData |
-									MessageChatAlert |
+									MessageChatAlertData |
+									MessageMusicStopData |
+									MessageMusicStartData |
+									MessageShoutoutData |
+									MessageVoicemodData |
+									MessageChatHighlightData |
 									MessageNoticeData
 	;
 
@@ -740,6 +615,15 @@ export namespace TwitchatDataTypes {
 		TwitchatNoticeType.COMMERCIAL_COMPLETE,
 	];
 
+	export interface AbstractTwitchatMessage {
+		type:TwitchatMessageStringType;
+		id:string;
+		date:number;
+		platform:ChatPlatform;
+		deleted?:boolean;
+		markedAsRead?:boolean;
+	}
+
 	export interface MessageChatData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"message";
@@ -761,7 +645,7 @@ export namespace TwitchatDataTypes {
 		spoiler?: boolean;
 		elevatedInfo?:{duration_s:number, amount:number};
 		
-		twitch_automod?: TwitchatDataTypes.AutomodData;
+		twitch_automod?: AutomodData;
 		twitch_isSlashMe?:boolean;
 		twitch_isFirstMessage?:boolean;//True if first message ever on this channel
 		twitch_isReturning?:boolean;//True if new user coming back
@@ -911,7 +795,7 @@ export namespace TwitchatDataTypes {
 		channel_id: string;
 		type:"raid";
 		user:TwitchatUser;
-		viewers:number;
+		raid:RaidInfo;
 	}
 
 	export interface MessageJoinData extends AbstractTwitchatMessage {
@@ -989,50 +873,48 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface MessageStreamInfoUpdate extends MessageNoticeData {
-		noticeId:"stream_info_update",
-		title:string,
-		category:string,
+		noticeId:"stream_info_update";
+		title:string;
+		category:string;
 	}
 
 	export interface MessageEmergencyModeInfo extends MessageNoticeData{
-		noticeId:"emergencyMode",
-		enabled:boolean,
+		noticeId:"emergencyMode";
+		enabled:boolean;
 	}
 
-	export interface MessageChatAlert extends AbstractTwitchatMessage{
-		type:"chat_alert",
-		message:MessageChatData,
+	export interface MessageChatAlertData extends AbstractTwitchatMessage{
+		type:"chat_alert";
+		message:MessageChatData;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-	export interface RaidInfo {
-		channel_id: string;
-		user:TwitchatUser;
-		viewerCount: number;
-		startedAt:number;
-		timerDuration_s:number;
+	export interface MessageMusicStartData extends AbstractTwitchatMessage {
+		type:"music_start";
+		track:MusicTrackData;
 	}
 
-	export interface CommunityBoost {
-		channel_id: string;
-		goal:number;
-		progress:number;
+	export interface MessageMusicStopData extends AbstractTwitchatMessage {
+		type:"music_stop";
+		track:MusicTrackData;
 	}
 
-	export interface AutomodData {
-		reasons:string[];
+	export interface MessageVoicemodData extends AbstractTwitchatMessage {
+		type:"voicemod";
+		voiceID?:string;
 	}
+
+	export interface MessageShoutoutData extends AbstractTwitchatMessage {
+		type:"shoutout";
+		user:TwitchatDataTypes.TwitchatUser;
+		stream:{
+			title: string;
+			category: string;
+		};
+	}
+
+	export interface MessageChatHighlightData extends AbstractTwitchatMessage {
+		type:"chat_highlight";
+		info:ChatHighlightInfo;
+	}
+
 }
