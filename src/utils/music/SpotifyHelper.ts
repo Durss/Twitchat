@@ -459,7 +459,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.main.alert = "Spotify requires you to first play some music before trying to use it from Twitchat"
+					StoreProxy.main.alertData = "Spotify requires you to first play some music before trying to use it from Twitchat"
 				}
 			}catch(error){}
 

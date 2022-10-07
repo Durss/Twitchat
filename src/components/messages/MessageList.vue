@@ -8,6 +8,7 @@
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in filteredMessages" :key="m.id" ref="message" class="subHolder"
 			@click="toggleMarkRead(m, $event)">
+			
 				<ChatAd class="message"
 					:messageData="m"
 					v-if="m.type == 'twitchat_ad' && !lightMode"
@@ -18,7 +19,7 @@
 
 				<ChatJoinLeave class="message"
 					:messageData="m"
-					v-if="m.type == 'join' || m.type == 'leave' && !lightMode"
+					v-else-if="m.type == 'join' || m.type == 'leave' && !lightMode"
 					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 				/>
@@ -171,6 +172,7 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatJoinLeave from './ChatJoinLeave.vue';
 
 @Options({
 	components:{
@@ -179,6 +181,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
+		ChatJoinLeave,
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,

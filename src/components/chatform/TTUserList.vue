@@ -168,11 +168,11 @@ export default class TTUserList extends Vue {
 				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
-				this.$store("main").alert = json.message;
+				this.$store("main").alert(json.message);
 				this.$emit("close");
 			}
 		}catch(err:unknown) {
-			this.$store("main").alert = "An error occured while loading users<br>";
+			this.$store("main").alert("An error occured while loading users<br>");
 		}
 		this.loading = false;
 	}

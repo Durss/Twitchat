@@ -113,7 +113,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alert = "An error occurred while chosing prediction's outcome";
+				this.$store("main").alertData = "An error occurred while chosing prediction's outcome";
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -129,7 +129,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alert = "An error occurred while deleting the prediction";
+				this.$store("main").alertData = "An error occurred while deleting the prediction";
 			}
 			this.loading = false;
 		}).catch(()=> {

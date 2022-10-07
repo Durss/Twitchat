@@ -222,14 +222,14 @@ export default class ChatMessage extends Vue {
 
 	public get isPresentation():boolean {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			return this.messageData.twitch_isPresentation != undefined;
+			return this.messageData.twitch_isPresentation === true;
 		}
 		return false;
 	}
 
 	public get isReturning():boolean {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			return this.messageData.twitch_isReturning != undefined;
+			return this.messageData.twitch_isReturning === true;
 		}
 		return false;
 	}
@@ -441,12 +441,15 @@ export default class ChatMessage extends Vue {
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
 		}else{
+			const messageBckp = this.messageData.user.messageHistory;
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
+			this.messageData.user.messageHistory = [];
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
+			this.messageData.user.messageHistory = messageBckp;
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
 		}
@@ -520,7 +523,7 @@ export default class ChatMessage extends Vue {
 	public async modMessage(accept:boolean):Promise<void> {
 		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
 		if(!success) {
-			this.$store("main").alert = "Woops... something went wrong :(...";
+			this.$store("main").alert("Woops... something went wrong :(...");
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.

@@ -111,6 +111,10 @@ export const storeAuth = defineStore('auth', {
 					//If we were authenticated, simply update the token on IRC
 					TwitchMessengerClient.instance.refreshToken(json.access_token);
 				}else{
+					TwitchMessengerClient.instance.credentials = {
+						token:json.access_token,
+						username:currentUser?.login ?? "user not found",
+					}
 					MessengerProxy.instance.connect();
 					PubSub.instance.connect();
 				}
@@ -136,7 +140,7 @@ export const storeAuth = defineStore('auth', {
 				console.log(error);
 				this.authenticated = false;
 				DataStore.remove("oAuthToken");
-				StoreProxy.main.alert = "Authentication failed";
+				StoreProxy.main.alertData = "Authentication failed";
 				if(cb) cb(false);
 				router.push({name: 'login'});//Redirect to login if connection failed
 			}

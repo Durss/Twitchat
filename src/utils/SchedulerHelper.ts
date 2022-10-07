@@ -174,10 +174,10 @@ export default class SchedulerHelper {
 
 		//Just a fail safe to avoid deploying fucked up data on production !
 		if(this._adSchedule.repeatDuration < 120) {
-			StoreProxy.main.alert = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 120!";
+			StoreProxy.main.alertData = "Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 120!";
 		}else
 		if(this._adSchedule.repeatMinMessages < 100) {
-			StoreProxy.main.alert = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 100!";
+			StoreProxy.main.alertData = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 100!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
 	}

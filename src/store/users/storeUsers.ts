@@ -10,6 +10,8 @@ import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
 let unbanFlagTimeouts:{[key:string]:number} = {};
+let twitchUserBatchToLoad:TwitchatDataTypes.TwitchatUser[] = [];
+let twitchUserBatchTimeout:number = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
@@ -83,6 +85,9 @@ export const storeUsers = defineStore('users', {
 				if(u.login === login) { user = u; break; }
 				if(u.displayName === displayName) { user = u; break; }
 			}
+			
+			if(user) return user;
+
 			//Create user if enough given info
 			if(!user && id && login) {
 				if(!displayName) displayName = login;
@@ -93,7 +98,7 @@ export const storeUsers = defineStore('users', {
 			}
 			//If we don't have enough info, create a temp user object and load
 			//its details from the API then register it if found.
-			if(!user && (login || id || displayName)) {
+			if(!user && (!login || !id || !displayName)) {
 				user = {
 					platform:platform,
 					id:id??"temporary_"+Utils.getUUID(),
@@ -121,42 +126,73 @@ export const storeUsers = defineStore('users', {
 				//this method, then populates the is_partner and is_affiliate and
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
-				setTimeout(()=> {
-					//User not pending for necessary data loading, check if the
-					//partner/affiliate state is defined, if so, just stop there
-					//Otherwise, load full info from API
-					if(!super.temporary) {
-						if(user!.is_partner != undefined) return;
-						if(user!.is_affiliate != undefined) return;
+				console.log("Schedule batch...",id, login, twitchUserBatchToLoad.length);
+				const to = setTimeout(()=> {
+					if(!user!.temporary) {
+						//User not pending for necessary data loading, check if the
+						//partner/affiliate state is defined, if so, just stop there
+						//Otherwise, load full info from API
+						if(user!.is_partner != undefined) return false;
+						if(user!.is_affiliate != undefined) return false;
 					}
-					TwitchUtils.loadUserInfo(id? [id] : undefined, login ? [login] : undefined).then(async (res) => {
+					const logins = twitchUserBatchToLoad
+					// .filter(v=> {
+					// 	if(!v.temporary) {
+					// 		//User not pending for necessary data loading, check if the
+					// 		//partner/affiliate state is defined, if so, just stop there
+					// 		//Otherwise, load full info from API
+					// 		if(v.is_partner != undefined) return false;
+					// 		if(v.is_affiliate != undefined) return false;
+					// 	}
+					// 	return true;
+					// })
+					.map(v=> v.login);
+					console.log("LOAD BATCH", JSON.parse(JSON.stringify(twitchUserBatchToLoad)));
+					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined).then(async (res) => {
 						user = user!;
 						if(res.length > 0) {
-							user.id = res[0].id;
-							user.login = res[0].login;
-							user.displayName = res[0].display_name;
-							user.is_partner = res[0].broadcaster_type == "partner";
-							user.is_affiliate = user.is_partner || res[0].broadcaster_type == "affiliate";
-							user.avatarPath = res[0].profile_image_url;
-							if(user.temporary) {
-								delete user.temporary;
-								this.users.push(user);
-								await this.checkFollowerState(user);
-								await this.checkPronouns(user);
+							for (let i = 0; i < res.length; i++) {
+								const u = res[i];
+								let index = twitchUserBatchToLoad.findIndex(v => v.login === u.login);
+								const user = twitchUserBatchToLoad.splice(index, 1)[0];
+								if(!user) {
+									console.warn("Could not load back the user \""+u.login+"\" from the batch ref");
+									continue;
+								}
+								user.id = u.id;
+								user.login = u.login;
+								user.displayName = u.display_name;
+								user.is_partner = u.broadcaster_type == "partner";
+								user.is_affiliate = user.is_partner || u.broadcaster_type == "affiliate";
+								user.avatarPath = u.profile_image_url;
+								if(user.temporary) {
+									delete user.temporary;
+									this.users.push(user);
+									this.checkFollowerState(user);
+									this.checkPronouns(user);
+									if(loadCallback) loadCallback(user);
+								}
 							}
-							if(loadCallback) loadCallback(user);
 						}
 					});
 				}, 500);
+				//Only batch requests by login
+				if(!id && login) {
+					twitchUserBatchToLoad.push(user);
+					console.log("CLEAR TIMEOUT", twitchUserBatchToLoad.length);
+					if(twitchUserBatchTimeout > -1) clearTimeout(twitchUserBatchTimeout);
+					twitchUserBatchTimeout = to;
+				}
 			}
 			
 			//Attribute a random color to the user (overwrite that externally if necessary)
 			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 
-			if(!user.temporary) {
+			if(user.temporary != true) {
 				this.users.push(user);
 				this.checkFollowerState(user);
 				this.checkPronouns(user);
+				if(loadCallback) loadCallback(user);
 			}
 			user.is_tracked = false;
 			return user;

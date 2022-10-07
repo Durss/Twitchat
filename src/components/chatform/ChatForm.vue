@@ -703,7 +703,7 @@ export default class ChatForm extends Vue {
 				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 				noticeMessage = "This command needs to be migrated to new Twitchat's data model...";
 			}catch(error) {
-				this.$store("main").alert = "Invalid or missing JSON";
+				this.$store("main").alert("Invalid or missing JSON");
 			}
 			this.message = "";
 		}else
@@ -735,7 +735,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/userdata" || cmd == "/loaduserdata") {
 			if(params.length == 0) {
-				this.$store("main").alert = "Missing user name";
+				this.$store("main").alert("Missing user name");
 			}else{
 				this.loading = true;
 				let users:TwitchDataTypes.UserInfo[] = [];
@@ -744,7 +744,7 @@ export default class ChatForm extends Vue {
 				}catch(error) {}
 
 				if(users.length == 0) {
-					this.$store("main").alert = "User not found";
+					this.$store("main").alert("User not found");
 				}else{
 					const options = {
 						method: "GET",
@@ -766,7 +766,7 @@ export default class ChatForm extends Vue {
 							window.open(url, "_blank");
 						}
 					}else{
-						this.$store("main").alert = "Unable to load user data";
+						this.$store("main").alert("Unable to load user data");
 					}
 				}
 				this.loading = false;

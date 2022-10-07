@@ -32,7 +32,7 @@ export const storeMain = defineStore("main", {
 		devmode: false,
 		canSplitView: false,
 		ahsInstaller: null,
-		alert:"",
+		alertData:"",
 		tooltip: "",
 		cypherKey: "",
 		cypherEnabled: false,
@@ -86,7 +86,7 @@ export const storeMain = defineStore("main", {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
 			}catch(error) {
-				this.alert = "Unable to contact server :(";
+				this.alertData = "Unable to contact server :(";
 				this.initComplete = true;
 				return;
 			}
@@ -118,7 +118,7 @@ export const storeMain = defineStore("main", {
 				if(raider) {
 					sChat.shoutout(raider);
 				}else{
-					this.showAlert("You have not been raided yet");
+					this.alert("You have not been raided yet");
 				}
 			});
 			
@@ -178,7 +178,7 @@ export const storeMain = defineStore("main", {
 				for (const key in values) {
 					const p = values[key] as TwitchatDataTypes.ParameterData;
 					if(uniqueIdsCheck[p.id as number] === true) {
-						this.alert = "Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"";
+						this.alertData = "Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"";
 						break;
 					}
 					uniqueIdsCheck[p.id as number] = true;
@@ -191,7 +191,7 @@ export const storeMain = defineStore("main", {
 				//@ts-ignore
 				const v = TriggerTypes[key];
 				if(uniqueIdsCheck[v] === true) {
-					this.alert = "Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"";
+					this.alertData = "Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"";
 					break;
 				}
 				uniqueIdsCheck[v] = true;
@@ -207,14 +207,14 @@ export const storeMain = defineStore("main", {
 					sMusic.setSpotifyToken(e.token!);
 				});
 				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
-					this.alert = e.error as string;
+					this.alertData = e.error as string;
 				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
 					sMusic.setDeezerConnected(true);
 				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
 					sMusic.setDeezerConnected(false);
-					this.alert = "Deezer authentication failed";
+					this.alertData = "Deezer authentication failed";
 				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
 					//Execute trigger
@@ -431,7 +431,7 @@ export const storeMain = defineStore("main", {
 				if(botMessages) {
 					//Merge remote and local to avoid losing potential new
 					//default values on local data
-					Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, true);
+					Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
 				}
 
 				//Init spotify connection
@@ -496,7 +496,7 @@ export const storeMain = defineStore("main", {
 			}
 		},
 
-		showAlert(message:string) { this.alert = message; },
+		alert(message:string) { this.alertData = message; },
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {
 			return <Promise<T|undefined>>new Promise((resolve, reject) => {

@@ -515,7 +515,7 @@ export default class Chat extends Vue {
 				try {
 					await TwitchUtils.endPoll(poll.id);
 				}catch(error) {
-					this.$store("main").alert = "An error occurred while deleting the poll";
+					this.$store("main").alertData = "An error occurred while deleting the poll";
 				}
 				break;
 			}
@@ -531,7 +531,7 @@ export default class Chat extends Vue {
 				try {
 					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					this.$store("main").alert = "An error occurred while deleting the prediction";
+					this.$store("main").alertData = "An error occurred while deleting the prediction";
 				}
 				break;
 			}

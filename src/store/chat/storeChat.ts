@@ -607,6 +607,7 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 			}
+			console.log("DELETED !");
 			this.messages = list;
 		},
 
@@ -689,7 +690,7 @@ export const storeChat = defineStore('chat', {
 				}
 			}else{
 				//Warn user doesn't exist
-				StoreProxy.main.alert = "User "+user+" doesn't exist.";
+				StoreProxy.main.alertData = "User "+user+" doesn't exist.";
 			}
 		},
 		

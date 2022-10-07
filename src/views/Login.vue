@@ -160,7 +160,7 @@ export default class Login extends Vue {
 				const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
-					this.$store("main").alert = csrf.message;
+					this.$store("main").alertData = csrf.message;
 					this.authenticating = false;
 				}else{
 					this.$store("auth").authenticate({code, cb:(success:boolean)=> {
@@ -176,13 +176,13 @@ export default class Login extends Vue {
 								this.$router.push({name:"chat"});
 							}
 						}else{
-							this.$store("main").alert = "Invalid credentials";
+							this.$store("main").alertData = "Invalid credentials";
 							this.authenticating = false;
 						}
 					}});
 				}
 			}else{
-				this.$store("main").alert = "You refused access to the Twitch application.";
+				this.$store("main").alertData = "You refused access to the Twitch application.";
 				this.authenticating = false;
 			}
 		}
@@ -199,7 +199,7 @@ export default class Login extends Vue {
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {
-			this.$store("main").alert = "An error occured while generating a CSRF token";
+			this.$store("main").alertData = "An error occured while generating a CSRF token";
 		}
 		this.generatingCSRF = false;
 	}

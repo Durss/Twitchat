@@ -109,7 +109,7 @@ export default class StreamInfoForm extends Vue {
 			const tags = await TwitchUtils.getStreamTags();
 			this.tags = tags;
 		}catch(error) {
-			this.$store("main").alert = "Error loading current stream info";
+			this.$store("main").alert("Error loading current stream info");
 		}
 
 		this.loading = false;
@@ -158,7 +158,7 @@ export default class StreamInfoForm extends Vue {
 				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id));
 				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id);
 			}catch(error) {
-				this.$store("main").alert = "Error updating stream info";
+				this.$store("main").alert("Error updating stream info");
 			}
 		}else {
 			this.presetEditing = null;
@@ -195,7 +195,7 @@ export default class StreamInfoForm extends Vue {
 				this.tags = [];
 			}
 		}catch(error) {
-			this.$store("main").alert = "Error loading current stream info";
+			this.$store("main").alert("Error loading current stream info");
 		}
 
 		this.loading = false;
@@ -207,7 +207,7 @@ export default class StreamInfoForm extends Vue {
 			await TwitchUtils.setStreamTags(p.tagIDs as string[]);
 			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string);
 		}catch(error) {
-			this.$store("main").alert = "Error updating stream info";
+			this.$store("main").alert("Error updating stream info");
 		}
 		this.saving = false;
 	}

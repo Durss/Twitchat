@@ -42,7 +42,7 @@ export interface IMainState {
 	devmode: boolean;
 	canSplitView: boolean;
 	ahsInstaller: TwitchatDataTypes.InstallHandler|null;
-	alert: string;
+	alertData: string;
 	tooltip: string;
 	cypherKey: string;
 	cypherEnabled: boolean;
@@ -58,7 +58,7 @@ export interface IMainGetters {
 export interface IMainActions {
 	startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}):Promise<void>
 	loadDataFromStorage(authenticated?:boolean):void;
-	showAlert(message:string):void;
+	alert(message:string):void;
 	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
 	closeConfirm():void;
 	openTooltip(payload:string):void;

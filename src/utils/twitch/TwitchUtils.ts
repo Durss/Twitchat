@@ -413,14 +413,26 @@ export default class TwitchUtils {
 	 */
 	public static async loadChannelInfo(uids:string[]):Promise<TwitchDataTypes.ChannelInfo[]> {
 		let channels:TwitchDataTypes.ChannelInfo[] = [];
+		let fails:string[] = [];
 		//Split by 100 max to comply with API limitations
 		while(uids.length > 0) {
 			const param = "broadcaster_id";
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
-			const result = await fetch(url, { headers:this.headers });
-			const json = await result.json();
-			channels = channels.concat(json.data);
+			try {
+				const result = await fetch(url, { headers:this.headers });
+				const json = await result.json();
+				if(!json.error) {
+					channels = channels.concat(json.data);
+				}else{
+					fails = fails.concat(uids);
+				}
+			}catch(error) {
+				fails = fails.concat(uids);
+			}
+		}
+		if(fails.length > 0) {
+			StoreProxy.main.alert("Unable to load user info: "+ fails);
 		}
 		return channels;
 	}

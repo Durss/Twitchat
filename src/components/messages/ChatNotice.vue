@@ -3,7 +3,7 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
-		<span class="message" v-html="text"></span>
+		<span class="message" v-html="message"></span>
 	</div>
 </template>
 
@@ -28,16 +28,11 @@ export default class ChatNotice extends Vue {
 	/**
 	 * Gets text message with parsed emotes
 	 */
-	public get text():string {
-		let text = this.messageData.message;
-		if(text){
+	public get message():string {
+		let text = this.messageData.message ?? "";
 			text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 			text = text.replace(/&lt;(\/)?strong&gt;/gi, "<$1strong>");//Allow <strong> tags
 			text = text.replace(/&lt;(\/)?mark&gt;/gi, "<$1mark>");//Allow <mark> tags
-		}else{
-			text = "";
-		}
-		
 		return text;
 	}
 
@@ -60,7 +55,7 @@ export default class ChatNotice extends Vue {
 			case TwitchatDataTypes.TwitchatNoticeType.OFFLINE:			this.icon = "leave"; break;
 			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
 		}
-		this.$emit("ariaMessage", this.text);
+		this.$emit("ariaMessage", this.message);
 	}
 
 	public copyJSON():void {

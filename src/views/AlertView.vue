@@ -17,13 +17,13 @@ export default class AlertView extends Vue {
 	
 	public mounted():void {
 		this.onWatchAlert();
-		watch(() => this.$store("main").alert, () => {
+		watch(() => this.$store("main").alertData, () => {
 			this.onWatchAlert();
 		});
 	}
 
 	public async onWatchAlert():Promise<void> {
-		let mess = this.$store("main").alert;
+		let mess = this.$store("main").alertData;
 		if(mess && mess.length > 0) {
 			this.message = mess;
 			await this.$nextTick();
@@ -40,7 +40,7 @@ export default class AlertView extends Vue {
 
 	public close():void {
 		clearTimeout(this.timeout);
-		this.$store("main").alert = "";
+		this.$store("main").alertData = "";
 	}
 }
 </script>

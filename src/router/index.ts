@@ -98,7 +98,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 				sMusic.setSpotifyAuthResult(params);
 			}else{
-				sMain.alert = "You refused to grant access to your Spotify account";
+				sMain.alertData = "You refused to grant access to your Spotify account";
 			}
 			return {name:"chat"}
 		},

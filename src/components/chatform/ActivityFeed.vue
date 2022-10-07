@@ -23,6 +23,12 @@
 					:data-index="index"
 					:lightMode="true" />
 
+				<ChatJoinLeave class="message"
+					:messageData="m"
+					v-if="m.type == 'join' || m.type == 'leave'"
+					:ref="'message_'+m.id"
+				/>
+
 				<ChatPollResult
 					class="message"
 					ref="message"
@@ -67,6 +73,13 @@
 					:result="m"
 					:filtering="customActivities.length > 0"
 					@setCustomActivities="(list:any[])=> customActivities = list"/>
+					
+				<ChatNotice
+					v-else-if="m.type == 'notice'"
+					class="message"
+					:messageData="m"
+					:ref="'message_'+m.id"
+					/>
 
 				<ChatHighlight
 					class="message"
@@ -97,6 +110,7 @@ import ChatPollResult from '../messages/ChatPollResult.vue';
 import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
+import ChatJoinLeave from '../messages/ChatJoinLeave.vue';
 
 @Options({
 	props:{
@@ -110,6 +124,7 @@ import ActivityFeedFilters from './ActivityFeedFilters.vue';
 		ChatNotice,
 		ChatMessage,
 		ChatHighlight,
+		ChatJoinLeave,
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
@@ -144,7 +159,7 @@ export default class ActivityFeed extends Vue {
 	}
 	
 	public get messages():TwitchatDataTypes.ChatMessageTypes[] {
-		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").messages;
+		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").activityFeed;
 
 		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
 
@@ -329,7 +344,6 @@ export default class ActivityFeed extends Vue {
 	}
 
 	.messageList{
-		font-size: 12px;
 		max-height: 50vh;
 		min-height: 30px;
 		overflow-y: auto;

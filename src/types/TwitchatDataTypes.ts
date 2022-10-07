@@ -794,11 +794,12 @@ export namespace TwitchatDataTypes {
 		viewers:number;
 	}
 
+	//Only for incoming raids
 	export interface MessageRaidData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"raid";
 		user:TwitchatUser;
-		raid:RaidInfo;
+		viewers:number;
 	}
 
 	export interface MessageJoinData extends AbstractTwitchatMessage {

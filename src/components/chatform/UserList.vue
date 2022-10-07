@@ -137,6 +137,7 @@ export default class UserList extends Vue {
 	private updateList():void {
 		let res:TwitchatDataTypes.TwitchatUser[] = [];
 		const users = this.$store("users").users;
+		console.log(users);
 		for (let j = 0; j < users.length; j++) {
 			const user = users[j];
 			if(user.online) res.push(user);

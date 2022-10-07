@@ -36,7 +36,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	static get instance():TwitchMessengerClient {
 		if(!TwitchMessengerClient._instance) {
 			TwitchMessengerClient._instance = new TwitchMessengerClient();
-			TwitchMessengerClient._instance.initialize();
 		}
 		return TwitchMessengerClient._instance;
 	}
@@ -69,9 +68,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(async ()=>{
-			const chans = await TwitchUtils.loadChannelInfo(this._connectedChannels);
+			const chans = await TwitchUtils.loadUserInfo(undefined, this._connectedChannels);
+			if(chans.length === 0) {
+				StoreProxy.main.alert("Unable to load user info: "+ this._connectedChannels);
+				return;
+			}
 			chans.forEach(v=> {
-				this._channelLoginToId[v.broadcaster_login] = v.broadcaster_id;
+				this._channelLoginToId[v.login] = v.id;
 			})
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
@@ -86,11 +89,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					this._connectedAnonymously = true;
 				}else{
 					options.identity = {
-						username: this.credentials.username,
+						username: this._credentials.username,
 						password: "oauth:"+this._credentials?.token,
 					};
 				}
 				this._client = new tmi.Client(options);
+				this._client.connect();
 				this.initialize();
 			}else{
 				//Already connected to IRC, add channel to the list
@@ -167,7 +171,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				let color = cmd.replace("/announce", "");
 				if(color.length === 0) color = "primary";
 				if(["blue","green","orange","purple","primary"].indexOf(color) === -1) {
-					StoreProxy.main.showAlert("Invalid announcement color");
+					StoreProxy.main.alert("Invalid announcement color");
 					return;
 				}
 				cmd = "/announce";
@@ -179,7 +183,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				try {
 					res = await TwitchUtils.loadUserInfo(undefined, [login])
 				}catch(error) {
-					StoreProxy.main.showAlert("User @"+login+" not found on Twitch.");
+					StoreProxy.main.alert("User @"+login+" not found on Twitch.");
 					return null;
 				}
 				return res[0];
@@ -277,22 +281,22 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	* PRIVATE METHODS *
 	*******************/
 	private async initialize():Promise<void> {
-		this._client.on('message', this.message);
-		this._client.on("join", this.onJoin);
-		this._client.on("part", this.onLeave);
-		this._client.on('cheer', this.onCheer);
-		this._client.on('resub', this.resub);
-		this._client.on('subscription', this.subscription);
-		this._client.on('subgift', this.subgift);
-		this._client.on('anonsubgift', this.anonsubgift);
-		this._client.on('giftpaidupgrade', this.giftpaidupgrade);
-		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade);
-		this._client.on("ban", this.ban);
-		this._client.on("timeout", this.timeout);
-		this._client.on("raided", this.raided);
-		this._client.on("disconnected", this.disconnected);
-		this._client.on("clearchat", this.clearchat);
-		this._client.on('raw_message', this.raw_message);
+		this._client.on('message', this.message.bind(this));
+		this._client.on("join", this.onJoin.bind(this));
+		// this._client.on("part", this.onLeave.bind(this));
+		// this._client.on('cheer', this.onCheer.bind(this));
+		// this._client.on('resub', this.resub.bind(this));
+		// this._client.on('subscription', this.subscription.bind(this));
+		// this._client.on('subgift', this.subgift.bind(this));
+		// this._client.on('anonsubgift', this.anonsubgift.bind(this));
+		// this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
+		// this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
+		// this._client.on("ban", this.ban.bind(this));
+		// this._client.on("timeout", this.timeout.bind(this));
+		// this._client.on("raided", this.raided.bind(this));
+		// this._client.on("disconnected", this.disconnected.bind(this));
+		// this._client.on("clearchat", this.clearchat.bind(this));
+		// this._client.on('raw_message', this.raw_message.bind(this));
 
 		let hashmap:{[key:string]:boolean} = {};
 		try {
@@ -339,8 +343,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate):TwitchatDataTypes.TwitchatUser {
 		const login = tags.username ?? tags["display-name"];
+		console.log(tags);
 		
-		const user			= StoreProxy.users.getUserFrom("twitch", tags.id, login, tags["display-name"]);
+		const user			= StoreProxy.users.getUserFrom("twitch", tags["user-id"], login, tags["display-name"]);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip			= tags.badges?.vip != undefined;
 		const isSub			= tags.badges?.subscriber != undefined || tags.subscriber === true;
@@ -399,7 +404,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Search if a user with this name and source exists on store
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
-		return StoreProxy.users.getUserFrom("twitch", undefined, login);
+		const user			= StoreProxy.users.getUserFrom("twitch", undefined, login);
+		user.online			= true;
+		user.is_partner		= false;
+		user.is_affiliate	= false;
+		return user;
 	}
 	
 	/**
@@ -600,14 +609,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this.notice(TwitchatDataTypes.TwitchatNoticeType.ONLINE, channel, "Welcome to the chat room "+channel+"!");
 			this._reconnecting = false;
 		}
-		this.dispatchEvent(new MessengerClientEvent("JOIN", {
-			platform:"twitch",
-			type:"join",
-			id:Utils.getUUID(),
-			channel_id:this.getChannelID(channel),
-			date:Date.now(),
-			users:[this.getUserFromLogin(user)],
-		}));
+		this.getUserFromLogin(user);
+		// console.log("JOIN", this.getUserFromLogin(user));
+		// this.dispatchEvent(new MessengerClientEvent("JOIN", {
+		// 	platform:"twitch",
+		// 	type:"join",
+		// 	id:Utils.getUUID(),
+		// 	channel_id:this.getChannelID(channel),
+		// 	date:Date.now(),
+		// 	users:[this.getUserFromLogin(user)],
+		// }));
 	}
 
 	private onLeave(channel:string, user:string):void {

@@ -65,17 +65,18 @@ export default class DataServerSyncModal extends Vue {
 	public isNewUser:boolean = true;
 	public loading:boolean = true;
 	public uploading:boolean = false;
-	public sync_param:TwitchatDataTypes.ParameterData = JSON.parse(JSON.stringify(this.$store("account").syncDataWithServer));
+	public sync_param:TwitchatDataTypes.ParameterData|null = null;
 	public upload_param:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"Upload current data", tooltip:"Do you want to overwrite remote<br>params with current params?" };
 
 	public async mounted():Promise<void> {
 		gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
+		this.sync_param = JSON.parse(JSON.stringify(this.$store("account").syncDataWithServer));
 
 		this.isNewUser = !await DataStore.loadRemoteData(false);
 		if(!this.isNewUser) {
-			this.sync_param.children = [this.upload_param];
+			this.sync_param!.children = [this.upload_param];
 		}
 		this.loading = false;
 	}
@@ -94,7 +95,7 @@ export default class DataServerSyncModal extends Vue {
 			await DataStore.save(true);
 		}
 		await DataStore.loadRemoteData(true);
-		DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.sync_param.value);
+		DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.sync_param!.value);
 		this.$store("main").loadDataFromStorage();
 		this.close();
 		this.uploading = false;

@@ -167,7 +167,7 @@ export default class DataStore {
 			};
 			const res = await fetch(Config.instance.API_PATH+"/user", {method:"GET", headers});
 			if(importToLS) {
-				console.log("Import to local storage...");
+				// console.log("Import to local storage...");
 				//Import data to local storage.
 				const json = await res.json();
 				if(json.success === true) {

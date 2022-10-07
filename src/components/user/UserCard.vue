@@ -67,7 +67,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
+import { watch, watchEffect } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -103,9 +103,10 @@ export default class UserCard extends Vue {
 
 	public mounted():void {
 		const sUsers = storeUsers();
-		watch(() => this.$store("users").userCard, () => {
-			this.myFollowings = sUsers.myFollowings.twitchat;
+		watchEffect(() => {
+			this.myFollowings = sUsers.myFollowings.twitch;
 			this.user = this.$store("users").userCard;
+			this.loadUserInfo();
 		});
 
 		this.keyUpHandler = (e:KeyboardEvent):void => this.onKeyUp(e);
@@ -113,7 +114,6 @@ export default class UserCard extends Vue {
 	}
 
 	public beforeUnmount():void {
-		this.$store("users").openUserCard(null);
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
@@ -124,7 +124,6 @@ export default class UserCard extends Vue {
 	public async loadUserInfo():Promise<void> {
 		this.error = false;
 		this.loading = true;
-		this.user = null;
 		this.followDate = "";
 		this.createDate = "";
 		this.followInfo = null;
@@ -140,6 +139,7 @@ export default class UserCard extends Vue {
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.followInfo = await TwitchUtils.getFollowInfo(this.user.id);
 				this.userDescription = u.description;
+				this.user.avatarPath = u.profile_image_url;
 				if(this.followInfo) {
 					this.followDate = Utils.formatDate(new Date(this.followInfo.followed_at));
 				}
@@ -325,6 +325,7 @@ export default class UserCard extends Vue {
 			display: block;
 			width: 2em;
 			height: 2em;
+			margin-top: 1em;
 		}
 
 		.error, .warn {
