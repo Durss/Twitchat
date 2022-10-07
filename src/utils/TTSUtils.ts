@@ -397,7 +397,7 @@ export default class TTSUtils {
 				if(!paramsTTS.readRaids) return "";
 
 				let txt = paramsTTS.readRaidsPattern.replace(/\{USER\}/gi, message.user.displayName);
-				txt = txt.replace(/\{VIEWERS\}/gi, (message.raid.viewerCount).toString());
+				txt = txt.replace(/\{VIEWERS\}/gi, (message.viewers).toString());
 				return txt;
 			}
 
@@ -487,7 +487,7 @@ export default class TTSUtils {
 		}
 
 		if(skipMessage) {
-			//Should ignore the message? Ignore it andprocess the next one
+			//Ignore this message and process the next one
 			this.pendingMessages.shift();
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
@@ -521,7 +521,10 @@ export default class TTSUtils {
 				}, paramsTTS.maxDuration * 1000);
 			}
 		}else{
-			this.readNextMessage();
+			this.pendingMessages.shift();
+			//SetTimeout is here to avoid potential recursion overflow
+			//if there are too many expired pending messages
+			setTimeout(() => { this.readNextMessage(); }, 10);
 		}
 	}
 
