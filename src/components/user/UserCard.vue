@@ -132,14 +132,17 @@ export default class UserCard extends Vue {
 		this.commonFollowCount = 0;
 		try {
 			this.user = this.user!;
-			const users = await TwitchUtils.loadUserInfo([this.user!.id]);
+			const loadFromLogin = this.user.id.indexOf("temporary") === 0;
+			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [this.user.id], loadFromLogin? [this.user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
-				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([this.user.id]))[0];
+				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([u.id]))[0];
 				this.createDate = Utils.formatDate(new Date(u.created_at));
-				this.followInfo = await TwitchUtils.getFollowInfo(this.user.id);
+				this.followInfo = await TwitchUtils.getFollowInfo(u.id);
 				this.userDescription = u.description;
 				this.user.avatarPath = u.profile_image_url;
+				this.user.id = u.id;
+				this.user.displayName = u.display_name;
 				if(this.followInfo) {
 					this.followDate = Utils.formatDate(new Date(this.followInfo.followed_at));
 				}

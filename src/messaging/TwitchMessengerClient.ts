@@ -189,38 +189,36 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				return res[0];
 			}
 
-			let prom!:Promise<boolean>;
-
 			switch(cmd) {
-				case "/announce": prom = TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
+				case "/announce": await TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) prom = TwitchUtils.banUser(user.id, undefined, chunks.splice(1).join(" "));
+					if(user) await TwitchUtils.banUser(user.id, undefined, chunks.splice(1).join(" "));
 					break;
 				}
 				case "/unban": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) prom = TwitchUtils.unbanUser(user.id);
+					if(user) await TwitchUtils.unbanUser(user.id);
 					break;
 				}
 				case "/block":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) prom = TwitchUtils.blockUser(user.id);
+					if(user) await TwitchUtils.blockUser(user.id);
 					break;
 				}
 				case "/unblock": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) prom = TwitchUtils.unblockUser(user.id);
+					if(user) await TwitchUtils.unblockUser(user.id);
 					break;
 				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) prom = TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
+					if(user) await TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
 					break;
 				}
 				case "/untimeout": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) prom = TwitchUtils.unbanUser(user.id);
+					if(user) await TwitchUtils.unbanUser(user.id);
 					break;
 				}
 				case "/commercial": {
@@ -238,27 +236,27 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						}
 					}).catch(()=>{/*ignore*/});
 				}
-				case "/delete": prom = TwitchUtils.deleteMessages(chunks[0]); break;
-				case "/clear": prom = TwitchUtils.deleteMessages(); break;
-				case "/color": prom = TwitchUtils.setColor(chunks[0]); break;
-				case "/emoteonly": prom = TwitchUtils.setRoomSettings({emotesOnly:true}); break;
-				case "/emoteonlyoff": prom = TwitchUtils.setRoomSettings({emotesOnly:false}); break;
-				case "/followers": prom = TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); break;
-				case "/followersoff": prom = TwitchUtils.setRoomSettings({followOnly:0}); break;
-				case "/slow": prom = TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); break;
-				case "/slowoff": prom = TwitchUtils.setRoomSettings({slowMode:0}); break;
-				case "/subscribers": prom = TwitchUtils.setRoomSettings({subOnly:true}); break;
-				case "/subscribersoff": prom = TwitchUtils.setRoomSettings({subOnly:false}); break;
-				case "/mod": prom = TwitchUtils.addRemoveModerator(false, undefined, chunks[0]); break;
-				case "/unmod": prom = TwitchUtils.addRemoveModerator(true, undefined, chunks[0]); break;
-				case "/raid": prom = TwitchUtils.raidChannel(chunks[0]); break;
-				case "/unraid": prom = TwitchUtils.raidCancel(); break;
-				case "/vip": prom = TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); break;
-				case "/unvip": prom = TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); break;
+				case "/delete": await TwitchUtils.deleteMessages(chunks[0]); break;
+				case "/clear": await TwitchUtils.deleteMessages(); break;
+				case "/color": await TwitchUtils.setColor(chunks[0]); break;
+				case "/emoteonly": await TwitchUtils.setRoomSettings({emotesOnly:true}); break;
+				case "/emoteonlyoff": await TwitchUtils.setRoomSettings({emotesOnly:false}); break;
+				case "/followers": await TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); break;
+				case "/followersoff": await TwitchUtils.setRoomSettings({followOnly:0}); break;
+				case "/slow": await TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); break;
+				case "/slowoff": await TwitchUtils.setRoomSettings({slowMode:0}); break;
+				case "/subscribers": await TwitchUtils.setRoomSettings({subOnly:true}); break;
+				case "/subscribersoff": await TwitchUtils.setRoomSettings({subOnly:false}); break;
+				case "/mod": await TwitchUtils.addRemoveModerator(false, undefined, chunks[0]); break;
+				case "/unmod": await TwitchUtils.addRemoveModerator(true, undefined, chunks[0]); break;
+				case "/raid": await TwitchUtils.raidChannel(chunks[0]); break;
+				case "/unraid": await TwitchUtils.raidCancel(); break;
+				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); break;
+				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); break;
 				case "/whiser":
 				case "/w": {
 					const login = chunks[0];
-					prom = TwitchUtils.whisper(chunks.splice(1).join(" "), login);
+					await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 					break;
 				}
 
@@ -269,6 +267,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/mods": return;
 				case "/vips": return;
 			}
+
 		}
 
 		this._client.say(UserSession.instance.twitchUser!.login, text);
@@ -283,20 +282,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private async initialize():Promise<void> {
 		this._client.on('message', this.message.bind(this));
 		this._client.on("join", this.onJoin.bind(this));
-		// this._client.on("part", this.onLeave.bind(this));
-		// this._client.on('cheer', this.onCheer.bind(this));
-		// this._client.on('resub', this.resub.bind(this));
-		// this._client.on('subscription', this.subscription.bind(this));
-		// this._client.on('subgift', this.subgift.bind(this));
-		// this._client.on('anonsubgift', this.anonsubgift.bind(this));
-		// this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
-		// this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
-		// this._client.on("ban", this.ban.bind(this));
-		// this._client.on("timeout", this.timeout.bind(this));
-		// this._client.on("raided", this.raided.bind(this));
-		// this._client.on("disconnected", this.disconnected.bind(this));
-		// this._client.on("clearchat", this.clearchat.bind(this));
-		// this._client.on('raw_message', this.raw_message.bind(this));
+		this._client.on("part", this.onLeave.bind(this));
+		this._client.on('cheer', this.onCheer.bind(this));
+		this._client.on('resub', this.resub.bind(this));
+		this._client.on('subscription', this.subscription.bind(this));
+		this._client.on('subgift', this.subgift.bind(this));
+		this._client.on('anonsubgift', this.anonsubgift.bind(this));
+		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
+		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
+		this._client.on("ban", this.ban.bind(this));
+		this._client.on("timeout", this.timeout.bind(this));
+		this._client.on("raided", this.raided.bind(this));
+		this._client.on("disconnected", this.disconnected.bind(this));
+		this._client.on("clearchat", this.clearchat.bind(this));
+		this._client.on('raw_message', this.raw_message.bind(this));
 
 		let hashmap:{[key:string]:boolean} = {};
 		try {
@@ -343,7 +342,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate):TwitchatDataTypes.TwitchatUser {
 		const login = tags.username ?? tags["display-name"];
-		console.log(tags);
 		
 		const user			= StoreProxy.users.getUserFrom("twitch", tags["user-id"], login, tags["display-name"]);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
@@ -452,6 +450,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//To workaround this issue, we just store the message on a queue, and
 			//wait for a NOTICE event that gives us the message ID in which case
 			//we pop the message from the queue
+			console.log("QUEUE");
 			this._queuedMessages.push({message, tags, self, channel});
 			return;
 		}
@@ -610,15 +609,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._reconnecting = false;
 		}
 		this.getUserFromLogin(user);
-		// console.log("JOIN", this.getUserFromLogin(user));
-		// this.dispatchEvent(new MessengerClientEvent("JOIN", {
-		// 	platform:"twitch",
-		// 	type:"join",
-		// 	id:Utils.getUUID(),
-		// 	channel_id:this.getChannelID(channel),
-		// 	date:Date.now(),
-		// 	users:[this.getUserFromLogin(user)],
-		// }));
+		
+		this.dispatchEvent(new MessengerClientEvent("JOIN", {
+			platform:"twitch",
+			type:"join",
+			id:Utils.getUUID(),
+			channel_id:this.getChannelID(channel),
+			date:Date.now(),
+			users:[this.getUserFromLogin(user)],
+		}));
 	}
 
 	private onLeave(channel:string, user:string):void {
@@ -789,12 +788,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 			case "USERSTATE": {
 				TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
+
+				//Check if it contains a message ID
+				const d = data as tmi.UserNoticeState;
+				let id = (d.raw as string).split(";").find(v=>v.indexOf("id=") === 0);
+				if(id) id = id.split("=")[1];
 				
 				//If there are messages pending for their ID, give the oldest one the received ID
-				if((data as tmi.UserNoticeState).tags.id && this._queuedMessages.length > 0) {
+				if(id && this._queuedMessages.length > 0) {
 					const m = this._queuedMessages.shift();
 					if(m) {
-						(m.tags as tmi.ChatUserstate).id = (data as tmi.UserNoticeState).tags.id;
+						(m.tags as tmi.ChatUserstate).id = id;
 						(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
 						this.message(m.channel, m.tags as tmi.ChatUserstate, m.message, m.self);
 					}

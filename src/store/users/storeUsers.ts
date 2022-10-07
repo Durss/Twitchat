@@ -126,7 +126,7 @@ export const storeUsers = defineStore('users', {
 				//this method, then populates the is_partner and is_affiliate and
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
-				console.log("Schedule batch...",id, login, twitchUserBatchToLoad.length);
+				const batchMode = !id && login;
 				const to = setTimeout(()=> {
 					if(!user!.temporary) {
 						//User not pending for necessary data loading, check if the
@@ -147,39 +147,37 @@ export const storeUsers = defineStore('users', {
 					// 	return true;
 					// })
 					.map(v=> v.login);
-					console.log("LOAD BATCH", JSON.parse(JSON.stringify(twitchUserBatchToLoad)));
 					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined).then(async (res) => {
 						user = user!;
 						if(res.length > 0) {
 							for (let i = 0; i < res.length; i++) {
 								const u = res[i];
 								let index = twitchUserBatchToLoad.findIndex(v => v.login === u.login);
-								const user = twitchUserBatchToLoad.splice(index, 1)[0];
-								if(!user) {
+								const userLocal = !batchMode? user : twitchUserBatchToLoad.splice(index, 1)[0];
+								if(!userLocal) {
 									console.warn("Could not load back the user \""+u.login+"\" from the batch ref");
 									continue;
 								}
-								user.id = u.id;
-								user.login = u.login;
-								user.displayName = u.display_name;
-								user.is_partner = u.broadcaster_type == "partner";
-								user.is_affiliate = user.is_partner || u.broadcaster_type == "affiliate";
-								user.avatarPath = u.profile_image_url;
-								if(user.temporary) {
-									delete user.temporary;
-									this.users.push(user);
-									this.checkFollowerState(user);
-									this.checkPronouns(user);
-									if(loadCallback) loadCallback(user);
+								userLocal.id = u.id;
+								userLocal.login = u.login;
+								userLocal.displayName = u.display_name;
+								userLocal.is_partner = u.broadcaster_type == "partner";
+								userLocal.is_affiliate = userLocal.is_partner || u.broadcaster_type == "affiliate";
+								userLocal.avatarPath = u.profile_image_url;
+								if(userLocal.temporary) {
+									delete userLocal.temporary;
+									this.users.push(userLocal);
+									this.checkFollowerState(userLocal);
+									this.checkPronouns(userLocal);
+									if(loadCallback) loadCallback(userLocal);
 								}
 							}
 						}
 					});
 				}, 500);
 				//Only batch requests by login
-				if(!id && login) {
+				if(batchMode) {
 					twitchUserBatchToLoad.push(user);
-					console.log("CLEAR TIMEOUT", twitchUserBatchToLoad.length);
 					if(twitchUserBatchTimeout > -1) clearTimeout(twitchUserBatchTimeout);
 					twitchUserBatchTimeout = to;
 				}

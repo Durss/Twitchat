@@ -7,7 +7,7 @@
 		
 		<div class="messageHolder">
 			<span class="reason">
-				<span class="username" v-if="user" @click="openUserCard()">{{user}}</span>
+				<span class="username" v-if="user" @click="openUserCard()">{{user.displayName}}</span>
 				<span class="text" v-html="reason"></span>
 			</span>
 			<div class="info" v-if="info" v-html="info"></div>
@@ -145,7 +145,7 @@ export default class ChatHighlight extends Vue {
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID:
-				value = this.messageData.raid.viewerCount;
+				value = this.messageData.viewers;
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
 				this.user = this.messageData.user;
@@ -302,6 +302,7 @@ export default class ChatHighlight extends Vue {
 
 	public copyJSON():void {
 		console.log(this.messageData);
+		this.messageData
 		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
@@ -350,6 +351,7 @@ export default class ChatHighlight extends Vue {
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
 		this.loading = true;
 		this.pStreamInfo = null;
+		console.log("LOOOOAD");
 		try {
 			const streams = await TwitchUtils.loadChannelInfo([this.messageData.user.id]);
 			if(streams && streams.length > 0) {

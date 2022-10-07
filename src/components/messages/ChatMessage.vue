@@ -318,7 +318,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public get isConversation():boolean {
 		if(this.messageData.type == "whisper") return false;
-		return this.messageData.answers != undefined || this.messageData.answersTo != undefined;
+		return this.messageData.answers.length > 0 || this.messageData.answersTo != undefined;
 	}
 
 	/**
@@ -580,6 +580,7 @@ export default class ChatMessage extends Vue {
 	@padding: .25em;
 	padding: @padding;
 	margin-bottom: 1px;
+	color:@mainColor_light;
 
 	&.highlightSubs { background-color: fade(#9147ff, 7%); }
 	&.highlightVips { background-color: fade(#e00bb9, 7%); }

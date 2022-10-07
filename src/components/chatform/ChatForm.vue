@@ -543,13 +543,14 @@ export default class ChatForm extends Vue {
 				if(messageList.length > 0 && Math.random() < .5) {
 					for (let i = 0; i < messageList.length; i++) {
 						const m = messageList[i];
-						if(m.type == "message") {
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 							mess.answersTo = m;
 							m.answers.push(mess);
 							break;
 						}
 					}
 				}
+				sChat.addMessage(mess);
 			}, 250);
 			this.message = "";
 		}else

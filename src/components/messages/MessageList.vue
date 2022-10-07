@@ -746,7 +746,9 @@ export default class MessageList extends Vue {
 
 		this.conversationMode = true;
 
-		if(m.answers) {
+		console.log(m);
+
+		if(m.answers.length > 0) {
 			this.conversation = m.answers.concat();
 			this.conversation.unshift( m );
 		}else if(m.answersTo) {
@@ -877,27 +879,19 @@ export default class MessageList extends Vue {
 		z-index: 100;
 	}
 
-	.message {
-		overflow: hidden;
-		font-family: "Inter";
-		color: #fff;
-		margin: .5em 0;
-		font-size: var(--messageSize);
-	}
-
-	// &.alternateBG:not(.lightMode) {
-		// .holder {
-			//TODO fix switching even/odd problem when deleting/adding messages and enable this back
-			// .subHolder:nth-child(odd) {
-				// background-color: rgba(255, 255, 255, .05);
+	&.alternateBG:not(.lightMode) {
+		.holder {
+			// TODO fix switching even/odd problem when deleting/adding messages and enable this back
+			.subHolder:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .025);
 
 				// .message {
 				// 	display: flex;
 				// 	flex-direction: row-reverse;
 				// }
-			// }
-		// }
-	// }
+			}
+		}
+	}
 
 	.holder {
 		overflow-y: auto;
@@ -940,6 +934,13 @@ export default class MessageList extends Vue {
 				align-items: flex-end;
 				justify-content: space-around;
 				flex-wrap: wrap;
+				font-size: var(--messageSize);
+			}
+			&>.message {
+				overflow: hidden;
+				font-family: "Inter";
+				// color: #fff;
+				margin: .5em 0;
 				font-size: var(--messageSize);
 			}
 		}
@@ -1027,6 +1028,13 @@ export default class MessageList extends Vue {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
+			&>.message {
+				overflow: hidden;
+				font-family: "Inter";
+				// color: #fff;
+				margin: .5em 0;
+				font-size: var(--messageSize);
+			}
 		}
 
 		.readBt {
