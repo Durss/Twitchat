@@ -10,6 +10,12 @@ import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
 let unbanFlagTimeouts:{[key:string]:number} = {};
+let userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
+	idToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
+	loginToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
+	displayNameToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
+}}> = {};
+
 let twitchUserBatchToLoad:TwitchatDataTypes.TwitchatUser[] = [];
 let twitchUserBatchTimeout:number = -1;
 
@@ -73,25 +79,48 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
-			//Search for the requested user
-			//Don't use "users.find(...)", perfs are much lower than good old for() loop
-			//find() takes ~10-15ms for 1M users VS ~3-4ms for the for() loop
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.platform != platform) continue;
-				if(u.id === id) { user = u; break; }
-				if(u.login === login) { user = u; break; }
-				if(u.displayName === displayName) { user = u; break; }
+			//Search for the requested  via hashmaps for fast accesses
+			let hashmap = userMaps[platform];
+			if(!hashmap){
+				hashmap = {
+					idToUser:{},
+					loginToUser:{},
+					displayNameToUser:{},
+				};
+				userMaps[platform] = hashmap;
 			}
-			
-			if(user) return user;
+			if(id && hashmap.idToUser[id])					return hashmap.idToUser[id];
+			if(login && hashmap.loginToUser[login])			return hashmap.loginToUser[login];
+			if(login && hashmap.displayNameToUser[login])	return hashmap.displayNameToUser[login];
 
 			//Create user if enough given info
 			if(!user && id && login) {
 				if(!displayName) displayName = login;
-				user = { platform, id, login, displayName, greeted:false, online:false, messageHistory:[] };
+				user = {
+					platform,
+					id,
+					login,
+					displayName,
+					greeted:false,
+					online:false,
+					is_tracked:false,
+					messageHistory:[],
+					is_following:null,
+					is_blocked:false,
+					is_banned:false,
+					is_vip:false,
+					is_moderator:false,
+					is_broadcaster:false,
+					is_subscriber:false,
+					is_partner:false,
+					is_affiliate:false,
+					is_gifter:false,
+					pronouns:false,
+					pronounsLabel:false,
+					pronounsTooltip:false,
+				};
 				if(this.blockedUsers[platform][id] === true) {
 					user.is_blocked = true;
 				}
@@ -106,8 +135,22 @@ export const storeUsers = defineStore('users', {
 					displayName:displayName??login??"",
 					greeted:false,
 					online:false,
+					is_tracked:false,
 					messageHistory:[],
 					temporary:true,
+					is_following:null,
+					is_blocked:false,
+					is_banned:false,
+					is_vip:false,
+					is_moderator:false,
+					is_broadcaster:false,
+					is_subscriber:false,
+					is_partner:false,
+					is_affiliate:false,
+					is_gifter:false,
+					pronouns:false,
+					pronounsLabel:false,
+					pronounsTooltip:false,
 				};
 			}
 			
@@ -164,10 +207,13 @@ export const storeUsers = defineStore('users', {
 								userLocal.is_partner = u.broadcaster_type == "partner";
 								userLocal.is_affiliate = userLocal.is_partner || u.broadcaster_type == "affiliate";
 								userLocal.avatarPath = u.profile_image_url;
+								if(userLocal.id)			hashmap!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)			hashmap!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)	hashmap!.displayNameToUser[userLocal.displayName] = userLocal;
 								if(userLocal.temporary) {
 									delete userLocal.temporary;
 									this.users.push(userLocal);
-									this.checkFollowerState(userLocal);
+									this.checkFollowerState(userLocal, channelId);
 									this.checkPronouns(userLocal);
 									if(loadCallback) loadCallback(userLocal);
 								}
@@ -188,11 +234,14 @@ export const storeUsers = defineStore('users', {
 
 			if(user.temporary != true) {
 				this.users.push(user);
-				this.checkFollowerState(user);
+				this.checkFollowerState(user, channelId);
 				this.checkPronouns(user);
 				if(loadCallback) loadCallback(user);
+				if(user.id)				hashmap.idToUser[user.id] = user;
+				if(user.login)			hashmap.loginToUser[user.login] = user;
+				if(user.displayName)	hashmap.displayNameToUser[user.displayName] = user;
 			}
-			user.is_tracked = false;
+
 			return user;
 		},
 
@@ -282,7 +331,7 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		flagOnlineUSers(users:TwitchatDataTypes.TwitchatUser[]):void{
+		flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[]):void{
 			for (let i = 0; i < users.length; i++) {
 				users[i].online = true;
 			}
@@ -295,11 +344,12 @@ export const storeUsers = defineStore('users', {
 		},
 
 		//Check if user is following
-		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser):Promise<boolean> {
+		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId?:string):Promise<boolean> {
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
 				if(user.is_following == undefined) {
 					try {
-						const res = await TwitchUtils.getFollowState(user.id, UserSession.instance.twitchUser!.id)
+						console.log("Check if ", user.displayName, "follows", channelId, "or", UserSession.instance.twitchUser!.id);
+						const res = await TwitchUtils.getFollowState(user.id, channelId ?? UserSession.instance.twitchUser!.id)
 						user.is_following = res;
 						return true;
 					}catch(error){};
@@ -314,7 +364,52 @@ export const storeUsers = defineStore('users', {
 			return new Promise((resolve, reject)=> {
 				TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
 					if (res !== null) {
+						const hashmapLabel:{[key:string]:string} = {
+							// https://pronouns.alejo.io
+							"aeaer" : "Ae/Aer",
+							"any" : "Any",
+							"eem" : "E/Em",
+							"faefaer" : "Fae/Faer",
+							"hehim" : "He/Him",
+							"heshe" : "He/She",
+							"hethem" : "He/They",
+							"itits" : "It/Its",
+							"other" : "Other",
+							"perper" : "Per/Per",
+							"sheher" : "She/Her",
+							"shethem" : "She/They",
+							"theythem" : "They/Them",
+							"vever" : "Ve/Ver",
+							"xexem" : "Xe/Xem",
+							"ziehir" : "Zie/Hir",
+							// https://pronoundb.org
+							"hh": "he/him",
+							"hi": "he/it",
+							"hs": "he/she",
+							"ih": "it/him",
+							"ii": "it/its",
+							"is": "it/she",
+							"shh": "she/he",
+							"sh": "she/her",
+							"si": "she/it",
+							"st": "she/they",
+							"th": "they/he",
+							"ti": "they/it",
+							"ts": "they/she",
+							"tt": "they/them",
+						};
+						const hashmapTooltip: {[key: string]: string} = {
+							// https://pronoundb.org
+							"any": "Any pronouns",
+							"other": "Other pronouns",
+							"ask": "Ask me my pronouns",
+							"avoid": "Avoid pronouns, use my name",
+						};
 						user.pronouns = res.pronoun_id;
+						user.pronounsLabel = hashmapLabel[user.pronouns] ?? user.pronouns;
+						if(hashmapTooltip[user.pronouns]) {
+							user.pronounsTooltip = hashmapTooltip[user.pronouns];
+						}
 					}else{
 						user.pronouns = false;
 					}
@@ -329,13 +424,6 @@ export const storeUsers = defineStore('users', {
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void {
 			user.is_following = true;
-		},
-
-		addUser(user:TwitchatDataTypes.TwitchatUser):void {
-			const exists = this.getUserFrom(user.platform, user.id, user.login);
-			if(!exists) {
-				this.users.push(user);
-			}
 		},
 
 		openUserCard(user:TwitchatDataTypes.TwitchatUser) { this.userCard = user; },

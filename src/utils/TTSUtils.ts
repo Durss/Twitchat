@@ -362,7 +362,7 @@ export default class TTSUtils {
 							clearInterval(checkCompleteInterval);
 
 							let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, message.user.displayName);
-							txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.join(', ').replace(/,\s([^,]*)$/, " and$1"));
+							txt = txt.replace(/\{RECIPIENTS\}/gi, recipients.map(v=>v.displayName).join(', ').replace(/,\s([^,]*)$/, " and$1"));
 							txt = txt.replace(/\{TIER\}/gi, message.tier.toString());
 							txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
 							resolve(txt);

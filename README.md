@@ -139,6 +139,19 @@ By default the server listens on port 3018, you can change it on `server.js` and
 <br>
 <br>
 
+# Environment setup
+This project has been coded with VSCode with Volar plugin.\
+It is recommended to install these plugins:\
+Vue Language Features (Volar): https://marketplace.visualstudio.com/items?itemName=Vue.volar
+
+TypeScript Vue Plugin (Volar): https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin
+
+For correct typings and better lint performance, it is advised to the enable the `Take over mode` by disabling the native VSCode's Typescript and Javascript features.
+[Read how to](https://github.com/johnsoncodehk/volar/discussions/471).
+<br>
+<br>
+<br>
+
 # Compile project
 ### Install dependencies
 ```

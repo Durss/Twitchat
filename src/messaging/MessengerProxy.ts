@@ -102,6 +102,7 @@ export default class MessengerProxy {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.DISCONNECT, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.CLEAR_CHAT, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REWARD, (e:MessengerClientEvent)=> this.onMessage(e));
+		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.NOTICE, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.JOIN, (e:MessengerClientEvent)=> this.onJoinLeave(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.LEAVE, (e:MessengerClientEvent)=> this.onJoinLeave(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onRefreshToken(e));
@@ -125,7 +126,7 @@ export default class MessengerProxy {
 			clearTimeout(this.joinSpoolTimeout);
 			this.joinSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				StoreProxy.users.flagOnlineUSers(d.users);
+				StoreProxy.users.flagOnlineUsers(d.users);
 				
 				this.onMessage(new MessengerClientEvent("JOIN", {
 					platform:"twitchat",//Actual platform can later be retrieved from the user object, no need for it here

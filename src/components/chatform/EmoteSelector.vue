@@ -95,7 +95,7 @@ export default class EmoteSelector extends Vue {
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
-				userList.push(this.$store("users").getUserFrom("twitch", u.id, u.login, u.display_name));
+				userList.push(this.$store("users").getUserFrom("twitch", undefined, u.id, u.login, u.display_name));
 			}
 			
 			//Sort them by name

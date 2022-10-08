@@ -60,8 +60,8 @@ export default class Config {
 	 */
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		return [
-			{platform:"twitch", login:"desentredeux"},
-			{platform:"twitch", login:"la__bibliothecaire"}
+			{platform:"twitch", login:"bamwempan"},
+			{platform:"twitch", login:"iti63"},
 		];
 		return [];
 	}

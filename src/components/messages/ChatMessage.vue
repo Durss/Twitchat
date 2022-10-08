@@ -45,7 +45,7 @@
 				@mouseleave="$emit('mouseleave', $event)"
 				@click.stop="$emit('showConversation', $event, messageData)">
 			
-			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools && !lightMode" :canDelete="messageData.type != 'whisper'" />
+			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
 			<ChatMessageInfos class="infoBadges" :infos="infoBadges" />
 			
@@ -66,8 +66,8 @@
 				v-if="messageData.occurrenceCount != undefined && messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
 			<span class="pronoun"
-				:data-tooltip="pronounLabel"
-				v-if="pronoun && $store('params').features.showUserPronouns.value===true">{{pronoun}}</span>
+				v-if="messageData.user.pronounsLabel && $store('params').features.showUserPronouns.value===true"
+				:data-tooltip="messageData.user.pronounsTooltip">{{messageData.user.pronounsLabel}}</span>
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
@@ -122,6 +122,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfos from './ChatMessageInfos.vue';
 import ChatModTools from './ChatModTools.vue';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	components:{
@@ -153,90 +154,16 @@ export default class ChatMessage extends Vue {
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
 	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
+	public isAnnouncement:boolean = false;
+	public isPresentation:boolean = false;
+	public isReturning:boolean = false;
 
-	public get pronoun():string|null {
-		const pronouns = this.messageData.user.pronouns;
-		if(!pronouns || typeof pronouns != "string") return null;
-		const hashmap:{[key:string]:string} = {
-			// https://pronouns.alejo.io
-			"aeaer" : "Ae/Aer",
-			"any" : "Any",
-			"eem" : "E/Em",
-			"faefaer" : "Fae/Faer",
-			"hehim" : "He/Him",
-			"heshe" : "He/She",
-			"hethem" : "He/They",
-			"itits" : "It/Its",
-			"other" : "Other",
-			"perper" : "Per/Per",
-			"sheher" : "She/Her",
-			"shethem" : "She/They",
-			"theythem" : "They/Them",
-			"vever" : "Ve/Ver",
-			"xexem" : "Xe/Xem",
-			"ziehir" : "Zie/Hir",
-			// https://pronoundb.org
-			"hh": "he/him",
-			"hi": "he/it",
-			"hs": "he/she",
-			"ih": "it/him",
-			"ii": "it/its",
-			"is": "it/she",
-			"shh": "she/he",
-			"sh": "she/her",
-			"si": "she/it",
-			"st": "she/they",
-			"th": "they/he",
-			"ti": "they/it",
-			"ts": "they/she",
-			"tt": "they/them",
-		};
-		const res = hashmap[pronouns];
-		return res? res : pronouns;
-	}
-
-	/**
-	* Get users' pronouns
-	*/
-	public get pronounLabel(): string | null {
-		const pronouns = this.messageData.user.pronouns;
-		if(!pronouns || typeof pronouns != "string") return null;
-
-		const hashmap: {[key: string]: string} = {
-			// https://pronoundb.org
-			"any": "Any pronouns",
-			"other": "Other pronouns",
-			"ask": "Ask me my pronouns",
-			"avoid": "Avoid pronouns, use my name",
-		};
-
-		return hashmap[pronouns];
-	}
-
-	public get isAnnouncement():boolean {
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			return this.messageData.twitch_announcementColor != undefined;
-		}
-		return false;
-	}
-
-	public get isPresentation():boolean {
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			return this.messageData.twitch_isPresentation === true;
-		}
-		return false;
-	}
-
-	public get isReturning():boolean {
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			return this.messageData.twitch_isReturning === true;
-		}
-		return false;
-	}
+	private staticClasses:string[] = [];
+	private showModToolsPreCalc:boolean = false;
 	
 	public get showNofollow():boolean{
 		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
-			return true;
+			return !this.messageData.user.is_following;
 		}
 		return false
 	}
@@ -257,7 +184,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get classes():string[] {
-		let res = ["chatmessage"];
+		let res = this.staticClasses.concat();
 		const message = this.messageData;
 		const sParams = this.$store("params");
 
@@ -265,47 +192,23 @@ export default class ChatMessage extends Vue {
 		if(this.automod)						res.push("automod");
 		if(this.showNofollow)					res.push("noFollow");
 		if(this.messageData.user.is_blocked)	res.push("blockedUser");
-		if(this.firstTime
-			|| this.isPresentation
-			|| this.isReturning)				res.push("firstTimeOnChannel");
-		if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			res.push("whisper");
-		}else{
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.deleted) {
 				res.push("deleted");
 				if(sParams.filters.censorDeletedMessages.value===true) res.push("censor");
 			}
-			if(message.twitch_isLowTrust)		res.push("lowTrust");
-			if(message.twitch_isSlashMe)		res.push("slashMe");
-			if(message.twitch_isHighlighted)	res.push("highlighted");
 		}
-		if(!this.lightMode &&
-			this.messageData.user.is_tracked)	res.push("tracked");
-
-		if(this.isAnnouncement) {
-			const color = (message as TwitchatDataTypes.MessageChatData).twitch_announcementColor!;
-			res.push("announcement", color);
-		}
+		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
 		
 		if(sParams.features.spoilersEnabled.value === true) {
 			if(this.messageData.spoiler === true) res.push("spoiler");
-		}
-
-		if(!this.lightMode) {
-			if(message.type == "message" && message.hasMention) res.push("mention");
-			
-			if(message.user.is_moderator && sParams.appearance.highlightMods.value)			res.push("highlightMods");
-			else if(message.user.is_vip && sParams.appearance.highlightVips.value)			res.push("highlightVips");
-			else if(message.user.is_subscriber && sParams.appearance.highlightSubs.value)	res.push("highlightSubs");
 		}
 
 		return res;
 	}
 
 	public get showModTools():boolean {
-		if(this.lightMode) return false;
-		if(this.$store("params").features.showModTools.value === false) return false;
-		return this.messageData.user.is_moderator===true || this.messageData.user.is_broadcaster===true;
+		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true;
 	}
 
 	public get time():string {
@@ -417,51 +320,12 @@ export default class ChatMessage extends Vue {
 	}
 
 	/**
-	 * Open a users' card
-	 */
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
-
-	/**
-	 * Called when rolling over the nick name
-	 */
-	public hoverNickName(event:MouseEvent):void {
-		if(this.messageData.type == "whisper") return;
-		if(this.$store("params").features.userHistoryEnabled.value) {
-			this.$emit('showUserMessages', event, this.messageData);
-		}
-	}
-
-	/**
-	 * Copy JSON data of the message
-	 */
-	public copyJSON():void {
-		if(this.messageData.type == "whisper") {
-			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			console.log(this.messageData);
-		}else{
-			const messageBckp = this.messageData.user.messageHistory;
-			const answersBckp = this.messageData.answers;
-			const answerToBckp = this.messageData.answersTo;
-			this.messageData.user.messageHistory = [];
-			this.messageData.answers = [];
-			this.messageData.answersTo = undefined;
-			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			console.log(this.messageData);
-			this.messageData.user.messageHistory = messageBckp;
-			this.messageData.answers = answersBckp;
-			this.messageData.answersTo = answerToBckp;
-		}
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
-	}
-
-	/**
 	 * Called when component is mounted
 	 */
 	public mounted():void {
 		const mess = this.messageData;
 		
+		//Define message badges (it's not users badges)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.infoBadges.push({type:"whisper"});
 		}else{
@@ -476,6 +340,46 @@ export default class ChatMessage extends Vue {
 			}
 		}
 
+		//Pre compute some classes to reduce watchers count on "classes" getter
+		this.staticClasses = ["chatmessage"];
+		if(this.firstTime
+			|| this.isPresentation
+			|| this.isReturning)						this.staticClasses.push("firstTimeOnChannel");
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			this.staticClasses.push("whisper");
+		}else {
+			if(this.messageData.twitch_isLowTrust)		this.staticClasses.push("lowTrust");
+			if(this.messageData.twitch_isSlashMe)		this.staticClasses.push("slashMe");
+			if(this.messageData.twitch_isHighlighted)	this.staticClasses.push("highlighted");
+			if(this.messageData.type == "message"
+				&& this.messageData.hasMention)			this.staticClasses.push("mention");
+			if(this.isAnnouncement) {
+				const color = this.messageData.twitch_announcementColor!;
+				this.staticClasses.push("announcement", color);
+			}
+
+			if(!this.lightMode) {
+				const sParams = this.$store("params");
+				if(this.messageData.user.is_moderator
+					&& sParams.appearance.highlightMods.value)	this.staticClasses.push("highlightMods");
+				else if(this.messageData.user.is_vip
+					&& sParams.appearance.highlightVips.value)	this.staticClasses.push("highlightVips");
+				else if(this.messageData.user.is_subscriber
+					&& sParams.appearance.highlightSubs.value)	this.staticClasses.push("highlightSubs");
+			}
+		}
+
+		//Precompute static flag
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			this.showModToolsPreCalc = !this.lightMode
+									&& this.messageData.channel_id !== UserSession.instance.twitchUser!.id
+									&& this.messageData.user.is_moderator===true || this.messageData.user.is_broadcaster===true;
+			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
+			this.isPresentation	= this.messageData.twitch_isPresentation === true;
+			this.isReturning	= this.messageData.twitch_isReturning === true;
+		}
+
+		//If it has a clip link, add clip card
 		let clipId = "";
 		let text = this.messageData.message_html;
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -515,6 +419,46 @@ export default class ChatMessage extends Vue {
 			await this.$nextTick();
 			gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
 		});
+	}
+
+	/**
+	 * Open a users' card
+	 */
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
+	}
+
+	/**
+	 * Called when rolling over the nick name
+	 */
+	public hoverNickName(event:MouseEvent):void {
+		if(this.messageData.type == "whisper") return;
+		if(this.$store("params").features.userHistoryEnabled.value) {
+			this.$emit('showUserMessages', event, this.messageData);
+		}
+	}
+
+	/**
+	 * Copy JSON data of the message
+	 */
+	public copyJSON():void {
+		if(this.messageData.type == "whisper") {
+			Utils.copyToClipboard(JSON.stringify(this.messageData));
+			console.log(this.messageData);
+		}else{
+			const messageBckp = this.messageData.user.messageHistory;
+			const answersBckp = this.messageData.answers;
+			const answerToBckp = this.messageData.answersTo;
+			this.messageData.user.messageHistory = [];
+			this.messageData.answers = [];
+			this.messageData.answersTo = undefined;
+			Utils.copyToClipboard(JSON.stringify(this.messageData));
+			console.log(this.messageData);
+			this.messageData.user.messageHistory = messageBckp;
+			this.messageData.answers = answersBckp;
+			this.messageData.answersTo = answerToBckp;
+		}
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	/**

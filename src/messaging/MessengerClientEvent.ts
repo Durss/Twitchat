@@ -16,6 +16,7 @@ export default class MessengerClientEvent extends Event {
 	public static CLEAR_CHAT = "CLEAR_CHAT";
 	public static REFRESH_TOKEN = "REFRESH_TOKEN";
 	public static REWARD = "REWARD";
+	public static NOTICE = "NOTICE";
 
 	public data?:	TwitchatDataTypes.MessageChatData |
 					TwitchatDataTypes.MessageWhisperData |
@@ -43,6 +44,7 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
 	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
 	constructor(type:"REWARD", data:TwitchatDataTypes.MessageRewardRedeemData);
+	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
 	constructor(type:"REFRESH_TOKEN");
 	
 	constructor(...params:any[]) {

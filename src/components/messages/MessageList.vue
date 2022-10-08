@@ -884,11 +884,9 @@ export default class MessageList extends Vue {
 			// TODO fix switching even/odd problem when deleting/adding messages and enable this back
 			.subHolder:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
-
-				// .message {
-				// 	display: flex;
-				// 	flex-direction: row-reverse;
-				// }
+				&:hover {
+					background-color: rgba(255, 255, 255, .2);
+				}
 			}
 		}
 	}

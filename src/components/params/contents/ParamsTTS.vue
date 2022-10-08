@@ -286,7 +286,7 @@ export default class ParamsTTS extends Vue {
 			platform:"twitchat",
 			channel_id: "twitchat",
 			type:"message",
-			user: StoreProxy.users.getUserFrom("twitch", UserSession.instance.twitchUser!.id),
+			user: StoreProxy.users.getUserFrom("twitch", undefined, UserSession.instance.twitchUser!.id),
 			message: this.testStr,
 			message_html: this.testStr,
 			answers: [],

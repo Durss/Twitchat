@@ -216,7 +216,7 @@ export default class PubSub extends EventDispatcher {
 			channel_id:"twitchat",
 			type:"message",
 			answers:[],
-			user: StoreProxy.users.getUserFrom("twitch", UserSession.instance.twitchUser!.id),
+			user: StoreProxy.users.getUserFrom("twitch", undefined, UserSession.instance.twitchUser!.id),
 			message:"This is a message sent by a low trusted user",
 			message_html:"This is a message sent by a low trusted user",
 			twitch_isLowTrust:true,
@@ -323,8 +323,8 @@ export default class PubSub extends EventDispatcher {
 				id:Utils.getUUID(),
 				platform:"twitch",
 				type:"whisper",
-				user: StoreProxy.users.getUserFrom("twitch", localObj.from_id.toString()),
-				to: StoreProxy.users.getUserFrom("twitch", localObj.recipient.id.toString()),
+				user: StoreProxy.users.getUserFrom("twitch", undefined, localObj.from_id.toString()),
+				to: StoreProxy.users.getUserFrom("twitch", undefined, localObj.recipient.id.toString()),
 				message: localObj.body,
 				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
 			}
@@ -465,7 +465,7 @@ export default class PubSub extends EventDispatcher {
 					badges[b.id] = b.version;
 				}
 
-				const user = StoreProxy.users.getUserFrom("twitch", undefined, undefined, mess.sender.display_name);
+				const user = StoreProxy.users.getUserFrom("twitch", undefined, undefined, undefined, mess.sender.display_name);
 				user.color = mess.sender.chat_color;
 
 				const m:TwitchatDataTypes.MessageChatData = {
@@ -505,7 +505,7 @@ export default class PubSub extends EventDispatcher {
 			const currentRaidInfo = StoreProxy.stream.currentRaid;
 			const m:TwitchatDataTypes.RaidInfo = {
 				channel_id: channelId,
-				user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", data.raid.target_id),
+				user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", undefined, data.raid.target_id),
 				viewerCount: data.raid.viewer_count,
 				startedAt:currentRaidInfo?.startedAt ?? Date.now(),
 				timerDuration_s:currentRaidInfo?.timerDuration_s ?? 90,
@@ -604,7 +604,7 @@ export default class PubSub extends EventDispatcher {
 				case "raid": {
 					const infos:TwitchatDataTypes.RaidInfo = {
 						channel_id: channelId,
-						user: StoreProxy.users.getUserFrom("twitch", undefined, localObj.args![0] as string),
+						user: StoreProxy.users.getUserFrom("twitch", undefined, undefined, localObj.args![0] as string),
 						viewerCount: 0,
 						startedAt:Date.now(),
 						timerDuration_s:90,
@@ -618,7 +618,7 @@ export default class PubSub extends EventDispatcher {
 				}
 				case "delete": {
 					const [login, message, messageId] = localObj.args!;
-					const deleter = StoreProxy.users.getUserFrom("twitch", localObj.created_by_user_id);
+					const deleter = StoreProxy.users.getUserFrom("twitch", undefined, localObj.created_by_user_id);
 					StoreProxy.chat.deleteMessage(messageId, deleter);
 					break;
 				}
@@ -673,7 +673,7 @@ export default class PubSub extends EventDispatcher {
 			}
 
 			let user = localObj.message.sender;
-			const userData = StoreProxy.users.getUserFrom("twitch", user.user_id, user.login, user.display_name);
+			const userData = StoreProxy.users.getUserFrom("twitch", undefined, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:localObj.message.id,
@@ -726,7 +726,7 @@ export default class PubSub extends EventDispatcher {
 					hd:img.url_4x,
 				},
 			},
-			user:StoreProxy.users.getUserFrom("twitch", localObj.redemption.user.id),
+			user:StoreProxy.users.getUserFrom("twitch", undefined, localObj.redemption.user.id),
 		};
 		m.user.online = true;
 		if(localObj.redemption.user_input) {
@@ -747,7 +747,7 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			channel_id: localObj.channel_id,
 			type:"community_challenge_contribution",
-			user: StoreProxy.users.getUserFrom("twitch", localObj.user.id, localObj.user.login, localObj.user.display_name),
+			user: StoreProxy.users.getUserFrom("twitch", undefined, localObj.user.id, localObj.user.login, localObj.user.display_name),
 			contribution: localObj.amount,
 			stream_contribution:localObj.stream_contribution,
 			total_contribution:localObj.total_contribution,
@@ -809,7 +809,7 @@ export default class PubSub extends EventDispatcher {
 				label: c.title,
 				votes: c.total_points,
 				voters: c.top_predictors.map(v=>{
-					const u = StoreProxy.users.getUserFrom("twitch", v.user_id, undefined, v.user_display_name);
+					const u = StoreProxy.users.getUserFrom("twitch", undefined, v.user_id, undefined, v.user_display_name);
 					u.online = true;
 					return u;
 				}),
@@ -851,7 +851,7 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			channel_id: channelId,
 			type:"following",
-			user: StoreProxy.users.getUserFrom("twitch", data.user_id, data.username, data.display_name),
+			user: StoreProxy.users.getUserFrom("twitch", undefined, data.user_id, data.username, data.display_name),
 			followed_at: Date.now(),
 		};
 		message.user.online = true;

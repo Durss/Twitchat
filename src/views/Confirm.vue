@@ -38,18 +38,16 @@ export default class Confirm extends Vue {
 	public submitPressed = false;
 	public voiceControl = false;
 	
-	private hidden = true;
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private voiceController!:FormVoiceControllHelper;
 
 	public mounted():void {
-
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("keydown", this.keyDownHandler);
-		watch(() => this.$store("main").confirm, async () => {
+		watch(() => this.$store("main").confirmData, async () => {
 			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
 		});
@@ -60,21 +58,19 @@ export default class Confirm extends Vue {
 		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
-	public onConfirmChanged():void {
+	public async onConfirmChanged():Promise<void> {
 		const d = this.$store("main").confirmData;
 		
 		let hidden = d == null;
-		if(this.hidden == hidden) return;//No change, ignore
-
-		let holder = this.$refs.holder as HTMLElement;
-		let dimmer = this.$refs.dimmer as HTMLElement;
 
 		if(!hidden) {
 			this.confirmData = d;
-			this.hidden = hidden;
+			await this.$nextTick();
+			const holder = this.$refs.holder as HTMLElement;
+			const dimmer = this.$refs.dimmer as HTMLElement;
 			this.voiceControl = d!.STTOrigin === true;
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
-			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
+			gsap.killTweensOf([holder, dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
 			gsap.to(dimmer, {duration:.25, opacity:1});
 			gsap.from(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out"});
@@ -84,9 +80,11 @@ export default class Confirm extends Vue {
 		}else{
 			if(this.voiceController) this.voiceController.dispose();
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
+			const holder = this.$refs.holder as HTMLElement;
+			const dimmer = this.$refs.dimmer as HTMLElement;
 			gsap.to(dimmer, {duration:.25, opacity:0, ease:"sine.in"});
 			gsap.to(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out", onComplete:()=> {
-				this.hidden = true;
+				this.confirmData = null;
 			}});
 		}
 	}
@@ -106,14 +104,14 @@ export default class Confirm extends Vue {
 	}
 
 	private onDownUp(e:KeyboardEvent):void {
-		if(this.hidden) return;
+		if(!this.confirmData) return;
 		if(e.key == "Enter" || e.key == " ") {//Enter / space
 			this.submitPressed = true;
 		}
 	}
 
 	private onKeyUp(e:KeyboardEvent):void {
-		if(this.hidden) return;
+		if(!this.confirmData) return;
 		if(e.key == "Enter" || e.key == " ") {//Enter / space
 			if(this.submitPressed) {
 				this.answer(true);

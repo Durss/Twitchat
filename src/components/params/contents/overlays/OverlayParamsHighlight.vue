@@ -175,7 +175,7 @@ export default class OverlayParamsHighlight extends Vue {
 			platform:"twitch",
 			date: Date.now(),
 			type: "message",
-			user: this.$store("users").getUserFrom("twitch", uid),
+			user: this.$store("users").getUserFrom("twitch", undefined, uid),
 			answers: [],
 			channel_id:uid,
 			message: text,

@@ -403,7 +403,7 @@ export interface IUsersGetters {
 
 export interface IUsersActions {
 	setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void;
-	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
@@ -411,12 +411,11 @@ export interface IUsersActions {
 	flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	flagBanned(platform:TwitchatDataTypes.ChatPlatform, uid:string, duration_s?:number):void;
 	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
-	flagOnlineUSers(users:TwitchatDataTypes.TwitchatUser[]):void;
+	flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[]):void;
 	flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[]):void;
-	checkFollowerState(user:TwitchatDataTypes.TwitchatUser):Promise<boolean>;
+	checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId?:string):Promise<boolean>;
 	checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void;
-	addUser(user:TwitchatDataTypes.TwitchatUser):void;
 	openUserCard(user:TwitchatDataTypes.TwitchatUser|null):void;
 	loadMyFollowings():Promise<void>;
 	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;

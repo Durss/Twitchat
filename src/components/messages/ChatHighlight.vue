@@ -152,7 +152,7 @@ export default class ChatHighlight extends Vue {
 				res = `is raiding with a party of ${value}.`;
 
 				if(this.$store("params").features.raidStreamInfo.value === true) {
-					this.loadLastStreamInfos()
+					this.loadLastStreamInfos();
 				}
 				break;
 
@@ -170,7 +170,7 @@ export default class ChatHighlight extends Vue {
 					value = this.messageData.tier;
 					this.user = this.messageData.user;
 					if(this.messageData.gift_recipients && this.messageData.gift_recipients.length > 0) {
-						const recipientsStr = `<strong>${this.messageData.gift_recipients.join("</strong>, <strong>")}</strong>`;
+						const recipientsStr = `<strong>${this.messageData.gift_recipients.map(v=>v.displayName).join("</strong>, <strong>")}</strong>`;
 						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to ${recipientsStr}`;
 					}
 
@@ -197,7 +197,7 @@ export default class ChatHighlight extends Vue {
 						res += ` for 1 month`;
 					}
 					let extras:string[] = [];
-					if(typeof this.messageData.months) {
+					if(this.messageData.months > 1) {
 						extras.push(`for ${this.messageData.months} months in advance`);
 					}
 					if(typeof this.messageData.streakMonths === "string") {
@@ -351,7 +351,6 @@ export default class ChatHighlight extends Vue {
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
 		this.loading = true;
 		this.pStreamInfo = null;
-		console.log("LOOOOAD");
 		try {
 			const streams = await TwitchUtils.loadChannelInfo([this.messageData.user.id]);
 			if(streams && streams.length > 0) {

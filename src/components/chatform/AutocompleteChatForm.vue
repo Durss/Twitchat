@@ -39,7 +39,7 @@ import { Options, Vue } from 'vue-class-component';
 		search:String,
 	},
 	components:{},
-	emits:["select", "close"]
+	emits:["selectItem", "close"]
 })
 /**
  * This component is used to select an emote by typing ":xxx" on the
@@ -80,10 +80,10 @@ export default class AutocompleteChatForm extends Vue {
 
 	public selectItem(item:ListItem):void {
 		if(item.type == "cmd") {
-			this.$emit("select", item.cmd);
+			this.$emit("selectItem", item.cmd);
 		}else{
 			const prefix = (item.type == "user")? "@": "";
-			this.$emit("select", prefix + item.label);
+			this.$emit("selectItem", prefix + item.label);
 		}
 	}
 
