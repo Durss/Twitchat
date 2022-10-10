@@ -203,12 +203,12 @@ export const storeUsers = defineStore('users', {
 									console.warn("Could not load back the user \""+u.login+"\" from the batch ref");
 									continue;
 								}
-								userLocal.id = u.id;
-								userLocal.login = u.login;
-								userLocal.displayName = u.display_name;
-								userLocal.is_partner = u.broadcaster_type == "partner";
-								userLocal.is_affiliate = userLocal.is_partner || u.broadcaster_type == "affiliate";
-								userLocal.avatarPath = u.profile_image_url;
+								userLocal.id				= u.id;
+								userLocal.login				= u.login;
+								userLocal.displayName		= u.display_name;
+								userLocal.is_partner		= u.broadcaster_type == "partner";
+								userLocal.is_affiliate		= userLocal.is_partner || u.broadcaster_type == "affiliate";
+								userLocal.avatarPath		= u.profile_image_url;
 								if(userLocal.id)			hashmap!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmap!.loginToUser[userLocal.login] = userLocal;
 								if(userLocal.displayName)	hashmap!.displayNameToUser[userLocal.displayName] = userLocal;

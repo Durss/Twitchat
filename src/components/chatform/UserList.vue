@@ -58,18 +58,18 @@ export default class UserList extends Vue {
 	public showInfo:boolean = false;
 	public channelId!:string;
 
-	public get broadcaster():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId].is_broadcaster); }
+	public get broadcaster():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId]?.is_broadcaster === true); }
 
-	public get mods():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId].is_moderator); }
+	public get mods():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId]?.is_moderator === true); }
 
-	public get vips():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId].is_vip); }
+	public get vips():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId]?.is_vip === true); }
 
-	public get simple():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>{ return !u.channelInfo[this.channelId].is_moderator && !u.channelInfo[this.channelId].is_broadcaster && !u.channelInfo[this.channelId].is_vip; }); }
+	public get simple():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>{ return !u.channelInfo[this.channelId]?.is_moderator && !u.channelInfo[this.channelId]?.is_broadcaster && !u.channelInfo[this.channelId]?.is_vip; }); }
 	
 	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
 		if(this.$store("params").appearance.highlightNonFollowers.value === true
-		&& user.channelInfo[this.channelId].is_following === false) res.push("noFollow");
+		&& user.channelInfo[this.channelId]?.is_following === false) res.push("noFollow");
 		return res;
 	}
 
@@ -105,7 +105,6 @@ export default class UserList extends Vue {
 			holder.style.overflow = "hidden";
 			holder.style.height = bounds.height+"px";
 			holder.style.minHeight = bounds.height+"px";
-			console.log(bounds);
 			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
 		}
 	}
@@ -143,23 +142,26 @@ export default class UserList extends Vue {
 	private updateList():void {
 		let res:TwitchatDataTypes.TwitchatUser[] = [];
 		const users = this.$store("users").users;
-		for (let j = 0; j < users.length; j++) {
-			const user = users[j];
-			for (const chan in user.channelInfo) {
+		for (let i = 0; i < users.length; i++) {
+			const user = users[i];
+			chan: for (const chan in user.channelInfo) {
 				if(user.channelInfo[chan].online) {
 					res.push(user);
-					break;
+					break chan;
 				}
 			}
 		}
 
+		
 		res.sort((a,b) => {
-			if(a.channelInfo[this.channelId].is_broadcaster && !b.channelInfo[this.channelId].is_broadcaster) return -1;
-			if(b.channelInfo[this.channelId].is_broadcaster && !a.channelInfo[this.channelId].is_broadcaster) return  1;
-			if(a.channelInfo[this.channelId].is_moderator && !b.channelInfo[this.channelId].is_moderator) return -1;
-			if(b.channelInfo[this.channelId].is_moderator && !a.channelInfo[this.channelId].is_moderator) return  1;
-			if(a.channelInfo[this.channelId].is_vip && !b.channelInfo[this.channelId].is_vip) return -1;
-			if(b.channelInfo[this.channelId].is_vip && !a.channelInfo[this.channelId].is_vip) return  1;
+			if(a.channelInfo[this.channelId] && b.channelInfo[this.channelId]) {
+				if(a.channelInfo[this.channelId].is_broadcaster && !b.channelInfo[this.channelId].is_broadcaster) return -1;
+				if(b.channelInfo[this.channelId].is_broadcaster && !a.channelInfo[this.channelId].is_broadcaster) return  1;
+				if(a.channelInfo[this.channelId].is_moderator && !b.channelInfo[this.channelId].is_moderator) return -1;
+				if(b.channelInfo[this.channelId].is_moderator && !a.channelInfo[this.channelId].is_moderator) return  1;
+				if(a.channelInfo[this.channelId].is_vip && !b.channelInfo[this.channelId].is_vip) return -1;
+				if(b.channelInfo[this.channelId].is_vip && !a.channelInfo[this.channelId].is_vip) return  1;
+			}
 			if(a.displayName > b.displayName ) return 1;
 			if(a.displayName < b.displayName ) return -1;
 			return 0;

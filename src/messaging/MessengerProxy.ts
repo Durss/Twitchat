@@ -126,7 +126,7 @@ export default class MessengerProxy {
 			clearTimeout(this.joinSpoolTimeout);
 			this.joinSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				StoreProxy.users.flagOnlineUsers(d.users);
+				StoreProxy.users.flagOnlineUsers(d.users, d.channel_id);
 				
 				this.onMessage(new MessengerClientEvent("JOIN", {
 					platform:"twitchat",//Actual platform can later be retrieved from the user object, no need for it here
@@ -146,7 +146,7 @@ export default class MessengerProxy {
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				StoreProxy.users.flagOfflineUsers(d.users);
+				StoreProxy.users.flagOfflineUsers(d.users, d.channel_id);
 				
 				this.onMessage(new MessengerClientEvent("LEAVE", {
 					platform:"twitchat",//Actual platform can later be retrieved from the user object, no need for it here
