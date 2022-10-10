@@ -41,12 +41,14 @@ if(!fs.existsSync(donorsPublicList)) {
 	fs.writeFileSync(donorsPublicList, "[]", "utf-8");
 }
 
-fs.watch(donorsList,()=> {
-	setTimeout(()=>{
-		updatePublicDonorsList();
-	}, 2000);
-});
-updatePublicDonorsList();
+if(fs.existsSync(donorsList)) {
+	fs.watch(donorsList,()=> {
+		setTimeout(()=>{
+			updatePublicDonorsList();
+		}, 2000);
+	});
+	updatePublicDonorsList();
+}
 
 http.createServer((request, response) => {
     let body = "";

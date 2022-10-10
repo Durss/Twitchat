@@ -332,8 +332,11 @@ export default class ChatForm extends Vue {
 		let onlineCount = 0;
 		const users = this.$store("users").users;
 		for (let i = 0; i < users.length; i++) {
-			if(users[i].is_following === true) followCount ++;
-			if(users[i].online === true) onlineCount ++;
+			const u = users[i];
+			for (const chan in u.channelInfo) {
+				if(u.channelInfo[chan].is_following === true) followCount ++;
+				if(u.channelInfo[chan].online === true) onlineCount ++;
+			}
 		}
 		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
@@ -731,6 +734,11 @@ export default class ChatForm extends Vue {
 		if(cmd == "/userlist") {
 			this.$store("main").tempStoreValue = params[0];
 			this.$emit('TTuserList');
+			this.message = "";
+		}else
+
+		if(cmd == "/logusers") {
+			console.log(this.$store("users").users);
 			this.message = "";
 		}else
 

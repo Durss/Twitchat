@@ -91,13 +91,14 @@ export default class ChatJoinLeave extends Vue {
 .chatjoinleave{
 	font-style: italic;
 	opacity: .7;
-	color: @mainColor_warn_extralight;
+	color: @mainColor_warn;
 
 	a {
 		color: @mainColor_warn;
 		&:hover {
 			background: rgba(0, 0, 0, .5);
 		}
+		color: lighten(@mainColor_warn, 15%);
 	}
 	
 	.icon {
@@ -108,10 +109,10 @@ export default class ChatJoinLeave extends Vue {
 	}
 
 	&.alert {
-		color: @mainColor_alert_extralight;
+		color: @mainColor_alert;
 		
 		a {
-			color: @mainColor_alert;
+			color: lighten(@mainColor_alert, 10%);
 		}
 	}
 }

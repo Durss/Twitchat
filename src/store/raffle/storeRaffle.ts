@@ -177,13 +177,13 @@ export const storeRaffle = defineStore('raffle', {
 				let score = 1;
 				const user = message.user;
 				//Apply ratios if any is defined
-				if(raffle.vipRatio > 0 && user.is_vip)			score += raffle.vipRatio;
-				if(raffle.subRatio > 0 && user.is_subscriber)	score += raffle.subRatio;
-				if(raffle.subgitRatio > 0 && user.is_gifter)	score += raffle.subgitRatio;
+				if(raffle.vipRatio > 0 && user.channelInfo[message.channel_id].is_vip)			score += raffle.vipRatio;
+				if(raffle.subRatio > 0 && user.channelInfo[message.channel_id].is_subscriber)	score += raffle.subRatio;
+				if(raffle.subgitRatio > 0 && user.channelInfo[message.channel_id].is_gifter)	score += raffle.subgitRatio;
 				if(raffle.followRatio > 0) {
 					//Check if user is following
-					if(user.is_following === undefined) sUsers.checkFollowerState(user);
-					if(user.is_following === true) score += raffle.followRatio;
+					if(user.channelInfo[message.channel_id].is_following === undefined) sUsers.checkFollowerState(user, message.channel_id);
+					if(user.channelInfo[message.channel_id].is_following === true) score += raffle.followRatio;
 				}
 				raffle.entries.push( {
 					score,

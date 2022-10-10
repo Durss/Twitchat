@@ -103,7 +103,7 @@
 				<div class="markRead" v-if="!lightMode && m.markedAsRead"></div>
 
 				<div class="hoverActionsHolder"
-				v-if="!lightMode && m.type == 'message' && !m.user.is_blocked">
+				v-if="!lightMode && m.type == 'message' && !m.user.channelInfo[m.channel_id].is_blocked">
 					<ChatMessageHoverActions class="hoverActions" :messageData="m" />
 				</div>
 			</div>
@@ -274,7 +274,7 @@ export default class MessageList extends Vue {
 			switch(m.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
 					//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
-					if(this.lightMode && (m.automod || m.deleted || m.user.is_blocked)) {
+					if(this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
 						messages.splice(i, 1);
 					}else
 					//Ignore deleted messages if requested
@@ -745,8 +745,6 @@ export default class MessageList extends Vue {
 		if(this.lightMode || !m || (!m.answersTo && !m.answers)) return;
 
 		this.conversationMode = true;
-
-		console.log(m);
 
 		if(m.answers.length > 0) {
 			this.conversation = m.answers.concat();

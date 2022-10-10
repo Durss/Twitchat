@@ -175,8 +175,6 @@ const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSu
 	}
 }
 
-DataStore.init();
-
 const app = createApp(App)
 .use(pinia)
 .use(router)
@@ -226,6 +224,8 @@ StoreProxy.triggers = storeTriggers();
 StoreProxy.tts = storeTTS();
 StoreProxy.users = storeUsers();
 StoreProxy.voice = storeVoice();
+
+DataStore.init();
 
 window.addEventListener("beforeinstallprompt", (e:Event)=> {
 	e.preventDefault();

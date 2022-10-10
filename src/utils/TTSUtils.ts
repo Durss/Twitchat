@@ -270,7 +270,7 @@ export default class TTSUtils {
 				if(!paramsTTS.readMessages) return "";
 
 				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user)) return "";
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 				//Ignore automoded messages
 				if(message.twitch_automod) return "";
 
@@ -294,7 +294,7 @@ export default class TTSUtils {
 				if(!paramsTTS.readWhispers) return "";
 
 				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user)) return "";
+				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
 				//Don't read our answers
 				if(message.user.id === UserSession.instance.twitchUser!.id) return "";

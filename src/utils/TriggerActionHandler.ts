@@ -369,7 +369,7 @@ export default class TriggerActionHandler {
 				const now = Date.now();
 				
 				//check permissions
-				if(!Utils.checkPermissions(data.permissions, message.user)) {
+				if(!Utils.checkPermissions(data.permissions, message.user, message.channel_id)) {
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any

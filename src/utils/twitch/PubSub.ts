@@ -318,12 +318,14 @@ export default class PubSub extends EventDispatcher {
 				emotes = TwitchUtils.parsedEmoteDataToRawEmoteData(list);
 			}
 
+			const sender = StoreProxy.users.getUserFrom("twitch", undefined, localObj.from_id.toString());
 			const whisper:TwitchatDataTypes.MessageWhisperData = {
 				date:Date.now(),
 				id:Utils.getUUID(),
 				platform:"twitch",
 				type:"whisper",
-				user: StoreProxy.users.getUserFrom("twitch", undefined, localObj.from_id.toString()),
+				channel_id:sender.id,
+				user:sender,
 				to: StoreProxy.users.getUserFrom("twitch", undefined, localObj.recipient.id.toString()),
 				message: localObj.body,
 				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
@@ -419,7 +421,7 @@ export default class PubSub extends EventDispatcher {
 		}else if(data.type == "community-goal-contribution") {
 			//Channel points challenge progress
 			const contrib = (data.data as {timpestamp:string, contribution:PubSubDataTypes.ChannelPointChallengeContribution}).contribution
-			this.communityChallengeContributionEvent(contrib);
+			this.communityChallengeContributionEvent(contrib, channelId);
 
 
 
@@ -497,7 +499,7 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "event-created" || data.type == "event-updated") {
 			const localObj = data.data as PubSubDataTypes.PredictionData;
-			this.predictionEvent(localObj);
+			this.predictionEvent(localObj, channelId);
 
 
 
@@ -728,7 +730,7 @@ export default class PubSub extends EventDispatcher {
 			},
 			user:StoreProxy.users.getUserFrom("twitch", undefined, localObj.redemption.user.id),
 		};
-		m.user.online = true;
+		m.user.channelInfo[channelId].online = true;
 		if(localObj.redemption.user_input) {
 			m.message		= localObj.redemption.user_input;
 			m.message_html	= TwitchUtils.parseEmotes(localObj.redemption.user_input, undefined, false, true);
@@ -739,7 +741,7 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Community challenge contribution 
 	 */
-	private communityChallengeContributionEvent(localObj:PubSubDataTypes.ChannelPointChallengeContribution):void {
+	private communityChallengeContributionEvent(localObj:PubSubDataTypes.ChannelPointChallengeContribution, channelId:string):void {
 		const img = localObj.goal.image ?? localObj.goal.default_image;
 		const m:TwitchatDataTypes.MessageCommunityChallengeContributionData =  {
 			id:Utils.getUUID(),
@@ -762,7 +764,7 @@ export default class PubSub extends EventDispatcher {
 				},
 			}
 		};
-		m.user.online = true;
+		m.user.channelInfo[channelId].online = true;
 		StoreProxy.chat.addMessage(m);
 	}
 
@@ -800,7 +802,7 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a prediction event occurs (create/update/close)
 	 */
-	private predictionEvent(localObj:PubSubDataTypes.PredictionData):void {
+	private predictionEvent(localObj:PubSubDataTypes.PredictionData, channelId:string):void {
 		let outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 		for (let i = 0; i < localObj.event.outcomes.length; i++) {
 			const c = localObj.event.outcomes[i];
@@ -810,7 +812,7 @@ export default class PubSub extends EventDispatcher {
 				votes: c.total_points,
 				voters: c.top_predictors.map(v=>{
 					const u = StoreProxy.users.getUserFrom("twitch", undefined, v.user_id, undefined, v.user_display_name);
-					u.online = true;
+					u.channelInfo[channelId].online = true;
 					return u;
 				}),
 			})
@@ -854,7 +856,7 @@ export default class PubSub extends EventDispatcher {
 			user: StoreProxy.users.getUserFrom("twitch", undefined, data.user_id, data.username, data.display_name),
 			followed_at: Date.now(),
 		};
-		message.user.online = true;
+		message.user.channelInfo[channelId].online = true;
 		
 		this.lastRecentFollowers.push( message );
 		if(this.lastRecentFollowers.length > 1) {

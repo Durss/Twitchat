@@ -177,12 +177,12 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser):boolean {
+	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
-		const allowed = (permissions.mods && user.is_moderator) ||
-						(permissions.vips && user.is_vip) ||
-						(permissions.subs && user.is_subscriber) ||
-						(permissions.broadcaster !== false && user.is_broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
+		const allowed = (permissions.mods && user.channelInfo[channelId].is_moderator) ||
+						(permissions.vips && user.channelInfo[channelId].is_vip) ||
+						(permissions.subs && user.channelInfo[channelId].is_subscriber) ||
+						(permissions.broadcaster !== false && user.channelInfo[channelId].is_broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
 						permissions.all ||
 						allowedUsers?.indexOf(user.login.toLowerCase()) != -1;
 		return allowed;
@@ -540,9 +540,9 @@ export default class Utils {
 	 * @param tags 
 	 * @returns 
 	 */
-	public static isAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
+	public static isAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser, channelId:string):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
 		if(StoreProxy.automod.params.enabled
-		&& !Utils.checkPermissions(StoreProxy.automod.params.exludedUsers, user)) {
+		&& !Utils.checkPermissions(StoreProxy.automod.params.exludedUsers, user, channelId)) {
 			const rules = StoreProxy.automod.params.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
 			for (let i = 0; i < rules.length; i++) {
 				const r = rules[i];

@@ -149,7 +149,7 @@ export const storeEmergency = defineStore('emergency', {
 			if(cmd?.length < 2) return;
 
 			//check if its a command to start the emergency mode
-			if(Utils.checkPermissions(this.params.chatCmdPerms, message.user)) {
+			if(Utils.checkPermissions(this.params.chatCmdPerms, message.user, message.channel_id)) {
 				if(cmd === this.params.chatCmd.trim()) {
 					this.setEmergencyMode(true);
 				}

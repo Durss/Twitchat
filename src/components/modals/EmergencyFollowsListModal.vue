@@ -14,16 +14,16 @@
 							<div class="infos">
 								<span class="date">{{ formatDate(follower.date) }}</span>
 								<a class="name" data-tooltip="Open profile" :href="'https://twitch.tv/'+follower.user.login" target="_blank">{{ follower.user.displayName }}</a>
-								<img class="icon" data-tooltip="User has<br>been banned" v-if="follower.user.is_banned" src="@/assets/icons/ban_purple.svg" alt="banned">
-								<img class="icon" data-tooltip="User has<br>been blocked" v-if="follower.user.is_blocked === true" src="@/assets/icons/block_purple.svg" alt="blocked">
-								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.user.is_blocked === false" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
+								<img class="icon" data-tooltip="User has<br>been banned" v-if="follower.user.channelInfo[follower.channel_id].is_banned" src="@/assets/icons/ban_purple.svg" alt="banned">
+								<img class="icon" data-tooltip="User has<br>been blocked" v-if="follower.user.channelInfo[follower.channel_id].is_blocked === true" src="@/assets/icons/block_purple.svg" alt="blocked">
+								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.user.channelInfo[follower.channel_id].is_blocked === false" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
 							</div>
 							<div class="ctas">
 								<Button class="cardBt" small data-tooltip="Open viewer details" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
-								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.user.is_banned !== true" highlight :icon="$image('icons/ban.svg')" />
-								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.user.is_banned === true" :icon="$image('icons/unban.svg')" />
-								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.user.is_blocked !== true" highlight :icon="$image('icons/block.svg')" />
-								<Button small @click="unblock(follower)" data-tooltip="Unblock user" v-if="follower.blocked && follower.user.is_blocked === true" :icon="$image('icons/unblock.svg')" />
+								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned !== true" highlight :icon="$image('icons/ban.svg')" />
+								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned === true" :icon="$image('icons/unban.svg')" />
+								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.user.channelInfo[follower.channel_id].is_blocked !== true" highlight :icon="$image('icons/block.svg')" />
+								<Button small @click="unblock(follower)" data-tooltip="Unblock user" v-if="follower.blocked && follower.user.channelInfo[follower.channel_id].is_blocked === true" :icon="$image('icons/unblock.svg')" />
 							</div>
 						</li>
 					</ul>
@@ -68,22 +68,22 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 		
 	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.is_banned = true;
+		follow.user.channelInfo[follow.channel_id].is_banned = true;
 		await TwitchUtils.banUser(follow.user.id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
 	}
 		
 	public async unban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		delete follow.user.is_banned;
+		follow.user.channelInfo[follow.channel_id].is_banned = false;
 		await TwitchUtils.unbanUser(follow.user.id);
 	}
 	
 	public async block(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.is_blocked = true;
+		follow.user.channelInfo[follow.channel_id].is_blocked = true;
 		await TwitchUtils.blockUser(follow.user.id, "spam");
 	}
 
 	public async unblock(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.is_blocked = false;
+		follow.user.channelInfo[follow.channel_id].is_blocked = false;
 		await TwitchUtils.unblockUser(follow.user.id);
 	}
 
@@ -109,9 +109,9 @@ export default class EmergencyFollowsListModal extends Vue {
 			csv += this.follow[i].date;
 			csv += "," + this.follow[i].user.id;
 			csv += "," + this.follow[i].user.login;
-			csv += "," + (this.follow[i].user.is_blocked === true? 1 : 0);
-			csv += "," + (this.follow[i].user.is_blocked === false? 1 : 0);
-			csv += "," + (this.follow[i].user.is_banned? 1 : 0);
+			csv += "," + (this.follow[i].user.channelInfo[this.follow[i].channel_id].is_blocked === true? 1 : 0);
+			csv += "," + (this.follow[i].user.channelInfo[this.follow[i].channel_id].is_blocked === false? 1 : 0);
+			csv += "," + (this.follow[i].user.channelInfo[this.follow[i].channel_id].is_banned? 1 : 0);
 			if(i < len -1) csv += "\n";
 		}
 		Utils.copyToClipboard(csv);

@@ -36,7 +36,7 @@
 
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
-		<div class="infos" v-if="messageData.user.is_blocked !== true">
+		<div class="infos" v-if="channelInfo.is_blocked !== true">
 			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
 			<img v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
@@ -78,16 +78,16 @@
 			@click.stop="openUserCard(recipient!)"> &gt; {{recipient}}</span>
 		</div>
 		
-		<span v-if="messageData.user.is_blocked !== true">: </span>
-		<span class="message" v-if="messageData.user.is_blocked !== true">
+		<span v-if="channelInfo.is_blocked !== true">: </span>
+		<span class="message" v-if="channelInfo.is_blocked !== true">
 			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
 
-		<div v-if="messageData.user.is_blocked === true" class="blockedMessage" @click.stop="messageData.user.is_blocked = false">This message has been sent by a blocked user. Click to reveal.</div>
+		<div v-if="channelInfo.is_blocked === true" class="blockedMessage" @click.stop="channelInfo.is_blocked = false">This message has been sent by a blocked user. Click to reveal.</div>
 		
-		<br v-if="clipInfo && messageData.user.is_blocked !== true">
-		<div v-if="clipInfo && messageData.user.is_blocked !== true" class="clip" @click.stop="openClip()">
+		<br v-if="clipInfo && channelInfo.is_blocked !== true">
+		<div v-if="clipInfo && channelInfo.is_blocked !== true" class="clip" @click.stop="openClip()">
 			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
 			<div class="infos">
 				<div class="title">{{clipInfo.title}}</div>
@@ -144,6 +144,7 @@ export default class ChatMessage extends Vue {
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
+	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	
 	public text = "";
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
@@ -161,11 +162,10 @@ export default class ChatMessage extends Vue {
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
 	
+	
 	public get showNofollow():boolean{
-		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
-			return !this.messageData.user.is_following;
-		}
-		return false
+		return this.$store("params").appearance.highlightNonFollowers.value === true
+		&& this.channelInfo.is_following === false;
 	}
 
 	/**
@@ -190,8 +190,7 @@ export default class ChatMessage extends Vue {
 
 		if(message.cyphered)					res.push("cyphered");
 		if(this.automod)						res.push("automod");
-		if(this.showNofollow)					res.push("noFollow");
-		if(this.messageData.user.is_blocked)	res.push("blockedUser");
+		if(this.channelInfo.is_blocked)	res.push("blockedUser");
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.deleted) {
 				res.push("deleted");
@@ -268,9 +267,9 @@ export default class ChatMessage extends Vue {
 		let res:TwitchatDataTypes.TwitchatUserBadge[] = [];
 		if(this.$store("params").appearance.showBadges.value
 		&& !this.$store("params").appearance.minimalistBadges.value
-		&& this.messageData.user.badges) {
+		&& this.channelInfo.badges) {
 			try {
-				res = this.messageData.user.badges;
+				res = this.channelInfo.badges;
 			}catch(error){
 				res = [];
 			}
@@ -289,9 +288,9 @@ export default class ChatMessage extends Vue {
 
 		if(this.$store("params").appearance.showBadges.value
 		&& this.$store("params").appearance.minimalistBadges.value
-		&& message.user.badges) {
-			for (let i = 0; i < message.user.badges.length; i++) {
-				const b = message.user.badges[i];
+		&& this.channelInfo.badges) {
+			for (let i = 0; i < this.channelInfo.badges.length; i++) {
+				const b = this.channelInfo.badges[i];
 				switch(b.id) {
 					case "predictions": {
 						//TODO color probably won't work
@@ -300,7 +299,7 @@ export default class ChatMessage extends Vue {
 						break;
 					}
 					case "subscriber": {
-						if(message.user.is_broadcaster !== true) {
+						if(this.channelInfo.is_broadcaster !== true) {
 							badges.push({label:"Sub", class:"subscriber"});
 						}
 						break;
@@ -317,6 +316,10 @@ export default class ChatMessage extends Vue {
 			}
 		}
 		return badges;
+	}
+
+	public beforeMount() {
+		this.channelInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
 	}
 
 	/**
@@ -360,11 +363,11 @@ export default class ChatMessage extends Vue {
 
 			if(!this.lightMode) {
 				const sParams = this.$store("params");
-				if(this.messageData.user.is_moderator
+				if(this.channelInfo.is_moderator
 					&& sParams.appearance.highlightMods.value)	this.staticClasses.push("highlightMods");
-				else if(this.messageData.user.is_vip
+				else if(this.channelInfo.is_vip
 					&& sParams.appearance.highlightVips.value)	this.staticClasses.push("highlightVips");
-				else if(this.messageData.user.is_subscriber
+				else if(this.channelInfo.is_subscriber
 					&& sParams.appearance.highlightSubs.value)	this.staticClasses.push("highlightSubs");
 			}
 		}
@@ -373,7 +376,7 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.messageData.channel_id !== UserSession.instance.twitchUser!.id
-									&& this.messageData.user.is_moderator===true || this.messageData.user.is_broadcaster===true;
+									&& this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true;
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
@@ -446,15 +449,15 @@ export default class ChatMessage extends Vue {
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
 		}else{
-			const messageBckp = this.messageData.user.messageHistory;
+			const messageBckp = this.channelInfo.messageHistory;
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
-			this.messageData.user.messageHistory = [];
+			this.channelInfo.messageHistory = [];
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
-			this.messageData.user.messageHistory = messageBckp;
+			this.channelInfo.messageHistory = messageBckp;
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
 		}
@@ -878,12 +881,10 @@ export default class ChatMessage extends Vue {
 		}
 	}
 
-	&.noFollow {
-		.noFollowBadge {
-			height: 1em;
-			margin-right: 5px;
-			vertical-align: middle;
-		}
+	.noFollowBadge {
+		height: 1em;
+		margin-right: 5px;
+		vertical-align: middle;
 	}
 
 	&.announcement {

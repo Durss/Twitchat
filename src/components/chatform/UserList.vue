@@ -42,6 +42,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -55,23 +56,28 @@ export default class UserList extends Vue {
 
 	public users:TwitchatDataTypes.TwitchatUser[] = [];
 	public showInfo:boolean = false;
+	public channelId!:string;
 
-	public get broadcaster():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.is_broadcaster); }
+	public get broadcaster():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId].is_broadcaster); }
 
-	public get mods():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.is_moderator); }
+	public get mods():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId].is_moderator); }
 
-	public get vips():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.is_vip); }
+	public get vips():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId].is_vip); }
 
-	public get simple():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>{ return !u.is_moderator && !u.is_broadcaster && !u.is_vip; }); }
+	public get simple():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>{ return !u.channelInfo[this.channelId].is_moderator && !u.channelInfo[this.channelId].is_broadcaster && !u.channelInfo[this.channelId].is_vip; }); }
 	
 	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
 		if(this.$store("params").appearance.highlightNonFollowers.value === true
-		&& user.is_following === false) res.push("noFollow");
+		&& user.channelInfo[this.channelId].is_following === false) res.push("noFollow");
 		return res;
 	}
 
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public beforeMount():void {
+		this.channelId = UserSession.instance.twitchUser!.id;
+	}
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
@@ -139,16 +145,21 @@ export default class UserList extends Vue {
 		const users = this.$store("users").users;
 		for (let j = 0; j < users.length; j++) {
 			const user = users[j];
-			if(user.online) res.push(user);
+			for (const chan in user.channelInfo) {
+				if(user.channelInfo[chan].online) {
+					res.push(user);
+					break;
+				}
+			}
 		}
 
 		res.sort((a,b) => {
-			if(a.is_broadcaster && !b.is_broadcaster) return -1;
-			if(b.is_broadcaster && !a.is_broadcaster) return  1;
-			if(a.is_moderator && !b.is_moderator) return -1;
-			if(b.is_moderator && !a.is_moderator) return  1;
-			if(a.is_vip && !b.is_vip) return -1;
-			if(b.is_vip && !a.is_vip) return  1;
+			if(a.channelInfo[this.channelId].is_broadcaster && !b.channelInfo[this.channelId].is_broadcaster) return -1;
+			if(b.channelInfo[this.channelId].is_broadcaster && !a.channelInfo[this.channelId].is_broadcaster) return  1;
+			if(a.channelInfo[this.channelId].is_moderator && !b.channelInfo[this.channelId].is_moderator) return -1;
+			if(b.channelInfo[this.channelId].is_moderator && !a.channelInfo[this.channelId].is_moderator) return  1;
+			if(a.channelInfo[this.channelId].is_vip && !b.channelInfo[this.channelId].is_vip) return -1;
+			if(b.channelInfo[this.channelId].is_vip && !a.channelInfo[this.channelId].is_vip) return  1;
 			if(a.displayName > b.displayName ) return 1;
 			if(a.displayName < b.displayName ) return -1;
 			return 0;

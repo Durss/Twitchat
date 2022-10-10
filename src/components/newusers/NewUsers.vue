@@ -210,7 +210,7 @@ export default class NewUsers extends Vue {
 		const m = list[list.length - 1]; //TODO make sure we're not skipping messages. Is the watcher triggered for EVERY message or by batch?
 		
 		if(m.type != "message") return;
-		if(m.user.is_blocked === true) return;//Ignore blocked users
+		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
 		if(m.user.id == UserSession.instance.twitchUser!.id) return;
 		//Ignore bot messages

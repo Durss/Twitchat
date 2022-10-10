@@ -91,67 +91,50 @@ export const storeUsers = defineStore('users', {
 				};
 				userMaps[platform] = hashmap;
 			}
-			if(id && hashmap.idToUser[id])					return hashmap.idToUser[id];
-			if(login && hashmap.loginToUser[login])			return hashmap.loginToUser[login];
-			if(login && hashmap.displayNameToUser[login])	return hashmap.displayNameToUser[login];
+			if(id && hashmap.idToUser[id])					user = hashmap.idToUser[id];
+			if(login && hashmap.loginToUser[login])			user = hashmap.loginToUser[login];
+			if(login && hashmap.displayNameToUser[login])	user = hashmap.displayNameToUser[login];
 
-			//Create user if enough given info
-			if(!user && id && login) {
-				if(!displayName) displayName = login;
-				user = {
-					platform,
-					id,
-					login,
-					displayName,
-					greeted:false,
-					online:false,
-					is_tracked:false,
-					messageHistory:[],
-					is_following:null,
-					is_blocked:false,
-					is_banned:false,
-					is_vip:false,
-					is_moderator:false,
-					is_broadcaster:false,
-					is_subscriber:false,
-					is_partner:false,
-					is_affiliate:false,
-					is_gifter:false,
-					pronouns:false,
-					pronounsLabel:false,
-					pronounsTooltip:false,
-				};
-				if(this.blockedUsers[platform][id] === true) {
-					user.is_blocked = true;
+			const userExisted = user != undefined;
+
+			if(!user) {
+				//Create user if enough given info
+				if(id && login) {
+					if(!displayName) displayName = login;
+					user = {
+						platform,
+						id,
+						login,
+						displayName,
+						greeted:false,
+						pronouns:false,
+						pronounsLabel:false,
+						pronounsTooltip:false,
+						is_partner:false,
+						is_affiliate:false,
+						is_tracked:false,
+						channelInfo:{},
+					};
 				}
-			}
-			//If we don't have enough info, create a temp user object and load
-			//its details from the API then register it if found.
-			if(!user && (!login || !id || !displayName)) {
-				user = {
-					platform:platform,
-					id:id??"temporary_"+Utils.getUUID(),
-					login:login??displayName??"",
-					displayName:displayName??login??"",
-					greeted:false,
-					online:false,
-					is_tracked:false,
-					messageHistory:[],
-					temporary:true,
-					is_following:null,
-					is_blocked:false,
-					is_banned:false,
-					is_vip:false,
-					is_moderator:false,
-					is_broadcaster:false,
-					is_subscriber:false,
-					is_partner:false,
-					is_affiliate:false,
-					is_gifter:false,
-					pronouns:false,
-					pronounsLabel:false,
-					pronounsTooltip:false,
-				};
+				//If we don't have enough info, create a temp user object and load
+				//its details from the API then register it if found.
+				if(!login || !id || !displayName) {
+					user = {
+						platform:platform,
+						id:id??"temporary_"+Utils.getUUID(),
+						login:login??displayName??"",
+						displayName:displayName??login??"",
+						greeted:false,
+						temporary:true,
+						pronouns:false,
+						pronounsLabel:false,
+						pronounsTooltip:false,
+						is_partner:false,
+						is_affiliate:false,
+						is_tracked:false,
+						channelInfo:{},
+					};
+				}
 			}
 			
 			//This just makes the rest of the code know that the user
@@ -159,9 +142,28 @@ export const storeUsers = defineStore('users', {
 			//we're here.
 			user = user!;
 
-			if(this.blockedUsers[platform][user.id] === true) {
-				user.is_blocked = true;
+			if(channelId) {
+				if(!user.channelInfo[channelId]) {
+					user.channelInfo[channelId] = {
+						messageHistory:[],
+						online:false,
+						is_following:null,
+						is_blocked:false,
+						is_banned:false,
+						is_vip:false,
+						is_moderator:false,
+						is_broadcaster:false,
+						is_subscriber:false,
+						is_gifter:false,
+					};
+				}
+	
+				if(this.blockedUsers[platform][user.id] === true) {
+					user.channelInfo[channelId].is_blocked = true;
+				}
 			}
+
+			if(userExisted) return user;
 
 			if(platform == "twitch") {
 				//Wait half a second to let time to external code to populate the
@@ -213,8 +215,8 @@ export const storeUsers = defineStore('users', {
 								if(userLocal.temporary) {
 									delete userLocal.temporary;
 									this.users.push(userLocal);
-									this.checkFollowerState(userLocal, channelId);
 									this.checkPronouns(userLocal);
+									if(channelId) this.checkFollowerState(userLocal, channelId);
 									if(loadCallback) loadCallback(userLocal);
 								}
 							}
@@ -234,12 +236,12 @@ export const storeUsers = defineStore('users', {
 
 			if(user.temporary != true) {
 				this.users.push(user);
-				this.checkFollowerState(user, channelId);
 				this.checkPronouns(user);
-				if(loadCallback) loadCallback(user);
+				if(channelId)			this.checkFollowerState(user, channelId);
 				if(user.id)				hashmap.idToUser[user.id] = user;
 				if(user.login)			hashmap.loginToUser[user.login] = user;
 				if(user.displayName)	hashmap.displayNameToUser[user.displayName] = user;
+				if(loadCallback)		loadCallback(user);
 			}
 
 			return user;
@@ -255,54 +257,54 @@ export const storeUsers = defineStore('users', {
 			}catch(error) {/*ignore*/}
 		},
 
-		flagMod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+		flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform) {
-					this.users[i].is_moderator = true;
+					this.users[i].channelInfo[channelId].is_moderator = true;
 					break;
 				}
 			}
 		},
 		
-		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform) {
-					this.users[i].is_moderator = false;
+					this.users[i].channelInfo[channelId].is_moderator = false;
 					break;
 				}
 			}
 		},
 
-		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform) {
-					this.users[i].is_blocked = true;
+					this.users[i].channelInfo[channelId].is_blocked = true;
 					break;
 				}
 			}
 		},
 		
-		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform) {
-					this.users[i].is_blocked = false;
+					this.users[i].channelInfo[channelId].is_blocked = false;
 					break;
 				}
 			}
 		},
 
-		flagBanned(platform:TwitchatDataTypes.ChatPlatform, uid:string, duration_s?:number):void {
+		flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void {
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform) {
-					this.users[i].is_banned = true;
+					this.users[i].channelInfo[channelId].is_banned = true;
 					break;
 				}
 			}
@@ -312,17 +314,17 @@ export const storeUsers = defineStore('users', {
 			if(duration_s != undefined) {
 				//Auto unflag the user once timeout expires
 				unbanFlagTimeouts[uid] = setTimeout(()=> {
-					StoreProxy.users.flagUnbanned("twitch", uid);
+					StoreProxy.users.flagUnbanned("twitch", channelId, uid);
 				}, duration_s*1000)
 			}
 		},
 		
-		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform) {
-					this.users[i].is_banned = false;
+					this.users[i].channelInfo[channelId].is_banned = false;
 					break;
 				}
 			}
@@ -331,26 +333,26 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[]):void{
+		flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void{
 			for (let i = 0; i < users.length; i++) {
-				users[i].online = true;
+				users[i].channelInfo[channelId].online = true;
 			}
 		},
 
-		flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[]):void{
+		flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void{
 			for (let i = 0; i < users.length; i++) {
-				users[i].online = false;
+				users[i].channelInfo[channelId].online = false;
 			}
 		},
 
 		//Check if user is following
-		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId?:string):Promise<boolean> {
+		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
-				if(user.is_following == undefined) {
+				if(user.channelInfo[channelId].is_following == null) {
 					try {
-						console.log("Check if ", user.displayName, "follows", channelId, "or", UserSession.instance.twitchUser!.id);
+						// console.log("Check if ", user.displayName, "follows", channelId, "or", UserSession.instance.twitchUser!.id);
 						const res = await TwitchUtils.getFollowState(user.id, channelId ?? UserSession.instance.twitchUser!.id)
-						user.is_following = res;
+						user.channelInfo[channelId].is_following = res;
 						return true;
 					}catch(error){};
 				}
@@ -422,8 +424,8 @@ export const storeUsers = defineStore('users', {
 			
 		},
 
-		flagAsFollower(user:TwitchatDataTypes.TwitchatUser):void {
-			user.is_following = true;
+		flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void {
+			user.channelInfo[channelId].is_following = true;
 		},
 
 		openUserCard(user:TwitchatDataTypes.TwitchatUser) { this.userCard = user; },

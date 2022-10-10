@@ -121,8 +121,13 @@ export default class EmoteSelector extends Vue {
 				avatarPath:this.$image("icons/emote.svg"),
 				id:"0",
 				greeted:true,
-				online:false,
-				messageHistory:[],
+				is_affiliate:false,
+				is_partner:false,
+				is_tracked:false,
+				pronouns:false,
+				pronounsLabel:false,
+				pronounsTooltip:false,
+				channelInfo:{},
 			});
 	
 			//Build emotes list for each sorted user

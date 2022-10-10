@@ -167,7 +167,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(text.charAt(0) == "/") {
 			const chunks = text.split(/\s/gi);
 			let cmd = (chunks.shift() as string).toLowerCase();
-			if(cmd.indexOf("/announce")) {
+			if(cmd.indexOf("/announce") === 0) {
 				let color = cmd.replace("/announce", "");
 				if(color.length === 0) color = "primary";
 				if(["blue","green","orange","purple","primary"].indexOf(color) === -1) {
@@ -351,23 +351,23 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isBroadcaster	= tags.badges?.broadcaster != undefined;
 		const isPartner		= tags.badges?.partner != undefined;
 
-		user.online			= true;
 		user.is_partner		= false;
 		user.is_affiliate	= false;
+		user.channelInfo[channelId].online	= true;
 		
 		if(tags.color)		user.color = tags.color;
-		if(isMod)			user.is_moderator = true;
-		if(isVip)			user.is_vip = true;
-		if(isSub)			user.is_subscriber = true;
-		if(isSubGifter)		user.is_gifter = true;
-		if(isBroadcaster)	user.is_broadcaster = true;
+		if(isMod)			user.channelInfo[channelId].is_moderator = true;
+		if(isVip)			user.channelInfo[channelId].is_vip = true;
+		if(isSub)			user.channelInfo[channelId].is_subscriber = true;
+		if(isSubGifter)		user.channelInfo[channelId].is_gifter = true;
+		if(isBroadcaster)	user.channelInfo[channelId].is_broadcaster = true;
 		if(isPartner) {
 			user.is_partner		= true;
 			user.is_affiliate	= true;
 		}
 		
 
-		if(tags.badges && tags["room-id"] && !user.badges) {
+		if(tags.badges && tags["room-id"] && !user.channelInfo[channelId].badges) {
 			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"]!, tags.badges);
 			const badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 			for (let i = 0; i < parsedBadges.length; i++) {
@@ -382,7 +382,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					title: tags["badge-info"][b.id] ?? b.title,
 				});
 			}
-			user.badges = badges;
+			user.channelInfo[channelId].badges = badges;
 		}
 		return user;
 	}
@@ -403,9 +403,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
-		user.online			= true;
 		user.is_partner		= false;
 		user.is_affiliate	= false;
+		user.channelInfo[channelId].online			= true;
 		return user;
 	}
 	
@@ -786,7 +786,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					id:Utils.getUUID(),
 					type:"whisper",
 					date:Date.now(),
-		
+					channel_id:channelId,
 					platform:"twitch",
 					user: this.getUserFromTags(tags, channelId),
 					to: this.getUserFromLogin(toLogin, channelId),

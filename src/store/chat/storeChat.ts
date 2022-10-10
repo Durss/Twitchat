@@ -331,7 +331,7 @@ export const storeChat = defineStore('chat', {
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.RAID) sStream.lastRaider = message.user;
 
 			//If it's a follow event, flag user as a follower
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) sUsers.flagAsFollower(message.user);
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) sUsers.flagAsFollower(message.user, message.channel_id);
 
 			//If it's a subgift, merge it with potential previous ones
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
@@ -381,7 +381,7 @@ export const storeChat = defineStore('chat', {
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				//Reset ad schedule if necessary
-				if(!message.user.is_broadcaster) {
+				if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
 					SchedulerHelper.instance.incrementMessageCount();
 				}
 				if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
@@ -389,7 +389,7 @@ export const storeChat = defineStore('chat', {
 				}
 
 				//If it's a text message and user isn't a follower, broadcast to WS
-				if(message.user.is_following) {
+				if(message.user.channelInfo[message.channel_id].is_following) {
 					//TODO Broadcast to OBS-ws
 					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
 				}
@@ -438,7 +438,7 @@ export const storeChat = defineStore('chat', {
 				sEmergency.handleChatCommand(message, cmd);
 				
 				//Handle spoiler command
-				if(message.answersTo && Utils.checkPermissions(this.spoilerParams.permissions, message.user)) {
+				if(message.answersTo && Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
 					const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
 					if(cmd.indexOf("!spoiler") === 0) {
 						message.answersTo.spoiler = true;
@@ -450,7 +450,7 @@ export const storeChat = defineStore('chat', {
 
 				//check if it's a chat alert command
 				if(sParams.features.alertMode.value === true && 
-				Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user)) {
+				Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
 					if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 						//Remove command from message to make later things easier
 						sMain.chatAlert = message;
@@ -468,7 +468,7 @@ export const storeChat = defineStore('chat', {
 				//Check if it's a voicemod command
 				if(sVoice.voicemodParams.enabled
 				&& sVoice.voicemodParams.commandToVoiceID[cmd]
-				&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user)) {
+				&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
 					VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
 				}
 
@@ -479,7 +479,7 @@ export const storeChat = defineStore('chat', {
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
 				for (let i = 0; i < message.users.length; i++) {
 					const user = message.users[i];
-					const rule = Utils.isAutomoded(user.displayName, user);
+					const rule = Utils.isAutomoded(user.displayName, user, message.channel_id);
 					if(rule != null) {
 						MessengerProxy.instance.sendMessage(user.platform, )
 						if(user.platform == "twitch") {
@@ -517,14 +517,14 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-					message.user.messageHistory.push(message);
+					message.user.channelInfo[message.channel_id].messageHistory.push(message);
 
-					if(sAutomod.params.banUserNames === true && !message.user.is_banned) {
+					if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
 						//Check if nickname passes the automod
-						let rule = Utils.isAutomoded(message.user.displayName, message.user);
+						let rule = Utils.isAutomoded(message.user.displayName, message.user, message.channel_id);
 						if(rule) {
 							if(message.user.platform == "twitch") {
-								message.user.is_banned = true;
+								message.user.channelInfo[message.channel_id].is_banned = true;
 								TwitchUtils.banUser(message.user.id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 							}
 							//Most message on chat to alert the stream
@@ -546,7 +546,7 @@ export const storeChat = defineStore('chat', {
 					if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 					&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
 					&& message.message) {
-						let rule = Utils.isAutomoded(message.message, message.user);
+						let rule = Utils.isAutomoded(message.message, message.user, message.channel_id);
 						if(rule) {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								message.automod = rule;

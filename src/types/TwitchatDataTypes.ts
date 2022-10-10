@@ -428,15 +428,25 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface TwitchatUser {
+		id:string;
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
 		greeted:boolean;
-		online:boolean;
 		color?:string;
 		avatarPath?:string;
-		id:string;
+		is_partner:boolean;
+		is_affiliate:boolean;
 		is_tracked:boolean;
+		pronouns:string|false;
+		pronounsLabel:string|false;
+		pronounsTooltip:string|false;
+		channelInfo:{[key:string]:UserChannelInfo},
+		temporary?:boolean;//true when the details are loading
+	}
+
+	export interface UserChannelInfo {
+		online:boolean;
 		is_following:boolean|null;
 		is_blocked:boolean;
 		is_banned:boolean;
@@ -444,14 +454,8 @@ export namespace TwitchatDataTypes {
 		is_moderator:boolean;
 		is_broadcaster:boolean;
 		is_subscriber:boolean;
-		is_partner:boolean;
-		is_affiliate:boolean;
 		is_gifter:boolean;
-		pronouns:string|false;
-		pronounsLabel:string|false;
-		pronounsTooltip:string|false;
 		badges?:TwitchatUserBadge[];
-		temporary?:boolean;//true when the details are loading
 		messageHistory:ChatMessageTypes[];
 	}
 
@@ -662,6 +666,7 @@ export namespace TwitchatDataTypes {
 
 	export interface MessageWhisperData extends AbstractTwitchatMessage {
 		type:"whisper";
+		channel_id:string;
 		user: TwitchatUser;
 		to: TwitchatUser;
 		message:string;

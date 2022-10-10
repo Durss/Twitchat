@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="messages" v-if="selectedUser">
-			<ChatMessage v-for="(m, index) in selectedUser.messageHistory" :key="index"
+			<ChatMessage v-for="(m, index) in getMessageHistory(selectedUser)" :key="index"
 				:messageData="m"
 				:lightMode="true"
 				:disableConversation="true"
@@ -16,7 +16,7 @@
 			:key="u.id">
 				<Button class="login"
 					@click="selectUser(u)"
-					:title="'('+u.messageHistory.length+') '+u.displayName"
+					:title="'('+getMessageHistory(u).length+') '+u.displayName"
 					bounce />
 				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"
@@ -47,6 +47,14 @@ export default class TrackedUsers extends Vue {
 	public get classes():string[] {
 		let res = ["trackedusers"];
 		return res;
+	}
+
+	public getMessageHistory(user:TwitchatDataTypes.TwitchatUser):TwitchatDataTypes.ChatMessageTypes[] {
+		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
+		for (const chan in this.selectedUser!.channelInfo) {
+			list = list.concat(this.selectedUser!.channelInfo[chan].messageHistory)
+		}
+		return list;
 	}
 
 	public get trackedUsers():TwitchatDataTypes.TwitchatUser[] {
