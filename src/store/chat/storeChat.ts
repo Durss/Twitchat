@@ -380,6 +380,7 @@ export const storeChat = defineStore('chat', {
 			}
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				message.user.channelInfo[message.channel_id].messageHistory.push(message);
 				//Reset ad schedule if necessary
 				if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
 					SchedulerHelper.instance.incrementMessageCount();
@@ -483,7 +484,7 @@ export const storeChat = defineStore('chat', {
 					if(rule != null) {
 						MessengerProxy.instance.sendMessage(user.platform, )
 						if(user.platform == "twitch") {
-							TwitchUtils.banUser(user.id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+							TwitchUtils.banUser(user.id, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
 						}
 						//Most message on chat to alert the stream
 						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
@@ -517,15 +518,13 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-					message.user.channelInfo[message.channel_id].messageHistory.push(message);
-
 					if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
 						//Check if nickname passes the automod
 						let rule = Utils.isAutomoded(message.user.displayName, message.user, message.channel_id);
 						if(rule) {
 							if(message.user.platform == "twitch") {
 								message.user.channelInfo[message.channel_id].is_banned = true;
-								TwitchUtils.banUser(message.user.id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
+								TwitchUtils.banUser(message.user.id, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 							}
 							//Most message on chat to alert the stream
 							const mess:TwitchatDataTypes.MessageAutobanJoinData = {

@@ -198,8 +198,6 @@ export default class UserList extends Vue {
 			}
 		}
 
-		console.log(this.channels);
-
 	}
 }
 </script>

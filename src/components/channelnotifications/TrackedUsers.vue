@@ -51,8 +51,8 @@ export default class TrackedUsers extends Vue {
 
 	public getMessageHistory(user:TwitchatDataTypes.TwitchatUser):TwitchatDataTypes.ChatMessageTypes[] {
 		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (const chan in this.selectedUser!.channelInfo) {
-			list = list.concat(this.selectedUser!.channelInfo[chan].messageHistory)
+		for (const chan in user.channelInfo) {
+			list = list.concat(user.channelInfo[chan].messageHistory)
 		}
 		return list;
 	}
