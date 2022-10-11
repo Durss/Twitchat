@@ -17,6 +17,7 @@
 				<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
 			</div>
 			<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
+			<slot class="label"></slot>
 			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 		</div>
 

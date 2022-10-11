@@ -5,6 +5,7 @@ import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
@@ -40,9 +41,10 @@ export default class MessengerProxy {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[]):void {
+	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):void {
 		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
-		if(!hasPlatform || targetPlatforms.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(message);
+		if(!channelId) channelId = UserSession.instance.twitchUser!.login;
+		if(!hasPlatform || targetPlatforms.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(channelId, message);
 	}
 
 	public async connect():Promise<void> {
@@ -129,7 +131,7 @@ export default class MessengerProxy {
 				StoreProxy.users.flagOnlineUsers(d.users, d.channel_id);
 				
 				this.onMessage(new MessengerClientEvent("JOIN", {
-					platform:"twitchat",//Actual platform can later be retrieved from the user object, no need for it here
+					platform:d.platform,
 					type:"join",
 					id:Utils.getUUID(),
 					channel_id:d.channel_id,
@@ -149,7 +151,7 @@ export default class MessengerProxy {
 				StoreProxy.users.flagOfflineUsers(d.users, d.channel_id);
 				
 				this.onMessage(new MessengerClientEvent("LEAVE", {
-					platform:"twitchat",//Actual platform can later be retrieved from the user object, no need for it here
+					platform:d.platform,
 					type:"leave",
 					id:Utils.getUUID(),
 					channel_id:d.channel_id,

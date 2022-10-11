@@ -607,7 +607,6 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 			}
-			console.log("DELETED !");
 			this.messages = list;
 		},
 

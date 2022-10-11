@@ -12,8 +12,8 @@
 
 		<span v-if="remainingCount > 0"><strong>{{remainingCount}}</strong> more</span>
 
-		<span v-if="messageData.type=='join'"> joined the chat room</span>
-		<span v-else> left the chat room</span>
+		<span v-if="messageData.type=='join'"> joined the chat room{{channelName}}</span>
+		<span v-else> left the chat room{{channelName}}</span>
 	</div>
 </template>
 
@@ -37,7 +37,8 @@ export default class ChatJoinLeave extends Vue {
 	public userList:TwitchatDataTypes.TwitchatUser[] = [];
 	public remainingOffset:number = 0;
 	public remainingCount:number = 0;
-	public icon = "enter";
+	public icon:string = "enter";
+	public channelName:string = "";
 	
 
 	public get classes():string[] {
@@ -65,6 +66,12 @@ export default class ChatJoinLeave extends Vue {
 		}else{
 			message += " left the chat room";
 			this.icon = "leave";
+		}
+
+		const chan = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
+		if(chan) {
+			this.channelName = " #"+chan.login;
+			message += this.channelName;
 		}
 
 		this.$emit("ariaMessage", message);

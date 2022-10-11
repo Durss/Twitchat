@@ -4,7 +4,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
+import { reactive, type UnwrapRef } from 'vue';
 import { storeChat } from '../chat/storeChat';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
@@ -16,7 +16,7 @@ let userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	displayNameToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 }}> = {};
 
-let twitchUserBatchToLoad:TwitchatDataTypes.TwitchatUser[] = [];
+let twitchUserBatchToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
 let twitchUserBatchTimeout:number = -1;
 
 export const storeUsers = defineStore('users', {
@@ -101,11 +101,11 @@ export const storeUsers = defineStore('users', {
 				//Create user if enough given info
 				if(id && login) {
 					if(!displayName) displayName = login;
-					user = {
+					user = reactive({
 						platform,
-						id,
-						login,
-						displayName,
+						id:id ?? "",
+						login:login ?? "",
+						displayName:displayName ?? "",
 						greeted:false,
 						pronouns:false,
 						pronounsLabel:false,
@@ -114,12 +114,12 @@ export const storeUsers = defineStore('users', {
 						is_affiliate:false,
 						is_tracked:false,
 						channelInfo:{},
-					};
+					}) as TwitchatDataTypes.TwitchatUser;
 				}
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
 				if(!login || !id || !displayName) {
-					user = {
+					user = reactive({
 						platform:platform,
 						id:id??"temporary_"+Utils.getUUID(),
 						login:login??displayName??"",
@@ -133,7 +133,7 @@ export const storeUsers = defineStore('users', {
 						is_affiliate:false,
 						is_tracked:false,
 						channelInfo:{},
-					};
+					}) as TwitchatDataTypes.TwitchatUser;
 				}
 			}
 			
@@ -143,16 +143,17 @@ export const storeUsers = defineStore('users', {
 			user = user!;
 
 			if(channelId) {
+				//Init channel data for this user
 				if(!user.channelInfo[channelId]) {
 					user.channelInfo[channelId] = {
 						messageHistory:[],
 						online:false,
-						is_following:null,
+						is_following:channelId == user.id? true : null,
 						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
 						is_moderator:false,
-						is_broadcaster:false,
+						is_broadcaster:channelId == user.id,
 						is_subscriber:false,
 						is_gifter:false,
 					};
@@ -177,28 +178,24 @@ export const storeUsers = defineStore('users', {
 						//User not pending for necessary data loading, check if the
 						//partner/affiliate state is defined, if so, just stop there
 						//Otherwise, load full info from API
-						if(user!.is_partner != undefined) return false;
-						if(user!.is_affiliate != undefined) return false;
+						if(user!.is_partner != undefined) return;
+						if(user!.is_affiliate != undefined) return;
 					}
-					const logins = twitchUserBatchToLoad
-					// .filter(v=> {
-					// 	if(!v.temporary) {
-					// 		//User not pending for necessary data loading, check if the
-					// 		//partner/affiliate state is defined, if so, just stop there
-					// 		//Otherwise, load full info from API
-					// 		if(v.is_partner != undefined) return false;
-					// 		if(v.is_affiliate != undefined) return false;
-					// 	}
-					// 	return true;
-					// })
-					.map(v=> v.login);
+					
+					const logins = twitchUserBatchToLoad.map(v=> v.user.login);
+
 					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined).then(async (res) => {
 						user = user!;
 						if(res.length > 0) {
 							for (let i = 0; i < res.length; i++) {
 								const u = res[i];
-								let index = twitchUserBatchToLoad.findIndex(v => v.login === u.login);
-								const userLocal = !batchMode? user : twitchUserBatchToLoad.splice(index, 1)[0];
+								let index = twitchUserBatchToLoad.findIndex(v => v.user.login === u.login);
+								let userLocal = user;
+								if(batchMode) {
+									const data = twitchUserBatchToLoad.splice(index, 1)[0];
+									userLocal = data.user;
+									channelId = data.channelId;
+								}
 								if(!userLocal) {
 									console.warn("Could not load back the user \""+u.login+"\" from the batch ref");
 									continue;
@@ -225,7 +222,7 @@ export const storeUsers = defineStore('users', {
 				}, 500);
 				//Only batch requests by login
 				if(batchMode) {
-					twitchUserBatchToLoad.push(user);
+					twitchUserBatchToLoad.push({user, channelId});
 					if(twitchUserBatchTimeout > -1) clearTimeout(twitchUserBatchTimeout);
 					twitchUserBatchTimeout = to;
 				}
@@ -347,6 +344,11 @@ export const storeUsers = defineStore('users', {
 
 		//Check if user is following
 		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
+			//If that's us, flag as a follower;
+			if(user.channelInfo[channelId]?.is_broadcaster) {
+				user.channelInfo[channelId].is_following = true;
+				return true;
+			}
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
 				if(user.channelInfo[channelId].is_following == null) {
 					try {

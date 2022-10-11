@@ -557,9 +557,31 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+UserSession.instance.twitchAuthToken.user_id, options);
-		const json = await res.json();
+		const json:{data:TwitchDataTypes.Poll[]} = await res.json();
 		if(res.status == 200) {
-			StoreProxy.poll.setCurrentPoll(json.data);
+			if(json.data[0].status == "ACTIVE") {
+				const src = json.data[0];
+				const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
+				src.choices.forEach(v=> {
+					choices.push({
+						id:v.id,
+						label:v.title,
+						votes:v.votes,
+					})
+				})
+				const poll:TwitchatDataTypes.MessagePollData = {
+					id:src.id,
+					channel_id:src.broadcaster_id,
+					date:Date.now(),
+					type:"poll",
+					platform:"twitch",
+					duration_s:src.duration,
+					started_at:src.started_at,
+					title:src.title,
+					choices,
+				}
+				StoreProxy.poll.setCurrentPoll(poll);
+			}
 			return json.data;
 		}
 		throw(json);
@@ -1226,7 +1248,7 @@ export default class TwitchUtils {
 	/**
 	 * Bans a user
 	 */
-	public static async banUser(uid:string, duration?:number, reason?:string):Promise<boolean> {
+	public static async banUser(uid:string, channelId:string, duration?:number, reason?:string):Promise<boolean> {
 		if(duration != undefined && duration === 0) return false;
 
 		const body:{[key:string]:string|number} = {
@@ -1246,7 +1268,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagBanned("twitch", uid, duration);
+			StoreProxy.users.flagBanned("twitch", channelId, uid, duration);
 			return true;
 		}else{
 			return false;
@@ -1256,7 +1278,7 @@ export default class TwitchUtils {
 	/**
 	 * Unbans a user
 	 */
-	public static async unbanUser(uid:string):Promise<boolean> {
+	public static async unbanUser(uid:string, channelId:string):Promise<boolean> {
 		const options = {
 			method:"DELETE",
 			headers: this.headers,
@@ -1268,7 +1290,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagUnbanned("twitch", uid);
+			StoreProxy.users.flagUnbanned("twitch", uid, channelId);
 			return true;
 		}else{
 			return false;
@@ -1278,7 +1300,7 @@ export default class TwitchUtils {
 	/**
 	 * Blocks a user
 	 */
-	public static async blockUser(uid:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
+	public static async blockUser(uid:string, channelId:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
 		const options = {
 			method:"PUT",
 			headers: this.headers,
@@ -1289,7 +1311,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagBlocked("twitch", uid);
+			StoreProxy.users.flagBlocked("twitch", uid, channelId);
 			return true;
 		}else{
 			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
@@ -1301,7 +1323,7 @@ export default class TwitchUtils {
 				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
 				
 				await Utils.promisedTimeout(delay)
-				return this.blockUser(uid, reason, ++recursiveIndex);
+				return this.blockUser(uid, channelId, reason, ++recursiveIndex);
 			}else{
 				return false;
 			}
@@ -1311,7 +1333,7 @@ export default class TwitchUtils {
 	/**
 	 * Unblocks a user
 	 */
-	public static async unblockUser(uid:string, recursiveIndex:number = 0):Promise<boolean> {
+	public static async unblockUser(uid:string, channelId:string, recursiveIndex:number = 0):Promise<boolean> {
 		const options = {
 			method:"DELETE",
 			headers: this.headers,
@@ -1321,7 +1343,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagUnblocked("twitch", uid);
+			StoreProxy.users.flagUnblocked("twitch", uid, channelId);
 			return true;
 		}else{
 			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
@@ -1333,7 +1355,7 @@ export default class TwitchUtils {
 				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
 				
 				await Utils.promisedTimeout(delay)
-				return this.unblockUser(uid, ++recursiveIndex);
+				return this.unblockUser(uid, channelId, ++recursiveIndex);
 			}else{
 				return false;
 			}
@@ -1499,7 +1521,7 @@ export default class TwitchUtils {
 	/**
 	 * Add or remove a channel moderator
 	 */
-	public static async addRemoveModerator(removeMod:boolean, uid?:string, login?:string):Promise<boolean> {
+	public static async addRemoveModerator(removeMod:boolean, channelId:string, uid?:string, login?:string):Promise<boolean> {
 		if(!uid && login) {
 			try {
 				uid = (await this.loadUserInfo(undefined, [login]))[0].id;
@@ -1520,9 +1542,9 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			if(removeMod) {
-				StoreProxy.users.flagUnmod("twitch", uid);
+				StoreProxy.users.flagUnmod("twitch", uid, channelId);
 			}else{
-				StoreProxy.users.flagMod("twitch", uid);
+				StoreProxy.users.flagMod("twitch", uid, channelId);
 			}
 			return true;
 		}else{

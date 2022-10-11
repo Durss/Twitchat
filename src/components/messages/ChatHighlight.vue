@@ -329,7 +329,7 @@ export default class ChatHighlight extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) return;
 		this.moderating = true;
 		if(this.messageData.user.platform == "twitch") {
-			await TwitchUtils.unbanUser(this.messageData.user.id);
+			await TwitchUtils.unbanUser(this.messageData.user.id, this.messageData.channel_id);
 		}
 		this.moderating = false;
 		this.canUnban = false;
@@ -340,7 +340,7 @@ export default class ChatHighlight extends Vue {
 		try {
 			const user = await TwitchUtils.loadUserInfo([this.user!.id]);
 			if(user?.length > 0) {
-				await TwitchUtils.blockUser(user[0].id)
+				await TwitchUtils.blockUser(user[0].id, this.messageData.channel_id);
 			}
 		}catch(error) {}
 		this.moderating = false;

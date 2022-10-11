@@ -331,12 +331,12 @@ export default class ChatForm extends Vue {
 		let followCount = 0;
 		let onlineCount = 0;
 		const users = this.$store("users").users;
+		const chan = UserSession.instance.twitchUser!.id;
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
-			for (const chan in u.channelInfo) {
-				if(u.channelInfo[chan].is_following === true) followCount ++;
-				if(u.channelInfo[chan].online === true) onlineCount ++;
-			}
+			if(!u.channelInfo[chan]) continue;
+			if(u.channelInfo[chan].is_following === true) followCount ++;
+			if(u.channelInfo[chan].online === true) onlineCount ++;
 		}
 		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 

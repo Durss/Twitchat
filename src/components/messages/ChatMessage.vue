@@ -700,6 +700,7 @@ export default class ChatMessage extends Vue {
 		color: #d1d1d1;
 		// position: relative;
 		word-break: break-word;
+		line-height: 1.5em;
 		:deep( .emote ) {
 			// width: 2em;
 			max-height: 2em;

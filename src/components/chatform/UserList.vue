@@ -1,41 +1,53 @@
 <template>
 	<div class="userlist">
-		<h1><img src="@/assets/icons/user.svg" alt="users"> Chat users <i>({{users.length}})</i></h1>
-		<a @click="toggleInfos()" class="infoBt">Why is the chat users count different from the viewer count?</a>
-		<div v-if="showInfo" class="infos" ref="infos">
-			<p>Chat user count shows people actually connected on your chat, viewers count tells how many viewers are watching you.</p>
-			<p>It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat or in audio-only on mobile)</i></p>
-			<p>Also, nothing's official, but it's almost certain that Twitch removes you from the viewer count if you keep the stream on a background tab for some time while keeping you connected on the chat so you keep receiving messages.</p>
-			<p>This usually makes your chatters count go higher than your viewers count after a raid.</p>
-			<p>When on homepage though, your viewer count will be MUCH higher than your chatters count.</p>
-		</div>
 		
-		<div class="users broadcaster" v-if="broadcaster.length > 0">
-			<div class="title">Broadcaster <i>({{broadcaster.length}})</i></div>
-			<div class="list">
-				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in broadcaster" :key="u.id">{{u.login}}</a>
+		<div v-if="currentChan">
+			<div class="userList broadcaster" v-if="currentChan.broadcaster.length > 0">
+				<div class="title">Broadcaster</div>
+				<div class="list">
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.broadcaster" :key="u.id">{{u.login}}</a>
+				</div>
 			</div>
-		</div>
-		
-		<div class="users mods" v-if="mods.length > 0">
-			<div class="title">Moderators <i>({{mods.length}})</i></div>
-			<div class="list">
-				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in mods" :key="u.id">{{u.login}}</a>
+			
+			<div class="userList mods" v-if="currentChan.mods.length > 0">
+				<div class="title">Moderators <i>({{currentChan.mods.length}})</i></div>
+				<div class="list">
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.mods" :key="u.id">{{u.login}}</a>
+				</div>
 			</div>
-		</div>
-		
-		<div class="users vips" v-if="vips.length > 0">
-			<div class="title">VIPs <i>({{vips.length}})</i></div>
-			<div class="list">
-				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in vips" :key="u.id">{{u.login}}</a>
+			
+			<div class="userList vips" v-if="currentChan.vips.length > 0">
+				<div class="title">VIPs <i>({{currentChan.vips.length}})</i></div>
+				<div class="list">
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.vips" :key="u.id">{{u.login}}</a>
+				</div>
+			</div>
+	
+			<div class="userList simple" v-if="currentChan.viewers.length > 0">
+				<div class="title">Users <i>({{currentChan.viewers.length}})</i></div>
+				<div class="list">
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.viewers" :key="u.id">{{u.login}}</a>
+				</div>
 			</div>
 		</div>
 
-		<div class="users simple" v-if="simple.length > 0">
-			<div class="title">Users <i>({{simple.length}})</i></div>
-			<div class="list">
-				<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in simple" :key="u.id">{{u.login}}</a>
-			</div>
+		<a v-if="currentChanId == channelId" @click="toggleInfos()" class="infoBt">Why is the chat users count different from the viewer count?</a>
+		<div v-if="showInfo" class="infos" ref="infos">
+			<p>Chat user count shows people actually connected to your chat. Viewers count tells how many people are watching your stream.</p>
+			<p>It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat, ...)</i></p>
+			<p>Also, nothing's official, but it's almost certain that Twitch removes you from the viewers count if you keep the stream on a background tab for some time.</p>
+			<p>This usually makes your chatters count higher than your viewers count after a raid.</p>
+			<p>When promoted on homepage though, your viewer count will be MUCH higher than your chatters count.</p>
+		</div>
+
+		<div class="users">
+			<img src="@/assets/icons/user.svg" alt="users">
+			<Button v-for="(chan, name) in channels" :key="name"
+			white
+			:class="currentChanId == name? 'current' : ''"
+			@click="currentChan = chan; currentChanId = name as string;"
+			:title="chan.broadcaster[0].displayName+'<i>('+(chan.broadcaster.length+chan.viewers.length+chan.vips.length+chan.mods.length)+')</i>'"
+			/>
 		</div>
 	</div>
 </template>
@@ -46,30 +58,38 @@ import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import Button from '../Button.vue';
 
 @Options({
 	props:{},
-	components:{},
+	components:{
+		Button,
+	},
 	emits:["close"]
 })
 export default class UserList extends Vue {
 
-	public users:TwitchatDataTypes.TwitchatUser[] = [];
 	public showInfo:boolean = false;
 	public channelId!:string;
+	public channels:{[key:string]:{
+		broadcaster:TwitchatDataTypes.TwitchatUser[],
+		mods:TwitchatDataTypes.TwitchatUser[],
+		vips:TwitchatDataTypes.TwitchatUser[],
+		viewers:TwitchatDataTypes.TwitchatUser[]
+	}} = {};
+	public currentChanId:string|null = null;
+	public currentChan:{
+		broadcaster:TwitchatDataTypes.TwitchatUser[],
+		mods:TwitchatDataTypes.TwitchatUser[],
+		vips:TwitchatDataTypes.TwitchatUser[],
+		viewers:TwitchatDataTypes.TwitchatUser[]
+	}|null = null;
 
-	public get broadcaster():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId]?.is_broadcaster === true); }
-
-	public get mods():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId]?.is_moderator === true); }
-
-	public get vips():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>u.channelInfo[this.channelId]?.is_vip === true); }
-
-	public get simple():TwitchatDataTypes.TwitchatUser[] { return this.users.filter(u=>{ return !u.channelInfo[this.channelId]?.is_moderator && !u.channelInfo[this.channelId]?.is_broadcaster && !u.channelInfo[this.channelId]?.is_vip; }); }
 	
 	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
 		if(this.$store("params").appearance.highlightNonFollowers.value === true
-		&& user.channelInfo[this.channelId]?.is_following === false) res.push("noFollow");
+		&& user.channelInfo[this.currentChanId!]?.is_following === false) res.push("noFollow");
 		return res;
 	}
 
@@ -85,7 +105,9 @@ export default class UserList extends Vue {
 		this.updateList();
 		watch(() => this.$store("users").users, () => {
 			this.updateList();
-		}, { deep: true });
+		});
+		this.currentChan	= this.channels[this.channelId];
+		this.currentChanId	= this.channelId;
 		this.open();
 	}
 
@@ -96,7 +118,7 @@ export default class UserList extends Vue {
 	public async toggleInfos():Promise<void> {
 		if(this.showInfo) {
 			const holder = this.$refs.infos as HTMLDivElement;
-			gsap.to(holder, {duration:.5, height:0, minHeight:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut", onComplete:()=>{this.showInfo = false;}});
+			gsap.to(holder, {duration:.5, height:0, minHeight:0, marginBottom:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut", onComplete:()=>{this.showInfo = false;}});
 		}else{
 			this.showInfo = true;
 			await this.$nextTick();
@@ -105,7 +127,7 @@ export default class UserList extends Vue {
 			holder.style.overflow = "hidden";
 			holder.style.height = bounds.height+"px";
 			holder.style.minHeight = bounds.height+"px";
-			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
+			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginBottom:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
 		}
 	}
 
@@ -140,46 +162,45 @@ export default class UserList extends Vue {
 	}
 
 	private updateList():void {
-		let res:TwitchatDataTypes.TwitchatUser[] = [];
 		const users = this.$store("users").users;
+		this.channels = {};
 		for (let i = 0; i < users.length; i++) {
 			const user = users[i];
-			chan: for (const chan in user.channelInfo) {
+			for (const chan in user.channelInfo) {
+				if(!this.channels[chan]) {
+					this.channels[chan] = {
+						broadcaster:[this.$store("users").getUserFrom(user.platform, chan, chan)],
+						mods:[],
+						vips:[],
+						viewers:[]
+					}
+				}
+				const chanData = this.channels[chan];
 				if(user.channelInfo[chan].online) {
-					res.push(user);
-					break chan;
+					if(user.channelInfo[chan].is_broadcaster) chanData.broadcaster = [user];
+					else if(user.channelInfo[chan].is_moderator) chanData.mods.push(user);
+					else if(user.channelInfo[chan].is_vip) chanData.vips.push(user);
+					else chanData.viewers.push(user);
+					break;
 				}
 			}
 		}
 
-		
-		res.sort((a,b) => {
-			if(a.channelInfo[this.channelId] && b.channelInfo[this.channelId]) {
-				if(a.channelInfo[this.channelId].is_broadcaster && !b.channelInfo[this.channelId].is_broadcaster) return -1;
-				if(b.channelInfo[this.channelId].is_broadcaster && !a.channelInfo[this.channelId].is_broadcaster) return  1;
-				if(a.channelInfo[this.channelId].is_moderator && !b.channelInfo[this.channelId].is_moderator) return -1;
-				if(b.channelInfo[this.channelId].is_moderator && !a.channelInfo[this.channelId].is_moderator) return  1;
-				if(a.channelInfo[this.channelId].is_vip && !b.channelInfo[this.channelId].is_vip) return -1;
-				if(b.channelInfo[this.channelId].is_vip && !a.channelInfo[this.channelId].is_vip) return  1;
+		for (const chan in this.channels) {
+			const chanData = this.channels[chan];
+			type keys = keyof typeof chanData;
+			for (const cat in chanData) {
+				chanData[cat as keys].sort((a,b) => {
+					if(a.displayName > b.displayName ) return 1;
+					if(a.displayName < b.displayName ) return -1;
+					return 0;
+				});
 			}
-			if(a.displayName > b.displayName ) return 1;
-			if(a.displayName < b.displayName ) return -1;
-			return 0;
-		});
+		}
 
-		this.users = res;
+		console.log(this.channels);
+
 	}
-
-
-}
-
-interface UserItem {
-	login:string;
-	id:string;
-	broadcaster:boolean;
-	vip:boolean;
-	mod:boolean;
-	sub:boolean;
 }
 </script>
 
@@ -190,20 +211,46 @@ interface UserItem {
 	overflow-y: auto;
 	font-size: 16px;
 
-	h1 {
-		color: @mainColor_light;
-		align-self: center;
+	.users {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
 		margin-bottom: 10px;
 
 		img {
-			height: 1em;
+			height: 1.25em;
 			vertical-align: middle;
+			margin-right: 10px;
+		}
+		
+		button {
+			// color: @mainColor_light;
+			/deep/ i {
+				font-style: italic;
+				font-size: .8em;
+			}
+
+			&:not(:last-child) {
+				margin-right: 10px;
+			}
+
+			&:not(.current) {
+				background-color: transparent;
+				border: 1px solid @mainColor_light;
+				color: @mainColor_light;
+				opacity: .7;
+				&:hover {
+					color: @mainColor_normal;
+				}
+			}
 		}
 	}
 
 	.infoBt {
 		margin: auto;
 		font-style: italic;
+		margin-bottom: 1em;
 	}
 
 	.infos {
@@ -211,7 +258,7 @@ interface UserItem {
 		background-color: @mainColor_dark_light;
 		padding: 1em;
 		margin: auto;
-		margin-top: 1em;
+		margin-bottom: 1em;
 		border-radius: .5em;
 		max-width: 500px;
 		p:not(:last-of-type) {
@@ -227,8 +274,8 @@ interface UserItem {
 		font-weight: normal;
 	}
 
-	.users {
-		margin-top: 20px;
+	.userList {
+		margin-bottom: 20px;
 
 		.title {
 			color: @mainColor_light;

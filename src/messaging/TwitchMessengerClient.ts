@@ -75,7 +75,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 			chans.forEach(v=> {
 				this._channelLoginToId[v.login] = v.id;
-			})
+				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
+				u.channelInfo[u.id].online = true;
+			});
+			
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
 				//channels with specified credentials
@@ -149,7 +152,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(text:string):Promise<void> {
+	public async sendMessage(channelId:string, text:string):Promise<void> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -193,32 +196,32 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/announce": await TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.banUser(user.id, undefined, chunks.splice(1).join(" "));
+					if(user) await TwitchUtils.banUser(user.id, channelId, undefined, chunks.splice(1).join(" "));
 					break;
 				}
 				case "/unban": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.unbanUser(user.id);
+					if(user) await TwitchUtils.unbanUser(user.id, channelId);
 					break;
 				}
 				case "/block":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.blockUser(user.id);
+					if(user) await TwitchUtils.blockUser(user.id, channelId);
 					break;
 				}
 				case "/unblock": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.unblockUser(user.id);
+					if(user) await TwitchUtils.unblockUser(user.id, channelId);
 					break;
 				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.banUser(user.id, parseInt(chunks[1]), chunks[2]);
+					if(user) await TwitchUtils.banUser(user.id, channelId, parseInt(chunks[1]), chunks[2]);
 					break;
 				}
 				case "/untimeout": {
 					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.unbanUser(user.id);
+					if(user) await TwitchUtils.unbanUser(user.id, channelId);
 					break;
 				}
 				case "/commercial": {
@@ -247,8 +250,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/slowoff": await TwitchUtils.setRoomSettings({slowMode:0}); break;
 				case "/subscribers": await TwitchUtils.setRoomSettings({subOnly:true}); break;
 				case "/subscribersoff": await TwitchUtils.setRoomSettings({subOnly:false}); break;
-				case "/mod": await TwitchUtils.addRemoveModerator(false, undefined, chunks[0]); break;
-				case "/unmod": await TwitchUtils.addRemoveModerator(true, undefined, chunks[0]); break;
+				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); break;
+				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); break;
 				case "/raid": await TwitchUtils.raidChannel(chunks[0]); break;
 				case "/unraid": await TwitchUtils.raidCancel(); break;
 				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); break;
@@ -270,7 +273,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		}
 
-		this._client.say(UserSession.instance.twitchUser!.login, text);
+		this._client.say(channelId, text);
 	}
 
 	
