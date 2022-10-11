@@ -16,8 +16,8 @@ export default class MessengerProxy {
 
 	private static _instance:MessengerProxy;
 
-	private joinSpool:TwitchatDataTypes.TwitchatUser[] = [];
-	private leaveSpool:TwitchatDataTypes.TwitchatUser[] = [];
+	private joinSpool:{channelId:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
+	private leaveSpool:{channelId:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
 	private joinSpoolTimeout:number = -1;
 	private leaveSpoolTimeout:number = -1;
 	
@@ -124,40 +124,63 @@ export default class MessengerProxy {
 	private onJoinLeave(e:MessengerClientEvent):void {
 		const d = e.data as TwitchatDataTypes.MessageJoinData | TwitchatDataTypes.MessageLeaveData;
 		if(e.type === MessengerClientEvent.JOIN) {
-			this.joinSpool = this.joinSpool.concat(d.users);
+			this.joinSpool.push({user:d.users[0], channelId:d.channel_id});
 			clearTimeout(this.joinSpoolTimeout);
 			this.joinSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
 				StoreProxy.users.flagOnlineUsers(d.users, d.channel_id);
 				
-				this.onMessage(new MessengerClientEvent("JOIN", {
-					platform:d.platform,
-					type:"join",
-					id:Utils.getUUID(),
-					channel_id:d.channel_id,
-					date:Date.now(),
-					users:this.joinSpool,
-				}));
+				//Split join events by channels
+				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
+				for (let i = 0; i < this.joinSpool.length; i++) {
+					const entry = this.joinSpool[i];
+					if(!channels[entry.channelId]) channels[entry.channelId] = [];
+					channels[entry.channelId].push(entry.user);
+				}
+				
+				//Send one message per channel
+				for (const channel in channels) {
+					this.onMessage(new MessengerClientEvent("JOIN", {
+						platform:d.platform,
+						type:"join",
+						id:Utils.getUUID(),
+						channel_id:channel,
+						date:Date.now(),
+						users:channels[channel],
+					}));
+				}
 				
 				this.joinSpool = [];
 			}, 1000);
 		}
 		
 		if(e.type === MessengerClientEvent.LEAVE) {
-			this.leaveSpool = this.leaveSpool.concat(d.users);
+			this.leaveSpool.push({user:d.users[0], channelId:d.channel_id});
+			
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
 				StoreProxy.users.flagOfflineUsers(d.users, d.channel_id);
 				
-				this.onMessage(new MessengerClientEvent("LEAVE", {
-					platform:d.platform,
-					type:"leave",
-					id:Utils.getUUID(),
-					channel_id:d.channel_id,
-					date:Date.now(),
-					users:this.leaveSpool,
-				}));
+				//Split join events by channels
+				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
+				for (let i = 0; i < this.leaveSpool.length; i++) {
+					const entry = this.leaveSpool[i];
+					if(!channels[entry.channelId]) channels[entry.channelId] = [];
+					channels[entry.channelId].push(entry.user);
+				}
+				
+				//Send one message per channel
+				for (const channel in channels) {
+					this.onMessage(new MessengerClientEvent("LEAVE", {
+						platform:d.platform,
+						type:"leave",
+						id:Utils.getUUID(),
+						channel_id:channel,
+						date:Date.now(),
+						users:channels[channel],
+					}));
+				}
 				
 				this.leaveSpool = [];
 			}, 1000);
