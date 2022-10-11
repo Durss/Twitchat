@@ -543,6 +543,7 @@ export default class ChatForm extends Vue {
 					message_html:message,
 					answers:[],
 				};
+
 				const messageList = sChat.messages;
 				if(messageList.length > 0 && Math.random() < .5) {
 					for (let i = 0; i < messageList.length; i++) {
@@ -555,7 +556,7 @@ export default class ChatForm extends Vue {
 					}
 				}
 				sChat.addMessage(mess);
-			}, 250);
+			}, 100);
 			this.message = "";
 		}else
 
@@ -716,18 +717,17 @@ export default class ChatForm extends Vue {
 		if(cmd == "/ttsoff" || cmd == "/tts") {
 			this.loading = true;
 			const username = params[0].toLowerCase().replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi, "").trim();
-			let user:TwitchatDataTypes.TwitchatUser;
 			try {
 				const res = await TwitchUtils.loadUserInfo(undefined, [username]);
 				if(res.length == 0) {
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					noticeMessage = "User <mark>"+username+"</mark> not found...";
 					this.loading = false;
-					return;
+				}else{
+					const user = this.$store("users").getUserFrom("twitch", this.channelId, res[0].id, res[0].login, res[0].display_name);
+					this.$store("tts").ttsReadUser(user, cmd == "/tts");
 				}
-				user = this.$store("users").getUserFrom("twitch", this.channelId, res[0].id, res[0].login, res[0].display_name);
 			}catch(error) {}
-			this.$store("tts").ttsReadUser(user!, cmd == "/tts");
 			this.message = "";
 			this.loading = false;
 		}else

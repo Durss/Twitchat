@@ -1,4 +1,5 @@
 import { storeChat } from "@/store/chat/storeChat";
+import StoreProxy from "@/store/StoreProxy";
 import { storeTTS } from "@/store/tts/storeTTS";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
@@ -11,6 +12,7 @@ interface SpokenMessage {
 	message: TwitchatDataTypes.ChatMessageTypes,
 	date: number,
 	id: string,
+	force?: boolean,
 }
 
 export default class TTSUtils {
@@ -187,10 +189,10 @@ export default class TTSUtils {
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
 
-		const m:SpokenMessage = {message, id, date: Date.now()};
+		const m:SpokenMessage = {message, id, force:true, date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
 		if(this.sTTS.speaking) {
-			this.stop();
+			this.stop();//This triggers the next message play
 		}else
 		if(this.pendingMessages.length == 1) {
 			this.readNextMessage();
@@ -237,6 +239,11 @@ export default class TTSUtils {
 		}
 
 		const m:SpokenMessage = {message, id, date: Date.now()};
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(StoreProxy.tts.params.ttsPerms.users.toLowerCase().split(",").includes(message.user.login.toLowerCase())) {
+				m.force = true;
+			}
+		}
 
 		if (this.pendingMessages.length == 0) {
 			this.pendingMessages.push(m)
@@ -258,16 +265,16 @@ export default class TTSUtils {
 	 * @param message 
 	 * @returns 
 	 */
-	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<string> {
+	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes, force?:boolean):Promise<string> {
 		const paramsTTS = this.sTTS.params;
 
-		// console.log("Read message type", type);
+		// console.log("Read message type", message.type);
 		// console.log(message);
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readMessages) return "";
+				if(!paramsTTS.readMessages && force!==true) return "";
 
 				//Stop there if the user isn't part of the permissions
 				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
@@ -291,7 +298,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readWhispers) return "";
+				if(!paramsTTS.readWhispers && force!==true) return "";
 
 				//Stop there if the user isn't part of the permissions
 				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
@@ -316,7 +323,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readNotices) return "";
+				if(!paramsTTS.readNotices && force!==true) return "";
 
 				if(!message.message) return "";
 
@@ -327,7 +334,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readFollow) return "";
+				if(!paramsTTS.readFollow && force!==true) return "";
 
 				let txt = paramsTTS.readFollowPattern.replace(/\{USER\}/gi, message.user.displayName);
 				return txt;
@@ -336,7 +343,7 @@ export default class TTSUtils {
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 				if(!message.is_gift) {
 					//Stop if didn't ask to read this kind of message
-					if(!paramsTTS.readSubs) return "";
+					if(!paramsTTS.readSubs && force!==true) return "";
 					
 					let txt = paramsTTS.readSubsPattern.replace(/\{USER\}/gi, message.user.displayName);
 					txt = txt.replace(/\{MESSAGE\}/gi, message.message ?? "");
@@ -344,7 +351,7 @@ export default class TTSUtils {
 					return txt;
 				}else{
 					//Stop if didn't ask to read this kind of message
-					if(!paramsTTS.readSubgifts) return "";
+					if(!paramsTTS.readSubgifts && force!==true) return "";
 	
 					return new Promise((resolve) => {
 						let prevCount = (message.gift_recipients?.length ?? 0) + 1;
@@ -375,7 +382,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readBits) return "";
+				if(!paramsTTS.readBits && force!==true) return "";
 
 				const bits = message.bits;
 				
@@ -394,7 +401,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readRaids) return "";
+				if(!paramsTTS.readRaids && force!==true) return "";
 
 				let txt = paramsTTS.readRaidsPattern.replace(/\{USER\}/gi, message.user.displayName);
 				txt = txt.replace(/\{VIEWERS\}/gi, (message.viewers).toString());
@@ -403,7 +410,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readRewards) return "";
+				if(!paramsTTS.readRewards && force!==true) return "";
 
 				let txt = paramsTTS.readRewardsPattern.replace(/\{USER\}/gi, message.user.displayName);
 				txt = txt.replace(/\{REWARD_NAME\}/gi, message.reward.title);
@@ -413,6 +420,8 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
 				//Stop if didn't ask to read this kind of message
+				if(!paramsTTS.readPolls && force!==true) return "";
+
 				let winner = "";
 				let max = 0;
 				message.choices.forEach(v =>{
@@ -428,7 +437,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readPredictions) return "";
+				if(!paramsTTS.readPredictions && force!==true) return "";
 
 				let winner = "";
 				message.outcomes.forEach(v =>{
@@ -444,7 +453,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readBingos) return "";
+				if(!paramsTTS.readBingos && force!==true) return "";
 
 				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, message.user.displayName);
 				return txt;
@@ -452,7 +461,7 @@ export default class TTSUtils {
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readRaffle) return "";
+				if(!paramsTTS.readRaffle && force!==true) return "";
 				if(!message.raffleData.winners) return "";
 				if(message.raffleData.winners.length === 0) return "";
 
@@ -486,23 +495,26 @@ export default class TTSUtils {
 			skipMessage = true;
 		}
 
-		if(skipMessage) {
+		if(skipMessage && message.force !== true) {
 			//Ignore this message and process the next one
 			this.pendingMessages.shift();
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
-			setTimeout(() => { this.readNextMessage(); }, 10);
+			setTimeout(() => { this.readNextMessage(); }, 0);
 			return;
 		}
 		
-		const text = await this.parseMessage(message.message);
+		const text = await this.parseMessage(message.message, message.force);
 		if(text.length > 0) {
+			const voice = this.voices.find(x => x.name == paramsTTS.voice);
 			const mess = new SpeechSynthesisUtterance(text);
 			mess.rate = paramsTTS.rate;
 			mess.pitch = paramsTTS.pitch;
 			mess.volume = paramsTTS.volume;
-			mess.voice = this.voices.find(x => x.name == paramsTTS.voice) || this.voices[0];
-			mess.lang = mess.voice.lang;
+			if(voice) {
+				mess.voice = voice;
+				mess.lang = voice.lang;
+			}
 			mess.onstart = (ev: SpeechSynthesisEvent) => {
 				this.sTTS.speaking = true;
 			}
@@ -524,7 +536,7 @@ export default class TTSUtils {
 			this.pendingMessages.shift();
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
-			setTimeout(() => { this.readNextMessage(); }, 10);
+			setTimeout(() => { this.readNextMessage(); }, 0);
 		}
 	}
 
@@ -537,7 +549,6 @@ export default class TTSUtils {
 		for (let i = 1; i < this.pendingMessages.length; i++) {
 			const m = this.pendingMessages[i];
 			if(m.id === id) {
-				console.log("SPLICE", this.pendingMessages[i]);
 				this.pendingMessages.splice(i, 1);
 				i--;
 			}

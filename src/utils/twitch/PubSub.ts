@@ -209,14 +209,15 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	public async simulateLowTrustUser():Promise<void> {
+		const uid = UserSession.instance.twitchUser!.id;
 		const m: TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
-			channel_id:"twitchat",
+			channel_id:uid,
 			type:"message",
 			answers:[],
-			user: StoreProxy.users.getUserFrom("twitch", undefined, UserSession.instance.twitchUser!.id),
+			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message:"This is a message sent by a low trusted user",
 			message_html:"This is a message sent by a low trusted user",
 			twitch_isLowTrust:true,

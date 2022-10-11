@@ -87,6 +87,7 @@ export const storeTTS = defineStore('tts', {
 			}
 			list = list.filter(v => v.trim().length > 2);
 			this.params.ttsPerms.users = list.join(",");
+			this.setTTSParams(this.params);//Triggers a server save
 			if(read) {
 				StoreProxy.chat.addMessage({
 					type:"notice",

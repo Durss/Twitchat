@@ -140,7 +140,7 @@
 				:title="readLabel"
 				:icon="$image('icons/tts.svg')"
 				@click="toggleReadUser()"
-				v-if="!conversationMode"
+				v-if="!conversationMode && $store('tts').params.enabled === true"
 				small bounce />
 		</div>
 
@@ -251,7 +251,7 @@ export default class MessageList extends Vue {
 		const permissions:TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
 		if(permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
-			label = "Read future "+username+"'s messages";
+			label = "Read "+username+"'s future messages";
 		}else{
 			label = "Stop reading "+username+"'s messages";
 		}

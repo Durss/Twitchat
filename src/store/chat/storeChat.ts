@@ -1,7 +1,7 @@
 import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
@@ -294,7 +294,7 @@ export const storeChat = defineStore('chat', {
 			const sEmergency = StoreProxy.emergency;
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
-			
+
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT) {
 				this.messages = [];
 				return;
@@ -489,7 +489,7 @@ export const storeChat = defineStore('chat', {
 						//Most message on chat to alert the stream
 						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
 							platform:"twitchat",
-							channel_id: "twitchat",
+							channel_id: message.channel_id,
 							type:"autoban_join",
 							date:Date.now(),
 							id:Utils.getUUID(),
@@ -529,7 +529,7 @@ export const storeChat = defineStore('chat', {
 							//Most message on chat to alert the stream
 							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
 								platform:"twitchat",
-								channel_id: "twitchat",
+								channel_id: message.channel_id,
 								type:"autoban_join",
 								date:Date.now(),
 								id:Utils.getUUID(),
