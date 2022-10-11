@@ -215,6 +215,7 @@ export default class MessageList extends Vue {
 
 	private counter = 0;
 	private disposed = false;
+	private lastDisplayedMessage?:HTMLDivElement;
 	private holderOffsetY = 0;
 	private prevMarkedReadItem:TwitchatDataTypes.ChatMessageTypes | null = null;
 	private virtualScrollY = -1;
@@ -268,41 +269,42 @@ export default class MessageList extends Vue {
 		for (let i = 0; i < messages.length; i++) {
 			const m = messages[i];
 			
-			if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.deleted === true) {
-				messages.splice(i, 1);
-				continue;
-			}
-			
 			switch(m.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
 					//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
 					if(this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
 						messages.splice(i, 1);
+						i--;
 					}else
 					//Ignore deleted messages if requested
 					if(sParams.filters.keepDeletedMessages.value === false && m.deleted) {
 						messages.splice(i, 1);
+						i--;
 					}else
 					//Ignore /me messages if requested
 					if(sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 						messages.splice(i, 1);
+						i--;
 					}else
 					//Ignore self if requested
 					if(sParams.filters.showSelf.value === false && m.user.id == meUID) {
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 						messages.splice(i, 1);
+						i--;
 					}else
 					//Ignore bot messages if requested
 					if(sParams.filters.showBots.value === false
 					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true) {
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 						messages.splice(i, 1);
+						i--;
 					}else
 					//Ignore custom users
-					if((sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
+					if(m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 						messages.splice(i, 1);
+						i--;
 					}else
 							
 					//Ignore commands
@@ -314,12 +316,14 @@ export default class MessageList extends Vue {
 								//TODO Broadcast to OBS-ws
 								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 								messages.splice(i, 1);
+								i--;
 							}
 						}else{
 							//Ignore all commands
 							//TODO Broadcast to OBS-ws
 							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 							messages.splice(i, 1);
+							i--;
 						}
 					}
 					break;
@@ -328,20 +332,26 @@ export default class MessageList extends Vue {
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER:{
 					if(sParams.features.showWhispersOnChat.value === false ) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
-
+				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
 					if(sParams.filters.showNotifications.value === false 
 					|| sParams.filters.showSubs.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
-
+				
 				case TwitchatDataTypes.TwitchatMessageType.REWARD:{
 					if(sParams.filters.showNotifications.value === false 
 					|| sParams.filters.showRewards.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
 
@@ -349,6 +359,8 @@ export default class MessageList extends Vue {
 					if(sParams.filters.showNotifications.value === false 
 					|| sParams.filters.showCheers.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
 
@@ -356,6 +368,8 @@ export default class MessageList extends Vue {
 					if(sParams.filters.showNotifications.value === false 
 					|| sParams.filters.showFollow.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
 
@@ -363,6 +377,8 @@ export default class MessageList extends Vue {
 					if(sParams.filters.showNotifications.value === false 
 					|| sParams.filters.showRaids.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
 
@@ -370,6 +386,8 @@ export default class MessageList extends Vue {
 					if(sParams.filters.showNotifications.value === false 
 					|| sParams.filters.showHypeTrain.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
 
@@ -377,6 +395,8 @@ export default class MessageList extends Vue {
 				case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
 					if(sParams.features.notifyJoinLeave.value === false) {
 						messages.splice(i, 1);
+						i--;
+						break;
 					}
 				}
 			}
@@ -700,6 +720,13 @@ export default class MessageList extends Vue {
 
 		const messRefs = this.$refs.message as HTMLDivElement[];
 		const lastMessRef = messRefs[ messRefs.length - 1 ];
+
+		//This avoids a glith when a filtered message is receive.
+		//In such case, no new message is created but this method is still called.
+		//Without this conidtion the scroll would glitch back to the previous
+		//message then back to the bottom.
+		//This condition avoids this "glitch".
+		if(lastMessRef == this.lastDisplayedMessage) return;
 		
 		if(lastMessRef) {
 			if(wheelOrigin) {
@@ -720,6 +747,8 @@ export default class MessageList extends Vue {
 				this.prevMarkedReadItem = null;
 			}
 		}
+
+		this.lastDisplayedMessage = lastMessRef;
 	}
 
 	/**
