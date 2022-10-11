@@ -1124,7 +1124,7 @@ const UserDataSchema = {
 						categoryID:{type:"string", maxLength:10},
 						tagIDs:{
 							type:"array",
-							items:[{type:"string", maxLength:50}],
+							items:[{type:"string", maxLength:100}],
 						},
 					}
 				}
@@ -1249,6 +1249,10 @@ const UserDataSchema = {
 				readBingosPattern:{type:"string", maxLength:300},
 				readRaffle: {type:"boolean"},
 				readRafflePattern:{type:"string", maxLength:300},
+				readUsers:{
+					type:"array",
+					items:[{type:"string", maxLength:50}],
+				},
 				ttsPerms:{
 					type:"object",
 					additionalProperties: false,

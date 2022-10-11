@@ -331,6 +331,7 @@ export namespace TwitchatDataTypes {
 		readPredictions: boolean;
 		readPredictionsPattern:string;
 		ttsPerms:PermissionsData;
+		readUsers:string[];
 	}
 
 	export interface EmergencyParamsData {

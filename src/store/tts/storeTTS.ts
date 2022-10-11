@@ -58,6 +58,7 @@ export const storeTTS = defineStore('tts', {
 				all:true,
 				users:""
 			},
+			readUsers:[],
 		},
 	} as ITTSState),
 
@@ -77,8 +78,7 @@ export const storeTTS = defineStore('tts', {
 		},
 
 		ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean) {
-			let list = this.params.ttsPerms.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-			
+			let list = this.params.readUsers;
 			const index = list.indexOf(user.login);
 			if(index > -1) {
 				if(!read) list.splice(index, 1);
@@ -88,12 +88,13 @@ export const storeTTS = defineStore('tts', {
 			list = list.filter(v => v.trim().length > 2);
 			this.params.ttsPerms.users = list.join(",");
 			this.setTTSParams(this.params);//Triggers a server save
+
 			if(read) {
 				StoreProxy.chat.addMessage({
 					type:"notice",
 					id:Utils.getUUID(),
 					date:Date.now(),
-					platform:"twitchat",
+					platform:user.platform,
 					message:"User <mark>"+user.displayName+"</mark>'s messages will be read out loud.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});
@@ -102,7 +103,7 @@ export const storeTTS = defineStore('tts', {
 					type:"notice",
 					id:Utils.getUUID(),
 					date:Date.now(),
-					platform:"twitchat",
+					platform:user.platform,
 					message:"User <mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});

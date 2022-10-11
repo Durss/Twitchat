@@ -136,6 +136,7 @@ export default class ParamsTTS extends Vue {
 	public param_readBingosPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderBingo};
 	public param_readRaffle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"Raffle results", icon:"ticket_purple.svg" };
 	public param_readRafflePattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"Format", placeholderList:TTSUtils.placeholderRaffles};
+	public param_readUsers:TwitchatDataTypes.ParameterData = {type:"list", value:"", label:"Users to read out loud"};
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -194,6 +195,7 @@ export default class ParamsTTS extends Vue {
 			readRafflePattern:this.param_readRafflePattern.value as string,
 			readPredictions:this.param_readPredictions.value as boolean,
 			readPredictionsPattern:this.param_readPredictionsPattern.value as string,
+			readUsers:this.param_readUsers.listValues!.map(v => v.value) as string[],
 		};
 	}
 
@@ -212,6 +214,7 @@ export default class ParamsTTS extends Vue {
 		this.param_pitch.value = params.pitch;
 		this.param_voice.value = params.voice;
 		this.param_ttsPerms = params.ttsPerms;
+		this.param_readUsers.listValues = (params.readUsers ?? []).map(v => { return {label:v, value:v}});
 		this.param_removeEmotes.value = params.removeEmotes;
 		this.param_maxLength.value = params.maxLength;
 		this.param_maxDuration.value = params.maxDuration;
@@ -219,6 +222,7 @@ export default class ParamsTTS extends Vue {
 		this.param_inactivityPeriod.value = params.inactivityPeriod;
 		this.param_removeURL.value = params.removeURL;
 		this.param_replaceURL.value = params.replaceURL;
+
 		this.param_readMessages.value = params.readMessages === true;
 		this.param_readMessagesPattern.value = params.readMessagePatern;
 		this.param_readWhispers.value = params.readWhispers === true;

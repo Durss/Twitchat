@@ -214,6 +214,7 @@ export default class MessageList extends Vue {
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 
 	private counter = 0;
+	private prevTs = 0;
 	private disposed = false;
 	private lastDisplayedMessage?:HTMLDivElement;
 	private holderOffsetY = 0;
@@ -462,7 +463,8 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 
 		await this.$nextTick();
-		this.renderFrame();
+		this.prevTs = Date.now();
+		this.renderFrame(this.prevTs);
 	}
 
 	public beforeUnmount():void {
@@ -633,9 +635,12 @@ export default class MessageList extends Vue {
 	 * Called 60 times/sec to scroll the list and load new messages
 	 * if there are pending ones.
 	 */
-	public async renderFrame():Promise<void> {
+	public async renderFrame(ts:number):Promise<void> {
 		if(this.disposed) return;
-		requestAnimationFrame(()=>this.renderFrame());
+		requestAnimationFrame((ts)=>this.renderFrame(ts));
+
+		const timeScale = (60/1000) * (ts - this.prevTs);
+		this.prevTs = ts;
 
 		const el = this.$refs.messageHolder as HTMLDivElement;
 		const h = el.offsetHeight;
@@ -659,10 +664,10 @@ export default class MessageList extends Vue {
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
 			if(dist > 10 || this.pendingMessages.length > 0) {
 				//Linear scroll if need to scroll by more than 10px
-				this.virtualScrollY += Math.max(5, this.pendingMessages.length*4);
+				this.virtualScrollY += Math.max(5, this.pendingMessages.length*4)*2 * timeScale;
 			}else{
 				//easeout scroll when reaching bottom
-				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease;
+				this.virtualScrollY += (maxScroll-this.virtualScrollY)*2 * ease * timeScale;
 			}
 			//Avoid virtual scroll to go beyond bottom
 			if(this.virtualScrollY >= maxScroll-2) {
