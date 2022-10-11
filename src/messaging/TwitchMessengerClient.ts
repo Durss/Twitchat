@@ -22,6 +22,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedAnonymously:boolean = false;
 	private _connectTimeout:number = -1;
 	private _connectedChannels:string[] = [];
+	private _channelIdToLogin:{[key:string]:string} = {};
 	private _channelLoginToId:{[key:string]:string} = {};
 	private _blockedUsers:{[key:string]:boolean} = {};
 	private _queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
@@ -74,6 +75,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				return;
 			}
 			chans.forEach(v=> {
+				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
@@ -272,8 +274,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 		}
-
-		this._client.say(channelId, text);
+		
+		this._client.say(this._channelIdToLogin[channelId], text);
 	}
 
 	

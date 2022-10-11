@@ -145,6 +145,7 @@ export default class ChatMessage extends Vue {
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
+	public currentUser!:TwitchatDataTypes.TwitchatUser;
 	
 	public text = "";
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
@@ -319,7 +320,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	public beforeMount() {
-		this.channelInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
+		this.currentUser = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, UserSession.instance.twitchUser!.id);
+		this.channelInfo = this.currentUser.channelInfo[this.messageData.channel_id];
 	}
 
 	/**
@@ -375,8 +377,8 @@ export default class ChatMessage extends Vue {
 		//Precompute static flag
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			this.showModToolsPreCalc = !this.lightMode
-									&& this.messageData.channel_id !== UserSession.instance.twitchUser!.id
-									&& this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true;
+									&& this.messageData.channel_id == UserSession.instance.twitchUser!.id
+									&& (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;

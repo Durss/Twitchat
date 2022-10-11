@@ -290,6 +290,7 @@ export default class ChatForm extends Vue {
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
 	public spamInterval = 0;
+	public channelId:string = "";
 	
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -331,12 +332,11 @@ export default class ChatForm extends Vue {
 		let followCount = 0;
 		let onlineCount = 0;
 		const users = this.$store("users").users;
-		const chan = UserSession.instance.twitchUser!.id;
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
-			if(!u.channelInfo[chan]) continue;
-			if(u.channelInfo[chan].is_following === true) followCount ++;
-			if(u.channelInfo[chan].online === true) onlineCount ++;
+			if(!u.channelInfo[this.channelId]) continue;
+			if(u.channelInfo[this.channelId].is_following === true) followCount ++;
+			if(u.channelInfo[this.channelId].online === true) onlineCount ++;
 		}
 		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
@@ -382,6 +382,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.channelId = UserSession.instance.twitchUser!.id;
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
@@ -536,7 +537,7 @@ export default class ChatForm extends Vue {
 					date:Date.now(),
 					platform:"twitch",
 					user: this.$store("users").getUserFrom("twitch", undefined, id.toString()),
-					channel_id:UserSession.instance.twitchUser!.id,
+					channel_id:this.channelId,
 					type:"message",
 					message,
 					message_html:message,
@@ -617,7 +618,7 @@ export default class ChatForm extends Vue {
 			// for (let i = 0; i < 1000; i++) {
 			// 	await TwitchUtils.unblockUser("FakeUser"+i);
 			// }
-			await TwitchUtils.unblockUser(params[0]);
+			await TwitchUtils.unblockUser(params[0], this.channelId);
 			this.loading = false;
 		}else
 
@@ -629,7 +630,7 @@ export default class ChatForm extends Vue {
 				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 				noticeMessage = "User <mark>"+params[0]+"</mark> not found...";
 			}else{
-				let res = await TwitchUtils.blockUser(users[0].id);
+				let res = await TwitchUtils.blockUser(users[0].id, this.channelId);
 				if(res === true) {
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					noticeMessage = "User <mark>"+users[0].login+"</mark> blocked";
@@ -646,7 +647,7 @@ export default class ChatForm extends Vue {
 				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 				noticeMessage = "User <mark>"+params[0]+"</mark> not found...";
 			}else{
-				let res = await TwitchUtils.unblockUser(users[0].id);
+				let res = await TwitchUtils.unblockUser(users[0].id, this.channelId);
 				if(res === true) {
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBLOCK;
 					noticeMessage = "User <mark>"+users[0].login+"</mark> unblocked";
@@ -791,7 +792,7 @@ export default class ChatForm extends Vue {
 				}
 				let mess = this.message;
 				this.message = "";
-				await TwitchMessengerClient.instance.sendMessage(mess);
+				await TwitchMessengerClient.instance.sendMessage(this.channelId, mess);
 			}catch(error) {
 				console.log(error);
 				this.error = true;

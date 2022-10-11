@@ -109,6 +109,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:read:hype_train",
 		"channel_editor",
 		"whispers:edit",
+		"whispers:read",
 		"user:read:follows",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
