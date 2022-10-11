@@ -700,28 +700,32 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private ban(channel: string, username: string, reason: string):void {
 		const channel_id = this.getChannelID(channel);
-		this.dispatchEvent(new MessengerClientEvent("BAN", {
+		this.dispatchEvent(new MessengerClientEvent("NOTICE", {
 			platform:"twitch",
-			type:"ban",
+			type:"notice",
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.BAN,
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
 			user:this.getUserFromLogin(username, channel_id),
 			reason,
+			message:"User "+username+" has been banned",
 		}));
 	}
 
 	private timeout(channel: string, username: string, reason: string, duration: number):void {
 		const channel_id = this.getChannelID(channel);
-		this.dispatchEvent(new MessengerClientEvent("TIMEOUT", {
+		this.dispatchEvent(new MessengerClientEvent("NOTICE", {
 			platform:"twitch",
-			type:"timeout",
+			type:"notice",
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.TIMEOUT,
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
 			user:this.getUserFromLogin(username, channel_id),
 			duration_s:duration,
 			reason,
+			message:username+" has been temporary banned for "+duration+" seconds",
 		}));
 	}
 

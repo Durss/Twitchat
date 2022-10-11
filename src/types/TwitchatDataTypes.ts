@@ -574,7 +574,7 @@ export namespace TwitchatDataTypes {
 									MessageRaidData |
 									MessageJoinData |
 									MessageLeaveData |
-									messageBanData |
+									MessageBanData |
 									MessageTimeoutData |
 									MessageClearChatData |
 									MessageRaffleData |
@@ -821,17 +821,19 @@ export namespace TwitchatDataTypes {
 		users:TwitchatUser[];
 	}
 
-	export interface messageBanData extends AbstractTwitchatMessage {
+	export interface MessageBanData extends MessageNoticeData {
 		channel_id: string;
-		type:"ban";
+		noticeId:"ban"|"unban";
 		user:TwitchatUser;
+		moderator?:TwitchatUser;
 		reason:string;
 	}
-
-	export interface MessageTimeoutData extends AbstractTwitchatMessage {
+	
+	export interface MessageTimeoutData extends MessageNoticeData {
 		channel_id: string;
-		type:"timeout";
+		noticeId:"timeout"|"untimeout";
 		user:TwitchatUser;
+		moderator?:TwitchatUser;
 		reason:string;
 		duration_s:number;
 	}

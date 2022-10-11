@@ -511,7 +511,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/so" || cmd == "/shoutout") {
 			this.message = "...";
-			const user = await this.$store("users").getUserFrom("twitch", undefined, params[0]);
+			const user = await this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
 			//Make a shoutout
 			await sChat.shoutout(user);
 			this.message = "";
@@ -536,7 +536,7 @@ export default class ChatForm extends Vue {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
-					user: this.$store("users").getUserFrom("twitch", undefined, id.toString()),
+					user: this.$store("users").getUserFrom("twitch", this.channelId, id.toString()),
 					channel_id:this.channelId,
 					type:"message",
 					message,
@@ -664,7 +664,7 @@ export default class ChatForm extends Vue {
 					const user = await TwitchUtils.loadUserInfo([params[0]]);
 					params[0] = user[0].login;
 				}
-				const user = this.$store("users").getUserFrom("twitch", undefined, undefined, params[0]);
+				const user = this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
 				this.$store("users").openUserCard( user );
 			}
 			this.message = "";
@@ -725,7 +725,7 @@ export default class ChatForm extends Vue {
 					this.loading = false;
 					return;
 				}
-				user = this.$store("users").getUserFrom("twitch", undefined, res[0].id, res[0].login, res[0].display_name);
+				user = this.$store("users").getUserFrom("twitch", this.channelId, res[0].id, res[0].login, res[0].display_name);
 			}catch(error) {}
 			this.$store("tts").ttsReadUser(user!, cmd == "/tts");
 			this.message = "";

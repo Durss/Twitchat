@@ -103,7 +103,7 @@ export default class ParamsAlert extends Vue {
 			platform:"twitch",
 			date: Date.now(),
 			type: "message",
-			user: this.$store("users").getUserFrom("twitch", undefined, uid),
+			user: this.$store("users").getUserFrom("twitch", uid, uid),
 			answers: [],
 			channel_id:uid,
 			message: "ItsBoshyTime Read your chat !!! ItsBoshyTime",

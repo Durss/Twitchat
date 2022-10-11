@@ -280,13 +280,14 @@ export default class ParamsTTS extends Vue {
 	}
 
 	public testVoice():void {
+		const uid = UserSession.instance.twitchUser!.id;
 		const m:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitchat",
 			channel_id: "twitchat",
 			type:"message",
-			user: StoreProxy.users.getUserFrom("twitch", undefined, UserSession.instance.twitchUser!.id),
+			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message: this.testStr,
 			message_html: this.testStr,
 			answers: [],

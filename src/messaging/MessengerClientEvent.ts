@@ -24,12 +24,14 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.MessageCheerData |
 					TwitchatDataTypes.MessageJoinData |
 					TwitchatDataTypes.MessageLeaveData |
-					TwitchatDataTypes.messageBanData |
+					TwitchatDataTypes.MessageBanData |
 					TwitchatDataTypes.MessageTimeoutData |
 					TwitchatDataTypes.MessageRaidData |
 					TwitchatDataTypes.MessageClearChatData |
 					TwitchatDataTypes.MessageRewardRedeemData |
-					TwitchatDataTypes.MessageNoticeData
+					TwitchatDataTypes.MessageNoticeData |
+					TwitchatDataTypes.MessageBanData |
+					TwitchatDataTypes.MessageTimeoutData
 					;
 	
 	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
@@ -37,14 +39,13 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"CHEER", data:TwitchatDataTypes.MessageCheerData);
 	constructor(type:"JOIN", data:TwitchatDataTypes.MessageJoinData);
 	constructor(type:"LEAVE", data:TwitchatDataTypes.MessageLeaveData);
-	constructor(type:"BAN", data:TwitchatDataTypes.messageBanData);
+	constructor(type:"BAN", data:TwitchatDataTypes.MessageBanData);
 	constructor(type:"TIMEOUT", data:TwitchatDataTypes.MessageTimeoutData);
 	constructor(type:"RAID", data:TwitchatDataTypes.MessageRaidData);
 	constructor(type:"CLEAR_CHAT", data:TwitchatDataTypes.MessageClearChatData);
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
-	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
 	constructor(type:"REWARD", data:TwitchatDataTypes.MessageRewardRedeemData);
-	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
+	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData|TwitchatDataTypes.MessageBanData|TwitchatDataTypes.MessageTimeoutData);
 	constructor(type:"REFRESH_TOKEN");
 	
 	constructor(...params:any[]) {

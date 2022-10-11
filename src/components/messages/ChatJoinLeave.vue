@@ -70,7 +70,7 @@ export default class ChatJoinLeave extends Vue {
 
 		const chan = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
 		if(chan) {
-			this.channelName = " #"+chan.login;
+			this.channelName = " #"+chan.login;//TODO users should be split by channel. One message can contains multiple channels join/leave infos
 			message += this.channelName;
 		}
 
