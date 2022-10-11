@@ -213,6 +213,7 @@ export default class MessageList extends Vue {
 	public scrollAtBottom = true;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 
+	private counter = 0;
 	private disposed = false;
 	private holderOffsetY = 0;
 	private prevMarkedReadItem:TwitchatDataTypes.ChatMessageTypes | null = null;
@@ -226,6 +227,7 @@ export default class MessageList extends Vue {
 	public get classes():string[] {
 		let res = ["messagelist"];
 		res.push("alternateBG");
+		if(this.counter%2===0) res.push("alternateOdd");
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll) res.push("lockScroll");
 		return res;
@@ -412,6 +414,9 @@ export default class MessageList extends Vue {
 				return;
 			}
 			
+			if(this.localMessages.length == this.max) {
+				this.counter++;
+			}
 			this.localMessages = value.concat().slice(-this.max);
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].id as string] = true;
@@ -879,11 +884,26 @@ export default class MessageList extends Vue {
 
 	&.alternateBG:not(.lightMode) {
 		.holder {
-			// TODO fix switching even/odd problem when deleting/adding messages and enable this back
 			.subHolder:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
 				&:hover {
 					background-color: rgba(255, 255, 255, .2);
+				}
+			}
+		}
+		&.alternateOdd {
+			.holder {
+				.subHolder:nth-child(odd) {
+					background-color: transparent;
+					&:hover {
+						background-color: rgba(255, 255, 255, .2);
+					}
+				}
+				.subHolder:nth-child(even) {
+					background-color: rgba(255, 255, 255, .025);
+					&:hover {
+						background-color: rgba(255, 255, 255, .2);
+					}
 				}
 			}
 		}
@@ -936,7 +956,7 @@ export default class MessageList extends Vue {
 				overflow: hidden;
 				font-family: "Inter";
 				// color: #fff;
-				margin: .5em 0;
+				padding: .5em 0;
 				font-size: var(--messageSize);
 			}
 		}
