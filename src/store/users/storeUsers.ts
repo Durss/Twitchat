@@ -167,14 +167,18 @@ export const storeUsers = defineStore('users', {
 			if(userExisted) return user;
 
 			if(platform == "twitch") {
+				const batchMode = !id && login;
+				
+				if(!user!.displayName) user!.displayName = "...loading...";
+				if(!user!.login) user!.login = "...loading...";
+				
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
-				const batchMode = !id && login;
 				const to = setTimeout(()=> {
-					if(!user!.temporary) {
+					if(!user!.temporary && id && login) {
 						//User not pending for necessary data loading, check if the
 						//partner/affiliate state is defined, if so, just stop there
 						//Otherwise, load full info from API
