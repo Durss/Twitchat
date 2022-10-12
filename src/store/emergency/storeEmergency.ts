@@ -11,6 +11,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import UserSession from '@/utils/UserSession';
 
 //TODO makes this platform agnostic
 export const storeEmergency = defineStore('emergency', {
@@ -64,6 +65,7 @@ export const storeEmergency = defineStore('emergency', {
 		},
 
 		async setEmergencyMode(enable:boolean):Promise<void> {
+			const uid = UserSession.instance.twitchUser!.id;
 			this.emergencyStarted = enable;
 			const message:TwitchatDataTypes.MessageEmergencyModeInfo = {
 				id:Utils.getUUID(),
@@ -91,7 +93,7 @@ export const storeEmergency = defineStore('emergency', {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
 					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
 					for (let i = 0; i < users.length; i++) {
-						TwitchUtils.banUser(users[i].id, 600, "Timed out because the emergency mode has been triggers on Twitchat");
+						TwitchUtils.banUser(users[i].id, uid, 600, "Timed out because the emergency mode has been triggers on Twitchat");
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
@@ -117,7 +119,7 @@ export const storeEmergency = defineStore('emergency', {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
 					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
 					for (let i = 0; i < users.length; i++) {
-						TwitchUtils.unbanUser(users[i].id);
+						TwitchUtils.unbanUser(users[i].id, uid);
 					}
 				}
 				if(this.params.obsSources) {

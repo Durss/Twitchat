@@ -58,10 +58,14 @@ export const storeAuth = defineStore('auth', {
 					return;
 				}
 				//Validate auth token
-				const userRes = await TwitchUtils.validateToken(json.access_token);
-				const status = (userRes as TwitchDataTypes.Error).status;
-				if(isNaN((userRes as TwitchDataTypes.Token).expires_in)
-				&& status != 200) throw("invalid token");
+				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
+				try {
+					userRes = await TwitchUtils.validateToken(json.access_token);
+				}catch(error) {
+					/*ignore*/
+				}
+				if(!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)
+				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 	
 				UserSession.instance.access_token = json.access_token;
 				UserSession.instance.twitchAuthToken = userRes as TwitchDataTypes.Token;

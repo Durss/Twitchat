@@ -67,6 +67,8 @@ export default class TwitchUtils {
 				}else{
 					reject();
 				}
+			}).catch((error) => {
+				reject();
 			});
 		});
 	}
@@ -137,8 +139,8 @@ export default class TwitchUtils {
 				const badgeSet = cache[userBadgeCategory];
 				if(badgeSet) {
 					const badge = badgeSet.versions[userBadgeID];
-					badge.id = userBadgeCategory;
 					if(badge) {
+						badge.id = userBadgeCategory;
 						result.push(badge);
 						break;
 					}

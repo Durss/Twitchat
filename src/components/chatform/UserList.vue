@@ -176,7 +176,7 @@ export default class UserList extends Vue {
 					}
 				}
 				const chanData = this.channels[chan];
-				if(user.channelInfo[chan].online) {
+				if(user.channelInfo[chan].online && user.temporary !== true) {
 					if(user.channelInfo[chan].is_broadcaster) chanData.broadcaster = [user];
 					else if(user.channelInfo[chan].is_moderator) chanData.mods.push(user);
 					else if(user.channelInfo[chan].is_vip) chanData.vips.push(user);
