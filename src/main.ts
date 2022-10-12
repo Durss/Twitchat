@@ -18,6 +18,7 @@ import { storeBingo } from './store/bingo/storeBingo';
 import { storeChat } from './store/chat/storeChat';
 import { storeChatSuggestion } from './store/chatSugg/storeChatSuggestion';
 import DataStore from './store/DataStore';
+import { storeDebug } from './store/debug/storeDebug';
 import { storeEmergency } from './store/emergency/storeEmergency';
 import { storeMusic } from './store/music/storeMusic';
 import { storeOBS } from './store/obs/storeOBS';
@@ -130,7 +131,7 @@ const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width
 /**
  * Global helper to place a dropdown list
  */
-const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice") => {
+const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug") => {
 	// main
 	// account
 	// auth
@@ -172,6 +173,7 @@ const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSu
 		case "tts": return StoreProxy.tts;
 		case "users": return StoreProxy.users;
 		case "voice": return StoreProxy.voice;
+		case "debug": return StoreProxy.debug;
 	}
 }
 
@@ -224,6 +226,7 @@ StoreProxy.triggers = storeTriggers();
 StoreProxy.tts = storeTTS();
 StoreProxy.users = storeUsers();
 StoreProxy.voice = storeVoice();
+StoreProxy.debug = storeDebug();
 
 DataStore.init();
 

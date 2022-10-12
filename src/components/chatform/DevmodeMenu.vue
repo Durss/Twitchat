@@ -2,24 +2,22 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" />
+			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" /> -->
 			<Button small title="Join" @click="simulateEvent('join')" :icon="$image('icons/coin.svg')" />
 			<Button small title="Leave" @click="simulateEvent('leave')" :icon="$image('icons/coin.svg')" />
-			<Button small title="First message" @click="simulateEvent('firstMessage')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Returning user" @click="simulateEvent('returningUser')" :icon="$image('icons/returning.svg')" />
-			<Button small title="Presentation" @click="simulateEvent('presentation')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Highlighted message" @click="simulateEvent('highlighted')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Raid" @click="simulateEvent('raided')" :icon="$image('icons/raid.svg')" />
+			<Button small title="First message" @click="simulateEvent('message', 'first')" :icon="$image('icons/firstTime.svg')" />
+			<Button small title="Returning user" @click="simulateEvent('message', 'returning')" :icon="$image('icons/returning.svg')" />
+			<Button small title="Presentation" @click="simulateEvent('message', 'presentation')" :icon="$image('icons/firstTime.svg')" />
+			<Button small title="Raid" @click="simulateEvent('raid')" :icon="$image('icons/raid.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />
-			<Button small title="ReSub" @click="simulateEvent('resub')" :icon="$image('icons/sub.svg')" />
-			<Button small title="Subgift" @click="simulateEvent('subgift')" :icon="$image('icons/gift.svg')" />
-			<Button small title="Subgift upgrade" @click="simulateEvent('giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
-			<Button small title="Subgift x20" @click="simulateEvent('subgiftx20')" :icon="$image('icons/gift.svg')" />
+			<Button small title="ReSub" @click="simulateEvent('subscription', 'resub')" :icon="$image('icons/sub.svg')" />
+			<Button small title="Subgifts" @click="simulateEvent('subscription', 'gift')" :icon="$image('icons/gift.svg')" />
+			<Button small title="Subgift upgrade" @click="simulateEvent('subscription', 'giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
 			<Button small title="Challenge contribution" @click="simulateChallengeContribution()" :icon="$image('icons/channelPoints.svg')" />
-			<Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="$image('icons/train.svg')" />
+			<!-- <Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train summary" @click="simulateEvent('hypeTrainSummary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="$image('icons/train.svg')" />
 			<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="$image('icons/boost.svg')" />
@@ -29,7 +27,7 @@
 			<Button small title="Prediction result" @click="simulateEvent('predictionResult')" :icon="$image('icons/prediction.svg')" />
 			<Button small title="Host" @click="simulateEvent('host')" :icon="$image('icons/raid.svg')" />
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="$image('icons/emote.svg')" />
-			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="$image('icons/shield.svg')" />
+			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="$image('icons/shield.svg')" /> -->
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
@@ -38,6 +36,7 @@
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PubSub from '@/utils/twitch/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -95,25 +94,36 @@ export default class DevmodeMenu extends Vue {
 		}
 	}
 
-	public async simulateEvent(code:string):Promise<void> {
-		if(code == "hypeTrain") {
-			PubSub.instance.simulateHypeTrain();
-		}else if(code == "hypeTrainCooldown") {
-			PubSub.instance.simulateHypeCooldown();
-		}else if(code == "lowTrustUser") {
-			PubSub.instance.simulateLowTrustUser();
-		}else if(code == "communityBoost") {
-			PubSub.instance.simulateCommunityBoost();
-		}else if(code == "subgiftx20") {
-			for (let i = 0; i < 20; i++) {
-				//TODO update fakeEvents.json and replace these lines
-				// IRCClient.instance.sendFakeEvent("subgift");
-				await Utils.promisedTimeout(60);
-			}
-		}else{
+	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
+		// if(type == "hypeTrain") {
+		// 	PubSub.instance.simulateHypeTrain();
+		// }else
+		// if(type == "hype_train_cooled_down") {
+		// 	PubSub.instance.simulateHypeCooldown();
+		// }else if(type == "lowTrustUser") {
+		// 	PubSub.instance.simulateLowTrustUser();
+		// }else if(type == "communityBoost") {
+		// 	PubSub.instance.simulateCommunityBoost();
+		// }else if(type == "subgiftx20") {
+		// 	for (let i = 0; i < 20; i++) {
+		// 		//TODO update fakeEvents.json and replace these lines
+		// 		// IRCClient.instance.sendFakeEvent("subgift");
+		// 		await Utils.promisedTimeout(60);
+		// 	}
+		// }else{
 			//TODO update fakeEvents.json and replace these lines
 			// IRCClient.instance.sendFakeEvent(code);
-		}
+			this.$store("debug").simulateMessage(type, (message)=> {
+				switch(subAction) {
+					case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
+					case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
+					case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
+					case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
+					case "gift": 			(message as TwitchatDataTypes.MessageSubscriptionData).is_gift = true; break;
+					case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				}
+			})
+		// }
 	}
 
 	public async exportPubsubHistory():Promise<void> {
@@ -135,6 +145,8 @@ export default class DevmodeMenu extends Vue {
 	}
 
 }
+
+type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade"
 </script>
 
 <style scoped lang="less">

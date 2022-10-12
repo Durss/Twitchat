@@ -32,6 +32,7 @@ export default class StoreProxy {
 	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState};
 	public static voice:IVoiceState & IVoiceGetters & IVoiceActions & {$state:IVoiceState};
 	public static main:IMainState & IMainGetters & IMainActions & {$state:IMainState};
+	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState};
 	
 }
 
@@ -187,6 +188,19 @@ export interface IChatSuggestionGetters {
 export interface IChatSuggestionActions {
 	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void;
 	addChatSuggestion(message:TwitchatDataTypes.MessageChatData):void;
+}
+
+
+
+
+export interface IDebugState {
+}
+
+export interface IDebugGetters {
+}
+
+export interface IDebugActions {
+	simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):void;
 }
 
 
