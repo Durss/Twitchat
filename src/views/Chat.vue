@@ -232,6 +232,7 @@ export default class Chat extends Vue {
 	private availHeight = 0;
 	private resizing = false;
 	private canStartAd = true;
+	private closingDonorState = false;
 	
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
@@ -466,7 +467,9 @@ export default class Chat extends Vue {
 	}
 
 	public closeDonorCard():void {
+		if(this.closingDonorState) return;
 		//Show donor badge
+		this.closingDonorState = true;
 		const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
 		gsap.to(el, {bottom:"-350px", duration:1, ease:"back.in", onComplete:()=>{
 			this.isDonor = false;

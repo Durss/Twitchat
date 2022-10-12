@@ -12,8 +12,8 @@
 
 		<span v-if="remainingCount > 0"><strong>{{remainingCount}}</strong> more</span>
 
-		<span v-if="messageData.type=='join'"> joined the chat room{{channelName}}</span>
-		<span v-else> left the chat room{{channelName}}</span>
+		<span v-if="messageData.type=='join'"> joined the chat room<strong>{{channelName}}</strong></span>
+		<span v-else> left the chat room<strong>{{channelName}}</strong></span>
 	</div>
 </template>
 
