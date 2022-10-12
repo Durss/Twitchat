@@ -70,8 +70,8 @@ export default class PubSub extends EventDispatcher {
 				"chat_moderator_actions."+uid+"."+uid,
 				"automod-queue."+uid+"."+uid,
 				"user-moderation-notifications."+uid+"."+uid,
-				"leaderboard-events-v1.bits-usage-by-channel-v1-"+uid+"-WEEK",
-				"leaderboard-events-v1.sub-gifts-sent-"+uid+"-WEEK",
+				// "leaderboard-events-v1.bits-usage-by-channel-v1-"+uid+"-WEEK",
+				// "leaderboard-events-v1.sub-gifts-sent-"+uid+"-WEEK",
 				"raid."+uid,
 				"predictions-channel-v1."+uid,
 				"polls."+uid,
@@ -414,7 +414,7 @@ export default class PubSub extends EventDispatcher {
 			//Manage rewards
 			if(StoreProxy.params.filters.showRewards.value) {
 				const localObj = data.data as  PubSubDataTypes.RewardData;
-				this.rewardEvent(localObj, channelId);
+				this.rewardEvent(localObj);
 			}
 
 
@@ -489,7 +489,14 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
 			const localObj = data.data as PubSubDataTypes.PollData;
-			this.pollEvent(localObj, channelId, data.type == "POLL_COMPLETE");
+			//TODO make sure the "owned_by" value really represents the channelID
+			console.log("POLL STATE UPDATE", data.type);
+			const isComplete = data.type == "POLL_COMPLETE";
+			this.pollEvent(localObj, localObj.poll.owned_by, isComplete);
+			if(isComplete || data.type == "POLL_TERMINATE") {
+				//Clear poll
+				StoreProxy.poll.setCurrentPoll(null);
+			}
 
 
 
@@ -500,7 +507,7 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "event-created" || data.type == "event-updated") {
 			const localObj = data.data as PubSubDataTypes.PredictionData;
-			this.predictionEvent(localObj, channelId);
+			this.predictionEvent(localObj, localObj.event.channel_id);
 
 
 
@@ -718,7 +725,8 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a user redeems a reward
 	 */
-	private rewardEvent(localObj:PubSubDataTypes.RewardData, channelId:string):void {
+	private rewardEvent(localObj:PubSubDataTypes.RewardData):void {
+		const channelId = localObj.redemption.channel_id;
 		const img = localObj.redemption.reward.image ?? localObj.redemption.reward.default_image;
 		const m:TwitchatDataTypes.MessageRewardRedeemData = {
 			id:localObj.redemption.id,
@@ -975,11 +983,12 @@ export default class PubSub extends EventDispatcher {
 	 */
 	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);
+		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			approached_at:StoreProxy.stream.hypeTrain!.approached_at,
+			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
 			timeLeft:data.progress.remaining_seconds,
