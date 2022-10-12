@@ -59,11 +59,11 @@ export default class Config {
 	 * PubSub events from
 	 */
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
+		if(this.IS_PROD) return [];
 		return [
 			{platform:"twitch", login:"desentredeux"},
-			{platform:"twitch", login:"gunselsenol"},
+			{platform:"twitch", login:"zule"},
 		];
-		return [];
 	}
 
 	public get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {

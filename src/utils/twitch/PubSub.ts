@@ -524,6 +524,9 @@ export default class PubSub extends EventDispatcher {
 			}
 			StoreProxy.stream.setRaiding(undefined);
 
+		}else if(data.type == "raid_cancel_v2") {
+			StoreProxy.stream.setRaiding(undefined);
+
 
 
 		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression" || data.type == "community-boost-end") {

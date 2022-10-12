@@ -456,7 +456,7 @@ export namespace TwitchatDataTypes {
 		is_broadcaster:boolean;
 		is_subscriber:boolean;
 		is_gifter:boolean;
-		badges?:TwitchatUserBadge[];
+		badges:TwitchatUserBadge[];
 		messageHistory:ChatMessageTypes[];
 	}
 

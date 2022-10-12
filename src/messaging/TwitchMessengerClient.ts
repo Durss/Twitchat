@@ -346,8 +346,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @returns 
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
-		const login = tags.username ?? tags["display-name"];
-		
+		const login			= tags.username ?? tags["display-name"];
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"]);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip			= tags.badges?.vip != undefined;
@@ -372,19 +371,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 		
 
-		if(tags.badges && tags["room-id"] && !user.channelInfo[channelId].badges) {
-			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"]!, tags.badges);
+		if(tags.badges && tags["room-id"] && user.channelInfo[channelId].badges.length == 0) {
+			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"], tags.badges);
 			const badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 			for (let i = 0; i < parsedBadges.length; i++) {
 				const b = parsedBadges[i];
-				if(!tags["badge-info"]) tags["badge-info"] = {};
+				const infos = tags["badge-info"] ?? {};
 				badges.push({
 					icon:{
 						sd: b.image_url_1x,
 						hd: b.image_url_4x,
 					},
-					id: b.id,
-					title: tags["badge-info"][b.id] ?? b.title,
+					id: b.id ?? Utils.getUUID(),
+					title: infos[b.id] ?? b.title,
 				});
 			}
 			user.channelInfo[channelId].badges = badges;

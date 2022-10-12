@@ -265,17 +265,11 @@ export default class ChatMessage extends Vue {
 	public get filteredBadges():TwitchatDataTypes.TwitchatUserBadge[] {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
 		
-		let res:TwitchatDataTypes.TwitchatUserBadge[] = [];
 		if(this.$store("params").appearance.showBadges.value
-		&& !this.$store("params").appearance.minimalistBadges.value
-		&& this.channelInfo.badges) {
-			try {
-				res = this.channelInfo.badges;
-			}catch(error){
-				res = [];
-			}
+		&& this.$store("params").appearance.minimalistBadges.value !== true) {
+			return this.channelInfo.badges ?? [];
 		}
-		return res;
+		return [];
 	}
 
 	/**
@@ -285,10 +279,9 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
 		
 		let badges:{label:string, class?:string}[] = [];
-		const message = this.messageData;
 
-		if(this.$store("params").appearance.showBadges.value
-		&& this.$store("params").appearance.minimalistBadges.value
+		if(this.$store("params").appearance.showBadges.value === true
+		&& this.$store("params").appearance.minimalistBadges.value === true
 		&& this.channelInfo.badges) {
 			for (let i = 0; i < this.channelInfo.badges.length; i++) {
 				const b = this.channelInfo.badges[i];
@@ -321,7 +314,7 @@ export default class ChatMessage extends Vue {
 
 	public beforeMount() {
 		this.currentUser = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, UserSession.instance.twitchUser!.id);
-		this.channelInfo = this.currentUser.channelInfo[this.messageData.channel_id];
+		this.channelInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
 	}
 
 	/**
@@ -625,9 +618,7 @@ export default class ChatMessage extends Vue {
 			width: 1em;
 			height: 1em;
 			vertical-align: middle;
-			&:last-of-type {
-				margin-right: 5px;
-			}
+			margin-right: 5px;
 
 			&.prediction {
 				&.pink{ background-color: #f50e9b;}

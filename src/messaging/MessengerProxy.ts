@@ -63,6 +63,7 @@ export default class MessengerProxy {
 				FFZUtils.instance.addChannel(v.id);
 				SevenTVUtils.instance.addChannel(v.id);
 			});
+			TwitchUtils.loadGlobalBadges();
 			
 			const sParams = StoreProxy.params;
 			if(sParams.appearance.bttvEmotes.value === true) {

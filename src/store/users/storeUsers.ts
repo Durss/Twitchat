@@ -156,6 +156,7 @@ export const storeUsers = defineStore('users', {
 						is_broadcaster:channelId == user.id,
 						is_subscriber:false,
 						is_gifter:false,
+						badges:[],
 					};
 				}
 	

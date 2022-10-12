@@ -137,6 +137,7 @@ export default class TwitchUtils {
 				const badgeSet = cache[userBadgeCategory];
 				if(badgeSet) {
 					const badge = badgeSet.versions[userBadgeID];
+					badge.id = userBadgeCategory;
 					if(badge) {
 						result.push(badge);
 						break;
