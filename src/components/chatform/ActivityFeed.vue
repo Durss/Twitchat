@@ -72,7 +72,7 @@
 					v-else-if="m.type == 'hype_train_summary'"
 					:result="m"
 					:filtering="customActivities.length > 0"
-					@setCustomActivities="(list:any[])=> customActivities = list"/>
+					@setCustomActivities="(list:any[])=> showCustomActivities(list)"/>
 					
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
@@ -140,6 +140,7 @@ export default class ActivityFeed extends Vue {
 
 	public filterKeys = "sub,follow,bits,raid,poll,prediction,bingo,raffle";
 	public filters:{[key:string]:boolean} = {};
+	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public customActivities:TwitchatDataTypes.ChatMessageTypes[] = [];
 	
 	private clickHandler!:(e:MouseEvent) => void;
@@ -158,7 +159,88 @@ export default class ActivityFeed extends Vue {
 		return res;
 	}
 	
-	public get messages():TwitchatDataTypes.ChatMessageTypes[] {
+	public beforeMount():void {
+		const f = DataStore.get(DataStore.ACTIVITY_FEED_FILTERS);
+		let json:{[key:string]:boolean} = {};
+		try {
+			json = JSON.parse(f);
+		}catch(e) {
+			if(typeof(f) == "string") {
+				//Migrate old data format:
+				//	"sub,follow,bits,..."
+				//To new format:
+				//	{sub:true, follow:false, bits:true}
+				const items = f.split(",");
+				for (let i = 0; i < items.length; i++) {
+					const key = items[i];
+					json[key] = true;
+				}
+				for (let i = 0; i < this.filterKeys.split(",").length; i++) {
+					const key = this.filterKeys.split(",")[i];
+					if(json[key] === undefined) json[key] = false;
+				}
+			}
+		}
+		if(f) this.filters = json;
+	}
+
+	public async mounted():Promise<void> {
+
+		watch(()=>this.filters, ()=> {
+			DataStore.set(DataStore.ACTIVITY_FEED_FILTERS, this.filters);
+		});
+
+		watch(()=>this.$store("chat").activityFeed, ()=> {
+			this.onActivityFeedUpdate()
+		}, {deep:true});
+
+		this.onActivityFeedUpdate();
+
+		await this.$nextTick();
+		if(!this.listMode) {
+			this.clickHandler = (e:MouseEvent) => this.onClick(e);
+			document.addEventListener("mousedown", this.clickHandler);
+			this.open();
+		}
+	}
+
+	public beforeUnmount():void {
+		if(!this.listMode) {
+			document.removeEventListener("mousedown", this.clickHandler);
+		}
+	}
+
+	public showCustomActivities(list:TwitchatDataTypes.ChatMessageTypes[]):void {
+		this.customActivities = list;
+		this.onActivityFeedUpdate();
+	}
+
+	private open():void {
+		const ref = this.$el as HTMLDivElement;
+		gsap.killTweensOf(ref);
+		gsap.from(ref, {duration:.2, scaleY:0, clearProps:"scaleY", ease:"back.out(5)"});
+	}
+
+	private close():void {
+		const ref = this.$el as HTMLDivElement;
+		gsap.killTweensOf(ref);
+		gsap.to(ref, {duration:.2, scaleY:0, clearProps:"scaleY, scaleX", ease:"back.in(5)", onComplete:() => {
+			this.$emit("close");
+		}});
+	}
+
+	private onClick(e:MouseEvent):void {
+		let target = e.target as HTMLDivElement;
+		const ref = this.$el as HTMLDivElement;
+		while(target != document.body && target != ref && target) {
+			target = target.parentElement as HTMLDivElement;
+		}
+		if(target != ref) {
+			this.close();
+		}
+	}
+
+	private onActivityFeedUpdate():void {
 		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").activityFeed;
 
 		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -203,78 +285,7 @@ export default class ActivityFeed extends Vue {
 			//Notice types are whitelisted on storeChat.ts
 			else if(m.type == TwitchatDataTypes.TwitchatMessageType.NOTICE) result.unshift(m);
 		}
-		
-		return result;
-	}
-
-	public beforeMount():void {
-		const f = DataStore.get(DataStore.ACTIVITY_FEED_FILTERS);
-		let json:{[key:string]:boolean} = {};
-		try {
-			json = JSON.parse(f);
-		}catch(e) {
-			if(typeof(f) == "string") {
-				//Migrate old data format:
-				//	"sub,follow,bits,..."
-				//To new format:
-				//	{sub:true, follow:false, bits:true}
-				const items = f.split(",");
-				for (let i = 0; i < items.length; i++) {
-					const key = items[i];
-					json[key] = true;
-				}
-				for (let i = 0; i < this.filterKeys.split(",").length; i++) {
-					const key = this.filterKeys.split(",")[i];
-					if(json[key] === undefined) json[key] = false;
-				}
-			}
-		}
-		if(f) this.filters = json;
-	}
-
-	public async mounted():Promise<void> {
-
-		watch(()=>this.filters, ()=> {
-			DataStore.set(DataStore.ACTIVITY_FEED_FILTERS, this.filters);
-		});
-
-		await this.$nextTick();
-		if(!this.listMode) {
-			this.clickHandler = (e:MouseEvent) => this.onClick(e);
-			document.addEventListener("mousedown", this.clickHandler);
-			this.open();
-		}
-	}
-
-	public beforeUnmount():void {
-		if(!this.listMode) {
-			document.removeEventListener("mousedown", this.clickHandler);
-		}
-	}
-
-	private open():void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.2, scaleY:0, clearProps:"scaleY", ease:"back.out(5)"});
-	}
-
-	private close():void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.to(ref, {duration:.2, scaleY:0, clearProps:"scaleY, scaleX", ease:"back.in(5)", onComplete:() => {
-			this.$emit("close");
-		}});
-	}
-
-	private onClick(e:MouseEvent):void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if(target != ref) {
-			this.close();
-		}
+		this.messages = result;
 	}
 }
 </script>

@@ -355,6 +355,15 @@ export default class MessageList extends Vue {
 						break;
 					}
 				}
+				
+				case TwitchatDataTypes.TwitchatMessageType.PREDICTION:
+				case TwitchatDataTypes.TwitchatMessageType.POLL:{
+					if(sParams.filters.showNotifications.value === false) {
+						messages.splice(i, 1);
+						i--;
+						break;
+					}
+				}
 
 				case TwitchatDataTypes.TwitchatMessageType.CHEER:{
 					if(sParams.filters.showNotifications.value === false 
