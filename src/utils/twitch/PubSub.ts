@@ -1016,9 +1016,9 @@ export default class PubSub extends EventDispatcher {
 		//postepone the progress event in case it's followed by a LEVEL UP event to avoid
 		//having kind of two similar events
 		this.hypeTrainProgressTimer = setTimeout(()=> {
-			const storeTrain = StoreProxy.stream.hypeTrain!;
-			const prevLevel = storeTrain.level;
-			const prevValue = storeTrain.currentValue;
+			const storeTrain = StoreProxy.stream.hypeTrain;
+			const prevLevel = storeTrain?.level ?? 0;
+			const prevValue = storeTrain?.currentValue ?? 0;
 			//Makes sure that if a progress event follows the LEVEL UP event, only
 			//the LEVEL UP event is handled.
 			//ame goal as the setTimeout() above but if the events order is reversed
@@ -1030,8 +1030,8 @@ export default class PubSub extends EventDispatcher {
 				level:data.progress.level.value,
 				currentValue:data.progress.value,
 				goal:data.progress.goal,
-				approached_at:storeTrain.approached_at,
-				started_at:storeTrain.started_at,
+				approached_at:storeTrain?.approached_at ?? Date.now(),
+				started_at:storeTrain?.started_at ?? Date.now(),
 				updated_at:Date.now(),
 				timeLeft:data.progress.remaining_seconds,
 				state: "PROGRESSING",
@@ -1066,18 +1066,18 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
 		clearTimeout(this.hypeTrainProgressTimer);
-		const storeData = StoreProxy.stream.hypeTrain!;
+		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
-			approached_at:storeData.approached_at,
-			started_at:storeData.started_at,
+			approached_at:storeTrain?.approached_at ?? Date.now(),
+			started_at:storeTrain?.started_at ?? Date.now(),
 			updated_at:Date.now(),
 			timeLeft:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
-			is_new_record:storeData.is_new_record,
+			is_new_record:storeTrain?.is_new_record ?? false,
 		};
 
 		//This line makes debug easier if I wanna start the train at any
@@ -1104,8 +1104,8 @@ export default class PubSub extends EventDispatcher {
 	 * @param data 
 	 */
 	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd, channelId:string):void {
-		data.ending_reason
 		const storeData = StoreProxy.stream.hypeTrain!;
+		if(!storeData) return;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			level: storeData.level,
 			currentValue: storeData.currentValue,
