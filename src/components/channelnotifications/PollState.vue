@@ -88,7 +88,9 @@ export default class PollState extends Vue {
 
 	public endPoll():void {
 		this.loading = true;
-		this.$confirm("End Poll", "Are you sure you want to end this poll now?")
+		console.log(this.poll);
+
+		this.$confirm("End Poll", "Are you sure you want to end this poll now? ")
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPoll(this.poll.id);
@@ -101,7 +103,6 @@ export default class PollState extends Vue {
 			this.loading = false;
 		});
 	}
-
 }
 </script>
 

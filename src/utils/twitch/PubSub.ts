@@ -237,7 +237,7 @@ export default class PubSub extends EventDispatcher {
 				display_name: login,
 				username: login,
 				user_id:id.toString(),
-			}, true, "debug")
+			}, true)
 			if(Math.random() > .5) {
 				await Utils.promisedTimeout(Math.random()*40);
 			}
@@ -288,7 +288,7 @@ export default class PubSub extends EventDispatcher {
 		
 		if(topic && /following\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Following;
-			this.followingEvent(localObj, false, channelId);
+			this.followingEvent(localObj, false);
 
 
 
@@ -491,9 +491,9 @@ export default class PubSub extends EventDispatcher {
 			const localObj = data.data as PubSubDataTypes.PollData;
 			//TODO make sure the "owned_by" value really represents the channelID
 			console.log("POLL STATE UPDATE", data.type);
-			const isComplete = data.type == "POLL_COMPLETE";
+			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE";
 			this.pollEvent(localObj, localObj.poll.owned_by, isComplete);
-			if(isComplete || data.type == "POLL_TERMINATE") {
+			if(isComplete) {
 				//Clear poll
 				StoreProxy.poll.setCurrentPoll(null);
 			}
@@ -805,7 +805,7 @@ export default class PubSub extends EventDispatcher {
 		}
 		const poll:TwitchatDataTypes.MessagePollData = {
 			date:Date.now(),
-			id:Utils.getUUID(),
+			id:localObj.poll.poll_id,
 			platform:"twitch",
 			channel_id: channelId,
 			type:"poll",
@@ -864,9 +864,10 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when having a new follower
 	 */
-	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false, channelId:string):void {
+	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false):void {
 		if(this.followCache[data.username] === true) return;
 		this.followCache[data.username] = true;
+		const channelId = UserSession.instance.twitchUser!.id;
 
 		const message:TwitchatDataTypes.MessageFollowingData = {
 			id:Utils.getUUID(),
@@ -917,7 +918,7 @@ export default class PubSub extends EventDispatcher {
 						if(simulationMode===true) {
 							res = true;
 						}else{
-							res = await TwitchUtils.blockUser(message.user.id, "spam");
+							res = await TwitchUtils.blockUser(message.user.id, channelId, "spam");
 						}
 						followData.blocked = res;
 

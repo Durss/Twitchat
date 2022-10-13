@@ -629,7 +629,6 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPolls();
 			}, (duration+1) * 1000);
-			StoreProxy.poll.setCurrentPoll(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -655,7 +654,8 @@ export default class TwitchUtils {
 						label:v.title,
 						votes:v.votes,
 					})
-				})
+				});
+				console.log("ACTIVE POLL", src);
 				const poll:TwitchatDataTypes.MessagePollData = {
 					id:src.id,
 					channel_id:src.broadcaster_id,
@@ -673,7 +673,7 @@ export default class TwitchUtils {
 		}
 		throw(json);
 	}
-
+	
 	/**
 	 * Ends a poll
 	 */
@@ -690,7 +690,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.poll.setCurrentPoll(json.data);
+			// StoreProxy.poll.setCurrentPoll(json.data);
 			return json.data;
 		}
 		throw(json);

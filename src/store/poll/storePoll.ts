@@ -25,6 +25,8 @@ export const storePoll = defineStore('poll', {
 				StoreProxy.chat.addMessage(this.data);
 				TriggerActionHandler.instance.onMessage(this.data);
 			}
+
+			console.log("Set Poll", data);
 			
 			this.data = data;
 		},
