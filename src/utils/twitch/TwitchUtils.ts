@@ -94,6 +94,7 @@ export default class TwitchUtils {
 				const mPlural = months > 1? "s" : "";
 				title += months+" month"+mPlural;
 			}
+			title += " subscriber";
 		}else
 		//If it's the prediction badge, use the ID as the title.
 		//ID is like "blue-6". We replace the dashes by spaces

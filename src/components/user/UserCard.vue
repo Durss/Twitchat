@@ -24,7 +24,10 @@
 			<div class="head">
 				<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 				<div class="live" v-if="currentStream">LIVE</div>
-				<div class="title">{{user.displayName}}</div>
+				<div class="title">
+					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" :data-tooltip="b.title">
+					<span>{{user.displayName}}</span>
+				</div>
 				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" data-tooltip="Account creation date"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				<div class="date" data-tooltip="Follows you since" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="account creation date" class="icon">{{followDate}}</div>
@@ -90,6 +93,7 @@ export default class UserCard extends Vue {
 	public createDate:string = "";
 	public followDate:string = "";
 	public userDescription:string = "";
+	public channelId:string = "";
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public fakeModMessage:TwitchatDataTypes.MessageChatData|null = null;
 	public currentStream:TwitchDataTypes.StreamInfo|null = null;
@@ -97,6 +101,7 @@ export default class UserCard extends Vue {
 	public followInfo:TwitchDataTypes.Following|null = null;
 	public myFollowings:{[key:string]:boolean} = {};
 	public commonFollowCount:number = 0;
+	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	// public subState:TwitchDataTypes.Subscriber|null = null;
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
@@ -105,7 +110,13 @@ export default class UserCard extends Vue {
 		const sUsers = storeUsers();
 		watchEffect(() => {
 			this.myFollowings = sUsers.myFollowings.twitch;
-			this.user = this.$store("users").userCard;
+			const card = this.$store("users").userCard;
+			if(card) {
+				this.user = card.user;
+				this.channelId = card.channelId ?? UserSession.instance.twitchUser!.id;
+			}else{
+				this.user = null;
+			}
 			this.loadUserInfo();
 		});
 
@@ -153,7 +164,7 @@ export default class UserCard extends Vue {
 					date:Date.now(),
 					type: "message",
 					user:this.user,
-					channel_id: UserSession.instance.twitchUser!.id,
+					channel_id: this.channelId,
 					message: "",
 					message_html: "",
 					answers:[],
@@ -164,8 +175,12 @@ export default class UserCard extends Vue {
 		}catch(error) {
 			this.error = true;
 		}
+
 		this.loading = false;
 		if(!this.error && this.user) {
+			console.log(this.channelId);
+			this.badges = this.user.channelInfo[this.channelId]?.badges ?? [];
+
 			await this.$nextTick();
 			gsap.from(this.$refs.avatar as HTMLDivElement, {duration:1, scale:0, ease:"back.out"})
 		
@@ -351,6 +366,12 @@ export default class UserCard extends Vue {
 
 			.title {
 				font-size: 2em;
+				display: flex;
+				align-items: center;
+
+				.badge {
+					height: .8em;
+				}
 			}
 
 			.live {

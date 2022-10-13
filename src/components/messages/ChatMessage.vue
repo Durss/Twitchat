@@ -421,7 +421,7 @@ export default class ChatMessage extends Vue {
 	 * Open a users' card
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 	/**

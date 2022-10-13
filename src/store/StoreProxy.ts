@@ -406,7 +406,10 @@ export interface ITTSActions {
 
 export interface IUsersState {
 	users: TwitchatDataTypes.TwitchatUser[];
-	userCard: TwitchatDataTypes.TwitchatUser|null;
+	userCard: {
+		user:TwitchatDataTypes.TwitchatUser|null,
+		channelId?:string,
+	}|null;
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	knownBots: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
@@ -430,7 +433,7 @@ export interface IUsersActions {
 	checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean>;
 	checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void;
-	openUserCard(user:TwitchatDataTypes.TwitchatUser|null):void;
+	openUserCard(user:TwitchatDataTypes.TwitchatUser|null, channelId?:string):void;
 	loadMyFollowings():Promise<void>;
 	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
 	trackUser(user:TwitchatDataTypes.TwitchatUser):void;
