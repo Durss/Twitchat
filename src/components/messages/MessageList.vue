@@ -334,8 +334,8 @@ export default class MessageList extends Vue {
 					if(sParams.features.showWhispersOnChat.value === false ) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
@@ -343,8 +343,8 @@ export default class MessageList extends Vue {
 					|| sParams.filters.showSubs.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.REWARD:{
@@ -352,8 +352,8 @@ export default class MessageList extends Vue {
 					|| sParams.filters.showRewards.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.PREDICTION:
@@ -361,8 +361,8 @@ export default class MessageList extends Vue {
 					if(sParams.filters.showNotifications.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.CHEER:{
@@ -370,8 +370,8 @@ export default class MessageList extends Vue {
 					|| sParams.filters.showCheers.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:{
@@ -379,8 +379,8 @@ export default class MessageList extends Vue {
 					|| sParams.filters.showFollow.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.RAID:{
@@ -388,8 +388,8 @@ export default class MessageList extends Vue {
 					|| sParams.filters.showRaids.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:{
@@ -397,8 +397,8 @@ export default class MessageList extends Vue {
 					|| sParams.filters.showHypeTrain.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.JOIN:
@@ -406,8 +406,8 @@ export default class MessageList extends Vue {
 					if(sParams.features.notifyJoinLeave.value === false) {
 						messages.splice(i, 1);
 						i--;
-						break;
 					}
+					break;
 				}
 			}
 		}

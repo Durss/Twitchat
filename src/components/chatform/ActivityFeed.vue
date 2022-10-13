@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head">
-			<h1 v-if="!listMode">Activity feed</h1>
+			<h1 v-if="!listMode !== false">Activity feed</h1>
 		</div>
 
 		<div v-if="messages.length == 0" class="noActivity">- No activity yet -</div>
@@ -155,7 +155,7 @@ export default class ActivityFeed extends Vue {
 
 	public get classes():string[] {
 		const res = ["activityfeed"];
-		if(this.listMode === true) res.push("listMode");
+		if(this.listMode !== false) res.push("listMode");
 		return res;
 	}
 	
@@ -197,7 +197,7 @@ export default class ActivityFeed extends Vue {
 		this.onActivityFeedUpdate();
 
 		await this.$nextTick();
-		if(!this.listMode) {
+		if(this.listMode === false) {
 			this.clickHandler = (e:MouseEvent) => this.onClick(e);
 			document.addEventListener("mousedown", this.clickHandler);
 			this.open();
@@ -205,7 +205,7 @@ export default class ActivityFeed extends Vue {
 	}
 
 	public beforeUnmount():void {
-		if(!this.listMode) {
+		if(this.listMode === false) {
 			document.removeEventListener("mousedown", this.clickHandler);
 		}
 	}
@@ -312,6 +312,7 @@ export default class ActivityFeed extends Vue {
 		box-shadow: unset;
 		flex-grow: 1;
 		padding: 0;
+		overflow: visible;
 
 		.head {
 			top: 5px;

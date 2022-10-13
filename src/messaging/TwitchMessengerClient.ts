@@ -1,14 +1,17 @@
+import rewardImg from '@/assets/icons/reward_highlight.svg';
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import { EventDispatcher } from "@/utils/EventDispatcher";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
+import BTTVUtils from "@/utils/emotes/BTTVUtils";
+import FFZUtils from "@/utils/emotes/FFZUtils";
+import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
+import { EventDispatcher } from "@/utils/EventDispatcher";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
-import rewardImg from '@/assets/icons/reward_highlight.svg';
 
 /**
 * Created : 25/09/2022 
@@ -79,7 +82,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelLoginToId[v.login] = v.id;
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
+				TwitchUtils.loadUserBadges(v.id);
+				TwitchUtils.loadCheermoteList(v.id);
+				BTTVUtils.instance.addChannel(v.id);
+				FFZUtils.instance.addChannel(v.id);
+				SevenTVUtils.instance.addChannel(v.id);
 			});
+			TwitchUtils.loadGlobalBadges();
 			
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
@@ -372,21 +381,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		
 
 		if(tags.badges && tags["room-id"] && user.channelInfo[channelId].badges.length == 0) {
-			let parsedBadges = TwitchUtils.getBadgesImagesFromRawBadges(tags["room-id"], tags.badges);
-			const badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
-			for (let i = 0; i < parsedBadges.length; i++) {
-				const b = parsedBadges[i];
-				const infos = tags["badge-info"] ?? {};
-				badges.push({
-					icon:{
-						sd: b.image_url_1x,
-						hd: b.image_url_4x,
-					},
-					id: b.id ?? Utils.getUUID(),
-					title: infos[b.id] ?? b.title,
-				});
-			}
-			user.channelInfo[channelId].badges = badges;
+			user.channelInfo[channelId].badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);
 		}
 		return user;
 	}
@@ -448,7 +443,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
-		if(!tags.id) {
+		if(!tags.id && tags["message-type"] == "chat") {
 			//When sending a message from the current client, IRC never send it back to us.
 			//TMI tries to make this transparent by firing the "message" event but
 			//it won't populate the data with the actual ID of the message.

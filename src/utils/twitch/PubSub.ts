@@ -515,7 +515,7 @@ export default class PubSub extends EventDispatcher {
 			const currentRaidInfo = StoreProxy.stream.currentRaid;
 			const m:TwitchatDataTypes.RaidInfo = {
 				channel_id: channelId,
-				user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", channelId, data.raid.target_id),
+				user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", channelId, data.raid.target_id, data.raid.target_login, data.raid.target_display_name),
 				viewerCount: data.raid.viewer_count,
 				startedAt:currentRaidInfo?.startedAt ?? Date.now(),
 				timerDuration_s:currentRaidInfo?.timerDuration_s ?? 90,
@@ -644,7 +644,7 @@ export default class PubSub extends EventDispatcher {
 				}
 				case "delete": {
 					const [login, message, messageId] = localObj.args!;
-					const deleter = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id);
+					const deleter = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by);
 					StoreProxy.chat.deleteMessage(messageId, deleter);
 					break;
 				}
@@ -744,7 +744,7 @@ export default class PubSub extends EventDispatcher {
 					hd:img.url_4x,
 				},
 			},
-			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id),
+			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id, localObj.redemption.user.login, localObj.redemption.user.display_name),
 		};
 		m.user.channelInfo[channelId].online = true;
 		if(localObj.redemption.user_input) {

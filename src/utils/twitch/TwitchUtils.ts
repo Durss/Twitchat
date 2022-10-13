@@ -1,6 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { Badges } from "tmi.js";
+import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import BTTVUtils from "../emotes/BTTVUtils";
 import Config from "../Config";
@@ -15,7 +15,7 @@ import SevenTVUtils from "../emotes/SevenTVUtils";
 export default class TwitchUtils {
 
 	public static client_id = "";
-	public static badgesCache:{[key:string]:{[key:string]:TwitchDataTypes.BadgesSet}} = {};
+	public static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emoteCache:TwitchDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
@@ -74,23 +74,89 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets a badge title from its raw info
+	 */
+	public static getBadgeTitle(setId:String, versionID:string):string {
+		let title = "";
+		//If it's the subscriber badge, create the title form its ID.
+		//ID is in the form "XYYY" where X=tier and YYY the number of months
+		if(setId === "subscriber") {
+			let months = versionID.length == 4? parseInt(versionID.substring(1)) : parseInt(versionID);//Remove "tier" info
+			const years = Math.floor(months/12);
+			//Create title from the number of months
+			if(years > 0) {
+				months = (months-years*12)
+				const mPlural = months > 1? "s" : "";
+				const yPlural = years > 1? "s" : "";
+				title = years+" year"+yPlural;
+				if(months > 0) title += " and "+months+" month"+mPlural;
+			}else{
+				const mPlural = months > 1? "s" : "";
+				title += months+" month"+mPlural;
+			}
+		}else
+		//If it's the prediction badge, use the ID as the title.
+		//ID is like "blue-6". We replace the dashes by spaces
+		if(setId === "predictions") {
+			title = "Prediction: ", versionID.replace("-", " ");
+		}else
+		//If it's the sub-gift badge, use the ID as the number of gifts
+		if(setId === "sub-gifter") {
+			title = versionID+" sub gifts";
+		}else
+		//If it's the bits badge, use the ID as the number of bits
+		if(setId === "bits") {
+			title += versionID+" bits";
+		}else
+		//If it's the moments badge, use the ID as the number of moments
+		if(setId === "moments") {
+			title += versionID+" moments";
+		} else {
+			//Use the set ID as the title after.
+			//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
+			//then replace dashes and remaining underscores by spaces to make a sort of readable title
+			//Don't replace _X if X isn't a number because of the "no_audio" and "no_sound"
+			//badge codes
+			title = setId.replace(/_[0-9]+/gi, "").replace(/(-|_)/g, " ");
+		}
+		return title;
+	}
+
+	/**
 	 * Gets the badges of a channel
 	 * @returns
 	 */
-	public static async loadUserBadges(uid:string):Promise<{[key:string]:TwitchDataTypes.BadgesSet}> {
+	public static async loadUserBadges(uid:string):Promise<{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}> {
 		if(this.badgesCache[uid]) return this.badgesCache[uid];
 
 		const options = {
 			method: "GET",
-			headers: {},
+			// headers: {},
+			headers: this.headers,
 		};
-		//URL could be replaced with this one to avoid needing an auth token :
-		//https://badges.twitch.tv/v1/badges/channels/{UID}/display
-		// const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges?broadcaster_id="+uid, options);
-		const result = await fetch("https://badges.twitch.tv/v1/badges/channels/"+uid+"/display", options);
+		const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges?broadcaster_id="+uid, options);
+		// const result = await fetch("https://badges.twitch.tv/v1/badges/channels/"+uid+"/display", options);
 		if(result.status == 200) {
 			const json = await result.json();
-			this.badgesCache[uid] = json.badge_sets;
+			const list:TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
+			const hashmap:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}} = {};
+			for (let i = 0; i < list.length; i++) {
+				const s = list[i];
+				if(!hashmap[s.set_id]) hashmap[s.set_id] = {};
+				for (let j = 0; j < s.versions.length; j++) {
+					const v = s.versions[j];
+					let title = this.getBadgeTitle(s.set_id, v.id);
+					hashmap[s.set_id][v.id] = {
+						icon:{
+							sd: v.image_url_1x,
+							hd: v.image_url_4x,
+						},
+						id: s.set_id,
+						title,
+					};
+				}
+			}
+			this.badgesCache[uid] = hashmap;
 			// this.badgesCache[uid] = json.data;
 			return this.badgesCache[uid];
 		}else{
@@ -102,20 +168,37 @@ export default class TwitchUtils {
 	 * Gets the badges of a channel
 	 * @returns
 	 */
-	public static async loadGlobalBadges():Promise<{[key:string]:TwitchDataTypes.BadgesSet}> {
+	public static async loadGlobalBadges():Promise<{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}> {
 		if(this.badgesCache["global"]) return this.badgesCache["global"];
 
 		const options = {
 			method: "GET",
-			headers: {},
+			// headers: {},
+			headers: this.headers,
 		};
-		//URL could be replaced with this one to avoid needing an auth token :
-		//https://badges.twitch.tv/v1/badges/global/display
-		// const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges/global", options);
-		const result = await fetch("https://badges.twitch.tv/v1/badges/global/display", options);
+		const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges/global", options);
+		// const result = await fetch("https://badges.twitch.tv/v1/badges/global/display", options);
 		if(result.status == 200) {
 			const json = await result.json();
-			this.badgesCache["global"] = json.badge_sets;
+			const list:TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
+			const hashmap:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}} = {};
+			for (let i = 0; i < list.length; i++) {
+				const s = list[i];
+				if(!hashmap[s.set_id]) hashmap[s.set_id] = {};
+				for (let j = 0; j < s.versions.length; j++) {
+					const v = s.versions[j];
+					let title = this.getBadgeTitle(s.set_id, v.id);
+					hashmap[s.set_id][v.id] = {
+						icon:{
+							sd: v.image_url_1x,
+							hd: v.image_url_4x,
+						},
+						id: s.set_id,
+						title,
+					};
+				}
+			}
+			this.badgesCache["global"] = hashmap;
 			// this.badgesCache["global"] = json.data;
 			return this.badgesCache["global"];
 		}else{
@@ -128,23 +211,24 @@ export default class TwitchUtils {
 	 * @param userBadges
 	 * @returns 
 	 */
-	public static getBadgesImagesFromRawBadges(channelId:string, userBadges:Badges|undefined):TwitchDataTypes.Badge[] {
-		const result:TwitchDataTypes.Badge[] = [];
-		for (const userBadgeCategory in userBadges) {
-			const userBadgeID = userBadges[ userBadgeCategory ] as string;
+	public static getBadgesFromRawBadges(channelId:string, badgeInfos:BadgeInfo | undefined, userBadges:Badges|undefined):TwitchatDataTypes.TwitchatUserBadge[] {
+		const result:TwitchatDataTypes.TwitchatUserBadge[] = [];
+		const setID_done:{[key:string]:boolean} = {};
+		for (const setID in userBadges) {
+			const version = userBadges[ setID ] as string;
 			const caches = [this.badgesCache[channelId], this.badgesCache["global"]];
 			for (let i = 0; i < caches.length; i++) {
 				const cache = caches[i];
 				if(!cache) continue;
-				const badgeSet = cache[userBadgeCategory];
-				if(badgeSet) {
-					const badge = badgeSet.versions[userBadgeID];
-					if(badge) {
-						badge.id = userBadgeCategory;
-						result.push(badge);
-						break;
-					}
+				if(setID_done[setID] === true) continue;//Badge already added. "subscriber" badge can be both on channel adn global caches
+				if(!cache[setID]) continue;
+				if(!cache[setID][version]) continue;
+				setID_done[setID] = true;
+				const badge = JSON.parse(JSON.stringify(cache[setID][version])) as TwitchatDataTypes.TwitchatUserBadge;
+				if(badgeInfos && badgeInfos[setID]) {
+					badge.title = this.getBadgeTitle(setID, badgeInfos[setID] as string);
 				}
+				result.push(badge);
 			}
 		}
 		return result;

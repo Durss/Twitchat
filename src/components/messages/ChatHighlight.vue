@@ -7,8 +7,13 @@
 		
 		<div class="messageHolder">
 			<span class="reason">
-				<span class="username" v-if="user" @click="openUserCard()">{{user.displayName}}</span>
+				<span class="username" v-if="user" @click="openUserCard(user!)">{{user.displayName}}</span>
 				<span class="text" v-html="reason"></span>
+				<span class="additionalUsers" v-if="additionalUsers?.length > 0"
+					v-for="u, index in additionalUsers" :key="u.id">
+					<span class="username" @click="openUserCard(u)">{{u.displayName}}</span>
+					<span v-if="index < additionalUsers.length-1">, </span>
+				</span>
 			</span>
 			<div class="info" v-if="info" v-html="info"></div>
 			<div class="message" v-if="messageText" v-html="messageText"></div>
@@ -91,6 +96,7 @@ export default class ChatHighlight extends Vue {
 	public canUnban = true;
 	public canBlock = true;
 	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
+	public additionalUsers:TwitchatDataTypes.TwitchatUser[] = [];
 	
 	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
@@ -170,8 +176,9 @@ export default class ChatHighlight extends Vue {
 					value = this.messageData.tier;
 					this.user = this.messageData.user;
 					if(this.messageData.gift_recipients && this.messageData.gift_recipients.length > 0) {
-						const recipientsStr = `<strong>${this.messageData.gift_recipients.map(v=>v.displayName).join("</strong>, <strong>")}</strong>`;
-						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to ${recipientsStr}`;
+						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
+						// const recipientsStr = `<strong>${users.map(v=>v.displayName).join("</strong>, <strong>")}</strong>`;
+						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to`;// ${recipientsStr}`;
 					}
 
 				}else if(this.messageData.is_giftUpgrade) {
@@ -320,8 +327,8 @@ export default class ChatHighlight extends Vue {
 		this.shoutoutLoading = false;
 	}
 
-	public openUserCard():void {
-		this.$store("users").openUserCard(this.user);
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
 	}
 
 	public async unbanUser():Promise<void> {
@@ -461,6 +468,16 @@ export default class ChatHighlight extends Vue {
 				color: @mainColor_warn;
 				margin-right: .25em;
 				cursor: pointer;
+			}
+
+			.additionalUsers:not(.additionalUsers ~ .additionalUsers) {
+				margin-left: .6em;
+			}
+
+			.additionalUsers {
+				.username {
+					margin-right: 0;
+				}
 			}
 		}
 	

@@ -118,7 +118,7 @@ export default class UserList extends Vue {
 	public async toggleInfos():Promise<void> {
 		if(this.showInfo) {
 			const holder = this.$refs.infos as HTMLDivElement;
-			gsap.to(holder, {duration:.5, height:0, minHeight:0, marginBottom:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut", onComplete:()=>{this.showInfo = false;}});
+			gsap.to(holder, {duration:.5, height:0, minHeight:0, marginTop:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut", clearProps:"all", onComplete:()=>{this.showInfo = false;}});
 		}else{
 			this.showInfo = true;
 			await this.$nextTick();
@@ -127,7 +127,7 @@ export default class UserList extends Vue {
 			holder.style.overflow = "hidden";
 			holder.style.height = bounds.height+"px";
 			holder.style.minHeight = bounds.height+"px";
-			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginBottom:0, paddingTop:0, paddingBottom:0, ease:"sine.inOut"});
+			gsap.from(holder, {duration:.5, minHeight:0, height:0, marginTop:0, paddingTop:0, paddingBottom:0, clearProps:"all", ease:"sine.inOut"});
 		}
 	}
 
@@ -208,13 +208,17 @@ export default class UserList extends Vue {
 
 	overflow-y: auto;
 	font-size: 16px;
+	padding-bottom: 0;
 
 	.users {
+		position: sticky;
+		bottom: 0;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		margin-bottom: 10px;
+		background-color: @mainColor_dark;
+		padding: 1em;
 
 		img {
 			height: 1.25em;
@@ -248,7 +252,7 @@ export default class UserList extends Vue {
 	.infoBt {
 		margin: auto;
 		font-style: italic;
-		margin-bottom: 1em;
+		margin-top: 1em;
 	}
 
 	.infos {
@@ -256,7 +260,7 @@ export default class UserList extends Vue {
 		background-color: @mainColor_dark_light;
 		padding: 1em;
 		margin: auto;
-		margin-bottom: 1em;
+		margin-top: 1em;
 		border-radius: .5em;
 		max-width: 500px;
 		p:not(:last-of-type) {
@@ -273,7 +277,9 @@ export default class UserList extends Vue {
 	}
 
 	.userList {
-		margin-bottom: 20px;
+		&:not(:last-child) {
+			margin-bottom: 20px;
+		}
 
 		.title {
 			color: @mainColor_light;

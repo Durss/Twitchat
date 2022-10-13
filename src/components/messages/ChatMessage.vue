@@ -19,8 +19,8 @@
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
 			<div class="actions">
-				<Button aria-label="Accept automoeded message" title="Accept" @click.stop="modMessage(true)" />
-				<Button aria-label="Reject automoeded message" title="Reject" @click.stop="modMessage(false)" highlight />
+				<Button aria-label="Accept automoded message" title="Accept" @click.stop="modMessage(true)" />
+				<Button aria-label="Reject automoded message" title="Reject" @click.stop="modMessage(false)" highlight />
 			</div>
 		</div>
 		
@@ -75,7 +75,7 @@
 				class="login" :style="loginStyles">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.displayName}})</i></span>
 
 			<span v-if="recipient" class="login"
-			@click.stop="openUserCard(recipient!)"> &gt; {{recipient}}</span>
+			@click.stop="openUserCard(recipient!)"> &gt; {{recipient.displayName}}</span>
 		</div>
 		
 		<span v-if="channelInfo.is_blocked !== true">: </span>
@@ -189,8 +189,8 @@ export default class ChatMessage extends Vue {
 		const message = this.messageData;
 		const sParams = this.$store("params");
 
-		if(message.cyphered)					res.push("cyphered");
-		if(this.automod)						res.push("automod");
+		if(message.cyphered)			res.push("cyphered");
+		if(this.automod)				res.push("automod");
 		if(this.channelInfo.is_blocked)	res.push("blockedUser");
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.deleted) {
@@ -294,7 +294,7 @@ export default class ChatMessage extends Vue {
 					}
 					case "subscriber": {
 						if(this.channelInfo.is_broadcaster !== true) {
-							badges.push({label:"Sub", class:"subscriber"});
+							badges.push({label:b.title ?? "Subscriber", class:"subscriber"});
 						}
 						break;
 					}
@@ -323,10 +323,11 @@ export default class ChatMessage extends Vue {
 	public mounted():void {
 		const mess = this.messageData;
 		
-		//Define message badges (it's not users badges)
+		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.infoBadges.push({type:"whisper"});
-		}else{
+			
+		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
@@ -336,13 +337,19 @@ export default class ChatMessage extends Vue {
 			if(!this.lightMode && mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 			}
+
+			//Precompute static flag
+			this.showModToolsPreCalc = !this.lightMode
+									&& this.messageData.channel_id == UserSession.instance.twitchUser!.id
+									&& (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
+			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
+			this.isPresentation	= this.messageData.twitch_isPresentation === true;
+			this.isReturning	= this.messageData.twitch_isReturning === true;
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
 		this.staticClasses = ["chatmessage"];
-		if(this.firstTime
-			|| this.isPresentation
-			|| this.isReturning)						this.staticClasses.push("firstTimeOnChannel");
+		if(this.firstTime || this.isPresentation || this.isReturning)	this.staticClasses.push("firstTimeOnChannel");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.staticClasses.push("whisper");
 		}else {
@@ -365,16 +372,6 @@ export default class ChatMessage extends Vue {
 				else if(this.channelInfo.is_subscriber
 					&& sParams.appearance.highlightSubs.value)	this.staticClasses.push("highlightSubs");
 			}
-		}
-
-		//Precompute static flag
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			this.showModToolsPreCalc = !this.lightMode
-									&& this.messageData.channel_id == UserSession.instance.twitchUser!.id
-									&& (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
-			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
-			this.isPresentation	= this.messageData.twitch_isPresentation === true;
-			this.isReturning	= this.messageData.twitch_isReturning === true;
 		}
 
 		//If it has a clip link, add clip card

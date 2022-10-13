@@ -338,9 +338,9 @@ export const storeChat = defineStore('chat', {
 				for (let i = 0; i < messages.length; i++) {
 					const m = messages[i];
 					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
-					//If the message is a subgift from the same user and happened
+					//If the message is a subgift from the same user and happened with the same tier
 					//in the last 5s, merge it.
-					if(m.tier && m.user.id == message.user.id
+					if(m.tier == message.tier && m.user.id == message.user.id
 					&& Date.now() - m.date < 5000) {
 						if(!m.gift_recipients) m.gift_recipients = [];
 						m.date = Date.now();//Update timestamp
@@ -361,7 +361,7 @@ export const storeChat = defineStore('chat', {
 				const end = Math.max(0, len - 50);
 				for (let i = len-1; i > end; i--) {
 					const m = messages[i];
-					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
+					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
 					if(m.user.id == message.user.id
 					&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
 					&& message.message.toLowerCase() == m.message.toLowerCase()

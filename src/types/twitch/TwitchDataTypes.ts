@@ -61,15 +61,12 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface BadgesSet {
-		versions: { [key: string]: Badge };
+		set_id: string;
+		versions: Badge[];
 	}
 
 	export interface Badge {
-		id: string;
-		title: string;
-		click_action: string;
-		click_url: string;
-		description: string;
+		id:string,
 		image_url_1x: string;
 		image_url_2x: string;
 		image_url_4x: string;

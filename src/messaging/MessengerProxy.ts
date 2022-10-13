@@ -55,16 +55,6 @@ export default class MessengerProxy {
 		}
 
 		if(twitchChannels.length > 0) {
-			const users = await TwitchUtils.loadUserInfo(undefined, twitchChannels.map(v=>v.login));
-			users.forEach(v=> {
-				TwitchUtils.loadUserBadges(v.id);
-				TwitchUtils.loadCheermoteList(v.id);
-				BTTVUtils.instance.addChannel(v.id);
-				FFZUtils.instance.addChannel(v.id);
-				SevenTVUtils.instance.addChannel(v.id);
-			});
-			TwitchUtils.loadGlobalBadges();
-			
 			const sParams = StoreProxy.params;
 			if(sParams.appearance.bttvEmotes.value === true) {
 				BTTVUtils.instance.enable();
