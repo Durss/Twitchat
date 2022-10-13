@@ -267,7 +267,7 @@ export default class ChatMessage extends Vue {
 		
 		if(this.$store("params").appearance.showBadges.value
 		&& this.$store("params").appearance.minimalistBadges.value !== true) {
-			return this.channelInfo.badges ?? [];
+			return this.badges ?? [];
 		}
 		return [];
 	}
@@ -282,9 +282,9 @@ export default class ChatMessage extends Vue {
 
 		if(this.$store("params").appearance.showBadges.value === true
 		&& this.$store("params").appearance.minimalistBadges.value === true
-		&& this.channelInfo.badges) {
-			for (let i = 0; i < this.channelInfo.badges.length; i++) {
-				const b = this.channelInfo.badges[i];
+		&& this.badges) {
+			for (let i = 0; i < this.badges.length; i++) {
+				const b = this.badges[i];
 				switch(b.id) {
 					case "predictions": {
 						//TODO color probably won't work
@@ -313,8 +313,9 @@ export default class ChatMessage extends Vue {
 	}
 
 	public beforeMount() {
-		this.currentUser = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, UserSession.instance.twitchUser!.id);
-		this.channelInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
+		this.currentUser	= this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, UserSession.instance.twitchUser!.id);
+		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
+		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
 	}
 
 	/**

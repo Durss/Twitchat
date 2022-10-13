@@ -379,21 +379,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			user.is_affiliate	= true;
 		}
 
-		if(tags.badges) {
-			//Remove prediction badge from user's badges if it's not there anymore
-			// for (let i = 0; i < user.channelInfo[channelId].badges.length; i++) {
-			// 	const badge = user.channelInfo[channelId].badges[i];
-			// 	if(!Object.hasOwn(tags.badges, "prediction") && badge.id == "prediction") {
-			// 		user.channelInfo[channelId].badges.splice(i, 1);
-			// 		i--;
-			// 	}
-			// }
-
-			//Set user's badges if they're not defined yet
-			// if(tags["room-id"] && user.channelInfo[channelId].badges.length == 0) {
-			if(tags["room-id"]) {
-				user.channelInfo[channelId].badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);
-			}
+		if(tags.badges && tags["room-id"]) {
+			user.channelInfo[channelId].badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);
+		}else{
+			//Cleanup badges from the user
+			user.channelInfo[channelId].badges = [];
 		}
 		return user;
 	}
