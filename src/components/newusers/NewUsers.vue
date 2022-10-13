@@ -43,20 +43,18 @@
 			@leave="(el, done)=>leave(el, done)"
 		> -->
 		<div class="messageList" v-if="showList" ref="messageList">
-			<div v-for="(m,index) in localMessages" :key="m.id">
-				<ChatMessage
-					class="message"
-					ref="message"
-					v-if="m.type == 'message'"
-					:messageData="m"
-					:data-index="index"
-					:lightMode="true"
-					:disableConversation="true"
-					@mouseover="onMouseOver($event, index)"
-					@mouseout="onMouseOut()"
-					@click="deleteMessage(m, index)"
-					@click.right.prevent="deleteMessage(m, index, true)" />
-			</div>
+			<ChatMessage
+				v-for="(m,index) in localMessages" :key="m.id"
+				class="message"
+				ref="message"
+				:messageData="m"
+				:data-index="index"
+				:lightMode="true"
+				:disableConversation="true"
+				@mouseover="onMouseOver($event, index)"
+				@mouseout="onMouseOut()"
+				@click="deleteMessage(m, index)"
+				@click.right.prevent="deleteMessage(m, index, true)" />
 		</div>
 		<!-- </transition-group> -->
 		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
@@ -68,7 +66,7 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
@@ -209,7 +207,7 @@ export default class NewUsers extends Vue {
 		const list = this.$store("chat").messages;
 		const m = list[list.length - 1]; //TODO make sure we're not skipping messages. Is the watcher triggered for EVERY message or by batch?
 		
-		if(m.type != "message") return;
+		if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
 		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
 		if(m.user.id == UserSession.instance.twitchUser!.id) return;
@@ -305,16 +303,18 @@ export default class NewUsers extends Vue {
 					//rendering pipeline performance issue i couldn't solve
 					//by any other method.
 					let color = Utils.getLessVars().mainColor_light as string;
-					color = color.replace(/\)/gi, ", .1)");
-					(items[i].$el as HTMLDivElement).style.background = color as string;
+					color = color.replace(/\)/gi, ", .5)");
+					// (items[i].$el as HTMLDivElement).style.borderColor = color as string;
+					(items[i].$el as HTMLDivElement).style.opacity = ".5";
 				}
 				
 			}
 		}else{
 			this.highlightState[this.localMessages[index].id as string] = true;
 			let color = Utils.getLessVars().mainColor_light as string;
-			color = color.replace(/\)/gi, ", .1)");
-			(items[index].$el as HTMLDivElement).style.background = color as string;
+			color = color.replace(/\)/gi, ", .5)");
+			// (items[index].$el as HTMLDivElement).style.borderColor = color as string;
+			(items[index].$el as HTMLDivElement).style.opacity = ".5";
 		}
 	}
 
@@ -526,10 +526,14 @@ export default class NewUsers extends Vue {
 			overflow: hidden;
 			font-family: "Inter";
 			color: #fff;
-			background-color: fade(#ffffff, 5%);
-			margin: .5em 0;
+			padding: .5em 0;
 			font-size: var(--messageSize);
 			transition: background-color .25s;
+			border: 1px solid transparent;
+
+			&:nth-child(odd) {
+				background-color: fade(#ffffff, 5%);
+			}
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);

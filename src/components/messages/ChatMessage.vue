@@ -516,9 +516,6 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
-	@padding: .25em;
-	padding: @padding;
-	margin-bottom: 1px;
 	color:@mainColor_light;
 
 	&.highlightSubs { background-color: fade(#9147ff, 7%); }
@@ -526,7 +523,6 @@ export default class ChatMessage extends Vue {
 	&.highlightMods { background-color: fade(#39db00, 7%); }
 	&.highlighted { 
 		.message {
-			padding: 0 @padding;
 			background-color: @mainColor_normal; color:#fff
 		}
 	}

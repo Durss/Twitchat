@@ -665,7 +665,7 @@ export default class MessageList extends Vue {
 
 		const bottom = lastMess.offsetTop + lastMess.offsetHeight;
 
-		let ease = .1;
+		let ease = .2;
 		if(!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
@@ -673,10 +673,10 @@ export default class MessageList extends Vue {
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
 			if(dist > 10 || this.pendingMessages.length > 0) {
 				//Linear scroll if need to scroll by more than 10px
-				this.virtualScrollY += Math.max(5, this.pendingMessages.length*4)*2 * timeScale;
+				this.virtualScrollY += Math.max(10, this.pendingMessages.length*4) * timeScale;
 			}else{
 				//easeout scroll when reaching bottom
-				this.virtualScrollY += (maxScroll-this.virtualScrollY)*2 * ease * timeScale;
+				this.virtualScrollY += (maxScroll-this.virtualScrollY) * ease * timeScale;
 			}
 			//Avoid virtual scroll to go beyond bottom
 			if(this.virtualScrollY >= maxScroll-2) {
