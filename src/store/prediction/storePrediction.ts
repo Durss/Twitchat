@@ -19,12 +19,12 @@ export const storePrediction = defineStore('prediction', {
 
 
 	actions: {
-		setPrediction(data:TwitchatDataTypes.MessagePredictionData, postOnChat?:boolean) {
-			if(this.data != null && data==null && postOnChat) {
+		setPrediction(data:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean) {
+			if(this.data != null && postOnChat) {
 				StoreProxy.chat.addMessage(this.data);
 				TriggerActionHandler.instance.onMessage(this.data);
 			}
-			
+
 			this.data = data;
 		},
 	} as IPredictionActions

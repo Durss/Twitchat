@@ -26,8 +26,6 @@ export const storePoll = defineStore('poll', {
 				TriggerActionHandler.instance.onMessage(this.data);
 			}
 
-			console.log("Set Poll", data);
-			
 			this.data = data;
 		},
 	} as IPollActions

@@ -88,7 +88,6 @@ export default class PollState extends Vue {
 
 	public endPoll():void {
 		this.loading = true;
-		console.log(this.poll);
 
 		this.$confirm("End Poll", "Are you sure you want to end this poll now? ")
 		.then(async ()=> {

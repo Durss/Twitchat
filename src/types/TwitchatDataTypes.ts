@@ -696,7 +696,7 @@ export namespace TwitchatDataTypes {
 		id: string;
 		label: string;
 		votes: number;
-		voters: TwitchatUser[];
+		voters: number;
 	}
 	export interface MessagePredictionData extends AbstractTwitchatMessage {
 		channel_id: string;

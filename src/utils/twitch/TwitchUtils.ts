@@ -98,7 +98,7 @@ export default class TwitchUtils {
 		//If it's the prediction badge, use the ID as the title.
 		//ID is like "blue-6". We replace the dashes by spaces
 		if(setId === "predictions") {
-			title = "Prediction: ", versionID.replace("-", " ");
+			title = "Prediction: "+ versionID.replace("-", " ");
 		}else
 		//If it's the sub-gift badge, use the ID as the number of gifts
 		if(setId === "sub-gifter") {
@@ -655,7 +655,6 @@ export default class TwitchUtils {
 						votes:v.votes,
 					})
 				});
-				console.log("ACTIVE POLL", src);
 				const poll:TwitchatDataTypes.MessagePollData = {
 					id:src.id,
 					channel_id:src.broadcaster_id,
@@ -719,7 +718,6 @@ export default class TwitchUtils {
 			setTimeout(()=> {
 				this.getPredictions();
 			}, (duration+1) * 1000);
-			StoreProxy.prediction.setPrediction(json.data);
 			return json.data;
 		}
 		throw(json);
@@ -736,7 +734,33 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+UserSession.instance.twitchAuthToken.user_id, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.prediction.setPrediction(json.data);
+			const src = json.data[0] as TwitchDataTypes.Prediction;
+			if(src.status == "ACTIVE" || src.status == "LOCKED") {
+				const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
+				src.outcomes.forEach(v=> {
+					outcomes.push({
+						id:v.id,
+						label:v.title,
+						votes:v.channel_points,
+						voters:v.users,
+					})
+				});
+				const prediction:TwitchatDataTypes.MessagePredictionData = {
+					id:src.id,
+					channel_id:src.broadcaster_id,
+					date:Date.now(),
+					type:"prediction",
+					platform:"twitch",
+					duration_s:src.prediction_window,
+					started_at:new Date(src.created_at).getTime(),
+					title:src.title,
+					outcomes,
+					pendingAnswer:src.status == "LOCKED",
+				}
+				StoreProxy.prediction.setPrediction(prediction);
+			}else{
+				StoreProxy.prediction.setPrediction(null);
+			}
 			return json.data;
 		}
 		throw(json);
@@ -759,7 +783,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
-			StoreProxy.prediction.setPrediction(json.data);
+			this.getPredictions();
 			return json.data;
 		}
 		throw(json);

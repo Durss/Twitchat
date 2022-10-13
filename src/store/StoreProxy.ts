@@ -304,7 +304,7 @@ export interface IPredictionGetters {
 }
 
 export interface IPredictionActions {
-	setPrediction(payload:TwitchatDataTypes.MessagePredictionData):void;
+	setPrediction(payload:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean):void;
 }
 
 

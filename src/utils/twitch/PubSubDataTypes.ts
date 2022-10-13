@@ -216,7 +216,7 @@ export namespace PubSubDataTypes {
 				};
 			}[];
 			prediction_window_seconds: number;
-			status: "RESOLVE_PENDING" | "RESOLVED" | "LOCKED" | "ACTIVE";
+			status: "RESOLVE_PENDING" | "RESOLVED" | "LOCKED" | "ACTIVE" | "CANCELED";
 			title: string;
 			winning_outcome_id?: string;
 		};

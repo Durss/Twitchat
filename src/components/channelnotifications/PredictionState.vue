@@ -11,7 +11,7 @@
 		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
-				<div class="color" v-if="prediction.pendingAnswer"></div>
+				<div class="color" v-if="!prediction.pendingAnswer"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
 					:icon="$image('icons/checkmark_white.svg')"
@@ -21,15 +21,14 @@
 					<div>{{c.label}}</div>
 					<div class="details">
 						<span class="percent">{{getPercent(c)}}%</span>
-						<span class="votes"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{c.voters.length}}</span>
+						<span class="votes"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{c.voters}}</span>
 						<span class="points"><img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">{{c.votes}}</span>
 					</div>
 				</div>
 			</div>
 		</div>
 		<div class="actions">
-			<Button title="Delete prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.pendingAnswer" />
-			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" v-if="prediction.pendingAnswer" />
+			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" highlight />
 		</div>
 	</div>
 </template>
@@ -83,23 +82,12 @@ export default class PredictionState extends Vue {
 	}
 
 	public mounted():void {
-		this.loadPredictions();
-
 		const ellapsed = new Date().getTime() - this.prediction.started_at;
 		const duration = this.prediction.duration_s*1000;
 		const timeLeft = duration - ellapsed
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 	}
-
-	private async loadPredictions():Promise<void> {
-		if(this.disposed) return;
-		//TODO if allowing to connect to somone else's chat this would close
-		//the prediction right after opening it as no prediction would
-		//exist on our own channel
-		await TwitchUtils.getPredictions();
-	}
-
 
 	public beforeUnmount():void {
 		this.disposed = true;

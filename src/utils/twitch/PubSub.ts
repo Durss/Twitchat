@@ -490,7 +490,6 @@ export default class PubSub extends EventDispatcher {
 		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
 			const localObj = data.data as PubSubDataTypes.PollData;
 			//TODO make sure the "owned_by" value really represents the channelID
-			console.log("POLL STATE UPDATE", data.type);
 			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE";
 			this.pollEvent(localObj, localObj.poll.owned_by, isComplete);
 			if(isComplete) {
@@ -507,7 +506,12 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "event-created" || data.type == "event-updated") {
 			const localObj = data.data as PubSubDataTypes.PredictionData;
-			this.predictionEvent(localObj, localObj.event.channel_id);
+			const isComplete = localObj.event.status == "RESOLVED";
+			this.predictionEvent(localObj, isComplete);
+			if(isComplete) {
+				//Clear poll
+				StoreProxy.poll.setCurrentPoll(null);
+			}
 
 
 
@@ -823,42 +827,44 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a prediction event occurs (create/update/close)
 	 */
-	private predictionEvent(localObj:PubSubDataTypes.PredictionData, channelId:string):void {
-		let outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
-		for (let i = 0; i < localObj.event.outcomes.length; i++) {
-			const c = localObj.event.outcomes[i];
-			outcomes.push({
-				id: c.id,
-				label: c.title,
-				votes: c.total_points,
-				voters: c.top_predictors.map(v=>{
-					const u = StoreProxy.users.getUserFrom("twitch", channelId, v.user_id, undefined, v.user_display_name);
-					u.channelInfo[channelId].online = true;
-					return u;
-				}),
-			})
+	private predictionEvent(localObj:PubSubDataTypes.PredictionData, postOnChat:boolean = false):void {
+		if(localObj.event.status == "RESOLVE_PENDING"
+		|| localObj.event.status == "LOCKED"
+		|| localObj.event.status == "ACTIVE") {
+			let outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
+			for (let i = 0; i < localObj.event.outcomes.length; i++) {
+				const c = localObj.event.outcomes[i];
+				outcomes.push({
+					id: c.id,
+					label: c.title,
+					votes: c.total_points,
+					voters: c.total_users,
+				})
+			}
+			const prediction:TwitchatDataTypes.MessagePredictionData = {
+				date:Date.now(),
+				id:localObj.event.id,
+				platform:"twitch",
+				channel_id: localObj.event.channel_id,
+				type:"prediction",
+				title: localObj.event.title,
+				outcomes,
+				pendingAnswer: localObj.event.status === "RESOLVE_PENDING",
+				started_at: new Date(localObj.event.created_at).getTime(),
+				duration_s: localObj.event.prediction_window_seconds,
+			};
+			if(localObj.event.ended_at) {
+				prediction.ended_at = new Date(localObj.event.ended_at).getTime()
+			}
+			if(localObj.event.winning_outcome_id) {
+				prediction.winning_outcome_id = localObj.event.winning_outcome_id;
+			}
+	
+			StoreProxy.prediction.setPrediction(prediction, postOnChat);
+			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
+		}else{
+			StoreProxy.prediction.setPrediction(null);
 		}
-		const prediction:TwitchatDataTypes.MessagePredictionData = {
-			date:Date.now(),
-			id:Utils.getUUID(),
-			platform:"twitch",
-			channel_id: localObj.event.channel_id,
-			type:"prediction",
-			title: localObj.event.title,
-			outcomes,
-			pendingAnswer: localObj.event.status === "RESOLVE_PENDING",
-			started_at: new Date(localObj.event.created_at).getTime(),
-			duration_s: localObj.event.prediction_window_seconds,
-		};
-		if(localObj.event.ended_at) {
-			prediction.ended_at = new Date(localObj.event.ended_at).getTime()
-		}
-		if(localObj.event.winning_outcome_id) {
-			prediction.winning_outcome_id = localObj.event.winning_outcome_id;
-		}
-
-		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
-		StoreProxy.prediction.setPrediction(prediction)
 	}
 
 	/**
