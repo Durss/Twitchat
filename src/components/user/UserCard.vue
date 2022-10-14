@@ -32,8 +32,17 @@
 				<div class="date" data-tooltip="Account creation date"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				<div class="date" data-tooltip="Follows you since" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="account creation date" class="icon">{{followDate}}</div>
 				<div class="date" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="account creation date" class="icon">Not following you</div>
-				<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
 			</div>
+
+			<div class="liveInfo" v-if="currentStream">
+				<div class="head">Streaming</div>
+				<div class="infos">
+					<div class="title">{{currentStream.title}}</div>
+					<div class="game">{{currentStream.game_name}}</div>
+				</div>
+			</div>
+			
+			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
 			
 			<div class="ctas">
 				<Button title="twitch profile" small :icon="$image('icons/newtab.svg')" @click="openTwitchPage()" />
@@ -75,6 +84,7 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from '../messages/ChatModTools.vue';
+import type { Badges } from 'tmi.js';
 
 @Options({
 	props:{},
@@ -154,6 +164,14 @@ export default class UserCard extends Vue {
 				this.user.avatarPath = u.profile_image_url;
 				this.user.id = u.id;
 				this.user.displayName = u.display_name;
+
+				//Adding partner badge if no badge is already specified
+				if(this.user.channelInfo[this.channelId].badges.length == 0) {
+					const staticBadges:Badges = {};
+					staticBadges[u.broadcaster_type] = "1";
+					this.user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
+				}
+				
 				if(this.followInfo) {
 					this.followDate = Utils.formatDate(new Date(this.followInfo.followed_at));
 				}
@@ -178,7 +196,6 @@ export default class UserCard extends Vue {
 
 		this.loading = false;
 		if(!this.error && this.user) {
-			console.log(this.channelId);
 			this.badges = this.user.channelInfo[this.channelId]?.badges ?? [];
 
 			await this.$nextTick();
@@ -358,7 +375,7 @@ export default class UserCard extends Vue {
 			}
 		}
 
-		.head {
+		&>.head {
 			margin-bottom: .5em;
 			display: flex;
 			flex-direction: column;
@@ -403,12 +420,6 @@ export default class UserCard extends Vue {
 				}
 			}
 
-			.modActions {
-				background-color: @mainColor_normal;
-				padding: .3em .5em;
-				border-radius: .5em;
-			}
-
 			.avatar {
 				width: 3em;
 				height: 3em;
@@ -423,6 +434,39 @@ export default class UserCard extends Vue {
 					border-radius: 0;
 				}
 			}
+		}
+
+		.liveInfo {
+			align-self: center;
+			margin-bottom: 1em;
+			.head {
+				color: @mainColor_light;
+				background-color: @mainColor_normal;
+				border-top-left-radius: .5em;
+				border-top-right-radius: .5em;
+				padding: .25em;
+				text-align: center;
+			}
+			.infos {
+				padding: .5em;
+				font-size: .8em;
+				border: 1px solid @mainColor_normal;
+				border-bottom-left-radius: .5em;
+				border-bottom-right-radius: .5em;
+
+				.game {
+					font-style: italic;
+					font-size: .8em;
+				}
+			}
+		}
+
+		.modActions {
+			background-color: @mainColor_normal;
+			padding: .3em .5em;
+			border-radius: .5em;
+			align-self: center;
+			margin-bottom: .5em;
 		}
 
 		.ctas {
