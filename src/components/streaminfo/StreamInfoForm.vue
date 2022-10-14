@@ -61,6 +61,7 @@ import Button from '../Button.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import UserSession from '@/utils/UserSession';
 
 @Options({
 	props:{},
@@ -91,6 +92,7 @@ export default class StreamInfoForm extends Vue {
 
 	public async mounted():Promise<void> {
 		this.param_savePreset.children = [this.param_namePreset];
+		const channelId = UserSession.instance.twitchUser!.id;
 
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
@@ -99,14 +101,14 @@ export default class StreamInfoForm extends Vue {
 		await Utils.promisedTimeout(250);
 		
 		try {
-			const infos = await TwitchUtils.getStreamInfos();
+			const infos = await TwitchUtils.getStreamInfos(channelId);
 			this.param_title.value = infos.title;
 			if(infos.game_id) {
 				const game = await TwitchUtils.getCategoryByID(infos.game_id);
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
 				this.categories = [game];
 			}
-			const tags = await TwitchUtils.getStreamTags();
+			const tags = await TwitchUtils.getStreamTags(channelId);
 			this.tags = tags;
 		}catch(error) {
 			this.$store("main").alert("Error loading current stream info");
@@ -155,8 +157,9 @@ export default class StreamInfoForm extends Vue {
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
 			try {
-				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id));
-				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id);
+				const channelId = UserSession.instance.twitchUser!.id;
+				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id), channelId);
+				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id, channelId);
 			}catch(error) {
 				this.$store("main").alert("Error updating stream info");
 			}
@@ -204,8 +207,9 @@ export default class StreamInfoForm extends Vue {
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		try {
-			await TwitchUtils.setStreamTags(p.tagIDs as string[]);
-			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string);
+			const channelId = UserSession.instance.twitchUser!.id;
+			await TwitchUtils.setStreamTags(p.tagIDs as string[], channelId);
+			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId);
 		}catch(error) {
 			this.$store("main").alert("Error updating stream info");
 		}

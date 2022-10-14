@@ -256,8 +256,9 @@ export const storeMain = defineStore("main", {
 						try {
 							TwitchUtils.searchTag("");//Preload tags to build local cache
 							if(UserSession.instance.hasChannelPoints) {
-								await TwitchUtils.getPolls();
-								await TwitchUtils.getPredictions();
+								const channelId = UserSession.instance.twitchUser!.id
+								await TwitchUtils.getPolls(channelId);
+								await TwitchUtils.getPredictions(channelId);
 							}
 						}catch(e) {
 							//User is probably not an affiliate

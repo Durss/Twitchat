@@ -477,7 +477,7 @@ export default class Chat extends Vue {
 	}
 
 	public clearChat():void {
-		TwitchUtils.deleteMessages();
+		TwitchUtils.deleteMessages(UserSession.instance.twitchUser!.id);
 	}
 
 	/**
@@ -516,7 +516,7 @@ export default class Chat extends Vue {
 				const poll = this.$store("poll").data;
 				if(!poll) return;
 				try {
-					await TwitchUtils.endPoll(poll.id);
+					await TwitchUtils.endPoll(poll.id, poll.channel_id);
 				}catch(error) {
 					this.$store("main").alertData = "An error occurred while deleting the poll";
 				}
@@ -532,7 +532,7 @@ export default class Chat extends Vue {
 				const prediction = this.$store("prediction").data;
 				if(!prediction) return;
 				try {
-					await TwitchUtils.endPrediction(prediction.id, prediction.outcomes[0].id, true);
+					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
 					this.$store("main").alertData = "An error occurred while deleting the prediction";
 				}
@@ -588,7 +588,7 @@ export default class Chat extends Vue {
 		if(isNaN(duration)) duration = 30;
 		this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 			try {
-				const res = await TwitchUtils.startCommercial(duration);
+				const res = await TwitchUtils.startCommercial(duration, UserSession.instance.twitchUser!.id);
 				if(res.length > 0) {
 					this.canStartAd = false;
 					this.startAdCooldown = Date.now() + res.retry_after * 1000;

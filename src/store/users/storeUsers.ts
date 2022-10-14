@@ -358,8 +358,8 @@ export const storeUsers = defineStore('users', {
 				if(user.channelInfo[channelId].is_following == null) {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", UserSession.instance.twitchUser!.id);
-						const res = await TwitchUtils.getFollowState(user.id, channelId ?? UserSession.instance.twitchUser!.id)
-						user.channelInfo[channelId].is_following = res;
+						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? UserSession.instance.twitchUser!.id)
+						user.channelInfo[channelId].is_following = res != null;
 						return true;
 					}catch(error){};
 				}

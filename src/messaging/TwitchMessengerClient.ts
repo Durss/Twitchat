@@ -224,7 +224,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			switch(cmd) {
-				case "/announce": await TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return;
+				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.banUser(user.id, channelId, undefined, chunks.splice(1).join(" "));
@@ -259,7 +259,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					let duration = parseInt(chunks[0]);
 					StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 						try {
-							const res = await TwitchUtils.startCommercial(duration);
+							const res = await TwitchUtils.startCommercial(duration, channelId);
 							if(res.length > 0) {
 								StoreProxy.stream.setCommercialEnd( Date.now() + res.length * 1000 );
 							}
@@ -271,17 +271,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}).catch(()=>{/*ignore*/});
 					return
 				}
-				case "/delete": await TwitchUtils.deleteMessages(chunks[0]); return;
-				case "/clear": await TwitchUtils.deleteMessages(); return;
+				case "/delete": await TwitchUtils.deleteMessages(channelId, chunks[0]); return;
+				case "/clear": await TwitchUtils.deleteMessages(channelId); return;
 				case "/color": await TwitchUtils.setColor(chunks[0]); return;
-				case "/emoteonly": await TwitchUtils.setRoomSettings({emotesOnly:true}); return;
-				case "/emoteonlyoff": await TwitchUtils.setRoomSettings({emotesOnly:false}); return;
-				case "/followers": await TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); return;
-				case "/followersoff": await TwitchUtils.setRoomSettings({followOnly:0}); return;
-				case "/slow": await TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); return;
-				case "/slowoff": await TwitchUtils.setRoomSettings({slowMode:0}); return;
-				case "/subscribers": await TwitchUtils.setRoomSettings({subOnly:true}); return;
-				case "/subscribersoff": await TwitchUtils.setRoomSettings({subOnly:false}); return;
+				case "/emoteonly": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true}); return;
+				case "/emoteonlyoff": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false}); return;
+				case "/followers": await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])}); return;
+				case "/followersoff": await TwitchUtils.setRoomSettings(channelId, {followOnly:0}); return;
+				case "/slow": await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])}); return;
+				case "/slowoff": await TwitchUtils.setRoomSettings(channelId, {slowMode:0}); return;
+				case "/subscribers": await TwitchUtils.setRoomSettings(channelId, {subOnly:true}); return;
+				case "/subscribersoff": await TwitchUtils.setRoomSettings(channelId, {subOnly:false}); return;
 				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); return;
 				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); return;
 				case "/raid": await TwitchUtils.raidChannel(chunks[0]); return;

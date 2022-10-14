@@ -50,6 +50,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -167,7 +168,7 @@ export default class PredictionForm extends Vue {
 		const answers = this.answers.filter(v => v.length > 0);
 
 		try {
-			await TwitchUtils.createPrediction(this.title, answers, this.voteDuration.value as number * 60);
+			await TwitchUtils.createPrediction(UserSession.instance.twitchUser!.id, this.title, answers, this.voteDuration.value as number * 60);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;

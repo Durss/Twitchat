@@ -550,7 +550,7 @@ export const storeChat = defineStore('chat', {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								message.automod = rule;
 								if(message.user.platform == "twitch") {
-									TwitchUtils.deleteMessages(message.id);
+									TwitchUtils.deleteMessages(message.channel_id, message.id);
 								}
 							}
 						}

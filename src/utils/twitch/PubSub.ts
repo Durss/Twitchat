@@ -497,10 +497,11 @@ export default class PubSub extends EventDispatcher {
 				StoreProxy.poll.setCurrentPoll(null);
 			}
 
-
+			
 
 		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
-			TwitchUtils.getPolls();
+			// const localObj = data.data as PubSubDataTypes.PollData;
+			// TwitchUtils.getPolls(localObj.poll.owned_by);
 
 
 

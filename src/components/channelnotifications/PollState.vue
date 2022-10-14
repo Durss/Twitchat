@@ -92,7 +92,7 @@ export default class PollState extends Vue {
 		this.$confirm("End Poll", "Are you sure you want to end this poll now? ")
 		.then(async ()=> {
 			try {
-				await TwitchUtils.endPoll(this.poll.id);
+				await TwitchUtils.endPoll(this.poll.id, this.poll.channel_id);
 			}catch(error) {
 				this.loading = false;
 				this.$store("main").alertData = "An error occurred while deleting the poll";

@@ -178,7 +178,7 @@ export default class CommandHelper extends Vue {
 				break;
 			}
 		}
-		TwitchUtils.setRoomSettings(settings);
+		TwitchUtils.setRoomSettings(UserSession.instance.twitchUser!.id, settings);
 	}
 
 	public openLiveFollowings():void {

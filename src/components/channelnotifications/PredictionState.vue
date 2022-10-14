@@ -98,7 +98,7 @@ export default class PredictionState extends Vue {
 		this.$confirm("\""+c.label+"\" wins?", "Do you confirm this outcome?")
 		.then(async ()=> {
 			try {
-				await TwitchUtils.endPrediction(this.prediction.id, c.id);
+				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
 				this.$store("main").alertData = "An error occurred while chosing prediction's outcome";
@@ -114,7 +114,7 @@ export default class PredictionState extends Vue {
 		this.$confirm("Delete Prediction", "Are you sure you want to delete this prediction ? Users will be refund.")
 		.then(async ()=> {
 			try {
-				await TwitchUtils.endPrediction(this.prediction.id, "", true);
+				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
 				this.$store("main").alertData = "An error occurred while deleting the prediction";

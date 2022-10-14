@@ -143,24 +143,24 @@ export namespace TwitchDataTypes {
 		event_timestamp: Date;
 		version: string;
 		event_data: {
+			id: string;
+			expires_at: string;
+			started_at: string;
 			broadcaster_id: string;
 			cooldown_end_time: string;
-			expires_at: string;
-			goal: number;
-			id: string;
+			level: number;//Highest level reached
+			total: number;//Total score for the current elvel
+			goal: number;//Goal value for current level
 			last_contribution: {
-				total: number;
-				type: string;
-				user: string;
+				total: number;// number of BITS or SUBS score (tier 1=500, tier 2=1000, tier 3=2500)
+				type: "BITS" | "SUBS";
+				user: string;//user ID
 			};
-			level: number;
-			started_at: string;
 			top_contributions: {
-				total: number;
-				type: string;
+				total: number;// number of BITS or SUBS score (tier 1=500, tier 2=1000, tier 3=2500)
+				type: "BITS" | "SUBS";
 				user: string;
 			};
-			total: number;
 		};
 	}
 

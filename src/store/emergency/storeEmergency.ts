@@ -65,7 +65,7 @@ export const storeEmergency = defineStore('emergency', {
 		},
 
 		async setEmergencyMode(enable:boolean):Promise<void> {
-			const uid = UserSession.instance.twitchUser!.id;
+			const channelId = UserSession.instance.twitchUser!.id;
 			this.emergencyStarted = enable;
 			const message:TwitchatDataTypes.MessageEmergencyModeInfo = {
 				id:Utils.getUUID(),
@@ -87,13 +87,13 @@ export const storeEmergency = defineStore('emergency', {
 				if(this.params.subOnly) roomSettings.subOnly = true;
 				if(this.params.followOnly) roomSettings.followOnly = this.params.followOnlyDuration;
 				if(Object.keys(roomSettings).length > 0) {
-					TwitchUtils.setRoomSettings(roomSettings);
+					TwitchUtils.setRoomSettings(UserSession.instance.twitchUser!.id, roomSettings);
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
 					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
 					for (let i = 0; i < users.length; i++) {
-						TwitchUtils.banUser(users[i].id, uid, 600, "Timed out because the emergency mode has been triggers on Twitchat");
+						TwitchUtils.banUser(users[i].id, channelId, 600, "Timed out because the emergency mode has been triggers on Twitchat");
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
@@ -113,13 +113,13 @@ export const storeEmergency = defineStore('emergency', {
 				if(this.params.subOnly) roomSettings.subOnly = false;
 				if(this.params.followOnly) roomSettings.followOnly = false;
 				if(Object.keys(roomSettings).length > 0) {
-					TwitchUtils.setRoomSettings(roomSettings);
+					TwitchUtils.setRoomSettings(UserSession.instance.twitchUser!.id, roomSettings);
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
 					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
 					for (let i = 0; i < users.length; i++) {
-						TwitchUtils.unbanUser(users[i].id, uid);
+						TwitchUtils.unbanUser(users[i].id, channelId);
 					}
 				}
 				if(this.params.obsSources) {

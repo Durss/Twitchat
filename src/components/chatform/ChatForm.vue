@@ -697,7 +697,7 @@ export default class ChatForm extends Vue {
 		
 		if(cmd == "/deletemessage") {
 			//Delete a chat message from its ID
-			TwitchUtils.deleteMessages(params[0])
+			TwitchUtils.deleteMessages(UserSession.instance.twitchUser!.id, params[0])
 			this.message = "";
 		}else
 		
