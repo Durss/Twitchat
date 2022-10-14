@@ -361,7 +361,7 @@ export default class ChatMessage extends Vue {
 				&& this.messageData.hasMention)			this.staticClasses.push("mention");
 			if(this.isAnnouncement) {
 				const color = this.messageData.twitch_announcementColor!;
-				this.staticClasses.push("announcement", color);
+				this.staticClasses.push("announcement", color.toLowerCase());
 			}
 
 			if(!this.lightMode) {

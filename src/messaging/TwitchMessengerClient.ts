@@ -452,7 +452,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return res;
 	}
 
-	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
+	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean, fromQueue:boolean = false):Promise<void> {
 		if(!tags.id && tags["message-type"] == "chat") {
 			//When sending a message from the current client, IRC never send it back to us.
 			//TMI tries to make this transparent by firing the "message" event but
@@ -475,7 +475,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		tags = JSON.parse(JSON.stringify(tags));
 
 		//Ignore anything that's not a message or a /me
-		if(tags["message-type"] != "chat" && tags["message-type"] != "action") return;
+		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
 
 		//Ignore rewards with text, they are also sent to PubSub with more info
 		if(tags["custom-reward-id"]) return;
@@ -499,7 +499,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		//TODO reload greeted state from cache on load
 		user.greeted = true;
-		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
+		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, fromQueue);
 				
 		// If message is an answer, set original message's ref to the answer
 		// Called when using the "answer feature" on twitch chat
@@ -583,6 +583,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
+		data.twitch_announcementColor= tags["msg-param-color"];
 		let pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
 		if(pinAmount) {
 			data.elevatedInfo	= {amount:pinAmount, duration_s:{"5":30, "10":60, "25":90, "50":120, "100":150}[pinAmount] ?? 30};
@@ -781,7 +782,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const params = data.params as string[];
 					const tags = data.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
-
+					console.log(params);
+					console.log(tags);
 					this.message(params[0], tags, params[1], false);
 				}
 				break;
@@ -824,7 +826,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if(m) {
 						(m.tags as tmi.ChatUserstate).id = id;
 						(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
-						this.message(m.channel, m.tags as tmi.ChatUserstate, m.message, m.self);
+						this.message(m.channel, m.tags as tmi.ChatUserstate, m.message, m.self, true);
 					}
 				}
 				break;
