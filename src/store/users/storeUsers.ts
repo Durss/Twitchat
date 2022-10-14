@@ -262,7 +262,7 @@ export const storeUsers = defineStore('users', {
 		flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && platform == u.platform) {
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_moderator = true;
 					break;
 				}
@@ -272,7 +272,7 @@ export const storeUsers = defineStore('users', {
 		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && platform == u.platform) {
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_moderator = false;
 					break;
 				}
@@ -283,7 +283,7 @@ export const storeUsers = defineStore('users', {
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && platform == u.platform) {
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_blocked = true;
 					break;
 				}
@@ -294,7 +294,7 @@ export const storeUsers = defineStore('users', {
 			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && platform == u.platform) {
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_blocked = false;
 					break;
 				}
@@ -305,7 +305,7 @@ export const storeUsers = defineStore('users', {
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && platform == u.platform) {
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_banned = true;
 					break;
 				}
@@ -325,7 +325,7 @@ export const storeUsers = defineStore('users', {
 			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < this.users.length; i++) {
 				const u = this.users[i];
-				if(u.id === uid && platform == u.platform) {
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_banned = false;
 					break;
 				}

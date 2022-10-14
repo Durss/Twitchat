@@ -204,36 +204,36 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			switch(cmd) {
-				case "/announce": await TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); break;
+				case "/announce": await TwitchUtils.sendAnnouncement(chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.banUser(user.id, channelId, undefined, chunks.splice(1).join(" "));
-					break;
+					return;
 				}
 				case "/unban": {
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.unbanUser(user.id, channelId);
-					break;
+					return;
 				}
 				case "/block":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.blockUser(user.id, channelId);
-					break;
+					return;
 				}
 				case "/unblock": {
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.unblockUser(user.id, channelId);
-					break;
+					return;
 				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.banUser(user.id, channelId, parseInt(chunks[1]), chunks[2]);
-					break;
+					return;
 				}
 				case "/untimeout": {
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.unbanUser(user.id, channelId);
-					break;
+					return;
 				}
 				case "/commercial": {
 					let duration = parseInt(chunks[0]);
@@ -249,29 +249,30 @@ export default class TwitchMessengerClient extends EventDispatcher {
 							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, UserSession.instance.twitchUser!.id, e.message);
 						}
 					}).catch(()=>{/*ignore*/});
+					return
 				}
-				case "/delete": await TwitchUtils.deleteMessages(chunks[0]); break;
-				case "/clear": await TwitchUtils.deleteMessages(); break;
-				case "/color": await TwitchUtils.setColor(chunks[0]); break;
-				case "/emoteonly": await TwitchUtils.setRoomSettings({emotesOnly:true}); break;
-				case "/emoteonlyoff": await TwitchUtils.setRoomSettings({emotesOnly:false}); break;
-				case "/followers": await TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); break;
-				case "/followersoff": await TwitchUtils.setRoomSettings({followOnly:0}); break;
-				case "/slow": await TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); break;
-				case "/slowoff": await TwitchUtils.setRoomSettings({slowMode:0}); break;
-				case "/subscribers": await TwitchUtils.setRoomSettings({subOnly:true}); break;
-				case "/subscribersoff": await TwitchUtils.setRoomSettings({subOnly:false}); break;
-				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); break;
-				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); break;
-				case "/raid": await TwitchUtils.raidChannel(chunks[0]); break;
-				case "/unraid": await TwitchUtils.raidCancel(); break;
-				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); break;
-				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); break;
+				case "/delete": await TwitchUtils.deleteMessages(chunks[0]); return;
+				case "/clear": await TwitchUtils.deleteMessages(); return;
+				case "/color": await TwitchUtils.setColor(chunks[0]); return;
+				case "/emoteonly": await TwitchUtils.setRoomSettings({emotesOnly:true}); return;
+				case "/emoteonlyoff": await TwitchUtils.setRoomSettings({emotesOnly:false}); return;
+				case "/followers": await TwitchUtils.setRoomSettings({followOnly:parseInt(chunks[0])}); return;
+				case "/followersoff": await TwitchUtils.setRoomSettings({followOnly:0}); return;
+				case "/slow": await TwitchUtils.setRoomSettings({slowMode:parseInt(chunks[0])}); return;
+				case "/slowoff": await TwitchUtils.setRoomSettings({slowMode:0}); return;
+				case "/subscribers": await TwitchUtils.setRoomSettings({subOnly:true}); return;
+				case "/subscribersoff": await TwitchUtils.setRoomSettings({subOnly:false}); return;
+				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); return;
+				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); return;
+				case "/raid": await TwitchUtils.raidChannel(chunks[0]); return;
+				case "/unraid": await TwitchUtils.raidCancel(); return;
+				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return;
+				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return;
 				case "/whiser":
 				case "/w": {
 					const login = chunks[0];
 					await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
-					break;
+					return;
 				}
 
 				//TODO
@@ -304,8 +305,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on('anonsubgift', this.anonsubgift.bind(this));
 		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
 		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
-		this._client.on("ban", this.ban.bind(this));
-		this._client.on("timeout", this.timeout.bind(this));
+		// this._client.on("ban", this.ban.bind(this));
+		// this._client.on("timeout", this.timeout.bind(this));
 		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("clearchat", this.clearchat.bind(this));
@@ -452,7 +453,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//To workaround this issue, we just store the message on a queue, and
 			//wait for a NOTICE event that gives us the message ID in which case
 			//we pop the message from the queue
-			console.log("QUEUE");
 			this._queuedMessages.push({message, tags, self, channel});
 			return;
 		}

@@ -663,6 +663,8 @@ export default class PubSub extends EventDispatcher {
 			}
 
 			if(noticeId && noticeText) {
+				m.noticeId = noticeId;
+				m.message = noticeText;
 				StoreProxy.chat.addMessage(m);
 				TriggerActionHandler.instance.onMessage(m);
 			}
