@@ -15,7 +15,7 @@
 						v-for="e in filteredEmotes"
 						:key="e.id"
 						loading="lazy" 
-						:src="'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/1.0'"
+						:src="e.images.url_1x"
 						:alt="e.name"
 						:data-tooltip="e.name"
 						@click="$emit('select', e.name)">
@@ -27,7 +27,7 @@
 			<div v-for="u in users" :key="u.user.id" class="item">
 				<div class="head">
 					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-					<div class="login">{{u.user.avatarPath}}</div>
+					<div class="login">{{u.user.displayName}}</div>
 				</div>
 				<div class="emotes">
 					<img
@@ -35,7 +35,7 @@
 						v-for="e in u.emotes"
 						:key="e.id"
 						loading="lazy" 
-						:src="'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/1.0'"
+						:src="e.images.url_1x"
 						:alt="e.name"
 						:data-tooltip="e.name"
 						@click="$emit('select', e.name)">
@@ -52,6 +52,9 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
+import BTTVUtils from '@/utils/emotes/BTTVUtils';
+import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
+import FFZUtils from '@/utils/emotes/FFZUtils';
 
 @Options({
 	props:{},
@@ -93,9 +96,12 @@ export default class EmoteSelector extends Vue {
 			//Load all users details to get their names
 			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner_id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
+			console.log(tmpList);
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
-				userList.push(this.$store("users").getUserFrom("twitch", undefined, u.id, u.login, u.display_name));
+				const user = this.$store("users").getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
+				user.avatarPath = tmpList.find(v=>v.id == user.id)!.profile_image_url;
+				userList.push(user);
 			}
 			
 			//Sort them by name
@@ -141,7 +147,79 @@ export default class EmoteSelector extends Vue {
 						emotes: [],
 					}
 				}
+				e.images.url_1x = 'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/1.0';
+				e.images.url_2x = 'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/2.0';
+				e.images.url_4x = 'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/3.0';
 				sets[ index ].emotes.push(e);
+			}
+	
+			if(this.$store("params").appearance.bttvEmotes.value === true) {
+				//Add BTTV emotes
+				uidToIndex["1"] = userList.length;
+				sets.push({
+						user:{
+						platform:"twitch",
+						login:"BTTV",
+						displayName:"BTTV",
+						avatarPath:this.$image("icons/emote.svg"),
+						id:"1",
+						greeted:true,
+						is_affiliate:false,
+						is_partner:false,
+						is_tracked:false,
+						pronouns:false,
+						pronounsLabel:false,
+						pronounsTooltip:false,
+						channelInfo:{},
+					},
+					emotes: BTTVUtils.instance.emotes,
+				});
+			}
+	
+			if(this.$store("params").appearance.sevenTVEmotes.value === true) {
+				//Add 7TV emotes
+				uidToIndex["3"] = userList.length;
+				sets.push({
+						user:{
+						platform:"twitch",
+						login:"7TV",
+						displayName:"7TV",
+						avatarPath:this.$image("icons/emote.svg"),
+						id:"2",
+						greeted:true,
+						is_affiliate:false,
+						is_partner:false,
+						is_tracked:false,
+						pronouns:false,
+						pronounsLabel:false,
+						pronounsTooltip:false,
+						channelInfo:{},
+					},
+					emotes: SevenTVUtils.instance.emotes,
+				});
+			}
+	
+			if(this.$store("params").appearance.ffzEmotes.value === true) {
+				//Add FFZ emotes
+				uidToIndex["3"] = userList.length;
+				sets.push({
+						user:{
+						platform:"twitch",
+						login:"FFZ",
+						displayName:"FFZ",
+						avatarPath:this.$image("icons/emote.svg"),
+						id:"3",
+						greeted:true,
+						is_affiliate:false,
+						is_partner:false,
+						is_tracked:false,
+						pronouns:false,
+						pronounsLabel:false,
+						pronounsTooltip:false,
+						channelInfo:{},
+					},
+					emotes: FFZUtils.instance.emotes,
+				});
 			}
 	
 			//Save it to storage to avoid loading everything back again

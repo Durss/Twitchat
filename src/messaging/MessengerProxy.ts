@@ -4,7 +4,6 @@ import Config from "@/utils/Config";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
@@ -49,29 +48,12 @@ export default class MessengerProxy {
 
 	public async connect():Promise<void> {
 		const twitchChannels = Config.instance.debugChans.filter(v=>v.platform == "twitch");
-		for (let i = 0; i < twitchChannels.length; i++) {
-			//It's safe to spam this method as it has inner debounce
-			TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
-		}
-
 		if(twitchChannels.length > 0) {
-			const sParams = StoreProxy.params;
-			if(sParams.appearance.bttvEmotes.value === true) {
-				BTTVUtils.instance.enable();
-			}else{
-				BTTVUtils.instance.disable();
+			for (let i = 0; i < twitchChannels.length; i++) {
+				//It's safe to spam this method as it has inner debounce
+				TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
 			}
-			if(sParams.appearance.ffzEmotes.value === true) {
-				FFZUtils.instance.enable();
-			}else{
-				FFZUtils.instance.disable();
-			}
-			if(sParams.appearance.sevenTVEmotes.value === true) {
-				SevenTVUtils.instance.enable();
-			}else{
-				SevenTVUtils.instance.disable();
-			}
-			StoreProxy.users.loadMyFollowings();
+			TwitchMessengerClient.instance.loadMeta();
 		}
 	}
 

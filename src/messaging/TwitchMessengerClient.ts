@@ -27,7 +27,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedChannels:string[] = [];
 	private _channelIdToLogin:{[key:string]:string} = {};
 	private _channelLoginToId:{[key:string]:string} = {};
-	private _blockedUsers:{[key:string]:boolean} = {};
 	private _queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
 	
 	constructor() {
@@ -50,7 +49,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	public set credentials(value:{token:string, username:string}) {
 		this._credentials = value;
 		this.connectToChannel(value.username);
-		this.loadBlockedUsers();
 	}
 	
 	
@@ -58,6 +56,30 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	public loadMeta():void {
+		console.log("LOAD META");
+		TwitchUtils.loadGlobalBadges();
+		StoreProxy.users.loadMyFollowings();
+		StoreProxy.users.initBlockedUsers();
+
+		const sParams = StoreProxy.params;
+		if(sParams.appearance.bttvEmotes.value === true) {
+			BTTVUtils.instance.enable();
+		}else{
+			BTTVUtils.instance.disable();
+		}
+		if(sParams.appearance.ffzEmotes.value === true) {
+			FFZUtils.instance.enable();
+		}else{
+			FFZUtils.instance.disable();
+		}
+		if(sParams.appearance.sevenTVEmotes.value === true) {
+			SevenTVUtils.instance.enable();
+		}else{
+			SevenTVUtils.instance.disable();
+		}
+	}
+
 	/**
 	 * Connect to a channel
 	 * @param channel 
@@ -88,7 +110,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				FFZUtils.instance.addChannel(v.id);
 				SevenTVUtils.instance.addChannel(v.id);
 			});
-			TwitchUtils.loadGlobalBadges();
 			
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
@@ -334,20 +355,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._reconnecting = true;
 		await this._client.disconnect();
 		await this._client.connect();
-	}
-
-	/**
-	 * Loads list of blocked users
-	 */
-	private async loadBlockedUsers():Promise<void> {
-		//Get list of all blocked users and build a hashmap out of it
-		try {
-			const blockedUsers = await TwitchUtils.getBlockedUsers();
-			this._blockedUsers = {};
-			for (let i = 0; i < blockedUsers.length; i++) {
-				this._blockedUsers[ blockedUsers[i].user_id ] = true;
-			}
-		}catch(error) {/*ignore*/}
 	}
 
 	/**

@@ -1,3 +1,5 @@
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+
 /**
 * Created : 02/05/2022 
 */
@@ -23,6 +25,32 @@ export default class FFZUtils {
 			FFZUtils._instance = new FFZUtils();
 		}
 		return FFZUtils._instance;
+	}
+
+	/**
+	 * Get full emotes list
+	 */
+	public get emotes():TwitchDataTypes.Emote[] {
+		const res:TwitchDataTypes.Emote[] = [];
+		for (const key in this.globalEmotesHashmaps) {
+			const e = this.globalEmotesHashmaps[key];
+			res.push({
+				id: e.id.toString(),
+				name: e.name,
+				images: {
+					url_1x: "https://"+e.urls[1] ?? "",
+					url_2x: "https://"+e.urls[2] ?? "",
+					url_4x: "https://"+e.urls[4] ?? "",
+				},
+				emote_type: "",
+				emote_set_id: "",
+				owner_id: "",
+				format: "static",
+				scale: "3.0",
+				theme_mode: "light",
+			});
+		}
+		return res;
 	}
 	
 	

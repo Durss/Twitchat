@@ -1,3 +1,4 @@
+import MessengerProxy from '@/messaging/MessengerProxy';
 import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
@@ -11,6 +12,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
+import PubSub from '@/utils/twitch/PubSub';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import UserSession from '@/utils/UserSession';
@@ -297,6 +299,8 @@ export const storeMain = defineStore("main", {
 			}
 	
 			this.loadDataFromStorage(authenticated);
+			MessengerProxy.instance.connect();
+			PubSub.instance.connect();
 			
 			this.initComplete = true;
 			

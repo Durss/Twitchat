@@ -4,7 +4,6 @@ import router from "@/router";
 import DataStore from "@/store/DataStore";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
-import PubSub from "@/utils/twitch/PubSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
@@ -119,13 +118,10 @@ export const storeAuth = defineStore('auth', {
 						token:json.access_token,
 						username:currentUser?.login ?? "user not found",
 					}
-					MessengerProxy.instance.connect();
-					PubSub.instance.connect();
 				}
 				
 				this.authenticated = true;
 
-				StoreProxy.users.initBlockedUsers();
 				if(cb) cb(true);
 	
 				const expire = UserSession.instance.twitchAuthToken.expires_in;

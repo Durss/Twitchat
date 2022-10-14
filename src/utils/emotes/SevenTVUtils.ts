@@ -1,3 +1,4 @@
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 
 /**
 * Created : 25/01/2022 
@@ -24,6 +25,32 @@ export default class SevenTVUtils {
 			SevenTVUtils._instance = new SevenTVUtils();
 		}
 		return SevenTVUtils._instance;
+	}
+
+	/**
+	 * Get full emotes list
+	 */
+	public get emotes():TwitchDataTypes.Emote[] {
+		const res:TwitchDataTypes.Emote[] = [];
+		for (const key in this.globalEmotesHashmaps) {
+			const e = this.globalEmotesHashmaps[key];
+			res.push({
+				id: e.id,
+				name: e.name,
+				images: {
+					url_1x: e.urls[0]?.[1] ?? "",
+					url_2x: e.urls[1]?.[1] ?? "",
+					url_4x: e.urls[4]?.[1] ?? "",
+				},
+				emote_type: "",
+				emote_set_id: "",
+				owner_id: "",
+				format: "static",
+				scale: "3.0",
+				theme_mode: "light",
+			});
+		}
+		return res;
 	}
 	
 	

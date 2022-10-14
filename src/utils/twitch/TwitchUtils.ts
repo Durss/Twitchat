@@ -382,17 +382,17 @@ export default class TwitchUtils {
 					}
 				}else
 				if(e.id.indexOf("FFZ_") == 0) {
-					const bttvE = FFZUtils.instance.getEmoteFromCode(code);
-					if(bttvE) {
-						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:"https://"+bttvE.urls[1]} );
+					const ffzE = FFZUtils.instance.getEmoteFromCode(code);
+					if(ffzE) {
+						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:"https://"+ffzE.urls[1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
 				}else
 				if(e.id.indexOf("7TV_") == 0) {
-					const sevenTVE = SevenTVUtils.instance.getEmoteFromCode(code);
-					if(sevenTVE) {
-						result.push( {type:"emote", label:"7TV: "+code, emote:code, value:sevenTVE.urls[1][1]} );
+					const stvE = SevenTVUtils.instance.getEmoteFromCode(code);
+					if(stvE) {
+						result.push( {type:"emote", label:"7TV: "+code, emote:code, value:stvE.urls[1][1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
