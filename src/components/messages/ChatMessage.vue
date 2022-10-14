@@ -292,12 +292,7 @@ export default class ChatMessage extends Vue {
 						badges.push({label:b.title??"Prediction", class:"prediction "+color});
 						break;
 					}
-					case "subscriber": {
-						if(this.channelInfo.is_broadcaster !== true) {
-							badges.push({label:b.title ?? "Subscriber", class:"subscriber"});
-						}
-						break;
-					}
+					case "subscriber":	badges.push({label:b.title ?? "Subscriber", class:"subscriber"}); break;
 					case "vip":			badges.push({label:"VIP", class:"vip"}); break;
 					case "premium":		badges.push({label:"Prime", class:"premium"}); break;
 					case "moderator":	badges.push({label:"Moderator", class:"moderator"}); break;
