@@ -582,7 +582,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
-		data.twitch_announcementColor= tags["msg-param-color"];
+		data.twitch_announcementColor= tags["msg-param-color"]? tags["msg-param-color"].toLowerCase() : "";
 		let pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
 		if(pinAmount) {
 			data.elevatedInfo	= {amount:pinAmount, duration_s:{"5":30, "10":60, "25":90, "50":120, "100":150}[pinAmount] ?? 30};
