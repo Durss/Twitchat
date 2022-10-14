@@ -328,7 +328,7 @@ export default class ChatHighlight extends Vue {
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 	public async unbanUser():Promise<void> {

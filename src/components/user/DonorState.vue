@@ -176,10 +176,10 @@ export default class DonorState extends Vue {
 
 		for (let i = 0; i < this.stars.length; i++) {
 			const s = this.stars[i];
-			s.x += s.vx * timeScale;
+			s.x += s.vx;//Do not multiply by timescale. If perfs are low the hearts run out of screen
 			s.y += s.vy * timeScale;
 			s.r += s.vr * timeScale;
-			s.vx *= .94 * timeScale;
+			s.vx *= .94;//Do not multiply by timescale. If perfs are low the hearts run out of screen
 			s.vy += s.iy * timeScale;
 			s.a -= s.va * timeScale;
 			if(s.a < .01) {

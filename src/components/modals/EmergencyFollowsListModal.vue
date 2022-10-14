@@ -64,27 +64,27 @@ export default class EmergencyFollowsListModal extends Vue {
 	private today:Date = new Date();
 
 	public openCard(follower:TwitchatDataTypes.MessageFollowingData):void {
-		this.$store("users").openUserCard(follower.user);
+		this.$store("users").openUserCard(follower.user, follower.channel_id);
 	}
 		
 	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.user.channelInfo[follow.channel_id].is_banned = true;
-		await TwitchUtils.banUser(follow.user.id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
+		await TwitchUtils.banUser(follow.user.id, follow.channel_id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
 	}
 		
 	public async unban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.user.channelInfo[follow.channel_id].is_banned = false;
-		await TwitchUtils.unbanUser(follow.user.id);
+		await TwitchUtils.unbanUser(follow.user.id, follow.channel_id);
 	}
 	
 	public async block(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.user.channelInfo[follow.channel_id].is_blocked = true;
-		await TwitchUtils.blockUser(follow.user.id, "spam");
+		await TwitchUtils.blockUser(follow.user.id, follow.channel_id, "spam");
 	}
 
 	public async unblock(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.user.channelInfo[follow.channel_id].is_blocked = false;
-		await TwitchUtils.unblockUser(follow.user.id);
+		await TwitchUtils.unblockUser(follow.user.id, follow.channel_id);
 	}
 
 	public clearList():void {

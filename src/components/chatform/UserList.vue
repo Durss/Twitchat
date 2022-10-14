@@ -132,7 +132,7 @@ export default class UserList extends Vue {
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store("users").openUserCard(user, this.currentChanId!);
 	}
 
 	private open():void {

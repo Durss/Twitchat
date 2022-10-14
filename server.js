@@ -447,7 +447,9 @@ async function isDonor(request, response, body) {
 
 	//Update user's storage file to get a little idea on how many people use twitchat
 	const userFilePath = userDataFolder + userInfo.user_id+".json";
-	if(fs.existsSync(userFilePath)) {
+	if(!fs.existsSync(userFilePath)) {
+		fs.writeFileSync(userFilePath, JSON.stringify({}), "utf8");
+	}else{
 		fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 	}
 

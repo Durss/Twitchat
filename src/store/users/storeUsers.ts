@@ -435,7 +435,13 @@ export const storeUsers = defineStore('users', {
 			user.channelInfo[channelId].is_following = true;
 		},
 
-		openUserCard(user:TwitchatDataTypes.TwitchatUser, channelId?:string) { this.userCard = {user, channelId}; },
+		openUserCard(user:TwitchatDataTypes.TwitchatUser, channelId?:string) {
+			if(user) {
+				this.userCard = {user, channelId};
+			}else{
+				this.userCard = null;
+			}
+		},
 
 		async loadMyFollowings():Promise<void> {
 			const followings = await TwitchUtils.getFollowings(UserSession.instance.twitchUser?.id);

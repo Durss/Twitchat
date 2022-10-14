@@ -78,7 +78,7 @@ export default class ChatJoinLeave extends Vue {
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 	public copyJSON():void {

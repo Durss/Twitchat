@@ -45,7 +45,7 @@
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
 			
 			<div class="ctas">
-				<Button title="twitch profile" small :icon="$image('icons/newtab.svg')" @click="openTwitchPage()" />
+				<Button title="twitch profile" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
 				<Button title="viewer card" small :icon="$image('icons/newtab.svg')" @click="openViewerCard()" />
 			</div>
 
@@ -124,10 +124,10 @@ export default class UserCard extends Vue {
 			if(card) {
 				this.user = card.user;
 				this.channelId = card.channelId ?? UserSession.instance.twitchUser!.id;
+				this.loadUserInfo();
 			}else{
 				this.user = null;
 			}
-			this.loadUserInfo();
 		});
 
 		this.keyUpHandler = (e:KeyboardEvent):void => this.onKeyUp(e);
@@ -166,6 +166,10 @@ export default class UserCard extends Vue {
 				this.user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
+				// if(!this.user.channelInfo[this.channelId]) {
+				// 	//Missing channel info (probably because we're requesting a user via the /userinfo command)
+				// 	//Ask
+				// }
 				if(this.user.channelInfo[this.channelId].badges.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
@@ -191,6 +195,7 @@ export default class UserCard extends Vue {
 				this.error = true;
 			}
 		}catch(error) {
+			console.log(error);
 			this.error = true;
 		}
 
@@ -232,11 +237,6 @@ export default class UserCard extends Vue {
 		width=350,height=500,left=100,top=100`;
 		const url ="https://www.twitch.tv/popout/"+UserSession.instance.twitchUser!.login+"/viewercard/"+this.user!.login;
 		window.open(url, 'profilePage', params);
-	}
-
-	public openTwitchPage():void {
-		const url = "https://www.twitch.tv/"+this.user!.login;
-		window.open(url, '_blank');
 	}
 
 	public copyID():void {
