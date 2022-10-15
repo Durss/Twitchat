@@ -1,6 +1,6 @@
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
@@ -91,10 +91,18 @@ export interface IAccountActions {
 
 
 
-export interface IAuthState {
+export type IAuthState = {
 	authenticated: boolean;
 	newScopesToRequest: string[];
-}
+} & Partial<{
+	[key in TwitchatDataTypes.ChatPlatform]:{
+		client_id:string;
+		access_token:string;
+		expire_at:string;
+		scopes:string[];
+		user:TwitchatDataTypes.TwitchatUser;
+	};
+}>
 
 export interface IAuthGetters {
 }
@@ -160,7 +168,7 @@ export interface IChatGetters {
 export interface IChatActions {
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;
 	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
-	deleteMessage(messageId:string, deleteData?:TwitchatDataTypes.TwitchatUser):void;
+	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser):void;
 	delUserMessages(uid:string):void;
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;

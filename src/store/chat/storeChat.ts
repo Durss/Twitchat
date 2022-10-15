@@ -573,12 +573,13 @@ export const storeChat = defineStore('chat', {
 			this.messages = messages;
 		},
 		
-		deleteMessage(messageId:string, deleter?:TwitchatDataTypes.TwitchatUser) { 
+		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser) { 
 			const list = this.messages.concat();
 			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
-			for (let i = 0; i < list.length; i++) {
+			//Start from most recent messages to find it faster
+			for (let i = list.length-1; i > -1; i--) {
 				const m = list[i];
-				if(messageId == m.id) {
+				if(message.id == m.id) {
 					m.deleted = true;
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 						//Called if closing an ad
@@ -601,6 +602,10 @@ export const storeChat = defineStore('chat', {
 						}else{
 							//Remove message from list
 							list.splice(i, 1);
+						}
+						
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							TwitchUtils.deleteMessages(m.channel_id, m.id);
 						}
 					}
 					break;

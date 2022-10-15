@@ -655,7 +655,14 @@ export default class PubSub extends EventDispatcher {
 				case "delete": {
 					const [login, message, messageId] = localObj.args!;
 					const deleter = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by);
-					StoreProxy.chat.deleteMessage(messageId, deleter);
+					
+					//Search message by its ID
+					const list = StoreProxy.chat.messages.concat();
+					for (let i = list.length-1; i > -1; i--) {
+						if(messageId == list[i].id) {
+							StoreProxy.chat.deleteMessage(list[i], deleter);
+						}
+					}
 					break;
 				}
 				default:
@@ -720,8 +727,14 @@ export default class PubSub extends EventDispatcher {
 
 		}else 
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
-			//Delete it even if allowed as it's actually sent back via IRC
-			StoreProxy.chat.deleteMessage(localObj.message.id);
+			//Search message by its ID
+			const list = StoreProxy.chat.messages.concat();
+			for (let i = list.length-1; i > -1; i--) {
+				if(localObj.message.id == list[i].id) {
+					//Delete it even if allowed as it's actually sent back via IRC
+					StoreProxy.chat.deleteMessage(list[i]);
+				}
+			}
 		}
 	}
 

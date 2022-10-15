@@ -72,7 +72,7 @@ export default class ChatModTools extends Vue {
 
 	public deleteMessage():void {
 		this.$emit('deleteMessage', this.messageData);
-		StoreProxy.chat.deleteMessage(this.messageData.id);
+		StoreProxy.chat.deleteMessage(this.messageData);
 	}
 
 	public async openToOptions():Promise<void> {

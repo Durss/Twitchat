@@ -268,7 +268,7 @@ export default class ChatAd extends Vue {
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
-		this.$store("chat").deleteMessage(this.messageData.id);
+		this.$store("chat").deleteMessage(this.messageData);
 		this.$emit("delete");
 	}
 

@@ -336,8 +336,8 @@ export default class ChatMessage extends Vue {
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& this.messageData.channel_id == UserSession.instance.twitchUser!.id
-									&& (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
+									&& this.messageData.user.id != UserSession.instance.twitchUser!.id
+									// && (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
@@ -462,7 +462,7 @@ export default class ChatMessage extends Vue {
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.
-			this.$store("chat").deleteMessage(this.messageData.id);
+			this.$store("chat").deleteMessage(this.messageData);
 		}
 	}
 
