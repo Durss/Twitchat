@@ -183,7 +183,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string):Promise<void> {
+	public async sendMessage(channelId:string, text:string):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -201,12 +201,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(text.charAt(0) == "/") {
 			const chunks = text.split(/\s/gi);
 			let cmd = (chunks.shift() as string).toLowerCase();
+
+			//If using /announce command, extract color
 			if(cmd.indexOf("/announce") === 0) {
 				let color = cmd.replace("/announce", "");
 				if(color.length === 0) color = "primary";
 				if(["blue","green","orange","purple","primary"].indexOf(color) === -1) {
 					StoreProxy.main.alert("Invalid announcement color");
-					return;
+					return false;
 				}
 				cmd = "/announce";
 				chunks.unshift(color);
@@ -223,37 +225,39 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				return res[0];
 			}
 
+			console.log(cmd);
+
 			switch(cmd) {
-				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return;
+				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.banUser(user.id, channelId, undefined, chunks.splice(1).join(" "));
-					return;
+					return true;
 				}
 				case "/unban": {
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.unbanUser(user.id, channelId);
-					return;
+					return true;
 				}
 				case "/block":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.blockUser(user.id, channelId);
-					return;
+					return true;
 				}
 				case "/unblock": {
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.unblockUser(user.id, channelId);
-					return;
+					return true;
 				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.banUser(user.id, channelId, parseInt(chunks[1]), chunks[2]);
-					return;
+					return true;
 				}
 				case "/untimeout": {
 					const user = await getUserFromLogin(chunks[0]);
 					if(user) await TwitchUtils.unbanUser(user.id, channelId);
-					return;
+					return true;
 				}
 				case "/commercial": {
 					let duration = parseInt(chunks[0]);
@@ -269,43 +273,44 @@ export default class TwitchMessengerClient extends EventDispatcher {
 							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, UserSession.instance.twitchUser!.id, e.message);
 						}
 					}).catch(()=>{/*ignore*/});
-					return
+					return true;
 				}
-				case "/delete": await TwitchUtils.deleteMessages(channelId, chunks[0]); return;
-				case "/clear": await TwitchUtils.deleteMessages(channelId); return;
-				case "/color": await TwitchUtils.setColor(chunks[0]); return;
-				case "/emoteonly": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true}); return;
-				case "/emoteonlyoff": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false}); return;
-				case "/followers": await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])}); return;
-				case "/followersoff": await TwitchUtils.setRoomSettings(channelId, {followOnly:0}); return;
-				case "/slow": await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])}); return;
-				case "/slowoff": await TwitchUtils.setRoomSettings(channelId, {slowMode:0}); return;
-				case "/subscribers": await TwitchUtils.setRoomSettings(channelId, {subOnly:true}); return;
-				case "/subscribersoff": await TwitchUtils.setRoomSettings(channelId, {subOnly:false}); return;
-				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); return;
-				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); return;
-				case "/raid": await TwitchUtils.raidChannel(chunks[0]); return;
-				case "/unraid": await TwitchUtils.raidCancel(); return;
-				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return;
-				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return;
+				case "/delete": await TwitchUtils.deleteMessages(channelId, chunks[0]); return true;
+				case "/clear": await TwitchUtils.deleteMessages(channelId); return true;
+				case "/color": await TwitchUtils.setColor(chunks[0]); return true;
+				case "/emoteonly": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true}); return true;
+				case "/emoteonlyoff": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false}); return true;
+				case "/followers": await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])}); return true;
+				case "/followersoff": await TwitchUtils.setRoomSettings(channelId, {followOnly:0}); return true;
+				case "/slow": await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])}); return true;
+				case "/slowoff": await TwitchUtils.setRoomSettings(channelId, {slowMode:0}); return true;
+				case "/subscribers": await TwitchUtils.setRoomSettings(channelId, {subOnly:true}); return true;
+				case "/subscribersoff": await TwitchUtils.setRoomSettings(channelId, {subOnly:false}); return true;
+				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); return true;
+				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); return true;
+				case "/raid": await TwitchUtils.raidChannel(chunks[0]); return true;
+				case "/unraid": await TwitchUtils.raidCancel(); return true;
+				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return true;
+				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return true;
 				case "/whiser":
 				case "/w": {
 					const login = chunks[0];
 					await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
-					return;
+					return true;
 				}
 
-				//TODO
-				case "/uniquechat": return;
-				case "/uniquechatoff": return;
-				case "/marker": return;
-				case "/mods": return;
-				case "/vips": return;
+				//TOD falseO
+				case "/uniquechat": return false;
+				case "/uniquechatoff": return false;
+				case "/marker": return false;
+				case "/mods": return false;
+				case "/vips": return false;
 			}
 
 		}
 		
 		this._client.say(this._channelIdToLogin[channelId], text);
+		return true
 	}
 
 	
@@ -582,7 +587,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
-		data.twitch_announcementColor= tags["msg-param-color"]? tags["msg-param-color"].toLowerCase() : "";
+		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
 		let pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
 		if(pinAmount) {
 			data.elevatedInfo	= {amount:pinAmount, duration_s:{"5":30, "10":60, "25":90, "50":120, "100":150}[pinAmount] ?? 30};

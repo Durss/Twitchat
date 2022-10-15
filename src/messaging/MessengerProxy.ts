@@ -40,10 +40,15 @@ export default class MessengerProxy {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):void {
+	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):boolean {
 		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
 		if(!channelId) channelId = UserSession.instance.twitchUser!.login;
-		if(!hasPlatform || targetPlatforms.indexOf("twitch")) TwitchMessengerClient.instance.sendMessage(channelId, message);
+		if(!hasPlatform || targetPlatforms.indexOf("twitch")) {
+			if(!TwitchMessengerClient.instance.sendMessage(channelId, message)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public async connect():Promise<void> {

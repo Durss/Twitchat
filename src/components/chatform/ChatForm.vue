@@ -791,8 +791,9 @@ export default class ChatForm extends Vue {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
 				let mess = this.message;
-				this.message = "";
-				await TwitchMessengerClient.instance.sendMessage(this.channelId, mess);
+				if(await TwitchMessengerClient.instance.sendMessage(this.channelId, mess)) {
+					this.message = "";
+				}
 			}catch(error) {
 				console.log(error);
 				this.error = true;
