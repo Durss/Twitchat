@@ -165,8 +165,6 @@ export default class Login extends Vue {
 				}else{
 					this.$store("auth").authenticate({code, cb:(success:boolean)=> {
 						this.authenticating = false;
-						//Make sure data are properly loaded from server/localstorage
-						this.$store("main").loadDataFromStorage(true);
 						if(success) {
 							redirect = DataStore.get("redirect");
 							DataStore.remove("redirect");

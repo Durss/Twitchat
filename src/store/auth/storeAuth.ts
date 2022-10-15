@@ -17,11 +17,12 @@ interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?
 
 let refreshTokenTO:number = -1;
 
-//TODO makes this platform agnostic
+//TODO make this platform agnostic
 export const storeAuth = defineStore('auth', {
 	state: () => ({
 		authenticated: false,
 		newScopesToRequest: [] as string[],
+		
 	} as IAuthState),
 	
 	
