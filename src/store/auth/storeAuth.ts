@@ -3,7 +3,9 @@ import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import PubSub from "@/utils/twitch/PubSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
@@ -11,14 +13,15 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 
-interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean}
+interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean};
+
+let refreshTokenTO:number = -1;
 
 //TODO makes this platform agnostic
 export const storeAuth = defineStore('auth', {
 	state: () => ({
-		refreshTokenTO: 0,
 		authenticated: false,
-		newScopeToRequest: [] as string[],
+		newScopesToRequest: [] as string[],
 	} as IAuthState),
 	
 	
@@ -31,12 +34,17 @@ export const storeAuth = defineStore('auth', {
 	
 	
 	actions: {
-		refreshAuthToken(payload:(success:boolean)=>void) {this.authenticate({cb:payload, forceRefresh:true}); },
+		refreshAuthToken(payload:(success:boolean)=>void) {
+			this.authenticate({cb:payload, forceRefresh:true});
+		},
 
 		async authenticate(payload:IAuthPayload) {
 			const code = payload.code;
 			const cb = payload.cb;
 			const forceRefresh = payload.forceRefresh;
+			const sChat = StoreProxy.chat;
+			const sMain = StoreProxy.main;
+
 			try {
 	
 				let json:TwitchDataTypes.AuthTokenResult;
@@ -74,10 +82,10 @@ export const storeAuth = defineStore('auth', {
 						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
 						this.authenticated = false;
 						UserSession.instance.authResult = null;
-						this.newScopeToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
+						this.newScopesToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
 					}
 				}
-				if(this.newScopeToRequest.length > 0) {
+				if(this.newScopesToRequest.length > 0) {
 					if(cb) cb(false);
 					return;
 				}
@@ -119,6 +127,32 @@ export const storeAuth = defineStore('auth', {
 						username:currentUser?.login ?? "user not found",
 					}
 				}
+
+				if(DataStore.syncToServer === true && this.authenticated) {
+					if(!await DataStore.loadRemoteData()) {
+						//Force data sync popup to show up if remote
+						//data have been deleted
+						DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
+					}
+				}
+
+				sMain.loadDataFromStorage();
+
+				MessengerProxy.instance.connect();
+				PubSub.instance.connect();
+	
+				sChat.sendTwitchatAd();
+				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
+					setTimeout(()=>{
+						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
+					}, 5000)
+				}else
+				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && UserSession.instance.isDonor) {
+					setTimeout(()=>{
+						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
+					}, 5000)
+				}
+				sMain.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 				
 				this.authenticated = true;
 
@@ -131,8 +165,8 @@ export const storeAuth = defineStore('auth', {
 				if(delay > maxDelay) delay = maxDelay;
 			
 				console.log("Refresh token in", Utils.formatDuration(delay));
-				clearTimeout(this.refreshTokenTO);
-				this.refreshTokenTO = setTimeout(()=>{
+				clearTimeout(refreshTokenTO);
+				refreshTokenTO = setTimeout(()=>{
 					this.authenticate({forceRefresh:true});
 				}, delay);
 				

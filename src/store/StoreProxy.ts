@@ -58,7 +58,7 @@ export interface IMainGetters {
 
 export interface IMainActions {
 	startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}):Promise<void>
-	loadDataFromStorage(authenticated?:boolean):void;
+	loadDataFromStorage():void;
 	alert(message:string):void;
 	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
 	closeConfirm():void;
@@ -92,9 +92,8 @@ export interface IAccountActions {
 
 
 export interface IAuthState {
-	refreshTokenTO: number;
 	authenticated: boolean;
-	newScopeToRequest: string[];
+	newScopesToRequest: string[];
 }
 
 export interface IAuthGetters {

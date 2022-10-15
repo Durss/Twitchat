@@ -15,7 +15,7 @@
 							<div class="percent">{{getOutcomePercent(o)}}%</div>
 							<div class="users">
 								<img src="@/assets/icons/user.svg" alt="user" class="icon">
-								{{o.voters.length}}
+								{{o.voters}}
 							</div>
 							<div class="points">
 								<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">

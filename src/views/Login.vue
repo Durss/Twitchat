@@ -137,7 +137,7 @@ export default class Login extends Vue {
 	}
 
 	public get newScopes():string[] {
-		return this.$store("auth").newScopeToRequest.map((v:string) => {
+		return this.$store("auth").newScopesToRequest.map((v:string) => {
 			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
 			return v;
 		});

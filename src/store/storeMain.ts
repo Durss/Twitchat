@@ -272,35 +272,7 @@ export const storeMain = defineStore("main", {
 					payload.callback(null);
 					return;
 				}
-
-				if(DataStore.syncToServer === true && sAuth.authenticated) {
-					if(!await DataStore.loadRemoteData()) {
-						//Force data sync popup to show up if remote
-						//data have been deleted
-						DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
-					}
-				}
-	
-				const devmode = DataStore.get(DataStore.DEVMODE) === "true";
-				this.toggleDevMode(devmode);
-				sChat.sendTwitchatAd();
 				
-				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
-					setTimeout(()=>{
-						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
-					}, 5000)
-				}else
-				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && UserSession.instance.isDonor) {
-					setTimeout(()=>{
-						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
-					}, 5000)
-				}
-
-				authenticated = true;
-	
-				this.loadDataFromStorage(authenticated);
-				MessengerProxy.instance.connect();
-				PubSub.instance.connect();
 			}
 			
 			this.initComplete = true;
@@ -308,7 +280,7 @@ export const storeMain = defineStore("main", {
 			payload.callback(null);
 		},
 		
-		loadDataFromStorage(authenticated:boolean = false) {
+		loadDataFromStorage() {
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;
 			const sChat = StoreProxy.chat;
@@ -343,132 +315,130 @@ export const storeMain = defineStore("main", {
 				}
 			}
 
-			if(authenticated) {
-				//Init OBS scenes params
-				const obsSceneCommands = DataStore.get(DataStore.OBS_CONF_SCENES);
-				if(obsSceneCommands) {
-					sOBS.sceneCommands = JSON.parse(obsSceneCommands);
-				}
-				
-				//Init OBS command params
-				const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
-				if(obsMuteUnmuteCommands) {
-					Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (sOBS.muteUnmuteCommands as unknown) as JsonObject);
-				}
-				
-				//Init OBS permissions
-				const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
-				if(obsCommandsPermissions) {
-					Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (sOBS.commandsPermissions as unknown) as JsonObject);
-				}
-
-				//Init TTS actions
-				const tts = DataStore.get(DataStore.TTS_PARAMS);
-				if (tts) {
-					Utils.mergeRemoteObject(JSON.parse(tts), (sTTS.params as unknown) as JsonObject);
-					TTSUtils.instance.enabled = sTTS.params.enabled;
-				}
-				
-				//Init emergency actions
-				const emergency = DataStore.get(DataStore.EMERGENCY_PARAMS);
-				if(emergency) {
-					Utils.mergeRemoteObject(JSON.parse(emergency), (sEmergency.params as unknown) as JsonObject);
-				}
-				
-				//Init alert actions
-				const alert = DataStore.get(DataStore.ALERT_PARAMS);
-				if(alert) {
-					Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
-				}
-				
-				//Init spoiler param
-				const spoiler = DataStore.get(DataStore.SPOILER_PARAMS);
-				if(spoiler) {
-					Utils.mergeRemoteObject(JSON.parse(spoiler), (sChat.spoilerParams as unknown) as JsonObject);
-				}
-				
-				//Init chat highlight params
-				const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
-				if(chatHighlight) {
-					Utils.mergeRemoteObject(JSON.parse(chatHighlight), (sChat.chatHighlightOverlayParams as unknown) as JsonObject);
-				}
-				
-				//Init triggers
-				const triggers = DataStore.get(DataStore.TRIGGERS);
-				if(triggers) {
-					Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggers as unknown) as JsonObject);
-					TriggerActionHandler.instance.triggers = sTriggers.triggers;
-				}
-					
-				//Init stream info presets
-				const presets = DataStore.get(DataStore.STREAM_INFO_PRESETS);
-				if(presets) {
-					sStream.streamInfoPreset = JSON.parse(presets);
-				}
-
-				//Init emergency followers
-				const emergencyFollows = DataStore.get(DataStore.EMERGENCY_FOLLOWERS);
-				if(emergencyFollows) {
-					sEmergency.follows = JSON.parse(emergencyFollows);
-				}
-
-				//Init music player params
-				const musicPlayerParams = DataStore.get(DataStore.MUSIC_PLAYER_PARAMS);
-				if(musicPlayerParams) {
-					Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (sMusic.musicPlayerParams as unknown) as JsonObject);
-				}
-				
-				//Init Voice control actions
-				const voiceActions = DataStore.get("voiceActions");
-				if(voiceActions) {
-					sVoice.voiceActions = JSON.parse(voiceActions);
-				}
-				
-				//Init Voice control language
-				const voiceLang = DataStore.get("voiceLang");
-				if(voiceLang) {
-					sVoice.voiceLang = voiceLang;
-					VoiceController.instance.lang = voiceLang;
-				}
-				
-				//Init bot messages
-				const botMessages = DataStore.get(DataStore.BOT_MESSAGES);
-				if(botMessages) {
-					//Merge remote and local to avoid losing potential new
-					//default values on local data
-					Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
-				}
-
-				//Init spotify connection
-				const spotifyAuthToken = DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
-				if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-					sMusic.setSpotifyToken(JSON.parse(spotifyAuthToken));
-				}
-
-				//Init spotify credentials
-				const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
-				if(spotifyAuthToken && spotifyAppParams) {
-					sMusic.setSpotifyCredentials(JSON.parse(spotifyAppParams));
-				}
-
-				//Init voicemod
-				const voicemodParams = DataStore.get(DataStore.VOICEMOD_PARAMS);
-				if(voicemodParams) {
-					sVoice.setVoicemodParams(JSON.parse(voicemodParams));
-					if(sVoice.voicemodParams.enabled) {
-						VoicemodWebSocket.instance.connect();
-					}
-				}
-
-				//Init automod
-				const automodParams = DataStore.get(DataStore.AUTOMOD_PARAMS);
-				if(automodParams) {
-					Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
-					sAutomod.setAutomodParams(sAutomod.params);
-				}
-
-				SchedulerHelper.instance.start();
+			//Init OBS scenes params
+			const obsSceneCommands = DataStore.get(DataStore.OBS_CONF_SCENES);
+			if(obsSceneCommands) {
+				sOBS.sceneCommands = JSON.parse(obsSceneCommands);
 			}
+			
+			//Init OBS command params
+			const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
+			if(obsMuteUnmuteCommands) {
+				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (sOBS.muteUnmuteCommands as unknown) as JsonObject);
+			}
+			
+			//Init OBS permissions
+			const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
+			if(obsCommandsPermissions) {
+				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (sOBS.commandsPermissions as unknown) as JsonObject);
+			}
+
+			//Init TTS actions
+			const tts = DataStore.get(DataStore.TTS_PARAMS);
+			if (tts) {
+				Utils.mergeRemoteObject(JSON.parse(tts), (sTTS.params as unknown) as JsonObject);
+				TTSUtils.instance.enabled = sTTS.params.enabled;
+			}
+			
+			//Init emergency actions
+			const emergency = DataStore.get(DataStore.EMERGENCY_PARAMS);
+			if(emergency) {
+				Utils.mergeRemoteObject(JSON.parse(emergency), (sEmergency.params as unknown) as JsonObject);
+			}
+			
+			//Init alert actions
+			const alert = DataStore.get(DataStore.ALERT_PARAMS);
+			if(alert) {
+				Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
+			}
+			
+			//Init spoiler param
+			const spoiler = DataStore.get(DataStore.SPOILER_PARAMS);
+			if(spoiler) {
+				Utils.mergeRemoteObject(JSON.parse(spoiler), (sChat.spoilerParams as unknown) as JsonObject);
+			}
+			
+			//Init chat highlight params
+			const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
+			if(chatHighlight) {
+				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (sChat.chatHighlightOverlayParams as unknown) as JsonObject);
+			}
+			
+			//Init triggers
+			const triggers = DataStore.get(DataStore.TRIGGERS);
+			if(triggers) {
+				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggers as unknown) as JsonObject);
+				TriggerActionHandler.instance.triggers = sTriggers.triggers;
+			}
+				
+			//Init stream info presets
+			const presets = DataStore.get(DataStore.STREAM_INFO_PRESETS);
+			if(presets) {
+				sStream.streamInfoPreset = JSON.parse(presets);
+			}
+
+			//Init emergency followers
+			const emergencyFollows = DataStore.get(DataStore.EMERGENCY_FOLLOWERS);
+			if(emergencyFollows) {
+				sEmergency.follows = JSON.parse(emergencyFollows);
+			}
+
+			//Init music player params
+			const musicPlayerParams = DataStore.get(DataStore.MUSIC_PLAYER_PARAMS);
+			if(musicPlayerParams) {
+				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (sMusic.musicPlayerParams as unknown) as JsonObject);
+			}
+			
+			//Init Voice control actions
+			const voiceActions = DataStore.get("voiceActions");
+			if(voiceActions) {
+				sVoice.voiceActions = JSON.parse(voiceActions);
+			}
+			
+			//Init Voice control language
+			const voiceLang = DataStore.get("voiceLang");
+			if(voiceLang) {
+				sVoice.voiceLang = voiceLang;
+				VoiceController.instance.lang = voiceLang;
+			}
+			
+			//Init bot messages
+			const botMessages = DataStore.get(DataStore.BOT_MESSAGES);
+			if(botMessages) {
+				//Merge remote and local to avoid losing potential new
+				//default values on local data
+				Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
+			}
+
+			//Init spotify connection
+			const spotifyAuthToken = DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
+			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
+				sMusic.setSpotifyToken(JSON.parse(spotifyAuthToken));
+			}
+
+			//Init spotify credentials
+			const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
+			if(spotifyAuthToken && spotifyAppParams) {
+				sMusic.setSpotifyCredentials(JSON.parse(spotifyAppParams));
+			}
+
+			//Init voicemod
+			const voicemodParams = DataStore.get(DataStore.VOICEMOD_PARAMS);
+			if(voicemodParams) {
+				sVoice.setVoicemodParams(JSON.parse(voicemodParams));
+				if(sVoice.voicemodParams.enabled) {
+					VoicemodWebSocket.instance.connect();
+				}
+			}
+
+			//Init automod
+			const automodParams = DataStore.get(DataStore.AUTOMOD_PARAMS);
+			if(automodParams) {
+				Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
+				sAutomod.setAutomodParams(sAutomod.params);
+			}
+
+			SchedulerHelper.instance.start();
 			
 			//Initialise new toggle param for OBS connection.
 			//If any OBS param exists, set it to true because the
