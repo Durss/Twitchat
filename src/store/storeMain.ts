@@ -297,11 +297,11 @@ export const storeMain = defineStore("main", {
 				}
 
 				authenticated = true;
-			}
 	
-			this.loadDataFromStorage(authenticated);
-			MessengerProxy.instance.connect();
-			PubSub.instance.connect();
+				this.loadDataFromStorage(authenticated);
+				MessengerProxy.instance.connect();
+				PubSub.instance.connect();
+			}
 			
 			this.initComplete = true;
 			

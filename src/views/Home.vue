@@ -786,9 +786,9 @@ export default class Home extends Vue {
 		}
 
 		video {
-			cursor:  url("../assets/img/homepage/play.png"), default;
+			cursor:  url("../assets/img/homepage/pause.png"), default;
 			&.playing {
-				cursor:  url("../assets/img/homepage/pause.png"), default;
+				cursor:  url("../assets/img/homepage/play.png"), default;
 			}
 		}
 	}
