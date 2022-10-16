@@ -17,11 +17,11 @@
 		"types": [
 			"webpack-env",
 			"vite/client",
-			"dom-screen-wake-lock",
+			"dom-screen-wake-lock"
 		],
 		"paths": {
 			"@/*": [
-				"src/*"
+				"src_front/*"
 			]
 		},
 		"lib": [
@@ -32,9 +32,9 @@
 		]
 	},
 	"include": [
-		"src/**/*.ts",
-		"src/**/*.tsx",
-		"src/**/*.vue",
+		"src_front/**/*.ts",
+		"src_front/**/*.tsx",
+		"src_front/**/*.vue",
 		"tests/**/*.ts",
 		"tests/**/*.tsx"
 	],

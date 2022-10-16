@@ -1,0 +1,34 @@
+{
+	"compilerOptions": {
+		"target": "es6",
+		"module": "commonjs",
+		"strict": true,
+		"noImplicitAny": false,
+		"noImplicitThis": false,
+		"strictNullChecks": false,
+		"importHelpers": true,
+		"experimentalDecorators": true,
+		"sourceMap": false,
+		"baseUrl": ".",
+		"outDir": "./server",
+		"skipLibCheck": true,
+		"paths": {
+			"@/*": [
+				"src_back/*"
+			]
+		},
+		"lib": [
+			"esnext",
+			"dom",
+			"dom.iterable",
+			"scripthost"
+		]
+	},
+	"include": [
+		"src_back/**/*.ts",
+		"src_back/**/*.tsx"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}

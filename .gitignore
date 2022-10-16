@@ -2,8 +2,10 @@
 node_modules
 /dist
 /userData
+/server
 credentials.json
 donors
+env.conf
 
 
 # local env files

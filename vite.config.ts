@@ -26,7 +26,7 @@ export default defineConfig({
 
 	resolve: {
 		alias: {
-			'@': fileURLToPath(new URL('./src', import.meta.url))
+			'@': fileURLToPath(new URL('./src_front', import.meta.url))
 		}
 	},
 
@@ -35,8 +35,8 @@ export default defineConfig({
 			less: {
 				//Requires proper version of less-loader to work. Tested with 8.0.0
 				additionalData: `
-					@import "./src/less/index.less";
-					@import "./src/less/_includes.less";
+					@import "./src_front/less/index.less";
+					@import "./src_front/less/_includes.less";
 				`
 			}
 		}

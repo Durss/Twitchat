@@ -86,7 +86,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
  * Include an image from the asset folder
  */
 const image = (path:string):string => {
-	return new URL(`/src/assets/${path}`, import.meta.url).href;
+	return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 }
 
 /**

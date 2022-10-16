@@ -9,7 +9,7 @@
 
 <div align="center">
 	<a href="https://twitchat.fr" target="_blank">
-		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src/assets/logo.svg">
+		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src_front/assets/logo.svg">
 	</a>
 	<br>
 	<br>
@@ -134,7 +134,7 @@ http://localhost:8080/oauth
 ```
 You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
-By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
+By default the server listens on port 3018, you can change it on `server.js` and `src_front/utils/Config.ts`.
 
 <br>
 <br>

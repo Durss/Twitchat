@@ -1,5 +1,5 @@
 {
-	"script": "./server.js",
+	"script": "./server/bootstrap.js",
 	"name": "Twitchat",
 	"env": {},
 	"merge_logs": true,
@@ -23,8 +23,7 @@
 		"donors.json"
 	],
 	"watch": [
-		"./server.js",
-		"./Logger.js"
+		"./server"
 	],
 	"exec_mode": "fork"
 }

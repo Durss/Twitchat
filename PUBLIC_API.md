@@ -1,7 +1,7 @@
 
 <div align="center">
 	<a href="https://twitchat.fr" target="_blank">
-		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src/assets/logo.svg">
+		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src_front/assets/logo.svg">
 	</a>
 	<br>
 	<br>

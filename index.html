@@ -112,7 +112,6 @@
 			//Stop spamming script refresh after 10 attempts
 			if(counter <= 10) {
 				setTimeout(()=>{
-					console.log(document.head);
 					document.head.removeChild(script);
 					let s = document.createElement('script');
 					s.defer = true;
@@ -353,7 +352,7 @@
 			incrementClose = 1;
 		}
 	</script>
-	<script type="module" onerror="onLoadError()" src="/src/main.ts"></script>
+	<script type="module" onerror="onLoadError()" src="/src_front/main.ts"></script>
 </body>
 
 </html>
