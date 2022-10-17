@@ -134,7 +134,7 @@ http://localhost:8080/oauth
 ```
 You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
-By default the server listens on port 3018, you can change it on `server.js` and `src_front/utils/Config.ts`.
+By default the server listens on port 3018, you can change it on `server/utils/Config.js` and `src_front/utils/Config.ts`.
 
 <br>
 <br>
@@ -171,34 +171,28 @@ npm run build
 
 ### Run server
 ```
-node server.js
+node server/boostrap.js
 ```
 <br>
 <br>
 <br>
 
 # Install server
-[Compile the project](#compile-project) and push the `server.js` file on your server.\
+[Compile the project](#compile-project) and push the content of the `server` folder on your server.\
 Next to this file, create a `dist` folder and push the content of your local `dist` folder inside it.\
-Also add the `credentials.json` and `fakeEvents.json` files at the root of the project.\
+Also add the `credentials.json` file at the root of the project.\
 Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
 \
 Here is the expected file structure:\
 ─ root\
-  ├─ dist/\
   ├─ node_modules/\
-  ├─ server.js\
+  ├─ dist/\
+  ├─ controllers/\
+  ├─ utils/\
+  ├─ bootstrap.js\
   ├─ env.conf\
   ├─ credentials.json\
-  ├─ fakeEvents.json\
-<br>
-<br>
-<br>
-
-# Server
-The server is super basic for now as there isn't much needs.
-For this reason it's a just a single file server coded in vanila JS that doesn't need any compilation. That might change in the futur.
 <br>
 <br>
 <br>
