@@ -897,7 +897,7 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			channel_id: channelId,
 			type:"following",
-			user: StoreProxy.users.getUserFrom("twitch", undefined, data.user_id, data.username, data.display_name),
+			user: StoreProxy.users.getUserFrom("twitch", channelId, data.user_id, data.username, data.display_name),
 			followed_at: Date.now(),
 		};
 		message.user.channelInfo[channelId].online = true;
