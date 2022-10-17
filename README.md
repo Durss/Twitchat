@@ -33,9 +33,9 @@ Documentation can be found [here](PUBLIC_API.md).
 <br>
 
 # DISCLAIMER
-Twitchat is under a MASSIVE refactor.
-Both the server and the front sources got completely changed.
-You may not want to contribute to this project untils this is complete.
+Twitchat is under a **MASSIVE** refactor.\
+Both the server and the front sources got completely changed.\
+You may not want to contribute to this project until this is complete.\
 If you still want to contribute before that, you might want to do it on the [refactor branch](https://github.com/Durss/Twitchat/tree/refactor). It's very unstable for now and far from complete but the main structure is OK.
 <br>
 <br>
