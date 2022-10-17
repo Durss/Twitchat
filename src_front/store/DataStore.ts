@@ -79,10 +79,7 @@ export default class DataStore {
 		this.store = localStorage? localStorage : sessionStorage;
 		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) == "true";
 		let v = this.get(this.DATA_VERSION);
-		if(!v) {
-			this.fixBackslashes();
-			v = "1"
-		}
+		
 		if(v=="1" || v=="2") {
 			this.cleanupOldData();
 			v = "3";
@@ -257,6 +254,7 @@ export default class DataStore {
 				}
 	
 				let headers = {
+					"Content-Type": "application/json",
 					'Authorization': 'Bearer '+this.access_token,
 				}
 				const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
@@ -364,27 +362,6 @@ export default class DataStore {
 	/**********************************
 	 **** DATA MIGRATION UTILITIES ****
 	 **********************************/
-
-
-
-	/**
-	 * Temporary fix after making a mistake.
-	 * I was doing JSON.stringofy(value) when setting a value, even if
-	 * the value was already sa string wich made all double quotes
-	 * escaped potentially hunderds of times.
-	 * JSON.stringify('hello "world"!') => "hello \\"world\\"!"
-	 * Can be removed after some updates.
-	 */
-	private static fixBackslashes():void {
-		let v = this.get("p:shoutoutLabel");
-		if(!v) return;
-		v = v.replace(/(^"\\"|\\|"$)/gi, "");
-		v = v.replace(/("|\\){2,}/gi, "$1");
-		v = v.replace(/(^"|"$)/gi, "");
-		v = v.trim();
-		this.set("p:shoutoutLabel", v);
-	}
-
 	/**
 	 * Temporary utility to cleanup some old storage data
 	 * Can be removed after some updates.

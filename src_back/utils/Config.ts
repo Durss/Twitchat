@@ -10,7 +10,6 @@ export default class Config {
 	private static donorsDataFolder = "./donors/";
 	private static credentialsCache:Credentials;
 
-	public static get userDataFolder(): string { return "./userData/"; }
 	public static get donorsList(): string { return this.donorsDataFolder + "donors.json"; }
 	public static get donorsAnonStates(): string { return this.donorsDataFolder + "public_states.json"; }
 	public static get donorsPublicList(): string { return this.donorsDataFolder + "public_cache.json"; }
@@ -68,6 +67,7 @@ export default class Config {
 	}
 
 	public static get SERVER_PORT(): number {
+		console.log(">>>>", __dirname);
 		return this.getEnvData({
 			dev: 3018,
 			prod: 3018,
@@ -76,8 +76,15 @@ export default class Config {
 
 	public static get PUBLIC_ROOT(): string {
 		return this.getEnvData({
-			dev: "../dist/",
-			prod: "./public/",
+			dev: __dirname+"/../../dist/",
+			prod: __dirname+"/../../public/",
+		});
+	}
+
+	public static get USER_DATA_PATH(): string {
+		return this.getEnvData({
+			dev: __dirname+"/../../userData/",
+			prod: __dirname+"/../../userData/",
 		});
 	}
 

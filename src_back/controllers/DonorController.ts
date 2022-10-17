@@ -63,7 +63,7 @@ export default class DonorController {
 		}
 
 		//Update user's storage file to get a little idea on how many people use twitchat
-		const userFilePath = Config.userDataFolder + userInfo.user_id+".json";
+		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
 		if(!fs.existsSync(userFilePath)) {
 			fs.writeFileSync(userFilePath, JSON.stringify({}), "utf8");
 		}else{

@@ -75,8 +75,13 @@ export const storeAuth = defineStore('auth', {
 				if(!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)
 				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 	
+				UserSession.instance.authResult = json;
 				UserSession.instance.access_token = json.access_token;
 				UserSession.instance.twitchAuthToken = userRes as TwitchDataTypes.Token;
+				console.log("JSON", json)
+				DataStore.access_token = json.access_token;
+				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, json, false);
+
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
 					if(UserSession.instance.twitchAuthToken.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
@@ -93,9 +98,6 @@ export const storeAuth = defineStore('auth', {
 				if(!json.expires_at) {
 					json.expires_at = Date.now() + UserSession.instance.twitchAuthToken.expires_in*1000;
 				}
-				UserSession.instance.authResult = json;
-				DataStore.access_token = json.access_token;
-				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, json, false);
 				
 				//Check if user is part of the donors
 				try {
@@ -128,6 +130,8 @@ export const storeAuth = defineStore('auth', {
 						username:currentUser?.login ?? "user not found",
 					}
 				}
+				
+				this.authenticated = true;
 
 				if(DataStore.syncToServer === true && this.authenticated) {
 					if(!await DataStore.loadRemoteData()) {
@@ -154,8 +158,6 @@ export const storeAuth = defineStore('auth', {
 					}, 5000)
 				}
 				sMain.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
-				
-				this.authenticated = true;
 
 				if(cb) cb(true);
 	

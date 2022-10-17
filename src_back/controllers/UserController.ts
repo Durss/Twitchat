@@ -3,7 +3,7 @@ import Logger from '../utils/Logger';
 import * as fs from "fs";
 import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
-import JsonPatch from 'fast-json-patch';
+import * as JsonPatch from 'fast-json-patch';
 
 /**
 * Created : 13/03/2022 
@@ -50,7 +50,7 @@ export default class UserController {
 		const uid = (request.params as any).uid ?? userInfo.user_id;
 
 		//Get users' data
-		const userFilePath = Config.userDataFolder + uid+".json";
+		const userFilePath = Config.USER_DATA_PATH + uid+".json";
 		if(!fs.existsSync(userFilePath)) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -77,7 +77,7 @@ export default class UserController {
 		}
 
 		//Get users' data
-		const userFilePath = Config.userDataFolder + userInfo.user_id+".json";
+		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
 
 		//avoid saving private data to server
 		delete body.obsPass;
@@ -106,7 +106,7 @@ export default class UserController {
 			if(diff?.length > 0) {
 				Logger.error("Invalid format, some data has been removed from "+userInfo.login+"'s data");
 				console.log(diff);
-				fs.writeFileSync(Config.userDataFolder+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+				fs.writeFileSync(Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
 			}
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 
@@ -152,13 +152,13 @@ export default class UserController {
 			return;
 		}
 	
-		const files = fs.readdirSync(Config.userDataFolder);
+		const files = fs.readdirSync(Config.USER_DATA_PATH);
 		const list = files.filter(v => v.indexOf("_cleanup") == -1);
 		const users = []
 		list.forEach(v => {
 			users.push({
 				id: v.replace(".json", ""),
-				date:fs.statSync(Config.userDataFolder + v).mtime.getTime()
+				date:fs.statSync(Config.USER_DATA_PATH + v).mtime.getTime()
 			})
 		} );
 	
