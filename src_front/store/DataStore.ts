@@ -165,7 +165,7 @@ export default class DataStore {
 			let headers = {
 				'Authorization': 'Bearer '+this.access_token,
 			};
-			const res = await fetch(Config.instance.API_PATH+"/user", {method:"GET", headers});
+			const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"GET", headers});
 			if(importToLS) {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
@@ -259,7 +259,7 @@ export default class DataStore {
 				let headers = {
 					'Authorization': 'Bearer '+this.access_token,
 				}
-				const res = await fetch(Config.instance.API_PATH+"/user", {method:"POST", headers, body:JSON.stringify(data)});
+				const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
 				if(res.status === 500) {
 					StoreProxy.auth.refreshAuthToken(()=> {
 						//Try again

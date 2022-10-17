@@ -4,25 +4,21 @@
 	"private": true,
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
-		
 		"front/serve": "vite --host",
 		"front/build": "vue-tsc --noEmit && vite build",
-
 		"server/watch": "tsc -w -p ./tsconfig_server.json",
 		"server/build": "tsc -p ./tsconfig_server.json",
 		"server/start": "pm2 start bootstrap-pm2.json",
-
 		"patch": "npm version patch -m \"Upgrade version to v%s\"",
 		"minor": "npm version minor -m \"Upgrade version to v%s\"",
 		"major": "npm version major -m \"Upgrade version to v%s\"",
-
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
 		"streamdeck_package": "DistributionTool.exe -b -i streamdeck_plugin/fr.twitchat.sdPlugin -o streamdeck_plugin",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts"
 	},
 	"dependencies": {
 		"@popperjs/core": "^2.11.5",
-		"ajv": "^6.12.6",
+		"ajv": "^8.11.0",
 		"core-js": "^3.8.3",
 		"fast-json-patch": "^3.1.1",
 		"fastify": "^4.8.1",

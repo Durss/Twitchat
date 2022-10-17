@@ -763,7 +763,7 @@ export default class ChatForm extends Vue {
 							"Authorization": "Bearer "+UserSession.instance.access_token as string,
 						},
 					}
-					const res = await fetch(Config.instance.API_PATH+"/userdata?uid="+users[0].id, options)
+					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)
 					if(res.status === 200) {
 						const json = await res.json();
 						if(cmd === "/loaduserdata") {

@@ -4,6 +4,9 @@ import Logger from './utils/Logger';
 import * as path from "path";
 import * as fs from "fs";
 import AuthController from './controllers/AuthController';
+import DonorController from './controllers/DonorController';
+import UserController from './controllers/UserController';
+import SpotifyController from './controllers/SpotifyController';
 const mime = require('mime-types');
 
 const server: FastifyInstance = Fastify({logger: false});
@@ -42,9 +45,35 @@ server.register(require('@fastify/static'), {
 	// }
 })
 
-// Declare a route
-server.get('/api', async (request, reply) => {
+//Defautl API route
+server.get('/api', async (request, response) => {
 	return { success: true };
+});
+
+//Get latest script.js file for cache bypass
+server.get('/api/script', async (request, response) => {
+	Logger.info("Serving script for cache bypass")
+	const file = fs.readdirSync(Config.PUBLIC_ROOT).find(v => /index\..*\.js/gi.test(v));
+	const txt = fs.readFileSync(Config.PUBLIC_ROOT+"/"+file, {encoding:"utf8"});
+	console.log(txt);
+	response.header('Content-Type', 'application/javascript');
+	response.status(200);
+	response.send(txt);
+});
+
+//Get latest script.js file for cache bypass
+server.get('/api/configs', async (request, response) => {
+	response.header('Content-Type', 'application/javascript');
+	response.status(200);
+	response.send(JSON.stringify({
+		client_id:Config.credentials.client_id,
+		scopes:Config.credentials.scopes,
+		spotify_scopes:Config.credentials.spotify_scopes,
+		spotify_client_id:Config.credentials.spotify_client_id,
+		deezer_scopes:Config.credentials.deezer_scopes,
+		deezer_client_id:Config.credentials.deezer_client_id,
+		deezer_dev_client_id:Config.credentials.deezer_dev_client_id,
+	}));
 });
 
 
@@ -87,12 +116,18 @@ const start = async () => {
 		server.log.error(err)
 		process.exit(1)
 	}
+	
 
-	//Create controllers
-	await new AuthController(server);
-
-	Logger.success("===========================");
+	Logger.success("=========================");
 	Logger.success("Server ready on port "+Config.SERVER_PORT);
-	Logger.success("===========================");
+	Logger.success("=========================");
 }
+
+//Create controllers
+new AuthController(server).initialize();
+new DonorController(server).initialize();
+new UserController(server).initialize();
+new SpotifyController(server).initialize();
+
+//Start server
 start();

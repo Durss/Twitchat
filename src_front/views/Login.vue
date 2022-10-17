@@ -157,7 +157,7 @@ export default class Login extends Vue {
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const csrfRes = await fetch(Config.instance.API_PATH+"/CSRFToken?token="+csrfToken, {method:"POST"});
+				const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+csrfToken, {method:"POST"});
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
 					this.$store("main").alertData = csrf.message;
@@ -193,7 +193,7 @@ export default class Login extends Vue {
 	public async generateCSRF():Promise<void> {
 		this.generatingCSRF = true;
 		try {
-			const res = await fetch(Config.instance.API_PATH+"/CSRFToken", {method:"GET"});
+			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {

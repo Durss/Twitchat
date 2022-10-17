@@ -141,7 +141,7 @@ export default class TTUserList extends Vue {
 		this.users = [];
 		this.usersSpool = [];
 		try {
-			res = await fetch(Config.instance.API_PATH+"/users", {
+			res = await fetch(Config.instance.API_PATH+"/user/all", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",

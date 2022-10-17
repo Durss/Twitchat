@@ -50,13 +50,13 @@ export const storeAuth = defineStore('auth', {
 	
 				let json:TwitchDataTypes.AuthTokenResult;
 				if(code) {
-					const res = await fetch(Config.instance.API_PATH+"/gettoken?code="+code, {method:"GET"});
+					const res = await fetch(Config.instance.API_PATH+"/auth/twitch?code="+code, {method:"GET"});
 					json = await res.json();
 				}else {
 					json = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
 					//Refresh token if going to expire within the next 5 minutes
 					if(json && (forceRefresh || json.expires_at < Date.now() - 60000*5)) {
-						const res = await fetch(Config.instance.API_PATH+"/refreshtoken?token="+json.refresh_token, {method:"GET"});
+						const res = await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+json.refresh_token, {method:"GET"});
 						json = await res.json();
 					}
 				}
