@@ -18,12 +18,6 @@
 	- <a href="https://discord.gg/fmqD2xUYvP1" target="_blank">Join discord</a> -
 	
 </div>
-
-# DISCLAIMER
-Twitchat is under a MASSIVE refactor.
-Both the server and the front sources got completely changed.
-You may not want to contribute to this project untils this is complete.
-If you still want to contribute before that, you might want to do it on the [refactor branch](https://github.com/Durss/Twitchat/tree/refactor). It's very unstable for now and far from complete but the main structure is OK.
 <br>
 <br>
 A custom twitch chat that aims to fill gaps in the official Twitch chat for streamers.
@@ -34,6 +28,15 @@ The main goal is to follow your chat as best as possible.
 
 For developpers, **Twitchat exposes an API** to receive events and control some features remotely.\
 Documentation can be found [here](PUBLIC_API.md).
+<br>
+<br>
+<br>
+
+# DISCLAIMER
+Twitchat is under a MASSIVE refactor.
+Both the server and the front sources got completely changed.
+You may not want to contribute to this project untils this is complete.
+If you still want to contribute before that, you might want to do it on the [refactor branch](https://github.com/Durss/Twitchat/tree/refactor). It's very unstable for now and far from complete but the main structure is OK.
 <br>
 <br>
 <br>
