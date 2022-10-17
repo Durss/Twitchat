@@ -543,14 +543,16 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "community-boost-start" || data.type == "community-boost-progression" || data.type == "community-boost-end") {
 			const currentBoost = StoreProxy.stream.communityBoostState
-			const boost = data.data as PubSubDataTypes.CommunityBoost;
-			let progress = boost.total_goal_progress ?? currentBoost?.progress ?? 0;
+			const boost		= data.data as PubSubDataTypes.CommunityBoost;
+			let goal		= boost.total_goal_target ?? currentBoost?.goal ?? 1;
+			let progress	= boost.total_goal_progress ?? currentBoost?.progress ?? 0;
 			if(boost.boost_orders) {
-				progress = boost.boost_orders[0].GoalProgress;
+				progress	= boost.boost_orders[0].GoalProgress;
+				goal		= boost.boost_orders[0].GoalTarget;
 			}
 			const m:TwitchatDataTypes.CommunityBoost = {
 				channel_id:boost.channel_id,
-				goal:boost.total_goal_target ?? currentBoost?.progress ?? 1,
+				goal,
 				progress,
 			};
 			StoreProxy.stream.setCommunityBoost(m);
