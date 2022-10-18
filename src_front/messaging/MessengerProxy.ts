@@ -166,6 +166,6 @@ export default class MessengerProxy {
 	 * Called when requesting to refresh auth token
 	 */
 	private onRefreshToken(e:MessengerClientEvent):void {
-		StoreProxy.auth.refreshAuthToken(true);
+		StoreProxy.auth.twitch_tokenRefresh(true);
 	}
 }

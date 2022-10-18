@@ -36,7 +36,7 @@ export const storeAuth = defineStore('auth', {
 	
 	
 	actions: {
-		async refreshAuthToken(reconnectIRC:boolean, callback?:(success:boolean)=>void) {
+		async twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void) {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
 			//Refresh token if going to expire within the next 5 minutes
 			if(twitchAuthResult) {
@@ -63,14 +63,14 @@ export const storeAuth = defineStore('auth', {
 				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
-					this.refreshAuthToken(true);
+					this.twitch_tokenRefresh(true);
 				}, delay);
 				if(callback) callback(true);
 				return twitchAuthResult;
 			}
 		},
 
-		async authenticate(code?:string, cb?:(success:boolean)=>void) {
+		async twitch_autenticate(code?:string, cb?:(success:boolean)=>void) {
 			const sChat = StoreProxy.chat;
 			const sMain = StoreProxy.main;
 
@@ -87,13 +87,13 @@ export const storeAuth = defineStore('auth', {
 					clearTimeout(refreshTokenTO);
 					//Schedule refresh
 					refreshTokenTO = setTimeout(()=>{
-						this.refreshAuthToken(true);
+						this.twitch_tokenRefresh(true);
 					}, this.twitch.expires_in*1000 - 60000 * 5);
 				}else {
 					//OAuth process already done, just request a fresh new token if it's
 					//gonna expire in less than 5 minutes
 					// if(twitchAuthResult && twitchAuthResult.expires_at < Date.now() - 60000*5) {
-						const res = await this.refreshAuthToken(false);
+						const res = await this.twitch_tokenRefresh(false);
 						if(!res) {
 							StoreProxy.main.alert("Unable to connect with Twitch API :(")
 							return;

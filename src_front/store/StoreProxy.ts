@@ -108,8 +108,8 @@ export interface IAuthGetters {
 }
 
 export interface IAuthActions {
-	refreshAuthToken(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
-	authenticate(code?:string, cb?:(success:boolean)=>void):Promise<void>;
+	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
+	twitch_autenticate(code?:string, cb?:(success:boolean)=>void):Promise<void>;
 	logout():void;
 }
 

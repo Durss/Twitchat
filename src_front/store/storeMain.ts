@@ -209,7 +209,7 @@ export const storeMain = defineStore("main", {
 
 				try {
 					await new Promise((resolve,reject)=> {
-						sAuth.authenticate(undefined, (success:boolean)=>{
+						sAuth.twitch_autenticate(undefined, (success:boolean)=>{
 							if(success) {
 								resolve(null);
 							}else{

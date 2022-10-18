@@ -163,7 +163,7 @@ export default class Login extends Vue {
 					this.$store("main").alertData = csrf.message;
 					this.authenticating = false;
 				}else{
-					this.$store("auth").authenticate(code, (success:boolean)=> {
+					this.$store("auth").twitch_autenticate(code, (success:boolean)=> {
 						this.authenticating = false;
 						if(success) {
 							redirect = DataStore.get("redirect");
