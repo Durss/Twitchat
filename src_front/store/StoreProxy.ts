@@ -57,16 +57,16 @@ export interface IMainGetters {
 }
 
 export interface IMainActions {
-	startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}):Promise<void>
+	startApp(authenticate:boolean, callback:(value:unknown)=>void):Promise<void>
 	loadDataFromStorage():void;
 	alert(message:string):void;
 	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
 	closeConfirm():void;
-	openTooltip(payload:string):void;
+	openTooltip(text:string):void;
 	closeTooltip():void;
-	setShowParams(payload:boolean):void;
-	setCypherKey(payload:string):void;
-	setCypherEnabled(payload:boolean):void;
+	setShowParams(show:boolean):void;
+	setCypherKey(key:string):void;
+	setCypherEnabled(enabled:boolean):void;
 	toggleDevMode(forcedState?:boolean):void;
 	setCanSplitView(value:boolean):void;
 	setAhsInstaller(value:TwitchatDataTypes.InstallHandler):void;
@@ -94,22 +94,22 @@ export interface IAccountActions {
 export type IAuthState = {
 	authenticated: boolean;
 	newScopesToRequest: string[];
-} & Partial<{
+} & {
 	[key in TwitchatDataTypes.ChatPlatform]:{
 		client_id:string;
 		access_token:string;
-		expire_at:string;
+		expires_in:number;
 		scopes:string[];
 		user:TwitchatDataTypes.TwitchatUser;
 	};
-}>
+}
 
 export interface IAuthGetters {
 }
 
 export interface IAuthActions {
-	refreshAuthToken(payload:(success:boolean)=>void):void;
-	authenticate(payload:{code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean}):void;
+	refreshAuthToken(callback?:(success:boolean)=>void):void;
+	authenticate(code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean):void;
 	logout():void;
 }
 

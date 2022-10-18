@@ -26,9 +26,9 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -56,12 +56,12 @@ export default class ParamsAccount extends Vue {
 	public publicDonation_loaded = false;
 
 	public get canInstall():boolean { return this.$store("main").ahsInstaller != null || true; }
-	public get userName():string { return UserSession.instance.twitchAuthToken.login; }
-	public get isDonor():boolean { return UserSession.instance.isDonor; }
-	public get donorLevel():number { return UserSession.instance.donorLevel; }
+	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
+	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
 	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ABOUT; } 
 	public get userPP():string {
-		let pp:string|undefined = UserSession.instance.twitchUser?.profile_image_url;
+		let pp:string|undefined = StoreProxy.auth.twitch.user.avatarPath;
 		if(!pp) {
 			pp = this.$image("icons/user_purple.svg");
 		}
@@ -84,7 +84,7 @@ export default class ParamsAccount extends Vue {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer "+UserSession.instance.access_token as string,
+					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
 				},
 			}
 			try {
@@ -118,7 +118,7 @@ export default class ParamsAccount extends Vue {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer "+UserSession.instance.access_token as string,
+					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
 				},
 				body: JSON.stringify({
 					public:this.publicDonation,

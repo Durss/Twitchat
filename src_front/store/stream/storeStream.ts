@@ -1,9 +1,8 @@
 import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 
@@ -66,7 +65,7 @@ export const storeStream = defineStore('stream', {
 				if(activities.length > 0) {
 					const res:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						type:"hype_train_summary",
-						channel_id:UserSession.instance.twitchUser!.id,
+						channel_id:StoreProxy.auth.twitch.user.id,
 						train:data,
 						id:Utils.getUUID(),
 						date:Date.now(),

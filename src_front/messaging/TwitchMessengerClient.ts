@@ -8,7 +8,6 @@ import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
@@ -21,7 +20,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private static _instance:TwitchMessengerClient;
 	private _client!:tmi.Client;
 	private _credentials:{token:string, username:string}|null = null;
-	private _reconnecting:boolean = false;
 	private _connectedAnonymously:boolean = false;
 	private _connectTimeout:number = -1;
 	private _connectedChannels:string[] = [];
@@ -76,6 +74,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			SevenTVUtils.instance.enable();
 		}else{
 			SevenTVUtils.instance.disable();
+		}
+
+		//Use an anonymous method to avoid blocking loading while
+		//all twitch tags are loading
+		try {
+			if(StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner) {
+				const channelId = StoreProxy.auth.twitch.user.id;
+				TwitchUtils.getPolls(channelId);
+				TwitchUtils.getPredictions(channelId);
+			}
+			TwitchUtils.searchTag("");//Preload tags to build local cache
+		}catch(e) {
+			//User is probably not an affiliate
 		}
 	}
 
@@ -270,7 +281,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						}catch(error) {
 							const e = (error as unknown) as {error:string, message:string, status:number}
 							console.log(error);
-							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, UserSession.instance.twitchUser!.id, e.message);
+							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, StoreProxy.auth.twitch.user.id, e.message);
 						}
 					}).catch(()=>{/*ignore*/});
 					return true;
@@ -356,7 +367,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * Called after updating the token or the channels list
 	 */
 	private async reconnect():Promise<void> {
-		this._reconnecting = true;
 		await this._client.disconnect();
 		await this._client.connect();
 	}
@@ -376,8 +386,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isBroadcaster	= tags.badges?.broadcaster != undefined;
 		const isPartner		= tags.badges?.partner != undefined;
 
-		user.is_partner		= false;
-		user.is_affiliate	= false;
 		user.channelInfo[channelId].online	= true;
 		
 		if(tags.color)		user.color = tags.color;
@@ -418,7 +426,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
 		user.is_partner		= false;
 		user.is_affiliate	= false;
-		user.channelInfo[channelId].online			= true;
+		user.channelInfo[channelId].online = true;
 		return user;
 	}
 	
@@ -574,11 +582,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		//Check if the message contains a mention
 		if(message && StoreProxy.params.appearance.highlightMentions.value === true) {
-			data.hasMention = UserSession.instance.twitchAuthToken.login != null && 
-							new RegExp("(^| |@)("+UserSession.instance.twitchAuthToken.login+")($|\\s)", "gim")
-							.test(message);
+			const login = StoreProxy.auth.twitch.user.login;
+			data.hasMention = login != null && 
+							new RegExp("(^| |@)("+login+")($|\\s)", "gim").test(message);
 			if(data.hasMention) {
-				data.highlightWord = UserSession.instance.twitchAuthToken.login;
+				data.highlightWord = login;
 			}
 		}
 		
@@ -621,20 +629,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private onJoin(channel:string, user:string):void {
-		if(user == UserSession.instance.twitchUser?.login.toLowerCase() && !this._reconnecting) {
-			this.notice(TwitchatDataTypes.TwitchatNoticeType.ONLINE, channel, "Welcome to the chat room <mark>"+channel+"</mark>!");
-			this._reconnecting = false;
-		}else{
-			const channel_id = this.getChannelID(channel);
-			this.dispatchEvent(new MessengerClientEvent("JOIN", {
-				platform:"twitch",
-				type:"join",
-				id:Utils.getUUID(),
-				channel_id,
-				date:Date.now(),
-				users:[this.getUserFromLogin(user, channel_id)],
-			}));
-		}
+		const channel_id = this.getChannelID(channel);
+		this.dispatchEvent(new MessengerClientEvent("JOIN", {
+			platform:"twitch",
+			type:"join",
+			id:Utils.getUUID(),
+			channel_id,
+			date:Date.now(),
+			users:[this.getUserFromLogin(user, channel_id)],
+		}));
 	}
 
 	private onLeave(channel:string, user:string):void {
@@ -651,7 +654,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
 		let message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
-		message_html = await TwitchUtils.parseCheermotes(message_html, UserSession.instance.twitchUser!.id);
+		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
 		const channel_id = this.getChannelID(channel);
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
@@ -837,7 +840,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			case "ROOMSTATE": {
 				const roomstate = (data as unknown) as TwitchDataTypes.RoomState;
 				//TODO check if this still works
-				if(roomstate.params[0].replace("#", "") == UserSession.instance.twitchUser?.login) {
+				if(roomstate.params[0].replace("#", "") == StoreProxy.auth.twitch.user.login) {
 					const sStream = StoreProxy.stream;
 					const params = sStream.roomStatusParams.twitch;
 					if(!params) return;

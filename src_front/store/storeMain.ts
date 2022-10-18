@@ -1,8 +1,7 @@
-import MessengerProxy from '@/messaging/MessengerProxy';
 import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
-import Config from '@/utils/Config';
+import Config, { type ServerConfig } from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -12,10 +11,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
-import PubSub from '@/utils/twitch/PubSub';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
@@ -67,8 +63,8 @@ export const storeMain = defineStore("main", {
 	
 	actions: {
 
-		async startApp(payload:{authenticate:boolean, callback:(value:unknown)=>void}) {
-			let jsonConfigs;
+		async startApp(authenticate:boolean, callback:(value:unknown)=>void) {
+			let jsonConfigs:ServerConfig;
 			const sOBS = StoreProxy.obs;
 			const sChat = StoreProxy.chat;
 			const sAuth = StoreProxy.auth;
@@ -92,87 +88,8 @@ export const storeMain = defineStore("main", {
 				this.initComplete = true;
 				return;
 			}
-			TwitchUtils.client_id = jsonConfigs.client_id;
-			Config.instance.TWITCH_APP_SCOPES = jsonConfigs.scopes;
-			Config.instance.SPOTIFY_SCOPES  = jsonConfigs.spotify_scopes;
-			Config.instance.SPOTIFY_CLIENT_ID = jsonConfigs.spotify_client_id;
-			Config.instance.DEEZER_SCOPES  = jsonConfigs.deezer_scopes;
-			Config.instance.DEEZER_CLIENT_ID = Config.instance.IS_PROD? jsonConfigs.deezer_client_id : jsonConfigs.deezer_dev_client_id;
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				if(sTimer.timerStart > 0) {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:sTimer.timerStart });
-				}
-				
-				if(sTimer.countdown) {
-					const data = { startAt:sTimer.countdown?.startAt, duration:sTimer.countdown?.duration };
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
-				}
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-				const data = (e.data as unknown) as {winner:TwitchatDataTypes.EntryItem};
-				StoreProxy.raffle.onRaffleComplete(data.winner);
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-				const raider = sStream.lastRaider;
-				if(raider) {
-					sChat.shoutout(raider);
-				}else{
-					this.alert("You have not been raided yet");
-				}
-			});
+			Config.instance.populateServerConfigs(jsonConfigs);
 			
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
-				const enable = (e.data as unknown) as {enabled:boolean};
-				let enabled = enable.enabled;
-				//If no JSON is specified, just toggle the state
-				if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
-				sEmergency.setEmergencyMode(enabled)
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
-				sChat.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
-				sVoice.voiceText.tempText = (e.data as {text:string}).text;
-				sVoice.voiceText.finalText = "";
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent)=> {
-				sVoice.voiceText.rawTempText = (e.data as {text:string}).text;
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
-				sVoice.voiceText.finalText = (e.data as {text:string}).text;
-			});
-			PublicAPI.instance.initialize();
-
-			//Overwrite store data from URL
-			const queryParams = Utils.getQueryParameterByName("params");
-			if(queryParams) {
-				//eslint-disable-next-line
-				let json:any;
-				try {
-					json = JSON.parse(atob(queryParams));
-					for (const cat in sParams.$state) {
-						//eslint-disable-next-line
-						const values = sParams.$state[cat as TwitchatDataTypes.ParameterCategory];
-						for (const key in values) {
-							const p = values[key] as TwitchatDataTypes.ParameterData;
-							if(Object.prototype.hasOwnProperty.call(json, p.id as number)) {
-								p.value = json[p.id as number] as (string | number | boolean);
-							}
-						}
-					}
-					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, json.access_token, false);
-				}catch(error){
-					//ignore
-				}
-			}
-
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
 			for (const cat in sParams.$state) {
@@ -201,8 +118,7 @@ export const storeMain = defineStore("main", {
 
 			//Authenticate user
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
-			let authenticated = false;
-			if(token && payload.authenticate) {
+			if(token && authenticate) {
 				const cypherKey = DataStore.get(DataStore.CYPHER_KEY)
 				ChatCypherPlugin.instance.initialize(cypherKey);
 				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
@@ -237,39 +153,76 @@ export const storeMain = defineStore("main", {
 							sVoice.voicemodCurrentVoice = v;
 						}
 					}
-				})
+				});
+
+				//Listen for twitch API event
+				PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
+					if(sTimer.timerStart > 0) {
+						PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:sTimer.timerStart });
+					}
+					
+					if(sTimer.countdown) {
+						const data = { startAt:sTimer.countdown?.startAt, duration:sTimer.countdown?.duration };
+						PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+					}
+				});
+	
+				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+					const data = (e.data as unknown) as {winner:TwitchatDataTypes.EntryItem};
+					StoreProxy.raffle.onRaffleComplete(data.winner);
+				});
+	
+				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+					const raider = sStream.lastRaider;
+					if(raider) {
+						sChat.shoutout(raider);
+					}else{
+						this.alert("You have not been raided yet");
+					}
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+					const enable = (e.data as unknown) as {enabled:boolean};
+					let enabled = enable.enabled;
+					//If no JSON is specified, just toggle the state
+					if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
+					sEmergency.setEmergencyMode(enabled)
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+					sChat.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
+					sVoice.voiceText.tempText = (e.data as {text:string}).text;
+					sVoice.voiceText.finalText = "";
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent)=> {
+					sVoice.voiceText.rawTempText = (e.data as {text:string}).text;
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
+					sVoice.voiceText.finalText = (e.data as {text:string}).text;
+				});
+				PublicAPI.instance.initialize();
 
 				try {
 					await new Promise((resolve,reject)=> {
-						sAuth.authenticate({cb:(success:boolean)=>{
+						sAuth.authenticate(undefined, (success:boolean)=>{
 							if(success) {
 								resolve(null);
 							}else{
 								reject();
 							}
-						}});
+						});
 					});
-
-					//Use an anonymous method to avoid blocking loading while
-					//all twitch tags are loading
-					(async () => {
-						try {
-							TwitchUtils.searchTag("");//Preload tags to build local cache
-							if(UserSession.instance.hasChannelPoints) {
-								const channelId = UserSession.instance.twitchUser!.id
-								await TwitchUtils.getPolls(channelId);
-								await TwitchUtils.getPredictions(channelId);
-							}
-						}catch(e) {
-							//User is probably not an affiliate
-						}
-					})();
 				}catch(error) {
 					console.log(error);
 					sAuth.authenticated = false;
 					DataStore.remove("oAuthToken");
 					this.initComplete = true;
-					payload.callback(null);
+					callback(null);
 					return;
 				}
 				
@@ -277,7 +230,7 @@ export const storeMain = defineStore("main", {
 			
 			this.initComplete = true;
 			
-			payload.callback(null);
+			callback(null);
 		},
 		
 		loadDataFromStorage() {

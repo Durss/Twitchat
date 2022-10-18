@@ -43,7 +43,6 @@ import { TriggerEvents, TriggerTypes, type TriggerActionTriggerData, type Trigge
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ToggleBlock from '../../../../ToggleBlock.vue';
@@ -116,7 +115,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 						//Special case for "highlight my message" reward
 						list.push({
 							triggerKey:key,
-							label:UserSession.instance.highlightMyMessageReward.title,
+							label:Config.instance.highlightMyMessageReward.title,
 							trigger:triggers[key],
 							info,
 						});

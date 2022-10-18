@@ -73,18 +73,18 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import { storeUsers } from '@/store/users/storeUsers';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
-import { watch, watchEffect } from '@vue/runtime-core';
+import { watchEffect } from '@vue/runtime-core';
 import gsap from 'gsap';
+import type { Badges } from 'tmi.js';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatModTools from '../messages/ChatModTools.vue';
-import type { Badges } from 'tmi.js';
 
 @Options({
 	props:{},
@@ -123,7 +123,7 @@ export default class UserCard extends Vue {
 			const card = this.$store("users").userCard;
 			if(card) {
 				this.user = card.user;
-				this.channelId = card.channelId ?? UserSession.instance.twitchUser!.id;
+				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
 			}else{
 				this.user = null;
@@ -235,7 +235,7 @@ export default class UserCard extends Vue {
 	public openViewerCard():void {
 		let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 		width=350,height=500,left=100,top=100`;
-		const url ="https://www.twitch.tv/popout/"+UserSession.instance.twitchUser!.login+"/viewercard/"+this.user!.login;
+		const url ="https://www.twitch.tv/popout/"+StoreProxy.auth.twitch.user.login+"/viewercard/"+this.user!.login;
 		window.open(url, 'profilePage', params);
 	}
 

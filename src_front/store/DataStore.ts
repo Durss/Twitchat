@@ -11,7 +11,6 @@ import StoreProxy from "./StoreProxy";
  */
 export default class DataStore {
 	
-	public static access_token:string;
 	public static syncToServer:boolean = false;
 
 	public static DATA_VERSION:string = "v";
@@ -160,7 +159,7 @@ export default class DataStore {
 
 		try {
 			let headers = {
-				'Authorization': 'Bearer '+this.access_token,
+				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"GET", headers});
 			if(importToLS) {
@@ -216,7 +215,7 @@ export default class DataStore {
 		clearTimeout(this.saveTO);
 		if(!force) {
 			if(!this.syncToServer) return;//User wants to only save data locally
-			if(!this.access_token) return;
+			if(!StoreProxy.auth.twitch.access_token) return;
 			if(!this.dataImported) return;//Don't export anything before importing data first
 		}
 		
@@ -255,7 +254,7 @@ export default class DataStore {
 	
 				let headers = {
 					"Content-Type": "application/json",
-					'Authorization': 'Bearer '+this.access_token,
+					'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				}
 				const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
 				if(res.status === 500) {

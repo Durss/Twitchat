@@ -163,7 +163,7 @@ export default class Login extends Vue {
 					this.$store("main").alertData = csrf.message;
 					this.authenticating = false;
 				}else{
-					this.$store("auth").authenticate({code, cb:(success:boolean)=> {
+					this.$store("auth").authenticate(code, (success:boolean)=> {
 						this.authenticating = false;
 						if(success) {
 							redirect = DataStore.get("redirect");
@@ -177,7 +177,7 @@ export default class Login extends Vue {
 							this.$store("main").alertData = "Invalid credentials";
 							this.authenticating = false;
 						}
-					}});
+					});
 				}
 			}else{
 				this.$store("main").alertData = "You refused access to the Twitch application.";

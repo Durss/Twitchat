@@ -37,10 +37,10 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import type { JsonObject } from "type-fest";
@@ -95,7 +95,7 @@ export default class RaffleState extends Vue {
 	}
 
 	public openUserCard(entry:TwitchatDataTypes.RaffleEntry):void {
-		const uid = UserSession.instance.twitchUser!.id;
+		const uid = StoreProxy.auth.twitch.user.id;
 		const user = this.$store("users").getUserFrom("twitch", uid, undefined, entry.id)
 		this.$store("users").openUserCard(user);
 	}

@@ -7,7 +7,6 @@ import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import TwitchatEvent from '@/utils/TwitchatEvent'
-import UserSession from '@/utils/UserSession'
 import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
@@ -243,7 +242,7 @@ export const storeChat = defineStore('chat', {
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
 			if(adType == -1) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
-				if(!UserSession.instance.isDonor || UserSession.instance.donorLevel < 2) {
+				if(!StoreProxy.auth.twitch.user.donor.state===true || StoreProxy.auth.twitch.user.donor.level < 2) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
 				}
 				//Give more chances to hae anything but the "sponsor" ad

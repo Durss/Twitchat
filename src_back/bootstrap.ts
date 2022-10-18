@@ -66,10 +66,12 @@ server.get('/api/configs', async (request, response) => {
 	response.header('Content-Type', 'application/javascript');
 	response.status(200);
 	response.send(JSON.stringify({
-		client_id:Config.credentials.client_id,
-		scopes:Config.credentials.scopes,
+		twitch_client_id:Config.credentials.twitch_client_id,
+		twitch_scopes:Config.credentials.twitch_scopes,
+
 		spotify_scopes:Config.credentials.spotify_scopes,
 		spotify_client_id:Config.credentials.spotify_client_id,
+		
 		deezer_scopes:Config.credentials.deezer_scopes,
 		deezer_client_id:Config.credentials.deezer_client_id,
 		deezer_dev_client_id:Config.credentials.deezer_dev_client_id,

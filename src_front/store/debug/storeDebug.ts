@@ -1,5 +1,4 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -23,7 +22,7 @@ export const storeDebug = defineStore('debug', {
 	actions: {
 		simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):void {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
-			const uid:string = UserSession.instance.twitchUser!.id;
+			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },

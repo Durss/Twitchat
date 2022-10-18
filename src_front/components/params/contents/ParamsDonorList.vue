@@ -35,9 +35,9 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import InfiniteList from '../../InfiniteList.vue';
@@ -62,9 +62,9 @@ export default class ParamsDonorList extends Vue {
 	
 	private localList:{uid:string, v:number}[] = [];
 
-	public get isDonor():boolean { return UserSession.instance.isDonor; }
-	public get donorLevel():number { return UserSession.instance.donorLevel; }
-	public get userName():string { return UserSession.instance.twitchUser!.display_name; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
+	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
+	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
 
 	public mounted():void {
 		this.loadList();
@@ -112,7 +112,7 @@ export default class ParamsDonorList extends Vue {
 
 	private computeStats():void {
 		const lvl2Count:{[key:number]:number} = {};
-		const meUID = UserSession.instance.twitchUser!.id;
+		const meUID = StoreProxy.auth.twitch.user.id;
 		for (let i = 0; i < this.localList.length; i++) {
 			const e = this.localList[i];
 			if(!lvl2Count[e.v]) lvl2Count[e.v] = 0;

@@ -3,7 +3,6 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TriggerScheduleTypes, TriggerTypes, type TriggerData, type TriggerScheduleData } from "../types/TriggerActionDataTypes";
 import TriggerActionHandler from "./TriggerActionHandler";
-import UserSession from "./UserSession";
 
 /**
 * Created : 02/09/2022 
@@ -200,7 +199,7 @@ export default class SchedulerHelper {
 			let schedule = trigger?.scheduleParams;
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
-				if(UserSession.instance.isDonor && !StoreProxy.chat.botMessages.twitchatAd.enabled) return;
+				if(StoreProxy.auth.twitch.user.donor.state && !StoreProxy.chat.botMessages.twitchatAd.enabled) return;
 				schedule = this._adSchedule;
 			}
 			if(!schedule) continue;

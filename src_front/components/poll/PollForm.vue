@@ -62,9 +62,9 @@
 
 <script lang="ts">
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -151,7 +151,7 @@ export default class PollForm extends Vue {
 		this.error = "";
 
 		try {
-			await TwitchUtils.createPoll(UserSession.instance.twitchUser!.id,
+			await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
 									this.title,
 									this.answers,
 									this.voteDuration.value as number * 60,

@@ -66,7 +66,6 @@
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
@@ -284,7 +283,7 @@ export default class ParamsTTS extends Vue {
 	}
 
 	public testVoice():void {
-		const uid = UserSession.instance.twitchUser!.id;
+		const uid = StoreProxy.auth.twitch.user.id;
 		const m:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			date:Date.now(),

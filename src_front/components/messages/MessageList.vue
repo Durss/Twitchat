@@ -156,7 +156,6 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
@@ -167,12 +166,12 @@ import ChatBingoResult from './ChatBingoResult.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
+import ChatJoinLeave from './ChatJoinLeave.vue';
 import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
 import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
-import ChatJoinLeave from './ChatJoinLeave.vue';
 
 @Options({
 	components:{
@@ -263,7 +262,7 @@ export default class MessageList extends Vue {
 		const sParams = StoreProxy.params;
 		const sUsers = StoreProxy.users;
 		const messages = this.localMessages.concat();
-		const meUID = UserSession.instance.twitchUser!.id;
+		const meUID = StoreProxy.auth.twitch.user.id;
 		const blockedCmds = sParams.filters.blockedCommands.value as string;
 		let blockedSpecificCmds = blockedCmds.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
 		blockedSpecificCmds = blockedSpecificCmds.map(v=>v.replace(/^!/gi, ""))//Remove "!" at the beginning

@@ -97,8 +97,8 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import UserSession from '@/utils/UserSession';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -159,7 +159,7 @@ export default class Parameters extends Vue {
 
 	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
 
-	public get isDonor():boolean { return UserSession.instance.isDonor; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.APPEARANCE; } 
 	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.FILTERS; } 
 	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ACCOUNT; } 

@@ -7,13 +7,10 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PubSub from "@/utils/twitch/PubSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
-
-interface IAuthPayload {code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean};
 
 let refreshTokenTO:number = -1;
 
@@ -22,7 +19,11 @@ export const storeAuth = defineStore('auth', {
 	state: () => ({
 		authenticated: false,
 		newScopesToRequest: [] as string[],
-		
+		twitchat:{},
+		twitch:{},
+		youtube:{},
+		tiktok:{},
+		facebook:{},
 	} as IAuthState),
 	
 	
@@ -35,59 +36,65 @@ export const storeAuth = defineStore('auth', {
 	
 	
 	actions: {
-		refreshAuthToken(payload:(success:boolean)=>void) {
-			this.authenticate({cb:payload, forceRefresh:true});
+		refreshAuthToken(callback?:(success:boolean)=>void) {
+			this.authenticate(undefined, callback, true);
 		},
 
-		async authenticate(payload:IAuthPayload) {
-			const code = payload.code;
-			const cb = payload.cb;
-			const forceRefresh = payload.forceRefresh;
+		async authenticate(code?:string, cb?:(success:boolean)=>void, forceRefresh?:boolean) {
 			const sChat = StoreProxy.chat;
 			const sMain = StoreProxy.main;
 
 			try {
 	
-				let json:TwitchDataTypes.AuthTokenResult;
+				let twitchAuthResult:TwitchDataTypes.AuthTokenResult;
 				if(code) {
+					//Convert oAuth code to access_token
 					const res = await fetch(Config.instance.API_PATH+"/auth/twitch?code="+code, {method:"GET"});
-					json = await res.json();
+					twitchAuthResult = await res.json();
 				}else {
-					json = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
+					twitchAuthResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
 					//Refresh token if going to expire within the next 5 minutes
-					if(json && (forceRefresh || json.expires_at < Date.now() - 60000*5)) {
-						const res = await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+json.refresh_token, {method:"GET"});
-						json = await res.json();
+					if(twitchAuthResult && (forceRefresh || twitchAuthResult.expires_at < Date.now() - 60000*5)) {
+						const res = await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+twitchAuthResult.refresh_token, {method:"GET"});
+						twitchAuthResult = await res.json();
 					}
 				}
-				if(!json) {
-					console.log("No JSON :(", json);
+				if(!twitchAuthResult) {
+					console.log("No JSON :(", twitchAuthResult);
 					if(cb) cb(false);
 					return;
 				}
-				//Validate auth token
+				//Validate access token
 				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
 				try {
-					userRes = await TwitchUtils.validateToken(json.access_token);
-				}catch(error) {
-					/*ignore*/
-				}
+					userRes = await TwitchUtils.validateToken(twitchAuthResult.access_token);
+				}catch(error) { /*ignore*/ }
+
 				if(!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)
 				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
+
+				userRes = userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
+
+				this.twitch.client_id		= userRes.client_id;
+				this.twitch.access_token	= twitchAuthResult.access_token;
+				this.twitch.scopes			= (userRes as TwitchDataTypes.Token).scopes;
+				this.twitch.expires_in		= userRes.expires_in;
+
+				let twitchatUser!:TwitchatDataTypes.TwitchatUser;
+				await new Promise((resolve)=> {
+					userRes = userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
+					twitchatUser = StoreProxy.users.getUserFrom("twitch", userRes.user_id, userRes.user_id, undefined, undefined, resolve);
+				})
+
+				this.twitch.user = twitchatUser;
 	
-				UserSession.instance.authResult = json;
-				UserSession.instance.access_token = json.access_token;
-				UserSession.instance.twitchAuthToken = userRes as TwitchDataTypes.Token;
-				console.log("JSON", json)
-				DataStore.access_token = json.access_token;
-				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, json, false);
+				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
-					if(UserSession.instance.twitchAuthToken.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
+					if(StoreProxy.auth.twitch.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
 						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
 						this.authenticated = false;
-						UserSession.instance.authResult = null;
 						this.newScopesToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
 					}
 				}
@@ -95,8 +102,8 @@ export const storeAuth = defineStore('auth', {
 					if(cb) cb(false);
 					return;
 				}
-				if(!json.expires_at) {
-					json.expires_at = Date.now() + UserSession.instance.twitchAuthToken.expires_in*1000;
+				if(!twitchAuthResult.expires_at) {
+					twitchAuthResult.expires_at = Date.now() + this.twitch.expires_in*1000;
 				}
 				
 				//Check if user is part of the donors
@@ -105,29 +112,23 @@ export const storeAuth = defineStore('auth', {
 						method: "GET",
 						headers: {
 							"Content-Type": "application/json",
-							"Authorization": "Bearer "+UserSession.instance.access_token as string,
+							"Authorization": "Bearer "+this.twitch.access_token,
 						},
 					}
 					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
 					const donorJSON = await donorRes.json();
-					UserSession.instance.isDonor = donorJSON.data?.isDonor === true;
-					UserSession.instance.donorLevel = donorJSON.data?.level;
+					this.twitch.user.donor.state	= donorJSON.data?.isDonor === true;
+					this.twitch.user.donor.level	= donorJSON.data?.level;
 				}catch(error) {}
 	
-				//Get full user's info
-				const users = await TwitchUtils.loadUserInfo([UserSession.instance.twitchAuthToken.user_id]);
-				const currentUser = users.find(v => v.id == UserSession.instance.twitchAuthToken.user_id);
-				if(currentUser) {
-					UserSession.instance.twitchUser = currentUser;
-				}
 				
 				if(this.authenticated) {
 					//If we were authenticated, simply update the token on IRC
-					TwitchMessengerClient.instance.refreshToken(json.access_token);
+					TwitchMessengerClient.instance.refreshToken(twitchAuthResult.access_token);
 				}else{
 					TwitchMessengerClient.instance.credentials = {
-						token:json.access_token,
-						username:currentUser?.login ?? "user not found",
+						token:twitchAuthResult.access_token,
+						username:this.twitch.user.login ?? "user not found",
 					}
 				}
 				
@@ -147,12 +148,12 @@ export const storeAuth = defineStore('auth', {
 				PubSub.instance.connect();
 	
 				sChat.sendTwitchatAd();
-				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !UserSession.instance.isDonor) {
+				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
 					setTimeout(()=>{
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 					}, 5000)
 				}else
-				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && UserSession.instance.isDonor) {
+				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && this.twitch.user.donor.state) {
 					setTimeout(()=>{
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 					}, 5000)
@@ -160,8 +161,7 @@ export const storeAuth = defineStore('auth', {
 				sMain.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 
 				if(cb) cb(true);
-	
-				const expire = UserSession.instance.twitchAuthToken.expires_in;
+				const expire = this.twitch.expires_in;
 				let delay = Math.max(0, expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
 				//Refresh at least every 3h
 				const maxDelay = 1000 * 60 * 60 * 3;
@@ -170,7 +170,7 @@ export const storeAuth = defineStore('auth', {
 				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
-					this.authenticate({forceRefresh:true});
+					this.authenticate(undefined, undefined, true);
 				}, delay);
 				
 			}catch(error) {
@@ -184,7 +184,6 @@ export const storeAuth = defineStore('auth', {
 		},
 	
 		logout() {
-			UserSession.instance.authResult = null;
 			this.authenticated = false;
 			DataStore.remove("oAuthToken");
 			MessengerProxy.instance.disconnect();

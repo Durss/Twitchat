@@ -36,10 +36,10 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -87,7 +87,7 @@ export default class CommandHelper extends Vue {
 	}
 
 	public get hasChannelPoints():boolean {
-		return UserSession.instance.hasChannelPoints === true;
+		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
 
 	public get canCreatePoll():boolean {
@@ -178,7 +178,7 @@ export default class CommandHelper extends Vue {
 				break;
 			}
 		}
-		TwitchUtils.setRoomSettings(UserSession.instance.twitchUser!.id, settings);
+		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
 	}
 
 	public openLiveFollowings():void {

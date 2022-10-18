@@ -162,9 +162,9 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import UserSession from '@/utils/UserSession';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -210,7 +210,7 @@ export default class ChatAd extends Vue {
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	
-	public get isDonor():boolean { return UserSession.instance.isDonor; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
 	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.APPEARANCE; } 
 	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.FILTERS; } 
@@ -292,7 +292,7 @@ export default class ChatAd extends Vue {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer "+UserSession.instance.access_token as string,
+					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
 				},
 				body: JSON.stringify({
 					public:true,

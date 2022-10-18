@@ -108,11 +108,12 @@
 </template>
 
 <script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -122,7 +123,6 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfos from './ChatMessageInfos.vue';
 import ChatModTools from './ChatModTools.vue';
-import UserSession from '@/utils/UserSession';
 
 @Options({
 	components:{
@@ -308,7 +308,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public beforeMount() {
-		this.currentUser	= this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, UserSession.instance.twitchUser!.id);
+		this.currentUser	= this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, StoreProxy.auth.twitch.user.id);
 		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
 	}
@@ -336,7 +336,7 @@ export default class ChatMessage extends Vue {
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& this.messageData.user.id != UserSession.instance.twitchUser!.id
+									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id
 									// && (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;

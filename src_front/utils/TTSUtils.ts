@@ -5,7 +5,6 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import PublicAPI from "./PublicAPI";
 import TwitchatEvent from "./TwitchatEvent";
-import UserSession from "./UserSession";
 import Utils from "./Utils";
 
 interface SpokenMessage {
@@ -304,7 +303,7 @@ export default class TTSUtils {
 				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
 				//Don't read our answers
-				if(message.user.id === UserSession.instance.twitchUser!.id) return "";
+				if(message.user.id === StoreProxy.auth.twitch.user.id) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {

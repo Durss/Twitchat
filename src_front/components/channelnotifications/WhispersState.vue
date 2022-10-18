@@ -39,9 +39,9 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -73,7 +73,7 @@ export default class WhispersState extends Vue {
 
 	public messageClasses(whisper:TwitchatDataTypes.MessageWhisperData):string[] {
 		let classes:string[] = ["message"];
-		if(whisper.user.id == UserSession.instance.twitchUser!.id) classes.push("isMe");
+		if(whisper.user.id == StoreProxy.auth.twitch.user.id) classes.push("isMe");
 		return classes;
 	}
 

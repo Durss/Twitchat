@@ -433,12 +433,16 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
-		greeted:boolean;
-		color?:string;
+		greeted:boolean;//Already displayed on the "greet them" section ?
+		color?:string;//Chat color of their nickname
 		avatarPath?:string;
-		is_partner:boolean;
-		is_affiliate:boolean;
+		is_partner:boolean;//Is Twitch partner
+		is_affiliate:boolean;//Is Twitch affiliat
 		is_tracked:boolean;
+		donor:{//Donor state of the user
+			state:boolean,
+			level:number,
+		};
 		pronouns:string|false;
 		pronounsLabel:string|false;
 		pronounsTooltip:string|false;

@@ -51,8 +51,9 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -61,7 +62,6 @@ import Button from '../Button.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import UserSession from '@/utils/UserSession';
 
 @Options({
 	props:{},
@@ -92,7 +92,7 @@ export default class StreamInfoForm extends Vue {
 
 	public async mounted():Promise<void> {
 		this.param_savePreset.children = [this.param_namePreset];
-		const channelId = UserSession.instance.twitchUser!.id;
+		const channelId = StoreProxy.auth.twitch.user.id;
 
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
@@ -157,7 +157,7 @@ export default class StreamInfoForm extends Vue {
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
 			try {
-				const channelId = UserSession.instance.twitchUser!.id;
+				const channelId = StoreProxy.auth.twitch.user.id;
 				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id), channelId);
 				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id, channelId);
 			}catch(error) {
@@ -207,7 +207,7 @@ export default class StreamInfoForm extends Vue {
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		try {
-			const channelId = UserSession.instance.twitchUser!.id;
+			const channelId = StoreProxy.auth.twitch.user.id;
 			await TwitchUtils.setStreamTags(p.tagIDs as string[], channelId);
 			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId);
 		}catch(error) {

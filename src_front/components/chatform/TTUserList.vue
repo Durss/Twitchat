@@ -52,10 +52,10 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -145,7 +145,7 @@ export default class TTUserList extends Vue {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer "+UserSession.instance.access_token as string,
+					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
 				},
 			})
 			const json = await res.json();

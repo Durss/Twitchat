@@ -1,7 +1,6 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
@@ -101,7 +100,7 @@ export const storeUsers = defineStore('users', {
 				//Create user if enough given info
 				if(id && login) {
 					if(!displayName) displayName = login;
-					user = reactive({
+					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform,
 						id:id ?? "",
 						login:login ?? "",
@@ -113,13 +112,18 @@ export const storeUsers = defineStore('users', {
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
+						donor:{
+							state:false,
+							level:0,
+						},
 						channelInfo:{},
-					}) as TwitchatDataTypes.TwitchatUser;
+					};
+					user = reactive(userData);
 				}
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
 				if(!login || !id || !displayName) {
-					user = reactive({
+					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform:platform,
 						id:id??"temporary_"+Utils.getUUID(),
 						login:login??displayName??"",
@@ -132,8 +136,13 @@ export const storeUsers = defineStore('users', {
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
+						donor:{
+							state:false,
+							level:0,
+						},
 						channelInfo:{},
-					}) as TwitchatDataTypes.TwitchatUser;
+					};
+					user = reactive(userData);
 				}
 			}
 			
@@ -357,8 +366,8 @@ export const storeUsers = defineStore('users', {
 			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
 				if(user.channelInfo[channelId].is_following == null) {
 					try {
-						// console.log("Check if ", user.displayName, "follows", channelId, "or", UserSession.instance.twitchUser!.id);
-						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? UserSession.instance.twitchUser!.id)
+						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
+						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? StoreProxy.auth.twitch.user.id)
 						user.channelInfo[channelId].is_following = res != null;
 						return true;
 					}catch(error){};
@@ -444,7 +453,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowings():Promise<void> {
-			const followings = await TwitchUtils.getFollowings(UserSession.instance.twitchUser?.id);
+			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			let hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.to_id] = true; });
 			this.myFollowings["twitch"] = hashmap;

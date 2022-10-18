@@ -54,7 +54,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 		document.body.style.backgroundColor = Utils.getLessVars().mainColor_dark as string;
 	}
 
-	//If landing on homepage, edirect to chat if an auth token is available
+	//If landing on homepage, redirect to chat if an auth token is available
 	const authToken = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 	if(authToken && to.name === "home") {
 		next({name:"chat"});
@@ -63,9 +63,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	
 	if (!sMain.initComplete) {
 		try {
-			await new Promise((resolve) => {
-				sMain.startApp({authenticate:needAuth, callback:resolve});
-			});
+			await new Promise((resolve) => { sMain.startApp(needAuth, resolve); });
 		}catch(error) {
 			console.log(error);
 		}

@@ -78,6 +78,7 @@
 
 					<div class="row">
 						<ParamItem class="item" :paramData="customEntries" @change="onValueChange()" />
+						<i>(Seperate entries with a coma or a line break)</i>
 					</div>
 
 					<div class="row" v-if="triggerMode === false">
@@ -115,11 +116,11 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
@@ -179,7 +180,7 @@ export default class RaffleForm extends Vue {
 	public subs_includeGifters:TwitchatDataTypes.ParameterData = {label:"Include sub gifters (user not sub but that subgifted someone else)", value:true, type:"toggle", icon:"gift_purple.svg"};
 	public subs_excludeGifted:TwitchatDataTypes.ParameterData = {label:"Excluded sub gifted users (user that only got subgifted)", value:true, type:"toggle", icon:"sub_purple.svg"};
 	public showCountdownOverlay:TwitchatDataTypes.ParameterData = {label:"Show overlay countdown", value:false, type:"toggle", icon:"countdown_purple.svg"};
-	public customEntries:TwitchatDataTypes.ParameterData = {label:"(Seperate entries with a coma or a line break)", value:"", type:"text", placeholder:"entry 1, entry 2, entry 3, ...", longText:true};
+	public customEntries:TwitchatDataTypes.ParameterData = {label:"", value:"", type:"text", placeholder:"entry 1, entry 2, entry 3, ...", longText:true};
 
 	public startPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
@@ -195,7 +196,7 @@ export default class RaffleForm extends Vue {
 		return this.subs.filter(v => {
 			if(this.subs_includeGifters.value == true && this.subs.find(v2=> v2.gifter_id == v.user_id)) return true;
 			if(this.subs_excludeGifted.value == true && v.is_gift) return false;
-			if(v.user_id == UserSession.instance.twitchAuthToken.user_id) return false;
+			if(v.user_id == StoreProxy.auth.twitch.user.id) return false;
 			return true;
 		})
 	}
@@ -438,6 +439,10 @@ export default class RaffleForm extends Vue {
 						color: @mainColor_warn;
 						background-color: @mainColor_warn_extralight;
 					}
+				}
+
+				i {
+					font-size: .8em;
 				}
 			}
 		}

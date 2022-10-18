@@ -93,11 +93,12 @@ First create a `credentials.json` file on the root directory and fill in these v
 ```json
 {
 	"admin_ids": ["YOUR_TWITCH_ID"],
-	"client_id": "",
-	"client_secret": "",
-	"redirect_uri": "http://localhost:8080/oauth",
 	"csrf_key": "",
-	"scopes": [
+
+	"twitch_client_id": "",
+	"twitch_client_secret": "",
+	"twitch_redirect_uri": "http://localhost:8080/oauth",
+	"twitch_scopes": [
 		"chat:read",
 		"chat:edit",
 		"channel:read:redemptions",
@@ -118,6 +119,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"moderator:manage:banned_users",
 		"moderator:manage:announcements"
 	],
+	
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",

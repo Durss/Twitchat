@@ -67,7 +67,6 @@ export default class Config {
 	}
 
 	public static get SERVER_PORT(): number {
-		console.log(">>>>", __dirname);
 		return this.getEnvData({
 			dev: 3018,
 			prod: 3018,
@@ -131,15 +130,18 @@ type EnvName = "dev" | "prod";
 
 interface Credentials {
 	admin_ids: string[];
-	client_id: string;
-	client_secret: string;
-	redirect_uri: string;
 	csrf_key: string;
-	scopes: string[];
+
+	twitch_client_id: string;
+	twitch_client_secret: string;
+	twitch_redirect_uri: string;
+	twitch_scopes: string[];
+	
 	spotify_client_id: string;
 	spotify_client_secret: string;
 	spotify_scopes: string;
 	spotify_redirect_uri: string;
+	
 	deezer_scopes: string;
 	deezer_client_id: string;
 	deezer_client_secret: string;

@@ -1,10 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
-import BTTVUtils from "@/utils/emotes/BTTVUtils";
-import FFZUtils from "@/utils/emotes/FFZUtils";
-import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
-import UserSession from "@/utils/UserSession";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
@@ -42,7 +38,7 @@ export default class MessengerProxy {
 	******************/
 	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):boolean {
 		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
-		if(!channelId) channelId = UserSession.instance.twitchUser!.login;
+		if(!channelId) channelId = StoreProxy.auth.twitch.user.login;
 		if(!hasPlatform || targetPlatforms.indexOf("twitch")) {
 			if(!TwitchMessengerClient.instance.sendMessage(channelId, message)) {
 				return false;
@@ -169,6 +165,6 @@ export default class MessengerProxy {
 	 * Called when requesting to refresh auth token
 	 */
 	private onRefreshToken(e:MessengerClientEvent):void {
-		StoreProxy.auth.authenticate({forceRefresh:true});
+		StoreProxy.auth.refreshAuthToken();
 	}
 }

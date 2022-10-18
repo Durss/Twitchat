@@ -70,7 +70,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -210,7 +209,7 @@ export default class NewUsers extends Vue {
 		if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
 		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
-		if(m.user.id == UserSession.instance.twitchUser!.id) return;
+		if(m.user.id == StoreProxy.auth.twitch.user.id) return;
 		//Ignore bot messages
 		if(StoreProxy.users.knownBots[m.platform][m.user.login.toLowerCase()] === true) return;
 		//Ignore hidden users from params

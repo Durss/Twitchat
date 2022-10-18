@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import UserSession from '@/utils/UserSession';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 
@@ -128,10 +128,14 @@ export default class AutocompleteChatForm extends Vue {
 
 	private onSearchChange():void {
 		let res:ListItem[] = [];
+		const sUsers = this.$store("users");
+		const sAuth = this.$store("auth");
+		const sChat = this.$store("chat");
+		const sTTS = this.$store("tts");
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			if(this.users) {
-				const users = this.$store("users").users;
+				const users = sUsers.users;
 				for (let j = 0; j < users.length; j++) {
 					const userName = users[j].displayName;
 					if(userName.toLowerCase().indexOf(s) == 0) {
@@ -145,7 +149,7 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			if(this.emotes) {
-				const emotes = UserSession.instance.emotesCache;
+				const emotes = TwitchUtils.emotesCache;
 				if(emotes) {
 					for (let j = 0; j < emotes.length; j++) {
 						const e = emotes[j] as TwitchDataTypes.Emote;
@@ -162,12 +166,15 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			if(this.commands) {
-				const cmds = this.$store("chat").commands;
+				const cmds = sChat.commands;
+				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1) {
-						if(e.needTTS === true && !this.$store("tts").params.enabled) continue;
-						if(e.needChannelPoints === true && !UserSession.instance.hasChannelPoints) continue;
+						//Remove TTS related commands if TTS isn't enabled
+						if(e.needTTS === true && !sTTS.params.enabled) continue;
+						//Remove channel point related commands if user isn't affiliate or partner
+						if(e.needChannelPoints === true && !hasChannelPoints) continue;
 						res.push({
 							type:"cmd",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),

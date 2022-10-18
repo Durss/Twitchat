@@ -53,8 +53,8 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -96,7 +96,7 @@ export default class UserList extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public beforeMount():void {
-		this.channelId = UserSession.instance.twitchUser!.id;
+		this.channelId = StoreProxy.auth.twitch.user.id;
 	}
 
 	public mounted():void {
@@ -163,6 +163,7 @@ export default class UserList extends Vue {
 
 	private updateList():void {
 		const users = this.$store("users").users;
+		
 		this.channels = {};
 		for (let i = 0; i < users.length; i++) {
 			const user = users[i];
@@ -181,7 +182,6 @@ export default class UserList extends Vue {
 					else if(user.channelInfo[chan].is_moderator) chanData.mods.push(user);
 					else if(user.channelInfo[chan].is_vip) chanData.vips.push(user);
 					else chanData.viewers.push(user);
-					break;
 				}
 			}
 		}
@@ -197,7 +197,6 @@ export default class UserList extends Vue {
 				});
 			}
 		}
-
 	}
 }
 </script>
@@ -228,7 +227,7 @@ export default class UserList extends Vue {
 		
 		button {
 			// color: @mainColor_light;
-			/deep/ i {
+			:deep(i) {
 				font-style: italic;
 				font-size: .8em;
 			}
@@ -301,9 +300,21 @@ export default class UserList extends Vue {
 				text-decoration: none;
 				white-space:nowrap;
 				line-height: 1.2em;
+				width: 100%;
+				padding: .25em;
+				// box-shadow: 2px 2px 2px black;
+				&:nth-child(odd) {
+					background-color: fade(white, 2%);
+				}
+				&:nth-child(even) {
+					background-color: fade(black, 10%);
+				}
 
 				&.noFollow {
 					color: @mainColor_warn;
+					&:hover {
+						color: @mainColor_warn_light;
+					}
 
 					&::before {
 						content: "";

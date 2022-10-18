@@ -9,7 +9,6 @@ import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TriggerActionHandler from "../TriggerActionHandler";
 import TwitchatEvent from "../TwitchatEvent";
-import UserSession from '../UserSession';
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 
@@ -64,7 +63,7 @@ export default class PubSub extends EventDispatcher {
 				this.ping();
 			}, 60000*2.5);
 
-			const uid = UserSession.instance.twitchAuthToken.user_id;
+			const uid = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [
 				"channel-points-channel-v1."+uid,
 				"chat_moderator_actions."+uid+"."+uid,
@@ -92,8 +91,8 @@ export default class PubSub extends EventDispatcher {
 				// "user-properties-update."+uid,
 				// "onsite-notifications."+uid,
 
-				"low-trust-users."+UserSession.instance.twitchAuthToken.user_id+"."+UserSession.instance.twitchAuthToken.user_id,
-				// "stream-change-v1."+UserSession.instance.authToken.user_id,
+				"low-trust-users."+StoreProxy.auth.twitch.user.id+"."+StoreProxy.auth.twitch.user.id,
+				// "stream-change-v1."+StoreProxy.auth.twitch.user.id,
 			];
 
 			
@@ -131,7 +130,7 @@ export default class PubSub extends EventDispatcher {
 				const data = JSON.parse(message.data.message);
 				if(StoreProxy.main.devmode) {
 					//Ignore viewers count to avoid massive logs
-					if(message.data.topic != "video-playback-by-id."+UserSession.instance.twitchAuthToken.user_id) {
+					if(message.data.topic != "video-playback-by-id."+StoreProxy.auth.twitch.user.id) {
 						this.history.push(message);
 					}
 				}
@@ -209,7 +208,7 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	public async simulateLowTrustUser():Promise<void> {
-		const uid = UserSession.instance.twitchUser!.id;
+		const uid = StoreProxy.auth.twitch.user.id;
 		const m: TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -268,13 +267,12 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	private subscribe(topics:string[]):void {
-		const access_token = UserSession.instance.authResult?.access_token;
 		const json = {
 			"type": "LISTEN",
 			"nonce": this.nonce(),
 			"data": {
 				"topics": topics,
-				"auth_token": access_token
+				"auth_token": StoreProxy.auth.twitch.access_token
 			}
 		}
 		this.send(json);
@@ -891,7 +889,7 @@ export default class PubSub extends EventDispatcher {
 	private followingEvent(data:PubSubDataTypes.Following, simulationMode:boolean = false):void {
 		if(this.followCache[data.username] === true) return;
 		this.followCache[data.username] = true;
-		const channelId = UserSession.instance.twitchUser!.id;
+		const channelId = StoreProxy.auth.twitch.user.id;
 
 		const message:TwitchatDataTypes.MessageFollowingData = {
 			id:Utils.getUUID(),

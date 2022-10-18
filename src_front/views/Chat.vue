@@ -152,12 +152,14 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
+import TwitchatEvent from '@/utils/TwitchatEvent';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -169,9 +171,6 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import StoreProxy from '@/store/StoreProxy';
 
 @Options({
 	components:{
@@ -324,9 +323,9 @@ export default class Chat extends Vue {
 		//Check user reached a new donor level
 		let storeLevel = parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 		const level = isNaN(storeLevel)? -1 : storeLevel;
-		this.isDonor = UserSession.instance.isDonor && UserSession.instance.donorLevel != level;
+		this.isDonor = StoreProxy.auth.twitch.user.donor.state===true && StoreProxy.auth.twitch.user.donor.level != level;
 		if(this.isDonor) {
-			DataStore.set(DataStore.DONOR_LEVEL, UserSession.instance.donorLevel);
+			DataStore.set(DataStore.DONOR_LEVEL, StoreProxy.auth.twitch.user.donor.level);
 		}
 
 		//Define is store sync modal should be displayed
@@ -477,7 +476,7 @@ export default class Chat extends Vue {
 	}
 
 	public clearChat():void {
-		TwitchUtils.deleteMessages(UserSession.instance.twitchUser!.id);
+		TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
 	}
 
 	/**
@@ -588,7 +587,7 @@ export default class Chat extends Vue {
 		if(isNaN(duration)) duration = 30;
 		this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 			try {
-				const res = await TwitchUtils.startCommercial(duration, UserSession.instance.twitchUser!.id);
+				const res = await TwitchUtils.startCommercial(duration, StoreProxy.auth.twitch.user.id);
 				if(res.length > 0) {
 					this.canStartAd = false;
 					this.startAdCooldown = Date.now() + res.retry_after * 1000;

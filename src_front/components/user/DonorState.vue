@@ -66,7 +66,7 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"/>
 </template>
 
 <script lang="ts">
-import UserSession from '@/utils/UserSession';
+import StoreProxy from '@/store/StoreProxy';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -110,7 +110,7 @@ export default class DonorState extends Vue {
 	}
 
 	public mounted():void {
-		this.donorLevel = this.level != -1? this.level : UserSession.instance.donorLevel;
+		this.donorLevel = this.level != -1? this.level : StoreProxy.auth.twitch.user.donor.level;
 
 		watch(()=>this.level, ()=> {
 			this.donorLevel = this.level

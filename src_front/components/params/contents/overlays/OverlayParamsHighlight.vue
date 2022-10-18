@@ -102,10 +102,10 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/utils/TwitchatEvent';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
@@ -168,7 +168,7 @@ export default class OverlayParamsHighlight extends Vue {
 			wordsPerSentence: { max: 16, min: 4 }
 		});
 		//TODO make sure it works
-		const uid = UserSession.instance.twitchUser!.id;
+		const uid = StoreProxy.auth.twitch.user.id;
 		const text = lorem.generateParagraphs(1);
 		const message:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),

@@ -46,15 +46,15 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import BTTVUtils from '@/utils/emotes/BTTVUtils';
+import FFZUtils from '@/utils/emotes/FFZUtils';
+import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
-import BTTVUtils from '@/utils/emotes/BTTVUtils';
-import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
-import FFZUtils from '@/utils/emotes/FFZUtils';
 
 @Options({
 	props:{},
@@ -107,7 +107,7 @@ export default class EmoteSelector extends Vue {
 			//Sort them by name
 			userList.sort((a, b) => a.displayName > b.displayName?  1 : -1);
 			//Bring self to top
-			userList.sort(a => a.id === UserSession.instance.twitchAuthToken.user_id?  -1 : 0);
+			userList.sort(a => a.id === StoreProxy.auth.twitch.user.id?  -1 : 0);
 			//Build a fast access object to know the index of a user from its ID.
 			const uidToIndex:{[key:string]:number} = {};
 			for (let i = 0; i < userList.length; i++) {
@@ -134,6 +134,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
+				donor:{state:false, level:0},
 			});
 	
 			//Build emotes list for each sorted user
@@ -171,6 +172,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
+						donor:{state:false, level:0},
 					},
 					emotes: BTTVUtils.instance.emotes,
 				});
@@ -194,6 +196,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
+						donor:{state:false, level:0},
 					},
 					emotes: SevenTVUtils.instance.emotes,
 				});
@@ -217,6 +220,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
+						donor:{state:false, level:0},
 					},
 					emotes: FFZUtils.instance.emotes,
 				});

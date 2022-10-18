@@ -211,16 +211,15 @@
 </template>
 
 <script lang="ts">
-import MessengerProxy from '@/messaging/MessengerProxy';
 import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
-import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -382,7 +381,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.channelId = UserSession.instance.twitchUser!.id;
+		this.channelId = StoreProxy.auth.twitch.user.id;
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
@@ -697,7 +696,13 @@ export default class ChatForm extends Vue {
 		
 		if(cmd == "/deletemessage") {
 			//Delete a chat message from its ID
-			TwitchUtils.deleteMessages(UserSession.instance.twitchUser!.id, params[0])
+			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id, params[0])
+			this.message = "";
+		}else
+		
+		if(cmd == "/me") {
+			//Delete a chat message from its ID
+			console.log(this.$store("auth").twitch.user);
 			this.message = "";
 		}else
 		
@@ -760,7 +765,7 @@ export default class ChatForm extends Vue {
 						method: "GET",
 						headers: {
 							"Content-Type": "application/json",
-							"Authorization": "Bearer "+UserSession.instance.access_token as string,
+							"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
 						},
 					}
 					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)

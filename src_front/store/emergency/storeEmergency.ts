@@ -1,17 +1,16 @@
 import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
-import TwitchatEvent from '@/utils/TwitchatEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import UserSession from '@/utils/UserSession';
 
 //TODO makes this platform agnostic
 export const storeEmergency = defineStore('emergency', {
@@ -65,7 +64,7 @@ export const storeEmergency = defineStore('emergency', {
 		},
 
 		async setEmergencyMode(enable:boolean):Promise<void> {
-			const channelId = UserSession.instance.twitchUser!.id;
+			const channelId = StoreProxy.auth.twitch.user.id;
 			this.emergencyStarted = enable;
 			const message:TwitchatDataTypes.MessageEmergencyModeInfo = {
 				id:Utils.getUUID(),
@@ -87,7 +86,7 @@ export const storeEmergency = defineStore('emergency', {
 				if(this.params.subOnly) roomSettings.subOnly = true;
 				if(this.params.followOnly) roomSettings.followOnly = this.params.followOnlyDuration;
 				if(Object.keys(roomSettings).length > 0) {
-					TwitchUtils.setRoomSettings(UserSession.instance.twitchUser!.id, roomSettings);
+					TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, roomSettings);
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
@@ -113,7 +112,7 @@ export const storeEmergency = defineStore('emergency', {
 				if(this.params.subOnly) roomSettings.subOnly = false;
 				if(this.params.followOnly) roomSettings.followOnly = false;
 				if(Object.keys(roomSettings).length > 0) {
-					TwitchUtils.setRoomSettings(UserSession.instance.twitchUser!.id, roomSettings);
+					TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, roomSettings);
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);

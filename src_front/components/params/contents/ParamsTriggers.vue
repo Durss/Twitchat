@@ -162,13 +162,12 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -658,7 +657,7 @@ export default class ParamsTriggers extends Vue {
 		}
 
 		//Push "Highlight my message" reward as it's not given by the API...
-		this.rewards.push(UserSession.instance.highlightMyMessageReward)
+		this.rewards.push(Config.instance.highlightMyMessageReward)
 
 		const list = this.rewards.sort((a,b)=> {
 			if(a.cost < b.cost) return -1;

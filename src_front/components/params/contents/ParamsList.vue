@@ -48,9 +48,9 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import UserSession from '@/utils/UserSession';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -76,7 +76,7 @@ export default class ParamsList extends Vue {
 
 	public showAdInfo:boolean = false;
 
-	public get isDonor():boolean { return UserSession.instance.isDonor; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
 	public get title():string {
 		switch(this.category) {

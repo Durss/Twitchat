@@ -39,8 +39,8 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import UserSession from '@/utils/UserSession';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -60,7 +60,7 @@ export default class ChatMessageHoverActions extends Vue {
 	public shoutoutLoading = false;
 	public highlightLoading = false;
 
-	public get isBroadcaster():boolean { return this.messageData.user.id == UserSession.instance.twitchAuthToken.user_id; }
+	public get isBroadcaster():boolean { return this.messageData.user.id == StoreProxy.auth.twitch.user.id; }
 	public get ttsEnabled():boolean { return this.$store("tts").params.enabled; }
 
 	public toggleTrackUser():void {

@@ -45,11 +45,11 @@ export default class AuthController {
 		let params = URL.parse(request.url, true).query;
 		
 		let url = "https://id.twitch.tv/oauth2/token";
-		url += "?client_id="+Config.credentials.client_id;
-		url += "&client_secret="+Config.credentials.client_secret;
+		url += "?client_id="+Config.credentials.twitch_client_id;
+		url += "&client_secret="+Config.credentials.twitch_client_secret;
 		url += "&code="+params.code;
 		url += "&grant_type=authorization_code";
-		url += "&redirect_uri="+Config.credentials.redirect_uri;
+		url += "&redirect_uri="+Config.credentials.twitch_redirect_uri;
 		
 		let json;
 		try {
@@ -124,8 +124,8 @@ export default class AuthController {
 		let params = URL.parse(request.url, true).query;
 		
 		let url = "https://id.twitch.tv/oauth2/token";
-		url += "?client_id="+Config.credentials.client_id;
-		url += "&client_secret="+Config.credentials.client_secret;
+		url += "?client_id="+Config.credentials.twitch_client_id;
+		url += "&client_secret="+Config.credentials.twitch_client_secret;
 		url += "&refresh_token="+params.token;
 		url += "&grant_type=refresh_token";
 		
