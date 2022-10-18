@@ -19,8 +19,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private static _instance:TwitchMessengerClient;
 	private _client!:tmi.Client;
-	private _credentials:{token:string, username:string}|null = null;
-	private _connectedAnonymously:boolean = false;
 	private _connectTimeout:number = -1;
 	private _connectedChannels:string[] = [];
 	private _channelIdToLogin:{[key:string]:string} = {};
@@ -41,15 +39,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return TwitchMessengerClient._instance;
 	}
 
-	/**
-	 * Set authentication token
-	 */
-	public set credentials(value:{token:string, username:string}) {
-		this._credentials = value;
-		this.connectToChannel(value.username);
-	}
-	
-	
 	
 	/******************
 	* PUBLIC METHODS *
@@ -129,15 +118,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					connection: { reconnect: true, maxReconnectInverval:2000 },
 					channels:this._connectedChannels.concat(),
 				};
-				if(!this._credentials) {
-					//not token given, anonymous authentication
-					this._connectedAnonymously = true;
-				}else{
-					options.identity = {
-						username: this._credentials.username,
-						password: "oauth:"+this._credentials?.token,
-					};
-				}
+				options.identity = {
+					username: StoreProxy.auth.twitch.user.login,
+					password: "oauth:"+StoreProxy.auth.twitch.access_token,
+				};
 				this._client = new tmi.Client(options);
 				this._client.connect();
 				this.initialize();
@@ -174,8 +158,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const params = this._client.getOptions();
 		if(!params.identity) {
 			params.identity = {
-				username: this.credentials.username,
-				password: "oauth:"+this._credentials?.token,
+				username: StoreProxy.auth.twitch.user.login,
+				password: "oauth:"+StoreProxy.auth.twitch.access_token,
 			}
 		}
 		params.identity.password = token;
@@ -235,8 +219,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				return res[0];
 			}
-
-			console.log(cmd);
 
 			switch(cmd) {
 				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
@@ -754,7 +736,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 	
 	private disconnected(reason:string):void {
-		console.log("Disconnected :: ", reason);
 		const eventData:TwitchatDataTypes.MessageNoticeData = {
 			channel_id: "twitchat",
 			id:Utils.getUUID(),

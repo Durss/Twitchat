@@ -50,6 +50,7 @@ export default class MessengerProxy {
 	public async connect():Promise<void> {
 		const twitchChannels = Config.instance.debugChans.filter(v=>v.platform == "twitch");
 		if(twitchChannels.length > 0) {
+			twitchChannels.unshift({platform:"twitch", login:StoreProxy.auth.twitch.user.login})
 			for (let i = 0; i < twitchChannels.length; i++) {
 				//It's safe to spam this method as it has inner debounce
 				TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
@@ -165,6 +166,6 @@ export default class MessengerProxy {
 	 * Called when requesting to refresh auth token
 	 */
 	private onRefreshToken(e:MessengerClientEvent):void {
-		StoreProxy.auth.refreshAuthToken();
+		StoreProxy.auth.refreshAuthToken(true);
 	}
 }

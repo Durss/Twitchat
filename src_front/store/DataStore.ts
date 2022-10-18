@@ -256,15 +256,8 @@ export default class DataStore {
 					"Content-Type": "application/json",
 					'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				}
-				const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
-				if(res.status === 500) {
-					StoreProxy.auth.refreshAuthToken(()=> {
-						//Try again
-						Utils.promisedTimeout(2000);
-						this.save(true);
-					});
-				}
-				// const json = await res.json();
+				await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
+				
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves
 				if(force) this.dataImported = true;

@@ -390,6 +390,9 @@ export const storeMain = defineStore("main", {
 				Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
 				sAutomod.setAutomodParams(sAutomod.params);
 			}
+			
+			//Reload devmode state
+			this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 
 			SchedulerHelper.instance.start();
 			
