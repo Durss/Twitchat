@@ -84,17 +84,22 @@ export const storeAuth = defineStore('auth', {
 					twitchAuthResult = await res.json();
 					twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
+					clearTimeout(refreshTokenTO);
+					//Schedule refresh
+					refreshTokenTO = setTimeout(()=>{
+						this.refreshAuthToken(true);
+					}, this.twitch.expires_in*1000 - 60000 * 5);
 				}else {
 					//OAuth process already done, just request a fresh new token if it's
 					//gonna expire in less than 5 minutes
-					if(!twitchAuthResult || twitchAuthResult.expires_at < Date.now() - 60000*5) {
-						const res = await this.refreshAuthToken(false, cb);
+					// if(twitchAuthResult && twitchAuthResult.expires_at < Date.now() - 60000*5) {
+						const res = await this.refreshAuthToken(false);
 						if(!res) {
 							StoreProxy.main.alert("Unable to connect with Twitch API :(")
 							return;
 						}
 						twitchAuthResult = res;
-					}
+					// }
 				}
 				if(!twitchAuthResult) {
 					console.log("No JSON :(", twitchAuthResult);

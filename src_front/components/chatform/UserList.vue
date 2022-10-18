@@ -5,28 +5,28 @@
 			<div class="userList broadcaster" v-if="currentChan.broadcaster.length > 0">
 				<div class="title">Broadcaster</div>
 				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.broadcaster" :key="u.id">{{u.login}}</a>
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.broadcaster" :key="u.id">{{u.displayName}}</a>
 				</div>
 			</div>
 			
 			<div class="userList mods" v-if="currentChan.mods.length > 0">
 				<div class="title">Moderators <i>({{currentChan.mods.length}})</i></div>
 				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.mods" :key="u.id">{{u.login}}</a>
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.mods" :key="u.id">{{u.displayName}}</a>
 				</div>
 			</div>
 			
 			<div class="userList vips" v-if="currentChan.vips.length > 0">
 				<div class="title">VIPs <i>({{currentChan.vips.length}})</i></div>
 				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.vips" :key="u.id">{{u.login}}</a>
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.vips" :key="u.id">{{u.displayName}}</a>
 				</div>
 			</div>
 	
 			<div class="userList simple" v-if="currentChan.viewers.length > 0">
 				<div class="title">Users <i>({{currentChan.viewers.length}})</i></div>
 				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.viewers" :key="u.id">{{u.login}}</a>
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.viewers" :key="u.id">{{u.displayName}}</a>
 				</div>
 			</div>
 		</div>
