@@ -372,4 +372,17 @@ export namespace TwitchDataTypes {
 		};
 		markedAsRead?:boolean;
 	}
+
+	export interface ChattersUnofficialEndpoint {
+		chatter_count: number;
+		chatters: {
+			broadcaster: any[];
+			vips: any[];
+			moderators: string[];
+			staff: any[];
+			admins: any[];
+			global_mods: any[];
+			viewers: string[];
+		};
+	}
 }

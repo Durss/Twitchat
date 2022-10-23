@@ -1760,4 +1760,44 @@ export default class TwitchUtils {
 			return false;
 		}
 	}
+
+	/**
+	 * Get users on a chat room.
+	 * Fallsback to old unofficial endpoint if don't have necessary rights to read
+	 * chatters list with the new super restrictive endpoint..
+	 * 
+	 * @param channelId 	channel ID to get users
+	 * @param channelName	give this to fallback to old unofficial endpoint
+	 */
+	public static async getChatters(channelId:string, channelName?:string):Promise<false|string[]> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		
+		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/chatters");
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			const json:{data:{user_login:string}[]} = await res.json();
+			return json.data.map(v => v.user_login);
+		}else if(channelName) {
+			//Fallback to unofficial endpoint while it still work..
+			const res = await fetch(Config.instance.API_PATH+"/user/chatters?channel="+channelName);
+			const json:{success:boolean, data:TwitchDataTypes.ChattersUnofficialEndpoint} = await res.json();
+			if(!json.success) return false;
+			let users:string[] = [];
+			users = users.concat(json.data.chatters.admins);
+			users = users.concat(json.data.chatters.broadcaster);
+			users = users.concat(json.data.chatters.global_mods);
+			users = users.concat(json.data.chatters.moderators);
+			users = users.concat(json.data.chatters.vips);
+			users = users.concat(json.data.chatters.staff);
+			users = users.concat(json.data.chatters.viewers);
+			return users;
+		}
+		return false;
+	}
 }

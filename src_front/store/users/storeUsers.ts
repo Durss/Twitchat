@@ -81,18 +81,19 @@ export const storeUsers = defineStore('users', {
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested  via hashmaps for fast accesses
-			let hashmap = userMaps[platform];
-			if(!hashmap){
-				hashmap = {
+			let hashmaps = userMaps[platform];
+			if(!hashmaps){
+				hashmaps = {
 					idToUser:{},
 					loginToUser:{},
 					displayNameToUser:{},
 				};
-				userMaps[platform] = hashmap;
+				userMaps[platform] = hashmaps;
 			}
-			if(id && hashmap.idToUser[id])					user = hashmap.idToUser[id];
-			if(login && hashmap.loginToUser[login])			user = hashmap.loginToUser[login];
-			if(login && hashmap.displayNameToUser[login])	user = hashmap.displayNameToUser[login];
+			if(login) login = login.toLowerCase();
+			if(id && hashmaps.idToUser[id])								user = hashmaps.idToUser[id];
+			if(login && hashmaps.loginToUser[login])						user = hashmaps.loginToUser[login];
+			if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
 
 			const userExisted = user != undefined;
 
@@ -220,9 +221,9 @@ export const storeUsers = defineStore('users', {
 								userLocal.is_partner		= u.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || u.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= u.profile_image_url;
-								if(userLocal.id)			hashmap!.idToUser[userLocal.id] = userLocal;
-								if(userLocal.login)			hashmap!.loginToUser[userLocal.login] = userLocal;
-								if(userLocal.displayName)	hashmap!.displayNameToUser[userLocal.displayName] = userLocal;
+								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
 								if(userLocal.temporary) {
 									delete userLocal.temporary;
 									this.users.push(userLocal);
@@ -245,14 +246,15 @@ export const storeUsers = defineStore('users', {
 			//Attribute a random color to the user (overwrite that externally if necessary)
 			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 
+			if(user.id)				hashmaps.idToUser[user.id] = user;
+			if(user.login)			hashmaps.loginToUser[user.login] = user;
+			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
+
 			if(user.temporary != true) {
 				this.users.push(user);
 				this.checkPronouns(user);
-				if(channelId)			this.checkFollowerState(user, channelId);
-				if(user.id)				hashmap.idToUser[user.id] = user;
-				if(user.login)			hashmap.loginToUser[user.login] = user;
-				if(user.displayName)	hashmap.displayNameToUser[user.displayName] = user;
-				if(loadCallback)		loadCallback(user);
+				if(channelId)		this.checkFollowerState(user, channelId);
+				if(loadCallback)	loadCallback(user);
 			}
 
 			return user;

@@ -3,6 +3,7 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
+import Config from '@/utils/Config';
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
@@ -107,6 +108,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				u.channelInfo[u.id].online = true;
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
+				//Load chatters list if we have necessary rights
+				TwitchUtils.getChatters(v.id, v.login).then(res => {
+					if(res != false) res.forEach(u => this.onJoin(v.login, u));
+				});
 				BTTVUtils.instance.addChannel(v.id);
 				FFZUtils.instance.addChannel(v.id);
 				SevenTVUtils.instance.addChannel(v.id);
@@ -614,20 +619,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
 	}
 
-	private onJoin(channel:string, user:string):void {
-		if(this._refreshingToken && user == StoreProxy.auth.twitch.user.login) {
+	private onJoin(channelName:string, username:string):void {
+		if(this._refreshingToken && username == StoreProxy.auth.twitch.user.login) {
 			//Don't show join info during a reconnect
 			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
 			return;
 		}
-		const channel_id = this.getChannelID(channel);
+		const channel_id = this.getChannelID(channelName);
 		this.dispatchEvent(new MessengerClientEvent("JOIN", {
 			platform:"twitch",
 			type:"join",
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
-			users:[this.getUserFromLogin(user, channel_id)],
+			users:[this.getUserFromLogin(username, channel_id)],
 		}));
 	}
 

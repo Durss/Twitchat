@@ -475,7 +475,7 @@ export const storeChat = defineStore('chat', {
 				TriggerActionHandler.instance.onMessage(message);
 			}
 			
-			//People joined the chat, check if any needs to be autobaned
+			//People joined the chat, check if any need to be autobaned
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
 				for (let i = 0; i < message.users.length; i++) {
 					const user = message.users[i];

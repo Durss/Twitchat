@@ -24,6 +24,7 @@ export default class UserController {
 	* PUBLIC METHODS *
 	******************/
 	public async initialize():Promise<void> {
+		this.server.get('/api/user/chatters', async (request, response) => await this.getChatters(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
@@ -47,7 +48,7 @@ export default class UserController {
 			return;
 		}
 
-		const uid = (request.params as any).uid ?? userInfo.user_id;
+		const uid = (request.query as any).uid ?? userInfo.user_id;
 
 		//Get users' data
 		const userFilePath = Config.USER_DATA_PATH + uid+".json";
@@ -60,6 +61,25 @@ export default class UserController {
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true, data:JSON.parse(data)}));
+		}
+	}
+
+	/**
+	 * Get chatters list
+	 */
+	private async getChatters(request:FastifyRequest, response:FastifyReply) {
+		const channel = (request.query as any).channel;
+		const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+channel.toLowerCase()+"/chatters", {method:"GET"});
+		let chatters = [];
+		if(chattersRes.status === 200) {
+			chatters = await chattersRes.json();
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true, data:chatters}));
+		}else{
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({success:false}));
 		}
 	}
 

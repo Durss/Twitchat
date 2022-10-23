@@ -101,32 +101,39 @@ export default class Login extends Vue {
 	public oAuthURL = "";
 
 	private scopeToInfos:{[key:string]:string} = {
+		"bits:read": "Read bits leaderboard",
+		
 		"chat:read": "Read your chat",
 		"chat:edit": "Write on your chat",
+
+		"whispers:edit": "Send whispers",
+		"whispers:read": "Receive whispers",
+
+		"user:read:blocked_users": "List blocked users",
+		"user:manage:blocked_users": "Block or unblock users",
+		"user:read:follows": "List your followings",
+		"user:read:subscriptions": "List your subscribers",
+
 		"channel_editor": "Start a raid/host",
 		"channel:read:redemptions": "Read redemptions",
 		"channel:moderate": "Perform moderation actions",
 		"channel:manage:polls": "Manage polls",
 		"channel:manage:predictions": "Manage predictions",
 		"channel:read:hype_train": "Read hype train state",
-		"moderation:read": "List your moderators",
-		"moderator:manage:automod": "Manage automoded messages",
-		"bits:read": "Read bits leaderboard",
 		"channel:edit:commercial": "Start an ad",
 		"channel:manage:broadcast": "Update your stream info",
 		"channel:manage:redemptions": "Manage rewards",
 		"channel:read:goals": "Read current goals (sub/follow)",
 		"channel:read:subscriptions": "Get list of your subs",
-		"moderator:manage:banned_users": "Manage banned users",
+
+		"moderation:read": "List your moderators",
+		"moderator:manage:automod": "Manage automoded messages",
 		"moderator:read:blocked_terms": "Read blocked terms",
 		"moderator:manage:blocked_terms": "Manage blocked terms",
+		"moderator:manage:banned_users": "Manage banned users",
 		"moderator:manage:announcements": "Use /announce chat command",
-		"user:read:blocked_users": "Read blocked users",
-		"user:manage:blocked_users": "Manage blocked users",
-		"user:read:follows": "List your followings",
-		"user:read:subscriptions": "List your subscribers",
-		"whispers:edit": "Send whispers",
-		"whispers:read": "Receive whispers",
+		"moderator:manage:chat_messages": "Delete chat messages",
+		"moderator:read:chatters": "Read users on your chatroom",
 	}
 
 	public get permissions():string[] {

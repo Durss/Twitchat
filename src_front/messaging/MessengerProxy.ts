@@ -99,7 +99,10 @@ export default class MessengerProxy {
 	private onJoinLeave(e:MessengerClientEvent):void {
 		const d = e.data as TwitchatDataTypes.MessageJoinData | TwitchatDataTypes.MessageLeaveData;
 		if(e.type === MessengerClientEvent.JOIN) {
-			this.joinSpool.push({user:d.users[0], channelId:d.channel_id});
+			for (let i = 0; i < d.users.length; i++) {
+				this.joinSpool.push({user:d.users[i], channelId:d.channel_id});
+			}
+			
 			clearTimeout(this.joinSpoolTimeout);
 			this.joinSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
