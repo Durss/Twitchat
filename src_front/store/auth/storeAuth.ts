@@ -59,13 +59,13 @@ export const storeAuth = defineStore('auth', {
 				const expire	= this.twitch.expires_in;
 				let delay		= Math.max(0, expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
 				delay			= Math.min(delay, 1000 * 60 * 60 * 3);//Refresh at least every 3h
-			
-				console.log("Refresh token in", Utils.formatDuration(delay));
-				if(!isNaN(delay)) {
+				if(isNaN(delay)) {
 					//fail safe.
 					//Refresh in 1 minute if something failed when refreshing
 					delay = 60*1000;
 				}
+			
+				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
 					this.twitch_tokenRefresh(true);
