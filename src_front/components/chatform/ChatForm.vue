@@ -333,9 +333,13 @@ export default class ChatForm extends Vue {
 		const users = this.$store("users").users;
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
+			
 			if(!u.channelInfo[this.channelId]) continue;
-			if(u.channelInfo[this.channelId].is_following === true) followCount ++;
-			if(u.channelInfo[this.channelId].online === true) onlineCount ++;
+			if(u.channelInfo[this.channelId].online === true) {
+				onlineCount ++;
+				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
+			}
+			console.log(u.login)
 		}
 		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
@@ -380,8 +384,11 @@ export default class ChatForm extends Vue {
 		&& this.$store("chat").activityFeed?.length > 0;
 	}
 
-	public async mounted():Promise<void> {
+	public beforeMount(): void {
 		this.channelId = StoreProxy.auth.twitch.user.id;
+	}
+
+	public async mounted():Promise<void> {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			let carretPos = input.selectionStart as number | 0;
