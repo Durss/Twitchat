@@ -40,8 +40,6 @@ export const storeAuth = defineStore('auth', {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
 			//Refresh token if going to expire within the next 5 minutes
 			if(twitchAuthResult) {
-				console.log("twitchAuthResult");
-				console.log(twitchAuthResult);
 				try {
 					const res			= await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+twitchAuthResult.refresh_token, {method:"GET"});
 					twitchAuthResult	= await res.json();
@@ -63,10 +61,15 @@ export const storeAuth = defineStore('auth', {
 				delay			= Math.min(delay, 1000 * 60 * 60 * 3);//Refresh at least every 3h
 			
 				console.log("Refresh token in", Utils.formatDuration(delay));
-				// clearTimeout(refreshTokenTO);
-				// refreshTokenTO = setTimeout(()=>{
-				// 	this.twitch_tokenRefresh(true);
-				// }, delay);
+				if(!isNaN(delay)) {
+					//fail safe.
+					//Refresh in 1 minute if something failed when refreshing
+					delay = 60*1000;
+				}
+				clearTimeout(refreshTokenTO);
+				refreshTokenTO = setTimeout(()=>{
+					this.twitch_tokenRefresh(true);
+				}, delay);
 				if(callback) callback(true);
 				return twitchAuthResult;
 			}
