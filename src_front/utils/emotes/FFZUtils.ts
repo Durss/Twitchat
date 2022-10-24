@@ -47,8 +47,6 @@ export default class FFZUtils {
 				platform:"twitch",
 			});
 		}
-		console.log(this.globalEmotesHashmaps);
-		console.log(res);
 		return res;
 	}
 	

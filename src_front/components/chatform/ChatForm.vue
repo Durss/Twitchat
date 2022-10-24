@@ -339,7 +339,6 @@ export default class ChatForm extends Vue {
 				onlineCount ++;
 				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
 			}
-			console.log(u.login)
 		}
 		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
