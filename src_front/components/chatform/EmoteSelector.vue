@@ -17,7 +17,7 @@
 						loading="lazy" 
 						:src="e.images.url_1x"
 						:alt="e.code"
-						:data-tooltip="e.code"
+						:data-tooltip="'<img src='+e.images.url_4x+' width=\'112\' height=\'112\' class=\'emote\'><br><center>'+e.code+'</center>'"
 						@click="$emit('select', e.code)">
 				</div>
 			</div>
@@ -37,7 +37,7 @@
 						loading="lazy" 
 						:src="e.images.url_1x"
 						:alt="e.code"
-						:data-tooltip="e.code"
+						:data-tooltip="'<img src='+e.images.url_4x+' width=\'112\' height=\'112\' class=\'emote\'><br><center>'+e.code+'</center>'"
 						@click="$emit('select', e.code)">
 				</div>
 			</div>

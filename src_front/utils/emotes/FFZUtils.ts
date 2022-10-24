@@ -40,13 +40,15 @@ export default class FFZUtils {
 				code: e.name,
 				is_public:false,
 				images: {
-					url_1x: "https://"+e.urls[1] ?? "",
-					url_2x: "https://"+e.urls[2] ?? "",
-					url_4x: "https://"+e.urls[4] ?? "",
+					url_1x: e.urls[1] ?? "",
+					url_2x: e.urls[2] ?? e.urls[1] ?? "",
+					url_4x: e.urls[4] ?? e.urls[2] ?? e.urls[1] ?? "",
 				},
 				platform:"twitch",
 			});
 		}
+		console.log(this.globalEmotesHashmaps);
+		console.log(res);
 		return res;
 	}
 	

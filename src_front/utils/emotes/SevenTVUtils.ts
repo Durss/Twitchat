@@ -41,8 +41,8 @@ export default class SevenTVUtils {
 				is_public:false,
 				images: {
 					url_1x: e.urls[0]?.[1] ?? "",
-					url_2x: e.urls[1]?.[1] ?? "",
-					url_4x: e.urls[4]?.[1] ?? "",
+					url_2x: e.urls[1]?.[1] ?? e.urls[0]?.[1] ?? "",
+					url_4x: e.urls.splice(-1)[0]?.[1],
 				},
 				platform:"twitch",
 			});
