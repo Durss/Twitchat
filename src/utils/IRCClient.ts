@@ -741,7 +741,8 @@ export default class IRCClient extends EventDispatcher {
 				const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 				let txt = JSON.stringify(json);
 				txt = txt.replace(/\{RECIPIENT\}/gi, login);
-				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, JSON.parse(txt)));
+				json = JSON.parse(txt);
+				this.dispatchEvent(new IRCEvent(IRCEvent.HIGHLIGHT, json));
 				
 			}else
 			if(json.type == "highlight" || json.type == "hype_train_end") {
