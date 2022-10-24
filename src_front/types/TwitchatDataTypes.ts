@@ -448,6 +448,7 @@ export namespace TwitchatDataTypes {
 		pronounsTooltip:string|false;
 		channelInfo:{[key:string]:UserChannelInfo},
 		temporary?:boolean;//true when the details are loading
+		errored?:boolean;//true if user data loading failed
 	}
 
 	export interface UserChannelInfo {

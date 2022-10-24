@@ -409,9 +409,6 @@ export default class ChatHighlight extends Vue {
 				line-height: 1.2em;
 			}
 
-			.info {
-				color: @mainColor_warn;
-			}
 			.automodActions {
 				width: 100%;
 				display: flex;

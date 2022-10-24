@@ -36,6 +36,7 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PubSub from '@/utils/twitch/PubSub';
 import Utils from '@/utils/Utils';
@@ -119,8 +120,18 @@ export default class DevmodeMenu extends Vue {
 					case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 					case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 					case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
-					case "gift": 			(message as TwitchatDataTypes.MessageSubscriptionData).is_gift = true; break;
 					case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+					case "gift":{
+						const recipients:TwitchatDataTypes.TwitchatUser[] = [];
+						const count = Math.round(Math.random() * 50) + 1;
+						const m = (message as TwitchatDataTypes.MessageSubscriptionData);
+						for (let i = 0; i < count; i++) {
+							recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString()))
+						}
+						m.gift_recipients = recipients;
+						m.is_gift = true;
+						break;
+					}
 				}
 			})
 		// }

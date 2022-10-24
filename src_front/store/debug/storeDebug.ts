@@ -26,6 +26,11 @@ export const storeDebug = defineStore('debug', {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
+			const tmpFake = Utils.pickRand(StoreProxy.users.users);
+			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
+			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
+			
+
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
 				wordsPerSentence: { max: 8, min: 2 }
@@ -42,18 +47,13 @@ export const storeDebug = defineStore('debug', {
 						answers:[],
 						message,
 						message_html:message,
-						user
+						user:fakeUser
 					};
 					data = m;
 					break;
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-					const recipients:TwitchatDataTypes.TwitchatUser[] = [];
-					const count = Math.round(Math.random() * 50) + 1;
-					for (let i = 0; i < count; i++) {
-						recipients.push(StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999)).toString()))
-					}
 					const m:TwitchatDataTypes.MessageSubscriptionData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -62,16 +62,45 @@ export const storeDebug = defineStore('debug', {
 						type,
 						message,
 						message_html:message,
-						user,
+						user:fakeUser,
 						months: Math.floor(Math.random() * 6) + 1,
 						streakMonths: Math.floor(Math.random() * 46),
 						totalSubDuration: Math.floor(Math.random() * 46),
 						tier:Utils.pickRand([1,2,3,"prime"]),
-						gift_recipients:recipients,
 						is_gift:false,
 						is_giftUpgrade:false,
 						is_resub:false,
 						gift_upgradeSender:StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999).toString())),
+					};
+					data = m;
+					break;
+				}
+				
+				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+					const m:TwitchatDataTypes.MessageCheerData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						message,
+						message_html:message,
+						user:fakeUser,
+						bits:Math.round(Math.random() * 1000),
+					};
+					data = m;
+					break;
+				}
+				
+				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+					const m:TwitchatDataTypes.MessageFollowingData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						user:fakeUser,
+						followed_at:Date.now(),
 					};
 					data = m;
 					break;
@@ -140,6 +169,20 @@ export const storeDebug = defineStore('debug', {
 						};
 						data = m;
 					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.RAID: {
+					const m:TwitchatDataTypes.MessageRaidData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						user,
+						viewers:Math.round(Math.random() * 1500)
+					};
+					data = m;
 					break;
 				}
 			}

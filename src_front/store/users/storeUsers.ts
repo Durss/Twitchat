@@ -198,7 +198,7 @@ export const storeUsers = defineStore('users', {
 					}
 					
 					const logins = twitchUserBatchToLoad.map(v=> v.user.login);
-
+console.log("load", id);
 					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined).then(async (res) => {
 						user = user!;
 						if(res.length > 0) {
@@ -233,8 +233,11 @@ export const storeUsers = defineStore('users', {
 								}
 							}
 						}else{
-							user!.displayName = "error(#"+(user!.id)+")";
-							user!.login = "error(#"+(user!.id)+")";
+							user.displayName = "error(#"+(user!.id)+")";
+							user.login = "error(#"+(user!.id)+")";
+							user.errored = true;
+							delete user.temporary;
+							if(loadCallback) loadCallback(user);
 						}
 					});
 				}, 500);
