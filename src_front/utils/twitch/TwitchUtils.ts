@@ -879,7 +879,7 @@ export default class TwitchUtils {
 	/**
 	 * Get the rewards list
 	 */
-	public static async loadRewards(forceReload = false):Promise<TwitchDataTypes.Reward[]> {
+	public static async getRewards(forceReload = false):Promise<TwitchDataTypes.Reward[]> {
 		if(this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache;
 		const options = {
 			method:"GET",

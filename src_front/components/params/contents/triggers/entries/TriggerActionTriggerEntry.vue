@@ -123,7 +123,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 						//Load rewards list if necessary
 						if(!this.rewards) {
 							this.loading = true;
-							this.rewards = await TwitchUtils.loadRewards();
+							this.rewards = await TwitchUtils.getRewards();
 						}
 						const reward = this.rewards.find(v=> v.id == subKey);
 						if(reward) {

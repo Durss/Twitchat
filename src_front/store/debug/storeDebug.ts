@@ -1,10 +1,12 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import rewardImg from '@/assets/icons/channelPoints.svg';
 
 export const storeDebug = defineStore('debug', {
 	state: () => ({
@@ -20,7 +22,7 @@ export const storeDebug = defineStore('debug', {
 
 
 	actions: {
-		simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):void {
+		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<void> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
@@ -95,20 +97,49 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-					const users:TwitchatDataTypes.TwitchatUser[] = [];
-					const count = Math.round(Math.random() * 50) + 1;
-					for (let i = 0; i < count; i++) {
-						users.push(StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999)).toString()))
+					const reward = Utils.pickRand(await (await TwitchUtils.getRewards()).filter(v=>v.is_enabled===true));
+					if(!reward) {
+						//User has no public reward, send a fake one
+						const m:TwitchatDataTypes.MessageRewardRedeemData = {
+							id:Utils.getUUID(),
+							platform:"twitch",
+							channel_id:uid,
+							date:Date.now(),
+							type,
+							user,
+							reward: {
+								id:Utils.getUUID(),
+								cost:50,
+								description:"I tell you how amazing Twitchat is <3",
+								title:"Praise twitchat",
+								icon:{
+									sd:rewardImg,
+									hd:rewardImg,
+								},
+							},
+						};
+						data = m;
+					}else{
+						//Use one of the user's rewards
+						const img = reward.image ?? reward.default_image;
+						const icon:TwitchatDataTypes.TwitchatImage = {sd: img.url_1x, hd: img.url_4x};
+						const m:TwitchatDataTypes.MessageRewardRedeemData = {
+							id:Utils.getUUID(),
+							platform:"twitch",
+							channel_id:uid,
+							date:Date.now(),
+							type,
+							user,
+							reward: {
+								id:reward.id,
+								cost:reward.cost,
+								description:reward.prompt,
+								title:reward.title,
+								icon,
+							},
+						};
+						data = m;
 					}
-					// const m:TwitchatDataTypes.MessageRewardRedeemData = {
-					// 	id:Utils.getUUID(),
-					// 	platform:"twitch",
-					// 	channel_id:uid,
-					// 	date:Date.now(),
-					// 	type,
-					// 	reward
-					// };
-					// data = m;
 					break;
 				}
 			}

@@ -207,7 +207,7 @@ export interface IDebugGetters {
 }
 
 export interface IDebugActions {
-	simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):void;
+	simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<void>;
 }
 
 

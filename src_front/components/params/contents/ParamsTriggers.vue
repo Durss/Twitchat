@@ -648,7 +648,7 @@ export default class ParamsTriggers extends Vue {
 	private async listRewards():Promise<void> {
 		this.showLoading = true;
 		try {
-			this.rewards = await TwitchUtils.loadRewards(true);
+			this.rewards = await TwitchUtils.getRewards(true);
 		}catch(error) {
 			this.rewards = [];
 			this.$store("main").alert("An error occurred while loading your rewards");
