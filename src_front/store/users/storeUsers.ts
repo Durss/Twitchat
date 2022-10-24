@@ -232,6 +232,9 @@ export const storeUsers = defineStore('users', {
 									if(loadCallback) loadCallback(userLocal);
 								}
 							}
+						}else{
+							user!.displayName = "error(#"+(user!.id)+")";
+							user!.login = "error(#"+(user!.id)+")";
 						}
 					});
 				}, 500);
