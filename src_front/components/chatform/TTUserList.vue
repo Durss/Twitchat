@@ -194,7 +194,7 @@ export default class TTUserList extends Vue {
 		this.loading = true;
 		chunk = chunk? chunk : this.spoolChunkSize;
 		const users = this.users.splice(0, chunk);
-		const ids = users.map(u => u.id);
+		const ids = users.map(u => u.id).filter( v => parseInt(v).toString() == v);
 		const channels = await TwitchUtils.loadUserInfo(ids);
 		for (let i = 0; i < channels.length; i++) {
 			const c = channels[i];
