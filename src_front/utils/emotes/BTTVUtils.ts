@@ -1,4 +1,4 @@
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
 * Created : 25/01/2022 
@@ -30,24 +30,20 @@ export default class BTTVUtils {
 	/**
 	 * Get full emotes list
 	 */
-	public get emotes():TwitchDataTypes.Emote[] {
-		const res:TwitchDataTypes.Emote[] = [];
+	public get emotes():TwitchatDataTypes.Emote[] {
+		const res:TwitchatDataTypes.Emote[] = [];
 		for (const key in this.globalEmotesHashmaps) {
 			const e = this.globalEmotesHashmaps[key];
 			res.push({
 				id: e.id,
-				name: e.code,
+				code: e.code,
+				is_public:false,
 				images: {
 					url_1x: "https://cdn.betterttv.net/emote/"+e.id+"/1x",
 					url_2x: "https://cdn.betterttv.net/emote/"+e.id+"/2x",
 					url_4x: "https://cdn.betterttv.net/emote/"+e.id+"/3x",
 				},
-				emote_type: "",
-				emote_set_id: "",
-				owner_id: e.userId,
-				format: "static",
-				scale: "3.0",
-				theme_mode: "light",
+				platform:"twitch",
 			});
 		}
 		return res;

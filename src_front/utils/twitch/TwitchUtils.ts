@@ -15,13 +15,12 @@ export default class TwitchUtils {
 
 	public static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
-	public static emoteCache:TwitchDataTypes.Emote[] = [];
+	public static emotesCache:TwitchatDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
-	public static emotesCache:TwitchDataTypes.Emote[]|null = null;
 
 	private static tagsLoadingPromise:((value: TwitchDataTypes.StreamTag[] | PromiseLike<TwitchDataTypes.StreamTag[]>) => void) | null;
 	private static tagsCache:TwitchDataTypes.StreamTag[] = [];
-	private static emotesCacheHashmap:{[key:string]:TwitchDataTypes.Emote} = {};
+	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
 
 	public static get allTags():TwitchDataTypes.StreamTag[] {
 		return this.tagsCache.concat();
@@ -264,7 +263,7 @@ export default class TwitchUtils {
 			//tag as if it was sent by IRC.
 			if(customParsing && this.emotesCacheHashmap) {
 				let fakeTag = "";
-				const emoteList:TwitchDataTypes.Emote[] = [];
+				const emoteList:TwitchatDataTypes.Emote[] = [];
 				const emoteListHashmap = this.emotesCacheHashmap;
 				// const start = Date.now();
 				const chunks = message.split(/\s/);
@@ -279,7 +278,7 @@ export default class TwitchUtils {
 				const tagsDone:{[key:string]:boolean} = {};
 				for (let i = 0; i < emoteList.length; i++) {
 					const e = emoteList[i];
-					const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+					const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 					if(tagsDone[name]) continue;
 					tagsDone[name] = true;
 					// const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
@@ -292,7 +291,7 @@ export default class TwitchUtils {
 						let emoteCount = 0;
 						for (let j = 0; j < matches.length; j++) {
 							const start = (matches[j].index as number);
-							const end = start+e.name.length-1;
+							const end = start+e.code.length-1;
 							const range = getProtectedRange(fakeTag);
 
 							if(range[start] === true || range[end] === true) continue;
@@ -811,43 +810,66 @@ export default class TwitchUtils {
 	/**
 	 * Get the emotes list
 	 */
-	public static async getEmotes():Promise<TwitchDataTypes.Emote[]> {
-		while(this.emoteCache.length == 0) {
+	public static async getEmotes():Promise<TwitchatDataTypes.Emote[]> {
+		while(this.emotesCache.length == 0) {
 			await Utils.promisedTimeout(100);
 		}
-		return this.emoteCache;
+		return this.emotesCache;
 	}
 
 	/**
 	 * Loads specified emotes sets
 	 */
-	public static async loadEmoteSets(sets:string[]):Promise<TwitchDataTypes.Emote[]> {
-		if(this.emoteCache.length > 0) return this.emoteCache;
+	public static async loadEmoteSets(channelId:string, sets:string[]):Promise<TwitchatDataTypes.Emote[]> {
+		if(this.emotesCache.length > 0) return this.emotesCache;
 		const options = {
 			method:"GET",
 			headers: this.headers,
 		}
-		let emotes:TwitchDataTypes.Emote[] = [];
+		let emotes:TwitchatDataTypes.Emote[] = [];
+		let emotesTwitch:TwitchDataTypes.Emote[] = [];
 		do {
 			const params = sets.splice(0,25).join("&emote_set_id=");
 			const res = await fetch(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
 			const json = await res.json();
 			if(res.status == 200) {
-				emotes = emotes.concat(json.data);
+				emotesTwitch = emotesTwitch.concat(json.data);
 			}else{
 				throw(json);
 			}
 		}while(sets.length > 0);
-		this.emoteCache = emotes;
+
+		//Convert to twitchat's format
+		emotes = emotesTwitch.map((e:TwitchDataTypes.Emote):TwitchatDataTypes.Emote => {
+			//Extract latest format available.
+			//Should be aither "static" or "animated" but doing it this way will load
+			//any potential new kind of emote in the future.
+			const flag = (((e.format as unknown) as string[]).splice(-1)[0] ?? "static");
+			return {
+				id: e.id,
+				code: e.name,
+				is_public:e.emote_type === "globals",
+				images: {
+					// this : replace("static", flag)
+					//replaces the static flag by "animated" if available
+					url_1x: e.images.url_1x.replace("/static/", "/"+flag+"/"),
+					url_2x: e.images.url_2x.replace("/static/", "/"+flag+"/"),
+					url_4x: e.images.url_4x.replace("/static/", "/"+flag+"/"),
+				},
+				owner: StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id),
+				platform: "twitch",
+			}
+		});
+
 		//Sort them by name length DESC to make manual emote parsing easier.
 		//When sending a message on IRC, we don't get a clean callback
 		//message with parsed emotes (nor id, timestamp and other stuff)
 		//This means that every message sent from this interface must be
 		//parsed manually. Love it..
-		emotes.sort((a,b)=> b.name.length - a.name.length );
+		emotes.sort((a,b)=> b.code.length - a.code.length );
 
-		const hashmap:{[key:string]:TwitchDataTypes.Emote} = {};
-		emotes.forEach(e => { hashmap[e.name] = e; });
+		const hashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
+		emotes.forEach(e => { hashmap[e.code] = e; });
 		this.emotesCacheHashmap = hashmap;
 		this.emotesCache = emotes;
 

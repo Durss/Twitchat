@@ -16,9 +16,9 @@
 						:key="e.id"
 						loading="lazy" 
 						:src="e.images.url_1x"
-						:alt="e.name"
-						:data-tooltip="e.name"
-						@click="$emit('select', e.name)">
+						:alt="e.code"
+						:data-tooltip="e.code"
+						@click="$emit('select', e.code)">
 				</div>
 			</div>
 		</div>
@@ -36,9 +36,9 @@
 						:key="e.id"
 						loading="lazy" 
 						:src="e.images.url_1x"
-						:alt="e.name"
-						:data-tooltip="e.name"
-						@click="$emit('select', e.name)">
+						:alt="e.code"
+						:data-tooltip="e.code"
+						@click="$emit('select', e.code)">
 				</div>
 			</div>
 		</div>
@@ -47,7 +47,6 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
@@ -63,19 +62,19 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class EmoteSelector extends Vue {
 
-	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[] = [];
+	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get filteredEmotes():TwitchDataTypes.Emote[] {
-		let res:TwitchDataTypes.Emote[] = [];
+	public get filteredEmotes():TwitchatDataTypes.Emote[] {
+		let res:TwitchatDataTypes.Emote[] = [];
 		const s = this.filter.toLowerCase();
 		for (let i = 0; i < this.users.length; i++) {
 			const u = this.users[i];
 			for (let j = 0; j < u.emotes.length; j++) {
 				const e = u.emotes[j];
-				if(e.name.toLowerCase().indexOf(s) > -1) {
+				if(e.code.toLowerCase().indexOf(s) > -1) {
 					res.push(e);
 				}
 			}
@@ -90,13 +89,13 @@ export default class EmoteSelector extends Vue {
 
 			const emotes = await TwitchUtils.getEmotes();
 			//Get unique users
-			var users = emotes.filter((v, i, a) => a.findIndex(v2 => v2.owner_id == v.owner_id) === i);
+			var users = emotes.filter((v, i, a) => a.findIndex(v2 => v2.owner!.id == v.owner!.id) === i);
 			//Remove users with wrong IDs (like "twitch")
-			users = users.filter(v => parseInt(v.owner_id).toString() === v.owner_id)
+			users = users.filter(v => parseInt(v.owner!.id).toString() === v.owner!.id)
 			//Load all users details to get their names
-			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner_id));
+			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner!.id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
-			console.log(tmpList);
+			
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
 				const user = this.$store("users").getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
@@ -138,19 +137,16 @@ export default class EmoteSelector extends Vue {
 			});
 	
 			//Build emotes list for each sorted user
-			const sets:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[] = [];
+			const sets:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 			for (let i = 0; i < emotes.length; i++) {
 				const e = emotes[i];
-				const index = uidToIndex[e.owner_id];
+				const index = uidToIndex[e.owner!.id];
 				if(!sets[ index ]) {
 					sets[ index ] = {
-						user:userList.find(v => v.id == e.owner_id)!,
+						user:userList.find(v => v.id == e.owner!.id)!,
 						emotes: [],
 					}
 				}
-				e.images.url_1x = 'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/1.0';
-				e.images.url_2x = 'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/2.0';
-				e.images.url_4x = 'https://static-cdn.jtvnw.net/emoticons/v2/'+e.id+'/'+e.format[e.format.length-1]+'/dark/3.0';
 				sets[ index ].emotes.push(e);
 			}
 	

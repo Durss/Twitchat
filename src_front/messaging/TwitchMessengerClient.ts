@@ -162,6 +162,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param token 
 	 */
 	public async refreshToken(token:string):Promise<void> {
+		if(!this._client) return;
 		this._refreshingToken = true;
 		this._connectedChannelCount = 0;
 		const params = this._client.getOptions();
@@ -818,7 +819,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			case "USERSTATE": {
-				TwitchUtils.loadEmoteSets((data as tmi.UserNoticeState).tags["emote-sets"].split(","));
+				const [channelName] = (data as {params:string[]}).params;
+				const channelId = this.getChannelID(channelName);
+				TwitchUtils.loadEmoteSets(channelId, (data as tmi.UserNoticeState).tags["emote-sets"].split(","));
 
 				//Check if it contains a message ID
 				const d = data as tmi.UserNoticeState;

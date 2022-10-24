@@ -61,7 +61,6 @@
 <script lang="ts">
 import type { TriggerActionBingoData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -95,7 +94,7 @@ export default class BingoForm extends Vue {
 	//This is used by the trigger action form.
 	public action!:TriggerActionBingoData;
 
-	public globalEmotes:TwitchDataTypes.Emote[] = [];
+	public globalEmotes:TwitchatDataTypes.Emote[] = [];
 	public guessNumber = true;
 	public guessEmote = false;
 	public minValue:TwitchatDataTypes.ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
@@ -133,7 +132,8 @@ export default class BingoForm extends Vue {
 		}
 		
 		let emotes = await TwitchUtils.getEmotes();
-		emotes = emotes.filter(v => v.emote_type == "globals");
+		emotes = emotes.filter(v => v.is_public === true);
+		console.log(emotes);
 		this.globalEmotes = emotes;
 	}
 

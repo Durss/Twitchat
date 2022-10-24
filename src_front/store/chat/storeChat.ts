@@ -1,6 +1,5 @@
 import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
@@ -640,7 +639,7 @@ export const storeChat = defineStore('chat', {
 			this.messages = list;
 		},
 
-		setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },
+		setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },
 
 		closeWhispers( userID:string) {
 			delete this.whispers[userID];

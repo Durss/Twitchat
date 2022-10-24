@@ -9,7 +9,7 @@
 			<img
 				class="image"
 				loading="lazy" 
-				:src="'https://static-cdn.jtvnw.net/emoticons/v2/'+i.id+'/'+i.emote.format[i.emote.format.length-1]+'/dark/1.0'"
+				:src="i.emote"
 				:alt="i.label"
 				:data-tooltip="i.label"
 				v-if="i.type=='emote'">
@@ -27,6 +27,9 @@
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import BTTVUtils from '@/utils/emotes/BTTVUtils';
+import FFZUtils from '@/utils/emotes/FFZUtils';
+import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
@@ -149,15 +152,27 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			if(this.emotes) {
-				const emotes = TwitchUtils.emotesCache;
+				let emotes = TwitchUtils.emotesCache ?? [];
+				if(this.$store("params").appearance.bttvEmotes.value === true) {
+					emotes = emotes.concat(BTTVUtils.instance.emotes);
+				}
+
+				if(this.$store("params").appearance.sevenTVEmotes.value === true) {
+					emotes = emotes.concat(SevenTVUtils.instance.emotes);
+				}
+
+				if(this.$store("params").appearance.ffzEmotes.value === true) {
+					emotes = emotes.concat(FFZUtils.instance.emotes);
+				}
+
 				if(emotes) {
 					for (let j = 0; j < emotes.length; j++) {
-						const e = emotes[j] as TwitchDataTypes.Emote;
-						if(e.name.toLowerCase().indexOf(s) > -1) {
+						const e = emotes[j];
+						if(e.code.toLowerCase().indexOf(s) > -1) {
 							res.push({
 								type:"emote",
-								label:e.name,
-								emote:e,
+								label:e.code,
+								emote:e.images.url_1x,
 								id:e.id,
 							});
 						}
@@ -207,7 +222,7 @@ interface EmoteItem {
 	type:"emote";
 	id:string;
 	label:string;
-	emote:TwitchDataTypes.Emote;
+	emote:string;
 }
 
 interface CommandItem {

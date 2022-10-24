@@ -152,7 +152,7 @@ export interface IChatState {
 	whispersUnreadCount:number;
 	messages:TwitchatDataTypes.ChatMessageTypes[];
 	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
-	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[],
+	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[],
 	whispers:{[key:string]:TwitchatDataTypes.MessageWhisperData[]};
 	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 	botMessages:TwitchatDataTypes.IBotMessage,
@@ -170,7 +170,7 @@ export interface IChatActions {
 	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser):void;
 	delUserMessages(uid:string):void;
-	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchDataTypes.Emote[]}[]):void;
+	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;
 	doSearchMessages(value:string):void;
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;

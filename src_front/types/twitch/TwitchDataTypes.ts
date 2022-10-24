@@ -207,7 +207,7 @@ export namespace TwitchDataTypes {
 		emote_type: string;
 		emote_set_id: string;
 		owner_id: string;
-		format: "static" | "animated";
+		format: ("static" | "animated")[];
 		scale: "1.0" | "2.0" | "3.0";
 		theme_mode: "light" | "dark";
 	}

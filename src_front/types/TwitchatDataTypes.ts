@@ -488,6 +488,19 @@ export namespace TwitchatDataTypes {
 		reasons:string[];
 	}
 
+	export interface Emote {
+		id: string;
+		code: string;
+		images: {
+			url_1x: string;
+			url_2x: string;
+			url_4x: string;
+		};
+		platform: ChatPlatform;
+		is_public: boolean;//Defines is anyone can use it
+		owner?: TwitchatUser;
+	}
+
 
 
 
