@@ -22,7 +22,7 @@ export const storeDebug = defineStore('debug', {
 
 
 	actions: {
-		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<void> {
+		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean):Promise<void> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
@@ -185,9 +185,67 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
+					const approached_at = Date.now() - Math.round(Math.random()*60*1000*10 + 60*1000);
+					const activities:(TwitchatDataTypes.MessageSubscriptionData | TwitchatDataTypes.MessageCheerData)[] = [];
+					const count = Math.round(Math.random() * 40) + 5;
+					let sum = 0;
+					//Generate fake events
+					for (let i = 0; i < count; i++) {
+						const types = [TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, TwitchatDataTypes.TwitchatMessageType.CHEER]
+						const t = Utils.pickRand(types);
+						this.simulateMessage(t, (message)=> {
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+								//Simulate subgifts
+								if(Math.random() > .3) {
+									const recipients:TwitchatDataTypes.TwitchatUser[] = [];
+									const count = Math.round(Math.random() * 50) + 1;
+									const m = (message as TwitchatDataTypes.MessageSubscriptionData);
+									for (let i = 0; i < count; i++) {
+										recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString()))
+									}
+									m.gift_recipients = recipients;
+									m.is_gift = true;
+									sum += count * parseInt(m.tier.toString().replace("prime", "1")) * 250;
+								}else{
+									sum += parseInt(message.tier.toString().replace("prime", "1")) * 250;;
+								}
+							}else if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER){
+								//Simulate cheer
+								sum += message.bits;
+							}
+							activities.push(message as (TwitchatDataTypes.MessageSubscriptionData | TwitchatDataTypes.MessageCheerData));
+							return false;//Avoid sending it on chat
+						})
+					}
+					
+					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						train: {
+							approached_at,
+							started_at:approached_at + 30000,
+							updated_at:approached_at + 30000,
+							timeLeft:0,
+							goal:100,
+							currentValue:Math.floor(Math.random() * 100),
+							level:Math.round(sum/12000),
+							is_new_record:Math.random() > .5,
+							is_boost_train:false,
+							state:'COMPLETED'
+						},
+						activities,
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
-				hook(data);
+				if(hook(data) === false) return;
 			}
 			StoreProxy.chat.addMessage(data);
 		}

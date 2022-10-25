@@ -158,7 +158,7 @@ export default class PubSub extends EventDispatcher {
 		};
 	}
 
-	public async simulateHypeCooldown():Promise<void> {
+	public async simulateHypeTrainCooldown():Promise<void> {
 		this.parseEvent(PubsubJSON.HypeTrainCooldownOver);
 	}
 

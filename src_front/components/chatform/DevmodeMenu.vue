@@ -17,10 +17,11 @@
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
 			<Button small title="Challenge contribution" @click="simulateChallengeContribution()" :icon="$image('icons/channelPoints.svg')" />
-			<!-- <Button small title="Hype train" @click="simulateEvent('hypeTrain')" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train summary" @click="simulateEvent('hypeTrainSummary')" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train cooldown" @click="simulateEvent('hypeTrainCooldown')" :icon="$image('icons/train.svg')" />
-			<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="$image('icons/boost.svg')" />
+			<Button small title="Hype train" @click="simulateHypeTrain()" :icon="$image('icons/train.svg')" />
+			<Button small title="Hype train cooldown" @click="simulateHypeTrainCooldown()" :icon="$image('icons/train.svg')" />
+			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
+			<!-- 
+				<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="$image('icons/boost.svg')" />
 			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="$image('icons/ban.svg')" />
 			<Button small title="Automod" @click="simulateEvent('automod')" :icon="$image('icons/automod_white.svg')" />
 			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="$image('icons/poll.svg')" />
@@ -133,6 +134,7 @@ export default class DevmodeMenu extends Vue {
 						break;
 					}
 				}
+				return true;
 			})
 		// }
 	}
@@ -149,6 +151,14 @@ export default class DevmodeMenu extends Vue {
 
 	public simulateFollowbotRaid():void {
 		PubSub.instance.simulateFollowbotRaid();
+	}
+	
+	public simulateHypeTrain():void {
+		PubSub.instance.simulateHypeTrain();
+	}
+	
+	public simulateHypeTrainCooldown():void {
+		PubSub.instance.simulateHypeTrainCooldown();
 	}
 
 	public simulateChallengeContribution():void {
