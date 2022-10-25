@@ -1,10 +1,8 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
-import { storeChat } from '../chat/storeChat';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
@@ -491,30 +489,6 @@ export const storeUsers = defineStore('users', {
 			let hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.to_id] = true; });
 			this.myFollowings["twitch"] = hashmap;
-		},
-
-		flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number) {
-			const sChat = storeChat();
-			//Ignore message if user is "restricted"
-			if(data.low_trust_user.treatment == 'RESTRICTED') return;
-
-			const list = sChat.messages;
-			for (let i = 0; i < list.length; i++) {
-				const m = list[i];
-				if(m.id == data.message_id && m.type == "message") {
-					m.twitch_isSuspicious = true;
-					return;
-				}
-			}
-
-			//If reaching this point, it's most probably because pubsub sent us the
-			//event before receiving message on IRC. Wait a little and try again
-			if(retryCount != 20) {
-				retryCount = retryCount? retryCount++ : 1;
-				setTimeout(()=>{
-					this.flagLowTrustMessage(data, retryCount);
-				}, 100);
-			}
 		},
 
 		trackUser(user:TwitchatDataTypes.TwitchatUser):void { user.is_tracked = true; },

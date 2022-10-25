@@ -24,11 +24,6 @@
 			</div>
 		</div>
 		
-		<div v-if="messageData.type == 'message' && messageData.twitch_isSuspicious" class="suspicious">
-			<img src="@/assets/icons/shield.svg">
-			<div class="header"><strong>Suspicious user</strong></div>
-		</div>
-		
 		<div v-if="isAnnouncement" class="announcementHolder">
 			<img src="@/assets/icons/announcement.svg">
 			<div class="header"><strong>Announcement</strong></div>
@@ -343,6 +338,14 @@ export default class ChatMessage extends Vue {
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
+			watch(()=>mess.twitch_isSuspicious, ()=> {
+				if(mess.twitch_isSuspicious) {
+					this.infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
+				}
+			})
+			if(mess.twitch_isRestricted) {
+				this.infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
+			}
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
@@ -351,7 +354,6 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.staticClasses.push("whisper");
 		}else {
-			if(this.messageData.twitch_isSuspicious)	this.staticClasses.push("suspicious");
 			if(this.messageData.twitch_isSlashMe)		this.staticClasses.push("slashMe");
 			if(this.messageData.twitch_isHighlighted)	this.staticClasses.push("highlighted");
 			if(this.messageData.type == "message"
@@ -849,29 +851,6 @@ export default class ChatMessage extends Vue {
 		// border: 1px dashed @mainColor_light;
 		border-radius: .5em;
 		font-style: italic;
-	}
-
-	&.suspicious {
-		margin-top: 5px;
-		border-radius: 5px;
-		background-color: fade(@mainColor_alert, 30%) !important;
-		
-		.suspicious {
-			padding: .35em;
-			border-radius: 5px;
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-
-			img {
-				height: 1em;
-				margin-right: .5em;
-			}
-
-			.header {
-				color: @mainColor_light;
-			}
-		}
 	}
 
 	.noFollowBadge {

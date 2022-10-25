@@ -4,6 +4,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
+import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import TwitchatEvent from '@/utils/TwitchatEvent'
 import Utils from '@/utils/Utils'
@@ -752,6 +753,30 @@ export const storeChat = defineStore('chat', {
 			}
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject);
+		},
+
+		flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number) {
+			const sChat = storeChat();
+			//Ignore message if user is "restricted"
+			if(data.low_trust_user.treatment == 'RESTRICTED') return;
+
+			const list = sChat.messages;
+			for (let i = 0; i < list.length; i++) {
+				const m = list[i];
+				if(m.id == data.message_id && m.type == "message") {
+					m.twitch_isSuspicious = true;
+					return;
+				}
+			}
+
+			//If reaching this point, it's most probably because pubsub sent us the
+			//event before receiving message on IRC. Wait a little and try again
+			if(retryCount != 20) {
+				retryCount = retryCount? retryCount++ : 1;
+				setTimeout(()=>{
+					this.flagSuspiciousMessage(data, retryCount);
+				}, 100);
+			}
 		},
 	} as IChatActions
 	& ThisType<IChatActions

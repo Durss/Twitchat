@@ -92,6 +92,8 @@ export namespace TwitchatDataTypes {
 	export const MessageBadgeDataType = {
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
+		SUSPICIOUS_USER: "suspiciousUser",
+		RESTRICTED_USER: "restrictedUser",
 		EMERGENCY_BLOCKED: "emergencyBlocked",
 	} as const;
 	export type MessageBadgeDataStringType = typeof MessageBadgeDataType[keyof typeof MessageBadgeDataType];
@@ -686,6 +688,7 @@ export namespace TwitchatDataTypes {
 		twitch_isReturning?:boolean;//True if new user coming back
 		twitch_isPresentation?:boolean;//True if user used the presentation feature
 		twitch_isSuspicious?: boolean;//True when user is flagged as suspicious
+		twitch_isRestricted?: boolean;//True when user is flagged as restricted
 		twitch_isHighlighted?: boolean;//True when using "hihglight my message" reward
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
 	}

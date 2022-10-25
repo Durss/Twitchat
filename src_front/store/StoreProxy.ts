@@ -180,6 +180,7 @@ export interface IChatActions {
 	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
 	unpinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
 	highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null):Promise<void>;
+	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
 }
 
 
@@ -442,7 +443,6 @@ export interface IUsersActions {
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void;
 	openUserCard(user:TwitchatDataTypes.TwitchatUser|null, channelId?:string):void;
 	loadMyFollowings():Promise<void>;
-	flagLowTrustMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
 	trackUser(user:TwitchatDataTypes.TwitchatUser):void;
 	untrackUser(user:TwitchatDataTypes.TwitchatUser):void;
 }

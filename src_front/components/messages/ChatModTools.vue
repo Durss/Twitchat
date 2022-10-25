@@ -113,7 +113,7 @@ export default class ChatModTools extends Vue {
 			opacity: .75;
 		}
 		&:not(:last-child) {
-			margin-right: 5px;
+			margin-right: .25em;
 		}
 	}
 

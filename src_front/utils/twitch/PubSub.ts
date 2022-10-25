@@ -773,12 +773,12 @@ export default class PubSub extends EventDispatcher {
 				answers:[],
 				message:textMessage.replace(/<[^>]*>/gi, ""),
 				message_html:textMessage,
-				twitch_isSuspicious:true,
+				twitch_isRestricted:true,
 			}
 			StoreProxy.chat.addMessage(m);
 
 		}else{
-			StoreProxy.users.flagLowTrustMessage(localObj);
+			StoreProxy.chat.flagSuspiciousMessage(localObj);
 		}
 	}
 

@@ -29,6 +29,8 @@ export default class ChatMessageInfos extends Vue {
 		const hashmap:{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string} = {
 			automod:"automod",
 			whisper:"whisper",
+			restrictedUser:"restrcited",
+			suspiciousUser:"suspicious",
 			emergencyBlocked:"blocked",
 		}
 		if(hashmap[info.type]) return hashmap[info.type];
@@ -36,7 +38,8 @@ export default class ChatMessageInfos extends Vue {
 	}
 
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
-		const hashmap:{[key:string]:string} = {
+		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
+			restrictedUser:"shield",
 			emergencyBlocked:"emergency",
 		};
 		if(hashmap[info.type]) {
@@ -59,7 +62,6 @@ export default class ChatMessageInfos extends Vue {
 		font-size: .9em;
 		border-radius: 3px;
 		padding: .15em .3em;
-		margin-right: 5px;
 		vertical-align: middle;
 		color: @mainColor_light;
 		background-color: @mainColor_normal;
@@ -67,13 +69,23 @@ export default class ChatMessageInfos extends Vue {
 		display: inline;
 		cursor: default;
 
+		&:not(:last-child) {
+			margin-right: .25em;
+		}
+
 		&.whisper {
 			color: @mainColor_dark;
 			background-color: @mainColor_light;
 		}
 
-		&.automod, &.emergencyBlocked {
+		&.automod, &.emergencyBlocked, &.restrictedUser {
 			background-color: @mainColor_alert;
+		}
+
+		&.suspiciousUser {
+			background-color: @mainColor_warn;
+			color:@mainColor_dark;
+			font-weight: bold;
 		}
 
 		img {
