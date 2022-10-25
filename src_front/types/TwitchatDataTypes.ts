@@ -343,14 +343,20 @@ export namespace TwitchatDataTypes {
 		slowMode:boolean;
 		followOnly:boolean;
 		noTriggers:boolean;
-		autoBlockFollows:boolean;
-		autoUnblockFollows:boolean;
 		autoEnableOnFollowbot:boolean;
 		followOnlyDuration:number;
 		slowModeDuration:number;
 		toUsers:string;
 		obsScene:string;
 		obsSources:string[];
+		/**
+		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
+		 */
+		autoBlockFollows?:boolean;
+		/**
+		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
+		 */
+		autoUnblockFollows?:boolean;
 	}
 
 	export interface SpoilerParamsData {

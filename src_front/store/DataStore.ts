@@ -135,6 +135,10 @@ export default class DataStore {
 			this.migrateChatCommandTriggers();
 			v = "15";
 		}
+		if(v=="15") {
+			this.migrateEmergencyAutoblock();
+			v = "16";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -543,5 +547,15 @@ export default class DataStore {
 		}
 
 		this.set("triggers", triggers);
+	}
+
+	/**
+	 * Changes the "chatCommand" trigger prop to more generic "name"
+	 */
+	private static migrateEmergencyAutoblock():void {
+		const value:TwitchatDataTypes.EmergencyParamsData = JSON.parse(this.get(this.EMERGENCY_PARAMS));
+		delete value.autoBlockFollows;
+		delete value.autoUnblockFollows;
+		this.set(this.EMERGENCY_PARAMS, value);
 	}
 }

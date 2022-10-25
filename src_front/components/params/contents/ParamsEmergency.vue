@@ -20,23 +20,20 @@
 
 			<section>
 				<Splitter class="item splitter">Chat params</Splitter>
-				<ParamItem v-for="(p,key) in channelParams" :key="key" class="item" :paramData="p" />
+				<ParamItem class="item" :paramData="param_followersOnly" />
+				<ParamItem class="item" :paramData="param_subsOnly" />
+				<ParamItem class="item" :paramData="param_emotesOnly" />
+				<ParamItem class="item" :paramData="param_slowMode" />
+				<ParamItem class="item" :paramData="param_noTrigger" />
+				<ParamItem class="item" :paramData="param_autoTO" />
 			</section>
 
 			<section>
 				<Splitter class="item splitter">Followbot raid</Splitter>
 				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
-				<div class="item label intro">If enabled, the following feature removes any follower occuring during an emergency<br><i>(with a <mark>/block</mark> command)</i></div>
-				<ParamItem class="item" :paramData="param_autoBlockFollowing" />
 				<div class="item infos">
 					<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
 					<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all your blocked users</a> on Twitch.</p>
-					<transition
-						@enter="onShowItem"
-						@leave="onHideItem"
-					>
-						<div v-if="param_autoBlockFollowing.value === true" class="togglable"><strong>You'll want to tell you viewers not to follow your channel during an emergency.</strong></div>
-					</transition>
 				</div>
 			</section>
 
@@ -102,27 +99,21 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 })
 export default class ParamsEmergency extends Vue {
 
-	public param_enable:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
-	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"text", label:"Chat command", value:"!emergency"};
-	public param_obsScene:TwitchatDataTypes.ParameterData = {type:"list", label:"Switch to scene", value:""};
-	public param_autoTo:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
-	public param_noTrigger:TwitchatDataTypes.ParameterData = {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
-	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData = { type:"number", value:30, label:"Must follow your channel for (minutes)"};
-	public param_slowModeDuration:TwitchatDataTypes.ParameterData = { type:"number", value:10, label:"Cooldown (seconds)"};
-	public param_autoBlockFollowing:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Block follows", icon:"unfollow_purple.svg"};
-	public param_autoUnblockFollowing:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Auto /unblock user right after", icon:"follow_purple.svg", tooltip:"Enable this if you just want<br>to remove users's follow<br>without restricting her/him<br>access to your channel"};
-	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Automatically start emergency mode on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
-	public obsSources:OBSSourceItem[] = [];
+	public param_enable:TwitchatDataTypes.ParameterData						= {type:"toggle", label:"Enabled", value:false};
+	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", label:"Chat command", value:"!emergency"};
+	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", label:"Switch to scene", value:""};
+	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, label:"Automatically start emergency mode on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
+	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Slow mode"};
+	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, label:"Cooldown (seconds)", max:1800, min:1};
+	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"Followers only"};
+	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, label:"Must follow your channel for (minutes)", max:129600, min:1};
+	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Subs only"};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Emotes only"};
+	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
+	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
+	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue|null = null;
-	public channelParams:{
-		emotesOnly:TwitchatDataTypes.ParameterData;
-		followersOnly:TwitchatDataTypes.ParameterData;
-		subsOnly:TwitchatDataTypes.ParameterData;
-		slowMode:TwitchatDataTypes.ParameterData;
-		autoTO:TwitchatDataTypes.ParameterData;
-		noTrigger:TwitchatDataTypes.ParameterData;
-	}|null = null;
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -155,54 +146,39 @@ export default class ParamsEmergency extends Vue {
 			enabled:this.param_enable.value as boolean,
 			chatCmd:this.param_chatCommand.value as string,
 			chatCmdPerms:this.chatCommandPerms,
-			noTriggers:this.channelParams?.noTrigger.value === true,
-			emotesOnly:this.channelParams?.emotesOnly.value === true,
-			subOnly:this.channelParams?.subsOnly.value === true,
-			slowMode:this.channelParams?.slowMode.value === true,
-			followOnly:this.channelParams?.followersOnly.value === true,
+			noTriggers:this.param_noTrigger.value === true,
+			emotesOnly:this.param_emotesOnly.value === true,
+			subOnly:this.param_subsOnly.value === true,
+			slowMode:this.param_slowMode.value === true,
+			followOnly:this.param_followersOnly.value === true,
 			followOnlyDuration:this.param_followersOnlyDuration.value as number,
 			slowModeDuration:this.param_slowModeDuration.value as number,
-			toUsers:this.param_autoTo.value as string,
+			toUsers:this.param_autoTO.value as string,
 			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
-			autoBlockFollows:this.param_autoBlockFollowing.value === true,
-			autoUnblockFollows:this.param_autoUnblockFollowing.value === true,
 			autoEnableOnFollowbot:this.param_autoEnableOnFollowbot.value === true,
 		};
 	}
 
 	public async beforeMount():Promise<void> {
-		let params = JSON.parse(JSON.stringify(this.$store("stream").roomStatusParams));
-		params.followersOnly.children = [this.param_followersOnlyDuration]
-		params.slowMode.children = [this.param_slowModeDuration]
-		params["noTrigger"] = this.param_noTrigger,
-		params["autoTO"] = this.param_autoTo,
-		this.channelParams = params;
-		this.param_enable.value = this.$store("emergency").params.enabled;
-		this.param_autoBlockFollowing.children = [this.param_autoUnblockFollowing];
-		if(this.channelParams) {
-			//Prefill forms from storage
-			this.channelParams.autoTO.value = this.$store("emergency").params.toUsers;
-			this.channelParams.noTrigger.value = this.$store("emergency").params.noTriggers;
-			this.channelParams.emotesOnly.value = this.$store("emergency").params.emotesOnly;
-			this.channelParams.subsOnly.value = this.$store("emergency").params.subOnly;
-			this.channelParams.slowMode.value = this.$store("emergency").params.slowMode;
-			this.channelParams.followersOnly.value = this.$store("emergency").params.followOnly;
-			this.param_followersOnlyDuration.value = this.$store("emergency").params.followOnlyDuration;
-			this.param_slowModeDuration.value = this.$store("emergency").params.slowModeDuration;
-		}
+		this.param_enable.value					= this.$store("emergency").params.enabled;
+		this.param_noTrigger.value				= this.$store("emergency").params.noTriggers;
+		this.param_autoTO.value					= this.$store("emergency").params.toUsers;
+		this.param_subsOnly.value				= this.$store("emergency").params.subOnly;
+		this.param_emotesOnly.value				= this.$store("emergency").params.emotesOnly;
+		this.param_followersOnly.value			= this.$store("emergency").params.followOnly;
+		this.param_followersOnlyDuration.value	= this.$store("emergency").params.followOnlyDuration;
+		this.param_slowMode.value				= this.$store("emergency").params.slowMode;
+		this.param_slowModeDuration.value		= this.$store("emergency").params.slowModeDuration;
+
+		this.param_slowMode.children			= [this.param_slowModeDuration];
+		this.param_followersOnly.children		= [this.param_followersOnlyDuration];
+
 		if(this.$store("emergency").params.chatCmd) {
 			this.param_chatCommand.value = this.$store("emergency").params.chatCmd;
 		}
 		if(this.$store("emergency").params.chatCmdPerms) {
 			this.chatCommandPerms = this.$store("emergency").params.chatCmdPerms;
-		}
-		
-		if(this.$store("emergency").params.autoBlockFollows != undefined) {
-			this.param_autoBlockFollowing.value = this.$store("emergency").params.autoBlockFollows;
-		}
-		if(this.$store("emergency").params.autoUnblockFollows != undefined) {
-			this.param_autoUnblockFollowing.value = this.$store("emergency").params.autoUnblockFollows;
 		}
 		if(this.$store("emergency").params.autoEnableOnFollowbot != undefined) {
 			this.param_autoEnableOnFollowbot.value = this.$store("emergency").params.autoEnableOnFollowbot;
