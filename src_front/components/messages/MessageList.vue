@@ -401,7 +401,9 @@ export default class MessageList extends Vue {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.JOIN:
-				case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
+				case TwitchatDataTypes.TwitchatMessageType.LEAVE:
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
+				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION:{
 					if(sParams.features.notifyJoinLeave.value === false) {
 						messages.splice(i, 1);
 						i--;
@@ -411,7 +413,7 @@ export default class MessageList extends Vue {
 			}
 		}
 
-		return messages;
+		return messages.slice(-this.max);
 	}
 
 	public async mounted():Promise<void> {
@@ -446,7 +448,8 @@ export default class MessageList extends Vue {
 			if(this.localMessages.length == this.max) {
 				this.counter++;
 			}
-			this.localMessages = value.concat().slice(-this.max);
+			const maxHistory = this.$store("chat").realHistorySize;
+			this.localMessages = value.concat().slice(-maxHistory);
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].id as string] = true;
 			}
@@ -577,9 +580,10 @@ export default class MessageList extends Vue {
 	 * Catch up all pending messages
 	 */
 	public async unPause():Promise<void> {
-		let messages = this.pendingMessages.slice(-this.max);
+		const maxHistory = this.$store("chat").realHistorySize;
+		let messages = this.pendingMessages.slice(-maxHistory);
 		this.pendingMessages = [];
-		this.localMessages = this.localMessages.concat(messages).slice(-this.max);
+		this.localMessages = this.localMessages.concat(messages).slice(-maxHistory);
 		
 		//Scroll toi bottom
 		const el = this.$refs.messageHolder as HTMLDivElement;
@@ -715,8 +719,9 @@ export default class MessageList extends Vue {
 		const m = this.pendingMessages.shift()!;
 		this.idDisplayed[m.id] = true;
 		this.localMessages.push( m );
-		if(this.localMessages.length > this.max) {
-			this.localMessages = this.localMessages.slice(-this.max);
+		const maxHistory = this.$store("chat").realHistorySize;
+		if(this.localMessages.length > maxHistory) {
+			this.localMessages = this.localMessages.slice(-maxHistory);
 		}
 		this.scrollToPrevMessage(wheelOrigin);
 	}
