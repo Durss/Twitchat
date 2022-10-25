@@ -1398,6 +1398,10 @@ export default class TwitchUtils {
 			StoreProxy.users.flagBanned("twitch", channelId, user.id, duration);
 			return true;
 		}else{
+			const json = await res.json();
+			if(json.message) {
+				StoreProxy.main.alert(json.message);
+			}
 			return false;
 		}
 	}
@@ -1420,6 +1424,10 @@ export default class TwitchUtils {
 			StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 			return true;
 		}else{
+			const json = await res.json();
+			if(json.message) {
+				StoreProxy.main.alert(json.message);
+			}
 			return false;
 		}
 	}
@@ -1452,6 +1460,10 @@ export default class TwitchUtils {
 				await Utils.promisedTimeout(delay)
 				return this.blockUser(user, channelId, reason, ++recursiveIndex);
 			}else{
+				const json = await res.json();
+				if(json.message) {
+					StoreProxy.main.alert(json.message);
+				}
 				return false;
 			}
 		}
@@ -1484,6 +1496,10 @@ export default class TwitchUtils {
 				await Utils.promisedTimeout(delay)
 				return this.unblockUser(user, channelId, ++recursiveIndex);
 			}else{
+				const json = await res.json();
+				if(json.message) {
+					StoreProxy.main.alert(json.message);
+				}
 				return false;
 			}
 		}

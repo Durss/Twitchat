@@ -199,6 +199,16 @@ export const storeChat = defineStore('chat', {
 				needTTS:true,
 			},
 			{
+				id:"ban",
+				cmd:"/ban {user}",
+				details:"Bans a user",
+			},
+			{
+				id:"Unban",
+				cmd:"/unban {user}",
+				details:"Unban a user",
+			},
+			{
 				id:"block",
 				cmd:"/block {user}",
 				details:"Block a user",
