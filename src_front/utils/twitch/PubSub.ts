@@ -746,7 +746,40 @@ export default class PubSub extends EventDispatcher {
 	 * @param localObj
 	 */
 	private lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):void {
-		StoreProxy.users.flagLowTrustMessage(localObj);
+		if(localObj.low_trust_user.treatment == 'RESTRICTED') {
+			//Rebuild message
+			let textMessage = "";
+			for (let i = 0; i < localObj.message_content.fragments.length; i++) {
+				const el = localObj.message_content.fragments[i];
+				if(el.emoticon) {
+					textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
+				}else{
+					//Avoid XSS attack
+					textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				}
+			}
+
+			let user = localObj.low_trust_user.sender;
+			let channelId = localObj.low_trust_user.channel_id;
+			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
+			userData.color = user.chat_color;
+			const m:TwitchatDataTypes.MessageChatData = {
+				id:localObj.message_id,
+				channel_id:channelId,
+				date:Date.now(),
+				type:"message",
+				platform:"twitch",
+				user:userData,
+				answers:[],
+				message:textMessage.replace(/<[^>]*>/gi, ""),
+				message_html:textMessage,
+				twitch_isSuspicious:true,
+			}
+			StoreProxy.chat.addMessage(m);
+
+		}else{
+			StoreProxy.users.flagLowTrustMessage(localObj);
+		}
 	}
 
 	/**

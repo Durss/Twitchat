@@ -443,6 +443,10 @@ export namespace PubSubDataTypes {
 			text: string;
 			fragments: {
 				text: string;
+				emoticon: {
+					emoticonID: string,
+					emoticonSetID: string
+				},
 			}[];
 		};
 		message_id: string;
