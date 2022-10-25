@@ -328,8 +328,6 @@ export const storeChat = defineStore('chat', {
 			//If it's a raid, save it so we can do an SO with dedicated streamdeck button
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.RAID) sStream.lastRaider = message.user;
 
-			//If it's a follow event, flag user as a follower
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) sUsers.flagAsFollower(message.user, message.channel_id);
 
 			//If it's a subgift, merge it with potential previous ones
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
@@ -499,7 +497,9 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 
+			//If it's a following event
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
+				sUsers.flagAsFollower(message.user, message.channel_id)
 				//TODO Broadcast to OBS-ws
 				// const wsMessage = {
 				// 	display_name: data.display_name,

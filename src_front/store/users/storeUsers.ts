@@ -78,7 +78,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false):TwitchatDataTypes.TwitchatUser {
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested  via hashmaps for fast accesses
 			let hashmaps = userMaps[platform];
@@ -158,7 +158,7 @@ export const storeUsers = defineStore('users', {
 					user.channelInfo[channelId] = {
 						messageHistory:[],
 						online:false,
-						is_following:channelId == user.id? true : null,
+						is_following:channelId == user.id? true : (forcedFollowState===true? true : null),
 						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
@@ -198,7 +198,7 @@ export const storeUsers = defineStore('users', {
 					}
 					
 					const logins = twitchUserBatchToLoad.map(v=> v.user.login);
-console.log("load", id);
+					
 					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined).then(async (res) => {
 						user = user!;
 						if(res.length > 0) {
@@ -228,8 +228,10 @@ console.log("load", id);
 									delete userLocal.temporary;
 									this.users.push(userLocal);
 									this.checkPronouns(userLocal);
-									if(channelId) this.checkFollowerState(userLocal, channelId);
-									if(loadCallback) loadCallback(userLocal);
+									if(channelId && user.channelInfo[channelId].is_following === null) {
+										this.checkFollowerState(userLocal, channelId);
+									}
+									if(loadCallback)	loadCallback(userLocal);
 								}
 							}
 						}else{
@@ -259,7 +261,9 @@ console.log("load", id);
 			if(user.temporary != true) {
 				this.users.push(user);
 				this.checkPronouns(user);
-				if(channelId)		this.checkFollowerState(user, channelId);
+				if(channelId && user.channelInfo[channelId].is_following === null) {
+					this.checkFollowerState(user, channelId);
+				}
 				if(loadCallback)	loadCallback(user);
 			}
 

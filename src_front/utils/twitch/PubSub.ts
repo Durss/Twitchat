@@ -229,7 +229,7 @@ export default class PubSub extends EventDispatcher {
 
 	public async simulateFollowbotRaid():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
-		for (let i = 0; i < 400; i++) {
+		for (let i = 0; i < 50; i++) {
 			const id = Math.round(Math.random()*1000000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 			this.followingEvent({
@@ -897,7 +897,7 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			channel_id: channelId,
 			type:"following",
-			user: StoreProxy.users.getUserFrom("twitch", channelId, data.user_id, data.username, data.display_name),
+			user: StoreProxy.users.getUserFrom("twitch", channelId, data.user_id, data.username, data.display_name, undefined, true),
 			followed_at: Date.now(),
 		};
 		message.user.channelInfo[channelId].online = true;
@@ -919,8 +919,8 @@ export default class PubSub extends EventDispatcher {
 		}
 
 		if(this.lastRecentFollowers.length > 30
-		&& StoreProxy.emergency.emergencyStarted !== true
 		&& StoreProxy.emergency.params.enabled === true
+		&& StoreProxy.emergency.emergencyStarted !== true
 		&& StoreProxy.emergency.params.autoEnableOnFollowbot === true) {
 			//Start emergency mode
 			StoreProxy.emergency.setEmergencyMode(true);
