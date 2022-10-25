@@ -243,6 +243,36 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE: {
+					const m:TwitchatDataTypes.MessageCommunityBoostData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						viewers:Math.ceil(Math.random() * 15) * 250,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.BAN: {
+					const m:TwitchatDataTypes.MessageBanData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						noticeId:type,
+						user:fakeUser,
+						moderator:user,
+						message:fakeUser.displayName+" has been banned by "+user.displayName,
+						reason:"you're a butt hole",
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
 				if(hook(data) === false) return;

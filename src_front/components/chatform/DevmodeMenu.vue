@@ -20,10 +20,10 @@
 			<Button small title="Hype train" @click="simulateHypeTrain()" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train cooldown" @click="simulateHypeTrainCooldown()" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
+			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
+			<Button small title="Ban" @click="simulateEvent('ban')" :icon="$image('icons/ban.svg')" />
+			<Button small title="Automod" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
 			<!-- 
-				<Button small title="Community boost" @click="simulateEvent('communityBoost')" :icon="$image('icons/boost.svg')" />
-			<Button small title="Ban" @click="simulateEvent('ban_success')" :icon="$image('icons/ban.svg')" />
-			<Button small title="Automod" @click="simulateEvent('automod')" :icon="$image('icons/automod_white.svg')" />
 			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="$image('icons/poll.svg')" />
 			<Button small title="Prediction result" @click="simulateEvent('predictionResult')" :icon="$image('icons/prediction.svg')" />
 			<Button small title="Host" @click="simulateEvent('host')" :icon="$image('icons/raid.svg')" />
@@ -38,12 +38,13 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PubSub from '@/utils/twitch/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import { LoremIpsum } from 'lorem-ipsum';
 
 @Options({
 	props:{},
@@ -97,46 +98,27 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
-		// if(type == "hypeTrain") {
-		// 	PubSub.instance.simulateHypeTrain();
-		// }else
-		// if(type == "hype_train_cooled_down") {
-		// 	PubSub.instance.simulateHypeCooldown();
-		// }else if(type == "lowTrustUser") {
-		// 	PubSub.instance.simulateLowTrustUser();
-		// }else if(type == "communityBoost") {
-		// 	PubSub.instance.simulateCommunityBoost();
-		// }else if(type == "subgiftx20") {
-		// 	for (let i = 0; i < 20; i++) {
-		// 		//TODO update fakeEvents.json and replace these lines
-		// 		// IRCClient.instance.sendFakeEvent("subgift");
-		// 		await Utils.promisedTimeout(60);
-		// 	}
-		// }else{
-			//TODO update fakeEvents.json and replace these lines
-			// IRCClient.instance.sendFakeEvent(code);
-			this.$store("debug").simulateMessage(type, (message)=> {
-				switch(subAction) {
-					case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
-					case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
-					case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
-					case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
-					case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
-					case "gift":{
-						const recipients:TwitchatDataTypes.TwitchatUser[] = [];
-						const count = Math.round(Math.random() * 50) + 1;
-						const m = (message as TwitchatDataTypes.MessageSubscriptionData);
-						for (let i = 0; i < count; i++) {
-							recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString()))
-						}
-						m.gift_recipients = recipients;
-						m.is_gift = true;
-						break;
+		this.$store("debug").simulateMessage(type, (message)=> {
+			switch(subAction) {
+				case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
+				case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
+				case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
+				case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
+				case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				case "gift":{
+					const recipients:TwitchatDataTypes.TwitchatUser[] = [];
+					const count = Math.round(Math.random() * 50) + 1;
+					const m = (message as TwitchatDataTypes.MessageSubscriptionData);
+					for (let i = 0; i < count; i++) {
+						recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString()))
 					}
+					m.gift_recipients = recipients;
+					m.is_gift = true;
+					break;
 				}
-				return true;
-			})
-		// }
+			}
+			return true;
+		});
 	}
 
 	public async exportPubsubHistory():Promise<void> {
@@ -163,6 +145,23 @@ export default class DevmodeMenu extends Vue {
 
 	public simulateChallengeContribution():void {
 		PubSub.instance.simulateChallengeContribution();
+	}
+
+	public simulateComunityBoost():void {
+		PubSub.instance.simulateCommunityBoost();
+	}
+
+	public simulateAutomod():void {
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+			const m = (message as TwitchatDataTypes.MessageChatData);
+			let words:string[] = [];
+			do {
+				words.push( Utils.pickRand(m.message.split(" ")) );
+			}while(Math.random() > .5)
+
+			m.twitch_automod = { reasons:["bullying"], words };
+			return true;
+		});
 	}
 
 }
