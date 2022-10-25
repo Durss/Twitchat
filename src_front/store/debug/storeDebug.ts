@@ -273,6 +273,31 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.POLL: {
+					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
+					const count = Math.ceil(Math.random()*10);
+					let total = 0
+					for(let i=0; i < count; i++) {
+						const votes = Math.round(Math.random()*50);
+						total += votes;
+						choices.push({id:Utils.getUUID(), label:"Option "+(i+1), votes});
+					}
+					const m:TwitchatDataTypes.MessagePollData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						choices,
+						duration_s:180,
+						title:"Who wins?",
+						started_at:new Date(Date.now() - 2 * 60 * 1000).toString(),
+						ended_at:new Date().toString(),
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
 				if(hook(data) === false) return;

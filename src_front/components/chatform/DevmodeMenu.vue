@@ -23,8 +23,8 @@
 			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
 			<Button small title="Ban" @click="simulateEvent('ban')" :icon="$image('icons/ban.svg')" />
 			<Button small title="Automod" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
+			<Button small title="Poll result" @click="simulateEvent('poll')" :icon="$image('icons/poll.svg')" />
 			<!-- 
-			<Button small title="Poll result" @click="simulateEvent('pollResult')" :icon="$image('icons/poll.svg')" />
 			<Button small title="Prediction result" @click="simulateEvent('predictionResult')" :icon="$image('icons/prediction.svg')" />
 			<Button small title="Host" @click="simulateEvent('host')" :icon="$image('icons/raid.svg')" />
 			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="$image('icons/emote.svg')" />
