@@ -24,7 +24,7 @@ export interface TriggerData {
 	cooldown?:{global:number, user:number};
 	scheduleParams?:TriggerScheduleData;
 	/**
-	 * @deprecated Only here for typings on data migration. User "name" property
+	 * @deprecated Only here for typings on data migration. Use "name" property
 	 */
 	chatCommand?:string
 }

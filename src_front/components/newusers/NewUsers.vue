@@ -304,7 +304,7 @@ export default class NewUsers extends Vue {
 					let color = Utils.getLessVars().mainColor_light as string;
 					color = color.replace(/\)/gi, ", .5)");
 					// (items[i].$el as HTMLDivElement).style.borderColor = color as string;
-					(items[i].$el as HTMLDivElement).style.opacity = ".5";
+					(items[i].$el as HTMLDivElement).style.opacity = ".3";
 				}
 				
 			}
@@ -313,7 +313,7 @@ export default class NewUsers extends Vue {
 			let color = Utils.getLessVars().mainColor_light as string;
 			color = color.replace(/\)/gi, ", .5)");
 			// (items[index].$el as HTMLDivElement).style.borderColor = color as string;
-			(items[index].$el as HTMLDivElement).style.opacity = ".5";
+			(items[index].$el as HTMLDivElement).style.opacity = ".3";
 		}
 	}
 

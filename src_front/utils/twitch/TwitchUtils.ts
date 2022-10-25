@@ -840,7 +840,9 @@ export default class TwitchUtils {
 		}while(sets.length > 0);
 
 		//Convert to twitchat's format
-		emotes = emotesTwitch.map((e:TwitchDataTypes.Emote):TwitchatDataTypes.Emote => {
+		emotes = emotesTwitch
+		.filter(v=>v.owner_id != "twitch")//remove lots of useless emotes like ":p", ":o", ":-)", etc..
+		.map((e:TwitchDataTypes.Emote):TwitchatDataTypes.Emote => {
 			//Extract latest format available.
 			//Should be aither "static" or "animated" but doing it this way will load
 			//any potential new kind of emote in the future.
