@@ -618,49 +618,6 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/unblock2") {
-			this.message = "";
-			this.loading = true;
-			// for (let i = 0; i < 1000; i++) {
-			// 	await TwitchUtils.unblockUser("FakeUser"+i);
-			// }
-			await TwitchUtils.unblockUser(params[0], this.channelId);
-			this.loading = false;
-		}else
-
-		if(cmd == "/block") {
-			this.message = "";
-			this.loading = true;
-			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
-			if(users.length == 0) {
-				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
-				noticeMessage = "User <mark>"+params[0]+"</mark> not found...";
-			}else{
-				let res = await TwitchUtils.blockUser(users[0].id, this.channelId);
-				if(res === true) {
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
-					noticeMessage = "User <mark>"+users[0].login+"</mark> blocked";
-				}
-			}
-			this.loading = false;
-		}else
-
-		if(cmd == "/unblock") {
-			this.message = "";
-			this.loading = true;
-			let users = await await TwitchUtils.loadUserInfo(undefined, [params[0]]);
-			if(users.length == 0) {
-				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
-				noticeMessage = "User <mark>"+params[0]+"</mark> not found...";
-			}else{
-				let res = await TwitchUtils.unblockUser(users[0].id, this.channelId);
-				if(res === true) {
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBLOCK;
-					noticeMessage = "User <mark>"+users[0].login+"</mark> unblocked";
-				}
-			}this.loading = false;
-		}else
-		
 		if(cmd == "/userinfo" || cmd == "/user") {
 			if(!params[0]) {
 				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
@@ -780,7 +737,7 @@ export default class ChatForm extends Vue {
 						if(cmd === "/loaduserdata") {
 							DataStore.loadFromJSON(json.data);
 						}else{
-							//Open JSOn on new tab
+							//Open JSON on new tab
 							const data = JSON.stringify(json.data);
 							const blob = new Blob([data], { type: 'application/json' });
 							const url = window.URL.createObjectURL(blob);
@@ -802,8 +759,10 @@ export default class ChatForm extends Vue {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
 				let mess = this.message;
+				this.loading = true;
 				if(await TwitchMessengerClient.instance.sendMessage(this.channelId, mess)) {
 					this.message = "";
+					this.loading = false;
 				}
 			}catch(error) {
 				console.log(error);

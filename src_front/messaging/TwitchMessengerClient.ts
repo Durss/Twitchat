@@ -219,47 +219,55 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				chunks.unshift(color);
 			}
 
-			async function getUserFromLogin(login:string):Promise<TwitchDataTypes.UserInfo|null>{
-				let res:TwitchDataTypes.UserInfo[];
-				try {
-					res = await TwitchUtils.loadUserInfo(undefined, [login])
-				}catch(error) {
-					StoreProxy.main.alert("User @"+login+" not found on Twitch.");
-					return null;
-				}
-				return res[0];
+			async function getUserFromLogin(login:string, channelId:string):Promise<TwitchatDataTypes.TwitchatUser|null>{
+				return new Promise((resolve)=>{
+					StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (user)=> {
+						if(user.errored) {
+							StoreProxy.main.alert("User <strong>\""+login+"\"</strong> does not exists");
+						}
+						resolve(user);
+					})
+				})
+				// let res:TwitchDataTypes.UserInfo[];
+				// try {
+				// 	res = await TwitchUtils.loadUserInfo(undefined, [login])
+				// }catch(error) {
+				// 	StoreProxy.main.alert("User @"+login+" not found on Twitch.");
+				// 	return null;
+				// }
+				// return res[0];
 			}
 
 			switch(cmd) {
 				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
 				case "/ban":{
-					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.banUser(user.id, channelId, undefined, chunks.splice(1).join(" "));
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) await TwitchUtils.banUser(user, channelId, undefined, chunks.splice(1).join(" "));
 					return true;
 				}
 				case "/unban": {
-					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.unbanUser(user.id, channelId);
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) await TwitchUtils.unbanUser(user, channelId);
 					return true;
 				}
 				case "/block":{
-					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.blockUser(user.id, channelId);
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) await TwitchUtils.blockUser(user, channelId);
 					return true;
 				}
 				case "/unblock": {
-					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.unblockUser(user.id, channelId);
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) await TwitchUtils.unblockUser(user, channelId);
 					return true;
 				}
 				case "/timeout":{
-					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.banUser(user.id, channelId, parseInt(chunks[1]), chunks[2]);
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]), chunks[2]);
 					return true;
 				}
 				case "/untimeout": {
-					const user = await getUserFromLogin(chunks[0]);
-					if(user) await TwitchUtils.unbanUser(user.id, channelId);
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) await TwitchUtils.unbanUser(user, channelId);
 					return true;
 				}
 				case "/commercial": {
