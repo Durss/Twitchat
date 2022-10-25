@@ -25,10 +25,7 @@
 			<Button small title="Automod" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
 			<Button small title="Poll result" @click="simulateEvent('poll')" :icon="$image('icons/poll.svg')" />
 			<Button small title="Prediction result" @click="simulateEvent('prediction')" :icon="$image('icons/prediction.svg')" />
-			<!-- 
-			<Button small title="Host" @click="simulateEvent('host')" :icon="$image('icons/raid.svg')" />
-			<Button small title="Custom emotes parsing" @click="simulateEvent('messageManualEmotesParsing')" :icon="$image('icons/emote.svg')" />
-			<Button small title="Low trust user" @click="simulateEvent('lowTrustUser')" :icon="$image('icons/shield.svg')" /> -->
+			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
@@ -160,6 +157,14 @@ export default class DevmodeMenu extends Vue {
 			}while(Math.random() > .5)
 
 			m.twitch_automod = { reasons:["bullying"], words };
+			return true;
+		});
+	}
+
+	public simulateSuspicious():void {
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+			const m = (message as TwitchatDataTypes.MessageChatData);
+			m.twitch_isSuspicious = true;
 			return true;
 		});
 	}

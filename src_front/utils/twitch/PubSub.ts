@@ -219,7 +219,7 @@ export default class PubSub extends EventDispatcher {
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message:"This is a message sent by a low trusted user",
 			message_html:"This is a message sent by a low trusted user",
-			twitch_isLowTrust:true,
+			twitch_isSuspicious:true,
 		}
 		StoreProxy.chat.addMessage(m)
 

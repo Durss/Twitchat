@@ -502,7 +502,7 @@ export const storeUsers = defineStore('users', {
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(m.id == data.message_id && m.type == "message") {
-					m.twitch_isLowTrust = true;
+					m.twitch_isSuspicious = true;
 					return;
 				}
 			}

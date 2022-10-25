@@ -685,7 +685,7 @@ export namespace TwitchatDataTypes {
 		twitch_isFirstMessage?:boolean;//True if first message ever on this channel
 		twitch_isReturning?:boolean;//True if new user coming back
 		twitch_isPresentation?:boolean;//True if user used the presentation feature
-		twitch_isLowTrust?: boolean;//True when user is flagged as suspicious
+		twitch_isSuspicious?: boolean;//True when user is flagged as suspicious
 		twitch_isHighlighted?: boolean;//True when using "hihglight my message" reward
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
 	}

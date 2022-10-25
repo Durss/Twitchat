@@ -24,7 +24,7 @@
 			</div>
 		</div>
 		
-		<div v-if="messageData.type == 'message' && messageData.twitch_isLowTrust" class="lowTrust">
+		<div v-if="messageData.type == 'message' && messageData.twitch_isSuspicious" class="suspicious">
 			<img src="@/assets/icons/shield.svg">
 			<div class="header"><strong>Suspicious user</strong></div>
 		</div>
@@ -351,7 +351,7 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.staticClasses.push("whisper");
 		}else {
-			if(this.messageData.twitch_isLowTrust)		this.staticClasses.push("lowTrust");
+			if(this.messageData.twitch_isSuspicious)	this.staticClasses.push("suspicious");
 			if(this.messageData.twitch_isSlashMe)		this.staticClasses.push("slashMe");
 			if(this.messageData.twitch_isHighlighted)	this.staticClasses.push("highlighted");
 			if(this.messageData.type == "message"
@@ -851,12 +851,12 @@ export default class ChatMessage extends Vue {
 		font-style: italic;
 	}
 
-	&.lowTrust {
+	&.suspicious {
 		margin-top: 5px;
 		border-radius: 5px;
 		background-color: fade(@mainColor_alert, 30%) !important;
 		
-		.lowTrust {
+		.suspicious {
 			padding: .35em;
 			border-radius: 5px;
 			display: flex;
