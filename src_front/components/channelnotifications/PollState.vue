@@ -75,7 +75,7 @@ export default class PollState extends Vue {
 
 	public mounted():void {
 		// this.loadPolls();
-		const ellapsed = new Date().getTime() - new Date(this.poll.started_at).getTime();
+		const ellapsed = Date.now() - this.poll.started_at;
 		const duration = this.poll.duration_s*1000;
 		const timeLeft = duration - ellapsed
 		this.progressPercent = ellapsed/duration;

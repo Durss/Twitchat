@@ -168,7 +168,7 @@ export const storeRaffle = defineStore('raffle', {
 			const sUsers = StoreProxy.users;
 			const sChat = StoreProxy.chat;
 			const raffle = this.data;
-			const ellapsed = new Date().getTime() - new Date(raffle.created_at).getTime();
+			const ellapsed = Date.now() - new Date(raffle.created_at).getTime();
 			//Check if within time frame and max users count isn't reached and that user
 			//hasn't already entered
 			if(ellapsed <= raffle.duration * 60000

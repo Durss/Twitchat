@@ -834,8 +834,8 @@ export default class PubSub extends EventDispatcher {
 			title: localObj.poll.title,
 			choices,
 			duration_s: localObj.poll.duration_seconds,
-			started_at: localObj.poll.started_at,
-			ended_at: localObj.poll.ended_at,
+			started_at: new Date(localObj.poll.started_at).getTime(),
+			ended_at: localObj.poll.ended_at? new Date(localObj.poll.ended_at).getTime() : undefined,
 		};
 
 		StoreProxy.poll.setCurrentPoll(poll, postOnChat);

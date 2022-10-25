@@ -713,8 +713,8 @@ export namespace TwitchatDataTypes {
 		title: string;
 		choices: MessagePollDataChoice[];
 		duration_s: number;
-		started_at: string;
-		ended_at?: string;
+		started_at: number;
+		ended_at?: number;
 	}
 
 	export interface MessagePredictionDataOutcome {

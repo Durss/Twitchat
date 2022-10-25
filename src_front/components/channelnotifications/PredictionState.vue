@@ -82,7 +82,7 @@ export default class PredictionState extends Vue {
 	}
 
 	public mounted():void {
-		const ellapsed = new Date().getTime() - this.prediction.started_at;
+		const ellapsed = Date.now() - this.prediction.started_at;
 		const duration = this.prediction.duration_s*1000;
 		const timeLeft = duration - ellapsed
 		this.progressPercent = ellapsed/duration;

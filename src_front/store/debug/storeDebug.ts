@@ -277,10 +277,8 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.POLL: {
 					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 					const count = Math.ceil(Math.random()*10);
-					let total = 0
 					for(let i=0; i < count; i++) {
 						const votes = Math.round(Math.random()*50);
-						total += votes;
 						choices.push({id:Utils.getUUID(), label:"Option "+(i+1), votes});
 					}
 					const m:TwitchatDataTypes.MessagePollData = {
@@ -292,8 +290,34 @@ export const storeDebug = defineStore('debug', {
 						choices,
 						duration_s:180,
 						title:"Who wins?",
-						started_at:new Date(Date.now() - 2 * 60 * 1000).toString(),
-						ended_at:new Date().toString(),
+						started_at:Date.now() - 2 * 60 * 1000,
+						ended_at:Date.now(),
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
+					const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
+					const count = Math.ceil(Math.random()*9)+1;
+					for(let i=0; i < count; i++) {
+						const voters = Math.round(Math.random()*50);
+						const votes = Math.round(Math.random()*1000000);
+						outcomes.push({id:Utils.getUUID(), label:"Option "+(i+1), votes, voters});
+					}
+					const m:TwitchatDataTypes.MessagePredictionData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						outcomes,
+						duration_s:180,
+						title:"Who wins?",
+						started_at:Date.now() - 2 * 60 * 1000,
+						ended_at:Date.now(),
+						pendingAnswer:false,
+						winning_outcome_id:Utils.pickRand(outcomes).id,
 					};
 					data = m;
 					break;

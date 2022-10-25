@@ -69,7 +69,7 @@ export default class RaffleState extends Vue {
 	private wheelOverlayExists = false;
 
 	public mounted():void {
-		const ellapsed = new Date().getTime() - new Date(this.raffleData.created_at).getTime();
+		const ellapsed = Date.now() - new Date(this.raffleData.created_at).getTime();
 		const duration = this.raffleData.duration*60000;
 		const timeLeft = duration - ellapsed;
 		this.progressPercent = ellapsed/duration;

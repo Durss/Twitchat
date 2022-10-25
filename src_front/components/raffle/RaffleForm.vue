@@ -215,7 +215,7 @@ export default class RaffleForm extends Vue {
 			command:cmd,
 			duration:this.enterDuration.value as number,
 			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
-			created_at:new Date().getTime(),
+			created_at:Date.now(),
 			entries:[],
 			followRatio: this.ponderateVotes_follower.value as number,
 			vipRatio: this.ponderateVotes_vip.value as number,

@@ -663,7 +663,7 @@ export default class TwitchUtils {
 					type:"poll",
 					platform:"twitch",
 					duration_s:src.duration,
-					started_at:src.started_at,
+					started_at:new Date(src.started_at).getTime(),
 					title:src.title,
 					choices,
 				}
