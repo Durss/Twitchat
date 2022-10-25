@@ -27,8 +27,8 @@
 				</div>
 				<div class="batchActions">
 					<Button @click="banAll()" bounce :loading="batchActionInProgress" title="Ban all" :icon="$image('icons/ban.svg')" />
-					<Button @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Unfollow all" :icon="$image('icons/unfollow_white.svg')" />
-					<Button @click="exportCSV()" bounce :loading="batchActionInProgress" title="Export as CSV" :icon="$image('icons/save.svg')" />
+					<Button @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Remove followers" :icon="$image('icons/unfollow_white.svg')" />
+					<Button @click="exportCSV()" bounce :loading="batchActionInProgress" title="Export CSV" :icon="$image('icons/save.svg')" />
 				</div>
 				<div class="ctas">
 					<Button class="later" @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
@@ -114,28 +114,38 @@ export default class EmergencyFollowsListModal extends Vue {
 		
 	public async banAll():Promise<void> {
 		this.batchActionInProgress = true;
-		const list = this.followers;
-		for (let i = 0; i < list.length; i++) {
-			if(this.disposed) break;
-			const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
-			console.log(el);
-			el.scrollIntoView({block: "center", inline: "nearest"});
-			await this.ban(list[i]);
-		}
-		this.batchActionInProgress = false;
+		let label = `This will ban all the remaining users of the list from your channel.`;
+		this.$confirm("Ban all?", label).then(async ()=>{
+			this.$store("emergency").clearEmergencyFollows();
+			const list = this.followers;
+			for (let i = 0; i < list.length; i++) {
+				if(this.disposed) break;
+				const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
+				el.scrollIntoView({block: "center", inline: "nearest"});
+				await this.ban(list[i]);
+			}
+			this.batchActionInProgress = false;
+		}).catch(()=>{
+			this.batchActionInProgress = false;
+		});
 	}
 	
-	public async unfollowAll():Promise<void> {
+	public unfollowAll():void {
 		this.batchActionInProgress = true;
-		const list = this.followers;
-		for (let i = 0; i < list.length; i++) {
-			if(this.disposed) break;
-			const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
-			console.log(el);
-			el.scrollIntoView({block: "center", inline: "nearest"});
-			await this.unfollow(list[i]);
-		}
-		this.batchActionInProgress = false;
+		let label = `This will remove all the remaining users of the list from your followers.`;
+		this.$confirm("Remove followers?", label).then(async ()=>{
+			this.$store("emergency").clearEmergencyFollows();
+			const list = this.followers;
+			for (let i = 0; i < list.length; i++) {
+				if(this.disposed) break;
+				const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
+				el.scrollIntoView({block: "center", inline: "nearest"});
+				await this.unfollow(list[i]);
+			}
+			this.batchActionInProgress = false;
+		}).catch(()=>{
+			this.batchActionInProgress = false;
+		});
 	}
 
 	public clearList():void {
