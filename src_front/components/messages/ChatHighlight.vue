@@ -289,20 +289,6 @@ export default class ChatHighlight extends Vue {
 				break;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-				if(this.messageData.blocked === true) {
-					this.badgeInfos.push({ type:"emergencyBlocked" });
-				}else{
-					let message = this.messageData;
-					//Watch for change so it updates in case of a follow bot raid
-					watch(()=>message.blocked, ()=> {
-						if(message.blocked) {
-							this.badgeInfos.push({ type:"emergencyBlocked" })
-						}
-					});
-				}
-				break;
-			}
 		}
 	}
 
@@ -336,7 +322,7 @@ export default class ChatHighlight extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) return;
 		this.moderating = true;
 		if(this.messageData.user.platform == "twitch") {
-			await TwitchUtils.unbanUser(this.messageData.user.id, this.messageData.channel_id);
+			await TwitchUtils.unbanUser(this.messageData.user, this.messageData.channel_id);
 		}
 		this.moderating = false;
 		this.canUnban = false;
@@ -345,9 +331,8 @@ export default class ChatHighlight extends Vue {
 	public async blockUser():Promise<void> {
 		this.moderating = true;
 		try {
-			const user = await TwitchUtils.loadUserInfo([this.user!.id]);
-			if(user?.length > 0) {
-				await TwitchUtils.blockUser(user[0].id, this.messageData.channel_id);
+			if(this.user) {
+				await TwitchUtils.blockUser(this.user, this.messageData.channel_id);
 			}
 		}catch(error) {}
 		this.moderating = false;

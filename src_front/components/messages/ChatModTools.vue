@@ -53,7 +53,7 @@ export default class ChatModTools extends Vue {
 		this.$confirm("Ban "+(this.messageData.user.displayName), "Are you sure you want to ban this user ?")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			TwitchUtils.banUser(this.messageData.user.id, this.messageData.channel_id, undefined, "manually banned from Twitchat");
+			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, "manually banned from Twitchat");
 		})
 	}
 
@@ -61,13 +61,13 @@ export default class ChatModTools extends Vue {
 		this.$confirm("Block "+(this.messageData.user.displayName), "Are you sure you want to block this user ?<br>They will be removed from your followers.")
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			TwitchUtils.blockUser(this.messageData.user.id, this.messageData.channel_id);
+			TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
 		})
 	}
 
 	public timeoutUser(duration:number):void {
 		this.$emit('deleteUser', this.messageData);
-		TwitchUtils.banUser(this.messageData.user.id, this.messageData.channel_id, duration);
+		TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
 	}
 
 	public deleteMessage():void {

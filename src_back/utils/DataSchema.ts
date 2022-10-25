@@ -468,8 +468,6 @@ import Ajv from "ajv";
 					type:"array",
 					items:[{type:"string", maxLength:100}],
 				},
-				autoBlockFollows:{type:"boolean"},
-				autoUnblockFollows:{type:"boolean"},
 				autoEnableOnFollowbot:{type:"boolean"},
 			}
 		},

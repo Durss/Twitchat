@@ -4,32 +4,33 @@
 		<div class="holder" ref="holder">
 			<img src="@/assets/icons/emergency_purple.svg" alt="emergency" class="icon">
 			<div class="head">
-				<span class="title">Review {{follow.length}} follower(s)</span>
+				<span class="title">Review {{followers.length}} follower(s)</span>
 			</div>
 			<div class="content">
 				<div>Here is a list of all the users that followed you during the emergency:</div>
 				<div class="list">
 					<ul>
-						<li v-for="follower in follow" class="user">
+						<li v-for="follower in followers" :key="follower.id" :ref="'user_'+follower.id" :class="userClasses(follower)">
 							<div class="infos">
 								<span class="date">{{ formatDate(follower.date) }}</span>
 								<a class="name" data-tooltip="Open profile" :href="'https://twitch.tv/'+follower.user.login" target="_blank">{{ follower.user.displayName }}</a>
-								<img class="icon" data-tooltip="User has<br>been banned" v-if="follower.user.channelInfo[follower.channel_id].is_banned" src="@/assets/icons/ban_purple.svg" alt="banned">
-								<img class="icon" data-tooltip="User has<br>been blocked" v-if="follower.user.channelInfo[follower.channel_id].is_blocked === true" src="@/assets/icons/block_purple.svg" alt="blocked">
-								<img class="icon" data-tooltip="User has<br>been unblocked" v-if="follower.user.channelInfo[follower.channel_id].is_blocked === false" src="@/assets/icons/unblock_purple.svg" alt="unblocked">
 							</div>
 							<div class="ctas">
+								<Button small :disabled="batchActionInProgress" :loading="follower.loading" @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned !== true" highlight :icon="$image('icons/ban.svg')" />
+								<Button small :disabled="batchActionInProgress" :loading="follower.loading" @click="unban(follower)" data-tooltip="Unban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned === true" :icon="$image('icons/unban.svg')" />
+								<Button small :disabled="batchActionInProgress" :loading="follower.loading" @click="unfollow(follower)" data-tooltip="Remove from<br>my followers" v-if="follower.user.channelInfo[follower.channel_id].is_following == true" highlight :icon="$image('icons/unfollow_white.svg')" />
 								<Button class="cardBt" small data-tooltip="Open viewer details" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
-								<Button small @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned !== true" highlight :icon="$image('icons/ban.svg')" />
-								<Button small @click="unban(follower)" data-tooltip="Unban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned === true" :icon="$image('icons/unban.svg')" />
-								<Button small @click="block(follower)" data-tooltip="Block user" v-if="!follower.blocked || follower.user.channelInfo[follower.channel_id].is_blocked !== true" highlight :icon="$image('icons/block.svg')" />
-								<Button small @click="unblock(follower)" data-tooltip="Unblock user" v-if="follower.blocked && follower.user.channelInfo[follower.channel_id].is_blocked === true" :icon="$image('icons/unblock.svg')" />
+								<Button small @click="removeEntry(follower)" data-tooltip="Ignore this user" :icon="$image('icons/trash.svg')" />
 							</div>
 						</li>
 					</ul>
 				</div>
+				<div class="batchActions">
+					<Button @click="banAll()" bounce :loading="batchActionInProgress" title="Ban all" :icon="$image('icons/ban.svg')" />
+					<Button @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Unfollow all" :icon="$image('icons/unfollow_white.svg')" />
+					<Button @click="exportCSV()" bounce :loading="batchActionInProgress" title="Export as CSV" :icon="$image('icons/save.svg')" />
+				</div>
 				<div class="ctas">
-					<Button @click="copyList()" title="Copy CSV list to clipboard" :icon="$image('icons/copy.svg')" />
 					<Button class="later" @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
 					<Button highlight @click="clearList()" title="Finish & clear list" :icon="$image('icons/checkmark_white.svg')" />
 				</div>
@@ -54,37 +55,87 @@ import Button from '../Button.vue';
 })
 export default class EmergencyFollowsListModal extends Vue {
 
-	public get follow():TwitchatDataTypes.MessageFollowingData[] { return this.$store("emergency").follows; }
+	public batchActionInProgress:boolean = false;
+	
+	private today:Date = new Date();
+	private disposed:boolean = false;
+
+	public get followers():TwitchatDataTypes.MessageFollowingData[] { return this.$store("emergency").follows; }
+
+	public beforeMount(): void {
+		//TODO remove this debug
+		// this.followers[0].user = this.$store("users").getUserFrom("twitch", this.followers[0].channel_id, "181631", "test1", "test1");
+	}
+
+	public beforeUnmount(): void {
+		this.disposed = true;
+	}
+
+	public userClasses(follower:TwitchatDataTypes.MessageFollowingData):string[] {
+		const res = ["user"];
+		if(follower.loading) res.push("loading");
+		return res;
+	}
 
 	public formatDate(date:number):string {
 		const d = new Date(date)
 		return Utils.formatDate(d, true, d.getDate() == this.today.getDate());
 	}
 
-	private today:Date = new Date();
-
 	public openCard(follower:TwitchatDataTypes.MessageFollowingData):void {
 		this.$store("users").openUserCard(follower.user, follower.channel_id);
 	}
-		
+	
 	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.channelInfo[follow.channel_id].is_banned = true;
-		await TwitchUtils.banUser(follow.user.id, follow.channel_id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
+		follow.loading = true;
+		await TwitchUtils.banUser(follow.user, follow.channel_id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
+		follow.loading = false;
 	}
 		
 	public async unban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.channelInfo[follow.channel_id].is_banned = false;
-		await TwitchUtils.unbanUser(follow.user.id, follow.channel_id);
+		follow.loading = true;
+		await TwitchUtils.unbanUser(follow.user, follow.channel_id);
+		follow.loading = false;
 	}
 	
-	public async block(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.channelInfo[follow.channel_id].is_blocked = true;
-		await TwitchUtils.blockUser(follow.user.id, follow.channel_id, "spam");
+	public async unfollow(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
+		follow.loading = true;
+		await TwitchUtils.blockUser(follow.user, follow.channel_id, "spam");
+		follow.user.channelInfo[follow.channel_id].is_following = false;
+		await TwitchUtils.unblockUser(follow.user, follow.channel_id);
+		follow.loading = false;
 	}
 
-	public async unblock(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		follow.user.channelInfo[follow.channel_id].is_blocked = false;
-		await TwitchUtils.unblockUser(follow.user.id, follow.channel_id);
+	public async removeEntry(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
+		const list = this.followers;
+		const index = list.findIndex(v=> v.id == follow.id);
+		list.splice(index, 1);
+	}
+		
+	public async banAll():Promise<void> {
+		this.batchActionInProgress = true;
+		const list = this.followers;
+		for (let i = 0; i < list.length; i++) {
+			if(this.disposed) break;
+			const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
+			console.log(el);
+			el.scrollIntoView({block: "center", inline: "nearest"});
+			await this.ban(list[i]);
+		}
+		this.batchActionInProgress = false;
+	}
+	
+	public async unfollowAll():Promise<void> {
+		this.batchActionInProgress = true;
+		const list = this.followers;
+		for (let i = 0; i < list.length; i++) {
+			if(this.disposed) break;
+			const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
+			console.log(el);
+			el.scrollIntoView({block: "center", inline: "nearest"});
+			await this.unfollow(list[i]);
+		}
+		this.batchActionInProgress = false;
 	}
 
 	public clearList():void {
@@ -102,19 +153,25 @@ export default class EmergencyFollowsListModal extends Vue {
 		}).catch(()=>{/*ignore*/});
 	}
 
-	public copyList():void {
-		let csv = "Date,User ID, Login, Blocked, Unblocked, Banned\n";
-		const len = this.follow.length;
+	public exportCSV():void {
+		let csv = "Date, User ID, Login, Unfollowed, Banned\n";
+		const len = this.followers.length;
 		for (let i = 0; i < len; i++) {
-			csv += this.follow[i].date;
-			csv += "," + this.follow[i].user.id;
-			csv += "," + this.follow[i].user.login;
-			csv += "," + (this.follow[i].user.channelInfo[this.follow[i].channel_id].is_blocked === true? 1 : 0);
-			csv += "," + (this.follow[i].user.channelInfo[this.follow[i].channel_id].is_blocked === false? 1 : 0);
-			csv += "," + (this.follow[i].user.channelInfo[this.follow[i].channel_id].is_banned? 1 : 0);
+			csv += this.followers[i].date;
+			csv += "," + this.followers[i].user.id;
+			csv += "," + this.followers[i].user.login;
+			csv += "," + (this.followers[i].user.channelInfo[this.followers[i].channel_id].is_following === true? 0 : 1);
+			csv += "," + (this.followers[i].user.channelInfo[this.followers[i].channel_id].is_banned === true? 1 : 0);
 			if(i < len -1) csv += "\n";
 		}
-		Utils.copyToClipboard(csv);
+		
+		//Start download session
+		const blob = new Blob([csv], { type: 'application/json' });
+		const url = window.URL.createObjectURL(blob);
+		var link = document.createElement("a");
+		link.download = "emergency.csv";
+		link.href = url;
+		link.click();
 	}
 
 }
@@ -166,6 +223,10 @@ export default class EmergencyFollowsListModal extends Vue {
 					flex-direction: row;
 					align-items: center;
 
+					&.loading {
+						background-color: @mainColor_alert_extralight;
+					}
+
 					.infos {
 						flex-grow: 1;
 						display: flex;
@@ -195,7 +256,6 @@ export default class EmergencyFollowsListModal extends Vue {
 					.ctas {
 						display: flex;
 						flex-direction: row;
-						align-items: center;
 						.button:not(:last-child) {
 							margin-right: 2px;
 						}
@@ -208,6 +268,16 @@ export default class EmergencyFollowsListModal extends Vue {
 					&:not(:last-child) {
 						margin-bottom:.5em;
 					}
+				}
+			}
+			&>.batchActions {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-evenly;
+				flex-wrap: wrap;
+				margin-bottom: .25em;
+				.button  {
+					margin-bottom: .25em;
 				}
 			}
 

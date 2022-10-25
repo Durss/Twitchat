@@ -932,33 +932,9 @@ export default class PubSub extends EventDispatcher {
 		if(StoreProxy.emergency.emergencyStarted === true) {
 			for (let i = 0; i < this.lastRecentFollowers.length; i++) {
 				const followData = this.lastRecentFollowers[i];
-				
-				if(StoreProxy.emergency.params.autoBlockFollows === true){
-					message.blocked = true;
-					(async()=> {
-						let res = false;
-						if(simulationMode===true) {
-							res = true;
-						}else{
-							res = await TwitchUtils.blockUser(message.user.id, channelId, "spam");
-						}
-						followData.blocked = res;
-
-						//Unblock the user right away if requested
-						if(StoreProxy.emergency.params.autoUnblockFollows === true) {
-							if(simulationMode===true) {
-								res = true;
-							}else{
-								res = await TwitchUtils.unblockUser(message.user.id, channelId);
-							}
-							followData.blocked = !res;
-						}
-						StoreProxy.emergency.addEmergencyFollower(followData);
-					})();
-				}else{
-					StoreProxy.emergency.addEmergencyFollower(followData);
-				}
+				StoreProxy.emergency.addEmergencyFollower(followData);
 			}
+			this.lastRecentFollowers = [];
 		}
 
 		StoreProxy.chat.addMessage(message);

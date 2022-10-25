@@ -136,7 +136,7 @@ export default class Button extends Vue {
 		if(this.highlight !== false) list.push("highlight");
 		if(this.selected !== false) list.push("selected");
 		if(this.loading !== false) list.push("disabled", "loading");
-		if(this.disabled !== false) list.push("disabled");
+		else if(this.disabled !== false) list.push("disabled");
 		if(this.type == "checkbox") list.push("checkbox");
 		return list;
 	}

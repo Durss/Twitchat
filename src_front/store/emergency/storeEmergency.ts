@@ -38,8 +38,6 @@ export const storeEmergency = defineStore('emergency', {
 				all:false,
 				users:""
 			},
-			autoBlockFollows:false,
-			autoUnblockFollows:false,
 			autoEnableOnFollowbot:true,
 		},
 
@@ -90,9 +88,11 @@ export const storeEmergency = defineStore('emergency', {
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
-					for (let i = 0; i < users.length; i++) {
-						TwitchUtils.banUser(users[i].id, channelId, 600, "Timed out because the emergency mode has been triggers on Twitchat");
+					//TODO make sure it still works
+					for (let i = 0; i < usersNames.length; i++) {
+						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
+							TwitchUtils.banUser(u, channelId, 600, "Timed out because the emergency mode has been triggers on Twitchat");
+						});
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
@@ -116,9 +116,11 @@ export const storeEmergency = defineStore('emergency', {
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-					const users = await TwitchUtils.loadUserInfo(undefined, usersNames);
-					for (let i = 0; i < users.length; i++) {
-						TwitchUtils.unbanUser(users[i].id, channelId);
+					//TODO make sure it still works
+					for (let i = 0; i < usersNames.length; i++) {
+						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
+							TwitchUtils.unbanUser(u, channelId);
+						});
 					}
 				}
 				if(this.params.obsSources) {

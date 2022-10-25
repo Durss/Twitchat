@@ -480,7 +480,7 @@ export const storeChat = defineStore('chat', {
 					if(rule != null) {
 						MessengerProxy.instance.sendMessage(user.platform, )
 						if(user.platform == "twitch") {
-							TwitchUtils.banUser(user.id, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+							TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
 						}
 						//Most message on chat to alert the stream
 						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
@@ -522,7 +522,7 @@ export const storeChat = defineStore('chat', {
 						if(rule) {
 							if(message.user.platform == "twitch") {
 								message.user.channelInfo[message.channel_id].is_banned = true;
-								TwitchUtils.banUser(message.user.id, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
+								TwitchUtils.banUser(message.user, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 							}
 							//Most message on chat to alert the stream
 							const mess:TwitchatDataTypes.MessageAutobanJoinData = {

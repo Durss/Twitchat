@@ -1375,11 +1375,11 @@ export default class TwitchUtils {
 	/**
 	 * Bans a user
 	 */
-	public static async banUser(uid:string, channelId:string, duration?:number, reason?:string):Promise<boolean> {
+	public static async banUser(user:TwitchatDataTypes.TwitchatUser, channelId:string, duration?:number, reason?:string):Promise<boolean> {
 		if(duration != undefined && duration === 0) return false;
 
 		const body:{[key:string]:string|number} = {
-			user_id:uid,
+			user_id:user.id,
 		};
 		if(duration) body.duration = duration;
 		if(reason) body.reason = reason;
@@ -1394,8 +1394,8 @@ export default class TwitchUtils {
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 
 		const res = await fetch(url.href, options);
-		if(res.status == 204) {
-			StoreProxy.users.flagBanned("twitch", channelId, uid, duration);
+		if(res.status == 200) {
+			StoreProxy.users.flagBanned("twitch", channelId, user.id, duration);
 			return true;
 		}else{
 			return false;
@@ -1405,7 +1405,7 @@ export default class TwitchUtils {
 	/**
 	 * Unbans a user
 	 */
-	public static async unbanUser(uid:string, channelId:string):Promise<boolean> {
+	public static async unbanUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
 		const options = {
 			method:"DELETE",
 			headers: this.headers,
@@ -1413,11 +1413,11 @@ export default class TwitchUtils {
 		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
-		url.searchParams.append("user_id", uid);
+		url.searchParams.append("user_id", user.id);
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagUnbanned("twitch", uid, channelId);
+			StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 			return true;
 		}else{
 			return false;
@@ -1427,18 +1427,18 @@ export default class TwitchUtils {
 	/**
 	 * Blocks a user
 	 */
-	public static async blockUser(uid:string, channelId:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
+	public static async blockUser(user:TwitchatDataTypes.TwitchatUser, channelId:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
 		const options = {
 			method:"PUT",
 			headers: this.headers,
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
-		url.searchParams.append("target_user_id", uid);
+		url.searchParams.append("target_user_id", user.id);
 		if(reason) url.searchParams.append("reason", reason);
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagBlocked("twitch", uid, channelId);
+			StoreProxy.users.flagBlocked("twitch", channelId, user.id);
 			return true;
 		}else{
 			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
@@ -1450,7 +1450,7 @@ export default class TwitchUtils {
 				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
 				
 				await Utils.promisedTimeout(delay)
-				return this.blockUser(uid, channelId, reason, ++recursiveIndex);
+				return this.blockUser(user, channelId, reason, ++recursiveIndex);
 			}else{
 				return false;
 			}
@@ -1460,17 +1460,17 @@ export default class TwitchUtils {
 	/**
 	 * Unblocks a user
 	 */
-	public static async unblockUser(uid:string, channelId:string, recursiveIndex:number = 0):Promise<boolean> {
+	public static async unblockUser(user:TwitchatDataTypes.TwitchatUser, channelId:string, recursiveIndex:number = 0):Promise<boolean> {
 		const options = {
 			method:"DELETE",
 			headers: this.headers,
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
-		url.searchParams.append("target_user_id", uid);
+		url.searchParams.append("target_user_id", user.id);
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagUnblocked("twitch", uid, channelId);
+			StoreProxy.users.flagUnblocked("twitch", channelId, user.id);
 			return true;
 		}else{
 			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
@@ -1482,7 +1482,7 @@ export default class TwitchUtils {
 				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
 				
 				await Utils.promisedTimeout(delay)
-				return this.unblockUser(uid, channelId, ++recursiveIndex);
+				return this.unblockUser(user, channelId, ++recursiveIndex);
 			}else{
 				return false;
 			}

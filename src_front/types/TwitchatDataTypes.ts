@@ -740,7 +740,7 @@ export namespace TwitchatDataTypes {
 		user:TwitchatUser;
 		followed_at: number;
 		automod?: AutomodParamsKeywordFilterData;
-		blocked?:boolean;//If twitchat's automod strikes
+		loading?: boolean;//Used to indicate a ban/block process in progress on the emergency review
 	}
 
 	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
