@@ -492,6 +492,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface AutomodData {
+		words: string[];
 		reasons:string[];
 	}
 

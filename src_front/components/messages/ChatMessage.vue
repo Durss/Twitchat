@@ -15,12 +15,12 @@
 			<p><strong>{{messageData.user.displayName}}</strong> is returning after chatting twice the last 30 days</p>
 		</div>
 
-		<div v-if="automod" class="automod">
+		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
 			<div class="actions">
-				<Button aria-label="Accept automoded message" title="Accept" @click.stop="modMessage(true)" />
-				<Button aria-label="Reject automoded message" title="Reject" @click.stop="modMessage(false)" highlight />
+				<Button aria-label="Accept automoded message" title="Accept" @click.stop="modMessage(true)" :loading="automodInProgress" />
+				<Button aria-label="Reject automoded message" title="Reject" @click.stop="modMessage(false)" highlight :loading="automodInProgress" />
 			</div>
 		</div>
 		
@@ -139,7 +139,7 @@ import ChatModTools from './ChatModTools.vue';
 	emits:['showConversation', 'showUserMessages', 'mouseleave', 'ariaMessage'],
 })
 export default class ChatMessage extends Vue {
-
+ 
 	public messageData!:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
@@ -150,7 +150,6 @@ export default class ChatMessage extends Vue {
 	public text = "";
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public firstTime = false;
-	public automod:TwitchatDataTypes.AutomodParamsKeywordFilterData | null = null;
 	public automodReasons = "";
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
@@ -159,6 +158,7 @@ export default class ChatMessage extends Vue {
 	public isAnnouncement:boolean = false;
 	public isPresentation:boolean = false;
 	public isReturning:boolean = false;
+	public automodInProgress:boolean = false;
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
@@ -190,7 +190,7 @@ export default class ChatMessage extends Vue {
 		const sParams = this.$store("params");
 
 		if(message.cyphered)			res.push("cyphered");
-		if(this.automod)				res.push("automod");
+		if(this.automodReasons)			res.push("automod");
 		if(this.channelInfo.is_blocked)	res.push("blockedUser");
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.deleted) {
@@ -318,6 +318,7 @@ export default class ChatMessage extends Vue {
 	 */
 	public mounted():void {
 		const mess = this.messageData;
+		let highlightedWords:string[] = [];
 		
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -332,6 +333,7 @@ export default class ChatMessage extends Vue {
 			//Manage twitch automod content
 			if(!this.lightMode && mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
+				highlightedWords = mess.twitch_automod.words;
 			}
 
 			//Precompute static flag
@@ -405,6 +407,14 @@ export default class ChatMessage extends Vue {
 			this.text = this.messageData.message_html.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		}
 		this.$emit("ariaMessage", this.messageData.message);
+		
+		if(highlightedWords.length > 0) {
+			for (let i = 0; i < highlightedWords.length; i++) {
+				let word = highlightedWords[i];
+				word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				this.text = this.text.replace(new RegExp("("+word+")", "gim"), "<span class='highlightedWord'>$1</span>");
+			}
+		}
 
 		watch(()=>this.messageData.occurrenceCount, async ()=>{
 			await this.$nextTick();
@@ -456,6 +466,7 @@ export default class ChatMessage extends Vue {
 	 * Accept or reject an automoded chat message
 	 */
 	public async modMessage(accept:boolean):Promise<void> {
+		this.automodInProgress = true;
 		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
 		if(!success) {
 			this.$store("main").alert("Woops... something went wrong :(...");
@@ -464,6 +475,7 @@ export default class ChatMessage extends Vue {
 			//If the message was allowed, twitch will send it back, no need to keep it.
 			this.$store("chat").deleteMessage(this.messageData);
 		}
+		this.automodInProgress = false;
 	}
 
 	/**

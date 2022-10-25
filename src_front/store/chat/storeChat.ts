@@ -129,6 +129,18 @@ export const storeChat = defineStore('chat', {
 				needChannelPoints:true,
 			},
 			{
+				id:"tts",
+				cmd:"/tts {user}",
+				details:"Start reading the messages of a user",
+				needTTS:true,
+			},
+			{
+				id:"ttsoff",
+				cmd:"/ttsoff {user}",
+				details:"Stop reading the messages of a user",
+				needTTS:true,
+			},
+			{
 				id:"announce",
 				cmd:"/announce {message}",
 				details:"Makes an announcement",
@@ -180,23 +192,6 @@ export const storeChat = defineStore('chat', {
 				id:"to",
 				cmd:"/timeout {user} {duration} {reason}",
 				details:"Ban a user temporarily",
-			},
-			{
-				id:"unban",
-				cmd:"/unban {user}",
-				details:"Unban a user",
-			},
-			{
-				id:"tts",
-				cmd:"/tts {user}",
-				details:"Start reading the messages of a user",
-				needTTS:true,
-			},
-			{
-				id:"ttsoff",
-				cmd:"/ttsoff {user}",
-				details:"Stop reading the messages of a user",
-				needTTS:true,
 			},
 			{
 				id:"ban",

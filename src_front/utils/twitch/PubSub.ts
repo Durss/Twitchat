@@ -696,16 +696,18 @@ export default class PubSub extends EventDispatcher {
 
 			//Rebuild message
 			let textMessage = "";
+			const words:string[] = [];
 			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 				const el = localObj.message.content.fragments[i];
-				if(el.automod != undefined) textMessage += "<mark>"
+				if(el.automod != undefined) {
+					words.push(el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				}
 				if(el.emoticon) {
 					textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
 				}else{
 					//Avoid XSS attack
 					textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 				}
-				if(el.automod != undefined) textMessage += "</mark>"
 			}
 
 			let user = localObj.message.sender;
@@ -721,7 +723,7 @@ export default class PubSub extends EventDispatcher {
 				answers:[],
 				message:textMessage.replace(/<[^>]*>/gi, ""),
 				message_html:textMessage,
-				twitch_automod:{ reasons },
+				twitch_automod:{ reasons, words },
 			}
 			StoreProxy.chat.addMessage(m);
 
