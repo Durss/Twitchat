@@ -19,7 +19,14 @@
 
 				<ChatJoinLeave class="message"
 					:messageData="m"
-					v-else-if="m.type == 'join' || m.type == 'leave' && !lightMode"
+					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
+					:ref="'message_'+m.id"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+				/>
+
+				<ChatConnect class="message"
+					:messageData="m"
+					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
 					:ref="'message_'+m.id"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 				/>
@@ -163,6 +170,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
 import ChatBingoResult from './ChatBingoResult.vue';
+import ChatConnect from './ChatConnect.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
@@ -178,6 +186,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 		Button,
 		ChatAd,
 		ChatNotice,
+		ChatConnect,
 		ChatMessage,
 		ChatHighlight,
 		ChatJoinLeave,
@@ -737,6 +746,7 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 		const messRefs = this.$refs.message as HTMLDivElement[];
+		if(!messRefs) return;
 		const lastMessRef = messRefs[ messRefs.length - 1 ];
 
 		//This avoids a glith when a filtered message is receive.

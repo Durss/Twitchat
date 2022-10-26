@@ -529,6 +529,7 @@ export namespace TwitchatDataTypes {
 		MESSAGE:"message",
 		TIMEOUT:"timeout",
 		WHISPER:"whisper",
+		CONNECT:"connect",
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
 		FOLLOWING:"following",
@@ -621,6 +622,8 @@ export namespace TwitchatDataTypes {
 									MessageShoutoutData |
 									MessageVoicemodData |
 									MessageChatHighlightData |
+									MessageConnectData |
+									MessageDisconnectData |
 									MessageNoticeData
 	;
 
@@ -836,6 +839,18 @@ export namespace TwitchatDataTypes {
 		type:"raid";
 		user:TwitchatUser;
 		viewers:number;
+	}
+
+	export interface MessageConnectData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"connect";
+		user:TwitchatUser;
+	}
+
+	export interface MessageDisconnectData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"disconnect";
+		user:TwitchatUser;
 	}
 
 	export interface MessageJoinData extends AbstractTwitchatMessage {

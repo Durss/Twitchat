@@ -3,7 +3,6 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
-import Config from '@/utils/Config';
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
@@ -110,7 +109,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				TwitchUtils.loadCheermoteList(v.id);
 				//Load chatters list if we have necessary rights
 				TwitchUtils.getChatters(v.id, v.login).then(res => {
-					if(res != false) res.forEach(u => this.onJoin(v.login, u));
+					if(res != false) res.forEach((login) => {
+						//Don't notify when joining our own room.
+						//There's a "connect" notification for that
+						if(v.login != login || v.id != StoreProxy.auth.twitch.user.id) {
+							this.onJoin(v.login, login)
+						}
+					});
 				});
 				BTTVUtils.instance.addChannel(v.id);
 				FFZUtils.instance.addChannel(v.id);
@@ -131,12 +136,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				};
 				this._client = new tmi.Client(options);
 				this._client.connect();
+				
 				this.initialize();
 			}else{
 				//Already connected to IRC, add channel to the list
 				//and reconnect IRC client
 				const params = this._client.getOptions();
 				params.channels = this._channelList;
+
 				this.reconnect();
 			}
 		}, 100);
@@ -419,15 +426,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param login 
 	 * @returns 
 	 */
-	private getUserFromLogin(login:string, channelId:string):TwitchatDataTypes.TwitchatUser {
+	private getUserFromLogin(login:string, channelId:string):{user:TwitchatDataTypes.TwitchatUser, wasOnline:boolean} {
 		//Search if a user with this name and source exists on store
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
 		user.is_partner		= false;
 		user.is_affiliate	= false;
+		const wasOnline = user.channelInfo[channelId].online === true;
 		user.channelInfo[channelId].online = true;
-		return user;
+		return {user, wasOnline};
 	}
 	
 	/**
@@ -634,27 +642,58 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
 			return;
 		}
+
 		const channel_id = this.getChannelID(channelName);
-		this.dispatchEvent(new MessengerClientEvent("JOIN", {
-			platform:"twitch",
-			type:"join",
-			id:Utils.getUUID(),
-			channel_id,
-			date:Date.now(),
-			users:[this.getUserFromLogin(username, channel_id)],
-		}));
+		const data = this.getUserFromLogin(username, channel_id);
+
+		if(username.toLowerCase() == channelName.replace("#", "").toLowerCase()) {
+			const d:TwitchatDataTypes.MessageConnectData = {
+				platform:"twitch",
+				type:"connect",
+				id:Utils.getUUID(),
+				date:Date.now(),
+				channel_id,
+				user:data.user,
+			};
+			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
+		}else{
+
+			if(data.wasOnline === true) return;//User was already here, don't send join notification
+			this.dispatchEvent(new MessengerClientEvent("JOIN", {
+				platform:"twitch",
+				type:"join",
+				id:Utils.getUUID(),
+				channel_id,
+				date:Date.now(),
+				users:[data.user],
+			}));
+		}
 	}
 
-	private onLeave(channel:string, user:string):void {
-		const channel_id = this.getChannelID(channel);
-		this.dispatchEvent(new MessengerClientEvent("LEAVE", {
-			platform:"twitch",
-			type:"leave",
-			id:Utils.getUUID(),
-			channel_id,
-			date:Date.now(),
-			users:[this.getUserFromLogin(user, channel_id)],
-		}));
+	private onLeave(channelName:string, username:string):void {
+		const channel_id = this.getChannelID(channelName);
+		const data = this.getUserFromLogin(username, channel_id);
+
+		if(username.toLowerCase() == channelName.replace("#", "").toLowerCase()) {
+			const d:TwitchatDataTypes.MessageDisconnectData = {
+				platform:"twitch",
+				type:"disconnect",
+				id:Utils.getUUID(),
+				date:Date.now(),
+				channel_id,
+				user:data.user,
+			};
+			this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", d));
+		}else{
+			this.dispatchEvent(new MessengerClientEvent("LEAVE", {
+				platform:"twitch",
+				type:"leave",
+				id:Utils.getUUID(),
+				channel_id,
+				date:Date.now(),
+				users:[data.user],
+			}));
+		}
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
@@ -689,7 +728,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id)];
+		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -697,14 +736,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths
-		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id)];
+		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
 	private giftpaidupgrade(channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
-		data.gift_upgradeSender = this.getUserFromLogin(username, data.channel_id);
+		data.gift_upgradeSender = this.getUserFromLogin(username, data.channel_id).user;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -724,7 +763,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	// 		id:Utils.getUUID(),
 	// 		channel_id,
 	// 		date:Date.now(),
-	// 		user:this.getUserFromLogin(username, channel_id),
+	// 		user:this.getUserFromLogin(username, channel_id).user,
 	// 		reason,
 	// 		message:"User "+username+" has been banned",
 	// 	}));
@@ -740,7 +779,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	// 		id:Utils.getUUID(),
 	// 		channel_id,
 	// 		date:Date.now(),
-	// 		user:this.getUserFromLogin(username, channel_id),
+	// 		user:this.getUserFromLogin(username, channel_id).user,
 	// 		duration_s:duration,
 	// 		reason,
 	// 		message:username+" has been temporary banned for "+duration+" seconds",
@@ -755,7 +794,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
-			user:this.getUserFromLogin(username, channel_id),
+			user:this.getUserFromLogin(username, channel_id).user,
 			viewers
 		}));
 	}
@@ -764,16 +803,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Don't show disconnect info if its a reconnect
 		if(this._refreshingToken) return;
 
-		const eventData:TwitchatDataTypes.MessageNoticeData = {
+		console.log('reason', reason);
+
+		const eventData:TwitchatDataTypes.MessageDisconnectData = {
 			channel_id: "twitchat",
-			id:Utils.getUUID(),
-			type:"notice",
-			date:Date.now(),
 			platform:"twitch",
-			message:"You have been disconnected from the chat :(",
-			noticeId:TwitchatDataTypes.TwitchatNoticeType.OFFLINE,
+			id:Utils.getUUID(),
+			type:"disconnect",
+			date:Date.now(),
+			user:StoreProxy.auth.twitch.user,
 		};
-		this.dispatchEvent(new MessengerClientEvent("NOTICE", eventData));
+		this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", eventData));
 	}
 
 	private clearchat(channel:string):void {
@@ -817,7 +857,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					channel_id:channelId,
 					platform:"twitch",
 					user: this.getUserFromTags(tags, channelId),
-					to: this.getUserFromLogin(toLogin, channelId),
+					to: this.getUserFromLogin(toLogin, channelId).user,
 					message:message,
 					message_html:TwitchUtils.parseEmotes(message, tags["emotes-raw"]),
 				};

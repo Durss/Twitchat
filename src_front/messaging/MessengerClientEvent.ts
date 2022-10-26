@@ -17,6 +17,8 @@ export default class MessengerClientEvent extends Event {
 	public static REFRESH_TOKEN = "REFRESH_TOKEN";
 	public static REWARD = "REWARD";
 	public static NOTICE = "NOTICE";
+	public static CONNECTED = "CONNECTED";
+	public static DISCONNECTED = "DISCONNECTED";
 
 	public data?:	TwitchatDataTypes.MessageChatData |
 					TwitchatDataTypes.MessageWhisperData |
@@ -24,19 +26,20 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.MessageCheerData |
 					TwitchatDataTypes.MessageJoinData |
 					TwitchatDataTypes.MessageLeaveData |
+					TwitchatDataTypes.MessageConnectData |
 					TwitchatDataTypes.MessageBanData |
-					TwitchatDataTypes.MessageTimeoutData |
 					TwitchatDataTypes.MessageRaidData |
 					TwitchatDataTypes.MessageClearChatData |
 					TwitchatDataTypes.MessageRewardRedeemData |
 					TwitchatDataTypes.MessageNoticeData |
-					TwitchatDataTypes.MessageBanData |
 					TwitchatDataTypes.MessageTimeoutData
 					;
 	
 	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
 	constructor(type:"WHISPER", data:TwitchatDataTypes.MessageWhisperData);
 	constructor(type:"CHEER", data:TwitchatDataTypes.MessageCheerData);
+	constructor(type:"CONNECTED", data:TwitchatDataTypes.MessageConnectData);
+	constructor(type:"DISCONNECTED", data:TwitchatDataTypes.MessageDisconnectData);
 	constructor(type:"JOIN", data:TwitchatDataTypes.MessageJoinData);
 	constructor(type:"LEAVE", data:TwitchatDataTypes.MessageLeaveData);
 	constructor(type:"BAN", data:TwitchatDataTypes.MessageBanData);

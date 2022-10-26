@@ -41,8 +41,8 @@
 		</div>
 
 		<div class="users">
-			<img src="@/assets/icons/user.svg" alt="users">
 			<Button v-for="(chan, name) in channels" :key="name"
+			v-if="Object.keys(channels).length > 1"
 			white
 			:class="currentChanId == name? 'current' : ''"
 			@click="currentChan = chan; currentChanId = name as string;"
