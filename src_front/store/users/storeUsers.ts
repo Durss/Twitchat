@@ -264,7 +264,11 @@ export const storeUsers = defineStore('users', {
 										delete userLocal.temporary;
 										this.users.push(userLocal);
 										this.checkPronouns(userLocal);
-										if(channelId && user.channelInfo[channelId].is_following === null) {
+										if(channelId && !userLocal.channelInfo[channelId]) {
+											console.error("Error! User "+userLocal.login+" is missing the channelInfo for channel ID", channelId);
+											console.log(userLocal);
+										}
+										if(channelId && userLocal.channelInfo[channelId].is_following === null) {
 											this.checkFollowerState(userLocal, channelId);
 										}
 									}
