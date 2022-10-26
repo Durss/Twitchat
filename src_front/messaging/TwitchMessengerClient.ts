@@ -806,7 +806,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		console.log('reason', reason);
 
 		const eventData:TwitchatDataTypes.MessageDisconnectData = {
-			channel_id: "twitchat",
+			channel_id: StoreProxy.auth.twitch.user.id,
 			platform:"twitch",
 			id:Utils.getUUID(),
 			type:"disconnect",

@@ -3,7 +3,7 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark_white' : 'cross_alert')+'.svg')" alt="notice" class="icon">
 		<span v-if="messageData.type == 'connect'">Welcome to the chat room <strong>{{channelName}}</strong></span>
-		<span v-else>You have been disconnected from the chat room <strong>{{channelName}}</strong></span>
+		<span v-else>You have been disconnected from the chat</span>
 	</div>
 </template>
 
@@ -46,7 +46,7 @@ export default class ChatConnect extends Vue {
 			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.CONNECT) {
 				this.message = "Welcome to chat room "+this.channelName;
 			}else{
-				this.message = "You have been disconnected from the chat room "+this.channelName;
+				this.message = "You have been disconnected from the chat";
 			}
 			this.$emit("ariaMessage", this.message);
 		}
@@ -69,7 +69,7 @@ export default class ChatConnect extends Vue {
 	}
 	
 	&.disconnect {
-		color: @mainColor_alert;
+		color: @mainColor_alert_light;
 	}
 	
 }

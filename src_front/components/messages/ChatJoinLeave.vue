@@ -100,12 +100,11 @@ export default class ChatJoinLeave extends Vue {
 	opacity: .7;
 	color: @mainColor_warn;
 
-	a {
-		color: @mainColor_warn;
-		&:hover {
-			background: rgba(0, 0, 0, .5);
-		}
-		color: lighten(@mainColor_warn, 15%);
+	a, strong {
+		color: @mainColor_warn_light;
+	}
+	a:hover {
+		background: @mainColor_dark;
 	}
 	
 	.icon {
@@ -116,10 +115,10 @@ export default class ChatJoinLeave extends Vue {
 	}
 
 	&.alert {
-		color: @mainColor_alert;
+		color: @mainColor_alert_light;
 		
-		a {
-			color: lighten(@mainColor_alert, 10%);
+		a, strong {
+			color: saturate(lighten(@mainColor_alert_light, 5%), 50%);
 		}
 	}
 }
