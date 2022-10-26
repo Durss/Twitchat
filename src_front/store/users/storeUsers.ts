@@ -201,18 +201,29 @@ export const storeUsers = defineStore('users', {
 						}
 					}
 					
-					let logins = twitchUserBatchToLoad.map(v=> v.user.login);
+					let logins = batchMode? twitchUserBatchToLoad.map(v=> v.user.login) : [];
 					
 					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined)
 					.then(async (res) => {
 						user = user!;
 						//If not loading by batch, just parse the users sent back by API
-						if(logins.length==0) logins = res.map(v=> v.login);
+						if(logins.length==0) {
+							logins = res.map(v=> v.login);
+							//Requested user not found
+							if(logins.length == 0) {
+								user.displayName = "error(#"+(user!.id)+")";
+								user.login = "error(#"+(user!.id)+")";
+								user.errored = true;
+								delete user.temporary;
+								return;
+							}
+						}
 
 						for (let i = 0; i < logins.length; i++) {
-							const l = logins[i];
-							const apiUser = res.find(v => v.login == l);
+							const login = logins[i];
+							const apiUser = res.find(v => v.login == login);
 							if(!apiUser) {
+								console.log("NOT FOUND", user.login, user.id);
 								//User not sent back by twitch API.
 								//Most probably because login is wrong or user is banned
 								user.displayName = "error(#"+(user!.id)+")";
@@ -227,12 +238,12 @@ export const storeUsers = defineStore('users', {
 								if(batchMode) {
 									//If loading by batch, replace local user by the one from
 									//the batch
-									const data = twitchUserBatchToLoad.find(v => v.user.login === l);
+									const data = twitchUserBatchToLoad.find(v => v.user.login === login);
 									if(data) {
 										userLocal = data.user;
 										channelId = data.channelId;
 									}else{
-										console.warn("Could not load back the user \""+l+"\" from the batch ref");
+										console.warn("Could not load back the user \""+login+"\" from the batch ref");
 										error = true;
 									}
 								}
@@ -259,7 +270,7 @@ export const storeUsers = defineStore('users', {
 									}
 								}
 							}
-							let index = twitchUserBatchToLoad.findIndex(v => v.user.login === l);
+							let index = twitchUserBatchToLoad.findIndex(v => v.user.login === login);
 							twitchUserBatchToLoad.splice(index, 1);
 							if(loadCallback) loadCallback(user);
 						}
