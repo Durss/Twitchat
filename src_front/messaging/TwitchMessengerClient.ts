@@ -105,6 +105,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelLoginToId[v.login] = v.id;
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
+				const meId = StoreProxy.auth.twitch.user.id;
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
 				//Load chatters list if we have necessary rights
@@ -113,7 +114,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						//Don't notify when joining our own room.
 						//There's a "connect" notification for that
 						if(v.login != login || v.id != StoreProxy.auth.twitch.user.id) {
-							this.onJoin(v.login, login)
+							this.onJoin(v.login, login, v.id == meId, true)
 						}
 					});
 				});
@@ -636,36 +637,40 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
 	}
 
-	private onJoin(channelName:string, username:string):void {
-		if(this._refreshingToken && username == StoreProxy.auth.twitch.user.login) {
+	private onJoin(channelName:string, username:string, self:boolean, fakeJoin = false):void {
+		if(this._refreshingToken && self) {
 			//Don't show join info during a reconnect
 			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
 			return;
 		}
 
 		const channel_id = this.getChannelID(channelName);
-		const data = this.getUserFromLogin(username, channel_id);
+		const user = this.getUserFromLogin(username, channel_id);
 
-		if(username.toLowerCase() == channelName.replace("#", "").toLowerCase()) {
+		if(self) {
+			//When we are on someonelse's room before connecting to IRC the "chatters"
+			//service returns our nickname but it's not an actual IRC connection.
+			//Ignore it as the actual connection event will come
+			if(fakeJoin === true) return;
 			const d:TwitchatDataTypes.MessageConnectData = {
 				platform:"twitch",
 				type:"connect",
 				id:Utils.getUUID(),
 				date:Date.now(),
 				channel_id,
-				user:data.user,
+				user:user.user,
 			};
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
 		}else{
 
-			if(data.wasOnline === true) return;//User was already here, don't send join notification
+			if(user.wasOnline === true) return;//User was already here, don't send join notification
 			this.dispatchEvent(new MessengerClientEvent("JOIN", {
 				platform:"twitch",
 				type:"join",
 				id:Utils.getUUID(),
 				channel_id,
 				date:Date.now(),
-				users:[data.user],
+				users:[user.user],
 			}));
 		}
 	}
@@ -753,39 +758,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 
-	//Info grabbed from pubsub
-	// private ban(channel: string, username: string, reason: string):void {
-	// 	const channel_id = this.getChannelID(channel);
-	// 	this.dispatchEvent(new MessengerClientEvent("NOTICE", {
-	// 		platform:"twitch",
-	// 		type:"notice",
-	// 		noticeId:TwitchatDataTypes.TwitchatNoticeType.BAN,
-	// 		id:Utils.getUUID(),
-	// 		channel_id,
-	// 		date:Date.now(),
-	// 		user:this.getUserFromLogin(username, channel_id).user,
-	// 		reason,
-	// 		message:"User "+username+" has been banned",
-	// 	}));
-	// }
-
-	//Info grabbed from pubsub
-	// private timeout(channel: string, username: string, reason: string, duration: number):void {
-	// 	const channel_id = this.getChannelID(channel);
-	// 	this.dispatchEvent(new MessengerClientEvent("NOTICE", {
-	// 		platform:"twitch",
-	// 		type:"notice",
-	// 		noticeId:TwitchatDataTypes.TwitchatNoticeType.TIMEOUT,
-	// 		id:Utils.getUUID(),
-	// 		channel_id,
-	// 		date:Date.now(),
-	// 		user:this.getUserFromLogin(username, channel_id).user,
-	// 		duration_s:duration,
-	// 		reason,
-	// 		message:username+" has been temporary banned for "+duration+" seconds",
-	// 	}));
-	// }
-
 	private raided(channel: string, username: string, viewers: number):void {
 		const channel_id = this.getChannelID(channel);
 		this.dispatchEvent(new MessengerClientEvent("RAID", {
@@ -803,7 +775,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Don't show disconnect info if its a reconnect
 		if(this._refreshingToken) return;
 
-		console.log('reason', reason);
+		console.log('Disconnected for reason: ', reason);
 
 		const eventData:TwitchatDataTypes.MessageDisconnectData = {
 			channel_id: StoreProxy.auth.twitch.user.id,
