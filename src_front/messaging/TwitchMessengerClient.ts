@@ -395,6 +395,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isPartner		= tags.badges?.partner != undefined;
 
 		user.channelInfo[channelId].online	= true;
+		delete user.temporary;//Avoids useless server call
 		
 		if(tags.color)		user.color = tags.color;
 		if(isMod)			user.channelInfo[channelId].is_moderator = true;
@@ -431,10 +432,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Search if a user with this name and source exists on store
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
-		const user			= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
-		user.is_partner		= false;
-		user.is_affiliate	= false;
-		const wasOnline = user.channelInfo[channelId].online === true;
+		const user		= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
+		const wasOnline	= user.channelInfo[channelId].online === true;
 		user.channelInfo[channelId].online = true;
 		return {user, wasOnline};
 	}

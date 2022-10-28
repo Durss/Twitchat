@@ -13,8 +13,16 @@ let userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	displayNameToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 }}> = {};
 
-let twitchUserBatchToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
-let twitchUserBatchTimeout:number = -1;
+interface BatchItem {
+	channelId?:string;
+	user:TwitchatDataTypes.TwitchatUser
+	cb?:(user:TwitchatDataTypes.TwitchatUser) => void;
+}
+
+let twitchUserBatchLoginToLoad:BatchItem[] = [];
+let twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
+let twitchUserBatchLoginTimeout:number = -1;
+let twitchUserBatchIdTimeout:number = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
@@ -124,7 +132,7 @@ export const storeUsers = defineStore('users', {
 				if(!login || !id || !displayName) {
 					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform:platform,
-						id:id??"temporary_"+Utils.getUUID(),
+						id:id??Utils.getUUID(),
 						login:login??displayName??"",
 						displayName:displayName??login??"",
 						greeted:false,
@@ -149,6 +157,9 @@ export const storeUsers = defineStore('users', {
 			//actually exists as it cannot be undefined anymore once
 			//we're here.
 			user = user!;
+				
+			if(!user.displayName) user.displayName = "...loading...";
+			if(!user.login) user.login = "...loading...";
 
 			if(channelId) {
 				//Init channel data for this user
@@ -173,118 +184,99 @@ export const storeUsers = defineStore('users', {
 				}
 			}
 
+			//User was already existing, consider stop there
 			if(userExisted){
 				if(loadCallback) loadCallback(user);
 				return user;
 			}
 
 			if(platform == "twitch") {
-				const batchMode = !id && login;
-				
-				if(!user!.displayName) user!.displayName = "...loading...";
-				if(!user!.login) user!.login = "...loading...";
-				
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
-				const to = setTimeout(()=> {
-					if(user && !user.temporary && id && login) {
-						//User not pending for necessary data loading, check if the
-						//partner/affiliate state is defined, if so, just stop there
-						//Otherwise, load full info from API
-						if(user!.is_partner != undefined
-						|| user!.is_affiliate != undefined) {
-							if(loadCallback) loadCallback(user);
-							return;
+				const to = setTimeout((batchType:"id"|"login")=> {
+					
+					let batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
+					//Remove items that might have been fullfilled externally
+					for (let i = 0; i < batch.length; i++) {
+						const item = batch[i];
+						if(!item.user.temporary) {
+							this.checkPronouns(item.user);
+							if(channelId && item.user.channelInfo[channelId].is_following === null) {
+								this.checkFollowerState(item.user, channelId);
+							}
+							batch.splice(i,1);
+							i--;
 						}
 					}
-					
-					let logins = batchMode? twitchUserBatchToLoad.map(v=> v.user.login) : [];
-					
-					TwitchUtils.loadUserInfo(id? [id] : undefined, !id? logins : undefined)
-					.then(async (res) => {
-						user = user!;
-						//If not loading by batch, just parse the users sent back by API
-						if(logins.length==0) {
-							logins = res.map(v=> v.login);
-							//Requested user not found
-							if(logins.length == 0) {
-								user.displayName = "error(#"+(user!.id)+")";
-								user.login = "error(#"+(user!.id)+")";
-								user.errored = true;
-								delete user.temporary;
-								return;
-							}
-						}
 
-						for (let i = 0; i < logins.length; i++) {
-							const login = logins[i];
-							const apiUser = res.find(v => v.login == login);
+					let logins:string[]|undefined	= batchType == "login"? batch.map(v=>v.user.login) : undefined;
+					let ids:string[]|undefined		= batchType == "login"? undefined : batch.map(v=>v.user.id);
+
+					// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
+					
+					TwitchUtils.loadUserInfo(ids, logins)
+					.then(async (res) => {
+						// console.log("Batch loaded", batchType);
+						// console.log(res);
+						// console.log(JSON.parse(JSON.stringify(batch)));
+
+						do {
+							const batchItem:BatchItem = batch.splice(0, 1)[0];
+							let userLocal = batchItem.user;
+							delete userLocal.temporary;
+							// console.log("Search user", batchType=="id"? userLocal.id : userLocal.login);
+							type UserKeys = keyof TwitchatDataTypes.TwitchatUser;
+							const key:UserKeys = batchType;
+							const apiUser = res.find(v => v[key].toLowerCase() == userLocal[key].toLowerCase());
 							if(!apiUser) {
-								console.log("NOT FOUND", user.login, user.id);
+								// console.log("User not found.... ", userLocal.login, userLocal.id);
 								//User not sent back by twitch API.
 								//Most probably because login is wrong or user is banned
-								user.displayName = "error(#"+(user!.id)+")";
-								user.login = "error(#"+(user!.id)+")";
-								user.errored = true;
-								delete user.temporary;
+								userLocal.displayName = userLocal.displayName+" error(#"+(user!.id)+")";
+								userLocal.login = userLocal.login+" error(#"+(user!.id)+")";
+								userLocal.errored = true;
+								
 							}else{
+								
 								//User sent back by API
-
-								let userLocal = user;
-								let error = false;
-								if(batchMode) {
-									//If loading by batch, replace local user by the one from
-									//the batch
-									const data = twitchUserBatchToLoad.find(v => v.user.login === login);
-									if(data) {
-										userLocal = data.user;
-										channelId = data.channelId;
-									}else{
-										console.warn("Could not load back the user \""+login+"\" from the batch ref");
-										error = true;
-									}
-								}
-
-								if(!error) {
-									//Update user info with the API data
-									userLocal.id				= apiUser.id;
-									userLocal.login				= apiUser.login;
-									userLocal.displayName		= apiUser.display_name;
-									userLocal.is_partner		= apiUser.broadcaster_type == "partner";
-									userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
-									userLocal.avatarPath		= apiUser.profile_image_url;
-									if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
-									if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
-									if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
-									if(userLocal.temporary) {
-										//If user was temporary, load more info
-										delete userLocal.temporary;
-										this.users.push(userLocal);
-										this.checkPronouns(userLocal);
-										if(channelId && !userLocal.channelInfo[channelId]) {
-											console.error("Error! User "+userLocal.login+" is missing the channelInfo for channel ID", channelId);
-											console.log(userLocal);
-										}
-										if(channelId && userLocal.channelInfo[channelId].is_following === null) {
-											this.checkFollowerState(userLocal, channelId);
-										}
+								//Update user info with the API data
+								// console.log("User found", apiUser.login, apiUser.id);
+								userLocal.id				= apiUser.id;
+								userLocal.login				= apiUser.login;
+								userLocal.displayName		= apiUser.display_name;
+								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
+								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
+								userLocal.avatarPath		= apiUser.profile_image_url;
+								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
+								if(userLocal.temporary) {
+									//If user was temporary, load more info
+									delete userLocal.temporary;
+									this.checkPronouns(userLocal);
+									if(channelId && userLocal.channelInfo[channelId].is_following === null) {
+										this.checkFollowerState(userLocal, channelId);
 									}
 								}
 							}
-							let index = twitchUserBatchToLoad.findIndex(v => v.user.login === login);
-							twitchUserBatchToLoad.splice(index, 1);
-							if(loadCallback) loadCallback(user);
-						}
+							if(batchItem.cb) batchItem.cb(userLocal);
+						}while(batch.length > 0);
 					});
-				}, 500);
-				//Only batch requests by login
-				if(batchMode) {
-					twitchUserBatchToLoad.push({user, channelId});
-					if(twitchUserBatchTimeout > -1) clearTimeout(twitchUserBatchTimeout);
-					twitchUserBatchTimeout = to;
+				}, 500, login? "login": "id");
+
+				//Batch requests by types.
+				//All items loaded by their IDs on one batch, by logins on another batch.
+				if(login) {
+					twitchUserBatchLoginToLoad.push({user, channelId, cb:loadCallback});
+					if(twitchUserBatchLoginTimeout > -1) clearTimeout(twitchUserBatchLoginTimeout);
+					twitchUserBatchLoginTimeout = to;
+				} else {
+					twitchUserBatchIdToLoad.push({user, channelId, cb:loadCallback});
+					if(twitchUserBatchIdTimeout > -1) clearTimeout(twitchUserBatchIdTimeout);
+					twitchUserBatchIdTimeout = to;
 				}
 			}
 			
@@ -296,13 +288,14 @@ export const storeUsers = defineStore('users', {
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
 
 			if(user.temporary != true) {
-				this.users.push(user);
 				this.checkPronouns(user);
 				if(channelId && user.channelInfo[channelId].is_following === null) {
 					this.checkFollowerState(user, channelId);
 				}
 				if(loadCallback) loadCallback(user);
 			}
+
+			this.users.push(user);
 
 			return user;
 		},

@@ -87,6 +87,7 @@ export default class CommandHelper extends Vue {
 	}
 
 	public get hasChannelPoints():boolean {
+		console.log(this.$store("auth").twitch.user);
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
 

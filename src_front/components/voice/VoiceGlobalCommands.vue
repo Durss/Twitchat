@@ -41,9 +41,9 @@ export default class VoiceGlobalCommands extends Vue {
 
 	public mounted():void {
 		// const actions = this.$store("voice").voiceActions;
+		type VAKeys = keyof typeof VoiceAction;
 		const actions = Object.keys(VoiceAction);
 		this.openLocal = this.open;
-		type VAKeys = keyof typeof VoiceAction;
 
 		//Search for global labels
 		for (let i = 0; i < actions.length; i++) {
