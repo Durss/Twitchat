@@ -8,23 +8,64 @@
 			</div>
 			<div class="content">
 				<div>Here is a list of all the users that followed you during the emergency:</div>
-				<div class="list">
-					<ul>
-						<li v-for="follower in followers" :key="follower.id" :ref="'user_'+follower.id" :class="userClasses(follower)">
+				<div class="searchField">
+					<span>Search</span>
+					<input type="text" v-model="search" placeholder="username...">
+				</div>
+				<ul class="list" :style="{height:(27*followers.length)+'px'}">
+					<InfiniteList class="list" ref="list"
+					v-if="followers.length > 0"
+					:dataset="followers"
+					:itemSize="22"
+					:itemMargin="5"
+					lockScroll
+					nodeType="li"
+					:style="{height:'100%'}"
+					v-slot="{ item }">
+					<!-- v-model:scrollOffset="0" -->
+						<div :class="userClasses(item)">
 							<div class="infos">
-								<span class="date">{{ formatDate(follower.date) }}</span>
-								<a class="name" data-tooltip="Open profile" :href="'https://twitch.tv/'+follower.user.login" target="_blank">{{ follower.user.displayName }}</a>
+								<span class="date">{{ formatDate(item.date) }}</span>
+								<a class="name" data-tooltip="Open profile"
+								:href="'https://twitch.tv/'+item.user.login" target="_blank">
+									{{ item.user.displayName }}
+								</a>
 							</div>
 							<div class="ctas">
-								<Button small :disabled="batchActionInProgress" :loading="follower.loading" @click="ban(follower)" data-tooltip="Permaban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned !== true" highlight :icon="$image('icons/ban.svg')" />
-								<Button small :disabled="batchActionInProgress" :loading="follower.loading" @click="unban(follower)" data-tooltip="Unban user" v-if="follower.user.channelInfo[follower.channel_id].is_banned === true" :icon="$image('icons/unban.svg')" />
-								<Button small :disabled="batchActionInProgress" :loading="follower.loading" @click="unfollow(follower)" data-tooltip="Remove from<br>my followers" v-if="follower.user.channelInfo[follower.channel_id].is_following == true" highlight :icon="$image('icons/unfollow_white.svg')" />
-								<Button class="cardBt" small data-tooltip="Open viewer details" @click="openCard(follower)" :icon="$image('icons/info.svg')" />
-								<Button small @click="removeEntry(follower)" data-tooltip="Ignore this user" :icon="$image('icons/trash.svg')" />
+								<Button small :disabled="batchActionInProgress"
+									:loading="item.loading"
+									@click="ban(item)"
+									data-tooltip="Permaban user"
+									highlight
+									:icon="$image('icons/ban.svg')"
+									v-if="item.user.channelInfo[item.channel_id].is_banned !== true" />
+
+								<Button small :disabled="batchActionInProgress"
+									:loading="item.loading"
+									@click="unban(item)"
+									data-tooltip="Unban user"
+									:icon="$image('icons/unban.svg')"
+									v-if="item.user.channelInfo[item.channel_id].is_banned === true" />
+
+								<Button small :disabled="batchActionInProgress"
+									:loading="item.loading"
+									@click="unfollow(item)"
+									data-tooltip="Remove from<br>my followers"
+									highlight
+									:icon="$image('icons/unfollow_white.svg')"
+									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
+
+								<Button class="cardBt" small
+									data-tooltip="Open viewer details"
+									@click="openCard(item)" :icon="$image('icons/info.svg')" />
+
+								<Button small @click="removeEntry(item)"
+									data-tooltip="Ignore this user"
+									:icon="$image('icons/trash.svg')" />
 							</div>
-						</li>
-					</ul>
-				</div>
+						</div>
+					</InfiniteList>
+				</ul>
 				<div class="batchActions">
 					<Button @click="banAll()" bounce :loading="batchActionInProgress" title="Ban all" :icon="$image('icons/ban.svg')" />
 					<Button @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Remove followers" :icon="$image('icons/unfollow_white.svg')" />
@@ -43,23 +84,27 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import InfiniteList from '../InfiniteList.vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
+		InfiniteList,
 	},
 	emits:["close"]
 })
 export default class EmergencyFollowsListModal extends Vue {
 
+	public search:string = "";
 	public batchActionInProgress:boolean = false;
-	
+	public followers:TwitchatDataTypes.MessageFollowingData[] = [];
+
 	private today:Date = new Date();
 	private disposed:boolean = false;
-	public followers:TwitchatDataTypes.MessageFollowingData[] = [];
 
 	public beforeUnount(): void {
 		this.disposed = true;
@@ -67,13 +112,20 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	public async mounted():Promise<void> {
 		//Load users by batch to avoid potential lag on open
-		const list = this.$store("emergency").follows;
-		for (let i = 0; i < list.length; i++) {
-			this.followers.push(list[i]);
-			if(i%(i<30? 1 : 50)===0) {
-				await Utils.promisedTimeout(20);
+		this.followers = this.$store("emergency").follows;
+		
+		watch(()=>this.search, ()=> {
+			const list = this.$store("emergency").follows;
+			const reg = new RegExp(this.search, "gi");
+			this.followers = [];
+			for (let i = 0; i < list.length; i++) {
+				const f = list[i];
+				reg.lastIndex = 0;
+				if(reg.test(f.user.displayName)) {
+					this.followers.push( f );
+				}
 			}
-		}
+		});
 	}
 
 	public userClasses(follower:TwitchatDataTypes.MessageFollowingData):string[] {
@@ -216,20 +268,27 @@ export default class EmergencyFollowsListModal extends Vue {
 		}
 
 		.content {
-			margin-top: 20px;
+			margin-top: 1em;
 			padding-top: 0;
 			display: flex;
 			flex-direction: column;
 
-			.list {
+			&>.searchField {
+				margin-top: 1em;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				input {
+					margin-left: .5em;
+				}
+			}
+
+			&>.list {
 				margin: 1em 0;
-				overflow: auto;
+				overflow: hidden;
 
 				.user {
-					&::before {
-						content: "●";
-						margin-right: .5em;
-					}
 					display: flex;
 					flex-direction: row;
 					align-items: center;
@@ -249,7 +308,8 @@ export default class EmergencyFollowsListModal extends Vue {
 							margin-right: .5em;
 						}
 						.name {
-							max-width: 160px;
+							width: calc(100% - 150px);
+							max-width: calc(100% - 150px);
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
