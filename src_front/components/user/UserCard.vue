@@ -163,7 +163,13 @@ export default class UserCard extends Vue {
 				this.userDescription = u.description;
 				this.user.avatarPath = u.profile_image_url;
 				this.user.id = u.id;
-				this.user.displayName = u.display_name;
+				//Don't replace display name if already set.
+				//Extensions like "Stream stickers" have a different display name
+				//than the one sent back by the API.
+				//Ex: when receiving s stream stickers event from pubsub, the display
+				//name is "Stream Stickers", but its actual display name is "streamsticker".
+				//This condition avoids replacing the first by the second.
+				if(!this.user.displayName) this.user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
 				// if(!this.user.channelInfo[this.channelId]) {
