@@ -670,6 +670,7 @@ export namespace TwitchatDataTypes {
 		highlightWord?: string;
 		hasMention?: boolean;
 		spoiler?: boolean;
+		bypassBotFilter?: boolean;
 		elevatedInfo?:{duration_s:number, amount:number};
 		
 		twitch_automod?: AutomodData;

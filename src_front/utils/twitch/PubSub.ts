@@ -282,6 +282,7 @@ export default class PubSub extends EventDispatcher {
 		let channelId:string = "";
 		if(topic) {
 			channelId = topic.match(/(\.|-)[0-9]+/g)?.slice(-1)[0] ?? "";
+			channelId = channelId.replace(/\.|-/g, "");
 		}
 		
 		if(topic && /following\.[0-9]+/.test(topic)) {
@@ -367,17 +368,17 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "hype-train-progression") {
-			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress);
+			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
 
 
 
 		}else if(data.type == "hype-train-level-up") {
-			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp);
+			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
 
 
 
 		}else if(data.type == "hype-train-end") {
-			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd);
+			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
 
 
 
@@ -467,7 +468,7 @@ export default class PubSub extends EventDispatcher {
 				}
 
 				console.log("CHANNEL ID", channelId);
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, undefined, mess.sender.display_name);
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, mess.sender.display_name.replace(/\s/g, ""), mess.sender.display_name);
 				user.color = mess.sender.chat_color;
 
 				const m:TwitchatDataTypes.MessageChatData = {
@@ -478,9 +479,11 @@ export default class PubSub extends EventDispatcher {
 					type:"message",
 					answers:[],
 					user,
+					bypassBotFilter:true,
 					message:mess.content.text,
 					message_html:TwitchUtils.parseEmotes(mess.content.text, undefined, false, true),
 				};
+				console.log(m);
 				StoreProxy.chat.addMessage(m);
 			}
 
@@ -1061,7 +1064,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train is progressing (new sub/bits)
 	 * @param data 
 	 */
-	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress):void {
+	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
 		clearTimeout(this.hypeTrainProgressTimer);
 		//postepone the progress event in case it's followed by a LEVEL UP event to avoid
@@ -1078,7 +1081,7 @@ export default class PubSub extends EventDispatcher {
 				return;
 			}
 			const train:TwitchatDataTypes.HypeTrainStateData = {
-				channel_id:storeTrain?.channel_id ?? "",
+				channel_id:channelId ?? storeTrain?.channel_id ?? "",
 				level:data.progress.level.value,
 				currentValue:data.progress.value,
 				goal:data.progress.goal,
@@ -1098,7 +1101,7 @@ export default class PubSub extends EventDispatcher {
 			
 			StoreProxy.stream.setHypeTrain(train);
 			const message:TwitchatDataTypes.MessageHypeTrainEventData = {
-				channel_id:storeTrain?.channel_id ?? "",
+				channel_id:channelId ?? storeTrain?.channel_id ?? "",
 				platform:"twitch",
 				date:Date.now(),
 				id:Utils.getUUID(),
@@ -1115,12 +1118,12 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train levels up
 	 * @param data 
 	 */
-	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp):void {
+	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
 		clearTimeout(this.hypeTrainProgressTimer);
 		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
-			channel_id:storeTrain?.channel_id ?? "",
+			channel_id:channelId ?? storeTrain?.channel_id ?? "",
 			level:data.progress.level.value,
 			currentValue:data.progress.value,
 			goal:data.progress.goal,
@@ -1140,7 +1143,7 @@ export default class PubSub extends EventDispatcher {
 
 		StoreProxy.stream.setHypeTrain(train);
 		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
-			channel_id:storeTrain?.channel_id ?? "",
+			channel_id:channelId ?? storeTrain?.channel_id ?? "",
 			platform:"twitch",
 			date:Date.now(),
 			id:Utils.getUUID(),
@@ -1156,11 +1159,11 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train completes or expires
 	 * @param data 
 	 */
-	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd):void {
+	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd, channelId:string):void {
 		const storeTrain = StoreProxy.stream.hypeTrain!;
 		if(!storeTrain) return;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
-			channel_id:storeTrain?.channel_id ?? "",
+			channel_id:channelId ?? storeTrain?.channel_id ?? "",
 			level: storeTrain.level,
 			currentValue: storeTrain.currentValue,
 			goal: storeTrain.goal,
@@ -1183,7 +1186,7 @@ export default class PubSub extends EventDispatcher {
 		// let level = storeData.level;
 		// if(storeData.currentValue < storeData.goal) level --;
 		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
-			channel_id:storeTrain?.channel_id ?? "",
+			channel_id:channelId ?? storeTrain?.channel_id ?? "",
 			platform:"twitch",
 			date:Date.now(),
 			id:Utils.getUUID(),

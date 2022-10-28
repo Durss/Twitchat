@@ -249,10 +249,11 @@ export const storeUsers = defineStore('users', {
 								// console.log("User found", apiUser.login, apiUser.id);
 								userLocal.id				= apiUser.id;
 								userLocal.login				= apiUser.login;
-								userLocal.displayName		= apiUser.display_name;
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
+								if(!userLocal.displayName)
+									userLocal.displayName	= apiUser.display_name;
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
 								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
@@ -397,6 +398,7 @@ export const storeUsers = defineStore('users', {
 
 		//Check if user is following
 		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
+			//TODO batch queries and don't spam them all at once. This crashes everything when joining a room with thousands of chatters
 			//If that's us, flag as a follower;
 			if(user.channelInfo[channelId]?.is_broadcaster) {
 				user.channelInfo[channelId].is_following = true;
@@ -417,6 +419,7 @@ export const storeUsers = defineStore('users', {
 
 		//Check for user's pronouns
 		checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+			//TODO batch queries and don't spam them all at once. This crashes everything when joining a room with thousands of chatters
 			// console.log("Check pronouns?", user.login, user.id, user.pronouns, !user.id, !user.login, user.pronouns != undefined);
 			if(!user.id || !user.login || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
 			// console.log("Load pronouns !", user.login);

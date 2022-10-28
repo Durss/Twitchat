@@ -8,7 +8,7 @@
 		<div class="holder" ref="messageHolder" :style="holderStyles">
 			<div v-for="m in filteredMessages" :key="m.id" ref="message" class="subHolder"
 			@click="toggleMarkRead(m, $event)">
-			
+				
 				<ChatAd class="message"
 					:messageData="m"
 					v-if="m.type == 'twitchat_ad' && !lightMode"
@@ -313,7 +313,8 @@ export default class MessageList extends Vue {
 					}else
 					//Ignore bot messages if requested
 					if(sParams.filters.showBots.value === false
-					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true) {
+					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
+					&& m.bypassBotFilter !== true) {
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 						messages.splice(i, 1);
 						i--;
@@ -456,13 +457,14 @@ export default class MessageList extends Vue {
 			//If scrolling is locked or there are still messages pending
 			//add the new messages to the pending list
 			if(this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll) {
-				const len = this.$store("chat").messages.length;
+				const list = this.$store("chat").messages;
+				const len = list.length;
 				//There should be no need to read more than 100 new messages at a time
 				//Unless the chat is ultra spammy in which case we wouldn't notice
 				//messages are missing from the list anyway...
 				let i = Math.max(0, len - 100);
 				for (; i < len; i++) {
-					const m = this.$store("chat").messages[i];
+					const m = list[i];
 					if(this.idDisplayed[m.id as string] !== true) {
 						this.idDisplayed[m.id as string] = true;
 						this.pendingMessages.push(m);
