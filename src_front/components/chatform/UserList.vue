@@ -2,31 +2,10 @@
 	<div class="userlist">
 		
 		<div v-if="currentChan">
-			<div class="userList broadcaster" v-if="currentChan.broadcaster.length > 0">
-				<div class="title">Broadcaster</div>
-				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.broadcaster" :key="u.id">{{u.displayName}}</a>
-				</div>
-			</div>
-			
-			<div class="userList mods" v-if="currentChan.mods.length > 0">
-				<div class="title">Moderators <i>({{currentChan.mods.length}})</i></div>
-				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.mods" :key="u.id">{{u.displayName}}</a>
-				</div>
-			</div>
-			
-			<div class="userList vips" v-if="currentChan.vips.length > 0">
-				<div class="title">VIPs <i>({{currentChan.vips.length}})</i></div>
-				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.vips" :key="u.id">{{u.displayName}}</a>
-				</div>
-			</div>
-	
-			<div class="userList simple" v-if="currentChan.viewers.length > 0">
-				<div class="title">Users <i>({{currentChan.viewers.length}})</i></div>
-				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.viewers" :key="u.id">
+			<div v-for="chan, key in currentChan" :class="'userList '+key">
+				<div class="title" v-if="currentChan[key].length > 0">{{{broadcaster:"Broadcaster", mods:"Moderators", vips:"VIPs", viewers:"Chatters"}[key]}} <i>({{currentChan[key].length}})</i></div>
+				<div class="list" v-if="currentChan[key].length > 0">
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan[key]" :key="u.id">
 						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 								src="@/assets/icons/timeout.svg"
@@ -80,19 +59,11 @@ export default class UserList extends Vue {
 
 	public showInfo:boolean = false;
 	public channelId!:string;
-	public channels:{[key:string]:{
-		broadcaster:TwitchatDataTypes.TwitchatUser[],
-		mods:TwitchatDataTypes.TwitchatUser[],
-		vips:TwitchatDataTypes.TwitchatUser[],
-		viewers:TwitchatDataTypes.TwitchatUser[]
-	}} = {};
+	public channels:{[key:string]:ChannelUserList} = {};
 	public currentChanId:string|null = null;
-	public currentChan:{
-		broadcaster:TwitchatDataTypes.TwitchatUser[],
-		mods:TwitchatDataTypes.TwitchatUser[],
-		vips:TwitchatDataTypes.TwitchatUser[],
-		viewers:TwitchatDataTypes.TwitchatUser[]
-	}|null = null;
+	public currentChan:ChannelUserList|null = null;
+
+	private debounceTo:number = -1;
 
 	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
 		const remaining = chanInfo.banEndDate! - Date.now();
@@ -116,16 +87,15 @@ export default class UserList extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		this.updateList();
 		watch(() => this.$store("users").users, () => {
 			this.updateList();
 		});
-		this.currentChan	= this.channels[this.channelId];
-		this.currentChanId	= this.channelId;
+		this.updateList();
 		this.open();
 	}
 
 	public beforeUnmount():void {
+		this.channels = {};
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 
@@ -156,7 +126,6 @@ export default class UserList extends Vue {
 	}
 
 	private close():void {
-
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY", ease:"back.in", onComplete:() => {
@@ -176,42 +145,63 @@ export default class UserList extends Vue {
 	}
 
 	private updateList():void {
-		const users = this.$store("users").users;
-		
-		this.channels = {};
-		for (let i = 0; i < users.length; i++) {
-			const user = users[i];
-			for (const chan in user.channelInfo) {
-				if(!this.channels[chan]) {
-					this.channels[chan] = {
-						broadcaster:[this.$store("users").getUserFrom(user.platform, chan, chan)],
-						mods:[],
-						vips:[],
-						viewers:[]
+		clearTimeout(this.debounceTo);
+		const isInit = Object.keys(this.channels).length==0;
+
+		this.debounceTo = setTimeout(()=> {
+			const s = Date.now();
+			const userList = this.$store("users").users;
+			
+			const channels:{[key:string]:ChannelUserList} = {};
+			for (let i = 0; i < userList.length; i++) {
+				const user = userList[i];
+				for (const chan in user.channelInfo) {
+					if(user.channelInfo[chan].online && user.temporary !== true) {
+						if(!channels[chan]) {
+							channels[chan] = {
+								broadcaster:[],
+								mods:[],
+								vips:[],
+								viewers:[],
+							}
+						}
+						const chanData = channels[chan];
+						if(user.channelInfo[chan].is_broadcaster) chanData.broadcaster = [user];
+						else if(user.channelInfo[chan].is_moderator) chanData.mods.push(user);
+						else if(user.channelInfo[chan].is_vip) chanData.vips.push(user);
+						else chanData.viewers.push(user);
 					}
 				}
-				const chanData = this.channels[chan];
-				if(user.channelInfo[chan].online && user.temporary !== true) {
-					if(user.channelInfo[chan].is_broadcaster) chanData.broadcaster = [user];
-					else if(user.channelInfo[chan].is_moderator) chanData.mods.push(user);
-					else if(user.channelInfo[chan].is_vip) chanData.vips.push(user);
-					else chanData.viewers.push(user);
+			}
+	
+			for (const chan in channels) {
+				const chanData = channels[chan];
+				type keys = keyof typeof chanData;
+				for (const cat in chanData) {
+					chanData[cat as keys].sort((a,b) => {
+						if(a.displayName > b.displayName ) return 1;
+						if(a.displayName < b.displayName ) return -1;
+						return 0;
+					});
 				}
 			}
-		}
-
-		for (const chan in this.channels) {
-			const chanData = this.channels[chan];
-			type keys = keyof typeof chanData;
-			for (const cat in chanData) {
-				chanData[cat as keys].sort((a,b) => {
-					if(a.displayName > b.displayName ) return 1;
-					if(a.displayName < b.displayName ) return -1;
-					return 0;
-				});
+			
+			this.channels = channels;
+			if(isInit) {
+				this.currentChan	= this.channels[this.channelId];
+				this.currentChanId	= this.channelId;
 			}
-		}
+			const e = Date.now();
+			console.log(e-s);
+		}, isInit? 0 : 500);
 	}
+}
+
+interface ChannelUserList {
+	broadcaster:TwitchatDataTypes.TwitchatUser[],
+	mods:TwitchatDataTypes.TwitchatUser[],
+	vips:TwitchatDataTypes.TwitchatUser[],
+	viewers:TwitchatDataTypes.TwitchatUser[]
 }
 </script>
 
