@@ -352,6 +352,9 @@ export const storeUsers = defineStore('users', {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_banned = true;
+					if(duration_s) {
+						this.users[i].channelInfo[channelId].banEndDate = Date.now() + duration_s*1000;
+					}
 					break;
 				}
 			}
@@ -371,6 +374,7 @@ export const storeUsers = defineStore('users', {
 				const u = this.users[i];
 				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
 					this.users[i].channelInfo[channelId].is_banned = false;
+					delete this.users[i].channelInfo[channelId].banEndDate;
 					break;
 				}
 			}

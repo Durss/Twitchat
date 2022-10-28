@@ -187,6 +187,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface HypeTrainStateData {
+		channel_id:string;
 		level:number;
 		currentValue:number;
 		goal:number;
@@ -469,6 +470,7 @@ export namespace TwitchatDataTypes {
 		is_broadcaster:boolean;
 		is_subscriber:boolean;
 		is_gifter:boolean;
+		banEndDate?:number;
 		badges:TwitchatUserBadge[];
 		messageHistory:ChatMessageTypes[];
 	}

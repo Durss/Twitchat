@@ -26,7 +26,15 @@
 			<div class="userList simple" v-if="currentChan.viewers.length > 0">
 				<div class="title">Users <i>({{currentChan.viewers.length}})</i></div>
 				<div class="list">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.viewers" :key="u.id">{{u.displayName}}</a>
+					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan.viewers" :key="u.id">
+						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
+							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
+								src="@/assets/icons/timeout.svg"
+								:data-tooltip="getBanDuration(u.channelInfo[currentChanId])">
+							<img v-else src="@/assets/icons/ban.svg" data-tooltip="Banned">
+						</div>
+						{{u.displayName}}
+					</a>
 				</div>
 			</div>
 		</div>
@@ -55,6 +63,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -85,6 +94,11 @@ export default class UserList extends Vue {
 		viewers:TwitchatDataTypes.TwitchatUser[]
 	}|null = null;
 
+	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
+		const remaining = chanInfo.banEndDate! - Date.now();
+		console.log(remaining);
+		return Utils.formatDuration(remaining)+"s";
+	}
 	
 	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
@@ -324,6 +338,14 @@ export default class UserList extends Vue {
 						height: .75em;
 						width: .75em;
 						margin-right: .25em;
+					}
+				}
+
+				.icon {
+					display: inline-block;
+					vertical-align: middle;
+					img {
+						height: 1em;
 					}
 				}
 			}
