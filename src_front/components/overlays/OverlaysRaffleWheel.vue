@@ -6,6 +6,7 @@
 		:itemSize="itemSize"
 		:scrollOffset="scrollOffset"
 		:style="listStyles"
+		noScrollbar
 		v-slot="{ item }">
 			<div class="wheel-item">
 				<span class="label">{{ item.label }}</span>
