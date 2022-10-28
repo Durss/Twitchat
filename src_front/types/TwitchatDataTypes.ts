@@ -634,6 +634,25 @@ export namespace TwitchatDataTypes {
 	export const DeletableMessageTypes:TwitchatMessageStringType[] = [
 		TwitchatMessageType.MESSAGE,
 	];
+	
+	export const ActivityFeedMessageTypes:TwitchatMessageStringType[] = [
+		TwitchatMessageType.POLL,
+		TwitchatMessageType.BINGO,
+		TwitchatMessageType.COUNTDOWN,
+		TwitchatMessageType.PREDICTION,
+		TwitchatMessageType.RAFFLE,
+		TwitchatMessageType.CHEER,
+		TwitchatMessageType.SUBSCRIPTION,
+		TwitchatMessageType.REWARD,
+		TwitchatMessageType.AUTOBAN_JOIN,
+		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
+		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
+		TwitchatMessageType.FOLLOWING,
+		TwitchatMessageType.FOLLOWBOT_LIST,
+		TwitchatMessageType.RAID,
+	];
 
 	export const ActivityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
 		TwitchatNoticeType.EMERGENCY_MODE,

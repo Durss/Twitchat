@@ -20,6 +20,7 @@ export const storeChat = defineStore('chat', {
 		realHistorySize: 5000,
 		whispersUnreadCount: 0,
 		messages: [],
+		activityFeed: [],
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
@@ -510,10 +511,13 @@ export const storeChat = defineStore('chat', {
 				if(message.followbot === true) {
 					let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
 					let prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
+					let deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 					for (let i = 0; i < messages.length; i++) {
 						const m = messages[i];
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.followbot === true
 						&& m.platform == message.platform) {
+							m.deleted = true;
+							deletedMessages.push(m);
 							prevFollowbots.push(m);
 							messages.splice(i, 1);
 							i--;
@@ -522,7 +526,8 @@ export const storeChat = defineStore('chat', {
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
 						&& m.date > Date.now() - 10 * 60 * 1000) {
 							bulkMessage = m;
-							messages.splice(i, 1);//remove it, it will be pushed again after
+							deletedMessages.push(m);
+							messages.splice(i, 1);//remove it, it will be pushed again later
 							i--;
 						}
 					}
@@ -535,11 +540,26 @@ export const storeChat = defineStore('chat', {
 							users:[],
 						};
 					}
-					if(prevFollowbots.length) {
+					if(prevFollowbots.length > 0) {
 						bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
 					}
 					bulkMessage.users.push(message.user);
 					message = bulkMessage;
+
+					const activityFeed = this.activityFeed.concat();
+					const maxIndex = Math.max(0, activityFeed.length - 100);
+					while(deletedMessages.length > 0) {
+						const m = deletedMessages.pop();
+						if(!m) continue;
+						for (let j = activityFeed.length-1; j >= maxIndex; j--) {
+							const a = activityFeed[j];
+							if(a.id == m.id) {
+								activityFeed.splice(j, 1);
+								j--;
+							}
+						}
+					}
+					this.activityFeed = activityFeed;
 				}
 
 				//TODO Broadcast to OBS-ws
@@ -596,6 +616,17 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 				}
+			}
+
+			//Messages to push on activity feed
+			//Don't use indexOf() instead of includes(). Performances are MUCH better with includes (like 12x faster)
+			if(TwitchatDataTypes.ActivityFeedMessageTypes.includes(message.type)
+			//Special case for highlighted and elevated messages
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && (message.twitch_isHighlighted || message.elevatedInfo))
+			//Special case for notice types
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && TwitchatDataTypes.ActivityFeedNoticeTypes.includes(message.noticeId))
+			) {
+				this.activityFeed.push(message);
 			}
 
 			messages.push( message );

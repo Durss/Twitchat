@@ -10,7 +10,7 @@
 		
 		<Button class="trainFilter" title="Hype train events"
 			v-if="customActivities.length > 0"
-			@click="customActivities = []"
+			@click="customActivities = []; updateActivityFeed();"
 			:icon="$image('icons/back.svg')" />
 
 		<div v-if="messages.length > 0" class="messageList">
@@ -199,7 +199,7 @@ export default class ActivityFeed extends Vue {
 			DataStore.set(DataStore.ACTIVITY_FEED_FILTERS, this.filters);
 		});
 
-		watch(()=>this.$store("chat").messages, ()=> {
+		watch(()=>this.$store("chat").activityFeed, ()=> {
 			this.updateActivityFeed()
 		}, {deep:true});
 
@@ -222,6 +222,52 @@ export default class ActivityFeed extends Vue {
 	public showCustomActivities(list:TwitchatDataTypes.ChatMessageTypes[]):void {
 		this.customActivities = list;
 		this.updateActivityFeed();
+	}
+
+	public updateActivityFeed():void {
+		const s = Date.now();
+		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").activityFeed;
+
+		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
+
+		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
+		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
+		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
+		const showRaids			= this.filters["raid"] === true || this.filters["raid"] === undefined;
+		const showRewards		= this.filters["rewards"] === true || this.filters["rewards"] === undefined;
+		const showPolls			= this.filters["poll"] === true || this.filters["poll"] === undefined;
+		const showPredictions	= this.filters["prediction"] === true || this.filters["prediction"] === undefined;
+		const showBingos		= this.filters["bingo"] === true || this.filters["bingo"] === undefined;
+		const showRaffles		= this.filters["raffle"] === true || this.filters["raffle"] === undefined;
+
+		for (let i = 0; i < list.length; i++) {
+			const m = list[i];
+			let type = m.type;
+			
+			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				if(//It's an highlighted message
+				(this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted)
+				//It's an elevated message
+				|| m.elevatedInfo
+				) result.unshift(m);
+			}
+			
+			else if((type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) && showSubs) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.REWARD && showRewards) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION && showRewards) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.RAID && showRaids) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.CHEER && showBits) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && showFollow) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.POLL && showPolls) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION && showPredictions) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO && showBingos) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE && showRaffles) result.unshift(m);
+			else result.unshift(m);
+		}
+
+		this.messages = result;
+		const e = Date.now();
+		// console.log(e-s);
 	}
 
 	private open():void {
@@ -247,57 +293,6 @@ export default class ActivityFeed extends Vue {
 		if(target != ref) {
 			this.close();
 		}
-	}
-
-	private updateActivityFeed():void {
-		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").messages;
-
-		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
-
-		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
-		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
-		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
-		const showRaids			= this.filters["raid"] === true || this.filters["raid"] === undefined;
-		const showRewards		= this.filters["rewards"] === true || this.filters["rewards"] === undefined;
-		const showPolls			= this.filters["poll"] === true || this.filters["poll"] === undefined;
-		const showPredictions	= this.filters["prediction"] === true || this.filters["prediction"] === undefined;
-		const showBingos		= this.filters["bingo"] === true || this.filters["bingo"] === undefined;
-		const showRaffles		= this.filters["raffle"] === true || this.filters["raffle"] === undefined;
-
-		for (let i = 0; i < list.length; i++) {
-			const m = list[i];
-			let type = m.type;
-			
-			if((type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) && showSubs) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.REWARD && showRewards) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION && showRewards) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.RAID && showRaids) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.CHEER && showBits) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && showFollow) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.POLL && showPolls) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION && showPredictions) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO && showBingos) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE && showRaffles) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.COUNTDOWN) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST) result.unshift(m);
-			else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
-				(
-				//It's an highlighted message
-				(this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted)
-				//It's an elevated message
-				|| m.elevatedInfo
-				)
-			) result.unshift(m);
-			//If it's a whitelisted notice
-			else if(m.type == TwitchatDataTypes.TwitchatMessageType.NOTICE
-					&& TwitchatDataTypes.ActivityFeedNoticeTypes.includes(m.noticeId)) result.unshift(m);
-		}
-
-		this.messages = result;
 	}
 }
 </script>

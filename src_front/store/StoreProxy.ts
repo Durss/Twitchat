@@ -151,6 +151,7 @@ export interface IChatState {
 	realHistorySize:number;
 	whispersUnreadCount:number;
 	messages:TwitchatDataTypes.ChatMessageTypes[];
+	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
 	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[],
 	whispers:{[key:string]:TwitchatDataTypes.MessageWhisperData[]};
@@ -431,6 +432,8 @@ export interface IUsersActions {
 	initBlockedUsers():Promise<void>;
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
+	flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
+	flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagBlocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void;
