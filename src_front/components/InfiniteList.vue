@@ -77,12 +77,15 @@ export default class InfiniteList extends Vue {
 
 	private mouseY:number = 0;
 	private cursorOffsetY:number = 0;
+	private draggingList:boolean = false;
+	private draggingListOffset:number = 0;
 	private draggingCursor:boolean = false;
 	private disposed:boolean = false;
 	private trackPressed:boolean = false;
 	private dragStartHandler!:(e:MouseEvent|TouchEvent) => void;
 	private dragHandler!:(e:MouseEvent|TouchEvent) => void;
 	private dragStopHandler!:(e:MouseEvent|TouchEvent) => void;
+	private dragStartListHandler!:(e:TouchEvent) => void;
 
 	public getStyles(i:number):(StyleValue | undefined){
 		return {
@@ -111,6 +114,7 @@ export default class InfiniteList extends Vue {
 			const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
 			const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
 
+			this.dragStartListHandler = (e:TouchEvent) => this.ondragStartList(e);
 			this.dragStartHandler = (e:MouseEvent|TouchEvent) => this.onDragStart(e);
 			this.dragHandler = (e:MouseEvent|TouchEvent) => this.onDrag(e);
 			this.dragStopHandler = (e:MouseEvent|TouchEvent) => this.onDragStop(e);
@@ -122,6 +126,7 @@ export default class InfiniteList extends Vue {
 			document.addEventListener("touchmove", this.dragHandler);
 			document.addEventListener("mouseup", this.dragStopHandler);
 			document.addEventListener("touchend", this.dragStopHandler);
+			this.$el.addEventListener("touchstart", this.dragStartListHandler);
 		}
 
 		requestAnimationFrame(()=>this.renderList());
@@ -140,6 +145,7 @@ export default class InfiniteList extends Vue {
 			document.removeEventListener("touchmove", this.dragHandler);
 			document.removeEventListener("mouseup", this.dragStopHandler);
 			document.removeEventListener("touchend", this.dragStopHandler);
+			this.$el.removeEventListener("touchstart", this.dragStartListHandler);
 		}
 	}
 
@@ -163,6 +169,13 @@ export default class InfiniteList extends Vue {
 		}
 	}
 
+	private ondragStartList(e:MouseEvent | TouchEvent):void {
+		e.preventDefault();
+		this.onDrag(e);
+		this.draggingList = true;
+		this.draggingListOffset = this.mouseY;
+	}
+
 	private onDrag(e:MouseEvent | TouchEvent):void {
 		if(e.type == "mousemove" || e.type == "mousedown") {
 			this.mouseY = (e as MouseEvent).clientY;
@@ -172,8 +185,9 @@ export default class InfiniteList extends Vue {
 	}
 
 	private onDragStop(e:MouseEvent | TouchEvent):void {
-		this.draggingCursor		= false;
+		this.draggingCursor	= false;
 		this.trackPressed	= false;
+		this.draggingList	= false;
 	}
 	
 	private async renderList():Promise<void> {
@@ -217,6 +231,11 @@ export default class InfiniteList extends Vue {
 			
 			this.items[i].py = py;
 			this.items[i].data = this.dataset[dataIndex];
+		}
+
+		if(this.draggingList) {
+			this.scrollOffset_local -= (this.mouseY - this.draggingListOffset)*2;
+			this.draggingListOffset = this.mouseY
 		}
 
 		if(this.showScrollbar){
