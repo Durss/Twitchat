@@ -67,7 +67,6 @@ export default class InfiniteList extends Vue {
 	public scrollOffset!:number;
 	public lockScroll!:boolean;
 	public noScrollbar!:boolean;
-	// public scrollOffset:number = 0;
 	public dataset!:unknown[];
 
 	public items:IListItem[] = [];
@@ -105,7 +104,7 @@ export default class InfiniteList extends Vue {
 		this.scrollOffset_local = this.scrollOffset;
 		watch(() => this.scrollOffset, () => {
 			if(this.scrollOffset_local_eased === this.scrollOffset) return;//Avoid useless render
-			this.scrollOffset_local_eased = this.scrollOffset;
+			this.scrollOffset_local = this.scrollOffset;
 		});
 		
 		if(this.showScrollbar){

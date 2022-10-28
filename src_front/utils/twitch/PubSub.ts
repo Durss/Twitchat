@@ -229,8 +229,8 @@ export default class PubSub extends EventDispatcher {
 
 	public async simulateFollowbotRaid():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
-		for (let i = 0; i < 400; i++) {
-			const id = Math.round(Math.random()*1000000);
+		for (let i = 0; i < 100; i++) {
+			const id = 0;//Math.round(Math.random()*1000000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 			this.followingEvent({
 				display_name: login,

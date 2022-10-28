@@ -16,13 +16,13 @@
 					<InfiniteList class="list" ref="list"
 					v-if="followers.length > 0"
 					:dataset="followers"
-					:itemSize="22"
-					:itemMargin="5"
+					:itemSize="itemSize"
+					:itemMargin="itemMargin"
+					v-model:scrollOffset="scrollOffset"
 					lockScroll
 					nodeType="li"
 					:style="{height:'100%'}"
 					v-slot="{ item }">
-					<!-- v-model:scrollOffset="0" -->
 						<div :class="userClasses(item)">
 							<div class="infos">
 								<span class="date">{{ formatDate(item.date) }}</span>
@@ -100,13 +100,16 @@ import InfiniteList from '../InfiniteList.vue';
 export default class EmergencyFollowsListModal extends Vue {
 
 	public search:string = "";
+	public scrollOffset:number = 0;
 	public batchActionInProgress:boolean = false;
 	public followers:TwitchatDataTypes.MessageFollowingData[] = [];
+	public itemSize:number = 22;
+	public itemMargin:number = 5;
 
 	private today:Date = new Date();
 	private disposed:boolean = false;
 
-	public beforeUnount(): void {
+	public beforeUnmount(): void {
 		this.disposed = true;
 	}
 
@@ -173,12 +176,11 @@ export default class EmergencyFollowsListModal extends Vue {
 		let label = `This will ban all the remaining users of the list from your channel.`;
 		this.$confirm("Ban all?", label).then(async ()=>{
 			this.batchActionInProgress = true;
-			this.$store("emergency").clearEmergencyFollows();
 			const list = this.followers;
+			const bounds = (this.$refs["list"] as Vue).$el.getBoundingClientRect();
 			for (let i = 0; i < list.length; i++) {
 				if(this.disposed) break;
-				const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
-				el.scrollIntoView({block: "center", inline: "nearest"});
+				this.scrollOffset = Math.max(0, i * (this.itemSize + this.itemMargin) - bounds.height / 2);
 				await this.ban(list[i]);
 			}
 			this.batchActionInProgress = false;
@@ -189,12 +191,11 @@ export default class EmergencyFollowsListModal extends Vue {
 		let label = `This will remove all the remaining users of the list from your followers.`;
 		this.$confirm("Remove followers?", label).then(async ()=>{
 			this.batchActionInProgress = true;
-			this.$store("emergency").clearEmergencyFollows();
 			const list = this.followers;
+			const bounds = (this.$refs["list"] as Vue).$el.getBoundingClientRect();
 			for (let i = 0; i < list.length; i++) {
 				if(this.disposed) break;
-				const el = (this.$refs["user_"+list[i].id] as HTMLDivElement[])[0];
-				el.scrollIntoView({block: "center", inline: "nearest"});
+				this.scrollOffset = Math.max(0, i * (this.itemSize + this.itemMargin) - bounds.height / 2);
 				await this.unfollow(list[i]);
 			}
 			this.batchActionInProgress = false;
