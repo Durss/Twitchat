@@ -278,7 +278,7 @@ export default class PubSub extends EventDispatcher {
 		this.send(json);
 	}
 
-	private parseEvent(data:{type:string, data?:unknown, raid?:PubSubDataTypes.RaidInfos}, topic?:string):void {
+	private async parseEvent(data:{type:string, data?:unknown, raid?:PubSubDataTypes.RaidInfos}, topic?:string):Promise<void> {
 		let channelId:string = "";
 		if(topic) {
 			channelId = topic.match(/(\.|-)[0-9]+/g)?.slice(-1)[0] ?? "";
@@ -467,7 +467,6 @@ export default class PubSub extends EventDispatcher {
 					badges[b.id] = b.version;
 				}
 
-				console.log("CHANNEL ID", channelId);
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, mess.sender.display_name.replace(/\s/g, ""), mess.sender.display_name);
 				user.color = mess.sender.chat_color;
 
@@ -483,7 +482,6 @@ export default class PubSub extends EventDispatcher {
 					message:mess.content.text,
 					message_html:TwitchUtils.parseEmotes(mess.content.text, undefined, false, true),
 				};
-				console.log(m);
 				StoreProxy.chat.addMessage(m);
 			}
 
@@ -582,6 +580,14 @@ export default class PubSub extends EventDispatcher {
 				message:"",
 				noticeId,
 			};
+			const username = localObj.args?.[0];
+			let user!:TwitchatDataTypes.TwitchatUser;
+			if(username) {
+				user = await new Promise((resolve)=> {
+					StoreProxy.users.getUserFrom("twitch", channelId, undefined, username, undefined, (u)=> resolve(u));
+				});
+			}
+
 			switch(localObj.moderation_action) {
 				case "clear": {
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.CLEAR_CHAT;
@@ -589,56 +595,56 @@ export default class PubSub extends EventDispatcher {
 					break;
 				}
 				case "timeout": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
 					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
-					noticeText = localObj.created_by+" has banned "+user+" for "+duration+" seconds";
+					noticeText = localObj.created_by+" has banned "+user.displayName+" for "+duration+" seconds";
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
+					StoreProxy.users.flagBanned("twitch", channelId, user.id, parseInt(duration));
 					break;
 				}
 				case "untimeout": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown user-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNTIMEOUT;
-					noticeText = localObj.created_by+" has removed temporary ban from "+user;
+					noticeText = localObj.created_by+" has removed temporary ban from "+user.displayName;
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
+					StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 					break;
 				}
 				case "ban": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
-					noticeText = "User "+user+" has been banned by "+localObj.created_by;
+					noticeText = "User "+user.displayName+" has been banned by "+localObj.created_by;
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
+					StoreProxy.users.flagBanned("twitch", channelId, user.id);
 					break;
 				}
 				case "unban": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
-					noticeText = "User "+user+" has been unbanned by "+localObj.created_by;
+					noticeText = "User "+user.displayName+" has been unbanned by "+localObj.created_by;
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
+					StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 					break;
 				}
 				case "mod": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.MOD;
-					noticeText = "User "+user+" has been added to your mods by "+localObj.created_by;
+					noticeText = "User "+user.displayName+" has been added to your mods by "+localObj.created_by;
+					StoreProxy.users.flagMod("twitch", channelId, user.id);
 					break;
 				}
 				case "unmod": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNMOD;
-					noticeText = "User "+user+" has been unmod by "+localObj.created_by;
+					noticeText = "User "+user.displayName+" has been unmod by "+localObj.created_by;
+					StoreProxy.users.flagUnmod("twitch", channelId, user.id);
 					break;
 				}
 				case "vip": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
-					noticeText = "User "+user+" has been added to VIPs by "+localObj.created_by;
+					noticeText = "User "+user.displayName+" has been added to VIPs by "+localObj.created_by;
+					StoreProxy.users.flagVip("twitch", channelId, user.id);
 					break;
 				}
 				case "unvip": {
-					const user = localObj.args && localObj.args.length > 0? localObj.args[0] : "-unknown-";
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNVIP;
-					noticeText = "User "+user+" has been unVIP by "+localObj.created_by;
+					noticeText = "User "+user.displayName+" has been unVIP by "+localObj.created_by;
+					StoreProxy.users.flagUnvip("twitch", channelId, user.id);
 					break;
 				}
 				case "raid": {

@@ -107,6 +107,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"moderator:manage:automod",
 		"channel:manage:polls",
 		"channel:manage:predictions",
+		"channel:manage:moderators",
 		"channel:read:hype_train",
 		"channel_editor",
 		"whispers:edit",
@@ -117,7 +118,10 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
 		"moderator:manage:banned_users",
-		"moderator:manage:announcements"
+		"moderator:manage:announcements",
+		"moderator:manage:chat_messages",
+		"moderator:manage:chat_settings",
+		"moderator:read:chatters"
 	],
 	
 	"spotify_client_id": "",

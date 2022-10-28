@@ -119,10 +119,11 @@ export default class Login extends Vue {
 		"channel:moderate": "Perform moderation actions",
 		"channel:manage:polls": "Manage polls",
 		"channel:manage:predictions": "Manage predictions",
-		"channel:read:hype_train": "Read hype train state",
-		"channel:edit:commercial": "Start an ad",
 		"channel:manage:broadcast": "Update your stream info",
 		"channel:manage:redemptions": "Manage rewards",
+		"channel:manage:moderators": "Use /mod and /unmod commands",
+		"channel:read:hype_train": "Read hype train state",
+		"channel:edit:commercial": "Start an ad",
 		"channel:read:goals": "Read current goals (sub/follow)",
 		"channel:read:subscriptions": "Get list of your subs",
 
@@ -133,6 +134,7 @@ export default class Login extends Vue {
 		"moderator:manage:banned_users": "Manage banned users",
 		"moderator:manage:announcements": "Use /announce chat command",
 		"moderator:manage:chat_messages": "Delete chat messages",
+		"moderator:manage:chat_settings": "Updating room settings (follow only, sub only, etc...)",
 		"moderator:read:chatters": "Read users on your chatroom",
 	}
 

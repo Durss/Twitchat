@@ -327,6 +327,26 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
+		flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
+					this.users[i].channelInfo[channelId].is_vip = true;
+					break;
+				}
+			}
+		},
+		
+		flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
+			for (let i = 0; i < this.users.length; i++) {
+				const u = this.users[i];
+				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
+					this.users[i].channelInfo[channelId].is_vip = false;
+					break;
+				}
+			}
+		},
+
 		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < this.users.length; i++) {
