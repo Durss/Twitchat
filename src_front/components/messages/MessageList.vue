@@ -98,6 +98,13 @@
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					:result="m" />
 
+				<ChatFollowbotEvents
+					class="message"
+					ref="message"
+					v-else-if="m.type == 'followbot_list'"
+					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					:result="m" />
+
 				<ChatHighlight
 					v-else
 					class="message"
@@ -172,6 +179,7 @@ import ChatAd from './ChatAd.vue';
 import ChatBingoResult from './ChatBingoResult.vue';
 import ChatConnect from './ChatConnect.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
+import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
 import ChatJoinLeave from './ChatJoinLeave.vue';
@@ -193,6 +201,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatPredictionResult,
@@ -409,10 +418,18 @@ export default class MessageList extends Vue {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.JOIN:
-				case TwitchatDataTypes.TwitchatMessageType.LEAVE:
+				case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION:{
+					if(sParams.filters.showNotifications.value === false) {
+						messages.splice(i, 1);
+						i--;
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.JOIN:
+				case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
 					if(sParams.features.notifyJoinLeave.value === false) {
 						messages.splice(i, 1);
 						i--;
@@ -1013,7 +1030,8 @@ export default class MessageList extends Vue {
 				overflow: hidden;
 				font-family: "Inter";
 				// color: #fff;
-				padding: .5em 0;
+				padding-top: .5em;
+				padding-bottom: .5em;
 				font-size: var(--messageSize);
 			}
 		}

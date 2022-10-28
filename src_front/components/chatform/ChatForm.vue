@@ -379,8 +379,7 @@ export default class ChatForm extends Vue {
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 	
 	public get showFeedBt():boolean {
-		return (!this.$store("main").canSplitView || !this.$store("params").appearance.splitView.value)
-		&& this.$store("chat").activityFeed?.length > 0;
+		return (!this.$store("main").canSplitView || !this.$store("params").appearance.splitView.value);
 	}
 
 	public beforeMount(): void {

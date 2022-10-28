@@ -544,6 +544,7 @@ export namespace TwitchatDataTypes {
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
 		CHAT_HIGHLIGHT:"chat_highlight",
+		FOLLOWBOT_LIST:"followbot_list",
 		HYPE_TRAIN_START:"hype_train_start",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
@@ -624,28 +625,12 @@ export namespace TwitchatDataTypes {
 									MessageChatHighlightData |
 									MessageConnectData |
 									MessageDisconnectData |
+									MessageFollowbotData |
 									MessageNoticeData
 	;
 
 	export const DeletableMessageTypes:TwitchatMessageStringType[] = [
 		TwitchatMessageType.MESSAGE,
-	];
-	export const ActivityFeedMessageTypes:TwitchatMessageStringType[] = [
-		TwitchatMessageType.POLL,
-		TwitchatMessageType.BINGO,
-		TwitchatMessageType.COUNTDOWN,
-		TwitchatMessageType.PREDICTION,
-		TwitchatMessageType.RAFFLE,
-		TwitchatMessageType.CHEER,
-		TwitchatMessageType.SUBSCRIPTION,
-		TwitchatMessageType.REWARD,
-		TwitchatMessageType.AUTOBAN_JOIN,
-		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
-		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
-		TwitchatMessageType.FOLLOWING,
-		TwitchatMessageType.RAID,
 	];
 
 	export const ActivityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
@@ -748,6 +733,7 @@ export namespace TwitchatDataTypes {
 		followed_at: number;
 		automod?: AutomodParamsKeywordFilterData;
 		loading?: boolean;//Used to indicate a ban/block process in progress on the emergency review
+		followbot?:boolean;//Defines if it's from a followbot
 	}
 
 	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
@@ -977,6 +963,11 @@ export namespace TwitchatDataTypes {
 	export interface MessageChatHighlightData extends AbstractTwitchatMessage {
 		type:"chat_highlight";
 		info:ChatHighlightInfo;
+	}
+
+	export interface MessageFollowbotData extends AbstractTwitchatMessage {
+		type:"followbot_list";
+		users:TwitchatUser[];
 	}
 
 }

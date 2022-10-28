@@ -20,7 +20,6 @@ export const storeChat = defineStore('chat', {
 		realHistorySize: 5000,
 		whispersUnreadCount: 0,
 		messages: [],
-		activityFeed: [],
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
@@ -506,6 +505,43 @@ export const storeChat = defineStore('chat', {
 			//If it's a following event
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
 				sUsers.flagAsFollower(message.user, message.channel_id)
+
+				//Merge all followbot events into one
+				if(message.followbot === true) {
+					let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
+					let prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
+					for (let i = 0; i < messages.length; i++) {
+						const m = messages[i];
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.followbot === true
+						&& m.platform == message.platform) {
+							prevFollowbots.push(m);
+							messages.splice(i, 1);
+							i--;
+						}
+						//Found an existing bulk message not older than 10min, keep it aside
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
+						&& m.date > Date.now() - 10 * 60 * 1000) {
+							bulkMessage = m;
+							messages.splice(i, 1);//remove it, it will be pushed again after
+							i--;
+						}
+					}
+					if(!bulkMessage) {
+						bulkMessage = {
+							id:Utils.getUUID(),
+							date:Date.now(),
+							platform:message.platform,
+							type:"followbot_list",
+							users:[],
+						};
+					}
+					if(prevFollowbots.length) {
+						bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
+					}
+					bulkMessage.users.push(message.user);
+					message = bulkMessage;
+				}
+
 				//TODO Broadcast to OBS-ws
 				// const wsMessage = {
 				// 	display_name: data.display_name,
@@ -560,17 +596,6 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 				}
-			}
-
-			//Messages to push on activity feed
-			//Don't use indexOf() instead of includes(). Performances are MUCH better with includes (like 12x faster)
-			if(TwitchatDataTypes.ActivityFeedMessageTypes.includes(message.type)
-			//Special case for highlighted and elevated messages
-			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && (message.twitch_isHighlighted || message.elevatedInfo))
-			//Special case for notice types
-			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && TwitchatDataTypes.ActivityFeedNoticeTypes.includes(message.noticeId))
-			) {
-				this.activityFeed.push(message);
 			}
 
 			messages.push( message );

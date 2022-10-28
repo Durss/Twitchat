@@ -81,6 +81,13 @@
 					:ref="'message_'+m.id"
 					/>
 
+				<ChatFollowbotEvents
+					class="message"
+					ref="message"
+					:messageData="m"
+					v-else-if="m.type == 'followbot_list'"
+					:result="m" />
+
 				<ChatHighlight
 					class="message"
 					ref="message"
@@ -111,6 +118,7 @@ import ChatPredictionResult from '../messages/ChatPredictionResult.vue';
 import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 import ChatJoinLeave from '../messages/ChatJoinLeave.vue';
+import ChatFollowbotEvents from '../messages/ChatFollowbotEvents.vue';
 
 @Options({
 	props:{
@@ -128,6 +136,7 @@ import ChatJoinLeave from '../messages/ChatJoinLeave.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		ChatFollowbotEvents,
 		ActivityFeedFilters,
 		ChatCountdownResult,
 		ChatHypeTrainResult,
@@ -190,11 +199,11 @@ export default class ActivityFeed extends Vue {
 			DataStore.set(DataStore.ACTIVITY_FEED_FILTERS, this.filters);
 		});
 
-		watch(()=>this.$store("chat").activityFeed, ()=> {
-			this.onActivityFeedUpdate()
+		watch(()=>this.$store("chat").messages, ()=> {
+			this.updateActivityFeed()
 		}, {deep:true});
 
-		this.onActivityFeedUpdate();
+		this.updateActivityFeed();
 
 		await this.$nextTick();
 		if(this.listMode === false) {
@@ -212,7 +221,7 @@ export default class ActivityFeed extends Vue {
 
 	public showCustomActivities(list:TwitchatDataTypes.ChatMessageTypes[]):void {
 		this.customActivities = list;
-		this.onActivityFeedUpdate();
+		this.updateActivityFeed();
 	}
 
 	private open():void {
@@ -240,8 +249,8 @@ export default class ActivityFeed extends Vue {
 		}
 	}
 
-	private onActivityFeedUpdate():void {
-		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").activityFeed;
+	private updateActivityFeed():void {
+		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").messages;
 
 		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
 
@@ -274,6 +283,7 @@ export default class ActivityFeed extends Vue {
 			else if(type == TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY) result.unshift(m);
 			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE) result.unshift(m);
 			else if(type == TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN) result.unshift(m);
+			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST) result.unshift(m);
 			else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
 				(
 				//It's an highlighted message
@@ -282,9 +292,11 @@ export default class ActivityFeed extends Vue {
 				|| m.elevatedInfo
 				)
 			) result.unshift(m);
-			//Notice types are whitelisted on storeChat.ts
-			else if(m.type == TwitchatDataTypes.TwitchatMessageType.NOTICE) result.unshift(m);
+			//If it's a whitelisted notice
+			else if(m.type == TwitchatDataTypes.TwitchatMessageType.NOTICE
+					&& TwitchatDataTypes.ActivityFeedNoticeTypes.includes(m.noticeId)) result.unshift(m);
 		}
+
 		this.messages = result;
 	}
 }

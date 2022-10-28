@@ -137,6 +137,7 @@ export const storeEmergency = defineStore('emergency', {
 		},
 
 		addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
+			payload.followbot = true;
 			this.follows.push(payload);
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
 		},

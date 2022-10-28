@@ -62,7 +62,7 @@
 			
 			<span class="pronoun"
 				v-if="messageData.user.pronounsLabel && $store('params').features.showUserPronouns.value===true"
-				:data-tooltip="messageData.user.pronounsTooltip">{{messageData.user.pronounsLabel}}</span>
+				:data-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"

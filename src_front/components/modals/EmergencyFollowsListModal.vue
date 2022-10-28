@@ -59,16 +59,21 @@ export default class EmergencyFollowsListModal extends Vue {
 	
 	private today:Date = new Date();
 	private disposed:boolean = false;
+	public followers:TwitchatDataTypes.MessageFollowingData[] = [];
 
-	public get followers():TwitchatDataTypes.MessageFollowingData[] { return this.$store("emergency").follows; }
-
-	public beforeMount(): void {
-		//TODO remove this debug
-		// this.followers[0].user = this.$store("users").getUserFrom("twitch", this.followers[0].channel_id, "181631", "test1", "test1");
+	public beforeUnount(): void {
+		this.disposed = true;
 	}
 
-	public beforeUnmount(): void {
-		this.disposed = true;
+	public async mounted():Promise<void> {
+		//Load users by batch to avoid potential lag on open
+		const list = this.$store("emergency").follows;
+		for (let i = 0; i < list.length; i++) {
+			this.followers.push(list[i]);
+			if(i%(i<30? 1 : 50)===0) {
+				await Utils.promisedTimeout(20);
+			}
+		}
 	}
 
 	public userClasses(follower:TwitchatDataTypes.MessageFollowingData):string[] {
@@ -113,9 +118,9 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 		
 	public async banAll():Promise<void> {
-		this.batchActionInProgress = true;
 		let label = `This will ban all the remaining users of the list from your channel.`;
 		this.$confirm("Ban all?", label).then(async ()=>{
+			this.batchActionInProgress = true;
 			this.$store("emergency").clearEmergencyFollows();
 			const list = this.followers;
 			for (let i = 0; i < list.length; i++) {
@@ -125,15 +130,13 @@ export default class EmergencyFollowsListModal extends Vue {
 				await this.ban(list[i]);
 			}
 			this.batchActionInProgress = false;
-		}).catch(()=>{
-			this.batchActionInProgress = false;
-		});
+		}).catch(()=>{});
 	}
 	
 	public unfollowAll():void {
-		this.batchActionInProgress = true;
 		let label = `This will remove all the remaining users of the list from your followers.`;
 		this.$confirm("Remove followers?", label).then(async ()=>{
+			this.batchActionInProgress = true;
 			this.$store("emergency").clearEmergencyFollows();
 			const list = this.followers;
 			for (let i = 0; i < list.length; i++) {
@@ -143,9 +146,7 @@ export default class EmergencyFollowsListModal extends Vue {
 				await this.unfollow(list[i]);
 			}
 			this.batchActionInProgress = false;
-		}).catch(()=>{
-			this.batchActionInProgress = false;
-		});
+		}).catch(()=>{});
 	}
 
 	public clearList():void {

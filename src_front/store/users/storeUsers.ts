@@ -227,6 +227,7 @@ export const storeUsers = defineStore('users', {
 
 						do {
 							const batchItem:BatchItem = batch.splice(0, 1)[0];
+							if(!batchItem) continue;
 							let userLocal = batchItem.user;
 							delete userLocal.temporary;
 							// console.log("Search user", batchType=="id"? userLocal.id : userLocal.login);
@@ -237,8 +238,8 @@ export const storeUsers = defineStore('users', {
 								// console.log("User not found.... ", userLocal.login, userLocal.id);
 								//User not sent back by twitch API.
 								//Most probably because login is wrong or user is banned
-								userLocal.displayName = userLocal.displayName+" error(#"+(user!.id)+")";
-								userLocal.login = userLocal.login+" error(#"+(user!.id)+")";
+								userLocal.displayName = " error(#"+(user!.id)+")";
+								userLocal.login = " error(#"+(user!.id)+")";
 								userLocal.errored = true;
 								
 							}else{
@@ -258,7 +259,7 @@ export const storeUsers = defineStore('users', {
 								//If user was temporary, load more info
 								delete userLocal.temporary;
 								if(userLocal.id && userLocal.login) this.checkPronouns(userLocal);
-								if(channelId && userLocal.id) this.checkFollowerState(userLocal, channelId);
+								if(batchItem.channelId && userLocal.id) this.checkFollowerState(userLocal, batchItem.channelId);
 							}
 							if(batchItem.cb) batchItem.cb(userLocal);
 						}while(batch.length > 0);

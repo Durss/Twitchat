@@ -51,12 +51,11 @@
 </template>
 
 <script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfos from './ChatMessageInfos.vue';
@@ -362,10 +361,8 @@ export default class ChatHighlight extends Vue {
 	border-radius: 5px;
 	margin: 5px 0;
 	padding: 5px;
-	// text-align: center;
 
 	&.light {
-		// background-color: transparent;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
