@@ -113,7 +113,7 @@ export const storeUsers = defineStore('users', {
 						login:login ?? "",
 						displayName:displayName ?? "",
 						greeted:false,
-						pronouns:false,
+						pronouns:undefined,
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						is_partner:false,
@@ -137,7 +137,7 @@ export const storeUsers = defineStore('users', {
 						displayName:displayName??login??"",
 						greeted:false,
 						temporary:true,
-						pronouns:false,
+						pronouns:undefined,
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						is_partner:false,
@@ -157,9 +157,6 @@ export const storeUsers = defineStore('users', {
 			//actually exists as it cannot be undefined anymore once
 			//we're here.
 			user = user!;
-				
-			if(!user.displayName) user.displayName = "...loading...";
-			if(!user.login) user.login = "...loading...";
 
 			if(channelId) {
 				//Init channel data for this user
@@ -183,6 +180,14 @@ export const storeUsers = defineStore('users', {
 					user.channelInfo[channelId].is_blocked = true;
 				}
 			}
+			
+			if(!user.temporary) {
+				if(user.id && user.login) this.checkPronouns(user);
+				if(channelId && user.id) this.checkFollowerState(user, channelId);
+			}
+				
+			if(!user.displayName) user.displayName = "...loading...";
+			if(!user.login) user.login = "...loading...";
 
 			//User was already existing, consider stop there
 			if(userExisted){
@@ -203,10 +208,7 @@ export const storeUsers = defineStore('users', {
 					for (let i = 0; i < batch.length; i++) {
 						const item = batch[i];
 						if(!item.user.temporary) {
-							this.checkPronouns(item.user);
-							if(channelId && item.user.channelInfo[channelId].is_following === null) {
-								this.checkFollowerState(item.user, channelId);
-							}
+							if(item.cb) item.cb(item.user);
 							batch.splice(i,1);
 							i--;
 						}
@@ -253,14 +255,10 @@ export const storeUsers = defineStore('users', {
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
 								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
-								if(userLocal.temporary) {
-									//If user was temporary, load more info
-									delete userLocal.temporary;
-									this.checkPronouns(userLocal);
-									if(channelId && userLocal.channelInfo[channelId].is_following === null) {
-										this.checkFollowerState(userLocal, channelId);
-									}
-								}
+								//If user was temporary, load more info
+								delete userLocal.temporary;
+								if(userLocal.id && userLocal.login) this.checkPronouns(userLocal);
+								if(channelId && userLocal.id) this.checkFollowerState(userLocal, channelId);
 							}
 							if(batchItem.cb) batchItem.cb(userLocal);
 						}while(batch.length > 0);
@@ -287,15 +285,11 @@ export const storeUsers = defineStore('users', {
 			if(user.login)			hashmaps.loginToUser[user.login] = user;
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
 
+			this.users.push(user);
+
 			if(user.temporary != true) {
-				this.checkPronouns(user);
-				if(channelId && user.channelInfo[channelId].is_following === null) {
-					this.checkFollowerState(user, channelId);
-				}
 				if(loadCallback) loadCallback(user);
 			}
-
-			this.users.push(user);
 
 			return user;
 		},
@@ -418,7 +412,9 @@ export const storeUsers = defineStore('users', {
 
 		//Check for user's pronouns
 		checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
-			if(!user.id || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
+			// console.log("Check pronouns?", user.login, user.id, user.pronouns, !user.id, !user.login, user.pronouns != undefined);
+			if(!user.id || !user.login || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
+			// console.log("Load pronouns !", user.login);
 			return new Promise((resolve, reject)=> {
 				TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
 					if (res !== null) {

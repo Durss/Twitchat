@@ -464,6 +464,8 @@ export const storeMain = defineStore("main", {
 		setCypherEnabled(payload:boolean) { this.cypherEnabled = payload; },
 		
 		toggleDevMode(forcedState?:boolean) {
+			if(forcedState == this.devmode) return;
+			
 			let notify = true;
 			if(forcedState !== undefined) {
 				this.devmode = forcedState;

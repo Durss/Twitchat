@@ -847,6 +847,29 @@ export default class TwitchUtils {
 			//Should be aither "static" or "animated" but doing it this way will load
 			//any potential new kind of emote in the future.
 			const flag = (((e.format as unknown) as string[]).splice(-1)[0] ?? "static");
+			let owner!:TwitchatDataTypes.TwitchatUser;
+			if(e.owner_id == "0") {
+				//Create a fake user for th "global" emotes.
+				//They are linked to the twitch user "0" which does
+				//not exists.
+				owner = {
+					id:"0",
+					platform:"twitch",
+					displayName:"Global",
+					login:"Global",
+					donor:{level:0, state:false},
+					greeted:true,
+					is_affiliate:false,
+					is_partner:false,
+					is_tracked:false,
+					pronouns:false,
+					pronounsLabel:"",
+					pronounsTooltip:"",
+					channelInfo:{},
+				}
+			}else{
+				owner = StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id)
+			}
 			return {
 				id: e.id,
 				code: e.name,
@@ -858,7 +881,7 @@ export default class TwitchUtils {
 					url_2x: e.images.url_2x.replace("/static/", "/"+flag+"/"),
 					url_4x: e.images.url_4x.replace("/static/", "/"+flag+"/"),
 				},
-				owner: StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id),
+				owner,
 				platform: "twitch",
 			}
 		});

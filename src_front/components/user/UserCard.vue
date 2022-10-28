@@ -79,7 +79,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { watchEffect } from '@vue/runtime-core';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Options, Vue } from 'vue-class-component';
@@ -118,7 +118,7 @@ export default class UserCard extends Vue {
 
 	public mounted():void {
 		const sUsers = storeUsers();
-		watchEffect(() => {
+		watch(() => this.$store("users").userCard, () => {
 			this.myFollowings = sUsers.myFollowings.twitch;
 			const card = this.$store("users").userCard;
 			if(card) {
@@ -153,7 +153,7 @@ export default class UserCard extends Vue {
 		this.commonFollowCount = 0;
 		try {
 			this.user = this.user!;
-			const loadFromLogin = this.user.id.indexOf("temporary") === 0;
+			const loadFromLogin = this.user.temporary;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [this.user.id], loadFromLogin? [this.user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];

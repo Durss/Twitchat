@@ -129,6 +129,9 @@ export const storeAuth = defineStore('auth', {
 
 				//Load the current user data
 				await new Promise((resolve)=> {
+					//Makes sure the pronoun param is properly set up so our pronouns
+					//are loaded if requested					
+					sMain.loadDataFromStorage();
 					const uid = (userRes as TwitchDataTypes.Token).user_id;
 					this.twitch.user = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
 				})
