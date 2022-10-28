@@ -23,6 +23,7 @@ let twitchUserBatchLoginToLoad:BatchItem[] = [];
 let twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
 let twitchUserBatchLoginTimeout:number = -1;
 let twitchUserBatchIdTimeout:number = -1;
+const tmpDisplayName = "...loading...";
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
@@ -186,8 +187,8 @@ export const storeUsers = defineStore('users', {
 				if(channelId && user.id) this.checkFollowerState(user, channelId);
 			}
 				
-			if(!user.displayName) user.displayName = "...loading...";
-			if(!user.login) user.login = "...loading...";
+			if(!user.displayName) user.displayName = tmpDisplayName;
+			if(!user.login) user.login = tmpDisplayName;
 
 			//User was already existing, consider stop there
 			if(userExisted){
@@ -252,7 +253,7 @@ export const storeUsers = defineStore('users', {
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
-								if(!userLocal.displayName)
+								if(!userLocal.displayName || userLocal.displayName == tmpDisplayName)
 									userLocal.displayName	= apiUser.display_name;
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
