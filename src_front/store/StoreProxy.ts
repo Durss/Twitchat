@@ -168,7 +168,8 @@ export interface IChatGetters {
 export interface IChatActions {
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;
 	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
-	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser):void;
+	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	delUserMessages(uid:string):void;
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;

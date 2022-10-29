@@ -665,14 +665,7 @@ export default class PubSub extends EventDispatcher {
 				case "delete": {
 					const [login, message, messageId] = localObj.args!;
 					const deleter = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by);
-					
-					//Search message by its ID
-					const list = StoreProxy.chat.messages.concat();
-					for (let i = list.length-1; i > -1; i--) {
-						if(messageId == list[i].id) {
-							StoreProxy.chat.deleteMessage(list[i], deleter);
-						}
-					}
+					StoreProxy.chat.deleteMessageByID(messageId, deleter, false);
 					break;
 				}
 				default:
