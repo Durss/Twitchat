@@ -110,7 +110,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/utils/TwitchatEvent';
 import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
+import { watch, watchEffect } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
@@ -338,7 +338,7 @@ export default class ChatMessage extends Vue {
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
-			watch(()=>mess.twitch_isSuspicious, ()=> {
+			watchEffect(()=> {
 				if(mess.twitch_isSuspicious) {
 					this.infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
 				}

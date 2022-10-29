@@ -190,7 +190,8 @@ export default class DevmodeMenu extends Vue {
 
 }
 
-type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade"
+type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade";
+
 </script>
 
 <style scoped lang="less">

@@ -5,7 +5,9 @@
 		<div class="holder" ref="holder" v-if="loading">
 			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
-				<div class="title">{{user.displayName}}</div>
+				<div class="title">
+					<span class="label">{{user.displayName}}</span>
+				</div>
 				<img src="@/assets/loader/loader.svg" alt="loader" class="loader">
 			</div>
 		</div>
@@ -13,7 +15,9 @@
 		<div class="holder" ref="holder" v-else-if="error">
 			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
-				<div class="title">{{user.displayName}}</div>
+				<div class="title">
+					<span class="label">{{user.displayName}}</span>
+				</div>
 			</div>
 
 			<div class="error">Something went wrong while loading user's profile...</div>
@@ -26,8 +30,9 @@
 				<div class="live" v-if="currentStream">LIVE</div>
 				<div class="title">
 					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" :data-tooltip="b.title">
-					<span>{{user.displayName}}</span>
+					<span class="label">{{user.displayName}}</span>
 				</div>
+				<span class="translation" v-if="translateUsername">({{user.login}})</span>
 				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" data-tooltip="Account creation date"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				<div class="date" data-tooltip="Follows you since" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="account creation date" class="icon">{{followDate}}</div>
@@ -115,6 +120,18 @@ export default class UserCard extends Vue {
 	// public subState:TwitchDataTypes.Subscriber|null = null;
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
+
+	/**
+	 * Returns the login instead of the display name if the display name contains
+	 * mostly non-latin chars
+	 */
+	 public get translateUsername():boolean {
+		const dname = this.user!.displayName.toLowerCase();
+		const uname = this.user!.login.toLowerCase();
+		//If display name is different from username and at least half of the
+		//display name's chars ar not latin chars, translate it
+		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
+	}
 
 	public mounted():void {
 		const sUsers = storeUsers();
@@ -382,19 +399,34 @@ export default class UserCard extends Vue {
 		}
 
 		&>.head {
-			margin-bottom: .5em;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+			width: calc(100% - 3em);
+			margin: auto;
+			margin-bottom: .5em;
 
 			.title {
-				font-size: 2em;
+				font-size: 1.5em;
 				display: flex;
 				align-items: center;
+				justify-content: center;
+				width:100%;
+
+				.label {
+					text-overflow: ellipsis;
+					overflow: hidden;
+					line-height: 1.2em;
+				}
 
 				.badge {
 					height: .8em;
 				}
+			}
+
+			.translation {
+				font-size: 1em;
+				font-style: italic;
 			}
 
 			.live {

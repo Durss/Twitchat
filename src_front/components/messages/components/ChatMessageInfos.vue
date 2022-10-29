@@ -40,6 +40,8 @@ export default class ChatMessageInfos extends Vue {
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
 			restrictedUser:"shield",
+			automod:"shield",
+			suspiciousUser:"shield_alert",
 			emergencyBlocked:"emergency",
 		};
 		if(hashmap[info.type]) {
@@ -59,7 +61,7 @@ export default class ChatMessageInfos extends Vue {
 	justify-content: center;
 
 	.item {
-		font-size: .9em;
+		font-size: 1em;
 		border-radius: 3px;
 		padding: .15em .3em;
 		vertical-align: middle;
@@ -78,13 +80,13 @@ export default class ChatMessageInfos extends Vue {
 			background-color: @mainColor_light;
 		}
 
-		&.automod, &.emergencyBlocked, &.restrictedUser {
+		&.automod, &.emergencyBlocked, &.restrictedUser, &.suspiciousUser {
 			background-color: @mainColor_alert;
 		}
 
 		&.suspiciousUser {
-			background-color: @mainColor_warn;
-			color:@mainColor_dark;
+			background-color: @mainColor_light;
+			color: @mainColor_alert;
 			font-weight: bold;
 		}
 
