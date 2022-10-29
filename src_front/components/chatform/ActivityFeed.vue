@@ -197,6 +197,7 @@ export default class ActivityFeed extends Vue {
 
 		watch(()=>this.filters, ()=> {
 			DataStore.set(DataStore.ACTIVITY_FEED_FILTERS, this.filters);
+			this.updateActivityFeed();
 		});
 
 		watch(()=>this.$store("chat").activityFeed, ()=> {
@@ -243,26 +244,25 @@ export default class ActivityFeed extends Vue {
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
 			let type = m.type;
-			
+			let show = false;
 			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				if(//It's an highlighted message
-				(this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted)
-				//It's an elevated message
-				|| m.elevatedInfo
-				) result.unshift(m);
+				//It's an highlighted or elevated message
+				show =  (this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted) || m.elevatedInfo != undefined;
 			}
 			
-			else if((type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) && showSubs) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.REWARD && showRewards) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION && showRewards) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.RAID && showRaids) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.CHEER && showBits) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && showFollow) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.POLL && showPolls) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION && showPredictions) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO && showBingos) result.unshift(m);
-			else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE && showRaffles) result.unshift(m);
-			else result.unshift(m);
+			else if((type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION)) show = showSubs;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.REWARD) show = showRewards;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION) show = showRewards;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.RAID) show = showRaids;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.CHEER) show = showBits;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) show = showFollow;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.POLL) show = showPolls;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION) show = showPredictions;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO) show = showBingos;
+			else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE) show = showRaffles;
+			else show = true;;
+
+			if(show) result.unshift(m);
 		}
 
 		this.messages = result;
