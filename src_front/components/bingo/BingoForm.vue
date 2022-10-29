@@ -133,7 +133,6 @@ export default class BingoForm extends Vue {
 		
 		let emotes = await TwitchUtils.getEmotes();
 		emotes = emotes.filter(v => v.is_public === true);
-		console.log(emotes);
 		this.globalEmotes = emotes;
 	}
 

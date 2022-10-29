@@ -350,7 +350,7 @@ export default class ChatMessage extends Vue {
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
 		this.staticClasses = ["chatmessage"];
-		if(this.firstTime || this.isPresentation || this.isReturning)	this.staticClasses.push("firstTimeOnChannel");
+		if(this.firstTime || this.isPresentation || this.isReturning)	this.staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.staticClasses.push("whisper");
 		}else {
@@ -778,17 +778,17 @@ export default class ChatMessage extends Vue {
 		}
 	}
 
-	&.firstTimeOnChannel {
+	&.hasHeader {
 		color: #fff;
 		background-color: rgba(255, 255, 255, .15) !important;
 		border-radius: 5px;
 		margin: 5px 0;
+		padding-top: 0 !important;
 		.header {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			font-size: 1em;
 			.icon {
 				height: 1.2em;
 				margin: 5px;
@@ -863,7 +863,7 @@ export default class ChatMessage extends Vue {
 		border-image-slice: 1;
 		border-left: .6em solid rgba(255, 255, 255, .5);
 		border-right: .6em solid rgba(255, 255, 255, .5);
-		padding: 0;
+		padding-top: 0 !important;
 		padding-bottom: .25em;
 		background-color: rgba(255, 255, 255, .1);
 

@@ -7,14 +7,14 @@
 .chatMessage() {
 	color:@mainColor_light;
 
-	.icon {
+	&>.icon {
 		width: 1.25em;
 		height: 1.25em;
 		margin-right: 5px;
 		vertical-align: middle;
 	}
 	
-	.time {
+	&>.time {
 		color: fade(#ffffff, 75%);
 		font-size: .8em;
 		vertical-align: middle;
@@ -39,8 +39,8 @@
 .modal {
 	
 	&>.dimmer {
-		backdrop-filter: blur(2px);
-		background-color: rgba(0,0,0,.7);
+		backdrop-filter: blur(1px);
+		background-color: rgba(0,0,0,.5);
 		position: absolute;
 		top: 0;
 		left: 0;
