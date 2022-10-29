@@ -657,15 +657,13 @@ export const storeChat = defineStore('chat', {
 						// }
 						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 	
-						if(!m.twitch_automod//Don't keep automod form message
-						&& keepDeletedMessages === true) {
-							//Just flag as deleted but keep it
-							if(deleter) {
-								m.deletedData = { deleter };
-							}
-						}else{
-							//Remove message from list
+						//Don't keep automod form message
+						if(m.twitch_automod) {
 							list.splice(i, 1);
+						}
+						
+						if(deleter) {
+							m.deletedData = { deleter };
 						}
 						
 						if(callEndpoint && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {

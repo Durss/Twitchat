@@ -220,7 +220,6 @@ export default class MessageList extends Vue {
 
 	public max!: number;
 	public lightMode!:boolean;
-	public localMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation:TwitchatDataTypes.MessageChatData[] = [];
 	public ariaMessage = "";
@@ -229,6 +228,7 @@ export default class MessageList extends Vue {
 	public conversationPos = 0;
 	public scrollAtBottom = true;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
+	public filteredMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 
 	private counter = 0;
 	private prevTs = 0;
@@ -276,183 +276,7 @@ export default class MessageList extends Vue {
 		return label;
 	}
 
-	public get filteredMessages():TwitchatDataTypes.ChatMessageTypes[] {
-		const sParams = StoreProxy.params;
-		const sUsers = StoreProxy.users;
-		const messages = this.localMessages.concat();
-		const meUID = StoreProxy.auth.twitch.user.id;
-		const blockedCmds = sParams.filters.blockedCommands.value as string;
-		let blockedSpecificCmds = blockedCmds.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
-		blockedSpecificCmds = blockedSpecificCmds.map(v=>v.replace(/^!/gi, ""))//Remove "!" at the beginning
-		for (let i = 0; i < messages.length; i++) {
-			const m = messages[i];
-			
-			switch(m.type) {
-				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
-					//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
-					if(this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
-						messages.splice(i, 1);
-						i--;
-					}else
-					//Ignore deleted messages if requested
-					if(sParams.filters.keepDeletedMessages.value === false && m.deleted) {
-						messages.splice(i, 1);
-						i--;
-					}else
-					//Ignore /me messages if requested
-					if(sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
-						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
-						messages.splice(i, 1);
-						i--;
-					}else
-					//Ignore self if requested
-					if(sParams.filters.showSelf.value === false && m.user.id == meUID) {
-						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
-						messages.splice(i, 1);
-						i--;
-					}else
-					//Ignore bot messages if requested
-					if(sParams.filters.showBots.value === false
-					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
-					&& m.bypassBotFilter !== true) {
-						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
-						messages.splice(i, 1);
-						i--;
-					}else
-					//Ignore custom users
-					if(m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
-						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
-						messages.splice(i, 1);
-						i--;
-					}else
-							
-					//Ignore commands
-					if(sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
-						if(sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
-							//Ignore specific commands
-							const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
-							if(blockedSpecificCmds.includes(cmd)) {
-								//TODO Broadcast to OBS-ws
-								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
-								messages.splice(i, 1);
-								i--;
-							}
-						}else{
-							//Ignore all commands
-							//TODO Broadcast to OBS-ws
-							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
-							messages.splice(i, 1);
-							i--;
-						}
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.WHISPER:{
-					if(sParams.features.showWhispersOnChat.value === false ) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-				
-				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
-					if(sParams.filters.showNotifications.value === false 
-					|| sParams.filters.showSubs.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-				
-				case TwitchatDataTypes.TwitchatMessageType.REWARD:{
-					if(sParams.filters.showNotifications.value === false 
-					|| sParams.filters.showRewards.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-				
-				case TwitchatDataTypes.TwitchatMessageType.PREDICTION:
-				case TwitchatDataTypes.TwitchatMessageType.POLL:{
-					if(sParams.filters.showNotifications.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.CHEER:{
-					if(sParams.filters.showNotifications.value === false 
-					|| sParams.filters.showCheers.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:{
-					if(sParams.filters.showNotifications.value === false 
-					|| sParams.filters.showFollow.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.RAID:{
-					if(sParams.filters.showNotifications.value === false 
-					|| sParams.filters.showRaids.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:{
-					if(sParams.filters.showNotifications.value === false 
-					|| sParams.filters.showHypeTrain.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.RAFFLE:
-				case TwitchatDataTypes.TwitchatMessageType.BINGO:
-				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN:
-				case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
-				case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
-				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
-				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION:{
-					if(sParams.filters.showNotifications.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.JOIN:
-				case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
-					if(sParams.features.notifyJoinLeave.value === false) {
-						messages.splice(i, 1);
-						i--;
-					}
-					break;
-				}
-			}
-		}
-
-		return messages.slice(-this.max);
-	}
-
 	public async mounted():Promise<void> {
-		this.localMessages = this.$store("chat").messages.concat().slice(-this.max);
-		for (let i = 0; i < this.localMessages.length; i++) {
-			this.idDisplayed[this.localMessages[i].id as string] = true;
-		}
-		
 		//Listen for new messages
 		watch(() => this.$store("chat").messages, async (value) => {
 			const el = this.$refs.messageHolder as HTMLDivElement;
@@ -476,18 +300,12 @@ export default class MessageList extends Vue {
 				}
 				return;
 			}
-			const maxHistory = this.$store("chat").realHistorySize;
-			this.localMessages = value.concat().slice(-maxHistory);
-			
-			if(this.localMessages.length >= this.max) {
-				this.counter++;
-			}
 
+			//Chat is not paused
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].id as string] = true;
 			}
-
-			this.scrollToPrevMessage();
+			this.filterMessages();
 		});
 
 		watch(()=>this.$store("params").appearance.defaultSize.value, async ()=> {
@@ -495,7 +313,16 @@ export default class MessageList extends Vue {
 			const el = this.$refs.messageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			el.scrollTop = this.virtualScrollY = maxScroll;
-		})
+		});
+
+		watch(()=>this.$store("params").filters, async ()=> {
+			this.filterMessages();
+		}, {deep:true});
+
+		watch(()=>this.$store("params").features.notifyJoinLeave.value, async ()=> {
+			this.filterMessages();
+		});
+		
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
@@ -509,6 +336,7 @@ export default class MessageList extends Vue {
 		await this.$nextTick();
 		this.prevTs = Date.now();
 		this.renderFrame(this.prevTs);
+		this.filterMessages();
 	}
 
 	public beforeUnmount():void {
@@ -558,6 +386,170 @@ export default class MessageList extends Vue {
 		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
 	}
 
+	private async filterMessages():Promise<void> {
+		const s = Date.now();
+		const sParams = StoreProxy.params;
+		const sUsers = StoreProxy.users;
+		const sChat = StoreProxy.chat;
+		const messages = sChat.messages.concat();
+		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
+		const meUID = StoreProxy.auth.twitch.user.id;
+		const blockedCmds = sParams.filters.blockedCommands.value as string;
+		let blockedSpecificCmds = blockedCmds.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
+		blockedSpecificCmds = blockedSpecificCmds.map(v=>v.replace(/^!/gi, ""))//Remove "!" at the beginning
+		for (let i = messages.length-1; i >= 0; i--) {
+			const m = messages[i];
+			
+			switch(m.type) {
+				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
+					let canAdd = true;
+					//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
+					if(this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
+						canAdd = false;
+					}else
+					//Ignore deleted messages if requested
+					if(sParams.filters.keepDeletedMessages.value === false && m.deleted) {
+						canAdd = false;
+					}else
+					//Ignore /me messages if requested
+					if(sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
+						canAdd = false;
+					}else
+					//Ignore self if requested
+					if(sParams.filters.showSelf.value === false && m.user.id == meUID) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
+						canAdd = false;
+					}else
+					//Ignore bot messages if requested
+					if(sParams.filters.showBots.value === false
+					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
+					&& m.bypassBotFilter !== true) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
+						canAdd = false;
+					}else
+					//Ignore custom users
+					if(m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
+						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
+						canAdd = false;
+					}else
+							
+					//Ignore commands
+					if(sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
+						if(sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
+							//Ignore specific commands
+							const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
+							if(blockedSpecificCmds.includes(cmd)) {
+								//TODO Broadcast to OBS-ws
+								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+								canAdd = false;
+							}
+						}else{
+							//Ignore all commands
+							//TODO Broadcast to OBS-ws
+							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
+							canAdd = false;
+						}
+					}
+					if(canAdd) result.unshift(m);
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.WHISPER:{
+					if(sParams.features.showWhispersOnChat.value === true ) {
+						result.unshift(m);
+					}
+					break;
+				}
+				
+				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
+					if(sParams.filters.showNotifications.value === true 
+					&& sParams.filters.showSubs.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+				
+				case TwitchatDataTypes.TwitchatMessageType.REWARD:{
+					if(sParams.filters.showNotifications.value === true 
+					&& sParams.filters.showRewards.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+				
+				case TwitchatDataTypes.TwitchatMessageType.PREDICTION:
+				case TwitchatDataTypes.TwitchatMessageType.POLL:{
+					if(sParams.filters.showNotifications.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CHEER:{
+					if(sParams.filters.showNotifications.value === true 
+					&& sParams.filters.showCheers.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:{
+					if(sParams.filters.showNotifications.value === true 
+					&& sParams.filters.showFollow.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.RAID:{
+					if(sParams.filters.showNotifications.value === true 
+					&& sParams.filters.showRaids.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:{
+					if(sParams.filters.showNotifications.value === true 
+					&& sParams.filters.showHypeTrain.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.RAFFLE:
+				case TwitchatDataTypes.TwitchatMessageType.BINGO:
+				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN:
+				case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
+				case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
+				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION:{
+					if(sParams.filters.showNotifications.value === true) {
+						result.unshift(m);
+					}
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.JOIN:
+				case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
+					if(sParams.features.notifyJoinLeave.value !== false) {
+						result.unshift(m);
+					}
+					break;
+				}
+				default: result.unshift(m);
+			}
+			if(result.length == this.max) break;
+		}
+
+		this.filteredMessages = result;
+		const e = Date.now();
+		// console.log(e-s);
+		await this.$nextTick();
+		this.scrollToPrevMessage();
+	}
+
 	/**
 	 * Called when requesting an action from the public API
 	 */
@@ -568,18 +560,18 @@ export default class MessageList extends Vue {
 		switch(e.type) {
 			case TwitchatEvent.CHAT_FEED_READ: {
 				if(readCount === 0) readCount = 1;
-				const offset = this.localMessages.findIndex(v => {
+				const offset = this.filteredMessages.findIndex(v => {
 					return v.markedAsRead === true
 				})
 				if(offset > -1) readCount += offset;
 			}
 			/* falls through */
 			case TwitchatEvent.CHAT_FEED_READ_ALL: {
-				if(readCount === 0 || readCount > this.localMessages.length-1) {
-					readCount = this.localMessages.length-1;
+				if(readCount === 0 || readCount > this.filteredMessages.length-1) {
+					readCount = this.filteredMessages.length-1;
 				}
 				if(readCount < 0) readCount = 0;
-				const m = this.localMessages[readCount];
+				const m = this.filteredMessages[readCount];
 				this.toggleMarkRead(m);
 				break;
 			}
@@ -613,10 +605,8 @@ export default class MessageList extends Vue {
 	 * Catch up all pending messages
 	 */
 	public async unPause():Promise<void> {
-		const maxHistory = this.$store("chat").realHistorySize;
-		let messages = this.pendingMessages.slice(-maxHistory);
 		this.pendingMessages = [];
-		this.localMessages = this.localMessages.concat(messages).slice(-maxHistory);
+		this.filterMessages();
 		
 		//Scroll toi bottom
 		const el = this.$refs.messageHolder as HTMLDivElement;
@@ -702,6 +692,7 @@ export default class MessageList extends Vue {
 		const bottom = lastMess.offsetTop + lastMess.offsetHeight;
 
 		let ease = .2;
+		ease = .1;//TODO remove
 		if(!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
@@ -733,7 +724,7 @@ export default class MessageList extends Vue {
 		}
 
 		//Show next pending message if at the bottom and scroll isn't locked
-		if(this.virtualScrollY >= maxScroll
+		if(this.virtualScrollY >= maxScroll-1
 		&& !this.lockScroll
 		&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
@@ -751,10 +742,10 @@ export default class MessageList extends Vue {
 		
 		const m = this.pendingMessages.shift()!;
 		this.idDisplayed[m.id] = true;
-		this.localMessages.push( m );
+		this.filteredMessages.push( m );
 		const maxHistory = this.$store("chat").realHistorySize;
-		if(this.localMessages.length > maxHistory) {
-			this.localMessages = this.localMessages.slice(-maxHistory);
+		if(this.filteredMessages.length > maxHistory) {
+			this.filteredMessages = this.filteredMessages.slice(-maxHistory);
 		}
 		this.scrollToPrevMessage(wheelOrigin);
 	}
@@ -775,17 +766,21 @@ export default class MessageList extends Vue {
 
 		//This avoids a glith when a filtered message is receive.
 		//In such case, no new message is created but this method is still called.
-		//Without this conidtion the scroll would glitch back to the previous
+		//Without this condition the scroll would glitch back to the previous
 		//message then back to the bottom.
 		//This condition avoids this "glitch".
 		if(lastMessRef == this.lastDisplayedMessage) return;
+		
+		if(this.filteredMessages.length >= this.max) {
+			this.counter++;
+		}
 		
 		if(lastMessRef) {
 			if(wheelOrigin) {
 				//If scrolling down with mouse wheel while scrolling is locked, interpolate
 				//scroll via tween as the renderFrame does nothing while scroll is locked
 				gsap.killTweensOf(el);
-				gsap.to(el, {duration:.2, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
+				gsap.to(el, {duration:1.2, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
 					this.virtualScrollY = el.scrollTop;
 				}});
 			}else{
