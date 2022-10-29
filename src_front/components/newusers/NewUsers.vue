@@ -104,6 +104,8 @@ export default class NewUsers extends Vue {
 	private streakMode = true;
 	private mouseY = 0;
 	private highlightState:{[key:string]:boolean} = {};
+	private watcherDebounceTO:number = -1;
+	private watcherDebounceCount:number = -1;
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
@@ -142,7 +144,15 @@ export default class NewUsers extends Vue {
 
 		//Called when new message is received
 		watch(()=>this.$store("chat").messages, ()=>{
-			this.onMessage()
+			//Make sure we don't call "onMessage()" potentially many times/frame
+			//if multiple messages are added/updates
+			if(++this.watcherDebounceCount < 20) {
+				clearTimeout(this.watcherDebounceTO);
+				this.watcherDebounceTO= setTimeout(()=> {
+					this.watcherDebounceCount = 0;
+					this.onMessage();
+				},100);
+			}
 		});
 
 		//Automatically deletes messages after the configured delay
