@@ -583,9 +583,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				
 		//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 		if(ChatCypherPlugin.instance.isCyperCandidate(message)) {
-			const original = message;
-			message = await ChatCypherPlugin.instance.decrypt(original);
-			data.cyphered = message != original;
+			data.message = data.message_html = await ChatCypherPlugin.instance.decrypt(message);
+			data.cyphered = data.message != message;
 		}
 
 		//Check if the message contains a mention
