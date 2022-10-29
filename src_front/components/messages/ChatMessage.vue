@@ -116,8 +116,8 @@ import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatMessageInfos from './ChatMessageInfos.vue';
-import ChatModTools from './ChatModTools.vue';
+import ChatMessageInfos from './components/ChatMessageInfos.vue';
+import ChatModTools from './components/ChatModTools.vue';
 
 @Options({
 	components:{
@@ -526,7 +526,7 @@ export default class ChatMessage extends Vue {
 
 <style scoped lang="less">
 .chatmessage{
-	color:@mainColor_light;
+	.chatMessage();
 
 	&.highlightSubs { background-color: fade(#9147ff, 7%); }
 	&.highlightVips { background-color: fade(#e00bb9, 7%); }

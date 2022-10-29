@@ -70,7 +70,6 @@ export default class ChatHypeTrainResult extends Vue {
 	}
 
 	public mounted():void {
-		console.log(this.result.train);
 		this.reachPercent = Math.round(this.result.train.currentValue / this.result.train.goal * 100);
 		for (let i = 0; i < this.result.activities.length; i++) {
 			const el = this.result.activities[i];
@@ -102,25 +101,8 @@ export default class ChatHypeTrainResult extends Vue {
 
 <style scoped lang="less">
 .chathypetrainresult{
-	
-	background-color: rgba(255, 255, 255, .15);
-	border-radius: 5px;
-	margin: 5px 0;
-	padding: 5px !important;
-	text-align: center;
+	.chatMessageHighlight();
 
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	color: #fff;
-
-	&>.icon {
-		width: 1.5em;
-		height: 1.5em;
-		object-fit: contain;
-		margin: 0 .5em;
-	}
-	
 	.highlight() {
 		background-color: fade(@mainColor_normal, 50%);
 		border-radius: .5em;

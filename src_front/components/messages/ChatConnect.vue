@@ -57,17 +57,11 @@ export default class ChatConnect extends Vue {
 
 <style scoped lang="less">
 .chatconnect{
+	.chatMessage();
+	
 	font-style: italic;
 	opacity: .7;
-	color: @mainColor_light;
-	
-	.icon {
-		width: 1.25em;
-		height: 1.25em;
-		margin-right: 5px;
-		vertical-align: middle;
-	}
-	
+
 	&.disconnect {
 		color: @mainColor_alert_light;
 	}

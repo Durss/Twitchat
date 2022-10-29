@@ -319,10 +319,6 @@ export default class ChatAd extends Vue {
 		position: relative;
 		background-color: @mainColor_light;
 	
-		&>* {
-			// color: @mainColor_normal;
-		}
-	
 		.confirmClose {
 			position: absolute;
 			top: 0;

@@ -22,9 +22,14 @@
 			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
 			<Button small title="Ban" @click="simulateEvent('ban')" :icon="$image('icons/ban.svg')" />
-			<Button small title="Automod" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
+			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
+			<Button small title="Automod Twitchat" @click="simulateAutomodTwitchat()" :icon="$image('icons/automod_white.svg')" />
+			<Button small title="Automod Twitchat join" @click="simulateEvent('autoban_join')" :icon="$image('icons/automod_white.svg')" />
 			<Button small title="Poll result" @click="simulateEvent('poll')" :icon="$image('icons/poll.svg')" />
 			<Button small title="Prediction result" @click="simulateEvent('prediction')" :icon="$image('icons/prediction.svg')" />
+			<Button small title="Bingo result" @click="simulateEvent('bingo')" :icon="$image('icons/bingo.svg')" />
+			<Button small title="Raffle result" @click="simulateEvent('raffle')" :icon="$image('icons/ticket.svg')" />
+			<Button small title="Countdown result" @click="simulateEvent('countdown')" :icon="$image('icons/timer.svg')" />
 			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
@@ -157,6 +162,20 @@ export default class DevmodeMenu extends Vue {
 			}while(Math.random() > .5)
 
 			m.twitch_automod = { reasons:["bullying"], words };
+			return true;
+		});
+	}
+
+	public simulateAutomodTwitchat():void {
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+			const m = (message as TwitchatDataTypes.MessageChatData);
+			m.automod = {
+				enabled:true,
+				id:Utils.getUUID(),
+				label:"durss filter",
+				regex:"durss",
+				serverSync:false
+			}
 			return true;
 		});
 	}

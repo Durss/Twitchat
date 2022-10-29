@@ -42,7 +42,7 @@ export const storeRaffle = defineStore('raffle', {
 				case "chat": {
 					//Start countdown if requested
 					if(payload.showCountdownOverlay) {
-						StoreProxy.timer.startCountdown(payload.duration * 1000 * 60);
+						StoreProxy.timer.startCountdown(payload.duration_s * 1000 * 60);
 					}
 					//Announce start on chat
 					if(StoreProxy.chat.botMessages.raffleStart.enabled) {
@@ -171,7 +171,7 @@ export const storeRaffle = defineStore('raffle', {
 			const ellapsed = Date.now() - new Date(raffle.created_at).getTime();
 			//Check if within time frame and max users count isn't reached and that user
 			//hasn't already entered
-			if(ellapsed <= raffle.duration * 60000
+			if(ellapsed <= raffle.duration_s * 60000
 			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)
 			&& !raffle.entries.find(v=>v.id == message.user.id)) {
 				let score = 1;

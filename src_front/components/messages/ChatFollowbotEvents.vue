@@ -52,23 +52,9 @@ export default class ChatFollowbotEvents extends Vue {
 
 <style scoped lang="less">
 .chatfollowbotevents{
+	.chatMessageHighlight();
 	background-color: @mainColor_alert;
-	border-radius: 5px;
-	margin: 5px 0;
-	padding: 5px;
-	color:@mainColor_light;
 	cursor: pointer;
-
-	.time {
-		font-variant-numeric: tabular-nums;
-	}
-
-	.icon {
-		width: 1.25em;
-		height: 1.25em;
-		margin-right: 5px;
-		vertical-align: middle;
-	}
 
 	.userList {
 		display: flex;

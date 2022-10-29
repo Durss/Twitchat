@@ -220,6 +220,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					
+					
 					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -227,13 +228,14 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						train: {
+							channel_id:uid,
 							approached_at,
 							started_at:approached_at + 30000,
 							updated_at:approached_at + 30000,
 							timeLeft:0,
 							goal:100,
 							currentValue:Math.floor(Math.random() * 100),
-							level:Math.round(sum/12000),
+							level:Math.round(sum/8000),
 							is_new_record:Math.random() > .5,
 							is_boost_train:false,
 							state:'COMPLETED'
@@ -318,6 +320,98 @@ export const storeDebug = defineStore('debug', {
 						ended_at:Date.now(),
 						pendingAnswer:false,
 						winning_outcome_id:Utils.pickRand(outcomes).id,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN: {
+					const m:TwitchatDataTypes.MessageAutobanJoinData = {
+						platform:"twitchat",
+						channel_id: uid,
+						type:"autoban_join",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user,
+						rule:{
+							enabled:true,
+							id:Utils.getUUID(),
+							label:"Durss filter",
+							regex:"durss",
+							serverSync:false
+						},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.BINGO: {
+					const m:TwitchatDataTypes.MessageBingoData = {
+						platform:"twitchat",
+						type:"bingo",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user,
+						bingoData: {
+							guessEmote:false,
+							guessNumber:true,
+							min:0,
+							max:1000,
+							numberValue:Math.round(Math.random()*999),
+							winners: [user],
+						}
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
+					const entries:TwitchatDataTypes.RaffleEntry[] = [];
+					for (let i = 0; i < 10; i++) {
+						entries.push({
+							id:Utils.getUUID(),
+							label:"Option "+(i+1),
+							score:1,
+						});
+					}
+					const m:TwitchatDataTypes.MessageRaffleData = {
+						platform:"twitchat",
+						type:"raffle",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						raffleData: {
+							command:"",
+							created_at:Date.now()-30000,
+							duration_s:60,
+							followRatio:0,
+							subRatio:0,
+							vipRatio:0,
+							subgitRatio:0,
+							mode:'manual',
+							subMode_excludeGifted:false,
+							subMode_includeGifters:false,
+							showCountdownOverlay:false,
+							maxEntries: 0,
+							entries:[],
+							customEntries:entries.map(v=>v.label).join(","),
+							winners:[Utils.pickRand(entries)],
+						},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
+					const m:TwitchatDataTypes.MessageCountdownData = {
+						platform:"twitchat",
+						type:"countdown",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						countdown: {
+							duration:Math.round(Math.random() *60*60)*1000,
+							startAt:Date.now(),
+							timeoutRef:-1,
+						}
 					};
 					data = m;
 					break;

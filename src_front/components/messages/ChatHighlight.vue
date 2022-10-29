@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" @click.ctrl.stop.capture="copyJSON()">
+	<div class="chathighlight" @click.ctrl.stop.capture="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
@@ -25,7 +25,7 @@
 				<div class="game">{{streamInfo.game_name}}</div>
 			</div>
 
-			<div class="automodActions" v-if="allowUnban">
+			<div class="automodActions" v-if="canUnban ||canBlock">
 				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click="unbanUser()" />
 				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click="blockUser()" />
 			</div>
@@ -58,11 +58,10 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatMessageInfos from './ChatMessageInfos.vue';
+import ChatMessageInfos from './components/ChatMessageInfos.vue';
 
 @Options({
 	props:{
-		lightMode:Boolean,
 		messageData:Object,
 	},
 	components:{
@@ -82,7 +81,6 @@ export default class ChatHighlight extends Vue {
 	| TwitchatDataTypes.MessageRewardRedeemData
 	| TwitchatDataTypes.MessageAutobanJoinData
 	| TwitchatDataTypes.MessageCommunityChallengeContributionData;
-	public lightMode!:boolean;
 	public messageText = '';
 	public info = "";
 	public icon = "";
@@ -90,10 +88,9 @@ export default class ChatHighlight extends Vue {
 	public isRaid = false;
 	public shoutoutLoading = false;
 	public loading = false;
-	public allowUnban = false;
 	public moderating = false;
-	public canUnban = true;
-	public canBlock = true;
+	public canUnban = false;
+	public canBlock = false;
 	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
 	public additionalUsers:TwitchatDataTypes.TwitchatUser[] = [];
 	
@@ -104,15 +101,6 @@ export default class ChatHighlight extends Vue {
 			return this.pStreamInfo;
 		}
 		return null;
-	}
-
-	public get classes():string[] {
-		let res = ["chathighlight"];
-		if(this.lightMode) res.push("light");
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(this.messageData.user.is_tracked) res.push("tracked");
-		}
-		return res;
 	}
 
 	public get time():string {
@@ -141,7 +129,8 @@ export default class ChatHighlight extends Vue {
 				this.icon = this.$image('icons/mod.svg');
 				this.user = this.messageData.user;
 				res = "has been banned by automod after joining the chat as their nickname matches the following rule: \"<i>"+this.messageData.rule.label+"</i>\"";
-				this.allowUnban = true;
+				this.canUnban = true;
+				this.canBlock = true;
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE:
@@ -357,81 +346,13 @@ export default class ChatHighlight extends Vue {
 
 <style scoped lang="less">
 .chathighlight{
-	background-color: rgba(255, 255, 255, .15);
-	border-radius: 5px;
-	margin: 5px 0;
-	padding: 5px;
-
-	&.light {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		.time {
-			display: inline-block;
-			position: relative;
-			font-variant-numeric: tabular-nums;
-		}
-		.icon {
-			width: 1.4em;
-			height: 1.4em;
-			margin: 0 .5em;
-		}
-
-		.messageHolder {
-			flex-grow: 1;
-			.reason {
-				font-size: 1em;
-			}
-
-			.message, .info {
-				margin: 0;
-				margin-top: .5em;
-				display: block;
-				color: rgba(255, 255, 255, .75);
-				line-height: 1.2em;
-			}
-
-			.automodActions {
-				width: 100%;
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				align-items: center;
-				.button:not(:first-child) {
-					margin-left: .5em;
-				}
-			}
-		}
-	}
-
-	&.tracked {
-		border-image-slice: 1;
-		border-left: .6em solid rgba(255, 255, 255, 1);
-		background-color: rgba(255, 255, 255, .2);
-		.message {
-			color: #fff;
-		}
-	}
-
-	.time {
-		display: block !important;
-		position: absolute;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.icon {
-		height: 40px;
-		width: 40px;
-		display: block;
-		margin-bottom: 10px;
-		margin-right: 10px;
-		margin-left: 10px;
-	}
+	.chatMessageHighlight();
 
 	.messageHolder {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
+		flex-grow: 1;
 
 		&>*:not(:first-child) {
 			margin-top: 10px;
@@ -461,10 +382,13 @@ export default class ChatHighlight extends Vue {
 		}
 	
 		.message {
-			color: rgba(255, 255, 255, .5);
-			color: @mainColor_normal;
 			font-style: italic;
 			word-break: break-word;
+			margin: 0;
+			margin-top: .5em;
+			display: block;
+			color: rgba(255, 255, 255, .75);
+			line-height: 1.2em;
 			:deep(.cheermote), :deep(.emote) {
 				max-height: 2em;
 				vertical-align: middle;
@@ -487,6 +411,17 @@ export default class ChatHighlight extends Vue {
 
 		.loader {
 			height: 2em;
+		}
+
+		.automodActions {
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+			.button:not(:first-child) {
+				margin-left: .5em;
+			}
 		}
 
 		.streamInfo {
@@ -514,10 +449,20 @@ export default class ChatHighlight extends Vue {
 			}
 		}
 	}
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+			.button:not(:first-child) {
+				margin-left: .5em;
+			}
 
 	.soButton {
-		min-width: 2.5em;
 		width: 2.5em;
+		min-width: 2.5em;
+		height: 2.5em;
+		min-height: 2.5em;
 		:deep(.icon) {
 			height: 1.5em;
 			min-height: 1.5em;

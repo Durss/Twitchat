@@ -68,6 +68,7 @@ export default class ChatNotice extends Vue {
 
 <style scoped lang="less">
 .chatnotice{
+	.chatMessage();
 
 	.icon {
 		width: 1.25em;

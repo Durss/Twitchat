@@ -43,7 +43,7 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
-import Button from '../Button.vue';
+import Button from '../../Button.vue';
 
 @Options({
 	props:{

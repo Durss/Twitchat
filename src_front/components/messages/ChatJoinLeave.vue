@@ -6,14 +6,14 @@
 
 		<span v-if="userList.length > 0" v-for="u, index in userList" :key="u.id">
 			<a @click.prevent="openUserCard(u)">{{u.displayName}}</a>
-			<span v-if="index < userList.length - 2 + remainingOffset">, </span>
-			<span v-else-if="index < userList.length - 1 + remainingOffset"> and </span>
+			<span v-if="index < userList.length - 2 + remainingOffset">,&nbsp;</span>
+			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;and&nbsp;</span>
 		</span>
 
 		<span v-if="remainingCount > 0"><strong>{{remainingCount}}</strong> more</span>
 
-		<span v-if="messageData.type=='join'"> joined the chat room<strong>{{channelName}}</strong></span>
-		<span v-else> left the chat room<strong>{{channelName}}</strong></span>
+		<span v-if="messageData.type=='join'">&nbsp;joined the chat room<strong>{{channelName}}</strong></span>
+		<span v-else>&nbsp;left the chat room<strong>{{channelName}}</strong></span>
 	</div>
 </template>
 
@@ -96,29 +96,26 @@ export default class ChatJoinLeave extends Vue {
 
 <style scoped lang="less">
 .chatjoinleave{
+	.chatMessageHighlight();
+	
+	flex-wrap: wrap;
 	font-style: italic;
-	opacity: .7;
-	color: @mainColor_warn;
+	line-height: 1.25em;
+	background-color: fade(@mainColor_warn, 10%);
 
 	a, strong {
 		color: @mainColor_warn_light;
+		opacity: .7;
 	}
 	a:hover {
 		background: @mainColor_dark;
 	}
-	
-	.icon {
-		width: 1.25em;
-		height: 1.25em;
-		margin-right: 5px;
-		vertical-align: middle;
-	}
 
 	&.alert {
-		color: @mainColor_alert_light;
-		
+		background-color: fade(@mainColor_alert, 10%);
 		a, strong {
-			color: saturate(lighten(@mainColor_alert_light, 5%), 50%);
+			color: @mainColor_alert_light;
+			opacity: .9;
 		}
 	}
 }

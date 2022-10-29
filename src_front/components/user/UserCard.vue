@@ -84,7 +84,7 @@ import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatModTools from '../messages/ChatModTools.vue';
+import ChatModTools from '../messages/components/ChatModTools.vue';
 
 @Options({
 	props:{},

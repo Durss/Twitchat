@@ -183,7 +183,7 @@ import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
 import ChatJoinLeave from './ChatJoinLeave.vue';
-import ChatMessageHoverActions from './ChatMessageHoverActions.vue';
+import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
@@ -419,6 +419,10 @@ export default class MessageList extends Vue {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.RAFFLE:
+				case TwitchatDataTypes.TwitchatMessageType.BINGO:
+				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN:
+				case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION:{
@@ -940,15 +944,6 @@ export default class MessageList extends Vue {
 			padding: 0;
 			overflow: hidden;
 		}
-	}
-
-	:deep(.time) {
-		color: fade(#ffffff, 75%);
-		font-size: .8em;
-		vertical-align: middle;
-		display: inline-block;
-		margin-right: .7em;
-		font-variant-numeric: tabular-nums;
 	}
 
 	.ariaMessage {

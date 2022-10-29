@@ -42,23 +42,8 @@ export default class ChatBingoResult extends Vue {
 
 <style scoped lang="less">
 .chatbingoresult{
-	background-color: rgba(255, 255, 255, .15);
-	border-radius: 5px;
-	margin: 5px 0;
-	padding: 5px !important;
-	text-align: center;
+	.chatMessageHighlight();
 
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	color: #fff;
-
-	&>.icon {
-		width: 1.5em;
-		height: 1.5em;
-		object-fit: contain;
-		margin-right: 1em;
-	}
 	.emote {
 		width: 2em;
 		height: 2em;

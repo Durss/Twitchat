@@ -66,24 +66,8 @@ export default class ChatPollResult extends Vue {
 
 <style scoped lang="less">
 .chatpollresult{
-	
-	background-color: rgba(255, 255, 255, .15);
-	border-radius: 5px;
-	margin: 5px 0;
-	padding: 5px !important;
+	.chatMessageHighlight();
 	text-align: center;
-
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	color: #fff;
-
-	&>.icon {
-		width: 1.5em;
-		height: 1.5em;
-		object-fit: contain;
-		margin-right: 1em;
-	}
 
 	.content {
 		flex-grow: 1;

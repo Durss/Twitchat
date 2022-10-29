@@ -4,7 +4,7 @@
 
 		<ProgressBar class="progress"
 		:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
-		:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration*60000" />
+		:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s*60000" />
 
 		<div class="item entries">
 			<img src="@/assets/icons/user.svg" alt="user">
@@ -70,7 +70,7 @@ export default class RaffleState extends Vue {
 
 	public mounted():void {
 		const ellapsed = Date.now() - new Date(this.raffleData.created_at).getTime();
-		const duration = this.raffleData.duration*60000;
+		const duration = this.raffleData.duration_s*60000;
 		const timeLeft = duration - ellapsed;
 		this.progressPercent = ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});

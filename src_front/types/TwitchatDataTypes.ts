@@ -153,7 +153,7 @@ export namespace TwitchatDataTypes {
 	export interface RaffleData {
 		mode:"chat"|"sub"|"manual";
 		command:string;
-		duration:number;
+		duration_s:number;
 		maxEntries:number;
 		created_at:number;
 		entries:RaffleEntry[];
@@ -628,6 +628,7 @@ export namespace TwitchatDataTypes {
 									MessageConnectData |
 									MessageDisconnectData |
 									MessageFollowbotData |
+									MessageAutobanJoinData |
 									MessageNoticeData
 	;
 
