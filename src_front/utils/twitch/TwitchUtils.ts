@@ -1,5 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { remove } from "@vue/shared";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
@@ -543,8 +544,15 @@ export default class TwitchUtils {
 			const params = param+"="+items.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"users?"+params;
 			const result = await fetch(url, {headers:this.headers});
-			const json = await result.json();
-			users = users.concat(json.data);
+			if(result.status === 200) {
+				const json = await result.json();
+				users = users.concat(json.data);
+			}else if(result.status == 429){
+				//Rate limit reached, try again after it's reset to fulle
+				const resetDate = parseInt(result.headers.get("Ratelimit-Reset") as string ?? (Date.now()+1).toString) * 1000;
+				await Utils.promisedTimeout(resetDate - Date.now());
+				return await this.loadUserInfo(ids, logins)
+			}
 		}
 		return users;
 	}
@@ -1016,7 +1024,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets if the following info of the specified user
+	 * Gets the specified user follows the specified channel
 	 * 
 	 * @param uid user ID
 	 */
@@ -1026,6 +1034,12 @@ export default class TwitchUtils {
 			method:"GET",
 			headers:this.headers,
 		});
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getFollowInfo(uid, channelId);
+		}
 		const json:{error:string, data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
 		if(json.error) {
 			throw(json.error);
@@ -1123,6 +1137,12 @@ export default class TwitchUtils {
 			method:"GET",
 			headers:this.headers,
 		});
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getSubscriptionState(userId, channelId);
+		}
 		try {
 			const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
 			if(json.data?.length > 0) {
@@ -1219,6 +1239,12 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"search/categories?first=50&query="+encodeURIComponent(search), options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.searchCategory(search);
+		}
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
@@ -1238,6 +1264,12 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"games?id="+encodeURIComponent(id), options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getCategoryByID(id);
+		}
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
@@ -1323,6 +1355,12 @@ export default class TwitchUtils {
 		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getStreamInfos(channelId);
+		}
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
@@ -1348,6 +1386,12 @@ export default class TwitchUtils {
 		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.setStreamInfos(title, categoryID, channelId);
+		}
 		if(res.status == 204) {
 			return true;
 		}else{
@@ -1366,6 +1410,12 @@ export default class TwitchUtils {
 		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getStreamTags(channelId);
+		}
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
@@ -1388,6 +1438,12 @@ export default class TwitchUtils {
 		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.setStreamTags(tagIDs, channelId);
+		}
 		if(res.status == 204) {
 			return true;
 		}else{
@@ -1417,6 +1473,12 @@ export default class TwitchUtils {
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 
 		const res = await fetch(url.href, options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.banUser(user, channelId, duration, reason);
+		}
 		if(res.status == 200) {
 			StoreProxy.users.flagBanned("twitch", channelId, user.id, duration);
 			return true;
@@ -1446,7 +1508,13 @@ export default class TwitchUtils {
 		if(res.status == 204) {
 			StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 			return true;
-		}else{
+		}else 
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.unbanUser(user, channelId);
+		}else {
 			const json = await res.json();
 			if(json.message) {
 				StoreProxy.main.alert(json.message);
@@ -1471,31 +1539,25 @@ export default class TwitchUtils {
 		if(res.status == 204) {
 			StoreProxy.users.flagBlocked("twitch", channelId, user.id);
 			return true;
-		}else{
-			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
-				let dateLimit = parseInt(res.headers.get("Ratelimit-Reset") as string);
-				if(isNaN(dateLimit)) dateLimit = Date.now() + 1;
-				dateLimit *= 1000;
-				
-				let delay = dateLimit - Date.now();
-				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
-				
-				await Utils.promisedTimeout(delay)
-				return this.blockUser(user, channelId, reason, ++recursiveIndex);
-			}else{
-				const json = await res.json();
-				if(json.message) {
-					StoreProxy.main.alert(json.message);
-				}
-				return false;
+		}else 
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.blockUser(user, channelId, reason);
+		}else {
+			const json = await res.json();
+			if(json.message) {
+				StoreProxy.main.alert(json.message);
 			}
+			return false;
 		}
 	}
 
 	/**
 	 * Unblocks a user
 	 */
-	public static async unblockUser(user:TwitchatDataTypes.TwitchatUser, channelId:string, recursiveIndex:number = 0):Promise<boolean> {
+	public static async unblockUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
 		const options = {
 			method:"DELETE",
 			headers: this.headers,
@@ -1507,24 +1569,18 @@ export default class TwitchUtils {
 		if(res.status == 204) {
 			StoreProxy.users.flagUnblocked("twitch", channelId, user.id);
 			return true;
-		}else{
-			if(res.status === 429 && recursiveIndex < 10) {//Try 10 times max
-				let dateLimit = parseInt(res.headers.get("Ratelimit-Reset") as string);
-				if(isNaN(dateLimit)) dateLimit = Date.now() + 1;
-				dateLimit *= 1000;
-				
-				let delay = dateLimit - Date.now();
-				if(delay > 5000) return false;//If we have to wait more than 5s, just stop there.
-				
-				await Utils.promisedTimeout(delay)
-				return this.unblockUser(user, channelId, ++recursiveIndex);
-			}else{
-				const json = await res.json();
-				if(json.message) {
-					StoreProxy.main.alert(json.message);
-				}
-				return false;
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.unblockUser(user, channelId);
+		} else {
+			const json = await res.json();
+			if(json.message) {
+				StoreProxy.main.alert(json.message);
 			}
+			return false;
 		}
 	}
 	
@@ -1542,7 +1598,13 @@ export default class TwitchUtils {
 		if(res.status == 200 || res.status == 204) {
 			const json = await res.json();
 			return json.data[0];
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getClipById(clipId);
+		} else {
 			return null;
 		}
 	}
@@ -1590,6 +1652,12 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.sendAnnouncement(channelId, message, color);
 		}else{
 			return false;
 		}
@@ -1611,6 +1679,12 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.deleteMessages(channelId, messageId);
 		}else{
 			return false;
 		}
@@ -1630,7 +1704,13 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.setColor(color);
+		}else {
 			return false;
 		}
 	}
@@ -1679,7 +1759,13 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.setRoomSettings(channelId, settings);
+		}else {
 			return false;
 		}
 	}
@@ -1713,7 +1799,13 @@ export default class TwitchUtils {
 				StoreProxy.users.flagMod("twitch", uid, channelId);
 			}
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.addRemoveModerator(removeMod, channelId, uid, login);
+		}else {
 			return false;
 		}
 	}
@@ -1742,7 +1834,13 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.addRemoveVIP(removeMode, userId, login);
+		}else {
 			return false;
 		}
 	}
@@ -1770,7 +1868,13 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.raidChannel(channel);
+		}else {
 			return false;
 		}
 	}
@@ -1788,7 +1892,13 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.raidCancel();
+		}else {
 			return false;
 		}
 	}
@@ -1819,7 +1929,13 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
-		}else{
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.whisper(message, toLogin, toId);
+		}else {
 			return false;
 		}
 	}
@@ -1846,6 +1962,13 @@ export default class TwitchUtils {
 		if(res.status == 200 || res.status == 204) {
 			const json:{data:{user_login:string}[]} = await res.json();
 			return json.data.map(v => v.user_login);
+		}else 
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getChatters(channelId, channelName);
+
 		}else if(channelName) {
 			//Fallback to unofficial endpoint while it still work..
 			const res = await fetch(Config.instance.API_PATH+"/user/chatters?channel="+channelName);
