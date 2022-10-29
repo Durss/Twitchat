@@ -312,6 +312,9 @@ export default class ChatAd extends Vue {
 
 <style scoped lang="less">
 .chatad{
+	.chatMessage();
+	color:@mainColor_normal;
+
 	.innerHolder {
 		border-radius: 1em;
 		overflow: hidden;
@@ -349,7 +352,7 @@ export default class ChatAd extends Vue {
 			position: absolute;
 			top:0;
 			right:0;
-			height: 3em;
+			height: 2.5em;
 		}
 	
 		&>div>.title {

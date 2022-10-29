@@ -44,7 +44,7 @@
 
 			<ChatMessageInfos class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
-			<div class="userBadges">
+			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
 				<img :src="b.icon.sd" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
 	
 				<span class="badge mini" v-for="(b,index) in miniBadges"
@@ -314,7 +314,11 @@ export default class ChatMessage extends Vue {
 	public mounted():void {
 		const mess = this.messageData;
 		let highlightedWords:string[] = [];
-		
+
+		if(mess.cyphered) {
+			this.infoBadges.push({type:"cyphered"});
+		}
+	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			this.infoBadges.push({type:"whisper"});
@@ -392,6 +396,7 @@ export default class ChatMessage extends Vue {
 		}
 		
 		if(clipId != "") {
+			console.log(clipId);
 			//Do it asynchronously to not block the rendering
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId);
@@ -528,17 +533,23 @@ export default class ChatMessage extends Vue {
 .chatmessage{
 	.chatMessage();
 
-	&.highlightSubs { background-color: fade(#9147ff, 7%); }
-	&.highlightVips { background-color: fade(#e00bb9, 7%); }
-	&.highlightMods { background-color: fade(#39db00, 7%); }
+	&.highlightSubs { background-color: fade(#528bff, 10%); }
+	&.highlightVips { background-color: fade(#db00b3, 10%); }
+	&.highlightMods { background-color: fade(#00a865, 10%); }
+	&.mention { background-color: rgba(255, 0, 0, 20%);}
+	
+	// &.highlightSubs { border: 1px solid #528bff; }
+	// &.highlightVips { border: 1px solid #db00b3; }
+	// &.highlightMods { border: 1px solid #00a865; }
+
+	// &.highlightSubs { border-right: 1em solid #528bff; }
+	// &.highlightVips { border-right: 1em solid #db00b3; }
+	// &.highlightMods { border-right: 1em solid #00a865; }
 	&.highlighted { 
 		.message {
-			background-color: @mainColor_normal; color:#fff
+			background-color: @mainColor_normal;
+			color:#fff;
 		}
-	}
-
-	&.mention{
-		background-color: rgba(255, 0, 0, .35) !important;//oooo..bad me >_>
 	}
 
 	&.slashMe {
@@ -567,8 +578,10 @@ export default class ChatMessage extends Vue {
 
 	&.tracked {
 		border-image-slice: 1;
-		border-left: .6em solid rgba(255, 255, 255, 1);
+		border: 1px solid rgba(255, 255, 255, 1);
+		border-left-width: 1em;
 		background-color: rgba(255, 255, 255, .2);
+		padding-left: .3em;
 		.message {
 			color: #fff;
 		}
@@ -576,13 +589,16 @@ export default class ChatMessage extends Vue {
 
 	&.spoiler {
 		.message {
-			color: @mainColor_dark_light;
+			color: rgba(0, 0, 0, 0);
 			background-color: @mainColor_dark_light;
+			background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 7px, #ffffff30 7px, #ffffff30 15px);
 		}
 		&:hover {
 			.message {
 				color:unset;
+				-webkit-text-fill-color: unset;
 				background-color: transparent;
+				background-image: unset;
 			}
 		}
 		&:not(:hover):deep(.emote) {
@@ -590,7 +606,7 @@ export default class ChatMessage extends Vue {
 		}
 	}
 
-	.infos {
+	>.infos {
 		display: inline;
 		.icon {
 			opacity: 0.75;
@@ -614,7 +630,7 @@ export default class ChatMessage extends Vue {
 		}
 
 		.infoBadges {
-			margin-left: .4em;
+			margin: 0 .4em;
 		}
 
 		.userBadges {
@@ -691,16 +707,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	.message {
-		color: #d1d1d1;
 		// position: relative;
 		word-break: break-word;
-		line-height: 1.5em;
-		:deep( .emote ) {
-			// width: 2em;
-			max-height: 2em;
-			vertical-align: middle;
-			object-fit: contain;
-		}
 		:deep(a) {
 			word-break: break-all;
 		}
@@ -716,10 +724,6 @@ export default class ChatMessage extends Vue {
 			margin-right: .25em;
 			vertical-align: middle;
 			cursor: pointer;
-		}
-
-		.deleted {
-			font-style: italic;
 		}
 	}
 
@@ -780,10 +784,10 @@ export default class ChatMessage extends Vue {
 
 	&.hasHeader {
 		color: #fff;
-		background-color: rgba(255, 255, 255, .15) !important;
+		background-color: rgba(255, 255, 255, .15);
 		border-radius: 5px;
 		margin: 5px 0;
-		padding-top: 0 !important;
+		padding-top: 0;
 		.header {
 			display: flex;
 			flex-direction: row;
@@ -799,44 +803,35 @@ export default class ChatMessage extends Vue {
 	&.automod {
 		margin-top: 5px;
 		border-radius: 5px;
-		background-color: fade(@mainColor_alert, 50%) !important;
-
-		.message {
-			:deep(mark) {
-				background-color: #fff;
-				border-radius: 5px;
-				color: #c00;
-				font-weight: bold;
-				padding: 0px 3px;
-			}
-		}
+		padding-top: 0;
+		background-color: fade(@mainColor_alert, 50%);
 
 		.automod {
-			background-color: #fff;
-			padding: .35em;
-			border-radius: 5px;
+			background-color: fade(#fff, 90%);
+			padding: .25em;
+			border-top-left-radius: .5em;
+			border-top-right-radius: .5em;
 			margin-bottom: 10px;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 
 			img {
-				height: 1.5em;
+				height: 1.25em;
 				margin-right: .5em;
 			}
 
 			.header {
-				color: black;
+				color: @mainColor_dark;
 				flex-grow: 1;
 			}
 
 			.actions {
-				text-align: center;
 				.button {
-					padding: 2px 5px;
-					border-radius: 5px;
-					font-size: 1em;
-					margin-right: 10px;
+					border-radius: .5em;
+					&:not(:last-child) {
+						margin-right: .5em;
+					}
 				}
 			}
 		}
@@ -845,12 +840,16 @@ export default class ChatMessage extends Vue {
 	&.cyphered {
 		background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 20px, #ffffff30 20px, #ffffff30 40px);
 	}
-
-	&.whisper {
-		background-color: rgba(0, 0, 0, 1);
+	
+	&.whisper, &.cyphered {
+		background-color: @mainColor_highlight;
 		// border: 1px dashed @mainColor_light;
-		border-radius: .5em;
-		font-style: italic;
+		@c1: rgba(0,0,0,.8);
+		@c2: rgba(0,0,0,.85);
+		background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
+		.message{
+			font-style: italic;
+		}
 	}
 
 	.noFollowBadge {
@@ -863,7 +862,7 @@ export default class ChatMessage extends Vue {
 		border-image-slice: 1;
 		border-left: .6em solid rgba(255, 255, 255, .5);
 		border-right: .6em solid rgba(255, 255, 255, .5);
-		padding-top: 0 !important;
+		padding-top: 0;
 		padding-bottom: .25em;
 		background-color: rgba(255, 255, 255, .1);
 

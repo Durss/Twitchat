@@ -1,6 +1,7 @@
 import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import ChatCypherPlugin from '@/utils/ChatCypherPlugin'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
@@ -571,6 +572,27 @@ export const storeChat = defineStore('chat', {
 				// PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 			}
 
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+				//Check if the message contains a mention
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& StoreProxy.params.appearance.highlightMentions.value === true) {
+					const login = StoreProxy.auth.twitch.user.login;
+					message.hasMention = login != null && 
+									new RegExp("(^| |@)("+login+")($|\\s)", "gim").test(message.message ?? "");
+					if(message.hasMention) {
+						message.highlightWord = login;
+					}
+				}
+
+				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
+				if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
+					const original = message.message;
+					message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
+					message.cyphered = message.message != original;
+				}
+			}
+
 			if(sAutomod.params.enabled === true) {
 				if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
@@ -661,7 +683,7 @@ export const storeChat = defineStore('chat', {
 						if(m.twitch_automod) {
 							list.splice(i, 1);
 						}
-						
+
 						if(deleter) {
 							m.deletedData = { deleter };
 						}

@@ -150,7 +150,7 @@
 					/>
 			</div>
 
-			<Button class="readBt" aria-label="read this user's messages"
+			<Button class="TTSreadBt" aria-label="read this user's messages"
 				:title="readLabel"
 				:icon="$image('icons/tts.svg')"
 				@click="toggleReadUser()"
@@ -322,7 +322,7 @@ export default class MessageList extends Vue {
 		watch(()=>this.$store("params").features.notifyJoinLeave.value, async ()=> {
 			this.filterMessages();
 		});
-		
+
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 
@@ -715,7 +715,7 @@ export default class MessageList extends Vue {
 		if(bottom < h) {
 			//If messages height is smaller than the holder height, move the holder to the bottom
 			if(this.holderOffsetY == 0) ease = 1;
-			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease;
+			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease * timeScale;
 			if(Math.abs(h - bottom - this.holderOffsetY) < 2) {
 				this.holderOffsetY = h - bottom;
 			}
@@ -982,11 +982,6 @@ export default class MessageList extends Vue {
 		flex-grow: 1;
 		.subHolder {
 			position: relative;
-			// display: flex;
-			// flex-direction: row;
-			// &:last-child {
-			// 	padding-bottom: 5px;
-			// }
 			&:hover {
 				background-color: rgba(255, 255, 255, .2);
 
@@ -1017,14 +1012,6 @@ export default class MessageList extends Vue {
 				align-items: flex-end;
 				justify-content: space-around;
 				flex-wrap: wrap;
-				font-size: var(--messageSize);
-			}
-			&>.message {
-				overflow: hidden;
-				font-family: "Inter";
-				// color: #fff;
-				padding-top: .5em;
-				padding-bottom: .5em;
 				font-size: var(--messageSize);
 			}
 		}
@@ -1112,18 +1099,11 @@ export default class MessageList extends Vue {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
-			&>.message {
-				overflow: hidden;
-				font-family: "Inter";
-				// color: #fff;
-				margin: .5em 0;
-				font-size: var(--messageSize);
-			}
 		}
 
-		.readBt {
-			font-size: .7em;
+		.TTSreadBt {
 			.clearButton();
+			font-size: .7em;
 			display: block;
 			margin: auto;
 			padding: 0 .25em;

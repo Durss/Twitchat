@@ -5,7 +5,13 @@
 }
 
 .chatMessage() {
-	color:@mainColor_light;
+	color: #d1d1d1;
+	margin: .5em 0;
+	font-size: var(--messageSize);
+	font-family: "Inter";
+	line-height: 1.25em;
+	padding-top: .25em;
+	padding-bottom: .25em;
 
 	&>.icon {
 		width: 1.25em;
@@ -21,6 +27,13 @@
 		display: inline-block;
 		margin-right: .7em;
 		font-variant-numeric: tabular-nums;
+	}
+	
+	:deep( .emote ) {
+		// width: 2em;
+		height: 1.5em;
+		vertical-align: middle;
+		object-fit: contain;
 	}
 }
 

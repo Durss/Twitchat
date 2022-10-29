@@ -92,6 +92,7 @@ export namespace TwitchatDataTypes {
 	export const MessageBadgeDataType = {
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
+		CYPHERED: "cyphered",
 		SUSPICIOUS_USER: "suspiciousUser",
 		RESTRICTED_USER: "restrictedUser",
 		EMERGENCY_BLOCKED: "emergencyBlocked",

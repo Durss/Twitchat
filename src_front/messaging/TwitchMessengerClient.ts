@@ -2,7 +2,6 @@ import rewardImg from '@/assets/icons/reward_highlight.svg';
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
@@ -538,6 +537,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 			}
 		}else{
+			//TODO move this to storeChat ?
 			//If there's a mention, search for last messages within
 			//a max timeframe to find if the message may be a reply to
 			//a message that was sent by the mentionned user
@@ -578,22 +578,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						}
 					}
 				}
-			}
-		}
-				
-		//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-		if(ChatCypherPlugin.instance.isCyperCandidate(message)) {
-			data.message = data.message_html = await ChatCypherPlugin.instance.decrypt(message);
-			data.cyphered = data.message != message;
-		}
-
-		//Check if the message contains a mention
-		if(message && StoreProxy.params.appearance.highlightMentions.value === true) {
-			const login = StoreProxy.auth.twitch.user.login;
-			data.hasMention = login != null && 
-							new RegExp("(^| |@)("+login+")($|\\s)", "gim").test(message);
-			if(data.hasMention) {
-				data.highlightWord = login;
 			}
 		}
 		
