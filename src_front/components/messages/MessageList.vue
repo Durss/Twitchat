@@ -476,12 +476,13 @@ export default class MessageList extends Vue {
 				}
 				return;
 			}
-			
-			if(this.localMessages.length == this.max) {
-				this.counter++;
-			}
 			const maxHistory = this.$store("chat").realHistorySize;
 			this.localMessages = value.concat().slice(-maxHistory);
+			
+			if(this.localMessages.length >= this.max) {
+				this.counter++;
+			}
+
 			for (let i = 0; i < value.length; i++) {
 				this.idDisplayed[value[i].id as string] = true;
 			}
