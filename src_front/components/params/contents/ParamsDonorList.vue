@@ -60,6 +60,7 @@ export default class ParamsDonorList extends Vue {
 	public scrollOffset = 0;
 	public loading = true;
 	
+	private loadingPage = false;
 	private localList:{uid:string, v:number}[] = [];
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
@@ -94,7 +95,9 @@ export default class ParamsDonorList extends Vue {
 	}
 
 	private async loadNext():Promise<void> {
-		const items = this.localList.splice(0, 10);
+		if(this.loadingPage) return;
+		this.loadingPage = true;
+		const items = this.localList.splice(0, 100);
 		const uids = items.map(v => v.uid).filter(v => v != "-1");
 		const users = await TwitchUtils.loadUserInfo(uids);
 		const res:{uid:string, v:number, login:string, index:number}[] = [];
@@ -108,6 +111,7 @@ export default class ParamsDonorList extends Vue {
 			res.push(item)
 		}
 		this.itemList = this.itemList.concat(res);
+		this.loadingPage = false;
 	}
 
 	private computeStats():void {
@@ -125,7 +129,6 @@ export default class ParamsDonorList extends Vue {
 			res.push({level:parseInt(level), count:lvl2Count[level]});
 		}
 		this.badges = res.reverse();
-		console.log(res);
 	}
 
 }
