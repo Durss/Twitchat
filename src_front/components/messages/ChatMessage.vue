@@ -37,7 +37,6 @@
 				class="icon convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
-				@mouseleave="$emit('mouseleave', $event)"
 				@click.stop="$emit('showConversation', $event, messageData)">
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
@@ -66,7 +65,6 @@
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
-				@mouseleave="$emit('mouseleave', $event)"
 				class="login" :style="loginStyles">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.displayName}})</i></span>
 
 			<span v-if="recipient" class="login"
@@ -131,7 +129,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages', 'mouseleave', 'ariaMessage'],
+	emits:['showConversation', 'showUserMessages', 'ariaMessage'],
 })
 export default class ChatMessage extends Vue {
  
@@ -180,23 +178,26 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get classes():string[] {
-		let res = this.staticClasses.concat();
-		const message = this.messageData;
-		const sParams = this.$store("params");
+		const res					= this.staticClasses.concat();
+		const message				= this.messageData;
+		const sParams				= this.$store("params");
+		const highlightMods			= sParams.appearance.highlightMods.value === true;
+		const highlightVips			= sParams.appearance.highlightVips.value === true;
+		const highlightSubs			= sParams.appearance.highlightSubs.value === true;
+		const spoilersEnabled		= sParams.features.spoilersEnabled.value === true;
+		const censorDeletedMessages	= sParams.filters.censorDeletedMessages.value === true;
 
-		if(message.cyphered)			res.push("cyphered");
-		if(this.automodReasons)			res.push("automod");
-		if(this.channelInfo.is_blocked)	res.push("blockedUser");
-		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(message.deleted) {
-				res.push("deleted");
-				if(sParams.filters.censorDeletedMessages.value===true) res.push("censor");
-			}
-		}
+		if(this.automodReasons)					res.push("automod");
+		if(this.channelInfo.is_blocked)			res.push("blockedUser");
+		if(!this.lightMode && message.cyphered)	res.push("cyphered");
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
-		
-		if(sParams.features.spoilersEnabled.value === true) {
-			if(this.messageData.spoiler === true) res.push("spoiler");
+
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(message.deleted && censorDeletedMessages)				res.push("censor");
+			if(this.channelInfo.is_moderator && highlightMods)			res.push("highlightMods");
+			else if(this.channelInfo.is_vip && highlightVips)			res.push("highlightVips");
+			else if(this.channelInfo.is_subscriber && highlightSubs)	res.push("highlightSubs");
+			if(spoilersEnabled && this.messageData.spoiler === true)	res.push("spoiler");
 		}
 
 		return res;
@@ -366,16 +367,6 @@ export default class ChatMessage extends Vue {
 				const color = this.messageData.twitch_announcementColor!;
 				this.staticClasses.push("announcement", color);
 			}
-
-			if(!this.lightMode) {
-				const sParams = this.$store("params");
-				if(this.channelInfo.is_moderator
-					&& sParams.appearance.highlightMods.value)	this.staticClasses.push("highlightMods");
-				else if(this.channelInfo.is_vip
-					&& sParams.appearance.highlightVips.value)	this.staticClasses.push("highlightVips");
-				else if(this.channelInfo.is_subscriber
-					&& sParams.appearance.highlightSubs.value)	this.staticClasses.push("highlightSubs");
-			}
 		}
 
 		//If it has a clip link, add clip card
@@ -533,9 +524,9 @@ export default class ChatMessage extends Vue {
 .chatmessage{
 	.chatMessage();
 
-	&.highlightSubs { background-color: fade(#528bff, 10%); }
-	&.highlightVips { background-color: fade(#db00b3, 10%); }
-	&.highlightMods { background-color: fade(#00a865, 10%); }
+	&.highlightSubs { background-color: fade(#528bff, 20%); }
+	&.highlightVips { background-color: fade(#db00b3, 20%); }
+	&.highlightMods { background-color: fade(#00a865, 20%); }
 	&.mention { background-color: rgba(255, 0, 0, 20%);}
 	
 	// &.highlightSubs { border: 1px solid #528bff; }

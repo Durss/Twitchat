@@ -149,7 +149,7 @@ export default class UserList extends Vue {
 		const isInit = Object.keys(this.channels).length==0;
 
 		this.debounceTo = setTimeout(()=> {
-			const s = Date.now();
+			// const s = Date.now();
 			const userList = this.$store("users").users;
 			
 			const channels:{[key:string]:ChannelUserList} = {};
@@ -191,8 +191,8 @@ export default class UserList extends Vue {
 				this.currentChan	= this.channels[this.channelId];
 				this.currentChanId	= this.channelId;
 			}
-			const e = Date.now();
-			console.log(e-s);
+			// const e = Date.now();
+			// console.log(e-s);
 		}, isInit? 0 : 500);
 	}
 }

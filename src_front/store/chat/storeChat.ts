@@ -578,8 +578,9 @@ export const storeChat = defineStore('chat', {
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				&& StoreProxy.params.appearance.highlightMentions.value === true) {
 					const login = StoreProxy.auth.twitch.user.login;
-					message.hasMention = login != null && 
-									new RegExp("(^| |@)("+login+")($|\\s)", "gim").test(message.message ?? "");
+					message.hasMention = login != null
+										&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
+										.test(message.message ?? "");
 					if(message.hasMention) {
 						message.highlightWord = login;
 					}

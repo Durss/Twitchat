@@ -260,7 +260,7 @@ export default class ActivityFeed extends Vue {
 			else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION) show = showPredictions;
 			else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO) show = showBingos;
 			else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE) show = showRaffles;
-			else show = true;;
+			else show = true;
 
 			if(show) result.unshift(m);
 		}

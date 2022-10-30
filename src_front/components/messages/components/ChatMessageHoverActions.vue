@@ -1,12 +1,12 @@
 <template>
 	<div class="ChatMessageHoverActions">
-		<Button :aria-label="'Track '+messageData.user.displayName+' messages'"
+		<Button aria-label="Track user"
 			bounce
 			:icon="$image('icons/magnet.svg')"
 			data-tooltip="Track user"
 			@click="toggleTrackUser()"
 			/>
-		<Button :aria-label="'Shoutout '+messageData.user.displayName"
+		<Button aria-label="Shoutout user"
 			bounce
 			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
@@ -14,7 +14,7 @@
 			v-if="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
-		<Button aria-label="TTS"
+		<Button aria-label="Read message with TTS"
 			:icon="$image('icons/tts.svg')"
 			data-tooltip="TTS"
 			@click="ttsRead()"
@@ -26,14 +26,14 @@
 			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
 			@click="chatHighlight()"
 			:loading="highlightLoading"
-			v-if="!messageData.automod"
+			v-if="!messageData || !messageData.automod"
 			/>
 		<Button aria-label="Pin message"
 			bounce
 			:icon="$image('icons/pin.svg')"
 			data-tooltip="Pin message"
 			@click="pinMessage()"
-			v-if="!messageData.automod"
+			v-if="!messageData || !messageData.automod"
 			/>
 	</div>
 </template>
@@ -60,7 +60,7 @@ export default class ChatMessageHoverActions extends Vue {
 	public shoutoutLoading = false;
 	public highlightLoading = false;
 
-	public get isBroadcaster():boolean { return this.messageData.user.id == StoreProxy.auth.twitch.user.id; }
+	public get isBroadcaster():boolean { return this.messageData && this.messageData.user.id == StoreProxy.auth.twitch.user.id; }
 	public get ttsEnabled():boolean { return this.$store("tts").params.enabled; }
 
 	public toggleTrackUser():void {
