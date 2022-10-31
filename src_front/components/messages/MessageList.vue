@@ -36,7 +36,7 @@
 					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
-					@mouseenter="onHoverMessage(m)"
+					@mouseenter="onHoverMessage()"
 					@mouseleave="onLeaveMessage()"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
@@ -116,14 +116,18 @@
 
 			</template>
 
-			<teleport :to="hoverchatMessageHolder" v-if="hoverchatMessageHolder">
-				<ChatMessageHoverActions class="hoverActions" :messageData="hoveredMessage" />
-			</teleport>
-			
-			<teleport :to="markedReadItem" v-if="markedReadItem">
-				<div class="markRead"></div>
-			</teleport>
 		</div>
+		
+		<teleport :to="hoverchatMessageHolder" v-if="hoverchatMessageHolder">
+			<ChatMessageHoverActions class="hoverActions" :messageData="hoveredMessage" />
+		</teleport>
+		
+		<teleport :to="markedReadItem" v-if="markedReadItem">
+			<div class="markRead"></div>
+		</teleport>
+		
+		<div v-if="hoverchatMessageHolder">ok</div>
+		<div v-else="hoverchatMessageHolder">ko</div>
 
 		<div class="locked" ref="locked" v-if="lockScroll && !lightMode" @click.stop="unPause()">
 			<span v-if="lockScroll">Chat paused</span>
@@ -212,7 +216,7 @@ import EventBus from '@/events/EventBus';
 		ChatMessageHoverActions,
 	},
 	props: {
-		max:Number,
+		maxMessages:Number,
 		lightMode:{
 			type:Boolean,
 			default:false,
@@ -222,7 +226,7 @@ import EventBus from '@/events/EventBus';
 })
 export default class MessageList extends Vue {
 
-	public max!: number;
+	public maxMessages!: number;
 	public lightMode!:boolean;
 	public hoveredMessage:TwitchatDataTypes.ChatMessageTypes | null = null;
 	public filteredMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -309,7 +313,7 @@ export default class MessageList extends Vue {
 					}
 				}
 			}
-			return;
+			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
 		});
 
 		//If text size is changed, scroll to bottom of tchat
@@ -407,16 +411,17 @@ export default class MessageList extends Vue {
 		const s = Date.now();
 		const sChat = StoreProxy.chat;
 		const messages = sChat.messages.concat();
-		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
+		let result:TwitchatDataTypes.ChatMessageTypes[] = [];
 		for (let i = messages.length-1; i >= 0; i--) {
 			const m = messages[i];
 			if(this.shouldShowMessage(m)) {
 				this.idDisplayed[m.id] = true;
 				result.unshift(m);
 			}
-			if(result.length == this.max) break;
+			if(result.length == this.maxMessages) break;
 		}
 
+		console.log("RESULT", result.length, this.maxMessages);
 		this.filteredMessages = result;
 		const e = Date.now();
 		console.log("full refresh duration:", e-s);
@@ -565,7 +570,7 @@ export default class MessageList extends Vue {
 		const message = e.data as TwitchatDataTypes.MessageChatData;
 		
 		//remove from displayed messages
-		let maxId = Math.max(0, this.filteredMessages.length-1 - this.max);
+		let maxId = Math.max(0, this.filteredMessages.length-1 - this.maxMessages);
 		for (let i = this.filteredMessages.length-1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
 			if(m.id == message.id) {
@@ -575,7 +580,7 @@ export default class MessageList extends Vue {
 		}
 		
 		//Remove from pending messages
-		maxId = Math.max(0, this.pendingMessages.length-1 - this.max);
+		maxId = Math.max(0, this.pendingMessages.length-1 - this.maxMessages);
 		for (let i = this.pendingMessages.length-1; i >= 0; i--) {
 			const m = this.pendingMessages[i];
 			if(m.id == message.id) {
@@ -784,9 +789,10 @@ export default class MessageList extends Vue {
 
 		this.idDisplayed[message.id] = true;
 		this.filteredMessages.push( message );
-		if(this.filteredMessages.length > this.max) {
-			this.filteredMessages = this.filteredMessages.slice(-this.max);
+		if(this.filteredMessages.length > this.maxMessages) {
+			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
 		}
+		this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
 		this.scrollToPrevMessage(wheelOrigin);
 	}
 
@@ -811,7 +817,7 @@ export default class MessageList extends Vue {
 		//This condition avoids this "glitch".
 		if(lastMessRef == this.lastDisplayedMessage) return;
 		
-		if(this.filteredMessages.length >= this.max) {
+		if(this.filteredMessages.length >= this.maxMessages) {
 			this.counter++;
 		}
 		
@@ -878,10 +884,17 @@ export default class MessageList extends Vue {
 		this.openConversationHolder(m);
 	}
 
-	public onHoverMessage(m:any):void {
-		this.hoveredMessage=m;
-		const div = (this.$refs["message_"+m.id] as Vue[])[0];
-		this.hoverchatMessageHolder = div.$el;
+	public onHoverMessage(message?:any):void {
+		// message = this.filteredMessages[this.filteredMessages.length-1];
+		// if(!message) return;
+		// console.log("opk");
+		// this.hoveredMessage=message;
+		// const div = (this.$refs["message_"+message.id] as Vue[])[0];
+		// this.hoverchatMessageHolder = div.$el;
+		console.log("HOVER");
+		const items = (this.$el as HTMLDivElement).querySelectorAll(".message");
+		this.hoverchatMessageHolder = items[items.length -1] as HTMLDivElement;
+		console.log(this.hoverchatMessageHolder);
 	}
 
 	/**

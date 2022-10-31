@@ -4,6 +4,7 @@ import Utils from '@/utils/Utils'
 import Chat from '@/views/Chat.vue'
 import ChatLight from '@/views/ChatLight.vue'
 import Home from '@/views/Home.vue'
+import TestView from '@/views/TestView.vue'
 import Login from '@/views/Login.vue'
 import Logout from '@/views/Logout.vue'
 import Overlay from '@/views/Overlay.vue'
@@ -21,6 +22,15 @@ const routes: Array<RouteRecordRaw> = [
 		meta: {
 			overflow:true,
 			needAuth:false,
+		}
+	},
+	{
+		path: '/test',
+		name: 'test',
+		component: TestView,
+		meta: {
+			overflow:true,
+			needAuth:true,
 		}
 	},
 	{
