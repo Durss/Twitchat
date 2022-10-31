@@ -19,27 +19,26 @@
 					class="message"
 					ref="message"
 					v-if="m.type == 'message'"
-					:messageData="m"
 					:data-index="index"
-					:lightMode="true" />
+					:lightMode="true"
+					:messageData="m" />
 
 				<ChatJoinLeave class="message"
-					:messageData="m"
 					v-if="m.type == 'join' || m.type == 'leave'"
 					:ref="'message_'+m.id"
-				/>
+					:messageData="m" />
 
 				<ChatPollResult
 					class="message"
 					ref="message"
 					v-else-if="m.type == 'poll'"
-					:pollData="m" />
+					:messageData="m" />
 
 				<ChatPredictionResult
 					class="message"
 					ref="message"
 					v-else-if="m.type == 'prediction'"
-					:predictionData="m" />
+					:messageData="m" />
 
 				<ChatNotice
 					class="message"
@@ -52,49 +51,48 @@
 					class="message"
 					ref="message"
 					v-else-if="m.type == 'bingo'"
-					:bingoData="m" />
+					:messageData="m" />
 
 				<ChatRaffleResult
 					class="message"
 					ref="message"
 					v-else-if="m.type == 'raffle'"
-					:raffleData="m" />
+					:messageData="m"/>
 
 				<ChatCountdownResult
 					class="message"
 					ref="message"
 					v-else-if="m.type == 'countdown'"
-					:countdownData="m" />
+					:messageData="m" />
 
 				<ChatHypeTrainResult
 					class="message"
 					ref="message"
 					v-else-if="m.type == 'hype_train_summary'"
-					:result="m"
 					:filtering="customActivities.length > 0"
-					@setCustomActivities="(list:any[])=> showCustomActivities(list)"/>
+					@setCustomActivities="(list:any[])=> showCustomActivities(list)"
+					:messageData="m"/>
 					
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
 					class="message"
-					:messageData="m"
 					:ref="'message_'+m.id"
-					/>
+					:messageData="m"/>
 
 				<ChatFollowbotEvents
 					class="message"
 					ref="message"
-					:messageData="m"
 					v-else-if="m.type == 'followbot_list'"
-					:result="m" />
+					:result="m"
+					:messageData="m"/>
 
 				<ChatHighlight
 					class="message"
 					ref="message"
 					v-else
-					:messageData="m"
 					:data-index="index"
-					:lightMode="true" />
+					:lightMode="true"
+					:messageData="m" />
 			</div>
 		</div>
 	</div>
@@ -368,7 +366,6 @@ export default class ActivityFeed extends Vue {
 		overflow-y: auto;
 		.message{
 			margin: .5em 0;
-			font-size: var(--messageSize);
 
 			:deep(.time) {
 				color: fade(#ffffff, 75%);

@@ -1,4 +1,4 @@
-import { Event } from '@/utils/EventDispatcher';
+import { Event } from '@/events/EventDispatcher';
 
 export default class DeezerHelperEvent extends Event {
 

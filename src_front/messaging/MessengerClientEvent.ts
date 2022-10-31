@@ -1,5 +1,5 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Event } from '@/utils/EventDispatcher';
+import { Event } from '@/events/EventDispatcher';
 
 export default class MessengerClientEvent extends Event {
 

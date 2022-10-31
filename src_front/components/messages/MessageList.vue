@@ -11,33 +11,28 @@
 				<ChatAd class="message"
 					v-if="m.type == 'twitchat_ad' && !lightMode"
 					:ref="'message_'+m.id"
-					:messageData="m"
 					@showModal="(v:string)=>$emit('showModal', v)"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
-				/>
+					:messageData="m"/>
 
 				<ChatJoinLeave class="message"
 					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
 					:ref="'message_'+m.id"
-					:messageData="m"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-				/>
+					:messageData="m"/>
 
 				<ChatConnect class="message"
 					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
 					:ref="'message_'+m.id"
-					:messageData="m"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-				/>
+					:messageData="m"/>
 
 				<ChatMessage
 					v-else-if="m.type == 'message' || m.type == 'whisper'"
 					:ref="'message_'+m.id"
 					class="message"
-					:messageData="m"
 					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
@@ -45,16 +40,15 @@
 					@mouseleave="onLeaveMessage()"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					/>
+					:messageData="m"/>
 					
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
 					:ref="'message_'+m.id"
 					class="message"
-					:messageData="m"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					/>
+					:messageData="m"/>
 
 				<ChatPollResult
 					v-else-if="m.type == 'poll'"
@@ -62,8 +56,7 @@
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					:pollData="m"
-				/>
+					:messageData="m"/>
 
 				<ChatPredictionResult
 					v-else-if="m.type == 'prediction'"
@@ -71,8 +64,7 @@
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					:predictionData="m"
-				/>
+					:messageData="m"/>
 
 				<ChatBingoResult
 					v-else-if="m.type == 'bingo'"
@@ -80,8 +72,7 @@
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					:bingoData="m"
-				/>
+					:messageData="m"/>
 
 				<ChatRaffleResult
 					v-else-if="m.type == 'raffle'"
@@ -89,8 +80,7 @@
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					:raffleData="m"
-				/>
+					:messageData="m" />
 
 				<ChatCountdownResult
 					v-else-if="m.type == 'countdown'"
@@ -98,41 +88,34 @@
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					:countdownData="m"
-				/>
+					:messageData="m"/>
 
 				<ChatHypeTrainResult
 					v-else-if="m.type == 'hype_train_summary'"
-					ref="message"
+					:ref="'message_'+m.id"
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					:result="m" />
+					:messageData="m"/>
 
 				<ChatFollowbotEvents
 					v-else-if="m.type == 'followbot_list'"
-					ref="message"
+					:ref="'message_'+m.id"
 					class="message"
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
-					:result="m" />
+					:messageData="m"/>
 
 				<ChatHighlight
 					v-else
 					:ref="'message_'+m.id"
 					class="message"
-					:messageData="m"
 					lightMode
 					@ariaMessage="(v:string)=>setAriaMessage(v)"
 					@click="toggleMarkRead(m, $event)"
-					/>
+					:messageData="m"/>
 
 			</template>
 
-			<!-- <div class="hoverActionsHolder"
-			v-if="!lightMode && m.type == 'message' && !m.user.channelInfo[m.channel_id].is_blocked">
-				<ChatMessageHoverActions class="hoverActions" :messageData="m" />
-			</div> -->
 			<teleport :to="hoverchatMessageHolder" v-if="hoverchatMessageHolder">
 				<ChatMessageHoverActions class="hoverActions" :messageData="hoveredMessage" />
 			</teleport>
@@ -188,7 +171,7 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
@@ -207,6 +190,8 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import GlobalEvent from '@/events/GlobalEvent';
+import EventBus from '@/events/EventBus';
 
 @Options({
 	components:{
@@ -256,18 +241,18 @@ export default class MessageList extends Vue {
 	private prevTs = 0;
 	private disposed = false;
 	private lastDisplayedMessage?:HTMLDivElement;
-	private holderOffsetY = 0;
 	private prevMarkedReadMessage:TwitchatDataTypes.ChatMessageTypes | null = null;
+	private holderOffsetY = -1;
 	private virtualScrollY = -1;
 	private idDisplayed:{[key:string]:boolean} = {};
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
 	private prevTouchMove!:TouchEvent;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private deleteMessageHandler!:(e:GlobalEvent)=> void;
 
 	public get classes():string[] {
 		let res = ["messagelist"];
-		res.push("alternateBG");
 		if(this.counter%2===0) res.push("alternateOdd");
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll) res.push("lockScroll");
@@ -339,10 +324,12 @@ export default class MessageList extends Vue {
 		//If one is updated, the chat is completely rebuilt.
 		watch(()=>this.$store("params").filters, ()=> this.fulllListRefresh(), {deep:true});
 		watch(()=>this.$store("params").features.notifyJoinLeave.value, ()=> this.fulllListRefresh());
-
+		
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.deleteMessageHandler = (e:GlobalEvent) => this.onDeleteMessage(e);
 
+		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -352,13 +339,14 @@ export default class MessageList extends Vue {
 
 		this.fulllListRefresh();
 
-		this.prevTs = Date.now();
-		this.renderFrame(this.prevTs);
+		this.prevTs = Date.now() - 1000/60;
+		this.renderFrame(Date.now());
 	}
 
 	public beforeUnmount():void {
 		this.disposed = true;
 
+		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -383,7 +371,7 @@ export default class MessageList extends Vue {
 		if(scrollDown) {
 			const el = this.$refs.chatMessageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
-			el.scrollTop = this.virtualScrollY = maxScroll
+			el.scrollTop = this.virtualScrollY = maxScroll;
 		}
 	}
 
@@ -435,7 +423,7 @@ export default class MessageList extends Vue {
 
 		await this.$nextTick();
 
-		//Scroll toi bottom
+		//Scroll to bottom
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 		this.virtualScrollY = maxScroll;
@@ -571,6 +559,33 @@ export default class MessageList extends Vue {
 	}
 
 	/**
+	 * Called when a message is deleted
+	 */
+	private onDeleteMessage(e:GlobalEvent):void {
+		const message = e.data as TwitchatDataTypes.MessageChatData;
+		
+		//remove from displayed messages
+		let maxId = Math.max(0, this.filteredMessages.length-1 - this.max);
+		for (let i = this.filteredMessages.length-1; i >= 0; i--) {
+			const m = this.filteredMessages[i];
+			if(m.id == message.id) {
+				this.filteredMessages.splice(i, 1);
+				break;
+			}
+		}
+		
+		//Remove from pending messages
+		maxId = Math.max(0, this.pendingMessages.length-1 - this.max);
+		for (let i = this.pendingMessages.length-1; i >= 0; i--) {
+			const m = this.pendingMessages[i];
+			if(m.id == message.id) {
+				this.pendingMessages.splice(i, 1);
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Called when requesting an action from the public API
 	 */
 	private onPublicApiEvent(e:TwitchatEvent):void {
@@ -691,7 +706,7 @@ export default class MessageList extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame((ts)=>this.renderFrame(ts));
 
-		const timeScale = (60/1000) * (ts - this.prevTs);
+		const timeScale = (60/1000) * Math.min(Math.min(1000/15, Math.max(.1, ts - this.prevTs)));
 		this.prevTs = ts;
 
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
@@ -729,11 +744,15 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY;
 		}
 		
+		//If messages height is smaller than the holder height, move the holder to the bottom
 		if(bottom < h) {
-			console.log("SMALLER");
-			//If messages height is smaller than the holder height, move the holder to the bottom
+			//Init to bottom
+			if(this.holderOffsetY == -1) this.holderOffsetY = h - bottom;
+			//No easing holder is higher than visible height
 			if(this.holderOffsetY == 0) ease = 1;
+			//Ease position
 			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease * timeScale;
+			//If position close to end pos, round it to expected pos
 			if(Math.abs(h - bottom - this.holderOffsetY) < 2) {
 				this.holderOffsetY = h - bottom;
 			}
@@ -943,7 +962,7 @@ export default class MessageList extends Vue {
 		}
 		if(m.markedAsRead) {
 			this.prevMarkedReadMessage = m;
-			const div = (this.$refs["message_"+this.hoveredMessage?.id] as Vue[])[0];
+			const div = (this.$refs["message_"+m.id] as Vue[])[0];
 			this.markedReadItem = div.$el;
 		}else{
 			this.markedReadItem = null;
@@ -986,29 +1005,37 @@ export default class MessageList extends Vue {
 		z-index: 100;
 	}
 
-	&.alternateBG:not(.lightMode) {
+	&:not(.alternateOdd) {
 		.holder {
-			.message:nth-child(odd) {
+			// Not using background-color to avoid conflicting with actual message's BG.
+			// Could wrap all messages inside a div to avoid using ::before, dunno which
+			// solution has the best perfs...
+			.message:nth-child(odd)::before {
+				content: "";
+				z-index: 1;
+				position: absolute;
+				top:0;
+				left:0;
+				width: 100%;
+				height: 100%;
 				background-color: rgba(255, 255, 255, .025);
-				&:hover {
-					background-color: rgba(255, 255, 255, .2);
-				}
 			}
 		}
-		&.alternateOdd {
-			.holder {
-				.message:nth-child(odd) {
-					background-color: transparent;
-					&:hover {
-						background-color: rgba(255, 255, 255, .2);
-					}
-				}
-				.message:nth-child(even) {
-					background-color: rgba(255, 255, 255, .025);
-					&:hover {
-						background-color: rgba(255, 255, 255, .2);
-					}
-				}
+	}
+	&.alternateOdd {
+		.holder {
+			// Not using background-color to avoid conflicting with actual message's BG.
+			// Could wrap all messages inside a div to avoid using ::before, dunno which
+			// solution has the best perfs...
+			.message:nth-child(even)::before {
+				content: "";
+				z-index: 1;
+				position: absolute;
+				top:0;
+				left:0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(255, 255, 255, .025);
 			}
 		}
 	}
@@ -1018,8 +1045,20 @@ export default class MessageList extends Vue {
 		overflow-x: hidden;
 		flex-grow: 1;
 		.message {
-			&:hover {
-				background-color: rgba(255, 255, 255, .2);
+			position: relative;
+			// Not using background-color to avoid conflicting with actual message's BG.
+			// Could wrap all messages inside a div to avoid using ::before, dunno which
+			// solution has the best perfs...
+			&:hover::before {
+				content: "";
+				pointer-events: none;
+				z-index: 1;
+				position: absolute;
+				top:0;
+				left:0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(255, 255, 255, .2) !important;
 			}
 		}
 
@@ -1030,6 +1069,7 @@ export default class MessageList extends Vue {
 			border-bottom: 2px solid @mainColor_light;
 			position: absolute;
 			bottom: 0;
+			left: 0;
 			pointer-events: none;
 		}
 

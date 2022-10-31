@@ -1,5 +1,5 @@
 <template>
-	<div class="chathighlight" @click.ctrl.stop.capture="copyJSON()">
+	<div class="chathighlight" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 

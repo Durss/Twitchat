@@ -69,7 +69,7 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -536,7 +536,6 @@ export default class NewUsers extends Vue {
 			font-family: "Inter";
 			color: #fff;
 			padding: .5em 0;
-			font-size: var(--messageSize);
 			transition: background-color .25s;
 			border: 1px solid transparent;
 
@@ -552,8 +551,6 @@ export default class NewUsers extends Vue {
 				font-variant-numeric: tabular-nums;
 			}
 	
-			/* Enter and leave animations can use different */
-			/* durations and timing functions.              */
 			.fade-enter-active {
 				transition: all 0.2s;
 			}

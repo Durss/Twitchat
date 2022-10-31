@@ -138,7 +138,6 @@ export default class MessageSearch extends Vue {
 
 		.message {
 			margin: .25em 0;
-			font-size: var(--messageSize);
 		}
 	}
 

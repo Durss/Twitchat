@@ -7,13 +7,15 @@ import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/TriggerActionHandler'
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
-import TwitchatEvent from '@/utils/TwitchatEvent'
+import TwitchatEvent from '@/events/TwitchatEvent'
 import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest'
 import type { UnwrapRef } from 'vue'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
+import EventBus from '@/events/EventBus'
+import GlobalEvent from '@/events/GlobalEvent'
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -25,6 +27,7 @@ export const storeChat = defineStore('chat', {
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
+		
 		
 		botMessages: {
 			raffleStart: {
@@ -510,9 +513,10 @@ export const storeChat = defineStore('chat', {
 
 				//Merge all followbot events into one
 				if(message.followbot === true) {
+					const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
+					const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 					let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
-					let prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
-					let deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
+					let postMessage:boolean = true;
 					for (let i = 0; i < messages.length; i++) {
 						const m = messages[i];
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.followbot === true
@@ -522,14 +526,17 @@ export const storeChat = defineStore('chat', {
 							prevFollowbots.push(m);
 							messages.splice(i, 1);
 							i--;
+							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						}
 						//Found an existing bulk message not older than 10min, keep it aside
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
 						&& m.date > Date.now() - 10 * 60 * 1000) {
 							bulkMessage = m;
-							deletedMessages.push(m);
-							messages.splice(i, 1);//remove it, it will be pushed again later
-							i--;
+							postMessage = false;
+							// deletedMessages.push(m);
+							// messages.splice(i, 1);//remove it, it will be pushed again later
+							// i--;
+							// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						}
 					}
 					if(!bulkMessage) {
@@ -561,6 +568,7 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 					this.activityFeed = activityFeed;
+					if(!postMessage) return;
 				}
 
 				//TODO Broadcast to OBS-ws
@@ -634,6 +642,7 @@ export const storeChat = defineStore('chat', {
 								message.automod = rule;
 								if(message.user.platform == "twitch") {
 									TwitchUtils.deleteMessages(message.channel_id, message.id);
+									//No need to call this.deleteMessageByID(), IRC will call it when request completes
 								}
 							}
 						}
@@ -662,7 +671,6 @@ export const storeChat = defineStore('chat', {
 		
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 
 			const list = this.messages.concat();
-			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
 			//Start from most recent messages to find it faster
 			for (let i = list.length-1; i > -1; i--) {
 				const m = list[i];
@@ -693,6 +701,7 @@ export const storeChat = defineStore('chat', {
 							TwitchUtils.deleteMessages(m.channel_id, m.id);
 						}
 					}
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 					break;
 				}
 			}
@@ -700,12 +709,12 @@ export const storeChat = defineStore('chat', {
 		},
 
 		delUserMessages(uid:string) {
-			const keepDeletedMessages = StoreProxy.params.filters.keepDeletedMessages.value;
 			const list = this.messages.concat();
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& m.user.id == uid) {
+				&& m.user.id == uid
+				&& !m.deleted) {
 					//TODO Broadcast to OBS-ws
 					// const wsMessage = {
 					// 	channel:list[i].channel,
@@ -714,13 +723,8 @@ export const storeChat = defineStore('chat', {
 					// }
 					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
 
-					//Delete message from list
-					if(keepDeletedMessages === true) {
-						m.deleted = true;
-					}else{
-						list.splice(i, 1);
-						i--;
-					}
+					m.deleted = true;
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 				}
 			}
 			this.messages = list;

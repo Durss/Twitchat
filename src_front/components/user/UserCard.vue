@@ -69,7 +69,7 @@
 				<div class="list" v-if="!errorFollowings" ref="list">
 					<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
 						<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
-						<div class="date">{{u.followed_at}}</div>
+						<div class="date">{{getFormatedDate(u)}}</div>
 					</div>
 				</div>
 			</div>
@@ -125,12 +125,16 @@ export default class UserCard extends Vue {
 	 * Returns the login instead of the display name if the display name contains
 	 * mostly non-latin chars
 	 */
-	 public get translateUsername():boolean {
+	public get translateUsername():boolean {
 		const dname = this.user!.displayName.toLowerCase();
 		const uname = this.user!.login.toLowerCase();
 		//If display name is different from username and at least half of the
 		//display name's chars ar not latin chars, translate it
 		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
+	}
+
+	public getFormatedDate(f:TwitchDataTypes.Following):string {
+		return Utils.formatDate(new Date(f.followed_at));
 	}
 
 	public mounted():void {
@@ -245,11 +249,6 @@ export default class UserCard extends Vue {
 				this.computeCommonFollows();
 			}catch(error) {
 				this.errorFollowings = true;
-			}
-			if(this.followings) {
-				this.followings.forEach(v=> {
-					v.followed_at = Utils.formatDate(new Date(v.followed_at));
-				})
 			}
 			this.loadingFollowings = false;
 		}

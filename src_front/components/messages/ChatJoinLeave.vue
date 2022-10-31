@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" @click.ctrl.stop="copyJSON()">
+	<div :class="classes" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
@@ -108,7 +108,7 @@ export default class ChatJoinLeave extends Vue {
 		opacity: .7;
 	}
 	a:hover {
-		background: @mainColor_dark;
+		background-color: @mainColor_dark;
 	}
 
 	&.alert {

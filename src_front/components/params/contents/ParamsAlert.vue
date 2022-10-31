@@ -95,7 +95,6 @@ export default class ParamsAlert extends Vue {
 	}
 
 	public testAlert():void {
-		//TODO make sure it works
 		const uid = StoreProxy.auth.twitch.user.id;
 		const emoteTag = `<img src="https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/1.0" data-tooltip="<img src='https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/3.0' height='112' width='112'><br><center>ItsBoshyTime</center>" class="emote">`;
 		const message:TwitchatDataTypes.MessageChatData = {

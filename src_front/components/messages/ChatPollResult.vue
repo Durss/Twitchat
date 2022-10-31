@@ -1,11 +1,11 @@
 <template>
-	<div class="chatpollresult" @click.ctrl="copyJSON()">
+	<div class="chatpollresult" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
-			<div class="title">{{pollData.title}}</div>
+			<div class="title">{{messageData.title}}</div>
 			<div class="choices">
-				<div v-for="o in pollData.choices" :key="o.id" class="choice">
+				<div v-for="o in messageData.choices" :key="o.id" class="choice">
 					<div class="choiceTitle">{{o.label}}</div>
 					<div class="barCell">
 						<div class="bar" :style="getChoiceStyles(o)">
@@ -29,24 +29,24 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
-		pollData:Object
+		messageData:Object
 	},
 	components:{}
 })
 export default class ChatPollResult extends Vue {
 
-	public pollData!:TwitchatDataTypes.MessagePollData;
+	public messageData!:TwitchatDataTypes.MessagePollData;
 
 	public get time():string {
-		const d = new Date(this.pollData.date);
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public getChoiceStyles(o:TwitchatDataTypes.MessagePollDataChoice):{[key:string]:string} {
 		let totalVotes = 0;
-		if(this.pollData.choices) {
-			for (let i = 0; i < this.pollData.choices.length; i++) {
-				totalVotes += this.pollData.choices[i].votes;
+		if(this.messageData.choices) {
+			for (let i = 0; i < this.messageData.choices.length; i++) {
+				totalVotes += this.messageData.choices[i].votes;
 			}
 		}
 		const percent = o.votes/Math.max(1,totalVotes);
@@ -56,8 +56,8 @@ export default class ChatPollResult extends Vue {
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.pollData));
-		console.log(this.pollData);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 

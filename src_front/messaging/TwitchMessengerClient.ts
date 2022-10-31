@@ -5,7 +5,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
-import { EventDispatcher } from "@/utils/EventDispatcher";
+import { EventDispatcher } from "@/events/EventDispatcher";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";

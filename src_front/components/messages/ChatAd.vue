@@ -1,5 +1,5 @@
 <template>
-	<div class="chatad" @click.stop="">
+	<div class="chatad">
 		<div class="innerHolder">
 			<div v-if="isSponsor" class="sponsor">
 				<div class="title">🍔 I like food 🍔</div>

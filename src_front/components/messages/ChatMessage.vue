@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" @click.ctrl.stop.capture="copyJSON()">
+	<div :class="classes" @click.capture.ctrl.stop="copyJSON()">
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
 			<p>First time on your channel</p>
@@ -106,7 +106,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch, watchEffect } from '@vue/runtime-core';
 import gsap from 'gsap';

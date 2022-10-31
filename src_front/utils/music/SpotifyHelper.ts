@@ -3,12 +3,12 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import Config from "@/utils/Config";
-import { EventDispatcher } from "@/utils/EventDispatcher";
+import { EventDispatcher } from "@/events/EventDispatcher";
 import PublicAPI from "@/utils/PublicAPI";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
 import TriggerActionHandler from "@/utils/TriggerActionHandler";
-import TwitchatEvent from "@/utils/TwitchatEvent";
+import TwitchatEvent from "@/events/TwitchatEvent";
 import Utils from "@/utils/Utils";
 
 /**

@@ -1,5 +1,5 @@
 <template>
-	<div class="chatcountdownresult" @click.ctrl="copyJSON()">
+	<div class="chatcountdownresult" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/countdown.svg" alt="icon" class="icon">
 		<div>
@@ -16,26 +16,26 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
-		countdownData:Object,
+		messageData:Object,
 	},
 	components:{}
 })
 export default class ChatCountdownResult extends Vue {
 
-	public countdownData!:TwitchatDataTypes.MessageCountdownData;
+	public messageData!:TwitchatDataTypes.MessageCountdownData;
 	
 	public get time():string {
-		const d = new Date(this.countdownData.date);
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 	
 	public get duration():string {
-		return Utils.formatDuration(this.countdownData.countdown.duration)+"s";
+		return Utils.formatDuration(this.messageData.countdown.duration)+"s";
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.countdownData));
-		console.log(this.countdownData);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 }

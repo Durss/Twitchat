@@ -1,9 +1,9 @@
 <template>
-	<div class="chathypetrainresult" @click.ctrl="copyJSON()">
+	<div class="chathypetrainresult" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/train.svg" alt="icon" class="icon">
 		<div class="infoHolder">
-			<strong>Hype Train completed at <mark>level {{result.train.level}}</mark> <mark>{{reachPercent}}%</mark></strong>
+			<strong>Hype Train completed at <mark>level {{messageData.train.level}}</mark> <mark>{{reachPercent}}%</mark></strong>
 			<div class="details">
 				<div class="row" v-if="bits > 0" data-tooltip="Bits">
 					<img src="@/assets/icons/bits.svg" class="icon">
@@ -22,7 +22,7 @@
 					<span class="label">{{subgifts}}</span>
 				</div>
 			</div>
-			<Button v-if="!filtering && result.activities.length > 0" title="Filter activities" :icon="$image('icons/filters.svg')" @click="filter()" />
+			<Button v-if="!filtering && messageData.activities.length > 0" title="Filter activities" :icon="$image('icons/filters.svg')" @click="filter()" />
 		</div>
 	</div>
 </template>
@@ -36,7 +36,7 @@ import Button from '../Button.vue';
 
 @Options({
 	props:{
-		result:Object,
+		messageData:Object,
 		filtering:{
 			type:Boolean,
 			default:false,
@@ -50,7 +50,7 @@ import Button from '../Button.vue';
 export default class ChatHypeTrainResult extends Vue {
 
 	public filtering!:boolean;
-	public result!:TwitchatDataTypes.MessageHypeTrainSummaryData;
+	public messageData!:TwitchatDataTypes.MessageHypeTrainSummaryData;
 
 	public reachPercent:number = 0;
 	public subs:number = 0;
@@ -59,20 +59,20 @@ export default class ChatHypeTrainResult extends Vue {
 	public bits:number = 0;
 	
 	public get time():string {
-		const d = new Date(this.result.date);
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.result));
-		console.log(this.result);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	public mounted():void {
-		this.reachPercent = Math.round(this.result.train.currentValue / this.result.train.goal * 100);
-		for (let i = 0; i < this.result.activities.length; i++) {
-			const el = this.result.activities[i];
+		this.reachPercent = Math.round(this.messageData.train.currentValue / this.messageData.train.goal * 100);
+		for (let i = 0; i < this.messageData.activities.length; i++) {
+			const el = this.messageData.activities[i];
 			switch(el.type) {
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
 					if(el.tier == "prime") this.primes ++;
@@ -93,7 +93,7 @@ export default class ChatHypeTrainResult extends Vue {
 	}
 
 	public filter():void {
-		this.$emit("setCustomActivities", [...this.result.activities, this.result]);
+		this.$emit("setCustomActivities", [...this.messageData.activities, this.messageData]);
 	}
 
 }

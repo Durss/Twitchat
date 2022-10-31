@@ -3,7 +3,7 @@ import { storeVoice } from "@/store/voice/storeVoice";
 import type { JsonObject } from "type-fest";
 import { reactive, watch } from "vue";
 import PublicAPI from "../PublicAPI";
-import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "../TwitchatEvent";
+import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "../../events/TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**

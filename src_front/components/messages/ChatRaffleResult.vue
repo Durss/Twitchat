@@ -1,9 +1,9 @@
 <template>
-	<div class="chatraffleresult" @click.ctrl="copyJSON()">
+	<div class="chatraffleresult" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{raffleData.raffleData.winners![0].label}}</strong> won the raffle
+			<strong>{{messageData.raffleData.winners![0].label}}</strong> won the raffle
 		</div>
 	</div>
 </template>
@@ -17,23 +17,23 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
-		raffleData:Object,
+		messageData:Object,
 	},
 	components:{}
 })
 export default class ChatRaffleResult extends Vue {
 
-	public raffleData!:TwitchatDataTypes.MessageRaffleData;
+	public messageData!:TwitchatDataTypes.MessageRaffleData;
 	public sParams = storeParams();
 	
 	public get time():string {
-		const d = new Date(this.raffleData.date);
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.raffleData));
-		console.log(this.raffleData);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 }

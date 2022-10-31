@@ -1,11 +1,11 @@
 <template>
-	<div class="chatpredictionresult" @click.ctrl="copyJSON()">
+	<div class="chatpredictionresult" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
 		<div class="content">
-			<div class="title">{{predictionData.title}}</div>
+			<div class="title">{{messageData.title}}</div>
 			<div class="outcomes">
-				<div v-for="o in predictionData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
+				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div class="outcomeTitle">
 						<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
 						{{o.label}}
@@ -37,31 +37,31 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
-		predictionData:Object
+		messageData:Object
 	},
 	components:{}
 })
 export default class ChatPredictionResult extends Vue {
 
-	public predictionData!:TwitchatDataTypes.MessagePredictionData;
+	public messageData!:TwitchatDataTypes.MessagePredictionData;
 
 	public get time():string {
-		const d = new Date(this.predictionData.date);
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public getOutcomeClasses(o:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		const res = ["outcome"];
-		if(this.predictionData.winning_outcome_id === o.id) res.push("winner");
-		if(this.predictionData.outcomes.length > 2) res.push("noColorMode");
+		if(this.messageData.winning_outcome_id === o.id) res.push("winner");
+		if(this.messageData.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
 
 	public getOutcomePercent(o:TwitchatDataTypes.MessagePredictionDataOutcome):number {
 		let totalVotes = 0;
-		if(this.predictionData) {
-			for (let i = 0; i < this.predictionData.outcomes.length; i++) {
-				totalVotes += this.predictionData.outcomes[i].votes;
+		if(this.messageData) {
+			for (let i = 0; i < this.messageData.outcomes.length; i++) {
+				totalVotes += this.messageData.outcomes[i].votes;
 			}
 		}
 		return Math.round(o.votes/Math.max(1,totalVotes) * 100);
@@ -75,8 +75,8 @@ export default class ChatPredictionResult extends Vue {
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.predictionData));
-		console.log(this.predictionData);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 

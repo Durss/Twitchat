@@ -1,9 +1,9 @@
 import type { JsonArray, JsonObject, JsonValue } from "type-fest";
 import { watch } from "vue";
-import { EventDispatcher } from "./EventDispatcher";
+import { EventDispatcher } from "../events/EventDispatcher";
 import OBSWebsocket from "./OBSWebsocket";
-import type { TwitchatActionType, TwitchatEventType } from "./TwitchatEvent";
-import TwitchatEvent from "./TwitchatEvent";
+import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEvent";
+import TwitchatEvent from "../events/TwitchatEvent";
 import Utils from "./Utils";
 
 /**

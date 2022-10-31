@@ -1,12 +1,15 @@
 <template>
-	<div class="chatfollowbotevents" @click.ctrl.stop="copyJSON()" @click="expand = !expand">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/follow.svg" class="icon">
-		<span>{{messageData.users.length}} follow bot events !</span>
+	<div class="chatfollowbotevents" @click.capture.ctrl.stop="copyJSON()">
+		<div class="head" @click="expand = !expand">
+			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+			<img src="@/assets/icons/shield.svg" class="icon">
+			<img src="@/assets/icons/follow.svg" class="icon">
+			<span class="label">{{messageData?.users.length}} potential follow bot events !</span>
+		</div>
 		<div v-if="expand" class="userList">
-			<div class="user" v-for="u, index in messageData.users" :key="u.id" @click.stop="openUserCard(u)">
+			<div class="user" v-for="u, index in messageData?.users" :key="u.id" @click.stop="openUserCard(u)">
 				<span class="login">{{u.displayName}}</span>
-				<span v-if="index < messageData.users.length-1">, </span>
+				<span v-if="index < messageData?.users.length-1">, </span>
 			</div>
 		</div>
 	</div>
@@ -20,8 +23,8 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
-		lightMode:Boolean,
 		messageData:Object,
+		lightMode:Boolean,
 	},
 	components:{
 	},
@@ -53,16 +56,38 @@ export default class ChatFollowbotEvents extends Vue {
 <style scoped lang="less">
 .chatfollowbotevents{
 	.chatMessageHighlight();
+	color: @mainColor_light;
 	background-color: @mainColor_alert;
-	cursor: pointer;
+	flex-direction: column;
+	align-items: flex-start;
+	pointer-events: all;
+	
+	.head {
+		cursor: pointer;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		width: 100%;
+		.label {
+			flex-grow: 1;
+		}
+	}
 
 	.userList {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		cursor: pointer;
+		background-color: fade(#000, 20%);
+		border-radius: .5em;
+		padding: .5em;
+		font-size: .9em;
+		max-height: 20vh;
+		overflow-y: auto;
+		margin-top: .5em;
 		.user {
-			padding: .4em .25em;
+			padding: .25em .25em;
 			.login {
 				background-color: fade(@mainColor_dark, 20%);
 				padding: .1em .25em;

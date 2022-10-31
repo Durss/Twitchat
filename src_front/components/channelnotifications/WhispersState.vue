@@ -185,7 +185,6 @@ export default class WhispersState extends Vue {
 				align-items: center;
 				padding: 0px 5px 2px 5px;
 				margin: .5em 0;
-				font-size: var(--messageSize);
 				
 				&:nth-child(even) {
 					background-color: rgba(255, 255, 25, .1);

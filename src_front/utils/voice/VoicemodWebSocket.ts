@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import { EventDispatcher } from "../EventDispatcher";
+import { EventDispatcher } from "../../events/EventDispatcher";
 import Utils from "../Utils";
 import VoicemodEvent from "./VoicemodEvent";
 

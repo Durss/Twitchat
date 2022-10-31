@@ -4,7 +4,7 @@ import { storeTTS } from "@/store/tts/storeTTS";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import PublicAPI from "./PublicAPI";
-import TwitchatEvent from "./TwitchatEvent";
+import TwitchatEvent from "../events/TwitchatEvent";
 import Utils from "./Utils";
 
 interface SpokenMessage {

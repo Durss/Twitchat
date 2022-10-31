@@ -158,7 +158,7 @@ import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import TwitchatEvent from '@/utils/TwitchatEvent';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';

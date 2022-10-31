@@ -1,4 +1,4 @@
-import { Event } from '@/utils/EventDispatcher';
+import { Event } from '@/events/EventDispatcher';
 import type { SpotifyAuthToken } from './SpotifyDataTypes';
 
 export default class SpotifyHelperEvent extends Event {

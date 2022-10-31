@@ -532,15 +532,33 @@ export default class ChatForm extends Vue {
 				sentencesPerParagraph: { max: 8, min: 4 },
 				wordsPerSentence: { max: 8, min: 2 }
 			});
+
+			const followers = (await TwitchUtils.getFollowers(this.channelId, 100));
+			while(followers.length<50) {
+				const id = Math.round(Math.random()*99999999).toString();
+				followers.push({
+					from_id:id,
+					from_login:"",
+					from_name:"",
+					to_id:this.channelId,
+					to_login:"",
+					to_name:"",
+					followed_at:"",
+				});
+			}
+			const users:TwitchatDataTypes.TwitchatUser[] = [];
+			followers.forEach(v=> {
+				const u = StoreProxy.users.getUserFrom("twitch", this.channelId, v.from_id, v.from_login, v.from_name, undefined, true);
+				users.push(u);
+			})
 			
 			this.spamInterval = window.setInterval(()=> {
-				const id = Math.round(Math.random()*1000);
 				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*2) + 1);
 				const mess:TwitchatDataTypes.MessageChatData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
-					user: this.$store("users").getUserFrom("twitch", this.channelId, id.toString()),
+					user: Utils.pickRand(users),
 					channel_id:this.channelId,
 					type:"message",
 					message,

@@ -1,11 +1,11 @@
 <template>
-	<div class="chatbingoresult" @click.ctrl="copyJSON()">
+	<div class="chatbingoresult" @click.capture.ctrl.stop="copyJSON()">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{bingoData.bingoData.winners![0].displayName}}</strong> won the bingo with answer
-			<img class="answer emote" :src="bingoData.bingoData.emoteValue?.twitch?.image.hd" v-if="bingoData.bingoData.guessEmote">
-			<strong class="answer" v-else>{{bingoData.bingoData.numberValue}}</strong>
+			<strong>{{messageData.bingoData.winners![0].displayName}}</strong> won the bingo with answer
+			<img class="answer emote" :src="messageData.bingoData.emoteValue?.twitch?.image.hd" v-if="messageData.bingoData.guessEmote">
+			<strong class="answer" v-else>{{messageData.bingoData.numberValue}}</strong>
 		</div>
 	</div>
 </template>
@@ -18,22 +18,22 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
-		bingoData:Object
+		messageData:Object
 	},
 	components:{}
 })
 export default class ChatBingoResult extends Vue {
 
-	public bingoData!:TwitchatDataTypes.MessageBingoData;
+	public messageData!:TwitchatDataTypes.MessageBingoData;
 
 	public get time():string {
-		const d = new Date(this.bingoData.date);
+		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.bingoData));
-		console.log(this.bingoData);
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 

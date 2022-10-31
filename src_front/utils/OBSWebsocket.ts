@@ -2,9 +2,9 @@ import StoreProxy from '@/store/StoreProxy';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
-import { EventDispatcher } from './EventDispatcher';
-import type { TwitchatActionType, TwitchatEventType } from './TwitchatEvent';
-import TwitchatEvent from './TwitchatEvent';
+import { EventDispatcher } from '../events/EventDispatcher';
+import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
+import TwitchatEvent from '../events/TwitchatEvent';
 import Utils from './Utils';
 
 /**

@@ -122,7 +122,6 @@ export default class PinedMessages extends Vue {
 					flex-grow: 1;
 					color: #fff;
 					margin: .5em 0;
-					font-size: var(--messageSize);
 				}
 
 				.button {

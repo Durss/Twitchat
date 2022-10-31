@@ -9,7 +9,7 @@ import type { SearchTrackItem } from "./music/SpotifyDataTypes";
 import SpotifyHelper from "./music/SpotifyHelper";
 import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerActionChatData, type TriggerData, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
 import TTSUtils from "./TTSUtils";
-import TwitchatEvent from "./TwitchatEvent";
+import TwitchatEvent from "../events/TwitchatEvent";
 import TwitchUtils from "./twitch/TwitchUtils";
 import Utils from "./Utils";
 import VoicemodWebSocket from "./voice/VoicemodWebSocket";

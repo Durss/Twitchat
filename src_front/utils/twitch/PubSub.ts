@@ -4,11 +4,11 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
 import type { JsonObject } from "type-fest";
 import Config from '../Config';
-import { EventDispatcher } from "../EventDispatcher";
+import { EventDispatcher } from "../../events/EventDispatcher";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TriggerActionHandler from "../TriggerActionHandler";
-import TwitchatEvent from "../TwitchatEvent";
+import TwitchatEvent from "../../events/TwitchatEvent";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 
@@ -228,9 +228,9 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	public async simulateFollowbotRaid():Promise<void> {
-		const lorem = new LoremIpsum({ wordsPerSentence: { max: 16, min: 4 } });
+		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
 		for (let i = 0; i < 100; i++) {
-			const id = 0;//Math.round(Math.random()*1000000);
+			const id = i;//Math.round(Math.random()*1000000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 			this.followingEvent({
 				display_name: login,
