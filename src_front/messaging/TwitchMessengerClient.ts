@@ -107,6 +107,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				const meId = StoreProxy.auth.twitch.user.id;
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
+				TwitchUtils.getRoomSettings(v.id).then(settings=> {
+					console.log(v.id, settings);
+					if(settings) StoreProxy.stream.setRoomSettings(v.id, settings);
+				});
 				//Load chatters list if we have necessary rights
 				TwitchUtils.getChatters(v.id, v.login).then(res => {
 					if(res != false) res.forEach((login) => {
@@ -838,21 +842,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
 						this.message(m.channel, m.tags as tmi.ChatUserstate, m.message, m.self, true);
 					}
-				}
-				break;
-			}
-
-			case "ROOMSTATE": {
-				const roomstate = (data as unknown) as TwitchDataTypes.RoomState;
-				//TODO check if this still works
-				if(roomstate.params[0].replace("#", "") == StoreProxy.auth.twitch.user.login) {
-					const sStream = StoreProxy.stream;
-					const params = sStream.roomStatusParams.twitch;
-					if(!params) return;
-					if(roomstate.tags['emote-only'] != undefined) params.emotesOnly.value = roomstate.tags['emote-only'] != false;
-					if(roomstate.tags['subs-only'] != undefined) params.subsOnly.value = roomstate.tags['subs-only'] != false;
-					if(roomstate.tags['followers-only'] != undefined) params.followersOnly.value = parseInt(roomstate.tags['followers-only']) > -1;
-					if(roomstate.tags.slow != undefined) params.slowMode.value = roomstate.tags.slow != false;
 				}
 				break;
 			}

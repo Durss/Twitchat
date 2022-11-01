@@ -345,7 +345,7 @@ export interface IStreamState {
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
 	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
 	commercialEnd: number;
-	roomStatusParams:{[key in TwitchatDataTypes.ChatPlatform]:TwitchatDataTypes.IRoomStatusCategory|undefined};
+	roomSettings:{[key in string]:TwitchatDataTypes.IRoomSettings|undefined};
 }
 
 export interface IStreamGetters {
@@ -353,6 +353,7 @@ export interface IStreamGetters {
 
 export interface IStreamActions {
 	setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined):void;
+	setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings):void;
 	setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined):void;
 	setPlaybackState(value:PubSubDataTypes.PlaybackInfo|undefined):void;
 	setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined):void;

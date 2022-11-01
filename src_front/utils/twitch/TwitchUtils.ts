@@ -1716,12 +1716,54 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Get the current room's settings
+	 */
+	public static async getRoomSettings(channelId:string):Promise<TwitchatDataTypes.IRoomSettings|null> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+
+		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		const res = await fetch(url.href, options);
+		if(res.status == 200)  {
+			const json:{data:{
+				broadcaster_id: string,
+				slow_mode: boolean,
+				slow_mode_wait_time?: any,
+				follower_mode: boolean,
+				follower_mode_duration: number,
+				subscriber_mode: boolean,
+				emote_mode: boolean,
+				unique_chat_mode: boolean,
+				non_moderator_chat_delay: boolean,
+				non_moderator_chat_delay_duration: number,
+			}[]} = await res.json();
+			const data = json.data[0];
+			return {
+				chatDelay:data.non_moderator_chat_delay_duration,
+				emotesOnly:data.emote_mode === true,
+				followOnly:data.follower_mode_duration,
+				slowMode:data.slow_mode_wait_time,
+				subOnly:data.subscriber_mode,
+			}
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.getRoomSettings(channelId);
+		}else {
+			return null;
+		}
+	}
+
+	/**
 	 * Change rooms settings
 	 */
-	public static async setRoomSettings(channelId:string, settings:TwitchDataTypes.RoomSettingsUpdate):Promise<boolean> {
-		if(typeof settings.slowMode == "number") settings.slowMode = Math.min(120, Math.max(3, settings.slowMode));
-		if(typeof settings.chatDelay == "number") settings.chatDelay = [2,4,6].find(v=> v >= settings.chatDelay!) ?? 2;
-
+	public static async setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings):Promise<boolean> {
 		let body:any = {};
 		if(typeof settings.emotesOnly == "boolean") body.emote_mode = settings.emotesOnly;
 		

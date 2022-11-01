@@ -82,7 +82,7 @@ export default class PubSub extends EventDispatcher {
 				"ad-property-refresh."+uid,
 				"whispers."+uid,
 				"chatrooms-user-v1."+uid,//TO or ban events
-				"stream-chat-room-v1."+uid,//Host events or extension messages
+				"stream-chat-room-v1."+uid,//Host events; room settings; extension messages
 				"broadcast-settings-update."+uid,//Stream info update
 				"shoutout."+uid,//when receiving a shoutout
 				// "user-drop-events."+uid,
@@ -335,7 +335,7 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "updated_room") {
-			//TODO sent when updating room status (see RoomStatusUpdate JSON example)
+			this.roomSettingsUpdate(data.data as PubSubDataTypes.RoomSettingsUpdate);
 
 
 
@@ -1222,6 +1222,20 @@ export default class PubSub extends EventDispatcher {
 		}
 		StoreProxy.chat.addMessage(message);
 		TriggerActionHandler.instance.onMessage(message);
+	}
+
+	/**
+	 * Called when room settings are updated
+	 * @param data 
+	 */
+	private roomSettingsUpdate(data:PubSubDataTypes.RoomSettingsUpdate):void {
+		const settings:TwitchatDataTypes.IRoomSettings = {}
+		const modes = data.room.modes;
+		settings.followOnly = modes.followers_only_duration_minutes ?? false;
+		settings.emotesOnly = modes.emote_only_mode_enabled === true;
+		settings.subOnly = modes.subscribers_only_mode_enabled === true;
+		settings.slowMode = modes.slow_mode_duration_seconds ?? false;
+		StoreProxy.stream.setRoomSettings(data.room.channel_id, settings);
 	}
 }
 

@@ -345,14 +345,6 @@ export namespace TwitchDataTypes {
 		display_name:string;
 	}
 
-	export interface RoomSettingsUpdate {
-		subOnly?:boolean;
-		emotesOnly?:boolean;
-		followOnly?:number|false;
-		chatDelay?:number;
-		slowMode?:number;
-	}
-
 	export interface RoomState {
 		type: "notice";
 		raw: string;

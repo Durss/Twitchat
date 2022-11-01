@@ -621,4 +621,37 @@ export namespace PubSubDataTypes {
 		stream_contribution: number;//This user's stream contrib
 		total_contribution: number;//this user's total contrib
 	}
+
+	export interface RoomSettingsUpdate {
+		room: {
+			channel_id: string;
+			modes: {
+				followers_only_duration_minutes: number;
+				emote_only_mode_enabled: boolean;
+				r9k_mode_enabled: boolean;
+				subscribers_only_mode_enabled: boolean;
+				verified_only_mode_enabled: boolean;
+				slow_mode_duration_seconds: number;
+				slow_mode_set_at: string;
+				account_verification_options: {
+					subscribers_exempt: boolean;
+					moderators_exempt: boolean;
+					vips_exempt: boolean;
+					phone_verification_mode: number;
+					email_verification_mode: number;
+					partial_phone_verification_config: PartialVerificationConfig;
+					partial_email_verification_config: PartialVerificationConfig;
+				};
+			};
+			rules: string[];
+		}
+	}
+
+    export interface PartialVerificationConfig {
+        restrict_first_time_chatters: boolean;
+        restrict_based_on_follower_age: boolean;
+        restrict_based_on_account_age: boolean;
+        minimum_follower_age_in_minutes: number;
+        minimum_account_age_in_minutes: number;
+    }
 }

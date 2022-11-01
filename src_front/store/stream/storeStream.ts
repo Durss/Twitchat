@@ -16,20 +16,7 @@ export const storeStream = defineStore('stream', {
 		lastRaider: undefined,
 		commercialEnd: 0,//Date.now() + 120000,
 
-		roomStatusParams:{
-			twitchat:undefined,
-			twitch:
-			{
-				followersOnly:	{ type:"toggle", value:false, label:"Followers only", id:301},
-				subsOnly:		{ type:"toggle", value:false, label:"Subs only", id:302},
-				emotesOnly:		{ type:"toggle", value:false, label:"Emotes only", id:300},
-				slowMode:		{ type:"toggle", value:false, label:"Slow mode", id:303}
-			},
-			instagram:undefined,
-			youtube:undefined,
-			tiktok:undefined,
-			facebook:undefined,
-		},
+		roomSettings:{},//channelId => settings
 	} as IStreamState),
 
 
@@ -43,6 +30,17 @@ export const storeStream = defineStore('stream', {
 
 	actions: {
 		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) { this.currentRaid = infos; },
+
+		setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings) {
+			console.log("UPDATE SETTINGS", channelId, settings);
+			let roomSettings:TwitchatDataTypes.IRoomSettings = this.roomSettings[channelId] ?? {};
+			if(settings.chatDelay != undefined) roomSettings.chatDelay = settings.chatDelay;
+			if(settings.emotesOnly != undefined) roomSettings.emotesOnly = settings.emotesOnly;
+			if(settings.followOnly != undefined) roomSettings.followOnly = settings.followOnly;
+			if(settings.slowMode != undefined) roomSettings.slowMode = settings.slowMode;
+			if(settings.subOnly != undefined) roomSettings.subOnly = settings.subOnly;
+			this.roomSettings[channelId] = roomSettings;
+		},
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
 			this.hypeTrain = data;

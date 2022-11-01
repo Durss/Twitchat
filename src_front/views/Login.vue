@@ -128,8 +128,9 @@ export default class Login extends Vue {
 		"channel:read:subscriptions": "Get list of your subs",
 
 		"moderation:read": "List your moderators",
-		"moderator:manage:automod": "Manage automoded messages",
 		"moderator:read:blocked_terms": "Read blocked terms",
+		"moderator:read:chat_settings": "Read room settings  (follow only, sub only, etc...)",
+		"moderator:manage:automod": "Manage automoded messages",
 		"moderator:manage:blocked_terms": "Manage blocked terms",
 		"moderator:manage:banned_users": "Manage banned users",
 		"moderator:manage:announcements": "Use /announce chat command",

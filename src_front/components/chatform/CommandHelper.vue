@@ -16,10 +16,12 @@
 			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!hasChannelPoints" />
 			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
 		</div>
-
-		<div v-for="(p,key) in params" :key="key">
-			<ParamItem :paramData="p" @change="onChangeParam(key as string, p)" />
-		</div>
+		
+		<ParamItem :paramData="param_followOnly" @change="updateRoomSettings()" />
+		<ParamItem :paramData="param_subOnly" @change="updateRoomSettings()" />
+		<ParamItem :paramData="param_emotesOnly" @change="updateRoomSettings()" />
+		<ParamItem :paramData="param_slowMode" @change="updateRoomSettings()" />
+		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
@@ -37,7 +39,6 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -71,13 +72,21 @@ import ParamItem from '../params/ParamItem.vue';
 export default class CommandHelper extends Vue {
 	
 	public startAdCooldown!:number;
-	public raidUser = "";
-	public adCooldown = 0;
+	public raidUser:string = "";
+	public adCooldown:number = 0;
+	public channelId:string = "";
+	
+	public param_followOnly:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Followers only" };
+	public param_subOnly:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Subs only" };
+	public param_emotesOnly:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Emotes only" };
+	public param_slowMode:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Slow mode" };
+
+	private ignoreUpdates = false;
 	private adCooldownInterval = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():TwitchatDataTypes.IRoomStatusCategory { return this.$store("stream").roomStatusParams["twitch"]!; }
+	public get params():TwitchatDataTypes.IRoomSettings { return this.$store("stream").roomSettings["twitch"]!; }
 	public get adCooldownFormated():string {
 		return Utils.formatDuration(this.adCooldown);
 	}
@@ -96,20 +105,31 @@ export default class CommandHelper extends Vue {
 		return this.$store("poll").data == null;
 	}
 
-	public async mounted():Promise<void> {
-		await this.$nextTick();
+	public async beforeMount():Promise<void> {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		this.open();
 
 		watch(()=>this.startAdCooldown, ()=>{
 			this.adCooldown = this.startAdCooldown - Date.now();
-		})
+		});
+
+		const channelId = this.$store("auth").twitch.user.id;
+		watch(()=>this.$store("stream").roomSettings[channelId], ()=>{
+			this.populateSettings();
+		}, {deep:true});
+
 		this.adCooldown = Math.max(0, this.startAdCooldown - Date.now());
 		this.adCooldownInterval = window.setInterval(()=>{
 			this.adCooldown -= 1000;
 			if(this.adCooldown < 0) this.adCooldown = 0;
 		}, 1000);
+
+		this.populateSettings();
+	}
+
+	public async mounted():Promise<void> {
+		await this.$nextTick();
+		this.open();
 	}
 
 	public beforeUnmount():void {
@@ -133,6 +153,27 @@ export default class CommandHelper extends Vue {
 		}});
 	}
 
+	/**
+	 * Populates the settings from storage
+	 */
+	private async populateSettings():Promise<void> {
+		this.ignoreUpdates = true;
+
+		const channelId = this.$store("auth").twitch.user.id;
+		let settings = this.$store("stream").roomSettings[channelId] ?? {};
+		console.log("POPULATE", channelId, this.$store("stream").roomSettings);
+		this.param_followOnly.value	= typeof settings.followOnly == "number";
+		this.param_subOnly.value	= settings.subOnly;
+		this.param_emotesOnly.value	= settings.emotesOnly;
+		this.param_slowMode.value	= typeof settings.slowMode == "number";
+
+		await this.$nextTick();
+		this.ignoreUpdates = false;
+	}
+
+	/**
+	 * Detect click outside view to close it
+	 */
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
@@ -159,26 +200,15 @@ export default class CommandHelper extends Vue {
 		TwitchUtils.raidCancel();
 	}
 
-	public onChangeParam(key:string, p:TwitchatDataTypes.ParameterData):void {
-		let settings:TwitchDataTypes.RoomSettingsUpdate = {};
-		switch(key) {
-			case "emotesOnly": {
-				settings.emotesOnly = p.value === true;
-				break;
-			}
-			case "followersOnly": {
-				settings.followOnly = p.value === true? 30 : false;
-				break;
-			}
-			case "subsOnly": {
-				settings.subOnly = p.value === true;
-				break;
-			}
-			case "slowMode": {
-				settings.slowMode = p.value === true? 5 : 0;
-				break;
-			}
-		}
+	public updateRoomSettings():void {
+		if(this.ignoreUpdates) return;
+
+		let settings:TwitchatDataTypes.IRoomSettings = {};
+		settings.emotesOnly = this.param_emotesOnly.value === true;
+		settings.followOnly = this.param_followOnly.value === true? 30 : false;
+		settings.subOnly = this.param_subOnly.value === true;
+		settings.slowMode = this.param_slowMode.value === true? 5 : 0;
+
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
 	}
 

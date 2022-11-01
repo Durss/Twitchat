@@ -42,14 +42,15 @@ export namespace TwitchatDataTypes {
 	}
 	export type BotMessageField = keyof IBotMessage;
 
-	//Room status types
-	export interface IRoomStatusCategory {
-		emotesOnly:ParameterData;
-		followersOnly:ParameterData;
-		subsOnly:ParameterData;
-		slowMode:ParameterData;
+	//Room settings
+	export interface IRoomSettings {
+		subOnly?:boolean;
+		emotesOnly?:boolean;
+		followOnly?:number|false;
+		chatDelay?:number;
+		slowMode?:number;
 	}
-	export type RoomStatusCategory = keyof IRoomStatusCategory;
+	export type RoomSettings = keyof IRoomSettings;
 
 	//Generic parameter categories types
 	export interface IParameterCategory {
