@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes" v-if="message">
+	<div :class="classes" v-if="message"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark_white' : 'cross_alert')+'.svg')" alt="notice" class="icon">
 		<span v-if="messageData.type == 'connect'">Welcome to the chat room <strong>{{channelName}}</strong></span>
@@ -17,7 +18,7 @@ import { Options, Vue } from 'vue-class-component';
 		messageData:Object,
 	},
 	components:{},
-	emits:["ariaMessage"]
+	emits:["ariaMessage", "onRead"]
 })
 export default class ChatConnect extends Vue {
 	

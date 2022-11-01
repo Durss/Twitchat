@@ -1,5 +1,6 @@
 <template>
-	<div class="chatraffleresult" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chatraffleresult" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		<div>
@@ -19,7 +20,8 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		messageData:Object,
 	},
-	components:{}
+	components:{},
+	emits:["click"]
 })
 export default class ChatRaffleResult extends Vue {
 

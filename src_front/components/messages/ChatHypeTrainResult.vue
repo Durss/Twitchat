@@ -1,5 +1,6 @@
 <template>
-	<div class="chathypetrainresult" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chathypetrainresult" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/train.svg" alt="icon" class="icon">
 		<div class="infoHolder">
@@ -45,7 +46,7 @@ import Button from '../Button.vue';
 	components:{
 		Button,
 	},
-	emits:["setCustomActivities"]
+	emits:["setCustomActivities", "onRead"]
 })
 export default class ChatHypeTrainResult extends Vue {
 

@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes" @click.capture.ctrl.stop="copyJSON()">
+	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
@@ -18,7 +19,7 @@ import { Options, Vue } from 'vue-class-component';
 		messageData:Object,
 	},
 	components:{},
-	emits:["ariaMessage"]
+	emits:["ariaMessage", "onRead"]
 })
 export default class ChatNotice extends Vue {
 	

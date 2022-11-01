@@ -527,6 +527,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/spam") {
+			this.loading = true;
 			clearInterval(this.spamInterval);
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
@@ -580,6 +581,7 @@ export default class ChatForm extends Vue {
 				sChat.addMessage(mess);
 			}, 100);
 			this.message = "";
+			this.loading = false;
 		}else
 
 		if(cmd == "/spamstop") {

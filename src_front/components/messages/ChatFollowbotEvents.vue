@@ -1,5 +1,6 @@
 <template>
-	<div class="chatfollowbotevents" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chatfollowbotevents" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<div class="head" @click="expand = !expand">
 			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			<img src="@/assets/icons/shield.svg" class="icon">
@@ -28,6 +29,7 @@ import { Options, Vue } from 'vue-class-component';
 	},
 	components:{
 	},
+	emits:["click"]
 })
 export default class ChatFollowbotEvents extends Vue {
 	public messageData!:TwitchatDataTypes.MessageFollowbotData;

@@ -1,5 +1,6 @@
 <template>
-	<div class="chathighlight" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chathighlight" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
@@ -68,7 +69,7 @@ import ChatMessageInfos from './components/ChatMessageInfos.vue';
 		Button,
 		ChatMessageInfos,
 	},
-	emits:["ariaMessage"]
+	emits:["ariaMessage", "onRead"]
 })
 export default class ChatHighlight extends Vue {
 	public messageData!:TwitchatDataTypes.MessageChatData

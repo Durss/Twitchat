@@ -1,5 +1,6 @@
 <template>
-	<div class="chatpollresult" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chatpollresult" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
@@ -31,7 +32,8 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		messageData:Object
 	},
-	components:{}
+	components:{},
+	emits:["click"]
 })
 export default class ChatPollResult extends Vue {
 

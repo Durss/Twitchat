@@ -1,5 +1,6 @@
 <template>
-	<div class="chatbingoresult" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chatbingoresult" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
 		<div>
@@ -20,7 +21,8 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		messageData:Object
 	},
-	components:{}
+	components:{},
+	emits:["click"]
 })
 export default class ChatBingoResult extends Vue {
 

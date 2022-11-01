@@ -1,5 +1,9 @@
 <template>
-	<div :class="classes" @click.capture.ctrl.stop="copyJSON()">
+	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
+	@mouseenter="$emit('onMouseOver', messageData)"
+	@mouseleave="$emit('onMouseOut', messageData)"
+	@click="$emit('onRead', messageData, $event)"
+	>
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
 			<p>First time on your channel</p>
@@ -129,7 +133,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages', 'ariaMessage'],
+	emits:['showConversation', 'showUserMessages', 'ariaMessage', 'onMouseOver', 'onMouseOut', 'onRead'],
 })
 export default class ChatMessage extends Vue {
  

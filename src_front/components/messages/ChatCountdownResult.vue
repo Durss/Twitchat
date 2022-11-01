@@ -1,5 +1,6 @@
 <template>
-	<div class="chatcountdownresult" @click.capture.ctrl.stop="copyJSON()">
+	<div class="chatcountdownresult" @click.capture.ctrl.stop="copyJSON()"
+	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/countdown.svg" alt="icon" class="icon">
 		<div>
@@ -18,7 +19,8 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		messageData:Object,
 	},
-	components:{}
+	components:{},
+	emits:["click"]
 })
 export default class ChatCountdownResult extends Vue {
 

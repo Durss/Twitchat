@@ -12,21 +12,21 @@
 					v-if="m.type == 'twitchat_ad' && !lightMode"
 					:ref="'message_'+m.id"
 					@showModal="(v:string)=>$emit('showModal', v)"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatJoinLeave class="message"
 					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
 					:ref="'message_'+m.id"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatConnect class="message"
 					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
 					:ref="'message_'+m.id"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatMessage
@@ -36,73 +36,74 @@
 					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
-					@mouseenter="onHoverMessage()"
-					@mouseleave="onLeaveMessage()"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onMouseOver="onHoverMessage"
+					@onMouseOut="onLeaveMessage"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 					
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatPollResult
 					v-else-if="m.type == 'poll'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatPredictionResult
 					v-else-if="m.type == 'prediction'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatBingoResult
 					v-else-if="m.type == 'bingo'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatRaffleResult
 					v-else-if="m.type == 'raffle'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m" />
 
 				<ChatCountdownResult
 					v-else-if="m.type == 'countdown'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatHypeTrainResult
 					v-else-if="m.type == 'hype_train_summary'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatFollowbotEvents
 					v-else-if="m.type == 'followbot_list'"
 					:ref="'message_'+m.id"
 					class="message"
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatHighlight
@@ -110,24 +111,21 @@
 					:ref="'message_'+m.id"
 					class="message"
 					lightMode
-					@ariaMessage="(v:string)=>setAriaMessage(v)"
-					@click="toggleMarkRead(m, $event)"
+					@onRead="toggleMarkRead"
+					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 			</template>
 
 		</div>
 		
-		<teleport :to="hoverchatMessageHolder" v-if="hoverchatMessageHolder">
-			<ChatMessageHoverActions class="hoverActions" :messageData="hoveredMessage" />
+		<teleport :to="hoverchatMessageHolder">
+			<ChatMessageHoverActions class="hoverActions" v-show="hoveredMessage != null" :messageData="hoveredMessage" />
 		</teleport>
 		
 		<teleport :to="markedReadItem" v-if="markedReadItem">
 			<div class="markRead"></div>
 		</teleport>
-		
-		<div v-if="hoverchatMessageHolder">ok</div>
-		<div v-else="hoverchatMessageHolder">ko</div>
 
 		<div class="locked" ref="locked" v-if="lockScroll && !lightMode" @click.stop="unPause()">
 			<span v-if="lockScroll">Chat paused</span>
@@ -239,7 +237,7 @@ export default class MessageList extends Vue {
 	public scrollAtBottom = true;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem:HTMLDivElement|null = null;
-	public hoverchatMessageHolder:HTMLDivElement|null = null;
+	public hoverchatMessageHolder:HTMLElement = document.body;
 
 	private counter = 0;
 	private prevTs = 0;
@@ -886,15 +884,14 @@ export default class MessageList extends Vue {
 
 	public onHoverMessage(message?:any):void {
 		// message = this.filteredMessages[this.filteredMessages.length-1];
-		// if(!message) return;
-		// console.log("opk");
-		// this.hoveredMessage=message;
-		// const div = (this.$refs["message_"+message.id] as Vue[])[0];
-		// this.hoverchatMessageHolder = div.$el;
-		console.log("HOVER");
-		const items = (this.$el as HTMLDivElement).querySelectorAll(".message");
-		this.hoverchatMessageHolder = items[items.length -1] as HTMLDivElement;
-		console.log(this.hoverchatMessageHolder);
+		if(!message) return;
+		console.log("opk", message);
+		this.hoveredMessage=message;
+		const div = (this.$refs["message_"+message.id] as Vue[])[0];
+		this.hoverchatMessageHolder = div.$el;
+		// const items = (this.$el as HTMLDivElement).querySelectorAll(".message");
+		// this.hoverchatMessageHolder = items[items.length -1] as HTMLDivElement;
+		// console.log(this.hoverchatMessageHolder);
 	}
 
 	/**
@@ -947,7 +944,7 @@ export default class MessageList extends Vue {
 	 */
 	public onLeaveMessage():void {
 		this.hoveredMessage = null;
-		this.hoverchatMessageHolder = null;
+		this.hoverchatMessageHolder = document.body;
 		clearTimeout(this.openConvTimeout);
 		if(this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
