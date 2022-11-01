@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
-	@mouseenter="$emit('onMouseOver', messageData)"
-	@mouseleave="$emit('onMouseOut', messageData)"
+	@mouseleave="onMouseLeave"
+	@mouseenter="onMouseEnter"
 	@click="$emit('onRead', messageData, $event)"
 	>
 		<div v-if="firstTime" class="header">
@@ -100,6 +100,10 @@
 				:loading="clipHighlightLoading"
 			/>
 		</div>
+
+		<KeepAlive>
+			<ChatMessageHoverActions v-if="showTools" class="hoverActions" :messageData="messageData" />
+		</KeepAlive>
 	</div>
 
 </template>
@@ -120,12 +124,14 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfos from './components/ChatMessageInfos.vue';
 import ChatModTools from './components/ChatModTools.vue';
+import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 
 @Options({
 	components:{
 		Button,
 		ChatModTools,
 		ChatMessageInfos,
+		ChatMessageHoverActions,
 	},
 	props:{
 		messageData:Object,
@@ -133,7 +139,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages', 'ariaMessage', 'onMouseOver', 'onMouseOut', 'onRead'],
+	emits:['showConversation', 'showUserMessages', 'ariaMessage', 'onMouseOut', 'onRead'],
 })
 export default class ChatMessage extends Vue {
  
@@ -146,7 +152,8 @@ export default class ChatMessage extends Vue {
 	
 	public text = "";
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
-	public firstTime = false;
+	public firstTime:boolean = false;
+	public showTools:boolean = false;
 	public automodReasons = "";
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
@@ -200,7 +207,8 @@ export default class ChatMessage extends Vue {
 			if(message.deleted && censorDeletedMessages)				res.push("censor");
 			if(this.channelInfo.is_moderator && highlightMods)			res.push("highlightMods");
 			else if(this.channelInfo.is_vip && highlightVips)			res.push("highlightVips");
-			else if(this.channelInfo.is_subscriber && highlightSubs)	res.push("highlightSubs");
+			else if(this.channelInfo.is_subscriber && 
+			!this.channelInfo.is_broadcaster && highlightSubs)	res.push("highlightSubs");
 			if(spoilersEnabled && this.messageData.spoiler === true)	res.push("spoiler");
 		}
 
@@ -520,6 +528,14 @@ export default class ChatMessage extends Vue {
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		await Utils.promisedTimeout(2000);
 		this.clipHighlightLoading = false;
+	}
+
+	public onMouseLeave():void{
+		this.showTools = false;
+		this.$emit('onMouseOut', this.messageData)
+	}
+	public onMouseEnter():void{
+		this.showTools = true;
 	}
 }
 </script>
@@ -891,6 +907,21 @@ export default class ChatMessage extends Vue {
 		&.orange {
 			border-image-source: linear-gradient(#ffb31a,#e0e000);
 		}
+	}
+
+	.hoverActions {
+		position: absolute;
+		// visibility: hidden;
+		z-index: 1;
+		top: 0;
+		right: 0;
+		margin: .5em 0;
+		transform:translate(0, calc(-100% - .5em));
+		display: flex;
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-around;
+		flex-wrap: wrap;
 	}
 	
 }

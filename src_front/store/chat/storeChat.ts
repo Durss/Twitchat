@@ -378,7 +378,9 @@ export const storeChat = defineStore('chat', {
 						m.date = Date.now();
 						//Bring it back to bottom
 						messages.splice(i, 1);
+						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						messages.push(m);
+						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
 						this.messages = messages;	
 						return;
 					}
@@ -494,7 +496,7 @@ export const storeChat = defineStore('chat', {
 						}
 						//Most message on chat to alert the stream
 						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
-							platform:"twitchat",
+							platform:user.platform,
 							channel_id: message.channel_id,
 							type:"autoban_join",
 							date:Date.now(),
@@ -663,6 +665,7 @@ export const storeChat = defineStore('chat', {
 
 			messages.push( message );
 			this.messages = messages;
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 		},
 		
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 

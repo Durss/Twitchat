@@ -389,8 +389,14 @@ export default class ChatForm extends Vue {
 	public async mounted():Promise<void> {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
-			let carretPos = input.selectionStart as number | 0;
-			let isCmd = /^\s*\//.test(newVal);
+			const carretPos = input.selectionStart as number | 0;
+			const isCmd = /^\s*\//.test(newVal);
+			// let index = carretPos;
+			// let tags = ["/", "@", ":"];
+			// while(index > 0 && newVal.charAt(index) != " ") {
+			// 	index --;
+			// }
+			// console.log(index);
 			
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);

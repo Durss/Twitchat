@@ -6,34 +6,38 @@
 			data-tooltip="Track user"
 			@click="toggleTrackUser()"
 			/>
+			
 		<Button aria-label="Shoutout user"
 			bounce
 			:icon="$image('icons/shoutout.svg')"
 			data-tooltip="Shoutout"
 			@click="shoutout()"
-			v-if="!isBroadcaster"
+			v-show="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
+
 		<Button aria-label="Read message with TTS"
 			:icon="$image('icons/tts.svg')"
 			data-tooltip="TTS"
 			@click="ttsRead()"
-			v-if="ttsEnabled"
+			v-show="ttsEnabled"
 			/>
+
 		<Button aria-label="Highlight message"
 			bounce
 			:icon="$image('icons/highlight.svg')"
 			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
 			@click="chatHighlight()"
 			:loading="highlightLoading"
-			v-if="!messageData || !messageData.automod"
+			v-show="!messageData || !messageData.automod"
 			/>
+
 		<Button aria-label="Pin message"
 			bounce
 			:icon="$image('icons/pin.svg')"
 			data-tooltip="Pin message"
 			@click="pinMessage()"
-			v-if="!messageData || !messageData.automod"
+			v-show="!messageData || !messageData.automod"
 			/>
 	</div>
 </template>
@@ -52,7 +56,7 @@ import Button from '../../Button.vue';
 	components:{
 		Button,
 	},
-	emits: ["trackUser"]
+	emits: []
 })
 export default class ChatMessageHoverActions extends Vue {
 
