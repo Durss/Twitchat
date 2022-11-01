@@ -96,7 +96,6 @@ export default class CommandHelper extends Vue {
 	}
 
 	public get hasChannelPoints():boolean {
-		console.log(this.$store("auth").twitch.user);
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
 
@@ -161,7 +160,6 @@ export default class CommandHelper extends Vue {
 
 		const channelId = this.$store("auth").twitch.user.id;
 		let settings = this.$store("stream").roomSettings[channelId] ?? {};
-		console.log("POPULATE", channelId, this.$store("stream").roomSettings);
 		this.param_followOnly.value	= typeof settings.followOnly == "number";
 		this.param_subOnly.value	= settings.subOnly;
 		this.param_emotesOnly.value	= settings.emotesOnly;

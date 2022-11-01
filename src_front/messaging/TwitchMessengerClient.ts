@@ -108,7 +108,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
 				TwitchUtils.getRoomSettings(v.id).then(settings=> {
-					console.log(v.id, settings);
 					if(settings) StoreProxy.stream.setRoomSettings(v.id, settings);
 				});
 				//Load chatters list if we have necessary rights
