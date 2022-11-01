@@ -49,7 +49,7 @@ export default class ChatConnect extends Vue {
 			}else{
 				this.message = "You have been disconnected from the chat";
 			}
-			this.$emit("ariaMessage", this.message);
+			this.$store("accessibility").setAriaPolite(this.message);
 		}
 
 	}

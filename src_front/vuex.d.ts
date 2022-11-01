@@ -1,4 +1,4 @@
-import type { IAccountActions, IAccountState, IAuthActions, IAuthState, IAutomodActions, IAutomodState, IBingoActions, IBingoState, IChatActions, IChatState, IChatSuggestionActions, IChatSuggestionState, IDebugActions, IDebugState, IEmergencyActions, IEmergencyState, IMainActions, IMainState, IMusicActions, IMusicState, IOBSActions, IOBSState, IParamsActions, IParamsState, IPollActions, IPollState, IPredictionActions, IPredictionState, IRaffleActions, IRaffleState, IStreamActions, IStreamState, ITimerActions, ITimerState, ITriggersActions, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersState, IVoiceActions, IVoiceState } from "./store/StoreProxy";
+import type { IAccessibilityActions, IAccessibilityState, IAccountActions, IAccountState, IAuthActions, IAuthState, IAutomodActions, IAutomodState, IBingoActions, IBingoState, IChatActions, IChatState, IChatSuggestionActions, IChatSuggestionState, IDebugActions, IDebugState, IEmergencyActions, IEmergencyState, IMainActions, IMainState, IMusicActions, IMusicState, IOBSActions, IOBSState, IParamsActions, IParamsState, IPollActions, IPollState, IPredictionActions, IPredictionState, IRaffleActions, IRaffleState, IStreamActions, IStreamState, ITimerActions, ITimerState, ITriggersActions, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersState, IVoiceActions, IVoiceState } from "./store/StoreProxy";
 
 declare module '@vue/runtime-core' {
 	interface IStore {
@@ -23,6 +23,7 @@ declare module '@vue/runtime-core' {
 		(id:"voice"):(IVoiceState & IVoiceActions) & {$state:IVoiceState};
 		(id:"debug"):(IDebugState & IDebugActions) & {$state:IDebugState};
 		(id:"main"):(IMainState & IMainActions) & {$state:IMainState};
+		(id:"accessibility"):(IAccessibilityState & IAccessibilityActions) & {$state:IAccessibilityState};
 	}
 
 	interface ComponentCustomProperties {

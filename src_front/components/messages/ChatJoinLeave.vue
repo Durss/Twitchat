@@ -75,7 +75,7 @@ export default class ChatJoinLeave extends Vue {
 			message += this.channelName;
 		}
 
-		this.$emit("ariaMessage", message);
+		this.$store("accessibility").setAriaPolite(message);
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {

@@ -33,6 +33,7 @@ export default class StoreProxy {
 	public static voice:IVoiceState & IVoiceGetters & IVoiceActions & {$state:IVoiceState};
 	public static main:IMainState & IMainGetters & IMainActions & {$state:IMainState};
 	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState};
+	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState};
 	
 }
 
@@ -472,4 +473,18 @@ export interface IVoiceActions {
 	setVoiceLang(value:string):void;
 	setVoiceActions(value:VoiceAction[]):void;
 	setVoicemodParams(payload:TwitchatDataTypes.VoicemodParamsData):void;
+}
+
+
+
+
+export interface IAccessibilityState {
+	ariaPolite:string;
+}
+
+export interface IAccessibilityGetters {
+}
+
+export interface IAccessibilityActions {
+	setAriaPolite(value:string):void;
 }

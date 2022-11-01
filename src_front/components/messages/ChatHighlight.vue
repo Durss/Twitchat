@@ -266,7 +266,7 @@ export default class ChatHighlight extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				this.messageText = this.messageData.message_html ?? this.messageData.message ?? "";
-				this.$emit("ariaMessage", this.reason+" "+this.messageText);
+				this.$store("accessibility").setAriaPolite(this.reason+" "+this.messageText);
 				break;
 			}
 

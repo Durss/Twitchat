@@ -4,29 +4,25 @@
 	@mouseleave="onLeaveList"
 	@wheel="onMouseWheel"
 	@touchmove="onTouchMove">
-		<div aria-live="polite" role="alert" class="ariaMessage">{{ariaMessage}}</div>
 
-		<div class="holder" ref="chatMessageHolder" :style="holderStyles">
+		<div class="messageHolder" ref="chatMessageHolder" :style="holderStyles">
 			<template v-for="m in filteredMessages" :key="m.id">
 				<ChatAd class="message"
 					v-if="m.type == 'twitchat_ad' && !lightMode"
 					:ref="'message_'+m.id"
 					@showModal="(v:string)=>$emit('showModal', v)"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatJoinLeave class="message"
 					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
 					:ref="'message_'+m.id"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatConnect class="message"
 					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
 					:ref="'message_'+m.id"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatMessage
@@ -38,7 +34,6 @@
 					@showUserMessages="openUserHistory"
 					@onMouseOut="onLeaveMessage"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 					
 				<ChatNotice
@@ -46,7 +41,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatPollResult
@@ -54,7 +48,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatPredictionResult
@@ -62,7 +55,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatBingoResult
@@ -70,7 +62,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatRaffleResult
@@ -78,7 +69,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m" />
 
 				<ChatCountdownResult
@@ -86,7 +76,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatHypeTrainResult
@@ -94,7 +83,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatFollowbotEvents
@@ -102,7 +90,6 @@
 					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 				<ChatHighlight
@@ -111,7 +98,6 @@
 					class="message"
 					lightMode
 					@onRead="toggleMarkRead"
-					@ariaMessage="setAriaMessage"
 					:messageData="m"/>
 
 			</template>
@@ -157,7 +143,7 @@
 				small bounce />
 		</div>
 
-		<div v-if="filteredMessages.length == 0 && !lightMode" class="noMessage">
+		<div v-if="showLoadingGradient && !lightMode" class="noMessage">
 			<div class="gradient"></div>
 		</div>
 	</div>
@@ -223,22 +209,20 @@ export default class MessageList extends Vue {
 	public filteredMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation:TwitchatDataTypes.MessageChatData[] = [];
-	public ariaMessage = "";
-	public ariaMessageTimeout = -1;
 	public lockScroll = false;
+	public showLoadingGradient = false;
 	public conversationPos = 0;
-	public scrollAtBottom = true;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem:HTMLDivElement|null = null;
 	public hoverchatMessageHolder:HTMLElement = document.body;
 
-	private counter = 0;
 	private prevTs = 0;
+	private counter = 0;
 	private disposed = false;
-	private lastDisplayedMessage?:HTMLDivElement;
 	private prevMarkedReadMessage:TwitchatDataTypes.ChatMessageTypes | null = null;
 	private holderOffsetY = -1;
 	private virtualScrollY = -1;
+	private updateDebounce = -1;
 	private openConvTimeout!:number;
 	private closeConvTimeout!:number;
 	private prevTouchMove!:TouchEvent;
@@ -278,7 +262,11 @@ export default class MessageList extends Vue {
 		return label;
 	}
 
-	public async mounted():Promise<void> {
+	public beforeUpdate():void {
+		// console.log("Update list");
+	}
+
+	public async beforeMount():Promise<void> {
 
 		//If text size is changed, scroll to bottom of tchat
 		watch(()=>this.$store("params").appearance.defaultSize.value, async ()=> {
@@ -372,32 +360,37 @@ export default class MessageList extends Vue {
 	/**
 	 * Cleans up all messages and rebuild the list
 	 */
-	private async fulllListRefresh():Promise<void> {
-		this.pendingMessages = [];
-		const s = Date.now();
-		const sChat = StoreProxy.chat;
-		const messages = sChat.messages.concat();
-		let result:TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (let i = messages.length-1; i >= 0; i--) {
-			const m = messages[i];
-			if(this.shouldShowMessage(m)) {
-				result.unshift(m);
+	private fulllListRefresh():void {
+		clearTimeout(this.updateDebounce);
+		this.updateDebounce = setTimeout(async ()=> {
+			this.pendingMessages = [];
+			
+			// const s = Date.now();
+
+			const sChat = StoreProxy.chat;
+			const messages = sChat.messages.concat();
+			let result:TwitchatDataTypes.ChatMessageTypes[] = [];
+			for (let i = messages.length-1; i >= 0; i--) {
+				const m = messages[i];
+				if(this.shouldShowMessage(m)) {
+					result.unshift(m);
+				}
+				if(result.length == this.maxMessages) break;
 			}
-			if(result.length == this.maxMessages) break;
-		}
+	
+			this.filteredMessages = result;
 
-		// console.log("RESULT", result.length, this.maxMessages);
-		this.filteredMessages = result;
-		const e = Date.now();
-		// console.log("full refresh duration:", e-s);
-
-		await this.$nextTick();
-
-		//Scroll to bottom
-		const el = this.$refs.chatMessageHolder as HTMLDivElement;
-		const maxScroll = (el.scrollHeight - el.offsetHeight);
-		this.virtualScrollY = maxScroll;
-		this.lockScroll = false;
+			// const e = Date.now();
+			// console.log("full refresh duration:", e-s);
+	
+			await this.$nextTick();
+	
+			//Scroll to bottom
+			const el = this.$refs.chatMessageHolder as HTMLDivElement;
+			const maxScroll = (el.scrollHeight - el.offsetHeight);
+			this.virtualScrollY = maxScroll;
+			this.lockScroll = false;
+		}, 50)
 	}
 
 	/**
@@ -542,8 +535,12 @@ export default class MessageList extends Vue {
 		if(chatPaused) {
 			this.pendingMessages.push(m);
 		}else{
-			this.filteredMessages.push(m);
-			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
+			let list = this.filteredMessages;
+			list.push(m);
+			list = list.slice(-this.maxMessages);
+			this.filteredMessages = list;
+			this.showLoadingGradient = false;
+			this.scrollToPrevMessage();
 		}
 	}
 
@@ -554,7 +551,6 @@ export default class MessageList extends Vue {
 		const message = e.data as TwitchatDataTypes.MessageChatData;
 		
 		//remove from displayed messages
-		let maxId = Math.max(0, this.filteredMessages.length-1 - this.maxMessages);
 		for (let i = this.filteredMessages.length-1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
 			if(m.id == message.id) {
@@ -564,7 +560,6 @@ export default class MessageList extends Vue {
 		}
 		
 		//Remove from pending messages
-		maxId = Math.max(0, this.pendingMessages.length-1 - this.maxMessages);
 		for (let i = this.pendingMessages.length-1; i >= 0; i--) {
 			const m = this.pendingMessages[i];
 			if(m.id == message.id) {
@@ -699,27 +694,22 @@ export default class MessageList extends Vue {
 		this.prevTs = ts;
 
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
-		const h = el.offsetHeight;
-		const maxScroll = (el.scrollHeight - h);
+		if(!el || this.filteredMessages.length == 0) return;
 
-		const messRefs = el.querySelectorAll(".message");
-		if(messRefs.length == 0) return;//view not ready yet
-		
-		// const lastMessRef = messRefs[ messRefs.length - 1 ];
-		// const bottom = lastMessRef.offsetTop + lastMessRef.offsetHeight;
-		const lastMess = el.children[el.children.length-1] as HTMLDivElement;
+		const h			= el.offsetHeight;
+		const maxScroll	= (el.scrollHeight - h);
+		const lastMess	= (this.$refs["message_"+this.filteredMessages[this.filteredMessages.length-1].id] as Vue[])[0];
 		if(!lastMess) return;//No message yet, just stop here
 
-		const bottom = lastMess.offsetTop + lastMess.offsetHeight;
+		const bottom = lastMess.$el.offsetTop + lastMess.$el.offsetHeight;
 
 		let ease = .2;
-		ease = .1;//TODO remove
 		if(!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if(this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
 
 			const dist = Math.abs(maxScroll-this.virtualScrollY);
-			if(dist > 10 || this.pendingMessages.length > 0) {
+			if(dist > 50 || this.pendingMessages.length > 0) {
 				//Linear scroll if need to scroll by more than 10px
 				this.virtualScrollY += Math.max(10, this.pendingMessages.length*4) * timeScale;
 			}else{
@@ -735,7 +725,6 @@ export default class MessageList extends Vue {
 		
 		//If messages height is smaller than the holder height, move the holder to the bottom
 		if(bottom < h) {
-			ease  = 1;
 			let py = this.holderOffsetY;
 			//Init to bottom
 			if(this.holderOffsetY == -1) py = h - bottom;
@@ -758,8 +747,6 @@ export default class MessageList extends Vue {
 		&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
 		}
-
-		this.scrollAtBottom = Math.abs(el.scrollTop - maxScroll) < 5;
 		
 	}
 
@@ -792,17 +779,10 @@ export default class MessageList extends Vue {
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
-		const messRefs = el.querySelectorAll(".message");
+		const messRefs = el.querySelectorAll(".messageHolder>.message");
 		if(messRefs.length == 0) return;
 		const lastMessRef = messRefs[ messRefs.length - 1 ] as HTMLDivElement;
 
-		//This avoids a glith when a filtered message is receive.
-		//In such case, no new message is created but this method is still called.
-		//Without this condition the scroll would glitch back to the previous
-		//message then back to the bottom.
-		//This condition avoids this "glitch".
-		if(lastMessRef == this.lastDisplayedMessage) return;
-		
 		if(this.filteredMessages.length >= this.maxMessages) {
 			this.counter++;
 		}
@@ -812,11 +792,13 @@ export default class MessageList extends Vue {
 				//If scrolling down with mouse wheel while scrolling is locked, interpolate
 				//scroll via tween as the renderFrame does nothing while scroll is locked
 				gsap.killTweensOf(el);
-				gsap.to(el, {duration:1.2, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
+				gsap.to(el, {duration:.2, scrollTop:maxScroll, ease:"sine.inOut", onUpdate:()=>{
 					this.virtualScrollY = el.scrollTop;
 				}});
 			}else{
-				this.virtualScrollY = maxScroll - lastMessRef.offsetHeight;
+				const style = window.getComputedStyle(lastMessRef);
+				const margin = parseFloat(style.marginBottom);
+				this.virtualScrollY = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
 
@@ -826,21 +808,6 @@ export default class MessageList extends Vue {
 				this.prevMarkedReadMessage = null;
 			}
 		}
-
-		this.lastDisplayedMessage = lastMessRef;
-	}
-
-	/**
-	 * Avoids closing the conversation when rolling over it
-	 */
-	public async setAriaMessage(message:string):Promise<void> {
-		message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
-		message = message.replace(/<[^>]*>/gim, "");//Strip HTML tags
-		this.ariaMessage = message;
-		clearTimeout(this.ariaMessageTimeout);
-		this.ariaMessageTimeout = setTimeout(()=> {
-			this.ariaMessage = "";
-		}, 10000);
 	}
 
 	/**
@@ -978,21 +945,14 @@ export default class MessageList extends Vue {
 
 	&.lightMode {
 		padding: 0;
-		.holder {
+		.messageHolder {
 			padding: 0;
 			overflow: hidden;
 		}
 	}
 
-	.ariaMessage {
-		position: absolute;
-		top: 0;
-		transform: translate(0, -10000px);
-		z-index: 100;
-	}
-
 	&:not(.alternateOdd) {
-		.holder {
+		.messageHolder {
 			// Not using background-color to avoid conflicting with actual message's BG.
 			// Could wrap all messages inside a div to avoid using ::before, dunno which
 			// solution has the best perfs...
@@ -1009,7 +969,7 @@ export default class MessageList extends Vue {
 		}
 	}
 	&.alternateOdd {
-		.holder {
+		.messageHolder {
 			// Not using background-color to avoid conflicting with actual message's BG.
 			// Could wrap all messages inside a div to avoid using ::before, dunno which
 			// solution has the best perfs...
@@ -1026,7 +986,7 @@ export default class MessageList extends Vue {
 		}
 	}
 
-	.holder {
+	.messageHolder {
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;

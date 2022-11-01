@@ -56,7 +56,7 @@ export default class ChatNotice extends Vue {
 			case TwitchatDataTypes.TwitchatNoticeType.OFFLINE:			this.icon = "leave"; break;
 			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
 		}
-		this.$emit("ariaMessage", this.message);
+		this.$store("accessibility").setAriaPolite(this.message);
 	}
 
 	public copyJSON():void {

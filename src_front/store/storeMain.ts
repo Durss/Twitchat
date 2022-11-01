@@ -36,6 +36,9 @@ export const storeMain = defineStore("main", {
 		cypherEnabled: false,
 		tempStoreValue: null,
 		confirmData:null,
+		accessibility:{
+			ariaPolite:"",
+		},
 		chatAlertParams: {
 			chatCmd:"!alert",
 			message:true,

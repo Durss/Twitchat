@@ -11,6 +11,7 @@ import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
 import App from './App.vue';
 import './less/index.less';
 import router from './router';
+import { storeAccessibility } from './store/accessibility/storeAccessibility';
 import { storeAccount } from './store/account/storeAccount';
 import { storeAuth } from './store/auth/storeAuth';
 import { storeAutomod } from './store/automod/storeAutomod';
@@ -129,27 +130,7 @@ const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width
 /**
  * Global helper to place a dropdown list
  */
-const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug") => {
-	// main
-	// account
-	// auth
-	// automod
-	// bingo
-	// chat
-	// chatSuggestion
-	// emergency
-	// music
-	// obs
-	// params
-	// poll
-	// prediction
-	// raffle
-	// stream
-	// timer
-	// triggers
-	// tts
-	// users
-	// voice
+const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility") => {
 	switch(id) {
 		case "main": return StoreProxy.main;
 		case "account": return StoreProxy.account;
@@ -172,6 +153,7 @@ const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSu
 		case "users": return StoreProxy.users;
 		case "voice": return StoreProxy.voice;
 		case "debug": return StoreProxy.debug;
+		case "accessibility": return StoreProxy.accessibility;
 	}
 }
 
@@ -225,6 +207,7 @@ StoreProxy.tts = storeTTS();
 StoreProxy.users = storeUsers();
 StoreProxy.voice = storeVoice();
 StoreProxy.debug = storeDebug();
+StoreProxy.accessibility = storeAccessibility();
 
 DataStore.init();
 

@@ -126,6 +126,9 @@
 		</Teleport>
 
 		<ChatAlertMessage />
+		
+		<Accessibility />
+
 		<div class="blinkLayer" ref="blinkLayer" v-if="showBlinkLayer" @click="showBlinkLayer=false"></div>
 	</div>
 </template>
@@ -171,6 +174,7 @@ import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsList
 import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
+import Accessibility from './Accessibility.vue';
 
 @Options({
 	components:{
@@ -190,7 +194,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 		DevmodeMenu,
 		RewardsList,
 		ActivityFeed,
-		ChatSuggestionForm,
+		Accessibility,
 		CommandHelper,
 		EmoteSelector,
 		PinedMessages,
@@ -199,6 +203,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 		StreamInfoForm,
 		VoiceTranscript,
 		ChatAlertMessage,
+		ChatSuggestionForm,
 		DataServerSyncModal,
 		ChannelNotifications,
 		EmergencyFollowsListModal,

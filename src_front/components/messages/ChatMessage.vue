@@ -208,7 +208,7 @@ export default class ChatMessage extends Vue {
 			if(this.channelInfo.is_moderator && highlightMods)			res.push("highlightMods");
 			else if(this.channelInfo.is_vip && highlightVips)			res.push("highlightVips");
 			else if(this.channelInfo.is_subscriber && 
-			!this.channelInfo.is_broadcaster && highlightSubs)	res.push("highlightSubs");
+			!this.channelInfo.is_broadcaster && highlightSubs)			res.push("highlightSubs");
 			if(spoilersEnabled && this.messageData.spoiler === true)	res.push("spoiler");
 		}
 
@@ -315,32 +315,33 @@ export default class ChatMessage extends Vue {
 		return badges;
 	}
 
+	public beforeUpdate() {
+		// console.log("Update message", this.messageData.message);
+	}
+
 	public beforeMount() {
+		// console.log("Create message");
 		this.currentUser	= this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, StoreProxy.auth.twitch.user.id);
 		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
-	}
 
-	/**
-	 * Called when component is mounted
-	 */
-	public mounted():void {
-		const mess = this.messageData;
+		const mess			= this.messageData;
+		const infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 		let highlightedWords:string[] = [];
 
 		if(mess.cyphered) {
-			this.infoBadges.push({type:"cyphered"});
+			infoBadges.push({type:"cyphered"});
 		}
 	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			this.infoBadges.push({type:"whisper"});
+			infoBadges.push({type:"whisper"});
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
-				this.infoBadges.push({type:"automod", tooltip:"<strong>Rule:</strong> "+mess.automod.label});
+				infoBadges.push({type:"automod", tooltip:"<strong>Rule:</strong> "+mess.automod.label});
 			}
 			//Manage twitch automod content
 			if(!this.lightMode && mess.twitch_automod) {
@@ -357,36 +358,39 @@ export default class ChatMessage extends Vue {
 			this.isReturning	= this.messageData.twitch_isReturning === true;
 			watchEffect(()=> {
 				if(mess.twitch_isSuspicious) {
-					this.infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
+					infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
 				}
 			})
 			if(mess.twitch_isRestricted) {
-				this.infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
+				infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
 			}
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
-		this.staticClasses = ["chatmessage"];
-		if(this.firstTime || this.isPresentation || this.isReturning)	this.staticClasses.push("hasHeader");
+
+		const staticClasses = ["chatmessage"];
+		if(this.firstTime || this.isPresentation || this.isReturning)	staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			this.staticClasses.push("whisper");
+			staticClasses.push("whisper");
 		}else {
-			if(this.messageData.twitch_isSlashMe)		this.staticClasses.push("slashMe");
-			if(this.messageData.twitch_isHighlighted)	this.staticClasses.push("highlighted");
+			if(this.messageData.twitch_isSlashMe)		staticClasses.push("slashMe");
+			if(this.messageData.twitch_isHighlighted)	staticClasses.push("highlighted");
 			if(this.messageData.type == "message"
-				&& this.messageData.hasMention)			this.staticClasses.push("mention");
+				&& this.messageData.hasMention)			staticClasses.push("mention");
 			if(this.isAnnouncement) {
 				const color = this.messageData.twitch_announcementColor!;
-				this.staticClasses.push("announcement", color);
+				staticClasses.push("announcement", color);
 			}
+		}
+
+		//If it's a whisper, display recipient
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			this.recipient = this.messageData.to;
 		}
 
 		//If it has a clip link, add clip card
 		let clipId = "";
 		let text = this.messageData.message_html;
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			this.recipient = this.messageData.to;
-		}
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/i);
 			clipId = matches? matches[1] : "";
@@ -410,19 +414,19 @@ export default class ChatMessage extends Vue {
 		}
 		
 
+		let txt = "";
 		if(this.$store("params").appearance.showEmotes.value !== true) {
-			this.text = this.messageData.message;
+			txt = this.messageData.message;
 		}else{
 			const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
-			this.text = this.messageData.message_html.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
+			txt = this.messageData.message_html.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		}
-		this.$emit("ariaMessage", this.messageData.message);
 		
 		if(highlightedWords.length > 0) {
 			for (let i = 0; i < highlightedWords.length; i++) {
 				let word = highlightedWords[i];
 				word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				this.text = this.text.replace(new RegExp("("+word+")", "gim"), "<span class='highlightedWord'>$1</span>");
+				txt = txt.replace(new RegExp("("+word+")", "gim"), "<span class='highlightedWord'>$1</span>");
 			}
 		}
 
@@ -430,6 +434,11 @@ export default class ChatMessage extends Vue {
 			await this.$nextTick();
 			gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
 		});
+
+		this.text = txt;
+		this.infoBadges = infoBadges;
+		this.staticClasses = staticClasses;
+		this.$store("accessibility").setAriaPolite(this.messageData.message);
 	}
 
 	/**
