@@ -66,9 +66,9 @@ export default class WhispersState extends Vue {
 
 	public mounted():void {
 		this.$store("chat").whispersUnreadCount = 0;
-		watch(() => this.$store("chat").whispers, () => {
-			this.$store("chat").whispersUnreadCount = 0;
-		}, {deep:true})
+		// watch(() => this.$store("chat").whispers, () => {
+		// 	this.$store("chat").whispersUnreadCount = 0;
+		// }, {deep:true})
 	}
 
 	public messageClasses(whisper:TwitchatDataTypes.MessageWhisperData):string[] {

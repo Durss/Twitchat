@@ -20,7 +20,7 @@ import GlobalEvent from '@/events/GlobalEvent'
 export const storeChat = defineStore('chat', {
 	state: () => ({
 		searchMessages: "",
-		realHistorySize: 5000,
+		realHistorySize: 200,
 		whispersUnreadCount: 0,
 		messages: [],
 		activityFeed: [],
@@ -302,6 +302,7 @@ export const storeChat = defineStore('chat', {
 			const sEmergency = StoreProxy.emergency;
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
+			const s = Date.now();
 
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT) {
 				this.messages = [];
@@ -328,12 +329,6 @@ export const storeChat = defineStore('chat', {
 			//make a copy to avoid triggering external watchers on temporary
 			//modifications
 			let messages = this.messages.concat();
-			
-			//Limit history size
-			const maxMessages = this.realHistorySize;
-			if(messages.length >= maxMessages) {
-				messages = messages.slice(-maxMessages);
-			}
 
 			//If it's a raid, save it so we can do an SO with dedicated streamdeck button
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.RAID) sStream.lastRaider = message.user;
@@ -341,7 +336,8 @@ export const storeChat = defineStore('chat', {
 
 			//If it's a subgift, merge it with potential previous ones
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
-				for (let i = 0; i < messages.length; i++) {
+				const len = Math.max(0, messages.length-20);//Only check within the last 20 messages
+				for (let i = messages.length-1; i > len; i--) {
 					const m = messages[i];
 					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
 					//If the message is a subgift from the same user and happened with the same tier
@@ -358,13 +354,13 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 
-			//Search in the last 50 messages if this message has already been sent
+			//Search in the last 30 messages if this message has already been sent
 			//If so, just increment the previous one
 			if(sParams.features.groupIdenticalMessage.value === true &&
 			(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
 				const len = messages.length;
-				const end = Math.max(0, len - 50);
+				const end = Math.max(0, len - 30);
 				for (let i = len-1; i > end; i--) {
 					const m = messages[i];
 					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
@@ -373,12 +369,13 @@ export const storeChat = defineStore('chat', {
 					&& message.message.toLowerCase() == m.message.toLowerCase()
 					&& message.type == m.type) {
 						if(!m.occurrenceCount) m.occurrenceCount = 0;
+						//Remove message
+						messages.splice(i, 1);
+						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						m.occurrenceCount ++;
 						//Update timestamp
 						m.date = Date.now();
 						//Bring it back to bottom
-						messages.splice(i, 1);
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						messages.push(m);
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
 						this.messages = messages;	
@@ -388,7 +385,6 @@ export const storeChat = defineStore('chat', {
 			}
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				message.user.channelInfo[message.channel_id].messageHistory.push(message);
 				//Reset ad schedule if necessary
 				if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
 					SchedulerHelper.instance.incrementMessageCount();
@@ -660,12 +656,32 @@ export const storeChat = defineStore('chat', {
 			//Special case for notice types
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && TwitchatDataTypes.ActivityFeedNoticeTypes.includes(message.noticeId))
 			) {
-				this.activityFeed.push(message);
+				const activityFeed = this.activityFeed.concat();
+				activityFeed.push(message);
+				this.activityFeed = activityFeed;
+			}
+			
+			//Limit history size
+			const maxMessages = this.realHistorySize;
+			let sliced = false;
+			if(messages.length >= maxMessages) {
+				// const firstMess = messages[0];
+				// if(firstMess.type == "message") {
+				// 	//Areduce memory leak risks
+				// 	firstMess.answers = [];
+				// 	delete firstMess.answersTo;
+				// }
+				messages = messages.slice(-maxMessages);
+				sliced = true;
 			}
 
 			messages.push( message );
+			// messages.push( Object.freeze(message) );
 			this.messages = messages;
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+			const e = Date.now();
+			console.log(messages.length, e-s);
+			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
 		},
 		
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 

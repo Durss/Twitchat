@@ -101,7 +101,7 @@ export const storeUsers = defineStore('users', {
 			if(id && hashmaps.idToUser[id])								user = hashmaps.idToUser[id];
 			if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
 			if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
-
+			// if(user) return user;
 			const userExisted = user != undefined;
 
 			if(!user) {
@@ -114,7 +114,7 @@ export const storeUsers = defineStore('users', {
 						login:login ?? "",
 						displayName:displayName ?? "",
 						greeted:false,
-						pronouns:undefined,
+						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						is_partner:false,
@@ -126,7 +126,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
-					user = reactive(userData);
+					user = userData;
 				}
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
@@ -138,7 +138,7 @@ export const storeUsers = defineStore('users', {
 						displayName:displayName??login??"",
 						greeted:false,
 						temporary:true,
-						pronouns:undefined,
+						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						is_partner:false,
@@ -150,7 +150,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
-					user = reactive(userData);
+					user = userData;
 				}
 			}
 			
@@ -160,12 +160,11 @@ export const storeUsers = defineStore('users', {
 			user = user!;
 
 			if(channelId) {
-				//Init channel data for this user
+				//Init channel data for this user if not already existing
 				if(!user.channelInfo[channelId]) {
 					user.channelInfo[channelId] = {
-						messageHistory:[],
 						online:false,
-						is_following:channelId == user.id? true : (forcedFollowState===true? true : null),
+						is_following:channelId == user.id || forcedFollowState===true? true : null,
 						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
@@ -183,8 +182,8 @@ export const storeUsers = defineStore('users', {
 			}
 			
 			if(!user.temporary) {
-				if(user.id && user.login) this.checkPronouns(user);
-				if(channelId && user.id) this.checkFollowerState(user, channelId);
+				if(user.id && user.login && user.pronouns == null) this.checkPronouns(user);
+				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
 				
 			if(!user.displayName) user.displayName = tmpDisplayName;
@@ -196,7 +195,7 @@ export const storeUsers = defineStore('users', {
 				return user;
 			}
 
-			if(platform == "twitch") {
+			if(platform == "twitch" && user.temporary) {
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
@@ -217,6 +216,8 @@ export const storeUsers = defineStore('users', {
 
 					let logins:string[]|undefined	= batchType == "login"? batch.map(v=>v.user.login) : undefined;
 					let ids:string[]|undefined		= batchType == "login"? undefined : batch.map(v=>v.user.id);
+
+					if((ids?.length == 0 || ids == undefined) && (logins?.length == 0 || logins == undefined)) return;
 
 					// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
 					
@@ -291,6 +292,8 @@ export const storeUsers = defineStore('users', {
 			if(user.id)				hashmaps.idToUser[user.id] = user;
 			if(user.login)			hashmaps.loginToUser[user.login] = user;
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
+
+			user = reactive(user);
 
 			this.users.push(user);
 

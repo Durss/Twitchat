@@ -76,6 +76,8 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';
+import GlobalEvent from '@/events/GlobalEvent';
+import EventBus from '@/events/EventBus';
 
 @Options({
 	props:{},
@@ -104,12 +106,12 @@ export default class NewUsers extends Vue {
 	private streakMode = true;
 	private mouseY = 0;
 	private highlightState:{[key:string]:boolean} = {};
-	private watcherDebounceTO:number = -1;
-	private watcherDebounceCount:number = -1;
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private deleteMessageHandler!:(e:GlobalEvent)=> void;
+	private addMessageHandler!:(e:GlobalEvent)=> void;
 
 	public get styles():{[key:string]:string} {
 		if(!this.showList) return {"min-height":"unset"};
@@ -142,19 +144,6 @@ export default class NewUsers extends Vue {
 			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.autoDeleteAfter);
 		});
 
-		//Called when new message is received
-		watch(()=>this.$store("chat").messages, ()=>{
-			//Make sure we don't call "onMessage()" potentially many times/frame
-			//if multiple messages are added/updates
-			if(++this.watcherDebounceCount < 20) {
-				clearTimeout(this.watcherDebounceTO);
-				this.watcherDebounceTO= setTimeout(()=> {
-					this.watcherDebounceCount = 0;
-					this.onMessage();
-				},100);
-			}
-		});
-
 		//Automatically deletes messages after the configured delay
 		this.deleteInterval = setInterval(()=> {
 			if(this.autoDeleteAfter == -1) return;
@@ -180,6 +169,8 @@ export default class NewUsers extends Vue {
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+		this.deleteMessageHandler = (e:GlobalEvent) => this.onDeleteMessage(e);
+		this.addMessageHandler = (e:GlobalEvent) => this.onAddMessage(e);
 		
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
@@ -187,6 +178,9 @@ export default class NewUsers extends Vue {
 		document.addEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
+		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
+		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+
 		this.renderFrame();
 	}
 
@@ -199,6 +193,8 @@ export default class NewUsers extends Vue {
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
+		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
+		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
 
 	/**
@@ -211,11 +207,9 @@ export default class NewUsers extends Vue {
 	/**
 	 * Called when a new message is received
 	 */
-	private async onMessage():Promise<void> {
+	private async onAddMessage(event:GlobalEvent):Promise<void> {
 		const maxLength = 100;
-		const list = this.$store("chat").messages;
-		const m = list[list.length - 1]; //TODO make sure we're not skipping messages. Is the watcher triggered for EVERY message or by batch?
-		
+		const m = (event.data as TwitchatDataTypes.ChatMessageTypes);
 		if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
 		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
@@ -232,6 +226,23 @@ export default class NewUsers extends Vue {
 		await this.$nextTick();
 		this.scrollTo();
 	}
+
+	/**
+	 * Called when a message is deleted
+	 */
+	private onDeleteMessage(e:GlobalEvent):void {
+		const message = e.data as TwitchatDataTypes.MessageChatData;
+		
+		//remove from displayed messages
+		for (let i = this.localMessages.length-1; i >= 0; i--) {
+			const m = this.localMessages[i];
+			if(m.id == message.id) {
+				this.localMessages.splice(i, 1);
+				break;
+			}
+		}
+	}
+
 
 	/**
 	 * Called when requesting an action from the public API

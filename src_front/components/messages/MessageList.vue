@@ -232,7 +232,6 @@ export default class MessageList extends Vue {
 
 	public get classes():string[] {
 		let res = ["messagelist"];
-		if(this.counter%2===0) res.push("alternateOdd");
 		if(this.lightMode) res.push("lightMode");
 		if(this.lockScroll) res.push("lockScroll");
 		return res;
@@ -756,17 +755,32 @@ export default class MessageList extends Vue {
 	private showNextPendingMessage(wheelOrigin = false):void {
 		if(this.pendingMessages.length == 0) return;
 		
-		let message!:TwitchatDataTypes.ChatMessageTypes;
-		do {
-			message = this.pendingMessages.shift()!;
-		}while(!this.shouldShowMessage(message))
-
-		this.filteredMessages.push( message );
-		if(this.filteredMessages.length > this.maxMessages) {
-			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
+		const prevCount = this.pendingMessages.length;
+		const prevItem = this.pendingMessages[0];
+		let message!:TwitchatDataTypes.ChatMessageTypes|undefined;
+		try {
+			do {
+				message = this.pendingMessages.shift();
+			}while(this.pendingMessages.length > 0 && !this.shouldShowMessage(message!))
+		}catch(error) {
+			console.log(error);
+			console.log(message);
+			console.log(prevCount);
+			console.log(prevItem);
 		}
-		this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
-		this.scrollToPrevMessage(wheelOrigin);
+
+		if(!message) {
+			if(this.pendingMessages.length > 0) {
+				this.showNextPendingMessage(wheelOrigin);
+			}
+		}else{
+			this.filteredMessages.push( message );
+			if(this.filteredMessages.length > this.maxMessages) {
+				this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
+			}
+			this.scrollToPrevMessage(wheelOrigin);
+		}
+
 	}
 
 	/**
@@ -780,11 +794,17 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 		const messRefs = el.querySelectorAll(".messageHolder>.message");
+		console.log(messRefs);
 		if(messRefs.length == 0) return;
 		const lastMessRef = messRefs[ messRefs.length - 1 ] as HTMLDivElement;
 
 		if(this.filteredMessages.length >= this.maxMessages) {
 			this.counter++;
+			if(this.counter%2 == 0) {
+				(this.$el as HTMLDivElement).classList.add("alternateOdd");
+			}else{
+				(this.$el as HTMLDivElement).classList.remove("alternateOdd");
+			}
 		}
 		
 		if(lastMessRef) {
@@ -798,7 +818,7 @@ export default class MessageList extends Vue {
 			}else{
 				const style = window.getComputedStyle(lastMessRef);
 				const margin = parseFloat(style.marginBottom);
-				this.virtualScrollY = maxScroll - (lastMessRef.offsetHeight + margin);
+				this.virtualScrollY = el.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
 

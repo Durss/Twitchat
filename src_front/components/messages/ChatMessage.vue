@@ -466,15 +466,12 @@ export default class ChatMessage extends Vue {
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
 		}else{
-			const messageBckp = this.channelInfo.messageHistory;
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
-			this.channelInfo.messageHistory = [];
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
 			Utils.copyToClipboard(JSON.stringify(this.messageData));
 			console.log(this.messageData);
-			this.channelInfo.messageHistory = messageBckp;
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
 		}

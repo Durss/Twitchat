@@ -560,7 +560,7 @@ export default class ChatForm extends Vue {
 			})
 			
 			this.spamInterval = window.setInterval(()=> {
-				let message = params[0]? params[0] : lorem.generateSentences(Math.round(Math.random()*2) + 1);
+				let message = params[0] ?? lorem.generateSentences(Math.round(Math.random()*2) + 1);
 				const mess:TwitchatDataTypes.MessageChatData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -592,6 +592,11 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/spamstop") {
 			clearInterval(this.spamInterval);
+			this.message = "";
+		}else
+
+		if(cmd == "/messagecount") {
+			console.log(this.$store("chat").messages.length);
 			this.message = "";
 		}else
 

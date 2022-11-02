@@ -1,34 +1,43 @@
 <template>
 	<div :class="classes">
-		<div class="messages" v-if="selectedUser">
-			<ChatMessage v-for="(m, index) in getMessageHistory(selectedUser)" :key="index"
-				:messageData="m"
-				:lightMode="true"
-				:disableConversation="true"
-				class="message" />
-		</div>
+		<h1 class="title"><img src="@/assets/icons/magnet.svg">Tracked users</h1>
 
-		<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
-		
-		<div class="users">
-			<div class="user"
-			v-for="u in trackedUsers"
-			:key="u.id">
-				<Button class="login"
-					@click="selectUser(u)"
-					:title="'('+getMessageHistory(u).length+') '+u.displayName"
-					bounce />
-				<Button :icon="$image('icons/cross_white.svg')"
-					class="deleteBt"
-					bounce highlight small
-				@click="untrackUser(u)" />
+		<div class="content">
+
+			<div v-if="selectedUser && messages.length == 0" class="noMessage">no message</div>
+
+			<div class="messages" v-else-if="selectedUser">
+				<ChatMessage v-for="(m, index) in messages" :key="index"
+					:messageData="m"
+					:lightMode="true"
+					:disableConversation="true"
+					class="message" />
 			</div>
+
+			<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
+			
+			<div class="users">
+				<div class="user"
+				v-for="u in trackedUsers"
+				:key="u.id">
+					<Button class="login"
+						@click="selectUser(u)"
+						:title="u.displayName"
+						:selected="selectedUser?.id == u.id"
+						bounce />
+					<Button :icon="$image('icons/cross_white.svg')"
+						class="deleteBt"
+						bounce highlight
+					@click="untrackUser(u)" />
+				</div>
+			</div>
+
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -43,18 +52,11 @@ import ChatMessage from '../messages/ChatMessage.vue';
 export default class TrackedUsers extends Vue {
 
 	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
+	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 
 	public get classes():string[] {
 		let res = ["trackedusers"];
 		return res;
-	}
-
-	public getMessageHistory(user:TwitchatDataTypes.TwitchatUser):TwitchatDataTypes.ChatMessageTypes[] {
-		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (const chan in user.channelInfo) {
-			list = list.concat(user.channelInfo[chan].messageHistory)
-		}
-		return list;
 	}
 
 	public get trackedUsers():TwitchatDataTypes.TwitchatUser[] {
@@ -68,6 +70,14 @@ export default class TrackedUsers extends Vue {
 
 	public selectUser(user:TwitchatDataTypes.TwitchatUser):void {
 		this.selectedUser = user;
+		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
+		const messages = this.$store("chat").messages;
+		for (let i = 0; i < messages.length; i++) {
+			const m = messages[i];
+			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			&& m.user.id == user.id) list.push(m);
+		}
+		this.messages = list;
 	}
 
 	public untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
@@ -79,81 +89,99 @@ export default class TrackedUsers extends Vue {
 
 <style scoped lang="less">
 .trackedusers{
-	display: flex;
-	flex-direction: row !important;
-	color: #fff;
 
-	.users {
+	.title {
+		color: @mainColor_light;
+		width: 100%;
+		text-align: center;
+		padding-bottom: 10px;
+		word-break: break-word;
+		img {
+			height: 20px;
+			margin-right: 10px;
+		}
+	}
+
+	.content {
+
 		display: flex;
-		flex-direction: column;
-		border-left: 1px solid #fff;
-		padding-left: 5px;
-		position: sticky;
-		top	: 0;
-		.user {
+		flex-direction: row !important;
+		color: #fff;
+		.users {
 			display: flex;
-			flex-direction: row;
+			flex-direction: column;
+			border-left: 1px solid #fff;
+			padding-left: 5px;
+			position: sticky;
+			top	: 0;
+			.user {
+				display: flex;
+				flex-direction: row;
+				margin-bottom: 1px;
+				width: 130px;
+				max-width: 130px;
+				.login {
+					color: #fff;
+					flex-grow: 1;
+					padding: 2px 5px;
+					transform-origin: left center;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+					:deep(.label) {
+						width: 80px;
+						font-size: 15px;
+						text-align: left;
+						text-overflow: ellipsis;
+						overflow: hidden;
+					}
+				}
+	
+				.deleteBt {
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+					padding: .1em;
+					:deep(.icon) {
+						height: .7em;
+						min-height: .7em;
+					}
+				}
+			}
+		}
+	
+		.selectInfo {
+			align-self: center;
+			font-style: italic;
+			opacity: 0.5;
+			padding-right: 5px;
+			flex-grow: 1;
+			text-align: right;
+		}
+	
+		.messages {
+			flex-grow: 1;
+			padding-right: 5px;
+			flex-grow: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+	
+			.message {
+				margin: .25em 0;
+			}
+		}
+		.noMessage {
+			flex-grow: 1;
+			align-self: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
 			align-items: center;
-			margin-bottom: 1px;
-			width: 130px;
-			max-width: 130px;
-			.login {
-				color: #fff;
-				flex-grow: 1;
-				padding: 2px 5px;
-				:deep(.label) {
-					width: 80px;
-					font-size: 15px;
-					text-align: left;
-					text-overflow: ellipsis;
-					overflow: hidden;
-				}
-			}
-
-			.deleteBt {
-				margin: auto;
-				padding: 2px;
-				height: 21px;
-				width: 21px;
-				min-height: 21px;
-				min-width: 21px;
-				flex-grow: 0;
-				:deep(.icon) {
-					height: 14px;
-					min-height: 14px;
-				}
-			}
+	
+			font-style: italic;
+			opacity: 0.5;
 		}
 	}
 
-	.selectInfo {
-		align-self: center;
-		font-style: italic;
-		opacity: 0.5;
-		padding-right: 5px;
-		flex-grow: 1;
-		text-align: right;
-	}
 
-	.messages {
-		padding-right: 5px;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-
-		:deep(.time) {
-			color: fade(#ffffff, 75%);
-			font-size: .8em;
-			vertical-align: middle;
-			display: inline-block;
-			margin-right: .7em;
-			font-variant-numeric: tabular-nums;
-		}
-
-		.message {
-			margin: .25em 0;
-		}
-	}
 }
 </style>

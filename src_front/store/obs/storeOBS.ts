@@ -40,6 +40,7 @@ export const storeOBS = defineStore('obs', {
 		},
 
 		handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):void {
+			if(!this.connectionEnabled) return;
 			if(!cmd) cmd = message.message.trim().split(" ")[0].toLowerCase();
 			if(cmd?.length < 2) return;
 

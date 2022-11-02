@@ -48,7 +48,7 @@ export default class CommunityBoostInfo extends Vue {
 	public mounted():void {
 		watch(()=>this.percent, () =>{
 			this.interpolate();
-		}, {deep:true});
+		});
 		this.interpolate();
 	}
 	public interpolate():void {

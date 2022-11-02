@@ -3,13 +3,13 @@
 		
 		<div class="content" v-if="trainData.state == 'APPROACHING'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
-			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>{{label}} train Approaching!</h1>
 		</div>
 		
 		<div class="content" v-if="trainData.state == 'COMPLETED'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
-			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
 				{{label}} train complete<br />
 				<span class="subtitle">Level <strong>{{completeLevel}}</strong> reached</span>
@@ -18,13 +18,13 @@
 		
 		<div class="content" v-if="trainData.state == 'EXPIRE'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
-			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>{{label}} train went away...</h1>
 		</div>
 		
 		<div class="content" v-if="trainProgress">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
-			<img src="@/assets/icons/boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>{{label}} train level {{trainData.level}}</h1>
 			<p class="percent">{{roundProgressPercent}}%</p>
 		</div>

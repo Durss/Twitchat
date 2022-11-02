@@ -454,7 +454,7 @@ export namespace TwitchatDataTypes {
 			state:boolean,
 			level:number,
 		};
-		pronouns:string|false|undefined;//undefined=no loaded yet; false=no pronouns found; string=pronouns loaded
+		pronouns:string|false|null;//undefined=no loaded yet; false=no pronouns found; string=pronouns loaded
 		pronounsLabel:string|false;
 		pronounsTooltip:string|false;
 		channelInfo:{[key:string]:UserChannelInfo},
@@ -474,7 +474,6 @@ export namespace TwitchatDataTypes {
 		is_gifter:boolean;
 		banEndDate?:number;
 		badges:TwitchatUserBadge[];
-		messageHistory:ChatMessageTypes[];
 	}
 
 	export interface TwitchatUserBadge {

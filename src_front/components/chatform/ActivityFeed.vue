@@ -200,7 +200,7 @@ export default class ActivityFeed extends Vue {
 
 		watch(()=>this.$store("chat").activityFeed, ()=> {
 			this.updateActivityFeed()
-		}, {deep:true});
+		});
 
 		this.updateActivityFeed();
 
