@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
 				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" :data-tooltip="onlineUsersTooltip" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="(e)=>updateOnlineUsersTooltip()" :data-tooltip="onlineUsersTooltip" />
 				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
@@ -290,6 +290,7 @@ export default class ChatForm extends Vue {
 	public autoCompleteCommands = false;
 	public spamInterval = 0;
 	public channelId:string = "";
+	public onlineUsersTooltip:string = "";
 	
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -325,28 +326,6 @@ export default class ChatForm extends Vue {
 
 	public get openAutoComplete():boolean {
 		return this.autoCompleteSearch.length > 1 || (this.autoCompleteCommands && this.autoCompleteSearch.length > 0);
-	}
-
-	public get onlineUsersTooltip():string {
-		let followCount = 0;
-		let onlineCount = 0;
-		const users = this.$store("users").users;
-		for (let i = 0; i < users.length; i++) {
-			const u = users[i];
-			
-			if(!u.channelInfo[this.channelId]) continue;
-			if(u.channelInfo[this.channelId].online === true) {
-				onlineCount ++;
-				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
-			}
-		}
-		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
-
-		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
-			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount;
-			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
-		}
-		return res;
 	}
 
 	public get whispersAvailable():boolean {
@@ -436,6 +415,37 @@ export default class ChatForm extends Vue {
 	
 	public toggleParams():void {
 		this.$store("main").setShowParams(!this.$store("main").showParams);
+	}
+
+	/**
+	 * Updates the tooltip displayed on user icon hover.
+	 * This could be replaced by a getter to avoid having to update
+	 * this manually at hover.
+	 * BUT, the "users" value of the "users" store is a getter refering
+	 * to a non-reactive array for performance reason. Because of this
+	 * if the method was a getter, its value wouldn't automatically be
+	 * updated when user list changes.
+	 */
+	public updateOnlineUsersTooltip():void {
+		let followCount = 0;
+		let onlineCount = 0;
+		const users = this.$store("users").users;
+		for (let i = 0; i < users.length; i++) {
+			const u = users[i];
+			
+			if(!u.channelInfo[this.channelId]) continue;
+			if(u.channelInfo[this.channelId].online === true) {
+				onlineCount ++;
+				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
+			}
+		}
+		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
+
+		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
+			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount;
+			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
+		}
+		this.onlineUsersTooltip = res;
 	}
 	
 	public async sendMessage(event:Event):Promise<void> {
@@ -585,7 +595,7 @@ export default class ChatForm extends Vue {
 					}
 				}
 				sChat.addMessage(mess);
-			}, 100);
+			}, 250);
 			this.message = "";
 			this.loading = false;
 		}else

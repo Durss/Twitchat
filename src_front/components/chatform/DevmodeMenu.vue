@@ -44,9 +44,9 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PubSub from '@/utils/twitch/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
+import { reactive } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import { LoremIpsum } from 'lorem-ipsum';
 
 @Options({
 	props:{},
@@ -100,7 +100,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
-		this.$store("debug").simulateMessage(type, (message)=> {
+		this.$store("debug").simulateMessage(type, async (message)=> {
 			switch(subAction) {
 				case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
 				case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
@@ -108,14 +108,15 @@ export default class DevmodeMenu extends Vue {
 				case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "gift":{
-					const recipients:TwitchatDataTypes.TwitchatUser[] = [];
-					const count = Math.round(Math.random() * 50) + 1;
+					const recipients:TwitchatDataTypes.TwitchatUser[] = reactive([]);
+					const count = Math.round(Math.random() * 10) + 1;
 					const m = (message as TwitchatDataTypes.MessageSubscriptionData);
-					for (let i = 0; i < count; i++) {
-						recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString()))
-					}
 					m.gift_recipients = recipients;
 					m.is_gift = true;
+						for (let i = 0; i < count; i++) {
+							recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
+							await Utils.promisedTimeout(150);
+						}
 					break;
 				}
 			}

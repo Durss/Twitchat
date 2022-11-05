@@ -5,47 +5,41 @@
 	@wheel="onMouseWheel"
 	@touchmove="onTouchMove">
 
-		<div class="messageHolder" ref="chatMessageHolder" :style="holderStyles">
-			<template v-for="m in filteredMessages" :key="m.id">
+		<div class="messageHolder" ref="chatMessageHolder">
+			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_'+m.id">
 				<ChatAd class="message"
 					v-if="m.type == 'twitchat_ad' && !lightMode"
-					:ref="'message_'+m.id"
 					@showModal="(v:string)=>$emit('showModal', v)"
 					:messageData="m"/>
 
 				<ChatJoinLeave class="message"
 					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
-					:ref="'message_'+m.id"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatConnect class="message"
 					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
-					:ref="'message_'+m.id"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatMessage
 					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					:ref="'message_'+m.id"
 					class="message"
 					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
-					@onMouseOut="onLeaveMessage"
+					@mouseleave="onLeaveMessage"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 					
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatPollResult
 					v-else-if="m.type == 'poll'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
@@ -59,48 +53,42 @@
 
 				<ChatBingoResult
 					v-else-if="m.type == 'bingo'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatRaffleResult
 					v-else-if="m.type == 'raffle'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
 				<ChatCountdownResult
 					v-else-if="m.type == 'countdown'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatHypeTrainResult
 					v-else-if="m.type == 'hype_train_summary'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatFollowbotEvents
 					v-else-if="m.type == 'followbot_list'"
-					:ref="'message_'+m.id"
 					class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
 				<ChatHighlight
 					v-else
-					:ref="'message_'+m.id"
 					class="message"
 					lightMode
 					@onRead="toggleMarkRead"
 					:messageData="m"/>
 
-			</template>
+			</div>
 
 		</div>
 		
@@ -237,12 +225,12 @@ export default class MessageList extends Vue {
 		return res;
 	}
 
-	public get holderStyles():StyleValue {
-		if(this.holderOffsetY == 0) return {};
-		return {
-			transform:"translateY(calc("+this.holderOffsetY+"px - .25em))",
-		};
-	}
+	// public get holderStyles():StyleValue {
+	// 	if(this.holderOffsetY == 0) return {};
+	// 	return {
+	// 		transform:"translateY(calc("+this.holderOffsetY+"px - .25em))",
+	// 	};
+	// }
 
 	public get conversationStyles():StyleValue {
 		return { top: this.conversationPos+"px" }
@@ -277,8 +265,8 @@ export default class MessageList extends Vue {
 
 		//Listen for specific params change.
 		//If one is updated, the chat is completely rebuilt.
-		watch(()=>this.$store("params").filters, ()=> this.fulllListRefresh(), {deep:true});
-		watch(()=>this.$store("params").features.notifyJoinLeave.value, ()=> this.fulllListRefresh());
+		watch(()=>this.$store("params").filters, ()=> this.fullListRefresh(), {deep:true});
+		watch(()=>this.$store("params").features.notifyJoinLeave.value, ()=> this.fullListRefresh());
 		
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
@@ -294,7 +282,7 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 
-		this.fulllListRefresh();
+		this.fullListRefresh();
 
 		this.prevTs = Date.now() - 1000/60;
 		this.renderFrame(Date.now());
@@ -359,7 +347,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Cleans up all messages and rebuild the list
 	 */
-	private fulllListRefresh():void {
+	private fullListRefresh():void {
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async ()=> {
 			this.pendingMessages = [];
@@ -524,17 +512,18 @@ export default class MessageList extends Vue {
 	 * Called when a message is add
 	 */
 	private onAddMessage(e:GlobalEvent):void {
-		const el = this.$refs.chatMessageHolder as HTMLDivElement;
-		const maxScroll = (el.scrollHeight - el.offsetHeight);
+		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
+		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
+		if(!this.shouldShowMessage(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
 		//add the new messages to the pending list
-		const chatPaused = this.lockScroll || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
+		const chatPaused = this.lockScroll;// || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
 		if(chatPaused) {
 			this.pendingMessages.push(m);
 		}else{
-			let list = this.filteredMessages;
+			let list = this.filteredMessages.concat();
 			list.push(m);
 			list = list.slice(-this.maxMessages);
 			this.filteredMessages = list;
@@ -547,6 +536,8 @@ export default class MessageList extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e:GlobalEvent):void {
+		if(this.$store("params").filters.keepDeletedMessages.value === true) return;
+
 		const message = e.data as TwitchatDataTypes.MessageChatData;
 		
 		//remove from displayed messages
@@ -623,7 +614,7 @@ export default class MessageList extends Vue {
 	 * Catch up all pending messages
 	 */
 	public async unPause():Promise<void> {
-		this.fulllListRefresh();
+		this.fullListRefresh();
 
 		gsap.to(this.$refs.locked as HTMLDivElement, {duration:.2, height:0, scaleY:0, ease:"ease.in", onComplete:()=> {
 			this.lockScroll = false;
@@ -667,7 +658,7 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Scrol chat on mobile
+	 * Scroll chat on mobile
 	 */
 	public onTouchMove(event:TouchEvent):void {
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
@@ -697,10 +688,12 @@ export default class MessageList extends Vue {
 
 		const h			= el.offsetHeight;
 		const maxScroll	= (el.scrollHeight - h);
-		const lastMess	= (this.$refs["message_"+this.filteredMessages[this.filteredMessages.length-1].id] as Vue[])[0];
+		const lastMess	= (this.$refs["message_"+this.filteredMessages[this.filteredMessages.length-1].id] as HTMLDivElement[])[0];
+		// const lastMess = el.children[el.children.length-1] as HTMLDivElement;
 		if(!lastMess) return;//No message yet, just stop here
 
-		const bottom = lastMess.$el.offsetTop + lastMess.$el.offsetHeight;
+		// const bottom = lastMess.$el.offsetTop + lastMess.$el.offsetHeight;
+		const bottom = lastMess.offsetTop + lastMess.offsetHeight;
 
 		let ease = .2;
 		if(!this.lockScroll) {
@@ -724,21 +717,19 @@ export default class MessageList extends Vue {
 		
 		//If messages height is smaller than the holder height, move the holder to the bottom
 		if(bottom < h) {
-			let py = this.holderOffsetY;
-			//Init to bottom
-			if(this.holderOffsetY == -1) py = h - bottom;
-			//No easing holder is higher than visible height
-			if(py == 0) ease = 1;
-			//Ease position
-			py += (h - bottom - py) * ease * timeScale;
-			//If position close to end pos, round it to expected pos
-			if(Math.abs(h - bottom - py) < 2) {
-				py = h - bottom;
+			// console.log(bottom, h);
+			if(this.holderOffsetY == 0) ease = 1;
+			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease;
+			if(Math.abs(h - bottom - this.holderOffsetY) < 2) {
+				this.holderOffsetY = h - bottom;
 			}
-			this.holderOffsetY = py;
+			
+			el.style.transform = "translateY(calc("+this.holderOffsetY+"px - .25em))";
 		}else if(this.holderOffsetY != 0) {
 			this.holderOffsetY = 0;
+			el.style.transform = "translateY(calc("+this.holderOffsetY+"px - .25em))";
 		}
+
 
 		//Show next pending message if at the bottom and scroll isn't locked
 		if(this.virtualScrollY >= maxScroll-1
@@ -746,7 +737,6 @@ export default class MessageList extends Vue {
 		&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
 		}
-		
 	}
 
 	/**
@@ -793,8 +783,7 @@ export default class MessageList extends Vue {
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
-		const messRefs = el.querySelectorAll(".messageHolder>.message");
-		console.log(messRefs);
+		const messRefs = el.querySelectorAll(".messageHolder>.subHolder");
 		if(messRefs.length == 0) return;
 		const lastMessRef = messRefs[ messRefs.length - 1 ] as HTMLDivElement;
 
@@ -818,6 +807,7 @@ export default class MessageList extends Vue {
 			}else{
 				const style = window.getComputedStyle(lastMessRef);
 				const margin = parseFloat(style.marginBottom);
+				// this.virtualScrollY = maxScroll - (lastMessRef.offsetHeight + margin);
 				this.virtualScrollY = el.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
@@ -853,7 +843,6 @@ export default class MessageList extends Vue {
 			this.conversation = m.answersTo.answers.concat();
 			this.conversation.unshift( m.answersTo );
 		}
-		await this.$nextTick();
 		this.openConversationHolder(m);
 	}
 
@@ -877,7 +866,6 @@ export default class MessageList extends Vue {
 			}
 			this.conversation = messageList;
 	
-			await this.$nextTick();
 			this.openConversationHolder(m);
 		}, 350)
 	}
@@ -886,10 +874,12 @@ export default class MessageList extends Vue {
 	 * Opens up the conversation holder.
 	 * Call this after making sure the messages are rendered
 	 */
-	private openConversationHolder(m:TwitchatDataTypes.MessageChatData):void {
+	private async openConversationHolder(m:TwitchatDataTypes.MessageChatData):Promise<void> {
+		if(this.conversation.length == 0) return;
+		await this.$nextTick();
 		clearTimeout(this.closeConvTimeout);
-		const messageHolder			= (this.$refs["message_"+m.id] as Vue[])[0];
-		const messageBounds			= (messageHolder.$el as HTMLDivElement).getBoundingClientRect();
+		const messageHolder			= (this.$refs["message_"+m.id] as HTMLDivElement[])[0];
+		const messageBounds			= messageHolder.getBoundingClientRect();
 		const chatMessagesHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
 		const conversationHolder	= this.$refs.conversationHolder as HTMLDivElement;
 		const convMessagesholder	= this.$refs.conversationMessages as HTMLDivElement;
@@ -973,34 +963,14 @@ export default class MessageList extends Vue {
 
 	&:not(.alternateOdd) {
 		.messageHolder {
-			// Not using background-color to avoid conflicting with actual message's BG.
-			// Could wrap all messages inside a div to avoid using ::before, dunno which
-			// solution has the best perfs...
-			.message:nth-child(odd)::before {
-				content: "";
-				z-index: 1;
-				position: absolute;
-				top:0;
-				left:0;
-				width: 100%;
-				height: 100%;
+			.subHolder:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
 			}
 		}
 	}
 	&.alternateOdd {
 		.messageHolder {
-			// Not using background-color to avoid conflicting with actual message's BG.
-			// Could wrap all messages inside a div to avoid using ::before, dunno which
-			// solution has the best perfs...
-			.message:nth-child(even)::before {
-				content: "";
-				z-index: 1;
-				position: absolute;
-				top:0;
-				left:0;
-				width: 100%;
-				height: 100%;
+			.subHolder:nth-child(even) {
 				background-color: rgba(255, 255, 255, .025);
 			}
 		}
@@ -1010,21 +980,13 @@ export default class MessageList extends Vue {
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
-		.message {
+		.subHolder {
 			position: relative;
-			// Not using background-color to avoid conflicting with actual message's BG.
-			// Could wrap all messages inside a div to avoid using ::before, dunno which
-			// solution has the best perfs...
-			&:hover::before {
-				content: "";
-				pointer-events: none;
-				z-index: 1;
-				position: absolute;
-				top:0;
-				left:0;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(255, 255, 255, .2) !important;
+			.message {
+				position: relative;
+				&:hover{
+					background-color: rgba(255, 255, 255, .2);
+				}
 			}
 		}
 

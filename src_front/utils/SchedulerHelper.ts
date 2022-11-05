@@ -11,7 +11,7 @@ export default class SchedulerHelper {
 
 	private static _instance:SchedulerHelper;
 	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
-	private _frameIndex:number = 0;
+	private _prevExecute_ts:number = 0;
 	private _adSchedule?:TriggerScheduleData;
 	private _adScheduleTimeout?:number;
 	
@@ -189,9 +189,12 @@ export default class SchedulerHelper {
 		//pending intervals would be fired at once when bringing the tab
 		//back to foreground. With a requestAnimationFrame() the process
 		//is slowed down to 1 fps and tasks still executed in background
-		if(this._frameIndex++ < 60) return;
-		this._frameIndex = 0;
+		if(Date.now() - this._prevExecute_ts < 5000) return;
+		this._prevExecute_ts = Date.now();
+
+		// const s = Date.now();
 		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
+		// console.log("1 > ", Date.now() - s);
 
 		for (let i = 0; i < this._pendingTriggers.length; i++) {
 			const e = this._pendingTriggers[i];
@@ -199,7 +202,8 @@ export default class SchedulerHelper {
 			let schedule = trigger?.scheduleParams;
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
-				if(StoreProxy.auth.twitch.user.donor.state && !StoreProxy.chat.botMessages.twitchatAd.enabled) return;
+				if(StoreProxy.auth.twitch.user.donor.state
+				&& !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
 				schedule = this._adSchedule;
 			}
 			if(!schedule) continue;
@@ -242,5 +246,6 @@ export default class SchedulerHelper {
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}
+		// console.log("2 > ", Date.now() - s);
 	}
 }

@@ -296,7 +296,7 @@ export default class Chat extends Vue {
 		if(this.splitViewVertical) {
 			const value = `calc(${size*this.availHeight}px - 14px)`;
 			return {
-				"top":switchCols? "0" : (this.availHeight*(1-size)+14)+"px",
+				// "top":switchCols? "0" : (this.availHeight*(1-size)+14)+"px",
 				"height": value,
 				"min-height": value,
 				"max-height": value,
@@ -731,6 +731,7 @@ export default class Chat extends Vue {
 		.top {
 			display: flex;
 			flex-direction: row;
+			position: relative;
 
 			.leftColumn {
 				width: 50%;
@@ -742,6 +743,7 @@ export default class Chat extends Vue {
 				display: flex;
 				flex-direction: column;
 				flex-grow: 1;
+				position: relative;
 	
 				.newUsers {
 					right: 0;

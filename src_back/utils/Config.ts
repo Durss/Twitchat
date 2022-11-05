@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 import { LogStyle } from "../utils/Logger";
 /**
  * Created by Durss
@@ -75,15 +76,15 @@ export default class Config {
 
 	public static get PUBLIC_ROOT(): string {
 		return this.getEnvData({
-			dev: __dirname+"/../../dist/",
-			prod: __dirname+"/../../public/",
+			dev: path.join(__dirname, "/../../dist/"),
+			prod: path.join(__dirname, "/../../public/"),
 		});
 	}
 
 	public static get USER_DATA_PATH(): string {
 		return this.getEnvData({
-			dev: __dirname+"/../../userData/",
-			prod: __dirname+"/../../userData/",
+			dev: path.join(__dirname, "/../../userData/"),
+			prod: path.join(__dirname, "/../../userData/"),
 		});
 	}
 

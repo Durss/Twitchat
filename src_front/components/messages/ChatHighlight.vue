@@ -57,6 +57,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfos from './components/ChatMessageInfos.vue';
@@ -164,7 +165,7 @@ export default class ChatHighlight extends Vue {
 					this.icon = this.$image('icons/gift.svg');
 					value = this.messageData.tier;
 					this.user = this.messageData.user;
-					if(this.messageData.gift_recipients && this.messageData.gift_recipients.length > 0) {
+					if(this.messageData.gift_recipients) {
 						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
 						// const recipientsStr = `<strong>${users.map(v=>v.displayName).join("</strong>, <strong>")}</strong>`;
 						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to`;// ${recipientsStr}`;
@@ -277,8 +278,14 @@ export default class ChatHighlight extends Vue {
 				}
 				break;
 			}
-
 		}
+			watch(()=>this.messageData, (v)=>{
+				console.log("MESSAGE UPDATE", v);
+			}, {deep:true})
+	}
+
+	public beforeUpdate(): void {
+		console.log("UPDATE", this.messageData);
 	}
 
 

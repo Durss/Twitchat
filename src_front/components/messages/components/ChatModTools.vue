@@ -39,6 +39,9 @@ import Button from '../../Button.vue';
 	},
 	emits:["deleteMessage", "deleteUser"]
 })
+/**
+ * TODO replace <Button> to simplement native <button> elements
+ */
 export default class ChatModTools extends Vue {
 	
 	public canDelete!:boolean;

@@ -152,7 +152,7 @@ export default class TwitchUtils {
 							sd: v.image_url_1x,
 							hd: v.image_url_4x,
 						},
-						id: s.set_id,
+						id: s.set_id as TwitchatDataTypes.TwitchatUserBadgeType,
 						title,
 					};
 				}
@@ -194,7 +194,7 @@ export default class TwitchUtils {
 							sd: v.image_url_1x,
 							hd: v.image_url_4x,
 						},
-						id: s.set_id,
+						id: s.set_id as TwitchatDataTypes.TwitchatUserBadgeType,
 						title,
 					};
 				}
@@ -221,7 +221,7 @@ export default class TwitchUtils {
 			for (let i = 0; i < caches.length; i++) {
 				const cache = caches[i];
 				if(!cache) continue;
-				if(setID_done[setID] === true) continue;//Badge already added. "subscriber" badge can be both on channel adn global caches
+				if(setID_done[setID] === true) continue;//Badge already added. "subscriber" badge can be both on channel and global caches
 				if(!cache[setID]) continue;
 				if(!cache[setID][version]) continue;
 				setID_done[setID] = true;
@@ -847,6 +847,8 @@ export default class TwitchUtils {
 			}
 		}while(sets.length > 0);
 
+		const uid2User:{[key:string]:TwitchatDataTypes.TwitchatUser} = {};//Avoid spamming store
+		
 		//Convert to twitchat's format
 		emotes = emotesTwitch
 		.filter(v=>v.owner_id != "twitch")//remove lots of useless emotes like ":p", ":o", ":-)", etc..
@@ -876,7 +878,8 @@ export default class TwitchUtils {
 					channelInfo:{},
 				}
 			}else{
-				owner = StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id)
+				owner = uid2User[e.owner_id] ?? StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id)
+				uid2User[e.owner_id] = owner;
 			}
 			return {
 				id: e.id,

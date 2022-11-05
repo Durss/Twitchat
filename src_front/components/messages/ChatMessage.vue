@@ -1,7 +1,5 @@
 <template>
 	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
-	@mouseleave="onMouseLeave"
-	@mouseenter="onMouseEnter"
 	@click="$emit('onRead', messageData, $event)"
 	>
 		<div v-if="firstTime" class="header">
@@ -101,9 +99,7 @@
 			/>
 		</div>
 
-		<KeepAlive>
-			<ChatMessageHoverActions v-if="showTools" class="hoverActions" :messageData="messageData" />
-		</KeepAlive>
+		<ChatMessageHoverActions class="hoverActions" :messageData="messageData" />
 	</div>
 
 </template>
@@ -148,7 +144,6 @@ export default class ChatMessage extends Vue {
 	public disableConversation!:boolean;
 	public enableWordHighlight!:boolean;
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
-	public currentUser!:TwitchatDataTypes.TwitchatUser;
 	
 	public text = "";
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
@@ -200,11 +195,15 @@ export default class ChatMessage extends Vue {
 
 		if(this.automodReasons)					res.push("automod");
 		if(this.channelInfo.is_blocked)			res.push("blockedUser");
+		if(this.disableConversation !== false)	res.push("disableConversation");
 		if(!this.lightMode && message.cyphered)	res.push("cyphered");
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
 
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(message.deleted && censorDeletedMessages)				res.push("censor");
+			if(message.deleted)	{
+				res.push("deleted");
+				if(censorDeletedMessages) res.push("censor");
+			}
 			if(this.channelInfo.is_moderator && highlightMods)			res.push("highlightMods");
 			else if(this.channelInfo.is_vip && highlightVips)			res.push("highlightVips");
 			else if(this.channelInfo.is_subscriber && 
@@ -321,7 +320,6 @@ export default class ChatMessage extends Vue {
 
 	public beforeMount() {
 		// console.log("Create message");
-		this.currentUser	= this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, StoreProxy.auth.twitch.user.id);
 		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
 
@@ -576,7 +574,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	&.deleted {
-		opacity: .25;
+		opacity: .35;
 		transition: opacity .2s;
 		&.censor {
 			.message {
@@ -917,7 +915,7 @@ export default class ChatMessage extends Vue {
 
 	.hoverActions {
 		position: absolute;
-		// visibility: hidden;
+		visibility: hidden;
 		z-index: 1;
 		top: 0;
 		right: 0;
@@ -928,6 +926,12 @@ export default class ChatMessage extends Vue {
 		align-items: flex-end;
 		justify-content: space-around;
 		flex-wrap: wrap;
+	}
+
+	&:hover:not(.disableConversation) {
+		.hoverActions {
+			visibility: visible !important;
+		}
 	}
 	
 }

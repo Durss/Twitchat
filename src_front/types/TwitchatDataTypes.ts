@@ -476,9 +476,11 @@ export namespace TwitchatDataTypes {
 		badges:TwitchatUserBadge[];
 	}
 
+	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
+
 	export interface TwitchatUserBadge {
 		icon:TwitchatImage;
-		id:string;
+		id:TwitchatUserBadgeType;
 		title?:string;
 	}	
 

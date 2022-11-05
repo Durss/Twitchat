@@ -151,8 +151,6 @@ export interface IChatState {
 	searchMessages:string;
 	realHistorySize:number;
 	whispersUnreadCount:number;
-	messages:TwitchatDataTypes.ChatMessageTypes[];
-	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
 	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[],
 	whispers:{[key:string]:TwitchatDataTypes.MessageWhisperData[]};
@@ -164,6 +162,8 @@ export interface IChatState {
 }
 
 export interface IChatGetters {
+	messages:TwitchatDataTypes.ChatMessageTypes[];
+	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 }
 
 export interface IChatActions {
@@ -416,7 +416,6 @@ export interface ITTSActions {
 
 
 export interface IUsersState {
-	users: TwitchatDataTypes.TwitchatUser[];
 	userCard: {
 		user:TwitchatDataTypes.TwitchatUser|null,
 		channelId?:string,
@@ -427,6 +426,7 @@ export interface IUsersState {
 }
 
 export interface IUsersGetters {
+	users:TwitchatDataTypes.TwitchatUser[];
 }
 
 export interface IUsersActions {

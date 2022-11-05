@@ -249,6 +249,59 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			switch(cmd) {
+				case "/testsub": {
+					const data = this.getCommonSubObject("#durss", {
+						"badge-info": {
+							"subscriber": "0"
+						},
+						"badges": {
+							"subscriber": "0",
+							"premium": "1"
+						},
+						"color": "#1690F3",
+						"display-name": "Durssbot",
+						"emotes": {},
+						"flags": "",
+						"id": "639779e0-37b0-4e31-9045-2ee8f21f0b34",
+						"login": "Durssbot",
+						"mod": false,
+						"msg-id": "subgift",
+						"msg-param-recipient-display-name": "Xxx",
+						"msg-param-recipient-id": "452550058",
+						"msg-param-recipient-user-name": "xxx",
+						"msg-param-cumulative-months": true,
+						"msg-param-months": false,
+						"msg-param-multimonth-duration": false,
+						"msg-param-multimonth-tenure": false,
+						"msg-param-should-share-streak": false,
+						"msg-param-sub-plan-name": "Be a Little Whale !",
+						"msg-param-sub-plan": "Prime",
+						"msg-param-was-gifted": "false",
+						"room-id": "29961813",
+						"subscriber": true,
+						"system-msg": "Durssbot subscribed with Prime.",
+						"tmi-sent-ts": "1642377377050",
+						"user-id": "647389082",
+						"user-type": "",
+						"emotes-raw": "",
+						"badge-info-raw": "subscriber/0",
+						"badges-raw": "subscriber/0,premium/1",
+					},  {
+						"prime": true,
+						"plan": "Prime",
+						"planName": "Be a Little Whale !"
+					}, "coucou");
+					data.is_gift = true;
+					for (let i = 0; i < 20; i++) {
+						const d = JSON.parse(JSON.stringify(data));
+						d.date = Date.now();
+						d.id = Utils.getUUID();
+						d.gift_recipients = [Utils.pickRand(StoreProxy.users.users)];
+						this.dispatchEvent(new MessengerClientEvent("SUB", d));
+						await Utils.promisedTimeout(100);
+					}
+					return true;
+				}
 				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0], channelId);
@@ -516,11 +569,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message,
 			answers:[],
 			message_html:"",
-			todayFirst:user.greeted===false,
 		};
 
-		//TODO reload greeted state from cache on load
-		user.greeted = true;
 		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, fromQueue);
 				
 		// If message is an answer, set original message's ref to the answer

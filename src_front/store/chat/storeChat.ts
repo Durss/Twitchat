@@ -12,18 +12,20 @@ import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest'
-import type { UnwrapRef } from 'vue'
+import { reactive, type UnwrapRef } from 'vue'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 import EventBus from '@/events/EventBus'
 import GlobalEvent from '@/events/GlobalEvent'
 
+//Don't make this reactive, it kills performances on the long run
+let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
+let activityFeedList:TwitchatDataTypes.ChatMessageTypes[] = [];
+
 export const storeChat = defineStore('chat', {
 	state: () => ({
 		searchMessages: "",
-		realHistorySize: 200,
+		realHistorySize: 5000,
 		whispersUnreadCount: 0,
-		messages: [],
-		activityFeed: [],
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
@@ -240,9 +242,9 @@ export const storeChat = defineStore('chat', {
 
 
 	getters: {
-	} as IChatGetters
-	& ThisType<UnwrapRef<IChatState> & _StoreWithGetters<IChatGetters> & PiniaCustomProperties>
-	& _GettersTree<IChatState>,
+		messages():TwitchatDataTypes.ChatMessageTypes[] { return messageList; },
+		activityFeed():TwitchatDataTypes.ChatMessageTypes[] { return activityFeedList; },
+	},
 
 
 
@@ -278,15 +280,13 @@ export const storeChat = defineStore('chat', {
 				if(adType == -1) return;
 			}
 
-			const list = this.messages.concat();
-			list .push( {
+			messageList .push( {
 				platform:"twitch",
 				id:Utils.getUUID(),
 				date:Date.now(),
 				type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 				adType,
 			} );
-			this.messages = list;
 		},
 
 		
@@ -304,31 +304,58 @@ export const storeChat = defineStore('chat', {
 			const sVoice = StoreProxy.voice;
 			const s = Date.now();
 
+			message = reactive(message);
+
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT) {
-				this.messages = [];
+				messageList = [];
 				return;
 			}
-			
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-				//TODO sending a whisper increments the unread count and creates a conversation with ourself, fix that
-				if(!this.whispers[message.user.id]) this.whispers[message.user.id] = [];
-				this.whispers[message.user.id].push(message);
-				this.whispersUnreadCount ++;
-				//TODO Broadcast to OBS-ws
-				// const wsUser = {
-				// 	id: data.tags['user-id'],
-				// 	login: data.tags.username,
-				// 	color: data.tags.color,
-				// 	badges: data.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
-				// 	'display-name': data.tags['display-name'],
-				// 	'message-id': data.tags['message-id'],
-				// }
-				// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-			}
 
-			//make a copy to avoid triggering external watchers on temporary
-			//modifications
-			let messages = this.messages.concat();
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+					//TODO sending a whisper increments the unread count and creates a conversation with ourself, fix that
+					if(!this.whispers[message.user.id]) this.whispers[message.user.id] = [];
+					this.whispers[message.user.id].push(message);
+					this.whispersUnreadCount ++;
+					//TODO Broadcast to OBS-ws
+					// const wsUser = {
+					// 	id: data.tags['user-id'],
+					// 	login: data.tags.username,
+					// 	color: data.tags.color,
+					// 	badges: data.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
+					// 	'display-name': data.tags['display-name'],
+					// 	'message-id': data.tags['message-id'],
+					// }
+					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+				}else if(message.user.greeted !== true) {
+					message.todayFirst = true;
+					message.user.greeted = true;
+				}
+				
+				//TODO reload greeted state from cache on load
+				
+				// todayFirst:user.greeted===false,
+				//Check if the message contains a mention
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& StoreProxy.params.appearance.highlightMentions.value === true) {
+					const login = StoreProxy.auth.twitch.user.login;
+					message.hasMention = login != null
+										&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
+										.test(message.message ?? "");
+					if(message.hasMention) {
+						message.highlightWord = login;
+					}
+				}
+
+				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
+				if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
+					const original = message.message;
+					message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
+					message.cyphered = message.message != original;
+				}
+			}
 
 			//If it's a raid, save it so we can do an SO with dedicated streamdeck button
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.RAID) sStream.lastRaider = message.user;
@@ -336,9 +363,9 @@ export const storeChat = defineStore('chat', {
 
 			//If it's a subgift, merge it with potential previous ones
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
-				const len = Math.max(0, messages.length-20);//Only check within the last 20 messages
-				for (let i = messages.length-1; i > len; i--) {
-					const m = messages[i];
+				const len = Math.max(0, messageList.length-20);//Only check within the last 20 messages
+				for (let i = messageList.length-1; i > len; i--) {
+					const m = messageList[i];
 					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
 					//If the message is a subgift from the same user and happened with the same tier
 					//in the last 5s, merge it.
@@ -359,10 +386,10 @@ export const storeChat = defineStore('chat', {
 			if(sParams.features.groupIdenticalMessage.value === true &&
 			(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
-				const len = messages.length;
+				const len = messageList.length;
 				const end = Math.max(0, len - 30);
 				for (let i = len-1; i > end; i--) {
-					const m = messages[i];
+					const m = messageList[i];
 					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
 					if(m.user.id == message.user.id
 					&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
@@ -370,15 +397,15 @@ export const storeChat = defineStore('chat', {
 					&& message.type == m.type) {
 						if(!m.occurrenceCount) m.occurrenceCount = 0;
 						//Remove message
-						messages.splice(i, 1);
+						messageList.splice(i, 1);
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						m.occurrenceCount ++;
 						//Update timestamp
 						m.date = Date.now();
 						//Bring it back to bottom
-						messages.push(m);
+						messageList.push(m);
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
-						this.messages = messages;	
+						messageList = messageList;	
 						return;
 					}
 				}
@@ -515,14 +542,14 @@ export const storeChat = defineStore('chat', {
 					const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 					let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
 					let postMessage:boolean = true;
-					for (let i = 0; i < messages.length; i++) {
-						const m = messages[i];
+					for (let i = 0; i < messageList.length; i++) {
+						const m = messageList[i];
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.followbot === true
 						&& m.platform == message.platform) {
 							m.deleted = true;
 							deletedMessages.push(m);
 							prevFollowbots.push(m);
-							messages.splice(i, 1);
+							messageList.splice(i, 1);
 							i--;
 							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						}
@@ -552,20 +579,18 @@ export const storeChat = defineStore('chat', {
 					bulkMessage.users.push(message.user);
 					message = bulkMessage;
 
-					const activityFeed = this.activityFeed.concat();
-					const maxIndex = Math.max(0, activityFeed.length - 100);
+					const maxIndex = Math.max(0, activityFeedList.length - 100);
 					while(deletedMessages.length > 0) {
 						const m = deletedMessages.pop();
 						if(!m) continue;
-						for (let j = activityFeed.length-1; j >= maxIndex; j--) {
-							const a = activityFeed[j];
+						for (let j = activityFeedList.length-1; j >= maxIndex; j--) {
+							const a = activityFeedList[j];
 							if(a.id == m.id) {
-								activityFeed.splice(j, 1);
+								activityFeedList.splice(j, 1);
 								j--;
 							}
 						}
 					}
-					this.activityFeed = activityFeed;
 					if(!postMessage) return;
 				}
 
@@ -576,28 +601,6 @@ export const storeChat = defineStore('chat', {
 				// 	user_id: data.user_id,
 				// }
 				// PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
-			}
-
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-				//Check if the message contains a mention
-				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& StoreProxy.params.appearance.highlightMentions.value === true) {
-					const login = StoreProxy.auth.twitch.user.login;
-					message.hasMention = login != null
-										&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
-										.test(message.message ?? "");
-					if(message.hasMention) {
-						message.highlightWord = login;
-					}
-				}
-
-				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-				if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
-					const original = message.message;
-					message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
-					message.cyphered = message.message != original;
-				}
 			}
 
 			if(sAutomod.params.enabled === true) {
@@ -656,31 +659,29 @@ export const storeChat = defineStore('chat', {
 			//Special case for notice types
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && TwitchatDataTypes.ActivityFeedNoticeTypes.includes(message.noticeId))
 			) {
-				const activityFeed = this.activityFeed.concat();
-				activityFeed.push(message);
-				this.activityFeed = activityFeed;
+				activityFeedList.push(message);
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_ACTIVITY_FEED, message));
 			}
 			
 			//Limit history size
 			const maxMessages = this.realHistorySize;
-			let sliced = false;
-			if(messages.length >= maxMessages) {
+			// let sliced = false;
+			if(messageList.length >= maxMessages) {
 				// const firstMess = messages[0];
 				// if(firstMess.type == "message") {
 				// 	//Areduce memory leak risks
 				// 	firstMess.answers = [];
 				// 	delete firstMess.answersTo;
 				// }
-				messages = messages.slice(-maxMessages);
-				sliced = true;
+				messageList = messageList.slice(-maxMessages);
+				// sliced = true;
 			}
 
-			messages.push( message );
+			messageList.push( message );
 			// messages.push( Object.freeze(message) );
-			this.messages = messages;
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 			const e = Date.now();
-			console.log(messages.length, e-s);
+			// console.log(messageList.length, e-s);
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
 		},
 		
@@ -689,15 +690,14 @@ export const storeChat = defineStore('chat', {
 		},
 		
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 
-			const list = this.messages.concat();
 			//Start from most recent messages to find it faster
-			for (let i = list.length-1; i > -1; i--) {
-				const m = list[i];
+			for (let i = messageList.length-1; i > -1; i--) {
+				const m = messageList[i];
 				if(messageID == m.id) {
 					m.deleted = true;
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 						//Called if closing an ad
-						list.splice(i, 1);
+						messageList.splice(i, 1);
 					}else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						//TODO Broadcast to OBS-ws
 						// const wsMessage = {
@@ -709,7 +709,7 @@ export const storeChat = defineStore('chat', {
 	
 						//Don't keep automod form message
 						if(m.twitch_automod) {
-							list.splice(i, 1);
+							messageList.splice(i, 1);
 						}
 
 						if(deleter) {
@@ -724,13 +724,11 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 			}
-			this.messages = list;
 		},
 
 		delUserMessages(uid:string) {
-			const list = this.messages.concat();
-			for (let i = 0; i < list.length; i++) {
-				const m = list[i];
+			for (let i = 0; i < messageList.length; i++) {
+				const m = messageList[i];
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				&& m.user.id == uid
 				&& !m.deleted) {
@@ -746,7 +744,6 @@ export const storeChat = defineStore('chat', {
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 				}
 			}
-			this.messages = list;
 		},
 
 		setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },

@@ -1,29 +1,29 @@
-import type { IAccessibilityActions, IAccessibilityState, IAccountActions, IAccountState, IAuthActions, IAuthState, IAutomodActions, IAutomodState, IBingoActions, IBingoState, IChatActions, IChatState, IChatSuggestionActions, IChatSuggestionState, IDebugActions, IDebugState, IEmergencyActions, IEmergencyState, IMainActions, IMainState, IMusicActions, IMusicState, IOBSActions, IOBSState, IParamsActions, IParamsState, IPollActions, IPollState, IPredictionActions, IPredictionState, IRaffleActions, IRaffleState, IStreamActions, IStreamState, ITimerActions, ITimerState, ITriggersActions, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersState, IVoiceActions, IVoiceState } from "./store/StoreProxy";
+import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState, IAccountActions, IAccountGetters, IAccountState, IAuthActions, IAuthGetters, IAuthState, IAutomodActions, IAutomodGetters, IAutomodState, IBingoActions, IBingoGetters, IBingoState, IChatActions, IChatGetters, IChatState, IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState, IDebugActions, IDebugGetters, IDebugState, IEmergencyActions, IEmergencyGetters, IEmergencyState, IMainActions, IMainGetters, IMainState, IMusicActions, IMusicGetters, IMusicState, IOBSActions, IOBSGetters, IOBSState, IParamsActions, IParamsGetters, IParamsState, IPollActions, IPollGetters, IPollState, IPredictionActions, IPredictionGetters, IPredictionState, IRaffleActions, IRaffleGetters, IRaffleState, IStreamActions, IStreamGetters, IStreamState, ITimerActions, ITimerGetters, ITimerState, ITriggersActions, ITriggersGetters, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersGetters, IUsersState, IVoiceActions, IVoiceGetters, IVoiceState } from "./store/StoreProxy";
 
 declare module '@vue/runtime-core' {
 	interface IStore {
-		(id:"account"):(IAccountState & IAccountActions) & {$state:IAccountState};
-		(id:"auth"):(IAuthState & IAuthActions) & {$state:IAuthState};
-		(id:"automod"):(IAutomodState & IAutomodActions) & {$state:IAutomodState};
-		(id:"bingo"):(IBingoState & IBingoActions) & {$state:IBingoState};
-		(id:"chat"):(IChatState & IChatActions) & {$state:IChatState};
-		(id:"chatSuggestion"):(IChatSuggestionState & IChatSuggestionActions) & {$state:IChatSuggestionState};
-		(id:"emergency"):(IEmergencyState & IEmergencyActions) & {$state:IEmergencyState};
-		(id:"music"):(IMusicState & IMusicActions) & {$state:IMusicState};
-		(id:"obs"):(IOBSState & IOBSActions) & {$state:IOBSState };
-		(id:"params"):(IParamsState & IParamsActions) & {$state:IParamsState};
-		(id:"poll"):(IPollState & IPollActions) & {$state:IPollState};
-		(id:"prediction"):(IPredictionState & IPredictionActions) & {$state:IPredictionState};
-		(id:"raffle"):(IRaffleState & IRaffleActions) & {$state:IRaffleState};
-		(id:"stream"):(IStreamState & IStreamActions) & {$state:IStreamState};
-		(id:"timer"):(ITimerState & ITimerActions) & {$state:ITimerState};
-		(id:"triggers"):(ITriggersState & ITriggersActions) & {$state:ITriggersState};
-		(id:"tts"):(ITTSState & ITTSActions) & {$state:ITTSState };
-		(id:"users"):(IUsersState & IUsersActions) & {$state:IUsersState};
-		(id:"voice"):(IVoiceState & IVoiceActions) & {$state:IVoiceState};
-		(id:"debug"):(IDebugState & IDebugActions) & {$state:IDebugState};
-		(id:"main"):(IMainState & IMainActions) & {$state:IMainState};
-		(id:"accessibility"):(IAccessibilityState & IAccessibilityActions) & {$state:IAccessibilityState};
+		(id:"account"):(IAccountState & IAccountGetters & IAccountActions) & {$state:IAccountState};
+		(id:"auth"):(IAuthState & IAuthGetters & IAuthActions) & {$state:IAuthState};
+		(id:"automod"):(IAutomodState & IAutomodGetters & IAutomodActions) & {$state:IAutomodState};
+		(id:"bingo"):(IBingoState & IBingoGetters & IBingoActions) & {$state:IBingoState};
+		(id:"chat"):(IChatState & IChatGetters & IChatActions) & {$state:IChatState};
+		(id:"chatSuggestion"):(IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions) & {$state:IChatSuggestionState};
+		(id:"emergency"):(IEmergencyState & IEmergencyGetters & IEmergencyActions) & {$state:IEmergencyState};
+		(id:"music"):(IMusicState & IMusicGetters & IMusicActions) & {$state:IMusicState};
+		(id:"obs"):(IOBSState & IOBSGetters & IOBSActions) & {$state:IOBSState };
+		(id:"params"):(IParamsState & IParamsGetters & IParamsActions) & {$state:IParamsState};
+		(id:"poll"):(IPollState & IPollGetters & IPollActions) & {$state:IPollState};
+		(id:"prediction"):(IPredictionState & IPredictionGetters & IPredictionActions) & {$state:IPredictionState};
+		(id:"raffle"):(IRaffleState & IRaffleGetters & IRaffleActions) & {$state:IRaffleState};
+		(id:"stream"):(IStreamState & IStreamGetters & IStreamActions) & {$state:IStreamState};
+		(id:"timer"):(ITimerState & ITimerGetters & ITimerActions) & {$state:ITimerState};
+		(id:"triggers"):(ITriggersState & ITriggersGetters & ITriggersActions) & {$state:ITriggersState};
+		(id:"tts"):(ITTSState & ITTSGetters & ITTSActions) & {$state:ITTSState };
+		(id:"users"):(IUsersState & IUsersGetters & IUsersActions) & {$state:IUsersState};
+		(id:"voice"):(IVoiceState & IVoiceGetters & IVoiceActions) & {$state:IVoiceState};
+		(id:"debug"):(IDebugState & IDebugGetters & IDebugActions) & {$state:IDebugState};
+		(id:"main"):(IMainState & IMainGetters & IMainActions) & {$state:IMainState};
+		(id:"accessibility"):(IAccessibilityState & IAccessibilityGetters & IAccessibilityActions) & {$state:IAccessibilityState};
 	}
 
 	interface ComponentCustomProperties {

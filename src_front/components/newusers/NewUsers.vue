@@ -166,6 +166,10 @@ export default class NewUsers extends Vue {
 			this.localMessages = this.localMessages.concat(history).splice(0,50);
 		}
 
+		// watch(()=>this.localMessages, (v)=>{
+		// 	console.log("update");
+		// }, {deep:true})
+
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
@@ -193,8 +197,8 @@ export default class NewUsers extends Vue {
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
-		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
-		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
 
 	/**
@@ -210,7 +214,8 @@ export default class NewUsers extends Vue {
 	private async onAddMessage(event:GlobalEvent):Promise<void> {
 		const maxLength = 100;
 		const m = (event.data as TwitchatDataTypes.ChatMessageTypes);
-		if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
+		if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE || !m.todayFirst) return;
+		
 		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
 		if(m.user.id == StoreProxy.auth.twitch.user.id) return;
@@ -219,7 +224,7 @@ export default class NewUsers extends Vue {
 		//Ignore hidden users from params
 		if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(m.user.login.toLowerCase()) > -1) return;
 		
-		if(m.todayFirst) this.localMessages.push(m);
+		this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
 			this.localMessages = this.localMessages.slice(-maxLength);
 		}

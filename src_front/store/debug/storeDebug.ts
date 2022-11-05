@@ -26,7 +26,7 @@ export const storeDebug = defineStore('debug', {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
-			const tmpFake = Utils.pickRand(StoreProxy.users.users);
+			const tmpFake = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true));
 			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
 			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
 			

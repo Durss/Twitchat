@@ -4,7 +4,7 @@
 			<h1 v-if="!listMode !== false">Activity feed</h1>
 		</div>
 
-		<div v-if="messages.length == 0" class="noActivity">- No activity yet -</div>
+		<div v-if="messageList.length == 0" class="noActivity">- No activity yet -</div>
 
 		<ActivityFeedFilters v-model="filters" class="filters" />
 		
@@ -13,13 +13,12 @@
 			@click="customActivities = []; updateActivityFeed();"
 			:icon="$image('icons/back.svg')" />
 
-		<div v-if="messages.length > 0" class="messageList">
-			<div v-for="(m,index) in messages" :key="m.id">
+		<div v-if="messageList.length > 0" class="messageList">
+			<div v-for="(m,index) in messageList" :key="m.id">
 				<ChatMessage
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-if="m.type == 'message'"
-					:data-index="index"
 					:lightMode="true"
 					:messageData="m" />
 
@@ -30,47 +29,40 @@
 
 				<ChatPollResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'poll'"
 					:messageData="m" />
 
 				<ChatPredictionResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'prediction'"
 					:messageData="m" />
 
-				<ChatNotice
-					class="message"
-					ref="message"
-					v-else-if="isCommercial(m)"
-					:messageData="m"
-					/>
-
 				<ChatBingoResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'bingo'"
 					:messageData="m" />
 
 				<ChatRaffleResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'raffle'"
 					:messageData="m"/>
 
 				<ChatCountdownResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'countdown'"
 					:messageData="m" />
 
 				<ChatHypeTrainResult
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'hype_train_summary'"
 					:filtering="customActivities.length > 0"
-					@setCustomActivities="(list:any[])=> showCustomActivities(list)"
+					@setCustomActivities="showCustomActivities"
 					:messageData="m"/>
 					
 				<ChatNotice
@@ -81,16 +73,15 @@
 
 				<ChatFollowbotEvents
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else-if="m.type == 'followbot_list'"
 					:result="m"
 					:messageData="m"/>
 
 				<ChatHighlight
 					class="message"
-					ref="message"
+					:ref="'message_'+m.id"
 					v-else
-					:data-index="index"
 					:lightMode="true"
 					:messageData="m" />
 			</div>
@@ -117,6 +108,8 @@ import ChatRaffleResult from '../messages/ChatRaffleResult.vue';
 import ActivityFeedFilters from './ActivityFeedFilters.vue';
 import ChatJoinLeave from '../messages/ChatJoinLeave.vue';
 import ChatFollowbotEvents from '../messages/ChatFollowbotEvents.vue';
+import GlobalEvent from '@/events/GlobalEvent';
+import EventBus from '@/events/EventBus';
 
 @Options({
 	props:{
@@ -151,6 +144,7 @@ export default class ActivityFeed extends Vue {
 	public customActivities:TwitchatDataTypes.ChatMessageTypes[] = [];
 	
 	private clickHandler!:(e:MouseEvent) => void;
+	private addMessageHandler!:(e:GlobalEvent) => void;
 
 	public isCommercial(m:TwitchatDataTypes.ChatMessageTypes):boolean {
 		return m.type == "notice" && (
@@ -164,6 +158,11 @@ export default class ActivityFeed extends Vue {
 		const res = ["activityfeed"];
 		if(this.listMode !== false) res.push("listMode");
 		return res;
+	}
+
+	public get messageList():TwitchatDataTypes.ChatMessageTypes[] {
+		if(this.customActivities.length > 0) return this.customActivities;
+		return this.messages;
 	}
 	
 	public beforeMount():void {
@@ -198,11 +197,10 @@ export default class ActivityFeed extends Vue {
 			this.updateActivityFeed();
 		});
 
-		watch(()=>this.$store("chat").activityFeed, ()=> {
-			this.updateActivityFeed()
-		});
-
 		this.updateActivityFeed();
+
+		this.addMessageHandler = (e:GlobalEvent) => this.addMessage(e);
+		EventBus.instance.addEventListener(GlobalEvent.ADD_ACTIVITY_FEED, this.addMessageHandler);
 
 		await this.$nextTick();
 		if(this.listMode === false) {
@@ -216,6 +214,7 @@ export default class ActivityFeed extends Vue {
 		if(this.listMode === false) {
 			document.removeEventListener("mousedown", this.clickHandler);
 		}
+		EventBus.instance.removeEventListener(GlobalEvent.ADD_ACTIVITY_FEED, this.addMessageHandler);
 	}
 
 	public showCustomActivities(list:TwitchatDataTypes.ChatMessageTypes[]):void {
@@ -224,11 +223,31 @@ export default class ActivityFeed extends Vue {
 	}
 
 	public updateActivityFeed():void {
+		console.log("UPDATE FEEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
 		const s = Date.now();
 		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").activityFeed;
 
 		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
 
+		for (let i = 0; i < list.length; i++) {
+			const m = list[i];
+			if(this.shouldShow(m))result.unshift(m);
+		}
+
+		this.messages = result;
+		const e = Date.now();
+		// console.log(e-s);
+	}
+
+	public addMessage(e:GlobalEvent):void {
+		const m:TwitchatDataTypes.ChatMessageTypes = e.data;
+		if(this.shouldShow(m)) this.messages.unshift(m);
+		console.log("ADD EMSSAAAAAAAAAAAAAAAAAAAAAAAAAAAAGE");
+	}
+
+	private shouldShow(m:TwitchatDataTypes.ChatMessageTypes):boolean {
+		let type = m.type;
+		let show = false;
 		const showSubs			= this.filters["sub"] === true || this.filters["sub"] === undefined;
 		const showFollow		= this.filters["follow"] === true || this.filters["follow"] === undefined;
 		const showBits			= this.filters["bits"] === true || this.filters["bits"] === undefined;
@@ -239,33 +258,23 @@ export default class ActivityFeed extends Vue {
 		const showBingos		= this.filters["bingo"] === true || this.filters["bingo"] === undefined;
 		const showRaffles		= this.filters["raffle"] === true || this.filters["raffle"] === undefined;
 
-		for (let i = 0; i < list.length; i++) {
-			const m = list[i];
-			let type = m.type;
-			let show = false;
-			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				//It's an highlighted or elevated message
-				show =  (this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted) || m.elevatedInfo != undefined;
-			}
-			
-			else if((type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION)) show = showSubs;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.REWARD) show = showRewards;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION) show = showRewards;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.RAID) show = showRaids;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.CHEER) show = showBits;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) show = showFollow;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.POLL) show = showPolls;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION) show = showPredictions;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO) show = showBingos;
-			else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE) show = showRaffles;
-			else show = true;
-
-			if(show) result.unshift(m);
+		if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			//It's an highlighted or elevated message
+			show =  (this.$store("params").features.keepHighlightMyMessages.value === true && m.twitch_isHighlighted) || m.elevatedInfo != undefined;
 		}
-
-		this.messages = result;
-		const e = Date.now();
-		// console.log(e-s);
+		
+		else if((type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION)) show = showSubs;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.REWARD) show = showRewards;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION) show = showRewards;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.RAID) show = showRaids;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.CHEER) show = showBits;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) show = showFollow;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.POLL) show = showPolls;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.PREDICTION) show = showPredictions;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.BINGO) show = showBingos;
+		else if(type == TwitchatDataTypes.TwitchatMessageType.RAFFLE) show = showRaffles;
+		else show = true;
+		return show;
 	}
 
 	private open():void {
@@ -303,7 +312,6 @@ export default class ActivityFeed extends Vue {
 	left: auto;
 	margin-left: auto;
 	transform-origin: bottom center;
-	position: relative;
 
 	.trainFilter {
 		border-radius: 0;

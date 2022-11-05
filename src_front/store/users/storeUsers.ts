@@ -1,8 +1,8 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import { reactive, type UnwrapRef } from 'vue';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
@@ -12,6 +12,11 @@ let userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	loginToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 	displayNameToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 }}> = {};
+
+//Do'nt store this as a state prop.
+//Having this list reactive kills performances while being
+//unnecessary
+let userList:TwitchatDataTypes.TwitchatUser[] = [];
 
 interface BatchItem {
 	channelId?:string;
@@ -27,7 +32,6 @@ const tmpDisplayName = "...loading...";
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
-		users: [],
 		userCard: null,
 		blockedUsers: {
 			twitchat:{},
@@ -58,9 +62,8 @@ export const storeUsers = defineStore('users', {
 
 
 	getters: {
-	} as IUsersGetters
-	& ThisType<UnwrapRef<IUsersState> & _StoreWithGetters<IUsersGetters> & PiniaCustomProperties>
-	& _GettersTree<IUsersState>,
+		users():TwitchatDataTypes.TwitchatUser[] { return userList; },
+	},
 
 
 
@@ -75,7 +78,7 @@ export const storeUsers = defineStore('users', {
 
 		/**
 		 * Gets a user by their source from their ID nor login.
-		 * It registers the user on the local DB "this.users" to get them back later.
+		 * It registers the user on the local DB "usersTESSST" to get them back later.
 		 * If only the login is given, the user's data are loaded asynchronously from
 		 * remote API then added to the local DB while returning a temporary user object.
 		 * 
@@ -86,6 +89,7 @@ export const storeUsers = defineStore('users', {
 		 * @returns 
 		 */
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false):TwitchatDataTypes.TwitchatUser {
+			const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested  via hashmaps for fast accesses
 			let hashmaps = userMaps[platform];
@@ -152,6 +156,8 @@ export const storeUsers = defineStore('users', {
 					};
 					user = userData;
 				}
+
+				// user = reactive(user!);
 			}
 			
 			//This just makes the rest of the code know that the user
@@ -192,6 +198,8 @@ export const storeUsers = defineStore('users', {
 			//User was already existing, consider stop there
 			if(userExisted){
 				if(loadCallback) loadCallback(user);
+				const e = Date.now();
+				// console.log("Duration 1 :", user.login, user.id, e-s);
 				return user;
 			}
 
@@ -293,14 +301,13 @@ export const storeUsers = defineStore('users', {
 			if(user.login)			hashmaps.loginToUser[user.login] = user;
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
 
-			user = reactive(user);
-
-			this.users.push(user);
+			userList.push(user);
 
 			if(user.temporary != true) {
 				if(loadCallback) loadCallback(user);
 			}
-
+			const e = Date.now();
+			// console.log("Duration 2 :", user.login, user.id, e-s);
 			return user;
 		},
 
@@ -315,40 +322,40 @@ export const storeUsers = defineStore('users', {
 		},
 
 		flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_moderator = true;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_moderator = true;
 					break;
 				}
 			}
 		},
 		
 		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_moderator = false;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_moderator = false;
 					break;
 				}
 			}
 		},
 
 		flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_vip = true;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_vip = true;
 					break;
 				}
 			}
 		},
 		
 		flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_vip = false;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_vip = false;
 					break;
 				}
 			}
@@ -356,10 +363,10 @@ export const storeUsers = defineStore('users', {
 
 		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			this.blockedUsers[platform][uid] = true;
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_blocked = true;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_blocked = true;
 					break;
 				}
 			}
@@ -367,22 +374,22 @@ export const storeUsers = defineStore('users', {
 		
 		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			delete this.blockedUsers[platform][uid];
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_blocked = false;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_blocked = false;
 					break;
 				}
 			}
 		},
 
 		flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void {
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_banned = true;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_banned = true;
 					if(duration_s) {
-						this.users[i].channelInfo[channelId].banEndDate = Date.now() + duration_s*1000;
+						userList[i].channelInfo[channelId].banEndDate = Date.now() + duration_s*1000;
 					}
 					break;
 				}
@@ -399,11 +406,11 @@ export const storeUsers = defineStore('users', {
 		},
 		
 		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < this.users.length; i++) {
-				const u = this.users[i];
-				if(u.id === uid && platform == u.platform && this.users[i].channelInfo[channelId]) {
-					this.users[i].channelInfo[channelId].is_banned = false;
-					delete this.users[i].channelInfo[channelId].banEndDate;
+			for (let i = 0; i < userList.length; i++) {
+				const u = userList[i];
+				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+					userList[i].channelInfo[channelId].is_banned = false;
+					delete userList[i].channelInfo[channelId].banEndDate;
 					break;
 				}
 			}

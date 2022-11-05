@@ -28,7 +28,7 @@ import { storePoll } from './store/poll/storePoll';
 import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeMain } from './store/storeMain';
-import StoreProxy from './store/StoreProxy';
+import StoreProxy, { type IChatActions, type IChatGetters, type IChatState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
@@ -36,7 +36,6 @@ import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
-import Utils from './utils/Utils';
 
 const pinia = createPinia()
 gsap.registerPlugin(ScrollToPlugin);
@@ -52,7 +51,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 	if(transparent) {
 		document.body.style.backgroundColor = "transparent";
 	}else{
-		document.body.style.backgroundColor = Utils.getLessVars().mainColor_dark as string;
+		document.body.style.backgroundColor = "#18181b";//Utils.getLessVars().mainColor_dark as string;
 	}
 
 	//If landing on homepage, redirect to chat if an auth token is available
@@ -191,7 +190,8 @@ StoreProxy.account = storeAccount();
 StoreProxy.auth = storeAuth();
 StoreProxy.automod = storeAutomod();
 StoreProxy.bingo = storeBingo();
-StoreProxy.chat = storeChat();
+//Dirty typing. Couldn't figure out how to properly type pinia getters
+StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; };
 StoreProxy.chatSuggestion = storeChatSuggestion();
 StoreProxy.emergency = storeEmergency();
 StoreProxy.music = storeMusic();
@@ -204,7 +204,8 @@ StoreProxy.stream = storeStream();
 StoreProxy.timer = storeTimer();
 StoreProxy.triggers = storeTriggers();
 StoreProxy.tts = storeTTS();
-StoreProxy.users = storeUsers();
+//Dirty typing. Couldn't figure out how to properly type pinia getters
+StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; };
 StoreProxy.voice = storeVoice();
 StoreProxy.debug = storeDebug();
 StoreProxy.accessibility = storeAccessibility();

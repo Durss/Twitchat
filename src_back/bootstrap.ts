@@ -37,7 +37,7 @@ server.register(require('@fastify/cors'), {
 })
 
 server.register(require('@fastify/static'), {
-	root: path.join(__dirname, Config.PUBLIC_ROOT),
+	root: Config.PUBLIC_ROOT,
 	prefix: '/',
 	// setHeaders:(res, path)=>{
 	// 	console.log("SET HEADER:", path);
@@ -53,9 +53,9 @@ server.get('/api', async (request, response) => {
 //Get latest script.js file for cache bypass
 server.get('/api/script', async (request, response) => {
 	Logger.info("Serving script for cache bypass")
-	const file = fs.readdirSync(Config.PUBLIC_ROOT).find(v => /index\..*\.js/gi.test(v));
-	const txt = fs.readFileSync(Config.PUBLIC_ROOT+"/"+file, {encoding:"utf8"});
-	console.log(txt);
+	const assets = path.join(Config.PUBLIC_ROOT, "assets");
+	const file = fs.readdirSync(assets).find(v => /index\..*\.js/gi.test(v));
+	const txt = fs.readFileSync(path.join(assets, file), {encoding:"utf8"});
 	response.header('Content-Type', 'application/javascript');
 	response.status(200);
 	response.send(txt);
@@ -93,10 +93,11 @@ server.setNotFoundHandler({
 		reply.code(404).send({success:false, error:"Not found"});
 	}
 
-	let file = path.join(__dirname, Config.PUBLIC_ROOT, request.url);
+	let file = path.join(Config.PUBLIC_ROOT, request.url);
 	//No file exists at specified path, send index file
 	if(!fs.existsSync(file)) {
-		file = path.join(__dirname, Config.PUBLIC_ROOT, "index.html");
+		console.log(Config.PUBLIC_ROOT);
+		file = path.join(Config.PUBLIC_ROOT, "index.html");
 	}
 	const stream = fs.createReadStream(file, 'utf8' );
 
