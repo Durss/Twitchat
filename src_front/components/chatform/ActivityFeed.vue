@@ -309,6 +309,7 @@ export default class ActivityFeed extends Vue {
 	right: 0;
 	left: auto;
 	margin-left: auto;
+	position: relative;
 	transform-origin: bottom center;
 
 	.trainFilter {
