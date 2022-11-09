@@ -1,51 +1,87 @@
 <template>
-	<div :class="classes" @mouseenter="onHoverList" @mouseleave="onLeaveList" @wheel="onMouseWheel"
+	<div :class="classes"
+		@mouseenter="onHoverList"
+		@mouseleave="onLeaveList"
+		@wheel="onMouseWheel"
 		@touchmove="onTouchMove">
 
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
-				<ChatAd class="message" v-if="m.type == 'twitchat_ad' && !lightMode"
-					@showModal="(v: string) => $emit('showModal', v)" :messageData="m" />
-
-				<ChatJoinLeave class="message" v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
-					@onRead="toggleMarkRead" :messageData="m" />
-
-				<ChatConnect class="message" v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
-					@onRead="toggleMarkRead" :messageData="m" />
-
-				<ChatMessage v-else-if="m.type == 'message' || m.type == 'whisper'" class="message"
-					:lightMode="lightMode" @showConversation="openConversation" @showUserMessages="openUserHistory"
-					@onOverMessage="onEnterMessage" @mouseleave="onLeaveMessage" @onRead="toggleMarkRead"
+				<ChatAd class="message"
+					v-if="m.type == 'twitchat_ad' && !lightMode"
+					@showModal="(v: string) => $emit('showModal', v)"
 					:messageData="m" />
 
-				<ChatNotice v-else-if="m.type == 'notice'" class="message" @onRead="toggleMarkRead" :messageData="m" />
-
-				<ChatPollResult v-else-if="m.type == 'poll'" class="message" @onRead="toggleMarkRead"
+				<ChatJoinLeave class="message"
+					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
+					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatPredictionResult v-else-if="m.type == 'prediction'" :ref="'message_' + m.id" class="message"
-					@onRead="toggleMarkRead" :messageData="m" />
-
-				<ChatBingoResult v-else-if="m.type == 'bingo'" class="message" @onRead="toggleMarkRead"
+				<ChatConnect class="message"
+					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
+					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatRaffleResult v-else-if="m.type == 'raffle'" class="message" @onRead="toggleMarkRead"
+				<ChatMessage class="message"
+					v-else-if="m.type == 'message' || m.type == 'whisper'"
+					:lightMode="lightMode"
+					@showConversation="openConversation"
+					@showUserMessages="openUserHistory"
+					@onOverMessage="onEnterMessage"
+					@mouseleave="onLeaveMessage"
+					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatCountdownResult v-else-if="m.type == 'countdown'" class="message" @onRead="toggleMarkRead"
+				<ChatNotice class="message"
+					v-else-if="m.type == 'notice'" 
+					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatHypeTrainResult v-else-if="m.type == 'hype_train_summary'" class="message" @onRead="toggleMarkRead"
+				<ChatPollResult class="message"
+					v-else-if="m.type == 'poll'"
+					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatFollowbotEvents v-else-if="m.type == 'followbot_list'" class="message" @onRead="toggleMarkRead"
+				<ChatPredictionResult class="message"
+					v-else-if="m.type == 'prediction'"
+					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatHighlight v-else class="message" lightMode @onRead="toggleMarkRead" :messageData="m" />
+				<ChatBingoResult class="message"
+					v-else-if="m.type == 'bingo'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatRaffleResult class="message"
+					v-else-if="m.type == 'raffle'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatCountdownResult class="message"
+					v-else-if="m.type == 'countdown'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatHypeTrainResult class="message"
+					v-else-if="m.type == 'hype_train_summary'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatFollowbotEvents class="message"
+					v-else-if="m.type == 'followbot_list'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatHighlight v-else class="message"
+					lightMode
+					@onRead="toggleMarkRead"
+					:messageData="m" />
 
 			</div>
 
 		</div>
+
+		<!-- <MessageListHistory class="globalHistory" v-if="showGlobalHistory" /> -->
 
 		<teleport :to="markedReadItem" v-if="markedReadItem">
 			<div class="markRead"></div>
@@ -56,30 +92,58 @@
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
-		<div class="conversation" ref="conversationHolder" v-if="conversation.length > 0" :style="conversationStyles"
-			@mouseenter="reopenLastConversation" @mouseleave="onLeaveMessage" @wheel.stop="">
+		<div class="subHolder live"
+		v-if="lockScroll && lockedLiveMessages.length > 0"
+		v-for="m in lockedLiveMessages"
+		:key="m.id" :ref="'message_live_' + m.id">
+			<ChatMessage class="message"
+				:lightMode="lightMode"
+				@showConversation="openConversation"
+				@showUserMessages="openUserHistory"
+				@onOverMessage="onEnterMessage"
+				@mouseleave="onLeaveMessage"
+				@onRead="toggleMarkRead"
+				:messageData="m" />
+		</div>
+
+		<div class="conversation" ref="conversationHolder" v-if="conversation.length > 0"
+			:style="conversationStyles"
+			@mouseenter="reopenLastConversation"
+			@mouseleave="onLeaveMessage"
+			@wheel.stop="">
 			<div class="head">
 				<h1 v-if="conversationMode">Conversation</h1>
 				<h1 v-if="!conversationMode">{{ conversation[0].user.displayName }} history</h1>
-				<Button class="button" aria-label="close conversation" :icon="$image('icons/cross_white.svg')"
+				<Button class="button"
+					aria-label="close conversation"
+					:icon="$image('icons/cross_white.svg')"
 					@click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
-				<ChatMessage v-for="m in conversation" :key="m.id" class="message" :messageData="m"
+				<ChatMessage v-for="m in conversation" :key="m.id"
+					class="message"
+					:messageData="m"
 					disableConversation />
 			</div>
 
-			<Button class="TTSreadBt" aria-label="read this user's messages" :title="readLabel"
-				:icon="$image('icons/tts.svg')" @click="toggleReadUser"
-				v-if="!conversationMode && $store('tts').params.enabled === true" small bounce />
+			<Button class="TTSreadBt" small bounce
+				aria-label="read this user's messages"
+				:title="readLabel"
+				:icon="$image('icons/tts.svg')"
+				@click="toggleReadUser"
+				v-if="!conversationMode && $store('tts').params.enabled === true" />
 		</div>
 
 		<div v-if="showLoadingGradient && !lightMode" class="noMessage">
 			<div class="gradient"></div>
 		</div>
 
-		<ChatMessageHoverActions :style="hoverActionsStyles" class="hoverActions" @mouseleave="onLeaveMessage"
-			@mouseenter="reopenLastHoverActions" :messageData="hoveredMessage" v-if="hoveredMessage" />
+		<ChatMessageHoverActions class="hoverActions" 
+			v-if="hoveredMessage"
+			:style="hoverActionsStyles"
+			@mouseleave="onLeaveMessage"
+			@mouseenter="reopenLastHoverActions"
+			:messageData="hoveredMessage" />
 	</div>
 </template>
 
@@ -109,6 +173,7 @@ import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
+import MessageListHistory from './MessageListHistory.vue';
 
 @Options({
 	components: {
@@ -122,6 +187,7 @@ import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		MessageListHistory,
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
@@ -145,8 +211,10 @@ export default class MessageList extends Vue {
 	public hoveredMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	public filteredMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
+	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public lockScroll = false;
+	public showGlobalHistory = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem: HTMLDivElement | null = null;
@@ -475,6 +543,11 @@ export default class MessageList extends Vue {
 		const chatPaused = this.lockScroll;// || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
 		if (chatPaused) {
 			this.pendingMessages.push(m);
+			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+				this.lockedLiveMessages.push(m);
+				this.lockedLiveMessages = this.lockedLiveMessages.slice(-3);//Only keep last 3
+			}
 		} else {
 			let list = this.filteredMessages.concat();
 			list.push(m);
@@ -640,19 +713,15 @@ export default class MessageList extends Vue {
 		const timeScale = (60 / 1000) * Math.min(Math.min(1000 / 15, Math.max(.1, ts - this.prevTs)));
 		this.prevTs = ts;
 
-		const el = this.$refs.chatMessageHolder as HTMLDivElement;
-		if (!el || this.filteredMessages.length == 0) return;
+		const messageHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
+		if (!messageHolder || this.filteredMessages.length == 0) return;
+		const holderHeight	= messageHolder.offsetHeight;
+		const maxScroll		= (messageHolder.scrollHeight - holderHeight);
+		const lastMessage	= (this.$refs["message_" + this.filteredMessages[this.filteredMessages.length - 1].id] as HTMLDivElement[])[0];
+		if (!lastMessage) return;//No message yet, just stop here
+		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
+		let easeValue		= .3;
 
-		const h = el.offsetHeight;
-		const maxScroll = (el.scrollHeight - h);
-		const lastMess = (this.$refs["message_" + this.filteredMessages[this.filteredMessages.length - 1].id] as HTMLDivElement[])[0];
-		// const lastMess = el.children[el.children.length-1] as HTMLDivElement;
-		if (!lastMess) return;//No message yet, just stop here
-
-		// const bottom = lastMess.$el.offsetTop + lastMess.$el.offsetHeight;
-		const bottom = lastMess.offsetTop + lastMess.offsetHeight;
-
-		let ease = .2;
 		if (!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if (this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
@@ -663,28 +732,28 @@ export default class MessageList extends Vue {
 				this.virtualScrollY += Math.max(10, this.pendingMessages.length * 4) * timeScale;
 			} else {
 				//easeout scroll when reaching bottom
-				this.virtualScrollY += (maxScroll - this.virtualScrollY) * ease * timeScale;
+				this.virtualScrollY += (maxScroll - this.virtualScrollY) * easeValue * timeScale;
 			}
 			//Avoid virtual scroll to go beyond bottom
 			if (this.virtualScrollY >= maxScroll - 2) {
 				this.virtualScrollY = maxScroll;
 			}
-			el.scrollTop = this.virtualScrollY;
+			messageHolder.scrollTop = this.virtualScrollY;
 		}
 
 		//If messages height is smaller than the holder height, move the holder to the bottom
-		if (bottom < h) {
+		if (bottom < holderHeight) {
 			// console.log(bottom, h);
-			if (this.holderOffsetY == 0) ease = 1;
-			this.holderOffsetY += (h - bottom - this.holderOffsetY) * ease;
-			if (Math.abs(h - bottom - this.holderOffsetY) < 2) {
-				this.holderOffsetY = h - bottom;
+			if (this.holderOffsetY == 0) easeValue = 1;
+			this.holderOffsetY += (holderHeight - bottom - this.holderOffsetY) * easeValue;
+			if (Math.abs(holderHeight - bottom - this.holderOffsetY) < 2) {
+				this.holderOffsetY = holderHeight - bottom;
 			}
 
-			el.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
+			messageHolder.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
 		} else if (this.holderOffsetY != 0) {
 			this.holderOffsetY = 0;
-			el.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
+			messageHolder.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
 		}
 
 
@@ -693,6 +762,8 @@ export default class MessageList extends Vue {
 			&& !this.lockScroll
 			&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
+		}else {
+			this.showGlobalHistory = messageHolder.scrollTop < 5;
 		}
 	}
 
@@ -708,6 +779,12 @@ export default class MessageList extends Vue {
 		try {
 			do {
 				message = this.pendingMessages.shift();
+				if(message != undefined) {
+					const index = this.lockedLiveMessages.findIndex(v=>v.id == message!.id);
+					if(index > -1) {
+						this.lockedLiveMessages.splice(index, 1);
+					}
+				}
 			} while (this.pendingMessages.length > 0 && !this.shouldShowMessage(message!))
 		} catch (error) {
 			console.log(error);
@@ -759,7 +836,7 @@ export default class MessageList extends Vue {
 				//scroll via tween as the renderFrame does nothing while scroll is locked
 				gsap.killTweensOf(el);
 				gsap.to(el, {
-					duration: .2, scrollTop: maxScroll, ease: "sine.inOut", onUpdate: () => {
+					duration: .05, scrollTop: maxScroll, ease: "sine.inOut", onUpdate: () => {
 						this.virtualScrollY = el.scrollTop;
 					}
 				});
@@ -1109,6 +1186,10 @@ export default class MessageList extends Vue {
 		top: 0;
 		right: 0;
 		transform: translateY(-100%);
+	}
+
+	.globalHistory {
+		
 	}
 }
 </style>
