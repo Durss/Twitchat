@@ -1,5 +1,6 @@
 <template>
 	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
+	@mouseover="$emit('onOverMessage', messageData, $event)"
 	@click="$emit('onRead', messageData, $event)"
 	>
 		<div v-if="firstTime" class="header">
@@ -98,19 +99,17 @@
 				:loading="clipHighlightLoading"
 			/>
 		</div>
-
-		<ChatMessageHoverActions class="hoverActions" :messageData="messageData" />
 	</div>
 
 </template>
 
 <script lang="ts">
+import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { watch, watchEffect } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -120,14 +119,12 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfos from './components/ChatMessageInfos.vue';
 import ChatModTools from './components/ChatModTools.vue';
-import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 
 @Options({
 	components:{
 		Button,
 		ChatModTools,
 		ChatMessageInfos,
-		ChatMessageHoverActions,
 	},
 	props:{
 		messageData:Object,
@@ -135,7 +132,7 @@ import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages', 'ariaMessage', 'onMouseOut', 'onRead'],
+	emits:['showConversation', 'showUserMessages', 'ariaMessage', 'onOverMessage', 'onRead'],
 })
 export default class ChatMessage extends Vue {
  
@@ -912,27 +909,5 @@ export default class ChatMessage extends Vue {
 			border-image-source: linear-gradient(#ffb31a,#e0e000);
 		}
 	}
-
-	.hoverActions {
-		position: absolute;
-		visibility: hidden;
-		z-index: 1;
-		top: 0;
-		right: 0;
-		margin: .5em 0;
-		transform:translate(0, calc(-100% - .5em));
-		display: flex;
-		flex-direction: row;
-		align-items: flex-end;
-		justify-content: space-around;
-		flex-wrap: wrap;
-	}
-
-	&:hover:not(.disableConversation) {
-		.hoverActions {
-			visibility: visible !important;
-		}
-	}
-	
 }
 </style>

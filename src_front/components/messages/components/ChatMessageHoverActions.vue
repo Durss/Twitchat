@@ -111,6 +111,12 @@ export default class ChatMessageHoverActions extends Vue {
 
 <style scoped lang="less">
 .ChatMessageHoverActions{
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	justify-content: space-around;
+	flex-wrap: wrap;
+	
 	background-color: @mainColor_light;
 	padding: 2px;
 	border-top-left-radius: .5em;

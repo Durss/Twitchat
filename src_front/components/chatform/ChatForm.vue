@@ -452,11 +452,12 @@ export default class ChatForm extends Vue {
 		if(this.message.length == 0) return;
 		if(this.openAutoComplete) return;
 
-		const params = this.message.split(" ");
+		const params = this.message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		const sChat = this.$store("chat");
 		let noticeId:TwitchatDataTypes.TwitchatNoticeStringType|undefined;
 		let noticeMessage:string|undefined;
+		params.forEach((v, i) => { params[i] = v.trim() });
 
 		if(cmd == "/devmode") {
 			this.message = "";
@@ -542,7 +543,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/spam") {
+		if(cmd == "/spam" || cmd == "/megaspam" || cmd == "/fake") {
 			this.loading = true;
 			clearInterval(this.spamInterval);
 			const lorem = new LoremIpsum({
@@ -595,7 +596,8 @@ export default class ChatForm extends Vue {
 					}
 				}
 				sChat.addMessage(mess);
-			}, 250);
+				if(cmd == "/fake") clearInterval(this.spamInterval);
+			}, cmd == "/megaspam"? 50 :  250);
 			this.message = "";
 			this.loading = false;
 		}else

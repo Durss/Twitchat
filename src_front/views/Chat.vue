@@ -5,7 +5,7 @@
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
 					@showModal="(v:string) => currentModal = v"
-					:maxMessages="$store('params').appearance.historySize.value" />
+					:maxMessages="50 ?? $store('params').appearance.historySize.value" />
 					
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>

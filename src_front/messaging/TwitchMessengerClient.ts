@@ -214,7 +214,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		text = text.replace(/^\\+/gi, "");
 
 		if(text.charAt(0) == "/") {
-			const chunks = text.split(/\s/gi);
+			const chunks = text.split(/\s/gi).filter(v => v != "");
 			let cmd = (chunks.shift() as string).toLowerCase();
 
 			//If using /announce command, extract color

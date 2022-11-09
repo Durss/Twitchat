@@ -96,7 +96,6 @@ server.setNotFoundHandler({
 	let file = path.join(Config.PUBLIC_ROOT, request.url);
 	//No file exists at specified path, send index file
 	if(!fs.existsSync(file)) {
-		console.log(Config.PUBLIC_ROOT);
 		file = path.join(Config.PUBLIC_ROOT, "index.html");
 	}
 	const stream = fs.createReadStream(file, 'utf8' );

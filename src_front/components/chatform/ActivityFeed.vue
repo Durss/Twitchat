@@ -223,7 +223,6 @@ export default class ActivityFeed extends Vue {
 	}
 
 	public updateActivityFeed():void {
-		console.log("UPDATE FEEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
 		const s = Date.now();
 		const list = this.customActivities.length > 0? this.customActivities : this.$store("chat").activityFeed;
 
@@ -242,7 +241,6 @@ export default class ActivityFeed extends Vue {
 	public addMessage(e:GlobalEvent):void {
 		const m:TwitchatDataTypes.ChatMessageTypes = e.data;
 		if(this.shouldShow(m)) this.messages.unshift(m);
-		console.log("ADD EMSSAAAAAAAAAAAAAAAAAAAAAAAAAAAAGE");
 	}
 
 	private shouldShow(m:TwitchatDataTypes.ChatMessageTypes):boolean {
