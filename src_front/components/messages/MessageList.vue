@@ -81,8 +81,6 @@
 
 		</div>
 
-		<!-- <MessageListHistory class="globalHistory" v-if="showGlobalHistory" /> -->
-
 		<teleport :to="markedReadItem" v-if="markedReadItem">
 			<div class="markRead"></div>
 		</teleport>
@@ -92,18 +90,15 @@
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
-		<div class="subHolder live"
-		v-if="lockScroll && lockedLiveMessages.length > 0"
-		v-for="m in lockedLiveMessages"
-		:key="m.id" :ref="'message_live_' + m.id">
-			<ChatMessage class="message"
-				:lightMode="lightMode"
-				@showConversation="openConversation"
-				@showUserMessages="openUserHistory"
-				@onOverMessage="onEnterMessage"
-				@mouseleave="onLeaveMessage"
-				@onRead="toggleMarkRead"
-				:messageData="m" />
+		<div class="lockedLiveHolder">
+			<div class="subHolder live"
+			v-if="lockScroll && lockedLiveMessages.length > 0"
+			v-for="m in lockedLiveMessages"
+			:key="m.id" :ref="'message_live_' + m.id">
+				<ChatMessage class="message"
+					:lightMode="lightMode"
+					:messageData="m" />
+			</div>
 		</div>
 
 		<div class="conversation" ref="conversationHolder" v-if="conversation.length > 0"
@@ -173,7 +168,6 @@ import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
-import MessageListHistory from './MessageListHistory.vue';
 
 @Options({
 	components: {
@@ -187,7 +181,6 @@ import MessageListHistory from './MessageListHistory.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
-		MessageListHistory,
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
@@ -214,7 +207,6 @@ export default class MessageList extends Vue {
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public lockScroll = false;
-	public showGlobalHistory = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem: HTMLDivElement | null = null;
@@ -222,7 +214,9 @@ export default class MessageList extends Vue {
 	private prevTs = 0;
 	private counter = 0;
 	private disposed = false;
+	private loadingOldMessage = false;
 	private prevMarkedReadMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
+	private scrollUpIndexOffset = -1;
 	private holderOffsetY = -1;
 	private virtualScrollY = -1;
 	private updateDebounce = -1;
@@ -372,6 +366,8 @@ export default class MessageList extends Vue {
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async () => {
 			this.pendingMessages = [];
+			this.lockedLiveMessages = [];
+			this.scrollUpIndexOffset = -1;
 
 			// const s = Date.now();
 
@@ -549,6 +545,7 @@ export default class MessageList extends Vue {
 				this.lockedLiveMessages = this.lockedLiveMessages.slice(-3);//Only keep last 3
 			}
 		} else {
+			this.lockedLiveMessages = [];
 			let list = this.filteredMessages.concat();
 			list.push(m);
 			list = list.slice(-this.maxMessages);
@@ -762,8 +759,8 @@ export default class MessageList extends Vue {
 			&& !this.lockScroll
 			&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
-		}else {
-			this.showGlobalHistory = messageHolder.scrollTop < 5;
+		}else if(messageHolder.scrollTop < 50) {
+			this.showPrevMessage();
 		}
 	}
 
@@ -808,16 +805,66 @@ export default class MessageList extends Vue {
 	}
 
 	/**
+	 * Shows previous message when scrolling upward
+	 */
+	private async showPrevMessage():Promise<void> {
+		if(!this.lockScroll) return;
+		if(this.loadingOldMessage || this.filteredMessages.length === 0) return;
+		
+		const list = this.$store("chat").messages;
+
+		this.loadingOldMessage = true;
+
+		const popped	= this.filteredMessages.pop();
+		const lastId	= this.filteredMessages[0].id;
+		if(this.scrollUpIndexOffset == -1) {
+			this.scrollUpIndexOffset = this.pendingMessages.length + this.filteredMessages.length;
+		}
+
+		let addNext = false;
+		let messageAdded = false;
+		let i = list.length - this.scrollUpIndexOffset - 1;
+		
+		for (; i > 0; i--) {
+			let m = list[i];
+			if(m.id == lastId) {
+				addNext = true;
+			}else if(addNext) {
+				m = list[i-1];
+				if(this.shouldShowMessage(m)) {
+					this.scrollUpIndexOffset = list.length - i;
+					this.filteredMessages.unshift(m);
+					messageAdded = true;
+					break;
+				}
+			}
+		}
+
+		if(messageAdded) {
+			// await this.$nextTick();
+			const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+			this.virtualScrollY = 51;
+			messagesHolder.scrollTop = this.virtualScrollY;
+			if(popped) this.pendingMessages.unshift( popped );
+		}else if(popped){
+			//We reached the first message of the history, stop there
+			this.filteredMessages.push( popped );
+		}
+		this.loadingOldMessage = false;
+	}
+
+	/**
 	 * Call this after adding a new message.
 	 * Will scroll so the previous message is on the bottom of the list
 	 * so the new message displays smoothly from the bottom of the screen
 	 */
 	private async scrollToPrevMessage(wheelOrigin = false): Promise<void> {
 		await this.$nextTick();
-		const el = this.$refs.chatMessageHolder as HTMLDivElement;
-		const maxScroll = (el.scrollHeight - el.offsetHeight);
+		this.scrollUpIndexOffset = -1;
+		const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+		const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
 
-		const messRefs = el.querySelectorAll(".messageHolder>.subHolder");
+		const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
 		if (messRefs.length == 0) return;
 		const lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
 
@@ -834,17 +881,13 @@ export default class MessageList extends Vue {
 			if (wheelOrigin) {
 				//If scrolling down with mouse wheel while scrolling is locked, interpolate
 				//scroll via tween as the renderFrame does nothing while scroll is locked
-				gsap.killTweensOf(el);
-				gsap.to(el, {
-					duration: .05, scrollTop: maxScroll, ease: "sine.inOut", onUpdate: () => {
-						this.virtualScrollY = el.scrollTop;
-					}
-				});
+				gsap.killTweensOf(messagesHolder);
+				this.virtualScrollY = messagesHolder.scrollTop = maxScroll;
 			} else {
 				const style = window.getComputedStyle(lastMessRef);
 				const margin = parseFloat(style.marginBottom);
 				// this.virtualScrollY = maxScroll - (lastMessRef.offsetHeight + margin);
-				this.virtualScrollY = el.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
+				this.virtualScrollY = messagesHolder.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
 
@@ -1088,6 +1131,11 @@ export default class MessageList extends Vue {
 		&:hover {
 			background: @mainColor_normal_light;
 		}
+	}
+
+	.lockedLiveHolder {
+		background: fade(@mainColor_normal, 40%);
+		border-top: 1px solid fade(#000, 50%);
 	}
 
 	.noMessage {
