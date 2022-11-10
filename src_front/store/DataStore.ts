@@ -92,7 +92,7 @@ export default class DataStore {
 			v = "5";
 		}
 		if(v=="5") {
-			DataStore.remove("p:showPollPredResults");
+			this.remove("p:showPollPredResults");
 			v = "6";
 		}
 		if(v=="6") {
@@ -102,7 +102,7 @@ export default class DataStore {
 		if(v=="7") {
 			//Because of an old stupid version check, users could skip updates
 			//Trying to fix this here...
-			DataStore.remove("p:showPollPredResults");
+			this.remove("p:showPollPredResults");
 			v = "8";
 		}
 		if(v=="8") {
@@ -138,6 +138,10 @@ export default class DataStore {
 		if(v=="15") {
 			this.migrateEmergencyAutoblock();
 			v = "16";
+		}
+		if(v=="16") {
+			this.remove("p:historySize");
+			v = "17";
 		}
 
 		this.set(this.DATA_VERSION, v);

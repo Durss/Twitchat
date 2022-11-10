@@ -345,15 +345,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_MUTE:
-				//TODO
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_BACKGROUND:
-				//TODO
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_HEAR_MY_VOICE:
-				//TODO
 				break;
 
 			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:
@@ -361,7 +358,6 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_VOICE_CHANGER:
-				//TODO
 				break;
 
 			case "licenseTypeChanged":

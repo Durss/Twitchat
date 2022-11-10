@@ -366,7 +366,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/unraid": await TwitchUtils.raidCancel(); return true;
 				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return true;
 				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return true;
-				case "/whiser":
+				case "/whisper":
 				case "/w": {
 					const login = chunks[0];
 					await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
@@ -850,28 +850,28 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				break;
 			}
 
-			case "WHISPER": {
-				//Not using the client.on("whisper") helper as it does not provides
-				//the receiver. Here we get everything.
-				const [toLogin, message] = (data as {params:string[]}).params;
-				const tags = data.tags as tmi.ChatUserstate;
-				//Extract channel ID. It's in the form "sendID_recipientID" or "recipientID_sendID"
-				const channelId = tags["thread-id"].replace(tags["user-id"], "").replace("_", "");
-				const eventData:TwitchatDataTypes.MessageWhisperData = {
-					id:Utils.getUUID(),
-					type:"whisper",
-					date:Date.now(),
-					channel_id:channelId,
-					platform:"twitch",
-					user: this.getUserFromTags(tags, channelId),
-					to: this.getUserFromLogin(toLogin, channelId).user,
-					message:message,
-					message_html:TwitchUtils.parseEmotes(message, tags["emotes-raw"]),
-				};
+			// case "WHISPER": {
+			// 	//Not using the client.on("whisper") helper as it does not provides
+			// 	//the receiver. Here we get everything.
+			// 	const [toLogin, message] = (data as {params:string[]}).params;
+			// 	const tags = data.tags as tmi.ChatUserstate;
+			// 	//Extract channel ID. It's in the form "sendID_recipientID" or "recipientID_sendID"
+			// 	const channelId = tags["thread-id"].replace(tags["user-id"], "").replace("_", "");
+			// 	const eventData:TwitchatDataTypes.MessageWhisperData = {
+			// 		id:Utils.getUUID(),
+			// 		type:"whisper",
+			// 		date:Date.now(),
+			// 		channel_id:channelId,
+			// 		platform:"twitch",
+			// 		user: this.getUserFromTags(tags, channelId),
+			// 		to: this.getUserFromLogin(toLogin, channelId).user,
+			// 		message:message,
+			// 		message_html:TwitchUtils.parseEmotes(message, tags["emotes-raw"]),
+			// 	};
 		
-				this.dispatchEvent(new MessengerClientEvent("WHISPER", eventData));
-				break;
-			}
+			// 	this.dispatchEvent(new MessengerClientEvent("WHISPER", eventData));
+			// 	break;
+			// }
 
 			case "USERSTATE": {
 				const [channelName] = (data as {params:string[]}).params;

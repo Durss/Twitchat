@@ -108,8 +108,8 @@ export default class PubSub extends EventDispatcher {
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
 					subscriptions.push("community-boost-events-v1."+uid);//Get channel points rewards
 					// subscriptions.push("channel-ad-poll-update-events."+uid);
-					// subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
-					// subscriptions.push("polls."+uid);//Get prediction event//Get poll events
+					subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
+					subscriptions.push("polls."+uid);//Get prediction event//Get poll events
 					// subscriptions.push("pv-watch-party-events."+uid);
 					subscriptions.push("stream-chat-room-v1."+uid);//Host events
 					subscriptions.push("shoutout."+uid);//Host events
@@ -303,30 +303,30 @@ export default class PubSub extends EventDispatcher {
 
 
 		//sent when sending a whisper from anywhere
-		}else if(data.type == "whisper_sent") {
+		}else if(data.type == "whisper_sent" || data.type == "whisper_received") {
 			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
-			const localObj = (data.data as unknown) as PubSubDataTypes.WhisperSent;
-			localObj.tags.username = localObj.tags.display_name;
-			localObj.tags["display-name"] = localObj.tags.display_name;//Thx twitch for your consistency
-			localObj.tags["user-id"] = localObj.from_id.toString();
-			localObj.tags["thread-id"] = localObj.thread_id;
-
-			let emotes:string = "";
+			const localObj		= (data.data as unknown) as PubSubDataTypes.WhisperSent;
+			const senderID		= localObj.from_id.toString();
+			const receiverID	= localObj.thread_id.replace(new RegExp("_?"+localObj.from_id+"_?", "gi"), "");
+			const meID			= StoreProxy.auth.twitch.user.id;
+			let emotes:string	= "";
 			if(localObj.tags.emotes) {
 				//Convert parsed emote data to raw data expected by the parser
 				const list = (localObj.tags.emotes as unknown) as {emote_id:string, start:number, end:number}[];
 				emotes = TwitchUtils.parsedEmoteDataToRawEmoteData(list);
 			}
+			console.log(senderID, receiverID, meID);
 
-			const sender = StoreProxy.users.getUserFrom("twitch", channelId, localObj.from_id.toString());
+			const sender = StoreProxy.users.getUserFrom("twitch", meID, senderID);
+			console.log(sender);
 			const whisper:TwitchatDataTypes.MessageWhisperData = {
 				date:Date.now(),
 				id:Utils.getUUID(),
 				platform:"twitch",
 				type:"whisper",
-				channel_id:sender.id,
+				channel_id:meID,
 				user:sender,
-				to: StoreProxy.users.getUserFrom("twitch", channelId, localObj.recipient.id.toString()),
+				to: StoreProxy.users.getUserFrom("twitch", meID, receiverID),
 				message: localObj.body,
 				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
 			}
@@ -340,7 +340,7 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "chat_rich_embed") {
-			//TODO sent when a clip is sent on chat (see ChatRichEmbed JSON example).
+			//sent when a clip is sent on chat (see ChatRichEmbed JSON example).
 			//Warning: JSON might be mostly empty/incomplete. Example bellow:
 			//{"type":"chat_rich_embed","data":{"message_id":"1fda6833-d53c-44d2-958b-389dd2289ff8","request_url":"https://clips.twitch.tv/","thumbnail_url":"https://clips-media-assets2.twitch.tv/-preview-86x45.jpg","twitch_metadata":{"clip_metadata":{"game":"","channel_display_name":"","slug":"","id":"0","broadcaster_id":"","curator_id":""}}}}
 
@@ -489,7 +489,6 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
 			const localObj = data.data as PubSubDataTypes.PollData;
-			//TODO make sure the "owned_by" value really represents the channelID
 			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE";
 			this.pollEvent(localObj, isComplete);
 			if(isComplete) {

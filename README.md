@@ -114,6 +114,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"user:read:follows",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
+		"user:manage:whispers",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
 		"moderator:read:chat_settings",

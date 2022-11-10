@@ -1950,13 +1950,13 @@ export default class TwitchUtils {
 
 	/**
 	 * Sends a whisper to someone
-	 * //TODO this only works for accounts with verified phone number. Handle this error to warn the user
 	 */
 	public static async whisper(message:string, toLogin?:string, toId?:string):Promise<boolean> {
 		if(!toId && toLogin) {
 			try {
 				toId = (await this.loadUserInfo(undefined, [toLogin]))[0].id;
 			}catch(error) {
+				StoreProxy.main.alert("User \""+toLogin+"\" not found");
 				return false;
 			}
 		}
@@ -1969,7 +1969,7 @@ export default class TwitchUtils {
 			body:JSON.stringify({message})
 		}
 		let url = new URL(Config.instance.TWITCH_API_PATH+"whispers");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("from_user_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("to_user_id", toId);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
@@ -1981,6 +1981,15 @@ export default class TwitchUtils {
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.whisper(message, toLogin, toId);
 		}else {
+			if(res.status == 401) {
+				try {
+					const json = await res.json();
+					if(json) StoreProxy.main.alert(json.message);
+				}catch(error){
+					//Ignore
+					StoreProxy.main.alert("You are not allowed to send whispers from Twitchat.");
+				}
+			}
 			return false;
 		}
 	}

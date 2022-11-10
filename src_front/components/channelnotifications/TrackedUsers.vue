@@ -124,7 +124,7 @@ export default class TrackedUsers extends Vue {
 					color: #fff;
 					flex-grow: 1;
 					padding: 2px 5px;
-					transform-origin: left center;
+					transform-origin: right center;
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
 					:deep(.label) {

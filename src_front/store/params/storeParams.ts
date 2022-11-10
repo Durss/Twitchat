@@ -48,7 +48,6 @@ export const storeParams = defineStore('params', {
 			showBadges: 				{save:true, type:"toggle", value:true, label:"Show badges", id:4, icon:"badge_purple.svg"},
 			minimalistBadges: 			{save:true, type:"toggle", value:false, label:"Minified badges", id:5, parent:4, example:"minibadges.png"},
 			displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
-			historySize: 				{save:true, type:"slider", value:150, label:"Max chat message count ({VALUE})", min:50, max:500, step:50, id:8},
 			defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
 		},
 		filters: {

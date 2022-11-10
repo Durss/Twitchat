@@ -110,9 +110,10 @@ export default class Login extends Vue {
 		"whispers:read": "Receive whispers",
 
 		"user:read:blocked_users": "List blocked users",
-		"user:manage:blocked_users": "Block or unblock users",
 		"user:read:follows": "List your followings",
 		"user:read:subscriptions": "List your subscribers",
+		"user:manage:whispers": "Receive and send whispers",
+		"user:manage:blocked_users": "Block or unblock users",
 
 		"channel_editor": "Start a raid/host",
 		"channel:read:redemptions": "Read redemptions",

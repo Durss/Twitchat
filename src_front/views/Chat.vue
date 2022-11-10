@@ -384,7 +384,6 @@ export default class Chat extends Vue {
 		//Auto opens the prediction status if pending for completion
 		watch(() => this.$store("prediction").data, (newValue, prevValue) => {
 			let prediction = this.$store("prediction").data;
-			//TODO make sure auto open on prediciton end works
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.pendingAnswer || isNew) this.setCurrentNotification("prediction");
 		});
@@ -393,7 +392,6 @@ export default class Chat extends Vue {
 		watch(() => this.$store("poll").data, (newValue, prevValue) => {
 			let poll = this.$store("poll").data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-			//TODO make sure auto open works when creating new poll
 			if(poll || isNew) this.setCurrentNotification("poll");
 		});
 

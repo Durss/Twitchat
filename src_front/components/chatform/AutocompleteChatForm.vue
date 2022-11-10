@@ -197,6 +197,15 @@ export default class AutocompleteChatForm extends Vue {
 							infos:e.details,
 							id:e.id,
 						});
+						if(e.alias) {
+							res.push({
+								type:"cmd",
+								label:e.alias.replace(/{(.*?)\}/gi, "$1"),
+								cmd:e.alias,
+								infos:e.details,
+								id:e.id+"_alias",
+							});
+						}
 					}
 				}
 			}

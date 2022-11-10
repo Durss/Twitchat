@@ -94,8 +94,8 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"userinfo",
-				cmd:"/userinfo {user}",
-				alias:"/user {user}",
+				cmd:"/user {user}",
+				alias:"/userinfo {user}",
 				details:"Opens a user's profile info",
 			},
 			{
@@ -219,6 +219,12 @@ export const storeChat = defineStore('chat', {
 				id:"Unblock",
 				cmd:"/unblock {user}",
 				details:"Unblock a user",
+			},
+			{
+				id:"Whisper",
+				cmd:"/w {recipient} {message}",
+				alias:"/whisper {recipient} {message}",
+				details:"Send a whisper",
 			}
 		],
 
@@ -302,6 +308,7 @@ export const storeChat = defineStore('chat', {
 			const sEmergency = StoreProxy.emergency;
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
+			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 
 			message = reactive(message);
@@ -316,8 +323,9 @@ export const storeChat = defineStore('chat', {
 			
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 					//TODO sending a whisper increments the unread count and creates a conversation with ourself, fix that
-					if(!this.whispers[message.user.id]) this.whispers[message.user.id] = [];
-					this.whispers[message.user.id].push(message);
+					const correspondantId = message.user.id == sAuth.twitch.user.id? message.to.id : message.user.id
+					if(!this.whispers[correspondantId]) this.whispers[correspondantId] = [];
+					this.whispers[correspondantId].push(message);
 					this.whispersUnreadCount ++;
 					//TODO Broadcast to OBS-ws
 					// const wsUser = {
