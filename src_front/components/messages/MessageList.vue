@@ -90,14 +90,14 @@
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
-		<div class="lockedLiveHolder">
-			<div class="subHolder live"
-			v-if="lockScroll && lockedLiveMessages.length > 0"
-			v-for="m in lockedLiveMessages"
+		<div class="lockedLiveHolder" v-if="lockScroll && lockedLiveMessages.length > 0">
+			<div class="title">live chat</div>
+			<div v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
 				<ChatMessage class="message"
 					:lightMode="lightMode"
-					:messageData="m" />
+					:messageData="m"
+					disableConversation />
 			</div>
 		</div>
 
@@ -1136,6 +1136,14 @@ export default class MessageList extends Vue {
 	.lockedLiveHolder {
 		background: fade(@mainColor_normal, 40%);
 		border-top: 1px solid fade(#000, 50%);
+		padding-top: .25em;
+
+		.title {
+			color: fade(@mainColor_light, 50%);
+			font-size: .5em;
+			text-align: center;
+			font-style: italic;
+		}
 	}
 
 	.noMessage {
