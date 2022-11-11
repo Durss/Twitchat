@@ -133,7 +133,7 @@ export default class OverlayParamsHighlight extends Vue {
 
 	public beforeMount(): void {
 		this.placement = this.$store("chat").chatHighlightOverlayParams.position;
-		
+
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
@@ -169,7 +169,7 @@ export default class OverlayParamsHighlight extends Vue {
 			sentencesPerParagraph: { max: 3, min: 1 },
 			wordsPerSentence: { max: 16, min: 4 }
 		});
-		//TODO make sure it works
+		
 		const uid = StoreProxy.auth.twitch.user.id;
 		const text = lorem.generateParagraphs(1);
 		const message:TwitchatDataTypes.MessageChatData = {

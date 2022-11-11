@@ -51,8 +51,6 @@ export default class PublicAPI extends EventDispatcher {
 			}
 			this.dispatchEvent(new TwitchatEvent(event.type, data));
 		}
-
-		console.log("INITIALIZE");
 		
 		this.listenOBS();
 	}
@@ -104,7 +102,6 @@ export default class PublicAPI extends EventDispatcher {
 		//@ts-ignore
 		OBSWebsocket.instance.obsSocket.on("CustomEvent",
 		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
-			console.log("ON CUSTOM", e.type, e.data);
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			const data = e.data as {id:string};
@@ -112,7 +109,6 @@ export default class PublicAPI extends EventDispatcher {
 				if(this._idsDone[data.id] === true) return;
 				this._idsDone[data.id] = true;
 			}
-			console.log("DISPATCH", e.type);
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
 		})
 	}

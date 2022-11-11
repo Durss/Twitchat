@@ -156,7 +156,6 @@ export default class OverlayChatHighlight extends Vue {
 			this.showCurrent();
 			const startTime = Date.now();
 			const duration = this.clipData!.duration;
-			console.log(duration, startTime);
 			this.progressBarInterval = setInterval(()=> {
 				this.clipPercent = (Date.now() - startTime) / (duration*1000);
 				
@@ -204,15 +203,12 @@ export default class OverlayChatHighlight extends Vue {
 
 	private showCurrent():void {
 		if(!this.params) return;
-		console.log(this.$refs.clip_holder);
 		const holder = (this.$refs.holder ?? this.$refs.clip_holder) as HTMLDivElement;
 		if(!holder) return;
 
 		const bounds = holder.getBoundingClientRect();
 		const winW = window.innerWidth;
 		const winH = window.innerHeight;
-		console.log(holder);
-		console.log(bounds);
 
 		if(this.params.position.indexOf("r") > -1){
 			gsap.from(holder, {x:winW, duration:1, ease:"sine.out"});
