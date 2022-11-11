@@ -392,7 +392,7 @@ export default class Chat extends Vue {
 		watch(() => this.$store("poll").data, (newValue, prevValue) => {
 			let poll = this.$store("poll").data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-			if(poll || isNew) this.setCurrentNotification("poll");
+			if(poll && isNew) this.setCurrentNotification("poll");
 		});
 
 		//Auto opens the bingo status when created
