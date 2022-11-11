@@ -1020,6 +1020,10 @@ export default class MessageList extends Vue {
 			const target = event.target as HTMLElement;
 			if (target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
 		}
+		
+		//Do not mark as read if there's a selection
+		if(window.getSelection()?.type === "Range") return;
+
 		if (this.$store("params").features.markAsRead.value !== true) return;
 		m.markedAsRead = !m.markedAsRead;
 		if (this.prevMarkedReadMessage && this.prevMarkedReadMessage != m) {
@@ -1027,8 +1031,8 @@ export default class MessageList extends Vue {
 		}
 		if (m.markedAsRead) {
 			this.prevMarkedReadMessage = m;
-			const div = (this.$refs["message_" + m.id] as Vue[])[0];
-			this.markedReadItem = div.$el;
+			const div = (this.$refs["message_" + m.id] as HTMLDivElement[])[0];
+			this.markedReadItem = div;
 		} else {
 			this.markedReadItem = null;
 		}

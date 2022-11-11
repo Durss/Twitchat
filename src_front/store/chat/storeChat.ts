@@ -322,7 +322,6 @@ export const storeChat = defineStore('chat', {
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-					//TODO sending a whisper increments the unread count and creates a conversation with ourself, fix that
 					const correspondantId = message.user.id == sAuth.twitch.user.id? message.to.id : message.user.id
 					if(!this.whispers[correspondantId]) this.whispers[correspondantId] = [];
 					this.whispers[correspondantId].push(message);
