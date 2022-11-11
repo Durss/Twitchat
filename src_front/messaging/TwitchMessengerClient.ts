@@ -441,7 +441,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
 		const login			= tags.username ?? tags["display-name"];
-		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"]);
+		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"], undefined, false, true);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip			= tags.badges?.vip != undefined;
 		const isSub			= tags.badges?.subscriber != undefined || tags.subscriber === true;

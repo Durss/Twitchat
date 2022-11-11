@@ -88,7 +88,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false):TwitchatDataTypes.TwitchatUser {
 			const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested  via hashmaps for fast accesses
@@ -188,7 +188,7 @@ export const storeUsers = defineStore('users', {
 			}
 			
 			if(!user.temporary) {
-				if(user.id && user.login && user.pronouns == null) this.checkPronouns(user);
+				if(getPronouns && user.id && user.login && user.pronouns == null) this.checkPronouns(user);
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
 				
@@ -269,7 +269,7 @@ export const storeUsers = defineStore('users', {
 								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
 								//If user was temporary, load more info
 								delete userLocal.temporary;
-								if(userLocal.id && userLocal.login) this.checkPronouns(userLocal);
+								if(getPronouns && userLocal.id && userLocal.login) this.checkPronouns(userLocal);
 								if(batchItem.channelId && userLocal.id) this.checkFollowerState(userLocal, batchItem.channelId);
 							}
 							if(batchItem.cb) batchItem.cb(userLocal);
@@ -433,7 +433,11 @@ export const storeUsers = defineStore('users', {
 
 		//Check if user is following
 		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
-			//TODO batch queries and don't spam them all at once. This crashes everything when joining a room with thousands of chatters
+			if(channelId != StoreProxy.auth.twitch.user.id) {
+				//Only get follower state for our own chan
+				user.channelInfo[channelId].is_following = true;
+				return true;
+			}
 			//If that's us, flag as a follower;
 			if(user.channelInfo[channelId]?.is_broadcaster) {
 				user.channelInfo[channelId].is_following = true;
@@ -454,7 +458,6 @@ export const storeUsers = defineStore('users', {
 
 		//Check for user's pronouns
 		checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
-			//TODO batch queries and don't spam them all at once. This crashes everything when joining a room with thousands of chatters
 			// console.log("Check pronouns?", user.login, user.id, user.pronouns, !user.id, !user.login, user.pronouns != undefined);
 			if(!user.id || !user.login || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
 			// console.log("Load pronouns !", user.login);
