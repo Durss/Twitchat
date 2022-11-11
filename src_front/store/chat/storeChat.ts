@@ -521,6 +521,48 @@ export const storeChat = defineStore('chat', {
 				&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
 					VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
 				}
+					
+				//If there's a mention, search for last messages within
+				//a max timeframe to find if the message may be a reply to
+				//a message that was sent by the mentionned user
+				if(/@\w/gi.test(message.message)) {
+					// console.log("Mention found");
+					const ts = Date.now();
+					const messages = this.messages;
+					const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
+					const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
+					for (let i = 0; i < matches.length; i++) {
+						const match = matches[i].replace("@", "").toLowerCase();
+						// console.log("Search for message from ", match);
+						const candidates = messages.filter(m => {
+							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return false;
+							return m.user.login == match
+						}) as TwitchatDataTypes.MessageChatData[];
+						//Search for oldest matching candidate
+						for (let j = 0; j < candidates.length; j++) {
+							const c = candidates[j];
+							// console.log("Found candidate", c);
+							if(ts - c.date < timeframe) {
+								// console.log("Timeframe is OK !");
+								if(c.answers) {
+									//If it's the root message of a conversation
+									c.answers.push( message );
+									message.answersTo = c;
+								}else if(c.answersTo && c.answersTo.answers) {
+									//If the messages answers to a message itself answering to another message
+									c.answersTo.answers.push( message );
+									message.answersTo = c.answersTo;
+								}else{
+									//If message answers to a message not from a conversation
+									message.answersTo = c;
+									if(!c.answers) c.answers = [];
+									c.answers.push( message );
+								}
+								break;
+							}
+						}
+					}
+				}
 
 				TriggerActionHandler.instance.onMessage(message);
 			}
