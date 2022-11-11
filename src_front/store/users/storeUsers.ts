@@ -2,7 +2,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
+import { reactive, type UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
@@ -301,7 +301,7 @@ export const storeUsers = defineStore('users', {
 			if(user.login)			hashmaps.loginToUser[user.login] = user;
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
 
-			userList.push(user);
+			userList.push(reactive(user));
 
 			if(user.temporary != true) {
 				if(loadCallback) loadCallback(user);
