@@ -1982,14 +1982,11 @@ export default class TwitchUtils {
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.whisper(message, toLogin, toId);
 		}else {
-			if(res.status == 401) {
-				try {
-					const json = await res.json();
-					if(json) StoreProxy.main.alert(json.message);
-				}catch(error){
-					//Ignore
-					StoreProxy.main.alert("You are not allowed to send whispers from Twitchat.");
-				}
+			try {
+				const json = await res.json();
+				if(json) StoreProxy.main.alert(json.message);
+			}catch(error){
+				StoreProxy.main.alert("You are not allowed to send whispers from Twitchat.");
 			}
 			return false;
 		}
