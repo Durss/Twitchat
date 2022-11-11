@@ -20,6 +20,8 @@ import GlobalEvent from '@/events/GlobalEvent'
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let activityFeedList:TwitchatDataTypes.ChatMessageTypes[] = [];
+let greetedUsers:{[key:string]:number} = {};
+let greetedUsersInitialized:boolean = false;
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -311,6 +313,14 @@ export const storeChat = defineStore('chat', {
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 
+			if(!greetedUsersInitialized) {
+				greetedUsersInitialized = true;
+				const history = DataStore.get(DataStore.GREET_HISTORY);
+				greetedUsers = JSON.parse(history ?? "{}");
+				//Previously they were stored in an array instead of an object, convert it
+				if(Array.isArray(greetedUsers)) greetedUsers = {};
+			}
+
 			message = reactive(message);
 
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT) {
@@ -336,12 +346,13 @@ export const storeChat = defineStore('chat', {
 					// 	'message-id': data.tags['message-id'],
 					// }
 					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-				}else if(message.user.greeted !== true) {
+				}else if(message.user.greeted !== true
+				&& (!greetedUsers[message.user.id] || greetedUsers[message.user.id] < Date.now())) {
 					message.todayFirst = true;
 					message.user.greeted = true;
+					greetedUsers[message.user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
+					DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
 				}
-				
-				//TODO reload greeted state from cache on load
 				
 				// todayFirst:user.greeted===false,
 				//Check if the message contains a mention

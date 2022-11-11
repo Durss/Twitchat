@@ -319,7 +319,7 @@ import Ajv from "ajv";
 		"p:highlightNonFollowers": {type:"boolean"},
 		"p:highlightSubs": {type:"boolean"},
 		"p:highlightVips": {type:"boolean"},
-		"p:historySize": {type:"integer", minimum:50, maximum:500},
+		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data
 		"p:ignoreCommands": {type:"boolean"},
 		"p:ignoreListCommands": {type:"boolean"},
 		"p:keepDeletedMessages": {type:"boolean"},

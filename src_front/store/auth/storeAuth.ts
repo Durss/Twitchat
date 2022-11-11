@@ -14,7 +14,6 @@ import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } fro
 
 let refreshTokenTO:number = -1;
 
-//TODO make this platform agnostic
 export const storeAuth = defineStore('auth', {
 	state: () => ({
 		authenticated: false,

@@ -58,7 +58,6 @@ export default class DataStore {
 	private static saveTO:number = -1;
 	private static dataImported:boolean = false;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
-	private static propToSavableState:{[key:string]:boolean} = {};
 	
 	
 	/********************
@@ -316,7 +315,6 @@ export default class DataStore {
 			}
 		}
 		
-		this.propToSavableState[key] = save;
 		if(!this.store) this.init();
 		if(value == undefined) return;
 		this.rawStore[key] = value;
