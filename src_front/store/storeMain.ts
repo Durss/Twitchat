@@ -158,58 +158,6 @@ export const storeMain = defineStore("main", {
 					}
 				});
 
-				//Listen for twitch API event
-				PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-					if(sTimer.timerStart > 0) {
-						PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:sTimer.timerStart });
-					}
-					
-					if(sTimer.countdown) {
-						const data = { startAt:sTimer.countdown?.startAt, duration:sTimer.countdown?.duration };
-						PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
-					}
-				});
-	
-				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
-					const data = (e.data as unknown) as {winner:TwitchatDataTypes.EntryItem};
-					StoreProxy.raffle.onRaffleComplete(data.winner);
-				});
-	
-				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-					const raider = sStream.lastRaider;
-					if(raider) {
-						sChat.shoutout(raider);
-					}else{
-						this.alert("You have not been raided yet");
-					}
-				});
-				
-				PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
-					const enable = (e.data as unknown) as {enabled:boolean};
-					let enabled = enable.enabled;
-					//If no JSON is specified, just toggle the state
-					if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
-					sEmergency.setEmergencyMode(enabled)
-				});
-				
-				PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
-					sChat.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
-				});
-				
-				PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
-					sVoice.voiceText.tempText = (e.data as {text:string}).text;
-					sVoice.voiceText.finalText = "";
-				});
-				
-				PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent)=> {
-					sVoice.voiceText.rawTempText = (e.data as {text:string}).text;
-				});
-				
-				PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
-					sVoice.voiceText.finalText = (e.data as {text:string}).text;
-				});
-				PublicAPI.instance.initialize();
-
 				try {
 					await new Promise((resolve,reject)=> {
 						sAuth.twitch_autenticate(undefined, (success:boolean)=>{
@@ -229,6 +177,70 @@ export const storeMain = defineStore("main", {
 					return;
 				}
 				
+			}
+
+			//Listen for twitch API event
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
+				if(sTimer.timerStart > 0) {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:sTimer.timerStart });
+				}
+				
+				if(sTimer.countdown) {
+					const data = { startAt:sTimer.countdown?.startAt, duration:sTimer.countdown?.duration };
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+				}
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+				const data = (e.data as unknown) as {winner:TwitchatDataTypes.EntryItem};
+				StoreProxy.raffle.onRaffleComplete(data.winner);
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+				const raider = sStream.lastRaider;
+				if(raider) {
+					sChat.shoutout(raider);
+				}else{
+					this.alert("You have not been raided yet");
+				}
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+				const enable = (e.data as unknown) as {enabled:boolean};
+				let enabled = enable.enabled;
+				//If no JSON is specified, just toggle the state
+				if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
+				sEmergency.setEmergencyMode(enabled)
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
+				sChat.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
+				sVoice.voiceText.tempText = (e.data as {text:string}).text;
+				sVoice.voiceText.finalText = "";
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent)=> {
+				sVoice.voiceText.rawTempText = (e.data as {text:string}).text;
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
+				sVoice.voiceText.finalText = (e.data as {text:string}).text;
+			});
+			PublicAPI.instance.initialize();
+			
+			//Init OBS connection
+			//If params are specified on URL, use them (used by overlays)
+			const port = Utils.getQueryParameterByName("obs_port");
+			const pass = Utils.getQueryParameterByName("obs_pass");
+			const ip = Utils.getQueryParameterByName("obs_ip");
+			console.log(port, pass, ip);
+			//If OBS params are on URL, connect
+			if(port != null && ip != null) {
+				sOBS.connectionEnabled = true;
+				OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
 			
 			this.initComplete = true;
@@ -399,7 +411,7 @@ export const storeMain = defineStore("main", {
 
 			SchedulerHelper.instance.start();
 			
-			//Initialise new toggle param for OBS connection.
+			//Initialise the new toggle param for OBS connection.
 			//If any OBS param exists, set it to true because the
 			//user probably configured it. Otherwise set it to false
 			if(DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === null) {
@@ -415,16 +427,11 @@ export const storeMain = defineStore("main", {
 			
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)
-			let port = Utils.getQueryParameterByName("obs_port");
-			let pass = Utils.getQueryParameterByName("obs_pass");
-			let ip = Utils.getQueryParameterByName("obs_ip");
-			const urlForced = port || pass || ip;
-			if(!port) port = DataStore.get(DataStore.OBS_PORT);
-			if(!pass) pass = DataStore.get(DataStore.OBS_PASS);
-			if(!ip) ip = DataStore.get(DataStore.OBS_IP);
+			const port = DataStore.get(DataStore.OBS_PORT);
+			const pass = DataStore.get(DataStore.OBS_PASS);
+			const ip = DataStore.get(DataStore.OBS_IP);
 			//If OBS params are on URL or if connection is enabled, connect
-			if((sOBS.connectionEnabled || urlForced)
-			&& (port != undefined || pass != undefined || ip != undefined)) {
+			if(sOBS.connectionEnabled && (port != undefined || pass != undefined || ip != undefined)) {
 				sOBS.connectionEnabled = true;
 				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}

@@ -264,6 +264,8 @@ export namespace TwitchatDataTypes {
 	}
 	export type MusicTrackDataKeys = keyof MusicTrackData;
 
+	export type ScreenPosition = "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+
 	export interface ChatHighlightInfo {
 		message?:string,
 		user?:TwitchatUser,
@@ -271,7 +273,7 @@ export namespace TwitchatDataTypes {
 		params?:ChatHighlightParams,
 	}
 	export interface ChatHighlightParams {
-		position:"tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+		position:ScreenPosition;
 	}
 	export interface ClipInfo {
 		duration:number;

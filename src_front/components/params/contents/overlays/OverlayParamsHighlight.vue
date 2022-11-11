@@ -123,7 +123,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 export default class OverlayParamsHighlight extends Vue {
 	
 	public overlayExists = false;
-	public placement = this.$store("chat").chatHighlightOverlayParams.position;
+	public placement:TwitchatDataTypes.ScreenPosition = "bl";
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
@@ -131,7 +131,9 @@ export default class OverlayParamsHighlight extends Vue {
 	
 	public get overlayUrl():string { return this.$overlayURL("chathighlight"); }
 
-	public mounted():void {
+	public beforeMount(): void {
+		this.placement = this.$store("chat").chatHighlightOverlayParams.position;
+		
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
