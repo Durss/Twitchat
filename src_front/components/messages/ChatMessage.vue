@@ -291,8 +291,7 @@ export default class ChatMessage extends Vue {
 				const b = this.badges[i];
 				switch(b.id) {
 					case "predictions": {
-						//TODO color probably won't work
-						const color = b.title && b.title.indexOf("pink") > -1? "pink" : "blue";
+						const color = (b.version ?? "").indexOf("pink") > -1? "pink" : "blue";
 						badges.push({label:b.title??"Prediction", class:"prediction "+color});
 						break;
 					}

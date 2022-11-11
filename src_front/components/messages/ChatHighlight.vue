@@ -26,6 +26,8 @@
 				<div class="game">{{streamInfo.game_name}}</div>
 			</div>
 
+			<div v-if="streamInfoError" class="streamInfo error">Unable to load last stream info :(</div>
+
 			<div class="automodActions" v-if="canUnban ||canBlock">
 				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click="unbanUser()" />
 				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click="blockUser()" />
@@ -93,6 +95,7 @@ export default class ChatHighlight extends Vue {
 	public moderating = false;
 	public canUnban = false;
 	public canBlock = false;
+	public streamInfoError = false;
 	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
 	public additionalUsers:TwitchatDataTypes.TwitchatUser[] = [];
 	
@@ -336,6 +339,7 @@ export default class ChatHighlight extends Vue {
 	}
 
 	private async loadLastStreamInfos():Promise<void> {
+		this.streamInfoError = false;
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
 		this.loading = true;
 		this.pStreamInfo = null;
@@ -345,7 +349,7 @@ export default class ChatHighlight extends Vue {
 				this.pStreamInfo = streams[0];
 			}
 		}catch(error) {
-			//TODO
+			this.streamInfoError = true;
 		}
 		this.loading = false;
 	}
@@ -363,7 +367,7 @@ export default class ChatHighlight extends Vue {
 		flex-grow: 1;
 
 		&>*:not(:first-child) {
-			margin-top: 10px;
+			margin-top: .25em;
 		}
 
 		.reason {
@@ -435,7 +439,7 @@ export default class ChatHighlight extends Vue {
 		.streamInfo {
 			color: @mainColor_light;
 			background-color: rgba(255, 255, 255, .15);
-			border-radius: 5px;
+			border-radius: .5em;
 			overflow: hidden;
 			width: 90%;
 			.head {
@@ -445,26 +449,24 @@ export default class ChatHighlight extends Vue {
 				text-transform: uppercase;
 			}
 			.title {
-				padding: 5px;
+				padding: .5em;
 				text-align: left;
 				// font-weight: bold;
 			}
 			.game {
-				padding: 5px;
+				padding: .5em;;
 				padding-top: 0;
 				text-align: left;
 				font-style: italic;
 			}
+
+			&.error {
+				background-color: @mainColor_alert;
+				text-align: center;
+				padding:.5em;
+			}
 		}
 	}
-			width: 100%;
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			align-items: center;
-			.button:not(:first-child) {
-				margin-left: .5em;
-			}
 
 	.soButton {
 		width: 2.5em;

@@ -314,6 +314,7 @@ export default class ActivityFeed extends Vue {
 
 	.trainFilter {
 		border-radius: 0;
+		z-index: 1;
 		:deep(.label) {
 			flex-grow: 1;
 		}

@@ -229,6 +229,7 @@ export default class TwitchUtils {
 				if(badgeInfos && badgeInfos[setID]) {
 					badge.title = this.getBadgeTitle(setID, badgeInfos[setID] as string);
 				}
+				badge.version = version;
 				result.push(badge);
 			}
 		}

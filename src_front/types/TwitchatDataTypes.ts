@@ -484,6 +484,7 @@ export namespace TwitchatDataTypes {
 		icon:TwitchatImage;
 		id:TwitchatUserBadgeType;
 		title?:string;
+		version?:string;
 	}	
 
 	export interface RaidInfo {

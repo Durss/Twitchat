@@ -280,9 +280,10 @@ export default class ChatAd extends Vue {
 		}, 2000);
 	}
 
-	public async simulateEvent(code:string):Promise<void> {
-		// IRCClient.instance.sendFakeEvent(code);
-		//TODO migrate JSONs
+	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType):Promise<void> {
+		this.$store("debug").simulateMessage(type, async (message)=> {
+			//
+		});
 	}
 
 	public async makeDonationPublic():Promise<void> {
@@ -303,7 +304,6 @@ export default class ChatAd extends Vue {
 		}
 		this.loading = false;
 		this.madeDonationPublic = true;
-		console.log("ok");
 		DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 	}
 

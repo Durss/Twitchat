@@ -107,7 +107,8 @@ export default class PredictionForm extends Vue {
 
 	public async beforeMount():Promise<void> {
 		if(this.$store("main").tempStoreValue) {
-			this.title = this.$store("main").tempStoreValue as string;
+			const titlePrefill = this.$store("main").tempStoreValue as string;
+			if(titlePrefill) this.title = titlePrefill;
 			this.$store("main").tempStoreValue = null;
 		}
 	}

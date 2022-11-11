@@ -479,7 +479,10 @@ export default class ChatForm extends Vue {
 		if(cmd == "/poll") {
 			event.preventDefault();//avoid auto submit of the opening form
 			//Open poll form
-			this.$store("main").tempStoreValue = params.join(" ");
+			const title = params.join(" ");
+			if(title != "title") {
+				this.$store("main").tempStoreValue = title;
+			}
 			this.$emit("poll");
 			this.message = "";
 		}else
@@ -487,7 +490,10 @@ export default class ChatForm extends Vue {
 		if(cmd == "/prediction") {
 			event.preventDefault();//avoid auto submit of the opening form
 			//Open prediction form
-			this.$store("main").tempStoreValue = params.join(" ");
+			const title = params.join(" ");
+			if(title != "title") {
+				this.$store("main").tempStoreValue = title;
+			}
 			this.$emit("pred");
 			this.message = "";
 		}else
@@ -713,15 +719,14 @@ export default class ChatForm extends Vue {
 		
 		if(cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
-			console.log(params.join(""));
 			try {
-				//TODO
-				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
-				noticeMessage = "This command needs to be migrated to new Twitchat's data model...";
+				const json = JSON.parse(params.join(""));
+				this.$store("chat").addMessage(json);
+				this.message = "";
+				return;
 			}catch(error) {
 				this.$store("main").alert("Invalid or missing JSON");
 			}
-			this.message = "";
 		}else
 
 		if(cmd == "/ttsoff" || cmd == "/tts") {
