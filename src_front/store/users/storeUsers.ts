@@ -163,7 +163,7 @@ export const storeUsers = defineStore('users', {
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
 			//we're here.
-			user = user!;
+			user = reactive(user!);
 
 			if(channelId) {
 				//Init channel data for this user if not already existing
@@ -301,7 +301,7 @@ export const storeUsers = defineStore('users', {
 			if(user.login)			hashmaps.loginToUser[user.login] = user;
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
 
-			userList.push(reactive(user));
+			userList.push(user);
 
 			if(user.temporary != true) {
 				if(loadCallback) loadCallback(user);
