@@ -66,7 +66,7 @@
 							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
 						<ParamItem class="item sync" :paramData="param_keywordsSync[f.id]" v-model="f.serverSync" data-tooltip="If the rule contains personnal information<br>you can choose not to save it on server.<br>You'll loose it if you clean your cookies." />
-						<ParamItem class="item emergency" :paramData="param_keywordsEmergency[f.id]" v-model="f.emergency" data-tooltip="If a message matches this rule,<br>the emergency mode will be enabled" />
+						<ParamItem class="item emergency" :paramData="param_keywordsEmergency[f.id]" v-model="f.emergency" data-tooltip="If a message matches this rule,<br>the emergency mode will be started" />
 						<ParamItem class="item onlyFirst" :paramData="param_keywordsOnlyFirst[f.id]" v-model="f.firstTimeChatters" data-tooltip="Apply this rule only to first<br>message ever of a user on your chat" />
 						<ParamItem class="item ruleName" :paramData="param_keywordsLabel[f.id]" v-model="f.label" />
 						<ParamItem class="item rule" :paramData="param_keywordsRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
