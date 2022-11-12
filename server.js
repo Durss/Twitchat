@@ -1423,6 +1423,8 @@ const UserDataSchema = {
 						regex: {type:"string", maxLength:5000},
 						enabled: {type:"boolean"},
 						serverSync: {type:"boolean"},
+						emergency: {type:"boolean"},
+						firstTimeChatters: {type:"boolean"},
 					}
 				},
 			}

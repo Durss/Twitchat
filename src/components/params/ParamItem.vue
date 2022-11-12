@@ -390,6 +390,7 @@ export default class ParamItem extends Vue {
 			label {
 				flex-grow: 1;
 				margin: 0;
+				line-height: 1.1em;
 				padding-right: 1em;
 				cursor: pointer;
 			}

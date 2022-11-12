@@ -1951,10 +1951,21 @@ const store = createStore({
 						const m = (messageData as IRCEventDataList.Message);
 						let rule = Utils.isAutomoded(m.message, m.tags);
 						if(rule) {
-							messageData.ttAutomod = rule;
-							let id = messageData.tags.id as string;
-							IRCClient.instance.deleteMessage(id);
-							return;
+							console.log(rule);
+							//If rule does not requests to be applied only to first time chatters
+							//or if it's a first time chatter
+							if(rule.firstTimeChatters !== true ||
+								(rule.firstTimeChatters === true
+								&& (m.tags['first-msg'] === true || m.tags["msg-id"] == "user-intro"))
+							) {
+								messageData.ttAutomod = rule;
+								let id = messageData.tags.id as string;
+								IRCClient.instance.deleteMessage(id);
+								if(rule.emergency === true && state.emergencyParams.enabled === true) {
+									commit("setEmergencyMode", true);
+								}
+								return;
+							}
 						}
 					}
 
@@ -1969,6 +1980,9 @@ const store = createStore({
 							if(rule) {
 								messageData.ttAutomod = rule;
 								IRCClient.instance.sendMessage(`/ban ${username} banned by Twitchat's automod because nickname matched mod rule "${rule.label}"`);
+								if(rule.emergency === true && state.emergencyParams.enabled === true) {
+									commit("setEmergencyMode", true);
+								}
 								return;
 							}
 						}

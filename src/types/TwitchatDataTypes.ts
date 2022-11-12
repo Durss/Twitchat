@@ -515,6 +515,8 @@ export interface AutomodParamsKeywordFilterData {
 	label:string;
 	regex:string;
 	serverSync:boolean;
+	emergency:boolean;
+	firstTimeChatters:boolean;
 }
 
 export interface ShoutoutTriggerData {

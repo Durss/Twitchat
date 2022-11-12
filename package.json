@@ -59,6 +59,6 @@
 		"vue3-country-flag-icon": "^0.1.2",
 		"vue3-marquee": "^3.0.7",
 		"vuedraggable": "^4.1.0",
-		"vuex": "^4.0.2"
+		"vuex": "^4.1.0"
 	}
 }
