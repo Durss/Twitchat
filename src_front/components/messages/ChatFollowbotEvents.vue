@@ -1,7 +1,7 @@
 <template>
 	<div class="chatfollowbotevents" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
-		<div class="head" @click="expand = !expand">
+		<div class="head" @click.stop="expand = !expand">
 			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			<img src="@/assets/icons/shield.svg" class="icon">
 			<img src="@/assets/icons/follow.svg" class="icon">
@@ -29,7 +29,7 @@ import { Options, Vue } from 'vue-class-component';
 	},
 	components:{
 	},
-	emits:["click"]
+	emits:["click", "onRead"]
 })
 export default class ChatFollowbotEvents extends Vue {
 	public messageData!:TwitchatDataTypes.MessageFollowbotData;
@@ -63,6 +63,9 @@ export default class ChatFollowbotEvents extends Vue {
 	flex-direction: column;
 	align-items: flex-start;
 	pointer-events: all;
+	&:hover {
+		background-color: @mainColor_alert_light;
+	}
 	
 	.head {
 		cursor: pointer;

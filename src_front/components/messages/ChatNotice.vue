@@ -41,7 +41,12 @@ export default class ChatNotice extends Vue {
 		let res = ["chatnotice"];
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.OFFLINE
 		|| this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
-		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) res.push("emergency");
+		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) {
+			res.push("emergency");
+			if((this.messageData as TwitchatDataTypes.MessageEmergencyModeInfo).enabled) {
+				res.push("enabled");
+			}
+		}
 		return res;
 	}
 
@@ -91,7 +96,16 @@ export default class ChatNotice extends Vue {
 	&.emergency {
 		padding: .5em;
 		border-radius: .5em;
-		background-color: @mainColor_alert;
+		background-color: rgba(255, 255, 255, .15);
+		&:hover {
+		background-color: rgba(255, 255, 255, .25);
+		}
+		&.enabled {
+			background-color: @mainColor_alert;
+			&:hover {
+				background-color: @mainColor_alert_light;
+			}
+		}
 		.message {
 			color: @mainColor_light;
 			opacity: 1;

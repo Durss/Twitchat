@@ -103,6 +103,9 @@ export default class ChatJoinLeave extends Vue {
 	font-style: italic;
 	line-height: 1.25em;
 	background-color: fade(@mainColor_warn, 10%);
+	&:hover {
+		background-color: fade(@mainColor_warn, 20%);
+	}
 
 	a, strong {
 		color: @mainColor_warn_light;
@@ -114,6 +117,9 @@ export default class ChatJoinLeave extends Vue {
 
 	&.alert {
 		background-color: fade(@mainColor_alert, 10%);
+		&:hover {
+			background-color: fade(@mainColor_alert, 20%);
+		}
 		a, strong {
 			color: @mainColor_alert_light;
 			opacity: .9;

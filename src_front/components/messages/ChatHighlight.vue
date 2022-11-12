@@ -282,13 +282,10 @@ export default class ChatHighlight extends Vue {
 				break;
 			}
 		}
-			watch(()=>this.messageData, (v)=>{
-				console.log("MESSAGE UPDATE", v);
-			}, {deep:true})
 	}
 
 	public beforeUpdate(): void {
-		console.log("UPDATE", this.messageData);
+		// console.log("UPDATE", this.messageData);
 	}
 
 
