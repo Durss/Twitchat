@@ -63,28 +63,28 @@ export default class PubSub extends EventDispatcher {
 				this.ping();
 			}, 60000*2.5);
 
-			const uid = StoreProxy.auth.twitch.user.id;
+			const myUID = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [
-				"channel-points-channel-v1."+uid,
-				"chat_moderator_actions."+uid+"."+uid,
-				"automod-queue."+uid+"."+uid,
-				"user-moderation-notifications."+uid+"."+uid,
+				"channel-points-channel-v1."+myUID,
+				"chat_moderator_actions."+myUID+"."+myUID,
+				"automod-queue."+myUID+"."+myUID,
+				"user-moderation-notifications."+myUID+"."+myUID,
 				// "leaderboard-events-v1.bits-usage-by-channel-v1-"+uid+"-WEEK",
 				// "leaderboard-events-v1.sub-gifts-sent-"+uid+"-WEEK",
-				"raid."+uid,
-				"predictions-channel-v1."+uid,
-				"polls."+uid,
-				"hype-train-events-v1."+uid,
-				"following."+uid,
-				"ads."+uid,
-				"video-playback-by-id."+uid,//Get viewer count
-				"community-boost-events-v1."+uid,//Boost after a boost train complete
-				"ad-property-refresh."+uid,
-				"whispers."+uid,
-				"chatrooms-user-v1."+uid,//TO or ban events
-				"stream-chat-room-v1."+uid,//Host events; room settings; extension messages
-				"broadcast-settings-update."+uid,//Stream info update
-				"shoutout."+uid,//when receiving a shoutout
+				"raid."+myUID,
+				"predictions-channel-v1."+myUID,
+				"polls."+myUID,
+				"hype-train-events-v1."+myUID,
+				"following."+myUID,
+				"ads."+myUID,
+				"video-playback-by-id."+myUID,//Get viewer count
+				"community-boost-events-v1."+myUID,//Boost after a boost train complete
+				"ad-property-refresh."+myUID,
+				"whispers."+myUID,
+				"chatrooms-user-v1."+myUID,//TO or ban events
+				"stream-chat-room-v1."+myUID,//Host events; room settings; extension messages
+				"broadcast-settings-update."+myUID,//Stream info update
+				"shoutout."+myUID,//when receiving a shoutout
 				// "user-drop-events."+uid,
 				// "community-points-user-v1."+uid,
 				// "presence."+uid,
@@ -102,6 +102,7 @@ export default class PubSub extends EventDispatcher {
 				const uids = users.map(v=> v.id);
 				for (let i = 0; i < uids.length; i++) {
 					const uid = uids[i];
+					if(uid == myUID) continue;
 					subscriptions.push("raid."+uid);
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
@@ -229,7 +230,7 @@ export default class PubSub extends EventDispatcher {
 
 	public async simulateFollowbotRaid():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		for (let i = 0; i < 100; i++) {
+		for (let i = 0; i < 200; i++) {
 			const id = i;//Math.round(Math.random()*1000000);
 			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
 			this.followingEvent({
@@ -813,6 +814,7 @@ export default class PubSub extends EventDispatcher {
 			m.message		= localObj.redemption.user_input;
 			m.message_html	= TwitchUtils.parseEmotes(localObj.redemption.user_input, undefined, false, true);
 		}
+		
 		StoreProxy.chat.addMessage(m);
 	}
 
