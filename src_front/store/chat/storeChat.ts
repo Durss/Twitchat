@@ -606,6 +606,7 @@ export const storeChat = defineStore('chat', {
 					//them into a single followbot alert with all the users in it
 					//Only search within the last 100 messages
 					const maxIndex = Math.max(0, activityFeedList.length - 100);
+					let postMessage = true;
 					for (let i = messageList.length-1; i >= maxIndex; i--) {
 						const m = messageList[i];
 						//Found a follow event, delete it
@@ -623,9 +624,14 @@ export const storeChat = defineStore('chat', {
 						&& m.date > Date.now() - 1 * 60 * 1000
 						&& m.platform == message.platform) {
 							bulkMessage = m;
-							deletedMessages.push(m);
-							messageList.splice(i, 1);//remove it, it will be pushed again later
-							i--;
+							if(i == messageList.length-1) {
+								postMessage = false;
+							}else{
+								postMessage = true;
+								deletedMessages.push(m);
+								messageList.splice(i, 1);//remove it, it will be pushed again later
+								i--;
+							}
 						}
 					}
 					if(!bulkMessage) {
@@ -662,11 +668,7 @@ export const storeChat = defineStore('chat', {
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_ACTIVITY_FEED, m));
 					}
-					// if(!postMessage) {
-					// 	EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, bulkMessage));
-					// 	EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_ACTIVITY_FEED, bulkMessage));
-					// 	return;
-					// }
+					if(!postMessage) return;
 				}
 
 				//TODO Broadcast to OBS-ws
