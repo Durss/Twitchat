@@ -91,7 +91,7 @@ export const storeTTS = defineStore('tts', {
 
 			if(read) {
 				StoreProxy.chat.addMessage({
-					type:"notice",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:user.platform,
@@ -100,7 +100,7 @@ export const storeTTS = defineStore('tts', {
 				});
 			}else{
 				StoreProxy.chat.addMessage({
-					type:"notice",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:user.platform,

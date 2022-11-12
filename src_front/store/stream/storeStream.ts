@@ -61,7 +61,7 @@ export const storeStream = defineStore('stream', {
 				
 				if(activities.length > 0) {
 					const res:TwitchatDataTypes.MessageHypeTrainSummaryData = {
-						type:"hype_train_summary",
+						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 						channel_id:StoreProxy.auth.twitch.user.id,
 						train:data,
 						id:Utils.getUUID(),
@@ -103,7 +103,7 @@ export const storeStream = defineStore('stream', {
 			this.commercialEnd = date;
 			if(date === 0) {
 				StoreProxy.chat.addMessage({
-					type:"notice",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
@@ -113,7 +113,7 @@ export const storeStream = defineStore('stream', {
 			}else{
 				const duration = Math.round((date - Date.now())/1000);
 				StoreProxy.chat.addMessage({
-					type:"notice",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",

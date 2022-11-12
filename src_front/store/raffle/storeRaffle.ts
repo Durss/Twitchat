@@ -1,5 +1,5 @@
 import MessengerProxy from '@/messaging/MessengerProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -140,7 +140,7 @@ export const storeRaffle = defineStore('raffle', {
 			
 			//Execute triggers
 			const message:TwitchatDataTypes.MessageRaffleData = {
-				type:"raffle",
+				type:TwitchatDataTypes.TwitchatMessageType.RAFFLE,
 				platform:"twitchat",
 				id:Utils.getUUID(),
 				date:Date.now(),

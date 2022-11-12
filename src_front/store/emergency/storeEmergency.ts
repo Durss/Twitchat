@@ -68,7 +68,7 @@ export const storeEmergency = defineStore('emergency', {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				platform:"twitchat",
-				type: "notice",
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				message:"Emergency mode "+(enable? "enabled" : "disabled"),
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
 				enabled: enable,

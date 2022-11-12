@@ -85,7 +85,7 @@ export default class TriggerActionHandler {
 					date:Date.now(),
 					id:Utils.getUUID(),
 					platform:"twitchat",
-					type:"chat_highlight",
+					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT,
 					info:data,
 				}
 				this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, false, ++this.currentSpoolGUID);
@@ -542,7 +542,7 @@ export default class TriggerActionHandler {
 									id:Utils.getUUID(),
 									date:Date.now(),
 									platform:"twitchat",
-									type:"music_added_to_queue",
+									type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 									track:data,
 								}
 								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (message as unknown) as JsonObject);
@@ -556,7 +556,7 @@ export default class TriggerActionHandler {
 										id:Utils.getUUID(),
 										date:Date.now(),
 										platform:"twitchat",
-										type:"music_added_to_queue",
+										type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 										track:data,
 									}
 									const chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, false, subEvent);

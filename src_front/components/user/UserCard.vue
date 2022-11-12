@@ -81,7 +81,7 @@
 import StoreProxy from '@/store/StoreProxy';
 import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -211,7 +211,7 @@ export default class UserCard extends Vue {
 					id:Utils.getUUID(),
 					platform:"twitch",
 					date:Date.now(),
-					type: "message",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					user:this.user,
 					channel_id: this.channelId,
 					message: "",

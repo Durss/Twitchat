@@ -584,7 +584,7 @@ export default class ChatForm extends Vue {
 					platform:"twitch",
 					user: Utils.pickRand(users),
 					channel_id:this.channelId,
-					type:"message",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					message,
 					message_html:message,
 					answers:[],
@@ -821,7 +821,7 @@ export default class ChatForm extends Vue {
 			const notice:TwitchatDataTypes.MessageNoticeData = {
 				id:Utils.getUUID(),
 				date:Date.now(),
-				type:"notice",
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				platform:"twitchat",
 				noticeId:noticeId,
 				message:noticeMessage,

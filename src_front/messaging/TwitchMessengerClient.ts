@@ -506,7 +506,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const channel_id = this.getChannelID(channel);
 		let res:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",
-			type:"subscription",
+			type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			id:tags.id ?? Utils.getUUID(),
 			channel_id,
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
@@ -560,7 +560,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		const data:TwitchatDataTypes.MessageChatData = {
 			id:tags.id!,
-			type:"message",
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			platform:"twitch",
 			channel_id,
 			date:Date.now(),
@@ -609,7 +609,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				date: data.date,
 				id:Utils.getUUID(),
 				platform:"twitch",
-				type:"reward",
+				type:TwitchatDataTypes.TwitchatMessageType.REWARD,
 				user: data.user,
 				reward: {
 					id:"highlighted-message",
@@ -646,7 +646,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			if(fakeJoin === true) return;
 			const d:TwitchatDataTypes.MessageConnectData = {
 				platform:"twitch",
-				type:"connect",
+				type:TwitchatDataTypes.TwitchatMessageType.CONNECT,
 				id:Utils.getUUID(),
 				date:Date.now(),
 				channel_id,
@@ -658,7 +658,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			if(user.wasOnline === true) return;//User was already here, don't send join notification
 			this.dispatchEvent(new MessengerClientEvent("JOIN", {
 				platform:"twitch",
-				type:"join",
+				type:TwitchatDataTypes.TwitchatMessageType.JOIN,
 				id:Utils.getUUID(),
 				channel_id,
 				date:Date.now(),
@@ -674,7 +674,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(username.toLowerCase() == channelName.replace("#", "").toLowerCase()) {
 			const d:TwitchatDataTypes.MessageDisconnectData = {
 				platform:"twitch",
-				type:"disconnect",
+				type:TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
 				id:Utils.getUUID(),
 				date:Date.now(),
 				channel_id,
@@ -684,7 +684,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}else{
 			this.dispatchEvent(new MessengerClientEvent("LEAVE", {
 				platform:"twitch",
-				type:"leave",
+				type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
 				id:Utils.getUUID(),
 				channel_id,
 				date:Date.now(),
@@ -699,7 +699,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const channel_id = this.getChannelID(channel);
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
-			type:"cheer",
+			type:TwitchatDataTypes.TwitchatMessageType.CHEER,
 			id:tags.id ?? Utils.getUUID(),
 			channel_id,
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
@@ -754,7 +754,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const channel_id = this.getChannelID(channel);
 		this.dispatchEvent(new MessengerClientEvent("RAID", {
 			platform:"twitch",
-			type:"raid",
+			type:TwitchatDataTypes.TwitchatMessageType.RAID,
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
@@ -773,7 +773,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			channel_id: StoreProxy.auth.twitch.user.id,
 			platform:"twitch",
 			id:Utils.getUUID(),
-			type:"disconnect",
+			type:TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
 			date:Date.now(),
 			user:StoreProxy.auth.twitch.user,
 		};
@@ -783,7 +783,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private clearchat(channel:string):void {
 		this.dispatchEvent(new MessengerClientEvent("CLEAR_CHAT", {
 			platform:"twitch",
-			type:"clear_chat",
+			type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
 			id:Utils.getUUID(),
 			channel_id:this.getChannelID(channel),
 			date:Date.now(),
@@ -816,7 +816,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			// 	const channelId = tags["thread-id"].replace(tags["user-id"], "").replace("_", "");
 			// 	const eventData:TwitchatDataTypes.MessageWhisperData = {
 			// 		id:Utils.getUUID(),
-			// 		type:"whisper",
+			//		type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
 			// 		date:Date.now(),
 			// 		channel_id:channelId,
 			// 		platform:"twitch",
@@ -881,7 +881,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const eventData:TwitchatDataTypes.MessageNoticeData = {
 			channel_id: this.getChannelID(channel),
 			id:Utils.getUUID(),
-			type:"notice",
+			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			date:Date.now(),
 			platform:"twitch",
 			message:message,

@@ -259,23 +259,6 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.BAN: {
-					const m:TwitchatDataTypes.MessageBanData = {
-						id:Utils.getUUID(),
-						platform:"twitch",
-						channel_id:uid,
-						date:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-						noticeId:type,
-						user:fakeUser,
-						moderator:user,
-						message:fakeUser.displayName+" has been banned by "+user.displayName,
-						reason:"you're a butt hole",
-					};
-					data = m;
-					break;
-				}
-
 				case TwitchatDataTypes.TwitchatMessageType.POLL: {
 					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 					const count = Math.ceil(Math.random()*10);
@@ -329,7 +312,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageAutobanJoinData = {
 						platform:"twitchat",
 						channel_id: uid,
-						type:"autoban_join",
+						type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user,
@@ -348,7 +331,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.BINGO: {
 					const m:TwitchatDataTypes.MessageBingoData = {
 						platform:"twitchat",
-						type:"bingo",
+						type:TwitchatDataTypes.TwitchatMessageType.BINGO,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user,
@@ -376,7 +359,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageRaffleData = {
 						platform:"twitchat",
-						type:"raffle",
+						type:TwitchatDataTypes.TwitchatMessageType.RAFFLE,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						raffleData: {
@@ -404,7 +387,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
 					const m:TwitchatDataTypes.MessageCountdownData = {
 						platform:"twitchat",
-						type:"countdown",
+						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						countdown: {

@@ -1,5 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
@@ -120,7 +120,7 @@ export default class MessengerProxy {
 				for (const channel in channels) {
 					this.onMessage(new MessengerClientEvent("JOIN", {
 						platform:d.platform,
-						type:"join",
+						type:TwitchatDataTypes.TwitchatMessageType.JOIN,
 						id:Utils.getUUID(),
 						channel_id:channel,
 						date:Date.now(),
@@ -152,7 +152,7 @@ export default class MessengerProxy {
 				for (const channel in channels) {
 					this.onMessage(new MessengerClientEvent("LEAVE", {
 						platform:d.platform,
-						type:"leave",
+						type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
 						id:Utils.getUUID(),
 						channel_id:channel,
 						date:Date.now(),

@@ -1,4 +1,4 @@
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import Config from "../Config";
 import { EventDispatcher } from "../../events/EventDispatcher";
@@ -202,7 +202,7 @@ export default class DeezerHelper extends EventDispatcher{
 					const triggerData:TwitchatDataTypes.MessageMusicStopData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
-						type: "music_stop",
+						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP,
 						platform:"twitchat",
 						track:this.currentTrack
 					}
@@ -386,7 +386,7 @@ export default class DeezerHelper extends EventDispatcher{
 			const triggerData:TwitchatDataTypes.MessageMusicStartData = {
 				id:Utils.getUUID(),
 				date:Date.now(),
-				type: "music_start",
+				type:TwitchatDataTypes.TwitchatMessageType.MUSIC_START,
 				platform:"twitchat",
 				track:this.currentTrack
 			};

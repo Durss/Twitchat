@@ -581,7 +581,7 @@ export const storeChat = defineStore('chat', {
 						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
 							platform:user.platform,
 							channel_id: message.channel_id,
-							type:"autoban_join",
+							type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
 							date:Date.now(),
 							id:Utils.getUUID(),
 							user,
@@ -625,6 +625,7 @@ export const storeChat = defineStore('chat', {
 						&& m.platform == message.platform) {
 							bulkMessage = m;
 							if(i == messageList.length-1) {
+								//Message already at the bottom, no need to delete/repost it
 								postMessage = false;
 							}else{
 								postMessage = true;
@@ -639,7 +640,7 @@ export const storeChat = defineStore('chat', {
 							id:Utils.getUUID(),
 							date:Date.now(),
 							platform:message.platform,
-							type:"followbot_list",
+							type:TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST,
 							users:[],
 						});
 					}
@@ -699,7 +700,7 @@ export const storeChat = defineStore('chat', {
 							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
 								platform:"twitchat",
 								channel_id: message.channel_id,
-								type:"autoban_join",
+								type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
 								date:Date.now(),
 								id:Utils.getUUID(),
 								user:message.user,
@@ -864,7 +865,7 @@ export const storeChat = defineStore('chat', {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:user.platform,
-						type: "shoutout",
+						type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
 						user,
 						stream:{
 							title:streamTitle,
@@ -922,7 +923,7 @@ export const storeChat = defineStore('chat', {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:message.user.platform,
-					type: "chat_highlight",
+					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT,
 					info:message,
 				};
 				TriggerActionHandler.instance.onMessage(trigger);

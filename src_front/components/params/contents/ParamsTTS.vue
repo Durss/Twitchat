@@ -64,7 +64,7 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -289,7 +289,7 @@ export default class ParamsTTS extends Vue {
 			date:Date.now(),
 			platform:"twitchat",
 			channel_id: uid,
-			type:"message",
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message: this.testStr,
 			message_html: this.testStr,

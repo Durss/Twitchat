@@ -523,7 +523,6 @@ export namespace TwitchatDataTypes {
 
 
 	export const TwitchatMessageType = {
-		BAN:"ban",
 		RAID:"raid",
 		POLL:"poll",
 		JOIN:"join",
@@ -535,7 +534,6 @@ export namespace TwitchatDataTypes {
 		REWARD:"reward",
 		NOTICE:"notice",
 		MESSAGE:"message",
-		TIMEOUT:"timeout",
 		WHISPER:"whisper",
 		CONNECT:"connect",
 		SHOUTOUT:"shoutout",
@@ -642,6 +640,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.MESSAGE,
 	];
 	
+	//TODO delete
 	export const ActivityFeedMessageTypes:TwitchatMessageStringType[] = [
 		TwitchatMessageType.POLL,
 		TwitchatMessageType.BINGO,
@@ -661,7 +660,16 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.RAID,
 	];
 
+	//TODO delete
 	export const ActivityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
+		TwitchatNoticeType.EMERGENCY_MODE,
+		TwitchatNoticeType.COMMERCIAL_START,
+		TwitchatNoticeType.COMMERCIAL_ERROR,
+		TwitchatNoticeType.COMMERCIAL_COMPLETE,
+	];
+
+	
+	export const MessageListFilterTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
 		TwitchatNoticeType.EMERGENCY_MODE,
 		TwitchatNoticeType.COMMERCIAL_START,
 		TwitchatNoticeType.COMMERCIAL_ERROR,

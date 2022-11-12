@@ -21,7 +21,6 @@
 			<Button small title="Hype train cooldown" @click="simulateHypeTrainCooldown()" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
-			<Button small title="Ban" @click="simulateEvent('ban')" :icon="$image('icons/ban.svg')" />
 			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
 			<Button small title="Automod Twitchat" @click="simulateAutomodTwitchat()" :icon="$image('icons/automod_white.svg')" />
 			<Button small title="Automod Twitchat join" @click="simulateEvent('autoban_join')" :icon="$image('icons/automod_white.svg')" />

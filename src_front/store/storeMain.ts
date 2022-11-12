@@ -142,7 +142,7 @@ export const storeMain = defineStore("main", {
 					const trigger:TwitchatDataTypes.MessageVoicemodData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
-						type:"voicemod",
+						type:TwitchatDataTypes.TwitchatMessageType.VOICEMOD,
 						platform:"twitchat",
 						voiceID:e.voiceID,
 					}
@@ -490,7 +490,7 @@ export const storeMain = defineStore("main", {
 					id: Utils.getUUID(),
 					date: Date.now(),
 					platform: "twitchat",
-					type:"notice",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.DEVMODE,
 					message:"Developer mode "+(this.devmode?"enabled":"disabled"),
 				}

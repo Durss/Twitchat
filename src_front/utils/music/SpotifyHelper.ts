@@ -1,5 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import Config from "@/utils/Config";
@@ -305,7 +305,7 @@ export default class SpotifyHelper extends EventDispatcher {
 					const triggerData:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
-						type: "music_start",
+						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_START,
 						platform:"twitchat",
 						track:this.currentTrack
 					};
@@ -336,7 +336,7 @@ export default class SpotifyHelper extends EventDispatcher {
 					const triggerData:TwitchatDataTypes.MessageMusicStopData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
-						type: "music_stop",
+						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP,
 						platform:"twitchat",
 						track:this.currentTrack
 					};

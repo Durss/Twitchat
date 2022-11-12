@@ -1,5 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { remove } from "@vue/shared";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
@@ -669,7 +669,7 @@ export default class TwitchUtils {
 					id:src.id,
 					channel_id:src.broadcaster_id,
 					date:Date.now(),
-					type:"poll",
+					type:TwitchatDataTypes.TwitchatMessageType.POLL,
 					platform:"twitch",
 					duration_s:src.duration,
 					started_at:new Date(src.started_at).getTime(),
@@ -759,7 +759,7 @@ export default class TwitchUtils {
 					id:src.id,
 					channel_id:src.broadcaster_id,
 					date:Date.now(),
-					type:"prediction",
+					type:TwitchatDataTypes.TwitchatMessageType.PREDICTION,
 					platform:"twitch",
 					duration_s:src.prediction_window,
 					started_at:new Date(src.created_at).getTime(),

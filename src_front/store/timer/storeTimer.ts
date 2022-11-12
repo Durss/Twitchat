@@ -1,4 +1,4 @@
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -31,7 +31,7 @@ export const storeTimer = defineStore('timer', {
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, data);
 
 			const message:TwitchatDataTypes.MessageTimerData = {
-				type:"timer",
+				type:TwitchatDataTypes.TwitchatMessageType.TIMER,
 				platform:"twitchat",
 				started:true,
 				id:Utils.getUUID(),
@@ -46,7 +46,7 @@ export const storeTimer = defineStore('timer', {
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, data);
 
 			const message:TwitchatDataTypes.MessageTimerData = {
-				type:"timer",
+				type:TwitchatDataTypes.TwitchatMessageType.TIMER,
 				platform:"twitchat",
 				started:true,
 				id:Utils.getUUID(),
@@ -75,7 +75,7 @@ export const storeTimer = defineStore('timer', {
 			};
 
 			const message:TwitchatDataTypes.MessageCountdownData = {
-				type:"countdown",
+				type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 				platform:"twitchat",
 				id:Utils.getUUID(),
 				date:Date.now(),
@@ -92,7 +92,7 @@ export const storeTimer = defineStore('timer', {
 				clearTimeout(this.countdown.timeoutRef);
 				
 				const message:TwitchatDataTypes.MessageCountdownData = {
-					type:"countdown",
+					type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 					platform:"twitchat",
 					id:Utils.getUUID(),
 					date:Date.now(),
