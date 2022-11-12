@@ -559,9 +559,12 @@ export default class MessageList extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e: GlobalEvent): void {
-		if (this.$store("params").filters.keepDeletedMessages.value === true) return;
+		const message = e.data as TwitchatDataTypes.ChatMessageTypes;
+		
+		if (message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+		&& message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
+		&& this.$store("params").filters.keepDeletedMessages.value === true) return;
 
-		const message = e.data as TwitchatDataTypes.MessageChatData;
 
 		//remove from displayed messages
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
@@ -1094,10 +1097,6 @@ export default class MessageList extends Vue {
 
 			.message {
 				position: relative;
-
-				&:hover {
-					background-color: rgba(255, 255, 255, .2);
-				}
 			}
 		}
 

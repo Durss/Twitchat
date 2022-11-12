@@ -8,6 +8,7 @@ export default class GlobalEvent extends Event {
 	public static ADD_MESSAGE = "ADD_MESSAGE";
 	public static DELETE_MESSAGE = "DELETE_MESSAGE";
 	public static ADD_ACTIVITY_FEED = "ADD_ACTIVITY_FEED";
+	public static DELETE_ACTIVITY_FEED = "DELETE_ACTIVITY_FEED";
 	
 	constructor(eventType:string, public data?:any) {
 		super(eventType);

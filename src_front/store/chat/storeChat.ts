@@ -601,57 +601,72 @@ export const storeChat = defineStore('chat', {
 					const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
 					const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 					let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
-					let postMessage:boolean = true;
-					for (let i = 0; i < messageList.length; i++) {
+					
+					//Search for any existing followbot event, delete them and group
+					//them into a single followbot alert with all the users in it
+					//Only search within the last 100 messages
+					const maxIndex = Math.max(0, activityFeedList.length - 100);
+					for (let i = messageList.length-1; i >= maxIndex; i--) {
 						const m = messageList[i];
-						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.followbot === true
+						//Found a follow event, delete it
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+						&& m.followbot === true
 						&& m.platform == message.platform) {
 							m.deleted = true;
 							deletedMessages.push(m);
 							prevFollowbots.push(m);
 							messageList.splice(i, 1);
 							i--;
-							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
-						}
-						//Found an existing bulk message not older than 10min, keep it aside
+						}else
+						//Found an existing bulk message not older than 1min, keep it aside
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
-						&& m.date > Date.now() - 10 * 60 * 1000) {
+						&& m.date > Date.now() - 1 * 60 * 1000
+						&& m.platform == message.platform) {
 							bulkMessage = m;
-							postMessage = false;
-							// deletedMessages.push(m);
-							// messages.splice(i, 1);//remove it, it will be pushed again later
-							// i--;
-							// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+							deletedMessages.push(m);
+							messageList.splice(i, 1);//remove it, it will be pushed again later
+							i--;
 						}
 					}
 					if(!bulkMessage) {
-						bulkMessage = {
+						bulkMessage = reactive({
 							id:Utils.getUUID(),
 							date:Date.now(),
 							platform:message.platform,
 							type:"followbot_list",
 							users:[],
-						};
+						});
 					}
 					if(prevFollowbots.length > 0) {
 						bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
 					}
+					bulkMessage.date = Date.now();
 					bulkMessage.users.push(message.user);
 					message = bulkMessage;
 
-					const maxIndex = Math.max(0, activityFeedList.length - 100);
+					//Remove deleted messages from activity feed and broadcast DELETE events
 					while(deletedMessages.length > 0) {
 						const m = deletedMessages.pop();
 						if(!m) continue;
+						
+						//Only search within the last 100 messages
+						const maxIndex = Math.max(0, activityFeedList.length - 100);
 						for (let j = activityFeedList.length-1; j >= maxIndex; j--) {
 							const a = activityFeedList[j];
 							if(a.id == m.id) {
 								activityFeedList.splice(j, 1);
 								j--;
+								break;
 							}
 						}
+						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_ACTIVITY_FEED, m));
 					}
-					if(!postMessage) return;
+					// if(!postMessage) {
+					// 	EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, bulkMessage));
+					// 	EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_ACTIVITY_FEED, bulkMessage));
+					// 	return;
+					// }
 				}
 
 				//TODO Broadcast to OBS-ws

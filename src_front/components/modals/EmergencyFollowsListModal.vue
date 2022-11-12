@@ -67,9 +67,9 @@
 					</InfiniteList>
 				</ul>
 				<div class="batchActions">
-					<Button @click="banAll()" bounce :loading="batchActionInProgress" title="Ban all" :icon="$image('icons/ban.svg')" />
-					<Button @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Remove followers" :icon="$image('icons/unfollow_white.svg')" />
-					<Button @click="exportCSV()" bounce :loading="batchActionInProgress" title="Export CSV" :icon="$image('icons/save.svg')" />
+					<Button small @click="banAll()" bounce :loading="batchActionInProgress" title="Ban all users" :icon="$image('icons/ban.svg')" />
+					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Remove all followers" :icon="$image('icons/unfollow_white.svg')" />
+					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" title="Export CSV" :icon="$image('icons/save.svg')" />
 				</div>
 				<div class="ctas">
 					<Button class="later" @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />

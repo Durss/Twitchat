@@ -14,52 +14,44 @@
 			:icon="$image('icons/back.svg')" />
 
 		<div v-if="messageList.length > 0" class="messageList">
-			<div v-for="(m,index) in messageList" :key="m.id">
+			<div v-for="m in messageList" :key="m.id" :ref="'message_'+m.id">
 				<ChatMessage
 					class="message"
-					:ref="'message_'+m.id"
 					v-if="m.type == 'message'"
 					:lightMode="true"
 					:messageData="m" />
 
 				<ChatJoinLeave class="message"
 					v-if="m.type == 'join' || m.type == 'leave'"
-					:ref="'message_'+m.id"
 					:messageData="m" />
 
 				<ChatPollResult
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'poll'"
 					:messageData="m" />
 
 				<ChatPredictionResult
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'prediction'"
 					:messageData="m" />
 
 				<ChatBingoResult
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'bingo'"
 					:messageData="m" />
 
 				<ChatRaffleResult
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'raffle'"
 					:messageData="m"/>
 
 				<ChatCountdownResult
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'countdown'"
 					:messageData="m" />
 
 				<ChatHypeTrainResult
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'hype_train_summary'"
 					:filtering="customActivities.length > 0"
 					@setCustomActivities="showCustomActivities"
@@ -68,19 +60,16 @@
 				<ChatNotice
 					v-else-if="m.type == 'notice'"
 					class="message"
-					:ref="'message_'+m.id"
 					:messageData="m"/>
 
 				<ChatFollowbotEvents
 					class="message"
-					:ref="'message_'+m.id"
 					v-else-if="m.type == 'followbot_list'"
 					:result="m"
 					:messageData="m"/>
 
 				<ChatHighlight
 					class="message"
-					:ref="'message_'+m.id"
 					v-else
 					:lightMode="true"
 					:messageData="m" />
@@ -145,6 +134,7 @@ export default class ActivityFeed extends Vue {
 	
 	private clickHandler!:(e:MouseEvent) => void;
 	private addMessageHandler!:(e:GlobalEvent) => void;
+	private delMessageHandler!:(e:GlobalEvent) => void;
 
 	public isCommercial(m:TwitchatDataTypes.ChatMessageTypes):boolean {
 		return m.type == "notice" && (
@@ -200,7 +190,9 @@ export default class ActivityFeed extends Vue {
 		this.updateActivityFeed();
 
 		this.addMessageHandler = (e:GlobalEvent) => this.addMessage(e);
+		this.delMessageHandler = (e:GlobalEvent) => this.delMessage(e);
 		EventBus.instance.addEventListener(GlobalEvent.ADD_ACTIVITY_FEED, this.addMessageHandler);
+		EventBus.instance.addEventListener(GlobalEvent.DELETE_ACTIVITY_FEED, this.delMessageHandler);
 
 		await this.$nextTick();
 		if(this.listMode === false) {
@@ -215,6 +207,7 @@ export default class ActivityFeed extends Vue {
 			document.removeEventListener("mousedown", this.clickHandler);
 		}
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_ACTIVITY_FEED, this.addMessageHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.DELETE_ACTIVITY_FEED, this.delMessageHandler);
 	}
 
 	public showCustomActivities(list:TwitchatDataTypes.ChatMessageTypes[]):void {
@@ -230,7 +223,7 @@ export default class ActivityFeed extends Vue {
 
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];
-			if(this.shouldShow(m))result.unshift(m);
+			if(this.shouldShow(m)) result.unshift(m);
 		}
 
 		this.messages = result;
@@ -241,6 +234,18 @@ export default class ActivityFeed extends Vue {
 	public addMessage(e:GlobalEvent):void {
 		const m:TwitchatDataTypes.ChatMessageTypes = e.data;
 		if(this.shouldShow(m)) this.messages.unshift(m);
+	}
+
+	public delMessage(e:GlobalEvent):void {
+		const m:TwitchatDataTypes.ChatMessageTypes = e.data;
+		//remove from displayed messages
+		for (let i = this.messages.length - 1; i >= 0; i--) {
+			const mLoc = this.messages[i];
+			if (mLoc.id == m.id) {
+				this.messages.splice(i, 1);
+				break;
+			}
+		}
 	}
 
 	private shouldShow(m:TwitchatDataTypes.ChatMessageTypes):boolean {
