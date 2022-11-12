@@ -669,11 +669,29 @@ export namespace TwitchatDataTypes {
 	];
 
 	
-	export const MessageListFilterTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
-		TwitchatNoticeType.EMERGENCY_MODE,
-		TwitchatNoticeType.COMMERCIAL_START,
-		TwitchatNoticeType.COMMERCIAL_ERROR,
-		TwitchatNoticeType.COMMERCIAL_COMPLETE,
+	export const MessageListFilterTypes:TwitchatDataTypes.TwitchatMessageStringType[] = [
+		TwitchatMessageType.RAID,
+		TwitchatMessageType.POLL,
+		TwitchatMessageType.JOIN,
+		TwitchatMessageType.LEAVE,
+		TwitchatMessageType.CHEER,
+		TwitchatMessageType.TIMER,
+		TwitchatMessageType.BINGO,
+		TwitchatMessageType.RAFFLE,
+		TwitchatMessageType.REWARD,
+		TwitchatMessageType.NOTICE,
+		TwitchatMessageType.MESSAGE,
+		TwitchatMessageType.WHISPER,
+		TwitchatMessageType.FOLLOWING,
+		TwitchatMessageType.COUNTDOWN,
+		TwitchatMessageType.PREDICTION,
+		TwitchatMessageType.SUBSCRIPTION,
+		TwitchatMessageType.FOLLOWBOT_LIST,
+		TwitchatMessageType.HYPE_TRAIN_CANCEL,
+		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
+		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 	];
 
 	export interface AbstractTwitchatMessage {

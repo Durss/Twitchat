@@ -288,7 +288,7 @@ export const storeChat = defineStore('chat', {
 				if(adType == -1) return;
 			}
 
-			messageList .push( {
+			this.addMessage( {
 				platform:"twitch",
 				id:Utils.getUUID(),
 				date:Date.now(),
@@ -798,6 +798,7 @@ export const storeChat = defineStore('chat', {
 							TwitchUtils.deleteMessages(m.channel_id, m.id);
 						}
 					}
+					console.log("DELETE", m);
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 					break;
 				}

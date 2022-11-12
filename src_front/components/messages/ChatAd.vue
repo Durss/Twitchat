@@ -180,7 +180,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 		ToggleBlock,
 		ChatTipAndTrickAd,
 	},
-	emits:["showModal", "delete", "close", "ariaMessage"]
+	emits:["showModal", "ariaMessage"]
 })
 export default class ChatAd extends Vue {
 
@@ -268,8 +268,8 @@ export default class ChatAd extends Vue {
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
+		console.log("okfodkokfd");
 		this.$store("chat").deleteMessage(this.messageData);
-		this.$emit("delete");
 	}
 
 	public confirmGngngnClose():void {

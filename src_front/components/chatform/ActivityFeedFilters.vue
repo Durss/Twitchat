@@ -3,6 +3,10 @@
 		<Button @click="opened = !opened" :icon="$image('icons/filters.svg')" small />
 		<div class="list" v-if="opened">
 			<div class="row">
+				<label for="AF_subs" @click="showMessages = !showMessages">User messages</label>
+				<ToggleButton id="AF_subs" small clear v-model="showMessages" @change="onChange()" />
+			</div>
+			<div class="row">
 				<label for="AF_subs" @click="showSubs = !showSubs">Subs</label>
 				<ToggleButton id="AF_subs" small clear v-model="showSubs" @change="onChange()" />
 			</div>
@@ -63,6 +67,7 @@ export default class ActivityFeedFilters extends Vue {
 
 	public opened = false;
 
+	public showMessages = true;
 	public showSubs = true;
 	public showFollow = true;
 	public showBits = true;
@@ -76,6 +81,7 @@ export default class ActivityFeedFilters extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public mounted():void {
+		this.showMessages = this.modelValue["sub"] == undefined || this.modelValue["sub"] === true;
 		this.showSubs = this.modelValue["sub"] == undefined || this.modelValue["sub"] === true;
 		this.showFollow = this.modelValue["follow"] == undefined || this.modelValue["follow"] === true;
 		this.showBits = this.modelValue["bits"] == undefined || this.modelValue["bits"] === true;

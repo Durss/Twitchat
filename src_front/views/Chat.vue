@@ -5,7 +5,8 @@
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
 					@showModal="(v:string) => currentModal = v"
-					:maxMessages="50 ?? $store('params').appearance.historySize.value" />
+					:maxMessages="50"
+					filterId="chat"/>
 					
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>
@@ -17,7 +18,12 @@
 			<div class="rightColumn" v-if="splitView" :style="rightStyles" ref="rightCol">
 				<NewUsers class="newUsers" v-if="$store('params').features.firstMessage.value" />
 
-				<ActivityFeed class="activityFeed" listMode />
+				<!-- <ActivityFeed class="activityFeed" listMode /> -->
+				<MessageList ref="messages" class="content messages"
+					v-if="!hideChat"
+					@showModal="(v:string) => currentModal = v"
+					:maxMessages="50"
+					es="activityfeed"/>
 
 				<ChannelNotifications
 					:currentContent="currentNotificationContent"
@@ -67,6 +73,11 @@
 		<ActivityFeed class="contentWindows feed"
 			v-if="showFeed"
 			@close="showFeed = false" />
+			
+		<!-- <MessageList class="contentWindows feed"
+			v-if="showFeed"
+			@showModal="(v:string) => currentModal = v"
+			:maxMessages="50 ?? $store('params').appearance.historySize.value" /> -->
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
@@ -607,7 +618,7 @@ export default class Chat extends Vue {
 				const notice:TwitchatDataTypes.MessageNoticeData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
-					type:"notice",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					platform:"twitchat",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
 					message:"An error occured whens tarting the commercial : " + e.message,
@@ -752,8 +763,9 @@ export default class Chat extends Vue {
 					transform: unset;
 				}
 	
-				.activityFeed {
+				.content {
 					width: 100%;
+					height: 100%;
 					min-height: 0;//Shit hack to make overflow behave properly
 				}
 			}

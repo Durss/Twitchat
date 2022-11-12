@@ -4,6 +4,8 @@
 		@mouseleave="onLeaveList"
 		@wheel="onMouseWheel"
 		@touchmove="onTouchMove">
+		
+		<MessageListFilter class="filters" v-show="hovered" />
 
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
@@ -168,6 +170,7 @@ import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
+import MessageListFilter from './components/MessageListFilter.vue';
 
 @Options({
 	components: {
@@ -181,6 +184,7 @@ import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 		ChatPollResult,
 		ChatBingoResult,
 		ChatRaffleResult,
+		MessageListFilter,
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
@@ -188,6 +192,7 @@ import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 		ChatMessageHoverActions,
 	},
 	props: {
+		filterId: String,
 		maxMessages: Number,
 		lightMode: {
 			type: Boolean,
@@ -200,12 +205,14 @@ export default class MessageList extends Vue {
 
 	public maxMessages!: number;
 	public lightMode!: boolean;
+	public filterId!: string;
 
 	public hoveredMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	public filteredMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
+	public hovered = false;
 	public lockScroll = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
@@ -321,6 +328,7 @@ export default class MessageList extends Vue {
 	 * Pause the chat if requested
 	 */
 	public async onHoverList(): Promise<void> {
+		this.hovered = true;
 		if (this.lightMode || !this.$store("params").features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
@@ -341,6 +349,7 @@ export default class MessageList extends Vue {
 	 * Unpausse chat if no new message
 	 */
 	public onLeaveList(): void {
+		this.hovered = false;
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
@@ -561,10 +570,10 @@ export default class MessageList extends Vue {
 	private onDeleteMessage(e: GlobalEvent): void {
 		const message = e.data as TwitchatDataTypes.ChatMessageTypes;
 		
-		if (message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-		&& message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
-		&& this.$store("params").filters.keepDeletedMessages.value === true) return;
-
+		if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			//Do not remove if not requested
+			if(this.$store("params").filters.keepDeletedMessages.value === true) return;
+		}
 
 		//remove from displayed messages
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
@@ -753,7 +762,7 @@ export default class MessageList extends Vue {
 			messageHolder.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
 		} else if (this.holderOffsetY != 0) {
 			this.holderOffsetY = 0;
-			messageHolder.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
+			messageHolder.style.transform = "translateY(0)";
 		}
 
 
@@ -988,12 +997,13 @@ export default class MessageList extends Vue {
 
 		clearTimeout(this.closeConvTimeout);
 		const messageHolder = (this.$refs["message_" + data.id] as HTMLDivElement[])[0];
+		const holderBounds = this.$el.getBoundingClientRect();
 		const messageBounds = messageHolder.getBoundingClientRect();
 		// const chatMessagesHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
 		// const conversationHolder	= this.$refs.conversationHolder as HTMLDivElement;
 		// const convMessagesholder	= this.$refs.conversationMessages as HTMLDivElement;
 
-		this.hoverActionsPos = messageBounds.top;
+		this.hoverActionsPos = messageBounds.top - holderBounds.top;
 
 	}
 
@@ -1064,7 +1074,6 @@ export default class MessageList extends Vue {
 
 	&.lightMode {
 		padding: 0;
-
 		.messageHolder {
 			padding: 0;
 			overflow: hidden;
@@ -1085,6 +1094,12 @@ export default class MessageList extends Vue {
 				background-color: rgba(255, 255, 255, .025);
 			}
 		}
+	}
+
+	.filters {
+		position: absolute;
+		right: 0;
+		z-index: 2;
 	}
 
 	.messageHolder {
@@ -1243,12 +1258,8 @@ export default class MessageList extends Vue {
 		position: absolute;
 		z-index: 1;
 		top: 0;
-		right: 0;
+		right: 10px;
 		transform: translateY(-100%);
-	}
-
-	.globalHistory {
-		
 	}
 }
 </style>

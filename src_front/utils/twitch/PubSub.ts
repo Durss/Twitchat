@@ -1190,7 +1190,10 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			date:Date.now(),
 			id:Utils.getUUID(),
-			type: data.ending_reason == "COMPLETED"? "hype_train_complete" : "hype_train_cancel",
+			type: data.ending_reason == "COMPLETED"?
+					TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE
+					:
+					TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL,
 			train,
 			level:storeTrain.level,
 			percent:Math.round(storeTrain.currentValue/storeTrain.goal * 100),

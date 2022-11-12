@@ -389,6 +389,7 @@ export default class ParamItem extends Vue {
 				flex-grow: 1;
 				margin: 0;
 				padding-right: 1em;
+				line-height: 1.1em;
 				cursor: pointer;
 			}
 
