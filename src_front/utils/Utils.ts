@@ -102,7 +102,7 @@ export default class Utils {
 	 * @param text 
 	 * @returns 
 	 */
-	public static parseURLs(text:string, target = "_blank", replaceBy:string = ""):string {
+	public static parseURLs(text:string, target:string = "_blank", replaceBy:string = ""):string {
 		const replace = replaceBy.length > 0? replaceBy :"<a href='$1' target='"+target+"'>$1</a>";
 		let res = text.replace(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi, replace);
 		if(replaceBy.length === 0) {
@@ -261,7 +261,7 @@ export default class Utils {
 		if(a.length == 0) return b.length;
 		if(b.length == 0) return a.length;
 
-		let matrix:number[][] = [];
+		const matrix:number[][] = [];
 		a = this.replaceDiacritics(a);
 		b = this.replaceDiacritics(b);
 
@@ -292,7 +292,7 @@ export default class Utils {
 
 		// Logger.log("Levenshtein",a,b,matrix[b.length][a.length])
 		return matrix[b.length][a.length];
-	};
+	}
 
 	/**
 	 * Removes diacritics chars from a string and replaces them by their equivalent.
@@ -494,7 +494,7 @@ export default class Utils {
 	private static initDiacritics():void {
 		this.diacriticsMap = {};
 		for (let i = 0; i < this.defaultDiacriticsRemovalMap.length; i++) {
-			let letters = this.defaultDiacriticsRemovalMap[i].letters;
+			const letters = this.defaultDiacriticsRemovalMap[i].letters;
 			for (let j = 0; j < letters.length; j++) {
 				this.diacriticsMap[letters[j]] = this.defaultDiacriticsRemovalMap[i].base;
 			}

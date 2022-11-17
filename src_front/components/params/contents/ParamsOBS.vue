@@ -338,8 +338,6 @@ export default class ParamsOBS extends Vue {
 			}
 		}
 	
-		/* Enter and leave animations can use different */
-		/* durations and timing functions.              */
 		.fade-enter-active {
 			transition: all 0.2s;
 		}

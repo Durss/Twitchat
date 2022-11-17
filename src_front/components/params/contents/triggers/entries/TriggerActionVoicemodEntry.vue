@@ -36,7 +36,7 @@ export default class TriggerActionVoicemodEntry extends Vue {
 	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"Voice", listValues:[], value:""}
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
-	public get contentVM():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.VOICEMOD; } 
+	public get contentVM():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.VOICEMOD; } 
 
 	public beforeMount():void {
 		// this.message_conf.placeholderList = TriggerActionHelpers(this.event);

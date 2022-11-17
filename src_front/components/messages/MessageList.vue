@@ -5,7 +5,7 @@
 		@wheel="onMouseWheel"
 		@touchmove="onTouchMove">
 		
-		<MessageListFilter class="filters" v-show="hovered" />
+		<MessageListFilter class="filters" :open="hovered" />
 
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
@@ -665,7 +665,9 @@ export default class MessageList extends Vue {
 	 * If hovering and scrolling down with wheel, load next message
 	 */
 	public async onMouseWheel(event: WheelEvent): Promise<void> {
-		if (this.lightMode) return;
+		//"shiftkey" filter avoids pausing chat when scrolling horizontally via shift+wheel
+		if (this.lightMode || event.shiftKey) return;
+
 		if (event.deltaY < 0) {
 			this.lockScroll = true;
 		} else {
@@ -1061,7 +1063,7 @@ export default class MessageList extends Vue {
 		}
 	}
 }
-;
+
 </script>
 
 <style scoped lang="less">

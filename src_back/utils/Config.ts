@@ -97,10 +97,10 @@ export default class Config {
 		//Grab env name the first time
 		if (!this.envName) {
 			if (fs.existsSync(this.confPath)) {
-				let content: string = fs.readFileSync(this.confPath, "utf8");
+				const content: string = fs.readFileSync(this.confPath, "utf8");
 				this.envName = <EnvName>content;
-				let str: String = "  :: Current environment \"" + content + "\" ::  ";
-				let head: string = str.replace(/./g, " ");
+				const str: string = "  :: Current environment \"" + content + "\" ::  ";
+				const head: string = str.replace(/./g, " ");
 				console.log("\n");
 				console.log(LogStyle.BgGreen + head + LogStyle.Reset);
 				console.log(LogStyle.Bright + LogStyle.BgGreen + LogStyle.FgWhite + str + LogStyle.Reset);
@@ -110,8 +110,8 @@ export default class Config {
 			} else {
 				this.envName = "dev";
 				fs.writeFileSync(this.confPath, this.envName);
-				let str: String = "  /!\\ Missing file \"./" + this.confPath + "\" /!\\  ";
-				let head: string = str.replace(/./g, " ");
+				const str: string = "  /!\\ Missing file \"./" + this.confPath + "\" /!\\  ";
+				const head: string = str.replace(/./g, " ");
 				console.log("\n");
 				console.log(LogStyle.BgRed + head + LogStyle.Reset);
 				console.log(LogStyle.Bright + LogStyle.BgRed + LogStyle.FgWhite + str + LogStyle.Reset);

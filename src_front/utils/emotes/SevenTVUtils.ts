@@ -75,8 +75,8 @@ export default class SevenTVUtils {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
-		let allEmotes:SevenTVEmote[] = [];
-		let emotesDone:{[key:string]:boolean} = {};
+		const allEmotes:SevenTVEmote[] = [];
+		const emotesDone:{[key:string]:boolean} = {};
 		const chunks = message.split(/\s/);
 		for (let i = 0; i < chunks.length; i++) {
 			const txt = chunks[i];

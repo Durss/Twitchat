@@ -59,7 +59,7 @@ export default class ParamsAccount extends Vue {
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
-	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.ABOUT; } 
+	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ABOUT; } 
 	public get userPP():string {
 		let pp:string|undefined = StoreProxy.auth.twitch.user.avatarPath;
 		if(!pp) {

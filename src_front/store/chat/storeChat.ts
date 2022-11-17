@@ -19,7 +19,7 @@ import GlobalEvent from '@/events/GlobalEvent'
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-let activityFeedList:TwitchatDataTypes.ChatMessageTypes[] = [];
+const activityFeedList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let greetedUsers:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
 
@@ -504,7 +504,7 @@ export const storeChat = defineStore('chat', {
 					if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 						//Remove command from message to make later things easier
 						sMain.chatAlert = message;
-						let trigger:TwitchatDataTypes.MessageChatAlertData = {
+						const trigger:TwitchatDataTypes.MessageChatAlertData = {
 							date:Date.now(),
 							id:Utils.getUUID(),
 							platform:message.platform,
@@ -690,7 +690,7 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 					if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
 						//Check if nickname passes the automod
-						let rule = Utils.isAutomoded(message.user.displayName, message.user, message.channel_id);
+						const rule = Utils.isAutomoded(message.user.displayName, message.user, message.channel_id);
 						if(rule) {
 							if(message.user.platform == "twitch") {
 								message.user.channelInfo[message.channel_id].is_banned = true;
@@ -715,7 +715,7 @@ export const storeChat = defineStore('chat', {
 					if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 					&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
 					&& message.message) {
-						let rule = Utils.isAutomoded(message.message, message.user, message.channel_id);
+						const rule = Utils.isAutomoded(message.message, message.user, message.channel_id);
 						if(rule) {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								message.automod = rule;
@@ -763,7 +763,7 @@ export const storeChat = defineStore('chat', {
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
 		},
 		
-		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 
+		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) { 
 			this.deleteMessageByID(message.id, deleter, callEndpoint)
 		},
 		
@@ -907,7 +907,7 @@ export const storeChat = defineStore('chat', {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
 					//Get user info
-					let [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);
+					const [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);
 					message.user.avatarPath = twitchUser.profile_image_url;
 					//Populate more info just in case some are missing
 					message.user.login = twitchUser.login;

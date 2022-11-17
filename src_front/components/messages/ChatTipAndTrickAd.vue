@@ -127,10 +127,10 @@ export default class ChatTipAndTrickAd extends Vue {
 	public tipIndex = 11;
 	private maxIndex = this.tipIndex;
 
-	public get contentOverlays() { return TwitchatDataTypes.ParamsContentType.OVERLAYS; }
-	public get contentTriggers() { return TwitchatDataTypes.ParamsContentType.TRIGGERS; }
-	public get contentObs() { return TwitchatDataTypes.ParamsContentType.OBS; }
-	public get contentStreamdeck() { return TwitchatDataTypes.ParamsContentType.STREAMDECK; }
+	public get contentOverlays() { return TwitchatDataTypes.ParamsCategories.OVERLAYS; }
+	public get contentTriggers() { return TwitchatDataTypes.ParamsCategories.TRIGGERS; }
+	public get contentObs() { return TwitchatDataTypes.ParamsCategories.OBS; }
+	public get contentStreamdeck() { return TwitchatDataTypes.ParamsCategories.STREAMDECK; }
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));

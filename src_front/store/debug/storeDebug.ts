@@ -209,7 +209,7 @@ export const storeDebug = defineStore('debug', {
 									m.is_gift = true;
 									sum += count * parseInt(m.tier.toString().replace("prime", "1")) * 250;
 								}else{
-									sum += parseInt(message.tier.toString().replace("prime", "1")) * 250;;
+									sum += parseInt(message.tier.toString().replace("prime", "1")) * 250;
 								}
 							}else if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER){
 								//Simulate cheer

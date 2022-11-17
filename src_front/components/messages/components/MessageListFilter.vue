@@ -1,11 +1,11 @@
-<template>
-	<div :class="classes" @wheel.stop>
+<template >
+	<div :class="classes" v-show="open" @wheel.stop>
 		<div class="head" @click="expand = !expand">
 			<img src="@/assets/icons/filters.svg" alt="filters" class="icon">
 			<span class="label">Filters</span>
 		</div>
+		<div class="info" v-if="expand">Choose which message type<br>to display on this column</div>
 		<div class="content" v-if="expand">
-			<div class="info">Choose which message type to display on this column</div>
 			<ParamItem class="item" v-for="f in filters" :key="f.storage" :paramData="f" clearToggle />
 			<!-- <ParamItem class="item" v-for="f in filters" :key="f.storage+'1'" :paramData="f" clearToggle />
 			<ParamItem class="item" v-for="f in filters" :key="f.storage+'2'" :paramData="f" clearToggle />
@@ -25,6 +25,7 @@ import { Options, Vue } from 'vue-class-component';
 @Options({
 	props:{
 		modelValue:{type:Object, default: {}},
+		open:{type:Boolean, default: false},
 	},
 	components:{
 		Button,
@@ -35,6 +36,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class MessageListFilter extends Vue {
 	
+	public open!:boolean;
 	public modelValue!:Partial<{[key in TwitchatDataTypes.TwitchatMessageStringType]:string}>;
 
 	public expand:boolean = false;
@@ -142,7 +144,7 @@ export default class MessageListFilter extends Vue {
 
 <style scoped lang="less">
 .messagelistfilter{
-	padding: .5em;
+	padding: 0;
 	font-size: .8em;
 	color: @mainColor_light;
 	background: @mainColor_normal;
@@ -152,10 +154,15 @@ export default class MessageListFilter extends Vue {
 	border-bottom-left-radius: .5em;
 
 	&.expand {
+		padding: .5em;
 		border-bottom-right-radius: .5em;
+		.head {
+			padding: 0;
+		}
 	}
 
 	.head {
+		padding: .5em;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
@@ -166,8 +173,15 @@ export default class MessageListFilter extends Vue {
 		}
 	}
 
+	.info {
+		margin: .5em 0;
+		text-align: center;
+		font-size: .8em;
+	}
+
 	.content {
 		overflow: auto;
+		padding-right: .25em;
 		.info {
 			word-wrap: break-word;
 		}

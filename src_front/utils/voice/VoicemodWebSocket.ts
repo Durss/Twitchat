@@ -211,7 +211,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	public playMeme(name:string, id?:string):void {
 		if(!this._memesList || this._memesList.length == 0) return;
 		let fileID = "";
-		let rawName = name;
+		const rawName = name;
 		name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
 		//Search for a voice effect with the requested name
 		for (let i = 0; i < this._memesList.length; i++) {
@@ -221,7 +221,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 					break;
 				}
 			}else{
-				let nameRef = this._memesList[i].Name;
+				const nameRef = this._memesList[i].Name;
 				//Check if the requested name is exactly the same
 				if(rawName == nameRef) {
 					fileID = this._memesList[i].FileName;
@@ -273,8 +273,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Sends a data to Voicemod
 	 */
 	private send(actionType: string, data?:any):void {
-		let uuid = Utils.getUUID();
-		let json:any = {
+		const uuid = Utils.getUUID();
+		const json:any = {
 			"actionID": uuid,
 			"actionType": actionType,
 			"context": "request:" + actionType + ":" + uuid,
@@ -293,14 +293,14 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Called when a message is received from Voicemod app
 	 */
 	private onSocketMessage(event:VoicemodTypes.SocketEvent):void {
-		let json:VoicemodTypes.SocketData = JSON.parse(event.data);
+		const json:VoicemodTypes.SocketData = JSON.parse(event.data);
 
 		// console.log("🎤Voicemod: received message: " + json);
 
 		if (json.server) {
 			if(!json.appVersion) { 
 				console.log("🎤VoicemodWebSocket: missing \"appVersion\" prop from json");
-				let opts = {
+				const opts = {
 					method:"GET",
 					headers:{
 						"Content-Type": "application/json",
@@ -382,53 +382,53 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 }
 
-export module VoicemodTypes {
-    export interface SocketEvent {
+export namespace VoicemodTypes {
+	export interface SocketEvent {
 		target:WebSocket;
 		type:string;
 		data:string;
 	}
 
-    export interface SocketData {
-        actionType: string;
-        appVersion: string;
-        actionID?: any;
-        actionObject: ActionObject;
-        context: string;
-        server?: string;
-    }
+	export interface SocketData {
+		actionType: string;
+		appVersion: string;
+		actionID?: any;
+		actionObject: ActionObject;
+		context: string;
+		server?: string;
+	}
 
-    export interface ActionObject {
-        allVoices?: Voice[];
-        listOfMemes?: Meme[];
-        favoriteVoices?: Voice[];
-        customVoices?: Voice[];
-        selectedVoice?: string;
-        result?: Result;
-        voiceID?: string|"nofx";
-    }
+	export interface ActionObject {
+		allVoices?: Voice[];
+		listOfMemes?: Meme[];
+		favoriteVoices?: Voice[];
+		customVoices?: Voice[];
+		selectedVoice?: string;
+		result?: Result;
+		voiceID?: string | "nofx";
+	}
 
-    export interface Voice {
-        voiceID: string;
-        friendlyName: string;
+	export interface Voice {
+		voiceID: string;
+		friendlyName: string;
 		image?: string;
-    }
+	}
 
-    export interface Meme {
+	export interface Meme {
 		FileName:string;
 		Profile:string;
 		Name:string;
 		Type:string;
 		Image:string;
 		IsCore:boolean;
-    }
+	}
 
-    export interface Result {
-        default: string;
+	export interface Result {
+		default: string;
 		isSelected?:boolean;
 		selected?:string;
 		transparent?:string;
 		[parameter: string|number]: unknown;
-    }
+	}
 }
 

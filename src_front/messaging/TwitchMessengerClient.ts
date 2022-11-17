@@ -128,7 +128,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			if(!this._client) {
 				//Not yet connected to IRC, create client and connect to specified
 				//channels with specified credentials
-				let options:tmi.Options = {
+				const options:tmi.Options = {
 					options: { debug: false, skipUpdatingEmotesets:true, },
 					connection: { reconnect: true, maxReconnectInverval:2000 },
 					channels:this._channelList.concat(),
@@ -334,7 +334,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					return true;
 				}
 				case "/commercial": {
-					let duration = parseInt(chunks[0]);
+					const duration = parseInt(chunks[0]);
 					StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
 						try {
 							const res = await TwitchUtils.startCommercial(duration, channelId);
@@ -411,7 +411,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on("clearchat", this.clearchat.bind(this));
 		this._client.on('raw_message', this.raw_message.bind(this));
 
-		let hashmap:{[key:string]:boolean} = {};
+		const hashmap:{[key:string]:boolean} = {};
 		try {
 			//Load bots list
 			const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
@@ -504,7 +504,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		const channel_id = this.getChannelID(channel);
-		let res:TwitchatDataTypes.MessageSubscriptionData = {
+		const res:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			id:tags.id ?? Utils.getUUID(),
@@ -527,7 +527,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return res;
 	}
 
-	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean, fromQueue:boolean = false):Promise<void> {
+	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean, fromQueue = false):Promise<void> {
 		if(!tags.id && tags["message-type"] == "chat") {
 			//When sending a message from the current client, IRC never send it back to us.
 			//TMI tries to make this transparent by firing the "message" event but
@@ -597,7 +597,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
-		let pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
+		const pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
 		if(pinAmount) {
 			data.elevatedInfo	= {amount:pinAmount, duration_s:{"5":30, "10":60, "25":90, "50":120, "100":150}[pinAmount] ?? 30};
 		}

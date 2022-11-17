@@ -682,7 +682,7 @@ export default class ChatForm extends Vue {
 		}else
 		
 		if(cmd == "/cypherkey") {
-			//Secret feature
+			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
 			this.$store("main").setCypherKey(params[0]);
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
 			noticeMessage = "Cypher key successfully configured !";
@@ -690,8 +690,8 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/cypherreset") {
-			//Secret feature
-			this.$store("main").setCypherEnabled(false);
+			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
+			this.$store("main").setCypherKey("");
 			TwitchCypherPlugin.instance.cypherKey = "";
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
 			noticeMessage = "Cypher key removed successfully.";

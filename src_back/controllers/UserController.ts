@@ -40,7 +40,7 @@ export default class UserController {
 	 * Get/set a user's data
 	 */
 	private async getUserData(request:FastifyRequest, response:FastifyReply) {
-		let userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -87,8 +87,8 @@ export default class UserController {
 	 * Get/set a user's data
 	 */
 	private async setUserData(request:FastifyRequest, response:FastifyReply) {
-		let body:any = request.body;
-		let userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const body:any = request.body;
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);

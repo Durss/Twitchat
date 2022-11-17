@@ -32,7 +32,7 @@ export const storeStream = defineStore('stream', {
 		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) { this.currentRaid = infos; },
 
 		setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings) {
-			let roomSettings:TwitchatDataTypes.IRoomSettings = this.roomSettings[channelId] ?? {};
+			const roomSettings:TwitchatDataTypes.IRoomSettings = this.roomSettings[channelId] ?? {};
 			if(settings.chatDelay != undefined) roomSettings.chatDelay = settings.chatDelay;
 			if(settings.emotesOnly != undefined) roomSettings.emotesOnly = settings.emotesOnly;
 			if(settings.followOnly != undefined) roomSettings.followOnly = settings.followOnly;

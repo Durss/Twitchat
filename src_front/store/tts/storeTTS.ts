@@ -95,7 +95,7 @@ export const storeTTS = defineStore('tts', {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:user.platform,
-					message:"User <mark>"+user.displayName+"</mark>'s messages will be read out loud.",
+					message:"<mark>"+user.displayName+"</mark>'s messages will be read out loud.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});
 			}else{
@@ -104,7 +104,7 @@ export const storeTTS = defineStore('tts', {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:user.platform,
-					message:"User <mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.",
+					message:"<mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
 				});
 			}

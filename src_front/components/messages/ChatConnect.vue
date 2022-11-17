@@ -3,8 +3,8 @@
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark_white' : 'cross_alert')+'.svg')" alt="notice" class="icon">
-		<span v-if="messageData.type == 'connect'">Welcome to the chat room <strong>{{channelName}}</strong></span>
-		<span v-else>You have been disconnected from the chat</span>
+		<span v-if="messageData.type == 'connect'">Welcome to the <strong>{{messageData.platform}}</strong> chat room <strong>{{channelName}}</strong></span>
+		<span v-else>You have been disconnected from the <strong>{{messageData.platform}}</strong> chat</span>
 	</div>
 </template>
 
@@ -45,9 +45,9 @@ export default class ChatConnect extends Vue {
 		if(chan) {
 			this.channelName = " #"+chan.login;
 			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.CONNECT) {
-				this.message = "Welcome to chat room "+this.channelName;
+				this.message = "Welcome to the "+this.messageData.platform+" chat room "+this.channelName;
 			}else{
-				this.message = "You have been disconnected from the chat";
+				this.message = "You have been disconnected from the "+this.messageData.platform+" chat";
 			}
 			this.$store("accessibility").setAriaPolite(this.message);
 		}

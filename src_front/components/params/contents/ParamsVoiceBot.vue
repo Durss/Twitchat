@@ -43,7 +43,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 export default class ParamsVoiceBot extends Vue {
 	
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voicePageUrl():string {

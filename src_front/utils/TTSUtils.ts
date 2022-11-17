@@ -89,9 +89,9 @@ export default class TTSUtils {
 	private sTTS = storeTTS();
 	private sChat = storeChat();
 
-	/********************
-	* HANDLERS          *
-	********************/
+	/***********
+	* HANDLERS *
+	************/
 	constructor() {
 		this.voices = window.speechSynthesis.getVoices();
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
@@ -162,21 +162,21 @@ export default class TTSUtils {
 	 * PUBLIC METHODS *
 	 ******************/
 
-    /**
-     * Get voices list
-     * 
-     * @returns SpeechSynthesisVoice[]
-     */
-    public getVoices():SpeechSynthesisVoice[] {
+	/**
+	 * Get voices list
+	 * 
+	 * @returns SpeechSynthesisVoice[]
+	 */
+	public getVoices():SpeechSynthesisVoice[] {
 		return this.voices;
-    }
+	}
 
-    /**
-     * Stops currently playing speech
-     */
-    public stop():void {
+	/**
+	 * Stops currently playing speech
+	 */
+	public stop():void {
 		window.speechSynthesis.cancel();
-    }
+	}
 
 	/**
 	 * Reads a message now.
@@ -326,8 +326,8 @@ export default class TTSUtils {
 
 				if(!message.message) return "";
 
-				let mess: string = message.message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
-				let txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
+				const mess: string = message.message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
+				const txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
 				return txt;
 			}
 
@@ -335,7 +335,7 @@ export default class TTSUtils {
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readFollow && force!==true) return "";
 
-				let txt = paramsTTS.readFollowPattern.replace(/\{USER\}/gi, message.user.displayName);
+				const txt = paramsTTS.readFollowPattern.replace(/\{USER\}/gi, message.user.displayName);
 				return txt;
 			}
 
@@ -357,7 +357,7 @@ export default class TTSUtils {
 		
 						//Wait a little for potential subgift streak to complete
 						const checkComplete = () => {
-							let recipients = message.gift_recipients ?? [];
+							const recipients = message.gift_recipients ?? [];
 							
 							//If count has changed, wait a little there might be more subgifts coming
 							if(prevCount != recipients.length) {
@@ -454,7 +454,7 @@ export default class TTSUtils {
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readBingos && force!==true) return "";
 
-				let txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, message.user.displayName);
+				const txt = paramsTTS.readBingosPattern.replace(/\{WINNER\}/gi, message.user.displayName);
 				return txt;
 			}
 
@@ -464,7 +464,7 @@ export default class TTSUtils {
 				if(!message.raffleData.winners) return "";
 				if(message.raffleData.winners.length === 0) return "";
 
-				let txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, message.raffleData.winners[0].label);
+				const txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, message.raffleData.winners[0].label);
 				return txt;
 			}
 		}
@@ -483,7 +483,7 @@ export default class TTSUtils {
 
 		//Message deleted?
 		if(TwitchatDataTypes.DeletableMessageTypes.includes(message.message.type)) {
-			const m = message.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing.Couldn't find a cleaner way
+			const m = message.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing. Couldn't find a cleaner way to achieve that :(
 			if(m.deleted == true) skipMessage = true;
 		}
 		const paramsTTS = this.sTTS.params;

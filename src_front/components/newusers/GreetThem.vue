@@ -1,5 +1,5 @@
 <template>
-	<div class="newusers" v-show="localMessages.length > 0" :style="styles">
+	<div class="greetThem" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
 				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
@@ -35,13 +35,6 @@
 			</div>
 		</div>
 		
-		<!-- <transition-group name="fade"
-			v-if="showList"
-			tag="div"
-			ref="messageList"
-			class="messageList"
-			@leave="(el, done)=>leave(el, done)"
-		> -->
 		<div class="messageList" v-if="showList" ref="messageList">
 			<ChatMessage
 				v-for="(m,index) in localMessages" :key="m.id"
@@ -56,7 +49,6 @@
 				@click="deleteMessage(m, index)"
 				@click.right.prevent="deleteMessage(m, index, true)" />
 		</div>
-		<!-- </transition-group> -->
 		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
 		<div class="gripMax" v-if="showMaxHeight" :style="maxHeightStyles">Max height</div>
 	</div>
@@ -478,7 +470,7 @@ export default class NewUsers extends Vue {
 </script>
 
 <style scoped lang="less">
-.newusers{
+.greetThem{
 	// background-color: #218bac;
 	background-color: @windowStateColor;
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
@@ -487,6 +479,7 @@ export default class NewUsers extends Vue {
 	min-height: calc(75px + 1.5em);
 	max-height: 60vh;
 	z-index: 1;
+	position: relative;
 
 	.header {
 		padding: 10px 0;
@@ -567,22 +560,6 @@ export default class NewUsers extends Vue {
 				font-variant-numeric: tabular-nums;
 			}
 	
-			.fade-enter-active {
-				transition: all 0.2s;
-			}
-	
-			.fade-leave-active {
-				transition: all 0.2s;
-			}
-	
-			.fade-enter-from,
-			.fade-leave-to {
-				height: 0;
-				margin: 0;
-				padding: 0;
-				opacity: 0;
-				transform: scaleY(0);
-			}
 		}
 	}
 

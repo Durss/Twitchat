@@ -60,7 +60,7 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		startCountdown(duration:number) {
-			let timeout = setTimeout(()=> {
+			const timeout = setTimeout(()=> {
 				this.stopCountdown()
 			}, Math.max(duration, 1000));
 

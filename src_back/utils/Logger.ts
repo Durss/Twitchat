@@ -82,12 +82,12 @@ export default class Logger  {
 		let chunks:string[] = [message];
 		chunks = chunks.concat(more);
 
-		let c = parseInt(color.replace(/[^a-z0-9]/gi, ""), 16);
-		let r = (c >> 16) & 0xff;
-		let g = (c >> 8) & 0xff;
-		let b = c & 0xff;
+		const c = parseInt(color.replace(/[^a-z0-9]/gi, ""), 16);
+		const r = (c >> 16) & 0xff;
+		const g = (c >> 8) & 0xff;
+		const b = c & 0xff;
 		
-		let style = "\x1B[38;2;"+r+";"+g+";"+b+"m";
+		const style = "\x1B[38;2;"+r+";"+g+";"+b+"m";
 
 		this.doLog(style+chunks.join(" "));
 	}
@@ -100,8 +100,8 @@ export default class Logger  {
 	private static convertDate(inputFormat:Date):string {
 		function pad(s) { return (s < 10) ? '0' + s : s; }
 		function pad2(s) { return (s < 10) ? '00' + s : (s < 100) ? '0' + s : s; }
-		let d = new Date(inputFormat);
-		return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')+ " " + [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':')+":"+pad2(d.getMilliseconds());
+		const d = new Date(inputFormat);
+		return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()-2000].join('/')+ " " + [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':')+":"+pad2(d.getMilliseconds());
 	}
 
 	private static doLog(mess:string):void {

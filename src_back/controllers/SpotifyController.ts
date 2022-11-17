@@ -34,9 +34,9 @@ export default class SpotifyController {
 	 * Authenticate a spotify user from its auth_code
 	 */
 	private async spotifyAuthenticate(request:FastifyRequest, response:FastifyReply) {
-		let params = request.query as any;
-		let clientId = params.clientId? params.clientId : Config.credentials.spotify_client_id;
-		let clientSecret = params.clientSecret? params.clientSecret : Config.credentials.spotify_client_secret;
+		const params = request.query as any;
+		const clientId = params.clientId? params.clientId : Config.credentials.spotify_client_id;
+		const clientSecret = params.clientSecret? params.clientSecret : Config.credentials.spotify_client_secret;
 
 		const options = {
 			method:"POST",
@@ -53,7 +53,7 @@ export default class SpotifyController {
 		
 		let json;
 		try {
-			let res = await fetch("https://accounts.spotify.com/api/token", options);
+			const res = await fetch("https://accounts.spotify.com/api/token", options);
 			json = await res.json();
 		}catch(error) {
 			Logger.error("Spotify authentication failed");
@@ -74,9 +74,9 @@ export default class SpotifyController {
 	 * Refreshes a spotify access token
 	 */
 	private async spotifyRefreshToken(request:FastifyRequest, response:FastifyReply) {
-		let params = request.query as any;
-		let clientId = params.clientId? params.clientId : Config.credentials.spotify_client_id;
-		let clientSecret = params.clientSecret? params.clientSecret : Config.credentials.spotify_client_secret;
+		const params = request.query as any;
+		const clientId = params.clientId? params.clientId : Config.credentials.spotify_client_id;
+		const clientSecret = params.clientSecret? params.clientSecret : Config.credentials.spotify_client_secret;
 	
 		const options = {
 			method:"POST",
@@ -92,7 +92,7 @@ export default class SpotifyController {
 		
 		let json;
 		try {
-			let res = await fetch("https://accounts.spotify.com/api/token", options);
+			const res = await fetch("https://accounts.spotify.com/api/token", options);
 			json = await res.json();
 		}catch(error) {
 			response.header('Content-Type', 'application/json');

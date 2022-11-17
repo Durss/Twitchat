@@ -73,7 +73,7 @@ export default class ParamsVoicemod extends Vue {
 		users: ""
 	}
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
 
 	public get holderStyles():StyleValue {
 		return {

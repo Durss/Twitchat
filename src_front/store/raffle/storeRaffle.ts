@@ -94,7 +94,7 @@ export const storeRaffle = defineStore('raffle', {
 				case "manual": {
 					let id = 0;
 					let customEntries:string[] = [];
-					let customEntriesStr = payload.customEntries;
+					const customEntriesStr = payload.customEntries;
 					if(customEntriesStr?.length > 0) {
 						const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
 						customEntries = customEntriesStr.split(new RegExp(splitter, ""));

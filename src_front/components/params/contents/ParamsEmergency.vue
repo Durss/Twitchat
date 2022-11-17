@@ -131,7 +131,7 @@ export default class ParamsEmergency extends Vue {
 	}
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
 	
 	public get obsSources_filtered():OBSSourceItem[] {
 		let sources = this.obsSources.concat();

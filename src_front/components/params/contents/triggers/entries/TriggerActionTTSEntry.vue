@@ -34,7 +34,7 @@ export default class TriggerActionTTSEntry extends Vue {
 
 	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to read with text to speech", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
-	public get contentTTS():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TTS; }
+	public get contentTTS():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TTS; }
 
 	public beforeMount():void {
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);

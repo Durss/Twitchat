@@ -204,7 +204,7 @@ export default class VoiceController {
 		this.hashmap = {};
 		this.hashmapGlobalActions = {};
 
-		let regChunks:string[] = [];
+		const regChunks:string[] = [];
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
 			if(!a.id) continue;

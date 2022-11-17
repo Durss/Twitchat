@@ -37,7 +37,7 @@ export default class DonorController {
 	 * Gets if a user is part of the donors (create donors.json file with twitch UID array inside)
 	 */
 	private async getIsDonor(request:FastifyRequest, response:FastifyReply) {
-		let userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -101,7 +101,7 @@ export default class DonorController {
 	 */
 	private async getAnonState(request:FastifyRequest, response:FastifyReply) {
 		//Get uer info
-		let userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -132,9 +132,9 @@ export default class DonorController {
 	 * Sets the anon donor state of the current user
 	 */
 	private async setAnonState(request:FastifyRequest, response:FastifyReply) {
-		let body:any = request.body;
+		const body:any = request.body;
 		//Get uer info
-		let userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -175,8 +175,8 @@ export default class DonorController {
 	 */
 	private updatePublicDonorsList() {
 		try {
-			let donors = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
-			let anonStates = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
+			const donors = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
+			const anonStates = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
 			let res = [];
 			for (let uid in donors) {
 				const v = donors[uid];

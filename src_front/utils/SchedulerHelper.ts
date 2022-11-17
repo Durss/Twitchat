@@ -88,7 +88,7 @@ export default class SchedulerHelper {
 					//Check if a date is stored on store and load it back.
 					//This avoids the possibility to have no ad by refreshing
 					//the page before the timer ends.
-					let sDate = parseInt(DataStore.get(DataStore.TWITCHAT_AD_NEXT_DATE));
+					const sDate = parseInt(DataStore.get(DataStore.TWITCHAT_AD_NEXT_DATE));
 					if(!isNaN(sDate)) {
 						date = Math.max(60000, Math.min(date, sDate));
 						DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, date);

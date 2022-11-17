@@ -36,7 +36,7 @@ export default class DeezerController {
 	 * Authenticate a deezer user from its auth_code
 	 */
 	private async deezerAuthenticate(request:FastifyRequest, response:FastifyReply) {
-		let params = request.query as any;
+		const params = request.query as any;
 
 		const options = { method:"GET" }
 		let json;
@@ -48,7 +48,7 @@ export default class DeezerController {
 			url += "&secret="+secret;
 			url += "&app_id="+appId;
 			url += "&output=json";
-			let res = await fetch(url, options);
+			const res = await fetch(url, options);
 			json = await res.json();
 
 			if(!json.access_token) throw(json);

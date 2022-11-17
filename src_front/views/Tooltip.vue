@@ -23,17 +23,17 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Tooltip extends Vue {
 
-    public upsideDown = false;
-    public opened = false;
-    public message = "";
-	
-    private position:{x:number, y:number} = {x:0, y:0};
-    private mouseMoveHandler!:(e:MouseEvent) => void;
-    private mouseUpHandler!:(e:MouseEvent) => void;
-    private currentTarget!:HTMLElement|null;
-    private lastMouseEvent!:MouseEvent;
-	
-    public get styles():StyleValue {
+	public upsideDown = false;
+	public opened = false;
+	public message = "";
+
+	private position:{x:number, y:number} = {x:0, y:0};
+	private mouseMoveHandler!:(e:MouseEvent) => void;
+	private mouseUpHandler!:(e:MouseEvent) => void;
+	private currentTarget!:HTMLElement|null;
+	private lastMouseEvent!:MouseEvent;
+
+	public get styles():StyleValue {
 		return {
 			left: this.position.x + "px",
 			top: this.position.y + "px",

@@ -75,8 +75,8 @@ export default class FFZUtils {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
-		let allEmotes:FFZEmote[] = [];
-		let emotesDone:{[key:string]:boolean} = {};
+		const allEmotes:FFZEmote[] = [];
+		const emotesDone:{[key:string]:boolean} = {};
 		const chunks = message.split(/\s/);
 		for (let i = 0; i < chunks.length; i++) {
 			const txt = chunks[i];

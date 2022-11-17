@@ -284,7 +284,7 @@ export default class UserCard extends Vue {
 		let maxFastFollowStreakCount = 0;
 		let checkMaxDelay = 3600000 * 24 * 30 * 4;//Ignore followings older than 4 months
 		let recentFollowCount = 0;
-        //Compute following frequency
+		//Compute following frequency
 		for (let i = 1; i < this.followings.length; i++) {
 			let prevDate = new Date(this.followings[i-1].followed_at).getTime();
 			let currentDate = new Date(this.followings[i].followed_at).getTime();

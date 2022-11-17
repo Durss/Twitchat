@@ -146,7 +146,7 @@ export default class TwitchUtils {
 				if(!hashmap[s.set_id]) hashmap[s.set_id] = {};
 				for (let j = 0; j < s.versions.length; j++) {
 					const v = s.versions[j];
-					let title = this.getBadgeTitle(s.set_id, v.id);
+					const title = this.getBadgeTitle(s.set_id, v.id);
 					hashmap[s.set_id][v.id] = {
 						icon:{
 							sd: v.image_url_1x,
@@ -188,7 +188,7 @@ export default class TwitchUtils {
 				if(!hashmap[s.set_id]) hashmap[s.set_id] = {};
 				for (let j = 0; j < s.versions.length; j++) {
 					const v = s.versions[j];
-					let title = this.getBadgeTitle(s.set_id, v.id);
+					const title = this.getBadgeTitle(s.set_id, v.id);
 					hashmap[s.set_id][v.id] = {
 						icon:{
 							sd: v.image_url_1x,
@@ -424,7 +424,7 @@ export default class TwitchUtils {
 				url = url.replace(/1x$/gi, "3x");//BTTV format
 				url = url.replace(/2x$/gi, "3x");//7TV format
 				url = url.replace(/1$/gi, "4");//FFZ format
-				let tt = "<img src='"+url+"' width='112' height='112' class='emote'><br><center>"+v.label+"</center>";
+				const tt = "<img src='"+url+"' width='112' height='112' class='emote'><br><center>"+v.label+"</center>";
 				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 			}
 		}
@@ -868,7 +868,7 @@ export default class TwitchUtils {
 					platform:"twitch",
 					displayName:"Global",
 					login:"Global",
-					donor:{level:0, state:false},
+					donor:{level:0, state:false, upgrade:false},
 					greeted:true,
 					is_affiliate:false,
 					is_partner:false,
@@ -1172,7 +1172,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"channels/commercial");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/commercial");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("length", duration.toString());
 		const res = await fetch(url, options);
@@ -1356,7 +1356,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
@@ -1387,7 +1387,7 @@ export default class TwitchUtils {
 				// broadcaster_language:"en",
 			})
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"channels");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
@@ -1411,7 +1411,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
@@ -1439,7 +1439,7 @@ export default class TwitchUtils {
 				tag_ids:tagIDs,
 			})
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
@@ -1472,7 +1472,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 			body: JSON.stringify({data:body}),
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 
@@ -1503,7 +1503,7 @@ export default class TwitchUtils {
 			method:"DELETE",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", user.id);
@@ -1535,7 +1535,7 @@ export default class TwitchUtils {
 			method:"PUT",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
 		url.searchParams.append("target_user_id", user.id);
 		if(reason) url.searchParams.append("reason", reason);
 
@@ -1566,7 +1566,7 @@ export default class TwitchUtils {
 			method:"DELETE",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
 		url.searchParams.append("target_user_id", user.id);
 
 		const res = await fetch(url.href, options);
@@ -1596,7 +1596,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"clips");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
 		url.searchParams.append("id", clipId);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
@@ -1624,7 +1624,7 @@ export default class TwitchUtils {
 		let list:TwitchDataTypes.BlockedUser[] = [];
 		let cursor:string|null = null;
 		do {
-			let url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
+			const url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
 			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
@@ -1650,7 +1650,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 			body: JSON.stringify({ message, color }),
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/announcements");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/announcements");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		const res = await fetch(url.href, options);
@@ -1676,7 +1676,7 @@ export default class TwitchUtils {
 			method:"DELETE",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/chat");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/chat");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		if(messageId) url.searchParams.append("message_id", messageId);
@@ -1702,7 +1702,7 @@ export default class TwitchUtils {
 			method:"PUT",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/color");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/color");
 		url.searchParams.append("user_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("color", color);
 		const res = await fetch(url.href, options);
@@ -1728,7 +1728,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 
-		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		const res = await fetch(url.href, options);
@@ -1768,7 +1768,7 @@ export default class TwitchUtils {
 	 * Change rooms settings
 	 */
 	public static async setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings):Promise<boolean> {
-		let body:any = {};
+		const body:any = {};
 		if(typeof settings.emotesOnly == "boolean") body.emote_mode = settings.emotesOnly;
 		
 		if(typeof settings.subOnly == "boolean") body.subscriber_mode = settings.subOnly;StoreProxy.auth.twitch.user.id
@@ -1799,7 +1799,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 			body:JSON.stringify(body),
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		const res = await fetch(url.href, options);
@@ -1834,7 +1834,7 @@ export default class TwitchUtils {
 			method:removeMod? "DELETE" : "POST",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"moderation/moderators");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/moderators");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", uid);
 		const res = await fetch(url.href, options);
@@ -1874,7 +1874,7 @@ export default class TwitchUtils {
 			method:removeMode? "DELETE" : "POST",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"channels/vips");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/vips");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", userId);
 		const res = await fetch(url.href, options);
@@ -1908,7 +1908,7 @@ export default class TwitchUtils {
 			method:"POST",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"raids");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"raids");
 		url.searchParams.append("from_broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("to_broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
@@ -1933,7 +1933,7 @@ export default class TwitchUtils {
 			method:"DELETE",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"raids");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"raids");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
@@ -1969,7 +1969,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 			body:JSON.stringify({message})
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"whispers");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"whispers");
 		url.searchParams.append("from_user_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("to_user_id", toId);
 		const res = await fetch(url.href, options);
@@ -2006,7 +2006,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		
-		let url = new URL(Config.instance.TWITCH_API_PATH+"chat/chatters");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/chatters");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 

@@ -55,6 +55,7 @@ export const storeMain = defineStore("main", {
 			},
 		},
 		chatAlert:null,
+		chatColumnsConfig:[],
 	} as IMainState),
 	
 
@@ -123,7 +124,10 @@ export const storeMain = defineStore("main", {
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 			if(token && authenticate) {
 				const cypherKey = DataStore.get(DataStore.CYPHER_KEY)
-				ChatCypherPlugin.instance.initialize(cypherKey);
+				if(cypherKey) {
+					this.cypherKey = cypherKey;
+					ChatCypherPlugin.instance.initialize(cypherKey);
+				}
 				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
 					sMusic.setSpotifyToken(e.token!);
 				});
@@ -403,6 +407,67 @@ export const storeMain = defineStore("main", {
 			if(automodParams) {
 				Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
 				sAutomod.setAutomodParams(sAutomod.params);
+			}
+
+			//Init automod
+			const chatColConfs = DataStore.get(DataStore.CHAT_COLUMNS_CONF);
+			if(chatColConfs) {
+				this.chatColumnsConfig = JSON.parse(chatColConfs);
+			}else{
+				//Default cols configs
+				this.chatColumnsConfig = [
+					{
+						order:0,
+						size:window.innerWidth/2,
+						filters:{
+							join:true,
+							message:true,
+							whisper:true,
+							raid:false,
+							poll:false,
+							leave:true,
+							cheer:false,
+							bingo:false,
+							raffle:false,
+							reward:false,
+							notice:true,
+							following:false,
+							countdown:false,
+							prediction:false,
+							subscription:false,
+							hype_train_summary:false,
+							hype_train_cooled_down:false,
+							community_boost_complete:false,
+							community_challenge_contribution:false,
+						},
+					},
+					{
+						order:1,
+						size:window.innerWidth/2,
+						filters:{
+							join:false,
+							message:false,
+							whisper:false,
+							raid:true,
+							poll:true,
+							leave:false,
+							cheer:true,
+							bingo:true,
+							raffle:true,
+							reward:true,
+							notice:true,
+							following:true,
+							countdown:true,
+							prediction:true,
+							subscription:true,
+							hype_train_summary:true,
+							hype_train_cooled_down:true,
+							community_boost_complete:true,
+							community_challenge_contribution:true,
+						},
+					}
+				]
+				this.chatColumnsConfig.push(JSON.parse(JSON.stringify(this.chatColumnsConfig[0])));//TODO remove that debug
 			}
 			
 			//Reload devmode state

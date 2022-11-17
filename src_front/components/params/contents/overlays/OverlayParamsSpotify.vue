@@ -81,7 +81,7 @@ export default class OverlayParamsSpotify extends Vue {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
 	}
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsContentType.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
 
 	public authenticate():void {
 		this.loading = true;

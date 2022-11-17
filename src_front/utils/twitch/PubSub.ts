@@ -688,7 +688,7 @@ export default class PubSub extends EventDispatcher {
 	 */
 	private automodEvent(localObj:PubSubDataTypes.AutomodData, channelId:string):void {
 		if(localObj.status == "PENDING") {
-			let reasons:string[] = [];
+			const reasons:string[] = [];
 			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 				const f = localObj.message.content.fragments[i];
 				if(!f.automod) continue;
@@ -713,7 +713,7 @@ export default class PubSub extends EventDispatcher {
 				}
 			}
 
-			let user = localObj.message.sender;
+			const user = localObj.message.sender;
 			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
 			const m:TwitchatDataTypes.MessageChatData = {
@@ -762,8 +762,8 @@ export default class PubSub extends EventDispatcher {
 				}
 			}
 
-			let user = localObj.low_trust_user.sender;
-			let channelId = localObj.low_trust_user.channel_id;
+			const user = localObj.low_trust_user.sender;
+			const channelId = localObj.low_trust_user.channel_id;
 			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
 			const m:TwitchatDataTypes.MessageChatData = {
@@ -886,7 +886,7 @@ export default class PubSub extends EventDispatcher {
 		if(localObj.event.status == "RESOLVE_PENDING"
 		|| localObj.event.status == "LOCKED"
 		|| localObj.event.status == "ACTIVE") {
-			let outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
+			const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 			for (let i = 0; i < localObj.event.outcomes.length; i++) {
 				const c = localObj.event.outcomes[i];
 				outcomes.push({

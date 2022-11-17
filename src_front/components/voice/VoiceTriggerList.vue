@@ -194,7 +194,7 @@ export default class VoiceTriggerList extends Vue {
 		availableActions = availableActions.filter(v=> { return VoiceAction[v+"_DESCRIPTION" as VAKeys] as string; });
 
 		return availableActions.map(v=> {
-			const icon = VoiceAction[v+"_ICON" as VAKeys] as string;;
+			const icon = VoiceAction[v+"_ICON" as VAKeys] as string;
 			return {
 				label:VoiceAction[v+"_DESCRIPTION" as VAKeys] as string,
 				value:v,

@@ -3,8 +3,10 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	//Parameters content types
-	export const ParamsContentType = {
+	/**
+	 * Parameters menue categories
+	 */
+	export const ParamsCategories = {
 		MAIN_MENU: "",
 		APPEARANCE: "appearance",
 		FILTERS: "filters",
@@ -24,9 +26,20 @@ export namespace TwitchatDataTypes {
 		AUTOMOD: "autmod",
 		VOICEMOD: "voicemod",
 	} as const;
-	export type ParamsContentStringType = typeof ParamsContentType[keyof typeof ParamsContentType]|null;
+	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories]|null;
 
-	//Bot messages types
+	/**
+	 * Contains config about a chat column
+	 */
+	export interface ChatColumnsConfig {
+		order:number;
+		size:number;
+		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
+	}
+
+	/**
+	 * Bot messages types
+	 */
 	export interface IBotMessage {
 		bingo:BotMessageEntry;
 		bingoStart:BotMessageEntry;
@@ -42,7 +55,9 @@ export namespace TwitchatDataTypes {
 	}
 	export type BotMessageField = keyof IBotMessage;
 
-	//Room settings
+	/**
+	 * Chat room settings
+	 */
 	export interface IRoomSettings {
 		subOnly?:boolean;
 		emotesOnly?:boolean;
@@ -52,7 +67,9 @@ export namespace TwitchatDataTypes {
 	}
 	export type RoomSettings = keyof IRoomSettings;
 
-	//Generic parameter categories types
+	/**
+	 * Generic parameter categories types
+	 */
 	export interface IParameterCategory {
 		appearance:{[key:string]:ParameterData};
 		filters:{[key:string]:ParameterData};
@@ -60,14 +77,18 @@ export namespace TwitchatDataTypes {
 	}
 	export type ParameterCategory = keyof IParameterCategory;
 
-	//Account params types
+	/**
+	 * Account params types
+	 */
 	export interface IAccountParamsCategory {
 		syncDataWithServer:ParameterData;
 		publicDonation:ParameterData;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
 
-	//OBS chat command scene control
+	/**
+	 * OBS chat command scene control
+	 */
 	export interface OBSSceneCommand {
 		scene:{
 			sceneIndex:number;
@@ -76,7 +97,9 @@ export namespace TwitchatDataTypes {
 		command:string;
 	}
 
-	//OBS chat command mute control
+	/**
+	 * OBS chat command mute control
+	 */
 	export interface OBSMuteUnmuteCommands {
 		audioSourceName:string;
 		muteCommand:string;
@@ -86,9 +109,9 @@ export namespace TwitchatDataTypes {
 
 
 	/**
-	 * Data type for messages badges.
+	 * Data type for message badges.
 	 * These are info displayed on the left of some messages
-	 * to indicate things like "whisper" or "automoded" info
+	 * to indicate things like "whisper" or "automod" info
 	 */
 	export const MessageBadgeDataType = {
 		AUTOMOD: "automod",
@@ -105,14 +128,9 @@ export namespace TwitchatDataTypes {
 		tooltip?:string;
 	}
 
-
-	export interface ParameterDataListValue {
-		label:string;
-		value:string | number | boolean | undefined;
-		icon?:string;
-		[parameter: string]: unknown;
-	}
-
+	/**
+	 * Data that populates ParamItem components
+	 */
 	export interface ParameterData {
 		id?:number;
 		type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse";
@@ -138,7 +156,32 @@ export namespace TwitchatDataTypes {
 		save?:boolean;//Save configuration to storage on change?
 		tooltip?:string;//Tooltip displayed on hover
 	}
+	export interface ParameterDataListValue {
+		label:string;
+		value:string | number | boolean | undefined;
+		icon?:string;
+		[parameter: string]: unknown;
+	}
 
+	/**
+	 * Contains info about a wheel overlay data
+	 */
+	export interface WheelData {
+		items:EntryItem[];
+		winner:string;
+	}
+
+	/**
+	 * Generic item entry
+	 */
+	export interface EntryItem {
+		id:string;
+		label:string;
+	}
+
+	/**
+	 * Config for a bingo game
+	 */
 	export interface BingoConfig {
 		guessNumber:boolean;
 		guessEmote:boolean;
@@ -152,6 +195,9 @@ export namespace TwitchatDataTypes {
 		winners?:TwitchatDataTypes.TwitchatUser[];
 	}
 
+	/**
+	 * Config for a raffle game
+	 */
 	export interface RaffleData {
 		mode:"chat"|"sub"|"manual";
 		command:string;
@@ -173,6 +219,9 @@ export namespace TwitchatDataTypes {
 		score:number;
 	}
 	
+	/**
+	 * Config for a "chat suggestion" session
+	 */
 	export interface ChatSuggestionData {
 		command:string;
 		startTime:number;
@@ -181,13 +230,15 @@ export namespace TwitchatDataTypes {
 		choices:ChatSuggestionDataChoice[];
 		winners:ChatSuggestionDataChoice[];
 	}
-
 	export interface ChatSuggestionDataChoice {
 		id:string;
 		user:TwitchatDataTypes.TwitchatUser;
 		label:string;
 	}
 
+	/**
+	 * Contains current hype train info
+	 */
 	export interface HypeTrainStateData {
 		channel_id:string;
 		level:number;
@@ -201,12 +252,11 @@ export namespace TwitchatDataTypes {
 		is_boost_train:boolean;
 		is_new_record:boolean;
 	}
-	
-	export interface EntryItem {
-		id:string;
-		label:string;
-	}
 
+	/**
+	 * Contains info about a command for the autocomplete
+	 * form when write "/xxx" on the chat input
+	 */
 	export interface CommandData {
 		id:string;
 		cmd:string;
@@ -216,6 +266,9 @@ export namespace TwitchatDataTypes {
 		needTTS?:boolean;
 	}
 
+	/**
+	 * Generic permission data
+	 */
 	export interface PermissionsData {
 		broadcaster:boolean;
 		mods:boolean;
@@ -225,16 +278,19 @@ export namespace TwitchatDataTypes {
 		users:string;
 	}
 
-	export interface WheelData {
-		items:EntryItem[];
-		winner:string;
-	}
-
+	/**
+	 * Represents a placeholder for forms.
+	 * Placeholders are clickable tags that are inserted inside
+	 * a text field.
+	 */
 	export interface PlaceholderEntry {
 		tag:string;
 		desc:string;
 	}
 
+	/**
+	 * Contains info about a stream (either current stream or presets)
+	 */
 	export interface StreamInfoPreset {
 		id: string;
 		name: string;
@@ -243,29 +299,36 @@ export namespace TwitchatDataTypes {
 		tagIDs?: string[];
 	}
 
+	/**
+	 * Contains info about a countdown
+	 */
 	export interface CountdownData {
 		startAt:number;
 		duration:number;
 		timeoutRef:number;
 	}
 
+	/**
+	 * Contains info about a timer
+	 */
 	export interface TimerData {
 		startAt:number;
 		duration?:number;
 	}
 
-	export interface MusicTrackData {
-		title:string;
-		artist:string;
-		album:string;
-		cover:string;
-		duration:number;
-		url:string;
-	}
-	export type MusicTrackDataKeys = keyof MusicTrackData;
-
+	/**
+	 * Generic screen position
+	 * tl = top left
+	 * t = top
+	 * tr = top right
+	 * ...
+	 */
 	export type ScreenPosition = "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
 
+	/**
+	 * Contains info about an highlighted chat message.
+	 * Used by the "chat highlight" overlay
+	 */
 	export interface ChatHighlightInfo {
 		message?:string,
 		user?:TwitchatUser,
@@ -280,6 +343,11 @@ export namespace TwitchatDataTypes {
 		url:string;
 	}
 
+	/**
+	 * Different "ad" types
+	 * Ads are messages displayed on startup or when using
+	 * command /tip or  /updates
+	 */
 	export const TwitchatAdTypes = {
 		NONE:-1,
 		SPONSOR:1,
@@ -292,11 +360,19 @@ export namespace TwitchatDataTypes {
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 
+	/**
+	 * Stores the install callback sent by the browser
+	 * This callback is used to "install" Tiwtchat on the device
+	 * (mostly made for mobile but also work on desktop)
+	 */
 	export interface InstallHandler extends Event {
 		prompt:()=>void;
 		userChoice:Promise<{outcome:"accepted"}>;
 	}
 
+	/**
+	 * Represents text to speech configs
+	 */
 	export interface TTSParamsData {
 		enabled: boolean;
 		volume: number;
@@ -341,6 +417,9 @@ export namespace TwitchatDataTypes {
 		readUsers:string[];
 	}
 
+	/**
+	 * Represents emergency mode params
+	 */
 	export interface EmergencyParamsData {
 		enabled:boolean;
 		chatCmd:string;
@@ -366,9 +445,16 @@ export namespace TwitchatDataTypes {
 		autoUnblockFollows?:boolean;
 	}
 
+	/**
+	 * Represents spoiler params
+	 */
 	export interface SpoilerParamsData {
 		permissions:PermissionsData;
 	}
+	
+	/**
+	 * Represents chat alert params
+	 */
 	export interface AlertParamsData {
 		chatCmd:string;
 		permissions:PermissionsData;
@@ -378,6 +464,9 @@ export namespace TwitchatDataTypes {
 		message:boolean;
 	}
 
+	/**
+	 * Represents an anchor for the homepage
+	 */
 	export interface AnchorData {
 		label:string;
 		icon:string;
@@ -385,6 +474,9 @@ export namespace TwitchatDataTypes {
 		selected:boolean;
 	}
 
+	/**
+	 * Represents music player params for overlay
+	 */
 	export interface MusicPlayerParamsData {
 		autoHide:boolean;
 		erase:boolean;
@@ -397,6 +489,22 @@ export namespace TwitchatDataTypes {
 		customInfoTemplate:string;
 	}
 
+	/**
+	 * Represents info about a music track
+	 */
+	export interface MusicTrackData {
+		title:string;
+		artist:string;
+		album:string;
+		cover:string;
+		duration:number;
+		url:string;
+	}
+	export type MusicTrackDataKeys = keyof MusicTrackData;
+
+	/**
+	 * Represents voicemod params
+	 */
 	export interface VoicemodParamsData {
 		enabled:boolean;
 		voiceIndicator:boolean;
@@ -404,14 +512,15 @@ export namespace TwitchatDataTypes {
 		chatCmdPerms:PermissionsData;
 	}
 
-
+	/**
+	 * Represents twitchat's automod params
+	 */
 	export interface AutomodParamsData {
 		enabled:boolean;
 		banUserNames:boolean;
 		keywordsFilters:AutomodParamsKeywordFilterData[];
 		exludedUsers:PermissionsData;
 	}
-
 	export interface AutomodParamsKeywordFilterData {
 		id:string;
 		enabled:boolean;
@@ -420,12 +529,18 @@ export namespace TwitchatDataTypes {
 		serverSync:boolean;
 	}
 
+	/**
+	 * Represent a pronoun's info
+	 */
 	export interface Pronoun {
 		id: string;
 		login: string;
 		pronoun_id: string
 	}
 
+	/**
+	 * Represents info about a confirm window
+	 */
 	export interface ConfirmData {
 		title:string,
 		description?:string,
@@ -436,11 +551,17 @@ export namespace TwitchatDataTypes {
 		STTOrigin?:boolean,
 	}
 
+	/**
+	 * Represents generic data for a multi-res image
+	 */
 	export interface TwitchatImage {
 		sd:string;
 		hd?:string;
 	}
 
+	/**
+	 * Represents a user
+	 */
 	export interface TwitchatUser {
 		id:string;
 		platform:ChatPlatform;
@@ -455,6 +576,7 @@ export namespace TwitchatDataTypes {
 		donor:{//Donor state of the user
 			state:boolean,
 			level:number,
+			upgrade:boolean,//true if donor level changed from last time
 		};
 		pronouns:string|false|null;//undefined=no loaded yet; false=no pronouns found; string=pronouns loaded
 		pronounsLabel:string|false;
@@ -464,6 +586,9 @@ export namespace TwitchatDataTypes {
 		errored?:boolean;//true if user data loading failed
 	}
 
+	/**
+	 * Represents a channel specific user data
+	 */
 	export interface UserChannelInfo {
 		online:boolean;
 		is_following:boolean|null;
@@ -477,9 +602,10 @@ export namespace TwitchatDataTypes {
 		banEndDate?:number;
 		badges:TwitchatUserBadge[];
 	}
-
-	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
-
+	
+	/**
+	 * Represents the info about a user's badge
+	 */
 	export interface TwitchatUserBadge {
 		icon:TwitchatImage;
 		id:TwitchatUserBadgeType;
@@ -487,6 +613,14 @@ export namespace TwitchatDataTypes {
 		version?:string;
 	}	
 
+	/**
+	 * Available user badge types
+	 */
+	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
+
+	/**
+	 * Contains info about outgoing raid (when we are raiding someone)
+	 */
 	export interface RaidInfo {
 		channel_id: string;
 		user:TwitchatUser;
@@ -495,17 +629,26 @@ export namespace TwitchatDataTypes {
 		timerDuration_s:number;
 	}
 
+	/**
+	 * Represents info about a community boost
+	 */
 	export interface CommunityBoost {
 		channel_id: string;
 		goal:number;
 		progress:number;
 	}
 
+	/**
+	 * Represents info about an automod event
+	 */
 	export interface AutomodData {
 		words: string[];
 		reasons:string[];
 	}
 
+	/**
+	 * Represents an emote
+	 */
 	export interface Emote {
 		id: string;
 		code: string;
@@ -522,6 +665,9 @@ export namespace TwitchatDataTypes {
 
 
 
+	/**
+	 * Available message types 
+	 */
 	export const TwitchatMessageType = {
 		RAID:"raid",
 		POLL:"poll",
@@ -567,34 +713,38 @@ export namespace TwitchatDataTypes {
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
 
 
+	/**
+	 * Available notice types
+	 * All these are managed by the same ChatNotice.vue component
+	 */
 	export const TwitchatNoticeType = {
-		TTS:"tts",
-		GENERIC:"generic",
-		APP_VERSION:"appVersion",
-		ERROR:"error",
-		ONLINE:"online",
-		OFFLINE:"offline",
-		UNNKNOWN:"unknown",
-		CLEAR_CHAT:"clearChat",
-		TIMEOUT:"timeout",
-		UNTIMEOUT:"untimeout",
-		BAN:"ban",
-		UNBAN:"unban",
-		MOD:"mod",
-		UNMOD:"unmod",
-		UNBLOCK:"unblock",
-		VIP:"vip",
-		UNVIP:"unvip",
-		EMERGENCY_MODE:"emergencyMode",
-		COMMERCIAL_ERROR:"commercialError",
-		COMMERCIAL_START:"commercialStart",
-		COMMERCIAL_COMPLETE:"commercialComplete",
-		STREAM_INFO_UPDATE:"stream_info_update",
-		CYPHER_KEY:"devcypherKey",
-		DEVMODE:"devMode",
+		GENERIC:"generic",//For any generic (not strongly typed) messages. Ex: any comming from twitch's IRC that can't all be known for sure
+		ERROR:"error",//For any error message
+		TTS:"tts",//For TTS releated messages. Ex:"User's message will be read out loud"
+		APP_VERSION:"appVersion",//When using command "/version"
+		CLEAR_CHAT:"clearChat",//When clearing a chat room
+		TIMEOUT:"timeout",//When timingout a user
+		UNTIMEOUT:"untimeout",//When releasing a user's timeout
+		BAN:"ban",//When banning a user
+		UNBAN:"unban",//When unbanning a user
+		MOD:"mod",//When granting mod role to a user
+		UNMOD:"unmod",//When removing mod role from a user
+		UNBLOCK:"unblock",//When unblocking a user
+		VIP:"vip",///When granting VIP role to a user
+		UNVIP:"unvip",//When removing VIP role from a user
+		EMERGENCY_MODE:"emergencyMode",//When emergency mode is started/stoped
+		COMMERCIAL_ERROR:"commercialError",//When a commercial request fails
+		COMMERCIAL_START:"commercialStart",//When a commercial is started
+		COMMERCIAL_COMPLETE:"commercialComplete",//When a commercial completes
+		STREAM_INFO_UPDATE:"stream_info_update",//When updating a stream info (title, category,...)
+		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
+		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
+	/**
+	 * Message types 
+	 */
 	export type ChatMessageTypes = MessageChatData |
 									MessageWhisperData |
 									MessagePollData |
@@ -636,6 +786,10 @@ export namespace TwitchatDataTypes {
 									MessageNoticeData
 	;
 
+	/**
+	 * Defines any message that could be deleted.
+	 * Used by TTS to check if the message still exists before reading it
+	 */
 	export const DeletableMessageTypes:TwitchatMessageStringType[] = [
 		TwitchatMessageType.MESSAGE,
 	];
@@ -668,14 +822,15 @@ export namespace TwitchatDataTypes {
 		TwitchatNoticeType.COMMERCIAL_COMPLETE,
 	];
 
-	
-	export const MessageListFilterTypes:TwitchatDataTypes.TwitchatMessageStringType[] = [
+	/**
+	 * Defines the filters
+	 */
+	export const MessageListFilterTypes = [
 		TwitchatMessageType.RAID,
 		TwitchatMessageType.POLL,
 		TwitchatMessageType.JOIN,
 		TwitchatMessageType.LEAVE,
 		TwitchatMessageType.CHEER,
-		TwitchatMessageType.TIMER,
 		TwitchatMessageType.BINGO,
 		TwitchatMessageType.RAFFLE,
 		TwitchatMessageType.REWARD,
@@ -686,14 +841,15 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.COUNTDOWN,
 		TwitchatMessageType.PREDICTION,
 		TwitchatMessageType.SUBSCRIPTION,
-		TwitchatMessageType.FOLLOWBOT_LIST,
-		TwitchatMessageType.HYPE_TRAIN_CANCEL,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
 		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
-	];
+	] as const;
 
+	/**
+	 * Common props for all message types
+	 */
 	export interface AbstractTwitchatMessage {
 		type:TwitchatMessageStringType;
 		id:string;
@@ -703,6 +859,9 @@ export namespace TwitchatDataTypes {
 		markedAsRead?:boolean;
 	}
 
+	/**
+	 * A regular user's message 
+	 */
 	export interface MessageChatData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"message";
@@ -736,6 +895,9 @@ export namespace TwitchatDataTypes {
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
 	}
 
+	/**
+	 * Whisper message 
+	 */
 	export interface MessageWhisperData extends AbstractTwitchatMessage {
 		type:"whisper";
 		channel_id:string;
@@ -748,11 +910,9 @@ export namespace TwitchatDataTypes {
 		spoiler?: boolean;
 	}
 
-	export interface MessagePollDataChoice {
-		id: string;
-		label: string;
-		votes: number;
-	}
+	/**
+	 * Represents a poll's data
+	 */
 	export interface MessagePollData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"poll";
@@ -762,13 +922,15 @@ export namespace TwitchatDataTypes {
 		started_at: number;
 		ended_at?: number;
 	}
-
-	export interface MessagePredictionDataOutcome {
+	export interface MessagePollDataChoice {
 		id: string;
 		label: string;
 		votes: number;
-		voters: number;
 	}
+
+	/**
+	 * Represents a prediction's data
+	 */
 	export interface MessagePredictionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"prediction";
@@ -780,7 +942,16 @@ export namespace TwitchatDataTypes {
 		ended_at?: number;
 		winning_outcome_id?: string;
 	}
+	export interface MessagePredictionDataOutcome {
+		id: string;
+		label: string;
+		votes: number;
+		voters: number;
+	}
 
+	/**
+	 * Represents a "new follower" message
+	 */
 	export interface MessageFollowingData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"following";
@@ -791,6 +962,9 @@ export namespace TwitchatDataTypes {
 		followbot?:boolean;//Defines if it's from a followbot
 	}
 
+	/**
+	 * Represents a new subscription message
+	 */
 	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"subscription";
@@ -808,6 +982,9 @@ export namespace TwitchatDataTypes {
 		message_html?:string;
 	}
 
+	/**
+	 * Represents a bits data
+	 */
 	export interface MessageCheerData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"cheer";
@@ -817,6 +994,9 @@ export namespace TwitchatDataTypes {
 		message_html: string;
 	}
 
+	/**
+	 * Represents a reward redeem message
+	 */
 	export interface MessageRewardRedeemData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"reward";
@@ -832,6 +1012,9 @@ export namespace TwitchatDataTypes {
 		message_html?:string;
 	}
 
+	/**
+	 * Represents a community challenge contribution
+	 */
 	export interface MessageCommunityChallengeContributionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"community_challenge_contribution";
@@ -848,6 +1031,9 @@ export namespace TwitchatDataTypes {
 		}
 	}
 
+	/**
+	 * Represents a hype train result message
+	 */
 	export interface MessageHypeTrainSummaryData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_summary";
@@ -855,6 +1041,9 @@ export namespace TwitchatDataTypes {
 		activities: (MessageSubscriptionData|MessageCheerData)[];
 	}
 
+	/**
+	 * Represents a hype train in progress
+	 */
 	export interface MessageHypeTrainEventData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_approaching"|"hype_train_start"|"hype_train_cancel"|"hype_train_progress"|"hype_train_complete";
@@ -863,18 +1052,26 @@ export namespace TwitchatDataTypes {
 		percent:number;
 	}
 
+	/**
+	 * Represents a hype train cooldown message
+	 */
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_cooled_down";
 	}
 
+	/**
+	 * Represents a community boost data
+	 */
 	export interface MessageCommunityBoostData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"community_boost_complete";
 		viewers:number;
 	}
 
-	//Only for incoming raids
+	/**
+	 * Represents info about an incoming raid
+	 */
 	export interface MessageRaidData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"raid";
@@ -882,30 +1079,45 @@ export namespace TwitchatDataTypes {
 		viewers:number;
 	}
 
+	/**
+	 * Represents a "chat connected" message
+	 */
 	export interface MessageConnectData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"connect";
 		user:TwitchatUser;
 	}
-
+	
+	/**
+	 * Represents a "chat connection lost" message
+	 */
 	export interface MessageDisconnectData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"disconnect";
 		user:TwitchatUser;
 	}
 
+	/**
+	 * Represents a chat user joining message
+	 */
 	export interface MessageJoinData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"join";
 		users:TwitchatUser[];
 	}
-
+	
+	/**
+	 * Represents a chat user leaving message
+	 */
 	export interface MessageLeaveData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"leave";
 		users:TwitchatUser[];
 	}
 
+	/**
+	 * Represents a user baned message
+	 */
 	export interface MessageBanData extends MessageNoticeData {
 		channel_id: string;
 		noticeId:"ban"|"unban";
@@ -914,6 +1126,9 @@ export namespace TwitchatDataTypes {
 		reason:string;
 	}
 	
+	/**
+	 * Represents a user timedout data
+	 */
 	export interface MessageTimeoutData extends MessageNoticeData {
 		channel_id: string;
 		noticeId:"timeout"|"untimeout";
@@ -923,27 +1138,42 @@ export namespace TwitchatDataTypes {
 		duration_s:number;
 	}
 
+	/**
+	 * Represents a chat clear 
+	 */
 	export interface MessageClearChatData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"clear_chat";
 	}
 
+	/**
+	 * Represents a raffle message
+	 */
 	export interface MessageRaffleData extends AbstractTwitchatMessage {
 		type:"raffle";
 		raffleData:RaffleData;
 	}
 
+	/**
+	 * Represents a bingo message
+	 */
 	export interface MessageBingoData extends AbstractTwitchatMessage {
 		type:"bingo";
 		user:TwitchatUser;
 		bingoData:BingoConfig;
 	}
 
+	/**
+	 * Represents a countdown complete message
+	 */
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
 		type:"countdown";
 		countdown:CountdownData;
 	}
 
+	/**
+	 * Represents a timer message
+	 */
 	export interface MessageTimerData extends AbstractTwitchatMessage {
 		type:"timer";
 		started:boolean,
@@ -951,6 +1181,9 @@ export namespace TwitchatDataTypes {
 		duration?:number;
 	}
 
+	/**
+	 * Represents a notice message (which has multiple sub types)
+	 */
 	export interface MessageNoticeData extends AbstractTwitchatMessage {
 		channel_id?: string;
 		type:"notice";
@@ -958,6 +1191,10 @@ export namespace TwitchatDataTypes {
 		message:string;
 	}
 
+	/**
+	 * Represents a message when autoban bans a user based on
+	 * their login
+	 */
 	export interface MessageAutobanJoinData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"autoban_join";
@@ -965,47 +1202,75 @@ export namespace TwitchatDataTypes {
 		rule:TwitchatDataTypes.AutomodParamsKeywordFilterData;
 	}
 
+	/**
+	 * Represents info about a twitchat ad (updates, tips & tricks, ...)
+	 */
 	export interface MessageTwitchatAdData extends AbstractTwitchatMessage {
 		type:"twitchat_ad";
 		adType:TwitchatAdStringTypes;
 	}
 
+	/**
+	 * Represents a stream info update message 
+	 */
 	export interface MessageStreamInfoUpdate extends MessageNoticeData {
 		noticeId:"stream_info_update";
 		title:string;
 		category:string;
 	}
 
+	/**
+	 * Represents an emergency mode state change (enable or disable)
+	 */
 	export interface MessageEmergencyModeInfo extends MessageNoticeData{
 		noticeId:"emergencyMode";
 		enabled:boolean;
 	}
 
+	/**
+	 * Represents a chat alert message
+	 * (when a user uses the !alert command)
+	 */
 	export interface MessageChatAlertData extends AbstractTwitchatMessage{
 		type:"chat_alert";
 		message:MessageChatData;
 	}
 
+	/**
+	 * Represents a music start data
+	 */
 	export interface MessageMusicStartData extends AbstractTwitchatMessage {
 		type:"music_start";
 		track:MusicTrackData;
 	}
 
+	/**
+	 * Represents a music stop data
+	 */
 	export interface MessageMusicStopData extends AbstractTwitchatMessage {
 		type:"music_stop";
 		track:MusicTrackData|null;
 	}
 
+	/**
+	 * Represents a music added to queue data
+	 */
 	export interface MessageMusicAddedToQueueData extends AbstractTwitchatMessage {
 		type:"music_added_to_queue";
 		track:MusicTrackData|null;
 	}
 
+	/**
+	 * Represents a voicemod voice change data
+	 */
 	export interface MessageVoicemodData extends AbstractTwitchatMessage {
 		type:"voicemod";
 		voiceID?:string;
 	}
 
+	/**
+	 * Represents a shoutout data
+	 */
 	export interface MessageShoutoutData extends AbstractTwitchatMessage {
 		type:"shoutout";
 		user:TwitchatDataTypes.TwitchatUser;
@@ -1015,11 +1280,19 @@ export namespace TwitchatDataTypes {
 		};
 	}
 
+	/**
+	 * Represents a chat highlight message
+	 */
 	export interface MessageChatHighlightData extends AbstractTwitchatMessage {
 		type:"chat_highlight";
 		info:ChatHighlightInfo;
 	}
 
+	/**
+	 * Represents a followbot message
+	 * When getting followboted, all follow events are merge into one
+	 * single MessageFollowbotData
+	 */
 	export interface MessageFollowbotData extends AbstractTwitchatMessage {
 		type:"followbot_list";
 		users:TwitchatUser[];

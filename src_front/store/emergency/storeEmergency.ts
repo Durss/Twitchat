@@ -78,7 +78,7 @@ export const storeEmergency = defineStore('emergency', {
 
 			if(enable) {
 				//ENABLE EMERGENCY MODE
-				let roomSettings:TwitchatDataTypes.IRoomSettings = {};
+				const roomSettings:TwitchatDataTypes.IRoomSettings = {};
 				if(this.params.slowMode) roomSettings.slowMode = this.params.slowModeDuration;
 				if(this.params.emotesOnly) roomSettings.emotesOnly = true;
 				if(this.params.subOnly) roomSettings.subOnly = true;
@@ -106,7 +106,7 @@ export const storeEmergency = defineStore('emergency', {
 			}else{
 				//DISABLE EMERGENCY MODE
 				//Unset all changes
-				let roomSettings:TwitchatDataTypes.IRoomSettings = {};
+				const roomSettings:TwitchatDataTypes.IRoomSettings = {};
 				if(this.params.slowMode) roomSettings.slowMode = 0;
 				if(this.params.emotesOnly) roomSettings.emotesOnly = false;
 				if(this.params.subOnly) roomSettings.subOnly = false;

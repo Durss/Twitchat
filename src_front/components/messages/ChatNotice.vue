@@ -39,8 +39,7 @@ export default class ChatNotice extends Vue {
 
 	public get classes():string[] {
 		let res = ["chatnotice"];
-		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.OFFLINE
-		|| this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
+		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) {
 			res.push("emergency");
 			if((this.messageData as TwitchatDataTypes.MessageEmergencyModeInfo).enabled) {
@@ -57,8 +56,6 @@ export default class ChatNotice extends Vue {
 
 	public mounted():void {
 		switch(this.messageData.noticeId) {
-			case TwitchatDataTypes.TwitchatNoticeType.ONLINE:			this.icon = "enter"; break;
-			case TwitchatDataTypes.TwitchatNoticeType.OFFLINE:			this.icon = "leave"; break;
 			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
 		}
 		this.$store("accessibility").setAriaPolite(this.message);

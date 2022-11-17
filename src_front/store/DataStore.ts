@@ -52,6 +52,7 @@ export default class DataStore {
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
 	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
 	public static INTERFACE_SCALE:string = "interfaceScale";
+	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -165,7 +166,7 @@ export default class DataStore {
 		if(!this.store) this.init();
 
 		try {
-			let headers = {
+			const headers = {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"GET", headers});
@@ -259,7 +260,7 @@ export default class DataStore {
 					}
 				}
 	
-				let headers = {
+				const headers = {
 					"Content-Type": "application/json",
 					'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				}

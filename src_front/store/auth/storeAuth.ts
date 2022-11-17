@@ -161,10 +161,14 @@ export const storeAuth = defineStore('auth', {
 							"Authorization": "Bearer "+this.twitch.access_token,
 						},
 					}
+					const storeLevel = parseInt(DataStore.get(DataStore.DONOR_LEVEL))
+					const prevLevel = isNaN(storeLevel)? -1 : storeLevel;
 					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
 					const donorJSON = await donorRes.json();
 					this.twitch.user.donor.state	= donorJSON.data?.isDonor === true;
 					this.twitch.user.donor.level	= donorJSON.data?.level;
+					this.twitch.user.donor.upgrade	= donorJSON.data?.level != prevLevel;
+					DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
 				}catch(error) {}
 	
 				//If asked to sync data with server, load them

@@ -8,7 +8,7 @@
 <script lang="ts">
 import TestComponent from '@/components/TestComponent.vue';
 import { Options, Vue } from 'vue-class-component';
-interface IItem {id:number, message:string};
+interface IItem {id:number, message:string}
 
 @Options({
 	props:{},

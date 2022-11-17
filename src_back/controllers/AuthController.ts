@@ -42,7 +42,7 @@ export default class AuthController {
 	 * @param {*} response 
 	 */
 	async twitchAuth(request:FastifyRequest, response:FastifyReply) {
-		let params = URL.parse(request.url, true).query;
+		const params = URL.parse(request.url, true).query;
 		
 		let url = "https://id.twitch.tv/oauth2/token";
 		url += "?client_id="+Config.credentials.twitch_client_id;
@@ -53,7 +53,7 @@ export default class AuthController {
 		
 		let json;
 		try {
-			let res = await fetch(url, {method:"POST"});
+			const res = await fetch(url, {method:"POST"});
 			json = await res.json();
 		}catch(error) {
 			Logger.error("Token generation failed");
@@ -121,7 +121,7 @@ export default class AuthController {
 	 * @param {*} response 
 	 */
 	private async refreshToken(request:FastifyRequest, response:FastifyReply) {
-		let params = URL.parse(request.url, true).query;
+		const params = URL.parse(request.url, true).query;
 		
 		let url = "https://id.twitch.tv/oauth2/token";
 		url += "?client_id="+Config.credentials.twitch_client_id;
@@ -131,7 +131,7 @@ export default class AuthController {
 		
 		let json;
 		try {
-			let res = await fetch(url, {method:"POST"});
+			const res = await fetch(url, {method:"POST"});
 			json = await res.json();
 		}catch(error) {
 			response.header('Content-Type', 'application/json');

@@ -29,7 +29,7 @@ export default class UnicodeUtils {
 	* PUBLIC METHODS *
 	******************/
 	public normalizeAlphaNum(src:string, exceptions:string = ""):string {
-		var n = this.getUnicodeLetters();
+		let n = this.getUnicodeLetters();
 		src = this.normalizeText(src, n, exceptions);
 		n = this.getUnicodeNumbers();
 		src = this.normalizeText(src, n, exceptions);
@@ -39,17 +39,17 @@ export default class UnicodeUtils {
 	}
 
 	public normalizeLetters(src:string, exceptions:string = ""):string {
-		var chars = this.getUnicodeLetters();
+		let chars = this.getUnicodeLetters();
 		return this.normalizeText(src, chars, exceptions)
 	}
 
 	public normalizeNumbers(src:string, exceptions:string = ""):string {
-		var n = this.getUnicodeNumbers();
+		let n = this.getUnicodeNumbers();
 		return this.normalizeText(src, n, exceptions)
 	}
 
 	public normalizeMarks(src:string, exceptions:string = "") {
-		var n = this.getUnicodeMarks();
+		let n = this.getUnicodeMarks();
 		return this.normalizeText(src, n, exceptions)
 	}
 	
@@ -61,7 +61,7 @@ export default class UnicodeUtils {
 
 	private normalizeText(src:string, charTable:{[key:string]:string}, exceptions:string):string {
 		for (var t = this.gSplitter.splitGraphemes(src), u = [], m = 0; m < t.length; m++) {
-			var a = t[m];
+			const a = t[m];
 			if (exceptions.indexOf(a) != -1) {
 				u.push(a);
 				continue

@@ -74,8 +74,8 @@ export default class BTTVUtils {
 		if(!this.enabled) return "";
 
 		let fakeTag = "";
-		let allEmotes:BTTVEmote[] = [];
-		let emotesDone:{[key:string]:boolean} = {};
+		const allEmotes:BTTVEmote[] = [];
+		const emotesDone:{[key:string]:boolean} = {};
 		const chunks = message.split(/\s/);
 		for (let i = 0; i < chunks.length; i++) {
 			const txt = chunks[i];

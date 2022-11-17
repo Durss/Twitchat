@@ -52,6 +52,7 @@ export interface IMainState {
 	confirmData:TwitchatDataTypes.ConfirmData|null;
 	chatAlertParams: TwitchatDataTypes.AlertParamsData;
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
+	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 }
 
 export interface IMainGetters {

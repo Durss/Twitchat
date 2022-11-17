@@ -6,12 +6,12 @@ export default class ChatCypherPlugin {
 	
 	private static _instance:ChatCypherPlugin;
 	private _cypherKey = "";
-    private buff_to_base64 = (buff:number[]) => btoa(String.fromCharCode.apply(null, buff));
-    private base64_to_buf = (b64:string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-    private enc = new TextEncoder();
-    private dec = new TextDecoder();
-    private chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/=";
-    private charsReplacements = "‒–—―ꟷ‖⸗ⱶ⌠⌡─ꞁ│┌┐└┘├┤┬┴┼═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╨╧╩╪╫╬▬ɭƖſ∏¦|[]¯‗∟≡₸";
+	private buff_to_base64 = (buff:number[]) => btoa(String.fromCharCode.apply(null, buff));
+	private base64_to_buf = (b64:string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+	private enc = new TextEncoder();
+	private dec = new TextDecoder();
+	private chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/=";
+	private charsReplacements = "‒–—―ꟷ‖⸗ⱶ⌠⌡─ꞁ│┌┐└┘├┤┬┴┼═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╨╧╩╪╫╬▬ɭƖſ∏¦|[]¯‗∟≡₸";
 	private regMatch!:RegExp;
 	
 	constructor() {
@@ -100,13 +100,13 @@ export default class ChatCypherPlugin {
 	* PRIVATE METHODS *
 	*******************/
 
-    private getPasswordKey (password:string):Promise<CryptoKey> {
+	private getPasswordKey (password:string):Promise<CryptoKey> {
 		return window.crypto.subtle.importKey("raw", this.enc.encode(password), "PBKDF2", false, [
 			"deriveKey",
 		]);
 	}
 
-    private deriveKey(passwordKey:CryptoKey, salt:ArrayBuffer, keyUsage:KeyUsage[]):Promise<CryptoKey> {
+	private deriveKey(passwordKey:CryptoKey, salt:ArrayBuffer, keyUsage:KeyUsage[]):Promise<CryptoKey> {
 		return window.crypto.subtle.deriveKey(
 			{
 				name: "PBKDF2",
@@ -121,56 +121,56 @@ export default class ChatCypherPlugin {
 		);
 	}
 
-    private async encryptData(secretData:string, password:string) {
-        try {
-            const salt = window.crypto.getRandomValues(new Uint8Array(16));
-            const iv = window.crypto.getRandomValues(new Uint8Array(12));
-            const passwordKey = await this.getPasswordKey(password);
-            const aesKey = await this.deriveKey(passwordKey, salt, ["encrypt"]);
-            const encryptedContent = await window.crypto.subtle.encrypt(
-                {
-                    name: "AES-GCM",
-                    iv: iv,
-                },
-                aesKey,
-                this.enc.encode(secretData)
-            );
+	private async encryptData(secretData: string, password: string) {
+		try {
+			const salt = window.crypto.getRandomValues(new Uint8Array(16));
+			const iv = window.crypto.getRandomValues(new Uint8Array(12));
+			const passwordKey = await this.getPasswordKey(password);
+			const aesKey = await this.deriveKey(passwordKey, salt, ["encrypt"]);
+			const encryptedContent = await window.crypto.subtle.encrypt(
+				{
+					name: "AES-GCM",
+					iv: iv,
+				},
+				aesKey,
+				this.enc.encode(secretData)
+			);
 
-            const encryptedContentArr = new Uint8Array(encryptedContent);
-            const buff = new Uint8Array(
-                salt.byteLength + iv.byteLength + encryptedContentArr.byteLength
-            );
-            buff.set(salt, 0);
-            buff.set(iv, salt.byteLength);
-            buff.set(encryptedContentArr, salt.byteLength + iv.byteLength);
-            const base64Buff = this.buff_to_base64((buff as unknown) as number[]);
-            return base64Buff;
-        } catch (e) {
-            //console.log(`Error - ${e}`);
-            return "";
-        }
-    }
+			const encryptedContentArr = new Uint8Array(encryptedContent);
+			const buff = new Uint8Array(
+				salt.byteLength + iv.byteLength + encryptedContentArr.byteLength
+			);
+			buff.set(salt, 0);
+			buff.set(iv, salt.byteLength);
+			buff.set(encryptedContentArr, salt.byteLength + iv.byteLength);
+			const base64Buff = this.buff_to_base64((buff as unknown) as number[]);
+			return base64Buff;
+		} catch (e) {
+			//console.log(`Error - ${e}`);
+			return "";
+		}
+	}
 
-    private async decryptData(encryptedData:string, password:string) {
-        try {
-            const encryptedDataBuff = this.base64_to_buf(encryptedData);
-            const salt = encryptedDataBuff.slice(0, 16);
-            const iv = encryptedDataBuff.slice(16, 16 + 12);
-            const data = encryptedDataBuff.slice(16 + 12);
-            const passwordKey = await this.getPasswordKey(password);
-            const aesKey = await this.deriveKey(passwordKey, salt, ["decrypt"]);
-            const decryptedContent = await window.crypto.subtle.decrypt(
-                {
-                    name: "AES-GCM",
-                    iv: iv,
-                },
-                aesKey,
-                data
-            );
-            return this.dec.decode(decryptedContent);
-        } catch (e) {
-            //console.log(`Error - ${e}`);
-            return "";
-        }
-    }
+	private async decryptData(encryptedData: string, password: string) {
+		try {
+			const encryptedDataBuff = this.base64_to_buf(encryptedData);
+			const salt = encryptedDataBuff.slice(0, 16);
+			const iv = encryptedDataBuff.slice(16, 16 + 12);
+			const data = encryptedDataBuff.slice(16 + 12);
+			const passwordKey = await this.getPasswordKey(password);
+			const aesKey = await this.deriveKey(passwordKey, salt, ["decrypt"]);
+			const decryptedContent = await window.crypto.subtle.decrypt(
+				{
+					name: "AES-GCM",
+					iv: iv,
+				},
+				aesKey,
+				data
+			);
+			return this.dec.decode(decryptedContent);
+		} catch (e) {
+			//console.log(`Error - ${e}`);
+			return "";
+		}
+	}
 }

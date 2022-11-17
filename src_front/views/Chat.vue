@@ -1,7 +1,34 @@
 <template>
 	<div :class="classes">
 		<div class="top" ref="top">
-			<div class="leftColumn" :style="leftStyles">
+			<div class="column" v-for="c, index in $store('main').chatColumnsConfig"
+			:ref="'column_'+index"
+			:key="c.order"
+			:style="getColStyles(c)">
+				<div class="subHolder">
+					<GreetThem class="greetThem"
+					v-if="$store('params').features.firstMessage.value && index == 1" />
+
+					<MessageList ref="messages" class="messages"
+						v-if="!hideChat"
+						@showModal="(v:string) => currentModal = v"
+						:maxMessages="50"
+						filterId="chat"/>
+				</div>
+	
+				<div class="dragBt" ref="splitter"
+				@pointerdown="startDrag($event, c)"
+				@pointerup="startDrag($event, c)">
+					<div class="grip"></div>
+				</div>
+			</div>
+				
+			<div class="addCol">
+				<Button :icon="$image('icons/add_purple.svg')" small white />
+			</div>
+				
+
+			<!-- <div class="leftColumn" :style="leftStyles">
 				<MessageList ref="messages" class="messages"
 					v-if="!hideChat"
 					@showModal="(v:string) => currentModal = v"
@@ -11,14 +38,15 @@
 				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
 			</div>
 
-			<div class="dragBt" ref="splitter" v-if="splitView" @mousedown="startDrag()" @touchstart="startDrag()">
+			<div class="dragBt" ref="splitter" v-if="splitView"
+			@mousedown="startDrag()"
+			@touchstart="startDrag()">
 				<div class="grip"></div>
 			</div>
 
 			<div class="rightColumn" v-if="splitView" :style="rightStyles" ref="rightCol">
 				<NewUsers class="newUsers" v-if="$store('params').features.firstMessage.value" />
 
-				<!-- <ActivityFeed class="activityFeed" listMode /> -->
 				<MessageList ref="messages" class="content messages"
 					v-if="!hideChat"
 					@showModal="(v:string) => currentModal = v"
@@ -29,11 +57,10 @@
 					:currentContent="currentNotificationContent"
 					@close="currentNotificationContent=''"
 				/>
-			</div>
+			</div> -->
 		</div>
 
 		<ChannelNotifications
-			v-if="!splitView"
 			:currentContent="currentNotificationContent"
 			@close="currentNotificationContent=''"
 		/>
@@ -103,7 +130,7 @@
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
 
-		<NewUsers class="newUsers" v-if="!splitView && $store('params').features.firstMessage.value" />
+
 		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" />
 
 		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
@@ -158,7 +185,7 @@ import RewardsList from '@/components/chatform/RewardsList.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
-import NewUsers from '@/components/newusers/NewUsers.vue';
+import GreetThem from '@/components/newusers/GreetThem.vue';
 import Parameters from '@/components/params/Parameters.vue';
 import ChatSuggestionForm from '@/components/poll/ChatSuggestionForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
@@ -191,7 +218,7 @@ import Accessibility from './Accessibility.vue';
 	components:{
 		Button,
 		Gngngn,
-		NewUsers,
+		GreetThem,
 		ChatForm,
 		UserList,
 		UserCard,
@@ -248,12 +275,12 @@ export default class Chat extends Vue {
 	private resizing = false;
 	private canStartAd = true;
 	private closingDonorState = false;
+	private draggedCol:TwitchatDataTypes.ChatColumnsConfig|null = null;
 	
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
-	public get splitView():boolean { return this.$store("params").appearance.splitView.value as boolean && this.$store("main").canSplitView && !this.hideChat; }
 	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean && this.$store("main").canSplitView && !this.hideChat; }
 	public get hideChat():boolean { return this.$store("params").appearance.hideChat.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
@@ -261,20 +288,12 @@ export default class Chat extends Vue {
 
 	public get classes():string[] {
 		const res = ["chat"];
-		if(this.splitView) {
-			res.push("splitView");
-			if(this.$store("params").appearance.splitViewSwitch.value === true) {
-				res.push("switchCols");
-			}
-			if(this.splitViewVertical) res.push("splitVertical")
-		}
+		if(this.splitViewVertical) res.push("splitVertical")
 		return res;
 	}
 
-	public get leftStyles():{[key:string]:string} {
-		if(!this.splitView) return {};
-		
-		let size = this.leftColSize;
+	public getColStyles(col:TwitchatDataTypes.ChatColumnsConfig):{[key:string]:string} {
+		let size = col.size;
 		if(this.$store("params").appearance.splitViewSwitch.value === true) {
 			size = 1-size;
 		}
@@ -286,7 +305,7 @@ export default class Chat extends Vue {
 				"max-height": value,
 			}
 		}else{
-			const value = `calc(${size*100}% - 7px)`;//7px => dragbar size
+			const value = `${size}px`;
 			return {
 				"width": value,
 				"min-width": value,
@@ -296,7 +315,6 @@ export default class Chat extends Vue {
 	}
 
 	public get rightStyles():{[key:string]:string} {
-		if(!this.splitView) return {};
 		
 		let size = this.leftColSize;
 		const switchCols = this.$store("params").appearance.splitViewSwitch.value === true;
@@ -314,7 +332,7 @@ export default class Chat extends Vue {
 				"width": "100%",
 			}
 		}else{
-			const value = `calc(${size*100}% - 7px)`;
+			const value = `calc(${size}px - 7px)`;
 			return {
 				"width": value,
 				"min-width": value,
@@ -325,7 +343,7 @@ export default class Chat extends Vue {
 
 	public get ttsStyles():{[key:string]:string} {
 		let res:{[key:string]:string} = {};
-		if(this.splitView && this.splitViewVertical && this.$store("params").appearance.splitViewSwitch.value === true) {
+		if(this.splitViewVertical && this.$store("params").appearance.splitViewSwitch.value === true) {
 			res.top = this.splitterPosY+"px";
 		}else if(!this.splitViewVertical){
 			res = this.rightStyles;
@@ -336,21 +354,12 @@ export default class Chat extends Vue {
 	private resizeHandler!:(e:Event) => void;
 
 	public beforeMount():void {
+
 		//Check user reached a new donor level
-		let storeLevel = parseInt(DataStore.get(DataStore.DONOR_LEVEL))
-		const level = isNaN(storeLevel)? -1 : storeLevel;
-		this.isDonor = StoreProxy.auth.twitch.user.donor.state===true && StoreProxy.auth.twitch.user.donor.level != level;
-		if(this.isDonor) {
-			DataStore.set(DataStore.DONOR_LEVEL, StoreProxy.auth.twitch.user.donor.level);
-		}
+		this.isDonor = StoreProxy.auth.twitch.user.donor.upgrade===true;
 
-		//Define is store sync modal should be displayed
+		//Define if store sync modal should be displayed
 		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
-
-		this.resizeHandler = ()=> this.onResize();
-		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
-		this.mouseUpHandler = () => this.resizing = false;
-		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		
 		let size = parseFloat(DataStore.get(DataStore.LEFT_COL_SIZE));
 		if(isNaN(size)) size = .5;
@@ -367,11 +376,16 @@ export default class Chat extends Vue {
 		};
 		requestWakeLock();
 
+		this.resizeHandler = ()=> this.onResize();
+		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.mouseUpHandler = () => this.resizing = false;
+		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+
 		window.addEventListener("resize", this.resizeHandler);
-		document.addEventListener("mouseup", this.mouseUpHandler);
-		document.addEventListener("touchend", this.mouseUpHandler);
-		document.addEventListener("mousemove", this.mouseMoveHandler);
-		document.addEventListener("touchmove", this.mouseMoveHandler);
+		window.addEventListener("mouseup", this.mouseUpHandler);
+		window.addEventListener("touchend", this.mouseUpHandler);
+		window.addEventListener("mousemove", this.mouseMoveHandler);
+		window.addEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
@@ -451,15 +465,20 @@ export default class Chat extends Vue {
 	}
 
 	public mounted():void {
-		if(!this.isDonor) return;
-		//Show donor badge
-		const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
-		gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
+		if(this.isDonor) {
+			//Show donor badge
+			const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
+			gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
+		}
 	}
 
 	public beforeUnmount():void {
 		this.disposed = true;
 		window.removeEventListener("resize", this.resizeHandler);
+		window.removeEventListener("mouseup", this.mouseUpHandler);
+		window.removeEventListener("touchend", this.mouseUpHandler);
+		window.removeEventListener("mousemove", this.mouseMoveHandler);
+		window.removeEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
@@ -671,8 +690,10 @@ export default class Chat extends Vue {
 	/**
 	 * Called when starting window resize
 	 */
-	public startDrag():void {
+	public startDrag(event:PointerEvent, col:TwitchatDataTypes.ChatColumnsConfig):void {
 		this.resizing = true;
+		this.draggedCol = col;
+		(event.target as HTMLDivElement).setPointerCapture(event.pointerId);
 	}
 
 	/**
@@ -699,6 +720,17 @@ export default class Chat extends Vue {
 			this.leftColSize = (this.mouseY - 3) / (window.innerHeight - 40);//40 = ~footer's height
 		}else{
 			this.leftColSize = (this.mouseX - 3) / window.innerWidth;
+			const cols = this.$store('main').chatColumnsConfig;
+			for (let i = 0; i < cols.length; i++) {
+				const c = cols[i];
+				if(c == this.draggedCol) {
+					const el = (this.$refs["column_"+i] as HTMLDivElement[])[0];
+					const bounds = el.getBoundingClientRect();
+					c.size = Math.max(200, this.mouseX - bounds.left + 14);
+				}else{
+
+				}
+			}
 		}
 		
 		this.leftColSize = Math.min(.95, Math.max(.05, this.leftColSize));
@@ -710,6 +742,8 @@ export default class Chat extends Vue {
 	}
 
 	private replaceTTS():void {
+		return;
+		//TODO
 		if(!this.$refs.splitter) return;
 		let rect = (this.$refs.splitter as HTMLDivElement).getBoundingClientRect();
 		this.splitterPosY = rect.top;
@@ -736,201 +770,118 @@ export default class Chat extends Vue {
 		z-index: 10;
 	}
 
-	&.splitView {
+
+	.splitVertical {
 		.top {
-			display: flex;
-			flex-direction: row;
-			position: relative;
-
-			.leftColumn {
-				width: 50%;
-				padding-right: 2px;
-			}
-			
-			.rightColumn {
-				width: calc(50% - 1px);
-				display: flex;
-				flex-direction: column;
-				flex-grow: 1;
-				position: relative;
-	
-				.newUsers {
-					right: 0;
-					left: auto;
-					margin: auto;
-					position: relative;
+			flex-direction: column;
+			.column {
+				.dragBt {
+					margin-right: 0;
+					padding: 3px;
 					width: 100%;
-					transform: unset;
-				}
-	
-				.content {
-					width: 100%;
-					height: 100%;
-					min-height: 0;//Shit hack to make overflow behave properly
-				}
-			}
-		}
-
-		&.splitVertical {
-			.top {
-				flex-direction: column;
-				.leftColumn {
-					width: 100%;
-					// max-height: 60%;
-				}
-				.rightColumn {
-					width: 100%;
-					// max-height: 40%;
-				}
-			}
-
-			&.switchCols {
-				.top {
-					flex-direction: column-reverse;
-				}
-				&.switchCols {
-					.contentWindows.tts {
-						transform: translateY(-100%);
-					}
-				}
-			}
-
-			.dragBt {
-				margin-right: 0;
-				padding: 3px;
-				width: 100%;
-				flex-grow: 1;
-				cursor: ns-resize;
-				.grip {
-					left: unset;
-					top: 50%;
-					width: 100%;
-					height: 1px;
-					&::before {
-						height: 5px;
-						width: 40px;
+					flex-grow: 1;
+					cursor: ns-resize;
+					.grip {
+						left: unset;
+						top: 50%;
+						width: 100%;
+						height: 1px;
+						&::before {
+							height: 5px;
+							width: 40px;
+						}
 					}
 				}
 			}
 		}
-
-		.popin {
-			width: 50vw;
-			left: auto;
-			right: 0;
-			top: 0;
-		}
-
-		.contentWindows {
-			&.emotes {
-				right: 0;
-				left: auto;
-				max-width: 50vw;
-				margin: auto;
-			}
-			&.tts {
-				left: auto;
-				right:0;
-			}
-			&.actions, &.emotes, &.devmode {
-				max-height: calc(100vh - 60px);
-			}
-		}
-		&.switchCols {
-			.contentWindows.tts {
-				left: 0;
-				right: auto;
-			}
-		}
 	}
 
-	&.switchCols:not(.splitVertical) {
-		.top {
-			flex-direction: row-reverse;
-			.leftColumn {
-				padding-left: 2px;
-				padding-right: 0;
-			}
-		}
-
-		.popin {
-			width: 50vw;
-			left: 0;
-			right: auto;
-			top: 0;
-		}
-
-		.contentWindows {
-			&.emotes {
-				right: 0;
-				left: auto;
-				max-width: 50vw;
-				margin: auto;
-			}
-		}
-	}
-
-	.dragBt {
-		padding: 0 3px;
-		cursor: ew-resize;
-		user-select: none;
-		z-index: 2;
-		width: 14px;
-		.grip {
-			position: relative;
-			left: 50%;
-			height: 100%;
-			width: 1px;
-			background: @mainColor_dark_light;
-			&::before {
-				content:"";
-				position: absolute;
-				.center();
-				display: block;
-				width: 5px;
-				height: 40px;
-				background: @mainColor_dark_light;
-			}
-		}
-	}
-
-	.leftColumn {
-		.activityFeed {
-			margin-left: 0;
-		}
-	}
-
-	.newUsers {
-		position: fixed;
+	.popin {
+		width: 50vw;
+		left: auto;
+		right: 0;
 		top: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 100%;
-		margin: auto;
+	}
+
+	.contentWindows {
+		&.emotes {
+			right: 0;
+			left: auto;
+			max-width: 50vw;
+			margin: auto;
+		}
+		&.tts {
+			left: auto;
+			right:0;
+		}
+		&.actions, &.emotes, &.devmode {
+			max-height: calc(100vh - 60px);
+		}
 	}
 
 	.top {
-		width: 100%;
 		flex-grow: 1;
 		margin: auto;
 		display: flex;
 		flex-direction: row;
 		overflow: hidden;
+		overflow-x: auto;
+		width: 100%;
 
-		.leftColumn {
+		.column {
 			position: relative;
 			flex-grow: 1;
 			width: 100%;
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
+			.subHolder {
+				display: flex;
+				flex-direction: column;
+				.messages {
+					flex-grow: 1;
+					overflow: hidden;
+				}
+			}
 
-			.messages {
-				flex-grow: 1;
+			.dragBt {
+				padding: 0 3px;
+				cursor: ew-resize;
+				user-select: none;
+				z-index: 2;
+				height: 100%;
+				width: 14px;
+				.grip {
+					position: relative;
+					left: 50%;
+					height: 100%;
+					width: 1px;
+					background: @mainColor_dark_light;
+					&::before {
+						content:"";
+						position: absolute;
+						.center();
+						display: block;
+						width: 5px;
+						height: 40px;
+						background: @mainColor_dark_light;
+					}
+				}
 			}
 		}
-		.chatForm {
-			width: 100%;
-			z-index: 31;
+
+		.addCol {
+			flex-grow: 1;
+			position: relative;
+			min-width: 1em;
+			.button {
+				position: absolute;
+				right: 0;
+				top: 50%;
+				padding-right: .12em;
+				transform: translateY(-50%);
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
 		}
 	}
 

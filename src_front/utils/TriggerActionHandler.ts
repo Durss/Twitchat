@@ -152,7 +152,7 @@ export default class TriggerActionHandler {
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				let id = message.reward.id;
+				const id = message.reward.id;
 				if(await this.parseSteps(TriggerTypes.REWARD_REDEEM, message, testMode, this.currentSpoolGUID, id)) {
 					return;
 				}break;
@@ -445,7 +445,7 @@ export default class TriggerActionHandler {
 							let text = await this.parseText(eventType, message, step.text as string, false, subEvent, true);
 							//Remove command name from message
 							if(subEvent) text = text.replace(subEvent, "").trim();
-							let user = null;
+							const user = null;
 							const m = message as TwitchatDataTypes.MessageChatHighlightData;
 							//TODO this event is probably broken
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (m as unknown) as JsonObject)
@@ -494,7 +494,7 @@ export default class TriggerActionHandler {
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							//Convert placeholders if any
-							let m = await this.parseText(eventType, message, step.track);
+							const m = await this.parseText(eventType, message, step.track);
 							let data:TwitchatDataTypes.MusicTrackData|null = null;
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let track:SearchTrackItem|null = null;
@@ -538,7 +538,7 @@ export default class TriggerActionHandler {
 
 							//A track has been found and added
 							if(data) {
-								let trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
+								const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 									id:Utils.getUUID(),
 									date:Date.now(),
 									platform:"twitchat",
@@ -551,7 +551,7 @@ export default class TriggerActionHandler {
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
-									let m = step.confirmMessage;
+									const m = step.confirmMessage;
 									const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 										id:Utils.getUUID(),
 										date:Date.now(),
@@ -605,7 +605,7 @@ export default class TriggerActionHandler {
 								}
 								const success = await SpotifyHelper.instance.startPlaylist(id, m);
 								if(!success) {
-									let platforms:TwitchatDataTypes.ChatPlatform[] = [];
+									const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 									if(message.platform) platforms.push(message.platform);
 									MessengerProxy.instance.sendMessage("Playlist not found", platforms);
 								}

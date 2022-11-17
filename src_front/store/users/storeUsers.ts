@@ -6,8 +6,8 @@ import { reactive, type UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
-let unbanFlagTimeouts:{[key:string]:number} = {};
-let userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
+const unbanFlagTimeouts:{[key:string]:number} = {};
+const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	idToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 	loginToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 	displayNameToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
@@ -16,7 +16,7 @@ let userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 //Do'nt store this as a state prop.
 //Having this list reactive kills performances while being
 //unnecessary
-let userList:TwitchatDataTypes.TwitchatUser[] = [];
+const userList:TwitchatDataTypes.TwitchatUser[] = [];
 
 interface BatchItem {
 	channelId?:string;
@@ -24,10 +24,10 @@ interface BatchItem {
 	cb?:(user:TwitchatDataTypes.TwitchatUser) => void;
 }
 
-let twitchUserBatchLoginToLoad:BatchItem[] = [];
-let twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
-let twitchUserBatchLoginTimeout:number = -1;
-let twitchUserBatchIdTimeout:number = -1;
+const twitchUserBatchLoginToLoad:BatchItem[] = [];
+const twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
+let twitchUserBatchLoginTimeout = -1;
+let twitchUserBatchIdTimeout = -1;
 const tmpDisplayName = "...loading...";
 
 export const storeUsers = defineStore('users', {
@@ -127,6 +127,7 @@ export const storeUsers = defineStore('users', {
 						donor:{
 							state:false,
 							level:0,
+							upgrade:false,
 						},
 						channelInfo:{},
 					};
@@ -151,6 +152,7 @@ export const storeUsers = defineStore('users', {
 						donor:{
 							state:false,
 							level:0,
+							upgrade:false,
 						},
 						channelInfo:{},
 					};
@@ -211,7 +213,7 @@ export const storeUsers = defineStore('users', {
 				//details via an API call.
 				const to = setTimeout((batchType:"id"|"login")=> {
 					
-					let batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
+					const batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
 					//Remove items that might have been fullfilled externally
 					for (let i = 0; i < batch.length; i++) {
 						const item = batch[i];
@@ -222,8 +224,8 @@ export const storeUsers = defineStore('users', {
 						}
 					}
 
-					let logins:string[]|undefined	= batchType == "login"? batch.map(v=>v.user.login) : undefined;
-					let ids:string[]|undefined		= batchType == "login"? undefined : batch.map(v=>v.user.id);
+					const logins:string[]|undefined	= batchType == "login"? batch.map(v=>v.user.login) : undefined;
+					const ids:string[]|undefined		= batchType == "login"? undefined : batch.map(v=>v.user.id);
 
 					if((ids?.length == 0 || ids == undefined) && (logins?.length == 0 || logins == undefined)) return;
 
@@ -238,7 +240,7 @@ export const storeUsers = defineStore('users', {
 						do {
 							const batchItem:BatchItem = batch.splice(0, 1)[0];
 							if(!batchItem) continue;
-							let userLocal = batchItem.user;
+							const userLocal = batchItem.user;
 							delete userLocal.temporary;
 							// console.log("Search user", batchType=="id"? userLocal.id : userLocal.login);
 							type UserKeys = keyof TwitchatDataTypes.TwitchatUser;
@@ -450,7 +452,7 @@ export const storeUsers = defineStore('users', {
 						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? StoreProxy.auth.twitch.user.id)
 						user.channelInfo[channelId].is_following = res != null;
 						return true;
-					}catch(error){};
+					}catch(error){}
 				}
 			}
 			return false;
@@ -536,7 +538,7 @@ export const storeUsers = defineStore('users', {
 
 		async loadMyFollowings():Promise<void> {
 			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
-			let hashmap:{[key:string]:boolean} = {};
+			const hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.to_id] = true; });
 			this.myFollowings["twitch"] = hashmap;
 		},

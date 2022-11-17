@@ -172,36 +172,36 @@ export interface SearchPlaylistItem {
 	description: string;
 	external_urls: ExternalUrls;
 	followers: {
-        href: string;
-        total: number;
+		href: string;
+		total: number;
 	};
 	href: string;
 	id: string;
 	images: Image[];
 	name: string;
 	owner: {
-        external_urls: ExternalUrls;
-        followers: {
+		external_urls: ExternalUrls;
+		followers: {
 			href: string;
 			total: number;
 		};
-        href: string;
-        id: string;
-        type: string;
-        uri: string;
-        display_name: string;
-    };
+		href: string;
+		id: string;
+		type: string;
+		uri: string;
+		display_name: string;
+	};
 	public: boolean;
 	snapshot_id: string;
 	tracks: {
-        href: string;
-        items: Item[];
-        limit: number;
-        next: string;
-        offset: number;
-        previous: string;
-        total: number;
-    };
+		href: string;
+		items: Item[];
+		limit: number;
+		next: string;
+		offset: number;
+		previous: string;
+		total: number;
+	};
 	type: string;
 	uri: string;
 }

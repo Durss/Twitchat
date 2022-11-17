@@ -1,4 +1,4 @@
-import type {ChatUserstate} from "tmi.js";
+import type { ChatUserstate } from "tmi.js";
 
 export namespace PubSubDataTypes {
 
@@ -13,7 +13,7 @@ export namespace PubSubDataTypes {
 	export interface Following {
 		display_name: string;
 		username: string;
-		user_id:string;
+		user_id: string;
 	}
 
 	export interface PlaybackInfo {
@@ -37,7 +37,7 @@ export namespace PubSubDataTypes {
 						emoticonSetID: string
 					},
 					automod: {
-						topics: {[key:string]: string},
+						topics: { [key: string]: string },
 					};
 				}[];
 			};
@@ -55,7 +55,7 @@ export namespace PubSubDataTypes {
 		resolver_login: string;
 		status: string;
 	}
-	
+
 	export interface ModerationData {
 		type: string;
 		moderation_action: string;
@@ -70,7 +70,7 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface PollData {
-		poll:{
+		poll: {
 			poll_id: string;
 			owned_by: string;
 			created_by: string;
@@ -80,9 +80,9 @@ export namespace PubSubDataTypes {
 			ended_by?: string;
 			duration_seconds: number;
 			settings: {
-				multi_choice: {is_enabled: boolean;};
-				subscriber_only: {is_enabled: boolean;};
-				subscriber_multiplier: {is_enabled: boolean;};
+				multi_choice: { is_enabled: boolean; };
+				subscriber_only: { is_enabled: boolean; };
+				subscriber_multiplier: { is_enabled: boolean; };
 				channel_points_votes: {
 					is_enabled: boolean;
 					cost: number;
@@ -204,7 +204,7 @@ export namespace PubSubDataTypes {
 					updated_at: string,
 					user_id: string,
 					result: {
-						type: "WIN"|"LOSE",
+						type: "WIN" | "LOSE",
 						points_won: number,
 						is_acknowledged: boolean,
 					},
@@ -252,7 +252,7 @@ export namespace PubSubDataTypes {
 	export interface HypeTrainApproaching {
 		channel_id: string;
 		goal: number;
-		events_remaining_durations:{[key:string]:number};
+		events_remaining_durations: { [key: string]: number };
 		level_one_rewards: {
 			type: string;
 			id: string;
@@ -326,7 +326,7 @@ export namespace PubSubDataTypes {
 			};
 			conductor_rewards: {
 				BITS: {
-					
+
 					CURRENT: {
 						type: string;
 						id: string;
@@ -375,7 +375,7 @@ export namespace PubSubDataTypes {
 		};
 		conductors: unknown;
 		progress: HypeProgressInfo;
-		is_boost_train:boolean;
+		is_boost_train: boolean;
 	}
 
 	export interface HypeTrainProgress {
@@ -387,8 +387,8 @@ export namespace PubSubDataTypes {
 		source: string;
 		quantity: number;
 		progress: HypeProgressInfo;
-		is_boost_train:boolean;
-		is_large_event:boolean;//Seems to mean "new all-time record"
+		is_boost_train: boolean;
+		is_large_event: boolean;//Seems to mean "new all-time record"
 	}
 
 	export interface HypeTrainConductorUpdate {
@@ -408,15 +408,15 @@ export namespace PubSubDataTypes {
 	export interface HypeTrainLevelUp {
 		time_to_expire: number;
 		progress: HypeProgressInfo;
-		is_boost_train:boolean;
+		is_boost_train: boolean;
 	}
-	
+
 	export interface HypeTrainEnd {
 		ended_at: number;
 		ending_reason: "COMPLETED" | "EXPIRE";
-		is_boost_train:boolean;
+		is_boost_train: boolean;
 	}
-	
+
 	interface HypeProgressInfo {
 		level: {
 			value: number;
@@ -434,7 +434,7 @@ export namespace PubSubDataTypes {
 		goal: number;
 		total: number;
 		remaining_seconds: number;
-		is_boost_train:boolean;
+		is_boost_train: boolean;
 	}
 
 	export interface LowTrustMessage {
@@ -493,9 +493,9 @@ export namespace PubSubDataTypes {
 
 	export interface CommunityBoost {
 		channel_id: string;
-		total_goal_target:number;
-		total_goal_progress?:number;
-		ending_reason:"ORDER_STATE_FULFILLED";
+		total_goal_target: number;
+		total_goal_progress?: number;
+		ending_reason: "ORDER_STATE_FULFILLED";
 		boost_orders: {
 			ID: string;
 			State: "ORDER_STATE_DELIVERING" | "DELIVERING_ORDER" | "ORDER_STATE_FULFILLED";
@@ -542,12 +542,12 @@ export namespace PubSubDataTypes {
 		sender: {
 			extension_client_id: string;
 			extension_version: string;
-			display_name:  string;
+			display_name: string;
 			chat_color: string;
 			badges: {
-					id: string;
-					version: string;
-				}[]
+				id: string;
+				version: string;
+			}[]
 		}
 	}
 
@@ -579,16 +579,16 @@ export namespace PubSubDataTypes {
 		created_by_user_id: string;
 		created_by: string;
 	}
-	
+
 
 	//adding props missing from typings
 	export interface IRCTagsExtended extends ChatUserstate {
-		"first-msg"?:boolean;
-		"reply-parent-display-name"?:string;
-		"reply-parent-msg-body"?:string;
-		"reply-parent-msg-id"?:string;
-		"reply-parent-user-id"?:string;
-		"reply-parent-user-login"?:string;
+		"first-msg"?: boolean;
+		"reply-parent-display-name"?: string;
+		"reply-parent-msg-body"?: string;
+		"reply-parent-msg-id"?: string;
+		"reply-parent-user-id"?: string;
+		"reply-parent-user-login"?: string;
 	}
 
 	export interface ChannelPointChallengeContribution {
@@ -647,11 +647,11 @@ export namespace PubSubDataTypes {
 		}
 	}
 
-    export interface PartialVerificationConfig {
-        restrict_first_time_chatters: boolean;
-        restrict_based_on_follower_age: boolean;
-        restrict_based_on_account_age: boolean;
-        minimum_follower_age_in_minutes: number;
-        minimum_account_age_in_minutes: number;
-    }
+	export interface PartialVerificationConfig {
+		restrict_first_time_chatters: boolean;
+		restrict_based_on_follower_age: boolean;
+		restrict_based_on_account_age: boolean;
+		minimum_follower_age_in_minutes: number;
+		minimum_account_age_in_minutes: number;
+	}
 }
