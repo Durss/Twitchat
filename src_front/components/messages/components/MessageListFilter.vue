@@ -333,7 +333,7 @@ export default class MessageListFilter extends Vue {
 		
 		const holder = this.$refs.previewList as HTMLDivElement;
 		
-		if(this.previewData.length == 0) {
+		if(this.previewData.length == 0 && !this.loadingPreview) {
 			//Avoids mouse conflict on mobile mode.
 			//The holder may appear above the clicked location and cancel the
 			//click event of the ParamItem
@@ -341,12 +341,13 @@ export default class MessageListFilter extends Vue {
 			return;
 		}
 
+		const parentBounds = (this.$el as HTMLDivElement).getBoundingClientRect()
 		const bounds = holder.getBoundingClientRect();
-		let py = this.mouseY + 20;
-		
+		let py = this.mouseY - parentBounds.top + 20;
 		if(py + bounds.height > (this.$el as HTMLDivElement).offsetHeight) {
-			py -= bounds.height + 30;
+			py = this.mouseY - parentBounds.top - bounds.height - 20;
 		}
+
 		holder.style.top = py+"px";
 	}
 
