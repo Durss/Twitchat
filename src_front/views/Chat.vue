@@ -27,38 +27,6 @@
 			<div class="addCol">
 				<Button :icon="$image('icons/add_purple.svg')" small white />
 			</div>
-				
-
-			<!-- <div class="leftColumn" :style="leftStyles">
-				<MessageList ref="messages" class="messages"
-					v-if="!hideChat"
-					@showModal="(v:string) => currentModal = v"
-					:maxMessages="50"
-					filterId="chat"/>
-					
-				<ActivityFeed class="activityFeed" listMode v-if="hideChat" />
-			</div>
-
-			<div class="dragBt" ref="splitter" v-if="splitView"
-			@mousedown="startDrag()"
-			@touchstart="startDrag()">
-				<div class="grip"></div>
-			</div>
-
-			<div class="rightColumn" v-if="splitView" :style="rightStyles" ref="rightCol">
-				<NewUsers class="newUsers" v-if="$store('params').features.firstMessage.value" />
-
-				<MessageList ref="messages" class="content messages"
-					v-if="!hideChat"
-					@showModal="(v:string) => currentModal = v"
-					:maxMessages="50"
-					es="activityfeed"/>
-
-				<ChannelNotifications
-					:currentContent="currentNotificationContent"
-					@close="currentNotificationContent=''"
-				/>
-			</div> -->
 		</div>
 
 		<ChannelNotifications
@@ -383,10 +351,10 @@ export default class Chat extends Vue {
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 
 		window.addEventListener("resize", this.resizeHandler);
-		window.addEventListener("mouseup", this.mouseUpHandler);
-		window.addEventListener("touchend", this.mouseUpHandler);
-		window.addEventListener("mousemove", this.mouseMoveHandler);
-		window.addEventListener("touchmove", this.mouseMoveHandler);
+		document.addEventListener("mouseup", this.mouseUpHandler);
+		document.addEventListener("touchend", this.mouseUpHandler);
+		document.addEventListener("mousemove", this.mouseMoveHandler);
+		document.addEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
@@ -476,10 +444,10 @@ export default class Chat extends Vue {
 	public beforeUnmount():void {
 		this.disposed = true;
 		window.removeEventListener("resize", this.resizeHandler);
-		window.removeEventListener("mouseup", this.mouseUpHandler);
-		window.removeEventListener("touchend", this.mouseUpHandler);
-		window.removeEventListener("mousemove", this.mouseMoveHandler);
-		window.removeEventListener("touchmove", this.mouseMoveHandler);
+		document.removeEventListener("mouseup", this.mouseUpHandler);
+		document.removeEventListener("touchend", this.mouseUpHandler);
+		document.removeEventListener("mousemove", this.mouseMoveHandler);
+		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);

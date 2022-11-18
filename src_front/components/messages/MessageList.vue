@@ -291,6 +291,7 @@ export default class MessageList extends Vue {
 		//If one is updated, the chat is completely rebuilt.
 		watch(() => this.$store("params").filters, () => this.fullListRefresh(), { deep: true });
 		watch(() => this.$store("params").features.notifyJoinLeave.value, () => this.fullListRefresh());
+		watch(() => this.config.filters, () => this.fullListRefresh(), {deep: true});
 
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
@@ -422,40 +423,42 @@ export default class MessageList extends Vue {
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+				if(this.config.filters.message === false) return false;
+				
 				let canAdd = true;
 				//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
 				if (this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
 					canAdd = false;
-				} else
+				} else {
 					//Ignore deleted messages if requested
-					if (canAdd && sParams.filters.keepDeletedMessages.value === false && m.deleted) {
+					if (sParams.filters.keepDeletedMessages.value === false && m.deleted) {
 						canAdd = false;
-					} else
+					} else {
 						//Ignore /me messages if requested
-						if (canAdd && sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
+						if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
 							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 							canAdd = false;
-						} else
+						} else {
 							//Ignore self if requested
-							if (canAdd && sParams.filters.showSelf.value === false && m.user.id == meUID) {
+							if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
 								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 								canAdd = false;
-							} else
+							} else {
 								//Ignore bot messages if requested
-								if (canAdd && sParams.filters.showBots.value === false
+								if (sParams.filters.showBots.value === false
 									&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
 									&& m.bypassBotFilter !== true) {
 									// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 									canAdd = false;
-								} else
+								} else {
 									//Ignore custom users
-									if (canAdd && m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
+									if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
 										// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 										canAdd = false;
-									} else
+									} else {
 
 										//Ignore commands
-										if (canAdd && sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
+										if (sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
 											if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
 												//Ignore specific commands
 												const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
@@ -471,66 +474,95 @@ export default class MessageList extends Vue {
 												canAdd = false;
 											}
 										}
+									}
+								}
+							}
+						}
+					}
+				}
 				return canAdd;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-				return sParams.features.showWhispersOnChat.value === true;
+				return this.config.filters.whisper === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showSubs.value === true;
+				return this.config.filters.subscription === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showRewards.value === true;
+				return this.config.filters.reward === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.PREDICTION:
+			case TwitchatDataTypes.TwitchatMessageType.PREDICTION:{
+				return this.config.filters.prediction === true;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
-				return sParams.filters.showNotifications.value === true;
+				return this.config.filters.poll === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showCheers.value === true;
+				return this.config.filters.cheer === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showFollow.value === true;
+				return this.config.filters.following === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showRaids.value === true;
+				return this.config.filters.raid === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showHypeTrain.value === true;
+				return this.config.filters.hype_train_summary === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				return sParams.filters.showNotifications.value === true
-					&& sParams.filters.showRewards.value === true;
+				return this.config.filters.reward === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.RAFFLE:
-			case TwitchatDataTypes.TwitchatMessageType.BINGO:
-			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN:
-			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
-			case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
+			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
+				return this.config.filters.raffle === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
+				return this.config.filters.bingo === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
+				return this.config.filters.countdown === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {
+				return this.config.filters.hype_train_cooled_down === true;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
-				return sParams.filters.showNotifications.value === true;
+				return this.config.filters.community_challenge_contribution === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.JOIN:
+			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE: {
+				return this.config.filters.community_boost_complete === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.JOIN: {
+				return this.config.filters.join === true;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
-				return sParams.features.notifyJoinLeave.value !== false
+				return this.config.filters.leave === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+				return this.config.filters.notice === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
+				return this.config.filters.twitchat_ad === true
+				//Force sponsor message if chat messages are displayed
+				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR && this.config.filters.message === true);
 			}
 			default: return true;
 		}
