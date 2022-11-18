@@ -170,20 +170,6 @@
 			"UUID": "fr.twitchat.action.raffle-toggle"
 		},
 		{
-			"Icon": "icons/ACTIVITY_FEED_TOGGLE_default",
-			"Name": "Toggle activity feed display",
-			"States": [
-				{
-					"Image": "icons/ACTIVITY_FEED_TOGGLE",
-					"TitleAlignment": "bottom",
-					"FontSize": "10"
-				}
-			],
-			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.activity-feed-toggle"
-		},
-		{
 			"Icon": "icons/VIEWERS_COUNT_TOGGLE_default",
 			"Name": "Toggle viewers count display",
 			"States": [
@@ -309,7 +295,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "1.2",
+	"Version": "1.3",
 	"OS": [
 		{
 			"Platform": "mac",
