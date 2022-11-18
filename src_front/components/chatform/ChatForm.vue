@@ -5,7 +5,6 @@
 				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
 				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
 				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="(e)=>updateOnlineUsersTooltip()" :data-tooltip="onlineUsersTooltip" />
-				<Button aria-label="Open activity feed" :icon="$image('icons/notification.svg')" bounce @click="$emit('update:showFeed', true)" v-if="showFeedBt" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
@@ -356,10 +355,6 @@ export default class ChatForm extends Vue {
 	public get cypherConfigured():boolean { return this.$store("main").cypherKey?.length > 0; }
 
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
-	
-	public get showFeedBt():boolean {
-		return (!this.$store("main").canSplitView || !this.$store("params").appearance.splitView.value);
-	}
 
 	public beforeMount(): void {
 		this.channelId = StoreProxy.auth.twitch.user.id;

@@ -48,7 +48,6 @@
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				@debug="(v:number)=>debug(v)"
-				v-model:showFeed="showFeed" @update:showFeed="(v:boolean) => showFeed = v"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
 				v-model:showCommands="showCommands" @update:showCommands="(v:boolean) => showCommands = v"
@@ -66,10 +65,6 @@
 			v-if="showDevMenu"
 			@close="showDevMenu = false" />
 
-		<ActivityFeed class="contentWindows feed"
-			v-if="showFeed"
-			@close="showFeed = false" />
-			
 		<!-- <MessageList class="contentWindows feed"
 			v-if="showFeed"
 			@showModal="(v:string) => currentModal = v"
@@ -144,7 +139,6 @@
 import BingoForm from '@/components/bingo/BingoForm.vue';
 import Button from '@/components/Button.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
-import ActivityFeed from '@/components/chatform/ActivityFeed.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
 import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
@@ -200,7 +194,6 @@ import Accessibility from './Accessibility.vue';
 		MessageList,
 		DevmodeMenu,
 		RewardsList,
-		ActivityFeed,
 		Accessibility,
 		CommandHelper,
 		EmoteSelector,
@@ -221,7 +214,6 @@ import Accessibility from './Accessibility.vue';
 export default class Chat extends Vue {
 
 	public isDonor = true;
-	public showFeed = false;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
@@ -263,9 +255,6 @@ export default class Chat extends Vue {
 
 	public getColStyles(col:TwitchatDataTypes.ChatColumnsConfig):{[key:string]:string} {
 		let size = col.size;
-		if(this.$store("params").appearance.splitViewSwitch.value === true) {
-			size = 1-size;
-		}
 		if(this.splitViewVertical) {
 			const value = `calc(${size*this.availHeight}px - 7px)`;//7px => dragbar size
 			return {
@@ -286,10 +275,6 @@ export default class Chat extends Vue {
 	public get rightStyles():{[key:string]:string} {
 		
 		let size = this.leftColSize;
-		const switchCols = this.$store("params").appearance.splitViewSwitch.value === true;
-		if(!switchCols) {
-			size = 1-size;
-		}
 
 		if(this.splitViewVertical) {
 			const value = `calc(${size*this.availHeight}px - 14px)`;
@@ -312,9 +297,7 @@ export default class Chat extends Vue {
 
 	public get ttsStyles():{[key:string]:string} {
 		let res:{[key:string]:string} = {};
-		if(this.splitViewVertical && this.$store("params").appearance.splitViewSwitch.value === true) {
-			res.top = this.splitterPosY+"px";
-		}else if(!this.splitViewVertical){
+		if(!this.splitViewVertical){
 			res = this.rightStyles;
 		}
 		return res;
@@ -359,7 +342,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.ACTIVITY_FEED_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
@@ -452,7 +434,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.ACTIVITY_FEED_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
@@ -492,7 +473,6 @@ export default class Chat extends Vue {
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
 			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
-			case TwitchatEvent.ACTIVITY_FEED_TOGGLE: this.showFeed = !this.showFeed; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
 				this.$store("params").appearance.showViewersCount.value = !this.$store("params").appearance.showViewersCount.value;
 				this.$store("params").updateParams()

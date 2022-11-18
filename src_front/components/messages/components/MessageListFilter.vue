@@ -370,7 +370,7 @@ export default class MessageListFilter extends Vue {
 	transform: translateX(100%);
 	transition: transform .25s;
 	position: relative;
-	opacity: .75;
+	opacity: .9;
 
 	&.expand {
 		transform: translateX(0);

@@ -80,13 +80,6 @@ export default class TTUserList extends Vue {
 	public activeLast30days:number = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
-	
-	public get splitView():boolean { return this.$store("params").appearance.splitView.value as boolean && this.$store("main").canSplitView; }
-	public get classes():string[] {
-		const res = ["ttuserlist"];
-		if(this.splitView) res.push("splitView");
-		return res;
-	}
 
 	public formatDate(u:UserData):string {
 		const d = new Date(u.date);
@@ -351,22 +344,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	}
 }
 
-@media only screen and (max-width: 700px) {
-.ttuserlist{
-	&.splitView {
-		.content {
-			.list {
-				.user {
-					width: 100%;
-					&:nth-child(odd) {
-						margin-right: 0;
-					}
-				}
-			}
-		}
-	}
-}
-}
 	
 @media only screen and (max-width: 400px) {
 .ttuserlist{

@@ -319,7 +319,6 @@ import Ajv from "ajv";
 		"p:highlightNonFollowers": {type:"boolean"},
 		"p:highlightSubs": {type:"boolean"},
 		"p:highlightVips": {type:"boolean"},
-		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data
 		"p:ignoreCommands": {type:"boolean"},
 		"p:ignoreListCommands": {type:"boolean"},
 		"p:keepDeletedMessages": {type:"boolean"},
@@ -327,35 +326,37 @@ import Ajv from "ajv";
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
-		"p:notifyJoinLeave": {type:"boolean"},
 		"p:raidHighlightUser": {type:"boolean"},
-		"p:raidStreamInfo": {type:"boolean"},
-		"p:receiveWhispers": {type:"boolean"},
-		"p:showWhispersOnChat": {type:"boolean"},
 		"p:showBadges": {type:"boolean"},
 		"p:showBots": {type:"boolean"},
-		"p:showCheers": {type:"boolean"},
 		"p:showEmotes": {type:"boolean"},
-		"p:showFollow": {type:"boolean"},
-		"p:showHypeTrain": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
 		"p:splitViewVertical": {type:"boolean"},
-		"p:showNotifications": {type:"boolean"},
-		"p:showRaids": {type:"boolean"},
-		"p:showRewards": {type:"boolean"},
-		"p:showRewardsInfos": {type:"boolean"},
 		"p:showSelf": {type:"boolean"},
 		"p:showSlashMe": {type:"boolean"},
-		"p:showSubs": {type:"boolean"},
 		"p:showUserPronouns": {type:"boolean"},
 		"p:showViewersCount": {type:"boolean"},
-		"p:splitView": {type:"boolean"},
-		"p:splitViewSwitch": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
+		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data
+		"p:notifyJoinLeave": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:raidStreamInfo": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:receiveWhispers": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showWhispersOnChat": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showCheers": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showFollow": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showHypeTrain": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showNotifications": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showRaids": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showRewards": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showRewardsInfos": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showSubs": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:splitView": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:splitViewSwitch": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -375,7 +376,6 @@ import Ajv from "ajv";
 		cypherKey: {type:"string"},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},
-		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,

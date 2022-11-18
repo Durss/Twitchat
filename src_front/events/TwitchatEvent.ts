@@ -56,7 +56,6 @@ export default class TwitchatEvent extends Event {
 	public static PREDICTION_TOGGLE:TwitchatActionType = "PREDICTION_TOGGLE";
 	public static BINGO_TOGGLE:TwitchatActionType = "BINGO_TOGGLE";
 	public static RAFFLE_TOGGLE:TwitchatActionType = "RAFFLE_TOGGLE";
-	public static ACTIVITY_FEED_TOGGLE:TwitchatActionType = "ACTIVITY_FEED_TOGGLE";
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
 	public static MOD_TOOLS_TOGGLE:TwitchatActionType = "MOD_TOOLS_TOGGLE";
 	public static CENSOR_DELETED_MESSAGES_TOGGLE:TwitchatActionType = "CENSOR_DELETED_MESSAGES_TOGGLE";

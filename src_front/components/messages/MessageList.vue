@@ -290,7 +290,6 @@ export default class MessageList extends Vue {
 		//Listen for specific params change.
 		//If one is updated, the chat is completely rebuilt.
 		watch(() => this.$store("params").filters, () => this.fullListRefresh(), { deep: true });
-		watch(() => this.$store("params").features.notifyJoinLeave.value, () => this.fullListRefresh());
 		watch(() => this.config.filters, () => this.fullListRefresh(), {deep: true});
 
 

@@ -404,10 +404,8 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "reward-redeemed") {
 			//Manage rewards
-			if(StoreProxy.params.filters.showRewards.value) {
-				const localObj = data.data as  PubSubDataTypes.RewardData;
-				this.rewardEvent(localObj);
-			}
+			const localObj = data.data as  PubSubDataTypes.RewardData;
+			this.rewardEvent(localObj);
 
 
 

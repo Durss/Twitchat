@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div class="livefollowings">
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
@@ -51,13 +51,6 @@ export default class LiveFollowings extends Vue {
 	public loading = true;
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get splitView():boolean { return this.$store("params").appearance.splitView.value as boolean && this.$store("main").canSplitView; }
-	public get classes():string[] {
-		const res = ["livefollowings"];
-		if(this.splitView) res.push("splitView");
-		return res;
-	}
-
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -276,23 +269,6 @@ export default class LiveFollowings extends Vue {
 	}
 }
 
-@media only screen and (max-width: 700px) {
-.livefollowings{
-	&.splitView {
-		.content {
-			.list {
-				.stream {
-					width: 100%;
-					&:nth-child(odd) {
-						margin-right: 0;
-					}
-				}
-			}
-		}
-	}
-}
-}
-	
 @media only screen and (max-width: 400px) {
 .livefollowings{
 	.content {

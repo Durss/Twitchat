@@ -98,15 +98,7 @@ export default class ChatHighlight extends Vue {
 	public streamInfoError = false;
 	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
 	public additionalUsers:TwitchatDataTypes.TwitchatUser[] = [];
-	
-	private pStreamInfo:TwitchDataTypes.ChannelInfo|null = null;
-
-	public get streamInfo():TwitchDataTypes.ChannelInfo|null {
-		if(this.$store("params").features.raidStreamInfo.value === true) {
-			return this.pStreamInfo;
-		}
-		return null;
-	}
+	public streamInfo:TwitchDataTypes.ChannelInfo|null = null;
 
 	public get time():string {
 		const d = new Date(this.messageData.date);
@@ -150,9 +142,7 @@ export default class ChatHighlight extends Vue {
 				this.user = this.messageData.user;
 				res = `is raiding with a party of ${value}.`;
 
-				if(this.$store("params").features.raidStreamInfo.value === true) {
-					this.loadLastStreamInfos();
-				}
+				this.loadLastStreamInfos();
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER:
@@ -339,11 +329,11 @@ export default class ChatHighlight extends Vue {
 		this.streamInfoError = false;
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.RAID) return;
 		this.loading = true;
-		this.pStreamInfo = null;
+		this.streamInfo = null;
 		try {
 			const streams = await TwitchUtils.loadChannelInfo([this.messageData.user.id]);
 			if(streams && streams.length > 0) {
-				this.pStreamInfo = streams[0];
+				this.streamInfo = streams[0];
 			}
 		}catch(error) {
 			this.streamInfoError = true;
