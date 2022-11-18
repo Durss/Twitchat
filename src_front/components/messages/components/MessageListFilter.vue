@@ -32,7 +32,6 @@
 					
 					<ChatAd class="message"
 						v-if="m.type == 'twitchat_ad'"
-						@showModal="(v: string) => $emit('showModal', v)"
 						:messageData="m" />
 						
 					<ChatNotice class="message"
@@ -165,6 +164,7 @@ export default class MessageListFilter extends Vue {
 	public beforeMount(): void {
 		//@ts-ignore
 		this.typeToLabel = {};
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "Twitchat updates and tips";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = "Raids";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = "Polls";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = "Users join";
@@ -187,6 +187,7 @@ export default class MessageListFilter extends Vue {
 		
 		//@ts-ignore
 		this.typeToIcon = {};
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "twitchat.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID] = "raid.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL] = "poll.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN] = "enter_white.svg";
@@ -208,6 +209,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "channelpoints.svg";
 
 		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
+			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			TwitchatDataTypes.TwitchatMessageType.WHISPER,
 			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
@@ -368,6 +370,7 @@ export default class MessageListFilter extends Vue {
 	transform: translateX(100%);
 	transition: transform .25s;
 	position: relative;
+	opacity: .75;
 
 	&.expand {
 		transform: translateX(0);

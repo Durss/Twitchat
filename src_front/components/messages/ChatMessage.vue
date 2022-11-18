@@ -68,7 +68,7 @@
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
-				class="login" :style="loginStyles">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.displayName}})</i></span>
+				class="login" :style="loginStyles">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></span>
 
 			<span v-if="recipient" class="login"
 			@click.stop="openUserCard(recipient!)"> &gt; {{recipient.displayName}}</span>

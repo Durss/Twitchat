@@ -238,7 +238,7 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						platform:"twitch",
 						channel_id:uid,
-						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
+						type,
 					};
 					data = m;
 					break;
@@ -370,7 +370,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageAutobanJoinData = {
 						platform:"twitchat",
 						channel_id: uid,
-						type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user,
@@ -389,7 +389,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.BINGO: {
 					const m:TwitchatDataTypes.MessageBingoData = {
 						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.BINGO,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user,
@@ -417,7 +417,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageRaffleData = {
 						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.RAFFLE,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						raffleData: {
@@ -445,7 +445,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
 					const m:TwitchatDataTypes.MessageCountdownData = {
 						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						countdown: {
@@ -453,6 +453,18 @@ export const storeDebug = defineStore('debug', {
 							startAt:Date.now(),
 							timeoutRef:-1,
 						}
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
+					const m:TwitchatDataTypes.MessageTwitchatAdData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						adType:TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK,
 					};
 					data = m;
 					break;

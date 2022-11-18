@@ -259,7 +259,7 @@ export const storeChat = defineStore('chat', {
 	actions: {
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
-			if(adType == -1) {
+			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(!StoreProxy.auth.twitch.user.donor.state===true || StoreProxy.auth.twitch.user.donor.level < 2) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
@@ -277,15 +277,15 @@ export const storeChat = defineStore('chat', {
 					//Force last updates if any not read
 					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
 				}else{
-					//Add 2 empty slots for every content type available
+					//Add 4 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
-					const len = 2*possibleAds.length;
-					for (let i = 0; i < len; i++) possibleAds.push(-1);
+					const len = 4*possibleAds.length;
+					for (let i = 0; i < len; i++) possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.NONE);
 				}
 		
 				adType = Utils.pickRand(possibleAds);
-				// contentID = TwitchatAdTypes.UPDATES;//TODO comment this line
-				if(adType == -1) return;
+				// adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR;//TODO comment this line
+				if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) return;
 			}
 
 			this.addMessage( {

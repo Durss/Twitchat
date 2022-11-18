@@ -840,6 +840,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.FOLLOWING,
 		TwitchatMessageType.COUNTDOWN,
 		TwitchatMessageType.PREDICTION,
+		TwitchatMessageType.TWITCHAT_AD,
 		TwitchatMessageType.SUBSCRIPTION,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
