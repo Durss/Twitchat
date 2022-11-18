@@ -432,6 +432,8 @@ export default class MessageListFilter extends Vue {
 				text-align: center;
 			}
 			.item{
+				margin: auto;
+				max-width: 500px;
 				font-size: .8em;
 				&:not(:first-child) {
 					margin-top: .25em;
@@ -445,7 +447,9 @@ export default class MessageListFilter extends Vue {
 		.previewList {
 			position: absolute;
 			width: calc(100% - 1em*2);
-			left: 1em;
+			max-width: 500px;
+			transform: translateX(-50%);
+			left: 50%;
 			.preview {
 				background-color: @mainColor_dark;
 				padding: .25em .5em;

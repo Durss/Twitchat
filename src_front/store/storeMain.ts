@@ -469,7 +469,7 @@ export const storeMain = defineStore("main", {
 						},
 					}
 				]
-				this.chatColumnsConfig.push(JSON.parse(JSON.stringify(this.chatColumnsConfig[0])));//TODO remove that debug
+				// this.chatColumnsConfig.push(JSON.parse(JSON.stringify(this.chatColumnsConfig[0])));//TODO remove that debug
 			}
 			
 			//Reload devmode state

@@ -357,6 +357,7 @@ import Ajv from "ajv";
 		"p:splitView": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:splitViewSwitch": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
+		leftColSize: {type:"number"},//Keep it a little to avoid loosing data, remove it later
 		v: {type:"integer"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
@@ -369,7 +370,6 @@ import Ajv from "ajv";
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
 		greetHeight: {type:"number"},
-		leftColSize: {type:"number"},
 		adNextTS: {type:"number"},
 		adWarned: {type:"boolean"},
 		sponsorPublicPrompt: {type:"boolean"},

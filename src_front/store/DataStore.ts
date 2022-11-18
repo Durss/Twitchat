@@ -19,6 +19,10 @@ export default class DataStore {
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";
 	public static GREET_AUTO_HEIGHT:string = "greetHeight";
+	/**
+	 * //TODO remove
+	 * @deprecated Only here for typings on data migration
+	 */
 	public static LEFT_COL_SIZE:string = "leftColSize";
 	public static OBS_PORT:string = "obsPort";
 	public static OBS_PASS:string = "obsPass";

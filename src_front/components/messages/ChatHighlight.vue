@@ -211,7 +211,7 @@ export default class ChatHighlight extends Vue {
 				}
 				const img = this.messageData.reward.icon;
 				this.icon = img.hd ?? img.sd;
-				if(this.messageData.reward.description && this.$store("params").filters.showRewardsInfos.value === true) {
+				if(this.messageData.reward.description && this.$store("params").appearance.showRewardsInfos.value === true) {
 					this.info = this.messageData.reward.description;
 				}
 				if(this.messageData.message) {

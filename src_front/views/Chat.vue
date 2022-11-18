@@ -18,6 +18,7 @@
 				</div>
 	
 				<div class="dragBt" ref="splitter"
+				v-if="$store('main').chatColumnsConfig.length > 1"
 				@pointerdown="startDrag($event, c)"
 				@pointerup="startDrag($event, c)">
 					<div class="grip"></div>
@@ -97,15 +98,15 @@
 
 		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" />
 
-		<PollForm :style="rightStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<ChatSuggestionForm :style="rightStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<RaffleForm :style="rightStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<PredictionForm :style="rightStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<BingoForm :style="rightStyles" class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-		<LiveFollowings :style="rightStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
-		<StreamInfoForm :style="rightStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
-		<TTUserList :style="rightStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
-		<PinedMessages :style="rightStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
+		<PollForm :style="windowsStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<ChatSuggestionForm :style="windowsStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<RaffleForm :style="windowsStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<PredictionForm :style="windowsStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
+		<BingoForm :style="windowsStyles" class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
+		<LiveFollowings :style="windowsStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+		<StreamInfoForm :style="windowsStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
+		<TTUserList :style="windowsStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
+		<PinedMessages :style="windowsStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store('main').showParams" />
 		
@@ -176,6 +177,7 @@ import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
+import type { StyleValue } from 'vue';
 
 @Options({
 	components:{
@@ -226,11 +228,11 @@ export default class Chat extends Vue {
 	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentNotificationContent = "";
+	public windowsStyles:StyleValue = {};
 	
 	private disposed = false;
 	private mouseY = 0;
 	private mouseX = 0;
-	private leftColSize = 0;
 	private splitterPosY = 0;
 	private availHeight = 0;
 	private resizing = false;
@@ -255,6 +257,13 @@ export default class Chat extends Vue {
 
 	public getColStyles(col:TwitchatDataTypes.ChatColumnsConfig):{[key:string]:string} {
 		let size = col.size;
+		const cols = this.$store('main').chatColumnsConfig;
+		if(cols.length == 1) {
+			return {
+				width:"100%",
+				height:"100%",
+			}
+		}
 		if(this.splitViewVertical) {
 			const value = `calc(${size*this.availHeight}px - 7px)`;//7px => dragbar size
 			return {
@@ -272,33 +281,10 @@ export default class Chat extends Vue {
 		}
 	}
 
-	public get rightStyles():{[key:string]:string} {
-		
-		let size = this.leftColSize;
-
-		if(this.splitViewVertical) {
-			const value = `calc(${size*this.availHeight}px - 14px)`;
-			return {
-				// "top":switchCols? "0" : (this.availHeight*(1-size)+14)+"px",
-				"height": value,
-				"min-height": value,
-				"max-height": value,
-				"width": "100%",
-			}
-		}else{
-			const value = `calc(${size}px - 7px)`;
-			return {
-				"width": value,
-				"min-width": value,
-				"max-width": value,
-			}
-		}
-	}
-
-	public get ttsStyles():{[key:string]:string} {
-		let res:{[key:string]:string} = {};
+	public get ttsStyles():StyleValue {
+		let res:StyleValue = {};
 		if(!this.splitViewVertical){
-			res = this.rightStyles;
+			res = this.windowsStyles;
 		}
 		return res;
 	}
@@ -313,10 +299,6 @@ export default class Chat extends Vue {
 		//Define if store sync modal should be displayed
 		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
 		
-		let size = parseFloat(DataStore.get(DataStore.LEFT_COL_SIZE));
-		if(isNaN(size)) size = .5;
-		this.leftColSize = Math.min(.95, Math.max(.05,size));
-
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
 			try {
@@ -421,6 +403,7 @@ export default class Chat extends Vue {
 			const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
 			gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
 		}
+		this.computeWindowsSizes();
 	}
 
 	public beforeUnmount():void {
@@ -666,9 +649,8 @@ export default class Chat extends Vue {
 		if(!this.resizing) return;
 		
 		if(this.splitViewVertical) {
-			this.leftColSize = (this.mouseY - 3) / (window.innerHeight - 40);//40 = ~footer's height
+			//TODO
 		}else{
-			this.leftColSize = (this.mouseX - 3) / window.innerWidth;
 			const cols = this.$store('main').chatColumnsConfig;
 			for (let i = 0; i < cols.length; i++) {
 				const c = cols[i];
@@ -676,15 +658,14 @@ export default class Chat extends Vue {
 					const el = (this.$refs["column_"+i] as HTMLDivElement[])[0];
 					const bounds = el.getBoundingClientRect();
 					c.size = Math.max(200, this.mouseX - bounds.left + 14);
+					this.computeWindowsSizes()
 				}else{
 
 				}
 			}
 		}
 		
-		this.leftColSize = Math.min(.95, Math.max(.05, this.leftColSize));
-
-		DataStore.set(DataStore.LEFT_COL_SIZE, this.leftColSize);
+		//TODO save col conf to storage
 
 		await this.$nextTick();
 		this.replaceTTS();
@@ -699,6 +680,34 @@ export default class Chat extends Vue {
 		
 		rect = (this.$refs.top as HTMLDivElement).getBoundingClientRect();
 		this.availHeight = rect.height;
+	}
+
+	/**
+	 * Computes the form windows styles depending on the existing columns.
+	 * Search for a column that filters out messages and match the form to
+	 * its size if any so the messages stay visible.
+	 * If none found, the windows will just be displayed full screen.
+	 */
+	private computeWindowsSizes():void {
+		const cols = this.$store('main').chatColumnsConfig;
+		let newWindowsStyle = {};
+		for (let i = 0; i < cols.length; i++) {
+			const c = cols[i];
+			if(c.filters.message !== true) {
+				const cols = this.$refs["column_"+i] as HTMLDivElement[];
+				if(!cols) break; 
+				const col = cols[0];
+				if(col) {
+					newWindowsStyle = {
+						width: col.offsetWidth+"px",
+						height: col.offsetHeight+"px",
+						left: col.offsetLeft+"px",
+						top: col.offsetTop+"px",
+					}
+				}
+			}
+		}
+		this.windowsStyles = newWindowsStyle;
 	}
 }
 
@@ -743,13 +752,6 @@ export default class Chat extends Vue {
 				}
 			}
 		}
-	}
-
-	.popin {
-		width: 50vw;
-		left: auto;
-		right: 0;
-		top: 0;
 	}
 
 	.contentWindows {
@@ -846,8 +848,7 @@ export default class Chat extends Vue {
 	}
 
 	.popin {
-		margin-left: auto;
-		z-index: 1;
+		z-index: 2;
 		height: calc(100% - 40px);///40 => footer height
 		:deep(.holder) {
 			max-height: 100% !important;
