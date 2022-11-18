@@ -6,8 +6,10 @@
 			:key="c.order"
 			:style="getColStyles(c)">
 				<div class="subHolder">
+
 					<GreetThem class="greetThem"
-					v-if="$store('params').features.firstMessage.value && index == 1" />
+					v-if=" $store('main').chatColumnsConfig.length == 1
+					|| ($store('params').features.firstMessage.value && index == 1)" />
 
 					<MessageList ref="messages" class="messages"
 						v-if="!hideChat"
