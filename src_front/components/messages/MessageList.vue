@@ -351,7 +351,7 @@ export default class MessageList extends Vue {
 	 * Unpausse chat if no new message
 	 */
 	public onLeaveList(): void {
-		// this.hovered = false;
+		this.hovered = false;
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
