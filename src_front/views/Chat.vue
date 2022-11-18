@@ -13,6 +13,7 @@
 						v-if="!hideChat"
 						@showModal="(v:string) => currentModal = v"
 						:maxMessages="50"
+						:config="c"
 						filterId="chat"/>
 				</div>
 	
@@ -830,13 +831,13 @@ export default class Chat extends Vue {
 
 		.column {
 			position: relative;
-			flex-grow: 1;
-			width: 100%;
 			display: flex;
 			flex-direction: row;
+
 			.subHolder {
 				display: flex;
 				flex-direction: column;
+				width: 100%;
 				.messages {
 					flex-grow: 1;
 					overflow: hidden;
@@ -867,6 +868,17 @@ export default class Chat extends Vue {
 					}
 				}
 			}
+
+			// &:nth-last-child(2) {
+			// 	.dragBt {
+			// 		.grip {
+			// 			background: transparent;
+			// 			&::before {
+			// 				width: 2px;
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 
 		.addCol {

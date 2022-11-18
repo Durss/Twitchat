@@ -159,10 +159,6 @@ export default class PubSub extends EventDispatcher {
 		};
 	}
 
-	public async simulateHypeTrainCooldown():Promise<void> {
-		this.parseEvent(PubsubJSON.HypeTrainCooldownOver);
-	}
-
 	public async simulateHypeTrain():Promise<void> {
 		const dateOffset = (PubsubJSON.RealHypeTrainData[1] as Date).getTime();
 		const timeScale = .05;
@@ -202,10 +198,6 @@ export default class PubSub extends EventDispatcher {
 		this.parseEvent(PubsubJSON.BoostProgress2);
 		await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.BoostComplete);
-	}
-
-	public async simulateChallengeContribution():Promise<void> {
-		this.parseEvent(PubsubJSON.ChannelPointChallengeContribution);
 	}
 
 	public async simulateLowTrustUser():Promise<void> {

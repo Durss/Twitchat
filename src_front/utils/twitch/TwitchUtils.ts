@@ -1063,7 +1063,7 @@ export default class TwitchUtils {
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first=100&to_id="+channelId+pCursor, {
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first="+Math.min(maxCount, 100)+"&to_id="+channelId+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});

@@ -3,7 +3,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
+import { watch, type UnwrapRef } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import rewardImg from '@/assets/icons/channelPoints.svg';
@@ -22,7 +22,7 @@ export const storeDebug = defineStore('debug', {
 
 
 	actions: {
-		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean):Promise<void> {
+		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
@@ -30,12 +30,12 @@ export const storeDebug = defineStore('debug', {
 			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
 			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
 			
-
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
 				wordsPerSentence: { max: 8, min: 2 }
 			});
 			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			
 			switch(type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 					const m:TwitchatDataTypes.MessageChatData = {
@@ -48,6 +48,22 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_html:message,
 						user:fakeUser
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+					const m:TwitchatDataTypes.MessageWhisperData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						message,
+						message_html:message,
+						user:fakeUser,
+						to:user
 					};
 					data = m;
 					break;
@@ -110,8 +126,9 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
 					const users:TwitchatDataTypes.TwitchatUser[] = [];
 					const count = Math.round(Math.random() * 50) + 1;
-					for (let i = 0; i < count; i++) {
-						users.push(StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999)).toString()))
+					const followers = await TwitchUtils.getFollowers(uid, count);
+					for (let i = 0; i < followers.length; i++) {
+						users.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true));
 					}
 					const m:TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData = {
 						id:Utils.getUUID(),
@@ -172,6 +189,35 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
+					const img = rewardImg;
+					const contrib = Math.round(Math.random()*2000) + 10;
+					const contribTot = contrib + Math.round(Math.random()*20000);
+					const m:TwitchatDataTypes.MessageCommunityChallengeContributionData =  {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id: uid,
+						type,
+						user: user,
+						contribution: contrib,
+						stream_contribution: contrib,
+						total_contribution: contribTot,
+						challenge: {
+							title:"My awesome challenge",
+							goal:Math.round(contribTot * (Math.random()*3+1)),
+							progress:contribTot,
+							description:"Send channel points to make my challenge a reality <3",
+							icon:{
+								sd:img,
+								hd:img,
+							},
+						}
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					const m:TwitchatDataTypes.MessageRaidData = {
 						id:Utils.getUUID(),
@@ -181,6 +227,18 @@ export const storeDebug = defineStore('debug', {
 						type,
 						user,
 						viewers:Math.round(Math.random() * 1500)
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {
+					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:uid,
+						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 					};
 					data = m;
 					break;
@@ -353,7 +411,7 @@ export const storeDebug = defineStore('debug', {
 					for (let i = 0; i < 10; i++) {
 						entries.push({
 							id:Utils.getUUID(),
-							label:"Option "+(i+1),
+							label:fakeUser.login,
 							score:1,
 						});
 					}
@@ -403,8 +461,90 @@ export const storeDebug = defineStore('debug', {
 			if(hook) {
 				if(hook(data) === false) return;
 			}
-			StoreProxy.chat.addMessage(data);
-		}
+			if(postOnChat) StoreProxy.chat.addMessage(data);
+		},
+
+		async simulateNotice(noticeType:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
+			let data!:TwitchatDataTypes.MessageNoticeData;
+			const uid:string = StoreProxy.auth.twitch.user.id;
+			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
+			const tmpFake = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true));
+			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
+			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
+
+			const lorem = new LoremIpsum({
+				sentencesPerParagraph: { max: 8, min: 4 },
+				wordsPerSentence: { max: 8, min: 2 }
+			});
+			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+
+			switch(noticeType) {
+				case TwitchatDataTypes.TwitchatNoticeType.BAN: {
+					if(fakeUser.temporary) {
+						console.log("WAIT");
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> {
+								console.log("COMPLETE");
+								resolve(fakeUser);
+							})
+						})
+					}
+					const m:TwitchatDataTypes.MessageBanData = {
+						platform:"twitchat",
+						type:"notice",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						user:fakeUser,
+						message:"User "+fakeUser.displayName+" has been banned by "+user.displayName,
+						reason:"",
+						channel_id:uid,
+						moderator:user,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE: {
+					const title = "Let's have some fun !";
+					const category = "Just chatting";
+					const m:TwitchatDataTypes.MessageStreamInfoUpdate = {
+						platform:"twitchat",
+						type:"notice",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message:"Stream title changed to \""+title+"\"",
+						channel_id:uid,
+						title,
+						category,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE: {
+					const m:TwitchatDataTypes.MessageEmergencyModeInfo = {
+						platform:"twitchat",
+						type:"notice",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message:"Emergency mode enabled",
+						channel_id:uid,
+						enabled:true,
+					};
+					data = m;
+					break;
+				}
+
+			}
+
+			if(hook) {
+				if(hook(data) === false) return;
+			}
+			if(postOnChat) StoreProxy.chat.addMessage(data);
+		},
 	} as IDebugActions
 	& ThisType<IDebugActions
 		& UnwrapRef<IDebugState>

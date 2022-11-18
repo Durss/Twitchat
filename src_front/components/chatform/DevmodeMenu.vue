@@ -16,9 +16,9 @@
 			<Button small title="Subgift upgrade" @click="simulateEvent('subscription', 'giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
-			<Button small title="Challenge contribution" @click="simulateChallengeContribution()" :icon="$image('icons/channelPoints.svg')" />
+			<Button small title="Challenge contribution" @click="simulateEvent('community_challenge_contribution')" :icon="$image('icons/channelPoints.svg')" />
 			<Button small title="Hype train" @click="simulateHypeTrain()" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train cooldown" @click="simulateHypeTrainCooldown()" :icon="$image('icons/train.svg')" />
+			<Button small title="Hype train cooldown" @click="simulateEvent('hype_train_cooled_down')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
 			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
@@ -139,14 +139,6 @@ export default class DevmodeMenu extends Vue {
 	
 	public simulateHypeTrain():void {
 		PubSub.instance.simulateHypeTrain();
-	}
-	
-	public simulateHypeTrainCooldown():void {
-		PubSub.instance.simulateHypeTrainCooldown();
-	}
-
-	public simulateChallengeContribution():void {
-		PubSub.instance.simulateChallengeContribution();
 	}
 
 	public simulateComunityBoost():void {

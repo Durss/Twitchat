@@ -5,7 +5,7 @@
 		@wheel="onMouseWheel"
 		@touchmove="onTouchMove">
 		
-		<MessageListFilter class="filters" :open="hovered" />
+		<MessageListFilter class="filters" :open="hovered" :config="config" />
 
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
@@ -192,6 +192,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatMessageHoverActions,
 	},
 	props: {
+		config: Object,
 		filterId: String,
 		maxMessages: Number,
 		lightMode: {
@@ -206,6 +207,7 @@ export default class MessageList extends Vue {
 	public maxMessages!: number;
 	public lightMode!: boolean;
 	public filterId!: string;
+	public config!: TwitchatDataTypes.ChatColumnsConfig;
 
 	public hoveredMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	public filteredMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -349,7 +351,7 @@ export default class MessageList extends Vue {
 	 * Unpausse chat if no new message
 	 */
 	public onLeaveList(): void {
-		this.hovered = false;
+		// this.hovered = false;
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
