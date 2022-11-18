@@ -23,64 +23,66 @@
 				v-model="config.filters[f.storage as 'message']" />
 			</div>
 
-			<div class="preview" v-if="loadingPreview">
-				<img src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
-			</div>
-
-			<div class="preview" v-for="m in previewData" :key="m.id">
-				
-				<ChatAd class="message"
-					v-if="m.type == 'twitchat_ad'"
-					@showModal="(v: string) => $emit('showModal', v)"
-					:messageData="m" />
+			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
+				<div class="preview" v-if="loadingPreview">
+					<img src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
+				</div>
+	
+				<div class="preview" v-for="m in previewData" :key="m.id">
 					
-				<ChatNotice class="message"
-					v-else-if="m.type == 'notice'"
-					:messageData="m" />
-
-				<ChatJoinLeave class="message"
-					v-else-if="(m.type == 'join' || m.type == 'leave')"
-					:messageData="m" />
-
-				<ChatConnect class="message"
-					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
-					:messageData="m" />
-
-				<ChatMessage class="message"
-					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					:messageData="m" />
-
-				<ChatPollResult class="message"
-					v-else-if="m.type == 'poll'"
-					:messageData="m" />
-
-				<ChatPredictionResult class="message"
-					v-else-if="m.type == 'prediction'"
-					:messageData="m" />
-
-				<ChatBingoResult class="message"
-					v-else-if="m.type == 'bingo'"
-					:messageData="m" />
-
-				<ChatRaffleResult class="message"
-					v-else-if="m.type == 'raffle'"
-					:messageData="m" />
-
-				<ChatCountdownResult class="message"
-					v-else-if="m.type == 'countdown'"
-					:messageData="m" />
-
-				<ChatHypeTrainResult class="message"
-					v-else-if="m.type == 'hype_train_summary'"
-					:messageData="m" />
-
-				<ChatFollowbotEvents class="message"
-					v-else-if="m.type == 'followbot_list'"
-					:messageData="m" />
-
-				<ChatHighlight v-else class="message"
-					lightMode
-					:messageData="m" />
+					<ChatAd class="message"
+						v-if="m.type == 'twitchat_ad'"
+						@showModal="(v: string) => $emit('showModal', v)"
+						:messageData="m" />
+						
+					<ChatNotice class="message"
+						v-else-if="m.type == 'notice'"
+						:messageData="m" />
+	
+					<ChatJoinLeave class="message"
+						v-else-if="(m.type == 'join' || m.type == 'leave')"
+						:messageData="m" />
+	
+					<ChatConnect class="message"
+						v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
+						:messageData="m" />
+	
+					<ChatMessage class="message"
+						v-else-if="m.type == 'message' || m.type == 'whisper'"
+						:messageData="m" />
+	
+					<ChatPollResult class="message"
+						v-else-if="m.type == 'poll'"
+						:messageData="m" />
+	
+					<ChatPredictionResult class="message"
+						v-else-if="m.type == 'prediction'"
+						:messageData="m" />
+	
+					<ChatBingoResult class="message"
+						v-else-if="m.type == 'bingo'"
+						:messageData="m" />
+	
+					<ChatRaffleResult class="message"
+						v-else-if="m.type == 'raffle'"
+						:messageData="m" />
+	
+					<ChatCountdownResult class="message"
+						v-else-if="m.type == 'countdown'"
+						:messageData="m" />
+	
+					<ChatHypeTrainResult class="message"
+						v-else-if="m.type == 'hype_train_summary'"
+						:messageData="m" />
+	
+					<ChatFollowbotEvents class="message"
+						v-else-if="m.type == 'followbot_list'"
+						:messageData="m" />
+	
+					<ChatHighlight v-else class="message"
+						lightMode
+						:messageData="m" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -147,7 +149,11 @@ export default class MessageListFilter extends Vue {
 	public loadingPreview:boolean = false;
 	public previewIndex:number = 0;
 	
+	private mouseY = 0;
+	private mouseX = 0;
+	private disposed = false;
 	private clickHandler!:(e:MouseEvent) => void;
+	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
 
 	public get classes():string[] {
@@ -229,15 +235,20 @@ export default class MessageListFilter extends Vue {
 			this.filters.push({type:"toggle", value:this.config.filters[f], label:this.typeToLabel[f] ?? f, storage:f, icon:this.typeToIcon[f]});
 		}
 		
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
+		this.clickHandler		= (e:MouseEvent) => this.onClick(e);
+		this.mouseMoveHandler	= (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		document.addEventListener("mousedown", this.clickHandler);
+		document.addEventListener("mousemove", this.mouseMoveHandler);
 		
 		//Close when rolling out col
 		watch(()=>this.open, ()=>{ this.expand = false; });
+		requestAnimationFrame(()=>this.renderFrame());
 	}
 
 	public beforeUnmount():void {
+		this.disposed = true;
 		document.removeEventListener("mousedown", this.clickHandler);
+		document.removeEventListener("mousemove", this.mouseMoveHandler);
 	}
 
 	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
@@ -284,11 +295,24 @@ export default class MessageListFilter extends Vue {
 	
 				if(!data) return;
 	
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[type] = [data];
 	
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData = [data];
 			}, false);
+		}
+	}
+
+	/**
+	 * Called when the mouse moves
+	 */
+	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
+		if(e.type == "mousemove") {
+			this.mouseX = (e as MouseEvent).clientX;
+			this.mouseY = (e as MouseEvent).clientY;
+		}else{
+			this.mouseX = (e as TouchEvent).touches[0].clientX;
+			this.mouseY = (e as TouchEvent).touches[0].clientY;
 		}
 	}
 
@@ -301,6 +325,29 @@ export default class MessageListFilter extends Vue {
 		if(target != ref) {
 			this.expand = false;
 		}
+	}
+
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		
+		const holder = this.$refs.previewList as HTMLDivElement;
+		
+		if(this.previewData.length == 0) {
+			//Avoids mouse conflict on mobile mode.
+			//The holder may appear above the clicked location and cancel the
+			//click event of the ParamItem
+			if(holder) holder.style.top = "99999px";
+			return;
+		}
+
+		const bounds = holder.getBoundingClientRect();
+		let py = this.mouseY + 20;
+		
+		if(py + bounds.height > (this.$el as HTMLDivElement).offsetHeight) {
+			py -= bounds.height + 30;
+		}
+		holder.style.top = py+"px";
 	}
 
 }
@@ -319,6 +366,7 @@ export default class MessageListFilter extends Vue {
 	border-bottom-left-radius: .5em;
 	transform: translateX(100%);
 	transition: transform .25s;
+	position: relative;
 
 	&.expand {
 		transform: translateX(0);
@@ -390,18 +438,23 @@ export default class MessageListFilter extends Vue {
 			}
 		}
 
-		.preview {
-			background-color: @mainColor_dark;
-			padding: .25em .5em;
-			border-radius: .5em;
-			.loader {
-				text-align: center;
-				margin: auto;
-				display: block;
-			}
-
-			&:not(:last-child) {
-				margin-bottom: .25em;
+		.previewList {
+			position: absolute;
+			width: calc(100% - 1em*2);
+			left: 1em;
+			.preview {
+				background-color: @mainColor_dark;
+				padding: .25em .5em;
+				border-radius: .5em;
+				.loader {
+					text-align: center;
+					margin: auto;
+					display: block;
+				}
+	
+				&:not(:last-child) {
+					margin-bottom: .25em;
+				}
 			}
 		}
 	}
