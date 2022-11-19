@@ -74,6 +74,8 @@ export interface IMainActions {
 	setAhsInstaller(value:TwitchatDataTypes.InstallHandler):void;
 	setChatAlertParams(params:TwitchatDataTypes.AlertParamsData):void;
 	executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null):Promise<void>;
+	addChatColumn():TwitchatDataTypes.ChatColumnsConfig;
+	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
 }
 
 
@@ -184,6 +186,7 @@ export interface IChatActions {
 	unpinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
 	highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null):Promise<void>;
 	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
+	gigaSpam():Promise<void>;
 }
 
 

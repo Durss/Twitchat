@@ -1,36 +1,52 @@
 <template>
 	<div :class="classes">
 		<div class="top" ref="top">
-			<div class="column" v-for="c, index in $store('main').chatColumnsConfig"
-			:ref="'column_'+index"
-			:key="c.order"
-			:style="getColStyles(c)">
-				<div class="subHolder">
-
-					<GreetThem class="greetThem"
-					v-if=" $store('main').chatColumnsConfig.length == 1
-					|| ($store('params').features.firstMessage.value && index == 1)" />
-
-					<MessageList ref="messages" class="messages"
-						v-if="!hideChat"
-						@showModal="(v:string) => currentModal = v"
-						:maxMessages="50"
-						:config="c"
-						filterId="chat"/>
-				</div>
+			<div class="scrollable" ref="scrollable">
+				<div class="column" v-for="c, index in $store('main').chatColumnsConfig"
+				:ref="'column_'+c.order"
+				:key="c.order"
+				:style="getColStyles(c)">
+					<div class="subHolder">
 	
-				<div class="dragBt" ref="splitter"
-				v-if="$store('main').chatColumnsConfig.length > 1"
-				@pointerdown="startDrag($event, c)"
-				@pointerup="startDrag($event, c)">
-					<div class="grip"></div>
+						<GreetThem class="greetThem"
+						v-if=" $store('main').chatColumnsConfig.length == 1
+						|| ($store('params').features.firstMessage.value && index == 1)" />
+	
+						<MessageList ref="messages" class="messages"
+							v-if="!hideChat"
+							@showModal="(v:string) => currentModal = v"
+							:maxMessages="50"
+							:config="c"
+							filterId="chat"/>
+					</div>
+		
+					<div class="dragBt" ref="splitter"
+					v-if="$store('main').chatColumnsConfig.length > 1"
+					@pointerdown="startDrag($event, c)"
+					@pointerup="startDrag($event, c)">
+						<div class="grip"></div>
+					</div>
 				</div>
 			</div>
 				
 			<div class="addCol">
-				<Button :icon="$image('icons/add_purple.svg')" small white />
+				<Button :icon="$image('icons/add_purple.svg')" small white @click="addColumn()" data-tooltip="Add column" />
 			</div>
 		</div>
+
+		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
+			<VoiceTranscript class="contentWindows tts" />
+
+			<PollForm			class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+			<ChatSuggestionForm	class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
+			<RaffleForm			class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
+			<PredictionForm		class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
+			<BingoForm			class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
+			<LiveFollowings		class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
+			<StreamInfoForm		class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
+			<TTUserList			class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
+			<PinedMessages		class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
+		</Teleport>
 
 		<ChannelNotifications
 			:currentContent="currentNotificationContent"
@@ -96,19 +112,6 @@
 		<UserList class="contentWindows users"
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
-
-
-		<VoiceTranscript :style="ttsStyles" class="contentWindows tts" />
-
-		<PollForm :style="windowsStyles" class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<ChatSuggestionForm :style="windowsStyles" class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<RaffleForm :style="windowsStyles" class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<PredictionForm :style="windowsStyles" class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
-		<BingoForm :style="windowsStyles" class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-		<LiveFollowings :style="windowsStyles" class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
-		<StreamInfoForm :style="windowsStyles" class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
-		<TTUserList :style="windowsStyles" class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
-		<PinedMessages :style="windowsStyles" class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 		
 		<Parameters v-if="$store('main').showParams" />
 		
@@ -230,13 +233,10 @@ export default class Chat extends Vue {
 	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentNotificationContent = "";
-	public windowsStyles:StyleValue = {};
+	public formsColumnTarget:HTMLDivElement|null = null;
 	
 	private disposed = false;
-	private mouseY = 0;
 	private mouseX = 0;
-	private splitterPosY = 0;
-	private availHeight = 0;
 	private resizing = false;
 	private canStartAd = true;
 	private closingDonorState = false;
@@ -267,7 +267,7 @@ export default class Chat extends Vue {
 			}
 		}
 		if(this.splitViewVertical) {
-			const value = `calc(${size*this.availHeight}px - 7px)`;//7px => dragbar size
+			const value = `calc(${size}px - 7px)`;//7px => dragbar size
 			return {
 				"height": value,
 				"min-height": value,
@@ -281,14 +281,6 @@ export default class Chat extends Vue {
 				"max-width": value,
 			}
 		}
-	}
-
-	public get ttsStyles():StyleValue {
-		let res:StyleValue = {};
-		if(!this.splitViewVertical){
-			res = this.windowsStyles;
-		}
-		return res;
 	}
 
 	private resizeHandler!:(e:Event) => void;
@@ -631,23 +623,52 @@ export default class Chat extends Vue {
 	}
 
 	/**
+	 * Add a chat column
+	 */
+	public addColumn():void {
+		const col = this.$store("main").addChatColumn();
+		const colList = this.$store("main").chatColumnsConfig;
+		let totalSize = 0;
+		for (let i = 0; i < colList.length; i++) {
+			const c = colList[i];
+			totalSize += c.size;
+		}
+
+		const holder = this.$refs.scrollable as HTMLDivElement;
+		const holderBounds = holder.getBoundingClientRect();
+		if(totalSize < holderBounds.width) {
+			for (let i = 0; i < colList.length; i++) {
+				const c = colList[i];
+				c.size = holderBounds.width / colList.length;
+			}
+		}
+		// const px = holder.scrollWidth - Math.max(holderBounds.width, totalSize) - colList[colList.length-1].size;
+		// console.log(holder.scrollWidth);
+		gsap.to(holder, {duration:1.5, ease:"sine.inout", scrollTo:{x:holder.scrollWidth}});
+
+		this.$nextTick().then(()=>{
+			this.computeWindowsSizes();
+		});
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
 		if(e.type == "mousemove") {
 			this.mouseX = (e as MouseEvent).clientX;
-			this.mouseY = (e as MouseEvent).clientY;
 		}else{
 			this.mouseX = (e as TouchEvent).touches[0].clientX;
-			this.mouseY = (e as TouchEvent).touches[0].clientY;
 		}
 	}
 
+	/**
+	 * Manage colmumns resize
+	 */
 	private async renderFrame():Promise<void> {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 
-		if(this.splitterPosY === 0) this.replaceTTS();
 		if(!this.resizing) return;
 		
 		if(this.splitViewVertical) {
@@ -657,7 +678,7 @@ export default class Chat extends Vue {
 			for (let i = 0; i < cols.length; i++) {
 				const c = cols[i];
 				if(c == this.draggedCol) {
-					const el = (this.$refs["column_"+i] as HTMLDivElement[])[0];
+					const el = (this.$refs["column_"+c.order] as HTMLDivElement[])[0];
 					const bounds = el.getBoundingClientRect();
 					c.size = Math.max(200, this.mouseX - bounds.left + 14);
 					this.computeWindowsSizes()
@@ -670,18 +691,6 @@ export default class Chat extends Vue {
 		//TODO save col conf to storage
 
 		await this.$nextTick();
-		this.replaceTTS();
-	}
-
-	private replaceTTS():void {
-		return;
-		//TODO
-		if(!this.$refs.splitter) return;
-		let rect = (this.$refs.splitter as HTMLDivElement).getBoundingClientRect();
-		this.splitterPosY = rect.top;
-		
-		rect = (this.$refs.top as HTMLDivElement).getBoundingClientRect();
-		this.availHeight = rect.height;
 	}
 
 	/**
@@ -692,24 +701,20 @@ export default class Chat extends Vue {
 	 */
 	private computeWindowsSizes():void {
 		const cols = this.$store('main').chatColumnsConfig;
-		let newWindowsStyle = {};
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.filters.message !== true) {
-				const cols = this.$refs["column_"+i] as HTMLDivElement[];
-				if(!cols) break; 
-				const col = cols[0];
-				if(col) {
-					newWindowsStyle = {
-						width: col.offsetWidth+"px",
-						height: col.offsetHeight+"px",
-						left: col.offsetLeft+"px",
-						top: col.offsetTop+"px",
-					}
+				const colHolders = this.$refs["column_"+c.order] as HTMLDivElement[];
+				if(!colHolders) break; 
+				const colHolder = colHolders[0];
+				if(colHolder) {
+					this.formsColumnTarget = colHolder;
 				}
 			}
 		}
-		this.windowsStyles = newWindowsStyle;
+		if(!this.formsColumnTarget) {
+			this.formsColumnTarget = (this.$refs["column_0"] as HTMLDivElement[])[0];
+		}
 	}
 }
 
@@ -778,65 +783,74 @@ export default class Chat extends Vue {
 		display: flex;
 		flex-direction: row;
 		overflow: hidden;
-		overflow-x: auto;
 		width: 100%;
-
-		.column {
-			position: relative;
+		
+		.scrollable {
 			display: flex;
+			flex-grow: 1;
 			flex-direction: row;
+			overflow: hidden;
+			overflow-x: auto;
+			width: 100%;
 
-			.subHolder {
+			.column {
+				position: relative;
 				display: flex;
-				flex-direction: column;
-				width: 100%;
-				.messages {
-					flex-grow: 1;
-					overflow: hidden;
-				}
-			}
-
-			.dragBt {
-				padding: 0 3px;
-				cursor: ew-resize;
-				user-select: none;
-				z-index: 2;
-				height: 100%;
-				width: 14px;
-				.grip {
-					position: relative;
-					left: 50%;
-					height: 100%;
-					width: 1px;
-					background: @mainColor_dark_light;
-					&::before {
-						content:"";
-						position: absolute;
-						.center();
-						display: block;
-						width: 5px;
-						height: 40px;
-						background: @mainColor_dark_light;
+				flex-direction: row;
+	
+				.subHolder {
+					display: flex;
+					flex-direction: column;
+					width: 100%;
+					.messages {
+						flex-grow: 1;
+						overflow: hidden;
 					}
 				}
+	
+				.dragBt {
+					padding: 0 3px;
+					cursor: ew-resize;
+					user-select: none;
+					z-index: 2;
+					height: 100%;
+					width: 14px;
+					.grip {
+						position: relative;
+						left: 50%;
+						height: 100%;
+						width: 1px;
+						background: @mainColor_dark_light;
+						&::before {
+							content:"";
+							position: absolute;
+							.center();
+							display: block;
+							width: 5px;
+							height: 40px;
+							background: @mainColor_dark_light;
+						}
+					}
+				}
+	
+				// &:nth-last-child(2) {
+				// 	.dragBt {
+				// 		.grip {
+				// 			background: transparent;
+				// 			&::before {
+				// 				width: 2px;
+				// 			}
+				// 		}
+				// 	}
+				// }
 			}
-
-			// &:nth-last-child(2) {
-			// 	.dragBt {
-			// 		.grip {
-			// 			background: transparent;
-			// 			&::before {
-			// 				width: 2px;
-			// 			}
-			// 		}
-			// 	}
-			// }
 		}
 
 		.addCol {
 			flex-grow: 1;
 			position: relative;
 			min-width: 1em;
+			z-index: 3;
 			.button {
 				position: absolute;
 				right: 0;
@@ -850,8 +864,12 @@ export default class Chat extends Vue {
 	}
 
 	.popin {
+		position: absolute;
 		z-index: 2;
-		height: calc(100% - 40px);///40 => footer height
+		top:0;
+		left:0;
+		height: 100%;
+		width: 100%;
 		:deep(.holder) {
 			max-height: 100% !important;
 		}

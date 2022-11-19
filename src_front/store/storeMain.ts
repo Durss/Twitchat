@@ -252,6 +252,10 @@ export const storeMain = defineStore("main", {
 		},
 		
 		loadDataFromStorage() {
+			/**
+			 * CAREFUL THIS METHOD CAN BE CALLED MULTIPLE TIMES
+			 * Don't do anything that could break if not multiple times!
+			 */
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;
 			const sChat = StoreProxy.chat;
@@ -415,61 +419,36 @@ export const storeMain = defineStore("main", {
 				this.chatColumnsConfig = JSON.parse(chatColConfs);
 			}else{
 				//Default cols configs
-				this.chatColumnsConfig = [
-					{
-						order:0,
-						size:window.innerWidth/2,
-						filters:{
-							join:true,
-							message:true,
-							whisper:true,
-							raid:false,
-							poll:false,
-							leave:true,
-							cheer:false,
-							bingo:false,
-							raffle:false,
-							reward:false,
-							notice:true,
-							following:false,
-							countdown:false,
-							prediction:false,
-							twitchat_ad:true,
-							subscription:false,
-							hype_train_summary:false,
-							hype_train_cooled_down:false,
-							community_boost_complete:false,
-							community_challenge_contribution:false,
-						},
-					},
-					// {
-					// 	order:1,
-					// 	size:window.innerWidth/2,
-					// 	filters:{
-					// 		join:false,
-					// 		message:false,
-					// 		whisper:false,
-					// 		raid:true,
-					// 		poll:true,
-					// 		leave:false,
-					// 		cheer:true,
-					// 		bingo:true,
-					// 		raffle:true,
-					// 		reward:true,
-					// 		notice:true,
-					// 		following:true,
-					// 		countdown:true,
-					// 		prediction:true,
-					// 		twitchat_ad:false,
-					// 		subscription:true,
-					// 		hype_train_summary:true,
-					// 		hype_train_cooled_down:true,
-					// 		community_boost_complete:true,
-					// 		community_challenge_contribution:true,
-					// 	},
-					// }
-				]
-				// this.chatColumnsConfig.push(JSON.parse(JSON.stringify(this.chatColumnsConfig[0])));//TODO remove that debug
+				this.chatColumnsConfig = [];
+
+				//Chat feed
+				let col = this.addChatColumn();
+				col.size = window.innerWidth/2;
+				col.filters.join = true;
+				col.filters.message = true;
+				col.filters.whisper = true;
+				col.filters.leave = true;
+				col.filters.notice = true;
+				col.filters.twitchat_ad = true;
+				
+				//Activity feed
+				// col = this.addChatColumn();
+				// col.size = window.innerWidth/2;
+				// col.filters.raid = true;
+				// col.filters.poll = true;
+				// col.filters.cheer = true;
+				// col.filters.bingo = true;
+				// col.filters.raffle = true;
+				// col.filters.reward = true;
+				// col.filters.notice = true;
+				// col.filters.following = true;
+				// col.filters.countdown = true;
+				// col.filters.prediction = true;
+				// col.filters.subscription = true;
+				// col.filters.hype_train_summary = true;
+				// col.filters.hype_train_cooled_down = true;
+				// col.filters.community_boost_complete = true;
+				// col.filters.community_challenge_contribution = true;
 			}
 			
 			//Reload devmode state
@@ -578,6 +557,47 @@ export const storeMain = defineStore("main", {
 			this.chatAlert = message;
 			await Utils.promisedTimeout(50);
 			this.chatAlert = null;
+		},
+
+		addChatColumn():TwitchatDataTypes.ChatColumnsConfig {
+			const col:TwitchatDataTypes.ChatColumnsConfig = {
+				order:this.chatColumnsConfig.length,
+				size:window.innerWidth/3,
+				filters:{
+					join:false,
+					message:false,
+					whisper:false,
+					raid:false,
+					poll:false,
+					leave:false,
+					cheer:false,
+					bingo:false,
+					raffle:false,
+					reward:false,
+					notice:false,
+					following:false,
+					countdown:false,
+					prediction:false,
+					twitchat_ad:false,
+					subscription:false,
+					hype_train_summary:false,
+					hype_train_cooled_down:false,
+					community_boost_complete:false,
+					community_challenge_contribution:false,
+				},
+			}
+			this.chatColumnsConfig.push(col);
+			return col;
+		},
+
+		delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void {
+			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
+				const e = this.chatColumnsConfig[i];
+				if(e == column) {
+					this.chatColumnsConfig.splice(i, 1);
+					break;
+				}
+			}
 		},
 	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })

@@ -170,11 +170,6 @@ export default class PollForm extends Vue {
 
 <style scoped lang="less">
 .pollform{
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
 	.modal();
 
 	.content {

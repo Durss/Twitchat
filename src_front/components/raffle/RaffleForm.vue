@@ -322,11 +322,6 @@ export default class RaffleForm extends Vue {
 
 	&:not(.triggerMode) {
 		.modal();
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
 	}
 
 	.content {

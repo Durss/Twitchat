@@ -60,6 +60,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async connect(port:string, pass:string = "", autoReconnect = true, ip = "127.0.0.1"):Promise<boolean> {
 		if(this.connected) return true;
+		
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
 		if(StoreProxy.obs.connectionEnabled !== true) return false;

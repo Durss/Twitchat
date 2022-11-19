@@ -10,6 +10,7 @@ import TriggerActionHandler from "./TriggerActionHandler";
 export default class SchedulerHelper {
 
 	private static _instance:SchedulerHelper;
+	private _started:boolean = false;
 	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
 	private _prevExecute_ts:number = 0;
 	private _adSchedule?:TriggerScheduleData;
@@ -39,6 +40,9 @@ export default class SchedulerHelper {
 	 * Starts the scheduler
 	 */
 	public start():void {
+		if(this._started) return;
+		
+		this._started = true;
 		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];

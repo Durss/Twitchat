@@ -547,6 +547,7 @@ export default class NewUsers extends Vue {
 			padding: .5em 0;
 			transition: background-color .25s;
 			border: 1px solid transparent;
+			padding-left: .5em;
 
 			&:nth-child(odd) {
 				background-color: fade(#ffffff, 5%);

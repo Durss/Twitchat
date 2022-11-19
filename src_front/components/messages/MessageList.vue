@@ -5,7 +5,12 @@
 		@wheel="onMouseWheel"
 		@touchmove="onTouchMove">
 		
-		<MessageListFilter class="filters" :open="hovered" :config="config" />
+		<MessageListFilter class="filters"
+		:open="hovered || openFilters"
+		:forceExpand="openFilters"
+		:config="config"
+		@delete="deleteColumn()"
+		@submit="openFilters = false"/>
 
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
@@ -215,6 +220,7 @@ export default class MessageList extends Vue {
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public hovered = false;
+	public openFilters = false;
 	public lockScroll = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
@@ -292,7 +298,6 @@ export default class MessageList extends Vue {
 		watch(() => this.$store("params").filters, () => this.fullListRefresh(), { deep: true });
 		watch(() => this.config.filters, () => this.fullListRefresh(), {deep: true});
 
-
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
@@ -307,6 +312,15 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 
 		this.fullListRefresh();
+
+		let noConfig = true;
+		for (const key in this.config.filters) {
+			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]] === true) {
+				noConfig = false;
+				break;
+			}
+		}
+		this.openFilters = noConfig;
 
 		this.prevTs = Date.now() - 1000 / 60;
 		this.renderFrame(Date.now());
@@ -371,6 +385,17 @@ export default class MessageList extends Vue {
 	}
 
 	/**
+	 * Called when requesting to delete the current column
+	 */
+	public deleteColumn():void {
+		this.$store("main")
+		.confirm("Delete column?", "Do you want to delete this column? This cannot be undone.")
+		.then(()=> {
+			this.$store("main").delChatColumn(this.config);
+		})
+	}
+
+	/**
 	 * Cleans up all messages and rebuild the list
 	 */
 	private fullListRefresh(): void {
@@ -384,6 +409,7 @@ export default class MessageList extends Vue {
 
 			const sChat = StoreProxy.chat;
 			const messages = sChat.messages.concat();
+
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
 			for (let i = messages.length - 1; i >= 0; i--) {
 				const m = messages[i];
@@ -562,6 +588,11 @@ export default class MessageList extends Vue {
 				return this.config.filters.twitchat_ad === true
 				//Force sponsor message if chat messages are displayed
 				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR && this.config.filters.message === true);
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
+			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT: {
+				return this.config.filters.message === true;
 			}
 			default: return true;
 		}

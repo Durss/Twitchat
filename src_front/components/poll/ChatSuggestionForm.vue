@@ -105,11 +105,6 @@ export default class ChatSuggestionForm extends Vue {
 
 <style scoped lang="less">
 .chatpollform{
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
 	.modal();
 
 	.content {

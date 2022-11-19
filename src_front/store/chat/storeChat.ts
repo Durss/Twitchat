@@ -16,6 +16,7 @@ import { reactive, type UnwrapRef } from 'vue'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 import EventBus from '@/events/EventBus'
 import GlobalEvent from '@/events/GlobalEvent'
+import { LoremIpsum } from "lorem-ipsum";
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -26,7 +27,7 @@ let greetedUsersInitialized:boolean = false;
 export const storeChat = defineStore('chat', {
 	state: () => ({
 		searchMessages: "",
-		realHistorySize: 5000,
+		realHistorySize: 10000,
 		whispersUnreadCount: 0,
 		pinedMessages: [],
 		whispers: {},
@@ -957,6 +958,56 @@ export const storeChat = defineStore('chat', {
 					this.flagSuspiciousMessage(data, retryCount);
 				}, 100);
 			}
+		},
+		
+		async gigaSpam():Promise<void> {
+			const lorem = new LoremIpsum({
+				sentencesPerParagraph: { max: 8, min: 4 },
+				wordsPerSentence: { max: 8, min: 2 }
+			});
+			const channel_id = StoreProxy.auth.twitch.user.id;
+
+			const followers = (await TwitchUtils.getFollowers(channel_id, 100));
+			while(followers.length<50) {
+				const id = Math.round(Math.random()*99999999).toString();
+				followers.push({
+					from_id:id,
+					from_login:"",
+					from_name:"",
+					to_id:channel_id,
+					to_login:"",
+					to_name:"",
+					followed_at:"",
+				});
+			}
+
+			const users:TwitchatDataTypes.TwitchatUser[] = [];
+			followers.forEach(v=> {
+				const u = StoreProxy.users.getUserFrom("twitch", channel_id, v.from_id, v.from_login, v.from_name, undefined, true);
+				users.push(u);
+			})
+
+			let mess!:TwitchatDataTypes.MessageChatData;
+			for (let i = 0; i < this.realHistorySize; i++) {
+				let message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+				mess = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					user: Utils.pickRand(users),
+					channel_id,
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					message,
+					message_html:message,
+					answers:[],
+				};
+				messageList.push(mess);
+				if(i >= this.realHistorySize-50) {
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, mess));
+				}
+			}
+			
+
 		},
 	} as IChatActions
 	& ThisType<IChatActions

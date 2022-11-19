@@ -48,6 +48,9 @@ import Button from '../Button.vue';
 	},
 	emits:["setCustomActivities", "onRead"]
 })
+
+//TODO fix filter activities
+//TODO split subs and subgifts by tiers
 export default class ChatHypeTrainResult extends Vue {
 
 	public filtering!:boolean;

@@ -377,8 +377,8 @@ export const storeDebug = defineStore('debug', {
 						rule:{
 							enabled:true,
 							id:Utils.getUUID(),
-							label:"Durss filter",
-							regex:"durss",
+							label:"Ban "+user.login+" è_é",
+							regex:user.login,
 							serverSync:false
 						},
 					};
@@ -408,6 +408,11 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 					const entries:TwitchatDataTypes.RaffleEntry[] = [];
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
 					for (let i = 0; i < 10; i++) {
 						entries.push({
 							id:Utils.getUUID(),
@@ -484,21 +489,17 @@ export const storeDebug = defineStore('debug', {
 			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
 			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
 
-			const lorem = new LoremIpsum({
-				sentencesPerParagraph: { max: 8, min: 4 },
-				wordsPerSentence: { max: 8, min: 2 }
-			});
-			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			// const lorem = new LoremIpsum({
+			// 	sentencesPerParagraph: { max: 8, min: 4 },
+			// 	wordsPerSentence: { max: 8, min: 2 }
+			// });
+			// const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 
 			switch(noticeType) {
 				case TwitchatDataTypes.TwitchatNoticeType.BAN: {
 					if(fakeUser.temporary) {
-						console.log("WAIT");
 						await new Promise((resolve)=> {
-							watch(()=>fakeUser.temporary, ()=> {
-								console.log("COMPLETE");
-								resolve(fakeUser);
-							})
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
 						})
 					}
 					const m:TwitchatDataTypes.MessageBanData = {

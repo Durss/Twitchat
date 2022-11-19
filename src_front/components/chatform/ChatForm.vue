@@ -603,6 +603,11 @@ export default class ChatForm extends Vue {
 			this.loading = false;
 		}else
 
+		if(cmd == "/gigaspam") {
+			this.$store("chat").gigaSpam();
+			this.message = "";
+		}else
+
 		if(cmd == "/spamstop") {
 			clearInterval(this.spamInterval);
 			this.message = "";

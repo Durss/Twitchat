@@ -1,26 +1,39 @@
 <template >
 	<div :class="classes" v-show="open" @wheel.stop>
-		<button class="openBt" @click="expand = true">
-			<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
-		</button>
+		<div class="hoverActions">
+			<button class="openBt" @click="expand = true" data-tooltip="Edit filters">
+				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
+			</button>
+			<button class="deleteBt" @click="$emit('delete')" v-if="config.order != 0" data-tooltip="Delete column">
+				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
+			</button>
+		</div>
 
-		<div class="holder" v-if="expand">
+		<div class="holder" v-if="expand || forceExpand" @click="clickPreview($event)">
 			<div class="head">
 				<h1 class="title">Filters</h1>
-				<button class="closeBt" @click="expand = false">
+				<button class="closeBt" @click="expand = false" v-if="!forceExpand">
 					<img src="@/assets/icons/cross_white.svg" alt="close filters" class="icon">
 				</button>
 			</div>
 
 			<div class="content">
-				<div class="info" v-if="expand">Choose which message types to display on this column</div>
-				<ParamItem class="item" v-for="f in filters"
-				:key="f.storage"
-				:paramData="f"
-				clearToggle
-				@mouseout="previewData = []"
-				@mouseover="previewMessage(f.storage as 'message'/* couldn't find a way to strongly cast storage type */)"
-				v-model="config.filters[f.storage as 'message']" />
+				<div class="info" v-if="expand || forceExpand">Choose which message types to display on this column</div>
+				
+				<div class="paramsList">
+					<ParamItem class="item" v-for="f in filters"
+						:key="f.storage"
+						:paramData="f"
+						clearToggle
+						@click.stop
+						@mouseleave="mouseLeaveItem($event)"
+						@mouseenter="previewMessage(f.storage as 'message'/* couldn't find a way to strongly cast storage type */)"
+						v-model="config.filters[f.storage as 'message']" />
+				</div>
+
+				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
+
+				<Button title="Create" class="submitBt" white v-if="forceExpand" @click="submitForm()" />
 			</div>
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
@@ -28,7 +41,7 @@
 					<img src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
 				</div>
 	
-				<div class="preview" v-for="m in previewData" :key="m.id">
+				<div class="preview" v-for="m in previewData" :key="m.id" @click="clickPreview($event)">
 					
 					<ChatAd class="message"
 						v-if="m.type == 'twitchat_ad'"
@@ -112,6 +125,7 @@ import ChatRaffleResult from '../ChatRaffleResult.vue';
 	props:{
 		modelValue:{type:Object, default: {}},
 		open:{type:Boolean, default: false},
+		forceExpand:{type:Boolean, default: false},
 		config:Object,
 	},
 	components:{
@@ -132,14 +146,15 @@ import ChatRaffleResult from '../ChatRaffleResult.vue';
 		ChatPredictionResult,
 		ChatRaffleResult,
 	},
-	emits: ['update:modelValue'],
+	emits: ['update:modelValue', 'submit', 'delete'],
 })
 export default class MessageListFilter extends Vue {
 	
 	public open!:boolean;
+	public forceExpand!:boolean;
 	public config!:TwitchatDataTypes.ChatColumnsConfig;
 
-	public test = (typeof TwitchatDataTypes.MessageListFilterTypes);
+	public error:boolean = false;
 	public expand:boolean = false;
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
@@ -151,13 +166,14 @@ export default class MessageListFilter extends Vue {
 	private mouseY = 0;
 	private mouseX = 0;
 	private disposed = false;
-	private clickHandler!:(e:MouseEvent) => void;
+	private touchMode = false;
+	private clickHandler!:(e:MouseEvent|TouchEvent) => void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
-		if(this.expand) res.push("expand");
+		if(this.expand || this.forceExpand) res.push("expand");
 		return res;
 	}
 
@@ -237,10 +253,12 @@ export default class MessageListFilter extends Vue {
 			this.filters.push({type:"toggle", value:this.config.filters[f], label:this.typeToLabel[f] ?? f, storage:f, icon:this.typeToIcon[f]});
 		}
 		
-		this.clickHandler		= (e:MouseEvent) => this.onClick(e);
+		this.clickHandler		= (e:MouseEvent|TouchEvent) => this.onMouseDown(e);
 		this.mouseMoveHandler	= (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+		document.addEventListener("touchstart", this.clickHandler);
 		document.addEventListener("mousedown", this.clickHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
+		document.addEventListener("touchmove", this.mouseMoveHandler);
 		
 		//Close when rolling out col
 		watch(()=>this.open, ()=>{ this.expand = false; });
@@ -249,8 +267,15 @@ export default class MessageListFilter extends Vue {
 
 	public beforeUnmount():void {
 		this.disposed = true;
+		document.removeEventListener("touchstart", this.clickHandler);
 		document.removeEventListener("mousedown", this.clickHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
+		document.removeEventListener("touchmove", this.mouseMoveHandler);
+	}
+
+	public mouseLeaveItem(event:MouseEvent):void {
+		if(this.touchMode) return;
+		this.previewData = [];
 	}
 
 	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
@@ -306,10 +331,39 @@ export default class MessageListFilter extends Vue {
 	}
 
 	/**
+	 * Called when preview message is clicked.
+	 * ONly usefull for touch interface so we can close it by clicking it
+	 */
+	public clickPreview(e:MouseEvent):void {
+		e.stopPropagation();
+		e.preventDefault();
+		this.previewData = [];
+	}
+
+	public submitForm():void {
+		this.error = false;
+		let noSelection = true;
+		for (const key in this.config.filters) {
+			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]] === true) {
+				noSelection = false;
+				break;
+			}
+		}
+		if(noSelection) {
+			this.error = true;
+		}else{
+			this.$emit("submit");
+		}
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
-		if(e.type == "mousemove") {
+		if(!this.open) return;
+
+		this.touchMode = e.type != "mousemove";
+		if(!this.touchMode) {
 			this.mouseX = (e as MouseEvent).clientX;
 			this.mouseY = (e as MouseEvent).clientY;
 		}else{
@@ -318,9 +372,12 @@ export default class MessageListFilter extends Vue {
 		}
 	}
 
-	private onClick(e:MouseEvent):void {
+	private onMouseDown(e:MouseEvent|TouchEvent):void {
+		if(!this.open) return;
+		
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
+		this.touchMode = e.type == "touchstart";
 		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
@@ -333,16 +390,11 @@ export default class MessageListFilter extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 		
-		const holder = this.$refs.previewList as HTMLDivElement;
+		if(!this.open) return;
 		
-		if(this.previewData.length == 0 && !this.loadingPreview) {
-			//Avoids mouse conflict on mobile mode.
-			//The holder may appear above the clicked location and cancel the
-			//click event of the ParamItem
-			if(holder) holder.style.top = "99999px";
-			return;
-		}
-
+		const holder = this.$refs.previewList as HTMLDivElement;
+		if(!holder) return;
+		
 		const parentBounds = (this.$el as HTMLDivElement).getBoundingClientRect()
 		const bounds = holder.getBoundingClientRect();
 		let py = this.mouseY - parentBounds.top + 20;
@@ -370,27 +422,31 @@ export default class MessageListFilter extends Vue {
 	transform: translateX(100%);
 	transition: transform .25s;
 	position: relative;
-	opacity: .9;
+	// opacity: .9;
+	pointer-events: none;
 
 	&.expand {
 		transform: translateX(0);
 	}
 
-	.openBt {
-		cursor: pointer;
-		border: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-left: -2em;
-		width: 2em;
-		height: 2em;
-		background-color: @mainColor_normal;
-		border-top-left-radius: .5em;
-		border-bottom-left-radius: .5em;
-		.icon {
-			height: 100%;
-			width: 100%;
+	.hoverActions {
+		transform: translate(-100%);
+		button {
+			pointer-events: all;
+			cursor: pointer;
+			border: none;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 2em;
+			height: 2em;
+			background-color: @mainColor_normal;
+			border-top-left-radius: .5em;
+			border-bottom-left-radius: .5em;
+			.icon {
+				height: 100%;
+				width: 100%;
+			}
 		}
 	}
 
@@ -401,6 +457,7 @@ export default class MessageListFilter extends Vue {
 		flex-direction: column;
 		padding: 1em;
 		padding-top: .5em;
+		pointer-events: all;
 
 		.head {
 			display: flex;
@@ -426,21 +483,43 @@ export default class MessageListFilter extends Vue {
 		}
 		.content {
 			flex-grow: 1;
-			overflow: auto;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
 			.info {
 				margin: .5em 0;
 				text-align: center;
 			}
-			.item{
-				margin: auto;
-				max-width: 500px;
+			.paramsList {
+				flex-grow: 1;
+				overflow: auto;
+				.item{
+					margin: auto;
+					max-width: 500px;
+					font-size: .8em;
+					&:not(:first-child) {
+						margin-top: .25em;
+					}
+					&:hover {
+						background-color: fade(@mainColor_light, 10%);
+					}
+				}
+			}
+			.error {
+				padding: .5em;
+				border-radius: .5em;
+				margin-bottom: .5em;
+				text-align: center;
 				font-size: .8em;
-				&:not(:first-child) {
-					margin-top: .25em;
-				}
-				&:hover {
-					background-color: fade(@mainColor_light, 10%);
-				}
+				font-weight: bold;
+				cursor: pointer;
+				color:@mainColor_alert;
+				background: @mainColor_light;
+				
+			}
+			.submitBt {
+				display: block;
+				margin: auto;
 			}
 		}
 
@@ -450,10 +529,15 @@ export default class MessageListFilter extends Vue {
 			max-width: 500px;
 			transform: translateX(-50%);
 			left: 50%;
+			top: 99999px;
 			.preview {
 				background-color: @mainColor_dark;
 				padding: .25em .5em;
 				border-radius: .5em;
+				cursor: pointer;
+				.message {
+					pointer-events: none;
+				}
 				.loader {
 					text-align: center;
 					margin: auto;
