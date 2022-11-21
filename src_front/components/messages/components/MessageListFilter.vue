@@ -430,19 +430,22 @@ export default class MessageListFilter extends Vue {
 	}
 
 	.hoverActions {
-		transform: translate(-100%);
+		@size: 1.25em;
+		margin-left: -@size;
+		width: @size;
 		button {
+			font-size: 1em;
 			pointer-events: all;
 			cursor: pointer;
 			border: none;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2em;
-			height: 2em;
+			padding: @size/4;
+			width: @size;
+			height: @size;
+			min-width: @size;
+			min-height: @size;
 			background-color: @mainColor_normal;
-			border-top-left-radius: .5em;
-			border-bottom-left-radius: .5em;
+			border-top-left-radius: .25em;
+			border-bottom-left-radius: .25em;
 			.icon {
 				height: 100%;
 				width: 100%;

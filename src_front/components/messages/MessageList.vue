@@ -819,7 +819,7 @@ export default class MessageList extends Vue {
 		//If messages height is smaller than the holder height, move the holder to the bottom
 		if (bottom < holderHeight) {
 			// console.log(bottom, h);
-			if (this.holderOffsetY == 0) easeValue = 1;
+			if (this.holderOffsetY <= 0) easeValue = 1;
 			this.holderOffsetY += (holderHeight - bottom - this.holderOffsetY) * easeValue;
 			if (Math.abs(holderHeight - bottom - this.holderOffsetY) < 2) {
 				this.holderOffsetY = holderHeight - bottom;
@@ -965,7 +965,8 @@ export default class MessageList extends Vue {
 				const style = window.getComputedStyle(lastMessRef);
 				const margin = parseFloat(style.marginBottom);
 				// this.virtualScrollY = maxScroll - (lastMessRef.offsetHeight + margin);
-				this.virtualScrollY = messagesHolder.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
+				this.virtualScrollY =
+				messagesHolder.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
 

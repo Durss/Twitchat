@@ -258,7 +258,7 @@ export default class Chat extends Vue {
 	}
 
 	public getColStyles(col:TwitchatDataTypes.ChatColumnsConfig):{[key:string]:string} {
-		let size = col.size;
+		let size = col.size * 100;
 		const cols = this.$store('main').chatColumnsConfig;
 		if(cols.length == 1) {
 			return {
@@ -267,14 +267,14 @@ export default class Chat extends Vue {
 			}
 		}
 		if(this.splitViewVertical) {
-			const value = `calc(${size}px - 7px)`;//7px => dragbar size
+			const value = `calc(${size}% - 7px)`;//7px => dragbar size
 			return {
 				"height": value,
 				"min-height": value,
 				"max-height": value,
 			}
 		}else{
-			const value = `${size}px`;
+			const value = `${size}%`;
 			return {
 				"width": value,
 				"min-width": value,
@@ -635,11 +635,10 @@ export default class Chat extends Vue {
 		}
 
 		const holder = this.$refs.scrollable as HTMLDivElement;
-		const holderBounds = holder.getBoundingClientRect();
-		if(totalSize < holderBounds.width) {
+		if(totalSize < 1) {
 			for (let i = 0; i < colList.length; i++) {
 				const c = colList[i];
-				c.size = holderBounds.width / colList.length;
+				c.size = 1 - totalSize;
 			}
 		}
 		// const px = holder.scrollWidth - Math.max(holderBounds.width, totalSize) - colList[colList.length-1].size;
@@ -675,12 +674,14 @@ export default class Chat extends Vue {
 			//TODO
 		}else{
 			const cols = this.$store('main').chatColumnsConfig;
+			const holder = this.$refs.scrollable as HTMLDivElement;
+			const holderBounds = holder.getBoundingClientRect();
 			for (let i = 0; i < cols.length; i++) {
 				const c = cols[i];
 				if(c == this.draggedCol) {
 					const el = (this.$refs["column_"+c.order] as HTMLDivElement[])[0];
 					const bounds = el.getBoundingClientRect();
-					c.size = Math.max(200, this.mouseX - bounds.left + 14);
+					c.size = Math.max(200, this.mouseX - bounds.left + 14) / holderBounds.width;
 					this.computeWindowsSizes()
 				}else{
 

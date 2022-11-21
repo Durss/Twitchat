@@ -423,7 +423,7 @@ export const storeMain = defineStore("main", {
 
 				//Chat feed
 				let col = this.addChatColumn();
-				col.size = window.innerWidth/2;
+				col.size = 1/2;
 				col.filters.join = true;
 				col.filters.message = true;
 				col.filters.whisper = true;
@@ -562,7 +562,7 @@ export const storeMain = defineStore("main", {
 		addChatColumn():TwitchatDataTypes.ChatColumnsConfig {
 			const col:TwitchatDataTypes.ChatColumnsConfig = {
 				order:this.chatColumnsConfig.length,
-				size:window.innerWidth/3,
+				size:1/2,
 				filters:{
 					join:false,
 					message:false,
