@@ -1,5 +1,5 @@
 <template >
-	<div :class="classes" v-show="open" @wheel.stop>
+	<div :class="classes" v-show="debugForceOpen || open" @wheel.stop>
 		<div class="hoverActions">
 			<button class="openBt" @click="expand = true" data-tooltip="Edit filters">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
@@ -9,7 +9,7 @@
 			</button>
 		</div>
 
-		<div class="holder" v-if="expand || forceExpand" @click="clickPreview($event)">
+		<div class="holder" v-if="debugForceOpen || expand || forceExpand" @click="clickPreview($event)">
 			<div class="head">
 				<h1 class="title">Filters</h1>
 				<button class="closeBt" @click="expand = false" v-if="!forceExpand">
@@ -18,9 +18,19 @@
 			</div>
 
 			<div class="content">
-				<div class="info" v-if="expand || forceExpand">Choose which message types to display on this column</div>
+				<div class="info" v-if="debugForceOpen || expand || forceExpand">Choose which message types to display on this column</div>
+				
+				<div class="presets">
+					<Button @click="preset('chat')" title="Chat" :icon="$image('icons/whispers_purple.svg')" small white />
+					<Button @click="preset('activities')" title="Activities" :icon="$image('icons/stars_purple.svg')" small white />
+					<Button @click="preset('games')" title="Games" :icon="$image('icons/bingo_purple.svg')" small white />
+					<Button @click="preset('revenues')" title="Revenues" :icon="$image('icons/coin_purple.svg')" small white />
+				</div>
 				
 				<div class="paramsList">
+
+					<ToggleButton class="item toggleAll" v-model="toggleAll" clear />
+
 					<ParamItem class="item" v-for="f in filters"
 						:key="f.storage"
 						:paramData="f"
@@ -33,7 +43,10 @@
 
 				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
 
-				<Button title="Create" class="submitBt" white v-if="forceExpand" @click="submitForm()" />
+				<div class="ctas">
+					<Button title="Cancel" :icon="$image('icons/cross_white.svg')" highlight v-if="forceExpand" @click="cancelForm()" />
+					<Button title="Create" :icon="$image('icons/add_purple.svg')" white v-if="forceExpand" @click="submitForm()" />
+				</div>
 			</div>
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
@@ -156,6 +169,8 @@ export default class MessageListFilter extends Vue {
 
 	public error:boolean = false;
 	public expand:boolean = false;
+	public toggleAll:boolean = false;
+	public debugForceOpen:boolean = false;//Allows to force opening when debugging the form
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
@@ -173,7 +188,7 @@ export default class MessageListFilter extends Vue {
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
-		if(this.expand || this.forceExpand) res.push("expand");
+		if(this.debugForceOpen || this.expand || this.forceExpand) res.push("expand");
 		return res;
 	}
 
@@ -228,23 +243,23 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			TwitchatDataTypes.TwitchatMessageType.WHISPER,
-			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
+			TwitchatDataTypes.TwitchatMessageType.JOIN,
+			TwitchatDataTypes.TwitchatMessageType.LEAVE,
+			TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
+			TwitchatDataTypes.TwitchatMessageType.CHEER,
 			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-			TwitchatDataTypes.TwitchatMessageType.CHEER,
+			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 			TwitchatDataTypes.TwitchatMessageType.RAID,
 			TwitchatDataTypes.TwitchatMessageType.REWARD,
 			TwitchatDataTypes.TwitchatMessageType.POLL,
 			TwitchatDataTypes.TwitchatMessageType.PREDICTION,
 			TwitchatDataTypes.TwitchatMessageType.BINGO,
 			TwitchatDataTypes.TwitchatMessageType.RAFFLE,
-			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
-			TwitchatDataTypes.TwitchatMessageType.JOIN,
-			TwitchatDataTypes.TwitchatMessageType.LEAVE,
 			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
-			TwitchatDataTypes.TwitchatMessageType.NOTICE,
 		];
 
 		this.filters = [];
@@ -262,6 +277,11 @@ export default class MessageListFilter extends Vue {
 		
 		//Close when rolling out col
 		watch(()=>this.open, ()=>{ this.expand = false; });
+		watch(()=>this.toggleAll, ()=>{
+			for (let i = 0; i < this.filters.length; i++) {
+				this.filters[i].value = this.toggleAll;
+			}
+		 });
 		requestAnimationFrame(()=>this.renderFrame());
 	}
 
@@ -340,6 +360,12 @@ export default class MessageListFilter extends Vue {
 		this.previewData = [];
 	}
 
+	/**
+	 * Called when submitting form.
+	 * This button is only here when creating anew column.
+	 * In such case user is prompted for filters selection and has
+	 * to select some in order to see the matching messages
+	 */
 	public submitForm():void {
 		this.error = false;
 		let noSelection = true;
@@ -353,6 +379,72 @@ export default class MessageListFilter extends Vue {
 			this.error = true;
 		}else{
 			this.$emit("submit");
+		}
+	}
+
+	public cancelForm():void {
+		this.$emit("delete");
+	}
+
+	/**
+	 * Called when clicking a preset
+	 */
+	public preset(id:"chat"|"activities"|"games"|"revenues"):void {
+		this.toggleAll = false;
+		//Unselect all
+		for (let i = 0; i < this.filters.length; i++) {
+			this.filters[i].value = false;
+		}
+		const ids:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [];
+		switch(id) {
+			case "chat": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.JOIN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.LEAVE );
+				break;
+			}
+			case "activities": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.RAID );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.POLL );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION );
+				break;
+			}
+			case "games": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.POLL );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
+				break;
+			}
+			case "revenues": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
+				break;
+			}
+		}
+
+		for (let i = 0; i < ids.length; i++) {
+			const filter = this.filters.find(v => (v.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]) === ids[i]);
+			if(filter) filter.value = true;
 		}
 	}
 
@@ -489,22 +581,38 @@ export default class MessageListFilter extends Vue {
 			display: flex;
 			flex-direction: column;
 			height: 100%;
+			margin: auto;
+			max-width: 500px;
 			.info {
 				margin: .5em 0;
 				text-align: center;
 			}
+			.presets {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				button {
+					margin-bottom: .5em;
+				}
+			}
+
 			.paramsList {
 				flex-grow: 1;
 				overflow: auto;
+				margin: auto;
 				.item{
 					margin: auto;
-					max-width: 500px;
 					font-size: .8em;
 					&:not(:first-child) {
 						margin-top: .25em;
 					}
 					&:hover {
 						background-color: fade(@mainColor_light, 10%);
+					}
+
+					&.toggleAll {
+						margin-right: 0;
 					}
 				}
 			}
@@ -520,9 +628,10 @@ export default class MessageListFilter extends Vue {
 				background: @mainColor_light;
 				
 			}
-			.submitBt {
-				display: block;
-				margin: auto;
+			.ctas {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-evenly;
 			}
 		}
 
