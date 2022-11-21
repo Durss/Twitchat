@@ -4,6 +4,9 @@
 		
 		<p class="header">Messages starting with <mark>||</mark> will be masked by default and revealed on hover</p>
 
+		<strong>Example:</strong>
+		<ChatMessage :messageData="spoilerExample" class="example" lightMode />
+
 		<Splitter class="splitter">Spoil somone else's message</Splitter>
 		<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <mark>!spoiler</mark> command</div>
 		<div class="item">Users allowed to use <mark>!spoiler</mark> command:</div>
@@ -30,7 +33,8 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ChatMessage from '@/components/messages/ChatMessage.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
@@ -40,10 +44,13 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 	props:{},
 	components:{
 		Splitter,
+		ChatMessage,
 		PermissionsForm,
 	}
 })
 export default class ParamsSpoiler extends Vue {
+
+	public spoilerExample!:TwitchatDataTypes.MessageChatData;
 
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
@@ -54,7 +61,14 @@ export default class ParamsSpoiler extends Vue {
 		users:"",
 	};
 
-	public mounted():void {
+	public beforeMount(): void {
+		
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data)=> {
+			const m = data as TwitchatDataTypes.MessageChatData;
+			m.spoiler = true;
+			this.spoilerExample = m;
+		}, false);
+
 		if(this.$store("chat").spoilerParams.permissions) {
 			this.chatCommandPerms = this.$store("chat").spoilerParams.permissions;
 		}
@@ -94,6 +108,12 @@ export default class ParamsSpoiler extends Vue {
 		border-radius: .5em;
 		font-size: .8em;
 		background: fade(@mainColor_normal, 15%);
+	}
+
+	.example {
+		background-color: @mainColor_dark;
+		padding: 1em;
+		border-radius: .5em;
 	}
 
 	.splitter {
