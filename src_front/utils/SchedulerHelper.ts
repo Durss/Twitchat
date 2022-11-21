@@ -85,6 +85,8 @@ export default class SchedulerHelper {
 		//Cleanup any previously scheduled trigger
 		this.unscheduleTrigger(key);
 
+		console.log("Schedule new trigger", key, schedule);
+
 		switch(schedule.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
 				let date = Date.now() + schedule.repeatDuration * 60 * 1000;
@@ -215,6 +217,7 @@ export default class SchedulerHelper {
 			let execute = true;
 			switch(schedule.type) {
 				case TriggerScheduleTypes.REGULAR_REPEAT:{
+					console.log(Date.now(), e.date);
 					if(schedule.repeatDuration > 0 && Date.now() < e.date) execute = false;
 					if(schedule.repeatMinMessages > 0 && e.messageCount < schedule.repeatMinMessages) execute = false;
 					break;
@@ -231,9 +234,9 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
+				let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				//[EDIT] don't do that reset, just wait for the message to come back
 				//that will reset the schedule because it contains the link
-				// let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				// if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				// 	//This is a trick to avoid sending the ad message multiple times
 				// 	//if the user is using multiple instances of twitchat.
@@ -245,8 +248,8 @@ export default class SchedulerHelper {
 				// 	DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				// }
 				
-				// e.date = date;
-				// e.messageCount = 0;
+				e.date = date;
+				e.messageCount = 0;
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}
