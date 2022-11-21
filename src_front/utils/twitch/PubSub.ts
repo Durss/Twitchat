@@ -552,6 +552,15 @@ export default class PubSub extends EventDispatcher {
 					//Automatically hide the boost after a few seconds
 					StoreProxy.stream.setCommunityBoost(undefined);
 				}, 15000);
+				const m:TwitchatDataTypes.MessageCommunityBoostData = {
+					id:Utils.getUUID(),
+					channel_id:channelId,
+					date:Date.now(),
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+					viewers:goal,
+				};
+				StoreProxy.chat.addMessage(m);
 			}
 			
 
