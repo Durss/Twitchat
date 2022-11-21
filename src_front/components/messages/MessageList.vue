@@ -607,7 +607,7 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT: {
 				return this.config.filters.message === true;
 			}
-			default: return true;
+			default: return false;
 		}
 	}
 

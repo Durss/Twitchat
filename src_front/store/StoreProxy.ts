@@ -162,7 +162,6 @@ export interface IChatState {
 
 export interface IChatGetters {
 	messages:TwitchatDataTypes.ChatMessageTypes[];
-	activityFeed:TwitchatDataTypes.ChatMessageTypes[];
 }
 
 export interface IChatActions {

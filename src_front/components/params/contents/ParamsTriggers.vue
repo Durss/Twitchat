@@ -251,7 +251,7 @@ export default class ParamsTriggers extends Vue {
 		}
 		//Check if a JSON example is available
 		const entry = TriggerEvents.find(v=>v.value == this.currentEvent?.value);
-		const hasJSON = entry ? entry.jsonTest != undefined : false;
+		const hasJSON = entry ? entry.testMessageType != undefined : false;
 		return canTest && hasJSON;
 	}
 
@@ -493,22 +493,30 @@ export default class ParamsTriggers extends Vue {
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
 		const entry = TriggerEvents.find(v=>v.value == key);
 		
-		if(entry?.jsonTest) {
-			const json = entry.jsonTest as TwitchatDataTypes.ChatMessageTypes;
-			if(key == TriggerTypes.REWARD_REDEEM) {
-				//Push current reward ID to the test JSON data
-				if(json.type == TwitchatDataTypes.TwitchatMessageType.REWARD && json.reward) {
-					const m = json as TwitchatDataTypes.MessageRewardRedeemData;
-					m.reward.id = this.currentSubEvent?.value as string;
-					//TODO make sure the test button for reward triggers still work after I removed the "TEST_ID" on TriggerActionHandler
-				}
+		if(entry?.testMessageType) {
+			if(entry.testNoticeType) {
+				this.$store("debug").simulateNotice(entry.testNoticeType, (data)=> {
+					TriggerActionHandler.instance.onMessage(data, true);
+				}, false);
+			}else{
+
+				this.$store("debug").simulateMessage(entry.testMessageType, (data)=> {
+					let m = data
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+						//Update the fake ID of the reward to the current one
+						m.reward.id = this.currentSubEvent?.value as string;
+						m.message = "Lorem ipsum dolor sit amet";
+					}
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+					&& key == TriggerTypes.CHAT_COMMAND) {
+						//Add the command to the fake text message
+						m.message = this.triggerData.name + " " + m.message;
+						m.message_html = this.triggerData.name + " " + m.message_html;
+					}
+					console.log(m);
+					TriggerActionHandler.instance.onMessage(m, true);
+				}, false);
 			}
-			if(key == TriggerTypes.CHAT_COMMAND) {
-				//Push current command to the test JSON data
-				const m = json as TwitchatDataTypes.MessageChatData;
-				m.message = this.triggerData.name + " lorem ipsum dolor sit amet.";
-			}
-			TriggerActionHandler.instance.onMessage(json, true);
 		}else if(this.isSchedule) {
 			//TODO
 		}
@@ -796,6 +804,7 @@ export default class ParamsTriggers extends Vue {
 				width: 100%;
 				margin-bottom: 2px;
 				box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+				padding: .25em .5em;
 				:deep(.label) {
 					flex-grow: 1;
 					display: flex;
@@ -809,7 +818,6 @@ export default class ParamsTriggers extends Vue {
 				:deep(.cost) {
 					font-size: .8em;
 					font-style: italic;
-					padding-right: 50px;
 				}
 
 				&.subItem.hasIcon {

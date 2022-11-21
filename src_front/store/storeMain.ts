@@ -188,8 +188,7 @@ export const storeMain = defineStore("main", {
 				}
 				
 				if(sTimer.countdown) {
-					const data = { startAt:sTimer.countdown?.startAt, duration:sTimer.countdown?.duration };
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, (sTimer.countdown as unknown) as JsonObject);
 				}
 			});
 
@@ -341,7 +340,7 @@ export const storeMain = defineStore("main", {
 			const triggers = DataStore.get(DataStore.TRIGGERS);
 			if(triggers) {
 				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggers as unknown) as JsonObject);
-				TriggerActionHandler.instance.triggers = sTriggers.triggers;
+				TriggerActionHandler.instance.populate(sTriggers.triggers);
 			}
 				
 			//Init stream info presets

@@ -73,7 +73,6 @@ export const storeEmergency = defineStore('emergency', {
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
 				enabled: enable,
 			};
-			TriggerActionHandler.instance.onMessage(message);
 			StoreProxy.chat.addMessage(message);
 
 			if(enable) {

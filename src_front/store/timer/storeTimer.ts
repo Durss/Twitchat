@@ -36,9 +36,10 @@ export const storeTimer = defineStore('timer', {
 				started:true,
 				id:Utils.getUUID(),
 				date:Date.now(),
-				startAt:Date.now(),
+				startAt:Utils.formatDuration(Date.now(), true),
+				startAt_ms:Date.now(),
 			};
-			TriggerActionHandler.instance.onMessage(message);
+			StoreProxy.chat.addMessage(message);
 		},
 
 		stopTimer() {
@@ -48,21 +49,25 @@ export const storeTimer = defineStore('timer', {
 			const message:TwitchatDataTypes.MessageTimerData = {
 				type:TwitchatDataTypes.TwitchatMessageType.TIMER,
 				platform:"twitchat",
-				started:true,
+				started:false,
 				id:Utils.getUUID(),
 				date:Date.now(),
-				startAt:Date.now(),
-				duration:Date.now() - this.timerStart,
+				startAt:Utils.formatDuration(Date.now(), true),
+				startAt_ms:Date.now(),
+				duration:Utils.formatDuration(Date.now() - this.timerStart, true),
+				duration_ms:Date.now() - this.timerStart,
 			};
-			TriggerActionHandler.instance.onMessage(message);
+			StoreProxy.chat.addMessage(message);
 
 			this.timerStart = -1;
 		},
 
-		startCountdown(duration:number) {
+		startCountdown(duration_ms:number) {
 			const timeout = setTimeout(()=> {
 				this.stopCountdown()
-			}, Math.max(duration, 1000));
+			}, Math.max(duration_ms, 1000));
+
+			console.log("START", duration_ms);
 
 			if(this.countdown) {
 				clearTimeout(this.countdown.timeoutRef);
@@ -70,9 +75,12 @@ export const storeTimer = defineStore('timer', {
 
 			this.countdown = {
 				timeoutRef:timeout,
-				startAt:Date.now(),
-				duration:duration,
+				startAt:Utils.formatDate(new Date()),
+				startAt_ms:Date.now(),
+				duration:Utils.formatDuration(duration_ms, true),
+				duration_ms:duration_ms,
 			};
+			console.log(this.countdown);
 
 			const message:TwitchatDataTypes.MessageCountdownData = {
 				type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
@@ -81,28 +89,35 @@ export const storeTimer = defineStore('timer', {
 				date:Date.now(),
 				countdown:this.countdown,
 			};
-			TriggerActionHandler.instance.onMessage(message);
+			StoreProxy.chat.addMessage(message);
 			
-			const data = { startAt:this.countdown.startAt, duration:this.countdown.duration };
-			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, data);
+			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, this.countdown);
 		},
 
 		stopCountdown() {
 			if(this.countdown) {
 				clearTimeout(this.countdown.timeoutRef);
+
+				const cd = {
+					timeoutRef:-1,
+					startAt:this.countdown.startAt,
+					startAt_ms:this.countdown.startAt_ms,
+					duration:this.countdown.duration,
+					duration_ms:this.countdown.duration_ms,
+					endAt:Utils.formatDate(new Date()),
+					endAt_ms:Date.now(),
+				};
 				
 				const message:TwitchatDataTypes.MessageCountdownData = {
 					type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 					platform:"twitchat",
 					id:Utils.getUUID(),
 					date:Date.now(),
-					countdown:this.countdown,
+					countdown:cd,
 				};
 				StoreProxy.chat.addMessage(message);
-				TriggerActionHandler.instance.onMessage(message);
 	
-				const data = { startAt:this.countdown?.startAt, duration:this.countdown?.duration };
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (data as unknown) as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdown);
 			}
 
 			this.countdown = null;

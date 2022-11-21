@@ -882,7 +882,7 @@ export default class Chat extends Vue {
 			flex-grow: 1;
 			position: relative;
 			min-width: 1em;
-			z-index: 3;
+			z-index: 2;
 			.button {
 				position: absolute;
 				right: 0;

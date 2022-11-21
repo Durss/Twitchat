@@ -454,14 +454,17 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
+					const duration = Math.round(Math.random() *60*60)*1000;
 					const m:TwitchatDataTypes.MessageCountdownData = {
 						platform:"twitchat",
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						countdown: {
-							duration:Math.round(Math.random() *60*60)*1000,
-							startAt:Date.now(),
+							duration:Utils.formatDuration(duration, true),
+							duration_ms:duration,
+							startAt:Utils.formatDate(new Date()),
+							startAt_ms:Date.now(),
 							timeoutRef:-1,
 						}
 					};

@@ -303,8 +303,12 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a countdown
 	 */
 	export interface CountdownData {
-		startAt:number;
-		duration:number;
+		startAt:string;
+		startAt_ms:number;
+		endAt?:string;
+		endAt_ms?:number;
+		duration:string;
+		duration_ms:number;
 		timeoutRef:number;
 	}
 
@@ -724,7 +728,6 @@ export namespace TwitchatDataTypes {
 		APP_VERSION:"appVersion",//When using command "/version"
 		CLEAR_CHAT:"clearChat",//When clearing a chat room
 		TIMEOUT:"timeout",//When timingout a user
-		UNTIMEOUT:"untimeout",//When releasing a user's timeout
 		BAN:"ban",//When banning a user
 		UNBAN:"unban",//When unbanning a user
 		MOD:"mod",//When granting mod role to a user
@@ -762,6 +765,7 @@ export namespace TwitchatDataTypes {
 									MessageLeaveData |
 									MessageBanData |
 									MessageTimeoutData |
+									MessageModerationAction |
 									MessageClearChatData |
 									MessageRaffleData |
 									MessageBingoData |
@@ -782,7 +786,6 @@ export namespace TwitchatDataTypes {
 									MessageConnectData |
 									MessageDisconnectData |
 									MessageFollowbotData |
-									MessageAutobanJoinData |
 									MessageNoticeData
 	;
 
@@ -794,34 +797,6 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.MESSAGE,
 	];
 	
-	//TODO delete
-	export const ActivityFeedMessageTypes:TwitchatMessageStringType[] = [
-		TwitchatMessageType.POLL,
-		TwitchatMessageType.BINGO,
-		TwitchatMessageType.COUNTDOWN,
-		TwitchatMessageType.PREDICTION,
-		TwitchatMessageType.RAFFLE,
-		TwitchatMessageType.CHEER,
-		TwitchatMessageType.SUBSCRIPTION,
-		TwitchatMessageType.REWARD,
-		TwitchatMessageType.AUTOBAN_JOIN,
-		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
-		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
-		TwitchatMessageType.FOLLOWING,
-		TwitchatMessageType.FOLLOWBOT_LIST,
-		TwitchatMessageType.RAID,
-	];
-
-	//TODO delete
-	export const ActivityFeedNoticeTypes:TwitchatDataTypes.TwitchatNoticeStringType[] = [
-		TwitchatNoticeType.EMERGENCY_MODE,
-		TwitchatNoticeType.COMMERCIAL_START,
-		TwitchatNoticeType.COMMERCIAL_ERROR,
-		TwitchatNoticeType.COMMERCIAL_COMPLETE,
-	];
-
 	/**
 	 * Defines the filters
 	 */
@@ -1117,29 +1092,6 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a user baned message
-	 */
-	export interface MessageBanData extends MessageNoticeData {
-		channel_id: string;
-		noticeId:"ban"|"unban";
-		user:TwitchatUser;
-		moderator?:TwitchatUser;
-		reason:string;
-	}
-	
-	/**
-	 * Represents a user timedout data
-	 */
-	export interface MessageTimeoutData extends MessageNoticeData {
-		channel_id: string;
-		noticeId:"timeout"|"untimeout";
-		user:TwitchatUser;
-		moderator?:TwitchatUser;
-		reason:string;
-		duration_s:number;
-	}
-
-	/**
 	 * Represents a chat clear 
 	 */
 	export interface MessageClearChatData extends AbstractTwitchatMessage {
@@ -1178,8 +1130,10 @@ export namespace TwitchatDataTypes {
 	export interface MessageTimerData extends AbstractTwitchatMessage {
 		type:"timer";
 		started:boolean,
-		startAt:number;
-		duration?:number;
+		startAt:string;
+		startAt_ms:number;
+		duration?:string;
+		duration_ms?:number;
 	}
 
 	/**
@@ -1218,6 +1172,34 @@ export namespace TwitchatDataTypes {
 		noticeId:"stream_info_update";
 		title:string;
 		category:string;
+	}
+
+	/**
+	 * Represents a mod/unbon/vip/unvip/ban/timeout/unban event
+	 */
+	export interface MessageModerationAction extends MessageNoticeData {
+		user:TwitchatUser;
+	}
+
+	/**
+	 * Represents a user baned message
+	 */
+	export interface MessageBanData extends MessageModerationAction {
+		channel_id: string;
+		noticeId:"ban"|"unban";
+		moderator?:TwitchatUser;
+		reason:string;
+	}
+	
+	/**
+	 * Represents a user timedout data
+	 */
+	export interface MessageTimeoutData extends MessageModerationAction {
+		channel_id: string;
+		noticeId:"timeout"|"untimeout";
+		moderator?:TwitchatUser;
+		reason:string;
+		duration_s:number;
 	}
 
 	/**

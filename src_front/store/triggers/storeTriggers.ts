@@ -97,7 +97,7 @@ export const storeTriggers = defineStore('triggers', {
 			}
 
 			DataStore.set(DataStore.TRIGGERS, this.triggers);
-			TriggerActionHandler.instance.triggers = this.triggers;
+			TriggerActionHandler.instance.populate(this.triggers);
 		},
 
 		deleteTrigger(key:string) {

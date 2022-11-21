@@ -47,6 +47,23 @@ export default class FFZUtils {
 				platform:"twitch",
 			});
 		}
+		for (const chanId in this.channelEmotesHashmaps) {
+			const chan = this.channelEmotesHashmaps[chanId];
+			for (const key in chan) {
+				const e = chan[key];
+				res.push({
+					id: e.id.toString(),
+					code: e.name,
+					is_public:false,
+					images: {
+						url_1x: e.urls[1] ?? "",
+						url_2x: e.urls[2] ?? e.urls[1] ?? "",
+						url_4x: e.urls[4] ?? e.urls[2] ?? e.urls[1] ?? "",
+					},
+					platform:"twitch",
+				});
+			}
+		}
 		return res;
 	}
 	

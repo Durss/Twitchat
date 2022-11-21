@@ -1819,16 +1819,7 @@ export default class TwitchUtils {
 	/**
 	 * Add or remove a channel moderator
 	 */
-	public static async addRemoveModerator(removeMod:boolean, channelId:string, uid?:string, login?:string):Promise<boolean> {
-		if(!uid && login) {
-			try {
-				uid = (await this.loadUserInfo(undefined, [login]))[0].id;
-			}catch(error) {
-				return false;
-			}
-		}
-		
-		if(!uid) return false;
+	public static async addRemoveModerator(removeMod:boolean, channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<boolean> {
 
 		const options = {
 			method:removeMod? "DELETE" : "POST",
@@ -1836,21 +1827,45 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/moderators");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
-		url.searchParams.append("user_id", uid);
+		url.searchParams.append("user_id", user.id);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			if(removeMod) {
-				StoreProxy.users.flagUnmod("twitch", uid, channelId);
+				const m:TwitchatDataTypes.MessageModerationAction = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id:channelId,
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.UNMOD,
+					user,
+					message:"User "+user.login+" has been unmod",
+				};
+				StoreProxy.chat.addMessage(m);
+				StoreProxy.users.flagUnmod("twitch", channelId, user.id);
 			}else{
-				StoreProxy.users.flagMod("twitch", uid, channelId);
+				StoreProxy.users.flagMod("twitch", channelId, user.id);
 			}
 			return true;
+		}else
+		if(res.status == 400){
+			const json = await res.json();
+			StoreProxy.main.alert(json.message);
+			return false
+		}else
+		if(res.status == 422){
+			if(removeMod) {
+				StoreProxy.main.alert("User "+user.login+" is not a moderator of this channel");
+			}else{
+				StoreProxy.main.alert("User "+user.login+" is a VIP of this channel. You first need to remove them from your VIPs");
+			}
+			return false
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
 			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
-			return await this.addRemoveModerator(removeMod, channelId, uid, login);
+			return await this.addRemoveModerator(removeMod, channelId, user);
 		}else {
 			return false;
 		}
@@ -1859,33 +1874,52 @@ export default class TwitchUtils {
 	/**
 	 * Add or remove a channel VIP
 	 */
-	public static async addRemoveVIP(removeMode:boolean, userId?:string, login?:string):Promise<boolean> {
-		if(!userId && login) {
-			try {
-				userId = (await this.loadUserInfo(undefined, [login]))[0].id;
-			}catch(error) {
-				return false;
-			}
-		}
-		
-		if(!userId) return false;
-
+	public static async addRemoveVIP(removeVip:boolean, channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<boolean> {
 		const options = {
-			method:removeMode? "DELETE" : "POST",
+			method:removeVip? "DELETE" : "POST",
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/vips");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
-		url.searchParams.append("user_id", userId);
+		url.searchParams.append("user_id", user.id);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
+			if(removeVip) {
+				const m:TwitchatDataTypes.MessageModerationAction = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id:channelId,
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.UNVIP,
+					user,
+					message:"User "+user.login+" has been removed from VIPs",
+				};
+				StoreProxy.chat.addMessage(m);
+				StoreProxy.users.flagUnvip("twitch", channelId, user.id);
+			}else{
+				StoreProxy.users.flagVip("twitch", channelId, user.id);
+			}
 			return true;
+		}else
+		if(res.status == 400){
+			const json = await res.json();
+			StoreProxy.main.alert(json.message);
+			return false
+		}else
+		if(res.status == 422){
+			if(removeVip) {
+				StoreProxy.main.alert("User "+user.login+" is not a VIP of this channel");
+			}else{
+				StoreProxy.main.alert("User "+user.login+" is a moderator of this channel. You first need to remove them from your mods");
+			}
+			return false
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
 			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
-			return await this.addRemoveVIP(removeMode, userId, login);
+			return await this.addRemoveVIP(removeVip, channelId, user);
 		}else {
 			return false;
 		}
@@ -1899,6 +1933,7 @@ export default class TwitchUtils {
 		try {
 			channelId = (await this.loadUserInfo(undefined, [channel]))[0].id;
 		}catch(error) {
+			StoreProxy.main.alert("User "+channel+" not found");
 			return false;
 		}
 		

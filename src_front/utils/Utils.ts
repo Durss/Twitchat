@@ -75,12 +75,12 @@ export default class Utils {
 		// return decodeURIComponent(results[2].replace(/\+/g, " "));
 	}
 
-	public static secondsToInputValue(seconds: number): string {
-		const h = Math.floor(seconds / 3600000);
-		const m = Math.floor((seconds - h * 3600000) / 60000);
-		const s = Math.floor((seconds - h * 3600000 - m * 60000) / 1000);
+	public static secondsToInputValue(millis: number, forceMinutes:boolean = false): string {
+		const h = Math.floor(millis / 3600000);
+		const m = Math.floor((millis - h * 3600000) / 60000);
+		const s = Math.floor((millis - h * 3600000 - m * 60000) / 1000);
 		let res = this.toDigits(s);
-		if(m > 0 || h > 0) res = this.toDigits(m) + ":" + res;
+		if(m > 0 || h > 0 || forceMinutes) res = this.toDigits(m) + ":" + res;
 		if(h > 0) res = this.toDigits(h) + ":" + res;
 		return res;
 	}
@@ -117,9 +117,9 @@ export default class Utils {
 	 * @param millis 
 	 * @returns 
 	 */
-	public static formatDuration(millis: number): string {
-		let res = this.secondsToInputValue(millis);
-		const days = Math.floor(millis / (24 * 3600*1000));
+	public static formatDuration(millis: number, forceMinutes:boolean = false): string {
+		let res = this.secondsToInputValue(millis, forceMinutes);
+		const days = Math.floor(millis / (24 * 3600 * 1000));
 		if(days > 1) {
 			res = days+"j "+res;
 		}

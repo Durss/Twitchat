@@ -26,8 +26,9 @@ export default class TriggerActionHandler {
 	private userCooldowns:{[key:string]:number} = {};
 	private globalCooldowns:{[key:string]:number} = {};
 	private currentSpoolGUID = 0;
+	private triggers:{[key:string]:TriggerData} = {};
+	private lastAnyMessageSent:string = "";
 
-	public triggers:{[key:string]:TriggerData} = {};
 	public emergencyMode:boolean = false;
 	
 	constructor() {
@@ -50,6 +51,10 @@ export default class TriggerActionHandler {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	public populate(triggers:{[key:string]:TriggerData}):void {
+		this.triggers = triggers;
+	}
+
 	public onMessage(message:TwitchatDataTypes.ChatMessageTypes, testMode = false):void {
 		if(testMode) {
 			this.actionsSpool = [message];
@@ -76,19 +81,7 @@ export default class TriggerActionHandler {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
-			const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
-			if(data.message) {
-				const message:TwitchatDataTypes.MessageChatHighlightData = {
-					date:Date.now(),
-					id:Utils.getUUID(),
-					platform:"twitchat",
-					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT,
-					info:data,
-				}
-				this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, false, ++this.currentSpoolGUID);
-			}
-		});
+
 	}
 	
 	/**
@@ -107,6 +100,9 @@ export default class TriggerActionHandler {
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Only trigger one of "first ever", "first today" or "returning" trigger
+				if(message.twitch_isPresentation === true) {
+					await this.parseSteps(TriggerTypes.PRESENTATION, message, testMode, this.currentSpoolGUID);
+				}else
 				if(message.twitch_isFirstMessage === true) {
 					await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, this.currentSpoolGUID);
 				}else
@@ -119,10 +115,15 @@ export default class TriggerActionHandler {
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
-					await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, this.currentSpoolGUID, cmd);
+					await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, this.currentSpoolGUID, cmd);
 				}
-
-				await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, this.currentSpoolGUID);
+				
+				if(message.user.id != StoreProxy.auth.twitch.user.id
+				|| this.lastAnyMessageSent != message.message) {
+					//Only parse this trigger if the message receive isn't sent by us
+					//or if the text is different than the last one sent by this trigger
+					await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, this.currentSpoolGUID);
+				}
 				break;
 			}
 			
@@ -195,7 +196,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
-				const event = message.countdown? TriggerTypes.COUNTDOWN_START : TriggerTypes.COUNTDOWN_STOP;
+				const event = message.countdown.endAt? TriggerTypes.COUNTDOWN_STOP : TriggerTypes.COUNTDOWN_START;
 				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
@@ -236,6 +237,12 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
 				if(await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT: {
+				if(await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, this.currentSpoolGUID)) {
 					return;
 				}break;
 			}
@@ -332,6 +339,7 @@ export default class TriggerActionHandler {
 	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		let trigger:TriggerData = this.triggers[ eventType ];
+
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
@@ -382,9 +390,9 @@ export default class TriggerActionHandler {
 			if(testMode) canExecute = true;
 			
 			if(!trigger || data.actions.length == 0) canExecute = false;
-			// console.log(data);
-			// console.log(message);
-			// console.log(canExecute);
+			console.log(data);
+			console.log(message);
+			console.log(canExecute);
 
 			if(canExecute) {
 				for (let i = 0; i < data.actions.length; i++) {
@@ -392,7 +400,7 @@ export default class TriggerActionHandler {
 						return true;//Stop there, something asked to override the current exec sequence
 					}
 					const step = data.actions[i];
-					// console.log("	Parse step", step);
+					console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
@@ -431,10 +439,15 @@ export default class TriggerActionHandler {
 					
 					//Handle Chat action
 					if(step.type == "chat") {
+						console.log("CHAT ACTION");
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
 						const platforms:TwitchatDataTypes.ChatPlatform[] = [];
-						if(message.platform) platforms.push(message.platform);
+						if(message.platform != "twitchat") platforms.push(message.platform);
+						console.log(platforms, text);
 						MessengerProxy.instance.sendMessage(text, platforms);
+						if(eventType == TriggerTypes.ANY_MESSAGE) {
+							this.lastAnyMessageSent = text;
+						}
 					}else
 					
 					//Handle highlight action
@@ -652,8 +665,19 @@ export default class TriggerActionHandler {
 			try {
 				//Dynamically search for the requested prop's value within the object
 				for (let i = 0; i < chunks.length; i++) {
+					let isArray = false;
+					//key ends by [] it's because it's an array
+					if(/\[\]$/g.test(chunks[i])){
+						chunks[i] = chunks[i].replace("[]", "");
+						isArray = true;
+					}
 					root = (root as {[key:string]:unknown})[chunks[i]];
+					if(isArray) {
+						root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
+						break;
+					}
 				}
+				if(typeof root === "number") root = root.toString();
 				value = root as string;
 			}catch(error) {
 				console.warn("Unable to find pointer for helper", h);
@@ -690,9 +714,12 @@ export default class TriggerActionHandler {
 			// 		}
 			// 	}
 			// 	if(!subEvent) subEvent = "";
-			// 	//Remove command from final text
-			// 	value = cleanMessage.replace(new RegExp(subEvent, "i"), "").trim();
 			// }
+			
+			//Remove command from final text
+			if(subEvent && value) {
+				value = value.replace(new RegExp(subEvent, "i"), "").trim();
+			}
 
 			//If it's a music placeholder for the ADDED TO QUEUE event
 			//replace it by the current music info

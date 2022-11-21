@@ -305,34 +305,55 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) await TwitchUtils.banUser(user, channelId, undefined, chunks.splice(1).join(" "));
-					return true;
+					if(user) return await TwitchUtils.banUser(user, channelId, undefined, chunks.splice(1).join(" "));
+					return false;
 				}
 				case "/unban": {
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) await TwitchUtils.unbanUser(user, channelId);
-					return true;
+					if(user) return await TwitchUtils.unbanUser(user, channelId);
+					return false;
 				}
 				case "/block":{
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) await TwitchUtils.blockUser(user, channelId);
-					return true;
+					if(user) return await TwitchUtils.blockUser(user, channelId);
+					return false;
 				}
 				case "/unblock": {
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) await TwitchUtils.unblockUser(user, channelId);
-					return true;
+					if(user) return await TwitchUtils.unblockUser(user, channelId);
+					return false;
 				}
 				case "/timeout":{
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]), chunks[2]);
-					return true;
+					if(user) return await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]), chunks[2]);
+					return false;
 				}
 				case "/untimeout": {
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) await TwitchUtils.unbanUser(user, channelId);
-					return true;
+					if(user) return await TwitchUtils.unbanUser(user, channelId);
+					return false;
 				}
+				case "/vip": {
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) return await TwitchUtils.addRemoveVIP(false, channelId, user);
+					return false;
+				}
+				case "/unvip": {
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) return await TwitchUtils.addRemoveVIP(true, channelId, user);
+					return false;
+				}
+				case "/mod": {
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) return await TwitchUtils.addRemoveModerator(false, channelId, user);
+					return false;
+				}
+				case "/unmod": {
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) return await TwitchUtils.addRemoveModerator(true, channelId, user);
+					return false;
+				}
+
 				case "/commercial": {
 					const duration = parseInt(chunks[0]);
 					StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
@@ -349,31 +370,26 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}).catch(()=>{/*ignore*/});
 					return true;
 				}
-				case "/delete": await TwitchUtils.deleteMessages(channelId, chunks[0]); return true;
-				case "/clear": await TwitchUtils.deleteMessages(channelId); return true;
-				case "/color": await TwitchUtils.setColor(chunks[0]); return true;
-				case "/emoteonly": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true}); return true;
-				case "/emoteonlyoff": await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false}); return true;
-				case "/followers": await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])}); return true;
-				case "/followersoff": await TwitchUtils.setRoomSettings(channelId, {followOnly:0}); return true;
-				case "/slow": await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])}); return true;
-				case "/slowoff": await TwitchUtils.setRoomSettings(channelId, {slowMode:0}); return true;
-				case "/subscribers": await TwitchUtils.setRoomSettings(channelId, {subOnly:true}); return true;
-				case "/subscribersoff": await TwitchUtils.setRoomSettings(channelId, {subOnly:false}); return true;
-				case "/mod": await TwitchUtils.addRemoveModerator(false, channelId, undefined, chunks[0]); return true;
-				case "/unmod": await TwitchUtils.addRemoveModerator(true, channelId, undefined, chunks[0]); return true;
-				case "/raid": await TwitchUtils.raidChannel(chunks[0]); return true;
-				case "/unraid": await TwitchUtils.raidCancel(); return true;
-				case "/vip": await TwitchUtils.addRemoveVIP(false, undefined, chunks[0]); return true;
-				case "/unvip": await TwitchUtils.addRemoveVIP(true, undefined, chunks[0]); return true;
+				case "/delete": return await TwitchUtils.deleteMessages(channelId, chunks[0]);
+				case "/clear": return await TwitchUtils.deleteMessages(channelId);
+				case "/color": return await TwitchUtils.setColor(chunks[0]);
+				case "/emoteonly": return await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true});
+				case "/emoteonlyoff": return await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false});
+				case "/followers": return await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])});
+				case "/followersoff": return await TwitchUtils.setRoomSettings(channelId, {followOnly:0});
+				case "/slow": return await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])});
+				case "/slowoff": return await TwitchUtils.setRoomSettings(channelId, {slowMode:0});
+				case "/subscribers": return await TwitchUtils.setRoomSettings(channelId, {subOnly:true});
+				case "/subscribersoff": return await TwitchUtils.setRoomSettings(channelId, {subOnly:false});
+				case "/raid": return await TwitchUtils.raidChannel(chunks[0]);
+				case "/unraid": return await TwitchUtils.raidCancel();
 				case "/whisper":
 				case "/w": {
 					const login = chunks[0];
-					await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
-					return true;
+					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
 
-				//TOD falseO
+				//TODO
 				case "/uniquechat": return false;
 				case "/uniquechatoff": return false;
 				case "/marker": return false;

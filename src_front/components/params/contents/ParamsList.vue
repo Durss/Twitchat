@@ -4,7 +4,7 @@
 		<div class="row" v-for="(p) in params" :key="p.id">
 
 			<!-- Special case for shoutout label -->
-			<PostOnChatParam class="row" v-if="p.id==13"
+			<PostOnChatParam class="row" v-if="p.id==21"
 				icon="shoutout_purple.svg"
 				botMessageKey="shoutout"
 				:noToggle="true"

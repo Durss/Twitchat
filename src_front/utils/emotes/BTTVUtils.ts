@@ -46,6 +46,23 @@ export default class BTTVUtils {
 				platform:"twitch",
 			});
 		}
+		for (const chanId in this.channelEmotesHashmaps) {
+			const chan = this.channelEmotesHashmaps[chanId];
+			for (const key in chan) {
+				const e = chan[key];
+				res.push({
+					id: e.id,
+					code: e.code,
+					is_public:false,
+					images: {
+						url_1x: "https://cdn.betterttv.net/emote/"+e.id+"/1x",
+						url_2x: "https://cdn.betterttv.net/emote/"+e.id+"/2x",
+						url_4x: "https://cdn.betterttv.net/emote/"+e.id+"/3x",
+					},
+					platform:"twitch",
+				});
+			}
+		}
 		return res;
 	}
 	

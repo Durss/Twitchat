@@ -92,8 +92,8 @@ export default class OverlayTimer extends Vue {
 
 	public computeValues():void {
 		if(this.countdownData) {
-			const ellapsed = Date.now() - this.countdownData.startAt;
-			const remaining = Math.round((this.countdownData.duration - ellapsed)/1000)*1000;
+			const ellapsed = Date.now() - this.countdownData.startAt_ms;
+			const remaining = Math.round((this.countdownData.duration_ms - ellapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}else{
 			this.countdown = "";

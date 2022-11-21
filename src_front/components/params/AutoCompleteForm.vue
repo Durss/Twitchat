@@ -90,7 +90,6 @@ export default class AutoCompleteForm extends Vue {
 
 	public async mounted():Promise<void> {
 		watch(()=>this.modelValue, ()=> {
-			console.log(this.modelValue.length);
 			if(this.modelValue.length == this.maxItems) {
 				this.search = "";
 			}

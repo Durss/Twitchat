@@ -52,8 +52,8 @@ export default class TimerCountDownInfo extends Vue {
 	public computeValues():void {
 		const countdown = this.$store("timer").countdown;
 		if(countdown) {
-			const ellapsed = Date.now() - countdown.startAt;
-			const remaining = Math.ceil((countdown.duration - ellapsed)/1000)*1000;
+			const ellapsed = Date.now() - countdown.startAt_ms;
+			const remaining = Math.ceil((countdown.duration_ms - ellapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
 		if(this.$store("timer").timerStart) {

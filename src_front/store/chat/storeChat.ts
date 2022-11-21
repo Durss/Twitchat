@@ -20,9 +20,9 @@ import { LoremIpsum } from "lorem-ipsum";
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-const activityFeedList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let greetedUsers:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
+let subgiftTriggerTimeout:number = -1;
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -252,7 +252,6 @@ export const storeChat = defineStore('chat', {
 
 	getters: {
 		messages():TwitchatDataTypes.ChatMessageTypes[] { return messageList; },
-		activityFeed():TwitchatDataTypes.ChatMessageTypes[] { return activityFeedList; },
 	},
 
 
@@ -564,8 +563,6 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 				}
-
-				TriggerActionHandler.instance.onMessage(message);
 			}
 			
 			//People joined the chat, check if any need to be autobaned
@@ -606,7 +603,7 @@ export const storeChat = defineStore('chat', {
 					//Search for any existing followbot event, delete them and group
 					//them into a single followbot alert with all the users in it
 					//Only search within the last 100 messages
-					const maxIndex = Math.max(0, activityFeedList.length - 100);
+					const maxIndex = Math.max(0, messageList.length - 100);
 					let postMessage = true;
 					for (let i = messageList.length-1; i >= maxIndex; i--) {
 						const m = messageList[i];
@@ -652,23 +649,11 @@ export const storeChat = defineStore('chat', {
 					bulkMessage.users.push(message.user);
 					message = bulkMessage;
 
-					//Remove deleted messages from activity feed and broadcast DELETE events
+					//Broadcast DELETE events
 					while(deletedMessages.length > 0) {
 						const m = deletedMessages.pop();
 						if(!m) continue;
-						
-						//Only search within the last 100 messages
-						const maxIndex = Math.max(0, activityFeedList.length - 100);
-						for (let j = activityFeedList.length-1; j >= maxIndex; j--) {
-							const a = activityFeedList[j];
-							if(a.id == m.id) {
-								activityFeedList.splice(j, 1);
-								j--;
-								break;
-							}
-						}
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_ACTIVITY_FEED, m));
 					}
 					if(!postMessage) return;
 				}
@@ -729,31 +714,17 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 			}
-
-			//Messages to push on activity feed
-			//Don't use indexOf() instead of includes(). Performances are MUCH better with includes (like 12x faster)
-			if(TwitchatDataTypes.ActivityFeedMessageTypes.includes(message.type)
-			//Special case for highlighted and elevated messages
-			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && (message.twitch_isHighlighted || message.elevatedInfo))
-			//Special case for notice types
-			|| (message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && TwitchatDataTypes.ActivityFeedNoticeTypes.includes(message.noticeId))
-			) {
-				activityFeedList.push(message);
-				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_ACTIVITY_FEED, message));
-			}
 			
 			//Limit history size
 			const maxMessages = this.realHistorySize;
-			// let sliced = false;
 			if(messageList.length >= maxMessages) {
 				// const firstMess = messages[0];
 				// if(firstMess.type == "message") {
-				// 	//Areduce memory leak risks
+				// 	//reduce memory leak risks
 				// 	firstMess.answers = [];
 				// 	delete firstMess.answersTo;
 				// }
 				messageList = messageList.slice(-maxMessages);
-				// sliced = true;
 			}
 
 			messageList.push( message );
@@ -762,6 +733,19 @@ export const storeChat = defineStore('chat', {
 			const e = Date.now();
 			// console.log(messageList.length, e-s);
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
+			
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
+				//If it's a subgift, wait a little before calling the trigger as subgifts do not
+				//come all at once but sequentially.
+				//We wait a second to give them time to arrive so the trigger has all the
+				//recipients references.
+				clearTimeout(subgiftTriggerTimeout);
+				subgiftTriggerTimeout = setTimeout(()=>{
+					TriggerActionHandler.instance.onMessage(message);
+				}, 1000);
+			}else{
+				TriggerActionHandler.instance.onMessage(message);
+			}
 		},
 		
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) { 
@@ -847,16 +831,18 @@ export const storeChat = defineStore('chat', {
 			if(user && user.platform == "twitch") {
 				const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
 				if(userInfos?.length > 0) {
-					const channelInfo = await TwitchUtils.loadChannelInfo([userInfos[0].id]);
+					const userLoc = userInfos[0];
+					const channelInfo = await TwitchUtils.loadChannelInfo([userLoc.id]);
 					message = this.botMessages.shoutout.message;
 					streamTitle = channelInfo[0].title;
 					streamCategory = channelInfo[0].game_name;
 					if(!streamTitle) streamTitle = "no stream found"
 					if(!streamCategory) streamCategory = "no stream found"
-					message = message.replace(/\{USER\}/gi, userInfos[0].display_name);
-					message = message.replace(/\{URL\}/gi, "twitch.tv/"+userInfos[0].login);
+					message = message.replace(/\{USER\}/gi, userLoc.display_name);
+					message = message.replace(/\{URL\}/gi, "twitch.tv/"+userLoc.login);
 					message = message.replace(/\{TITLE\}/gi, streamTitle);
 					message = message.replace(/\{CATEGORY\}/gi, streamCategory);
+					user.avatarPath = userLoc.profile_image_url;
 				}
 			}
 			if(message){
@@ -903,7 +889,6 @@ export const storeChat = defineStore('chat', {
 		},
 		
 		async highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null) {
-			let data:TwitchatDataTypes.ChatHighlightInfo|null = null;
 			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
@@ -914,26 +899,27 @@ export const storeChat = defineStore('chat', {
 					message.user.login = twitchUser.login;
 					message.user.displayName = twitchUser.display_name;
 				}
-				data = {
+
+				let info:TwitchatDataTypes.ChatHighlightInfo = {
 					message:message.message_html,
 					user:message.user,
 					params:this.chatHighlightOverlayParams
 				};
 				this.isChatMessageHighlighted = true;
 
-				const trigger:TwitchatDataTypes.MessageChatHighlightData = {
+				const m:TwitchatDataTypes.MessageChatHighlightData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:message.user.platform,
 					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT,
-					info:message,
+					info,
 				};
-				TriggerActionHandler.instance.onMessage(trigger);
+				this.addMessage(m);
+				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (m as unknown) as JsonObject);
 			}else{
 				this.isChatMessageHighlighted = false;
 			}
 			
-			PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, data as JsonObject);
 		},
 
 		flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number) {

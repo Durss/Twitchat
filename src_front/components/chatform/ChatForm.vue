@@ -809,8 +809,8 @@ export default class ChatForm extends Vue {
 				this.loading = true;
 				if(await TwitchMessengerClient.instance.sendMessage(this.channelId, mess)) {
 					this.message = "";
-					this.loading = false;
 				}
+				this.loading = false;
 			}catch(error) {
 				console.log(error);
 				this.error = true;
@@ -1072,6 +1072,7 @@ export default class ChatForm extends Vue {
 			.whispers, .pins {
 				position: relative;
 				.count {
+					pointer-events: none;
 					position: absolute;
 					top: 0;
 					right: 0;

@@ -42,10 +42,27 @@ export default class SevenTVUtils {
 				images: {
 					url_1x: e.urls[0]?.[1] ?? "",
 					url_2x: e.urls[1]?.[1] ?? e.urls[0]?.[1] ?? "",
-					url_4x: e.urls.splice(-1)[0]?.[1],
+					url_4x: e.urls[e.urls.length-1][0]?.[1],
 				},
 				platform:"twitch",
 			});
+		}
+		for (const chanId in this.channelEmotesHashmaps) {
+			const chan = this.channelEmotesHashmaps[chanId];
+			for (const key in chan) {
+				const e = chan[key];
+				res.push({
+					id: e.id,
+					code: e.name,
+					is_public:false,
+					images: {
+						url_1x: e.urls[0]?.[1] ?? "",
+						url_2x: e.urls[1]?.[1] ?? e.urls[0]?.[1] ?? "",
+						url_4x: e.urls[e.urls.length-1][0]?.[1],
+					},
+					platform:"twitch",
+				});
+			}
 		}
 		return res;
 	}
