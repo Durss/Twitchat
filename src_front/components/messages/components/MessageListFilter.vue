@@ -36,6 +36,7 @@
 						:paramData="f"
 						clearToggle
 						@click.stop
+						@change="saveData()"
 						@mouseleave="mouseLeaveItem($event)"
 						@mouseenter="previewMessage(f.storage as 'message'/* couldn't find a way to strongly cast storage type */)"
 						v-model="config.filters[f.storage as 'message']" />
@@ -44,7 +45,7 @@
 				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
 
 				<div class="ctas">
-					<Button title="Cancel" :icon="$image('icons/cross_white.svg')" highlight v-if="forceExpand" @click="cancelForm()" />
+					<Button title="Cancel" :icon="$image('icons/cross_white.svg')" highlight v-if="forceExpand" @click="$emit('delete')" />
 					<Button title="Create" :icon="$image('icons/add_purple.svg')" white v-if="forceExpand" @click="submitForm()" />
 				</div>
 			</div>
@@ -179,7 +180,6 @@ export default class MessageListFilter extends Vue {
 	public previewIndex:number = 0;
 	
 	private mouseY = 0;
-	private mouseX = 0;
 	private disposed = false;
 	private touchMode = false;
 	private clickHandler!:(e:MouseEvent|TouchEvent) => void;
@@ -281,7 +281,7 @@ export default class MessageListFilter extends Vue {
 			for (let i = 0; i < this.filters.length; i++) {
 				this.filters[i].value = this.toggleAll;
 			}
-		 });
+		});
 		requestAnimationFrame(()=>this.renderFrame());
 	}
 
@@ -382,8 +382,11 @@ export default class MessageListFilter extends Vue {
 		}
 	}
 
-	public cancelForm():void {
-		this.$emit("delete");
+	/**
+	 * Force data save
+	 */
+	public saveData():void {
+		this.$store("main").saveChatColumnConfs();
 	}
 
 	/**
@@ -446,6 +449,8 @@ export default class MessageListFilter extends Vue {
 			const filter = this.filters.find(v => (v.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]) === ids[i]);
 			if(filter) filter.value = true;
 		}
+
+		this.saveData();
 	}
 
 	/**
@@ -456,10 +461,8 @@ export default class MessageListFilter extends Vue {
 
 		this.touchMode = e.type != "mousemove";
 		if(!this.touchMode) {
-			this.mouseX = (e as MouseEvent).clientX;
 			this.mouseY = (e as MouseEvent).clientY;
 		}else{
-			this.mouseX = (e as TouchEvent).touches[0].clientX;
 			this.mouseY = (e as TouchEvent).touches[0].clientY;
 		}
 	}

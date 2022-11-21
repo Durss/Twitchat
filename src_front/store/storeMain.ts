@@ -587,6 +587,7 @@ export const storeMain = defineStore("main", {
 				},
 			}
 			this.chatColumnsConfig.push(col);
+			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 			return col;
 		},
 
@@ -598,6 +599,11 @@ export const storeMain = defineStore("main", {
 					break;
 				}
 			}
+			this.saveChatColumnConfs();
+		},
+
+		saveChatColumnConfs():void {
+			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 		},
 	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })

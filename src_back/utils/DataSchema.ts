@@ -606,7 +606,23 @@ import Ajv from "ajv";
 					}
 				},
 			}
-		}
+		},
+
+		chatColumnsConf: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				order: {type:"number", minimum:0, maximum:1000},
+				size: {type:"number", minimum:0, maximum:10},
+				filters:{
+					type:"object",
+					additionalProperties: true,
+					patternProperties: {
+						".*": { type:"boolean" }
+					}
+				}
+			}
+		},
 	}
 }
 

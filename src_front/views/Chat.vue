@@ -689,7 +689,7 @@ export default class Chat extends Vue {
 			}
 		}
 		
-		//TODO save col conf to storage
+		this.$store('main').saveChatColumnConfs();
 
 		await this.$nextTick();
 	}

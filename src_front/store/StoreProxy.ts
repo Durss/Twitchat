@@ -76,6 +76,7 @@ export interface IMainActions {
 	executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null):Promise<void>;
 	addChatColumn():TwitchatDataTypes.ChatColumnsConfig;
 	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
+	saveChatColumnConfs():void;
 }
 
 
