@@ -302,7 +302,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 					return true;
 				}
-				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks[1], chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
+				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
 				case "/ban":{
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) await TwitchUtils.banUser(user, channelId, undefined, chunks.splice(1).join(" "));

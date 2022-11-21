@@ -1,20 +1,18 @@
+import MessengerProxy from "@/messaging/MessengerProxy";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
+import TwitchatEvent from "../events/TwitchatEvent";
+import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerData, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
 import Config from "./Config";
 import DeezerHelper from "./music/DeezerHelper";
-import OBSWebsocket from "./OBSWebsocket";
-import PublicAPI from "./PublicAPI";
 import type { SearchTrackItem } from "./music/SpotifyDataTypes";
 import SpotifyHelper from "./music/SpotifyHelper";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerActionChatData, type TriggerData, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
+import OBSWebsocket from "./OBSWebsocket";
+import PublicAPI from "./PublicAPI";
 import TTSUtils from "./TTSUtils";
-import TwitchatEvent from "../events/TwitchatEvent";
-import TwitchUtils from "./twitch/TwitchUtils";
 import Utils from "./Utils";
 import VoicemodWebSocket from "./voice/VoicemodWebSocket";
-import MessengerProxy from "@/messaging/MessengerProxy";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -346,7 +344,7 @@ export default class TriggerActionHandler {
 				enabled:true,
 				actions:[
 					{
-						id:Math.random().toString(),
+						id:Utils.getUUID(),
 						type:"chat",
 						delay:0,
 						text,
