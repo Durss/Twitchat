@@ -311,7 +311,6 @@ import Ajv from "ajv";
 		"p:defaultSize": {type:"integer", minimum:0, maximum:5},
 		"p:displayTime": {type:"boolean"},
 		"p:firstMessage": {type:"boolean"},
-		"p:firstTimeMessage": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
 		"p:hideUsers": {type:"string"},
 		"p:highlightMentions": {type:"boolean"},
@@ -322,7 +321,6 @@ import Ajv from "ajv";
 		"p:ignoreCommands": {type:"boolean"},
 		"p:ignoreListCommands": {type:"boolean"},
 		"p:keepDeletedMessages": {type:"boolean"},
-		"p:keepHighlightMyMessages": {type:"boolean"},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
@@ -341,6 +339,8 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
+		"p:firstTimeMessage": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:keepHighlightMyMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data
 		"p:notifyJoinLeave": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:raidStreamInfo": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
