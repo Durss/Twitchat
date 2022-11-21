@@ -424,7 +424,7 @@ export default class TwitchUtils {
 				url = url.replace(/1x$/gi, "3x");//BTTV format
 				url = url.replace(/2x$/gi, "3x");//7TV format
 				url = url.replace(/1$/gi, "4");//FFZ format
-				const tt = "<img src='"+url+"' width='112' height='112' class='emote'><br><center>"+v.label+"</center>";
+				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
 				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
 			}
 		}
