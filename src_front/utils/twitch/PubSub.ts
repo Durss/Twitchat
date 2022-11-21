@@ -558,7 +558,7 @@ export default class PubSub extends EventDispatcher {
 					date:Date.now(),
 					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-					viewers:goal,
+					viewers:progress,
 				};
 				StoreProxy.chat.addMessage(m);
 			}
