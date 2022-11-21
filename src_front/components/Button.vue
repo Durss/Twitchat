@@ -426,7 +426,7 @@ export default class Button extends Vue {
 		min-height: calc(.85em + .1em);
 		&:not(.noTitle) {
 			.icon {
-				margin-right: .1em;
+				margin-right: .2em;
 			}
 		}
 		&.checkbox {

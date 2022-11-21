@@ -50,7 +50,6 @@
 				@click.right.prevent="deleteMessage(m, index, true)" />
 		</div>
 		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
-		<div class="gripMax" v-if="showMaxHeight" :style="maxHeightStyles">Max height</div>
 	</div>
 </template>
 
@@ -83,14 +82,11 @@ export default class NewUsers extends Vue {
 
 	public overIndex = -1;
 	public showList = true;
-	public showMaxHeight = false;
 	public scrollDownAuto = false;
 	public indexOffset = 0;
 	public autoDeleteAfter = 600;
 	public deleteInterval = -1;
 	public windowHeight = .3;
-	public maxHeightPos = 0;
-	public maxHeightSize = 0;
 	public localMessages:(TwitchatDataTypes.MessageChatData)[] = [];
 
 	private disposed = false;
@@ -113,12 +109,6 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	public get maxHeightStyles():{[key:string]:string} {
-		return {
-			top: this.maxHeightPos + 'px',
-			height: this.maxHeightSize + 'px',
-		}
-	}
 
 	public beforeMount():void {
 		const storeValue = DataStore.get(DataStore.GREET_AUTO_SCROLL_DOWN);
@@ -163,7 +153,7 @@ export default class NewUsers extends Vue {
 		// }, {deep:true})
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
-		this.mouseUpHandler = () => this.resizing = this.showMaxHeight = false;
+		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		this.deleteMessageHandler = (e:GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e:GlobalEvent) => this.onAddMessage(e);
@@ -453,16 +443,6 @@ export default class NewUsers extends Vue {
 		const maxHeight = .8;
 		this.windowHeight = Math.min(maxHeight, (this.mouseY - bounds.top) / bounds.height);
 		
-		await this.$nextTick();
-
-		const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
-		const prev = (this.mouseY - bounds.top) / bounds.height;
-		const next = (boundsEl.height - bounds.top) / bounds.height;
-		this.maxHeightPos = boundsEl.height;
-		this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, this.mouseY - boundsEl.height);
-
-		const percent = prev-next;
-		this.showMaxHeight = percent*100 > 2 && boundsEl.height/bounds.height+.02 < maxHeight;
 		DataStore.set(DataStore.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 

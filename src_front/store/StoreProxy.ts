@@ -42,7 +42,6 @@ export interface IMainState {
 	initComplete: boolean;
 	showParams: boolean;
 	devmode: boolean;
-	canSplitView: boolean;
 	ahsInstaller: TwitchatDataTypes.InstallHandler|null;
 	alertData: string;
 	tooltip: string;

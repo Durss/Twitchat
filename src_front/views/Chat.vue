@@ -7,13 +7,11 @@
 				:key="c.order"
 				:style="getColStyles(c)">
 					<div class="subHolder">
-	
 						<GreetThem class="greetThem"
 						v-if=" $store('params').chatColumnsConfig.length == 1
 						|| ($store('params').features.firstMessage.value && index == 1)" />
 	
 						<MessageList ref="messages" class="messages"
-							v-if="!hideChat"
 							@showModal="(v:string) => currentModal = v"
 							:maxMessages="50"
 							:config="c"
@@ -35,7 +33,7 @@
 		</div>
 
 		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
-			<VoiceTranscript class="contentWindows tts" />
+			<VoiceTranscript class="tts" />
 
 			<PollForm			class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
 			<ChatSuggestionForm	class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
@@ -237,6 +235,7 @@ export default class Chat extends Vue {
 	
 	private disposed = false;
 	private mouseX = 0;
+	private mouseY = 0;
 	private resizing = false;
 	private canStartAd = true;
 	private closingDonorState = false;
@@ -246,8 +245,7 @@ export default class Chat extends Vue {
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
-	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean && this.$store("main").canSplitView && !this.hideChat; }
-	public get hideChat():boolean { return this.$store("params").appearance.hideChat.value as boolean; }
+	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
 	public get showEmergencyFollows():boolean { return this.$store("emergency").follows.length > 0 && !this.$store("emergency").emergencyStarted; }
 
@@ -283,8 +281,6 @@ export default class Chat extends Vue {
 		}
 	}
 
-	private resizeHandler!:(e:Event) => void;
-
 	public beforeMount():void {
 
 		//Check user reached a new donor level
@@ -304,12 +300,10 @@ export default class Chat extends Vue {
 		};
 		requestWakeLock();
 
-		this.resizeHandler = ()=> this.onResize();
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 
-		window.addEventListener("resize", this.resizeHandler);
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
@@ -402,7 +396,6 @@ export default class Chat extends Vue {
 
 	public beforeUnmount():void {
 		this.disposed = true;
-		window.removeEventListener("resize", this.resizeHandler);
 		document.removeEventListener("mouseup", this.mouseUpHandler);
 		document.removeEventListener("touchend", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
@@ -576,9 +569,6 @@ export default class Chat extends Vue {
 
 	public onResize():void {
 		const value = document.body.clientWidth > 449;
-		if(value != this.$store("main").canSplitView) {
-			this.$store("main").setCanSplitView(value);
-		}
 	}
 
 	public setCurrentNotification(value:string):void {
@@ -641,11 +631,10 @@ export default class Chat extends Vue {
 				c.size = 1 - totalSize;
 			}
 		}
-		// const px = holder.scrollWidth - Math.max(holderBounds.width, totalSize) - colList[colList.length-1].size;
-		// console.log(holder.scrollWidth);
-		gsap.to(holder, {duration:1.5, ease:"sine.inout", scrollTo:{x:holder.scrollWidth}});
-
+		
 		this.$nextTick().then(()=>{
+			let scrollTo = this.splitViewVertical? {y:holder.scrollHeight-holder.offsetHeight} : {x:holder.scrollWidth-holder.offsetWidth};
+			gsap.to(holder, {duration:.75, ease:"sine.inOut", scrollTo});
 			this.computeWindowsSizes();
 		});
 	}
@@ -656,8 +645,10 @@ export default class Chat extends Vue {
 	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
 		if(e.type == "mousemove") {
 			this.mouseX = (e as MouseEvent).clientX;
+			this.mouseY = (e as MouseEvent).clientY;
 		}else{
 			this.mouseX = (e as TouchEvent).touches[0].clientX;
+			this.mouseY = (e as TouchEvent).touches[0].clientY;
 		}
 	}
 
@@ -670,22 +661,20 @@ export default class Chat extends Vue {
 
 		if(!this.resizing) return;
 		
-		if(this.splitViewVertical) {
-			//TODO
-		}else{
-			const cols = this.$store('params').chatColumnsConfig;
-			const holder = this.$refs.scrollable as HTMLDivElement;
-			const holderBounds = holder.getBoundingClientRect();
-			for (let i = 0; i < cols.length; i++) {
-				const c = cols[i];
-				if(c == this.draggedCol) {
-					const el = (this.$refs["column_"+c.order] as HTMLDivElement[])[0];
-					const bounds = el.getBoundingClientRect();
-					c.size = Math.max(200, this.mouseX - bounds.left + 14) / holderBounds.width;
-					this.computeWindowsSizes()
+		const cols = this.$store('params').chatColumnsConfig;
+		const holder = this.$refs.scrollable as HTMLDivElement;
+		const holderBounds = holder.getBoundingClientRect();
+		for (let i = 0; i < cols.length; i++) {
+			const c = cols[i];
+			if(c == this.draggedCol) {
+				const el = (this.$refs["column_"+c.order] as HTMLDivElement[])[0];
+				const bounds = el.getBoundingClientRect();
+				if(this.splitViewVertical) {
+					c.size = Math.max(215, this.mouseY - bounds.top + 14) / holderBounds.height;
 				}else{
-
+					c.size = Math.max(215, this.mouseX - bounds.left + 14) / holderBounds.width;
 				}
+				this.computeWindowsSizes()
 			}
 		}
 		
@@ -709,12 +698,12 @@ export default class Chat extends Vue {
 				if(!colHolders) break; 
 				const colHolder = colHolders[0];
 				if(colHolder) {
-					this.formsColumnTarget = colHolder;
+					this.formsColumnTarget = colHolder.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 				}
 			}
 		}
 		if(!this.formsColumnTarget) {
-			this.formsColumnTarget = (this.$refs["column_0"] as HTMLDivElement[])[0];
+			this.formsColumnTarget = (this.$refs["column_0"] as HTMLDivElement[])[0].getElementsByClassName("subHolder")[0] as HTMLDivElement;
 		}
 	}
 }
@@ -737,26 +726,56 @@ export default class Chat extends Vue {
 	}
 
 
-	.splitVertical {
+	&.splitVertical {
 		.top {
+			height: 100%;
 			flex-direction: column;
-			.column {
-				.dragBt {
-					margin-right: 0;
-					padding: 3px;
-					width: 100%;
-					flex-grow: 1;
-					cursor: ns-resize;
-					.grip {
-						left: unset;
-						top: 50%;
+			.scrollable {
+				height: 100%;
+				flex-direction: column;
+				overflow: hidden;
+				overflow-y: auto;
+				.column {
+					flex-direction: column;
+					
+					.subHolder {
+						height: 100%;
+					}
+					.dragBt {
+						padding: 3px 0;
+						cursor: ns-resize;
+						height: 14px;
 						width: 100%;
-						height: 1px;
-						&::before {
-							height: 5px;
-							width: 40px;
+						.grip {
+							position: relative;
+							left: unset;
+							top: 50%;
+							width: 100%;
+							height: 1px;
+							background: @mainColor_dark_light;
+							&::before {
+								height: 5px;
+								width: 40px;
+							}
 						}
 					}
+				}
+			}
+
+			.addCol {
+				min-width: unset;
+				min-height: 1em;
+				.button {
+					position: absolute;
+					right: unset;
+					top: unset;
+					left: 50%;
+					padding-right: .2em;
+					padding-bottom: .12em;
+					transform: translateX(-50%);
+					border-radius: .3em;
+					border-bottom-right-radius: 0;
+					border-bottom-left-radius: 0;
 				}
 			}
 		}
@@ -769,13 +788,13 @@ export default class Chat extends Vue {
 			max-width: 50vw;
 			margin: auto;
 		}
-		&.tts {
-			left: auto;
-			right:0;
-		}
 		&.actions, &.emotes, &.devmode {
 			max-height: calc(100vh - 60px);
 		}
+	}
+	.tts {
+		position: absolute;
+		bottom: 0;
 	}
 
 	.top {
@@ -803,6 +822,7 @@ export default class Chat extends Vue {
 					display: flex;
 					flex-direction: column;
 					width: 100%;
+					position: relative;
 					.messages {
 						flex-grow: 1;
 						overflow: hidden;

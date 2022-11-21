@@ -10,14 +10,14 @@
 		</div>
 
 		<div class="holder" v-if="debugForceOpen || expand || forceExpand" @click="clickPreview($event)">
-			<div class="head">
-				<h1 class="title">Filters</h1>
-				<button class="closeBt" @click="expand = false" v-if="!forceExpand">
-					<img src="@/assets/icons/cross_white.svg" alt="close filters" class="icon">
-				</button>
-			</div>
-
 			<div class="content">
+				<div class="head">
+					<h1 class="title">Filters</h1>
+					<button class="closeBt" @click="expand = false" v-if="!forceExpand">
+						<img src="@/assets/icons/cross_white.svg" alt="close filters" class="icon">
+					</button>
+				</div>
+				
 				<div class="info" v-if="debugForceOpen || expand || forceExpand">Choose which message types to display on this column</div>
 				
 				<div class="presets">
@@ -45,8 +45,8 @@
 				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
 
 				<div class="ctas">
-					<Button title="Cancel" :icon="$image('icons/cross_white.svg')" highlight v-if="forceExpand" @click="$emit('delete')" />
-					<Button title="Create" :icon="$image('icons/add_purple.svg')" white v-if="forceExpand" @click="submitForm()" />
+					<Button title="Cancel" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceExpand" @click="$emit('delete')" />
+					<Button title="Create" small :icon="$image('icons/add_purple.svg')" white v-if="forceExpand" @click="submitForm()" />
 				</div>
 			</div>
 
@@ -561,36 +561,38 @@ export default class MessageListFilter extends Vue {
 		padding: 1em;
 		padding-top: .5em;
 		pointer-events: all;
-
-		.head {
-			display: flex;
-			flex-direction: row;
-			width: 100%;
-			align-items: center;
-			.title {
-				flex-grow: 1;
-				text-align: center;
-			}
-			.closeBt {
-				background: none;
-				border: none;
-				padding: 0;
-				width: 1.5em;
-				height: 1.5em;
-				cursor: pointer;
-				.icon {
-					height: 100%;
-					width: 100%;
-				}
-			}
-		}
 		.content {
+
 			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
 			height: 100%;
 			margin: auto;
 			max-width: 500px;
+
+			.head {
+				display: flex;
+				flex-direction: row;
+				width: 100%;
+				align-items: center;
+				.title {
+					flex-grow: 1;
+					text-align: center;
+				}
+				.closeBt {
+					background: none;
+					border: none;
+					padding: 0;
+					width: 1em;
+					height: 1em;
+					cursor: pointer;
+					.icon {
+						height: 100%;
+						width: 100%;
+					}
+				}
+			}
+
 			.info {
 				margin: .5em 0;
 				text-align: center;
@@ -627,7 +629,7 @@ export default class MessageListFilter extends Vue {
 			.error {
 				padding: .5em;
 				border-radius: .5em;
-				margin-bottom: .5em;
+				margin-top: .5em;
 				text-align: center;
 				font-size: .8em;
 				font-weight: bold;
@@ -637,6 +639,7 @@ export default class MessageListFilter extends Vue {
 				
 			}
 			.ctas {
+				margin-top: .5em;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-evenly;

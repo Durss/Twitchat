@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">Create Raffle</span>
-				<Button aria-label="Close raffle form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close raffle form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />

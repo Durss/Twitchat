@@ -28,7 +28,6 @@ export const storeMain = defineStore("main", {
 		initComplete: false,
 		showParams: false,
 		devmode: false,
-		canSplitView: false,
 		ahsInstaller: null,
 		alertData:"",
 		tooltip: "",
@@ -542,8 +541,6 @@ export const storeMain = defineStore("main", {
 				StoreProxy.chat.addMessage(message);
 			}
 		},
-
-		setCanSplitView(value:boolean) { this.canSplitView = value; },
 
 		setAhsInstaller(value:TwitchatDataTypes.InstallHandler) { this.$state.ahsInstaller = value; },
 

@@ -16,6 +16,8 @@
 			<img src="@/assets/icons/back.svg" alt="back">
 			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">Hype train activities</span>
 		</button>
+
+		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
 				<ChatAd class="message"
@@ -91,6 +93,9 @@
 
 			</div>
 
+			<div key="empty" class="subHolder" ref="message_0" v-if="filteredMessages?.length===0">
+				<div class="message empty">- no message -</div>
+			</div>
 		</div>
 
 		<teleport :to="markedReadItem" v-if="markedReadItem">
@@ -799,11 +804,13 @@ export default class MessageList extends Vue {
 		this.prevTs = ts;
 
 		const messageHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
-		if (!messageHolder || this.filteredMessages.length == 0) return;
+		if (!messageHolder) return;
 		const holderHeight	= messageHolder.offsetHeight;
 		const maxScroll		= (messageHolder.scrollHeight - holderHeight);
-		const lastMessage	= (this.$refs["message_" + this.filteredMessages[this.filteredMessages.length - 1].id] as HTMLDivElement[])[0];
-		if (!lastMessage) return;//No message yet, just stop here
+		const messageItems	= messageHolder.getElementsByClassName("subHolder");
+		
+		if (messageItems.length === 0) return;//No message yet, just stop here
+		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= .3;
 
@@ -828,13 +835,12 @@ export default class MessageList extends Vue {
 
 		//If messages height is smaller than the holder height, move the holder to the bottom
 		if (bottom < holderHeight) {
-			// console.log(bottom, h);
 			if (this.holderOffsetY <= 0) easeValue = 1;
 			this.holderOffsetY += (holderHeight - bottom - this.holderOffsetY) * easeValue;
 			if (Math.abs(holderHeight - bottom - this.holderOffsetY) < 2) {
 				this.holderOffsetY = holderHeight - bottom;
 			}
-
+			
 			messageHolder.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
 		} else if (this.holderOffsetY != 0) {
 			this.holderOffsetY = 0;
@@ -1177,7 +1183,7 @@ export default class MessageList extends Vue {
 
 	&:not(.alternateOdd) {
 		.messageHolder {
-			.subHolder:nth-child(odd) {
+			.subHolder:nth-child(even) {
 				background-color: rgba(255, 255, 255, .025);
 			}
 		}
@@ -1185,7 +1191,7 @@ export default class MessageList extends Vue {
 
 	&.alternateOdd {
 		.messageHolder {
-			.subHolder:nth-child(even) {
+			.subHolder:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
 			}
 		}
@@ -1227,6 +1233,13 @@ export default class MessageList extends Vue {
 
 			.message {
 				position: relative;
+				&.empty {
+					font-style: italic;
+					color: fade(@mainColor_light, 50);
+					text-align: center;
+					font-style: italic;
+					width: 100%;
+				}
 			}
 		}
 

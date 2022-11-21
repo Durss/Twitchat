@@ -799,7 +799,7 @@ export const storeChat = defineStore('chat', {
 							TwitchUtils.deleteMessages(m.channel_id, m.id);
 						}
 					}
-					console.log("DELETE", m);
+					
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 					break;
 				}

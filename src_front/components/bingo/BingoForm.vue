@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">Create Bingo</span>
-				<Button aria-label="Close bingo form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close bingo form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description" v-if="triggerMode === false">

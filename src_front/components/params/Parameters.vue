@@ -299,12 +299,13 @@ export default class Parameters extends Vue {
 
 <style scoped lang="less">
 .parameters{
+	z-index: 3;
 	.modal();
-
+	
 	.holder {
 		top: 0;
 		transform: translate(-50%, 0);
-		z-index: 2;
+		z-index: 1;
 
 		.head {
 			border-bottom: 1px solid @mainColor_normal;

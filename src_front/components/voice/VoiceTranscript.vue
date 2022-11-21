@@ -3,6 +3,7 @@
 		<!-- <img src="@/assets/icons/microphone.svg" alt="microphone"> -->
 		<div class="holder" ref="holder" v-if="show" @click="hide(true)">
 			<div class="padder">
+				<img src="@/assets/icons/microphone.svg" alt="mic" class="icon">
 				<div class="text">{{text}}</div>
 			</div>
 		</div>
@@ -23,10 +24,10 @@ export default class VoiceTranscript extends Vue {
 	public show:boolean = false;
 
 	public get text():string {
+		// return "Cillum reprehenderit incididunt";
+		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo. Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
 		if(this.$store("voice").voiceText.rawTempText) return this.$store("voice").voiceText.rawTempText;
 		return this.$store("voice").voiceText.finalText;
-		// return "Cillum reprehenderit incididunt";
-		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
 	}
 
 	public mounted():void {
@@ -66,8 +67,9 @@ export default class VoiceTranscript extends Vue {
 .voicetranscript{
 	width: 100%;
 	color:@mainColor_light;
-	overflow: hidden;
-	z-index: 1000;
+	// overflow-x: hidden;
+	overflow-y: hidden;
+	z-index: 10;
 	line-height: 1.1em;
 	height: fit-content;
 	max-height: 3em;
@@ -76,7 +78,6 @@ export default class VoiceTranscript extends Vue {
 	.holder {
 		padding: .5em;
 		background-color: fade(#000000, 50%);
-		transform: translate(0, calc(100% + 1em));
 		pointer-events: all;
 		backdrop-filter: blur(6px);
 		z-index: -1;
@@ -95,19 +96,9 @@ export default class VoiceTranscript extends Vue {
 			justify-content: center;
 			text-align: center;
 
-			&::before {
-				content:"";
-				background-image: url("../../assets/icons/microphone.svg");
-				background-repeat: no-repeat;
-				width: 2em;
-				min-width: 2em;
-				max-width: 2em;
+			.icon {
 				height: 1em;
 				align-self: flex-start;
-			}
-
-			.text {//This holder makes sure no text is visible over the padding of its parent
-				width: 100%;
 			}
 		}
 
