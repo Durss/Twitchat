@@ -56,6 +56,7 @@ export const storeParams = defineStore('params', {
 			ignoreListCommands: 		{save:true, type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
 			blockedCommands: 			{save:true, type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114, longText:true},
 		},
+		chatColumnsConfig:[],
 	} as IParamsState),
 
 
@@ -98,6 +99,53 @@ export const storeParams = defineStore('params', {
 					}
 				}
 			}
+		},
+
+		addChatColumn():TwitchatDataTypes.ChatColumnsConfig {
+			const col:TwitchatDataTypes.ChatColumnsConfig = {
+				order:this.chatColumnsConfig.length,
+				size:1/2,
+				filters:{
+					join:false,
+					message:false,
+					whisper:false,
+					raid:false,
+					poll:false,
+					leave:false,
+					cheer:false,
+					bingo:false,
+					raffle:false,
+					reward:false,
+					notice:false,
+					following:false,
+					countdown:false,
+					prediction:false,
+					twitchat_ad:false,
+					subscription:false,
+					hype_train_summary:false,
+					hype_train_cooled_down:false,
+					community_boost_complete:false,
+					community_challenge_contribution:false,
+				},
+			}
+			this.chatColumnsConfig.push(col);
+			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
+			return col;
+		},
+
+		delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void {
+			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
+				const e = this.chatColumnsConfig[i];
+				if(e == column) {
+					this.chatColumnsConfig.splice(i, 1);
+					break;
+				}
+			}
+			this.saveChatColumnConfs();
+		},
+
+		saveChatColumnConfs():void {
+			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 		},
 	} as IParamsActions
 	& ThisType<IParamsActions

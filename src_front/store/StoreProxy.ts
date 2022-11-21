@@ -52,7 +52,6 @@ export interface IMainState {
 	confirmData:TwitchatDataTypes.ConfirmData|null;
 	chatAlertParams: TwitchatDataTypes.AlertParamsData;
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
-	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 }
 
 export interface IMainGetters {
@@ -74,9 +73,6 @@ export interface IMainActions {
 	setAhsInstaller(value:TwitchatDataTypes.InstallHandler):void;
 	setChatAlertParams(params:TwitchatDataTypes.AlertParamsData):void;
 	executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null):Promise<void>;
-	addChatColumn():TwitchatDataTypes.ChatColumnsConfig;
-	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
-	saveChatColumnConfs():void;
 }
 
 
@@ -286,6 +282,7 @@ export interface IParamsState {
 	features:{[key:string]:TwitchatDataTypes.ParameterData};
 	appearance:{[key:string]:TwitchatDataTypes.ParameterData};
 	filters:{[key:string]:TwitchatDataTypes.ParameterData};
+	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 }
 
 export interface IParamsGetters {
@@ -293,6 +290,9 @@ export interface IParamsGetters {
 
 export interface IParamsActions {
 	updateParams():void;
+	addChatColumn():TwitchatDataTypes.ChatColumnsConfig;
+	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
+	saveChatColumnConfs():void;
 }
 
 

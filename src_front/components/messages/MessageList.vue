@@ -397,7 +397,7 @@ export default class MessageList extends Vue {
 		this.$store("main")
 		.confirm("Delete column?", "Do you want to delete this column? This cannot be undone.")
 		.then(()=> {
-			this.$store("main").delChatColumn(this.config);
+			this.$store("params").delChatColumn(this.config);
 		})
 	}
 

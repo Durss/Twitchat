@@ -55,7 +55,6 @@ export const storeMain = defineStore("main", {
 			},
 		},
 		chatAlert:null,
-		chatColumnsConfig:[],
 	} as IMainState),
 	
 
@@ -416,13 +415,13 @@ export const storeMain = defineStore("main", {
 			//Init automod
 			const chatColConfs = DataStore.get(DataStore.CHAT_COLUMNS_CONF);
 			if(chatColConfs) {
-				this.chatColumnsConfig = JSON.parse(chatColConfs);
+				sParams.chatColumnsConfig = JSON.parse(chatColConfs);
 			}else{
 				//Default cols configs
-				this.chatColumnsConfig = [];
+				sParams.chatColumnsConfig = []
 
 				//Chat feed
-				let col = this.addChatColumn();
+				let col = sParams.addChatColumn();
 				col.size = 1/2;
 				col.filters.join = true;
 				col.filters.message = true;
@@ -432,23 +431,23 @@ export const storeMain = defineStore("main", {
 				col.filters.twitchat_ad = true;
 				
 				//Activity feed
-				// col = this.addChatColumn();
-				// col.size = window.innerWidth/2;
-				// col.filters.raid = true;
-				// col.filters.poll = true;
-				// col.filters.cheer = true;
-				// col.filters.bingo = true;
-				// col.filters.raffle = true;
-				// col.filters.reward = true;
-				// col.filters.notice = true;
-				// col.filters.following = true;
-				// col.filters.countdown = true;
-				// col.filters.prediction = true;
-				// col.filters.subscription = true;
-				// col.filters.hype_train_summary = true;
-				// col.filters.hype_train_cooled_down = true;
-				// col.filters.community_boost_complete = true;
-				// col.filters.community_challenge_contribution = true;
+				col = sParams.addChatColumn();
+				col.size = 1/2;
+				col.filters.raid = true;
+				col.filters.poll = true;
+				col.filters.cheer = true;
+				col.filters.bingo = true;
+				col.filters.raffle = true;
+				col.filters.reward = true;
+				col.filters.notice = true;
+				col.filters.following = true;
+				col.filters.countdown = true;
+				col.filters.prediction = true;
+				col.filters.subscription = true;
+				col.filters.hype_train_summary = true;
+				col.filters.hype_train_cooled_down = true;
+				col.filters.community_boost_complete = true;
+				col.filters.community_challenge_contribution = true;
 			}
 			
 			//Reload devmode state
@@ -557,53 +556,6 @@ export const storeMain = defineStore("main", {
 			this.chatAlert = message;
 			await Utils.promisedTimeout(50);
 			this.chatAlert = null;
-		},
-
-		addChatColumn():TwitchatDataTypes.ChatColumnsConfig {
-			const col:TwitchatDataTypes.ChatColumnsConfig = {
-				order:this.chatColumnsConfig.length,
-				size:1/2,
-				filters:{
-					join:false,
-					message:false,
-					whisper:false,
-					raid:false,
-					poll:false,
-					leave:false,
-					cheer:false,
-					bingo:false,
-					raffle:false,
-					reward:false,
-					notice:false,
-					following:false,
-					countdown:false,
-					prediction:false,
-					twitchat_ad:false,
-					subscription:false,
-					hype_train_summary:false,
-					hype_train_cooled_down:false,
-					community_boost_complete:false,
-					community_challenge_contribution:false,
-				},
-			}
-			this.chatColumnsConfig.push(col);
-			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
-			return col;
-		},
-
-		delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void {
-			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
-				const e = this.chatColumnsConfig[i];
-				if(e == column) {
-					this.chatColumnsConfig.splice(i, 1);
-					break;
-				}
-			}
-			this.saveChatColumnConfs();
-		},
-
-		saveChatColumnConfs():void {
-			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 		},
 	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })

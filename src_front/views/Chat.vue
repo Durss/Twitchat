@@ -2,14 +2,14 @@
 	<div :class="classes">
 		<div class="top" ref="top">
 			<div class="scrollable" ref="scrollable">
-				<div class="column" v-for="c, index in $store('main').chatColumnsConfig"
+				<div class="column" v-for="c, index in $store('params').chatColumnsConfig"
 				:ref="'column_'+c.order"
 				:key="c.order"
 				:style="getColStyles(c)">
 					<div class="subHolder">
 	
 						<GreetThem class="greetThem"
-						v-if=" $store('main').chatColumnsConfig.length == 1
+						v-if=" $store('params').chatColumnsConfig.length == 1
 						|| ($store('params').features.firstMessage.value && index == 1)" />
 	
 						<MessageList ref="messages" class="messages"
@@ -21,7 +21,7 @@
 					</div>
 		
 					<div class="dragBt" ref="splitter"
-					v-if="$store('main').chatColumnsConfig.length > 1"
+					v-if="$store('params').chatColumnsConfig.length > 1"
 					@pointerdown="startDrag($event, c)"
 					@pointerup="startDrag($event, c)">
 						<div class="grip"></div>
@@ -259,7 +259,7 @@ export default class Chat extends Vue {
 
 	public getColStyles(col:TwitchatDataTypes.ChatColumnsConfig):{[key:string]:string} {
 		let size = col.size * 100;
-		const cols = this.$store('main').chatColumnsConfig;
+		const cols = this.$store('params').chatColumnsConfig;
 		if(cols.length == 1) {
 			return {
 				width:"100%",
@@ -626,8 +626,8 @@ export default class Chat extends Vue {
 	 * Add a chat column
 	 */
 	public addColumn():void {
-		const col = this.$store("main").addChatColumn();
-		const colList = this.$store("main").chatColumnsConfig;
+		const col = this.$store("params").addChatColumn();
+		const colList = this.$store("params").chatColumnsConfig;
 		let totalSize = 0;
 		for (let i = 0; i < colList.length; i++) {
 			const c = colList[i];
@@ -673,7 +673,7 @@ export default class Chat extends Vue {
 		if(this.splitViewVertical) {
 			//TODO
 		}else{
-			const cols = this.$store('main').chatColumnsConfig;
+			const cols = this.$store('params').chatColumnsConfig;
 			const holder = this.$refs.scrollable as HTMLDivElement;
 			const holderBounds = holder.getBoundingClientRect();
 			for (let i = 0; i < cols.length; i++) {
@@ -689,7 +689,7 @@ export default class Chat extends Vue {
 			}
 		}
 		
-		this.$store('main').saveChatColumnConfs();
+		this.$store('params').saveChatColumnConfs();
 
 		await this.$nextTick();
 	}
@@ -701,7 +701,7 @@ export default class Chat extends Vue {
 	 * If none found, the windows will just be displayed full screen.
 	 */
 	private computeWindowsSizes():void {
-		const cols = this.$store('main').chatColumnsConfig;
+		const cols = this.$store('params').chatColumnsConfig;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.filters.message !== true) {

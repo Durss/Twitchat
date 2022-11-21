@@ -386,7 +386,7 @@ export default class MessageListFilter extends Vue {
 	 * Force data save
 	 */
 	public saveData():void {
-		this.$store("main").saveChatColumnConfs();
+		this.$store("params").saveChatColumnConfs();
 	}
 
 	/**
