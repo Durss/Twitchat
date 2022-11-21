@@ -481,6 +481,9 @@ export default class MessageListFilter extends Vue {
 		}
 	}
 
+	/**
+	 * Move message previews
+	 */
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
@@ -528,12 +531,14 @@ export default class MessageListFilter extends Vue {
 		@size: 1.25em;
 		margin-left: -@size;
 		width: @size;
+		display: flex;
+		flex-direction: column;
 		button {
-			font-size: 1em;
+			display: flex;
+			align-items: center;
 			pointer-events: all;
-			cursor: pointer;
-			border: none;
-			padding: @size/4;
+			padding: calc(@size/4);
+			margin-bottom: .25em;
 			width: @size;
 			height: @size;
 			min-width: @size;

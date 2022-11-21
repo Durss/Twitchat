@@ -12,6 +12,10 @@
 		@delete="deleteColumn()"
 		@submit="openFilters = false"/>
 
+		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
+			<img src="@/assets/icons/back.svg" alt="back">
+			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">Hype train activities</span>
+		</button>
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
 				<ChatAd class="message"
@@ -72,6 +76,7 @@
 				<ChatHypeTrainResult class="message"
 					v-else-if="m.type == 'hype_train_summary'"
 					@onRead="toggleMarkRead"
+					@setCustomActivities="setCustomActivities"
 					:messageData="m" />
 
 				<ChatFollowbotEvents class="message"
@@ -222,6 +227,7 @@ export default class MessageList extends Vue {
 	public hovered = false;
 	public openFilters = false;
 	public lockScroll = false;
+	public lockedListRefresh = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem: HTMLDivElement | null = null;
@@ -399,6 +405,8 @@ export default class MessageList extends Vue {
 	 * Cleans up all messages and rebuild the list
 	 */
 	private fullListRefresh(): void {
+		if(this.lockedListRefresh) return;
+
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async () => {
 			this.pendingMessages = [];
@@ -602,6 +610,8 @@ export default class MessageList extends Vue {
 	 * Called when a message is add
 	 */
 	private onAddMessage(e: GlobalEvent): void {
+		if(this.lockedListRefresh) return;
+
 		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
@@ -1127,6 +1137,24 @@ export default class MessageList extends Vue {
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, { manual: event != null, selected: m.markedAsRead === true, message });
 		}
 	}
+
+	/**
+	 * Sets a custom list of activities
+	 */
+	public setCustomActivities(activities:TwitchatDataTypes.ChatMessageTypes[]):void {
+		this.filteredMessages = activities;
+		this.lockedListRefresh = true;
+		this.virtualScrollY = -1;//Forces utoscroll to bottom
+	}
+
+	/**
+	 * Sets a custom list of activities
+	 */
+	public unlockListRefresh():void {
+		this.lockedListRefresh = false;
+		this.virtualScrollY = -1;//Forces utoscroll to bottom
+		this.fullListRefresh();
+	}
 }
 
 </script>
@@ -1167,6 +1195,26 @@ export default class MessageList extends Vue {
 		position: absolute;
 		right: 0;
 		z-index: 2;
+	}
+
+	.filteredMessages {
+		color: @mainColor_light;
+		background-color: @mainColor_normal;
+		padding: .5em;
+		display: flex;
+		align-items: center;
+		margin-right: .5em;
+		img {
+			height: 1em;
+		}
+		span {
+			flex-grow: 1;
+			text-align: center;
+			.icon {
+				height: .7em;
+				margin-right: .5em;
+			}
+		}
 	}
 
 	.messageHolder {

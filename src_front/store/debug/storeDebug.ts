@@ -25,10 +25,10 @@ export const storeDebug = defineStore('debug', {
 		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
-			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
+			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
 			const tmpFake = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true));
 			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
-			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
+			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName, undefined, true, false);
 			
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
@@ -86,7 +86,7 @@ export const storeDebug = defineStore('debug', {
 						is_gift:false,
 						is_giftUpgrade:false,
 						is_resub:false,
-						gift_upgradeSender:StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999).toString())),
+						gift_upgradeSender:StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999).toString()), undefined, undefined, undefined, true, false),
 					};
 					data = m;
 					break;
@@ -128,7 +128,7 @@ export const storeDebug = defineStore('debug', {
 					const count = Math.round(Math.random() * 50) + 1;
 					const followers = await TwitchUtils.getFollowers(uid, count);
 					for (let i = 0; i < followers.length; i++) {
-						users.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true));
+						users.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
 					}
 					const m:TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData = {
 						id:Utils.getUUID(),
@@ -251,17 +251,23 @@ export const storeDebug = defineStore('debug', {
 					let sum = 0;
 					//Generate fake events
 					for (let i = 0; i < count; i++) {
-						const types = [TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, TwitchatDataTypes.TwitchatMessageType.CHEER]
+						const types = [
+										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
+										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
+										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
+										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
+										TwitchatDataTypes.TwitchatMessageType.CHEER
+									]
 						const t = Utils.pickRand(types);
 						this.simulateMessage(t, (message)=> {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 								//Simulate subgifts
-								if(Math.random() > .3) {
+								if(Math.random() > .8) {
 									const recipients:TwitchatDataTypes.TwitchatUser[] = [];
 									const count = Math.round(Math.random() * 50) + 1;
 									const m = (message as TwitchatDataTypes.MessageSubscriptionData);
 									for (let i = 0; i < count; i++) {
-										recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString()))
+										recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString(), undefined, undefined, undefined, true, false))
 									}
 									m.gift_recipients = recipients;
 									m.is_gift = true;
@@ -484,10 +490,10 @@ export const storeDebug = defineStore('debug', {
 		async simulateNotice(noticeType:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
 			let data!:TwitchatDataTypes.MessageNoticeData;
 			const uid:string = StoreProxy.auth.twitch.user.id;
-			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid);
+			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
 			const tmpFake = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true));
 			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
-			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName);
+			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName, undefined, true, false);
 
 			// const lorem = new LoremIpsum({
 			// 	sentencesPerParagraph: { max: 8, min: 4 },
