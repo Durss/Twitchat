@@ -355,6 +355,13 @@ export default class Chat extends Vue {
 
 		watch(()=>this.currentModal, ()=>{
 			this.voiceControl = false;
+
+			if(this.formsColumnTarget && this.currentModal) {
+				const col = this.formsColumnTarget.parentNode as HTMLDivElement;
+				const scrollable = this.$refs.scrollable as HTMLDivElement;
+				const scrollTo = {x:col.offsetLeft - (scrollable.offsetWidth-col.offsetWidth)/2, y:col.offsetTop - (scrollable.offsetHeight - col.offsetHeight)/2}
+				gsap.to(scrollable, {duration: .75, ease:"sine.inOut", scrollTo});
+			}
 		})
 
 		//Handle chat alert feature
@@ -691,6 +698,7 @@ export default class Chat extends Vue {
 	 */
 	private computeWindowsSizes():void {
 		const cols = this.$store('params').chatColumnsConfig;
+		let selectedCol!:HTMLDivElement;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.filters.message !== true) {
@@ -698,12 +706,15 @@ export default class Chat extends Vue {
 				if(!colHolders) break; 
 				const colHolder = colHolders[0];
 				if(colHolder) {
+					selectedCol = colHolder;
 					this.formsColumnTarget = colHolder.getElementsByClassName("subHolder")[0] as HTMLDivElement;
+					break;
 				}
 			}
 		}
 		if(!this.formsColumnTarget) {
-			this.formsColumnTarget = (this.$refs["column_0"] as HTMLDivElement[])[0].getElementsByClassName("subHolder")[0] as HTMLDivElement;
+			selectedCol = (this.$refs["column_0"] as HTMLDivElement[])[0];
+			this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 		}
 	}
 }
