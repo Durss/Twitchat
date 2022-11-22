@@ -557,18 +557,20 @@ export default class TriggerActionHandler {
 									track:data,
 								}
 								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (message as unknown) as JsonObject);
-								//Execute "TRACK_ADDED_TO_QUEUE" to queue trigger
+								//Execute "TRACK_ADDED_TO_QUEUE" trigger
 								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
-									const m = step.confirmMessage;
+									const messageLoc = message as TwitchatDataTypes.MessageChatData;
 									const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 										id:Utils.getUUID(),
 										date:Date.now(),
 										platform:"twitchat",
 										type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 										track:data,
+										message:messageLoc.message,
+										user:messageLoc.user,
 									}
 									const chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, false, subEvent);
 									MessengerProxy.instance.sendMessage(chatMessage);
@@ -661,7 +663,7 @@ export default class TriggerActionHandler {
 			const h = helpers[i];
 			const chunks:string[] = h.pointer.split(".");
 			let root = message as unknown;
-			let value:string;
+			let value:string = "";
 			try {
 				//Dynamically search for the requested prop's value within the object
 				for (let i = 0; i < chunks.length; i++) {
@@ -680,83 +682,33 @@ export default class TriggerActionHandler {
 				if(typeof root === "number") root = root.toString();
 				value = root as string;
 			}catch(error) {
-				console.warn("Unable to find pointer for helper", h);
-				value = "";
+				//If the placeholder requests for the current track and we're ending up here
+				//this means that the message does not contain the actual track.
+				//In this case we go get the currently playing track
+				if(h.tag.indexOf("CURRENT_TRACK") == 0) {
+					//That replace() is dirty but I'm too lazy to do that in a more generic way :(
+					const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
+					if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
+						value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
+					}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
+						value = DeezerHelper.instance.currentTrack[pointer]?.toString();
+					}
+					if(!value) value = "-none-";
+				}else{
+					console.warn("Unable to find pointer for helper", h);
+					value = "";
+				}
 			}
 
 			// console.log("Pointer:", h, "_ value:", value);
 			
 			h.tag = h.tag.toUpperCase();
 
-			// if(h.tag === "SUB_TIER") {
-			// 	if(!isNaN(value as number) && (value as number) > 0) {
-			// 		value = Math.round((value as number)/1000)
-			// 	}else{
-			// 		value = 1;//Fallback just in case but shouldn't be necessary
-			// 	}
-			// }else
-
-			// if(h.tag === "MESSAGE" && value) {
-			// 	const m = message as TwitchatDataTypes.Message;
-			// 	//Parse emotes
-			// 	const isReward = (message as TwitchatDataTypes.Highlight).reward != undefined;
-			// 	const customParsing = m.sentLocally === true || isReward;
-			// 	const chunks = TwitchUtils.parseEmotesToChunks(value as string, m.tags?.['emotes-raw'], !keepEmotes && !isReward, customParsing);
-			// 	let cleanMessage = ""
-			// 	//only keep text chunks to remove emotes
-			// 	for (let i = 0; i < chunks.length; i++) {
-			// 		const v = chunks[i];
-			// 		if(v.type == "text") {
-			// 			cleanMessage += v.value+" ";
-			// 		}else
-			// 		if((keepEmotes === true || isReward) && v.type == "emote") {
-			// 			cleanMessage += "<img src=\""+v.value+"\" class=\"emote\">";
-			// 		}
-			// 	}
-			// 	if(!subEvent) subEvent = "";
-			// }
-			
 			//Remove command from final text
 			if(subEvent && value) {
 				value = value.replace(new RegExp(subEvent, "i"), "").trim();
 			}
-
-			//If it's a music placeholder for the ADDED TO QUEUE event
-			//replace it by the current music info
-			if(eventType == TriggerTypes.TRACK_ADDED_TO_QUEUE && h.tag.indexOf("CURRENT_TRACK") == 0) {
-				if(message.type === TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE && message.track != null) {
-					//If we just added a track to the queue, we already have the track info and
-					//want to use that instead of the currently playing one
-					value = message.track[h.pointer as TwitchatDataTypes.MusicTrackDataKeys].toString();
-				}else{
-					//Go get currently playing track
-					if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
-						value = SpotifyHelper.instance.currentTrack[h.pointer as TwitchatDataTypes.MusicTrackDataKeys].toString();
-					}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
-						value = DeezerHelper.instance.currentTrack[h.pointer as TwitchatDataTypes.MusicTrackDataKeys].toString();
-					}else{
-						value = "-none-";
-					}
-				}
-			}
 			
-			// if(value && eventType === TriggerTypes.CHEER && h.tag === "MESSAGE") {
-			// 	//Parse cheermotes
-			// 	const m = message as TwitchatDataTypes.MessageCheerData;
-			// 	value = await TwitchUtils.parseCheermotes(value as string, m.channel_id);
-			// }
-
-			// if(value && typeof value == "string") {
-			// 	//Strip HTML tags (removes emotes and cheermotes)
-			// 	if(!keepEmotes) {
-			// 		value = (value as string).replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
-			// 	}
-				
-			// 	if(urlEncode) {
-			// 		value = encodeURIComponent(value as string);
-			// 	}
-			// }
-			//TODO test what all the commented stuff above breaks. Because it will :(
 			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
 		}
 		return res;

@@ -843,6 +843,7 @@ export default class PubSub extends EventDispatcher {
 				title:localObj.goal.title,
 				goal:localObj.goal.goal_amount,
 				progress:localObj.goal.points_contributed,
+				progress_percent:parseFloat((localObj.goal.points_contributed/localObj.goal.goal_amount *100).toFixed(1)),
 				description:localObj.goal.description,
 				icon:{
 					sd:img.url_2x,
@@ -860,13 +861,16 @@ export default class PubSub extends EventDispatcher {
 	 */
 	private pollEvent(localObj:PubSubDataTypes.PollData, postOnChat:boolean):void {
 		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
+		let winner!:TwitchatDataTypes.MessagePollDataChoice;
+		let winnerValue = 0;
 		for (let i = 0; i < localObj.poll.choices.length; i++) {
 			const c = localObj.poll.choices[i];
-			choices.push({
-				id: c.choice_id,
-				label: c.title,
-				votes: c.votes.total,
-			})
+			const entry = { id: c.choice_id, label: c.title, votes: c.votes.total };
+			if(entry.votes > winnerValue) {
+				winner = entry;
+				winnerValue = entry.votes;
+			}
+			choices.push()
 		}
 		const poll:TwitchatDataTypes.MessagePollData = {
 			date:Date.now(),
@@ -879,6 +883,7 @@ export default class PubSub extends EventDispatcher {
 			duration_s: localObj.poll.duration_seconds,
 			started_at: new Date(localObj.poll.started_at).getTime(),
 			ended_at: localObj.poll.ended_at? new Date(localObj.poll.ended_at).getTime() : undefined,
+			winner, 
 		};
 
 		StoreProxy.poll.setCurrentPoll(poll, postOnChat);
@@ -918,7 +923,7 @@ export default class PubSub extends EventDispatcher {
 				prediction.ended_at = new Date(localObj.event.ended_at).getTime()
 			}
 			if(localObj.event.winning_outcome_id) {
-				prediction.winning_outcome_id = localObj.event.winning_outcome_id;
+				prediction.winner = outcomes.find(v => v.id == localObj.event.winning_outcome_id);
 			}
 	
 			StoreProxy.prediction.setPrediction(prediction, postOnChat);
@@ -1231,7 +1236,6 @@ export default class PubSub extends EventDispatcher {
 			category:data.game,
 		}
 		StoreProxy.chat.addMessage(message);
-		TriggerActionHandler.instance.onMessage(message);
 	}
 
 	/**

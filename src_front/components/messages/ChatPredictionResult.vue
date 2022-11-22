@@ -54,7 +54,7 @@ export default class ChatPredictionResult extends Vue {
 
 	public getOutcomeClasses(o:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		const res = ["outcome"];
-		if(this.messageData.winning_outcome_id === o.id) res.push("winner");
+		if(this.messageData.winner?.id === o.id) res.push("winner");
 		if(this.messageData.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}

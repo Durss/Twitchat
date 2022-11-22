@@ -13,6 +13,34 @@
 
 			<div class="list">
 				
+				<!-- Main menu -->
+				<ToggleBlock class="category"
+				v-if="!currentEvent"
+				v-for="c in eventCategories"
+				:key="c.label"
+				:title="c.label"
+				:open="false"
+				:icons="[c.icon]">
+					
+					<div class="disclaimer" v-if="musicServiceAvailable">These triggers need you to connect with a music service <i>(spotify or deezer)</i> under the <a @click="openOverlays()">overlays section</a>.</div>
+
+					<div v-for="e in c.events" :key="(e.value as string)" :class="e.value=='41'? 'item beta' : 'item'">
+						<Button class="triggerBt"
+							white
+							:title="e.label"
+							:icon="getIcon(e)"
+							@click="currentEvent = e"
+						/>
+
+						<ToggleButton class="toggle"
+							:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
+							v-model="e.enabled"
+							@change="onToggleEnable(e)"
+							v-if="canToggle(e)"
+						/>
+					</div>
+				</ToggleBlock>
+				
 				<!-- Main event title -->
 				<div v-if="currentEvent" class="mainCategoryTitle">
 					<img :src="getIcon(currentEvent)">
@@ -40,26 +68,6 @@
 						v-if="currentSubEvent && canToggle(currentSubEvent)"
 					/>
 				</div>
-				
-				<!-- Main list -->
-				<ToggleBlock class="category" v-if="!currentEvent"
-				v-for="c in eventCategories" :key="c.label" :title="c.label" :open="false" :icons="[c.icon]">
-					<div v-for="e in c.events" :key="(e.value as string)" :class="e.value=='41'? 'item beta' : 'item'">
-						<Button class="triggerBt"
-							white
-							:title="e.label"
-							:icon="getIcon(e)"
-							@click="currentEvent = e"
-						/>
-
-						<ToggleButton class="toggle"
-							:aria-label="e.enabled? 'trigger enabled' : 'trigger disabled'"
-							v-model="e.enabled"
-							@change="onToggleEnable(e)"
-							v-if="canToggle(e)"
-						/>
-					</div>
-				</ToggleBlock>
 
 				<!-- Sublist -->
 				<div v-if="isSublist && !currentSubEvent && actionList.length==0 && subeventsList && subeventsList.length > 0"
@@ -210,6 +218,8 @@ export default class ParamsTriggers extends Vue {
 						actions:[],
 					};
 
+	public get musicServiceAvailable():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get isChatCmd():boolean { return this.currentEvent?.value === TriggerTypes.CHAT_COMMAND; }
@@ -327,9 +337,7 @@ export default class ParamsTriggers extends Vue {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [];
 		events = events.concat(TriggerEvents);
-		if(!Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
-			events = events.filter(v => v.value != TriggerTypes.TRACK_ADDED_TO_QUEUE);
-		}
+
 		//Define select states
 		events.forEach(v=>{
 			const enabled = this.$store("triggers").triggers[v.value]?.enabled;
@@ -557,6 +565,10 @@ export default class ParamsTriggers extends Vue {
 		}
 	}
 
+	public openOverlays():void {
+		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OVERLAYS);
+	}
+
 	/**
 	 * Called when selecting a trigger
 	 */
@@ -764,8 +776,15 @@ export default class ParamsTriggers extends Vue {
 			flex-direction: column;
 			flex-grow: 1;
 
-			.category:not(:last-of-type) {
-				margin-bottom: 1em;
+			.category{
+				&:not(:last-of-type) {
+					margin-bottom: 1em;
+				}
+				.disclaimer {
+					font-size: .8em;
+					text-align: center;
+					margin-bottom: 1em;
+				}
 			}
 
 			.item {

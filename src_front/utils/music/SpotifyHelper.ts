@@ -286,7 +286,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				album:json.item.album? json.item.album.name : "",
 				cover:json.item.show? json.item.show.images[0].url : json.item.album.images[0].url,
 				duration:json.item.duration_ms,
-				url:json.item.href,
+				url:json.item.external_urls.spotify,
 			};
 			this.isPlaying = json.is_playing && json.item != null;
 	

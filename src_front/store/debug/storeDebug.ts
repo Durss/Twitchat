@@ -193,6 +193,7 @@ export const storeDebug = defineStore('debug', {
 					const img = rewardImg;
 					const contrib = Math.round(Math.random()*2000) + 10;
 					const contribTot = contrib + Math.round(Math.random()*20000);
+					const goal = Math.round(contribTot * (Math.random()*3+1));
 					const m:TwitchatDataTypes.MessageCommunityChallengeContributionData =  {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -205,8 +206,9 @@ export const storeDebug = defineStore('debug', {
 						total_contribution: contribTot,
 						challenge: {
 							title:"My awesome challenge",
-							goal:Math.round(contribTot * (Math.random()*3+1)),
+							goal,
 							progress:contribTot,
+							progress_percent:parseFloat((contribTot/goal *100).toFixed(1)),
 							description:"Send channel points to make my challenge a reality <3",
 							icon:{
 								sd:img,
@@ -326,9 +328,16 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.POLL: {
 					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 					const count = Math.ceil(Math.random()*10);
+					let winner!:TwitchatDataTypes.MessagePollDataChoice;
+					let winnerCount = 0;
 					for(let i=0; i < count; i++) {
 						const votes = Math.round(Math.random()*50);
-						choices.push({id:Utils.getUUID(), label:"Option "+(i+1), votes});
+						const entry = {id:Utils.getUUID(), label:"Option "+(i+1), votes};
+						if(votes > winnerCount) {
+							winnerCount = votes;
+							winner = entry;
+						}
+						choices.push(entry);
 					}
 					const m:TwitchatDataTypes.MessagePollData = {
 						id:Utils.getUUID(),
@@ -341,6 +350,7 @@ export const storeDebug = defineStore('debug', {
 						title:"Who wins?",
 						started_at:Date.now() - 2 * 60 * 1000,
 						ended_at:Date.now(),
+						winner,
 					};
 					data = m;
 					break;
@@ -366,7 +376,7 @@ export const storeDebug = defineStore('debug', {
 						started_at:Date.now() - 2 * 60 * 1000,
 						ended_at:Date.now(),
 						pendingAnswer:false,
-						winning_outcome_id:Utils.pickRand(outcomes).id,
+						winner:Utils.pickRand(outcomes),
 					};
 					data = m;
 					break;

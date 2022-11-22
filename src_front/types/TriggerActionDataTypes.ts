@@ -128,21 +128,21 @@ export interface TriggerScheduleData {
 export const TriggerTypes = {
 	FIRST_ALL_TIME:"1",//OK
 	FIRST_TODAY:"2",//OK
-	POLL_RESULT:"3",
-	PREDICTION_RESULT:"4",
-	RAFFLE_RESULT:"5",
-	BINGO_RESULT:"6",
+	POLL_RESULT:"3",//OK
+	PREDICTION_RESULT:"4",//OK
+	RAFFLE_RESULT:"5",//OK
+	BINGO_RESULT:"6",//OK
 	CHAT_COMMAND:"7",//OK
 	SUB:"8",//OK
 	SUBGIFT:"9",//OK
 	CHEER:"10",//OK
-	FOLLOW:"11",
+	FOLLOW:"11",//OK
 	RAID:"12",//OK
 	REWARD_REDEEM:"13",//OK
-	STREAM_INFO_UPDATE:"19",
-	TRACK_ADDED_TO_QUEUE:"14",
-	MUSIC_START:"24",
-	MUSIC_STOP:"25",
+	STREAM_INFO_UPDATE:"19",//OK
+	TRACK_ADDED_TO_QUEUE:"14",//OK
+	MUSIC_START:"24",//OK
+	MUSIC_STOP:"25",//OK
 	TIMER_START:"15",//OK
 	TIMER_STOP:"16",//OK
 	COUNTDOWN_START:"17",//OK
@@ -160,17 +160,17 @@ export const TriggerTypes = {
 	RETURNING_USER:"30",//OK
 	VOICEMOD:"31",//OK
 	SHOUTOUT:"33",//OK
-	TIMEOUT:"34",
-	BAN:"35",
-	UNBAN:"36",
-	VIP:"37",
-	UNVIP:"38",
-	MOD:"39",
-	UNMOD:"40",
-	SCHEDULE:"41",
+	TIMEOUT:"34",//OK
+	BAN:"35",//OK
+	UNBAN:"36",//OK
+	VIP:"37",//OK
+	UNVIP:"38",//OK
+	MOD:"39",//OK
+	UNMOD:"40",//OK
+	SCHEDULE:"41",//OK
 	ANY_MESSAGE:"42",//OK
-	COMMUNITY_CHALLENGE_PROGRESS:"43",
-	COMMUNITY_CHALLENGE_COMPLETE:"44",
+	COMMUNITY_CHALLENGE_PROGRESS:"43",//OK
+	COMMUNITY_CHALLENGE_COMPLETE:"44",//OK
 	PRESENTATION:"46",//OK
 
 	TWITCHAT_AD:"ad",
@@ -196,22 +196,21 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.POLL_RESULT] = [
-		{tag:"TITLE", desc:"Poll title", pointer:"data.title"},
-		{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
-		// {tag:"PERCENT", desc:"Votes percent of the winning choice", pointer:""},
+		{tag:"TITLE", desc:"Poll title", pointer:"title"},
+		{tag:"WIN", desc:"Winning choice title", pointer:"winner.label"},
 	];
 	
 	map[TriggerTypes.PREDICTION_RESULT] = [
-		{tag:"TITLE", desc:"Prediction title", pointer:"data.title"},
-		{tag:"WIN", desc:"Winning choice title", pointer:"winner"},
+		{tag:"TITLE", desc:"Prediction title", pointer:"title"},
+		{tag:"WIN", desc:"Winning choice title", pointer:"winner.label"},
 	];
 	
 	map[TriggerTypes.BINGO_RESULT] = [
-		{tag:"WINNER", desc:"Winner name", pointer:"winner"},
+		{tag:"WINNER", desc:"Winner name", pointer:"bingoData.winners[].displayName"},
 	];
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [
-		{tag:"WINNER", desc:"Winner name", pointer:"winner.label"},
+		{tag:"WINNER", desc:"Winner name", pointer:"raffleData.winners[].label"},
 	];
 	
 	map[TriggerTypes.SUB] = [
@@ -233,7 +232,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.FOLLOW] = [
-		{tag:"USER", desc:"User name of the new follower", pointer:"tags.username"},
+		{tag:"USER", desc:"User name of the new follower", pointer:"user.displayName"},
 	];
 	
 	map[TriggerTypes.RAID] = [
@@ -251,11 +250,11 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	
 	map[TriggerTypes.MUSIC_START] = 
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
-		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"artist"},
-		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"title"},
-		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"album"},
-		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"cover"},
-		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"url"},
+		{tag:"CURRENT_TRACK_ARTIST", desc:"Current track artist name", pointer:"track.artist"},
+		{tag:"CURRENT_TRACK_TITLE", desc:"Current track's title", pointer:"track.title"},
+		{tag:"CURRENT_TRACK_ALBUM", desc:"Current track's album name", pointer:"track.album"},
+		{tag:"CURRENT_TRACK_COVER", desc:"Current track's cover", pointer:"track.cover"},
+		{tag:"CURRENT_TRACK_URL", desc:"Current track URL", pointer:"track.url"},
 	];
 	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
@@ -327,26 +326,25 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"TITLE", desc:"Stream title", pointer:"stream.title"},
 		{tag:"CATEGORY", desc:"Stream category", pointer:"stream.category"},
 	];
-
-	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS] = [
-		{tag:"USER", desc:"User's name", pointer:"contribution.user.display_name"},
-		{tag:"CONTRIBUTION", desc:"User's contribution", pointer:"contribution.amount"},
-		{tag:"CONTRIBUTION_TOTAL", desc:"User's total contribution", pointer:"contribution.total_contribution"},
-		{tag:"TITLE", desc:"Challenge title", pointer:"contribution.goal.title"},
-		{tag:"DESCRIPTION", desc:"Challenge description", pointer:"contribution.goal.description"},
-		{tag:"GOAL", desc:"Challenge goal", pointer:"contribution.goal.goal_amount"},
-		{tag:"CURRENT", desc:"Challenge current progress", pointer:"contribution.goal.points_contributed"},
-	];
+	
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
-		{tag:"TITLE", desc:"Challenge title", pointer:"contribution.goal.title"},
-		{tag:"DESCRIPTION", desc:"Challenge description", pointer:"contribution.goal.description"},
-		{tag:"GOAL", desc:"Challenge goal", pointer:"contribution.goal.goal_amount"},
-		{tag:"CURRENT", desc:"Challenge current progress", pointer:"contribution.goal.points_contributed"},
+		{tag:"TITLE", desc:"Challenge title", pointer:"challenge.title"},
+		{tag:"DESCRIPTION", desc:"Challenge description", pointer:"challenge.description"},
+		{tag:"GOAL", desc:"Challenge goal", pointer:"challenge.goal"},
+		{tag:"CURRENT", desc:"Challenge current progress", pointer:"challenge.progress"},
 	];
+
+	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS] = JSON.parse(JSON.stringify(map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE]));
+	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS].push(
+		{tag:"USER", desc:"User's name", pointer:"user.displayName"},
+		{tag:"CONTRIBUTION", desc:"User's contribution", pointer:"contribution"},
+		{tag:"CONTRIBUTION_TOTAL", desc:"User's total contribution", pointer:"total_contribution"},
+	);
 
 	//If requesting chat command helpers and there is a music
 	//service available, concat the music service helpers
-	if(key == TriggerTypes.CHAT_COMMAND
+	if(key != TriggerTypes.MUSIC_START
+	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
 		map[key] = map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
 	}

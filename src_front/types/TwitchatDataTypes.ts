@@ -897,6 +897,7 @@ export namespace TwitchatDataTypes {
 		duration_s: number;
 		started_at: number;
 		ended_at?: number;
+		winner?:MessagePollDataChoice;
 	}
 	export interface MessagePollDataChoice {
 		id: string;
@@ -916,7 +917,7 @@ export namespace TwitchatDataTypes {
 		pendingAnswer: boolean;
 		started_at: number;
 		ended_at?: number;
-		winning_outcome_id?: string;
+		winner?:MessagePredictionDataOutcome;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;
@@ -1002,6 +1003,7 @@ export namespace TwitchatDataTypes {
 			title:string;
 			goal:number;
 			progress:number;
+			progress_percent:number;
 			description?:string;
 			icon?:TwitchatImage;
 		}
@@ -1196,7 +1198,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageTimeoutData extends MessageModerationAction {
 		channel_id: string;
-		noticeId:"timeout"|"untimeout";
+		noticeId:"timeout";
 		moderator?:TwitchatUser;
 		reason:string;
 		duration_s:number;
@@ -1241,6 +1243,8 @@ export namespace TwitchatDataTypes {
 	export interface MessageMusicAddedToQueueData extends AbstractTwitchatMessage {
 		type:"music_added_to_queue";
 		track:MusicTrackData|null;
+		user?:TwitchatUser;
+		message?:string;
 	}
 
 	/**
