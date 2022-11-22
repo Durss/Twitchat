@@ -390,9 +390,9 @@ export default class TriggerActionHandler {
 			if(testMode) canExecute = true;
 			
 			if(!trigger || data.actions.length == 0) canExecute = false;
-			console.log(data);
-			console.log(message);
-			console.log(canExecute);
+			// console.log(data);
+			// console.log(message);
+			// console.log(canExecute);
 
 			if(canExecute) {
 				for (let i = 0; i < data.actions.length; i++) {
@@ -400,7 +400,7 @@ export default class TriggerActionHandler {
 						return true;//Stop there, something asked to override the current exec sequence
 					}
 					const step = data.actions[i];
-					console.log("	Parse step", step);
+					// console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
@@ -439,11 +439,11 @@ export default class TriggerActionHandler {
 					
 					//Handle Chat action
 					if(step.type == "chat") {
-						console.log("CHAT ACTION");
+						// console.log("CHAT ACTION");
 						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
 						const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 						if(message.platform != "twitchat") platforms.push(message.platform);
-						console.log(platforms, text);
+						// console.log(platforms, text);
 						MessengerProxy.instance.sendMessage(text, platforms);
 						if(eventType == TriggerTypes.ANY_MESSAGE) {
 							this.lastAnyMessageSent = text;
