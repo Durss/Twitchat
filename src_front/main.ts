@@ -37,7 +37,7 @@ import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 
-const pinia = createPinia()
+const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
 
 /**
@@ -157,8 +157,36 @@ const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSu
 }
 
 const app = createApp(App)
-.use(pinia)
-.use(router)
+.use(pinia);
+
+//Init stores before instanciating the router because the
+//router needs to access some stores
+StoreProxy.main = storeMain();
+StoreProxy.account = storeAccount();
+StoreProxy.auth = storeAuth();
+StoreProxy.automod = storeAutomod();
+StoreProxy.bingo = storeBingo();
+//Dirty typing. Couldn't figure out how to properly type pinia getters
+StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; };
+StoreProxy.chatSuggestion = storeChatSuggestion();
+StoreProxy.emergency = storeEmergency();
+StoreProxy.music = storeMusic();
+StoreProxy.obs = storeOBS();
+StoreProxy.params = storeParams();
+StoreProxy.poll = storePoll();
+StoreProxy.prediction = storePrediction();
+StoreProxy.raffle = storeRaffle();
+StoreProxy.stream = storeStream();
+StoreProxy.timer = storeTimer();
+StoreProxy.triggers = storeTriggers();
+StoreProxy.tts = storeTTS();
+//Dirty typing. Couldn't figure out how to properly type pinia getters
+StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; };
+StoreProxy.voice = storeVoice();
+StoreProxy.debug = storeDebug();
+StoreProxy.accessibility = storeAccessibility();
+
+app.use(router)
 .component("country-flag", CountryFlag)
 .component("vue-select", VueSelect)
 .provide("$image", image)
@@ -185,30 +213,6 @@ app.config.globalProperties.$confirm = confirm;
 app.config.globalProperties.$overlayURL = overlayURL;
 app.config.globalProperties.$placeDropdown = placeDropdown;
 
-StoreProxy.main = storeMain();
-StoreProxy.account = storeAccount();
-StoreProxy.auth = storeAuth();
-StoreProxy.automod = storeAutomod();
-StoreProxy.bingo = storeBingo();
-//Dirty typing. Couldn't figure out how to properly type pinia getters
-StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; };
-StoreProxy.chatSuggestion = storeChatSuggestion();
-StoreProxy.emergency = storeEmergency();
-StoreProxy.music = storeMusic();
-StoreProxy.obs = storeOBS();
-StoreProxy.params = storeParams();
-StoreProxy.poll = storePoll();
-StoreProxy.prediction = storePrediction();
-StoreProxy.raffle = storeRaffle();
-StoreProxy.stream = storeStream();
-StoreProxy.timer = storeTimer();
-StoreProxy.triggers = storeTriggers();
-StoreProxy.tts = storeTTS();
-//Dirty typing. Couldn't figure out how to properly type pinia getters
-StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; };
-StoreProxy.voice = storeVoice();
-StoreProxy.debug = storeDebug();
-StoreProxy.accessibility = storeAccessibility();
 
 DataStore.init();
 

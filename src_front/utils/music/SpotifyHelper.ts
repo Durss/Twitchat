@@ -76,7 +76,7 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * Starts the aut flow
 	 */
 	public async startAuthFlow():Promise<void> {
-		const res = await fetch(Config.instance.API_PATH+"/CSRFToken", {method:"GET"});
+		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
 		const json = await res.json();
 		const scopes = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
 		console.log(scopes);

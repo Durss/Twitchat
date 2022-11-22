@@ -103,7 +103,7 @@ export default class OverlayParamsSpotify extends Vue {
 			this.paramSecret.value = p.secret;
 		}
 
-		const spotifyAuthParams = this.$store("music").spotifyAuthParams
+		const spotifyAuthParams = this.$store("music").spotifyAuthParams;
 		if(spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
