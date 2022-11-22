@@ -440,7 +440,7 @@ export default class TTSUtils {
 
 				let winner = "";
 				message.outcomes.forEach(v =>{
-					if(v.id == message.winner_id) {
+					if(v.id == message.winner?.id) {
 						winner = v.label;
 					}
 				})
