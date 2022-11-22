@@ -572,7 +572,10 @@ export default class TriggerActionHandler {
 										message:messageLoc.message,
 										user:messageLoc.user,
 									}
-									const chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, false, subEvent);
+									//First pass to inject track info
+									let chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, false, subEvent, false);
+									//Second pass to inject trigger specifics
+									chatMessage = await this.parseText(eventType, message, chatMessage, false, subEvent);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}
@@ -652,7 +655,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, urlEncode = false, subEvent?:string|null, keepEmotes:boolean = false):Promise<string> {
+	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, urlEncode = false, subEvent?:string|null, cleanupRemainingTags:boolean = true):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
@@ -709,7 +712,9 @@ export default class TriggerActionHandler {
 				value = value.replace(new RegExp(subEvent, "i"), "").trim();
 			}
 			
-			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
+			if(cleanupRemainingTags) {
+				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
+			}
 		}
 		return res;
 	}
