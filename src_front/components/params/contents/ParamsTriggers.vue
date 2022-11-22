@@ -494,7 +494,10 @@ export default class ParamsTriggers extends Vue {
 		const entry = TriggerEvents.find(v=>v.value == key);
 		
 		if(entry?.testMessageType) {
-			if(entry.testNoticeType) {
+			if(this.isSchedule) {
+				TriggerActionHandler.instance.parseScheduleTrigger(this.triggerKey);
+			}else
+			if(entry.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
 				this.$store("debug").simulateNotice(entry.testNoticeType, (data)=> {
 					TriggerActionHandler.instance.onMessage(data, true);
 				}, false);
@@ -517,8 +520,6 @@ export default class ParamsTriggers extends Vue {
 					TriggerActionHandler.instance.onMessage(m, true);
 				}, false);
 			}
-		}else if(this.isSchedule) {
-			//TODO
 		}
 	}
 

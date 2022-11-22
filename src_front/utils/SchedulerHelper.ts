@@ -85,8 +85,6 @@ export default class SchedulerHelper {
 		//Cleanup any previously scheduled trigger
 		this.unscheduleTrigger(key);
 
-		console.log("Schedule new trigger", key, schedule);
-
 		switch(schedule.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
 				let date = Date.now() + schedule.repeatDuration * 60 * 1000;
@@ -189,8 +187,8 @@ export default class SchedulerHelper {
 
 	private computeFrame():void {
 		requestAnimationFrame(()=>this.computeFrame());
-		//Execute process only once every 60 frames
-		//We could thechnically use a setInterval(...,1000) instead, but
+		//Execute process only once every 5s
+		//We could thechnically use a setInterval(..., 5000) instead, but
 		//its behavior isn't ideal when tab is put in background. All
 		//pending intervals would be fired at once when bringing the tab
 		//back to foreground. With a requestAnimationFrame() the process
@@ -217,7 +215,6 @@ export default class SchedulerHelper {
 			let execute = true;
 			switch(schedule.type) {
 				case TriggerScheduleTypes.REGULAR_REPEAT:{
-					console.log(Date.now(), e.date);
 					if(schedule.repeatDuration > 0 && Date.now() < e.date) execute = false;
 					if(schedule.repeatMinMessages > 0 && e.messageCount < schedule.repeatMinMessages) execute = false;
 					break;

@@ -490,7 +490,7 @@ export const storeDebug = defineStore('debug', {
 			if(postOnChat) StoreProxy.chat.addMessage(data);
 		},
 
-		async simulateNotice(noticeType:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
+		async simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
 			let data!:TwitchatDataTypes.MessageNoticeData;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
@@ -558,6 +558,19 @@ export const storeDebug = defineStore('debug', {
 					};
 					data = m;
 					break;
+				}
+
+				default: {
+					const m:TwitchatDataTypes.MessageNoticeData = {
+						platform:"twitchat",
+						type:"notice",
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						message:"generic notice message",
+						channel_id:uid,
+					};
+					data = m;
 				}
 
 			}
