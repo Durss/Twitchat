@@ -151,12 +151,12 @@ export const TriggerTypes = {
 	EMERGENCY_MODE_STOP:"21",//OK
 	HIGHLIGHT_CHAT_MESSAGE:"22",//OK
 	CHAT_ALERT:"23",//OK
-	HYPE_TRAIN_COOLDOWN:"45",
-	HYPE_TRAIN_APPROACHING:"26",
-	HYPE_TRAIN_START:"27",
-	HYPE_TRAIN_PROGRESS:"28",
-	HYPE_TRAIN_END:"29",
-	HYPE_TRAIN_CANCELED:"32",
+	HYPE_TRAIN_COOLDOWN:"45",//OK
+	HYPE_TRAIN_APPROACHING:"26",//OK
+	HYPE_TRAIN_START:"27",//OK
+	HYPE_TRAIN_PROGRESS:"28",//OK
+	HYPE_TRAIN_END:"29",//OK
+	HYPE_TRAIN_CANCELED:"32",//OK
 	RETURNING_USER:"30",//OK
 	VOICEMOD:"31",//OK
 	SHOUTOUT:"33",//OK
@@ -379,6 +379,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train progress", value:TriggerTypes.HYPE_TRAIN_PROGRESS, description:"Execute an action when a hype train progresses", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS},
 	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train end", value:TriggerTypes.HYPE_TRAIN_END, description:"Execute an action when a hype train ends", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE},
 	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train canceled", value:TriggerTypes.HYPE_TRAIN_CANCELED, description:"Execute an action when a hype train fails", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL},
+	{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:"Hype train cooldown", value:TriggerTypes.HYPE_TRAIN_COOLDOWN, description:"Execute an action when a hype train can, be started again", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN},
 	{category:TriggerEventTypeCategories.MOD, icon:"timeout", label:"User timed out", value:TriggerTypes.TIMEOUT, description:"Execute an action when a user is <mark>/timeout</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.TIMEOUT},
 	{category:TriggerEventTypeCategories.MOD, icon:"ban", label:"User banned", value:TriggerTypes.BAN, description:"Execute an action when a user is <mark>/ban</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.BAN},
 	{category:TriggerEventTypeCategories.MOD, icon:"unban", label:"User unbanned", value:TriggerTypes.UNBAN, description:"Execute an action when a user is <mark>/unban</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNBAN},
