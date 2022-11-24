@@ -12,6 +12,7 @@ import RemoteVoiceControl from '@/views/RemoteVoiceControl.vue'
 import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
+import PublicApiTest from '@/views/PublicApiTest.vue'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -82,6 +83,14 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/oauth',
 		name: 'oauth',
 		component: Login,
+	},
+	{
+		path: '/publicapi',
+		name: 'publicapi',
+		component: PublicApiTest,
+		meta: {
+			overflow:true,
+		}
 	},
 	{
 		path: '/voice',

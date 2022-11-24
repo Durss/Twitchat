@@ -17,12 +17,12 @@
 				<transition name="fade">
 					<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">Connected with OBS</div>
 				</transition>
-				<form @submit.prevent="connect()">
-					<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
-					<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
-					<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
+				<form @submit.prevent="connect()" v-if="!connected">
+					<ParamItem :paramData="obsPort_conf" class="row" />
+					<ParamItem :paramData="obsPass_conf" class="row" />
+					<ParamItem :paramData="obsIP_conf" class="row" />
 					
-					<ToggleBlock class="info" small :open="false" title="Where can i find these values?" v-if="!connected">
+					<ToggleBlock class="info" small :open="false" title="Where can i find these values?">
 						After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
 						<br>
 						<br>This window will open with the credentials:
@@ -30,9 +30,10 @@
 						<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
 					</ToggleBlock>
 
-					<Button title="Connect" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
-					<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
+					<Button title="Connect" type="submit" class="connectBt" :loading="loading" />
 				</form>
+				
+				<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" :icon="$image('icons/cross_white.svg')" />
 
 				<transition name="fade">
 					<div v-if="connectError" @click="connectError = false" class="error">

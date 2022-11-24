@@ -52,6 +52,7 @@ You can find their [signatures here](#available-events-and-actions).
 ```typescript
 import OBSWebSocket from 'obs-websocket-js';
 
+const ip:string = "127.0.0.1";//Configure this
 const port:number = 4455;//Configure this
 const pass:string "";//Configure this
 
@@ -60,22 +61,23 @@ const obs = new OBSWebSocket();
 /**
  * Connect to OBS-websocket
  */
-async function connect(port:string, pass:string):Promise<boolean> {
+async function connect(ip:string, port:string, pass:string):Promise<boolean> {
 	try {
-		await obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
+		await obs.connect(`ws://${ip}:${port}`, pass, {rpcVersion:1});
 	}catch(error) {
 		setTimeout(()=> {
 			//try again later
-			connect(port, pass);
+			connect(ip, port, pass);
 		}, 5000);
 		return false;
 	}
 	obs.addListener("ConnectionClosed", ()=> {
 		//Reconnect
-		connect(port, pass);
+		connect(ip, port, pass);
 	});
 
-	//@ts-ignore ("CustomEvent" not yet declared in obs-websocket-js types. Need ts-ignore to avoid compilation error)
+	//"CustomEvent" not yet declared in obs-websocket-js types. Need @ts-ignore to avoid lint/compile errors
+	//@ts-ignore
 	obs.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatEventType, data:unknown}) => onTwitchatEvent(e))
 	return true;
 }
@@ -105,7 +107,7 @@ function onTwitchatEvent(e:{origin:"twitchat", type:TwitchatEventType, data:unkn
 	}
 }
 
-connect().then(()=> {
+connect(ip, port pass).then(()=> {
 	//Marks 1 message as read in the "Greet them section"
 	sendMessage("GREET_FEED_READ", {count:1});
 });

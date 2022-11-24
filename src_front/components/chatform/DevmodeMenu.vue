@@ -3,8 +3,8 @@
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" /> -->
-			<Button small title="Join" @click="simulateEvent('join')" :icon="$image('icons/coin.svg')" />
-			<Button small title="Leave" @click="simulateEvent('leave')" :icon="$image('icons/coin.svg')" />
+			<Button small title="Join" @click="simulateEvent('join')" :icon="$image('icons/enter_white.svg')" />
+			<Button small title="Leave" @click="simulateEvent('leave')" :icon="$image('icons/leave_white.svg')" />
 			<Button small title="First message" @click="simulateEvent('message', 'first')" :icon="$image('icons/firstTime.svg')" />
 			<Button small title="Returning user" @click="simulateEvent('message', 'returning')" :icon="$image('icons/returning.svg')" />
 			<Button small title="Presentation" @click="simulateEvent('message', 'presentation')" :icon="$image('icons/firstTime.svg')" />

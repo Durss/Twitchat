@@ -656,15 +656,16 @@ export const storeChat = defineStore('chat', {
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 					}
 					if(!postMessage) return;
+				}else{
+					// TODO Broadcast to OBS-ws
+					const wsMessage = {
+						display_name: message.user.displayName,
+						username: message.user.login,
+						user_id: message.user.id,
+					}
+					PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 				}
 
-				//TODO Broadcast to OBS-ws
-				// const wsMessage = {
-				// 	display_name: data.display_name,
-				// 	username: data.username,
-				// 	user_id: data.user_id,
-				// }
-				// PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
 			}
 
 			if(sAutomod.params.enabled === true) {

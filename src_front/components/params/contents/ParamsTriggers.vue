@@ -21,8 +21,7 @@
 				:title="c.label"
 				:open="false"
 				:icons="[c.icon]">
-					
-					<div class="disclaimer" v-if="musicServiceAvailable">These triggers need you to connect with a music service <i>(spotify or deezer)</i> under the <a @click="openOverlays()">overlays section</a>.</div>
+					<div class="disclaimer" v-if="musicServiceAvailable && isMusicCategory(c.category)">These triggers need you to connect with a music service <i>(spotify or deezer)</i> under the <a @click="openOverlays()">overlays section</a>.</div>
 
 					<div v-for="e in c.events" :key="(e.value as string)" :class="e.value=='41'? 'item beta' : 'item'">
 						<Button class="triggerBt"
@@ -169,7 +168,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
@@ -205,7 +204,7 @@ export default class ParamsTriggers extends Vue {
 	public currentSubEvent:TwitchatDataTypes.ParameterDataListValue|null = null;
 	public eventsList:TriggerEventTypes[] = [];
 	public subeventsList:TwitchatDataTypes.ParameterDataListValue[] = [];
-	public eventCategories:{label:string, icon:string, events:TriggerEventTypes[]}[] = [];
+	public eventCategories:{category:TriggerEventTypeCategoryValue, label:string, icon:string, events:TriggerEventTypes[]}[] = [];
 	public actionList:TriggerActionTypes[] = [];
 	public sources:OBSSourceItem[] = [];
 	public canSave = true;
@@ -380,6 +379,7 @@ export default class ParamsTriggers extends Vue {
 			if(ev.category != currCat || i === events.length-1) {
 				if(i === events.length-1) catEvents.push(ev);
 				this.eventCategories.push({
+					category:catEvents[0].category,
 					label: catToLabel[catEvents[0].category],
 					icon: catToIcon[catEvents[0].category],
 					events:catEvents,
@@ -563,6 +563,10 @@ export default class ParamsTriggers extends Vue {
 			trigger.enabled = e.enabled as boolean;
 			this.$store("triggers").setTrigger(key, trigger);
 		}
+	}
+
+	public isMusicCategory(category:TriggerEventTypeCategoryValue):boolean {
+		return category == TriggerEventTypeCategories.MUSIC;
 	}
 
 	public openOverlays():void {
