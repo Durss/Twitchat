@@ -386,19 +386,18 @@ export default class ChatMessage extends Vue {
 		let clipId = "";
 		let text = this.messageData.message_html;
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
-			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/i);
+			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"<']+)/i);
 			clipId = matches? matches[1] : "";
 			// if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/, "");
 		}else
 		if(/clips\.twitch\.tv\//gi.test(text)) {
-			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/i);
+			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
 			clipId = matches? matches[1] : "";
 			// if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/, "");
 		}
 		
 		if(clipId != "") {
-			console.log(clipId);
-			//Do it asynchronously to not block the rendering
+			//Do it asynchronously blocking rendering
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId);
 				if(clip) {
@@ -743,32 +742,29 @@ export default class ChatMessage extends Vue {
 		display: inline-flex;
 		flex-direction: row;
 		align-items: center;
-		border: 1px solid @mainColor_light;
-		background-color: fade(@mainColor_light, 10%);
-		border-radius: .5em;
+		border-radius: .25em;
+		padding: .5em;
 		overflow: hidden;
 		margin: auto;
+		width: 100%;
 		cursor: pointer;
-			position: relative;
-
-		&:hover {
-			background-color: fade(@mainColor_light, 20%);
-		}
+		position: relative;
 
 		img {
-			width: 5em;
-			height: 5em;
+			width: 50%;
 			object-fit: cover;
 		}
 		.highlightBt {
 			position: absolute;
 			bottom: 0;
 			right: 0;
+			font-size: 1.25em;
 			border-bottom-right-radius: 0;
 		}
 
 		.infos {
 			padding: 0 .5em;
+			min-width: 150px;
 			.title {
 				font-weight: bold;
 				margin-bottom: .25em;
