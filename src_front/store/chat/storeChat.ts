@@ -728,9 +728,19 @@ export const storeChat = defineStore('chat', {
 				messageList = messageList.slice(-maxMessages);
 			}
 
-			messageList.push( message );
-			// messages.push( Object.freeze(message) );
-			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.PREDICTION) {
+				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (message as unknown) as JsonObject});
+			}
+
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.POLL) {
+				PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (message as unknown) as JsonObject});
+			}
+
+			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
+				messageList.push( message );
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+			}
+
 			const e = Date.now();
 			// console.log(messageList.length, e-s);
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);

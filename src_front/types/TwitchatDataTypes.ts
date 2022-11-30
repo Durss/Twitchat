@@ -715,6 +715,47 @@ export namespace TwitchatDataTypes {
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
+	
+	export const DisplayableMessageTypes:{[key in TwitchatMessageStringType]:boolean} = {
+		raid:true,
+		poll:true,
+		join:true,
+		leave:true,
+		cheer:true,
+		timer:false,
+		bingo:true,
+		raffle:true,
+		reward:true,
+		notice:true,
+		message:true,
+		whisper:true,
+		connect:true,
+		voicemod:false,
+		shoutout:false,
+		following:true,
+		countdown:true,
+		clear_chat:true,
+		chat_alert:false,
+		disconnect:true,
+		prediction:true,
+		music_stop:false,
+		music_start:false,
+		twitchat_ad:true,
+		subscription:true,
+		autoban_join:true,
+		chat_highlight:false,
+		followbot_list:true,
+		hype_train_start:false,
+		hype_train_cancel:false,
+		hype_train_summary:true,
+		hype_train_progress:false,
+		hype_train_complete:false,
+		music_added_to_queue:false,
+		hype_train_approaching:false,
+		hype_train_cooled_down:true,
+		community_boost_complete:true,
+		community_challenge_contribution:true,
+	} as const;
 
 
 	/**

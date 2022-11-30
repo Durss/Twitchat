@@ -1,10 +1,8 @@
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import PublicAPI from '@/utils/PublicAPI';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
-import type { JsonObject } from 'type-fest';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
 
@@ -27,7 +25,11 @@ export const storeTimer = defineStore('timer', {
 
 		startTimer() {
 			this.timerStart = Date.now();
-			const data = { startAt:this.timerStart };
+			const data = {
+				startAt:Utils.formatDate(new Date()),
+				startAt_ms:this.timerStart,
+			};
+			
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, data);
 
 			const message:TwitchatDataTypes.MessageTimerData = {
@@ -43,7 +45,13 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		stopTimer() {
-			const data = { startAt:this.timerStart, stopAt:Date.now() };
+			const data = {
+				startAt:Utils.formatDate(new Date(this.timerStart)),
+				startAt_ms:this.timerStart,
+				stopAt:Utils.formatDate(new Date()),
+				stopAt_ms:Date.now(),
+			};
+
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, data);
 
 			const message:TwitchatDataTypes.MessageTimerData = {
@@ -64,10 +72,8 @@ export const storeTimer = defineStore('timer', {
 
 		startCountdown(duration_ms:number) {
 			const timeout = setTimeout(()=> {
-				this.stopCountdown()
+				this.stopCountdown();
 			}, Math.max(duration_ms, 1000));
-
-			console.log("START", duration_ms);
 
 			if(this.countdown) {
 				clearTimeout(this.countdown.timeoutRef);

@@ -2,13 +2,10 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
-import type { JsonObject } from "type-fest";
-import Config from '../Config';
 import { EventDispatcher } from "../../events/EventDispatcher";
+import Config from '../Config';
 import OBSWebsocket from "../OBSWebsocket";
-import PublicAPI from "../PublicAPI";
 import TriggerActionHandler from "../TriggerActionHandler";
-import TwitchatEvent from "../../events/TwitchatEvent";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 
@@ -887,7 +884,6 @@ export default class PubSub extends EventDispatcher {
 		};
 
 		StoreProxy.poll.setCurrentPoll(poll, postOnChat);
-		PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (poll as unknown) as JsonObject});
 	}
 
 	/**
@@ -927,7 +923,6 @@ export default class PubSub extends EventDispatcher {
 			}
 	
 			StoreProxy.prediction.setPrediction(prediction, postOnChat);
-			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (prediction as unknown) as JsonObject});
 		}else{
 			StoreProxy.prediction.setPrediction(null);
 		}

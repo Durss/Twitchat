@@ -81,9 +81,17 @@ export default class PublicApiTest extends Vue {
 		this.connected = OBSWebsocket.instance.connected;
 		this.eventList = TwitchatEventTypeList.concat().map(v=>{
 			return {key:v, active:false, data:null};
+		}).sort((a,b)=> {
+			if(a.key < b.key) return -1;
+			if(a.key > b.key) return 1;
+			return 0;
 		});
 		this.actionList = TwitchatActionTypeList.concat().map(v=>{
 			return {key:v};
+		}).sort((a,b)=> {
+			if(a.key < b.key) return -1;
+			if(a.key > b.key) return 1;
+			return 0;
 		});
 		if(this.connected) {
 			this.initAPI();
@@ -132,6 +140,7 @@ export default class PublicApiTest extends Vue {
 				if(this.idsDone[data.id] === true) return;
 				this.idsDone[data.id] = true;
 				const index = this.eventList.findIndex(v=>v.key === e.type);
+				if(index == -1) return;
 				const obj = this.eventList.splice(index, 1)[0];
 				if(obj) {
 					obj.active = true;
